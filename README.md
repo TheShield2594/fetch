@@ -101,6 +101,19 @@ Put them in `local.properties` for local builds, or export them as environment v
 Two flavors exist: `full` (in-app updates from this repo's GitHub releases, in-app trailers) and
 `playstore` (store-safe feature set).
 
+### Linux desktop (preview)
+
+[`desktop/`](desktop/) is an early desktop version of Fetch, Linux first. It shares the addon
+protocol, stream parsing and ranking with the TV app through [`shared/`](shared/), and plays
+in [mpv](https://mpv.io). It builds without the Android SDK:
+
+```bash
+./gradlew -Pfetch.desktopOnly=true :desktop:run
+```
+
+The Desktop workflow builds `.deb`, `.rpm` and portable packages. See
+[docs/desktop.md](docs/desktop.md) for what works and what comes next.
+
 ### Optional native pieces
 
 - **DV7 → 8.1 conversion** links a prebuilt [libdovi](https://github.com/quietvoid/dovi_tool)

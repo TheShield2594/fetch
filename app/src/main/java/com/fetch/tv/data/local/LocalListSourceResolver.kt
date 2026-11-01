@@ -36,7 +36,7 @@ class LocalListSourceResolver @Inject constructor(
             return NetworkResult.Error(appContext.getString(R.string.local_list_source_missing), 404)
         }
         val items = list.items
-            .filter { item -> source.mediaType == null || item.isMediaType(source.mediaType) }
+            .filter { item -> source.mediaType.let { mediaType -> mediaType == null || item.isMediaType(mediaType) } }
             .sortedByDescending { it.addedAt }
             .map { it.toMetaPreview() }
         val rawType = if (source.mediaType == TmdbCollectionMediaType.TV) "series" else "movie"

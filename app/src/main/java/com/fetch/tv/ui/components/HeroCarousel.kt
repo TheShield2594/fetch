@@ -381,9 +381,10 @@ private fun HeroCarouselSlide(
                 }
             }
 
-            if (mdbListShowOnHero && item.mdbListRatings != null && !item.mdbListRatings.isEmpty()) {
+            val heroRatings = item.mdbListRatings
+            if (mdbListShowOnHero && heroRatings != null && !heroRatings.isEmpty()) {
                 MDBListRatingsRow(
-                    ratings = item.mdbListRatings,
+                    ratings = heroRatings,
                     order = mdbListRatingOrder,
                     maxItems = 6
                 )

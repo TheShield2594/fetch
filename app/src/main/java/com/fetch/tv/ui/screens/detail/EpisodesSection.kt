@@ -575,9 +575,11 @@ fun EpisodesRow(
         } ?: false
         val isPending = episodeWatchedPendingKeys.contains(episodePendingKey(selectedEpisode))
         val firstEpisodeInSeason = dedupedEpisodes.minByOrNull { it.episode ?: Int.MAX_VALUE }
-        val hasPreviousEpisodes = selectedEpisode.episode != null &&
-            firstEpisodeInSeason?.episode != null &&
-            selectedEpisode.episode > firstEpisodeInSeason.episode
+        val selectedNumber = selectedEpisode.episode
+        val firstNumber = firstEpisodeInSeason?.episode
+        val hasPreviousEpisodes = selectedNumber != null &&
+            firstNumber != null &&
+            selectedNumber > firstNumber
 
         EpisodeOptionsOverlay(
             episode = selectedEpisode,

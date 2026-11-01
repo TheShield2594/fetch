@@ -357,6 +357,9 @@ configurations.configureEach {
 }
 
 dependencies {
+    // Platform-free code shared with the desktop app.
+    implementation(project(":shared"))
+
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     val composeBom = platform("androidx.compose:compose-bom:2026.05.01")
 

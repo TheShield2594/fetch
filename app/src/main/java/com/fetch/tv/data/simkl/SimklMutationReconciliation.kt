@@ -108,14 +108,15 @@ private fun SimklSyncSnapshot.withoutHistory(
     var updated = entries
     mutations.forEach { mutation ->
         val target = mutation.toSimklMedia()
-        if (mutation.kind == TrackingMediaKind.MOVIE || mutation.episode == null) {
+        val episode = mutation.episode
+        if (mutation.kind == TrackingMediaKind.MOVIE || episode == null) {
             updated = updated.filterNot { entry -> entry.media?.matchesTarget(target) == true }
         } else {
             updated = updated.map { entry ->
                 if (entry.media?.matchesTarget(target) == true) {
                     entry.withoutWatchedEpisode(
-                        season = mutation.episode.season,
-                        number = mutation.episode.number
+                        season = episode.season,
+                        number = episode.number
                     )
                 } else {
                     entry

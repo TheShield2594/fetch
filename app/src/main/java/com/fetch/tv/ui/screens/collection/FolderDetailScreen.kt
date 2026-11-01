@@ -253,7 +253,7 @@ private fun FolderHeader(folder: com.fetch.tv.domain.model.CollectionFolder) {
             )
         } else if (!folder.coverEmoji.isNullOrBlank()) {
             Text(
-                text = folder.coverEmoji,
+                text = folder.coverEmoji.orEmpty(),
                 style = MaterialTheme.typography.headlineLarge
             )
         }
@@ -323,7 +323,7 @@ private fun TabbedGridContent(
             )
         } else if (!folder.coverEmoji.isNullOrBlank()) {
             Text(
-                text = folder.coverEmoji,
+                text = folder.coverEmoji.orEmpty(),
                 style = MaterialTheme.typography.headlineLarge
             )
         }

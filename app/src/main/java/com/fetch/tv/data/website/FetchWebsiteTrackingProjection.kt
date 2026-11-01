@@ -94,8 +94,10 @@ internal class FetchWebsiteProgressProjection(snapshot: FetchWebsiteTrackingSnap
     val progress: List<WatchProgress> = snapshot?.playback.orEmpty()
         .mapNotNull { playback -> playback.toWatchProgress() }
         .filter { progress ->
-            val key = if (progress.season != null && progress.episode != null) {
-                episodeKey(progress.contentId, progress.season, progress.episode)
+            val season = progress.season
+            val episode = progress.episode
+            val key = if (season != null && episode != null) {
+                episodeKey(progress.contentId, season, episode)
             } else {
                 movieKey(progress.contentId)
             }

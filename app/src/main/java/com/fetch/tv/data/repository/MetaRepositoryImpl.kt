@@ -2,6 +2,7 @@ package com.fetch.tv.data.repository
 
 import android.content.Context
 import android.util.Log
+import com.fetch.tv.core.addon.AddonUrls
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.streams.AddonCallResult
 import com.fetch.tv.core.streams.AddonRequestGuard
@@ -35,7 +36,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.CacheControl
-import java.net.URLEncoder
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -618,13 +618,7 @@ class MetaRepositoryImpl @Inject constructor(
      * query portions. Shared by URL construction and cache keying so the two
      * always normalize equivalent base URLs identically.
      */
-    private fun splitAddonBaseUrl(baseUrl: String): Pair<String, String> {
-        val cleanBaseUrl = baseUrl.trimEnd('/')
-        val queryStart = cleanBaseUrl.indexOf('?')
-        val basePath = if (queryStart >= 0) cleanBaseUrl.substring(0, queryStart).trimEnd('/') else cleanBaseUrl
-        val baseQuery = if (queryStart >= 0) cleanBaseUrl.substring(queryStart) else ""
-        return basePath to baseQuery
-    }
+    private fun splitAddonBaseUrl(baseUrl: String): Pair<String, String> = AddonUrls.split(baseUrl)
 
     private fun addonMetaCacheKey(addonBaseUrl: String, type: String, id: String): String {
         val (basePath, baseQuery) = splitAddonBaseUrl(addonBaseUrl)
@@ -659,12 +653,8 @@ class MetaRepositoryImpl @Inject constructor(
         return installedAddonsOrEmpty().firstOrNull { normalizedAddonKey(it.baseUrl) == target }
     }
 
-    private fun buildMetaUrl(baseUrl: String, type: String, id: String): String {
-        val (basePath, baseQuery) = splitAddonBaseUrl(baseUrl)
-        val encodedType = encodePathSegment(type)
-        val encodedId = encodePathSegment(id)
-        return "$basePath/meta/$encodedType/$encodedId.json$baseQuery"
-    }
+    private fun buildMetaUrl(baseUrl: String, type: String, id: String): String =
+        AddonUrls.meta(baseUrl, type, id)
 
     private fun Addon.supportsMetaType(type: String): Boolean {
         val target = type.trim()
@@ -684,8 +674,9 @@ class MetaRepositoryImpl @Inject constructor(
     private fun Addon.supportsMetaId(id: String): Boolean {
         // Check resource-level idPrefixes first
         val metaResource = resources.firstOrNull { it.name == "meta" }
-        if (metaResource?.idPrefixes != null && metaResource.idPrefixes.isNotEmpty()) {
-            return metaResource.idPrefixes.any { prefix -> id.startsWith(prefix, ignoreCase = true) }
+        val resourcePrefixes = metaResource?.idPrefixes
+        if (resourcePrefixes != null && resourcePrefixes.isNotEmpty()) {
+            return resourcePrefixes.any { prefix -> id.startsWith(prefix, ignoreCase = true) }
         }
         // Fall back to addon-level idPrefixes
         if (idPrefixes.isNotEmpty()) {
@@ -754,10 +745,6 @@ class MetaRepositoryImpl @Inject constructor(
         val fallbackType = topMetaAddon.supportedCandidateType(requestedType, inferredType)
             ?: return null
         return topMetaAddon to fallbackType
-    }
-
-    private fun encodePathSegment(value: String): String {
-        return URLEncoder.encode(value, "UTF-8").replace("+", "%20")
     }
 
     private fun buildMissingMetaFailure(addon: Addon): MetaAttemptFailure {

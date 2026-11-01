@@ -45,7 +45,7 @@ class TraktTrackingHistoryWriter @Inject constructor(
         items.groupBy(TrackingMediaReference::stableKey).values.forEach { group ->
             val first = group.first()
             val episodes = group.mapNotNull { media ->
-                media.episode?.season?.let { season -> season to media.episode.number }
+                media.episode?.let { episode -> episode.season?.let { season -> season to episode.number } }
             }
             if (episodes.size == group.size && episodes.size > 1) {
                 service.removeSeasonFromHistoryBatch(first.contentId(), episodes)

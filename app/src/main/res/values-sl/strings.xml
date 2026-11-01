@@ -2210,10 +2210,8 @@
     <string name="youtube_sponsor_block_subtitle">Preskoči sponzorirane dele, samopromocijo in opomnike za naročanje, ki so jih označili uporabniki SponsorBlock</string>
     <string name="youtube_watch_history_title">Dodaj v zgodovino YouTube</string>
     <string name="youtube_watch_history_subtitle">Videoposnetki, ki jih gledate tukaj, se prikažejo v zgodovini YouTube in se na drugih napravah nadaljujejo od tam, kjer ste ostali</string>
-    <string name="youtube_sponsor_skipped">Sponzor preskočen</string>
     <string name="youtube_captions_title">Podnapisi</string>
     <string name="youtube_captions_off">Izklopljeni</string>
-    <string name="youtube_captions_hint">Pritisnite navzdol za podnapise: %1$s</string>
     <string name="youtube_captions_auto">%1$s (samodejno ustvarjeni)</string>
     <string name="youtube_captions_translated">%1$s (samodejno prevedeni)</string>
     <string name="youtube_captions_failed">Teh podnapisov ni bilo mogoče naložiti. Poskusite z drugim podnapisom.</string>

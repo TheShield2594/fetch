@@ -1262,10 +1262,8 @@
     <string name="youtube_sponsor_block_subtitle">Hopper over sponsorinnslag, selvpromotering og abonnementspåminnelser som SponsorBlock-brukere har markert</string>
     <string name="youtube_watch_history_title">Legg til i YouTube-historikk</string>
     <string name="youtube_watch_history_subtitle">Videoer du ser her vises i YouTube-historikken din, og fortsetter der du slapp på andre enheter</string>
-    <string name="youtube_sponsor_skipped">Sponsor hoppet over</string>
     <string name="youtube_captions_title">Teksting</string>
     <string name="youtube_captions_off">Av</string>
-    <string name="youtube_captions_hint">Trykk ned for teksting: %1$s</string>
     <string name="youtube_captions_auto">%1$s (autogenerert)</string>
     <string name="youtube_captions_translated">%1$s (autooversatt)</string>
     <string name="youtube_captions_failed">Denne tekstingen kunne ikke lastes inn. Prøv et annet spor.</string>

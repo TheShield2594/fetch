@@ -39,6 +39,7 @@ internal val MODERN_ROW_HEADER_FOCUS_INSET = 40.dp
 internal const val MODERN_CONTINUE_WATCHING_ROW_KEY = "continue_watching"
 internal const val MODERN_UPCOMING_ROW_KEY = "upcoming_section"
 internal const val MODERN_READY_TONIGHT_ROW_KEY = "ready_tonight"
+internal const val MODERN_YOUTUBE_ROW_KEY = "youtube_subscriptions"
 
 /** Rows drawn with Continue Watching cards rather than catalog cards. */
 internal fun isContinueWatchingStyleRow(key: String): Boolean =
@@ -114,6 +115,11 @@ sealed class ModernPayload {
         val heroVideoUrl: String?,
         val titleLogoUrl: String?,
         val coverEmoji: String? = null
+    ) : ModernPayload()
+    /** A video from the profile's YouTube subscriptions; OK plays it on the YouTube screen. */
+    data class YouTubeVideo(
+        val focusKey: String,
+        val video: com.fetch.tv.data.youtube.YouTubeVideo
     ) : ModernPayload()
 }
 
@@ -255,7 +261,8 @@ internal fun ModernCarouselItem.catalogCardMetrics(
 ): ModernCatalogCardMetrics {
     // Collection folders define their own tile shape — never override with
     // the global landscape-posters toggle.
-    if (useLandscapePosters && payload !is ModernPayload.CollectionFolder) {
+    // YouTube thumbnails are 16:9, so their cards stay landscape whatever the poster setting.
+    if ((useLandscapePosters && payload !is ModernPayload.CollectionFolder) || payload is ModernPayload.YouTubeVideo) {
         return ModernCatalogCardMetrics(
             width = landscapeCardWidth,
             height = landscapeCardHeight
@@ -266,6 +273,7 @@ internal fun ModernCarouselItem.catalogCardMetrics(
         is ModernPayload.Catalog -> metaPreview?.posterShape ?: PosterShape.POSTER
         is ModernPayload.CollectionFolder -> payload.posterShape
         is ModernPayload.ContinueWatching -> PosterShape.POSTER
+        is ModernPayload.YouTubeVideo -> PosterShape.LANDSCAPE
     }
 
     return when (posterShape) {
@@ -649,6 +657,33 @@ internal fun buildCollectionFolderItem(
             titleLogoUrl = folder.titleLogoUrl,
             coverEmoji = folder.coverEmoji
         )
+    )
+}
+
+/** A YouTube subscriptions card. Its thumbnail is both the card art and, on focus, the hero backdrop. */
+internal fun buildYouTubeVideoItem(video: com.fetch.tv.data.youtube.YouTubeVideo): ModernCarouselItem {
+    val key = "youtube_${video.videoId}"
+    val thumbnail = video.thumbnailUrl.takeIf { it.isNotBlank() }
+    return ModernCarouselItem(
+        key = key,
+        title = video.title,
+        subtitle = video.channelName,
+        imageUrl = thumbnail,
+        heroPreview = HeroPreview(
+            title = video.title,
+            logo = null,
+            description = video.detail,
+            contentTypeText = video.channelName,
+            yearText = null,
+            runtimeText = video.duration,
+            imdbText = null,
+            genres = emptyList<String>().asStable(),
+            poster = thumbnail,
+            backdrop = thumbnail,
+            imageUrl = thumbnail,
+            frozenBackdropUrl = thumbnail
+        ),
+        payload = ModernPayload.YouTubeVideo(focusKey = key, video = video)
     )
 }
 

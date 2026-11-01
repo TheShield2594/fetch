@@ -14,6 +14,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
@@ -69,6 +70,8 @@ class YouTubeService @Inject constructor(
         const val REVOKE_URL = "https://oauth2.googleapis.com/revoke"
         const val DEVICE_GRANT_TYPE = "http://oauth.net/grant_type/device/1.0"
         const val ACTIVATION_URL = "https://www.youtube.com/activate"
+        const val SUGGEST_URL = "https://suggestqueries-clients6.youtube.com/complete/search"
+        const val MAX_SUGGESTIONS = 8
 
         const val INNERTUBE_URL = "https://www.youtube.com/youtubei/v1"
         const val TV_CLIENT_NAME = "TVHTML5"
@@ -268,7 +271,8 @@ class YouTubeService @Inject constructor(
             val response = innertube("player", validAccessToken()) { put("videoId", videoId) }
             YouTubePlayerInfo(
                 trackingLinks = parseWatchTracking(response),
-                captions = (response as? JsonObject)?.get("captions")
+                captions = (response as? JsonObject)?.get("captions"),
+                storyboardSpec = YouTubeResponseParser.parseStoryboardSpec(response)
             )
         }.onFailure { Log.w(TAG, "No signed-in player info for $videoId: ${it.message}") }.getOrNull()
     }
@@ -277,8 +281,62 @@ class YouTubeService @Inject constructor(
      * What plays after [videoId]: YouTube's autoplay pick, and the related videos beside it.
      * Signed in, so they follow the account's taste the way YouTube's own Up Next does.
      */
-    suspend fun loadWatchNext(videoId: String): YouTubeWatchNext = withContext(Dispatchers.IO) {
-        YouTubeResponseParser.parseWatchNext(innertube("next", validAccessToken()) { put("videoId", videoId) }, videoId)
+    suspend fun loadWatchNext(
+        videoId: String,
+        playlistId: String? = null,
+        playlistIndex: Int? = null
+    ): YouTubeWatchNext = withContext(Dispatchers.IO) {
+        val response = innertube("next", validAccessToken()) {
+            put("videoId", videoId)
+            // Played from a playlist, Up Next is the playlist's next video, as on YouTube.
+            playlistId?.let { put("playlistId", it) }
+            playlistIndex?.let { put("playlistIndex", it) }
+        }
+        YouTubeResponseParser.parseWatchNext(response, videoId)
+    }
+
+    /**
+     * The video's chapters from the web watch page, for when the TV one leaves them out. Asked
+     * signed out: chapters are the same for everyone, and a refusal here can't touch the sign-in.
+     */
+    suspend fun loadChapters(videoId: String): List<YouTubeChapter> = withContext(Dispatchers.IO) {
+        YouTubeResponseParser.parseChapters(innertube("next", accessToken = null, webClient = true) { put("videoId", videoId) })
+    }
+
+    /** What YouTube's search box would suggest for [query], from its suggest service. Empty when it can't be read. */
+    suspend fun searchSuggestions(query: String): List<String> = withContext(Dispatchers.IO) {
+        val trimmed = query.trim()
+        if (trimmed.isEmpty()) return@withContext emptyList()
+        runCatching {
+            val url = SUGGEST_URL.toHttpUrlOrNull()!!.newBuilder()
+                .addQueryParameter("client", "youtube")
+                .addQueryParameter("ds", "yt")
+                .addQueryParameter("hl", Locale.getDefault().language.ifBlank { "en" })
+                .apply { Locale.getDefault().country.takeIf { it.isNotBlank() }?.let { addQueryParameter("gl", it) } }
+                .addQueryParameter("q", trimmed)
+                .build()
+            parseSuggestions(get(url.toString()))
+        }.onFailure { Log.w(TAG, "No search suggestions: ${it.message}") }.getOrDefault(emptyList())
+    }
+
+    /**
+     * The suggest service answers `window.google.ac.h(["query",[["suggestion",0,[…]],…],{…}])`;
+     * the suggestions are the first item of each entry in the second element.
+     */
+    internal fun parseSuggestions(body: String): List<String> {
+        val start = body.indexOf('[')
+        val end = body.lastIndexOf(']')
+        if (start < 0 || end <= start) return emptyList()
+        val root = runCatching { json.parseToJsonElement(body.substring(start, end + 1)) }.getOrNull() as? JsonArray
+            ?: return emptyList()
+        return (root.getOrNull(1) as? JsonArray).orEmpty().mapNotNull { entry ->
+            val text = when (entry) {
+                is JsonArray -> (entry.firstOrNull() as? JsonPrimitive)?.contentOrNull
+                is JsonPrimitive -> entry.contentOrNull
+                else -> null
+            }
+            text?.trim()?.takeIf { it.isNotEmpty() }
+        }.distinct().take(MAX_SUGGESTIONS)
     }
 
     /** Likes, dislikes, or clears the rating of a video, as the selected channel. Throws if YouTube refuses. */
@@ -522,13 +580,14 @@ class YouTubeService @Inject constructor(
 
     private suspend fun innertube(
         endpoint: String,
-        accessToken: String,
+        /** Null asks signed out. */
+        accessToken: String?,
         actAsSelectedChannel: Boolean = true,
         /** Sends the web client's context instead of the TV app's, for calls SmartTube makes as web. */
         webClient: Boolean = false,
         params: JsonObjectBuilder.() -> Unit
     ): JsonElement {
-        val pageId = if (actAsSelectedChannel) authDataStore.getCurrentState().pageId else null
+        val pageId = if (actAsSelectedChannel && accessToken != null) authDataStore.getCurrentState().pageId else null
         val visitorData = runCatching { tvAppConfig().visitorData }.getOrNull()
         val userAgent = if (webClient) WEB_USER_AGENT else TV_USER_AGENT
         // The context SmartTube sends for TV browse requests (common/helpers/AppClient.kt).
@@ -568,7 +627,7 @@ class YouTubeService @Inject constructor(
         }
         val request = Request.Builder()
             .url("$INNERTUBE_URL/$endpoint?prettyPrint=false")
-            .header("Authorization", "Bearer $accessToken")
+            .apply { accessToken?.let { header("Authorization", "Bearer $it") } }
             .header("User-Agent", userAgent)
             .header("X-YouTube-Client-Name", if (webClient) WEB_CLIENT_NAME_ID else TV_CLIENT_NAME_ID)
             .header("X-YouTube-Client-Version", if (webClient) WEB_CLIENT_VERSION else TV_CLIENT_VERSION)
@@ -582,7 +641,7 @@ class YouTubeService @Inject constructor(
         val (code, text) = httpClient.newCall(request).execute().use { response ->
             response.code to response.body?.string().orEmpty()
         }
-        if (code == 401) {
+        if (code == 401 && accessToken != null) {
             // The access token was refused before it expired; the next request refreshes it.
             authDataStore.expireAccessToken()
             throw IllegalStateException("YouTube refused the sign-in (401)")

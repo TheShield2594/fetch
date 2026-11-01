@@ -2315,10 +2315,8 @@
     <string name="youtube_sponsor_block_subtitle">Melewati bagian sponsor, promosi diri, dan pengingat berlangganan yang ditandai oleh pengguna SponsorBlock</string>
     <string name="youtube_watch_history_title">Tambahkan ke riwayat YouTube</string>
     <string name="youtube_watch_history_subtitle">Video yang Anda tonton di sini muncul di riwayat YouTube Anda, dan dilanjutkan dari posisi terakhir di perangkat lain</string>
-    <string name="youtube_sponsor_skipped">Sponsor dilewati</string>
     <string name="youtube_captions_title">Subtitle</string>
     <string name="youtube_captions_off">Mati</string>
-    <string name="youtube_captions_hint">Tekan bawah untuk subtitle: %1$s</string>
     <string name="youtube_captions_auto">%1$s (otomatis)</string>
     <string name="youtube_captions_translated">%1$s (terjemahan otomatis)</string>
     <string name="youtube_captions_failed">Subtitle ini tidak dapat dimuat. Coba trek lain.</string>

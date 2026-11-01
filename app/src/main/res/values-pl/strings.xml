@@ -3093,10 +3093,8 @@
     <string name="youtube_sponsor_block_subtitle">Pomija reklamy sponsorów, autopromocję i przypomnienia o subskrypcji oznaczone przez użytkowników SponsorBlock</string>
     <string name="youtube_watch_history_title">Dodawaj do historii YouTube</string>
     <string name="youtube_watch_history_subtitle">Filmy oglądane tutaj pojawiają się w historii YouTube i można je kontynuować na innych urządzeniach</string>
-    <string name="youtube_sponsor_skipped">Pominięto sponsora</string>
     <string name="youtube_captions_title">Napisy</string>
     <string name="youtube_captions_off">Wyłączone</string>
-    <string name="youtube_captions_hint">Naciśnij w dół, aby wybrać napisy: %1$s</string>
     <string name="youtube_captions_auto">%1$s (generowane automatycznie)</string>
     <string name="youtube_captions_translated">%1$s (tłumaczone automatycznie)</string>
     <string name="youtube_captions_failed">Nie udało się załadować tych napisów. Spróbuj wybrać inną ścieżkę.</string>

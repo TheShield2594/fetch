@@ -3013,10 +3013,8 @@
     <string name="youtube_sponsor_block_subtitle">Omite los segmentos de patrocinadores, autopromoción y recordatorios de suscripción que marcaron los usuarios de SponsorBlock</string>
     <string name="youtube_watch_history_title">Agregar al historial de YouTube</string>
     <string name="youtube_watch_history_subtitle">Los videos que veas aquí aparecerán en tu historial de YouTube y continuarán donde los dejaste en otros dispositivos</string>
-    <string name="youtube_sponsor_skipped">Patrocinador omitido</string>
     <string name="youtube_captions_title">Subtítulos</string>
     <string name="youtube_captions_off">Desactivados</string>
-    <string name="youtube_captions_hint">Presiona abajo para los subtítulos: %1$s</string>
     <string name="youtube_captions_auto">%1$s (generados automáticamente)</string>
     <string name="youtube_captions_translated">%1$s (traducidos automáticamente)</string>
     <string name="youtube_captions_failed">No se pudieron cargar estos subtítulos. Prueba con otra pista.</string>

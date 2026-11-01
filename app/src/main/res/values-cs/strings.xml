@@ -2553,10 +2553,8 @@
     <string name="youtube_sponsor_block_subtitle">Přeskakuje sponzorované části, vlastní propagaci a výzvy k odběru, které označili uživatelé SponsorBlock</string>
     <string name="youtube_watch_history_title">Přidat do historie YouTube</string>
     <string name="youtube_watch_history_subtitle">Videa, která zde sledujete, se zobrazí v historii YouTube a na jiných zařízeních budete pokračovat, kde jste skončili</string>
-    <string name="youtube_sponsor_skipped">Sponzor přeskočen</string>
     <string name="youtube_captions_title">Titulky</string>
     <string name="youtube_captions_off">Vypnuto</string>
-    <string name="youtube_captions_hint">Stisknutím dolů zobrazíte titulky: %1$s</string>
     <string name="youtube_captions_auto">%1$s (automaticky vytvořené)</string>
     <string name="youtube_captions_translated">%1$s (automaticky přeložené)</string>
     <string name="youtube_captions_failed">Tyto titulky se nepodařilo načíst. Zkuste jinou stopu.</string>

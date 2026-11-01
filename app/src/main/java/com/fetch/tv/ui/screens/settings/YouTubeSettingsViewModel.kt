@@ -7,6 +7,8 @@ import com.fetch.tv.R
 import com.fetch.tv.data.local.YouTubeAuthDataStore
 import com.fetch.tv.data.local.YouTubeAuthState
 import com.fetch.tv.data.local.YouTubeSettingsDataStore
+import com.fetch.tv.data.youtube.SponsorBlockCategory
+import com.fetch.tv.data.youtube.SponsorBlockMode
 import com.fetch.tv.data.youtube.YouTubeAccount
 import com.fetch.tv.data.youtube.YouTubeFeedFilter
 import com.fetch.tv.data.youtube.YouTubeService
@@ -48,7 +50,12 @@ data class YouTubeSettingsUiState(
     val sponsorBlockEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_SPONSOR_BLOCK_ENABLED,
     val watchHistoryEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_WATCH_HISTORY_ENABLED,
     val autoplayEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_AUTOPLAY_ENABLED,
-    val feedFilter: YouTubeFeedFilter = YouTubeSettingsDataStore.DEFAULT_FEED_FILTER
+    val feedFilter: YouTubeFeedFilter = YouTubeSettingsDataStore.DEFAULT_FEED_FILTER,
+    val maxVideoHeight: Int = YouTubeSettingsDataStore.DEFAULT_MAX_VIDEO_HEIGHT,
+    val sponsorBlockModes: Map<SponsorBlockCategory, SponsorBlockMode> = YouTubeSettingsDataStore.DEFAULT_SPONSOR_BLOCK_MODES,
+    val deArrowEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_DEARROW_ENABLED,
+    val returnDislikeEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_RETURN_DISLIKE_ENABLED,
+    val homeRowEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_HOME_ROW_ENABLED
 )
 
 @HiltViewModel
@@ -87,6 +94,46 @@ class YouTubeSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             settingsDataStore.feedFilter.collectLatest { filter -> _uiState.update { it.copy(feedFilter = filter) } }
         }
+        viewModelScope.launch {
+            settingsDataStore.maxVideoHeight.collectLatest { height -> _uiState.update { it.copy(maxVideoHeight = height) } }
+        }
+        viewModelScope.launch {
+            settingsDataStore.sponsorBlockModes.collectLatest { modes -> _uiState.update { it.copy(sponsorBlockModes = modes) } }
+        }
+        viewModelScope.launch {
+            combine(
+                settingsDataStore.deArrowEnabled,
+                settingsDataStore.returnDislikeEnabled,
+                settingsDataStore.homeRowEnabled,
+                ::Triple
+            ).collectLatest { (deArrow, returnDislike, homeRow) ->
+                _uiState.update {
+                    it.copy(deArrowEnabled = deArrow, returnDislikeEnabled = returnDislike, homeRowEnabled = homeRow)
+                }
+            }
+        }
+    }
+
+    /** Steps the quality cap up, wrapping from the highest back to the lowest. */
+    fun onQualityClick() {
+        viewModelScope.launch { settingsDataStore.stepMaxVideoHeight(::nextVideoHeight) }
+    }
+
+    /** Steps [category] through skip, ask, show on the seek bar, and off. */
+    fun onSponsorBlockModeClick(category: SponsorBlockCategory) {
+        viewModelScope.launch { settingsDataStore.stepSponsorBlockMode(category, ::nextSponsorBlockMode) }
+    }
+
+    fun onDeArrowToggle() {
+        viewModelScope.launch { settingsDataStore.setDeArrowEnabled(!_uiState.value.deArrowEnabled) }
+    }
+
+    fun onReturnDislikeToggle() {
+        viewModelScope.launch { settingsDataStore.setReturnDislikeEnabled(!_uiState.value.returnDislikeEnabled) }
+    }
+
+    fun onHomeRowToggle() {
+        viewModelScope.launch { settingsDataStore.setHomeRowEnabled(!_uiState.value.homeRowEnabled) }
     }
 
     fun onShowShortsToggle() {
@@ -260,3 +307,12 @@ class YouTubeSettingsViewModel @Inject constructor(
         _uiState.update { it.copy(isPolling = false, statusMessage = null, errorMessage = error) }
     }
 }
+
+internal fun nextVideoHeight(current: Int): Int {
+    val options = YouTubeSettingsDataStore.VIDEO_HEIGHT_OPTIONS
+    val index = options.indexOf(current)
+    return options[(index + 1).mod(options.size)]
+}
+
+internal fun nextSponsorBlockMode(current: SponsorBlockMode): SponsorBlockMode =
+    SponsorBlockMode.entries[(current.ordinal + 1) % SponsorBlockMode.entries.size]

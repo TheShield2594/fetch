@@ -2286,10 +2286,8 @@
     <string name="youtube_sponsor_block_subtitle">SponsorBlock பயனர்கள் குறித்துள்ள ஸ்பான்சர் பகுதிகள், சுய விளம்பரம் மற்றும் சந்தா நினைவூட்டல்களைத் தவிர்க்கும்</string>
     <string name="youtube_watch_history_title">YouTube வரலாற்றில் சேர்</string>
     <string name="youtube_watch_history_subtitle">இங்கே நீங்கள் பார்க்கும் வீடியோக்கள் உங்கள் YouTube வரலாற்றில் தோன்றும், மற்ற சாதனங்களில் நிறுத்திய இடத்திலிருந்து தொடரும்</string>
-    <string name="youtube_sponsor_skipped">ஸ்பான்சர் தவிர்க்கப்பட்டது</string>
     <string name="youtube_captions_title">வசனங்கள்</string>
     <string name="youtube_captions_off">முடக்கம்</string>
-    <string name="youtube_captions_hint">வசனங்களுக்கு கீழே அழுத்தவும்: %1$s</string>
     <string name="youtube_captions_auto">%1$s (தானாக உருவாக்கப்பட்டது)</string>
     <string name="youtube_captions_translated">%1$s (தானாக மொழிபெயர்க்கப்பட்டது)</string>
     <string name="youtube_captions_failed">இந்த வசனங்களை ஏற்ற முடியவில்லை. வேறு டிராக்கை முயலவும்.</string>

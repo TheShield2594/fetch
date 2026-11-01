@@ -1595,10 +1595,8 @@
     <string name="youtube_sponsor_block_subtitle">Preskače sponzorske segmente, samopromociju i podsjetnike za pretplatu koje su označili korisnici SponsorBlocka</string>
     <string name="youtube_watch_history_title">Dodaj u YouTube historiju</string>
     <string name="youtube_watch_history_subtitle">Videi koje gledaš ovdje pojavljuju se u tvojoj YouTube historiji i nastavljaju se gdje si stao na drugim uređajima</string>
-    <string name="youtube_sponsor_skipped">Sponzor preskočen</string>
     <string name="youtube_captions_title">Titlovi</string>
     <string name="youtube_captions_off">Isključeno</string>
-    <string name="youtube_captions_hint">Pritisni dolje za titlove: %1$s</string>
     <string name="youtube_captions_auto">%1$s (automatski generirano)</string>
     <string name="youtube_captions_translated">%1$s (automatski prevedeno)</string>
     <string name="youtube_captions_failed">Ovi titlovi nisu mogli biti učitani. Probaj drugu stazu.</string>

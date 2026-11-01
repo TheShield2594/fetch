@@ -2789,10 +2789,8 @@
     <string name="youtube_sponsor_block_subtitle">Пропускает спонсорские вставки, самопромо и напоминания о подписке, отмеченные пользователями SponsorBlock</string>
     <string name="youtube_watch_history_title">Добавлять в историю YouTube</string>
     <string name="youtube_watch_history_subtitle">Видео, которые вы смотрите здесь, попадают в историю YouTube и продолжаются с того же места на других устройствах</string>
-    <string name="youtube_sponsor_skipped">Спонсор пропущен</string>
     <string name="youtube_captions_title">Субтитры</string>
     <string name="youtube_captions_off">Выкл.</string>
-    <string name="youtube_captions_hint">Нажмите вниз для субтитров: %1$s</string>
     <string name="youtube_captions_auto">%1$s (автоматически созданные)</string>
     <string name="youtube_captions_translated">%1$s (автоперевод)</string>
     <string name="youtube_captions_failed">Не удалось загрузить эти субтитры. Попробуйте другую дорожку.</string>

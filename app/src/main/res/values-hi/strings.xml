@@ -1170,10 +1170,8 @@
     <string name="youtube_sponsor_block_subtitle">SponsorBlock उपयोगकर्ताओं द्वारा चिह्नित स्पॉन्सर वाले हिस्से, खुद का प्रचार और सब्सक्राइब रिमाइंडर छोड़ देता है</string>
     <string name="youtube_watch_history_title">YouTube हिस्ट्री में जोड़ें</string>
     <string name="youtube_watch_history_subtitle">यहाँ देखे गए वीडियो आपकी YouTube हिस्ट्री में दिखते हैं और दूसरे डिवाइस पर वहीं से शुरू होते हैं जहाँ आपने छोड़ा था</string>
-    <string name="youtube_sponsor_skipped">स्पॉन्सर छोड़ा गया</string>
     <string name="youtube_captions_title">कैप्शन</string>
     <string name="youtube_captions_off">बंद</string>
-    <string name="youtube_captions_hint">कैप्शन के लिए नीचे दबाएँ: %1$s</string>
     <string name="youtube_captions_auto">%1$s (अपने-आप बने)</string>
     <string name="youtube_captions_translated">%1$s (अपने-आप अनुवादित)</string>
     <string name="youtube_captions_failed">ये कैप्शन लोड नहीं हो सके। कोई दूसरा ट्रैक आज़माएँ।</string>

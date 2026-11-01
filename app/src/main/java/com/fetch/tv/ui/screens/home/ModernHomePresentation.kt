@@ -24,6 +24,8 @@ internal data class ModernHomePresentationInput(
     val readyTonightItems: List<ContinueWatchingItem> = emptyList(),
     /** Ready watchlist movies not already in Continue Watching; shown after [readyTonightItems]. */
     val readyWatchlistMovies: List<com.fetch.tv.domain.model.LibraryEntry> = emptyList(),
+    /** Videos for the YouTube subscriptions row; empty leaves the row out. See [HomeYouTubeRow]. */
+    val youTubeVideos: List<com.fetch.tv.data.youtube.YouTubeVideo> = emptyList(),
     /** A kids profile's Home: no recommendations, and at most [KIDS_HOME_MAX_ROWS] rows after Continue Watching. */
     val kidsHome: Boolean = false,
     val useLandscapePosters: Boolean,
@@ -173,6 +175,18 @@ internal fun buildModernHomePresentation(
         } else {
             cache.upcomingItems = emptyList()
             cache.upcomingRow = null
+        }
+
+        // A kids Home never shows it, whatever the loader sent.
+        if (input.youTubeVideos.isNotEmpty() && !input.kidsHome) {
+            add(
+                HeroCarouselRow(
+                    key = MODERN_YOUTUBE_ROW_KEY,
+                    title = localizedContext.getString(R.string.youtube_home_row_label),
+                    globalRowIndex = -1,
+                    items = input.youTubeVideos.map(::buildYouTubeVideoItem).asStable()
+                )
+            )
         }
 
         visibleHomeRows.forEachIndexed { index, homeRow ->
@@ -463,6 +477,9 @@ internal fun buildCarouselRowLookups(carouselRows: List<HeroCarouselRow>): Carou
                 }
                 is ModernPayload.ContinueWatching -> {
                     itemIdentities += "cw:${payload.item.hashCode()}"
+                }
+                is ModernPayload.YouTubeVideo -> {
+                    itemIdentities += "youtube:${payload.video.videoId}"
                 }
             }
         }

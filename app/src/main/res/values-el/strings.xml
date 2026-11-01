@@ -2923,10 +2923,8 @@
     <string name="youtube_sponsor_block_subtitle">Παραλείπει τα τμήματα χορηγών, αυτοδιαφήμισης και υπενθυμίσεων συνδρομής που έχουν σημειώσει οι χρήστες του SponsorBlock</string>
     <string name="youtube_watch_history_title">Προσθήκη στο ιστορικό YouTube</string>
     <string name="youtube_watch_history_subtitle">Τα βίντεο που παρακολουθείτε εδώ εμφανίζονται στο ιστορικό σας στο YouTube και συνεχίζονται από το σημείο που σταματήσατε σε άλλες συσκευές</string>
-    <string name="youtube_sponsor_skipped">Παραλείφθηκε χορηγός</string>
     <string name="youtube_captions_title">Υπότιτλοι</string>
     <string name="youtube_captions_off">Ανενεργοί</string>
-    <string name="youtube_captions_hint">Πατήστε κάτω για υπότιτλους: %1$s</string>
     <string name="youtube_captions_auto">%1$s (αυτόματη δημιουργία)</string>
     <string name="youtube_captions_translated">%1$s (αυτόματη μετάφραση)</string>
     <string name="youtube_captions_failed">Δεν ήταν δυνατή η φόρτωση αυτών των υποτίτλων. Δοκιμάστε άλλο κομμάτι.</string>

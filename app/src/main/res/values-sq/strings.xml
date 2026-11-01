@@ -2583,10 +2583,8 @@
     <string name="youtube_sponsor_block_subtitle">Kapërcen pjesët e sponsorizuara, vetëreklamimin dhe kujtesat për abonim që përdoruesit e SponsorBlock i kanë shënuar</string>
     <string name="youtube_watch_history_title">Shto në historikun e YouTube</string>
     <string name="youtube_watch_history_subtitle">Videot që shikon këtu shfaqen në historikun tënd të YouTube dhe vazhdojnë nga ku i ke lënë në pajisje të tjera</string>
-    <string name="youtube_sponsor_skipped">Sponsori u kapërcye</string>
     <string name="youtube_captions_title">Titrat</string>
     <string name="youtube_captions_off">Joaktiv</string>
-    <string name="youtube_captions_hint">Shtyp poshtë për titra: %1$s</string>
     <string name="youtube_captions_auto">%1$s (të gjeneruara automatikisht)</string>
     <string name="youtube_captions_translated">%1$s (përkthyer automatikisht)</string>
     <string name="youtube_captions_failed">Këto titra nuk u ngarkuan. Provo një pjesë tjetër.</string>

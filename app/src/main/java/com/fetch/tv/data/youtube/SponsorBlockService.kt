@@ -33,8 +33,15 @@ private const val TAG = "SponsorBlockService"
 class SponsorBlockService @Inject constructor() {
     internal companion object {
         const val API_URL = "https://sponsor.ajay.app/api/skipSegments"
-        val CATEGORIES = listOf("sponsor", "selfpromo", "interaction")
+        /** What was asked before categories could be chosen; still the default. */
+        val CATEGORIES = SponsorBlockCategory.entries.filter { it.defaultMode != SponsorBlockMode.OFF }.map { it.apiName }
         const val HASH_PREFIX_LENGTH = 4
+
+        /** The first characters of the video id's SHA-256, which SponsorBlock and DeArrow are asked by. */
+        fun hashPrefixOf(videoId: String): String {
+            val digest = MessageDigest.getInstance("SHA-256").digest(videoId.toByteArray())
+            return digest.joinToString("") { "%02x".format(it) }.take(HASH_PREFIX_LENGTH)
+        }
     }
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -48,12 +55,14 @@ class SponsorBlockService @Inject constructor() {
             .build()
     }
 
-    suspend fun segments(videoId: String): List<YouTubeSkipSegment> = withContext(Dispatchers.IO) {
+    /** The segments of [videoId] in [categories] (SponsorBlock's names); empty when there are none or it can't be read. */
+    suspend fun segments(videoId: String, categories: Collection<String> = CATEGORIES): List<YouTubeSkipSegment> = withContext(Dispatchers.IO) {
+        if (categories.isEmpty()) return@withContext emptyList()
         runCatching {
-            val categories = URLEncoder.encode(CATEGORIES.joinToString(",", "[", "]") { "\"$it\"" }, "UTF-8")
+            val encodedCategories = URLEncoder.encode(categories.joinToString(",", "[", "]") { "\"$it\"" }, "UTF-8")
             val actionTypes = URLEncoder.encode("[\"skip\"]", "UTF-8")
             val request = Request.Builder()
-                .url("$API_URL/${hashPrefix(videoId)}?categories=$categories&actionTypes=$actionTypes")
+                .url("$API_URL/${hashPrefix(videoId)}?categories=$encodedCategories&actionTypes=$actionTypes")
                 .get()
                 .build()
             httpClient.newCall(request).execute().use { response ->
@@ -66,10 +75,7 @@ class SponsorBlockService @Inject constructor() {
             .getOrDefault(emptyList())
     }
 
-    internal fun hashPrefix(videoId: String): String {
-        val digest = MessageDigest.getInstance("SHA-256").digest(videoId.toByteArray())
-        return digest.joinToString("") { "%02x".format(it) }.take(HASH_PREFIX_LENGTH)
-    }
+    internal fun hashPrefix(videoId: String): String = hashPrefixOf(videoId)
 
     internal fun parseSegments(root: JsonElement, videoId: String): List<YouTubeSkipSegment> {
         val video = (root as? JsonArray)?.firstOrNull {

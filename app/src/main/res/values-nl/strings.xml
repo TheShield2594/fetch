@@ -2806,10 +2806,8 @@
     <string name="youtube_sponsor_block_subtitle">Slaat sponsorsegmenten, zelfpromotie en abonneerherinneringen over die SponsorBlock-gebruikers hebben gemarkeerd</string>
     <string name="youtube_watch_history_title">Toevoegen aan YouTube-geschiedenis</string>
     <string name="youtube_watch_history_subtitle">Video\'s die je hier bekijkt verschijnen in je YouTube-geschiedenis en worden op andere apparaten hervat waar je was gebleven</string>
-    <string name="youtube_sponsor_skipped">Sponsor overgeslagen</string>
     <string name="youtube_captions_title">Ondertitels</string>
     <string name="youtube_captions_off">Uit</string>
-    <string name="youtube_captions_hint">Druk omlaag voor ondertitels: %1$s</string>
     <string name="youtube_captions_auto">%1$s (automatisch gegenereerd)</string>
     <string name="youtube_captions_translated">%1$s (automatisch vertaald)</string>
     <string name="youtube_captions_failed">Deze ondertitels konden niet worden geladen. Probeer een ander spoor.</string>

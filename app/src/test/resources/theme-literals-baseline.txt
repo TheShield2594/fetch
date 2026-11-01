@@ -44,4 +44,4 @@ com/fetch/tv/ui/screens/settings/SettingsValueRows.kt|WHITE_BLACK|2
 com/fetch/tv/ui/screens/settings/ThemeColorPicker.kt|WHITE_BLACK|4
 com/fetch/tv/ui/screens/settings/TrackingProviderDialogs.kt|WHITE_BLACK|25
 com/fetch/tv/ui/screens/tmdb/TmdbEntityBrowseScreen.kt|WHITE_BLACK|1
-com/fetch/tv/ui/screens/youtube/YouTubePlayerOverlay.kt|WHITE_BLACK|18
+com/fetch/tv/ui/screens/youtube/YouTubePlayerOverlay.kt|WHITE_BLACK|16

@@ -1708,10 +1708,8 @@
     <string name="youtube_sponsor_block_subtitle">Hoppar över sponsorsegment, egenreklam och påminnelser om att prenumerera som SponsorBlock-användare har markerat</string>
     <string name="youtube_watch_history_title">Lägg till i YouTube-historiken</string>
     <string name="youtube_watch_history_subtitle">Videor du tittar på här visas i din YouTube-historik och fortsätter där du slutade på andra enheter</string>
-    <string name="youtube_sponsor_skipped">Sponsor överhoppad</string>
     <string name="youtube_captions_title">Undertexter</string>
     <string name="youtube_captions_off">Av</string>
-    <string name="youtube_captions_hint">Tryck nedåt för undertexter: %1$s</string>
     <string name="youtube_captions_auto">%1$s (automatiskt genererad)</string>
     <string name="youtube_captions_translated">%1$s (översatt automatiskt)</string>
     <string name="youtube_captions_failed">Undertexterna kunde inte läsas in. Prova ett annat spår.</string>

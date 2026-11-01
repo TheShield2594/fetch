@@ -478,7 +478,10 @@ class HomeEnrichmentRetryTest {
             bestMatchCacheDataStore = mockk(relaxed = true),
             episodeQueueStore = mockk(relaxed = true),
             becauseYouWatchedService = mockk(relaxed = true),
-            readyChecker = mockk(relaxed = true)
+            readyChecker = mockk(relaxed = true),
+            youTubeRow = mockk(relaxed = true) {
+                io.mockk.every { videos } returns kotlinx.coroutines.flow.flowOf(emptyList())
+            }
         )
         // The pipeline defers everything while the startup grace period is active, and TMDB is
         // switched off so the external addon is the only enrichment source under test.

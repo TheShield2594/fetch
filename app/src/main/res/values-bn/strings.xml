@@ -2755,10 +2755,8 @@
     <string name="youtube_sponsor_block_subtitle">SponsorBlock ব্যবহারকারীদের চিহ্নিত করা স্পনসর অংশ, নিজের প্রচার ও সাবস্ক্রাইব রিমাইন্ডার বাদ দিয়ে যায়</string>
     <string name="youtube_watch_history_title">YouTube হিস্ট্রিতে যোগ করুন</string>
     <string name="youtube_watch_history_subtitle">এখানে আপনার দেখা ভিডিও YouTube হিস্ট্রিতে দেখা যায়, এবং অন্য ডিভাইসে যেখানে থামিয়েছিলেন সেখান থেকে শুরু হয়</string>
-    <string name="youtube_sponsor_skipped">স্পনসর বাদ দেওয়া হয়েছে</string>
     <string name="youtube_captions_title">সাবটাইটেল</string>
     <string name="youtube_captions_off">বন্ধ</string>
-    <string name="youtube_captions_hint">সাবটাইটেলের জন্য নিচে চাপুন: %1$s</string>
     <string name="youtube_captions_auto">%1$s (স্বয়ংক্রিয়ভাবে তৈরি)</string>
     <string name="youtube_captions_translated">%1$s (স্বয়ংক্রিয়ভাবে অনুবাদ করা)</string>
     <string name="youtube_captions_failed">এই সাবটাইটেল লোড করা যায়নি। অন্য ট্র্যাক চেষ্টা করুন।</string>

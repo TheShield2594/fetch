@@ -5,7 +5,19 @@ import androidx.lifecycle.viewModelScope
 import com.fetch.tv.data.local.YouTubeAuthDataStore
 import com.fetch.tv.data.local.PlayerSettingsDataStore
 import com.fetch.tv.data.local.SubtitleStyleSettings
+import com.fetch.tv.data.local.YouTubeResumeStore
 import com.fetch.tv.data.local.YouTubeSettingsDataStore
+import com.fetch.tv.data.youtube.DeArrowService
+import com.fetch.tv.data.youtube.ReturnYouTubeDislikeService
+import com.fetch.tv.data.youtube.SponsorBlockCategory
+import com.fetch.tv.data.youtube.SponsorBlockMode
+import com.fetch.tv.data.youtube.YouTubeBranding
+import com.fetch.tv.data.youtube.YouTubeChapter
+import com.fetch.tv.data.youtube.YouTubePlayRequests
+import com.fetch.tv.data.youtube.YouTubePlaylistContext
+import com.fetch.tv.data.youtube.YouTubeStoryboard
+import com.fetch.tv.data.youtube.YouTubeVoteCounts
+import com.fetch.tv.data.youtube.withBranding
 import com.fetch.tv.data.youtube.YouTubeCaptionCue
 import com.fetch.tv.data.youtube.YouTubeCaptionService
 import com.fetch.tv.data.youtube.YouTubeCaptionTrack
@@ -32,6 +44,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -80,7 +93,18 @@ data class YouTubePlaybackState(
      * with every video. Null until then, and while loading or when they couldn't be read.
      */
     val playlists: List<YouTubePlaylistOption>? = null,
-    val playlistsFailed: Boolean = false
+    val playlistsFailed: Boolean = false,
+    /** What playback does with each SponsorBlock category's segments. */
+    val sponsorBlockModes: Map<SponsorBlockCategory, SponsorBlockMode> = YouTubeSettingsDataStore.DEFAULT_SPONSOR_BLOCK_MODES,
+    /** Where Fetch last left this video, when it's worth resuming from; else YouTube's percent is used. */
+    val resumeFromMs: Long? = null,
+    val chapters: List<YouTubeChapter> = emptyList(),
+    /** Frames to preview while seeking, when YouTube made them. */
+    val storyboard: YouTubeStoryboard? = null,
+    /** The playlist the video plays in; Up Next is its next video. */
+    val playlist: YouTubePlaylistContext? = null,
+    /** From Return YouTube Dislike, when the profile turned it on. */
+    val votes: YouTubeVoteCounts? = null
 )
 
 /**
@@ -145,7 +169,13 @@ data class YouTubeUiState(
     /** Pages opened from the feeds, the one showing last. */
     val browse: List<YouTubeBrowsePage> = emptyList(),
     val menu: YouTubeVideoMenuState? = null,
-    val notice: YouTubeNotice? = null
+    val notice: YouTubeNotice? = null,
+    /** What YouTube suggests for the query being typed on the Search tab. */
+    val searchSuggestions: List<String> = emptyList(),
+    /** The profile's last searches, newest first, for when the query is empty. */
+    val recentSearches: List<String> = emptyList(),
+    /** How fast videos play; kept from one video to the next, as on YouTube. */
+    val playbackSpeed: Float = 1f
 ) {
     val currentFeed: YouTubeFeedState
         get() = browse.lastOrNull()?.feed ?: feeds[selectedFeed] ?: YouTubeFeedState()
@@ -172,14 +202,24 @@ class YouTubeViewModel @Inject constructor(
     private val settings: YouTubeSettingsDataStore,
     private val captionService: YouTubeCaptionService,
     private val playerSettings: PlayerSettingsDataStore,
+    private val resumeStore: YouTubeResumeStore,
+    private val deArrow: DeArrowService,
+    private val returnDislike: ReturnYouTubeDislikeService,
+    private val playRequests: YouTubePlayRequests,
     authDataStore: YouTubeAuthDataStore
 ) : ViewModel() {
-    private companion object {
-        /** TV screens are 1080p or 4K; 1080p keeps 4K streams off devices and networks that struggle. */
-        const val MAX_VIDEO_HEIGHT = 1080
-
+    internal companion object {
         /** How often a playing video's position is sent to YouTube history. */
         const val HISTORY_REPORT_INTERVAL_MS = 30_000L
+
+        /** How often a playing video's position is kept for resuming it in Fetch. */
+        const val RESUME_SAVE_INTERVAL_MS = 15_000L
+
+        /** How long typing pauses before YouTube is asked for suggestions. */
+        const val SUGGEST_DEBOUNCE_MS = 250L
+
+        /** The speeds the player offers, as YouTube's does. */
+        val PLAYBACK_SPEEDS = listOf(0.25f, 0.5f, 0.75f, 1f, 1.25f, 1.5f, 1.75f, 2f)
 
         /** How many pages in a row the feed filter may hide entirely before loading stops for now. */
         const val MAX_HIDDEN_PAGES = 3
@@ -198,6 +238,12 @@ class YouTubeViewModel @Inject constructor(
     private var lastPositionMs = 0L
     private var lastDurationMs = 0L
     private var lastReportAtMs = 0L
+    private var lastResumeSaveAtMs = 0L
+    /** Where the playing video resumed, once it has; the history session starts there. */
+    private var resumedAtMs: Long? = null
+    private var suggestJob: Job? = null
+    private var deArrowEnabled = YouTubeSettingsDataStore.DEFAULT_DEARROW_ENABLED
+    private val brandingJobs = mutableListOf<Job>()
     private var lastIdentity: Pair<String?, String?>? = null
     private var feedFilter = YouTubeSettingsDataStore.DEFAULT_FEED_FILTER
 
@@ -224,16 +270,36 @@ class YouTubeViewModel @Inject constructor(
             settings.feedFilter.collect { filter ->
                 if (filter == feedFilter) return@collect
                 feedFilter = filter
-                cancelFeedLoads()
-                val state = _uiState.value
-                val selected = state.selectedFeed
-                val reload = state.browse.isNotEmpty() || state.feeds[selected] != null &&
-                    (selected != YouTubeFeed.SEARCH || state.searchQuery.isNotBlank())
-                // Opened pages stay open; each loads again when it next shows.
-                _uiState.update { it.copy(feeds = emptyMap(), browse = it.browse.map { page -> YouTubeBrowsePage(page.target) }) }
-                if (!state.signedOut && reload) load(currentKey())
+                reloadFeeds()
             }
         }
+        viewModelScope.launch {
+            // Turning DeArrow on or off shows the feeds again with or without its titles.
+            settings.deArrowEnabled.collect { enabled ->
+                if (enabled == deArrowEnabled) return@collect
+                deArrowEnabled = enabled
+                reloadFeeds()
+            }
+        }
+        viewModelScope.launch {
+            settings.recentSearches.collect { recent -> _uiState.update { it.copy(recentSearches = recent) } }
+        }
+        viewModelScope.launch {
+            // A video picked elsewhere (Home's YouTube row) plays as the screen opens.
+            playRequests.pending.collect { if (it != null) playRequests.take()?.let(::play) }
+        }
+    }
+
+    /** Loads what's showing again, and drops the rest to load when it next shows. */
+    private fun reloadFeeds() {
+        cancelFeedLoads()
+        val state = _uiState.value
+        val selected = state.selectedFeed
+        val reload = state.browse.isNotEmpty() || state.feeds[selected] != null &&
+            (selected != YouTubeFeed.SEARCH || state.searchQuery.isNotBlank())
+        // Opened pages stay open; each loads again when it next shows.
+        _uiState.update { it.copy(feeds = emptyMap(), browse = it.browse.map { page -> YouTubeBrowsePage(page.target) }) }
+        if (!state.signedOut && reload) load(currentKey())
     }
 
     private fun cancelFeedLoads() {
@@ -241,6 +307,8 @@ class YouTubeViewModel @Inject constructor(
         loadJobs.clear()
         loadMoreJobs.forEach { it.cancel() }
         loadMoreJobs.clear()
+        brandingJobs.forEach { it.cancel() }
+        brandingJobs.clear()
     }
 
     fun selectFeed(feed: YouTubeFeed) {
@@ -285,11 +353,36 @@ class YouTubeViewModel @Inject constructor(
 
     fun onSearchQueryChange(query: String) {
         _uiState.update { it.copy(searchQuery = query) }
+        suggestJob?.cancel()
+        if (query.isBlank()) {
+            _uiState.update { it.copy(searchSuggestions = emptyList()) }
+            return
+        }
+        suggestJob = viewModelScope.launch {
+            delay(SUGGEST_DEBOUNCE_MS)
+            val suggestions = orNull { youTubeService.searchSuggestions(query) }.orEmpty()
+            // Only for the query still typed.
+            _uiState.update { if (it.searchQuery == query) it.copy(searchSuggestions = suggestions) else it }
+        }
     }
 
     fun submitSearch() {
-        if (_uiState.value.searchQuery.isBlank()) return
+        val query = _uiState.value.searchQuery.trim()
+        if (query.isEmpty()) return
+        suggestJob?.cancel()
+        _uiState.update { it.copy(searchSuggestions = emptyList()) }
+        viewModelScope.launch { orNull { settings.addRecentSearch(query) } }
         load(FeedKey.Tab(YouTubeFeed.SEARCH))
+    }
+
+    /** Searches for a suggestion or a recent search. */
+    fun searchFor(query: String) {
+        _uiState.update { it.copy(searchQuery = query) }
+        submitSearch()
+    }
+
+    fun clearRecentSearches() {
+        viewModelScope.launch { orNull { settings.clearRecentSearches() } }
     }
 
     /** Loads the feed's next page, when the user nears its end. */
@@ -315,6 +408,7 @@ class YouTubeViewModel @Inject constructor(
                     )
                 }
             }
+            page?.let { brandFeeds(it.shelves.flatMap { shelf -> shelf.videos }) }
         })
     }
 
@@ -342,6 +436,7 @@ class YouTubeViewModel @Inject constructor(
                 }
                 current.copy(shelves = shelves, loadingShelves = current.loadingShelves - shelfIndex)
             }
+            page?.let { brandFeeds(it.shelves.flatMap { shelf -> shelf.videos }) }
         })
     }
 
@@ -355,16 +450,27 @@ class YouTubeViewModel @Inject constructor(
         captionJob?.cancel()
         playingPlaylistsJob?.cancel()
         finishWatchSession()
+        resumedAtMs = null
+        lastResumeSaveAtMs = 0L
         _uiState.update { it.copy(playback = YouTubePlaybackState(video)) }
         playbackJob = viewModelScope.launch {
+            val modes = setting(YouTubeSettingsDataStore.DEFAULT_SPONSOR_BLOCK_MODES) { settings.sponsorBlockModes.first() }
             val segments = async {
-                if (setting(true) { settings.isSponsorBlockEnabled() }) sponsorBlock.segments(video.videoId) else emptyList()
+                val categories = modes.filterValues { it != SponsorBlockMode.OFF }.keys.map { it.apiName }
+                if (setting(true) { settings.isSponsorBlockEnabled() }) sponsorBlock.segments(video.videoId, categories) else emptyList()
             }
             val playerInfo = async { youTubeService.loadPlayerInfo(video.videoId) }
-            val watchNext = async { orNull { youTubeService.loadWatchNext(video.videoId) } }
+            val watchNext = async { orNull { youTubeService.loadWatchNext(video.videoId, video.playlistId, video.playlistIndex) } }
             val autoplay = async { setting(YouTubeSettingsDataStore.DEFAULT_AUTOPLAY_ENABLED) { settings.autoplayEnabled.first() } }
+            val votes = async {
+                if (setting(false) { settings.returnDislikeEnabled.first() }) returnDislike.votes(video.videoId) else null
+            }
+            val maxHeight = setting(YouTubeSettingsDataStore.DEFAULT_MAX_VIDEO_HEIGHT) { settings.maxVideoHeight.first() }
+            // Read before the stream, so the player can start from it on its first frame.
+            val resumePoint = orNull { resumeStore.get(video.videoId) }
+            updatePlayback(video) { it.copy(sponsorBlockModes = modes, resumeFromMs = resumePoint?.positionMs) }
             val source = try {
-                extractor.extractPlaybackSource(video.watchUrl, maxVideoHeight = MAX_VIDEO_HEIGHT)
+                extractor.extractPlaybackSource(video.watchUrl, maxVideoHeight = maxHeight)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -379,8 +485,15 @@ class YouTubeViewModel @Inject constructor(
             }
             val info = playerInfo.await()
             if (setting(true) { settings.isWatchHistoryEnabled() }) {
-                watchSession = youTubeService.newWatchSession(video.videoId, info, startPositionSec = 0f)
+                // When playback already resumed, history starts from there rather than from 0.
+                watchSession = youTubeService.newWatchSession(
+                    video.videoId,
+                    info,
+                    startPositionSec = (resumedAtMs ?: 0L) / 1000f
+                )
             }
+            val storyboard = YouTubeStoryboard.parse(info?.storyboardSpec ?: source?.storyboardSpec)
+            updatePlayback(video) { it.copy(storyboard = storyboard) }
             // Captions are extra: if setting them up fails, the video plays without them.
             if (source != null) orNull { setUpCaptions(video, source.captionsJson, info?.captions) }
             val skipSegments = segments.await()
@@ -388,9 +501,34 @@ class YouTubeViewModel @Inject constructor(
             val next = watchNext.await()?.let { feedFilter.apply(it) }
             val autoplayEnabled = autoplay.await()
             updatePlayback(video) {
-                it.copy(upNext = next?.next, related = next?.related.orEmpty(), autoplay = autoplayEnabled, actions = next?.actions)
+                it.copy(
+                    upNext = next?.next,
+                    related = next?.related.orEmpty(),
+                    autoplay = autoplayEnabled,
+                    actions = next?.actions,
+                    playlist = next?.playlist,
+                    chapters = next?.chapters.orEmpty()
+                )
             }
+            // The TV watch page doesn't always carry chapters; the web one does.
+            if (next?.chapters.isNullOrEmpty()) {
+                val chapters = orNull { youTubeService.loadChapters(video.videoId) }.orEmpty()
+                if (chapters.isNotEmpty()) updatePlayback(video) { it.copy(chapters = chapters) }
+            }
+            // Counts are extra: they show when they come, without holding up the rest.
+            votes.await()?.let { counts -> updatePlayback(video) { it.copy(votes = counts) } }
+            next?.let { brandPlayback(video, it.related + listOfNotNull(it.next)) }
         }
+    }
+
+    /** Playback started at [positionMs] instead of the beginning: history counts from there. */
+    fun onResumed(positionMs: Long) {
+        resumedAtMs = positionMs
+        watchSession?.startAt(positionMs / 1000f)
+    }
+
+    fun setPlaybackSpeed(speed: Float) {
+        _uiState.update { it.copy(playbackSpeed = speed) }
     }
 
     /** Shows [track], or turns captions off with null. Remembered for the next video. */
@@ -435,6 +573,17 @@ class YouTubeViewModel @Inject constructor(
             lastReportAtMs = now
             reportHistory()
         }
+        if (now - lastResumeSaveAtMs >= RESUME_SAVE_INTERVAL_MS) {
+            lastResumeSaveAtMs = now
+            saveResumePoint()
+        }
+    }
+
+    /** Keeps the playing video's position for resuming it later, outliving this screen. */
+    private fun saveResumePoint() {
+        val video = _uiState.value.playback?.video ?: return
+        if (lastDurationMs <= 0L) return
+        resumeStore.saveInBackground(video.videoId, lastPositionMs, lastDurationMs)
     }
 
     fun retryPlayback() {
@@ -690,6 +839,7 @@ class YouTubeViewModel @Inject constructor(
     /** Sends the last position to history and shows it on the video's card, without reloading the feed. */
     private fun markProgressOnCard() {
         val video = _uiState.value.playback?.video
+        saveResumePoint()
         finishWatchSession()
         if (video != null && lastDurationMs > 0L) {
             val percent = (lastPositionMs * 100 / lastDurationMs).toInt().coerceIn(0, 100)
@@ -710,6 +860,7 @@ class YouTubeViewModel @Inject constructor(
     }
 
     override fun onCleared() {
+        saveResumePoint()
         finishWatchSession()
         super.onCleared()
     }
@@ -819,6 +970,7 @@ class YouTubeViewModel @Inject constructor(
                 updateFeed(key) {
                     YouTubeFeedState(shelves = page.shelves, continuation = page.continuation, loaded = true)
                 }
+                brandFeeds(page.shelves.flatMap { it.videos })
             } catch (e: CancellationException) {
                 throw e
             } catch (e: YouTubeSignedOutException) {
@@ -827,6 +979,41 @@ class YouTubeViewModel @Inject constructor(
             } catch (e: Exception) {
                 updateFeed(key) { it.copy(isLoading = false, failed = true, loaded = true) }
             }
+        }
+    }
+
+    /**
+     * With DeArrow on, swaps [videos]' titles and thumbnails for its community ones wherever they
+     * show, once they arrive. The feed shows YouTube's own meanwhile.
+     */
+    private fun brandFeeds(videos: List<YouTubeVideo>) {
+        if (!deArrowEnabled || videos.isEmpty()) return
+        brandingJobs.removeAll { !it.isActive }
+        brandingJobs += viewModelScope.launch {
+            val branding = orNull { deArrow.branding(videos.map { it.videoId }) }.orEmpty()
+            if (branding.isEmpty()) return@launch
+            fun YouTubeFeedState.branded() = copy(shelves = shelves.map { shelf ->
+                shelf.copy(videos = shelf.videos.map { it.withBranding(branding[it.videoId]) })
+            })
+            _uiState.update { state ->
+                state.copy(
+                    feeds = state.feeds.mapValues { (_, feed) -> feed.branded() },
+                    browse = state.browse.map { it.copy(feed = it.feed.branded()) }
+                )
+            }
+        }
+    }
+
+    /** [brandFeeds] for the end card's videos. */
+    private suspend fun brandPlayback(video: YouTubeVideo, videos: List<YouTubeVideo>) {
+        if (!deArrowEnabled || videos.isEmpty()) return
+        val branding: Map<String, YouTubeBranding> = orNull { deArrow.branding(videos.map { it.videoId }) }.orEmpty()
+        if (branding.isEmpty()) return
+        updatePlayback(video) { playback ->
+            playback.copy(
+                upNext = playback.upNext?.withBranding(branding[playback.upNext.videoId]),
+                related = playback.related.map { it.withBranding(branding[it.videoId]) }
+            )
         }
     }
 

@@ -2502,10 +2502,8 @@
     <string name="youtube_sponsor_block_subtitle">Пропускає спонсорські вставки, самореклами й нагадування підписатися, позначені користувачами SponsorBlock</string>
     <string name="youtube_watch_history_title">Додавати в історію YouTube</string>
     <string name="youtube_watch_history_subtitle">Відео, які ви дивитеся тут, з\'являються в історії YouTube і продовжуються з того ж місця на інших пристроях</string>
-    <string name="youtube_sponsor_skipped">Спонсора пропущено</string>
     <string name="youtube_captions_title">Субтитри</string>
     <string name="youtube_captions_off">Вимкнено</string>
-    <string name="youtube_captions_hint">Натисніть униз, щоб вибрати субтитри: %1$s</string>
     <string name="youtube_captions_auto">%1$s (створено автоматично)</string>
     <string name="youtube_captions_translated">%1$s (автоматичний переклад)</string>
     <string name="youtube_captions_failed">Не вдалося завантажити ці субтитри. Спробуйте іншу доріжку.</string>

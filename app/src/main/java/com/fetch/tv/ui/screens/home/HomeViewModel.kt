@@ -97,6 +97,7 @@ class HomeViewModel @Inject constructor(
     internal val episodeQueueStore: com.fetch.tv.data.local.EpisodeQueueStore,
     internal val becauseYouWatchedService: com.fetch.tv.core.recommendations.BecauseYouWatchedService,
     internal val readyChecker: HomeReadyChecker,
+    internal val youTubeRow: HomeYouTubeRow,
     internal val metaPreviewEnricher: MetaPreviewEnricher = MetaPreviewEnricher(
         tmdbService,
         tmdbMetadataService,
@@ -928,6 +929,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun refreshHomeCatalogsIfStale() {
+        youTubeRow.onHomeVisible()
         if (addonsCache.isEmpty()) return
         val now = android.os.SystemClock.elapsedRealtime()
         if (now - lastHomeCatalogRefreshAtMs < HOME_CATALOG_REFRESH_TTL_MS) return

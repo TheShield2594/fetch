@@ -1035,10 +1035,8 @@
     <string name="youtube_sponsor_block_subtitle">Sare peste segmentele cu sponsori, autopromovare și mementouri de abonare marcate de utilizatorii SponsorBlock</string>
     <string name="youtube_watch_history_title">Adaugă în istoricul YouTube</string>
     <string name="youtube_watch_history_subtitle">Videoclipurile vizionate aici apar în istoricul YouTube și continuă de unde ai rămas pe alte dispozitive</string>
-    <string name="youtube_sponsor_skipped">Sponsor omis</string>
     <string name="youtube_captions_title">Subtitrări</string>
     <string name="youtube_captions_off">Dezactivate</string>
-    <string name="youtube_captions_hint">Apasă jos pentru subtitrări: %1$s</string>
     <string name="youtube_captions_auto">%1$s (generate automat)</string>
     <string name="youtube_captions_translated">%1$s (traduse automat)</string>
     <string name="youtube_captions_failed">Aceste subtitrări nu au putut fi încărcate. Încearcă altă piesă.</string>

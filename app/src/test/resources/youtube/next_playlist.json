@@ -1,0 +1,5134 @@
+{
+ "contents": {
+  "singleColumnWatchNextResults": {
+   "results": {
+    "results": {
+     "contents": [
+      {
+       "itemSectionRenderer": {
+        "contents": [
+         {
+          "videoMetadataRenderer": {
+           "title": {
+            "runs": [
+             {
+              "text": "Andre Douglas Artemis III Crew Announcement Resource Reel"
+             }
+            ]
+           },
+           "dateText": {
+            "simpleText": "4mo ago"
+           },
+           "videoId": "yMoGiIeDH9s",
+           "owner": {
+            "videoOwnerRenderer": {
+             "thumbnail": {
+              "thumbnails": [
+               {
+                "url": "https://yt3.ggpht.com/ytc/AIdro_mAavC7uPluTw_kro_ji26VOxzjsQ6FFnAdtaFi6mmJu8A=s176-c-k-c0x00ffffff-no-rj",
+                "width": 176,
+                "height": 176
+               }
+              ]
+             },
+             "title": {
+              "simpleText": "NASA Video"
+             },
+             "navigationEndpoint": {
+              "browseEndpoint": {
+               "browseId": "UC_aP7p621ATY_yAa8jMqUVA",
+               "canonicalBaseUrl": "/@NASAgovVideo"
+              }
+             },
+             "subscriberCountText": {
+              "simpleText": "1.07M subscribers"
+             },
+             "subscribeButton": {
+              "subscribeButtonRenderer": {
+               "buttonText": {
+                "runs": [
+                 {
+                  "text": "Subscribe"
+                 }
+                ]
+               },
+               "subscribed": false,
+               "enabled": true,
+               "type": "FREE",
+               "channelId": "UC_aP7p621ATY_yAa8jMqUVA",
+               "showPreferences": true,
+               "unsubscribedButtonText": {
+                "runs": [
+                 {
+                  "text": "Subscribe"
+                 }
+                ]
+               },
+               "unsubscribeButtonText": {
+                "runs": [
+                 {
+                  "text": "Unsubscribe"
+                 }
+                ]
+               },
+               "serviceEndpoints": [
+                {
+                 "authDeterminedCommand": {
+                  "authenticatedCommand": {
+                   "subscribeEndpoint": {
+                    "channelIds": [
+                     "UC_aP7p621ATY_yAa8jMqUVA"
+                    ],
+                    "params": "EgIIAxgAIgt5TW9HaUllREg5cw%3D%3D"
+                   }
+                  },
+                  "unauthenticatedCommand": {
+                   "authRequiredCommand": {
+                    "identityActionContext": {
+                     "eventTrigger": "ACCOUNT_EVENT_TRIGGER_SUBSCRIBE",
+                     "nextEndpoint": {
+                      "commandExecutorCommand": {
+                       "commands": [
+                        {
+                         "signalAction": {
+                          "signal": "CLOSE_POPUP"
+                         }
+                        },
+                        {
+                         "subscribeEndpoint": {
+                          "channelIds": [
+                           "UC_aP7p621ATY_yAa8jMqUVA"
+                          ],
+                          "params": "EgIIAxgAIgt5TW9HaUllREg5cw%3D%3D"
+                         }
+                        }
+                       ]
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               ],
+               "notificationPreferenceButton": {
+                "subscriptionNotificationToggleButtonRenderer": {
+                 "states": [
+                  {
+                   "stateId": 3,
+                   "nextStateId": 3,
+                   "state": {
+                    "buttonRenderer": {
+                     "style": "STYLE_TEXT",
+                     "size": "SIZE_DEFAULT",
+                     "isDisabled": false,
+                     "icon": {
+                      "iconType": "NOTIFICATIONS_NONE"
+                     }
+                    }
+                   },
+                   "inlineMenuButton": {
+                    "buttonRenderer": {
+                     "style": "STYLE_TEXT",
+                     "size": "SIZE_DEFAULT",
+                     "isDisabled": false,
+                     "text": {
+                      "simpleText": "Personalized"
+                     },
+                     "serviceEndpoint": {
+                      "modifyChannelNotificationPreferenceEndpoint": {
+                       "params": "ChhVQ19hUDdwNjIxQVRZX3lBYThqTXFVVkESAggBGAAgBA%3D%3D"
+                      }
+                     },
+                     "icon": {
+                      "iconType": "NOTIFICATIONS_NONE"
+                     }
+                    }
+                   },
+                   "notificationState": "SUBSCRIPTION_NOTIFICATION_STATE_OCCASIONAL"
+                  },
+                  {
+                   "stateId": 0,
+                   "nextStateId": 0,
+                   "state": {
+                    "buttonRenderer": {
+                     "style": "STYLE_TEXT",
+                     "size": "SIZE_DEFAULT",
+                     "isDisabled": false,
+                     "icon": {
+                      "iconType": "NOTIFICATIONS_OFF"
+                     }
+                    }
+                   },
+                   "inlineMenuButton": {
+                    "buttonRenderer": {
+                     "style": "STYLE_TEXT",
+                     "size": "SIZE_DEFAULT",
+                     "isDisabled": false,
+                     "text": {
+                      "simpleText": "None"
+                     },
+                     "serviceEndpoint": {
+                      "modifyChannelNotificationPreferenceEndpoint": {
+                       "params": "ChhVQ19hUDdwNjIxQVRZX3lBYThqTXFVVkESAggDGAAgBA%3D%3D"
+                      }
+                     },
+                     "icon": {
+                      "iconType": "NOTIFICATIONS_OFF"
+                     }
+                    }
+                   },
+                   "notificationState": "SUBSCRIPTION_NOTIFICATION_STATE_OFF"
+                  },
+                  {
+                   "state": {
+                    "buttonRenderer": {
+                     "style": "STYLE_TEXT",
+                     "size": "SIZE_DEFAULT",
+                     "isDisabled": false,
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "Unsubscribe"
+                       }
+                      ]
+                     },
+                     "icon": {
+                      "iconType": "PERSON_MINUS"
+                     },
+                     "command": {
+                      "commandExecutorCommand": {
+                       "commands": [
+                        {
+                         "unsubscribeEndpoint": {
+                          "channelIds": [
+                           "UC_aP7p621ATY_yAa8jMqUVA"
+                          ],
+                          "params": "CgIIAxgA"
+                         }
+                        }
+                       ]
+                      }
+                     }
+                    }
+                   }
+                  }
+                 ],
+                 "currentStateId": 3,
+                 "onTapBehavior": "ON_TAP_BEHAVIOR_TOGGLE_ICON_WITH_INLINE_MENU",
+                 "targetId": "notification-bell",
+                 "notificationStateEntityKey": "EhhVQ19hUDdwNjIxQVRZX3lBYThqTXFVVkEgjAEoAQ%3D%3D"
+                }
+               },
+               "targetId": "watch-subscribe",
+               "subscribedEntityKey": "EhhVQ19hUDdwNjIxQVRZX3lBYThqTXFVVkEgMygB"
+              }
+             }
+            }
+           },
+           "viewCount": {
+            "videoViewCountRenderer": {
+             "viewCount": {
+              "simpleText": "57,041 views"
+             },
+             "shortViewCount": {
+              "simpleText": "57K views"
+             },
+             "originalViewCount": "0"
+            }
+           },
+           "isLimitedState": false,
+           "publishedTimeText": {
+            "simpleText": "Published on Jun 10, 2026"
+           },
+           "mayTruncateChannelName": true
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   "playlist": {
+    "playlist": {
+     "title": "Artemis III",
+     "currentIndex": 0,
+     "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+     "totalVideos": 9,
+     "ownerName": {
+      "simpleText": "NASA"
+     },
+     "isInfinite": false,
+     "playlistShareUrl": "http://www.youtube.com/watch?v=yMoGiIeDH9s&list=PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+     "likeButton": {
+      "likeButtonRenderer": {
+       "target": {
+        "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+       },
+       "likeStatus": "INDIFFERENT",
+       "likesAllowed": true,
+       "dislikeNavigationEndpoint": {
+        "authDeterminedCommand": {
+         "authenticatedCommand": {
+          "likeEndpoint": {
+           "status": "DISLIKE",
+           "target": {
+            "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+           }
+          }
+         },
+         "unauthenticatedCommand": {
+          "authRequiredCommand": {
+           "identityActionContext": {
+            "eventTrigger": "ACCOUNT_EVENT_TRIGGER_LIKE_DISLIKE",
+            "nextEndpoint": {
+             "commandExecutorCommand": {
+              "commands": [
+               {
+                "signalAction": {
+                 "signal": "CLOSE_POPUP"
+                }
+               },
+               {
+                "likeEndpoint": {
+                 "status": "DISLIKE",
+                 "target": {
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+                 }
+                }
+               }
+              ]
+             }
+            }
+           }
+          }
+         }
+        }
+       },
+       "likeCommand": {
+        "authDeterminedCommand": {
+         "authenticatedCommand": {
+          "likeEndpoint": {
+           "status": "LIKE",
+           "target": {
+            "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+           }
+          }
+         },
+         "unauthenticatedCommand": {
+          "authRequiredCommand": {
+           "identityActionContext": {
+            "eventTrigger": "ACCOUNT_EVENT_TRIGGER_LIKE_DISLIKE",
+            "nextEndpoint": {
+             "commandExecutorCommand": {
+              "commands": [
+               {
+                "signalAction": {
+                 "signal": "CLOSE_POPUP"
+                }
+               },
+               {
+                "likeEndpoint": {
+                 "status": "LIKE",
+                 "target": {
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+                 }
+                }
+               }
+              ]
+             }
+            }
+           }
+          }
+         }
+        }
+       },
+       "hideDislikeButton": false
+      }
+     },
+     "shortBylineText": {
+      "runs": [
+       {
+        "text": "NASA",
+        "navigationEndpoint": {
+         "browseEndpoint": {
+          "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ"
+         }
+        }
+       }
+      ]
+     },
+     "longBylineText": {
+      "runs": [
+       {
+        "text": "NASA",
+        "navigationEndpoint": {
+         "browseEndpoint": {
+          "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ"
+         }
+        }
+       }
+      ]
+     },
+     "totalVideosText": {
+      "runs": [
+       {
+        "text": "9"
+       },
+       {
+        "text": " videos"
+       }
+      ]
+     },
+     "ownerBadges": [
+      {
+       "metadataBadgeRenderer": {
+        "icon": {
+         "iconType": "CHECK_CIRCLE_THICK"
+        },
+        "style": "BADGE_STYLE_TYPE_VERIFIED",
+        "tooltip": "Verified"
+       }
+      }
+     ],
+     "titleText": {
+      "runs": [
+       {
+        "text": "Artemis III",
+        "navigationEndpoint": {
+         "browseEndpoint": {
+          "browseId": "VLPL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+         }
+        }
+       }
+      ]
+     },
+     "endpoint": {
+      "browseEndpoint": {
+       "browseId": "VLPL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+      }
+     },
+     "menu": {
+      "menuRenderer": {
+       "items": [
+        {
+         "menuNavigationItemRenderer": {
+          "text": {
+           "runs": [
+            {
+             "text": "Go to channel"
+            }
+           ]
+          },
+          "navigationEndpoint": {
+           "browseEndpoint": {
+            "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ"
+           }
+          }
+         }
+        }
+       ]
+      }
+     },
+     "localCurrentIndex": 0
+    }
+   },
+   "autoplay": {
+    "autoplay": {
+     "sets": [
+      {
+       "mode": "NORMAL",
+       "autoplayVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchEndpoint": {
+           "videoId": "SGVxZ4idYvc",
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 1,
+           "params": "EAEYATgBYgt5TW9HaUllREg5c2gA",
+           "prefetchTaskId": "1352159174217702742",
+           "watchEndpointMusicSupportedConfigs": {
+            "watchEndpointMusicConfig": {
+             "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+            }
+           }
+          }
+         },
+         "prefetchTime": {
+          "removeOnTriggered": true,
+          "onEnter": [
+           {
+            "command": {
+             "registerTasksCommand": {
+              "tasks": [
+               {
+                "id": "1352159174217702742",
+                "triggerOn": {
+                 "taskRegistered": {}
+                },
+                "cancelOn": {
+                 "screenExit": {
+                  "screen": "SCREEN_WATCH_PAGE"
+                 }
+                },
+                "command": {
+                 "prefetchWatchCommand": {
+                  "taskId": "1352159174217702742",
+                  "videoId": "SGVxZ4idYvc",
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                  "index": 1,
+                  "prebufferConfig": {
+                   "millisecondsToFetch": 5000
+                  },
+                  "prefetchPlaybackContext": {
+                   "isAutoplay": true,
+                   "isAutonav": true
+                  },
+                  "params": "EAEYATgBYgt5TW9HaUllREg5c2gA"
+                 }
+                },
+                "prefetchConfig": {
+                 "priority": "PREFETCH_PRIORITY_HIGH",
+                 "prefetchAction": "LATENCY_ACTION_PREBUFFER_VIDEO",
+                 "fetchAction": "LATENCY_ACTION_WATCH"
+                }
+               }
+              ]
+             }
+            }
+           }
+          ],
+          "playbackRelativePosition": {
+           "streamTimeMs": "-23000"
+          }
+         }
+        }
+       },
+       "nextVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchEndpoint": {
+           "videoId": "SGVxZ4idYvc",
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 1,
+           "params": "EAIYATgBYgt5TW9HaUllREg5c2gA",
+           "prefetchTaskId": "1352159174217700253",
+           "watchEndpointMusicSupportedConfigs": {
+            "watchEndpointMusicConfig": {
+             "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+            }
+           }
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "Frank Rubio Artemis III Crew Announcement Resource Reel"
+           },
+           "subtitle": {
+            "simpleText": "Next"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/SGVxZ4idYvc/hq720.jpg?sqp=-oaymwEKCNUGEN8DIABIWg&rs=AMzJL3kZFeLY7C7OrFCW9DRqZfpc1dtFuA",
+              "width": 853,
+              "height": 479
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA Video",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UC_aP7p621ATY_yAa8jMqUVA",
+                "canonicalBaseUrl": "/@NASAgovVideo"
+               }
+              }
+             }
+            ]
+           }
+          }
+         },
+         "prefetchTime": {
+          "removeOnTriggered": true,
+          "onEnter": [
+           {
+            "command": {
+             "registerTasksCommand": {
+              "tasks": [
+               {
+                "id": "1352159174217700253",
+                "triggerOn": {
+                 "taskRegistered": {}
+                },
+                "cancelOn": {
+                 "screenExit": {
+                  "screen": "SCREEN_WATCH_PAGE"
+                 }
+                },
+                "command": {
+                 "prefetchWatchCommand": {
+                  "taskId": "1352159174217700253",
+                  "videoId": "SGVxZ4idYvc",
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                  "index": 1,
+                  "prebufferConfig": {
+                   "millisecondsToFetch": 5000
+                  },
+                  "prefetchPlaybackContext": {
+                   "isAutoplay": true,
+                   "isAutonav": true
+                  },
+                  "params": "EAIYATgBYgt5TW9HaUllREg5c2gA"
+                 }
+                },
+                "prefetchConfig": {
+                 "priority": "PREFETCH_PRIORITY_HIGH",
+                 "prefetchAction": "LATENCY_ACTION_PREBUFFER_VIDEO",
+                 "fetchAction": "LATENCY_ACTION_WATCH"
+                }
+               }
+              ]
+             }
+            }
+           }
+          ],
+          "playbackRelativePosition": {
+           "streamTimeMs": "-23000"
+          }
+         }
+        }
+       }
+      },
+      {
+       "mode": "LOOP",
+       "autoplayVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchEndpoint": {
+           "videoId": "SGVxZ4idYvc",
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 1,
+           "params": "EAEYAzgBYgt5TW9HaUllREg5c2gA",
+           "prefetchTaskId": "1352159174217701860",
+           "watchEndpointMusicSupportedConfigs": {
+            "watchEndpointMusicConfig": {
+             "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+            }
+           }
+          }
+         },
+         "prefetchTime": {
+          "removeOnTriggered": true,
+          "onEnter": [
+           {
+            "command": {
+             "registerTasksCommand": {
+              "tasks": [
+               {
+                "id": "1352159174217701860",
+                "triggerOn": {
+                 "taskRegistered": {}
+                },
+                "cancelOn": {
+                 "screenExit": {
+                  "screen": "SCREEN_WATCH_PAGE"
+                 }
+                },
+                "command": {
+                 "prefetchWatchCommand": {
+                  "taskId": "1352159174217701860",
+                  "videoId": "SGVxZ4idYvc",
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                  "index": 1,
+                  "prebufferConfig": {
+                   "millisecondsToFetch": 5000
+                  },
+                  "prefetchPlaybackContext": {
+                   "isAutoplay": true,
+                   "isAutonav": true
+                  },
+                  "params": "EAEYAzgBYgt5TW9HaUllREg5c2gA"
+                 }
+                },
+                "prefetchConfig": {
+                 "priority": "PREFETCH_PRIORITY_HIGH",
+                 "prefetchAction": "LATENCY_ACTION_PREBUFFER_VIDEO",
+                 "fetchAction": "LATENCY_ACTION_WATCH"
+                }
+               }
+              ]
+             }
+            }
+           }
+          ],
+          "playbackRelativePosition": {
+           "streamTimeMs": "-23000"
+          }
+         }
+        }
+       },
+       "nextVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchEndpoint": {
+           "videoId": "SGVxZ4idYvc",
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 1,
+           "params": "EAIYAzgBYgt5TW9HaUllREg5c2gA",
+           "prefetchTaskId": "1352159174217699371",
+           "watchEndpointMusicSupportedConfigs": {
+            "watchEndpointMusicConfig": {
+             "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+            }
+           }
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "Frank Rubio Artemis III Crew Announcement Resource Reel"
+           },
+           "subtitle": {
+            "simpleText": "Next"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/SGVxZ4idYvc/hq720.jpg?sqp=-oaymwEKCNUGEN8DIABIWg&rs=AMzJL3kZFeLY7C7OrFCW9DRqZfpc1dtFuA",
+              "width": 853,
+              "height": 479
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA Video",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UC_aP7p621ATY_yAa8jMqUVA",
+                "canonicalBaseUrl": "/@NASAgovVideo"
+               }
+              }
+             }
+            ]
+           }
+          }
+         },
+         "prefetchTime": {
+          "removeOnTriggered": true,
+          "onEnter": [
+           {
+            "command": {
+             "registerTasksCommand": {
+              "tasks": [
+               {
+                "id": "1352159174217699371",
+                "triggerOn": {
+                 "taskRegistered": {}
+                },
+                "cancelOn": {
+                 "screenExit": {
+                  "screen": "SCREEN_WATCH_PAGE"
+                 }
+                },
+                "command": {
+                 "prefetchWatchCommand": {
+                  "taskId": "1352159174217699371",
+                  "videoId": "SGVxZ4idYvc",
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                  "index": 1,
+                  "prebufferConfig": {
+                   "millisecondsToFetch": 5000
+                  },
+                  "prefetchPlaybackContext": {
+                   "isAutoplay": true,
+                   "isAutonav": true
+                  },
+                  "params": "EAIYAzgBYgt5TW9HaUllREg5c2gA"
+                 }
+                },
+                "prefetchConfig": {
+                 "priority": "PREFETCH_PRIORITY_HIGH",
+                 "prefetchAction": "LATENCY_ACTION_PREBUFFER_VIDEO",
+                 "fetchAction": "LATENCY_ACTION_WATCH"
+                }
+               }
+              ]
+             }
+            }
+           }
+          ],
+          "playbackRelativePosition": {
+           "streamTimeMs": "-23000"
+          }
+         }
+        }
+       },
+       "previousVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchEndpoint": {
+           "videoId": "jHKf1eHp3eQ",
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 8,
+           "params": "EAMYAzgBYgt5TW9HaUllREg5c2gA",
+           "prefetchTaskId": "1352159174217700978",
+           "watchEndpointMusicSupportedConfigs": {
+            "watchEndpointMusicConfig": {
+             "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+            }
+           }
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "Artemis III: Our Next Step Back to the Moon"
+           },
+           "subtitle": {
+            "simpleText": "Previous"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/jHKf1eHp3eQ/sddefault.jpg",
+              "width": 640,
+              "height": 480
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ",
+                "canonicalBaseUrl": "/@NASA"
+               }
+              }
+             }
+            ]
+           }
+          }
+         },
+         "prefetchTime": {
+          "removeOnTriggered": true,
+          "onEnter": [
+           {
+            "command": {
+             "registerTasksCommand": {
+              "tasks": [
+               {
+                "id": "1352159174217700978",
+                "triggerOn": {
+                 "taskRegistered": {}
+                },
+                "cancelOn": {
+                 "screenExit": {
+                  "screen": "SCREEN_WATCH_PAGE"
+                 }
+                },
+                "command": {
+                 "prefetchWatchCommand": {
+                  "taskId": "1352159174217700978",
+                  "videoId": "jHKf1eHp3eQ",
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                  "index": 8,
+                  "prebufferConfig": {
+                   "millisecondsToFetch": 5000
+                  },
+                  "prefetchPlaybackContext": {
+                   "isAutoplay": true,
+                   "isAutonav": true
+                  },
+                  "params": "EAMYAzgBYgt5TW9HaUllREg5c2gA"
+                 }
+                },
+                "prefetchConfig": {
+                 "priority": "PREFETCH_PRIORITY_HIGH",
+                 "prefetchAction": "LATENCY_ACTION_PREBUFFER_VIDEO",
+                 "fetchAction": "LATENCY_ACTION_WATCH"
+                }
+               }
+              ]
+             }
+            }
+           }
+          ],
+          "playbackRelativePosition": {
+           "streamTimeMs": "-23000"
+          }
+         }
+        }
+       }
+      },
+      {
+       "mode": "SHUFFLE",
+       "autoplayVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchEndpoint": {
+           "videoId": "0fLROeRhqZM",
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 6,
+           "params": "CI9IEAEYAiAAOAFiC3lNb0dpSWVESDlzaAA%3D",
+           "prefetchTaskId": "1352159174217702585",
+           "watchEndpointMusicSupportedConfigs": {
+            "watchEndpointMusicConfig": {
+             "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+            }
+           }
+          }
+         },
+         "prefetchTime": {
+          "removeOnTriggered": true,
+          "onEnter": [
+           {
+            "command": {
+             "registerTasksCommand": {
+              "tasks": [
+               {
+                "id": "1352159174217702585",
+                "triggerOn": {
+                 "taskRegistered": {}
+                },
+                "cancelOn": {
+                 "screenExit": {
+                  "screen": "SCREEN_WATCH_PAGE"
+                 }
+                },
+                "command": {
+                 "prefetchWatchCommand": {
+                  "taskId": "1352159174217702585",
+                  "videoId": "0fLROeRhqZM",
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                  "index": 6,
+                  "prebufferConfig": {
+                   "millisecondsToFetch": 5000
+                  },
+                  "prefetchPlaybackContext": {
+                   "isAutoplay": true,
+                   "isAutonav": true
+                  },
+                  "params": "CI9IEAEYAiAAOAFiC3lNb0dpSWVESDlzaAA%3D"
+                 }
+                },
+                "prefetchConfig": {
+                 "priority": "PREFETCH_PRIORITY_HIGH",
+                 "prefetchAction": "LATENCY_ACTION_PREBUFFER_VIDEO",
+                 "fetchAction": "LATENCY_ACTION_WATCH"
+                }
+               }
+              ]
+             }
+            }
+           }
+          ],
+          "playbackRelativePosition": {
+           "streamTimeMs": "-23000"
+          }
+         }
+        }
+       },
+       "nextVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchEndpoint": {
+           "videoId": "0fLROeRhqZM",
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 6,
+           "params": "CI9IEAIYAiAAOAFiC3lNb0dpSWVESDlzaAA%3D",
+           "prefetchTaskId": "1352159174217700096",
+           "watchEndpointMusicSupportedConfigs": {
+            "watchEndpointMusicConfig": {
+             "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+            }
+           }
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "NASA's Artemis III Announcement"
+           },
+           "subtitle": {
+            "simpleText": "Next"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/0fLROeRhqZM/hq720.jpg?sqp=-oaymwEKCNUGEN8DIABIWg&rs=AMzJL3kkzC_iVojY_stklcIcO3FPFTx4pg",
+              "width": 853,
+              "height": 479
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ",
+                "canonicalBaseUrl": "/@NASA"
+               }
+              }
+             }
+            ]
+           }
+          }
+         },
+         "prefetchTime": {
+          "removeOnTriggered": true,
+          "onEnter": [
+           {
+            "command": {
+             "registerTasksCommand": {
+              "tasks": [
+               {
+                "id": "1352159174217700096",
+                "triggerOn": {
+                 "taskRegistered": {}
+                },
+                "cancelOn": {
+                 "screenExit": {
+                  "screen": "SCREEN_WATCH_PAGE"
+                 }
+                },
+                "command": {
+                 "prefetchWatchCommand": {
+                  "taskId": "1352159174217700096",
+                  "videoId": "0fLROeRhqZM",
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                  "index": 6,
+                  "prebufferConfig": {
+                   "millisecondsToFetch": 5000
+                  },
+                  "prefetchPlaybackContext": {
+                   "isAutoplay": true,
+                   "isAutonav": true
+                  },
+                  "params": "CI9IEAIYAiAAOAFiC3lNb0dpSWVESDlzaAA%3D"
+                 }
+                },
+                "prefetchConfig": {
+                 "priority": "PREFETCH_PRIORITY_HIGH",
+                 "prefetchAction": "LATENCY_ACTION_PREBUFFER_VIDEO",
+                 "fetchAction": "LATENCY_ACTION_WATCH"
+                }
+               }
+              ]
+             }
+            }
+           }
+          ],
+          "playbackRelativePosition": {
+           "streamTimeMs": "-23000"
+          }
+         }
+        }
+       }
+      },
+      {
+       "mode": "LOOP_SHUFFLE",
+       "autoplayVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchEndpoint": {
+           "videoId": "0fLROeRhqZM",
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 6,
+           "params": "CI9IEAEYBCAAOAFiC3lNb0dpSWVESDlzaAA%3D",
+           "prefetchTaskId": "1352159174217701703",
+           "watchEndpointMusicSupportedConfigs": {
+            "watchEndpointMusicConfig": {
+             "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+            }
+           }
+          }
+         },
+         "prefetchTime": {
+          "removeOnTriggered": true,
+          "onEnter": [
+           {
+            "command": {
+             "registerTasksCommand": {
+              "tasks": [
+               {
+                "id": "1352159174217701703",
+                "triggerOn": {
+                 "taskRegistered": {}
+                },
+                "cancelOn": {
+                 "screenExit": {
+                  "screen": "SCREEN_WATCH_PAGE"
+                 }
+                },
+                "command": {
+                 "prefetchWatchCommand": {
+                  "taskId": "1352159174217701703",
+                  "videoId": "0fLROeRhqZM",
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                  "index": 6,
+                  "prebufferConfig": {
+                   "millisecondsToFetch": 5000
+                  },
+                  "prefetchPlaybackContext": {
+                   "isAutoplay": true,
+                   "isAutonav": true
+                  },
+                  "params": "CI9IEAEYBCAAOAFiC3lNb0dpSWVESDlzaAA%3D"
+                 }
+                },
+                "prefetchConfig": {
+                 "priority": "PREFETCH_PRIORITY_HIGH",
+                 "prefetchAction": "LATENCY_ACTION_PREBUFFER_VIDEO",
+                 "fetchAction": "LATENCY_ACTION_WATCH"
+                }
+               }
+              ]
+             }
+            }
+           }
+          ],
+          "playbackRelativePosition": {
+           "streamTimeMs": "-23000"
+          }
+         }
+        }
+       },
+       "nextVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchEndpoint": {
+           "videoId": "0fLROeRhqZM",
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 6,
+           "params": "CI9IEAIYBCAAOAFiC3lNb0dpSWVESDlzaAA%3D",
+           "prefetchTaskId": "1352159174217703310",
+           "watchEndpointMusicSupportedConfigs": {
+            "watchEndpointMusicConfig": {
+             "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+            }
+           }
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "NASA's Artemis III Announcement"
+           },
+           "subtitle": {
+            "simpleText": "Next"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/0fLROeRhqZM/hq720.jpg?sqp=-oaymwEKCNUGEN8DIABIWg&rs=AMzJL3kkzC_iVojY_stklcIcO3FPFTx4pg",
+              "width": 853,
+              "height": 479
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ",
+                "canonicalBaseUrl": "/@NASA"
+               }
+              }
+             }
+            ]
+           }
+          }
+         },
+         "prefetchTime": {
+          "removeOnTriggered": true,
+          "onEnter": [
+           {
+            "command": {
+             "registerTasksCommand": {
+              "tasks": [
+               {
+                "id": "1352159174217703310",
+                "triggerOn": {
+                 "taskRegistered": {}
+                },
+                "cancelOn": {
+                 "screenExit": {
+                  "screen": "SCREEN_WATCH_PAGE"
+                 }
+                },
+                "command": {
+                 "prefetchWatchCommand": {
+                  "taskId": "1352159174217703310",
+                  "videoId": "0fLROeRhqZM",
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                  "index": 6,
+                  "prebufferConfig": {
+                   "millisecondsToFetch": 5000
+                  },
+                  "prefetchPlaybackContext": {
+                   "isAutoplay": true,
+                   "isAutonav": true
+                  },
+                  "params": "CI9IEAIYBCAAOAFiC3lNb0dpSWVESDlzaAA%3D"
+                 }
+                },
+                "prefetchConfig": {
+                 "priority": "PREFETCH_PRIORITY_HIGH",
+                 "prefetchAction": "LATENCY_ACTION_PREBUFFER_VIDEO",
+                 "fetchAction": "LATENCY_ACTION_WATCH"
+                }
+               }
+              ]
+             }
+            }
+           }
+          ],
+          "playbackRelativePosition": {
+           "streamTimeMs": "-23000"
+          }
+         }
+        }
+       },
+       "previousVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchEndpoint": {
+           "videoId": "G-GD8SQ0AvU",
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 4,
+           "params": "CI9IEAMYBCAAOAFiC3lNb0dpSWVESDlzaAA%3D",
+           "prefetchTaskId": "1352159174217700821",
+           "watchEndpointMusicSupportedConfigs": {
+            "watchEndpointMusicConfig": {
+             "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+            }
+           }
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "Artemis III Announcement Recap: Crew, Mission Details, and What’s Next"
+           },
+           "subtitle": {
+            "simpleText": "Previous"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/G-GD8SQ0AvU/sddefault.jpg",
+              "width": 640,
+              "height": 480
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ",
+                "canonicalBaseUrl": "/@NASA"
+               }
+              }
+             }
+            ]
+           }
+          }
+         },
+         "prefetchTime": {
+          "removeOnTriggered": true,
+          "onEnter": [
+           {
+            "command": {
+             "registerTasksCommand": {
+              "tasks": [
+               {
+                "id": "1352159174217700821",
+                "triggerOn": {
+                 "taskRegistered": {}
+                },
+                "cancelOn": {
+                 "screenExit": {
+                  "screen": "SCREEN_WATCH_PAGE"
+                 }
+                },
+                "command": {
+                 "prefetchWatchCommand": {
+                  "taskId": "1352159174217700821",
+                  "videoId": "G-GD8SQ0AvU",
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                  "index": 4,
+                  "prebufferConfig": {
+                   "millisecondsToFetch": 5000
+                  },
+                  "prefetchPlaybackContext": {
+                   "isAutoplay": true,
+                   "isAutonav": true
+                  },
+                  "params": "CI9IEAMYBCAAOAFiC3lNb0dpSWVESDlzaAA%3D"
+                 }
+                },
+                "prefetchConfig": {
+                 "priority": "PREFETCH_PRIORITY_HIGH",
+                 "prefetchAction": "LATENCY_ACTION_PREBUFFER_VIDEO",
+                 "fetchAction": "LATENCY_ACTION_WATCH"
+                }
+               }
+              ]
+             }
+            }
+           }
+          ],
+          "playbackRelativePosition": {
+           "streamTimeMs": "-23000"
+          }
+         }
+        }
+       }
+      },
+      {
+       "mode": "LOOP_ONE",
+       "autoplayVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchEndpoint": {
+           "videoId": "yMoGiIeDH9s",
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 0,
+           "params": "EAEYBjgBYgt5TW9HaUllREg5c2gA",
+           "replayIfSameVideo": true,
+           "prefetchTaskId": "1352159174217702428",
+           "watchEndpointMusicSupportedConfigs": {
+            "watchEndpointMusicConfig": {
+             "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+            }
+           }
+          }
+         },
+         "prefetchTime": {
+          "removeOnTriggered": true,
+          "onEnter": [
+           {
+            "command": {
+             "registerTasksCommand": {
+              "tasks": [
+               {
+                "id": "1352159174217702428",
+                "triggerOn": {
+                 "taskRegistered": {}
+                },
+                "cancelOn": {
+                 "screenExit": {
+                  "screen": "SCREEN_WATCH_PAGE"
+                 }
+                },
+                "command": {
+                 "prefetchWatchCommand": {
+                  "taskId": "1352159174217702428",
+                  "videoId": "yMoGiIeDH9s",
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                  "index": 0,
+                  "prebufferConfig": {
+                   "millisecondsToFetch": 5000
+                  },
+                  "prefetchPlaybackContext": {
+                   "isAutoplay": true,
+                   "isAutonav": true
+                  },
+                  "params": "EAEYBjgBYgt5TW9HaUllREg5c2gA"
+                 }
+                },
+                "prefetchConfig": {
+                 "priority": "PREFETCH_PRIORITY_HIGH",
+                 "prefetchAction": "LATENCY_ACTION_PREBUFFER_VIDEO",
+                 "fetchAction": "LATENCY_ACTION_WATCH"
+                }
+               }
+              ]
+             }
+            }
+           }
+          ],
+          "playbackRelativePosition": {
+           "streamTimeMs": "-23000"
+          }
+         }
+        }
+       },
+       "nextVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchEndpoint": {
+           "videoId": "SGVxZ4idYvc",
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 1,
+           "params": "EAIYBjgBYgt5TW9HaUllREg5c2gA",
+           "prefetchTaskId": "1352159174217699939",
+           "watchEndpointMusicSupportedConfigs": {
+            "watchEndpointMusicConfig": {
+             "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+            }
+           }
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "Frank Rubio Artemis III Crew Announcement Resource Reel"
+           },
+           "subtitle": {
+            "simpleText": "Next"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/SGVxZ4idYvc/hq720.jpg?sqp=-oaymwEKCNUGEN8DIABIWg&rs=AMzJL3kZFeLY7C7OrFCW9DRqZfpc1dtFuA",
+              "width": 853,
+              "height": 479
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA Video",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UC_aP7p621ATY_yAa8jMqUVA",
+                "canonicalBaseUrl": "/@NASAgovVideo"
+               }
+              }
+             }
+            ]
+           }
+          }
+         },
+         "prefetchTime": {
+          "removeOnTriggered": true,
+          "onEnter": [
+           {
+            "command": {
+             "registerTasksCommand": {
+              "tasks": [
+               {
+                "id": "1352159174217699939",
+                "triggerOn": {
+                 "taskRegistered": {}
+                },
+                "cancelOn": {
+                 "screenExit": {
+                  "screen": "SCREEN_WATCH_PAGE"
+                 }
+                },
+                "command": {
+                 "prefetchWatchCommand": {
+                  "taskId": "1352159174217699939",
+                  "videoId": "SGVxZ4idYvc",
+                  "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                  "index": 1,
+                  "prebufferConfig": {
+                   "millisecondsToFetch": 5000
+                  },
+                  "prefetchPlaybackContext": {
+                   "isAutoplay": true,
+                   "isAutonav": true
+                  },
+                  "params": "EAIYBjgBYgt5TW9HaUllREg5c2gA"
+                 }
+                },
+                "prefetchConfig": {
+                 "priority": "PREFETCH_PRIORITY_HIGH",
+                 "prefetchAction": "LATENCY_ACTION_PREBUFFER_VIDEO",
+                 "fetchAction": "LATENCY_ACTION_WATCH"
+                }
+               }
+              ]
+             }
+            }
+           }
+          ],
+          "playbackRelativePosition": {
+           "streamTimeMs": "-23000"
+          }
+         }
+        }
+       }
+      }
+     ],
+     "modifiedSets": [
+      {
+       "autoplayVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchPlaylistEndpoint": {
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 1,
+           "params": "EAEYATgBYgt5TW9HaUllREg5c2gA"
+          }
+         }
+        }
+       },
+       "nextVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchPlaylistEndpoint": {
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 1,
+           "params": "EAIYATgBYgt5TW9HaUllREg5c2gA"
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "Frank Rubio Artemis III Crew Announcement Resource Reel"
+           },
+           "subtitle": {
+            "simpleText": "Next"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/SGVxZ4idYvc/hq720.jpg?sqp=-oaymwEKCNUGEN8DIABIWg&rs=AMzJL3kZFeLY7C7OrFCW9DRqZfpc1dtFuA",
+              "width": 853,
+              "height": 479
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA Video",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UC_aP7p621ATY_yAa8jMqUVA",
+                "canonicalBaseUrl": "/@NASAgovVideo"
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       }
+      },
+      {
+       "autoplayVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchPlaylistEndpoint": {
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 1,
+           "params": "EAEYAzgBYgt5TW9HaUllREg5c2gA"
+          }
+         }
+        }
+       },
+       "nextVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchPlaylistEndpoint": {
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 1,
+           "params": "EAIYAzgBYgt5TW9HaUllREg5c2gA"
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "Frank Rubio Artemis III Crew Announcement Resource Reel"
+           },
+           "subtitle": {
+            "simpleText": "Next"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/SGVxZ4idYvc/hq720.jpg?sqp=-oaymwEKCNUGEN8DIABIWg&rs=AMzJL3kZFeLY7C7OrFCW9DRqZfpc1dtFuA",
+              "width": 853,
+              "height": 479
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA Video",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UC_aP7p621ATY_yAa8jMqUVA",
+                "canonicalBaseUrl": "/@NASAgovVideo"
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       },
+       "previousVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchPlaylistEndpoint": {
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 8,
+           "params": "EAMYAzgBYgt5TW9HaUllREg5c2gA"
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "Artemis III: Our Next Step Back to the Moon"
+           },
+           "subtitle": {
+            "simpleText": "Previous"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/jHKf1eHp3eQ/sddefault.jpg",
+              "width": 640,
+              "height": 480
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ",
+                "canonicalBaseUrl": "/@NASA"
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       }
+      },
+      {
+       "autoplayVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchPlaylistEndpoint": {
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 6,
+           "params": "CI9IEAEYAiAAOAFiC3lNb0dpSWVESDlzaAA%3D"
+          }
+         }
+        }
+       },
+       "nextVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchPlaylistEndpoint": {
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 6,
+           "params": "CI9IEAIYAiAAOAFiC3lNb0dpSWVESDlzaAA%3D"
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "NASA's Artemis III Announcement"
+           },
+           "subtitle": {
+            "simpleText": "Next"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/0fLROeRhqZM/hq720.jpg?sqp=-oaymwEKCNUGEN8DIABIWg&rs=AMzJL3kkzC_iVojY_stklcIcO3FPFTx4pg",
+              "width": 853,
+              "height": 479
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ",
+                "canonicalBaseUrl": "/@NASA"
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       }
+      },
+      {
+       "autoplayVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchPlaylistEndpoint": {
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 6,
+           "params": "CI9IEAEYBCAAOAFiC3lNb0dpSWVESDlzaAA%3D"
+          }
+         }
+        }
+       },
+       "nextVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchPlaylistEndpoint": {
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 6,
+           "params": "CI9IEAIYBCAAOAFiC3lNb0dpSWVESDlzaAA%3D"
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "NASA's Artemis III Announcement"
+           },
+           "subtitle": {
+            "simpleText": "Next"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/0fLROeRhqZM/hq720.jpg?sqp=-oaymwEKCNUGEN8DIABIWg&rs=AMzJL3kkzC_iVojY_stklcIcO3FPFTx4pg",
+              "width": 853,
+              "height": 479
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ",
+                "canonicalBaseUrl": "/@NASA"
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       },
+       "previousVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchPlaylistEndpoint": {
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 4,
+           "params": "CI9IEAMYBCAAOAFiC3lNb0dpSWVESDlzaAA%3D"
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "Artemis III Announcement Recap: Crew, Mission Details, and What’s Next"
+           },
+           "subtitle": {
+            "simpleText": "Previous"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/G-GD8SQ0AvU/sddefault.jpg",
+              "width": 640,
+              "height": 480
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ",
+                "canonicalBaseUrl": "/@NASA"
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       }
+      },
+      {
+       "autoplayVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchPlaylistEndpoint": {
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 0,
+           "params": "EAEYBjgBYgt5TW9HaUllREg5c2gA"
+          }
+         }
+        }
+       },
+       "nextVideoRenderer": {
+        "autoplayEndpointRenderer": {
+         "endpoint": {
+          "watchPlaylistEndpoint": {
+           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+           "index": 1,
+           "params": "EAIYBjgBYgt5TW9HaUllREg5c2gA"
+          }
+         },
+         "item": {
+          "previewButtonRenderer": {
+           "title": {
+            "simpleText": "Frank Rubio Artemis III Crew Announcement Resource Reel"
+           },
+           "subtitle": {
+            "simpleText": "Next"
+           },
+           "thumbnail": {
+            "thumbnails": [
+             {
+              "url": "https://i.ytimg.com/vi/SGVxZ4idYvc/hq720.jpg?sqp=-oaymwEKCNUGEN8DIABIWg&rs=AMzJL3kZFeLY7C7OrFCW9DRqZfpc1dtFuA",
+              "width": 853,
+              "height": 479
+             }
+            ]
+           },
+           "byline": {
+            "runs": [
+             {
+              "text": "NASA Video",
+              "navigationEndpoint": {
+               "browseEndpoint": {
+                "browseId": "UC_aP7p621ATY_yAa8jMqUVA",
+                "canonicalBaseUrl": "/@NASAgovVideo"
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        }
+       }
+      }
+     ],
+     "replayVideoRenderer": {
+      "pivotVideoRenderer": {
+       "videoId": "yMoGiIeDH9s",
+       "thumbnail": {
+        "thumbnails": [
+         {
+          "url": "https://i.ytimg.com/vi/yMoGiIeDH9s/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLCrZdGvtQDL3WwRYpmEDA8cFajzaA",
+          "width": 640,
+          "height": 360
+         }
+        ]
+       },
+       "title": {
+        "simpleText": "Andre Douglas Artemis III Crew Announcement Resource Reel"
+       },
+       "shortBylineText": {
+        "runs": [
+         {
+          "text": "NASA Video",
+          "navigationEndpoint": {
+           "browseEndpoint": {
+            "browseId": "UC_aP7p621ATY_yAa8jMqUVA",
+            "canonicalBaseUrl": "/@NASAgovVideo"
+           }
+          }
+         }
+        ]
+       },
+       "viewCountText": {
+        "simpleText": "57K views"
+       },
+       "lengthText": {
+        "simpleText": "5:33"
+       },
+       "navigationEndpoint": {
+        "watchEndpoint": {
+         "videoId": "yMoGiIeDH9s",
+         "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+        }
+       },
+       "overlayIcon": {
+        "iconType": "REPLAY"
+       },
+       "overlayLabel": {
+        "simpleText": "Replay"
+       },
+       "thumbnailOverlays": [
+        {
+         "thumbnailOverlayTimeStatusRenderer": {
+          "text": {
+           "simpleText": "5:33"
+          },
+          "style": "DEFAULT"
+         }
+        }
+       ]
+      }
+     }
+    }
+   },
+   "pivot": {
+    "sectionListRenderer": {
+     "contents": [
+      {
+       "shelfRenderer": {
+        "content": {
+         "horizontalListRenderer": {
+          "items": [
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/yMoGiIeDH9s/sddefault.jpg",
+                  "width": 640,
+                  "height": 480
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "5:33"
+                  },
+                  "style": "DEFAULT"
+                 }
+                },
+                {
+                 "thumbnailOverlayNowPlayingRenderer": {
+                  "text": {
+                   "runs": [
+                    {
+                     "text": "Now playing"
+                    }
+                   ]
+                  }
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "Andre Douglas Artemis III Crew Announcement Resource Reel"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "NASA Video",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UC_aP7p621ATY_yAa8jMqUVA",
+                          "canonicalBaseUrl": "/@NASAgovVideo"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ],
+                  "wrap": true
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "yMoGiIeDH9s",
+               "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+               "index": 0,
+               "params": "OAE%3D",
+               "watchEndpointMusicSupportedConfigs": {
+                "watchEndpointMusicConfig": {
+                 "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+                }
+               }
+              }
+             },
+             "contentId": "yMoGiIeDH9s",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/SGVxZ4idYvc/sddefault.jpg",
+                  "width": 640,
+                  "height": 480
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "4:14"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "Frank Rubio Artemis III Crew Announcement Resource Reel"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "NASA Video",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UC_aP7p621ATY_yAa8jMqUVA",
+                          "canonicalBaseUrl": "/@NASAgovVideo"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ],
+                  "wrap": true
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "SGVxZ4idYvc",
+               "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+               "index": 1,
+               "params": "OAE%3D",
+               "watchEndpointMusicSupportedConfigs": {
+                "watchEndpointMusicConfig": {
+                 "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+                }
+               }
+              }
+             },
+             "contentId": "SGVxZ4idYvc",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/11ZbXP1kjBs/sddefault.jpg",
+                  "width": 640,
+                  "height": 480
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "4:57"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "Luca Parmitano Artemis III Crew Announcement Resource Reel"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "NASA Video",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UC_aP7p621ATY_yAa8jMqUVA",
+                          "canonicalBaseUrl": "/@NASAgovVideo"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ],
+                  "wrap": true
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "11ZbXP1kjBs",
+               "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+               "index": 2,
+               "params": "OAE%3D",
+               "watchEndpointMusicSupportedConfigs": {
+                "watchEndpointMusicConfig": {
+                 "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+                }
+               }
+              }
+             },
+             "contentId": "11ZbXP1kjBs",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/VUz8wMKnDe4/sddefault.jpg",
+                  "width": 640,
+                  "height": 480
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "3:34"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "Randy Bresnik Artemis III Crew Announcement Resource Reel"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "NASA Video",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UC_aP7p621ATY_yAa8jMqUVA",
+                          "canonicalBaseUrl": "/@NASAgovVideo"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ],
+                  "wrap": true
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "VUz8wMKnDe4",
+               "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+               "index": 3,
+               "params": "OAE%3D",
+               "watchEndpointMusicSupportedConfigs": {
+                "watchEndpointMusicConfig": {
+                 "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+                }
+               }
+              }
+             },
+             "contentId": "VUz8wMKnDe4",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/G-GD8SQ0AvU/sddefault.jpg",
+                  "width": 640,
+                  "height": 480
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "2:08"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "Artemis III Announcement Recap: Crew, Mission Details, and What’s Next"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "NASA",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ",
+                          "canonicalBaseUrl": "/@NASA"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "4K"
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "G-GD8SQ0AvU",
+               "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+               "index": 4,
+               "params": "OAE%3D",
+               "watchEndpointMusicSupportedConfigs": {
+                "watchEndpointMusicConfig": {
+                 "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+                }
+               }
+              }
+             },
+             "contentId": "G-GD8SQ0AvU",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/jHKf1eHp3eQ/sddefault.jpg",
+                  "width": 640,
+                  "height": 480
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "1:01"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "Artemis III: Our Next Step Back to the Moon"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "NASA",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ",
+                          "canonicalBaseUrl": "/@NASA"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "4K"
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "jHKf1eHp3eQ",
+               "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+               "index": 8,
+               "params": "OAE%3D",
+               "watchEndpointMusicSupportedConfigs": {
+                "watchEndpointMusicConfig": {
+                 "musicVideoType": "MUSIC_VIDEO_TYPE_UGC"
+                }
+               }
+              }
+             },
+             "contentId": "jHKf1eHp3eQ",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           }
+          ],
+          "continuations": [
+           {
+            "reloadContinuationData": {
+             "continuation": "EjcSC3lNb0dpSWVESDlzIiJQTDJhQlp1Q2VEd2xSYUY2QUlleTd1bG1XMVgwU0hJMW1RwAEByAEBGAI%3D"
+            }
+           }
+          ],
+          "visibleItemCount": 9,
+          "selectedIndex": 1
+         }
+        },
+        "headerStyle": {
+         "styleType": "INLINE_CHIPS"
+        },
+        "headerRenderer": {
+         "shelfHeaderRenderer": {
+          "title": {
+           "simpleText": "Up next"
+          },
+          "icon": {
+           "iconType": "PLAYLISTS"
+          },
+          "buttons": [
+           {
+            "buttonRenderer": {
+             "isDisabled": false,
+             "text": {
+              "simpleText": "Shuffle"
+             },
+             "icon": {
+              "iconType": "SHUFFLE"
+             },
+             "navigationEndpoint": {
+              "watchEndpoint": {
+               "videoId": "yMoGiIeDH9s",
+               "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+               "params": "COI2IAA%3D",
+               "continuePlayback": true
+              }
+             }
+            }
+           },
+           {
+            "playlistLoopButtonRenderer": {
+             "states": [
+              {
+               "playlistLoopButtonStateRenderer": {
+                "state": "PLAYLIST_LOOP_STATE_NONE",
+                "button": {
+                 "buttonRenderer": {
+                  "isDisabled": false,
+                  "text": {
+                   "simpleText": "Repeat"
+                  },
+                  "icon": {
+                   "iconType": "LOOP"
+                  },
+                  "isSelected": false,
+                  "command": {
+                   "commandExecutorCommand": {
+                    "commands": [
+                     {
+                      "entityUpdateCommand": {
+                       "entityBatchUpdate": {
+                        "mutations": [
+                         {
+                          "entityKey": "EiJQTDJhQlp1Q2VEd2xSYUY2QUlleTd1bG1XMVgwU0hJMW1RIOICKAE%3D",
+                          "type": "ENTITY_MUTATION_TYPE_REPLACE",
+                          "payload": {
+                           "playlistLoopStateEntity": {
+                            "key": "EiJQTDJhQlp1Q2VEd2xSYUY2QUlleTd1bG1XMVgwU0hJMW1RIOICKAE%3D",
+                            "state": "PLAYLIST_LOOP_STATE_ALL"
+                           }
+                          }
+                         }
+                        ]
+                       }
+                      }
+                     },
+                     {
+                      "signalAction": {
+                       "signal": "PLAYER_LOOP_PLAYLIST"
+                      }
+                     }
+                    ]
+                   }
+                  }
+                 }
+                }
+               }
+              },
+              {
+               "playlistLoopButtonStateRenderer": {
+                "state": "PLAYLIST_LOOP_STATE_ALL",
+                "button": {
+                 "buttonRenderer": {
+                  "isDisabled": false,
+                  "text": {
+                   "simpleText": "Repeat • Playlist"
+                  },
+                  "icon": {
+                   "iconType": "LOOP"
+                  },
+                  "isSelected": true,
+                  "command": {
+                   "commandExecutorCommand": {
+                    "commands": [
+                     {
+                      "entityUpdateCommand": {
+                       "entityBatchUpdate": {
+                        "mutations": [
+                         {
+                          "entityKey": "EiJQTDJhQlp1Q2VEd2xSYUY2QUlleTd1bG1XMVgwU0hJMW1RIOICKAE%3D",
+                          "type": "ENTITY_MUTATION_TYPE_REPLACE",
+                          "payload": {
+                           "playlistLoopStateEntity": {
+                            "key": "EiJQTDJhQlp1Q2VEd2xSYUY2QUlleTd1bG1XMVgwU0hJMW1RIOICKAE%3D",
+                            "state": "PLAYLIST_LOOP_STATE_ONE"
+                           }
+                          }
+                         }
+                        ]
+                       }
+                      }
+                     },
+                     {
+                      "signalAction": {
+                       "signal": "PLAYER_LOOP_VIDEO"
+                      }
+                     }
+                    ]
+                   }
+                  }
+                 }
+                }
+               }
+              },
+              {
+               "playlistLoopButtonStateRenderer": {
+                "state": "PLAYLIST_LOOP_STATE_ONE",
+                "button": {
+                 "buttonRenderer": {
+                  "isDisabled": false,
+                  "text": {
+                   "simpleText": "Repeat • Currently playing"
+                  },
+                  "icon": {
+                   "iconType": "YT_OUTLINE_ARROW_REPEAT_1_24"
+                  },
+                  "isSelected": true,
+                  "command": {
+                   "commandExecutorCommand": {
+                    "commands": [
+                     {
+                      "entityUpdateCommand": {
+                       "entityBatchUpdate": {
+                        "mutations": [
+                         {
+                          "entityKey": "EiJQTDJhQlp1Q2VEd2xSYUY2QUlleTd1bG1XMVgwU0hJMW1RIOICKAE%3D",
+                          "type": "ENTITY_MUTATION_TYPE_REPLACE",
+                          "payload": {
+                           "playlistLoopStateEntity": {
+                            "key": "EiJQTDJhQlp1Q2VEd2xSYUY2QUlleTd1bG1XMVgwU0hJMW1RIOICKAE%3D",
+                            "state": "PLAYLIST_LOOP_STATE_NONE"
+                           }
+                          }
+                         }
+                        ]
+                       }
+                      }
+                     },
+                     {
+                      "signalAction": {
+                       "signal": "PLAYER_LOOP_OFF"
+                      }
+                     }
+                    ]
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             ],
+             "currentState": "PLAYLIST_LOOP_STATE_NONE",
+             "playlistLoopStateEntityKey": "EiJQTDJhQlp1Q2VEd2xSYUY2QUlleTd1bG1XMVgwU0hJMW1RIOICKAE%3D"
+            }
+           }
+          ]
+         }
+        },
+        "tvhtml5ShelfRendererType": "TVHTML5_SHELF_RENDERER_TYPE_GRID",
+        "focusContent": true
+       }
+      },
+      {
+       "shelfRenderer": {
+        "content": {
+         "horizontalListRenderer": {
+          "items": [
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/aw9ENIAqkA8/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLBlDVy8S9R5zveTvQUv7lTxuPliPQ",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "24:41"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "All 8 Artemis Mission's Explained"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "The Space Race",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UCeMcDx6-rOq_RlKSPehk2tQ",
+                          "canonicalBaseUrl": "/@TheSpaceRaceYT"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "4K"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "1.7M views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "2 months ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "aw9ENIAqkA8",
+               "params": "0gYiCgYKAmVuEAQSGBoGCgJlbhABIgYKAmVuEAEqBgoCZW4QAQ%3D%3D"
+              }
+             },
+             "contentId": "aw9ENIAqkA8",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/ttiLcMUQq80/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLAVBvHtwRZmW_5FVghcKbOjjkvLJQ",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "36:43"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "Moonbound Episode 2 | For All Humanity"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "NASA",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ",
+                          "canonicalBaseUrl": "/@NASA"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "4K"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "220K views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "6 months ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "ttiLcMUQq80",
+               "params": "8gUCCgDSBiIKBgoCZW4QBBIYGgYKAmVuEAEiBgoCZW4QASoGCgJlbhAB"
+              }
+             },
+             "onFocusCommand": {
+              "showHintCommand": {
+               "shouldShowHint": true
+              }
+             },
+             "contentId": "ttiLcMUQq80",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/lVNHybwudXI/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLASqxrjOaQ81HCTkjOG4V_T43BTJg",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "1:02:23"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "🇺🇸 Elon Musk Unveils SpaceX Flight 15 Plans and Q3 2026 Financial & Operational Results [10/20/2026]"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "MAGNO NEWS",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UCGLA2qQ_N_83Spcjz51d8HA",
+                          "canonicalBaseUrl": "/@MAGNONEWS"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "448K views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "Streamed 11 days ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "lVNHybwudXI",
+               "params": "0gYuCgkKBWVuLVVTEAQSIRoJCgVlbi1VUxABIgkKBWVuLVVTEAEqCQoFZW4tVVMQAQ%3D%3D"
+              }
+             },
+             "contentId": "lVNHybwudXI",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           }
+          ],
+          "visibleItemCount": 3
+         }
+        },
+        "headerRenderer": {
+         "shelfHeaderRenderer": {
+          "title": {
+           "simpleText": " "
+          }
+         }
+        },
+        "tvhtml5ShelfRendererType": "TVHTML5_SHELF_RENDERER_TYPE_GRID",
+        "tvhtml5Metadata": {
+         "retainShelfIndex": true
+        }
+       }
+      },
+      {
+       "shelfRenderer": {
+        "content": {
+         "horizontalListRenderer": {
+          "items": [
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/QhkNrfaAUCQ/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLAT8naBxCYnqkt5GrkxUz_OE6lK1Q",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "28:32"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "HIGHLIGHTS: Launch of Artemis 2 crewed mission around the Moon"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "AFP News Agency",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UC86dbj-lbDks_hZ5gRKL49Q",
+                          "canonicalBaseUrl": "/@AFP"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "501K views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "6 months ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "QhkNrfaAUCQ"
+              }
+             },
+             "contentId": "QhkNrfaAUCQ",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/mQCtXRtRuBc/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLDhe0jYlxLXUKVAjzi-p3wQDtZJMg",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "28:30"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "SpaceX - \"Holy Grail Of Rocketry\" Documentary 4K"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "Launch Heaven",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UCPkKkvT2DNoQt9LwjAE5LGQ",
+                          "canonicalBaseUrl": "/@LaunchHeaven"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "4K"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "1.6M views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "1 month ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "mQCtXRtRuBc",
+               "params": "0gYiCgYKAmVuEAQSGBoGCgJlbhABIgYKAmVuEAEqBgoCZW4QAQ%3D%3D"
+              }
+             },
+             "onFocusCommand": {
+              "showHintCommand": {
+               "shouldShowHint": true
+              }
+             },
+             "contentId": "mQCtXRtRuBc",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/7NzhZzt7r7U/hq720_custom_3.jpg?sqp=CKiKntcG-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLAaQk9WCQ-c3Tv4c5PARscU9VZuWA",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "54:30"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "Red Liquid Gold: The Mountain’s Natural Energy Reservoir"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "ÖZGÜR GÜLAY",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UCfyR1h-75sIXWXq-mBvp6zg",
+                          "canonicalBaseUrl": "/@ozgurgulay"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "New"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "4K"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "19K views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "1 hour ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "7NzhZzt7r7U",
+               "params": "0gYaEhgaBgoCZW4QBCIGCgJlbhAEKgYKAmVuEAQ%3D"
+              }
+             },
+             "contentId": "7NzhZzt7r7U",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           }
+          ],
+          "visibleItemCount": 3
+         }
+        },
+        "headerRenderer": {
+         "shelfHeaderRenderer": {
+          "title": {
+           "simpleText": " "
+          }
+         }
+        },
+        "tvhtml5ShelfRendererType": "TVHTML5_SHELF_RENDERER_TYPE_GRID",
+        "tvhtml5Metadata": {
+         "retainShelfIndex": true
+        }
+       }
+      },
+      {
+       "shelfRenderer": {
+        "content": {
+         "horizontalListRenderer": {
+          "items": [
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/w9UfJTAjIdk/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLCjoGjyxpMQ-DM0gvmvVkO8v5Ccqg",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "43:05"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "James Webb: Seeing the First Galaxies | Galaxy | Free Documentary Space"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "Free Documentary - Space",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UC7H3Ooesb6KcQ4nMjXOXwew",
+                          "canonicalBaseUrl": "/@FDSpace"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "4K"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "573K views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "7 months ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "w9UfJTAjIdk",
+               "params": "0gYiCgYKAmVuEAQSGBoGCgJlbhABIgYKAmVuEAEqBgoCZW4QAQ%3D%3D"
+              }
+             },
+             "contentId": "w9UfJTAjIdk",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/XkM_04Ch76E/hq720.jpg?sqp=-oaymwEvCIAFEOgCSFDyq4qpAyEVAACIQhgB8AEB-AH2CYAC0AWKAgwIABABGGUgZShlMA8=&rs=AOn4CLApj-KM_Hkx1Cafo6Cfhi_dez5Jaw",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "8:42"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "ISS Tour: Kitchen, Bedrooms & The Latrine"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "VideoFromSpace",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UCVTomc35agH1SM6kCKzwW_g",
+                          "canonicalBaseUrl": "/@VideoFromSpace"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "37M views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "13 years ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "XkM_04Ch76E",
+               "params": "0gYiCgYKAmVuEAQSGBoGCgJlbhABIgYKAmVuEAEqBgoCZW4QAQ%3D%3D"
+              }
+             },
+             "onFocusCommand": {
+              "showHintCommand": {
+               "shouldShowHint": true
+              }
+             },
+             "contentId": "XkM_04Ch76E",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/ANe_HW4X8oc/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLCgBEhHZBgmQRq8A16Rmz5rAMZ-0A",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "24:54"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "Starship - Test Like You Fly"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "SpaceX",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UCtI0Hodo5o5dUb67FeUjDeA",
+                          "canonicalBaseUrl": "/@SpaceX"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "4K"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "6M views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "6 months ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "ANe_HW4X8oc",
+               "params": "0gYiCgYKAmVuEAQSGBoGCgJlbhABIgYKAmVuEAEqBgoCZW4QAQ%3D%3D"
+              }
+             },
+             "contentId": "ANe_HW4X8oc",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           }
+          ],
+          "visibleItemCount": 3
+         }
+        },
+        "headerRenderer": {
+         "shelfHeaderRenderer": {
+          "title": {
+           "simpleText": " "
+          }
+         }
+        },
+        "tvhtml5ShelfRendererType": "TVHTML5_SHELF_RENDERER_TYPE_GRID",
+        "tvhtml5Metadata": {
+         "retainShelfIndex": true
+        }
+       }
+      },
+      {
+       "shelfRenderer": {
+        "content": {
+         "horizontalListRenderer": {
+          "items": [
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/EthkNLasUa8/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLDPHR1eSZVmm6AiKTfhXrow1zxOWQ",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "28:30"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "Starship - The Holy Grail of Rocketry"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "SpaceX",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UCtI0Hodo5o5dUb67FeUjDeA",
+                          "canonicalBaseUrl": "/@SpaceX"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "4K"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "2.8M views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "1 month ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "EthkNLasUa8",
+               "params": "0gYiCgYKAmVuEAQSGBoGCgJlbhABIgYKAmVuEAEqBgoCZW4QAQ%3D%3D"
+              }
+             },
+             "contentId": "EthkNLasUa8",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/71CPzi_pU9o/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLDSRstJBe7U4GspyvTCMfTdR2rBhA",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "16:37"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "What Artemis III will do"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "Digital Astronaut",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UCL3mqmVRwHyaYc0RrwjmC-A",
+                          "canonicalBaseUrl": "/@DigitalAstronaut"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "4K"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "314K views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "5 months ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "71CPzi_pU9o",
+               "params": "0gYlCgkKBWVuLVVTEAQSGBoGCgJlbhABIgYKAmVuEAEqBgoCZW4QAQ%3D%3D"
+              }
+             },
+             "onFocusCommand": {
+              "showHintCommand": {
+               "shouldShowHint": true
+              }
+             },
+             "contentId": "71CPzi_pU9o",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/McXXAnkocTI/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLDIRgiXCaZsvtA3QYjsIInBsCkEEA",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "22:42"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "America Can't Let the A-10 DIE... Here's Why"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "WARTECH EXPLAINED",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UC_FJCCZVZFCP8IOxdX1ytBQ",
+                          "canonicalBaseUrl": "/@WarTechX"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "New"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "4K"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "4.4K views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "3 hours ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "McXXAnkocTI",
+               "params": "0gYiCgYKAmVuEAQSGBoGCgJlbhABIgYKAmVuEAEqBgoCZW4QAQ%3D%3D"
+              }
+             },
+             "contentId": "McXXAnkocTI",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           }
+          ],
+          "visibleItemCount": 3
+         }
+        },
+        "headerRenderer": {
+         "shelfHeaderRenderer": {
+          "title": {
+           "simpleText": " "
+          }
+         }
+        },
+        "tvhtml5ShelfRendererType": "TVHTML5_SHELF_RENDERER_TYPE_GRID",
+        "tvhtml5Metadata": {
+         "retainShelfIndex": true
+        }
+       }
+      },
+      {
+       "shelfRenderer": {
+        "content": {
+         "horizontalListRenderer": {
+          "items": [
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/tjn-k7iBi4Q/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLBQNxUqHWu-GWf-gdfoEYk_ZWggyQ",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "23:49"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "Shuttle flight / Полёт шаттла"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "Poltavchanishe",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UCD9RHBhQr-Y0T9cnscZLcXw",
+                          "canonicalBaseUrl": "/@Poltavchanin"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "5.2M views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "14 years ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "tjn-k7iBi4Q"
+              }
+             },
+             "contentId": "tjn-k7iBi4Q",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/mSQnhKKmC1s/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLAY1O5YiofvtbCndH63MW4nSTOA5g",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "15:13"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "SpaceX Starship Flight 14: Everything that Happened in 15 Minutes"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "CNET and 5 more",
+                        "navigationEndpoint": {
+                         "commandMetadata": {
+                          "interactionLoggingCommandMetadata": {
+                           "screenVisualElement": {
+                            "uiType": 269990
+                           }
+                          }
+                         },
+                         "showSheetCommand": {
+                          "panelLoadingStrategy": {
+                           "inlineContent": {
+                            "sheetViewModel": {
+                             "content": {
+                              "listViewModel": {
+                               "listItems": [
+                                {
+                                 "listItemViewModel": {
+                                  "title": {
+                                   "content": "CNET",
+                                   "styleRuns": [
+                                    {
+                                     "fontColor": 4279440147
+                                    },
+                                    {
+                                     "weightLabel": "FONT_WEIGHT_BOLD"
+                                    }
+                                   ]
+                                  },
+                                  "subtitle": {
+                                   "content": "‎⁨@CNET⁩ • ⁨4.1M subscribers⁩"
+                                  },
+                                  "trailingImage": {
+                                   "sources": [
+                                    {
+                                     "clientResource": {
+                                      "imageName": ""
+                                     }
+                                    }
+                                   ]
+                                  },
+                                  "leadingAccessory": {
+                                   "avatarViewModel": {
+                                    "image": {
+                                     "sources": [
+                                      {
+                                       "url": "https://yt3.ggpht.com/SGoD0SodPuysPRUSFI8jd_eqR-ZCgvxhZk905338O1NUYI5eUqMZ1lQaekFNiDggJh0lA_5kQg=s68-c-k-c0x00ffffff-no-rj"
+                                      }
+                                     ],
+                                     "processor": {
+                                      "borderImageProcessor": {
+                                       "circular": true
+                                      }
+                                     }
+                                    },
+                                    "avatarImageSize": "AVATAR_SIZE_M"
+                                   }
+                                  },
+                                  "rendererContext": {
+                                   "accessibilityContext": {
+                                    "label": "CNET @CNET 4.1 million subscribers. Go to channel"
+                                   },
+                                   "commandContext": {
+                                    "onTap": {
+                                     "innertubeCommand": {
+                                      "browseEndpoint": {
+                                       "browseId": "UCOmcA3f_RrH6b9NmcNa4tdg"
+                                      }
+                                     }
+                                    }
+                                   }
+                                  }
+                                 }
+                                },
+                                {
+                                 "listItemViewModel": {
+                                  "title": {
+                                   "content": "PCMag",
+                                   "styleRuns": [
+                                    {
+                                     "fontColor": 4279440147
+                                    },
+                                    {
+                                     "weightLabel": "FONT_WEIGHT_BOLD"
+                                    }
+                                   ]
+                                  },
+                                  "subtitle": {
+                                   "content": "‎⁨@PCMag⁩ • ⁨265K subscribers⁩"
+                                  },
+                                  "trailingImage": {
+                                   "sources": [
+                                    {
+                                     "clientResource": {
+                                      "imageName": ""
+                                     }
+                                    }
+                                   ]
+                                  },
+                                  "leadingAccessory": {
+                                   "avatarViewModel": {
+                                    "image": {
+                                     "sources": [
+                                      {
+                                       "url": "https://yt3.ggpht.com/cUp-DHH4z550JI9fdZylUwkWy5ma3UE2oHiLRIF0SwSbRQCVvitot1xDGhoGjDwKH7t9cfwYwg=s88-c-k-c0x00ffffff-no-rj"
+                                      }
+                                     ],
+                                     "processor": {
+                                      "borderImageProcessor": {
+                                       "circular": true
+                                      }
+                                     }
+                                    },
+                                    "avatarImageSize": "AVATAR_SIZE_M"
+                                   }
+                                  },
+                                  "rendererContext": {
+                                   "accessibilityContext": {
+                                    "label": "PCMag @PCMag 265 thousand subscribers. Go to channel"
+                                   },
+                                   "commandContext": {
+                                    "onTap": {
+                                     "innertubeCommand": {
+                                      "browseEndpoint": {
+                                       "browseId": "UCRhADYLTpsb0JA-uaLWovGw"
+                                      }
+                                     }
+                                    }
+                                   }
+                                  }
+                                 }
+                                },
+                                {
+                                 "listItemViewModel": {
+                                  "title": {
+                                   "content": "TechPulse by CNET Group",
+                                   "styleRuns": [
+                                    {
+                                     "fontColor": 4279440147
+                                    },
+                                    {
+                                     "weightLabel": "FONT_WEIGHT_BOLD"
+                                    }
+                                   ]
+                                  },
+                                  "subtitle": {
+                                   "content": "‎⁨@TechPulsebyCNETGroup⁩ • ⁨6.02K subscribers⁩"
+                                  },
+                                  "trailingImage": {
+                                   "sources": [
+                                    {
+                                     "clientResource": {
+                                      "imageName": ""
+                                     }
+                                    }
+                                   ]
+                                  },
+                                  "leadingAccessory": {
+                                   "avatarViewModel": {
+                                    "image": {
+                                     "sources": [
+                                      {
+                                       "url": "https://yt3.ggpht.com/1vJ-czR_bPMK4ohrHyUttr3dZQXao_yvwfyBNwH1zuJkuwoXczS66abpEVz4Brt1PKChIUj81jM=s88-c-k-c0x00ffffff-no-rj"
+                                      }
+                                     ],
+                                     "processor": {
+                                      "borderImageProcessor": {
+                                       "circular": true
+                                      }
+                                     }
+                                    },
+                                    "avatarImageSize": "AVATAR_SIZE_M"
+                                   }
+                                  },
+                                  "rendererContext": {
+                                   "accessibilityContext": {
+                                    "label": "TechPulse by CNET Group @TechPulsebyCNETGroup 6.02 thousand subscribers. Go to channel"
+                                   },
+                                   "commandContext": {
+                                    "onTap": {
+                                     "innertubeCommand": {
+                                      "browseEndpoint": {
+                                       "browseId": "UC91n2wRIPAPigSDd3xbEoIg"
+                                      }
+                                     }
+                                    }
+                                   }
+                                  }
+                                 }
+                                },
+                                {
+                                 "listItemViewModel": {
+                                  "title": {
+                                   "content": "ZDNET",
+                                   "styleRuns": [
+                                    {
+                                     "fontColor": 4279440147
+                                    },
+                                    {
+                                     "weightLabel": "FONT_WEIGHT_BOLD"
+                                    }
+                                   ]
+                                  },
+                                  "subtitle": {
+                                   "content": "‎⁨@zdnetvideo⁩ • ⁨79.7K subscribers⁩"
+                                  },
+                                  "trailingImage": {
+                                   "sources": [
+                                    {
+                                     "clientResource": {
+                                      "imageName": ""
+                                     }
+                                    }
+                                   ]
+                                  },
+                                  "leadingAccessory": {
+                                   "avatarViewModel": {
+                                    "image": {
+                                     "sources": [
+                                      {
+                                       "url": "https://yt3.ggpht.com/aEMm-PFbPNwJeD9Byld6gASurUqExUiLZbAmBw3dJAAOtbRqCd5hVqfe0J8J4S8E-yC9BfiMJw=s88-c-k-c0x00ffffff-no-rj"
+                                      }
+                                     ],
+                                     "processor": {
+                                      "borderImageProcessor": {
+                                       "circular": true
+                                      }
+                                     }
+                                    },
+                                    "avatarImageSize": "AVATAR_SIZE_M"
+                                   }
+                                  },
+                                  "rendererContext": {
+                                   "accessibilityContext": {
+                                    "label": "ZDNET @zdnetvideo 79.7 thousand subscribers. Go to channel"
+                                   },
+                                   "commandContext": {
+                                    "onTap": {
+                                     "innertubeCommand": {
+                                      "browseEndpoint": {
+                                       "browseId": "UCr9QWb5RKLfaunjKHJZAdQQ"
+                                      }
+                                     }
+                                    }
+                                   }
+                                  }
+                                 }
+                                },
+                                {
+                                 "listItemViewModel": {
+                                  "title": {
+                                   "content": "Popular Science",
+                                   "styleRuns": [
+                                    {
+                                     "fontColor": 4279440147
+                                    },
+                                    {
+                                     "weightLabel": "FONT_WEIGHT_BOLD"
+                                    }
+                                   ]
+                                  },
+                                  "subtitle": {
+                                   "content": "‎⁨@popularscience⁩ • ⁨138K subscribers⁩"
+                                  },
+                                  "trailingImage": {
+                                   "sources": [
+                                    {
+                                     "clientResource": {
+                                      "imageName": ""
+                                     }
+                                    }
+                                   ]
+                                  },
+                                  "leadingAccessory": {
+                                   "avatarViewModel": {
+                                    "image": {
+                                     "sources": [
+                                      {
+                                       "url": "https://yt3.ggpht.com/3iuPdCnuw3Yz1m4CnJGozzx0xqoxaBKzWVeQHAxSY_oia_25HRVfTqy2H6egkxzrDnOhH0TT4w=s88-c-k-c0x00ffffff-no-rj"
+                                      }
+                                     ],
+                                     "processor": {
+                                      "borderImageProcessor": {
+                                       "circular": true
+                                      }
+                                     }
+                                    },
+                                    "avatarImageSize": "AVATAR_SIZE_M"
+                                   }
+                                  },
+                                  "rendererContext": {
+                                   "accessibilityContext": {
+                                    "label": "Popular Science @popularscience 138 thousand subscribers. Go to channel"
+                                   },
+                                   "commandContext": {
+                                    "onTap": {
+                                     "innertubeCommand": {
+                                      "browseEndpoint": {
+                                       "browseId": "UCSwkELX52qCd-72ubE3lAcw"
+                                      }
+                                     }
+                                    }
+                                   }
+                                  }
+                                 }
+                                },
+                                {
+                                 "listItemViewModel": {
+                                  "title": {
+                                   "content": "Mashable",
+                                   "styleRuns": [
+                                    {
+                                     "fontColor": 4279440147
+                                    },
+                                    {
+                                     "weightLabel": "FONT_WEIGHT_BOLD"
+                                    }
+                                   ]
+                                  },
+                                  "subtitle": {
+                                   "content": "‎⁨@Mashable⁩ • ⁨1.18M subscribers⁩"
+                                  },
+                                  "trailingImage": {
+                                   "sources": [
+                                    {
+                                     "clientResource": {
+                                      "imageName": ""
+                                     }
+                                    }
+                                   ]
+                                  },
+                                  "leadingAccessory": {
+                                   "avatarViewModel": {
+                                    "image": {
+                                     "sources": [
+                                      {
+                                       "url": "https://yt3.ggpht.com/DkwGNTtaOJN8J1D_FCNwHwTWDJa2IVrtT0QHGrFDNE6PTC1T6RlbppkdIxv5590EPa0jdUdZ7g=s88-c-k-c0x00ffffff-no-rj"
+                                      }
+                                     ],
+                                     "processor": {
+                                      "borderImageProcessor": {
+                                       "circular": true
+                                      }
+                                     }
+                                    },
+                                    "avatarImageSize": "AVATAR_SIZE_M"
+                                   }
+                                  },
+                                  "rendererContext": {
+                                   "accessibilityContext": {
+                                    "label": "Mashable @Mashable 1.18 million subscribers. Go to channel"
+                                   },
+                                   "commandContext": {
+                                    "onTap": {
+                                     "innertubeCommand": {
+                                      "browseEndpoint": {
+                                       "browseId": "UCL8Nxsa1LB9DrMTHtt3IKiw"
+                                      }
+                                     }
+                                    }
+                                   }
+                                  }
+                                 }
+                                }
+                               ]
+                              }
+                             }
+                            }
+                           },
+                           "screenVe": 269990
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "2.1M views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "1 month ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "mSQnhKKmC1s",
+               "params": "0gYiCgYKAmVuEAQSGBoGCgJlbhABIgYKAmVuEAEqBgoCZW4QAQ%3D%3D"
+              }
+             },
+             "onFocusCommand": {
+              "showHintCommand": {
+               "shouldShowHint": true
+              }
+             },
+             "contentId": "mSQnhKKmC1s",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           },
+           {
+            "tileRenderer": {
+             "style": "TILE_STYLE_YTLR_DEFAULT",
+             "header": {
+              "tileHeaderRenderer": {
+               "thumbnail": {
+                "thumbnails": [
+                 {
+                  "url": "https://i.ytimg.com/vi/DYY4nnfxKbU/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLD1XHhixZIwRi3bAa1Aiufhcyri1g",
+                  "width": 640,
+                  "height": 360
+                 }
+                ]
+               },
+               "thumbnailOverlays": [
+                {
+                 "thumbnailOverlayTimeStatusRenderer": {
+                  "text": {
+                   "simpleText": "1:21:00"
+                  },
+                  "style": "DEFAULT"
+                 }
+                }
+               ]
+              }
+             },
+             "metadata": {
+              "tileMetadataRenderer": {
+               "title": {
+                "simpleText": "NASA's Artemis II Crew Return to Houston"
+               },
+               "lines": [
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "NASA",
+                        "navigationEndpoint": {
+                         "browseEndpoint": {
+                          "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ",
+                          "canonicalBaseUrl": "/@NASA"
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "lineRenderer": {
+                  "items": [
+                   {
+                    "lineItemRenderer": {
+                     "badge": {
+                      "metadataBadgeRenderer": {
+                       "style": "BADGE_STYLE_TYPE_SIMPLE",
+                       "label": "4K"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "1.7M views"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "•"
+                     }
+                    }
+                   },
+                   {
+                    "lineItemRenderer": {
+                     "text": {
+                      "simpleText": "Streamed 6 months ago"
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               ]
+              }
+             },
+             "onSelectCommand": {
+              "watchEndpoint": {
+               "videoId": "DYY4nnfxKbU",
+               "params": "0gYiCgYKAmVuEAQSGBoGCgJlbhABIgYKAmVuEAEqBgoCZW4QAQ%3D%3D"
+              }
+             },
+             "contentId": "DYY4nnfxKbU",
+             "contentType": "TILE_CONTENT_TYPE_VIDEO"
+            }
+           }
+          ],
+          "visibleItemCount": 3
+         }
+        },
+        "headerRenderer": {
+         "shelfHeaderRenderer": {
+          "title": {
+           "simpleText": " "
+          }
+         }
+        },
+        "tvhtml5ShelfRendererType": "TVHTML5_SHELF_RENDERER_TYPE_GRID",
+        "tvhtml5Metadata": {
+         "retainShelfIndex": true
+        }
+       }
+      }
+     ],
+     "continuations": [
+      {
+       "nextContinuationData": {
+        "continuation": "CB4SNxILeU1vR2lJZURIOXMiIlBMMmFCWnVDZUR3bFJhRjZBSWV5N3VsbVcxWDBTSEkxbVHAAQHIAQEYACrcB01nb0l0ZFBFdi1lVGpzTU4yczZMNnd6U0JRclBCUW9EOGo0QUNnM0NQZ29JajZDcWdjaUcwWWRyQ2c3Q1Bnc0l6ZGZDcUl6dW91eTJBUW9Pd2o0TENQTHF1ZUdiLWRHcGxRRUtBX0ktQUFvTndqNEtDS1NnZ2JUZnRjT01RZ29Pd2o0TENKZnd4dHJScTZ1QW1RRUtEc0ktQ3dpMTMtN2I4Nnk0N3V3QkNnUHlQZ0FLRHNJLUN3alp3NHlCMC1USDZzTUJDZzNDUGdvSW9kLUhoYmo2ejZGZUNnekNQZ2tJaC1YZjhOYmo3MnNLQV9JLUFBb053ajRLQ0stanNiWExocG5zRWdvT3dqNExDTnFucGZfaS1hT283d0VLRGNJLUNnaXk0cUhKcC1EMTRqRUtBX0ktQUFvTndqNEtDTENfeC1McWc0emxBd29Od2o0S0NNZUdnNUx6cjU3VkJRb093ajRMQ09paDBxYU43cGF3bmdFS0FfSS1BQW9Pd2o0TENMbVBoWlB4c3JQamhBRUtEc0ktQ3dpdTg3U2kxTS1xc3VnQkNnN0NQZ3NJazlPR281Nm50UG5SQVFvRDhqNEFDZzdDUGdzSXA3cWp1TTNhNS1iOUFRb093ajRMQ0xITDI2V0J2TTZ5c3dFS0RjSS1DZ2lGbS1EYl9JcmRraVlLQV9JLUFBb053ajRLQ05icnl1YmVudmF6V2dvTndqNEtDUEdSNjRmMW92NndHQW9Od2o0S0NQUHduSXI4NjZYM0tRb0Q4ajRBQ2czQ1Bnb0ltdWkyb3JQeWw0ZzRDZzdDUGdzSWxjS254cUd1blk3RUFRb093ajRMQ0wtTXZLSEpvNW0yX0FFS0FfSS1BQW9Pd2o0TENJU1hoc1M3MHYtY3RnRUtEc0ktQ3dqYmxwaVZ5dkNKa3BrQkNnM0NQZ29JdGRQRXYtZVRqc01ORWdvQUJBZ01FQlFZSENBa0dnUUlBQkFCR2dRSUFCQUNHZ1FJQUJBREdnUUlCQkFGR2dRSUJCQUdHZ1FJQkJBSEdnUUlDQkFKR2dRSUNCQUtHZ1FJQ0JBTEdnUUlEQkFOR2dRSURCQU9HZ1FJREJBUEdnUUlFQkFSR2dRSUVCQVNHZ1FJRUJBVEdnUUlGQkFWR2dRSUZCQVdHZ1FJRkJBWEdnUUlHQkFaR2dRSUdCQWFHZ1FJR0JBYkdnUUlIQkFkR2dRSUhCQWVHZ1FJSEJBZkdnUUlJQkFoR2dRSUlCQWlHZ1FJSUJBakdnUUlKQkFsR2dRSUpCQW1HZ1FJSkJBbktnb0FCQWdNRUJRWUhDQWs%3D"
+       }
+      }
+     ]
+    }
+   }
+  }
+ },
+ "currentVideoEndpoint": {
+  "watchEndpoint": {
+   "videoId": "yMoGiIeDH9s",
+   "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+   "index": 0,
+   "playlistSetVideoId": "D0A0EF93DCE5742B"
+  }
+ },
+ "videoReporting": {
+  "menuRenderer": {
+   "items": [
+    {
+     "menuServiceItemRenderer": {
+      "text": {
+       "simpleText": "Sexual content"
+      },
+      "icon": {
+       "iconType": "FLAG"
+      },
+      "serviceEndpoint": {
+       "flagEndpoint": {
+        "flagAction": "EAciDQoLeU1vR2lJZURIOXMyC3lNb0dpSWVESDlzkAEsmAEB"
+       }
+      }
+     }
+    },
+    {
+     "menuServiceItemRenderer": {
+      "text": {
+       "simpleText": "Violent or repulsive content"
+      },
+      "icon": {
+       "iconType": "FLAG"
+      },
+      "serviceEndpoint": {
+       "flagEndpoint": {
+        "flagAction": "EAciDQoLeU1vR2lJZURIOXMyC3lNb0dpSWVESDlzkAE2mAEB"
+       }
+      }
+     }
+    },
+    {
+     "menuServiceItemRenderer": {
+      "text": {
+       "simpleText": "Hateful or abusive content"
+      },
+      "icon": {
+       "iconType": "FLAG"
+      },
+      "serviceEndpoint": {
+       "flagEndpoint": {
+        "flagAction": "EAciDQoLeU1vR2lJZURIOXMyC3lNb0dpSWVESDlzkAEUmAEB"
+       }
+      }
+     }
+    },
+    {
+     "menuServiceItemRenderer": {
+      "text": {
+       "simpleText": "Harassment or bullying"
+      },
+      "icon": {
+       "iconType": "FLAG"
+      },
+      "serviceEndpoint": {
+       "flagEndpoint": {
+        "flagAction": "EAciDQoLeU1vR2lJZURIOXMyC3lNb0dpSWVESDlzkAERmAEB"
+       }
+      }
+     }
+    },
+    {
+     "menuServiceItemRenderer": {
+      "text": {
+       "simpleText": "Harmful or dangerous acts"
+      },
+      "icon": {
+       "iconType": "FLAG"
+      },
+      "serviceEndpoint": {
+       "flagEndpoint": {
+        "flagAction": "EAciDQoLeU1vR2lJZURIOXMyC3lNb0dpSWVESDlzkAENmAEB"
+       }
+      }
+     }
+    },
+    {
+     "menuServiceItemRenderer": {
+      "text": {
+       "simpleText": "Spam or misleading"
+      },
+      "icon": {
+       "iconType": "FLAG"
+      },
+      "serviceEndpoint": {
+       "flagEndpoint": {
+        "flagAction": "EAciDQoLeU1vR2lJZURIOXMyC3lNb0dpSWVESDlzkAExmAEB"
+       }
+      }
+     }
+    }
+   ]
+  }
+ },
+ "onUiReady": {
+  "loadMarkersCommand": {
+   "visibleOnLoadKeys": [
+    "Eg1BVVRPX0NIQVBURVJTIJICKAE%3D"
+   ],
+   "entityKeys": [
+    "Eg1BVVRPX0NIQVBURVJTIJICKAE%3D"
+   ]
+  }
+ },
+ "transportControls": {
+  "transportControlsRenderer": {
+   "buttons": [
+    {
+     "type": "TRANSPORT_CONTROLS_BUTTON_TYPE_SUBSCRIBE",
+     "button": {
+      "subscribeButtonRenderer": {
+       "buttonText": {
+        "runs": [
+         {
+          "text": "Subscribe"
+         }
+        ]
+       },
+       "subscribed": false,
+       "enabled": true,
+       "type": "FREE",
+       "channelId": "UC_aP7p621ATY_yAa8jMqUVA",
+       "showPreferences": false,
+       "subscribedButtonText": {
+        "runs": [
+         {
+          "text": "Subscribed"
+         }
+        ]
+       },
+       "unsubscribedButtonText": {
+        "runs": [
+         {
+          "text": "Subscribe"
+         }
+        ]
+       },
+       "unsubscribeButtonText": {
+        "runs": [
+         {
+          "text": "Unsubscribe"
+         }
+        ]
+       },
+       "serviceEndpoints": [
+        {
+         "authDeterminedCommand": {
+          "authenticatedCommand": {
+           "subscribeEndpoint": {
+            "channelIds": [
+             "UC_aP7p621ATY_yAa8jMqUVA"
+            ],
+            "params": "EgIIHBgA"
+           }
+          },
+          "unauthenticatedCommand": {
+           "authRequiredCommand": {
+            "identityActionContext": {
+             "eventTrigger": "ACCOUNT_EVENT_TRIGGER_SUBSCRIBE",
+             "nextEndpoint": {
+              "commandExecutorCommand": {
+               "commands": [
+                {
+                 "signalAction": {
+                  "signal": "CLOSE_POPUP"
+                 }
+                },
+                {
+                 "subscribeEndpoint": {
+                  "channelIds": [
+                   "UC_aP7p621ATY_yAa8jMqUVA"
+                  ],
+                  "params": "EgIIHBgA"
+                 }
+                }
+               ]
+              }
+             }
+            }
+           }
+          }
+         }
+        },
+        {
+         "unsubscribeEndpoint": {
+          "channelIds": [
+           "UC_aP7p621ATY_yAa8jMqUVA"
+          ],
+          "params": "CgIIHBgA"
+         }
+        }
+       ],
+       "notificationPreferenceButton": {
+        "subscriptionNotificationToggleButtonRenderer": {
+         "states": [
+          {
+           "stateId": 3,
+           "nextStateId": 3,
+           "state": {
+            "buttonRenderer": {
+             "style": "STYLE_TEXT",
+             "size": "SIZE_DEFAULT",
+             "isDisabled": false,
+             "icon": {
+              "iconType": "NOTIFICATIONS_NONE"
+             }
+            }
+           },
+           "inlineMenuButton": {
+            "buttonRenderer": {
+             "style": "STYLE_TEXT",
+             "size": "SIZE_DEFAULT",
+             "isDisabled": false,
+             "text": {
+              "simpleText": "Personalized"
+             },
+             "serviceEndpoint": {
+              "modifyChannelNotificationPreferenceEndpoint": {
+               "params": "ChhVQ19hUDdwNjIxQVRZX3lBYThqTXFVVkESAggBGAAgBA%3D%3D"
+              }
+             },
+             "icon": {
+              "iconType": "NOTIFICATIONS_NONE"
+             }
+            }
+           },
+           "notificationState": "SUBSCRIPTION_NOTIFICATION_STATE_OCCASIONAL"
+          },
+          {
+           "stateId": 0,
+           "nextStateId": 0,
+           "state": {
+            "buttonRenderer": {
+             "style": "STYLE_TEXT",
+             "size": "SIZE_DEFAULT",
+             "isDisabled": false,
+             "icon": {
+              "iconType": "NOTIFICATIONS_OFF"
+             }
+            }
+           },
+           "inlineMenuButton": {
+            "buttonRenderer": {
+             "style": "STYLE_TEXT",
+             "size": "SIZE_DEFAULT",
+             "isDisabled": false,
+             "text": {
+              "simpleText": "None"
+             },
+             "serviceEndpoint": {
+              "modifyChannelNotificationPreferenceEndpoint": {
+               "params": "ChhVQ19hUDdwNjIxQVRZX3lBYThqTXFVVkESAggDGAAgBA%3D%3D"
+              }
+             },
+             "icon": {
+              "iconType": "NOTIFICATIONS_OFF"
+             }
+            }
+           },
+           "notificationState": "SUBSCRIPTION_NOTIFICATION_STATE_OFF"
+          },
+          {
+           "state": {
+            "buttonRenderer": {
+             "style": "STYLE_TEXT",
+             "size": "SIZE_DEFAULT",
+             "isDisabled": false,
+             "text": {
+              "runs": [
+               {
+                "text": "Unsubscribe"
+               }
+              ]
+             },
+             "icon": {
+              "iconType": "PERSON_MINUS"
+             },
+             "command": {
+              "commandExecutorCommand": {
+               "commands": [
+                {
+                 "unsubscribeEndpoint": {
+                  "channelIds": [
+                   "UC_aP7p621ATY_yAa8jMqUVA"
+                  ],
+                  "params": "CgIIHBgA"
+                 }
+                }
+               ]
+              }
+             }
+            }
+           }
+          }
+         ],
+         "currentStateId": 3,
+         "onTapBehavior": "ON_TAP_BEHAVIOR_TOGGLE_ICON_WITH_INLINE_MENU",
+         "command": {
+          "showEngagementPanelEndpoint": {
+           "identifier": {
+            "tag": "channel-notifications-panel"
+           }
+          }
+         },
+         "targetId": "notification-bell",
+         "notificationStateEntityKey": "EhhVQ19hUDdwNjIxQVRZX3lBYThqTXFVVkEgjAEoAQ%3D%3D",
+         "notificationsLabel": {
+          "runs": [
+           {
+            "text": "Subscribed"
+           }
+          ]
+         }
+        }
+       },
+       "subscribedEntityKey": "EhhVQ19hUDdwNjIxQVRZX3lBYThqTXFVVkEgMygB"
+      }
+     }
+    },
+    {
+     "type": "TRANSPORT_CONTROLS_BUTTON_TYPE_CHANNEL_BUTTON",
+     "button": {
+      "videoOwnerRenderer": {
+       "thumbnail": {
+        "thumbnails": [
+         {
+          "url": "https://yt3.ggpht.com/ytc/AIdro_mAavC7uPluTw_kro_ji26VOxzjsQ6FFnAdtaFi6mmJu8A=s176-c-k-c0x00ffffff-no-rj",
+          "width": 176,
+          "height": 176
+         }
+        ]
+       },
+       "title": {
+        "runs": [
+         {
+          "text": "Channel"
+         }
+        ]
+       },
+       "navigationEndpoint": {
+        "showEngagementPanelEndpoint": {
+         "identifier": {
+          "tag": "channel-actions-panel"
+         }
+        }
+       }
+      }
+     }
+    },
+    {
+     "type": "TRANSPORT_CONTROLS_BUTTON_TYPE_CAPTIONS",
+     "button": {
+      "toggleButtonRenderer": {
+       "isToggled": false,
+       "isDisabled": false,
+       "defaultIcon": {
+        "iconType": "CAPTIONS"
+       },
+       "defaultText": {
+        "runs": [
+         {
+          "text": "Captions"
+         }
+        ]
+       },
+       "defaultServiceEndpoint": {
+        "selectSubtitlesTrackCommand": {
+         "useDefaultTrack": true
+        }
+       },
+       "toggledText": {
+        "runs": [
+         {
+          "text": "Captions"
+         }
+        ]
+       },
+       "toggledServiceEndpoint": {
+        "selectSubtitlesTrackCommand": {}
+       }
+      }
+     }
+    },
+    {
+     "type": "TRANSPORT_CONTROLS_BUTTON_TYPE_SKIP_PREVIOUS",
+     "button": {
+      "buttonRenderer": {
+       "isDisabled": false,
+       "text": {
+        "runs": [
+         {
+          "text": "Previous"
+         }
+        ]
+       },
+       "icon": {
+        "iconType": "SKIP_PREVIOUS"
+       },
+       "command": {
+        "signalAction": {
+         "signal": "PLAYER_PLAY_PREVIOUS"
+        }
+       }
+      }
+     }
+    },
+    {
+     "type": "TRANSPORT_CONTROLS_BUTTON_TYPE_SKIP_NEXT",
+     "button": {
+      "buttonRenderer": {
+       "isDisabled": false,
+       "text": {
+        "runs": [
+         {
+          "text": "Next"
+         }
+        ]
+       },
+       "icon": {
+        "iconType": "SKIP_NEXT"
+       },
+       "command": {
+        "signalAction": {
+         "signal": "PLAYER_PLAY_NEXT"
+        }
+       }
+      }
+     }
+    },
+    {
+     "type": "TRANSPORT_CONTROLS_BUTTON_TYPE_DRC",
+     "button": {
+      "buttonRenderer": {
+       "isDisabled": false,
+       "text": {
+        "runs": [
+         {
+          "text": "Stable volume"
+         }
+        ]
+       },
+       "icon": {
+        "iconType": "VOLUME_STABLE"
+       },
+       "command": {
+        "signalAction": {
+         "signal": "TOGGLE_STABLE_VOLUME"
+        }
+       }
+      }
+     }
+    }
+   ]
+  }
+ },
+ "queueContextParams": "QiJQTDJhQlp1Q2VEd2xSYUY2QUlleTd1bG1XMVgwU0hJMW1RYgYIn4Ln1AY=",
+ "mdxExpandedVideoList": {
+  "videoIds": [
+   "yMoGiIeDH9s",
+   "SGVxZ4idYvc",
+   "11ZbXP1kjBs",
+   "VUz8wMKnDe4",
+   "G-GD8SQ0AvU",
+   "jHKf1eHp3eQ"
+  ]
+ }
+}

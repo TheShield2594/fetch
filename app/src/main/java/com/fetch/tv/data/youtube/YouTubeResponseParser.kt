@@ -62,12 +62,64 @@ internal object YouTubeResponseParser {
                 ?: renderer.path("autoplayEndpointRenderer")
                 ?: renderer.path("autoplayVideoWrapperRenderer", "primaryEndpointRenderer", "autoplayEndpointRenderer")
             parseAutoplayItem(item)?.takeIf { it.videoId != currentVideoId }
-        }
-        // The related tile has the duration and channel the autoplay button leaves out.
-        val next = autoplay?.let { pick -> related.firstOrNull { it.videoId == pick.videoId } ?: pick }
-            ?: related.firstOrNull()
-        return YouTubeWatchNext(next = next, related = related, actions = parseVideoActions(root))
+        }?.let { pick -> if (pick.title.isEmpty() && related.none { it.videoId == pick.videoId }) null else pick }
+        // The related tile has the duration and channel the autoplay button leaves out; the
+        // button has the playlist position the tile leaves out.
+        val next = autoplay?.let { pick ->
+            related.firstOrNull { it.videoId == pick.videoId }
+                ?.let { it.copy(playlistId = pick.playlistId ?: it.playlistId, playlistIndex = pick.playlistIndex ?: it.playlistIndex) }
+                ?: pick
+        } ?: related.firstOrNull()
+        return YouTubeWatchNext(
+            next = next,
+            related = related,
+            actions = parseVideoActions(root),
+            playlist = parsePlaylistContext(results.path("playlist", "playlist")),
+            chapters = parseChapters(root)
+        )
     }
+
+    /** The watch page's playlist panel: which list the video plays in, and where. */
+    private fun parsePlaylistContext(panel: JsonElement?): YouTubePlaylistContext? {
+        val playlistId = panel.path("playlistId").stringOrNull() ?: return null
+        return YouTubePlaylistContext(
+            playlistId = playlistId,
+            title = text(panel.path("title")) ?: text(panel.path("titleText")),
+            currentIndex = panel.path("currentIndex").intOrNull(),
+            totalVideos = panel.path("totalVideos").intOrNull()
+        )
+    }
+
+    /**
+     * A video's chapters, from the player bar's markers (`multiMarkersPlayerBarRenderer`): the
+     * uploader's (DESCRIPTION_CHAPTERS) before YouTube's automatic ones (AUTO_CHAPTERS). Fewer than
+     * two chapters isn't a chapter list.
+     */
+    fun parseChapters(root: JsonElement?): List<YouTubeChapter> {
+        val maps = mutableListOf<JsonObject>()
+        findObjectsWithKey(root, "markersMap", maps, depth = 0)
+        val entries = maps.flatMap { (it["markersMap"] as? JsonArray).orEmpty() }
+        // Only entries that hold chapters: a later empty entry mustn't hide the uploader's list.
+        val byKey = entries.mapNotNull { entry ->
+            val chapters = entry.path("value", "chapters") as? JsonArray ?: return@mapNotNull null
+            entry.path("key").stringOrNull() to chapters
+        }.toMap()
+        val chapters = (byKey["DESCRIPTION_CHAPTERS"] ?: byKey["AUTO_CHAPTERS"] ?: byKey.values.firstOrNull())
+            .orEmpty()
+            .mapNotNull { item ->
+                val chapter = item.path("chapterRenderer") ?: return@mapNotNull null
+                val start = (chapter.path("timeRangeStartMillis") as? JsonPrimitive)?.contentOrNull?.toLongOrNull()
+                    ?: return@mapNotNull null
+                YouTubeChapter(startMs = start, title = text(chapter.path("title")).orEmpty())
+            }
+            .distinctBy { it.startMs }
+            .sortedBy { it.startMs }
+        return if (chapters.size >= 2) chapters else emptyList()
+    }
+
+    /** The storyboard spec of a `player` response; null for live streams, which page theirs differently. */
+    fun parseStoryboardSpec(root: JsonElement?): String? =
+        root.path("storyboards", "playerStoryboardSpecRenderer", "spec").stringOrNull()?.takeIf { it.isNotBlank() }
 
     /** The like and subscribe buttons of the TV player's controls, and the channel they're for. */
     private fun parseVideoActions(root: JsonElement): YouTubeVideoActions? {
@@ -101,13 +153,17 @@ internal object YouTubeResponseParser {
     }
 
     private fun parseAutoplayItem(item: JsonElement?): YouTubeVideo? {
-        val videoId = item.path("endpoint", "watchEndpoint", "videoId").stringOrNull() ?: return null
+        val endpoint = item.path("endpoint", "watchEndpoint")
+        val videoId = endpoint.path("videoId").stringOrNull() ?: return null
         val preview = item.path("item", "previewButtonRenderer")
         return YouTubeVideo(
             videoId = videoId,
-            title = text(preview.path("title")) ?: return null,
+            // Without the preview (as when playing from a playlist), the related tile names it.
+            title = text(preview.path("title")) ?: "",
             channelName = text(preview.path("byline")),
-            thumbnailUrl = bestThumbnail(preview.path("thumbnail")) ?: defaultThumbnail(videoId)
+            thumbnailUrl = bestThumbnail(preview.path("thumbnail")) ?: defaultThumbnail(videoId),
+            playlistId = endpoint.path("playlistId").stringOrNull(),
+            playlistIndex = endpoint.path("index").intOrNull()
         )
     }
 
@@ -367,6 +423,7 @@ internal object YouTubeResponseParser {
         if (contentType != null && contentType != "LOCKUP_CONTENT_TYPE_VIDEO" && !isShort) return null
         val command = lockup.path("rendererContext", "commandContext", "onTap", "innertubeCommand")
         val videoId = watchVideoId(command) ?: return null
+        val (playlistId, playlistIndex) = watchPlaylist(command)
         val metadata = lockup.path("metadata", "lockupMetadataViewModel") as? JsonObject
         val title = text(metadata?.get("title")) ?: return null
         val rows = (metadata.path("metadata", "contentMetadataViewModel", "metadataRows") as? JsonArray).orEmpty()
@@ -399,7 +456,9 @@ internal object YouTubeResponseParser {
             },
             // In the long-press menu's "Go to channel".
             channelId = channelId(lockup["rendererContext"], depth = 0),
-            channels = channelRefs(lockup["metadata"], lockup["rendererContext"], lockup)
+            channels = channelRefs(lockup["metadata"], lockup["rendererContext"], lockup),
+            playlistId = playlistId,
+            playlistIndex = playlistIndex
         )
     }
 
@@ -410,6 +469,7 @@ internal object YouTubeResponseParser {
             contentType == "TILE_CONTENT_TYPE_SHORTS"
         if (contentType != null && contentType != "TILE_CONTENT_TYPE_VIDEO" && !isShort) return null
         val videoId = watchVideoId(tile.path("onSelectCommand")) ?: return null
+        val (playlistId, playlistIndex) = watchPlaylist(tile.path("onSelectCommand"))
         val metadata = tile.path("metadata", "tileMetadataRenderer") as? JsonObject
         val header = tile.path("header", "tileHeaderRenderer") as? JsonObject
         val overlays = (header?.get("thumbnailOverlays") as? JsonArray).orEmpty()
@@ -440,8 +500,16 @@ internal object YouTubeResponseParser {
             // On the channel name's line.
             channelId = channelId(metadata, depth = 0),
             // A collaboration's byline or long-press menu lists its channels.
-            channels = channelRefs(metadata, tile)
+            channels = channelRefs(metadata, tile),
+            playlistId = playlistId,
+            playlistIndex = playlistIndex
         )
+    }
+
+    /** The playlist a watch command plays the video in, and its place there, when it names one. */
+    private fun watchPlaylist(command: JsonElement?): Pair<String?, Int?> {
+        val endpoint = command.path("watchEndpoint") ?: return null to null
+        return endpoint.path("playlistId").stringOrNull() to endpoint.path("index").intOrNull()
     }
 
     /** A video's id from a regular watch command, or a Short's reel one. */
@@ -472,7 +540,9 @@ internal object YouTubeResponseParser {
                 it.path("thumbnailOverlayResumePlaybackRenderer", "percentDurationWatched").intOrNull()
             },
             channelId = channelId(renderer["ownerText"] ?: renderer["shortBylineText"] ?: renderer["longBylineText"], depth = 0),
-            channels = channelRefs(renderer["ownerText"], renderer["shortBylineText"], renderer["longBylineText"], renderer)
+            channels = channelRefs(renderer["ownerText"], renderer["shortBylineText"], renderer["longBylineText"], renderer),
+            playlistId = watchPlaylist(renderer["navigationEndpoint"]).first,
+            playlistIndex = watchPlaylist(renderer["navigationEndpoint"]).second
         )
     }
 

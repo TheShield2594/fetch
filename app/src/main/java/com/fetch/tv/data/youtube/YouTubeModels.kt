@@ -19,7 +19,14 @@ data class YouTubeVideo(
      * Every channel the tile links to, the uploader first. A collaboration ("YouTube and 3 more")
      * credits several and may have no [channelId]; its byline or long-press menu lists them.
      */
-    val channels: List<YouTubeChannelRef> = emptyList()
+    val channels: List<YouTubeChannelRef> = emptyList(),
+    /**
+     * The playlist the tile plays from, when it was opened from one (a playlist page, Watch Later,
+     * a mix). Sent with the watch request so Up Next continues the list instead of related videos.
+     */
+    val playlistId: String? = null,
+    /** Where in [playlistId] the video sits, when YouTube says. */
+    val playlistIndex: Int? = null
 ) {
     val watchUrl: String
         get() = "https://www.youtube.com/watch?v=$videoId"
@@ -101,18 +108,79 @@ data class YouTubeAccount(
     val isSelected: Boolean = false
 )
 
-/** A part of a video SponsorBlock users marked, which playback skips. */
+/** A part of a video SponsorBlock users marked, which playback skips, offers to skip, or marks. */
 data class YouTubeSkipSegment(
     val startMs: Long,
     val endMs: Long,
     val category: String
+) {
+    val sponsorBlockCategory: SponsorBlockCategory?
+        get() = SponsorBlockCategory.fromApi(category)
+}
+
+/** The kinds of segment SponsorBlock users mark. [apiName] is SponsorBlock's own name. */
+enum class SponsorBlockCategory(val apiName: String, val defaultMode: SponsorBlockMode) {
+    SPONSOR("sponsor", SponsorBlockMode.SKIP),
+    SELF_PROMO("selfpromo", SponsorBlockMode.SKIP),
+    INTERACTION("interaction", SponsorBlockMode.SKIP),
+    INTRO("intro", SponsorBlockMode.OFF),
+    OUTRO("outro", SponsorBlockMode.OFF),
+    PREVIEW("preview", SponsorBlockMode.OFF),
+    MUSIC_OFFTOPIC("music_offtopic", SponsorBlockMode.OFF),
+    FILLER("filler", SponsorBlockMode.OFF);
+
+    companion object {
+        fun fromApi(name: String): SponsorBlockCategory? = entries.firstOrNull { it.apiName == name }
+    }
+}
+
+/** What playback does with a SponsorBlock category's segments. */
+enum class SponsorBlockMode {
+    /** Jumps past it, with a notice that can undo the jump. */
+    SKIP,
+    /** Offers a skip; OK takes it. */
+    ASK,
+    /** Only marks it on the seek bar. */
+    SHOW,
+    /** Not fetched or shown. */
+    OFF
+}
+
+/** A chapter of a video, from the uploader's description or YouTube's automatic ones. */
+data class YouTubeChapter(
+    val startMs: Long,
+    val title: String
+)
+
+/** The playlist a video plays in, from the watch page: Up Next goes on to its next video. */
+data class YouTubePlaylistContext(
+    val playlistId: String,
+    val title: String?,
+    /** Zero-based. */
+    val currentIndex: Int?,
+    val totalVideos: Int?
 )
 
 /** YouTube's Up Next for a video. [next] falls back to the first related video. */
 data class YouTubeWatchNext(
     val next: YouTubeVideo?,
     val related: List<YouTubeVideo>,
-    val actions: YouTubeVideoActions? = null
+    val actions: YouTubeVideoActions? = null,
+    /** Set when the video plays from a playlist; [next] is then the playlist's next video. */
+    val playlist: YouTubePlaylistContext? = null,
+    val chapters: List<YouTubeChapter> = emptyList()
+)
+
+/** Like and dislike counts from Return YouTube Dislike, which estimates the hidden dislikes. */
+data class YouTubeVoteCounts(
+    val likes: Long,
+    val dislikes: Long
+)
+
+/** A community title and thumbnail for a video, from DeArrow. Either may be missing. */
+data class YouTubeBranding(
+    val title: String?,
+    val thumbnailUrl: String?
 )
 
 /** Where the signed-in channel stands with a video and its uploader, from the TV watch page. */
@@ -156,7 +224,9 @@ enum class YouTubeLikeStatus {
 /** What the signed-in TV player says about a video, beyond the streams Fetch gets elsewhere. */
 data class YouTubePlayerInfo(
     val trackingLinks: Pair<String, String>?,
-    val captions: kotlinx.serialization.json.JsonElement?
+    val captions: kotlinx.serialization.json.JsonElement?,
+    /** The `playerStoryboardSpecRenderer` spec, for thumbnails while seeking. */
+    val storyboardSpec: String? = null
 )
 
 /** One playback that YouTube is told about, so it shows in the account's history. */
@@ -169,6 +239,16 @@ class YouTubeWatchSession internal constructor(
 ) {
     @Volatile
     internal var recorded: Boolean = false
+
+    /**
+     * Playback resumed at [positionSec] rather than the start, so the first report covers what's
+     * watched from there. Like SmartTube, a start in the first three minutes counts from the
+     * beginning. Ignored once a report has been sent.
+     */
+    fun startAt(positionSec: Float) {
+        if (recorded) return
+        lastPositionSec = if (positionSec < YouTubeService.HISTORY_START_THRESHOLD_SEC) 0f else positionSec
+    }
 }
 
 /** The sections of the YouTube screen, in tab order. */

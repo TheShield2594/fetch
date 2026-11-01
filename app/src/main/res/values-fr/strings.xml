@@ -3013,10 +3013,8 @@
     <string name="youtube_sponsor_block_subtitle">Ignore les passages sponsorisés, l\'autopromotion et les rappels d\'abonnement signalés par les utilisateurs de SponsorBlock</string>
     <string name="youtube_watch_history_title">Ajouter à l\'historique YouTube</string>
     <string name="youtube_watch_history_subtitle">Les vidéos que vous regardez ici apparaissent dans votre historique YouTube et reprennent là où vous vous étiez arrêté sur vos autres appareils</string>
-    <string name="youtube_sponsor_skipped">Sponsor ignoré</string>
     <string name="youtube_captions_title">Sous-titres</string>
     <string name="youtube_captions_off">Désactivés</string>
-    <string name="youtube_captions_hint">Appuyez vers le bas pour les sous-titres : %1$s</string>
     <string name="youtube_captions_auto">%1$s (générés automatiquement)</string>
     <string name="youtube_captions_translated">%1$s (traduits automatiquement)</string>
     <string name="youtube_captions_failed">Impossible de charger ces sous-titres. Essayez une autre piste.</string>

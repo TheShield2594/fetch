@@ -3,8 +3,11 @@ package com.fetch.tv.data.local
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.data.youtube.SponsorBlockCategory
+import com.fetch.tv.data.youtube.SponsorBlockMode
 import com.fetch.tv.data.youtube.YouTubeFeedFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -29,6 +32,16 @@ class YouTubeSettingsDataStore @Inject constructor(
         const val DEFAULT_WATCH_HISTORY_ENABLED = true
         const val DEFAULT_AUTOPLAY_ENABLED = true
         val DEFAULT_FEED_FILTER = YouTubeFeedFilter()
+        /** TV screens are 1080p or 4K; 1080p keeps 4K streams off devices and networks that struggle. */
+        const val DEFAULT_MAX_VIDEO_HEIGHT = 1080
+        /** The heights the quality setting offers, lowest first. */
+        val VIDEO_HEIGHT_OPTIONS = listOf(720, 1080, 1440, 2160)
+        const val DEFAULT_DEARROW_ENABLED = false
+        const val DEFAULT_RETURN_DISLIKE_ENABLED = false
+        const val DEFAULT_HOME_ROW_ENABLED = false
+        val DEFAULT_SPONSOR_BLOCK_MODES: Map<SponsorBlockCategory, SponsorBlockMode> =
+            SponsorBlockCategory.entries.associateWith { it.defaultMode }
+        const val MAX_RECENT_SEARCHES = 10
     }
 
     private val sponsorBlockKey = booleanPreferencesKey("sponsor_block_enabled")
@@ -39,6 +52,12 @@ class YouTubeSettingsDataStore @Inject constructor(
     private val hideWatchedKey = booleanPreferencesKey("hide_watched")
     private val captionsEnabledKey = booleanPreferencesKey("captions_enabled")
     private val captionLanguageKey = stringPreferencesKey("caption_language")
+    private val maxVideoHeightKey = intPreferencesKey("max_video_height")
+    private val deArrowKey = booleanPreferencesKey("dearrow_enabled")
+    private val returnDislikeKey = booleanPreferencesKey("return_dislike_enabled")
+    private val homeRowKey = booleanPreferencesKey("home_row_enabled")
+    private val recentSearchesKey = stringPreferencesKey("recent_searches")
+    private fun sponsorBlockModeKey(category: SponsorBlockCategory) = stringPreferencesKey("sponsor_block_mode_${category.apiName}")
 
     private fun store(profileId: Int = profileManager.activeProfileId.value) =
         factory.get(profileId, FEATURE)
@@ -106,6 +125,81 @@ class YouTubeSettingsDataStore @Inject constructor(
 
     suspend fun isSponsorBlockEnabled(): Boolean = sponsorBlockEnabled.first()
 
+    /** The tallest video stream to play: 720, 1080, 1440 or 2160. Streams the device can't decode are never picked. */
+    val maxVideoHeight: Flow<Int> = profileManager.activeProfileId.flatMapLatest { id ->
+        store(id).data.map { prefs ->
+            prefs[maxVideoHeightKey]?.takeIf { it in VIDEO_HEIGHT_OPTIONS } ?: DEFAULT_MAX_VIDEO_HEIGHT
+        }
+    }
+
+    suspend fun setMaxVideoHeight(height: Int) {
+        if (height !in VIDEO_HEIGHT_OPTIONS) return
+        store().edit { it[maxVideoHeightKey] = height }
+    }
+
+    /** What playback does with each kind of SponsorBlock segment, while SponsorBlock is on. */
+    val sponsorBlockModes: Flow<Map<SponsorBlockCategory, SponsorBlockMode>> = profileManager.activeProfileId.flatMapLatest { id ->
+        store(id).data.map { prefs ->
+            SponsorBlockCategory.entries.associateWith { category ->
+                prefs[sponsorBlockModeKey(category)]
+                    ?.let { saved -> SponsorBlockMode.entries.firstOrNull { it.name == saved } }
+                    ?: category.defaultMode
+            }
+        }
+    }
+
+    suspend fun setSponsorBlockMode(category: SponsorBlockCategory, mode: SponsorBlockMode) {
+        store().edit { it[sponsorBlockModeKey(category)] = mode.name }
+    }
+
+    /** Show DeArrow's community titles and thumbnails in place of YouTube's. */
+    val deArrowEnabled: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { id ->
+        store(id).data.map { it[deArrowKey] ?: DEFAULT_DEARROW_ENABLED }
+    }
+
+    suspend fun setDeArrowEnabled(enabled: Boolean) {
+        store().edit { it[deArrowKey] = enabled }
+    }
+
+    /** Show like and dislike counts from Return YouTube Dislike in the player. */
+    val returnDislikeEnabled: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { id ->
+        store(id).data.map { it[returnDislikeKey] ?: DEFAULT_RETURN_DISLIKE_ENABLED }
+    }
+
+    suspend fun setReturnDislikeEnabled(enabled: Boolean) {
+        store().edit { it[returnDislikeKey] = enabled }
+    }
+
+    /** Show a row of the newest subscription videos on Fetch's home screen. */
+    val homeRowEnabled: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { id ->
+        store(id).data.catch { error ->
+            if (error is IOException) emit(emptyPreferences()) else throw error
+        }.map { it[homeRowKey] ?: DEFAULT_HOME_ROW_ENABLED }
+    }
+
+    suspend fun setHomeRowEnabled(enabled: Boolean) {
+        store().edit { it[homeRowKey] = enabled }
+    }
+
+    /** The profile's last searches on the YouTube screen, newest first. */
+    val recentSearches: Flow<List<String>> = profileManager.activeProfileId.flatMapLatest { id ->
+        store(id).data.catch { error ->
+            if (error is IOException) emit(emptyPreferences()) else throw error
+        }.map { decodeRecentSearches(it[recentSearchesKey]) }
+    }
+
+    suspend fun addRecentSearch(query: String) {
+        val trimmed = query.trim().takeIf { it.isNotEmpty() } ?: return
+        store().edit { prefs ->
+            val current = decodeRecentSearches(prefs[recentSearchesKey])
+            prefs[recentSearchesKey] = encodeRecentSearches(addRecent(current, trimmed, MAX_RECENT_SEARCHES))
+        }
+    }
+
+    suspend fun clearRecentSearches() {
+        store().edit { it.remove(recentSearchesKey) }
+    }
+
     suspend fun isWatchHistoryEnabled(): Boolean = watchHistoryEnabled.first()
 
     suspend fun setSponsorBlockEnabled(enabled: Boolean) {
@@ -116,3 +210,14 @@ class YouTubeSettingsDataStore @Inject constructor(
         store().edit { it[watchHistoryKey] = enabled }
     }
 }
+
+/** [query] first, with any earlier copy of it (ignoring case) dropped, keeping [max]. */
+internal fun addRecent(current: List<String>, query: String, max: Int): List<String> =
+    (listOf(query) + current.filterNot { it.equals(query, ignoreCase = true) }).take(max)
+
+// One search per line; a search typed on a remote never holds a line break, but strip any anyway.
+internal fun encodeRecentSearches(searches: List<String>): String =
+    searches.joinToString("\n") { it.replace('\n', ' ') }
+
+internal fun decodeRecentSearches(stored: String?): List<String> =
+    stored?.split('\n')?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()

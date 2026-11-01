@@ -2982,10 +2982,8 @@
     <string name="youtube_sponsor_block_subtitle">Átugorja a SponsorBlock-felhasználók által megjelölt szponzorált részeket, önreklámot és feliratkozási emlékeztetőket</string>
     <string name="youtube_watch_history_title">Hozzáadás a YouTube-előzményekhez</string>
     <string name="youtube_watch_history_subtitle">Az itt megnézett videók megjelennek a YouTube-előzményeidben, és más eszközökön ott folytathatod, ahol abbahagytad</string>
-    <string name="youtube_sponsor_skipped">Szponzor átugorva</string>
     <string name="youtube_captions_title">Feliratok</string>
     <string name="youtube_captions_off">Ki</string>
-    <string name="youtube_captions_hint">Nyomd meg a lefelé gombot a feliratokhoz: %1$s</string>
     <string name="youtube_captions_auto">%1$s (automatikusan létrehozott)</string>
     <string name="youtube_captions_translated">%1$s (automatikusan lefordított)</string>
     <string name="youtube_captions_failed">Ezeket a feliratokat nem sikerült betölteni. Próbálj meg másik sávot.</string>

@@ -52,6 +52,8 @@ fun TrailerPlayer(
     trailerAudioUrl: String? = null,
     isPlaying: Boolean,
     isPaused: Boolean = false,
+    /** 1 is normal speed. The pool's player is shared, so every caller sets it. */
+    playbackSpeed: Float = 1f,
     onEnded: () -> Unit,
     onFirstFrameRendered: () -> Unit = {},
     muted: Boolean = false,
@@ -188,6 +190,11 @@ fun TrailerPlayer(
         val player = trailerPlayer ?: return@LaunchedEffect
         if (!isPlaying) return@LaunchedEffect
         player.playWhenReady = !isPaused
+    }
+
+    LaunchedEffect(playbackSpeed, trailerPlayer) {
+        val player = trailerPlayer ?: return@LaunchedEffect
+        player.setPlaybackSpeed(playbackSpeed.coerceIn(0.25f, 4f))
     }
 
     LaunchedEffect(seekRequestToken, seekDeltaMs, trailerPlayer) {

@@ -2835,10 +2835,8 @@
     <string name="youtube_sponsor_block_subtitle">Pula trechos de patrocínio, autopromoção e lembretes de inscrição marcados por usuários do SponsorBlock</string>
     <string name="youtube_watch_history_title">Adicionar ao histórico do YouTube</string>
     <string name="youtube_watch_history_subtitle">Os vídeos que você assiste aqui aparecem no seu histórico do YouTube e continuam de onde você parou em outros dispositivos</string>
-    <string name="youtube_sponsor_skipped">Patrocinador pulado</string>
     <string name="youtube_captions_title">Legendas</string>
     <string name="youtube_captions_off">Desativadas</string>
-    <string name="youtube_captions_hint">Pressione para baixo para ver as legendas: %1$s</string>
     <string name="youtube_captions_auto">%1$s (geradas automaticamente)</string>
     <string name="youtube_captions_translated">%1$s (traduzidas automaticamente)</string>
     <string name="youtube_captions_failed">Não foi possível carregar estas legendas. Tente outra faixa.</string>

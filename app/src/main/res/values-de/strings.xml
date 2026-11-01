@@ -2300,10 +2300,8 @@
     <string name="youtube_sponsor_block_subtitle">Überspringt Sponsoren-Segmente, Eigenwerbung und Abo-Erinnerungen, die SponsorBlock-Nutzer markiert haben</string>
     <string name="youtube_watch_history_title">Zum YouTube-Verlauf hinzufügen</string>
     <string name="youtube_watch_history_subtitle">Hier angesehene Videos erscheinen in deinem YouTube-Verlauf und lassen sich auf anderen Geräten dort fortsetzen, wo du aufgehört hast</string>
-    <string name="youtube_sponsor_skipped">Sponsor übersprungen</string>
     <string name="youtube_captions_title">Untertitel</string>
     <string name="youtube_captions_off">Aus</string>
-    <string name="youtube_captions_hint">Drücke nach unten für Untertitel: %1$s</string>
     <string name="youtube_captions_auto">%1$s (automatisch erstellt)</string>
     <string name="youtube_captions_translated">%1$s (automatisch übersetzt)</string>
     <string name="youtube_captions_failed">Diese Untertitel konnten nicht geladen werden. Wähle eine andere Spur.</string>

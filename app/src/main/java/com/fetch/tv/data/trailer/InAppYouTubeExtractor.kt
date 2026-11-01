@@ -115,6 +115,9 @@ private class ClientStreams {
     /** The first client's caption tracks; every client lists the same ones. */
     var captionsJson: String? = null
 
+    /** The first client's storyboard spec, for seek previews. */
+    var storyboardSpec: String? = null
+
     fun isEmpty(): Boolean =
         manifestUrls.isEmpty() && progressive.isEmpty() && adaptiveVideo.isEmpty() && adaptiveAudio.isEmpty()
 
@@ -449,6 +452,12 @@ class InAppYouTubeExtractor internal constructor(
                 if (streams.captionsJson == null) {
                     playerResponse.mapValue("captions")?.let { streams.captionsJson = gson.toJson(it) }
                 }
+                if (streams.storyboardSpec == null) {
+                    streams.storyboardSpec = playerResponse.mapValue("storyboards")
+                        ?.mapValue("playerStoryboardSpecRenderer")
+                        ?.stringValue("spec")
+                        ?.takeIf { it.isNotBlank() }
+                }
                 val streamingData = playerResponse.mapValue("streamingData") ?: return
                 addClientStreams(client, streamingData, streams)
             } catch (e: RateLimitedException) {
@@ -480,14 +489,14 @@ class InAppYouTubeExtractor internal constructor(
             return null
         }
 
-        pickPlaybackSource(streams, singleUrl, maxVideoHeight)?.let { return it.copy(captionsJson = streams.captionsJson) }
+        pickPlaybackSource(streams, singleUrl, maxVideoHeight)?.let { return it.copy(captionsJson = streams.captionsJson, storyboardSpec = streams.storyboardSpec) }
         if (!pendingClients.hasNext()) return null
 
         Log.d(TAG, "No playable source from the first clients, asking the rest")
         while (pendingClients.hasNext()) {
             queryNextClient()
         }
-        return pickPlaybackSource(streams, singleUrl, maxVideoHeight)?.copy(captionsJson = streams.captionsJson)
+        return pickPlaybackSource(streams, singleUrl, maxVideoHeight)?.copy(captionsJson = streams.captionsJson, storyboardSpec = streams.storyboardSpec)
     }
 
     private fun addClientStreams(client: YouTubeClient, streamingData: Map<*, *>, streams: ClientStreams) {

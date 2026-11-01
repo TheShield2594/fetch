@@ -2477,10 +2477,8 @@
     <string name="youtube_sponsor_block_subtitle">Springer sponsorsegmenter, selvpromovering og påmindelser om at abonnere over, som SponsorBlock-brugere har markeret</string>
     <string name="youtube_watch_history_title">Føj til YouTube-historik</string>
     <string name="youtube_watch_history_subtitle">Videoer, du ser her, vises i din YouTube-historik og fortsætter, hvor du slap, på andre enheder</string>
-    <string name="youtube_sponsor_skipped">Sponsor sprunget over</string>
     <string name="youtube_captions_title">Undertekster</string>
     <string name="youtube_captions_off">Fra</string>
-    <string name="youtube_captions_hint">Tryk ned for undertekster: %1$s</string>
     <string name="youtube_captions_auto">%1$s (autogenereret)</string>
     <string name="youtube_captions_translated">%1$s (autooversat)</string>
     <string name="youtube_captions_failed">Disse undertekster kunne ikke indlæses. Prøv et andet spor.</string>

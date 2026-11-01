@@ -3023,10 +3023,8 @@
     <string name="youtube_sponsor_block_subtitle">SponsorBlock kullanıcılarının işaretlediği sponsor bölümlerini, kendi tanıtımları ve abone olma hatırlatmalarını atlar</string>
     <string name="youtube_watch_history_title">YouTube geçmişine ekle</string>
     <string name="youtube_watch_history_subtitle">Burada izlediğiniz videolar YouTube geçmişinizde görünür ve diğer cihazlarda kaldığınız yerden devam eder</string>
-    <string name="youtube_sponsor_skipped">Sponsor atlandı</string>
     <string name="youtube_captions_title">Altyazılar</string>
     <string name="youtube_captions_off">Kapalı</string>
-    <string name="youtube_captions_hint">Altyazılar için aşağı basın: %1$s</string>
     <string name="youtube_captions_auto">%1$s (otomatik oluşturuldu)</string>
     <string name="youtube_captions_translated">%1$s (otomatik çevrildi)</string>
     <string name="youtube_captions_failed">Bu altyazılar yüklenemedi. Başka bir parça deneyin.</string>

@@ -2472,10 +2472,8 @@
     <string name="youtube_sponsor_block_subtitle">SponsorBlockユーザーがマークしたスポンサー部分、自己宣伝、登録リマインダーをスキップします</string>
     <string name="youtube_watch_history_title">YouTube履歴に追加</string>
     <string name="youtube_watch_history_subtitle">ここで視聴した動画はYouTube履歴に表示され、他のデバイスでは続きから再生できます</string>
-    <string name="youtube_sponsor_skipped">スポンサーをスキップしました</string>
     <string name="youtube_captions_title">字幕</string>
     <string name="youtube_captions_off">オフ</string>
-    <string name="youtube_captions_hint">下ボタンで字幕: %1$s</string>
     <string name="youtube_captions_auto">%1$s（自動生成）</string>
     <string name="youtube_captions_translated">%1$s（自動翻訳）</string>
     <string name="youtube_captions_failed">この字幕を読み込めませんでした。別のトラックをお試しください。</string>

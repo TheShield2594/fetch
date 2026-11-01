@@ -2894,10 +2894,8 @@
     <string name="youtube_sponsor_block_subtitle">略過 SponsorBlock 使用者標記的贊助片段、自我宣傳和訂閱提醒</string>
     <string name="youtube_watch_history_title">新增至 YouTube 觀看記錄</string>
     <string name="youtube_watch_history_subtitle">你在這裡觀看的影片會顯示在 YouTube 觀看記錄中，並可在其他裝置上接續觀看</string>
-    <string name="youtube_sponsor_skipped">已略過贊助內容</string>
     <string name="youtube_captions_title">字幕</string>
     <string name="youtube_captions_off">關閉</string>
-    <string name="youtube_captions_hint">按下鍵選擇字幕：%1$s</string>
     <string name="youtube_captions_auto">%1$s（自動產生）</string>
     <string name="youtube_captions_translated">%1$s（自動翻譯）</string>
     <string name="youtube_captions_failed">無法載入這些字幕，請試試其他字幕軌。</string>

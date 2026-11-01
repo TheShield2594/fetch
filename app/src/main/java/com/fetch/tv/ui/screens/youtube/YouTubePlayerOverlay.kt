@@ -25,6 +25,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
@@ -63,6 +65,10 @@ import com.fetch.tv.data.youtube.YouTubeCaptionTrack
 import com.fetch.tv.data.youtube.YouTubeLikeStatus
 import com.fetch.tv.data.youtube.YouTubePlaylistOption
 import com.fetch.tv.data.youtube.YouTubePlaylistPrivacy
+import com.fetch.tv.data.local.resumableMs
+import com.fetch.tv.data.youtube.SponsorBlockCategory
+import com.fetch.tv.data.youtube.SponsorBlockMode
+import com.fetch.tv.data.youtube.YouTubeChapter
 import com.fetch.tv.data.youtube.YouTubeSkipSegment
 import com.fetch.tv.data.youtube.YouTubeVideo
 import com.fetch.tv.data.youtube.YouTubeVideoActions
@@ -70,7 +76,6 @@ import com.fetch.tv.data.youtube.cueAt
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.TrailerPlayer
 import com.fetch.tv.ui.screens.ambient.AmbientDialogEffect
-import com.fetch.tv.ui.screens.detail.TrailerSeekOverlayHost
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.screens.detail.TrailerSeekOverlayState
 import com.fetch.tv.ui.theme.FetchMotion
@@ -79,8 +84,12 @@ import kotlinx.coroutines.delay
 
 /**
  * Full-screen playback for a YouTube video. Built on the trailer player, with what a long video
- * needs: seeking that scales with the press, resuming where YouTube says you stopped, skipping
- * SponsorBlock segments, and reporting progress for YouTube history.
+ * needs: seeking that scales with the press and previews frames, chapters, speed, resuming where
+ * you stopped, skipping SponsorBlock segments, and reporting progress for YouTube history.
+ *
+ * The remote: OK pauses (or takes an offered skip), left and right seek, Up opens the video's
+ * actions, Down the playback options (captions, speed, chapters), and the media next and
+ * previous keys move between chapters.
  */
 @Composable
 fun YouTubePlayerOverlay(
@@ -95,7 +104,10 @@ fun YouTubePlayerOverlay(
     onOpenChannel: () -> Unit,
     onLoadPlaylists: () -> Unit,
     onTogglePlaylist: (YouTubePlaylistOption) -> Unit,
-    onCreatePlaylist: (title: String, privacy: YouTubePlaylistPrivacy) -> Unit
+    onCreatePlaylist: (title: String, privacy: YouTubePlaylistPrivacy) -> Unit,
+    playbackSpeed: Float = 1f,
+    onSetSpeed: (Float) -> Unit = {},
+    onResumed: (positionMs: Long) -> Unit = {}
 ) {
     val video = playback.video
     var isPaused by remember(video.videoId) { mutableStateOf(false) }
@@ -107,9 +119,18 @@ fun YouTubePlayerOverlay(
     var skipped by remember(video.videoId) { mutableStateOf(emptySet<YouTubeSkipSegment>()) }
     var skipNoticeToken by remember(video.videoId) { mutableIntStateOf(0) }
     var skipNoticeVisible by remember(video.videoId) { mutableStateOf(false) }
+    // The segment just skipped automatically: Left, while its notice shows, goes back to watch it.
+    var lastSkipped by remember(video.videoId) { mutableStateOf<YouTubeSkipSegment?>(null) }
+    // The segment playback is in that the profile asked to be offered: OK skips it.
+    var offeredSkip by remember(video.videoId) { mutableStateOf<YouTubeSkipSegment?>(null) }
     val currentOnProgress by rememberUpdatedState(onProgress)
+    val currentOnResumed by rememberUpdatedState(onResumed)
     val currentSegments by rememberUpdatedState(playback.skipSegments)
-    var captionMenuOpen by remember(video.videoId) { mutableStateOf(false) }
+    val currentModes by rememberUpdatedState(playback.sponsorBlockModes)
+    val currentResumeFrom by rememberUpdatedState(playback.resumeFromMs)
+    // Down's menu: its first page, or one of captions, speed and chapters.
+    var optionsPage by remember(video.videoId) { mutableStateOf<PlaybackOptionsPage?>(null) }
+    val captionMenuOpen = optionsPage != null
     var actionsMenuOpen by remember(video.videoId) { mutableStateOf(false) }
     // The Save list opens over the actions panel, in a dialog of its own; playback carries on behind.
     var playlistPickerOpen by remember(video.videoId) { mutableStateOf(false) }
@@ -127,6 +148,14 @@ fun YouTubePlayerOverlay(
     fun seekBy(deltaMs: Long) {
         seekDeltaMs = deltaMs
         seekToken += 1
+    }
+
+    fun seekTo(targetMs: Long) = seekBy(targetMs - positionMs)
+
+    fun closeMenus() {
+        optionsPage = null
+        actionsMenuOpen = false
+        runCatching { focusRequester.requestFocus() }
     }
 
     LaunchedEffect(controlsVisible, seekToken, isPaused) {
@@ -170,11 +199,13 @@ fun YouTubePlayerOverlay(
                         return@onPreviewKeyEvent false
                     }
                     if (captionMenuOpen || actionsMenuOpen) {
-                        // The menu takes the remote; Back closes it and returns to the video.
+                        // The menu takes the remote; Back goes up a page, then returns to the video.
                         if (native.keyCode == KeyEvent.KEYCODE_BACK || native.keyCode == KeyEvent.KEYCODE_ESCAPE) {
-                            captionMenuOpen = false
-                            actionsMenuOpen = false
-                            runCatching { focusRequester.requestFocus() }
+                            if (optionsPage != null && optionsPage != PlaybackOptionsPage.MAIN) {
+                                optionsPage = PlaybackOptionsPage.MAIN
+                            } else {
+                                closeMenus()
+                            }
                             return@onPreviewKeyEvent true
                         }
                         return@onPreviewKeyEvent false
@@ -193,10 +224,39 @@ fun YouTubePlayerOverlay(
                             if (controlsVisible && !isPaused) controlsVisible = false else onDismiss()
                             true
                         }
-                        KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER,
+                        KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> {
+                            if (!canControl) return@onPreviewKeyEvent false
+                            val offer = offeredSkip
+                            if (offer != null) {
+                                // OK takes the offered skip rather than pausing.
+                                skipped = skipped + offer
+                                offeredSkip = null
+                                seekTo(offer.endMs)
+                            } else {
+                                isPaused = !isPaused
+                                controlsVisible = true
+                            }
+                            true
+                        }
                         KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
                             if (!canControl) return@onPreviewKeyEvent false
                             isPaused = !isPaused
+                            controlsVisible = true
+                            true
+                        }
+                        KeyEvent.KEYCODE_MEDIA_NEXT -> {
+                            if (!canControl) return@onPreviewKeyEvent false
+                            val next = nextChapterStart(playback.chapters, positionMs)
+                            when {
+                                next != null -> { seekTo(next); controlsVisible = true }
+                                playback.upNext != null -> onPlayNext(playback.upNext)
+                                else -> return@onPreviewKeyEvent false
+                            }
+                            true
+                        }
+                        KeyEvent.KEYCODE_MEDIA_PREVIOUS -> {
+                            if (!canControl) return@onPreviewKeyEvent false
+                            seekTo(previousChapterStart(playback.chapters, positionMs) ?: 0L)
                             controlsVisible = true
                             true
                         }
@@ -204,7 +264,15 @@ fun YouTubePlayerOverlay(
                         KeyEvent.KEYCODE_MEDIA_PLAY -> canControl.also { if (it) isPaused = false }
                         KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_MEDIA_REWIND -> {
                             if (!canControl) return@onPreviewKeyEvent false
-                            seekBy(-seekStepMs(native.repeatCount))
+                            val undo = lastSkipped?.takeIf { skipNoticeVisible && native.repeatCount == 0 }
+                            if (undo != null) {
+                                // Back to the start of what was just skipped; it plays this time.
+                                lastSkipped = null
+                                skipNoticeVisible = false
+                                seekTo(undo.startMs)
+                            } else {
+                                seekBy(-seekStepMs(native.repeatCount))
+                            }
                             controlsVisible = true
                             true
                         }
@@ -223,12 +291,8 @@ fun YouTubePlayerOverlay(
                         }
                         KeyEvent.KEYCODE_DPAD_DOWN -> {
                             if (!canControl) return@onPreviewKeyEvent false
-                            if (playback.captionTracks.isNotEmpty()) {
-                                captionMenuOpen = true
-                                controlsVisible = false
-                            } else {
-                                controlsVisible = isPaused
-                            }
+                            optionsPage = PlaybackOptionsPage.MAIN
+                            controlsVisible = false
                             true
                         }
                         else -> false
@@ -243,6 +307,7 @@ fun YouTubePlayerOverlay(
                     trailerAudioUrl = playback.audioUrl,
                     isPlaying = true,
                     isPaused = isPaused,
+                    playbackSpeed = playbackSpeed,
                     seekRequestToken = seekToken,
                     seekDeltaMs = seekDeltaMs,
                     onProgressChanged = progress@{ position, duration ->
@@ -252,20 +317,28 @@ fun YouTubePlayerOverlay(
                         if (duration <= 0L) return@progress
                         if (!resumed) {
                             resumed = true
-                            resumePositionMs(video.watchedPercent, duration)?.let { seekBy(it - position) }
+                            // Fetch's own exact place first, then YouTube's percent from the tile.
+                            val target = currentResumeFrom?.let { resumableMs(it, duration) }
+                                ?: resumePositionMs(video.watchedPercent, duration)
+                            target?.let {
+                                seekBy(it - position)
+                                currentOnResumed(it)
+                            }
                             return@progress
                         }
-                        segmentToSkip(currentSegments, position, skipped)?.let { segment ->
+                        segmentToSkip(currentSegments, position, skipped, currentModes)?.let { segment ->
                             skipped = skipped + segment
+                            lastSkipped = segment
                             seekBy(segment.endMs - position)
                             skipNoticeToken += 1
                         }
+                        offeredSkip = segmentToOffer(currentSegments, position, skipped, currentModes)
                         currentOnProgress(position, duration)
                     },
                     onEnded = {
                         if (playback.upNext != null || playback.related.isNotEmpty()) {
                             ended = true
-                            captionMenuOpen = false
+                            optionsPage = null
                             actionsMenuOpen = false
                             playlistPickerOpen = false
                         } else {
@@ -289,6 +362,18 @@ fun YouTubePlayerOverlay(
                     Text(text = video.title, style = MaterialTheme.typography.titleLarge, color = Color.White)
                     video.channelName?.let {
                         Text(text = it, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.82f))
+                    }
+                    playback.playlist?.let { playlist ->
+                        playlistPositionText(playlist)?.let {
+                            Text(text = it, style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.82f))
+                        }
+                    }
+                    playback.votes?.let { votes ->
+                        Text(
+                            text = stringResource(R.string.youtube_votes, formatCount(votes.likes), formatCount(votes.dislikes)),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.82f)
+                        )
                     }
                     if (canControl) {
                         Text(
@@ -328,13 +413,41 @@ fun YouTubePlayerOverlay(
                     .padding(horizontal = FetchTheme.spacing.xxl, vertical = FetchTheme.spacing.xl)
             ) {
                 Text(
-                    text = stringResource(R.string.youtube_sponsor_skipped),
+                    text = stringResource(
+                        R.string.youtube_sponsor_skipped_undo,
+                        lastSkipped?.sponsorBlockCategory?.let { sponsorBlockCategoryLabel(it) }
+                            ?: stringResource(R.string.youtube_sponsor_block_category_sponsor)
+                    ),
                     style = MaterialTheme.typography.labelLarge,
                     color = Color.White,
                     modifier = Modifier
                         .clip(RoundedCornerShape(FetchTheme.radii.sm))
                         .background(Color.Black.copy(alpha = 0.7f))
                         .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
+                )
+            }
+
+            // The offered skip shows while playback is inside the segment.
+            AnimatedVisibility(
+                visible = offeredSkip != null && !captionMenuOpen && !actionsMenuOpen && !ended,
+                enter = fadeIn(tween(FetchMotion.tokens.durations.quick)),
+                exit = fadeOut(tween(FetchMotion.tokens.durations.quick)),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(horizontal = FetchTheme.spacing.xxl, vertical = SKIP_OFFER_BOTTOM)
+            ) {
+                val category = offeredSkip?.sponsorBlockCategory
+                Text(
+                    text = stringResource(
+                        R.string.youtube_sponsor_skip_offer,
+                        category?.let { sponsorBlockCategoryLabel(it) } ?: stringResource(R.string.youtube_sponsor_block_category_sponsor)
+                    ),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(FetchTheme.radii.sm))
+                        .background(Color.White)
+                        .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm)
                 )
             }
 
@@ -348,18 +461,19 @@ fun YouTubePlayerOverlay(
                 )
             }
 
-            TrailerSeekOverlayHost(
+            YouTubeSeekBarHost(
                 visible = canControl && controlsVisible,
-                overlayState = seekState,
+                state = seekState,
+                chapters = playback.chapters,
+                segments = playback.skipSegments.filter { modeOf(it, playback.sponsorBlockModes) != SponsorBlockMode.OFF },
+                storyboard = playback.storyboard,
+                playbackSpeed = playbackSpeed,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
 
-            if (canControl && controlsVisible && playback.captionTracks.isNotEmpty()) {
+            if (canControl && controlsVisible) {
                 Text(
-                    text = stringResource(
-                        R.string.youtube_captions_hint,
-                        playback.selectedCaption?.let { captionLabel(it) } ?: stringResource(R.string.youtube_captions_off)
-                    ),
+                    text = stringResource(R.string.youtube_options_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.82f),
                     modifier = Modifier
@@ -408,13 +522,43 @@ fun YouTubePlayerOverlay(
                 )
             }
 
-            if (captionMenuOpen) {
-                CaptionMenu(
+            when (optionsPage) {
+                null -> Unit
+                PlaybackOptionsPage.MAIN -> PlaybackOptionsMenu(
+                    captionLabel = if (playback.captionTracks.isEmpty()) {
+                        null
+                    } else {
+                        playback.selectedCaption?.let { captionLabel(it) } ?: stringResource(R.string.youtube_captions_off)
+                    },
+                    speed = playbackSpeed,
+                    currentChapter = chapterAt(playback.chapters, positionMs)?.title,
+                    hasChapters = playback.chapters.isNotEmpty(),
+                    onOpen = { optionsPage = it },
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+                PlaybackOptionsPage.CAPTIONS -> CaptionMenu(
                     playback = playback,
                     onSelect = { track ->
                         onSelectCaption(track)
-                        captionMenuOpen = false
-                        runCatching { focusRequester.requestFocus() }
+                        closeMenus()
+                    },
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+                PlaybackOptionsPage.SPEED -> SpeedMenu(
+                    speed = playbackSpeed,
+                    onSelect = { speed ->
+                        onSetSpeed(speed)
+                        closeMenus()
+                    },
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+                PlaybackOptionsPage.CHAPTERS -> ChapterMenu(
+                    chapters = playback.chapters,
+                    current = chapterAt(playback.chapters, positionMs),
+                    onSelect = { chapter ->
+                        seekTo(chapter.startMs)
+                        controlsVisible = true
+                        closeMenus()
                     },
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
@@ -540,8 +684,10 @@ private fun UpNextCard(
             .padding(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.xxl),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)
     ) {
+        val playlistTitle = playback.playlist?.title?.takeIf { next?.playlistId == playback.playlist.playlistId }
         Text(
-            text = stringResource(R.string.youtube_up_next),
+            text = playlistTitle?.let { stringResource(R.string.youtube_up_next_in_playlist, it) }
+                ?: stringResource(R.string.youtube_up_next),
             style = MaterialTheme.typography.headlineSmall,
             color = Color.White
         )
@@ -695,12 +841,14 @@ private fun CaptionMenu(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun CaptionMenuRow(
+internal fun CaptionMenuRow(
     label: String,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    loading: Boolean = false
+    loading: Boolean = false,
+    /** Shown at the end of the row: the current choice of a row that opens a list. */
+    value: String? = null
 ) {
     val shape = RoundedCornerShape(FetchTheme.radii.sm)
     Card(
@@ -724,20 +872,37 @@ private fun CaptionMenuRow(
                     selected -> Icon(Icons.Default.Check, contentDescription = null, tint = Color.White)
                 }
             }
-            Text(text = label, style = MaterialTheme.typography.bodyMedium, color = Color.White, maxLines = 1)
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                maxLines = 1,
+                modifier = Modifier.weight(1f, fill = false)
+            )
+            value?.let {
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.7f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun captionLabel(track: YouTubeCaptionTrack): String = when {
+internal fun captionLabel(track: YouTubeCaptionTrack): String = when {
     track.isTranslated -> stringResource(R.string.youtube_captions_translated, track.name)
     track.isAutoGenerated -> stringResource(R.string.youtube_captions_auto, track.name)
     else -> track.name
 }
 
-private val CAPTION_MENU_WIDTH = 360.dp
-private val CAPTION_MENU_MAX_HEIGHT = 420.dp
+internal val CAPTION_MENU_WIDTH = 360.dp
+internal val CAPTION_MENU_MAX_HEIGHT = 420.dp
+private val SKIP_OFFER_BOTTOM = 120.dp
 private val CAPTION_CONTROLS_LIFT = 96.dp
 private const val CAPTION_OUTLINE_SCALE = 2f
 
@@ -761,14 +926,61 @@ internal fun resumePositionMs(watchedPercent: Int?, durationMs: Long): Long? {
     return durationMs * percent / 100
 }
 
-/** The segment playback is inside and hasn't skipped yet, if any. Seeking back into one plays it. */
+/**
+ * The segment playback is inside, set to be skipped, and not skipped yet, if any. Seeking back
+ * into one plays it.
+ */
 internal fun segmentToSkip(
     segments: List<YouTubeSkipSegment>,
     positionMs: Long,
-    alreadySkipped: Set<YouTubeSkipSegment>
+    alreadySkipped: Set<YouTubeSkipSegment>,
+    modes: Map<SponsorBlockCategory, SponsorBlockMode> = emptyMap()
 ): YouTubeSkipSegment? = segments.firstOrNull { segment ->
+    modeOf(segment, modes) == SponsorBlockMode.SKIP && isInside(segment, positionMs, alreadySkipped)
+}
+
+/** The segment playback is inside that the profile wants offered rather than skipped, if any. */
+internal fun segmentToOffer(
+    segments: List<YouTubeSkipSegment>,
+    positionMs: Long,
+    alreadySkipped: Set<YouTubeSkipSegment>,
+    modes: Map<SponsorBlockCategory, SponsorBlockMode>
+): YouTubeSkipSegment? = segments.firstOrNull { segment ->
+    modeOf(segment, modes) == SponsorBlockMode.ASK && isInside(segment, positionMs, alreadySkipped)
+}
+
+private fun isInside(segment: YouTubeSkipSegment, positionMs: Long, alreadySkipped: Set<YouTubeSkipSegment>) =
     segment !in alreadySkipped &&
         positionMs >= segment.startMs &&
         // Within the last half second the skip would land about where playback is anyway.
         positionMs < segment.endMs - 500
+
+/** What playback does with [segment]: its category's choice, else the category's default. Unknown categories skip. */
+internal fun modeOf(segment: YouTubeSkipSegment, modes: Map<SponsorBlockCategory, SponsorBlockMode>): SponsorBlockMode {
+    val category = segment.sponsorBlockCategory ?: return SponsorBlockMode.SKIP
+    return modes[category] ?: category.defaultMode
 }
+
+/** The chapter playback is in, if the video has chapters. */
+internal fun chapterAt(chapters: List<YouTubeChapter>, positionMs: Long): YouTubeChapter? =
+    chapters.lastOrNull { it.startMs <= positionMs }
+
+/** Where the chapter after the one playing starts, or null in the last chapter. */
+internal fun nextChapterStart(chapters: List<YouTubeChapter>, positionMs: Long): Long? =
+    chapters.firstOrNull { it.startMs > positionMs + CHAPTER_EDGE_MS }?.startMs
+
+/**
+ * Where Previous goes: the start of the playing chapter, or the chapter before it when playback
+ * is just past that start, as a music player's Previous does. Null without chapters.
+ */
+internal fun previousChapterStart(chapters: List<YouTubeChapter>, positionMs: Long): Long? {
+    if (chapters.isEmpty()) return null
+    val current = chapters.indexOfLast { it.startMs <= positionMs }
+    if (current < 0) return 0L
+    val start = chapters[current].startMs
+    return if (positionMs - start > PREVIOUS_RESTARTS_AFTER_MS || current == 0) start else chapters[current - 1].startMs
+}
+
+/** A chapter starting this close ahead counts as the one playing, so Next doesn't land a moment on. */
+private const val CHAPTER_EDGE_MS = 1_000L
+private const val PREVIOUS_RESTARTS_AFTER_MS = 3_000L

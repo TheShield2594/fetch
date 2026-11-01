@@ -190,6 +190,11 @@ class SettingsChangedViewModel @Inject constructor(
         add(youTube.sponsorBlockEnabled.changedRow(SettingsSearchKey(youTubePage, R.string.youtube_sponsor_block_title), YouTubeSettingsDataStore.DEFAULT_SPONSOR_BLOCK_ENABLED))
         add(youTube.autoplayEnabled.changedRow(SettingsSearchKey(youTubePage, R.string.youtube_autoplay_title), YouTubeSettingsDataStore.DEFAULT_AUTOPLAY_ENABLED))
         add(youTube.watchHistoryEnabled.changedRow(SettingsSearchKey(youTubePage, R.string.youtube_watch_history_title), YouTubeSettingsDataStore.DEFAULT_WATCH_HISTORY_ENABLED))
+        add(youTube.maxVideoHeight.changedRow(SettingsSearchKey(youTubePage, R.string.youtube_quality_title), YouTubeSettingsDataStore.DEFAULT_MAX_VIDEO_HEIGHT))
+        add(youTube.sponsorBlockModes.changedRow(SettingsSearchKey(youTubePage, R.string.youtube_sponsor_block_categories_title), YouTubeSettingsDataStore.DEFAULT_SPONSOR_BLOCK_MODES))
+        add(youTube.deArrowEnabled.changedRow(SettingsSearchKey(youTubePage, R.string.youtube_dearrow_title), YouTubeSettingsDataStore.DEFAULT_DEARROW_ENABLED))
+        add(youTube.returnDislikeEnabled.changedRow(SettingsSearchKey(youTubePage, R.string.youtube_return_dislike_title), YouTubeSettingsDataStore.DEFAULT_RETURN_DISLIKE_ENABLED))
+        add(youTube.homeRowEnabled.changedRow(SettingsSearchKey(youTubePage, R.string.youtube_home_row_title), YouTubeSettingsDataStore.DEFAULT_HOME_ROW_ENABLED))
         add(
             youTube.feedFilter.changedRows(
                 YouTubeSettingsDataStore.DEFAULT_FEED_FILTER,

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -199,6 +200,17 @@ fun YouTubeScreen(
                 onSubmit = viewModel::submitSearch,
                 modifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)
             )
+            // While typing, YouTube's suggestions; with nothing typed, the profile's last searches.
+            val typed = state.searchQuery.isNotBlank()
+            val chips = if (typed) state.searchSuggestions else state.recentSearches
+            if (chips.isNotEmpty()) {
+                YouTubeSearchChips(
+                    label = if (typed) null else stringResource(R.string.youtube_search_recent),
+                    queries = chips,
+                    onSelect = viewModel::searchFor,
+                    onClear = if (typed) null else viewModel::clearRecentSearches
+                )
+            }
         }
 
         // Each tab and opened page keeps its own scroll position, from [memory].
@@ -318,7 +330,10 @@ fun YouTubeScreen(
             onOpenChannel = viewModel::openPlayingChannel,
             onLoadPlaylists = viewModel::loadPlayingPlaylists,
             onTogglePlaylist = viewModel::togglePlayingPlaylist,
-            onCreatePlaylist = { title, privacy -> viewModel.createPlaylist(YouTubeSaveList.PLAYER, title, privacy) }
+            onCreatePlaylist = { title, privacy -> viewModel.createPlaylist(YouTubeSaveList.PLAYER, title, privacy) },
+            playbackSpeed = state.playbackSpeed,
+            onSetSpeed = viewModel::setPlaybackSpeed,
+            onResumed = viewModel::onResumed
         )
     }
 }
@@ -952,6 +967,35 @@ private fun YouTubeSearchField(
                     inner()
                 }
             )
+        }
+    }
+}
+
+/** A row of searches to run with one press: suggestions, or recent searches with a way to clear them. */
+@Composable
+private fun YouTubeSearchChips(
+    label: String?,
+    queries: List<String>,
+    onSelect: (String) -> Unit,
+    onClear: (() -> Unit)?
+) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = FetchTheme.spacing.screen.horizontal),
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        label?.let {
+            item(key = "label") {
+                Text(text = it, style = MaterialTheme.typography.labelLarge, color = FetchTheme.colors.TextSecondary)
+            }
+        }
+        items(queries, key = { "q_$it" }) { query ->
+            SettingsChoiceChip(label = query, selected = false, onClick = { onSelect(query) })
+        }
+        onClear?.let { clear ->
+            item(key = "clear") {
+                SettingsChoiceChip(label = stringResource(R.string.youtube_search_clear_recent), selected = false, onClick = clear)
+            }
         }
     }
 }

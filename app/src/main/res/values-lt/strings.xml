@@ -1173,10 +1173,8 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="youtube_sponsor_block_subtitle">Praleidžiami rėmėjų intarpai, savireklama ir prenumeratos priminimai, kuriuos pažymėjo SponsorBlock naudotojai</string>
     <string name="youtube_watch_history_title">Pridėti prie YouTube istorijos</string>
     <string name="youtube_watch_history_subtitle">Čia žiūrėti vaizdo įrašai rodomi jūsų YouTube istorijoje, o kituose įrenginiuose tęsiami nuo ten, kur sustojote</string>
-    <string name="youtube_sponsor_skipped">Rėmėjas praleistas</string>
     <string name="youtube_captions_title">Subtitrai</string>
     <string name="youtube_captions_off">Išjungta</string>
-    <string name="youtube_captions_hint">Paspauskite žemyn subtitrams: %1$s</string>
     <string name="youtube_captions_auto">%1$s (sukurta automatiškai)</string>
     <string name="youtube_captions_translated">%1$s (išversta automatiškai)</string>
     <string name="youtube_captions_failed">Šių subtitrų nepavyko įkelti. Išbandykite kitą takelį.</string>

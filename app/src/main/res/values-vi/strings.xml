@@ -3007,10 +3007,8 @@
     <string name="youtube_sponsor_block_subtitle">Bỏ qua đoạn nhà tài trợ, tự quảng bá và lời nhắc đăng ký mà người dùng SponsorBlock đã đánh dấu</string>
     <string name="youtube_watch_history_title">Thêm vào lịch sử YouTube</string>
     <string name="youtube_watch_history_subtitle">Video bạn xem tại đây sẽ hiện trong lịch sử YouTube và tiếp tục từ chỗ bạn dừng trên các thiết bị khác</string>
-    <string name="youtube_sponsor_skipped">Đã bỏ qua nhà tài trợ</string>
     <string name="youtube_captions_title">Phụ đề</string>
     <string name="youtube_captions_off">Tắt</string>
-    <string name="youtube_captions_hint">Nhấn xuống để chọn phụ đề: %1$s</string>
     <string name="youtube_captions_auto">%1$s (tự động tạo)</string>
     <string name="youtube_captions_translated">%1$s (tự động dịch)</string>
     <string name="youtube_captions_failed">Không thể tải phụ đề này. Hãy thử phụ đề khác.</string>

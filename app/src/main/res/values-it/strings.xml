@@ -3002,10 +3002,8 @@
     <string name="youtube_sponsor_block_subtitle">Salta gli spazi sponsor, l\'autopromozione e i promemoria di iscrizione segnalati dagli utenti di SponsorBlock</string>
     <string name="youtube_watch_history_title">Aggiungi alla cronologia di YouTube</string>
     <string name="youtube_watch_history_subtitle">I video che guardi qui compaiono nella tua cronologia di YouTube e riprendono da dove eri rimasto sugli altri dispositivi</string>
-    <string name="youtube_sponsor_skipped">Sponsor saltato</string>
     <string name="youtube_captions_title">Sottotitoli</string>
     <string name="youtube_captions_off">Disattivati</string>
-    <string name="youtube_captions_hint">Premi giù per i sottotitoli: %1$s</string>
     <string name="youtube_captions_auto">%1$s (generati automaticamente)</string>
     <string name="youtube_captions_translated">%1$s (tradotti automaticamente)</string>
     <string name="youtube_captions_failed">Impossibile caricare questi sottotitoli. Prova un\'altra traccia.</string>

@@ -2736,10 +2736,8 @@
     <string name="youtube_sponsor_block_subtitle">يتخطى فقرات الرعاة والترويج الذاتي وتذكيرات الاشتراك التي وضع عليها مستخدمو SponsorBlock علامات</string>
     <string name="youtube_watch_history_title">إضافة إلى سجل YouTube</string>
     <string name="youtube_watch_history_subtitle">تظهر الفيديوهات التي تشاهدها هنا في سجل YouTube الخاص بك، وتكمل من حيث توقفت على أجهزة أخرى</string>
-    <string name="youtube_sponsor_skipped">تم تخطي الراعي</string>
     <string name="youtube_captions_title">الترجمة</string>
     <string name="youtube_captions_off">متوقفة</string>
-    <string name="youtube_captions_hint">اضغط للأسفل للترجمة: %1$s</string>
     <string name="youtube_captions_auto">%1$s (تلقائية)</string>
     <string name="youtube_captions_translated">%1$s (مترجمة تلقائيًا)</string>
     <string name="youtube_captions_failed">تعذّر تحميل هذه الترجمة. جرّب مسارًا آخر.</string>

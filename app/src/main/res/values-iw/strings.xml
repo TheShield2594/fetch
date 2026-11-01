@@ -3018,10 +3018,8 @@
     <string name="youtube_sponsor_block_subtitle">מדלג על קטעי חסות, קידום עצמי ותזכורות הרשמה שמשתמשי SponsorBlock סימנו</string>
     <string name="youtube_watch_history_title">הוספה להיסטוריית YouTube</string>
     <string name="youtube_watch_history_subtitle">סרטונים שצפיתם בהם כאן מופיעים בהיסטוריית YouTube שלכם וממשיכים מהמקום שבו עצרתם במכשירים אחרים</string>
-    <string name="youtube_sponsor_skipped">דילגנו על חסות</string>
     <string name="youtube_captions_title">כתוביות</string>
     <string name="youtube_captions_off">כבוי</string>
-    <string name="youtube_captions_hint">לחצו למטה לכתוביות: %1$s</string>
     <string name="youtube_captions_auto">%1$s (אוטומטי)</string>
     <string name="youtube_captions_translated">%1$s (תרגום אוטומטי)</string>
     <string name="youtube_captions_failed">לא ניתן היה לטעון את הכתוביות האלה. נסו רצועה אחרת.</string>

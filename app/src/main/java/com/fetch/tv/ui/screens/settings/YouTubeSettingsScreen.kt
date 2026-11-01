@@ -17,7 +17,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.Alignment
+import com.fetch.tv.data.youtube.SponsorBlockCategory
 import com.fetch.tv.data.youtube.YouTubeAccount
+import com.fetch.tv.ui.screens.youtube.sponsorBlockCategoryLabel
+import com.fetch.tv.ui.screens.youtube.sponsorBlockModeLabel
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import androidx.compose.runtime.Composable
@@ -50,6 +53,7 @@ fun YouTubeSettingsContent(
     val signedInCount by viewModel.signedIn.collectAsStateWithLifecycle()
     var showSignInDialog by remember { mutableStateOf(false) }
     var showChannelPicker by remember { mutableStateOf(false) }
+    var showSponsorBlockModes by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val signedInToast = stringResource(R.string.youtube_signed_in_toast)
     val signedIn = state.mode == YouTubeConnectionMode.SIGNED_IN
@@ -107,6 +111,22 @@ fun YouTubeSettingsContent(
                                 onToggle = viewModel::onSponsorBlockToggle
                             )
                         }
+                        item(key = "youtube_sponsor_block_categories") {
+                            SettingsActionRow(
+                                title = stringResource(R.string.youtube_sponsor_block_categories_title),
+                                subtitle = stringResource(R.string.youtube_sponsor_block_categories_subtitle),
+                                onClick = { showSponsorBlockModes = true },
+                                enabled = state.sponsorBlockEnabled
+                            )
+                        }
+                        item(key = "youtube_quality") {
+                            SettingsActionRow(
+                                title = stringResource(R.string.youtube_quality_title),
+                                subtitle = stringResource(R.string.youtube_quality_subtitle),
+                                value = stringResource(R.string.youtube_quality_value, state.maxVideoHeight),
+                                onClick = viewModel::onQualityClick
+                            )
+                        }
                         item(key = "youtube_autoplay") {
                             SettingsToggleRow(
                                 title = stringResource(R.string.youtube_autoplay_title),
@@ -145,6 +165,30 @@ fun YouTubeSettingsContent(
                                 subtitle = stringResource(R.string.youtube_hide_watched_subtitle),
                                 checked = state.feedFilter.hideWatched,
                                 onToggle = viewModel::onHideWatchedToggle
+                            )
+                        }
+                        item(key = "youtube_home_row") {
+                            SettingsToggleRow(
+                                title = stringResource(R.string.youtube_home_row_title),
+                                subtitle = stringResource(R.string.youtube_home_row_subtitle),
+                                checked = state.homeRowEnabled,
+                                onToggle = viewModel::onHomeRowToggle
+                            )
+                        }
+                        item(key = "youtube_dearrow") {
+                            SettingsToggleRow(
+                                title = stringResource(R.string.youtube_dearrow_title),
+                                subtitle = stringResource(R.string.youtube_dearrow_subtitle),
+                                checked = state.deArrowEnabled,
+                                onToggle = viewModel::onDeArrowToggle
+                            )
+                        }
+                        item(key = "youtube_return_dislike") {
+                            SettingsToggleRow(
+                                title = stringResource(R.string.youtube_return_dislike_title),
+                                subtitle = stringResource(R.string.youtube_return_dislike_subtitle),
+                                checked = state.returnDislikeEnabled,
+                                onToggle = viewModel::onReturnDislikeToggle
                             )
                         }
                         item(key = "youtube_sign_out") {
@@ -190,6 +234,14 @@ fun YouTubeSettingsContent(
                 showChannelPicker = false
             },
             onDismiss = { showChannelPicker = false }
+        )
+    }
+
+    if (showSponsorBlockModes && signedIn) {
+        YouTubeSponsorBlockModesDialog(
+            state = state,
+            onCycle = viewModel::onSponsorBlockModeClick,
+            onDismiss = { showSponsorBlockModes = false }
         )
     }
 
@@ -247,6 +299,39 @@ private fun YouTubeChannelPickerDialog(
                 LaunchedEffect(Unit) { firstFocus.requestFocusAfterFrames() }
             }
         }
+    }
+}
+
+/** Each kind of SponsorBlock segment and what happens with it; selecting one steps to the next choice. */
+@Composable
+private fun YouTubeSponsorBlockModesDialog(
+    state: YouTubeSettingsUiState,
+    onCycle: (SponsorBlockCategory) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val firstFocus = remember { FocusRequester() }
+    FetchDialog(
+        onDismiss = onDismiss,
+        title = stringResource(R.string.youtube_sponsor_block_categories_title),
+        subtitle = stringResource(R.string.youtube_sponsor_block_categories_dialog_subtitle),
+        width = 640.dp
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().heightIn(max = 320.dp),
+            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+        ) {
+            itemsIndexed(SponsorBlockCategory.entries, key = { _, category -> category.name }) { index, category ->
+                val mode = state.sponsorBlockModes[category] ?: category.defaultMode
+                SettingsActionRow(
+                    title = sponsorBlockCategoryLabel(category).replaceFirstChar { it.titlecase() },
+                    subtitle = null,
+                    value = sponsorBlockModeLabel(mode),
+                    onClick = { onCycle(category) },
+                    modifier = if (index == 0) Modifier.focusRequester(firstFocus) else Modifier
+                )
+            }
+        }
+        LaunchedEffect(Unit) { firstFocus.requestFocusAfterFrames() }
     }
 }
 

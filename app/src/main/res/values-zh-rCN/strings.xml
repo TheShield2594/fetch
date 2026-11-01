@@ -2894,10 +2894,8 @@
     <string name="youtube_sponsor_block_subtitle">跳过 SponsorBlock 用户标记的赞助片段、自我推广和订阅提醒</string>
     <string name="youtube_watch_history_title">添加到 YouTube 历史记录</string>
     <string name="youtube_watch_history_subtitle">你在此观看的视频会显示在 YouTube 历史记录中，并可在其他设备上接着观看</string>
-    <string name="youtube_sponsor_skipped">已跳过赞助内容</string>
     <string name="youtube_captions_title">字幕</string>
     <string name="youtube_captions_off">关闭</string>
-    <string name="youtube_captions_hint">按下键选择字幕：%1$s</string>
     <string name="youtube_captions_auto">%1$s（自动生成）</string>
     <string name="youtube_captions_translated">%1$s（自动翻译）</string>
     <string name="youtube_captions_failed">无法加载此字幕。请尝试其他字幕轨道。</string>

@@ -3028,10 +3028,8 @@
     <string name="youtube_sponsor_block_subtitle">Preskakuje sponzorské časti, autopropagáciu a pripomienky odberu, ktoré označili používatelia SponsorBlock</string>
     <string name="youtube_watch_history_title">Pridávať do histórie YouTube</string>
     <string name="youtube_watch_history_subtitle">Videá, ktoré tu pozeráte, sa zobrazia v histórii YouTube a na iných zariadeniach pokračujú tam, kde ste skončili</string>
-    <string name="youtube_sponsor_skipped">Sponzor preskočený</string>
     <string name="youtube_captions_title">Titulky</string>
     <string name="youtube_captions_off">Vypnuté</string>
-    <string name="youtube_captions_hint">Stlačením nadol zobrazíte titulky: %1$s</string>
     <string name="youtube_captions_auto">%1$s (automaticky generované)</string>
     <string name="youtube_captions_translated">%1$s (automaticky preložené)</string>
     <string name="youtube_captions_failed">Tieto titulky sa nepodarilo načítať. Skúste inú stopu.</string>

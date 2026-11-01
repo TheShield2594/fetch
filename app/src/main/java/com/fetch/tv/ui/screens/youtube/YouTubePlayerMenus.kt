@@ -28,6 +28,7 @@ import com.fetch.tv.data.youtube.YouTubePlaylistContext
 import com.fetch.tv.ui.screens.detail.formatPlaybackTime
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.theme.SponsorBlockColors
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -46,14 +47,14 @@ private fun PlayerMenuPanel(
             .padding(FetchTheme.spacing.xl)
             .width(CAPTION_MENU_WIDTH)
             .clip(RoundedCornerShape(FetchTheme.radii.md))
-            .background(Color.Black.copy(alpha = 0.85f))
+            .background(FetchTheme.colors.Player.ScrimStrong)
             .padding(FetchTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            color = Color.White,
+            color = FetchTheme.colors.Player.TextPrimary,
             modifier = Modifier.padding(bottom = FetchTheme.spacing.xs)
         )
         content()
@@ -189,16 +190,16 @@ internal fun sponsorBlockModeLabel(mode: SponsorBlockMode): String = stringResou
     }
 )
 
-/** The colour a category's segments are marked in on the seek bar, as SponsorBlock's extension marks them. */
+/** The colour a category's segments are marked in on the seek bar. */
 internal fun sponsorBlockColor(category: SponsorBlockCategory?): Color = when (category) {
-    SponsorBlockCategory.SPONSOR, null -> Color(0xFF00D400)
-    SponsorBlockCategory.SELF_PROMO -> Color(0xFFFFFF00)
-    SponsorBlockCategory.INTERACTION -> Color(0xFFCC00FF)
-    SponsorBlockCategory.INTRO -> Color(0xFF00FFFF)
-    SponsorBlockCategory.OUTRO -> Color(0xFF0202ED)
-    SponsorBlockCategory.PREVIEW -> Color(0xFF008FD6)
-    SponsorBlockCategory.MUSIC_OFFTOPIC -> Color(0xFFFF9900)
-    SponsorBlockCategory.FILLER -> Color(0xFF7300FF)
+    SponsorBlockCategory.SPONSOR, null -> SponsorBlockColors.Sponsor
+    SponsorBlockCategory.SELF_PROMO -> SponsorBlockColors.SelfPromo
+    SponsorBlockCategory.INTERACTION -> SponsorBlockColors.Interaction
+    SponsorBlockCategory.INTRO -> SponsorBlockColors.Intro
+    SponsorBlockCategory.OUTRO -> SponsorBlockColors.Outro
+    SponsorBlockCategory.PREVIEW -> SponsorBlockColors.Preview
+    SponsorBlockCategory.MUSIC_OFFTOPIC -> SponsorBlockColors.MusicOfftopic
+    SponsorBlockCategory.FILLER -> SponsorBlockColors.Filler
 }
 
 /** "Playlist name · 3 of 12", or just the name when YouTube doesn't say where the video is. */

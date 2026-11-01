@@ -93,6 +93,7 @@ private fun YouTubeSeekBar(
     val progress = if (durationMs > 0) (positionMs.toFloat() / durationMs).coerceIn(0f, 1f) else 0f
     val chapter = chapterAt(chapters, positionMs)
     val played = FetchTheme.colors.Secondary
+    val track = FetchTheme.colors.Player.Track
     // The bar reads left to right in every language, as video players do.
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         BoxWithConstraints(
@@ -126,7 +127,7 @@ private fun YouTubeSeekBar(
                         val right = end * size.width - if (index < starts.lastIndex) gap / 2 else 0f
                         if (right <= left) return@forEachIndexed
                         drawRoundRect(
-                            color = Color.White.copy(alpha = 0.3f),
+                            color = track,
                             topLeft = Offset(left, 0f),
                             size = Size(right - left, size.height),
                             cornerRadius = radius
@@ -164,7 +165,7 @@ private fun YouTubeSeekBar(
                     Text(
                         text = chapter?.title.orEmpty(),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White,
+                        color = FetchTheme.colors.Player.TextPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
@@ -173,13 +174,13 @@ private fun YouTubeSeekBar(
                         Text(
                             text = speedLabel(playbackSpeed),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.9f)
+                            color = FetchTheme.colors.Player.TextSecondary
                         )
                     }
                     Text(
                         text = "${formatPlaybackTime(positionMs)} / ${formatPlaybackTime(durationMs)}",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.9f)
+                        color = FetchTheme.colors.Player.TextSecondary
                     )
                 }
             }
@@ -197,8 +198,8 @@ private fun StoryboardFrame(frame: YouTubeStoryboard.Frame, storyboard: YouTubeS
             .offset(x = offsetX)
             .size(PREVIEW_WIDTH, height)
             .clip(RoundedCornerShape(FetchTheme.radii.sm))
-            .border(PREVIEW_BORDER, Color.White, RoundedCornerShape(FetchTheme.radii.sm))
-            .background(Color.Black)
+            .border(PREVIEW_BORDER, FetchTheme.colors.Player.Focus, RoundedCornerShape(FetchTheme.radii.sm))
+            .background(FetchTheme.colors.Player.ScrimStrong)
             .clipToBounds()
     ) {
         AsyncImage(

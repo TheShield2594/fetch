@@ -365,14 +365,14 @@ fun YouTubePlayerOverlay(
                     }
                     playback.playlist?.let { playlist ->
                         playlistPositionText(playlist)?.let {
-                            Text(text = it, style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.82f))
+                            Text(text = it, style = MaterialTheme.typography.bodySmall, color = FetchTheme.colors.Player.TextSecondary)
                         }
                     }
                     playback.votes?.let { votes ->
                         Text(
                             text = stringResource(R.string.youtube_votes, formatCount(votes.likes), formatCount(votes.dislikes)),
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.82f)
+                            color = FetchTheme.colors.Player.TextSecondary
                         )
                     }
                     if (canControl) {
@@ -385,7 +385,7 @@ fun YouTubePlayerOverlay(
                         Text(
                             text = stringResource(R.string.youtube_options_hint),
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.82f)
+                            color = FetchTheme.colors.Player.TextSecondary
                         )
                     }
                 }
@@ -449,10 +449,10 @@ fun YouTubePlayerOverlay(
                         category?.let { sponsorBlockCategoryLabel(it) } ?: stringResource(R.string.youtube_sponsor_block_category_sponsor)
                     ),
                     style = MaterialTheme.typography.titleSmall,
-                    color = Color.Black,
+                    color = FetchTheme.colors.Player.OnFocus,
                     modifier = Modifier
                         .clip(RoundedCornerShape(FetchTheme.radii.sm))
-                        .background(Color.White)
+                        .background(FetchTheme.colors.Player.Focus)
                         .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm)
                 )
             }
@@ -870,7 +870,7 @@ internal fun CaptionMenuRow(
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
+                color = FetchTheme.colors.Player.TextPrimary,
                 maxLines = 1,
                 modifier = Modifier.weight(1f, fill = false)
             )
@@ -879,7 +879,7 @@ internal fun CaptionMenuRow(
                 Text(
                     text = it,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = FetchTheme.colors.Player.TextTertiary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

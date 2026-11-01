@@ -381,6 +381,12 @@ fun YouTubePlayerOverlay(
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.82f)
                         )
+                        // The bottom of the screen is the seek bar's, with the chapter's name.
+                        Text(
+                            text = stringResource(R.string.youtube_options_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.82f)
+                        )
                     }
                 }
             }
@@ -470,17 +476,6 @@ fun YouTubePlayerOverlay(
                 playbackSpeed = playbackSpeed,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
-
-            if (canControl && controlsVisible) {
-                Text(
-                    text = stringResource(R.string.youtube_options_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.82f),
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(horizontal = FetchTheme.spacing.xxl, vertical = FetchTheme.spacing.xl)
-                )
-            }
 
             if (ended) {
                 UpNextCard(

@@ -2,7 +2,7 @@
 """Fetch real YouTube TV (TVHTML5) responses and save them, trimmed, as parser test fixtures.
 
 Signed out, this saves search, a search continuation, a channel page and its tab pages, a
-playlist and `next`. With YT_ACCESS_TOKEN set to a signed-in TV access token it also saves the
+playlist, `next`, and `next` for a video played from that playlist. With YT_ACCESS_TOKEN set to a signed-in TV access token it also saves the
 home, subscriptions and history feeds.
 
     scripts/youtube_fixtures.py                        # write to app/src/test/resources/youtube
@@ -176,7 +176,12 @@ def fetch_all(token=None):
         out[f"channel_tab_{name}"] = innertube("browse", {"browseId": browse_id, "params": params})
     playlist_id = first_playlist(channel)
     if playlist_id:
-        out["playlist"] = innertube("browse", {"browseId": playlist_id})
+        playlist = innertube("browse", {"browseId": playlist_id})
+        out["playlist"] = playlist
+        playlist_video = first_video(playlist)
+        if playlist_video:
+            # Played from the playlist: Up Next is the playlist's next video.
+            out["next_playlist"] = innertube("next", {"videoId": playlist_video, "playlistId": playlist_id[2:]})
     video_id = first_video(channel) or first_video(search)
     if video_id:
         out["next"] = innertube("next", {"videoId": video_id})

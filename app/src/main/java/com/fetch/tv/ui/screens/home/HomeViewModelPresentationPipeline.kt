@@ -306,8 +306,8 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
             _currentLocaleTag,
             posterOverlay,
             bestMatches,
-            readyWatchlistCandidates
-        ) { state, localeTag, overlay, entries, watchlist ->
+            readyWatchlistCandidates.combine(youTubeRow.videos) { watchlist, videos -> watchlist to videos }
+        ) { state, localeTag, overlay, entries, (watchlist, youTubeVideos) ->
                 val readyKeys = readyBestMatchKeys(entries, System.currentTimeMillis())
                 ModernHomePresentationInput(
                     homeRows = state.homeRows,
@@ -322,6 +322,7 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
                         readyKeys = readyKeys,
                         exceptKeys = overlay.continueWatchingItems.mapNotNull { it.bestMatchKey() }.toSet()
                     ),
+                    youTubeVideos = youTubeVideos,
                     kidsHome = state.kidsHome,
                     useLandscapePosters = state.modernLandscapePostersEnabled,
                     showCatalogTypeSuffix = state.catalogTypeSuffixEnabled,
@@ -342,6 +343,7 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
                     && old.upcomingItems == new.upcomingItems
                     && old.readyTonightItems == new.readyTonightItems
                     && old.readyWatchlistMovies == new.readyWatchlistMovies
+                    && old.youTubeVideos == new.youTubeVideos
                     && old.kidsHome == new.kidsHome
                     && old.useLandscapePosters == new.useLandscapePosters
                     && old.showCatalogTypeSuffix == new.showCatalogTypeSuffix

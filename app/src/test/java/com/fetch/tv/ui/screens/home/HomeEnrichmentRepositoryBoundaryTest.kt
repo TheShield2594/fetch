@@ -214,7 +214,10 @@ class HomeEnrichmentRepositoryBoundaryTest {
             bestMatchCacheDataStore = mockk(relaxed = true),
             episodeQueueStore = mockk(relaxed = true),
             becauseYouWatchedService = mockk(relaxed = true),
-            readyChecker = mockk(relaxed = true)
+            readyChecker = mockk(relaxed = true),
+            youTubeRow = mockk(relaxed = true) {
+                io.mockk.every { videos } returns kotlinx.coroutines.flow.flowOf(emptyList())
+            }
         )
         viewModel.startupGracePeriodActive = false
         viewModel.externalMetaPrefetchEnabled = true

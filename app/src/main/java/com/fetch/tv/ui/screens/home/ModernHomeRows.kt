@@ -256,6 +256,7 @@ private fun ModernCatalogRowItem(
     onCatalogSelectionFocused: (FocusedCatalogSelection) -> Unit,
     onNavigateToDetail: (String, String, String) -> Unit,
     onNavigateToFolderDetail: (String, String) -> Unit,
+    onYouTubeVideoClick: (com.fetch.tv.data.youtube.YouTubeVideo) -> Unit,
     onLongPress: () -> Unit,
     onBackdropInteraction: () -> Unit,
     onExpandedCatalogFocusKeyChange: (String?) -> Unit,
@@ -265,11 +266,17 @@ private fun ModernCatalogRowItem(
     val focusKey = when (payload) {
         is ModernPayload.Catalog -> payload.focusKey
         is ModernPayload.CollectionFolder -> payload.focusKey
+        is ModernPayload.YouTubeVideo -> payload.focusKey
         is ModernPayload.ContinueWatching -> error("Unsupported payload for ModernCatalogRowItem")
     }
+    // A YouTube card always draws its title over the thumbnail, as Home's cards carry no labels.
+    val useLandscapeOverlayTreatment = useLandscapePosters || payload is ModernPayload.YouTubeVideo
 
     val metaPreview = item.metaPreview
-    val isWatched = metaPreview?.let { isCatalogItemWatched(it) } ?: false
+    val isWatched = metaPreview?.let { isCatalogItemWatched(it) }
+        ?: (payload as? ModernPayload.YouTubeVideo)?.video?.watchedPercent
+            ?.let { it >= com.fetch.tv.data.youtube.YouTubeFeedFilter.WATCHED_PERCENT }
+        ?: false
     // Only a movie's card names one video, so only movies can be ready.
     val readyKeys = LocalReadyBestMatchKeys.current
     val isReady = remember(payload, readyKeys) {
@@ -326,7 +333,9 @@ private fun ModernCatalogRowItem(
                     )
                 }
             }
-            is ModernPayload.CollectionFolder -> {
+            is ModernPayload.CollectionFolder,
+            // Taking the selection stops the last catalog card's trailer; a video plays none.
+            is ModernPayload.YouTubeVideo -> {
                 latestOnCatalogSelectionFocused(
                     FocusedCatalogSelection(
                         focusKey = focusKey,
@@ -387,7 +396,7 @@ private fun ModernCatalogRowItem(
 
     ModernCarouselCard(
         item = item,
-        useLandscapeOverlayTreatment = useLandscapePosters,
+        useLandscapeOverlayTreatment = useLandscapeOverlayTreatment,
         alwaysShowLandscapeClearlogo = alwaysShowLandscapeClearlogo,
         showLabels = showLabels,
         placeholderShimmerOffsetState = placeholderShimmerOffsetState,
@@ -431,6 +440,7 @@ private fun ModernCatalogRowItem(
                         payload.folderId
                     )
                 }
+                is ModernPayload.YouTubeVideo -> onYouTubeVideoClick(payload.video)
                 is ModernPayload.ContinueWatching -> Unit
             }
         },
@@ -490,6 +500,7 @@ internal fun ModernRowSection(
     onCatalogSelectionFocused: (FocusedCatalogSelection) -> Unit,
     onNavigateToDetail: (String, String, String) -> Unit,
     onNavigateToFolderDetail: (String, String) -> Unit,
+    onYouTubeVideoClick: (com.fetch.tv.data.youtube.YouTubeVideo) -> Unit = {},
     onLoadMoreCatalog: (String, String, String) -> Unit,
     onBackdropInteraction: () -> Unit,
     onExpandedCatalogFocusKeyChange: (String?) -> Unit,
@@ -690,7 +701,8 @@ internal fun ModernRowSection(
             val cwHeightPx = with(density) { continueWatchingCardHeight.roundToPx() }
             fun imageUrlAndKey(item: ModernCarouselItem): Pair<String, String>? {
                 return when (val payload = item.payload) {
-                    is ModernPayload.Catalog -> {
+                    is ModernPayload.Catalog,
+                    is ModernPayload.YouTubeVideo -> {
                         val url = item.imageUrl ?: return null
                         val metrics = item.catalogCardMetrics(
                             useLandscapePosters = useLandscapePosters,
@@ -763,7 +775,8 @@ internal fun ModernRowSection(
                 for (i in 0 until minOf(POSTER_PREFETCH_DISTANCE, items.size)) {
                     val item = items.getOrNull(i) ?: continue
                     val (wPx, hPx) = when (item.payload) {
-                        is ModernPayload.Catalog -> {
+                        is ModernPayload.Catalog,
+                        is ModernPayload.YouTubeVideo -> {
                             val metrics = item.catalogCardMetrics(
                                 useLandscapePosters = useLandscapePosters,
                                 portraitCardWidth = portraitCatalogCardWidth,
@@ -799,7 +812,8 @@ internal fun ModernRowSection(
                         for (i in (lastVisibleIndex + 1)..(lastVisibleIndex + POSTER_PREFETCH_DISTANCE)) {
                             val item = currentItems.getOrNull(i) ?: continue
                             val (wPx, hPx) = when (item.payload) {
-                                is ModernPayload.Catalog -> {
+                                is ModernPayload.Catalog,
+                                is ModernPayload.YouTubeVideo -> {
                                     val metrics = item.catalogCardMetrics(
                                         useLandscapePosters = useLandscapePosters,
                                         portraitCardWidth = portraitCatalogCardWidth,
@@ -952,6 +966,7 @@ internal fun ModernRowSection(
                             is ModernPayload.ContinueWatching -> "modern_cw_card"
                             is ModernPayload.Catalog -> if (payload.itemId.startsWith("__placeholder_")) "placeholder" else payload.itemType
                             is ModernPayload.CollectionFolder -> "modern_collection_folder_card"
+                            is ModernPayload.YouTubeVideo -> "modern_youtube_card"
                         }
                     }
                 ) { index, item ->
@@ -997,7 +1012,8 @@ internal fun ModernRowSection(
                         }
 
                         is ModernPayload.Catalog,
-                        is ModernPayload.CollectionFolder -> {
+                        is ModernPayload.CollectionFolder,
+                        is ModernPayload.YouTubeVideo -> {
                             val nextCatalogItem = row.items.list.getOrNull(index + 1)?.metaPreview
                             val prevCatalogItem = row.items.list.getOrNull(index - 1)?.metaPreview
                             val metaPreview = item.metaPreview
@@ -1015,6 +1031,7 @@ internal fun ModernRowSection(
                             val expandedFocusKey = when (payload) {
                                 is ModernPayload.Catalog -> payload.focusKey
                                 is ModernPayload.CollectionFolder -> payload.focusKey
+                                is ModernPayload.YouTubeVideo -> payload.focusKey
                             }
                             val isBackdropExpandedLambda = remember(
                                 effectiveExpandEnabled,
@@ -1065,6 +1082,7 @@ internal fun ModernRowSection(
                                 onCatalogSelectionFocused = onCatalogSelectionFocused,
                                 onNavigateToDetail = onNavigateToDetail,
                                 onNavigateToFolderDetail = onNavigateToFolderDetail,
+                                onYouTubeVideoClick = onYouTubeVideoClick,
                                 onLongPress = onLongPress,
                                 onBackdropInteraction = onBackdropInteraction,
                                 onExpandedCatalogFocusKeyChange = onExpandedCatalogFocusKeyChange,

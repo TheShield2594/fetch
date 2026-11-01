@@ -266,7 +266,8 @@ private fun PlaybackNavHost(
                 onNavigateToFolderDetail = { collectionId, folderId ->
                     navController.navigate(Screen.FolderDetail.createRoute(collectionId, folderId))
                 },
-                onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) }
+                onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
+                onOpenYouTube = { navController.navigate(Screen.YouTube.route) { launchSingleTop = true } }
             )
         }
 

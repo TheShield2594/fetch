@@ -149,6 +149,7 @@ fun ModernHomeContent(
     isCatalogItemWatched: (MetaPreview) -> Boolean = { false },
     onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit = { _, _, _ -> },
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
+    onYouTubeVideoClick: (com.fetch.tv.data.youtube.YouTubeVideo) -> Unit = {},
     onItemFocus: (MetaPreview) -> Unit = {},
     onPreloadAdjacentItem: (MetaPreview) -> Unit = {},
     onSaveFocusState: (Int, Int, String?, Map<String, String>, Map<String, Int>, Map<String, String>, Int, Int) -> Unit,
@@ -433,6 +434,11 @@ fun ModernHomeContent(
                 is ModernPayload.CollectionFolder -> carouselRows.list.none { row ->
                     row.items.list.any { item ->
                         (item.payload as? ModernPayload.CollectionFolder)?.focusKey == selection.focusKey
+                    }
+                }
+                is ModernPayload.YouTubeVideo -> carouselRows.list.none { row ->
+                    row.items.list.any { item ->
+                        (item.payload as? ModernPayload.YouTubeVideo)?.focusKey == selection.focusKey
                     }
                 }
                 is ModernPayload.ContinueWatching -> true
@@ -1275,6 +1281,7 @@ fun ModernHomeContent(
                 onRowItemFocusedInternal = onRowItemFocusedInternalLambda,
                 onNavigateToDetail = onNavigateToDetail,
                 onNavigateToFolderDetail = onNavigateToFolderDetail,
+                onYouTubeVideoClick = onYouTubeVideoClick,
                 onLoadMoreCatalog = onLoadMoreCatalog,
                 onContinueWatchingClick = onContinueWatchingLaunch,
                 onContinueWatchingOptions = onContinueWatchingOptionsLambda,

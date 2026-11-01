@@ -105,7 +105,9 @@ fun HomeScreen(
     onContinueWatchingPlayManually: (ContinueWatchingItem) -> Unit = onContinueWatchingClick,
     onNavigateToCatalogSeeAll: (String, String, String) -> Unit = { _, _, _ -> },
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
-    onNavigateToAddons: () -> Unit = {}
+    onNavigateToAddons: () -> Unit = {},
+    /** Opens the YouTube screen, which plays the video a YouTube card asked for. */
+    onOpenYouTube: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -359,6 +361,7 @@ fun HomeScreen(
                             onContinueWatchingPlayManually = onContinueWatchingPlayManuallyStable,
                             showContinueWatchingManualPlayOption = effectiveAutoplayEnabled,
                             onNavigateToFolderDetail = onNavigateToFolderDetailStable,
+                            onOpenYouTube = onOpenYouTube,
                             isCatalogItemWatched = isCatalogItemWatched,
                             onCatalogItemLongPress = onCatalogItemLongPress
                         )
@@ -498,6 +501,7 @@ private fun ModernHomeRoute(
     onContinueWatchingPlayManually: (ContinueWatchingItem) -> Unit,
     showContinueWatchingManualPlayOption: Boolean,
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
+    onOpenYouTube: () -> Unit = {},
     isCatalogItemWatched: (MetaPreview) -> Boolean,
     onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit
 ) {
@@ -579,6 +583,12 @@ private fun ModernHomeRoute(
             isCatalogItemWatched = isCatalogItemWatched,
             onCatalogItemLongPress = onCatalogItemLongPress,
             onNavigateToFolderDetail = onNavigateToFolderDetail,
+            onYouTubeVideoClick = remember(viewModel, onOpenYouTube) {
+                { video: com.fetch.tv.data.youtube.YouTubeVideo ->
+                    viewModel.youTubeRow.play(video)
+                    onOpenYouTube()
+                }
+            },
             onItemFocus = remember(viewModel) {
                 { item -> viewModel.onItemFocus(item) }
             },

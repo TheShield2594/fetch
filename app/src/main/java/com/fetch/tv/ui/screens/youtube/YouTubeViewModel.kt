@@ -13,6 +13,7 @@ import com.fetch.tv.data.youtube.SponsorBlockCategory
 import com.fetch.tv.data.youtube.SponsorBlockMode
 import com.fetch.tv.data.youtube.YouTubeBranding
 import com.fetch.tv.data.youtube.YouTubeChapter
+import com.fetch.tv.data.youtube.YouTubePlayRequests
 import com.fetch.tv.data.youtube.YouTubePlaylistContext
 import com.fetch.tv.data.youtube.YouTubeStoryboard
 import com.fetch.tv.data.youtube.YouTubeVoteCounts
@@ -204,6 +205,7 @@ class YouTubeViewModel @Inject constructor(
     private val resumeStore: YouTubeResumeStore,
     private val deArrow: DeArrowService,
     private val returnDislike: ReturnYouTubeDislikeService,
+    private val playRequests: YouTubePlayRequests,
     authDataStore: YouTubeAuthDataStore
 ) : ViewModel() {
     internal companion object {
@@ -281,6 +283,10 @@ class YouTubeViewModel @Inject constructor(
         }
         viewModelScope.launch {
             settings.recentSearches.collect { recent -> _uiState.update { it.copy(recentSearches = recent) } }
+        }
+        viewModelScope.launch {
+            // A video picked elsewhere (Home's YouTube row) plays as the screen opens.
+            playRequests.pending.collect { if (it != null) playRequests.take()?.let(::play) }
         }
     }
 

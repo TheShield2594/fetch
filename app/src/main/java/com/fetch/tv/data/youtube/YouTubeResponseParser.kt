@@ -99,10 +99,12 @@ internal object YouTubeResponseParser {
         val maps = mutableListOf<JsonObject>()
         findObjectsWithKey(root, "markersMap", maps, depth = 0)
         val entries = maps.flatMap { (it["markersMap"] as? JsonArray).orEmpty() }
-        val byKey = entries.associate { entry ->
-            entry.path("key").stringOrNull() to (entry.path("value", "chapters") as? JsonArray)
-        }
-        val chapters = (byKey["DESCRIPTION_CHAPTERS"] ?: byKey["AUTO_CHAPTERS"] ?: byKey.values.firstOrNull { it != null })
+        // Only entries that hold chapters: a later empty entry mustn't hide the uploader's list.
+        val byKey = entries.mapNotNull { entry ->
+            val chapters = entry.path("value", "chapters") as? JsonArray ?: return@mapNotNull null
+            entry.path("key").stringOrNull() to chapters
+        }.toMap()
+        val chapters = (byKey["DESCRIPTION_CHAPTERS"] ?: byKey["AUTO_CHAPTERS"] ?: byKey.values.firstOrNull())
             .orEmpty()
             .mapNotNull { item ->
                 val chapter = item.path("chapterRenderer") ?: return@mapNotNull null

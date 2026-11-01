@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -138,8 +139,11 @@ internal fun ChapterMenu(
     modifier: Modifier = Modifier
 ) {
     val selectedFocus = remember { FocusRequester() }
+    // Opens at the current chapter, so its row is composed when it's asked to take focus.
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = chapters.indexOf(current).coerceAtLeast(0))
     PlayerMenuPanel(title = stringResource(R.string.youtube_options_chapters), modifier = modifier) {
         LazyColumn(
+            state = listState,
             modifier = Modifier.heightIn(max = CAPTION_MENU_MAX_HEIGHT),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
         ) {

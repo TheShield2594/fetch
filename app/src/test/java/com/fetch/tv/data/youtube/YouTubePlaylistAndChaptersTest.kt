@@ -78,6 +78,11 @@ class YouTubePlaylistAndChaptersTest {
         assertEquals(listOf("DESCRIPTION_CHAPTERS 0", "DESCRIPTION_CHAPTERS 9"), YouTubeResponseParser.parseChapters(both).map { it.title })
         val auto = Json.parseToJsonElement("""{"markersMap": [${markers("AUTO_CHAPTERS", 0, 5)}]}""")
         assertEquals(2, YouTubeResponseParser.parseChapters(auto).size)
+        // A later entry for the uploader's chapters without a list doesn't hide the first one.
+        val withEmpty = Json.parseToJsonElement(
+            """{"markersMap": [${markers("DESCRIPTION_CHAPTERS", 0, 9)}, ${markers("AUTO_CHAPTERS", 0, 5)}, {"key": "DESCRIPTION_CHAPTERS", "value": {}}]}"""
+        )
+        assertEquals(listOf(0L, 9L), YouTubeResponseParser.parseChapters(withEmpty).map { it.startMs })
         val single = Json.parseToJsonElement("""{"markersMap": [${markers("DESCRIPTION_CHAPTERS", 0)}]}""")
         assertTrue(YouTubeResponseParser.parseChapters(single).isEmpty())
     }

@@ -148,6 +148,8 @@ fun YouTubePlayerOverlay(
     fun seekBy(deltaMs: Long) {
         seekDeltaMs = deltaMs
         seekToken += 1
+        // Until the next progress report, the playhead and the offer are unknown.
+        offeredSkip = null
     }
 
     fun seekTo(targetMs: Long) = seekBy(targetMs - positionMs)

@@ -137,6 +137,14 @@ class YouTubeSettingsDataStore @Inject constructor(
         store().edit { it[maxVideoHeightKey] = height }
     }
 
+    /** Steps the quality cap to [next] of the stored one, read inside the edit so quick presses each count. */
+    suspend fun stepMaxVideoHeight(next: (Int) -> Int) {
+        store().edit { prefs ->
+            val current = prefs[maxVideoHeightKey]?.takeIf { it in VIDEO_HEIGHT_OPTIONS } ?: DEFAULT_MAX_VIDEO_HEIGHT
+            prefs[maxVideoHeightKey] = next(current)
+        }
+    }
+
     /** What playback does with each kind of SponsorBlock segment, while SponsorBlock is on. */
     val sponsorBlockModes: Flow<Map<SponsorBlockCategory, SponsorBlockMode>> = profileManager.activeProfileId.flatMapLatest { id ->
         store(id).data.map { prefs ->
@@ -152,9 +160,22 @@ class YouTubeSettingsDataStore @Inject constructor(
         store().edit { it[sponsorBlockModeKey(category)] = mode.name }
     }
 
+    /** Steps [category]'s mode to [next] of the stored one, read inside the edit so quick presses each count. */
+    suspend fun stepSponsorBlockMode(category: SponsorBlockCategory, next: (SponsorBlockMode) -> SponsorBlockMode) {
+        store().edit { prefs ->
+            val current = prefs[sponsorBlockModeKey(category)]
+                ?.let { saved -> SponsorBlockMode.entries.firstOrNull { it.name == saved } }
+                ?: category.defaultMode
+            prefs[sponsorBlockModeKey(category)] = next(current).name
+        }
+    }
+
     /** Show DeArrow's community titles and thumbnails in place of YouTube's. */
     val deArrowEnabled: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { id ->
-        store(id).data.map { it[deArrowKey] ?: DEFAULT_DEARROW_ENABLED }
+        // The YouTube screen collects this for as long as it's open; an unreadable file means the default.
+        store(id).data.catch { error ->
+            if (error is IOException) emit(emptyPreferences()) else throw error
+        }.map { it[deArrowKey] ?: DEFAULT_DEARROW_ENABLED }
     }
 
     suspend fun setDeArrowEnabled(enabled: Boolean) {

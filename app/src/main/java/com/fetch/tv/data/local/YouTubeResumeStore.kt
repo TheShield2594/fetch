@@ -6,6 +6,7 @@ import com.fetch.tv.core.profile.ProfileManager
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -36,7 +37,10 @@ class YouTubeResumeStore @Inject constructor(
     }
 
     private val entriesKey = stringPreferencesKey("entries")
-    private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    // One at a time, in the order asked, so a late periodic save can't bring back a point the
+    // final save just dropped.
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(1))
 
     private fun store() = factory.get(profileManager.activeProfileId.value, FEATURE)
 

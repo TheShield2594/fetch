@@ -77,9 +77,10 @@ class HomeYouTubeRow @Inject constructor(
     private val parentalControls: ParentalControls,
     private val playRequests: YouTubePlayRequests
 ) {
-    private data class Gate(val show: Boolean, val profileId: Int)
+    // The channel matters as well as the profile: switching channel shows other subscriptions.
+    private data class Gate(val show: Boolean, val profileId: Int, val pageId: String?)
 
-    private class CachedPage(val profileId: Int, val fetchedAtMs: Long, val page: YouTubePage)
+    private class CachedPage(val profileId: Int, val pageId: String?, val fetchedAtMs: Long, val page: YouTubePage)
 
     private val cacheMutex = Mutex()
     private var cached: CachedPage? = null
@@ -90,10 +91,10 @@ class HomeYouTubeRow @Inject constructor(
     /** The videos for the row, empty when it shouldn't show. Starts empty so Home never waits on it. */
     val videos: Flow<List<YouTubeVideo>> = combine(
         settings.homeRowEnabled,
-        authDataStore.isSignedIn,
+        authDataStore.state.map { it.isSignedIn to it.pageId }.distinctUntilChanged(),
         parentalControls.activeRestrictions.map { it.isRestricted }.distinctUntilChanged(),
         profileManager.activeProfileId
-    ) { rowEnabled, signedIn, restricted, profileId ->
+    ) { rowEnabled, (signedIn, pageId), restricted, profileId ->
         Gate(
             show = youTubeHomeRowAllowed(
                 youTubeInBuild = AppFeaturePolicy.youTubeSectionEnabled,
@@ -101,7 +102,8 @@ class HomeYouTubeRow @Inject constructor(
                 signedIn = signedIn,
                 restrictedProfile = restricted
             ),
-            profileId = profileId
+            profileId = profileId,
+            pageId = pageId
         )
     }
         .distinctUntilChanged()
@@ -112,7 +114,7 @@ class HomeYouTubeRow @Inject constructor(
                 flowOf(emptyList())
             } else {
                 combine(
-                    homeVisits.map { page(gate.profileId) },
+                    homeVisits.map { page(gate.profileId, gate.pageId) },
                     settings.feedFilter
                 ) { page, filter -> youTubeHomeRowVideos(page, filter) }
             }
@@ -130,13 +132,13 @@ class HomeYouTubeRow @Inject constructor(
         playRequests.request(video)
     }
 
-    private suspend fun page(profileId: Int): YouTubePage = cacheMutex.withLock {
+    private suspend fun page(profileId: Int, pageId: String?): YouTubePage = cacheMutex.withLock {
         val now = SystemClock.elapsedRealtime()
-        cached?.takeIf { it.profileId == profileId && youTubeHomeRowCacheFresh(it.fetchedAtMs, now) }
+        cached?.takeIf { it.profileId == profileId && it.pageId == pageId && youTubeHomeRowCacheFresh(it.fetchedAtMs, now) }
             ?.let { return@withLock it.page }
         try {
             youTubeService.loadFeed(YouTubeFeed.SUBSCRIPTIONS).also { page ->
-                cached = CachedPage(profileId, now, page)
+                cached = CachedPage(profileId, pageId, now, page)
             }
         } catch (e: CancellationException) {
             throw e
@@ -144,7 +146,7 @@ class HomeYouTubeRow @Inject constructor(
             // Signed out, offline or a changed response: the row stays hidden, and the empty
             // page is kept for the cache time so each return to Home doesn't try again.
             Log.w(TAG, "Could not load YouTube subscriptions for Home: ${e.message}")
-            YouTubePage(emptyList(), null).also { cached = CachedPage(profileId, now, it) }
+            YouTubePage(emptyList(), null).also { cached = CachedPage(profileId, pageId, now, it) }
         }
     }
 

@@ -500,7 +500,6 @@ class YouTubeViewModel @Inject constructor(
             updatePlayback(video) { it.copy(skipSegments = skipSegments) }
             val next = watchNext.await()?.let { feedFilter.apply(it) }
             val autoplayEnabled = autoplay.await()
-            val voteCounts = votes.await()
             updatePlayback(video) {
                 it.copy(
                     upNext = next?.next,
@@ -508,8 +507,7 @@ class YouTubeViewModel @Inject constructor(
                     autoplay = autoplayEnabled,
                     actions = next?.actions,
                     playlist = next?.playlist,
-                    chapters = next?.chapters.orEmpty(),
-                    votes = voteCounts
+                    chapters = next?.chapters.orEmpty()
                 )
             }
             // The TV watch page doesn't always carry chapters; the web one does.
@@ -517,6 +515,8 @@ class YouTubeViewModel @Inject constructor(
                 val chapters = orNull { youTubeService.loadChapters(video.videoId) }.orEmpty()
                 if (chapters.isNotEmpty()) updatePlayback(video) { it.copy(chapters = chapters) }
             }
+            // Counts are extra: they show when they come, without holding up the rest.
+            votes.await()?.let { counts -> updatePlayback(video) { it.copy(votes = counts) } }
             next?.let { brandPlayback(video, it.related + listOfNotNull(it.next)) }
         }
     }

@@ -116,13 +116,12 @@ class YouTubeSettingsViewModel @Inject constructor(
 
     /** Steps the quality cap up, wrapping from the highest back to the lowest. */
     fun onQualityClick() {
-        viewModelScope.launch { settingsDataStore.setMaxVideoHeight(nextVideoHeight(_uiState.value.maxVideoHeight)) }
+        viewModelScope.launch { settingsDataStore.stepMaxVideoHeight(::nextVideoHeight) }
     }
 
     /** Steps [category] through skip, ask, show on the seek bar, and off. */
     fun onSponsorBlockModeClick(category: SponsorBlockCategory) {
-        val current = _uiState.value.sponsorBlockModes[category] ?: category.defaultMode
-        viewModelScope.launch { settingsDataStore.setSponsorBlockMode(category, nextSponsorBlockMode(current)) }
+        viewModelScope.launch { settingsDataStore.stepSponsorBlockMode(category, ::nextSponsorBlockMode) }
     }
 
     fun onDeArrowToggle() {

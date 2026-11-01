@@ -1,7 +1,7 @@
 name: Release
 
-# Run by hand from Actions → Release → Run workflow. Builds the release APKs from the chosen ref
-# and publishes them as a GitHub Release under the given tag.
+# Run by hand from Actions → Release → Run workflow. Builds the release APKs and the Linux
+# desktop packages from the chosen ref and publishes them as one GitHub Release under the tag.
 on:
   workflow_dispatch:
     inputs:
@@ -21,8 +21,44 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  linux:
+    name: Build Linux packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # jpackage needs rpmbuild for the .rpm; the .deb tools are already on the runner.
+      - name: Install rpm
+        run: sudo apt-get update && sudo apt-get install -y rpm
+
+      - name: Build packages
+        run: ./gradlew --no-daemon -Pfetch.desktopOnly=true :desktop:test :desktop:packageDeb :desktop:packageRpm :desktop:createDistributable
+
+      - name: Name packages after the tag
+        run: |
+          mkdir -p dist
+          cp desktop/build/compose/binaries/main/deb/*.deb "dist/fetch-${{ inputs.tag }}-linux-amd64.deb"
+          cp desktop/build/compose/binaries/main/rpm/*.rpm "dist/fetch-${{ inputs.tag }}-linux-x86_64.rpm"
+          tar -czf "dist/fetch-${{ inputs.tag }}-linux-x64.tar.gz" -C desktop/build/compose/binaries/main/app fetch
+          ls -l dist
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: linux-packages
+          path: dist/*
+          if-no-files-found: error
+
   release:
     name: Build and publish APKs
+    needs: linux
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -97,6 +133,11 @@ jobs:
           done
           ls -l dist
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-packages
+          path: dist
+
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag }}
@@ -104,5 +145,9 @@ jobs:
           name: Fetch ${{ inputs.tag }}
           prerelease: ${{ inputs.prerelease }}
           generate_release_notes: true
-          files: dist/*.apk
+          files: |
+            dist/*.apk
+            dist/*.deb
+            dist/*.rpm
+            dist/*.tar.gz
           fail_on_unmatched_files: true

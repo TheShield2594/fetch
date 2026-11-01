@@ -48,6 +48,10 @@ the keystore outside GitHub: if it is lost, every user has to uninstall to move 
    "pre-release" for betas.
 3. The workflow builds the per-ABI APKs and a universal APK, names them
    `fetch-<tag>-<abi>.apk`, and attaches them to a new GitHub release with generated notes.
+   It also builds the Linux desktop packages (`fetch-<tag>-linux-amd64.deb`,
+   `fetch-<tag>-linux-x86_64.rpm` and `fetch-<tag>-linux-x64.tar.gz`) and attaches them to the
+   same release. The desktop app takes its version from `versionName`, so there is nothing
+   else to bump.
 
 ## Device smoke test
 

@@ -9,11 +9,19 @@ It is a preview. It does less than the TV app (see [What works](#what-works)).
 
 ## Install
 
-Every CI run of the **Desktop** workflow uploads a `fetch-linux-x64` artifact with:
+Each GitHub release carries the Linux packages beside the APKs:
 
-- `fetch_<version>-1_amd64.deb` for Debian, Ubuntu and Mint: `sudo apt install ./fetch_*.deb`
-- `fetch-<version>-1.x86_64.rpm` for Fedora and openSUSE: `sudo dnf install ./fetch-*.rpm`
-- `fetch-linux-x64.tar.gz`, a portable build for any distribution: unpack it and run `fetch/bin/fetch`
+- `fetch-<tag>-linux-amd64.deb` for Debian, Ubuntu and Mint: `sudo apt install ./fetch-*.deb`
+- `fetch-<tag>-linux-x86_64.rpm` for Fedora and openSUSE: `sudo dnf install ./fetch-*.rpm`
+- `fetch-<tag>-linux-x64.tar.gz`, a portable build for any distribution: unpack it and run `fetch/bin/fetch`
+
+Every CI run of the **Desktop** workflow also uploads the same three as a `fetch-linux-x64`
+artifact.
+
+The desktop app has the same version as the TV app, read from `versionName` in
+`app/build.gradle.kts`. Packages need a plain `MAJOR.MINOR.PATCH`, so a beta such as
+`1.3.0-beta.2` is packaged as `1.3.0` with package release `0.beta.2`. That sorts before the
+stable `1.3.0-1`, so installing the stable build upgrades the beta.
 
 Each package bundles its own Java runtime. To play streams, install
 [mpv](https://mpv.io) (`sudo apt install mpv`, `sudo dnf install mpv`). Without mpv, Fetch opens
@@ -79,5 +87,3 @@ Roughly in order:
 5. **Search and Discover.**
 6. **More packages**: Flatpak (Flathub) and AppImage, then Windows (`.msi`) and macOS (`.dmg`)
    from the same `nativeDistributions` block.
-7. **Releases**: add the Linux packages to `release.yml` once the desktop app is ready to ship
-   beside the APKs.

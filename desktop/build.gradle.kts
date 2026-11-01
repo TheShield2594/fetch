@@ -9,10 +9,18 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
 }
 
-// The desktop app is versioned on its own while it catches up with the TV app.
-// Package formats (deb, rpm) need a plain MAJOR.MINOR.PATCH.
-val desktopVersion = "0.1.0"
-version = desktopVersion
+// The desktop app ships with the TV app under the same version, read from app/build.gradle.kts
+// (see docs/releasing.md). Packages need a plain MAJOR.MINOR.PATCH, so a pre-release such as
+// 1.3.0-beta.2 becomes 1.3.0 with package release 0.beta.2, which sorts before the stable 1.3.0-1.
+val appVersionName: String = rootProject.file("app/build.gradle.kts").readText()
+    .let { Regex("""versionName\s*=\s*"([^"]+)"""").find(it)?.groupValues?.get(1) }
+    ?: error("Could not read versionName from app/build.gradle.kts")
+val desktopVersion = appVersionName.substringBefore('-')
+val desktopPackageRelease = appVersionName.substringAfter('-', missingDelimiterValue = "")
+    .takeIf { it.isNotEmpty() }
+    ?.let { "0." + it.replace('-', '.') }
+    ?: "1"
+version = appVersionName
 
 kotlin {
     compilerOptions {
@@ -57,7 +65,7 @@ compose.desktop {
                 debMaintainer = "82059300+TheShield2594@users.noreply.github.com"
                 menuGroup = "AudioVideo;Video;Player"
                 appCategory = "video"
-                appRelease = "1"
+                appRelease = desktopPackageRelease
                 shortcut = true
             }
         }

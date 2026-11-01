@@ -19,6 +19,14 @@ Fetch only connects to services you add or turn on yourself:
 - **Metadata and artwork providers** your addons point to (for example TMDB image hosts),
   plus optional skip-intro marker services (IntroDB, AniSkip, Anime-Skip) when skip
   segments are enabled.
+- **YouTube**, only if you sign in to it in Settings (`full` builds). Fetch then reads your
+  feeds, plays videos, and, unless you turn it off, adds what you watch to your YouTube
+  history. On the Search tab, what you type is sent to YouTube's suggestion service. Alongside
+  it:
+  - **SponsorBlock** (on by default; can be turned off) is asked for a video's sponsor segments
+    by the first few characters of a hash of the video's ID, not by the ID itself.
+  - **DeArrow** (off by default) is asked for community titles and thumbnails the same way.
+  - **Return YouTube Dislike** (off by default) receives the ID of each video you play.
 - **A sync server**, only if you connect one. Fetch has no hosted backend; sync is off
   until you point it at a server you run.
 - **GitHub Releases** for the in-app update check (`full` builds only). It is an

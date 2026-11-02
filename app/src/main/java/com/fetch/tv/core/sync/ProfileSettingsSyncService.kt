@@ -13,11 +13,14 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.fetch.tv.core.auth.AuthManager
+import com.fetch.tv.core.parental.ScreenTimeSharing
+import com.fetch.tv.core.parental.ScreenTimeStore
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.local.ContinueWatchingEnrichmentCache
 import com.fetch.tv.data.website.FetchWebsiteSyncService
 import com.fetch.tv.data.local.ExperienceModeDataStore
 import com.fetch.tv.data.local.ProfileDataStoreFactory
+import com.fetch.tv.data.local.KidsRules
 import com.fetch.tv.data.local.ProfileRestrictions
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
 import com.fetch.tv.data.local.StreamBadgeSettingsDataStore
@@ -66,6 +69,8 @@ private const val TAG = "ProfileSettingsSyncService"
 private const val SETTINGS_PUSH_DEBOUNCE_MS = 1500L
 private const val FOREGROUND_PULL_DELAY_MS = 2500L
 private const val FOREGROUND_PULL_MIN_INTERVAL_MS = 60_000L
+private const val SCREEN_TIME_PULL_INTERVAL_MS = 60_000L
+private const val SCREEN_TIME_PUSH_INTERVAL_MS = 60_000L
 private const val SETTINGS_SYNC_PLATFORM = "tv"
 private const val PLAYER_SETTINGS_FEATURE = "player_settings"
 private const val PRIMARY_PROFILE_ID = 1
@@ -182,8 +187,9 @@ class ProfileSettingsSyncService @Inject constructor(
     private val metaRepository: MetaRepository,
     private val cwEnrichmentCache: ContinueWatchingEnrichmentCache,
     private val restrictionsDataStore: ProfileRestrictionsDataStore,
-    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>
-) {
+    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>,
+    private val screenTimeStore: ScreenTimeStore
+) : ScreenTimeSharing {
     /** Somewhere to sync to: the Supabase account, or a Fetch website this TV is paired with. */
     private val canSync: Boolean get() = websiteSync.get().isPaired || authManager.isAuthenticated
 
@@ -307,6 +313,8 @@ class ProfileSettingsSyncService @Inject constructor(
                         require(sourceBlob["features"] is JsonObject)
                         // The copy takes the whole blob, parental limits too; the target keeps its own.
                         val targetParental = if (websiteSync.get().isPaired) null else parentalLimitsForPush(targetProfileId)
+                        // The target's kids rules too, read now: after the copy the account holds the source's.
+                        val targetKidsRules = targetParental?.let { kidsRulesForPush(targetProfileId) }
                         // Pending until the restore below lands, so a failed one is retried on the next pull.
                         targetParental?.let { restrictionsDataStore.setPendingAccountRestrictions(targetProfileId, it) }
 
@@ -343,10 +351,14 @@ class ProfileSettingsSyncService @Inject constructor(
                             ?.get("features")
                             ?.jsonObject
                             ?: error("Copied TV settings are unavailable")
-                        if (targetParental != null) pushProfileToRemote(targetProfileId, buildJsonObject {
-                            put("version", 1)
-                            put("features", copiedFeatures)
-                        })
+                        if (targetParental != null) pushProfileToRemote(
+                            targetProfileId,
+                            buildJsonObject {
+                                put("version", 1)
+                                put("features", copiedFeatures)
+                            },
+                            ParentalSnapshot(targetParental, targetKidsRules)
+                        )
                         copiedFeatures
                     } else {
                         exportSettingsBlob(sourceProfileId)["features"]?.jsonObject
@@ -420,9 +432,9 @@ class ProfileSettingsSyncService @Inject constructor(
         if (websiteSync.get().isPaired || !authManager.isAuthenticated) return@withContext true
         var allDone = true
         val ids = profileIds.filter { it != PRIMARY_PROFILE_ID }
-        val pending = restrictionsDataStore.pendingAccountPushes.first()
+        val pending = restrictionsDataStore.pendingAccountPushes.first() + failedScreenTimePushes
         ids.filter { it in pending }.forEach { profileId ->
-            if (pushProfileSettingsToRemote(profileId).isFailure) allDone = false
+            if (pushProfileSettingsToRemote(profileId).isFailure) allDone = false else failedScreenTimePushes.remove(profileId)
         }
         ids.forEach { profileId ->
             try {
@@ -445,8 +457,10 @@ class ProfileSettingsSyncService @Inject constructor(
 
     private suspend fun applyParentalLimits(profileId: Int, blob: JsonObject?) {
         if (profileId == PRIMARY_PROFILE_ID) return
+        applyOtherDevicesScreenTime(profileId, blob)
         val account = ParentalLimitsBlob.decode(blob) ?: return
-        if (restrictionsDataStore.tightenFromAccount(profileId, account)) {
+        val accountKidsRules = ParentalLimitsBlob.decodeKidsRules(blob)
+        if (restrictionsDataStore.tightenFromAccount(profileId, account, accountKidsRules)) {
             Log.d(TAG, "Tightened parental limits for profile $profileId from the account")
         }
     }
@@ -460,11 +474,152 @@ class ProfileSettingsSyncService @Inject constructor(
     private suspend fun parentalLimitsForPush(profileId: Int): ProfileRestrictions? {
         if (profileId == PRIMARY_PROFILE_ID) return null
         restrictionsDataStore.accountRestrictions.first()[profileId]?.let { return it }
-        ParentalLimitsBlob.decode(pullSupabaseBlob(profileId))?.let { remote ->
-            restrictionsDataStore.tightenFromAccount(profileId, remote)
+        val remoteBlob = pullSupabaseBlob(profileId)
+        ParentalLimitsBlob.decode(remoteBlob)?.let { remote ->
+            restrictionsDataStore.tightenFromAccount(profileId, remote, ParentalLimitsBlob.decodeKidsRules(remoteBlob))
             return remote
         }
         return restrictionsDataStore.restrictions.first()[profileId] ?: ProfileRestrictions.None
+    }
+
+    /**
+     * The kids rules to send with [profileId]'s settings, worked out like the limits: the
+     * account's copy as this TV last saw or set it, else this TV's own rules once a parent set
+     * some. Read after [parentalLimitsForPush], which fills the account copy when it reads one.
+     */
+    private suspend fun kidsRulesForPush(profileId: Int): KidsRules? {
+        if (profileId == PRIMARY_PROFILE_ID) return null
+        restrictionsDataStore.accountKidsRules.first()[profileId]?.let { return it }
+        // Never seen the account's rules: read them first, so this push can't wipe another TV's.
+        val remoteBlob = pullSupabaseBlob(profileId)
+        val remoteRules = ParentalLimitsBlob.decodeKidsRules(remoteBlob)
+        val local = restrictionsDataStore.kidsRules.first()[profileId]?.forAccount()
+        if (remoteRules != null) {
+            ParentalLimitsBlob.decode(remoteBlob)?.let { remoteLimits ->
+                restrictionsDataStore.tightenFromAccount(profileId, remoteLimits, remoteRules)
+            }
+            // Both TVs' rules, so neither loosens the other's when this copy reaches the account.
+            return (local ?: KidsRules.Default.forAccount()).tightenedWith(remoteRules).forAccount()
+        }
+        return local
+    }
+
+    private suspend fun refreshAccountCopiesBeforePush(profileId: Int) {
+        val remote = try {
+            pullSupabaseBlob(profileId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "Couldn't read profile $profileId before pushing; sending what this TV has", e)
+            return
+        } ?: return
+        // A pending profile is left alone by tightenFromAccount, so the parent's change goes out as set.
+        applyParentalLimits(profileId, remote)
+    }
+
+    private suspend fun applyOtherDevicesScreenTime(profileId: Int, blob: JsonObject?) {
+        val others = ScreenTimeBlob.decode(blob) - syncClientIdentity.currentClientId()
+        screenTimeStore.setOtherDevices(profileId, others)
+    }
+
+    /**
+     * This TV's screen time for [profileId] and the other TVs' as last read, for its settings
+     * blob. Null when there's nothing to send, so profiles that never watched as kids carry none.
+     */
+    private suspend fun screenTimeForPush(profileId: Int): JsonObject? {
+        if (profileId == PRIMARY_PROFILE_ID) return null
+        val today = java.time.LocalDate.now()
+        val records = ScreenTimeBlob.recordsForPush(
+            others = screenTimeStore.otherDevices(profileId),
+            ownClientId = syncClientIdentity.currentClientId(),
+            own = screenTimeStore.days()[profileId],
+            oldestDate = today.minusDays(1).toString()
+        )
+        return records.takeIf { it.isNotEmpty() }?.let(ScreenTimeBlob::encode)
+    }
+
+    private val screenTimePullAtMs = java.util.concurrent.ConcurrentHashMap<Int, Long>()
+    private val screenTimePushAtMs = java.util.concurrent.ConcurrentHashMap<Int, Long>()
+
+    /** Reads other TVs' screen time for a kids profile, at most every [SCREEN_TIME_PULL_INTERVAL_MS]. */
+    override fun requestScreenTimePull(profileId: Int) {
+        if (profileId == PRIMARY_PROFILE_ID || websiteSync.get().isPaired || !authManager.isAuthenticated) return
+        if (!claimSlot(screenTimePullAtMs, profileId, SCREEN_TIME_PULL_INTERVAL_MS)) return
+        scope.launch {
+            try {
+                applyOtherDevicesScreenTime(profileId, pullSupabaseBlob(profileId))
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                screenTimePullAtMs.remove(profileId)
+                Log.w(TAG, "Couldn't read shared screen time for profile $profileId", e)
+            }
+        }
+    }
+
+    /**
+     * Sends this TV's screen time for a kids profile with its settings: right away when
+     * [immediate] (a parent added time), otherwise at most every [SCREEN_TIME_PUSH_INTERVAL_MS].
+     */
+    override fun requestScreenTimePush(profileId: Int, immediate: Boolean) {
+        if (profileId == PRIMARY_PROFILE_ID || websiteSync.get().isPaired || !authManager.isAuthenticated) return
+        if (immediate) {
+            screenTimePushAtMs[profileId] = SystemClock.elapsedRealtime()
+            launchScreenTimePush(profileId)
+            return
+        }
+        if (claimSlot(screenTimePushAtMs, profileId, SCREEN_TIME_PUSH_INTERVAL_MS)) {
+            launchScreenTimePush(profileId)
+            return
+        }
+        // Inside the interval: send once it ends, so the last minute of playback isn't held back.
+        if (screenTimeTrailingPushes[profileId]?.isActive == true) return
+        val since = SystemClock.elapsedRealtime() - (screenTimePushAtMs[profileId] ?: 0L)
+        screenTimeTrailingPushes[profileId] = scope.launch {
+            delay((SCREEN_TIME_PUSH_INTERVAL_MS - since).coerceAtLeast(0L))
+            requestScreenTimePush(profileId, immediate = false)
+        }
+    }
+
+    override suspend fun refreshScreenTime(profileId: Int) {
+        if (profileId == PRIMARY_PROFILE_ID || websiteSync.get().isPaired || !authManager.isAuthenticated) return
+        try {
+            applyOtherDevicesScreenTime(profileId, pullSupabaseBlob(profileId))
+            screenTimePullAtMs[profileId] = SystemClock.elapsedRealtime()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "Couldn't read shared screen time for profile $profileId before playback", e)
+        }
+    }
+
+    private val screenTimeTrailingPushes = java.util.concurrent.ConcurrentHashMap<Int, Job>()
+
+    // Profiles whose last screen-time push failed; the next account pull sends them again.
+    private val failedScreenTimePushes: MutableSet<Int> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+
+    private fun launchScreenTimePush(profileId: Int) {
+        scope.launch {
+            if (pushProfileSettingsToRemote(profileId).isFailure) {
+                failedScreenTimePushes.add(profileId)
+            } else {
+                failedScreenTimePushes.remove(profileId)
+            }
+        }
+    }
+
+    private fun claimSlot(lastAt: java.util.concurrent.ConcurrentHashMap<Int, Long>, profileId: Int, intervalMs: Long): Boolean {
+        val now = SystemClock.elapsedRealtime()
+        var claimed = false
+        lastAt.compute(profileId) { _, previous ->
+            if (previous == null || now - previous >= intervalMs) {
+                claimed = true
+                now
+            } else {
+                previous
+            }
+        }
+        return claimed
     }
 
     fun requestForegroundPull(force: Boolean = false) {
@@ -487,21 +642,35 @@ class ProfileSettingsSyncService @Inject constructor(
         }
     }
 
+    /** The parental part of a push worked out before the copy RPC overwrote the account's blob. */
+    private data class ParentalSnapshot(val limits: ProfileRestrictions, val kidsRules: KidsRules?)
+
     private suspend fun pushProfileToRemote(
         profileId: Int,
-        settingsJson: JsonObject? = null
+        settingsJson: JsonObject? = null,
+        parentalSnapshot: ParentalSnapshot? = null
     ) {
         val resolvedSettingsJson = settingsJson ?: exportSettingsBlob(profileId)
         if (websiteSync.get().isPaired) {
             pushProfileToWebsite(profileId, resolvedSettingsJson)
             return
         }
-        val parental = parentalLimitsForPush(profileId)
-        val blob = if (parental == null) {
-            resolvedSettingsJson
-        } else {
-            JsonObject(resolvedSettingsJson + (ParentalLimitsBlob.KEY to ParentalLimitsBlob.encode(parental)))
+        // The push replaces the whole blob, so first read what other TVs put there since this TV
+        // last looked: their screen time, and (unless a parent's change here is waiting to go)
+        // their limits and kids rules. Otherwise a stale copy here would overwrite theirs.
+        if (profileId != PRIMARY_PROFILE_ID && parentalSnapshot == null) refreshAccountCopiesBeforePush(profileId)
+        val parental = parentalSnapshot?.limits ?: parentalLimitsForPush(profileId)
+        val kidsRules = when {
+            parental == null -> null
+            parentalSnapshot != null -> parentalSnapshot.kidsRules
+            else -> kidsRulesForPush(profileId)
         }
+        val screenTime = screenTimeForPush(profileId)
+        var blob = resolvedSettingsJson
+        if (parental != null) {
+            blob = JsonObject(blob + (ParentalLimitsBlob.KEY to ParentalLimitsBlob.encode(parental, kidsRules)))
+        }
+        if (screenTime != null) blob = JsonObject(blob + (ScreenTimeBlob.KEY to screenTime))
         val params = buildJsonObject {
             put("p_profile_id", profileId)
             put("p_settings_json", blob)
@@ -511,7 +680,7 @@ class ProfileSettingsSyncService @Inject constructor(
         withJwtRefreshRetry {
             postgrest.rpc("sync_push_profile_settings_blob", params)
         }
-        if (parental != null) restrictionsDataStore.accountPushSucceeded(profileId, parental)
+        if (parental != null) restrictionsDataStore.accountPushSucceeded(profileId, parental, kidsRules)
     }
 
     /**

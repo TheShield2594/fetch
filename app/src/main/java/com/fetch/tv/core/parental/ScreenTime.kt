@@ -12,10 +12,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -70,15 +72,77 @@ internal fun screenTimeStatus(rules: KidsRules?, day: ScreenTimeDay, now: LocalD
 internal fun ScreenTimeDay?.forDate(date: String): ScreenTimeDay =
     this?.takeIf { it.date == date } ?: ScreenTimeDay(date)
 
+/**
+ * A kid's day across the account's TVs: [local] plus what each other TV recorded for the same
+ * date. Playback adds up, so two TVs playing at once both use the allowance (it's the kid's,
+ * not the TV's). Time a parent added on any TV adds up too, and a day unlocked or a bedtime
+ * lifted on one TV is on every TV. Records from another date are left out.
+ */
+internal fun mergeScreenTimeDays(local: ScreenTimeDay, others: Collection<ScreenTimeDay>): ScreenTimeDay {
+    val sameDay = others.filter { it.date == local.date }
+    if (sameDay.isEmpty()) return local
+    return ScreenTimeDay(
+        date = local.date,
+        watchedMs = local.watchedMs + sameDay.sumOf { it.watchedMs.coerceAtLeast(0L) },
+        extraMinutes = local.extraMinutes + sameDay.sumOf { it.extraMinutes.coerceAtLeast(0) },
+        bedtimeLiftedUntilMs = maxOf(local.bedtimeLiftedUntilMs, sameDay.maxOf { it.bedtimeLiftedUntilMs }),
+        unlockedForDay = local.unlockedForDay || sameDay.any { it.unlockedForDay }
+    )
+}
+
 @Singleton
 class ScreenTimeStore internal constructor(private val dataStore: DataStore<Preferences>) {
     @Inject
     constructor(@ApplicationContext context: Context) : this(context.screenTimeDataStore)
 
     private val daysKey = stringPreferencesKey("days")
+    // Other TVs' records per profile, keyed by their sync client id, as last read from the account.
+    private val otherDevicesKey = stringPreferencesKey("other_devices")
     private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun days(): Map<Int, ScreenTimeDay> = decode(dataStore.data.first()[daysKey])
+
+    val daysFlow: Flow<Map<Int, ScreenTimeDay>> = dataStore.data.map { prefs -> decode(prefs[daysKey]) }
+
+    /** For a deleted profile: its own record and other TVs'. A new profile can reuse the id. */
+    suspend fun deleteProfile(profileId: Int) {
+        dataStore.edit { prefs ->
+            val days = decode(prefs[daysKey])
+            if (profileId in days) prefs[daysKey] = json.encodeToString((days - profileId).mapKeys { it.key.toString() })
+            val others = decodeOtherDevices(prefs[otherDevicesKey])
+            if (profileId in others) {
+                prefs[otherDevicesKey] = json.encodeToString((others - profileId).mapKeys { it.key.toString() })
+            }
+        }
+    }
+
+    /** After sign-out: nothing from the old account's profiles may carry over. */
+    suspend fun clearAll() {
+        dataStore.edit { prefs -> prefs.clear() }
+    }
+
+    val otherDevices: Flow<Map<Int, Map<String, ScreenTimeDay>>> = dataStore.data.map { prefs ->
+        decodeOtherDevices(prefs[otherDevicesKey])
+    }
+
+    suspend fun otherDevices(profileId: Int): Map<String, ScreenTimeDay> = otherDevices.first()[profileId].orEmpty()
+
+    /** Replaces what other TVs recorded for the profile with [records], as just read from the account. */
+    suspend fun setOtherDevices(profileId: Int, records: Map<String, ScreenTimeDay>) {
+        dataStore.edit { prefs ->
+            val all = decodeOtherDevices(prefs[otherDevicesKey]).toMutableMap()
+            if (all[profileId].orEmpty() == records) return@edit
+            if (records.isEmpty()) all.remove(profileId) else all[profileId] = records
+            prefs[otherDevicesKey] = json.encodeToString(all.mapKeys { it.key.toString() })
+        }
+    }
+
+    private fun decodeOtherDevices(raw: String?): Map<Int, Map<String, ScreenTimeDay>> {
+        if (raw.isNullOrBlank()) return emptyMap()
+        val stored = runCatching { json.decodeFromString<Map<String, Map<String, ScreenTimeDay>>>(raw) }.getOrNull()
+            ?: return emptyMap()
+        return stored.mapNotNull { (id, records) -> id.toIntOrNull()?.let { it to records } }.toMap()
+    }
 
     suspend fun update(profileId: Int, date: String, change: (ScreenTimeDay) -> ScreenTimeDay) {
         dataStore.edit { prefs ->
@@ -97,8 +161,30 @@ class ScreenTimeStore internal constructor(private val dataStore: DataStore<Pref
 }
 
 /**
- * Daily screen time and bedtime for kids profiles. Playback time is counted on this device
- * and resets at local midnight; a parent can add time or lift the limits for the day.
+ * Shares a kids profile's screen time with the account's other TVs. [requestScreenTimePull] reads what
+ * they recorded into [ScreenTimeStore.setOtherDevices]; [requestScreenTimePush] sends this TV's record,
+ * right away when [immediate] (a parent added time), otherwise no more than every so often.
+ */
+interface ScreenTimeSharing {
+    fun requestScreenTimePull(profileId: Int)
+    fun requestScreenTimePush(profileId: Int, immediate: Boolean)
+
+    /** Reads other TVs' screen time now, ignoring the pull interval; returns when it's stored. */
+    suspend fun refreshScreenTime(profileId: Int)
+
+    companion object {
+        val None = object : ScreenTimeSharing {
+            override suspend fun refreshScreenTime(profileId: Int) = Unit
+            override fun requestScreenTimePull(profileId: Int) = Unit
+            override fun requestScreenTimePush(profileId: Int, immediate: Boolean) = Unit
+        }
+    }
+}
+
+/**
+ * Daily screen time and bedtime for kids profiles. Playback time is counted on each TV, shared
+ * with the account's other TVs (see [mergeScreenTimeDays]) so the allowance is the kid's rather
+ * than each TV's, and resets at local midnight; a parent can add time or lift the limits for the day.
  */
 @Singleton
 class ScreenTimeManager internal constructor(
@@ -106,18 +192,21 @@ class ScreenTimeManager internal constructor(
     private val profileManager: ProfileManager,
     private val store: ScreenTimeStore,
     private val clock: () -> LocalDateTime,
-    private val wallClockMs: () -> Long
+    private val wallClockMs: () -> Long,
+    private val sharing: () -> ScreenTimeSharing = { ScreenTimeSharing.None }
 ) {
     @Inject
     constructor(
         parentalControls: ParentalControls,
         profileManager: ProfileManager,
-        store: ScreenTimeStore
-    ) : this(parentalControls, profileManager, store, LocalDateTime::now, System::currentTimeMillis)
+        store: ScreenTimeStore,
+        sharing: dagger.Lazy<com.fetch.tv.core.sync.ProfileSettingsSyncService>
+    ) : this(parentalControls, profileManager, store, LocalDateTime::now, System::currentTimeMillis, { sharing.get() })
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val mutex = Mutex()
     private val days = MutableStateFlow<Map<Int, ScreenTimeDay>>(emptyMap())
+    private val otherDevices = MutableStateFlow<Map<Int, Map<String, ScreenTimeDay>>>(emptyMap())
     // Playback counted but not saved yet, per profile; saved every SAVE_INTERVAL_MS.
     private val unsavedMs = mutableMapOf<Int, Long>()
     private var lastSaveMs = 0L
@@ -127,7 +216,8 @@ class ScreenTimeManager internal constructor(
     val revision: StateFlow<Int> = _revision.asStateFlow()
 
     init {
-        scope.launch { days.value = store.days() }
+        scope.launch { store.daysFlow.collect { days.value = it } }
+        scope.launch { store.otherDevices.collect { otherDevices.value = it } }
     }
 
     private fun today(): String = clock().toLocalDate().toString()
@@ -135,14 +225,32 @@ class ScreenTimeManager internal constructor(
     private fun dayFor(profileId: Int): ScreenTimeDay {
         val stored = days.value[profileId].forDate(today())
         val unsaved = synchronized(unsavedMs) { unsavedMs[profileId] ?: 0L }
-        return stored.copy(watchedMs = stored.watchedMs + unsaved)
+        val local = stored.copy(watchedMs = stored.watchedMs + unsaved)
+        return mergeScreenTimeDays(local, otherDevices.value[profileId].orEmpty().values)
     }
 
     /** Whether the active profile may watch right now. */
     fun status(): ScreenTimeStatus {
         val rules = parentalControls.activeKidsRules.value?.takeIf { it.dailyMinutes != null || it.hasBedtime }
         val profileId = profileManager.activeProfileId.value
+        // Catch up on other TVs' playback now and then; the next check sees it.
+        if (rules != null) sharing().requestScreenTimePull(profileId)
         return screenTimeStatus(rules, dayFor(profileId), clock(), wallClockMs())
+    }
+
+    /**
+     * [status] after catching up on other TVs' playback, for the decision to start a title:
+     * waits up to [timeoutMs] for the account, then decides from what this TV has.
+     */
+    suspend fun statusBeforeStart(timeoutMs: Long = START_REFRESH_TIMEOUT_MS): ScreenTimeStatus {
+        val rules = parentalControls.activeKidsRules.value
+        if (rules != null && (rules.dailyMinutes != null || rules.hasBedtime)) {
+            val profileId = profileManager.activeProfileId.value
+            kotlinx.coroutines.withTimeoutOrNull(timeoutMs) { sharing().refreshScreenTime(profileId) }
+            // Read back what the refresh stored rather than wait for the collector to see it.
+            otherDevices.value = store.otherDevices.first()
+        }
+        return status()
     }
 
     /** At the limit, stop right away rather than let the current title finish. */
@@ -173,6 +281,7 @@ class ScreenTimeManager internal constructor(
             store.update(profileId, date) { it.copy(watchedMs = it.watchedMs + ms) }
         }
         days.value = store.days()
+        pending.keys.forEach { sharing().requestScreenTimePush(it, immediate = false) }
     }
 
     /** A parent added [minutes] for the active profile: to today's allowance, and past bedtime. */
@@ -188,14 +297,17 @@ class ScreenTimeManager internal constructor(
 
     private suspend fun change(update: (ScreenTimeDay) -> ScreenTimeDay) {
         flush()
+        val profileId = profileManager.activeProfileId.value
         mutex.withLock {
-            store.update(profileManager.activeProfileId.value, today(), update)
+            store.update(profileId, today(), update)
             days.value = store.days()
         }
+        sharing().requestScreenTimePush(profileId, immediate = true)
         _revision.update { it + 1 }
     }
 
     private companion object {
         const val SAVE_INTERVAL_MS = 30_000L
+        const val START_REFRESH_TIMEOUT_MS = 3_000L
     }
 }

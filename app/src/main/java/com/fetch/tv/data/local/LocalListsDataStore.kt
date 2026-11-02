@@ -37,6 +37,10 @@ class LocalListsDataStore @Inject constructor(
         store(profileId).data.map { preferences -> preferences.decodeLists() }
     }.distinctUntilChanged()
 
+    /** One profile's lists, whichever profile is active; a kids profile reads the parent's this way. */
+    fun listsFor(profileId: Int): Flow<List<LocalList>> =
+        store(profileId).data.map { preferences -> preferences.decodeLists() }.distinctUntilChanged()
+
     suspend fun getLists(profileId: Int = profileManager.activeProfileId.value): List<LocalList> =
         store(profileId).data.first().decodeLists()
 

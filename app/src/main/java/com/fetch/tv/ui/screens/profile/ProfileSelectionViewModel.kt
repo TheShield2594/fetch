@@ -121,6 +121,9 @@ class ProfileSelectionViewModel @Inject constructor(
 
     val profileKidsRules: StateFlow<Map<Int, com.fetch.tv.data.local.KidsRules>> = parentalControls.allKidsRules
 
+    /** The main profile's own lists, which a kids profile can take approved titles from. */
+    val parentLists: StateFlow<List<com.fetch.tv.core.tracking.LocalList>> = parentalControls.parentLists
+
     fun setKidsRules(profileId: Int, rules: com.fetch.tv.data.local.KidsRules) {
         viewModelScope.launch { parentalControls.setKidsRules(profileId, rules) }
     }

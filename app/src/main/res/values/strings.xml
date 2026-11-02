@@ -3155,6 +3155,8 @@
     <string name="kids_approved_only">Approved titles only: %1$s</string>
     <string name="kids_approved_movies">Movies for you</string>
     <string name="kids_approved_shows">Shows for you</string>
+    <string name="kids_approved_list">Titles on “%1$s”: %2$s</string>
+    <string name="kids_approved_lists_hint">Only always-allowed titles show on this profile, plus the titles on the main profile’s lists turned on below. Add a title to one of those lists, or allow it from its poster’s long-press menu, on the main profile.</string>
     <string name="kids_approved_only_hint">Only always-allowed titles show on this profile. Allow a title from its poster’s long-press menu on the main profile.</string>
     <string name="kids_daily_time">Daily screen time: %1$s</string>
     <string name="kids_bedtime">Bedtime: %1$s to %2$s</string>

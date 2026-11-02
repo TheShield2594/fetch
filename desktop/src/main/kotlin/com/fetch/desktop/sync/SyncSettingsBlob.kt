@@ -124,13 +124,20 @@ object SyncSettingsBlob {
         )
     }
 
-    /** [blob] (or a new one) with its `parental` object set to [limits], everything else kept. */
-    fun withParentalLimits(blob: JsonObject?, limits: RemoteParentalLimits): JsonObject =
-        (blob ?: JsonObject(emptyMap())).with(PARENTAL, buildJsonObject {
+    /**
+     * [blob] (or a new one) with its `parental` limits set to [limits], everything else kept,
+     * including keys of `parental` the desktop doesn't edit (the TV's `kidsRules`).
+     */
+    fun withParentalLimits(blob: JsonObject?, limits: RemoteParentalLimits): JsonObject {
+        val base = blob ?: JsonObject(emptyMap())
+        val existing = (base[PARENTAL] as? JsonObject).orEmpty()
+        return base.with(PARENTAL, buildJsonObject {
+            existing.forEach { (key, value) -> put(key, value) }
             put("isKidsProfile", limits.isKidsProfile)
             put("maxRating", limits.maxRating)
             put("allowUnrated", limits.allowUnrated)
         })
+    }
 
     private fun JsonObject.with(key: String, value: JsonElement): JsonObject {
         val map = toMutableMap()

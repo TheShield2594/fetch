@@ -594,7 +594,7 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
     // "Approved titles only" on a kids profile: its approved titles come first.
     val approvedRows = approvedTitleRows(
         approvedOnly = parentalControls.activeKidsRules.value?.approvedTitlesOnly == true,
-        lists = parentalControls.activeTitleLists.value,
+        lists = parentalControls.activeFilterTitleLists.value,
         moviesTitle = appContext.getString(com.fetch.tv.R.string.kids_approved_movies),
         showsTitle = appContext.getString(com.fetch.tv.R.string.kids_approved_shows)
     )

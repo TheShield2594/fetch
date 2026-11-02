@@ -2,7 +2,9 @@ package com.fetch.tv.core.parental
 
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.sync.ProfileSettingsSyncService
+import com.fetch.tv.core.tracking.LocalList
 import com.fetch.tv.data.local.KidsRules
+import com.fetch.tv.data.local.LocalListsDataStore
 import com.fetch.tv.data.local.ParentalTitle
 import com.fetch.tv.data.local.ProfileRestrictions
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
@@ -56,7 +58,8 @@ class ParentalControls @Inject constructor(
     private val pinManager: ProfilePinManager,
     private val resolver: CertificationResolver,
     private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>,
-    private val profileSettingsSync: dagger.Lazy<ProfileSettingsSyncService>
+    private val profileSettingsSync: dagger.Lazy<ProfileSettingsSyncService>,
+    private val localLists: LocalListsDataStore
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -96,10 +99,32 @@ class ParentalControls @Inject constructor(
 
     fun kidsRulesFor(profileId: Int): KidsRules = allKidsRules.value[profileId] ?: KidsRules.Default
 
-    /** Saves a kids profile's rules. Kept on this TV; callers ask for the parent PIN first. */
+    /** The parent (primary) profile's own lists, which a kids profile can take approved titles from. */
+    val parentLists: StateFlow<List<LocalList>> = localLists.listsFor(PARENT_PROFILE_ID)
+        .stateIn(scope, SharingStarted.Eagerly, emptyList())
+
+    /**
+     * The active profile's title lists as filtering sees them: in "approved titles only" mode the
+     * allowed list also holds the titles on the parent's chosen lists, so a show the parent adds
+     * to one of them appears for the kid. Otherwise the same as [activeTitleLists].
+     */
+    val activeFilterTitleLists: StateFlow<ProfileTitleLists> = combine(
+        activeTitleLists,
+        activeKidsRules,
+        parentLists
+    ) { lists, rules, parent -> lists.withApprovedFromLists(approvedTitlesFromLists(rules, parent)) }
+        .distinctUntilChanged()
+        .stateIn(scope, SharingStarted.Eagerly, ProfileTitleLists.Empty)
+
+    /**
+     * Saves a kids profile's rules; callers ask for the parent PIN first. Like the limits they
+     * go to the account, and other TVs take them only where they're stricter than their own.
+     */
     suspend fun setKidsRules(profileId: Int, rules: KidsRules): Boolean {
         if (profileId == 1) return false
-        restrictionsDataStore.setKidsRules(profileId, rules)
+        if (rules == kidsRulesFor(profileId)) return true
+        restrictionsDataStore.setKidsRulesByParent(profileId, rules)
+        profileSettingsSync.get().triggerParentalLimitsPush(profileId)
         return true
     }
 
@@ -140,7 +165,7 @@ class ParentalControls @Inject constructor(
      */
     val filterRevision: StateFlow<ParentalFilterRevision> = combine(
         activeRestrictions.map { it.contentRestriction }.distinctUntilChanged(),
-        activeTitleLists,
+        activeFilterTitleLists,
         resolver.revision,
         activeKidsRules.map { it?.approvedTitlesOnly == true }.distinctUntilChanged()
     ) { restriction, lists, revision, approvedOnly ->
@@ -155,7 +180,7 @@ class ParentalControls @Inject constructor(
 
     /** True when some titles may be left out for the active profile: it has a limit or hidden titles. */
     fun filtersContent(): Boolean =
-        activeRestrictions.value.isRestricted || activeTitleLists.value.hidden.isNotEmpty() || approvedTitlesOnly
+        activeRestrictions.value.isRestricted || activeFilterTitleLists.value.hidden.isNotEmpty() || approvedTitlesOnly
 
     fun restrictionsFor(profileId: Int): ProfileRestrictions =
         allRestrictions.value[profileId] ?: ProfileRestrictions.None
@@ -259,7 +284,7 @@ class ParentalControls @Inject constructor(
      * one always does; otherwise the rating decides, and unknown titles are hidden until resolved.
      */
     fun isAllowed(query: CertificationQuery): Boolean {
-        val lists = activeTitleLists.value
+        val lists = activeFilterTitleLists.value
         val type = query.type.takeIf { it != ContentType.UNKNOWN }?.toApiString()
         if (lists.isHidden(query.contentId, query.imdbId, type)) return false
         // "Approved titles only": the parent's list decides, whatever the rating.
@@ -291,7 +316,7 @@ class ParentalControls @Inject constructor(
 
     /** Suspending check that waits for the lookup; used before auto-play. */
     suspend fun isAllowedResolved(query: CertificationQuery): Boolean {
-        val lists = activeTitleLists.value
+        val lists = activeFilterTitleLists.value
         val type = query.type.takeIf { it != ContentType.UNKNOWN }?.toApiString()
         if (lists.isHidden(query.contentId, query.imdbId, type)) return false
         if (approvedTitlesOnly) return lists.isAllowed(query.contentId, query.imdbId, type)
@@ -299,6 +324,40 @@ class ParentalControls @Inject constructor(
         if (!restriction.isRestricted || lists.isAllowed(query.contentId, query.imdbId, type)) return true
         return restriction.allows(resolver.resolve(query))
     }
+}
+
+/**
+ * Titles on the parent's lists that [rules] approve: those on each list in
+ * [KidsRules.approvedListIds], oldest addition first. None outside "approved titles only" mode.
+ */
+internal fun approvedTitlesFromLists(rules: KidsRules?, parentLists: List<LocalList>): List<ParentalTitle> {
+    if (rules == null || !rules.approvedTitlesOnly || rules.approvedListIds.isEmpty()) return emptyList()
+    val chosen = rules.approvedListIds.toSet()
+    return parentLists
+        .filter { it.id in chosen }
+        .flatMap { it.items }
+        .filter { it.id.isNotBlank() }
+        .sortedBy { it.addedAt }
+        .distinctBy { it.id to it.type.trim().lowercase() }
+        .map { item ->
+            ParentalTitle(
+                ids = listOf(item.id),
+                type = item.type,
+                name = item.name,
+                poster = item.poster,
+                background = item.background
+            )
+        }
+}
+
+/** These lists with [titles] added to the allowed list, skipping any already on either list. */
+internal fun ProfileTitleLists.withApprovedFromLists(titles: List<ParentalTitle>): ProfileTitleLists {
+    if (titles.isEmpty()) return this
+    val listed = hidden + allowed
+    val added = titles.filterNot { title ->
+        listed.any { it.sameKind(title.type) && it.ids.any { id -> id in title.ids } }
+    }
+    return if (added.isEmpty()) this else copy(allowed = allowed + added)
 }
 
 fun MetaPreview.certificationQuery(): CertificationQuery = CertificationQuery(

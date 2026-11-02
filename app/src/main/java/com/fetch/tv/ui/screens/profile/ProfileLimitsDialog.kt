@@ -94,6 +94,8 @@ internal fun ProfileLimitsDialog(
     titleLists: ProfileTitleLists = ProfileTitleLists.Empty,
     /** Leaves a listed title to the rating limit again, straight away. */
     onClearTitle: (ParentalTitle) -> Unit = {},
+    /** The parent profile's own lists (id to name), offered as sources of approved titles. */
+    parentLists: List<Pair<String, String>> = emptyList(),
     modifier: Modifier = Modifier
 ) {
     var restrictions by remember(profile.id) { mutableStateOf(initial) }
@@ -191,10 +193,24 @@ internal fun ProfileLimitsDialog(
             }
             if (kidsRules.approvedTitlesOnly) {
                 Text(
-                    text = stringResource(R.string.kids_approved_only_hint),
+                    text = stringResource(
+                        if (parentLists.isEmpty()) R.string.kids_approved_only_hint else R.string.kids_approved_lists_hint
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = FetchTheme.colors.TextSecondary
                 )
+                parentLists.forEach { (listId, listName) ->
+                    val chosen = listId in kidsRules.approvedListIds
+                    RuleButton(stringResource(R.string.kids_approved_list, listName, stringResource(onOff(chosen)))) {
+                        kidsRules = kidsRules.copy(
+                            approvedListIds = if (chosen) {
+                                kidsRules.approvedListIds - listId
+                            } else {
+                                kidsRules.approvedListIds + listId
+                            }
+                        )
+                    }
+                }
             }
             RuleButton(stringResource(R.string.kids_daily_time, dailyMinutesLabel(kidsRules.dailyMinutes))) {
                 kidsRules = kidsRules.copy(dailyMinutes = DailyMinutesChoices.after(kidsRules.dailyMinutes))

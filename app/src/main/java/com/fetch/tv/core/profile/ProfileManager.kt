@@ -28,6 +28,7 @@ class ProfileManager @Inject constructor(
     private val credentialStores: Set<@JvmSuppressWildcards ProfileScopedCredentialStore>,
     private val profileLockStateDataStore: ProfileLockStateDataStore,
     private val profileRestrictionsDataStore: ProfileRestrictionsDataStore,
+    private val screenTimeStore: com.fetch.tv.core.parental.ScreenTimeStore,
     @ApplicationContext private val context: Context
 ) {
     companion object {
@@ -120,6 +121,7 @@ class ProfileManager @Inject constructor(
         // A new profile can reuse this id, so its PIN and limits must not survive.
         profileLockStateDataStore.removeProfile(id)
         profileRestrictionsDataStore.deleteProfile(id)
+        screenTimeStore.deleteProfile(id)
         deleteProfileDataAsync(id)
         profileDataStore.deleteProfile(id)
         return true

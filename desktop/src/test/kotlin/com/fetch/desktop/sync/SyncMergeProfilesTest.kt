@@ -214,6 +214,18 @@ class SyncMergeProfilesTest {
     }
 
     @Test
+    fun `writing limits keeps the TV's kids rules and screen time`() {
+        val blob = Json.parseToJsonElement(
+            """{"version":1,"parental":{"isKidsProfile":true,"maxRating":"PARENTAL_GUIDANCE","allowUnrated":false,"kidsRules":{"dailyMinutes":60}},"screenTime":{"tv":{"date":"2026-11-02"}}}"""
+        ).jsonObject
+        val written = SyncSettingsBlob.withParentalLimits(blob, RemoteParentalLimits(true, "ALL_AGES", false))
+        assertEquals(
+            """{"version":1,"parental":{"isKidsProfile":true,"maxRating":"ALL_AGES","allowUnrated":false,"kidsRules":{"dailyMinutes":60}},"screenTime":{"tv":{"date":"2026-11-02"}}}""",
+            written.toString()
+        )
+    }
+
+    @Test
     fun `desktop settings map to and from shared settings`() {
         val desktop = DesktopSettings(
             theme = "OCEAN",

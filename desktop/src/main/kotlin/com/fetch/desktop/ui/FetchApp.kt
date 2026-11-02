@@ -30,12 +30,15 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.runtime.key
 import com.fetch.desktop.AppState
 import com.fetch.desktop.ProfilesState
+import com.fetch.desktop.SyncAccountState
 import com.fetch.desktop.data.DesktopProfile
 import com.fetch.desktop.Screen
 
 @Composable
 fun FetchApp() {
     val profiles = remember { ProfilesState() }
+    val appScope = rememberCoroutineScope()
+    val account = remember { SyncAccountState(appScope) }
     val active = profiles.active
     if (active == null) {
         // "Who's watching?" at start-up (several profiles, Remember Last Profile off) or after
@@ -44,13 +47,13 @@ fun FetchApp() {
         return
     }
     // Each profile gets its own state, from its own files.
-    key(active.id, active.usesPrimaryAddons) { ProfileApp(profiles, active) }
+    key(active.id, active.usesPrimaryAddons) { ProfileApp(profiles, active, account) }
 }
 
 @Composable
-private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile) {
+private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account: SyncAccountState) {
     val scope = rememberCoroutineScope()
-    val state = remember { AppState(scope, profiles, profile).also { FetchPalette.setTheme(it.settings.appTheme) } }
+    val state = remember { AppState(scope, profiles, profile, account = account).also { FetchPalette.setTheme(it.settings.appTheme) } }
     LaunchedEffect(Unit) { state.start() }
 
     val snackbar = remember { SnackbarHostState() }
@@ -154,5 +157,6 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile) {
                 )
             }
         }
+        state.screenTimeBlock?.let { block -> ScreenTimeDialog(state, block) }
     }
 }

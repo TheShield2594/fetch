@@ -2,6 +2,7 @@ package com.fetch.desktop.servers
 
 import com.fetch.tv.domain.model.ContentType
 import kotlinx.coroutines.runBlocking
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -165,7 +166,7 @@ class PlexServerClientTest {
     }
 
     @Test
-    fun `latest keeps only IMDb items and tokenises images`() = runBlocking {
+    fun `latest keeps IMDb items by IMDb id, others by server ref, and tokenises images`() = runBlocking {
         val fake = FakeServerHttp {
             200 to """{"MediaContainer":{"Metadata":[
                 {"ratingKey":"54","type":"movie","title":"The Matrix","year":1999,"thumb":"/library/metadata/54/thumb/1","art":"/a",
@@ -174,11 +175,112 @@ class PlexServerClientTest {
                 {"ratingKey":"61","type":"movie","title":"Home video","guid":"local://61"}]}}"""
         }
         val previews = PlexServerClient(fake.client, "dev-1").latest(account(), ServerLib("1", "Movies", "movie"), 10)
-        assertEquals(listOf("tt0133093", "tt0111161"), previews.map { it.id })
+        assertEquals(listOf("tt0133093", "tt0111161", "srv1:acc-p:61"), previews.map { it.id })
         assertEquals(ContentType.MOVIE, previews[0].type)
         assertEquals("1999", previews[0].releaseInfo)
+        assertEquals(null, previews[2].imdbId)
         assertTrue(previews[0].poster!!.contains("/photo/:/transcode") && previews[0].poster!!.contains("X-Plex-Token=srv-tok"))
         assertEquals("addedAt:desc", fake.sent.single().query("sort"))
+    }
+
+    @Test
+    fun `browse pages a section with total size and sort`() = runBlocking {
+        val fake = FakeServerHttp {
+            200 to """{"MediaContainer":{"size":2,"totalSize":57,"Metadata":[
+                {"ratingKey":"70","type":"show","title":"Breaking Bad","year":2008,"summary":"Chemistry","audienceRating":9.46,
+                 "Genre":[{"tag":"Drama"}],"Guid":[{"id":"imdb://tt0903747"}]},
+                {"ratingKey":"80","type":"show","title":"Family Show","year":2020,"thumb":"/library/metadata/80/thumb/2"}]}}"""
+        }
+        val page = PlexServerClient(fake.client, "dev-1").browse(account(), ServerLib("2", "TV", "series"), 20, 10, ServerSort.YEAR)
+        assertEquals(57, page.total)
+        assertEquals(listOf("tt0903747", "srv1:acc-p:80"), page.items.map { it.id })
+        assertTrue(page.items.all { it.type == ContentType.SERIES && it.rawType == "series" })
+        assertEquals("Chemistry", page.items[0].description)
+        assertEquals(9.5f, page.items[0].imdbRating)
+        assertEquals(listOf("Drama"), page.items[0].genres)
+        val sent = fake.sent.single()
+        assertEquals("/library/sections/2/all", sent.path)
+        assertEquals("2", sent.query("type"))
+        assertEquals("originallyAvailableAt:desc", sent.query("sort"))
+        assertEquals("20", sent.query("X-Plex-Container-Start"))
+        assertEquals("10", sent.query("X-Plex-Container-Size"))
+    }
+
+    @Test
+    fun `details of a show lists its episodes with server ref ids`() = runBlocking {
+        val fake = FakeServerHttp { req ->
+            when (req.url.encodedPath) {
+                "/library/metadata/80" -> 200 to """{"MediaContainer":{"Metadata":[{"ratingKey":"80","type":"show","title":"Family Show","year":2020,
+                    "summary":"Home movies","contentRating":"TV-PG","thumb":"/t","art":"/a","Genre":[{"tag":"Comedy"}],
+                    "Role":[{"tag":"Ann","role":"Mum","thumb":"https://metadata-static.plex.tv/ann.jpg"}],
+                    "Image":[{"type":"clearLogo","url":"/library/metadata/80/clearLogo/1"}]}]}}"""
+                "/library/metadata/80/allLeaves" -> 200 to """{"MediaContainer":{"Metadata":[
+                    {"ratingKey":"81","type":"episode","title":"Pilot","parentIndex":1,"index":1,"summary":"It begins",
+                     "originallyAvailableAt":"2020-01-02","thumb":"/e1","duration":1800000,"Media":[{"id":1}]}]}}"""
+                else -> 404 to "{}"
+            }
+        }
+        val meta = PlexServerClient(fake.client, "dev-1").details(account(), "80")!!
+        assertEquals("srv1:acc-p:80", meta.id)
+        assertEquals(ContentType.SERIES, meta.type)
+        assertEquals("Family Show", meta.name)
+        assertEquals(listOf("Ann"), meta.cast)
+        assertEquals("https://metadata-static.plex.tv/ann.jpg", meta.castMembers.single().photo)
+        assertTrue(meta.logo!!.contains("/photo/:/transcode"))
+        val pilot = meta.videos.single()
+        assertEquals("srv1:acc-p:81", pilot.id)
+        assertEquals(1, pilot.season)
+        assertEquals(1, pilot.episode)
+        assertEquals("2020-01-02", pilot.released)
+        assertEquals(30, pilot.runtime)
+        assertTrue(pilot.thumbnail!!.contains("X-Plex-Token=srv-tok"))
+    }
+
+    @Test
+    fun `streamsForItem plays a server item and maps its external subtitles`() = runBlocking {
+        val fake = FakeServerHttp { req ->
+            when (req.url.encodedPath) {
+                "/library/metadata/61" -> 200 to """{"MediaContainer":{"Metadata":[{"ratingKey":"61","type":"movie","title":"Home video",
+                    "Media":[{"id":905,"height":1080,"Part":[{"id":1005,"key":"/library/parts/1005/1/file.mkv","file":"/m/home.mkv","Stream":[
+                      {"id":1,"streamType":1,"codec":"h264"},
+                      {"id":2,"streamType":3,"codec":"srt","languageCode":"eng"},
+                      {"id":3,"streamType":3,"codec":"srt","languageCode":"eng","title":"SDH","key":"/library/streams/3","default":true},
+                      {"id":4,"streamType":3,"codec":"ass","languageCode":"fra","displayTitle":"Français (ASS)","key":"/library/streams/4","forced":true}]}]}]}]}}"""
+                else -> 404 to "{}"
+            }
+        }
+        val stream = PlexServerClient(fake.client, "dev-1").streamsForItem(account(), "61").single()
+        assertEquals("61", stream.itemId)
+        assertEquals("905", stream.mediaSourceId)
+        assertEquals("https://10-0-0-5.abc.plex.direct:32400/library/parts/1005/1/file.mkv?X-Plex-Token=srv-tok", stream.url)
+        assertEquals(2, stream.subtitles.size)
+        val sdh = stream.subtitles[0]
+        assertEquals("https://10-0-0-5.abc.plex.direct:32400/library/streams/3?X-Plex-Token=srv-tok", sdh.url)
+        assertEquals("eng", sdh.language)
+        assertEquals("SDH", sdh.title)
+        assertTrue(sdh.default)
+        assertTrue(!sdh.forced)
+        assertEquals("Français (ASS)", stream.subtitles[1].title)
+        assertTrue(stream.subtitles[1].forced)
+        assertTrue(PlexServerClient(fake.client, "dev-1").streamsForItem(account(), "404").isEmpty())
+    }
+
+    @Test
+    fun `transcodeUrl asks the universal transcoder for HLS at the bitrate`() {
+        val client = PlexServerClient(FakeServerHttp { 404 to "" }.client, "dev-1")
+        val stream = ServerStream("acc-p", "54", "901", "u", null, null, null, null, null, null, null, null, null, null)
+        val url = client.transcodeUrl(account(), stream, 2500)!!.toHttpUrl()
+        assertEquals("/video/:/transcode/universal/start.m3u8", url.encodedPath)
+        assertEquals("/library/metadata/54", url.queryParameter("path"))
+        assertEquals("hls", url.queryParameter("protocol"))
+        assertEquals("0", url.queryParameter("directPlay"))
+        assertEquals("1", url.queryParameter("directStream"))
+        assertEquals("2500", url.queryParameter("videoBitrate"))
+        assertEquals("2500", url.queryParameter("maxVideoBitrate"))
+        assertEquals("srv-tok", url.queryParameter("X-Plex-Token"))
+        assertEquals("dev-1", url.queryParameter("X-Plex-Client-Identifier"))
+        assertTrue(url.queryParameter("session")!!.isNotBlank())
+        assertEquals(url.queryParameter("session"), url.queryParameter("X-Plex-Session-Identifier"))
     }
 
     @Test

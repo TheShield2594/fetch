@@ -1,9 +1,13 @@
 package com.fetch.desktop.servers
 
 import com.fetch.desktop.AppInfo
+import com.fetch.tv.data.mediaserver.ServerItemRef
 import com.fetch.tv.domain.model.ContentType
+import com.fetch.tv.domain.model.Meta
+import com.fetch.tv.domain.model.MetaCastMember
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.PosterShape
+import com.fetch.tv.domain.model.Video
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -198,39 +202,159 @@ class PlexServerClient(
                 audioChannels = media.audioChannels,
                 bitrate = media.bitrate?.times(1_000L),
                 durationMs = media.duration ?: item.duration,
-                resumePositionMs = item.viewOffset?.takeIf { it > 0 }
+                resumePositionMs = item.viewOffset?.takeIf { it > 0 },
+                subtitles = part.streams.filter { it.isSubtitle && !it.key.isNullOrBlank() }.map { stream ->
+                    ServerSubtitle(
+                        url = buildUrl(account.address, stream.key!!, mapOf("X-Plex-Token" to account.token)),
+                        language = (stream.languageCode ?: stream.language)?.takeIf { it.isNotBlank() },
+                        title = (stream.title ?: stream.extendedDisplayTitle ?: stream.displayTitle)?.takeIf { it.isNotBlank() },
+                        forced = stream.forced,
+                        default = stream.default
+                    )
+                }
             )
         }
+
+    override suspend fun streamsForItem(account: ServerAccount, itemId: String): List<ServerStream> =
+        metadata(account, itemId)?.let { streamsOf(account, it) }.orEmpty()
+
+    override fun transcodeUrl(account: ServerAccount, stream: ServerStream, maxBitrateKbps: Int): String? {
+        val session = UUID.randomUUID().toString()
+        val bitrate = maxBitrateKbps.coerceAtLeast(MIN_TRANSCODE_KBPS).toString()
+        return buildUrl(
+            account.address,
+            "/video/:/transcode/universal/start.m3u8",
+            mapOf(
+                "path" to "/library/metadata/${stream.itemId}",
+                "partIndex" to "0",
+                "protocol" to "hls",
+                "fastSeek" to "1",
+                "directPlay" to "0",
+                "directStream" to "1",
+                "directStreamAudio" to "0",
+                "videoQuality" to "100",
+                "videoBitrate" to bitrate,
+                "maxVideoBitrate" to bitrate,
+                // Stereo AAC: a slow link has no room for multichannel audio.
+                "X-Plex-Client-Profile-Extra" to "add-limitation(scope=videoAudioCodec&scopeName=*&type=upperBound&name=audio.channels&value=2)",
+                "subtitles" to "none",
+                "session" to session,
+                "X-Plex-Session-Identifier" to session
+            ) + headers(account.token)
+        )
+    }
+
+    /** The item [ratingKey] with its media, or null when the server has no such item. */
+    private suspend fun metadata(account: ServerAccount, ratingKey: String): PlexMetadata? = try {
+        container(account, "/library/metadata/${pathSegment(ratingKey)}", mapOf("includeGuids" to "1")).metadata.firstOrNull()
+    } catch (e: ServerException) {
+        if (e.status == 404 || e.status == 400) null else throw e
+    }
 
     override suspend fun latest(account: ServerAccount, lib: ServerLib, limit: Int): List<MetaPreview> {
         val items = container(
             account,
             "/library/sections/${pathSegment(lib.id)}/all",
-            mapOf("type" to plexType(lib), "sort" to "addedAt:desc", "includeGuids" to "1") + page(0, (limit * 2).coerceIn(1, 200))
+            mapOf("type" to plexType(lib), "sort" to "addedAt:desc", "includeGuids" to "1") + page(0, limit.coerceIn(1, 200))
         ).metadata
-        return items.mapNotNull { item ->
-            val imdb = item.imdb() ?: return@mapNotNull null
-            val type = when (item.type) {
-                "movie" -> ContentType.MOVIE
-                "show" -> ContentType.SERIES
-                else -> return@mapNotNull null
-            }
-            MetaPreview(
-                id = imdb,
-                type = type,
-                name = item.title.orEmpty(),
-                poster = image(account, item.thumb, height = 600),
-                posterShape = PosterShape.POSTER,
-                background = image(account, item.art, width = 1920),
-                logo = null,
-                description = item.summary,
-                releaseInfo = item.year?.toString(),
-                imdbRating = null,
-                genres = item.genres.mapNotNull { it.tag },
-                imdbId = imdb
-            )
-        }.take(limit)
+        return items.mapNotNull { preview(account, it) }.take(limit)
     }
+
+    override suspend fun browse(account: ServerAccount, lib: ServerLib, start: Int, limit: Int, sort: ServerSort): ServerPageResult {
+        val from = start.coerceAtLeast(0)
+        val order = when (sort) {
+            ServerSort.ADDED -> "addedAt:desc"
+            ServerSort.TITLE -> "titleSort"
+            ServerSort.YEAR -> "originallyAvailableAt:desc"
+        }
+        val result = container(
+            account,
+            "/library/sections/${pathSegment(lib.id)}/all",
+            mapOf("type" to plexType(lib), "sort" to order, "includeGuids" to "1") + page(from, limit.coerceIn(1, 500))
+        )
+        return ServerPageResult(
+            items = result.metadata.mapNotNull { preview(account, it) },
+            total = result.totalSize ?: (from + result.metadata.size)
+        )
+    }
+
+    override suspend fun details(account: ServerAccount, itemId: String): Meta? {
+        val item = metadata(account, itemId) ?: return null
+        val type = item.contentType() ?: return null
+        val episodes = if (type == ContentType.SERIES) {
+            container(account, "/library/metadata/${pathSegment(item.ratingKey)}/allLeaves").metadata.filter { it.type == "episode" }
+        } else {
+            emptyList()
+        }
+        val cast = item.roles.filter { !it.tag.isNullOrBlank() }
+        return Meta(
+            id = ServerItemRef(account.id, item.ratingKey).encode(),
+            type = type,
+            rawType = type.rawType(),
+            name = item.title.orEmpty(),
+            poster = image(account, item.thumb, height = 600),
+            posterShape = PosterShape.POSTER,
+            background = image(account, item.art, width = 1920),
+            logo = item.logo(account),
+            description = item.summary,
+            releaseInfo = item.year?.toString(),
+            imdbRating = item.score()?.roundRating(),
+            genres = item.genres.mapNotNull { it.tag },
+            runtime = item.duration?.takeIf { type == ContentType.MOVIE && it > 0 }?.let { "${it / 60_000L} min" },
+            director = item.directors.mapNotNull { it.tag },
+            writer = item.writers.mapNotNull { it.tag },
+            cast = cast.mapNotNull { it.tag },
+            castMembers = cast.map { role ->
+                MetaCastMember(name = role.tag.orEmpty(), character = role.role?.takeIf { it.isNotBlank() }, photo = image(account, role.thumb, height = 300))
+            },
+            videos = episodes.map { episode ->
+                Video(
+                    id = ServerItemRef(account.id, episode.ratingKey).encode(),
+                    title = episode.title.orEmpty(),
+                    released = episode.originallyAvailableAt,
+                    thumbnail = image(account, episode.thumb, width = 640),
+                    season = episode.parentIndex,
+                    episode = episode.index,
+                    overview = episode.summary,
+                    runtime = episode.duration?.let { (it / 60_000L).toInt() },
+                    rating = episode.score(),
+                    available = episode.media.isNotEmpty()
+                )
+            },
+            ageRating = item.contentRating,
+            country = null,
+            awards = null,
+            language = null,
+            links = emptyList(),
+            imdbId = item.imdb(),
+            released = item.originallyAvailableAt?.take(10)
+        )
+    }
+
+    /** A movie or show as a preview: id is its IMDb id when it has one, else its [ServerItemRef]. */
+    private fun preview(account: ServerAccount, item: PlexMetadata): MetaPreview? {
+        val type = item.contentType() ?: return null
+        val imdb = item.imdb()
+        return MetaPreview(
+            id = imdb ?: ServerItemRef(account.id, item.ratingKey).encode(),
+            type = type,
+            rawType = type.rawType(),
+            name = item.title.orEmpty(),
+            poster = image(account, item.thumb, height = 600),
+            posterShape = PosterShape.POSTER,
+            background = image(account, item.art, width = 1920),
+            logo = item.logo(account),
+            description = item.summary,
+            releaseInfo = item.year?.toString(),
+            imdbRating = item.score()?.roundRating(),
+            genres = item.genres.mapNotNull { it.tag },
+            released = item.originallyAvailableAt?.take(10),
+            imdbId = imdb
+        )
+    }
+
+    private fun PlexMetadata.logo(account: ServerAccount): String? =
+        images.firstOrNull { it.type == "clearLogo" }?.url?.let { image(account, it, width = 800) }
 
     override suspend fun resume(account: ServerAccount, limit: Int): List<ServerResume> {
         val items = try {
@@ -360,6 +484,7 @@ class PlexServerClient(
         const val DEFAULT_PIN_LIFETIME_S = 900L
         const val PROBE_TIMEOUT_S = 4L
         const val TITLE_LOOKUP_LIMIT = 20
+        const val MIN_TRANSCODE_KBPS = 300
 
         /** On the LAN first, then direct over the internet, then plex.tv's relay; IPv4 before IPv6. */
         fun orderedConnections(connections: List<PlexConnection>): List<PlexConnection> =
@@ -382,6 +507,14 @@ internal fun PlexMetadata.imdb(): String? =
         if (scheme != "imdb") return@firstNotNullOfOrNull null
         value.substringAfter("://").substringBefore('?').substringBefore('/').imdbOrNull()
     }
+
+private fun PlexMetadata.contentType(): ContentType? = when (type) {
+    "movie" -> ContentType.MOVIE
+    "show" -> ContentType.SERIES
+    else -> null
+}
+
+private fun PlexMetadata.score(): Double? = audienceRating ?: rating
 
 @Serializable
 internal data class PlexPin(val id: Long, val code: String, val authToken: String? = null, val expiresIn: Long? = null)
@@ -415,6 +548,8 @@ internal data class PlexResponse(@SerialName("MediaContainer") val container: Pl
 @Serializable
 internal data class PlexContainer(
     val machineIdentifier: String? = null,
+    val size: Int? = null,
+    val totalSize: Int? = null,
     @SerialName("Directory") val directories: List<PlexDirectory> = emptyList(),
     @SerialName("Metadata") val metadata: List<PlexMetadata> = emptyList()
 )
@@ -432,6 +567,10 @@ internal data class PlexMetadata(
     val year: Int? = null,
     val thumb: String? = null,
     val art: String? = null,
+    val originallyAvailableAt: String? = null,
+    val rating: Double? = null,
+    val audienceRating: Double? = null,
+    val contentRating: String? = null,
     val duration: Long? = null,
     val viewOffset: Long? = null,
     val lastViewedAt: Long? = null,
@@ -443,12 +582,19 @@ internal data class PlexMetadata(
     val grandparentArt: String? = null,
     val librarySectionID: Long? = null,
     @SerialName("Genre") val genres: List<PlexTag> = emptyList(),
+    @SerialName("Director") val directors: List<PlexTag> = emptyList(),
+    @SerialName("Writer") val writers: List<PlexTag> = emptyList(),
+    @SerialName("Role") val roles: List<PlexTag> = emptyList(),
     @SerialName("Guid") val guids: List<PlexGuid> = emptyList(),
+    @SerialName("Image") val images: List<PlexImage> = emptyList(),
     @SerialName("Media") val media: List<PlexMedia> = emptyList()
 )
 
 @Serializable
-internal data class PlexTag(val tag: String? = null)
+internal data class PlexTag(val tag: String? = null, val role: String? = null, val thumb: String? = null)
+
+@Serializable
+internal data class PlexImage(val type: String? = null, val url: String? = null)
 
 @Serializable
 internal data class PlexGuid(val id: String)
@@ -468,4 +614,27 @@ internal data class PlexMedia(
 )
 
 @Serializable
-internal data class PlexPart(val id: Long, val key: String? = null, val file: String? = null, val size: Long? = null)
+internal data class PlexPart(
+    val id: Long,
+    val key: String? = null,
+    val file: String? = null,
+    val size: Long? = null,
+    @SerialName("Stream") val streams: List<PlexStream> = emptyList()
+)
+
+@Serializable
+internal data class PlexStream(
+    val id: Long? = null,
+    val streamType: Int? = null,
+    val codec: String? = null,
+    val languageCode: String? = null,
+    val language: String? = null,
+    val title: String? = null,
+    val displayTitle: String? = null,
+    val extendedDisplayTitle: String? = null,
+    val key: String? = null,
+    val forced: Boolean = false,
+    val default: Boolean = false
+) {
+    val isSubtitle: Boolean get() = streamType == 3
+}

@@ -27,6 +27,9 @@ object MpvProgress {
     /** How playback ended: the last position, and whether mpv reached the end of the file. */
     data class Ending(val last: Sample?, val reachedEnd: Boolean)
 
+    /** A jump for mpv to make, and the note it shows on screen ("Skipped intro"). */
+    data class Seek(val toSec: Double, val message: String)
+
     private val json = Json { ignoreUnknownKeys = true }
 
     /**
@@ -39,13 +42,15 @@ object MpvProgress {
         process: Process,
         intervalMs: Long = 5_000,
         onSample: (Sample) -> Unit
-    ): Sample? = followToEnd(socket, process, intervalMs, onSample).last
+    ): Sample? = followToEnd(socket, process, intervalMs, onSample = onSample).last
 
     /** Like [follow], and also tells whether the file played to its end (for Up Next). */
     suspend fun followToEnd(
         socket: File,
         process: Process,
         intervalMs: Long = 5_000,
+        /** Asked on every position change; a [Seek] makes mpv jump (Skip Segments). */
+        onPosition: (Double) -> Seek? = { null },
         onSample: (Sample) -> Unit
     ): Ending {
         // mpv creates the socket shortly after it starts.
@@ -75,7 +80,15 @@ object MpvProgress {
                         if (kind != "property-change") continue
                         val value = event["data"]?.let { runCatching { it.jsonPrimitive.doubleOrNull }.getOrNull() }
                         when (event["name"]?.jsonPrimitive?.content) {
-                            "time-pos" -> if (value != null) position = value
+                            "time-pos" -> if (value != null) {
+                                position = value
+                                onPosition(value)?.let { seek ->
+                                    val text = seek.message.replace("\\", "").replace("\"", "")
+                                    val commands = "{\"command\":[\"seek\",${seek.toSec},\"absolute\"]}\n" +
+                                        "{\"command\":[\"show-text\",\"$text\",2000]}\n"
+                                    channel.write(ByteBuffer.wrap(commands.toByteArray()))
+                                }
+                            }
                             "duration" -> if (value != null) duration = value
                         }
                         val p = position

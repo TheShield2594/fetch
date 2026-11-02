@@ -54,6 +54,7 @@ import com.fetch.desktop.data.PlayerSettings
 import com.fetch.desktop.data.SubtitleMode
 import com.fetch.desktop.player.ExternalPlayer
 import com.fetch.desktop.player.MpvArgs
+import com.fetch.desktop.skip.SegmentType
 import com.fetch.tv.core.streams.ranking.AudioFormat
 import com.fetch.tv.core.streams.ranking.ReleaseSource
 import com.fetch.tv.core.streams.ranking.StreamLanguage
@@ -104,12 +105,15 @@ fun SettingsScreen(state: AppState, page: SettingsPage) {
                                 SettingsPage.UP_NEXT -> UpNextPage(state)
                                 SettingsPage.AUDIO -> AudioPage(state)
                                 SettingsPage.SUBTITLES -> SubtitlesPage(state)
+                                SettingsPage.SKIP_SEGMENTS -> SkipSegmentsPage(state)
                                 SettingsPage.CONTENT_DISCOVERY -> ContentDiscoveryPage(state)
                                 SettingsPage.HOME_CATALOGS -> HomeCatalogsPage(state)
                                 SettingsPage.APPEARANCE -> AppearancePage(state)
                                 SettingsPage.LAYOUT -> LayoutPage(state)
                                 SettingsPage.TRACKING -> TrackingPage(state)
+                                SettingsPage.ACCOUNT -> AccountPage(state)
                                 SettingsPage.MEDIA_SERVERS -> MediaServersPage(state)
+                                SettingsPage.STREAM_BADGES -> StreamBadgesSettingsPage(state.badges, onBack = state::back)
                                 SettingsPage.ABOUT -> AboutPage(state)
                                 SettingsPage.ADDONS -> Unit
                             }
@@ -292,6 +296,21 @@ private fun SubtitlesPage(state: AppState) {
     }
 }
 
+@Composable
+private fun SkipSegmentsPage(state: AppState) {
+    val p = state.settings.player
+    PageHeader("Skip Segments", subtitle = "Intros, recaps and credits, from introdb.app. mpv jumps over them and says so on screen.")
+    SettingsSection("Automatic Skipping") {
+        SegmentType.entries.forEach { type ->
+            SettingsToggle(
+                "Skip ${type.label.lowercase()}",
+                if (type == SegmentType.OUTRO) "Skipping the credits ends the episode, so Up Next starts sooner." else null,
+                type in p.autoSkip
+            ) { on -> state.updatePlayer { it.copy(autoSkip = if (on) it.autoSkip + type else it.autoSkip - type) } }
+        }
+    }
+}
+
 /** A free-text setting, saved when the field loses focus. */
 @Composable
 private fun TextRow(title: String, description: String?, value: String, onChange: (String) -> Unit) {
@@ -339,6 +358,14 @@ private fun StreamSelectionPage(state: AppState) {
     val update: (StreamRankingRules) -> Unit = { new -> state.updateSettings { it.copy(rankingRules = new) } }
 
     PageHeader("Stream Selection", subtitle = "How Fetch picks the best match when you press Play. Every source stays in All sources.")
+
+    SettingsSection(null) {
+        SettingsRow(
+            "Stream badges",
+            "Fusion badge URLs: labels and images on each source. ${if (state.badges.sources.isEmpty()) "None imported." else "${state.badges.sources.size} imported."}",
+            onClick = { state.navigate(Screen.Settings(SettingsPage.STREAM_BADGES)) }
+        ) { Chevron() }
+    }
 
     SettingsSection("Quality") {
         SettingsChoice("Preferred quality", "Aim for this; higher still plays but ranks lower.", rules.preferredResolution, QualityOptions) {

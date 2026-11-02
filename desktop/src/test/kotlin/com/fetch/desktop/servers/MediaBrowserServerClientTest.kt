@@ -1,6 +1,8 @@
 package com.fetch.desktop.servers
 
+import com.fetch.tv.domain.model.ContentType
 import kotlinx.coroutines.runBlocking
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -215,24 +217,169 @@ class MediaBrowserServerClientTest {
     }
 
     @Test
-    fun `latest keeps only items with an IMDb id`() = runBlocking {
+    fun `latest keeps IMDb items by IMDb id and server-only items by server ref`() = runBlocking {
         val fake = FakeServerHttp {
             200 to """{"Items":[
                 {"Id":"m1","Name":"The Matrix","Type":"Movie","ProductionYear":1999,"Overview":"Neo","Genres":["Action"],
                  "ProviderIds":{"Imdb":"tt0133093"},"ImageTags":{"Primary":"p1"},"BackdropImageTags":["b1"]},
                 {"Id":"m9","Name":"Home Video","Type":"Movie","ProviderIds":{}},
-                {"Id":"m8","Name":"Tmdb only","Type":"Movie","ProviderIds":{"Tmdb":"603"}}]}"""
+                {"Id":"x1","Name":"Not a title","Type":"Folder"}]}"""
         }
         val previews = MediaBrowserServerClient(ServerKind.JELLYFIN, fake.client, "dev-1")
             .latest(account(), ServerLib("lib-m", "Movies", "movie"), 10)
-        val preview = previews.single()
-        assertEquals("tt0133093", preview.id)
-        assertEquals(com.fetch.tv.domain.model.ContentType.MOVIE, preview.type)
+        assertEquals(listOf("tt0133093", "srv1:acc-1:m9"), previews.map { it.id })
+        val preview = previews[0]
+        assertEquals(ContentType.MOVIE, preview.type)
+        assertEquals("tt0133093", preview.imdbId)
         assertEquals("1999", preview.releaseInfo)
         assertEquals(listOf("Action"), preview.genres)
         assertTrue(preview.poster!!.startsWith("http://den:8096/Items/m1/Images/Primary?tag=p1"))
         assertTrue(preview.background!!.contains("/Items/m1/Images/Backdrop/0"))
+        assertNull(previews[1].imdbId)
+        assertEquals("movie", previews[1].rawType)
         assertEquals("DateCreated,SortName", fake.sent.single().query("sortBy"))
+    }
+
+    @Test
+    fun `browse pages a library with total count, sort and both kinds of ids`() = runBlocking {
+        val fake = FakeServerHttp {
+            200 to """{"TotalRecordCount":123,"Items":[
+                {"Id":"s1","Name":"Breaking Bad","Type":"Series","ProductionYear":2008,"Overview":"Chemistry","Genres":["Drama"],
+                 "ProviderIds":{"Imdb":"tt0903747"},"ImageTags":{"Primary":"p1","Logo":"l1"},"CommunityRating":8.94},
+                {"Id":"s2","Name":"Family Show","Type":"Series","ProductionYear":2020,"ProviderIds":{"Tmdb":"1"},"ImageTags":{"Primary":"p2"}}]}"""
+        }
+        val page = MediaBrowserServerClient(ServerKind.JELLYFIN, fake.client, "dev-1")
+            .browse(account(), ServerLib("lib-t", "Shows", "series"), 40, 20, ServerSort.TITLE)
+        assertEquals(123, page.total)
+        assertEquals(listOf("tt0903747", "srv1:acc-1:s2"), page.items.map { it.id })
+        assertTrue(page.items.all { it.type == ContentType.SERIES && it.rawType == "series" })
+        assertEquals("Chemistry", page.items[0].description)
+        assertEquals("2020", page.items[1].releaseInfo)
+        assertEquals(8.9f, page.items[0].imdbRating)
+        assertTrue(page.items[0].logo!!.contains("/Items/s1/Images/Logo"))
+        assertTrue(page.items[1].poster!!.contains("/Items/s2/Images/Primary"))
+        val sent = fake.sentTo("/Items").single()
+        assertEquals("40", sent.query("startIndex"))
+        assertEquals("20", sent.query("limit"))
+        assertEquals("SortName", sent.query("sortBy"))
+        assertEquals("Ascending", sent.query("sortOrder"))
+        assertEquals("Series", sent.query("includeItemTypes"))
+        assertEquals("lib-t", sent.query("parentId"))
+    }
+
+    @Test
+    fun `details of a series lists its episodes with server ref ids`() = runBlocking {
+        val fake = FakeServerHttp { req ->
+            when (req.url.encodedPath) {
+                "/Items/s2" -> 200 to """{"Id":"s2","Name":"Family Show","Type":"Series","ProductionYear":2019,"Status":"Ended","EndDate":"2021-05-01T00:00:00Z",
+                    "Overview":"Home movies","Genres":["Comedy"],"CommunityRating":7.25,"OfficialRating":"TV-PG","RunTimeTicks":18000000000,
+                    "ImageTags":{"Primary":"p2","Logo":"l2"},"BackdropImageTags":["b2"],
+                    "People":[{"Id":"pe1","Name":"Ann","Role":"Mum","Type":"Actor","PrimaryImageTag":"pt"},{"Name":"Dir","Type":"Director"}]}"""
+                "/Shows/s2/Episodes" -> 200 to """{"Items":[
+                    {"Id":"e1","Name":"Pilot","Type":"Episode","ParentIndexNumber":1,"IndexNumber":1,"Overview":"It begins",
+                     "PremiereDate":"2019-01-02T00:00:00Z","ImageTags":{"Primary":"t1"},"RunTimeTicks":18000000000},
+                    {"Id":"e2","Name":"Two","Type":"Episode","ParentIndexNumber":1,"IndexNumber":2,"LocationType":"Virtual"}]}"""
+                else -> 404 to "{}"
+            }
+        }
+        val meta = MediaBrowserServerClient(ServerKind.JELLYFIN, fake.client, "dev-1").details(account(), "s2")!!
+        assertEquals("srv1:acc-1:s2", meta.id)
+        assertEquals(ContentType.SERIES, meta.type)
+        assertEquals("series", meta.rawType)
+        assertEquals("Family Show", meta.name)
+        assertEquals("2019–2021", meta.releaseInfo)
+        assertEquals(7.3f, meta.imdbRating)
+        assertEquals(listOf("Comedy"), meta.genres)
+        assertEquals("30 min", meta.runtime)
+        assertEquals(listOf("Ann"), meta.cast)
+        assertEquals("Mum", meta.castMembers.single().character)
+        assertTrue(meta.castMembers.single().photo!!.contains("/Items/pe1/Images/Primary"))
+        assertEquals(listOf("Dir"), meta.director)
+        assertTrue(meta.logo!!.contains("/Items/s2/Images/Logo"))
+        assertTrue(meta.background!!.contains("/Items/s2/Images/Backdrop/0"))
+        assertNull(meta.imdbId)
+        assertEquals(listOf("srv1:acc-1:e1", "srv1:acc-1:e2"), meta.videos.map { it.id })
+        val pilot = meta.videos[0]
+        assertEquals(1, pilot.season)
+        assertEquals(1, pilot.episode)
+        assertEquals("Pilot", pilot.title)
+        assertEquals("It begins", pilot.overview)
+        assertEquals("2019-01-02T00:00:00Z", pilot.released)
+        assertTrue(pilot.thumbnail!!.contains("/Items/e1/Images/Primary"))
+        assertEquals(false, meta.videos[1].available)
+        assertTrue(fake.sentTo("/Items/s2").single().query("fields")!!.contains("People"))
+        assertEquals("u1", fake.sentTo("/Shows/s2/Episodes").single().query("userId"))
+    }
+
+    @Test
+    fun `details of a missing item is null`() = runBlocking {
+        val fake = FakeServerHttp { 404 to "" }
+        assertNull(MediaBrowserServerClient(ServerKind.JELLYFIN, fake.client, "dev-1").details(account(), "nope"))
+    }
+
+    @Test
+    fun `streamsForItem plays a server item and maps its external subtitles`() = runBlocking {
+        val fake = FakeServerHttp { req ->
+            when (req.url.encodedPath) {
+                "/Items/m9" -> 200 to """{"Id":"m9","Name":"Home Video","Type":"Movie",
+                    "MediaSources":[{"Id":"src9","Path":"/media/home.mkv","MediaStreams":[
+                      {"Type":"Video","Index":0,"Codec":"h264","Height":1080},
+                      {"Type":"Audio","Index":1,"Codec":"aac","Channels":2},
+                      {"Type":"Subtitle","Index":2,"Codec":"subrip","Language":"eng","IsExternal":false},
+                      {"Type":"Subtitle","Index":3,"Codec":"subrip","Language":"eng","Title":"English SDH","IsExternal":true,"IsDefault":true},
+                      {"Type":"Subtitle","Index":4,"Codec":"ass","Language":"fre","IsExternal":true,"IsForced":true},
+                      {"Type":"Subtitle","Index":5,"Codec":"pgssub","IsExternal":true}]}]}"""
+                else -> 404 to "{}"
+            }
+        }
+        val stream = MediaBrowserServerClient(ServerKind.JELLYFIN, fake.client, "dev-1").streamsForItem(account(), "m9").single()
+        assertEquals("m9", stream.itemId)
+        assertEquals("src9", stream.mediaSourceId)
+        assertTrue(stream.url.startsWith("http://den:8096/Videos/m9/stream?") && stream.url.contains("api_key=tok-1"))
+        assertEquals(2, stream.subtitles.size)
+        val sdh = stream.subtitles[0]
+        assertEquals("http://den:8096/Videos/m9/src9/Subtitles/3/0/Stream.srt?api_key=tok-1", sdh.url)
+        assertEquals("eng", sdh.language)
+        assertEquals("English SDH", sdh.title)
+        assertTrue(sdh.default)
+        assertFalse(sdh.forced)
+        val forced = stream.subtitles[1]
+        assertTrue(forced.url.contains("/Subtitles/4/0/Stream.ass"))
+        assertTrue(forced.forced)
+        assertFalse(forced.toString().contains("tok-1"))
+    }
+
+    @Test
+    fun `emby subtitles and transcodes live under the emby prefix`() = runBlocking {
+        val fake = FakeServerHttp { req ->
+            when (req.url.encodedPath) {
+                "/emby/Users/u1/Items/m9" -> 200 to """{"Id":"m9","Type":"Movie","MediaSources":[{"Id":"src9","MediaStreams":[
+                      {"Type":"Subtitle","Index":3,"Codec":"srt","IsExternal":true}]}]}"""
+                else -> 404 to "{}"
+            }
+        }
+        val client = MediaBrowserServerClient(ServerKind.EMBY, fake.client, "dev-1")
+        val account = account(ServerKind.EMBY)
+        val stream = client.streamsForItem(account, "m9").single()
+        assertEquals("http://den:8096/emby/Videos/m9/src9/Subtitles/3/0/Stream.srt?api_key=tok-1", stream.subtitles.single().url)
+        assertTrue(client.transcodeUrl(account, stream, 4000)!!.startsWith("http://den:8096/emby/Videos/m9/master.m3u8?"))
+    }
+
+    @Test
+    fun `transcodeUrl asks for H264 AAC stereo HLS at the bitrate`() {
+        val client = MediaBrowserServerClient(ServerKind.JELLYFIN, FakeServerHttp { 404 to "" }.client, "dev-1")
+        val stream = ServerStream("acc-1", "m1", "src-4k", "u", null, null, null, null, null, null, null, null, null, null)
+        val url = client.transcodeUrl(account(), stream, 3000)!!.toHttpUrl()
+        assertEquals("/Videos/m1/master.m3u8", url.encodedPath)
+        assertEquals("src-4k", url.queryParameter("MediaSourceId"))
+        assertEquals("h264", url.queryParameter("VideoCodec"))
+        assertEquals("aac", url.queryParameter("AudioCodec"))
+        assertEquals("3000000", url.queryParameter("MaxStreamingBitrate"))
+        assertEquals("2", url.queryParameter("TranscodingMaxAudioChannels"))
+        assertEquals("tok-1", url.queryParameter("api_key"))
+        assertEquals("dev-1", url.queryParameter("DeviceId"))
+        assertTrue(url.queryParameter("PlaySessionId")!!.isNotBlank())
+        assertTrue(client.transcodeUrl(account(), stream, 3000) != client.transcodeUrl(account(), stream, 3000))
     }
 
     @Test

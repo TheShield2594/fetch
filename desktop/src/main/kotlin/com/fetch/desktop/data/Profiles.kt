@@ -14,9 +14,16 @@ data class DesktopProfile(
     val name: String,
     val colorHex: String,
     /** Share the main profile's addons instead of keeping its own list. */
-    val usesPrimaryAddons: Boolean = true
+    val usesPrimaryAddons: Boolean = true,
+    /** The TV app's PIN format (salted PBKDF2, see ProfilePinHasher); null when not locked. */
+    val pinHash: String? = null,
+    /** Limits, set from the main profile, as on TV. */
+    val limits: ProfileLimits = ProfileLimits()
 ) {
     val isPrimary: Boolean get() = id == PRIMARY_ID
+    val isLocked: Boolean get() = pinHash != null
+
+    override fun toString(): String = "DesktopProfile(id=$id, name=$name, locked=$isLocked)"
 
     companion object {
         const val PRIMARY_ID = 1
@@ -48,3 +55,23 @@ fun profileDir(profile: DesktopProfile, root: File = AppDirs.config): File =
 /** Where [profile]'s addon list lives: the main profile's when it shares it. */
 fun addonsDir(profile: DesktopProfile, root: File = AppDirs.config): File =
     if (profile.usesPrimaryAddons) root else profileDir(profile, root)
+
+/**
+ * The TV app's profile limits: the highest rating allowed, screen time a day, a bedtime and how
+ * many episodes Up Next plays in a row.
+ */
+@Serializable
+data class ProfileLimits(
+    /** A [com.fetch.tv.core.parental.CertificationLevel] name; null means no limit. */
+    val maxRating: String? = null,
+    /** Whether titles with no known rating are allowed under a rating limit. */
+    val allowUnrated: Boolean = true,
+    val dailyMinutes: Int? = null,
+    /** Minutes after midnight when bedtime starts; it ends at 7:00. */
+    val bedtimeStartMinute: Int? = null,
+    /** Episodes Up Next plays in a row before stopping; null means no cap. */
+    val autoplayCap: Int? = null
+) {
+    val isRestricted: Boolean
+        get() = maxRating != null || dailyMinutes != null || bedtimeStartMinute != null || autoplayCap != null
+}

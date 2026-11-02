@@ -2,6 +2,7 @@ package com.fetch.desktop.data
 
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
 import com.fetch.tv.domain.model.AppTheme
+import com.fetch.desktop.skip.SegmentType
 import kotlinx.serialization.Serializable
 import java.io.File
 
@@ -94,5 +95,9 @@ data class PlayerSettings(
     /** Up Next: when an episode plays to its end, start the next one's best match. */
     val autoplayNextEpisode: Boolean = true,
     /** Extra mpv options, space-separated, for anything not covered here. */
-    val extraMpvArgs: String = ""
+    val extraMpvArgs: String = "",
+    /** Media server quality: null plays the file as it is; a cap transcodes on the server. */
+    val serverMaxBitrateKbps: Int? = null,
+    /** Skip Segments: what mpv jumps over automatically, from introdb.app's times. */
+    val autoSkip: Set<SegmentType> = setOf(SegmentType.INTRO, SegmentType.RECAP)
 )

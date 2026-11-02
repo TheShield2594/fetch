@@ -1,9 +1,13 @@
 package com.fetch.desktop.servers
 
 import com.fetch.desktop.AppInfo
+import com.fetch.tv.data.mediaserver.ServerItemRef
 import com.fetch.tv.domain.model.ContentType
+import com.fetch.tv.domain.model.Meta
+import com.fetch.tv.domain.model.MetaCastMember
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.PosterShape
+import com.fetch.tv.domain.model.Video
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerialName
@@ -189,46 +193,199 @@ class MediaBrowserServerClient(
                 audioChannels = audio?.channels,
                 bitrate = source.bitrate,
                 durationMs = (source.runTimeTicks ?: item.runTimeTicks)?.div(TICKS_PER_MS),
-                resumePositionMs = resume
+                resumePositionMs = resume,
+                subtitles = externalSubtitles(account, item.id, source)
             )
         }
+    }
+
+    /** The source's external subtitle files, served by `/Videos/{item}/{source}/Subtitles/{index}/0/Stream.{format}`. */
+    private fun externalSubtitles(account: ServerAccount, itemId: String, source: MbMediaSource): List<ServerSubtitle> =
+        source.mediaStreams
+            .filter { it.type.equals("Subtitle", ignoreCase = true) && it.isExternal }
+            .mapNotNull { stream ->
+                val index = stream.index ?: return@mapNotNull null
+                val format = subtitleFormat(stream.codec) ?: return@mapNotNull null
+                ServerSubtitle(
+                    url = buildUrl(
+                        account.address + apiPath,
+                        "/Videos/${pathSegment(itemId)}/${pathSegment(source.id)}/Subtitles/$index/0/Stream.$format",
+                        mapOf("api_key" to account.token)
+                    ),
+                    language = stream.language?.takeIf { it.isNotBlank() },
+                    title = (stream.title ?: stream.displayTitle)?.takeIf { it.isNotBlank() },
+                    forced = stream.isForced,
+                    default = stream.isDefault
+                )
+            }
+
+    override suspend fun streamsForItem(account: ServerAccount, itemId: String): List<ServerStream> {
+        val item = orNullIfMissing { item(account, itemId) } ?: return emptyList()
+        return streamsOf(account, item)
+    }
+
+    override fun transcodeUrl(account: ServerAccount, stream: ServerStream, maxBitrateKbps: Int): String? {
+        val total = maxBitrateKbps.coerceAtLeast(MIN_TRANSCODE_KBPS).toLong() * 1_000L
+        val audio = minOf(TRANSCODE_AUDIO_BPS, total / 4)
+        return buildUrl(
+            account.address + apiPath,
+            "/Videos/${pathSegment(stream.itemId)}/master.m3u8",
+            mapOf(
+                "MediaSourceId" to (stream.mediaSourceId ?: stream.itemId),
+                "VideoCodec" to "h264",
+                "AudioCodec" to "aac",
+                "MaxStreamingBitrate" to total.toString(),
+                "VideoBitrate" to (total - audio).toString(),
+                "AudioBitrate" to audio.toString(),
+                "TranscodingMaxAudioChannels" to "2",
+                "SegmentContainer" to "ts",
+                "BreakOnNonKeyFrames" to "true",
+                "DeviceId" to deviceId,
+                "PlaySessionId" to UUID.randomUUID().toString().replace("-", ""),
+                "api_key" to account.token
+            )
+        )
     }
 
     override suspend fun latest(account: ServerAccount, lib: ServerLib, limit: Int): List<MetaPreview> {
         val items = items(
             account,
-            libraryQuery(lib) + mapOf(
-                "fields" to "Overview,Genres,ProviderIds,PremiereDate",
-                "imageTypeLimit" to "1",
-                "enableImageTypes" to "Primary,Backdrop",
+            libraryQuery(lib) + listQuery() + mapOf(
                 "sortBy" to "DateCreated,SortName",
                 "sortOrder" to "Descending",
-                "limit" to (limit * 2).coerceIn(1, 200).toString()
+                "limit" to limit.coerceIn(1, 200).toString()
             )
         )
+        return items.mapNotNull { preview(account, it) }.take(limit)
+    }
+
+    override suspend fun browse(account: ServerAccount, lib: ServerLib, start: Int, limit: Int, sort: ServerSort): ServerPageResult {
+        val (sortBy, order) = when (sort) {
+            ServerSort.ADDED -> "DateCreated,SortName" to "Descending"
+            ServerSort.TITLE -> "SortName" to "Ascending"
+            ServerSort.YEAR -> "PremiereDate,ProductionYear,SortName" to "Descending"
+        }
+        val page = get(
+            account,
+            itemsEndpoint(account).first,
+            itemsEndpoint(account).second + libraryQuery(lib) + listQuery() + mapOf(
+                "sortBy" to sortBy,
+                "sortOrder" to order,
+                "startIndex" to start.coerceAtLeast(0).toString(),
+                "limit" to limit.coerceIn(1, 500).toString(),
+                "enableTotalRecordCount" to "true"
+            ),
+            MbItems.serializer()
+        )
+        return ServerPageResult(
+            items = page.items.mapNotNull { preview(account, it) },
+            total = page.totalRecordCount ?: (start.coerceAtLeast(0) + page.items.size)
+        )
+    }
+
+    override suspend fun details(account: ServerAccount, itemId: String): Meta? {
+        val item = orNullIfMissing { item(account, itemId, DETAIL_FIELDS) } ?: return null
+        val type = item.contentType() ?: return null
         val root = account.address + apiPath
-        return items.mapNotNull { item ->
-            val imdb = item.imdb() ?: return@mapNotNull null
-            val type = when {
-                item.type.equals("Movie", ignoreCase = true) -> ContentType.MOVIE
-                item.type.equals("Series", ignoreCase = true) -> ContentType.SERIES
-                else -> return@mapNotNull null
-            }
-            MetaPreview(
-                id = imdb,
-                type = type,
-                name = item.name.orEmpty(),
-                poster = item.imageTags["Primary"]?.let { image(root, item.id, "Primary", it, maxHeight = 600) },
-                posterShape = PosterShape.POSTER,
-                background = item.backdrop(root),
-                logo = null,
-                description = item.overview,
-                releaseInfo = item.productionYear?.toString(),
-                imdbRating = null,
-                genres = item.genres,
-                imdbId = imdb
-            )
-        }.take(limit)
+        val episodes = if (type == ContentType.SERIES) {
+            get(
+                account,
+                "/Shows/${pathSegment(item.id)}/Episodes",
+                mapOf(
+                    "userId" to account.userId,
+                    "fields" to "Overview,PremiereDate",
+                    "imageTypeLimit" to "1",
+                    "enableImageTypes" to "Primary"
+                ),
+                MbItems.serializer()
+            ).items
+        } else {
+            emptyList()
+        }
+        val cast = item.people.filter { it.type.equals("Actor", ignoreCase = true) && !it.name.isNullOrBlank() }
+        return Meta(
+            id = ServerItemRef(account.id, item.id).encode(),
+            type = type,
+            rawType = type.rawType(),
+            name = item.name.orEmpty(),
+            poster = item.imageTags["Primary"]?.let { image(root, item.id, "Primary", it, maxHeight = 600) },
+            posterShape = PosterShape.POSTER,
+            background = item.backdrop(root),
+            logo = item.logo(root),
+            description = item.overview,
+            releaseInfo = item.releaseInfo(type),
+            status = item.status,
+            imdbRating = item.communityRating?.roundRating(),
+            genres = item.genres,
+            runtime = item.runTimeTicks?.takeIf { it > 0 }?.let { "${it / TICKS_PER_MS / 60_000L} min" },
+            director = item.people.filter { it.type.equals("Director", ignoreCase = true) }.mapNotNull { it.name },
+            writer = item.people.filter { it.type.equals("Writer", ignoreCase = true) }.mapNotNull { it.name },
+            cast = cast.mapNotNull { it.name },
+            castMembers = cast.map { person ->
+                MetaCastMember(
+                    name = person.name.orEmpty(),
+                    character = person.role?.takeIf { it.isNotBlank() },
+                    photo = person.id?.let { id -> person.primaryImageTag?.let { image(root, id, "Primary", it, maxHeight = 300) } }
+                )
+            },
+            videos = episodes.filter { it.isEpisode }.map { episode ->
+                Video(
+                    id = ServerItemRef(account.id, episode.id).encode(),
+                    title = episode.name.orEmpty(),
+                    released = episode.premiereDate,
+                    thumbnail = episode.imageTags["Primary"]?.let { image(root, episode.id, "Primary", it, maxWidth = 640) },
+                    season = episode.parentIndexNumber,
+                    episode = episode.indexNumber,
+                    overview = episode.overview,
+                    runtime = episode.runTimeTicks?.let { (it / TICKS_PER_MS / 60_000L).toInt() },
+                    rating = episode.communityRating,
+                    available = !episode.isMissing
+                )
+            },
+            ageRating = item.officialRating,
+            country = null,
+            awards = null,
+            language = null,
+            links = emptyList(),
+            imdbId = item.imdb(),
+            released = item.premiereDate?.take(10)
+        )
+    }
+
+    /** A movie or series as a preview: id is its IMDb id when it has one, else its [ServerItemRef]. */
+    private fun preview(account: ServerAccount, item: MbItem): MetaPreview? {
+        val type = item.contentType() ?: return null
+        val root = account.address + apiPath
+        val imdb = item.imdb()
+        return MetaPreview(
+            id = imdb ?: ServerItemRef(account.id, item.id).encode(),
+            type = type,
+            rawType = type.rawType(),
+            name = item.name.orEmpty(),
+            poster = item.imageTags["Primary"]?.let { image(root, item.id, "Primary", it, maxHeight = 600) },
+            posterShape = PosterShape.POSTER,
+            background = item.backdrop(root),
+            logo = item.logo(root),
+            description = item.overview,
+            releaseInfo = item.productionYear?.toString(),
+            imdbRating = item.communityRating?.roundRating(),
+            genres = item.genres,
+            released = item.premiereDate?.take(10),
+            imdbId = imdb
+        )
+    }
+
+    private fun listQuery(): Map<String, String?> = mapOf(
+        "fields" to "Overview,Genres,ProviderIds,PremiereDate",
+        "imageTypeLimit" to "1",
+        "enableImageTypes" to "Primary,Backdrop,Logo"
+    )
+
+    /** [block], or null when the server says the item does not exist. */
+    private suspend fun <T> orNullIfMissing(block: suspend () -> T): T? = try {
+        block()
+    } catch (e: ServerException) {
+        if (e.status == 404 || e.status == 400) null else throw e
     }
 
     override suspend fun resume(account: ServerAccount, limit: Int): List<ServerResume> {
@@ -333,18 +490,21 @@ class MediaBrowserServerClient(
         "includeItemTypes" to if (lib.type == "series") "Series" else "Movie"
     )
 
+    private fun itemsEndpoint(account: ServerAccount): Pair<String, Map<String, String?>> =
+        if (emby) "/Users/${pathSegment(account.userId)}/Items" to emptyMap() else "/Items" to mapOf("userId" to account.userId)
+
     private suspend fun items(account: ServerAccount, query: Map<String, String?>): List<MbItem> {
-        val endpoint = if (emby) "/Users/${pathSegment(account.userId)}/Items" to emptyMap() else "/Items" to mapOf("userId" to account.userId)
+        val endpoint = itemsEndpoint(account)
         return get(account, endpoint.first, endpoint.second + query, MbItems.serializer()).items
     }
 
-    private suspend fun item(account: ServerAccount, itemId: String): MbItem {
+    private suspend fun item(account: ServerAccount, itemId: String, fields: String = "MediaSources,ProviderIds,Path"): MbItem {
         val endpoint = if (emby) {
             "/Users/${pathSegment(account.userId)}/Items/${pathSegment(itemId)}" to emptyMap()
         } else {
             "/Items/${pathSegment(itemId)}" to mapOf("userId" to account.userId)
         }
-        return get(account, endpoint.first, endpoint.second + ("fields" to "MediaSources,ProviderIds,Path"), MbItem.serializer())
+        return get(account, endpoint.first, endpoint.second + ("fields" to fields), MbItem.serializer())
     }
 
     private suspend fun <T> get(
@@ -367,6 +527,10 @@ class MediaBrowserServerClient(
                 parentBackdropImageTags.firstOrNull()?.let { image(root, parent, "Backdrop/0", it, maxWidth = 1920) }
             }
 
+    private fun MbItem.logo(root: String): String? =
+        imageTags["Logo"]?.let { image(root, id, "Logo", it, maxWidth = 800) }
+            ?: parentLogoItemId?.let { parent -> parentLogoImageTag?.let { image(root, parent, "Logo", it, maxWidth = 800) } }
+
     private fun image(root: String, itemId: String, type: String, tag: String, maxWidth: Int? = null, maxHeight: Int? = null): String =
         buildUrl(
             root,
@@ -378,8 +542,41 @@ class MediaBrowserServerClient(
         const val CLIENT_NAME = "Fetch Desktop"
         const val TICKS_PER_MS = 10_000L
         const val TITLE_LOOKUP_LIMIT = 20
+        const val DETAIL_FIELDS = "Overview,Genres,ProviderIds,People,Studios,PremiereDate,EndDate"
+        const val MIN_TRANSCODE_KBPS = 300
+        const val TRANSCODE_AUDIO_BPS = 192_000L
+
+        /** The file extension Jellyfin/Emby serve an external subtitle as; null for image formats they cannot convert. */
+        fun subtitleFormat(codec: String?): String? = when (val c = codec?.lowercase()?.trim()) {
+            null, "", "srt", "subrip" -> "srt"
+            "vtt", "webvtt" -> "vtt"
+            "ass", "ssa" -> c
+            "pgssub", "pgs", "sup", "dvdsub", "dvbsub", "vobsub" -> null
+            else -> "srt"
+        }
     }
 }
+
+private fun MbItem.contentType(): ContentType? = when {
+    type.equals("Movie", ignoreCase = true) -> ContentType.MOVIE
+    type.equals("Series", ignoreCase = true) -> ContentType.SERIES
+    else -> null
+}
+
+private fun MbItem.releaseInfo(type: ContentType): String? {
+    val start = productionYear ?: return null
+    if (type != ContentType.SERIES) return start.toString()
+    val end = endDate?.take(4)?.toIntOrNull()
+    return when {
+        status.equals("Continuing", ignoreCase = true) -> "$start–"
+        end != null && end != start -> "$start–$end"
+        else -> start.toString()
+    }
+}
+
+internal fun ContentType.rawType(): String = if (this == ContentType.SERIES) "series" else "movie"
+
+internal fun Double.roundRating(): Float = (Math.round(this * 10) / 10.0).toFloat()
 
 internal suspend fun bestEffort(block: suspend () -> Unit): Boolean = try {
     block()
@@ -431,6 +628,14 @@ internal data class MbItem(
     @SerialName("CollectionType") val collectionType: String? = null,
     @SerialName("Overview") val overview: String? = null,
     @SerialName("ProductionYear") val productionYear: Int? = null,
+    @SerialName("PremiereDate") val premiereDate: String? = null,
+    @SerialName("EndDate") val endDate: String? = null,
+    @SerialName("Status") val status: String? = null,
+    @SerialName("CommunityRating") val communityRating: Double? = null,
+    @SerialName("OfficialRating") val officialRating: String? = null,
+    @SerialName("People") val people: List<MbPerson> = emptyList(),
+    @SerialName("ParentLogoItemId") val parentLogoItemId: String? = null,
+    @SerialName("ParentLogoImageTag") val parentLogoImageTag: String? = null,
     @SerialName("RunTimeTicks") val runTimeTicks: Long? = null,
     @SerialName("Genres") val genres: List<String> = emptyList(),
     @SerialName("ProviderIds") val providerIds: Map<String, String?> = emptyMap(),
@@ -453,6 +658,15 @@ internal data class MbItem(
 
     fun imdb(): String? = providerIds.entries.firstOrNull { it.key.equals("Imdb", ignoreCase = true) }?.value.imdbOrNull()
 }
+
+@Serializable
+internal data class MbPerson(
+    @SerialName("Id") val id: String? = null,
+    @SerialName("Name") val name: String? = null,
+    @SerialName("Role") val role: String? = null,
+    @SerialName("Type") val type: String? = null,
+    @SerialName("PrimaryImageTag") val primaryImageTag: String? = null
+)
 
 @Serializable
 internal data class MbUserData(
@@ -482,7 +696,12 @@ internal data class MbMediaStream(
     @SerialName("Width") val width: Int? = null,
     @SerialName("Height") val height: Int? = null,
     @SerialName("Channels") val channels: Int? = null,
-    @SerialName("IsDefault") val isDefault: Boolean = false
+    @SerialName("IsDefault") val isDefault: Boolean = false,
+    @SerialName("IsForced") val isForced: Boolean = false,
+    @SerialName("IsExternal") val isExternal: Boolean = false,
+    @SerialName("Language") val language: String? = null,
+    @SerialName("Title") val title: String? = null,
+    @SerialName("DisplayTitle") val displayTitle: String? = null
 )
 
 @Serializable

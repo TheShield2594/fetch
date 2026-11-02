@@ -18,6 +18,10 @@ import com.fetch.desktop.servers.ServerStream
 import com.fetch.desktop.servers.ServersStore
 import com.fetch.desktop.servers.clientFor
 import com.fetch.desktop.servers.toStream
+import com.fetch.desktop.servers.ServerPageResult
+import com.fetch.desktop.servers.ServerSort
+import com.fetch.tv.data.mediaserver.ServerItemRef
+import com.fetch.tv.domain.model.Meta
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.Stream
 import kotlinx.coroutines.CancellationException
@@ -232,6 +236,46 @@ class ServersState(
                 }
             }.awaitAll().flatten()
         }
+    }
+
+    // --- Titles that only exist on a server (ids "srv1:<account>:<item>") ---
+
+    private fun accountFor(ref: ServerItemRef): ServerAccount? = accounts.firstOrNull { it.id == ref.connectionId }
+
+    /** Full details of a server-only title, with its episodes for a series. */
+    suspend fun details(id: String): Meta? {
+        val ref = ServerItemRef.parse(id) ?: return null
+        val account = accountFor(ref) ?: return null
+        return runCatching { withContext(Dispatchers.IO) { client(account.kind).details(account, ref.itemId) } }.getOrNull()
+    }
+
+    /** The streams of a server-only movie or episode. */
+    suspend fun streamsForItem(id: String): List<Stream> {
+        val ref = ServerItemRef.parse(id) ?: return emptyList()
+        val account = accountFor(ref) ?: return emptyList()
+        return runCatching { withContext(Dispatchers.IO) { client(account.kind).streamsForItem(account, ref.itemId) } }
+            .getOrDefault(emptyList())
+            .map { stream ->
+                synchronized(issued) { issued[stream.url] = stream }
+                stream.toStream(label(account))
+            }
+    }
+
+    /**
+     * The HLS address to play [stream] transcoded at [maxBitrateKbps] (Media server quality),
+     * or null to play the file as it is.
+     */
+    fun transcodeUrl(stream: ServerStream, maxBitrateKbps: Int?): String? {
+        val kbps = maxBitrateKbps ?: return null
+        val account = accounts.firstOrNull { it.id == stream.accountId } ?: return null
+        return client(account.kind).transcodeUrl(account, stream, kbps)
+    }
+
+    /** One page of a library, for the Library's server sources. */
+    suspend fun browse(accountId: String, libId: String, start: Int, limit: Int, sort: ServerSort): ServerPageResult? {
+        val account = accounts.firstOrNull { it.id == accountId } ?: return null
+        val lib = account.libraries.firstOrNull { it.id == libId } ?: return null
+        return withContext(Dispatchers.IO) { client(account.kind).browse(account, lib, start, limit, sort) }
     }
 
     /** The server stream behind a [Stream] this state handed out, when it is one. */

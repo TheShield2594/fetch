@@ -2,6 +2,7 @@ package com.fetch.desktop.servers
 
 import com.fetch.tv.data.mediaserver.ServerItemRef
 import com.fetch.tv.data.mediaserver.ServerPlaybackTarget
+import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.Stream
 import com.fetch.tv.domain.model.StreamBehaviorHints
 import kotlinx.serialization.Serializable
@@ -58,9 +59,33 @@ data class ServerStream(
     val audioChannels: Int?,
     val bitrate: Long?,
     val durationMs: Long?,
-    val resumePositionMs: Long?
+    val resumePositionMs: Long?,
+    /** The server's external subtitle files for this version (embedded tracks are in the file itself). */
+    val subtitles: List<ServerSubtitle> = emptyList()
 ) {
     override fun toString(): String = "ServerStream(accountId=$accountId, itemId=$itemId, mediaSourceId=$mediaSourceId)"
+}
+
+/** An external subtitle file of a [ServerStream]; [url] includes the token. */
+data class ServerSubtitle(
+    val url: String,
+    /** The language code as the server gives it ("eng", "en"), when known. */
+    val language: String?,
+    val title: String?,
+    val forced: Boolean,
+    val default: Boolean
+) {
+    override fun toString(): String = "ServerSubtitle(language=$language, title=$title, forced=$forced, default=$default)"
+}
+
+/** One page of a library listing; [total] is the library's item count as the server reports it. */
+data class ServerPageResult(val items: List<MetaPreview>, val total: Int)
+
+/** Orders a library listing. */
+enum class ServerSort(val label: String) {
+    ADDED("Recently added"),
+    TITLE("Title A–Z"),
+    YEAR("Newest"),
 }
 
 /** A server's continue-watching entry, keyed by IMDb id (the series id for an episode). */

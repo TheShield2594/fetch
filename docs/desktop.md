@@ -53,6 +53,8 @@ Everything is kept in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`):
 | `profiles.json` | The profiles, and which one opened last |
 | `servers.json` | Jellyfin, Emby and Plex sign-ins (owner-readable only), beside the addons |
 | `device-id` | The id media servers list this installation under |
+| `sync.json` | The sync server address and sign-in (owner-readable only), for the whole app |
+| `screen-time.json`, `stream-badges.json`, `sync-base.json` | Per profile: today's screen time, imported badge URLs, what the last sync saw |
 
 These are the main profile's. Every other profile keeps its own copies in `profiles/<id>/`
 (its `addons.json` too, unless it uses the main profile's addons).
@@ -93,6 +95,23 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   joins Continue Watching, and when mpv closes the server hears where you stopped (or that you
   finished). Transcoding, server-only titles without an IMDb id, and server subtitles and
   tracks aren't on desktop yet.
+- **Titles only on your server**, without an IMDb id, open from the server's own details and
+  episodes. The Library's Source picker lists each server library, browsable by recently added,
+  title or year. Server subtitle files are passed to mpv, and **Media server quality** caps the
+  bitrate by having the server transcode (Jellyfin/Emby HLS, Plex universal transcode).
+- **Profile PINs and limits**: PINs in the TV app's format with its lockout after wrong tries; a
+  locked profile always asks at start-up. From the main profile: a maturity rating limit (titles
+  rated above it are hidden and can't be played; catalogs that give no rating count as unrated),
+  daily screen time, bedtime and how many episodes Up Next plays in a row. "That's all for
+  today" offers more time with the main profile's PIN.
+- **Skip Segments**: intros, recaps and credits from introdb.app; mpv jumps over them through
+  its IPC socket and says so on screen.
+- **Stream badges**: Fusion badge URLs (Settings › Stream Selection › Stream badges) put the TV
+  app's badges on each source.
+- **Sync server** (Settings › Account): your self-hosted Fetch server, found by address, signed
+  in with email and password or a code. Library (with deletes both ways), Continue Watching and
+  watched history sync at start-up, after playback and on Sync now. The server's profile number
+  is the desktop profile's id.
 - **Player settings** passed to mpv: fullscreen, hardware decoding, extra mpv options; preferred
   audio language and passthrough; subtitle language, when to show them, size and background,
   and subtitles from your addons (such as OpenSubtitles) added as subtitle files.
@@ -137,15 +156,12 @@ Two Kotlin rules now apply across the module boundary:
 Roughly in order:
 
 1. **Embedded player.** Render libmpv inside the window (through JNA and an OpenGL surface)
-   so the player has Fetch's own controls, subtitles menu and Up Next instead of mpv's window.
-2. **Move more of the data layer into `shared`.** The addon, catalog, meta and stream repositories
-   need their Android `Context` (strings, DataStore) and Hilt bindings put behind interfaces first.
-   Then both apps get the same caching, addon health tracking and best-match logic.
-3. **Media servers, the rest**: titles without an IMDb id (opened from the server's own
-   metadata), transcoding for slow links, and the Library's Servers view.
-4. **The sync server** (Settings › Account on TV), so desktop and TV share profiles, addons and
-   Continue Watching without Trakt.
-5. **More settings**: the stream badge editor, skip intro (needs the embedded player), PINs
-   and limits on profiles.
-6. **More packages**: Flatpak (Flathub) and AppImage, then Windows (`.msi`) and macOS (`.dmg`)
+   so the player has Fetch's own controls, subtitles menu and Up Next screen instead of mpv's
+   window.
+2. **Move more of the data layer into `shared`.** Media servers, Trakt/Simkl and sync are
+   separate, compact desktop clients today; sharing the Android ones needs their Android
+   dependencies put behind interfaces first.
+3. **Ratings from TMDB**, so a rating limit knows titles Cinemeta gives no certificate for.
+4. **Sync the rest**: addons, profiles and PINs, settings, and realtime updates.
+5. **More packages**: Flatpak (Flathub) and AppImage, then Windows (`.msi`) and macOS (`.dmg`)
    from the same `nativeDistributions` block.

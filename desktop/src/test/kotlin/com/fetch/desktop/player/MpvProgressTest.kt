@@ -59,6 +59,39 @@ class MpvProgressTest {
     }
 
     @Test
+    fun `a planned skip sends mpv a seek and an on-screen note`() = runBlocking {
+        val socket = Files.createTempDirectory("mpv-test").resolve("mpv.sock").toFile()
+        val server = ServerSocketChannel.open(StandardProtocolFamily.UNIX).apply { bind(UnixDomainSocketAddress.of(socket.toPath())) }
+        val received = StringBuilder()
+        val fakeMpv = thread {
+            server.accept().use { client ->
+                val buffer = ByteBuffer.allocate(4096)
+                client.read(buffer) // the observe commands
+                buffer.clear()
+                client.write(ByteBuffer.wrap("{\"event\":\"property-change\",\"id\":1,\"name\":\"time-pos\",\"data\":301.0}\n".toByteArray()))
+                client.read(buffer)
+                received.append(String(buffer.array(), 0, buffer.position()))
+            }
+            server.close()
+        }
+        val process = ProcessBuilder("sleep", "10").start()
+        try {
+            withContext(Dispatchers.IO) {
+                MpvProgress.followToEnd(
+                    socket,
+                    process,
+                    onPosition = { pos -> if (pos > 300) MpvProgress.Seek(330.0, "Skipped intro") else null }
+                ) {}
+            }
+            fakeMpv.join()
+            assertTrue(received.toString(), "\"seek\",330.0,\"absolute\"" in received)
+            assertTrue("\"show-text\",\"Skipped intro\"" in received)
+        } finally {
+            process.destroy()
+        }
+    }
+
+    @Test
     fun `gives up when mpv exits before opening its socket`() = runBlocking {
         val socket = Files.createTempDirectory("mpv-test").resolve("never.sock").toFile()
         val process = ProcessBuilder("true").start().also { it.waitFor() }

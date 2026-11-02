@@ -27,9 +27,19 @@ import com.fetch.desktop.player.ExternalPlayer
 import com.fetch.desktop.data.SubtitleMode
 import com.fetch.desktop.player.MpvArgs
 import com.fetch.desktop.player.MpvProgress
+import com.fetch.desktop.badges.StreamBadgesState
+import com.fetch.desktop.sync.RemoteLibraryKey
+import com.fetch.desktop.sync.SyncAuthException
+import com.fetch.desktop.sync.SyncBase
+import com.fetch.desktop.sync.SyncMerge
 import com.fetch.desktop.servers.ServerStream
+import com.fetch.tv.data.mediaserver.ServerItemRef
 import com.fetch.desktop.servers.ServersStore
+import com.fetch.desktop.skip.IntroDbClient
+import com.fetch.desktop.skip.SegmentType
+import com.fetch.desktop.skip.SkipPlanner
 import com.fetch.desktop.tracking.ScrobbleAction
+import kotlinx.coroutines.withTimeoutOrNull
 import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.desktop.tracking.TrackingStore
 import com.fetch.tv.core.addon.AddonUrls
@@ -54,7 +64,14 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.fetch.desktop.data.ProfileLimits
+import com.fetch.desktop.parental.Parental
+import com.fetch.desktop.parental.ScreenTimeBlock
+import com.fetch.desktop.parental.ScreenTimeDay
+import com.fetch.desktop.parental.screenTimeFile
 import java.io.File
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Locale
 
 /** The Settings pages, in rail order under their group headings (the TV app's groups). */
@@ -65,12 +82,15 @@ enum class SettingsPage(val label: String, val group: String, val parent: Settin
     UP_NEXT("Up Next", "Playback"),
     AUDIO("Audio", "Playback"),
     SUBTITLES("Subtitles", "Playback"),
+    SKIP_SEGMENTS("Skip Segments", "Playback"),
     CONTENT_DISCOVERY("Content & Discovery", "Sources"),
     ADDONS("Addons", "Sources", parent = CONTENT_DISCOVERY),
     HOME_CATALOGS("Home catalogs", "Sources", parent = CONTENT_DISCOVERY),
     APPEARANCE("Appearance", "Home"),
     LAYOUT("Layout", "Home"),
     MEDIA_SERVERS("Media servers", "Sources", parent = CONTENT_DISCOVERY),
+    STREAM_BADGES("Stream badges", "Playback", parent = STREAM_SELECTION),
+    ACCOUNT("Account", "Accounts"),
     TRACKING("Tracking", "Accounts"),
     ABOUT("About", "System");
 
@@ -145,6 +165,8 @@ class AppState(
     val profiles: ProfilesState = ProfilesState(),
     /** The profile this state belongs to; switching profiles makes a new [AppState]. */
     val profile: DesktopProfile = profiles.active ?: profiles.profiles.first(),
+    /** The sync server account (Settings › Account), shared by every profile; null in tests. */
+    val account: SyncAccountState? = null,
     private val client: AddonClient = AddonClient.create(),
     private val store: AddonStore = AddonStore(File(addonsDir(profile), "addons.json")),
     private val settingsStore: JsonFile<DesktopSettings> = settingsFile(profileDir(profile)),
@@ -197,6 +219,48 @@ class AppState(
     /** A one-line message for the snackbar, cleared once shown. */
     var message: String? by mutableStateOf(null)
 
+    // --- Limits (profile PIN and parental limits live in ProfilesState) ---
+
+    private val screenTimeStore = screenTimeFile(profileDir(profile))
+    /** Today's watched time on this profile, for its daily limit and bedtime. */
+    var screenTime: ScreenTimeDay by mutableStateOf(Parental.today(screenTimeStore.load(), LocalDate.now()))
+        private set
+    /** Set when a limit stopped playback from starting; the UI shows "That's all for today". */
+    var screenTimeBlock: ScreenTimeBlock? by mutableStateOf(null)
+    /** Episodes Up Next has started in a row, for the autoplay cap. */
+    private var autoplayRun = 0
+
+    val limits: ProfileLimits get() = profiles.profiles.firstOrNull { it.id == profile.id }?.limits ?: profile.limits
+
+    /** Whether this profile may see [preview], by its rating (catalogs that give one). */
+    fun allowed(preview: MetaPreview): Boolean =
+        limits.maxRating == null || Parental.allows(limits, preview.ageRating, preview.country)
+
+    fun allowed(meta: Meta?, preview: MetaPreview): Boolean =
+        limits.maxRating == null || Parental.allows(limits, meta?.ageRating ?: preview.ageRating, meta?.country ?: preview.country)
+
+    private fun currentBlock(): ScreenTimeBlock? {
+        screenTime = Parental.today(screenTime, LocalDate.now())
+        return Parental.block(limits, screenTime, LocalDateTime.now())
+    }
+
+    /** "More time (parent)": extra minutes today, or no limit for the rest of it. */
+    fun addScreenTime(minutes: Int?) {
+        val today = Parental.today(screenTime, LocalDate.now())
+        screenTime = if (minutes == null) today.copy(unlimited = true) else today.copy(extraMinutes = today.extraMinutes + minutes)
+        runCatching { screenTimeStore.save(screenTime) }
+        screenTimeBlock = null
+    }
+
+    private fun countWatched(deltaMs: Long) {
+        if (deltaMs <= 0) return
+        screenTime = Parental.today(screenTime, LocalDate.now()).let { it.copy(watchedMs = it.watchedMs + deltaMs) }
+        runCatching { screenTimeStore.save(screenTime) }
+    }
+
+    /** Fusion stream badges (Settings › Stream Selection › Stream badges), per profile. */
+    val badges = StreamBadgesState(scope, File(profileDir(profile), "stream-badges.json"))
+
     /** Trakt and Simkl for this profile. */
     val tracking = TrackingState(scope, TrackingStore(File(profileDir(profile), "tracking.json")), onMessage = { message = it })
 
@@ -204,8 +268,83 @@ class AppState(
     var remoteLists: Map<TrackingService, List<LibraryEntry>> by mutableStateOf(emptyMap())
         private set
 
+    // --- Sync server ---
+
+    private val syncBaseStore = JsonFile(File(profileDir(profile), "sync-base.json"), SyncBase.serializer()) { SyncBase() }
+    var accountSyncing by mutableStateOf(false)
+        private set
+
+    /**
+     * Syncs this profile's Library, Continue Watching and watched history with the sync server,
+     * as the TV app does, so both see the same. The server's profile number is this profile's id.
+     */
+    fun syncAccount() {
+        val sync = account ?: return
+        val remote = sync.client() ?: return
+        if (accountSyncing) return
+        scope.launch {
+            accountSyncing = true
+            try {
+                val id = profile.id
+                // Library: a three-way merge, so a removal on either side carries over.
+                val merge = SyncMerge.library(library.toList(), remote.pullLibrary(id), syncBaseStore.load())
+                if (merge.push.isNotEmpty()) remote.pushLibrary(id, merge.push.map { with(SyncMerge) { it.toRemote() } })
+                if (merge.deleteRemote.isNotEmpty()) remote.deleteLibrary(id, merge.deleteRemote.map { RemoteLibraryKey(it.id, it.type) })
+                library.clear()
+                library.addAll(merge.local)
+                runCatching { libraryStore.save(LibraryFile(library.toList())) }
+                runCatching { syncBaseStore.save(merge.base) }
+
+                // Continue Watching: the newest position wins, then ours go up.
+                val known = progress.entries.associateBy { it.contentId }
+                saveProgress(WatchHistory.mergeRemote(progress, SyncMerge.progressEntries(remote.pullProgress(id), known), emptySet()))
+                SyncMerge.progressToPush(progress.entries).takeIf { it.isNotEmpty() }?.let { remote.pushProgress(id, it) }
+
+                // Watched history: both ways.
+                val remoteWatched = remote.pullWatched(id)
+                val push = SyncMerge.watchedToPush(progress.watched, remoteWatched, System.currentTimeMillis())
+                if (push.isNotEmpty()) remote.pushWatched(id, push)
+                val watchedIds = remoteWatched.map { with(SyncMerge) { it.videoId() } }
+                saveProgress(progress.copy(watched = (progress.watched + watchedIds).distinct()))
+
+                fillProgressNames()
+                sync.lastSyncedAt = System.currentTimeMillis()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: SyncAuthException) {
+                sync.sessionExpired()
+            } catch (e: Exception) {
+                message = "Couldn't sync with your server: ${e.message}"
+            } finally {
+                accountSyncing = false
+            }
+        }
+    }
+
+    /** The server keeps positions but not titles or artwork; fill them from the addons. */
+    private suspend fun fillProgressNames() {
+        progress.entries.filter { it.name == it.contentId }.forEach { entry ->
+            val meta = runCatching {
+                withContext(Dispatchers.IO) { client.meta(addons.toList(), entry.contentType, entry.contentId) }
+            }.getOrNull() ?: return@forEach
+            val episode = meta.videos.firstOrNull { it.id == entry.videoId }
+            saveProgress(
+                progress.copy(entries = progress.entries.map {
+                    if (it.contentId != entry.contentId) it else it.copy(
+                        name = meta.name,
+                        poster = meta.poster ?: it.poster,
+                        backdrop = meta.background ?: it.backdrop,
+                        logo = meta.logo ?: it.logo,
+                        episodeTitle = episode?.title?.takeIf { t -> t.isNotBlank() } ?: it.episodeTitle
+                    )
+                })
+            )
+        }
+    }
+
     fun start() {
         scope.launch { reloadAddons() }
+        syncAccount()
         scope.launch { syncTracking() }
         servers.refreshRows()
         syncServers()
@@ -392,8 +531,10 @@ class AppState(
             val pinned = settings.pinnedCatalogs
             val disabled = settings.disabledCatalogs.toSet()
             val visible = rows.filter { it.key !in disabled }
-            return visible.filter { it.key in pinned }.sortedBy { pinned.indexOf(it.key) } +
+            val ordered = visible.filter { it.key in pinned }.sortedBy { pinned.indexOf(it.key) } +
                 visible.filter { it.key !in pinned }
+            // A rating limit hides what it rules out, as on TV.
+            return if (limits.maxRating == null) ordered else ordered.map { row -> row.copy(items = row.items.filter(::allowed)) }
         }
 
     fun setCatalogPinned(key: String, pinned: Boolean) = updateSettings { s ->
@@ -555,8 +696,11 @@ class AppState(
         sourcesJob?.cancel()
         detailLoading = true
         scope.launch {
-            val meta = withContext(Dispatchers.IO) {
-                client.meta(addons.toList(), preview.rawType, preview.id)
+            // A title only on your media server comes from the server, not the addons.
+            val meta = if (ServerItemRef.isServerId(preview.id)) {
+                servers.details(preview.id)
+            } else {
+                withContext(Dispatchers.IO) { client.meta(addons.toList(), preview.rawType, preview.id) }
             }
             val current = screen
             if (current is Screen.Detail && current.preview.id == preview.id) {
@@ -588,7 +732,9 @@ class AppState(
         sources = SourcesState(preview = preview, video = video, videoId = videoId, label = label, episodeTag = tag)
         sourcesJob = scope.launch {
             // Addons and your own servers are asked at once; the ranker puts your copies first.
-            val (results, own) = coroutineScope {
+            val (results, own) = if (ServerItemRef.isServerId(videoId)) {
+                emptyList<com.fetch.desktop.data.AddonStreamResult>() to servers.streamsForItem(videoId)
+            } else coroutineScope {
                 val fromAddons = async(Dispatchers.IO) { client.streams(addons.toList(), preview.rawType, videoId) }
                 val fromServers = async { servers.streams(preview.rawType, videoId, preview.name, yearOf(preview.releaseInfo)) }
                 fromAddons.await() to fromServers.await()
@@ -649,8 +795,13 @@ class AppState(
     /** Plays [ranked] for the title or episode the sources are for, resuming where it was left. */
     fun play(ranked: RankedStream) {
         autoPlayPending = false
+        autoplayRun = 0
         val context = sources ?: return
         val meta = detailMeta?.takeIf { it.id == context.preview.id }
+        if (!allowed(meta, context.preview)) {
+            message = "Not available on ${profile.name}"
+            return
+        }
         val target = PlaybackTarget(
             contentId = context.preview.id,
             contentType = context.preview.apiType,
@@ -669,22 +820,36 @@ class AppState(
      * position, then follows it for Continue Watching and Up Next.
      */
     private fun launchPlayback(stream: Stream, label: String, target: PlaybackTarget) {
+        currentBlock()?.let {
+            screenTimeBlock = it
+            return
+        }
         scope.launch {
             val player = settings.player
             val serverStream = servers.serverStream(stream)
             // Fetch's own position first; otherwise where the server says you stopped.
             val resume = WatchHistory.resumeStart(progress, target.videoId)
                 ?: serverStream?.resumePositionMs?.takeIf { it > 60_000 }?.let { (it / 1000).toString() }
-            val subtitles = if (player.forwardAddonSubtitles && player.subtitleMode != SubtitleMode.OFF) {
-                addonSubtitles(target, player.subtitleLanguage ?: Locale.getDefault().language)
-            } else {
+            val subtitles = if (player.subtitleMode == SubtitleMode.OFF) {
                 emptyList()
+            } else {
+                // The server's own subtitle files, then the addons' in your language.
+                serverStream?.subtitles.orEmpty().map { it.url } +
+                    if (player.forwardAddonSubtitles && !ServerItemRef.isServerId(target.contentId)) {
+                        addonSubtitles(target, player.subtitleLanguage ?: Locale.getDefault().language)
+                    } else {
+                        emptyList()
+                    }
             }
+            // Media server quality: a capped bitrate plays the server's transcode instead of the file.
+            val played = serverStream?.let { servers.transcodeUrl(it, player.serverMaxBitrateKbps) }
+                ?.let { stream.copy(url = it) } ?: stream
             val options = MpvArgs.build(player, subtitles)
-            when (val result = ExternalPlayer.play(stream, label, start = resume, options = options)) {
+            val skipper = skipPlanner(target, player.autoSkip)
+            when (val result = ExternalPlayer.play(played, label, start = resume, options = options)) {
                 is ExternalPlayer.Result.Started -> {
                     message = if (resume != null) "Resuming in ${result.player}" else "Opening in ${result.player}"
-                    followProgress(result, target, serverStream)
+                    followProgress(result, target, serverStream, skipper)
                 }
                 is ExternalPlayer.Result.Failed -> message = result.message
             }
@@ -700,14 +865,43 @@ class AppState(
     }
 
     /** Saves mpv's position as it plays, for Continue Watching and resume, then handles Up Next. */
-    private fun followProgress(result: ExternalPlayer.Result.Started, target: PlaybackTarget, serverStream: ServerStream? = null) {
+    /** IntroDB's segments for [target], when anything is set to auto-skip; null otherwise. */
+    private suspend fun skipPlanner(target: PlaybackTarget, enabled: Set<SegmentType>): SkipPlanner? {
+        if (enabled.isEmpty()) return null
+        val imdb = target.contentId.takeIf { it.startsWith("tt") } ?: return null
+        val video = target.video
+        val segments = withTimeoutOrNull(4_000) { introDb.segments(imdb, video?.season, video?.episode) }.orEmpty()
+        return SkipPlanner(segments, enabled).takeUnless { it.isEmpty }
+    }
+
+    private val introDb by lazy { IntroDbClient(okhttp3.OkHttpClient()) }
+
+    private fun followProgress(
+        result: ExternalPlayer.Result.Started,
+        target: PlaybackTarget,
+        serverStream: ServerStream? = null,
+        skipper: SkipPlanner? = null
+    ) {
         val process = result.process ?: return
         val socket = result.ipcSocket ?: return
         scope.launch {
             var scrobbled = false
+            var lastPosition: Double? = null
             val ending = withContext(Dispatchers.IO) {
-                MpvProgress.followToEnd(socket, process) { sample ->
+                MpvProgress.followToEnd(
+                    socket,
+                    process,
+                    onPosition = { position ->
+                        skipper?.at(position)?.let { MpvProgress.Seek(it.endSec, "Skipped ${it.type.label.lowercase()}") }
+                    }
+                ) { sample ->
                     scope.launch {
+                        // Screen time counts what actually played, not seeks.
+                        lastPosition?.let { previous ->
+                            val played = sample.positionSec - previous
+                            if (played in 0.0..30.0) countWatched((played * 1000).toLong())
+                        }
+                        lastPosition = sample.positionSec
                         recordProgress(target, sample)
                         // Trakt and Simkl hear about it once it has really started.
                         if (!scrobbled) {
@@ -729,6 +923,7 @@ class AppState(
                 )
             }
             playbackEnded(target, ending)
+            syncAccount()
         }
     }
 
@@ -751,6 +946,17 @@ class AppState(
     private suspend fun playbackEnded(target: PlaybackTarget, ending: MpvProgress.Ending) {
         val video = target.video ?: return
         if (!ending.reachedEnd || !settings.player.autoplayNextEpisode) return
+        limits.autoplayCap?.let { cap ->
+            if (autoplayRun >= cap) {
+                message = "Up Next stopped after $cap ${if (cap == 1) "episode" else "episodes"} in a row"
+                return
+            }
+        }
+        currentBlock()?.let {
+            screenTimeBlock = it
+            return
+        }
+        autoplayRun++
         val next = WatchHistory.nextEpisode(target.episodes, video, progress.watched.toSet()) ?: return
         val tag = episodeTag(next.season, next.episode)
         message = "Up Next: ${listOfNotNull(tag, next.title.takeIf { it.isNotBlank() }).joinToString(" · ")}"

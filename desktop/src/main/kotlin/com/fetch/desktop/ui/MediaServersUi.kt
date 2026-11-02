@@ -76,6 +76,18 @@ fun MediaServersPage(state: AppState) {
             }
         }
     }
+    if (servers.accounts.isNotEmpty()) {
+        SettingsSection("Playback") {
+            SettingsChoice(
+                "Media server quality",
+                "Original plays the file as it is. A limit makes the server transcode, for slow connections.",
+                state.settings.player.serverMaxBitrateKbps,
+                listOf<Int?>(null, 20_000, 10_000, 8_000, 4_000, 2_000).map { kbps ->
+                    DropdownOption(kbps, kbps?.let { "${it / 1000} Mbps" } ?: "Original")
+                }
+            ) { kbps -> state.updateSettings { it.copy(player = it.player.copy(serverMaxBitrateKbps = kbps)) } }
+        }
+    }
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         SecondaryButton("Add Jellyfin", icon = FetchIcons.Add, onClick = { adding = ServerKind.JELLYFIN })
         SecondaryButton("Add Emby", icon = FetchIcons.Add, onClick = { adding = ServerKind.EMBY })

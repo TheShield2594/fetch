@@ -39,6 +39,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
+import com.fetch.desktop.badges.StreamBadgesState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -81,6 +84,19 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
         (meta?.videos?.any { it.season != null } == true && preview.type != ContentType.MOVIE)
     val listState = rememberLazyListState()
 
+    // A rating limit blocks the title, as on TV.
+    if (!state.detailLoading && !state.allowed(meta, preview)) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text("Not available on ${state.profile.name}", style = MaterialTheme.typography.titleLarge, color = Color.White)
+                Text("This title is rated above the limit set for this profile.", color = FetchPalette.TextSecondary)
+                if (state.canGoBack) SecondaryButton("Back", onClick = state::back, icon = FetchIcons.Back)
+            }
+        }
+        return
+    }
+
+    CompositionLocalProvider(LocalStreamBadges provides state.badges) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val heroMinHeight = maxHeight * 0.5f
         Backdrop(meta?.background ?: preview.backdropUrl, height = maxHeight * 0.85f)
@@ -175,9 +191,13 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
             }
         }
     }
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
+/** The stream badges to draw on source cards. */
+val LocalStreamBadges = staticCompositionLocalOf<StreamBadgesState?> { null }
+
 @Composable
 private fun Hero(
     preview: MetaPreview,
@@ -374,6 +394,12 @@ private fun SourceCard(ranked: RankedStream, isBest: Boolean, onPlay: () -> Unit
             }
         }
         SpecChips(ranked)
+        // Fusion badges from Settings › Stream Selection › Stream badges, as on TV.
+        LocalStreamBadges.current?.let { badges ->
+            val matched = badges.badgesFor(stream)
+            val size = stream.behaviorHints?.videoSize?.takeIf { badges.showFileSizeBadges && matched.isNotEmpty() }
+            if (matched.isNotEmpty()) StreamBadgeRow(matched, fileSizeBytes = size)
+        }
         val release = stream.behaviorHints?.filename ?: stream.title ?: stream.description ?: stream.name
         release?.takeIf { it.isNotBlank() }?.let {
             Text(

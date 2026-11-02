@@ -61,7 +61,7 @@ fun DiscoverGrid(
     }
 
     PosterGrid(
-        items = discover.items.toList(),
+        items = discover.items.filter(state::allowed),
         state = gridState,
         onOpen = open,
         showLabels = state.settings.showPosterLabels,

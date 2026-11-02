@@ -112,7 +112,7 @@ fun SearchScreen(state: AppState) {
                         val shown = state.searchRows.filter { it.loading || it.items.isNotEmpty() }
                         items(shown, key = { it.key }) { row ->
                             CatalogRowView(
-                                row,
+                                row.copy(items = row.items.filter(state::allowed)),
                                 onOpen = { state.navigate(Screen.Detail(it)) },
                                 title = typeLabel(row.catalog.apiType),
                                 subtitle = row.addon.displayName,

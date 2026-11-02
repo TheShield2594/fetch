@@ -1,5 +1,7 @@
 package com.fetch.desktop.servers
 
+import com.fetch.tv.data.mediaserver.ServerItemRef
+import com.fetch.tv.domain.model.Meta
 import com.fetch.tv.domain.model.MetaPreview
 import okhttp3.OkHttpClient
 
@@ -29,8 +31,33 @@ interface MediaServerClient {
         year: Int?
     ): List<ServerStream>
 
-    /** Recently added titles in [lib] that have an IMDb id, as previews whose id is that IMDb id. */
+    /**
+     * Recently added movies and series in [lib]. A title with an IMDb id has that id; one without
+     * has its encoded [ServerItemRef] (`srv1:<account>:<item>`), for [details] and [streamsForItem].
+     */
     suspend fun latest(account: ServerAccount, lib: ServerLib, limit: Int): List<MetaPreview>
+
+    /**
+     * The page of [lib] starting at [start] (at most [limit] items) in [sort] order, with the
+     * library's total count. Ids follow [latest]: the IMDb id when there is one, else a [ServerItemRef].
+     */
+    suspend fun browse(account: ServerAccount, lib: ServerLib, start: Int, limit: Int, sort: ServerSort = ServerSort.ADDED): ServerPageResult
+
+    /**
+     * Full metadata of the server movie or series [itemId] (a raw server item id, not a [ServerItemRef]).
+     * The meta's id is the item's [ServerItemRef]; a series lists every episode in `videos`, each
+     * with its own [ServerItemRef] id. Null when the server has no such item.
+     */
+    suspend fun details(account: ServerAccount, itemId: String): Meta?
+
+    /** Every direct-play version of the server movie or episode [itemId] (a raw server item id). */
+    suspend fun streamsForItem(account: ServerAccount, itemId: String): List<ServerStream>
+
+    /**
+     * An HLS URL (token included) that has the server transcode [stream] to H.264/AAC stereo at
+     * about [maxBitrateKbps], for links too slow to play the file directly. Null when unsupported.
+     */
+    fun transcodeUrl(account: ServerAccount, stream: ServerStream, maxBitrateKbps: Int): String?
 
     /** The server's continue-watching items that have an IMDb id. */
     suspend fun resume(account: ServerAccount, limit: Int): List<ServerResume>

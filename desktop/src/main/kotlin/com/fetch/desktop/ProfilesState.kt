@@ -6,7 +6,10 @@ import androidx.compose.runtime.setValue
 import com.fetch.desktop.data.AppDirs
 import com.fetch.desktop.data.DesktopProfile
 import com.fetch.desktop.data.JsonFile
+import com.fetch.desktop.data.ProfileLimits
 import com.fetch.desktop.data.ProfilesFile
+import com.fetch.desktop.parental.PinGate
+import com.fetch.tv.core.parental.ProfilePinHasher
 import com.fetch.desktop.data.profileDir
 import com.fetch.desktop.data.profilesFile
 import java.io.File
@@ -58,6 +61,22 @@ class ProfilesState(
 
     fun setRememberLastProfile(remember: Boolean) = save(file.copy(rememberLastProfile = remember))
 
+    /** Sets (or with null, removes) [profile]'s PIN. Callers check the current PIN first. */
+    fun setPin(profile: DesktopProfile, pin: String?) {
+        val current = file.profiles.firstOrNull { it.id == profile.id } ?: return
+        update(current.copy(pinHash = pin?.let { ProfilePinHasher.hash(it) }))
+    }
+
+    fun setLimits(profile: DesktopProfile, limits: ProfileLimits) {
+        val current = file.profiles.firstOrNull { it.id == profile.id } ?: return
+        update(current.copy(limits = limits))
+    }
+
+    val primary: DesktopProfile get() = file.profiles.first { it.isPrimary }
+
+    /** PIN checks with the TV app's lockout after repeated wrong PINs. */
+    val pinGate = PinGate()
+
     private fun save(updated: ProfilesFile) {
         file = updated
         runCatching { store.save(updated) }
@@ -66,9 +85,13 @@ class ProfilesState(
     companion object {
         /** The profile to open at start-up, or null to ask. */
         fun initialProfile(file: ProfilesFile): DesktopProfile? {
-            if (file.profiles.size == 1) return file.profiles.first()
-            if (!file.rememberLastProfile) return null
-            return file.profiles.firstOrNull { it.id == file.lastProfileId } ?: file.profiles.first()
+            val candidate = when {
+                file.profiles.size == 1 -> file.profiles.first()
+                !file.rememberLastProfile -> return null
+                else -> file.profiles.firstOrNull { it.id == file.lastProfileId } ?: file.profiles.first()
+            }
+            // A profile with a PIN always asks, as on TV.
+            return candidate.takeUnless { it.isLocked }
         }
     }
 }

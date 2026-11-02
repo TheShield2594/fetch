@@ -158,7 +158,7 @@ private fun HomeContent(state: AppState) {
                     MediaRowView(
                         title = row.title,
                         subtitle = row.subtitle.takeIf { settings.showAddonName },
-                        items = row.items,
+                        items = row.items.filter(state::allowed),
                         loading = row.loading,
                         error = row.error,
                         onOpen = { state.navigate(Screen.Detail(it)) },

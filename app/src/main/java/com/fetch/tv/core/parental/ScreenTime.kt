@@ -102,6 +102,25 @@ class ScreenTimeStore internal constructor(private val dataStore: DataStore<Pref
 
     suspend fun days(): Map<Int, ScreenTimeDay> = decode(dataStore.data.first()[daysKey])
 
+    val daysFlow: Flow<Map<Int, ScreenTimeDay>> = dataStore.data.map { prefs -> decode(prefs[daysKey]) }
+
+    /** For a deleted profile: its own record and other TVs'. A new profile can reuse the id. */
+    suspend fun deleteProfile(profileId: Int) {
+        dataStore.edit { prefs ->
+            val days = decode(prefs[daysKey])
+            if (profileId in days) prefs[daysKey] = json.encodeToString((days - profileId).mapKeys { it.key.toString() })
+            val others = decodeOtherDevices(prefs[otherDevicesKey])
+            if (profileId in others) {
+                prefs[otherDevicesKey] = json.encodeToString((others - profileId).mapKeys { it.key.toString() })
+            }
+        }
+    }
+
+    /** After sign-out: nothing from the old account's profiles may carry over. */
+    suspend fun clearAll() {
+        dataStore.edit { prefs -> prefs.clear() }
+    }
+
     val otherDevices: Flow<Map<Int, Map<String, ScreenTimeDay>>> = dataStore.data.map { prefs ->
         decodeOtherDevices(prefs[otherDevicesKey])
     }
@@ -150,8 +169,12 @@ interface ScreenTimeSharing {
     fun requestScreenTimePull(profileId: Int)
     fun requestScreenTimePush(profileId: Int, immediate: Boolean)
 
+    /** Reads other TVs' screen time now, ignoring the pull interval; returns when it's stored. */
+    suspend fun refreshScreenTime(profileId: Int)
+
     companion object {
         val None = object : ScreenTimeSharing {
+            override suspend fun refreshScreenTime(profileId: Int) = Unit
             override fun requestScreenTimePull(profileId: Int) = Unit
             override fun requestScreenTimePush(profileId: Int, immediate: Boolean) = Unit
         }
@@ -193,7 +216,7 @@ class ScreenTimeManager internal constructor(
     val revision: StateFlow<Int> = _revision.asStateFlow()
 
     init {
-        scope.launch { days.value = store.days() }
+        scope.launch { store.daysFlow.collect { days.value = it } }
         scope.launch { store.otherDevices.collect { otherDevices.value = it } }
     }
 
@@ -213,6 +236,21 @@ class ScreenTimeManager internal constructor(
         // Catch up on other TVs' playback now and then; the next check sees it.
         if (rules != null) sharing().requestScreenTimePull(profileId)
         return screenTimeStatus(rules, dayFor(profileId), clock(), wallClockMs())
+    }
+
+    /**
+     * [status] after catching up on other TVs' playback, for the decision to start a title:
+     * waits up to [timeoutMs] for the account, then decides from what this TV has.
+     */
+    suspend fun statusBeforeStart(timeoutMs: Long = START_REFRESH_TIMEOUT_MS): ScreenTimeStatus {
+        val rules = parentalControls.activeKidsRules.value
+        if (rules != null && (rules.dailyMinutes != null || rules.hasBedtime)) {
+            val profileId = profileManager.activeProfileId.value
+            kotlinx.coroutines.withTimeoutOrNull(timeoutMs) { sharing().refreshScreenTime(profileId) }
+            // Read back what the refresh stored rather than wait for the collector to see it.
+            otherDevices.value = store.otherDevices.first()
+        }
+        return status()
     }
 
     /** At the limit, stop right away rather than let the current title finish. */
@@ -270,5 +308,6 @@ class ScreenTimeManager internal constructor(
 
     private companion object {
         const val SAVE_INTERVAL_MS = 30_000L
+        const val START_REFRESH_TIMEOUT_MS = 3_000L
     }
 }

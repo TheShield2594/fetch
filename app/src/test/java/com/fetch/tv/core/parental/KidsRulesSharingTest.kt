@@ -137,4 +137,18 @@ class KidsRulesSharingTest {
         )
         assertEquals(lists, effective)
     }
+
+    @Test
+    fun `a kids rules change with no limits copy clears once pushed`() = runTest {
+        val store = ProfileRestrictionsDataStore(TestPreferencesStore())
+        val rules = KidsRules(dailyMinutes = 45)
+        store.setKidsRulesByParent(2, rules)
+
+        store.accountPushSucceeded(2, ProfileRestrictions.KidsPreset, rules.forAccount())
+
+        assertTrue(store.pendingAccountPushes.first().isEmpty())
+        assertEquals(ProfileRestrictions.KidsPreset, store.accountRestrictions.first()[2])
+        // Pulls apply to the profile again.
+        assertTrue(store.tightenFromAccount(2, ProfileRestrictions.KidsPreset, KidsRules(dailyMinutes = 30)))
+    }
 }

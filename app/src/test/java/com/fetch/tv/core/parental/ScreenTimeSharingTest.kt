@@ -76,4 +76,17 @@ class ScreenTimeSharingTest {
         store.setOtherDevices(2, emptyMap())
         assertTrue(store.otherDevices(2).isEmpty())
     }
+
+    @Test
+    fun `a deleted profile's screen time goes with it`() = runTest {
+        val store = ScreenTimeStore(TestPreferencesStore())
+        store.update(2, "2026-11-02") { it.copy(watchedMs = 10L, unlockedForDay = true) }
+        store.update(3, "2026-11-02") { it.copy(watchedMs = 20L) }
+        store.setOtherDevices(2, mapOf("tv-b" to ScreenTimeDay(date = "2026-11-02", watchedMs = 5L)))
+
+        store.deleteProfile(2)
+
+        assertEquals(setOf(3), store.days().keys)
+        assertTrue(store.otherDevices(2).isEmpty())
+    }
 }

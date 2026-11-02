@@ -24,6 +24,7 @@ class AccountLocalDataResetService @Inject constructor(
     private val profileDataStore: ProfileDataStore,
     private val profileLockStateDataStore: ProfileLockStateDataStore,
     private val profileRestrictionsDataStore: ProfileRestrictionsDataStore,
+    private val screenTimeStore: com.fetch.tv.core.parental.ScreenTimeStore,
     private val credentialStores: Set<@JvmSuppressWildcards ProfileScopedCredentialStore>,
     private val androidTvChannelManager: AndroidTvChannelManager
 ) {
@@ -38,6 +39,8 @@ class AccountLocalDataResetService @Inject constructor(
             .onFailure { Log.w(ACCOUNT_RESET_TAG, "Failed to clear profile lock states", it) }
         runCatching { profileRestrictionsDataStore.clearAll() }
             .onFailure { Log.w(ACCOUNT_RESET_TAG, "Failed to clear profile restrictions", it) }
+        runCatching { screenTimeStore.clearAll() }
+            .onFailure { Log.w(ACCOUNT_RESET_TAG, "Failed to clear screen time", it) }
         runCatching { credentialStores.forEach(ProfileScopedCredentialStore::clearAllProfiles) }
             .onFailure { Log.w(ACCOUNT_RESET_TAG, "Failed to clear profile credentials", it) }
         runCatching { clearAccountFiles() }

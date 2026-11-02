@@ -331,13 +331,15 @@ class ProfileRestrictionsDataStore internal constructor(
             val accountKidsCopies = decodeKidsRules(prefs[accountKidsRulesKey])
             val pending = decodePending(prefs)
             val kidsCopy = accountKidsCopies[profileId]
+            val limitsCopy = accountCopies[profileId]
             if (profileId in pending) {
-                if (accountCopies[profileId] != pushed) return@edit
+                // A copy changed again while this one was being sent still needs its own push.
+                // A missing limits copy (only the kids rules changed here) matches what was sent.
+                if (limitsCopy != null && limitsCopy != pushed) return@edit
                 if (kidsCopy != null && kidsCopy != pushedKidsRules) return@edit
                 prefs[pendingAccountPushKey] = (pending - profileId).mapTo(HashSet()) { it.toString() }
-            } else {
-                prefs[accountRestrictionsKey] = encode(accountCopies + (profileId to pushed))
             }
+            if (limitsCopy != pushed) prefs[accountRestrictionsKey] = encode(accountCopies + (profileId to pushed))
             if (pushedKidsRules != null && kidsCopy != pushedKidsRules) {
                 prefs[accountKidsRulesKey] = encodeKidsRules(accountKidsCopies + (profileId to pushedKidsRules))
             }

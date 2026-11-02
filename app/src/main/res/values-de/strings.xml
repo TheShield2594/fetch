@@ -1530,7 +1530,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Collections</string>
     <string name="collections_delete_confirm_title">Delete Collection?</string>
-    <string name="collections_delete_confirm">Delete</string>
     <string name="collections_delete_confirm_subtitle">This will permanently delete \"%1$s\". This cannot be undone.</string>
     <string name="collections_empty">No collections yet. Create one to organize your catalogs.</string>
     <string name="collections_new">New Collection</string>
@@ -1560,9 +1559,7 @@
     <string name="collections_fetch_url">Fetch URL</string>
     <string name="collections_fetching">Fetching…</string>
     <string name="collections_valid_json">Valid JSON</string>
-    <string name="collections_valid_summary">%1$d collection(s), %2$d folder(s)</string>
     <string name="collections_confirm_import">Confirm Import</string>
-    <string name="collections_folder_count">%1$d folder(s)</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Row Title</string>
@@ -1593,10 +1590,7 @@
     <string name="collections_editor_select_catalogs">Select Catalogs</string>
     <string name="collections_editor_done">Done</string>
     <string name="collections_editor_choose_emoji">Choose Emoji</string>
-    <string name="collections_editor_back">Back</string>
     <string name="collections_editor_edit_collection">Edit Collection</string>
-    <string name="collections_editor_source_count">%1$d source(s)</string>
-    <string name="collections_editor_sources">Sources</string>
     <string name="collections_editor_source">Source</string>
     <string name="collections_editor_view_mode_tabs">Tabs</string>
     <string name="collections_editor_view_mode_rows">Rows</string>
@@ -1768,10 +1762,6 @@
     <string name="collection_editor_resolved_trakt_list">Resolved Trakt list</string>
     <string name="collection_editor_trakt_search_placeholder">Search title, Trakt URL, or list ID</string>
     <string name="collection_editor_trakt_name_placeholder">Weekend Watch, Award Winners</string>
-    <string name="collection_editor_folder_count_one">%1$d item</string>
-    <string name="collection_editor_folder_count_other">%1$d items</string>
-    <string name="collections_editor_delete_folder_title">Delete Folder?</string>
-    <string name="collections_editor_delete_folder_subtitle">This will permanently delete \"%1$s\" and its contents.</string>
     <string name="folder_error_addon_source">Dieser Katalog konnte nicht geladen werden. Prüfen Sie, ob sein Add-on installiert und online ist, und versuchen Sie es dann erneut.</string>
     <string name="folder_error_addon_missing">Das Add-on dieses Katalogs ist nicht installiert. Installieren Sie es unter Addons oder entfernen Sie diese Quelle aus dem Ordner.</string>
     <string name="folder_error_tmdb_source">Inhalt von TMDB konnte nicht geladen werden. Prüfen Sie Ihre Verbindung und versuchen Sie es dann erneut.</string>

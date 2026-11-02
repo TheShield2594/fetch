@@ -1418,9 +1418,7 @@
     <string name="collections_fetch_url">Загрузить URL</string>
     <string name="collections_fetching">Загрузка…</string>
     <string name="collections_valid_json">Действительный JSON</string>
-    <string name="collections_valid_summary">%1$d коллекция(ий), %2$d папка(ок)</string>
     <string name="collections_confirm_import">Подтвердить импорт</string>
-    <string name="collections_folder_count">%1$d папка(ок)</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Название строки</string>
@@ -1450,7 +1448,6 @@
     <string name="collections_editor_select_catalogs">Выберите каталоги</string>
     <string name="collections_editor_done">Готово</string>
     <string name="collections_editor_choose_emoji">Выберите эмодзи</string>
-    <string name="collections_editor_back">Назад</string>
     <string name="collections_editor_edit_collection">Редактировать коллекцию</string>
     <string name="collections_editor_view_mode_tabs">Вкладки</string>
     <string name="collections_editor_view_mode_rows">Строки</string>
@@ -1939,7 +1936,6 @@
     <string name="addon_error_not_found">Аддон не найден</string>
     <string name="debug_generate_library_result_added">Добавлено %1$d элементов в библиотеку</string>
     <string name="collections_delete_confirm_title">Удалить коллекцию?</string>
-    <string name="collections_delete_confirm">Удалить</string>
     <string name="collections_delete_confirm_subtitle">Это навсегда удалит \"%1$s\". Действие нельзя отменить.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
     <string name="collections_import_failed_fetch_http">Не удалось загрузить: HTTP %1$d</string>
@@ -1950,8 +1946,6 @@
     <string name="collections_import_file_not_found_downloads">Файл не найден в Загрузках.\nСначала экспортируйте коллекции.</string>
     <string name="collections_import_failed_read_file">Не удалось прочитать файл: %1$s</string>
     <string name="collections_editor_new_folder">Новая папка</string>
-    <string name="collections_editor_source_count">%1$d источник(ов)</string>
-    <string name="collections_editor_sources">Источники</string>
     <string name="collections_editor_source">Источник</string>
     <string name="collections_editor_add_tmdb_source">Добавить источник TMDB</string>
     <string name="collections_editor_add_trakt_source">Добавить список Trakt</string>
@@ -2118,10 +2112,6 @@
     <string name="collection_editor_resolved_trakt_list">Найденный список Trakt</string>
     <string name="collection_editor_trakt_search_placeholder">Поиск по названию, URL Trakt или ID списка</string>
     <string name="collection_editor_trakt_name_placeholder">Weekend Watch, Award Winners</string>
-    <string name="collection_editor_folder_count_one">%1$d элемент</string>
-    <string name="collection_editor_folder_count_other">%1$d элементов</string>
-    <string name="collections_editor_delete_folder_title">Удалить папку?</string>
-    <string name="collections_editor_delete_folder_subtitle">Это навсегда удалит \"%1$s\" и её содержимое.</string>
     <string name="folder_error_addon_source">Не удалось загрузить этот каталог. Проверьте, что его аддон установлен и доступен, затем попробуйте снова.</string>
     <string name="folder_error_addon_missing">Аддон этого каталога не установлен. Установите его в разделе «Аддоны» или удалите этот источник из папки.</string>
     <string name="folder_error_tmdb_source">Не удалось загрузить данные из TMDB. Проверьте подключение, затем попробуйте снова.</string>

@@ -1622,7 +1622,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Kolekce</string>
     <string name="collections_delete_confirm_title">Odstranit kolekci?</string>
-    <string name="collections_delete_confirm">Odstranit</string>
     <string name="collections_delete_confirm_subtitle">Toto trvale odstraní \"%1$s\". Tuto akci nelze vrátit zpět.</string>
     <string name="collections_empty">Zatím žádné kolekce. Vytvořte jednu pro uspořádání katalogů.</string>
     <string name="collections_new">Nová kolekce</string>
@@ -1653,9 +1652,7 @@
     <string name="collections_fetch_url">Načíst URL</string>
     <string name="collections_fetching">Načítání…</string>
     <string name="collections_valid_json">Platný JSON</string>
-    <string name="collections_valid_summary">%1$d kolekcí, %2$d složek</string>
     <string name="collections_confirm_import">Potvrdit import</string>
-    <string name="collections_folder_count">%1$d složek</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Název řádku</string>
@@ -1686,10 +1683,7 @@
     <string name="collections_editor_select_catalogs">Vybrat katalogy</string>
     <string name="collections_editor_done">Hotovo</string>
     <string name="collections_editor_choose_emoji">Vybrat emoji</string>
-    <string name="collections_editor_back">Zpět</string>
     <string name="collections_editor_edit_collection">Upravit kolekci</string>
-    <string name="collections_editor_source_count">%1$d zdrojů</string>
-    <string name="collections_editor_sources">Zdroje</string>
     <string name="collections_editor_source">Zdroj</string>
     <string name="collections_editor_view_mode_tabs">Karty</string>
     <string name="collections_editor_view_mode_rows">Řádky</string>
@@ -1862,10 +1856,6 @@
     <string name="collection_editor_resolved_trakt_list">Vyřešený seznam Trakt</string>
     <string name="collection_editor_trakt_search_placeholder">Hledat název, URL Trakt nebo ID seznamu</string>
     <string name="collection_editor_trakt_name_placeholder">Víkendové sledování, Oceněné filmy</string>
-    <string name="collection_editor_folder_count_one">%1$d položka</string>
-    <string name="collection_editor_folder_count_other">%1$d položek</string>
-    <string name="collections_editor_delete_folder_title">Odstranit složku?</string>
-    <string name="collections_editor_delete_folder_subtitle">Toto trvale odstraní \"%1$s\" a její obsah.</string>
     <string name="folder_error_addon_source">Tento katalog se nepodařilo načíst. Zkontrolujte, že je jeho doplněk nainstalovaný a online, a zkuste to znovu.</string>
     <string name="folder_error_addon_missing">Doplněk tohoto katalogu není nainstalovaný. Nainstalujte ho v sekci Doplňky, nebo tento zdroj ze složky odeberte.</string>
     <string name="folder_error_tmdb_source">Obsah z TMDB se nepodařilo načíst. Zkontrolujte připojení a zkuste to znovu.</string>

@@ -1864,7 +1864,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Kolekcije</string>
     <string name="collections_delete_confirm_title">Obrisati kolekciju?</string>
-    <string name="collections_delete_confirm">Obriši</string>
     <string name="collections_delete_confirm_subtitle">Ovo će trajno obrisati „%1$s“. Ova radnja se ne može opozvati.</string>
     <string name="collections_empty">Još nema kolekcija. Kreirajte jednu da biste organizovali svoje kataloge.</string>
     <string name="collections_new">Nova kolekcija</string>
@@ -1895,9 +1894,7 @@
     <string name="collections_fetch_url">Preuzmi URL</string>
     <string name="collections_fetching">Preuzimanje…</string>
     <string name="collections_valid_json">Važeći JSON</string>
-    <string name="collections_valid_summary">%1$d kolekcija, %2$d fascikla/e</string>
     <string name="collections_confirm_import">Potvrdi uvoz</string>
-    <string name="collections_folder_count">%1$d fascikla/e</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Naslov reda</string>
@@ -1928,10 +1925,7 @@
     <string name="collections_editor_select_catalogs">Izaberi kataloge</string>
     <string name="collections_editor_done">Gotovo</string>
     <string name="collections_editor_choose_emoji">Izaberi emodži</string>
-    <string name="collections_editor_back">Nazad</string>
     <string name="collections_editor_edit_collection">Uredi kolekciju</string>
-    <string name="collections_editor_source_count">%1$d izvor(a)</string>
-    <string name="collections_editor_sources">Izvori</string>
     <string name="collections_editor_source">Izvor</string>
     <string name="collections_editor_view_mode_tabs">Kartice</string>
     <string name="collections_editor_view_mode_rows">Redovi</string>
@@ -2111,10 +2105,6 @@
     <string name="collection_editor_resolved_trakt_list">Razrešena Trakt lista</string>
     <string name="collection_editor_trakt_search_placeholder">Pretraži naslov, Trakt URL ili ID liste</string>
     <string name="collection_editor_trakt_name_placeholder">Vikend gledanje, Dobitnici nagrada</string>
-    <string name="collection_editor_folder_count_one">%1$d stavka</string>
-    <string name="collection_editor_folder_count_other">%1$d stavki</string>
-    <string name="collections_editor_delete_folder_title">Obrisati fasciklu?</string>
-    <string name="collections_editor_delete_folder_subtitle">Ovo će trajno obrisati „%1$s“ i njen sadržaj.</string>
     <string name="folder_error_addon_source">Nije moguće učitati ovaj katalog. Proverite da li je njegov dodatak instaliran i na mreži, pa pokušajte ponovo.</string>
     <string name="folder_error_addon_missing">Dodatak ovog kataloga nije instaliran. Instalirajte ga iz odeljka Dodaci ili uklonite ovaj izvor iz fascikle.</string>
     <string name="folder_error_tmdb_source">Nije moguće učitati sadržaj sa TMDB-a. Proverite vezu, pa pokušajte ponovo.</string>

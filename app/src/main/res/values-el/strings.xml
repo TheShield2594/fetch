@@ -1869,7 +1869,6 @@
   <!-- Collection Management -->
   <string name="collections_header">Συλλογές</string>
   <string name="collections_delete_confirm_title">Διαγραφή συλλογής;</string>
-  <string name="collections_delete_confirm">Διαγραφή</string>
   <string name="collections_delete_confirm_subtitle">Αυτό θα διαγράψει οριστικά το «%1$s». Η ενέργεια δεν μπορεί να αναιρεθεί.</string>
   <string name="collections_empty">Δεν υπάρχουν συλλογές ακόμα. Δημιουργήστε μία για να οργανώσετε τους καταλόγους σας.</string>
   <string name="collections_new">Νέα συλλογή</string>
@@ -1900,9 +1899,7 @@
   <string name="collections_fetch_url">Ανάκτηση URL</string>
   <string name="collections_fetching">Ανάκτηση…</string>
   <string name="collections_valid_json">Έγκυρο JSON</string>
-  <string name="collections_valid_summary">%1$d συλλογή(ές), %2$d φάκελος(οι)</string>
   <string name="collections_confirm_import">Επιβεβαίωση εισαγωγής</string>
-  <string name="collections_folder_count">%1$d φάκελος(οι)</string>
   <!-- Collection Editor -->
   <string name="collections_editor_row_title">Τίτλος γραμμής</string>
   <string name="collections_editor_save">Αποθήκευση</string>
@@ -1932,10 +1929,7 @@
   <string name="collections_editor_select_catalogs">Επιλογή καταλόγων</string>
   <string name="collections_editor_done">Έτοιμο</string>
   <string name="collections_editor_choose_emoji">Επιλογή emoji</string>
-  <string name="collections_editor_back">Πίσω</string>
   <string name="collections_editor_edit_collection">Επεξεργασία συλλογής</string>
-  <string name="collections_editor_source_count">%1$d πηγή(ές)</string>
-  <string name="collections_editor_sources">Πηγές</string>
   <string name="collections_editor_source">Πηγή</string>
   <string name="collections_editor_view_mode_tabs">Καρτέλες</string>
   <string name="collections_editor_view_mode_rows">Γραμμές</string>
@@ -2109,10 +2103,6 @@
   <string name="collection_editor_resolved_trakt_list">Επιλυμένη λίστα Trakt</string>
   <string name="collection_editor_trakt_search_placeholder">Αναζήτηση τίτλου, URL Trakt ή ID λίστας</string>
   <string name="collection_editor_trakt_name_placeholder">Παρακολούθηση Σαββατοκύριακου, Νικητές βραβείων</string>
-  <string name="collection_editor_folder_count_one">%1$d στοιχείο</string>
-  <string name="collection_editor_folder_count_other">%1$d στοιχεία</string>
-  <string name="collections_editor_delete_folder_title">Διαγραφή φακέλου;</string>
-  <string name="collections_editor_delete_folder_subtitle">Αυτό θα διαγράψει οριστικά το «%1$s» και το περιεχόμενό του.</string>
   <string name="folder_error_addon_source">Δεν ήταν δυνατή η φόρτωση αυτού του καταλόγου. Ελέγξτε ότι το πρόσθετό του είναι εγκατεστημένο και σε λειτουργία και δοκιμάστε ξανά.</string>
   <string name="folder_error_addon_missing">Το πρόσθετο αυτού του καταλόγου δεν είναι εγκατεστημένο. Εγκαταστήστε το από τα Πρόσθετα ή αφαιρέστε αυτή την πηγή από τον φάκελο.</string>
   <string name="folder_error_tmdb_source">Δεν ήταν δυνατή η φόρτωση από το TMDB. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</string>

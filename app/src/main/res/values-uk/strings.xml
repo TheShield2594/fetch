@@ -1573,7 +1573,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Колекції</string>
     <string name="collections_delete_confirm_title">Видалити колекцію?</string>
-    <string name="collections_delete_confirm">Видалити</string>
     <string name="collections_delete_confirm_subtitle">Це безповоротно видалить \"%1$s\". Дію не можна скасувати.</string>
     <string name="collections_empty">Поки що немає колекцій. Створіть одну для організації ваших каталогів.</string>
     <string name="collections_new">Нова колекція</string>
@@ -1604,9 +1603,7 @@
     <string name="collections_fetch_url">Завантажити URL</string>
     <string name="collections_fetching">Завантаження…</string>
     <string name="collections_valid_json">Дійсний JSON</string>
-    <string name="collections_valid_summary">%1$d колекція(й), %2$d папка(ок)</string>
     <string name="collections_confirm_import">Підтвердити імпорт</string>
-    <string name="collections_folder_count">%1$d папка(ок)</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Назва рядка</string>
@@ -1637,10 +1634,7 @@
     <string name="collections_editor_select_catalogs">Оберіть каталоги</string>
     <string name="collections_editor_done">Готово</string>
     <string name="collections_editor_choose_emoji">Оберіть емодзі</string>
-    <string name="collections_editor_back">Назад</string>
     <string name="collections_editor_edit_collection">Редагувати колекцію</string>
-    <string name="collections_editor_source_count">%1$d джерело(ел)</string>
-    <string name="collections_editor_sources">Джерела</string>
     <string name="collections_editor_source">Джерело</string>
     <string name="collections_editor_view_mode_tabs">Вкладки</string>
     <string name="collections_editor_view_mode_rows">Рядки</string>
@@ -1813,10 +1807,6 @@
     <string name="collection_editor_resolved_trakt_list">Знайдений список Trakt</string>
     <string name="collection_editor_trakt_search_placeholder">Пошук за назвою, URL Trakt або ID списку</string>
     <string name="collection_editor_trakt_name_placeholder">Weekend Watch, Award Winners</string>
-    <string name="collection_editor_folder_count_one">%1$d елемент</string>
-    <string name="collection_editor_folder_count_other">%1$d елементів</string>
-    <string name="collections_editor_delete_folder_title">Видалити папку?</string>
-    <string name="collections_editor_delete_folder_subtitle">Це безповоротно видалить \"%1$s\" та її вміст.</string>
     <string name="folder_error_addon_source">Не вдалося завантажити цей каталог. Перевірте, чи встановлено його адон і чи він онлайн, а потім спробуйте ще раз.</string>
     <string name="folder_error_addon_missing">Адон цього каталогу не встановлено. Установіть його в розділі «Адони» або видаліть це джерело з папки.</string>
     <string name="folder_error_tmdb_source">Не вдалося завантажити дані з TMDB. Перевірте з’єднання, а потім спробуйте ще раз.</string>

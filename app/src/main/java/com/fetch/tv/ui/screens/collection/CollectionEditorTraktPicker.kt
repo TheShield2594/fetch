@@ -65,7 +65,7 @@ fun TraktSourcePickerContent(
                 style = MaterialTheme.typography.headlineMedium.copy(textDirection = TextDirection.Content),
                 color = FetchTheme.colors.TextPrimary,
             )
-            FetchButton(onClick = onBack) { Text(stringResource(R.string.collections_editor_back)) }
+            FetchButton(onClick = onBack) { Text(stringResource(R.string.collections_editor_done)) }
         }
 
         Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))

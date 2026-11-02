@@ -1949,7 +1949,6 @@
     <!-- Upravljanje kolekcijama -->
     <string name="collections_header">Kolekcije</string>
     <string name="collections_delete_confirm_title">Izbrisati kolekciju?</string>
-    <string name="collections_delete_confirm">Izbriši</string>
     <string name="collections_delete_confirm_subtitle">Ovo će trajno izbrisati \"%1$s\". Ovo se ne može poništiti.</string>
     <string name="collections_empty">Još nema kolekcija. Stvori jednu za organiziranje kataloga.</string>
     <string name="collections_new">Nova kolekcija</string>
@@ -1980,9 +1979,7 @@
     <string name="collections_fetch_url">Dohvati URL</string>
     <string name="collections_fetching">Dohvaćanje…</string>
     <string name="collections_valid_json">Ispravan JSON</string>
-    <string name="collections_valid_summary">Kolekcija: %1$d, mapa: %2$d</string>
     <string name="collections_confirm_import">Potvrdi uvoz</string>
-    <string name="collections_folder_count">Mapa: %1$d</string>
 
     <!-- Uređivač kolekcija -->
     <string name="collections_editor_row_title">Naslov reda</string>
@@ -2013,10 +2010,7 @@
     <string name="collections_editor_select_catalogs">Odaberi kataloge</string>
     <string name="collections_editor_done">Gotovo</string>
     <string name="collections_editor_choose_emoji">Odaberi emoji</string>
-    <string name="collections_editor_back">Natrag</string>
     <string name="collections_editor_edit_collection">Uredi kolekciju</string>
-    <string name="collections_editor_source_count">Izvora: %1$d</string>
-    <string name="collections_editor_sources">Izvori</string>
     <string name="collections_editor_source">Izvor</string>
     <string name="collections_editor_view_mode_tabs">Kartice</string>
     <string name="collections_editor_view_mode_rows">Redovi</string>
@@ -2197,10 +2191,6 @@
     <string name="collection_editor_resolved_trakt_list">Razriješeni Trakt popis</string>
     <string name="collection_editor_trakt_search_placeholder">Traži naslov, Trakt URL ili ID popisa</string>
     <string name="collection_editor_trakt_name_placeholder">Vikend gledanje, Nagrađivani</string>
-    <string name="collection_editor_folder_count_one">%1$d stavka</string>
-    <string name="collection_editor_folder_count_other">Stavki: %1$d</string>
-    <string name="collections_editor_delete_folder_title">Izbrisati mapu?</string>
-    <string name="collections_editor_delete_folder_subtitle">Ovo će trajno izbrisati \"%1$s\" i njezin sadržaj.</string>
     <string name="folder_error_addon_source">Nije moguće učitati ovaj katalog. Provjeri je li njegov dodatak instaliran i dostupan, a zatim pokušaj ponovno.</string>
     <string name="folder_error_addon_missing">Dodatak ovog kataloga nije instaliran. Instaliraj ga iz odjeljka Dodaci ili ukloni ovaj izvor iz mape.</string>
     <string name="folder_error_tmdb_source">Nije moguće učitati ovo s TMDB-a. Provjeri vezu, a zatim pokušaj ponovno.</string>

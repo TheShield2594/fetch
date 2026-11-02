@@ -1591,7 +1591,6 @@
     <!-- Collection Management -->
     <string name="collections_header">المجموعات</string>
     <string name="collections_delete_confirm_title">حذف المجموعة؟</string>
-    <string name="collections_delete_confirm">حذف</string>
     <string name="collections_delete_confirm_subtitle">سوف يتم حذف بشكل نهائي \"%1$s\". لا يمكن الرجوع عن هذا الأمر.</string>
     <string name="collections_empty">لا توجد مجموعات بعد. أنشئ واحدة لتنظيم قوائمك.</string>
     <string name="collections_new">مجموعة جديدة</string>
@@ -1622,9 +1621,7 @@
     <string name="collections_fetch_url">جلب من الرابط</string>
     <string name="collections_fetching">جاري الجلب…</string>
     <string name="collections_valid_json">ملف JSON صالح</string>
-    <string name="collections_valid_summary">%1$d مجموعة، %2$d مجلد</string>
     <string name="collections_confirm_import">تأكيد الاستيراد</string>
-    <string name="collections_folder_count">%1$d مجلد</string>
 
 <!-- Collection Editor -->
     <string name="collections_editor_row_title">عنوان الصف</string>
@@ -1655,10 +1652,7 @@
     <string name="collections_editor_select_catalogs">تحديد الفهارس</string>
     <string name="collections_editor_done">تم</string>
     <string name="collections_editor_choose_emoji">اختيار رمز</string>
-    <string name="collections_editor_back">رجوع</string>
     <string name="collections_editor_edit_collection">تعديل المجموعة</string>
-    <string name="collections_editor_source_count">%1$d مصدر</string>
-    <string name="collections_editor_sources">المصادر</string>
     <string name="collections_editor_source">المصدر</string>
     <string name="collections_editor_view_mode_tabs">تبويبات</string>
     <string name="collections_editor_view_mode_rows">صفوف</string>
@@ -1831,10 +1825,6 @@
     <string name="collection_editor_resolved_trakt_list">قائمة Trakt محللة</string>
     <string name="collection_editor_trakt_search_placeholder">ابحث بالعنوان، الرابط، أو المعرف</string>
     <string name="collection_editor_trakt_name_placeholder">عطلة نهاية الأسبوع، الفائزون بالجوائز</string>
-    <string name="collection_editor_folder_count_one">%1$d عنصر</string>
-    <string name="collection_editor_folder_count_other">%1$d عنصر</string>
-    <string name="collections_editor_delete_folder_title">حذف المجلد؟</string>
-    <string name="collections_editor_delete_folder_subtitle">هذا سيحذف \"%1$s\" ومحتوياته نهائياً.</string>
     <string name="folder_error_addon_source">تعذر تحميل هذا الفهرس. تأكد من أن إضافته مثبتة ومتصلة، ثم حاول مجدداً.</string>
     <string name="folder_error_addon_missing">إضافة هذا الفهرس غير مثبتة. ثبّتها من الإضافات، أو أزل هذا المصدر من المجلد.</string>
     <string name="folder_error_tmdb_source">تعذر التحميل من TMDB. تحقق من اتصالك، ثم حاول مجدداً.</string>

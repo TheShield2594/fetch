@@ -1868,7 +1868,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Coleções</string>
     <string name="collections_delete_confirm_title">Excluir coleção?</string>
-    <string name="collections_delete_confirm">Excluir</string>
     <string name="collections_delete_confirm_subtitle">Isso excluirá permanentemente \"%1$s\". Esta ação não pode ser desfeita.</string>  
     <string name="collections_empty">Nenhuma coleção ainda. Crie uma para organizar seus catálogos.</string>
     <string name="collections_new">Nova coleção</string>
@@ -1899,9 +1898,7 @@
     <string name="collections_fetch_url">Buscar URL</string>
     <string name="collections_fetching">Buscando…</string>
     <string name="collections_valid_json">JSON válido</string>
-    <string name="collections_valid_summary">%1$d coleção(ões), %2$d pasta(s)</string>
     <string name="collections_confirm_import">Confirmar importação</string>
-    <string name="collections_folder_count">%1$d pasta(s)</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Título da linha</string>
@@ -1932,10 +1929,7 @@
     <string name="collections_editor_select_catalogs">Selecionar catálogos</string>
     <string name="collections_editor_done">Concluído</string>
     <string name="collections_editor_choose_emoji">Escolher emoji</string>
-    <string name="collections_editor_back">Voltar</string>
     <string name="collections_editor_edit_collection">Editar coleção</string>
-    <string name="collections_editor_source_count">%1$d fonte(s)</string>
-    <string name="collections_editor_sources">Fontes</string>
     <string name="collections_editor_source">Fonte</string>
     <string name="collections_editor_view_mode_tabs">Abas</string>
     <string name="collections_editor_view_mode_rows">Linhas</string>
@@ -2115,10 +2109,6 @@
     <string name="collection_editor_resolved_trakt_list">Lista do Trakt resolvida</string>
     <string name="collection_editor_trakt_search_placeholder">Buscar título, URL do Trakt ou ID da lista</string>
     <string name="collection_editor_trakt_name_placeholder">Filmes do Fim de Semana, Vencedores de Prêmios</string>
-    <string name="collection_editor_folder_count_one">%1$d item</string>
-    <string name="collection_editor_folder_count_other">%1$d itens</string>
-    <string name="collections_editor_delete_folder_title">Excluir pasta?</string>
-    <string name="collections_editor_delete_folder_subtitle">Isso excluirá permanentemente \"%1$s\" e todo o seu conteúdo.</string>
     <string name="folder_error_addon_source">Não foi possível carregar este catálogo. Verifique se o addon dele está instalado e on-line e tente novamente.</string>
     <string name="folder_error_addon_missing">O addon deste catálogo não está instalado. Instale-o em Addons ou remova esta fonte da pasta.</string>
     <string name="folder_error_tmdb_source">Não foi possível carregar do TMDB. Verifique sua conexão e tente novamente.</string>

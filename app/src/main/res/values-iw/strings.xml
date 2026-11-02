@@ -2010,7 +2010,6 @@
     <!-- Collection Management -->
     <string name="collections_header">אוספים</string>
     <string name="collections_delete_confirm_title">למחוק אוסף?</string>
-    <string name="collections_delete_confirm">מחיקה</string>
     <string name="collections_delete_confirm_subtitle">פעולה זו תמחק לצמיתות את \"%1$s\". לא ניתן לבטל פעולה זו.</string>
     <string name="collections_empty">אין עדיין אוספים. ניתן ליצור אחד כדי לארגן את הקטלוגים שלך.</string>
     <string name="collections_new">אוסף חדש</string>
@@ -2041,9 +2040,7 @@
     <string name="collections_fetch_url">משיכת URL</string>
     <string name="collections_fetching">מושך…</string>
     <string name="collections_valid_json">JSON תקין</string>
-    <string name="collections_valid_summary">%1$d אוספים, %2$d תיקיות</string>
     <string name="collections_confirm_import">אישור ייבוא</string>
-    <string name="collections_folder_count">%1$d תיקיות</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">כותרת שורה</string>
@@ -2074,10 +2071,7 @@
     <string name="collections_editor_select_catalogs">בחירת קטלוגים</string>
     <string name="collections_editor_done">סיום</string>
     <string name="collections_editor_choose_emoji">בחירת אימוג׳י</string>
-    <string name="collections_editor_back">חזרה</string>
     <string name="collections_editor_edit_collection">עריכת אוסף</string>
-    <string name="collections_editor_source_count">%1$d מקורות</string>
-    <string name="collections_editor_sources">מקורות</string>
     <string name="collections_editor_source">מקור</string>
     <string name="collections_editor_view_mode_tabs">לשוניות</string>
     <string name="collections_editor_view_mode_rows">שורות</string>
@@ -2258,10 +2252,6 @@
     <string name="collection_editor_resolved_trakt_list">רשימת Trakt שזוהתה</string>
     <string name="collection_editor_trakt_search_placeholder">חיפוש כותרת, כתובת URL של Trakt, או מזהה רשימה</string>
     <string name="collection_editor_trakt_name_placeholder">צפייה לסוף שבוע, זוכי פרסים</string>
-    <string name="collection_editor_folder_count_one">%1$d פריט</string>
-    <string name="collection_editor_folder_count_other">%1$d פריטים</string>
-    <string name="collections_editor_delete_folder_title">למחוק תיקייה?</string>
-    <string name="collections_editor_delete_folder_subtitle">פעולה זו תמחק לצמיתות את \"%1$s\" ואת תכולתה.</string>
     <string name="folder_error_addon_source">לא ניתן היה לטעון את הקטלוג הזה. יש לוודא שהתוסף שלו מותקן ומחובר, ולנסות שוב.</string>
     <string name="folder_error_addon_missing">התוסף של הקטלוג הזה אינו מותקן. אפשר להתקין אותו דרך תוספים, או להסיר את המקור הזה מהתיקייה.</string>
     <string name="folder_error_tmdb_source">לא ניתן היה לטעון את התוכן הזה מ-TMDB. יש לבדוק את החיבור ולנסות שוב.</string>

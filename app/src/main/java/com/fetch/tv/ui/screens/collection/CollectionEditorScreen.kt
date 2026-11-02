@@ -89,7 +89,9 @@ import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.R
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
 
@@ -106,6 +108,13 @@ fun CollectionEditorScreen(
     val folderFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
 
     var folderToDelete by remember { mutableStateOf<CollectionFolder?>(null) }
+    val scope = rememberCoroutineScope()
+    val addFolderFocusRequester = folderFocusRequesters.getOrPut("add_folder") { FocusRequester() }
+    // Set when Save is pressed with no folders; cleared once one exists.
+    var showFolderRequired by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.folders.isNotEmpty()) {
+        if (uiState.folders.isNotEmpty()) showFolderRequired = false
+    }
     val deleteDialogFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(folderToDelete) {
@@ -194,8 +203,21 @@ fun CollectionEditorScreen(
                     modifier = Modifier.weight(1f),
                     placeholder = stringResource(R.string.collections_editor_placeholder_name)
                 )
-                val canSaveCollection = uiState.title.isNotBlank() && uiState.folders.isNotEmpty()
-                FetchButton(onClick = { viewModel.save { onBack() } }, enabled = canSaveCollection) {
+                // Save stays focusable. With nothing to save it points at what's missing instead of
+                // sitting greyed out; a blank title is fine, since save() names it "Untitled collection".
+                FetchButton(onClick = {
+                    if (uiState.folders.isEmpty()) {
+                        showFolderRequired = true
+                        scope.launch {
+                            val lastIndex = listState.layoutInfo.totalItemsCount - 1
+                            if (lastIndex >= 0) listState.animateScrollToItem(lastIndex)
+                            repeat(2) { withFrameNanos { } }
+                            try { addFolderFocusRequester.requestFocus() } catch (_: Exception) {}
+                        }
+                    } else {
+                        viewModel.save { onBack() }
+                    }
+                }) {
                     Text(stringResource(R.string.collections_editor_save))
                 }
             }
@@ -288,26 +310,9 @@ fun CollectionEditorScreen(
                     FolderViewMode.FOLLOW_LAYOUT to stringResource(R.string.collections_editor_view_mode_follow)
                 )
                 viewModes.forEach { (mode, label) ->
-                    val isSelected = uiState.viewMode == mode
-                    Button(
-                        onClick = { viewModel.setViewMode(mode) },
-                        colors = ButtonDefaults.colors(
-                            containerColor = if (isSelected) FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                            contentColor = if (isSelected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
-                            focusedContainerColor = FetchTheme.colors.FocusBackground,
-                            focusedContentColor = FetchTheme.colors.Primary
-                        ),
-                        border = ButtonDefaults.border(
-                            border = if (isSelected) Border(
-                                border = BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.Secondary),
-                                shape = RoundedCornerShape(FetchTheme.radii.md)
-                            ) else Border.None,
-                            focusedBorder = Border(
-                                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                                shape = RoundedCornerShape(FetchTheme.radii.md)
-                            )
-                        ),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
+                    FetchChoiceButton(
+                        selected = uiState.viewMode == mode,
+                        onClick = { viewModel.setViewMode(mode) }
                     ) {
                         Text(label)
                     }
@@ -383,11 +388,7 @@ fun CollectionEditorScreen(
                     color = FetchTheme.colors.TextPrimary,
                 )
                 Text(
-                    text = stringResource(
-                        if (uiState.folders.size == 1) R.string.collection_editor_folder_count_one
-                        else R.string.collection_editor_folder_count_other,
-                        uiState.folders.size
-                    ),
+                    text = pluralStringResource(R.plurals.collections_folder_count, uiState.folders.size, uiState.folders.size),
                     style = MaterialTheme.typography.bodySmall,
                     color = FetchTheme.colors.TextTertiary
                 )
@@ -418,8 +419,7 @@ fun CollectionEditorScreen(
         }
 
         item(key = "add_folder") {
-            val addFolderFocusRequester = folderFocusRequesters.getOrPut("add_folder") { FocusRequester() }
-            Box(modifier = Modifier.padding(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, top = FetchTheme.spacing.xs)) {
+            Column(modifier = Modifier.padding(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, top = FetchTheme.spacing.xs)) {
                 FetchButton(
                     onClick = {
                         lastFocusedFolderId = "add_folder"
@@ -430,6 +430,10 @@ fun CollectionEditorScreen(
                     Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.cd_add))
                     Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
                     Text(stringResource(R.string.collections_editor_add_folder))
+                }
+                if (showFolderRequired) {
+                    Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
+                    FieldRequirementText(stringResource(R.string.collections_editor_folder_required))
                 }
             }
         }
@@ -456,9 +460,10 @@ fun CollectionEditorScreen(
                     onClick = {
                         viewModel.removeFolder(folder.id)
                         folderToDelete = null
-                    }
+                    },
+                    destructive = true
                 ) {
-                    Text(stringResource(R.string.cd_delete))
+                    Text(stringResource(R.string.collections_editor_remove_folder))
                 }
             }
         }
@@ -507,7 +512,10 @@ private fun FolderListItem(
                     }
                 )
                 Text(
-                    text = "$shapeLabel - ${stringResource(R.string.collections_editor_source_count, folder.sources.size)}",
+                    text = listOf(
+                        shapeLabel,
+                        pluralStringResource(R.plurals.collections_editor_source_count, folder.sources.size, folder.sources.size)
+                    ).joinToString(" • "),
                     style = MaterialTheme.typography.bodySmall,
                     color = FetchTheme.colors.TextTertiary
                 )

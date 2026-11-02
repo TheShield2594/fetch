@@ -1578,7 +1578,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Samlinger</string>
     <string name="collections_delete_confirm_title">Slet samling?</string>
-    <string name="collections_delete_confirm">Slet</string>
     <string name="collections_delete_confirm_subtitle">Dette vil permanent slette \"%1$s\". Dette kan ikke fortrydes.</string>
     <string name="collections_empty">Ingen samlinger endnu. Opret en for at organisere dine kataloger.</string>
     <string name="collections_new">Ny samling</string>
@@ -1609,9 +1608,7 @@
     <string name="collections_fetch_url">Hent URL</string>
     <string name="collections_fetching">Henter…</string>
     <string name="collections_valid_json">Gyldig JSON</string>
-    <string name="collections_valid_summary">%1$d samling(er), %2$d mappe(r)</string>
     <string name="collections_confirm_import">Bekræft import</string>
-    <string name="collections_folder_count">%1$d mappe(r)</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Rækketitel</string>
@@ -1642,10 +1639,7 @@
     <string name="collections_editor_select_catalogs">Vælg kataloger</string>
     <string name="collections_editor_done">Færdig</string>
     <string name="collections_editor_choose_emoji">Vælg emoji</string>
-    <string name="collections_editor_back">Tilbage</string>
     <string name="collections_editor_edit_collection">Rediger samling</string>
-    <string name="collections_editor_source_count">%1$d kilde(r)</string>
-    <string name="collections_editor_sources">Kilder</string>
     <string name="collections_editor_source">Kilde</string>
     <string name="collections_editor_view_mode_tabs">Faner</string>
     <string name="collections_editor_view_mode_rows">Rækker</string>
@@ -1818,10 +1812,6 @@
     <string name="collection_editor_resolved_trakt_list">Løst Trakt-liste</string>
     <string name="collection_editor_trakt_search_placeholder">Søg titel, Trakt-URL eller liste-ID</string>
     <string name="collection_editor_trakt_name_placeholder">Weekend Watch, Award Winners</string>
-    <string name="collection_editor_folder_count_one">%1$d element</string>
-    <string name="collection_editor_folder_count_other">%1$d elementer</string>
-    <string name="collections_editor_delete_folder_title">Slet mappe?</string>
-    <string name="collections_editor_delete_folder_subtitle">Dette vil permanent slette \"%1$s\" og dens indhold.</string>
     <string name="folder_error_addon_source">Kunne ikke indlæse dette katalog. Tjek, at dets addon er installeret og online, og prøv derefter igen.</string>
     <string name="folder_error_addon_missing">Dette katalogs addon er ikke installeret. Installer den fra Addons, eller fjern denne kilde fra mappen.</string>
     <string name="folder_error_tmdb_source">Kunne ikke indlæse dette fra TMDB. Tjek din forbindelse, og prøv derefter igen.</string>

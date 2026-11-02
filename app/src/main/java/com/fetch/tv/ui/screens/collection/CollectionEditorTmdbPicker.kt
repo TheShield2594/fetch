@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -136,7 +137,7 @@ fun TmdbSourcePickerContent(
                 style = MaterialTheme.typography.headlineMedium.copy(textDirection = TextDirection.Content),
                 color = FetchTheme.colors.TextPrimary,
             )
-            FetchButton(onClick = onBack) { Text(stringResource(R.string.collections_editor_back)) }
+            FetchButton(onClick = onBack) { Text(stringResource(R.string.collections_editor_done)) }
         }
 
         Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
@@ -150,27 +151,14 @@ fun TmdbSourcePickerContent(
         ) {
             items(TmdbBuilderMode.values().toList()) { mode ->
                 val selected = uiState.tmdbBuilderMode == mode
-                Button(
+                FetchChoiceButton(
+                    selected = selected,
                     onClick = { onModeChange(mode) },
                     modifier = Modifier
                         .focusRequester(modeFocusRequesters[mode]!!)
                         .onFocusChanged {
                             if (it.isFocused) lastFocusedMode = mode
-                        },
-                    colors = ButtonDefaults.colors(
-                        containerColor = if (selected) FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                        contentColor = if (selected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
-                        focusedContainerColor = FetchTheme.colors.FocusBackground,
-                        focusedContentColor = FetchTheme.colors.TextPrimary
-                    ),
-                    border = ButtonDefaults.border(
-                        focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                            shape = RoundedCornerShape(FetchTheme.radii.md)
-                        )
-                    ),
-                    shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
-                    scale = ButtonDefaults.scale(focusedScale = 1f)
+                        }
                 ) {
                     Text(tmdbModeLabel(mode))
                 }
@@ -371,7 +359,7 @@ private fun TmdbBasicSourceForm(
             value = uiState.tmdbInput,
             onValueChange = onInputChange,
             placeholder = when (uiState.tmdbBuilderMode) {
-                TmdbBuilderMode.LIST -> "https://www.themoviedb.org/list/8504994 or 8504994"
+                TmdbBuilderMode.LIST -> stringResource(R.string.collections_editor_tmdb_placeholder_list)
                 TmdbBuilderMode.NETWORK -> stringResource(R.string.collections_editor_tmdb_network_placeholder_example)
                 TmdbBuilderMode.COLLECTION -> stringResource(R.string.collections_editor_tmdb_collection_placeholder_example)
                 TmdbBuilderMode.PRODUCTION -> stringResource(R.string.collections_editor_tmdb_company_placeholder_example)
@@ -652,9 +640,9 @@ private fun TmdbDiscoverForm(
             chips = listOf(
                 stringResource(R.string.collections_editor_country_us) to "US",
                 stringResource(R.string.collections_editor_country_uk) to "GB",
-                "Canada" to "CA",
-                "Australia" to "AU",
-                "Germany" to "DE"
+                stringResource(R.string.collections_editor_country_canada) to "CA",
+                stringResource(R.string.collections_editor_country_australia) to "AU",
+                stringResource(R.string.collections_editor_country_germany) to "DE"
             ),
             onSelect = { onFiltersChange(filters.copy(watchRegion = it)) }
         )
@@ -922,13 +910,16 @@ fun TmdbOptionRow(
             style = MaterialTheme.typography.labelMedium,
             color = FetchTheme.colors.TextSecondary
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
+        // Wraps instead of squeezing the last chip when labels run long (translations, large text).
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
+        ) {
             content()
         }
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun TmdbChoiceButton(
     label: String,
@@ -936,24 +927,7 @@ fun TmdbChoiceButton(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
-    Button(
-        onClick = onClick,
-        enabled = enabled,
-        colors = ButtonDefaults.colors(
-            containerColor = if (selected) FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-            contentColor = if (selected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
-            focusedContainerColor = FetchTheme.colors.FocusBackground,
-            focusedContentColor = FetchTheme.colors.TextPrimary
-        ),
-        border = ButtonDefaults.border(
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(FetchTheme.radii.md)
-            )
-        ),
-        shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
-        scale = ButtonDefaults.scale(focusedScale = 1f)
-    ) {
+    FetchChoiceButton(selected = selected, onClick = onClick, enabled = enabled) {
         Text(label)
     }
 }

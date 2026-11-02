@@ -77,6 +77,7 @@ import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.StateActionButton
 import com.fetch.tv.ui.components.StateAction
+import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.R
 import androidx.compose.ui.res.stringResource
@@ -101,6 +102,7 @@ import kotlinx.coroutines.launch
 fun FolderDetailScreen(
     viewModel: FolderDetailViewModel = hiltViewModel(),
     onNavigateToDetail: (String, String, String) -> Unit,
+    onEditCollection: () -> Unit = {},
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -120,7 +122,10 @@ fun FolderDetailScreen(
 
     if (folder == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(stringResource(R.string.folder_detail_not_found), color = FetchTheme.colors.TextSecondary)
+            EmptyScreenState(
+                title = stringResource(R.string.folder_detail_not_found),
+                action = StateAction(stringResource(R.string.folder_detail_go_back), onBack)
+            )
         }
         return
     }
@@ -177,6 +182,7 @@ fun FolderDetailScreen(
                     isItemWatched = isItemWatched,
                     onLoadMore = { viewModel.loadMoreItems(uiState.selectedTabIndex) },
                     onRetryTab = { viewModel.retryTab(uiState.selectedTabIndex) },
+                    onEditCollection = onEditCollection,
                     onSaveFocusState = { verticalIndex, verticalOffset, focusedItemKey ->
                         viewModel.saveTabFocusState(
                             tabIndex = uiState.selectedTabIndex,
@@ -201,6 +207,7 @@ fun FolderDetailScreen(
                             val index = uiState.tabs.indexOf(tab)
                             if (index >= 0) viewModel.retryTab(index)
                         },
+                        onEditCollection = onEditCollection,
                         onSaveFocusState = { vi, vo, rk, ikm, m, ma, ri, ii ->
                             viewModel.saveRowsFocusState(vi, vo, rk, ikm, m, ma, ri, ii)
                         },
@@ -280,6 +287,7 @@ private fun TabbedGridContent(
     onSaveFocusState: (Int, Int, String?) -> Unit,
     onLoadMore: () -> Unit = {},
     onRetryTab: () -> Unit = {},
+    onEditCollection: () -> Unit = {},
     isItemWatched: (MetaPreview) -> Boolean = { false },
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> }
 ) {
@@ -392,7 +400,9 @@ private fun TabbedGridContent(
     val currentTab = uiState.tabs.getOrNull(uiState.selectedTabIndex)
     if (currentTab == null) return
     // A tab with no grid to restore into must not keep tab focus from switching tabs.
-    if (!currentTab.isLoading && currentTab.catalogRow == null) pendingItemRestore = false
+    val tabIsEmpty = !currentTab.isLoading && currentTab.error == null &&
+        currentTab.catalogRow != null && !currentTab.catalogRow.isLoading && currentTab.catalogRow.items.isEmpty()
+    if (!currentTab.isLoading && (currentTab.catalogRow == null || tabIsEmpty)) pendingItemRestore = false
 
     when {
         currentTab.isLoading -> {
@@ -406,6 +416,9 @@ private fun TabbedGridContent(
         }
         currentTab.error != null -> {
             ErrorState(message = currentTab.error, onRetry = onRetryTab)
+        }
+        tabIsEmpty -> {
+            FolderEmptyState(onEditCollection = onEditCollection)
         }
         currentTab.catalogRow != null -> {
             val items = currentTab.catalogRow.items
@@ -605,6 +618,7 @@ private fun RowsContent(
     onNavigateToDetail: (String, String, String) -> Unit,
     onLoadMoreCatalog: (String, String, String) -> Unit = { _, _, _ -> },
     onRetryTab: (FolderTab) -> Unit = {},
+    onEditCollection: () -> Unit = {},
     onSaveFocusState: (Int, Int, String?, Map<String, String>, Map<String, Int>, Map<String, String>, Int, Int) -> Unit,
     isItemWatched: (MetaPreview) -> Boolean = { false },
     onItemFocus: (MetaPreview) -> Unit = {},
@@ -624,6 +638,11 @@ private fun RowsContent(
             tab.catalogRow != null && tab.catalogRow.items.isEmpty()
         ) return@filter false
         true
+    }
+    // Every source came back empty: say so, rather than drawing only the header.
+    if (sourceTabs.isEmpty() && uiState.tabs.none { it.isLoading }) {
+        FolderEmptyState(onEditCollection = onEditCollection)
+        return
     }
     
     // Nested prefetch: pre-compose cards in nested LazyRows to prevent frame spikes
@@ -970,5 +989,15 @@ private fun FollowLayoutContent(
         onFocusedRowKeyChanged = onFocusedRowKeyChanged,
         scrollToTopTrigger = scrollToTopTrigger,
         blockLeftOnFirstExpandedItem = true
+    )
+}
+
+/** A folder (or tab) whose sources loaded but returned no titles. */
+@Composable
+private fun FolderEmptyState(onEditCollection: () -> Unit) {
+    EmptyScreenState(
+        title = stringResource(R.string.folder_detail_empty_title),
+        subtitle = stringResource(R.string.folder_detail_empty_subtitle),
+        action = StateAction(stringResource(R.string.collections_editor_edit_collection), onEditCollection)
     )
 }

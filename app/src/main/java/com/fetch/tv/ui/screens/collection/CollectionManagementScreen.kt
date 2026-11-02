@@ -74,39 +74,13 @@ import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.R
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun FetchButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier,
-        colors = ButtonDefaults.colors(
-            containerColor = FetchTheme.colors.BackgroundCard,
-            contentColor = FetchTheme.colors.TextPrimary,
-            focusedContainerColor = FetchTheme.colors.FocusBackground,
-            focusedContentColor = FetchTheme.colors.Primary
-        ),
-        border = ButtonDefaults.border(
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(FetchTheme.radii.md)
-            )
-        ),
-        shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
-        content = { content() }
-    )
-}
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -348,7 +322,8 @@ fun CollectionManagementScreen(
                     onClick = {
                         viewModel.deleteCollection(collection.id)
                         collectionToDelete = null
-                    }
+                    },
+                    destructive = true
                 ) {
                     Text(stringResource(R.string.collections_delete_confirm))
                 }
@@ -425,11 +400,12 @@ private fun ImportContent(
                         if (mode == importMode) {
                             Button(
                                 onClick = { onModeChange(mode) },
+                                // The theme's neutral selected pair, not Primary on Background (#187).
                                 colors = ButtonDefaults.colors(
-                                    containerColor = FetchTheme.colors.Primary,
-                                    contentColor = FetchTheme.colors.Background,
-                                    focusedContainerColor = FetchTheme.colors.Primary,
-                                    focusedContentColor = FetchTheme.colors.Background
+                                    containerColor = FetchTheme.colors.Highlight,
+                                    contentColor = FetchTheme.colors.OnHighlight,
+                                    focusedContainerColor = FetchTheme.colors.Highlight,
+                                    focusedContentColor = FetchTheme.colors.OnHighlight
                                 ),
                                 border = ButtonDefaults.border(
                                     focusedBorder = Border(
@@ -574,7 +550,10 @@ private fun ImportContent(
                             )
                             Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
                             Text(
-                                text = stringResource(R.string.collections_valid_summary, validationResult.collectionCount, validationResult.folderCount),
+                                text = listOf(
+                                    pluralStringResource(R.plurals.collections_count, validationResult.collectionCount, validationResult.collectionCount),
+                                    pluralStringResource(R.plurals.collections_folder_count, validationResult.folderCount, validationResult.folderCount)
+                                ).joinToString(" • "),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = FetchTheme.colors.TextSecondary
                             )
@@ -634,7 +613,7 @@ private fun CollectionListItem(
                     color = FetchTheme.colors.TextPrimary,
                 )
                 Text(
-                    text = stringResource(R.string.collections_folder_count, collection.folders.size),
+                    text = pluralStringResource(R.plurals.collections_folder_count, collection.folders.size, collection.folders.size),
                     style = MaterialTheme.typography.bodySmall,
                     color = FetchTheme.colors.TextTertiary
                 )
@@ -648,7 +627,7 @@ private fun CollectionListItem(
                         containerColor = FetchTheme.colors.BackgroundCard,
                         contentColor = FetchTheme.colors.TextSecondary,
                         focusedContainerColor = FetchTheme.colors.FocusBackground,
-                        focusedContentColor = FetchTheme.colors.Primary
+                        focusedContentColor = FetchTheme.colors.TextPrimary
                     ),
                     border = ButtonDefaults.border(
                         focusedBorder = Border(
@@ -668,7 +647,7 @@ private fun CollectionListItem(
                         containerColor = FetchTheme.colors.BackgroundCard,
                         contentColor = FetchTheme.colors.TextSecondary,
                         focusedContainerColor = FetchTheme.colors.FocusBackground,
-                        focusedContentColor = FetchTheme.colors.Primary
+                        focusedContentColor = FetchTheme.colors.TextPrimary
                     ),
                     border = ButtonDefaults.border(
                         focusedBorder = Border(
@@ -688,7 +667,7 @@ private fun CollectionListItem(
                         containerColor = FetchTheme.colors.BackgroundCard,
                         contentColor = FetchTheme.colors.TextSecondary,
                         focusedContainerColor = FetchTheme.colors.FocusBackground,
-                        focusedContentColor = FetchTheme.colors.Primary
+                        focusedContentColor = FetchTheme.colors.TextPrimary
                     ),
                     border = ButtonDefaults.border(
                         focusedBorder = Border(

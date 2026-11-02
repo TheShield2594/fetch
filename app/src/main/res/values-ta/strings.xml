@@ -1514,7 +1514,6 @@
     <!-- Collection Management -->
     <string name="collections_header">தொகுப்புகள்</string>
     <string name="collections_delete_confirm_title">தொகுப்பை நீக்கவா?</string>
-    <string name="collections_delete_confirm">நீக்கு</string>
     <string name="collections_delete_confirm_subtitle">இது \"%1$s\"-ஐ நிரந்தரமாக நீக்கும். இதை மீட்டெடுக்க முடியாது.</string>
     <string name="collections_empty">இன்னும் தொகுப்புகள் இல்லை. உங்கள் கேட்டலாக்களை ஒழுங்குபடுத்த ஒன்றை உருவாக்குங்கள்.</string>
     <string name="collections_new">புதிய தொகுப்பு</string>
@@ -1545,9 +1544,7 @@
     <string name="collections_fetch_url">யுஆர்எல் பெறு</string>
     <string name="collections_fetching">பெறப்படுகிறது…</string>
     <string name="collections_valid_json">செல்லுபடியான ஜேசன்</string>
-    <string name="collections_valid_summary">%1$d தொகுப்பு(கள்), %2$d கோப்புறை(கள்)</string>
     <string name="collections_confirm_import">இறக்குமதியை உறுதிப்படுத்து</string>
-    <string name="collections_folder_count">%1$d கோப்புறை(கள்)</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">வரிசை தலைப்பு</string>
@@ -1578,10 +1575,7 @@
     <string name="collections_editor_select_catalogs">கேட்டலாக்களைத் தேர்ந்தெடு</string>
     <string name="collections_editor_done">முடிந்தது</string>
     <string name="collections_editor_choose_emoji">ஈமோஜி தேர்ந்தெடு</string>
-    <string name="collections_editor_back">பின்</string>
     <string name="collections_editor_edit_collection">தொகுப்பைத் திருத்து</string>
-    <string name="collections_editor_source_count">%1$d மூலம்(கள்)</string>
-    <string name="collections_editor_sources">மூலங்கள்</string>
     <string name="collections_editor_source">மூலம்</string>
     <string name="collections_editor_view_mode_tabs">தாவல்கள்</string>
     <string name="collections_editor_view_mode_rows">வரிசைகள்</string>
@@ -1754,10 +1748,6 @@
     <string name="collection_editor_resolved_trakt_list">தீர்மானிக்கப்பட்ட ட்ராக்ட் பட்டியல்</string>
     <string name="collection_editor_trakt_search_placeholder">தலைப்பு, ட்ராக்ட் யுஆர்எல், அல்லது பட்டியல் ஐடி தேடு</string>
     <string name="collection_editor_trakt_name_placeholder">வாரஇறுதி பார்வை, விருது வெற்றியாளர்கள்</string>
-    <string name="collection_editor_folder_count_one">%1$d உருப்படி</string>
-    <string name="collection_editor_folder_count_other">%1$d உருப்படிகள்</string>
-    <string name="collections_editor_delete_folder_title">கோப்புறையை நீக்கவா?</string>
-    <string name="collections_editor_delete_folder_subtitle">இது \"%1$s\" மற்றும் அதன் உள்ளடக்கங்களை நிரந்தரமாக நீக்கும்.</string>
     <string name="folder_error_addon_source">இந்தக் கேட்டலாக்கை ஏற்ற முடியவில்லை. அதன் ஆடான் நிறுவப்பட்டு ஆன்லைனில் உள்ளதா எனச் சரிபார்த்து, மீண்டும் முயற்சிக்கவும்.</string>
     <string name="folder_error_addon_missing">இந்தக் கேட்டலாக்கின் ஆடான் நிறுவப்படவில்லை. அதை ஆடான்கள் பகுதியிலிருந்து நிறுவவும், அல்லது இந்த மூலத்தைக் கோப்புறையிலிருந்து அகற்றவும்.</string>
     <string name="folder_error_tmdb_source">TMDB இலிருந்து இதை ஏற்ற முடியவில்லை. உங்கள் இணைப்பைச் சரிபார்த்து, மீண்டும் முயற்சிக்கவும்.</string>

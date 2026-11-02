@@ -2206,16 +2206,11 @@
     <string name="collections_fetch_url">URL\'yi Getir</string>
     <string name="collections_fetching">Getiriliyor…</string>
     <string name="collections_valid_json">Geçerli JSON</string>
-    <string name="collections_valid_summary">%1$d koleksiyon, %2$d klasör</string>
     <string name="collections_confirm_import">İçe Aktarmayı Onayla</string>
-    <string name="collections_folder_count">%1$d klasör</string>
 
     <!-- Collection Editor -->
     <string name="collections_delete_confirm_title">Koleksiyon silinsin mi?</string>
-    <string name="collections_delete_confirm">Sil</string>
     <string name="collections_delete_confirm_subtitle">\"%1$s\" kalıcı olarak silinecek. Bu işlem geri alınamaz.</string>
-    <string name="collections_editor_delete_folder_title">Klasör silinsin mi?</string>
-    <string name="collections_editor_delete_folder_subtitle">\"%1$s\" ve içindekiler kalıcı olarak silinecek.</string>
     <string name="folder_error_addon_source">Bu katalog yüklenemedi. Eklentisinin yüklü ve çevrimiçi olduğunu kontrol edin, ardından tekrar deneyin.</string>
     <string name="folder_error_addon_missing">Bu kataloğun eklentisi yüklü değil. Eklentiler bölümünden yükleyin veya bu kaynağı klasörden kaldırın.</string>
     <string name="folder_error_tmdb_source">Bu içerik TMDB’den yüklenemedi. Bağlantınızı kontrol edin, ardından tekrar deneyin.</string>
@@ -2254,10 +2249,7 @@
     <string name="collections_editor_select_catalogs">Katalog Seç</string>
     <string name="collections_editor_done">Tamam</string>
     <string name="collections_editor_choose_emoji">Emoji Seç</string>
-    <string name="collections_editor_back">Geri</string>
     <string name="collections_editor_edit_collection">Koleksiyonu Düzenle</string>
-    <string name="collections_editor_source_count">%1$d kaynak</string>
-    <string name="collections_editor_sources">Kaynaklar</string>
     <string name="collections_editor_source">Kaynak</string>
     <string name="collections_editor_view_mode_tabs">Sekmeler</string>
     <string name="collections_editor_view_mode_rows">Satırlar</string>
@@ -2438,8 +2430,6 @@
     <string name="collection_editor_resolved_trakt_list">Trakt listesi çözüldü</string>
     <string name="collection_editor_trakt_search_placeholder">Başlık, Trakt URL veya liste ID ara...</string>
     <string name="collection_editor_trakt_name_placeholder">Hafta Sonu İzlemeleri, Ödül Kazananlar</string>
-    <string name="collection_editor_folder_count_one">%1$d öğe</string>
-    <string name="collection_editor_folder_count_other">%1$d öğe</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel Filmleri, Netflix Orijinalleri, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">En İyi Aksiyon Filmleri, Kore Dizileri, 2024 Animasyon</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Filmleri, Favori Oyuncular</string>

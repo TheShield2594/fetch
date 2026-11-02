@@ -1417,8 +1417,12 @@ private fun PlaybackNavHost(
                 navArgument("collectionId") { type = NavType.StringType },
                 navArgument("folderId") { type = NavType.StringType }
             )
-        ) {
+        ) { backStackEntry ->
             com.fetch.tv.ui.screens.collection.FolderDetailScreen(
+                onEditCollection = {
+                    val collectionId = backStackEntry.arguments?.getString("collectionId")
+                    navController.navigate(Screen.CollectionEditor.createRoute(collectionId))
+                },
                 onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
                     val heroBackdrop = HeroBackdropState.consumeAndClear()
                     navController.navigate(Screen.Detail.createRoute(itemId, itemType, addonBaseUrl, heroBackdropUrl = heroBackdrop))

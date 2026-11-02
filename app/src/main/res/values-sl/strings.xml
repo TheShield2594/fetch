@@ -1429,7 +1429,6 @@
 	<!-- Collection Management -->							  
 	<string name="collections_header">Zbirke</string>
     <string name="collections_delete_confirm_title">Izbrišem zbirko?</string>
-    <string name="collections_delete_confirm">Izbriši</string>
     <string name="collections_delete_confirm_subtitle">To bo trajno izbrisalo \"%1$s\". Tega ni mogoče razveljaviti.</string>
     <string name="collections_empty">Ni še zbirk. Ustvarite jo za organizacijo svojih katalogov.</string>
     <string name="collections_new">Nova zbirka</string>
@@ -1461,9 +1460,7 @@
     <string name="collections_fetch_url">Pridobi URL</string>
     <string name="collections_fetching">Pridobivanje…</string>
     <string name="collections_valid_json">Veljaven JSON</string>
-    <string name="collections_valid_summary">%1$d zbirk, %2$d map</string>
     <string name="collections_confirm_import">Potrdi uvoz</string>
-    <string name="collections_folder_count">%1$d map(e)</string>
 	
 	
 	
@@ -1496,10 +1493,7 @@
     <string name="collections_editor_select_catalogs">Izberi kataloge</string>
     <string name="collections_editor_done">Končano</string>
     <string name="collections_editor_choose_emoji">Izberi emodži</string>
-    <string name="collections_editor_back">Nazaj</string>
     <string name="collections_editor_edit_collection">Uredi zbirko</string>
-       <string name="collections_editor_source_count">%1$d vir(-ov)</string>
-    <string name="collections_editor_sources">Viri</string>
     <string name="collections_editor_source">Vir</string>
     <string name="collections_editor_view_mode_tabs">Zavihki</string>
     <string name="collections_editor_view_mode_rows">Vrstice</string>
@@ -1672,10 +1666,6 @@
     <string name="collection_editor_resolved_trakt_list">Razrešen seznam Trakt</string>
     <string name="collection_editor_trakt_search_placeholder">Išči naslov, URL Trakt ali ID seznama</string>
     <string name="collection_editor_trakt_name_placeholder">Vikend ogled, Zmagovalci nagrad</string>
-    <string name="collection_editor_folder_count_one">%1$d element</string>
-    <string name="collection_editor_folder_count_other">%1$d elementov</string>
-    <string name="collections_editor_delete_folder_title">Izbrišem mapo?</string>
-    <string name="collections_editor_delete_folder_subtitle">To bo trajno izbrisalo \"%1$s\" in njeno vsebino.</string>
     <string name="folder_error_addon_source">Tega kataloga ni bilo mogoče naložiti. Preverite, ali je njegov dodatek nameščen in dosegljiv, nato poskusite znova.</string>
     <string name="folder_error_addon_missing">Dodatek tega kataloga ni nameščen. Namestite ga v razdelku Dodatki ali odstranite ta vir iz mape.</string>
     <string name="folder_error_tmdb_source">Vsebine iz TMDB ni bilo mogoče naložiti. Preverite povezavo, nato poskusite znova.</string>

@@ -1571,7 +1571,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Колекции</string>
     <string name="collections_delete_confirm_title">Изтрий колекцията?</string>
-    <string name="collections_delete_confirm">Изтрий</string>
     <string name="collections_delete_confirm_subtitle">Това ще изтрие завинаги „%1$s“. Това не може да се отмени.</string>
     <string name="collections_empty">Все още няма колекции. Създай една, за да организираш каталозите си.</string>
     <string name="collections_new">Нова колекция</string>
@@ -1602,9 +1601,7 @@
     <string name="collections_fetch_url">Извлечи URL</string>
     <string name="collections_fetching">Извличане…</string>
     <string name="collections_valid_json">Валиден JSON</string>
-    <string name="collections_valid_summary">%1$d колекция(и), %2$d папка(и)</string>
     <string name="collections_confirm_import">Потвърди импортирането</string>
-    <string name="collections_folder_count">%1$d папка(и)</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Заглавие на реда</string>
@@ -1635,10 +1632,7 @@
     <string name="collections_editor_select_catalogs">Избери каталози</string>
     <string name="collections_editor_done">Готово</string>
     <string name="collections_editor_choose_emoji">Избери емоджи</string>
-    <string name="collections_editor_back">Назад</string>
     <string name="collections_editor_edit_collection">Редактирай колекция</string>
-    <string name="collections_editor_source_count">%1$d източник(а)</string>
-    <string name="collections_editor_sources">Източници</string>
     <string name="collections_editor_source">Източник</string>
     <string name="collections_editor_view_mode_tabs">Раздели</string>
     <string name="collections_editor_view_mode_rows">Редове</string>
@@ -1811,10 +1805,6 @@
     <string name="collection_editor_resolved_trakt_list">Разрешен Trakt списък</string>
     <string name="collection_editor_trakt_search_placeholder">Търси заглавие, Trakt URL или list ID</string>
     <string name="collection_editor_trakt_name_placeholder">Weekend Watch, Award Winners</string>
-    <string name="collection_editor_folder_count_one">%1$d елемент</string>
-    <string name="collection_editor_folder_count_other">%1$d елемента</string>
-    <string name="collections_editor_delete_folder_title">Изтрий папката?</string>
-    <string name="collections_editor_delete_folder_subtitle">Това ще изтрие завинаги „%1$s“ и съдържанието ѝ.</string>
     <string name="folder_error_addon_source">Не успяхме да заредим този каталог. Провери дали добавката му е инсталирана и онлайн, след което опитай отново.</string>
     <string name="folder_error_addon_missing">Добавката на този каталог не е инсталирана. Инсталирай я от Добавки или премахни този източник от папката.</string>
     <string name="folder_error_tmdb_source">Не успяхме да заредим това от TMDB. Провери връзката си, след което опитай отново.</string>

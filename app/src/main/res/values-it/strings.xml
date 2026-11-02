@@ -1833,7 +1833,6 @@
     <!-- Collection Management -->
 <string name="collections_header">Collezioni</string>
 <string name="collections_delete_confirm_title">Eliminare la collezione?</string>
-<string name="collections_delete_confirm">Elimina</string>
 <string name="collections_delete_confirm_subtitle">Questo eliminerà permanentemente \"%1$s\". L\'azione è irreversibile.</string>
 <string name="collections_empty">Nessuna collezione. Creane una per organizzare i tuoi cataloghi.</string>
 <string name="collections_new">Nuova collezione</string>
@@ -1864,9 +1863,7 @@
 <string name="collections_fetch_url">Recupera URL</string>
 <string name="collections_fetching">Recupero in corso…</string>
 <string name="collections_valid_json">JSON valido</string>
-<string name="collections_valid_summary">%1$d collezione(i), %2$d cartella(e)</string>
 <string name="collections_confirm_import">Conferma importazione</string>
-<string name="collections_folder_count">%1$d cartella(e)</string>
 
     <!-- Collection Editor -->
 <string name="collections_editor_row_title">Titolo riga</string>
@@ -1897,10 +1894,7 @@
 <string name="collections_editor_select_catalogs">Seleziona cataloghi</string>
 <string name="collections_editor_done">Fatto</string>
 <string name="collections_editor_choose_emoji">Scegli Emoji</string>
-<string name="collections_editor_back">Indietro</string>
 <string name="collections_editor_edit_collection">Modifica collezione</string>
-<string name="collections_editor_source_count">%1$d sorgente/i</string>
-<string name="collections_editor_sources">Sorgenti</string>
 <string name="collections_editor_source">Sorgente</string>
 <string name="collections_editor_view_mode_tabs">Schede</string>
 <string name="collections_editor_view_mode_rows">Righe</string>
@@ -2080,10 +2074,6 @@
 <string name="collection_editor_resolved_trakt_list">Lista Trakt risolta</string>
 <string name="collection_editor_trakt_search_placeholder">Cerca titolo, URL Trakt o ID lista</string>
 <string name="collection_editor_trakt_name_placeholder">Cose da vedere nel weekend, Vincitori di premi</string>
-<string name="collection_editor_folder_count_one">%1$d elemento</string>
-<string name="collection_editor_folder_count_other">%1$d elementi</string>
-<string name="collections_editor_delete_folder_title">Eliminare la cartella?</string>
-<string name="collections_editor_delete_folder_subtitle">Questo eliminerà permanentemente \"%1$s\" e tutto il suo contenuto.</string>
 <string name="folder_error_addon_source">Impossibile caricare questo catalogo. Verifica che il suo addon sia installato e online, poi riprova.</string>
 <string name="folder_error_addon_missing">L’addon di questo catalogo non è installato. Installalo da Addon o rimuovi questa sorgente dalla cartella.</string>
 <string name="folder_error_tmdb_source">Impossibile caricare questo contenuto da TMDB. Controlla la connessione, poi riprova.</string>

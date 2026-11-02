@@ -1215,9 +1215,7 @@
     <string name="collections_fetch_url">Preuzmi preko URL-a</string>
     <string name="collections_fetching">Preuzimanje…</string>
     <string name="collections_valid_json">Ispravan JSON</string>
-    <string name="collections_valid_summary">%1$d kolekcija/e, %2$d folder(a)</string>
     <string name="collections_confirm_import">Potvrdi Uvoz</string>
-    <string name="collections_folder_count">%1$d folder(a)</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Naslov Reda</string>
@@ -1247,7 +1245,6 @@
     <string name="collections_editor_select_catalogs">Odaberi Kataloge</string>
     <string name="collections_editor_done">Gotovo</string>
     <string name="collections_editor_choose_emoji">Odaberi Emoji</string>
-    <string name="collections_editor_back">Nazad</string>
     <string name="collections_editor_edit_collection">Uredi Kolekciju</string>
     <string name="collections_editor_view_mode_tabs">Tabovi</string>
     <string name="collections_editor_view_mode_rows">Redovi</string>

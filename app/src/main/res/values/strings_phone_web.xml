@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The phone pages served by the phone hub (Settings > Configure from phone), shown in the TV's language. -->
+<resources>
+    <!-- The BCP 47 tag of this file's language (for example "de" or "pt-BR"), used as the phone page's lang attribute. -->
+    <string name="phone_web_lang">en</string>
+    <string name="phone_web_tv_unreachable">Can’t reach the TV. Open Configure from phone on the TV, then scan the new code.</string>
+    <string name="phone_web_tv_failed">The TV couldn’t do that. Try again.</string>
+    <string name="phone_web_back">All settings</string>
+    <string name="phone_web_saved">Saved</string>
+    <!-- Quoted so Android keeps the trailing space. -->
+    <string name="phone_web_list_separator">", "</string>
+
+    <!-- Landing page -->
+    <string name="phone_web_landing_title">Fetch on your TV</string>
+    <string name="phone_web_landing_hint">If this page stops responding, open Configure from phone on the TV and scan the new code.</string>
+    <string name="phone_web_card_remote">Remote and keyboard</string>
+    <string name="phone_web_card_remote_sub">D-pad, OK, Back, play/pause, and typing into the TV</string>
+    <string name="phone_web_card_addons">Addons</string>
+    <string name="phone_web_card_addons_sub">Add a stream addon by its link. The TV asks before installing it</string>
+    <string name="phone_web_card_accounts">Accounts</string>
+    <string name="phone_web_card_accounts_sub">MDBList, Trakt, Simkl and media servers</string>
+    <string name="phone_web_card_ranking">Stream ranking</string>
+    <string name="phone_web_card_ranking_sub">Resolution, size, codecs and keywords for Best match</string>
+    <string name="phone_web_card_profiles">Move a profile</string>
+    <string name="phone_web_card_profiles_sub">Save a profile to a file, or add one from another TV</string>
+    <string name="phone_web_card_badges">Stream badges</string>
+    <string name="phone_web_card_badges_sub">Import and choose badge sets</string>
+    <string name="phone_web_card_posters">Custom posters</string>
+    <string name="phone_web_card_posters_sub">Poster URL pattern</string>
+    <string name="phone_web_on_tv_heading">On the TV</string>
+    <string name="phone_web_on_tv_body">Removing and reordering addons, catalog order and collections change what the TV loads, so they have screens of their own. Open them on the TV and use their own phone code.</string>
+
+    <!-- Remote -->
+    <string name="phone_web_remote_title">Remote</string>
+    <string name="phone_web_key_up">Up</string>
+    <string name="phone_web_key_down">Down</string>
+    <string name="phone_web_key_left">Left</string>
+    <string name="phone_web_key_right">Right</string>
+    <string name="phone_web_key_ok">OK</string>
+    <string name="phone_web_key_back">Back</string>
+    <string name="phone_web_key_play_pause">Play or pause</string>
+    <string name="phone_web_key_rewind">Rewind</string>
+    <string name="phone_web_key_forward">Forward</string>
+    <string name="phone_web_key_delete">Delete</string>
+    <string name="phone_web_keyboard_heading">Keyboard</string>
+    <string name="phone_web_keyboard_label">Type here, then send it to the text field selected on the TV</string>
+    <string name="phone_web_type_on_tv">Type on TV</string>
+    <string name="phone_web_search_on_tv">Search on TV</string>
+    <string name="phone_web_search_settings">Search settings</string>
+    <string name="phone_web_sent">Sent</string>
+    <string name="phone_web_searching_on_tv">Searching on the TV</string>
+    <string name="phone_web_searching_settings">Searching settings on the TV</string>
+
+    <!-- Accounts -->
+    <string name="phone_web_accounts_title">Accounts</string>
+    <string name="phone_web_accounts_load_failed">Couldn’t load your accounts. Reload this page.</string>
+    <string name="phone_web_mdblist_heading">MDBList ratings</string>
+    <string name="phone_web_mdblist_key">API key</string>
+    <string name="phone_web_mdblist_save">Save key</string>
+    <string name="phone_web_mdblist_key_set">A key is saved.</string>
+    <string name="phone_web_checking">Checking…</string>
+    <string name="phone_web_trackers_heading">Trakt and Simkl</string>
+    <string name="phone_web_trakt_sign_in">Sign in to Trakt</string>
+    <string name="phone_web_simkl_sign_in">Sign in to Simkl</string>
+    <string name="phone_web_starting">Starting…</string>
+    <string name="phone_web_connected_list">Connected: %1$s</string>
+    <string name="phone_web_tracker_open">Open %1$s and enter:</string>
+    <string name="phone_web_tracker_waiting">Waiting for approval. The TV finishes signing in by itself.</string>
+    <string name="phone_web_server_heading">Media server</string>
+    <string name="phone_web_server_type">Server</string>
+    <string name="phone_web_server_address">Address</string>
+    <string name="phone_web_server_username">Username</string>
+    <string name="phone_web_server_password">Password</string>
+    <string name="phone_web_server_connect">Connect</string>
+    <string name="phone_web_connecting">Connecting…</string>
+    <string name="phone_web_connected">Connected</string>
+
+    <!-- Stream ranking -->
+    <string name="phone_web_ranking_title">Stream ranking</string>
+    <string name="phone_web_ranking_intro">Used by Best match to pick a stream. Changes apply to the profile that is active on the TV.</string>
+    <string name="phone_web_ranking_load_failed">Couldn’t load the current rules, so they can’t be saved. Reload this page.</string>
+    <string name="phone_web_ranking_any">Any</string>
+    <string name="phone_web_ranking_preferred_resolution">Preferred resolution</string>
+    <string name="phone_web_ranking_max_resolution">Highest resolution</string>
+    <string name="phone_web_ranking_min_resolution">Lowest resolution</string>
+    <string name="phone_web_ranking_max_size">Largest file (GB, empty for no limit)</string>
+    <string name="phone_web_ranking_preferred_max_size">Prefer files up to (GB)</string>
+    <string name="phone_web_ranking_prefer_hdr">Prefer HDR</string>
+    <string name="phone_web_ranking_exclude_hdr">Never pick HDR</string>
+    <string name="phone_web_ranking_exclude_dv">Never pick Dolby Vision</string>
+    <string name="phone_web_ranking_exclude_cam">Skip CAM and telesync</string>
+    <string name="phone_web_ranking_exclude_3d">Skip 3D</string>
+    <string name="phone_web_ranking_prefer_cached">Prefer cached debrid results</string>
+    <string name="phone_web_ranking_prefer_own_library">Prefer my media servers</string>
+    <string name="phone_web_ranking_drop_undecodable">Skip formats this TV can’t play</string>
+    <string name="phone_web_ranking_preferred_keywords">Preferred keywords (one per line)</string>
+    <string name="phone_web_ranking_excluded_keywords">Excluded keywords (one per line)</string>
+    <string name="phone_web_ranking_min_size">Smallest file (GB, empty for no minimum)</string>
+    <string name="phone_web_ranking_preferred_languages">Preferred audio languages (first ticked ranks highest)</string>
+    <string name="phone_web_ranking_required_languages">Only languages (empty for any)</string>
+    <string name="phone_web_ranking_excluded_languages">Skip languages</string>
+    <string name="phone_web_ranking_excluded_resolutions">Skip resolutions</string>
+    <string name="phone_web_ranking_excluded_sources">Skip release types</string>
+    <string name="phone_web_ranking_excluded_codecs">Skip video codecs</string>
+    <string name="phone_web_ranking_excluded_audio">Skip audio formats (when a release has nothing else)</string>
+    <string name="phone_web_ranking_preferred_groups">Preferred release groups (one per line)</string>
+    <string name="phone_web_ranking_excluded_groups">Skipped release groups (one per line)</string>
+    <string name="phone_web_ranking_preferred_addons">Preferred addons (one per line)</string>
+    <string name="phone_web_ranking_max_results">Results to keep (0 for all)</string>
+    <string name="phone_web_ranking_max_per_resolution">Results per resolution (0 for all)</string>
+    <string name="phone_web_ranking_max_per_source">Results per release type (0 for all)</string>
+    <string name="phone_web_save">Save</string>
+
+    <!-- Move a profile -->
+    <string name="phone_web_profiles_title">Move a profile</string>
+    <string name="phone_web_profiles_intro">A profile file holds the profile’s name and avatar, its settings, its library, and what it has watched. Sign-ins, API keys, PINs and parental limits stay on this TV.</string>
+    <string name="phone_web_profiles_save_heading">Save from this TV</string>
+    <string name="phone_web_profiles_add_heading">Add to this TV</string>
+    <string name="phone_web_profiles_file_label">A profile file saved from another TV</string>
+    <string name="phone_web_profiles_add">Add profile</string>
+    <string name="phone_web_profiles_save_as_file">Save as a file</string>
+    <string name="phone_web_profiles_none">No profile can be saved. A profile with a PIN has to have it removed on the TV first.</string>
+    <string name="phone_web_profiles_load_failed">Couldn’t load this TV’s profiles. Reload this page.</string>
+    <string name="phone_web_profiles_choose_file">Choose a profile file first.</string>
+    <string name="phone_web_profiles_adding">Adding…</string>
+    <string name="phone_web_profiles_not_a_profile">That file isn’t a Fetch profile.</string>
+    <string name="phone_web_profiles_added">Added</string>
+
+    <!-- Addons -->
+    <string name="phone_web_addons_title">Addons</string>
+    <string name="phone_web_addons_intro">Streams come from addons. Paste an addon’s link (it usually ends in manifest.json) and the TV shows what it is and asks before installing it. Debrid services such as Real-Debrid, Premiumize and TorBox are signed in on the addon’s own setup page.</string>
+    <string name="phone_web_addons_link_label">Addon link</string>
+    <string name="phone_web_addons_send">Send to TV</string>
+    <string name="phone_web_addons_suggestions">Suggestions</string>
+    <string name="phone_web_addons_on_tv">On this TV</string>
+    <string name="phone_web_addons_none">No addons yet.</string>
+    <!-- %1$s is the list of installed addon names, %2$s is phone_web_addons_streams or phone_web_addons_no_streams. -->
+    <string name="phone_web_addons_installed">%1$s. %2$s</string>
+    <plurals name="phone_web_addons_streams">
+        <item quantity="one">%d of them gives streams.</item>
+        <item quantity="other">%d of them give streams.</item>
+    </plurals>
+    <string name="phone_web_addons_no_streams">None of them gives streams yet.</string>
+    <string name="phone_web_addons_load_failed">Couldn’t load this TV’s addons. Reload this page.</string>
+    <string name="phone_web_addons_setup_required">%1$s has to be set up before it can be installed. Open its setup page, finish there, then paste the link it gives you above and send it again.</string>
+    <string name="phone_web_addons_setup_optional">%1$s can also be set up first, for example to sign in to a debrid service. Open its setup page, then send the link it gives you instead.</string>
+    <string name="phone_web_addons_this_addon">This addon</string>
+    <string name="phone_web_addons_open_setup">Open setup page</string>
+    <string name="phone_web_addons_confirm_named">Confirm %1$s on the TV.</string>
+    <string name="phone_web_addons_confirm">Confirm the addon on the TV.</string>
+    <string name="phone_web_addons_installed_named">%1$s is installed.</string>
+    <string name="phone_web_addons_installed_generic">The addon is installed.</string>
+    <string name="phone_web_addons_declined">Declined on the TV.</string>
+    <string name="phone_web_addons_needs_setup">This addon needs setting up first.</string>
+    <string name="phone_web_addons_failed">Couldn’t add the addon.</string>
+    <string name="phone_web_addons_paste_first">Paste an addon link first.</string>
+    <string name="phone_web_addons_reading">Reading the addon…</string>
+
+    <!-- Messages the TV sends back to the phone pages -->
+    <string name="phone_web_error_invalid_request">That request didn’t make sense to the TV. Reload this page.</string>
+    <string name="phone_web_error_busy">The TV is busy. Try again.</string>
+    <string name="phone_web_error_sign_in">Couldn’t start sign-in.</string>
+    <string name="phone_web_error_link_too_long">That link is too long.</string>
+    <string name="phone_web_error_not_addon_link">That isn’t an addon link. It starts with https:// and usually ends in manifest.json.</string>
+    <string name="phone_web_error_request_gone">The TV no longer has this request. Send it again.</string>
+    <string name="phone_web_error_export">Couldn’t save the profile to a file.</string>
+    <string name="phone_web_error_save">Couldn’t save.</string>
+    <string name="phone_web_error_too_large">That’s too large for the TV.</string>
+    <string name="phone_web_mdblist_rejected">That key wasn’t accepted by MDBList.</string>
+    <string name="phone_web_mdblist_removed">Key removed.</string>
+    <string name="phone_web_mdblist_saved">Key saved.</string>
+    <string name="phone_web_server_unknown">Unknown server type.</string>
+    <string name="phone_web_server_connected">Connected to %1$s.</string>
+    <string name="phone_web_addon_read_only">This profile uses the main profile’s addons. Add it from the main profile instead.</string>
+    <string name="phone_web_addon_open_screen">Open Settings → Configure from phone on the TV first, so it can ask before installing.</string>
+    <string name="phone_web_addon_unreadable">Couldn’t read that addon.</string>
+    <string name="phone_web_addon_unreadable_reason">Couldn’t read that addon: %1$s</string>
+    <string name="phone_web_addon_no_answer">The addon didn’t answer. Check the link and try again.</string>
+    <string name="phone_web_addon_needs_setup">%1$s has to be set up first.</string>
+    <string name="phone_web_addon_already_installed">%1$s is already on this TV.</string>
+    <string name="phone_web_addon_screen_closed">The TV closed the phone code screen. Open it again, then send the link again.</string>
+    <string name="phone_web_addon_busy">The TV is installing another addon. Try again in a moment.</string>
+    <string name="phone_web_addon_install_failed">Couldn’t install %1$s.</string>
+    <string name="phone_web_profile_added">Added %1$s. Choose it on the TV from the profile picker.</string>
+    <string name="phone_web_profile_add_failed">Couldn’t add the profile.</string>
+</resources>

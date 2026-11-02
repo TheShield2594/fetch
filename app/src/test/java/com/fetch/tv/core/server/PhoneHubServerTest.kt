@@ -13,8 +13,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 import java.nio.charset.StandardCharsets
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35], application = android.app.Application::class)
 class PhoneHubServerTest {
     private class FakeActions : PhoneHubActions {
         val commands = mutableListOf<RemoteCommand>()
@@ -64,7 +70,9 @@ class PhoneHubServerTest {
 
         val proposedUrls = mutableListOf<String>()
 
-        override suspend fun installedAddons() = listOf(PhoneHubAddon("Cinemeta", streams = false))
+        var installed = listOf(PhoneHubAddon("Cinemeta", streams = false))
+
+        override suspend fun installedAddons() = installed
 
         override fun addonSuggestions() =
             listOf(PhoneHubAddonSuggestion("Subtitles", "Many languages", "https://subs.example/manifest.json"))
@@ -90,6 +98,7 @@ class PhoneHubServerTest {
     private val actions = FakeActions()
     private val server = PhoneHubServer(
         actions = actions,
+        resources = { RuntimeEnvironment.getApplication().resources },
         sections = mapOf(
             PhoneHubServer.SECTION_POSTERS to CustomPosterConfigServer(
                 currentPatternProvider = { "https://img/{imdb}.jpg" },
@@ -218,6 +227,32 @@ class PhoneHubServerTest {
         assertTrue(json.contains("\"name\":\"Cinemeta\""))
         assertTrue(json.contains("\"streams\":false"))
         assertTrue(json.contains("https://subs.example/manifest.json"))
+    }
+
+    @Test
+    fun `the installed list is one sentence the TV wrote`() {
+        val json = body(server.serve(FakeHttpSession("/api/addons")))
+        assertTrue(json.contains("\"summary\":\"Cinemeta. None of them gives streams yet.\""))
+
+        actions.installed = listOf(PhoneHubAddon("Cinemeta", streams = false), PhoneHubAddon("Torrentio", streams = true))
+        val withStreams = body(server.serve(FakeHttpSession("/api/addons")))
+        assertTrue(withStreams.contains("\"summary\":\"Cinemeta, Torrentio. 1 of them gives streams.\""))
+    }
+
+    @Test
+    fun `pages come from string resources`() {
+        listOf("/", "/remote", "/accounts", "/ranking", "/profiles", "/addons").forEach { uri ->
+            val page = body(server.serve(FakeHttpSession(uri)))
+            assertTrue(uri, page.contains("<html lang=\"en"))
+            // Status text uses the ellipsis character, like the TV's own strings.
+            // Strings are emitted as JSON literals, so one ending in "..." is followed by a double quote.
+            assertFalse(uri, page.contains("...\""))
+        }
+        val ranking = body(server.serve(FakeHttpSession("/ranking")))
+        assertTrue(ranking.contains("<legend>Skip languages</legend>"))
+        assertTrue(ranking.contains("Skip formats this TV can’t play"))
+        val accounts = body(server.serve(FakeHttpSession("/accounts")))
+        assertTrue(accounts.contains("autocomplete=\"current-password\""))
     }
 
     @Test

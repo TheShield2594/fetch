@@ -49,6 +49,11 @@ Everything is kept in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`):
 | `settings.json` | Settings: stream selection rules, theme, layout, home catalog pins |
 | `library.json` | Titles saved with Add to library |
 | `progress.json` | Where you stopped each title (Continue Watching) and what you finished |
+| `tracking.json` | Trakt and Simkl sign-ins (owner-readable only) |
+| `profiles.json` | The profiles, and which one opened last |
+
+These are the main profile's. Every other profile keeps its own copies in `profiles/<id>/`
+(its `addons.json` too, unless it uses the main profile's addons).
 
 ## What works
 
@@ -68,6 +73,20 @@ Everything is kept in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`):
   Sort, Genre, Year and Watched filters. It is local; Trakt and Simkl lists aren't on desktop.
 - **Discover**: pick a type, catalog and genre and browse the catalog as a grid that loads more
   as you scroll. It sits in Search until you type, as on TV, or in the sidebar.
+- **Profiles**: each with its own Library, Continue Watching, settings and Trakt/Simkl accounts,
+  and optionally its own addons. "Who's watching?" at start-up when Remember Last Profile is
+  off; the avatar at the bottom of the sidebar switches.
+- **Trakt and Simkl** (Settings › Tracking): sign in with a code, as on TV. What you play in mpv
+  is scrobbled (stopping at 80% or more marks it watched), and Fetch pulls their Continue
+  Watching (resumed by percentage), watched history and watchlist (a Library source). Add to
+  library also adds to the Trakt watchlist and Simkl Plan to Watch; removing only removes from
+  Trakt, since Simkl's remove also clears that title's history there. Builds need the TV app's
+  client IDs: `TRAKT_CLIENT_ID`, `TRAKT_CLIENT_SECRET` and `SIMKL_CLIENT_ID` from the environment
+  (the release workflow passes the repository secrets) or the root `local.properties`.
+- **Player settings** passed to mpv: fullscreen, hardware decoding, extra mpv options; preferred
+  audio language and passthrough; subtitle language, when to show them, size and background,
+  and subtitles from your addons (such as OpenSubtitles) added as subtitle files.
+- **Up Next**: when an episode plays to its end in mpv, the next episode's best match starts.
 - **Settings**: Stream Selection (quality, codec, file size, audio languages, skipped release
   types, audio formats and release groups, result limits), Content & Discovery (Addons, and
   Home catalogs to pin or hide rows), Appearance (the TV app's color themes), Layout (Continue
@@ -112,9 +131,10 @@ Roughly in order:
 2. **Move more of the data layer into `shared`.** The addon, catalog, meta and stream repositories
    need their Android `Context` (strings, DataStore) and Hilt bindings put behind interfaces first.
    Then both apps get the same caching, addon health tracking and best-match logic.
-3. **Accounts and sync**: Trakt and Simkl (Library lists, watch history, scrobbling) and the
-   sync server, so desktop and TV share Continue Watching.
-4. **More settings**: profiles, the stream badge editor, subtitles and audio preferences passed
-   to mpv, and media servers (Jellyfin, Emby, Plex).
-5. **More packages**: Flatpak (Flathub) and AppImage, then Windows (`.msi`) and macOS (`.dmg`)
+3. **Media servers** (Jellyfin, Emby, Plex): your own library as sources and rows.
+4. **The sync server** (Settings › Account on TV), so desktop and TV share profiles, addons and
+   Continue Watching without Trakt.
+5. **More settings**: the stream badge editor, skip intro (needs the embedded player), PINs
+   and limits on profiles.
+6. **More packages**: Flatpak (Flathub) and AppImage, then Windows (`.msi`) and macOS (`.dmg`)
    from the same `nativeDistributions` block.

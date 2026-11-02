@@ -58,8 +58,11 @@ class ContinueWatchingActions(
 )
 
 /** The 0–1 progress through [entry]; 0 for a Next Up card. */
-fun ProgressEntry.fraction(): Float =
-    if (upNext || durationMs <= 0) 0f else (positionMs.toFloat() / durationMs).coerceIn(0f, 1f)
+fun ProgressEntry.fraction(): Float = when {
+    upNext -> 0f
+    durationMs > 0 -> (positionMs.toFloat() / durationMs).coerceIn(0f, 1f)
+    else -> ((remotePercent ?: 0f) / 100f).coerceIn(0f, 1f)
+}
 
 /** "Resume S2 E5", "Resume", or "Play S2 E6" for a Next Up card, as on the TV hero. */
 fun ProgressEntry.playLabel(): String {

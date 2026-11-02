@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 // Fetch for desktop: a Compose Multiplatform (JVM) app built on :shared. Linux first;
@@ -33,10 +34,26 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-// Settings › About shows the version.
+// Trakt and Simkl client IDs, as for the TV app: an environment variable (the release workflow
+// passes the repository secrets) or the root local.properties. Blank leaves that sign-in hidden.
+val localProps = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use(::load)
+}
+fun credential(name: String, default: String = ""): String =
+    System.getenv(name)?.takeIf { it.isNotBlank() } ?: localProps.getProperty(name)?.takeIf { it.isNotBlank() } ?: default
+
+val resourceValues = mapOf(
+    "version" to appVersionName,
+    "traktClientId" to credential("TRAKT_CLIENT_ID"),
+    "traktClientSecret" to credential("TRAKT_CLIENT_SECRET"),
+    "simklClientId" to credential("SIMKL_CLIENT_ID"),
+    "simklAppName" to credential("SIMKL_APP_NAME", "fetch")
+)
+
+// Settings › About shows the version; the accounts read their client IDs from here.
 tasks.processResources {
-    inputs.property("version", appVersionName)
-    filesMatching("fetch-desktop.properties") { expand("version" to appVersionName) }
+    inputs.properties(resourceValues)
+    filesMatching("fetch-desktop.properties") { expand(resourceValues) }
 }
 
 dependencies {

@@ -57,7 +57,11 @@ data class ProgressEntry(
     /** Set when the user removed the title from Continue Watching; cleared by watching again. */
     val hidden: Boolean = false,
     /** The next episode after one watched to the end, not started yet ("Next Up"). */
-    val upNext: Boolean = false
+    val upNext: Boolean = false,
+    /** 0–100 from Trakt or Simkl, which report a percentage, not a position. */
+    val remotePercent: Float? = null,
+    /** "trakt" or "simkl" when the entry came from that account. */
+    val source: String? = null
 ) {
     fun toWatchProgress() = WatchProgress(
         contentId = contentId,

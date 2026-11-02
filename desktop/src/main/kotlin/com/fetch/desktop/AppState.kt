@@ -7,7 +7,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.fetch.desktop.data.AddonClient
 import com.fetch.desktop.data.AddonStore
+import com.fetch.desktop.data.DesktopProfile
 import com.fetch.desktop.data.DesktopSettings
+import com.fetch.desktop.data.addonsDir
+import com.fetch.desktop.data.profileDir
 import com.fetch.desktop.data.JsonFile
 import com.fetch.desktop.data.LibraryEntry
 import com.fetch.desktop.data.LibraryFile
@@ -21,7 +24,11 @@ import com.fetch.desktop.data.progressFile
 import com.fetch.desktop.data.settingsFile
 import com.fetch.desktop.data.toPreview
 import com.fetch.desktop.player.ExternalPlayer
+import com.fetch.desktop.data.SubtitleMode
+import com.fetch.desktop.player.MpvArgs
 import com.fetch.desktop.player.MpvProgress
+import com.fetch.desktop.tracking.ScrobbleAction
+import com.fetch.desktop.tracking.TrackingStore
 import com.fetch.tv.core.addon.AddonUrls
 import com.fetch.tv.core.addon.needsConfiguration
 import com.fetch.tv.core.streams.ranking.RankedStream
@@ -44,15 +51,23 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.util.Locale
 
 /** The Settings pages, in rail order under their group headings (the TV app's groups). */
 enum class SettingsPage(val label: String, val group: String, val parent: SettingsPage? = null) {
+    PROFILES("Profiles", "People"),
+    PLAYER("Player", "Playback"),
     STREAM_SELECTION("Stream Selection", "Playback"),
+    UP_NEXT("Up Next", "Playback"),
+    AUDIO("Audio", "Playback"),
+    SUBTITLES("Subtitles", "Playback"),
     CONTENT_DISCOVERY("Content & Discovery", "Sources"),
     ADDONS("Addons", "Sources", parent = CONTENT_DISCOVERY),
     HOME_CATALOGS("Home catalogs", "Sources", parent = CONTENT_DISCOVERY),
     APPEARANCE("Appearance", "Home"),
     LAYOUT("Layout", "Home"),
+    TRACKING("Tracking", "Accounts"),
     ABOUT("About", "System");
 
     /** The rail entry this page belongs under. */
@@ -64,7 +79,7 @@ sealed interface Screen {
     data object Search : Screen
     data object Discover : Screen
     data object Library : Screen
-    data class Settings(val page: SettingsPage = SettingsPage.STREAM_SELECTION) : Screen
+    data class Settings(val page: SettingsPage = SettingsPage.PLAYER) : Screen
     /**
      * [autoPlay] starts the best match as soon as the sources are in (Play on the home hero or a
      * Continue Watching card). [videoId] picks the episode, for Continue Watching.
@@ -123,11 +138,14 @@ data class SourcesState(
  */
 class AppState(
     private val scope: CoroutineScope,
+    val profiles: ProfilesState = ProfilesState(),
+    /** The profile this state belongs to; switching profiles makes a new [AppState]. */
+    val profile: DesktopProfile = profiles.active ?: profiles.profiles.first(),
     private val client: AddonClient = AddonClient.create(),
-    private val store: AddonStore = AddonStore(),
-    private val settingsStore: JsonFile<DesktopSettings> = settingsFile(),
-    private val libraryStore: JsonFile<LibraryFile> = libraryFile(),
-    private val progressStore: JsonFile<ProgressFile> = progressFile()
+    private val store: AddonStore = AddonStore(File(addonsDir(profile), "addons.json")),
+    private val settingsStore: JsonFile<DesktopSettings> = settingsFile(profileDir(profile)),
+    private val libraryStore: JsonFile<LibraryFile> = libraryFile(profileDir(profile)),
+    private val progressStore: JsonFile<ProgressFile> = progressFile(profileDir(profile))
 ) {
     var screen: Screen by mutableStateOf(Screen.Home)
         private set
@@ -175,8 +193,25 @@ class AppState(
     /** A one-line message for the snackbar, cleared once shown. */
     var message: String? by mutableStateOf(null)
 
+    /** Trakt and Simkl for this profile. */
+    val tracking = TrackingState(scope, TrackingStore(File(profileDir(profile), "tracking.json")), onMessage = { message = it })
+
+    /** Watchlists from the connected accounts, shown as Library sources. */
+    var remoteLists: Map<TrackingService, List<LibraryEntry>> by mutableStateOf(emptyMap())
+        private set
+
     fun start() {
         scope.launch { reloadAddons() }
+        scope.launch { syncTracking() }
+    }
+
+    /** Pulls Continue Watching, watched history and watchlists from Trakt and Simkl. */
+    fun syncTracking() {
+        scope.launch {
+            val snapshot = tracking.sync() ?: return@launch
+            saveProgress(WatchHistory.mergeRemote(progress, snapshot.playback, snapshot.watchedIds))
+            remoteLists = snapshot.watchlists
+        }
     }
 
     // --- Navigation ---
@@ -384,7 +419,7 @@ class AppState(
         progress.entries.firstOrNull { it.contentId == contentId && !it.hidden }
 
     fun resumeEntry(videoId: String): ProgressEntry? =
-        progress.entries.firstOrNull { it.videoId == videoId && !it.upNext && WatchHistory.resumeSeconds(progress, videoId) != null }
+        progress.entries.firstOrNull { it.videoId == videoId && !it.upNext && WatchHistory.resumeStart(progress, videoId) != null }
 
     fun openContinueWatching(entry: ProgressEntry, play: Boolean) {
         navigate(Screen.Detail(entry.toPreview(), autoPlay = play, videoId = entry.videoId))
@@ -416,6 +451,7 @@ class AppState(
     fun toggleLibrary(preview: MetaPreview, meta: Meta? = null) {
         if (isInLibrary(preview.id)) {
             library.removeAll { it.id == preview.id }
+            tracking.setWatchlisted(preview, on = false)
             message = "Removed from library"
         } else {
             val enriched = if (meta == null) preview else preview.copy(
@@ -429,7 +465,9 @@ class AppState(
                 genres = meta.genres.ifEmpty { preview.genres }
             )
             library.add(LibraryEntry.from(enriched, addedAt = System.currentTimeMillis()))
-            message = "Added to library"
+            tracking.setWatchlisted(enriched, on = true)
+            message = if (tracking.connected.isEmpty()) "Added to library"
+            else "Added to library and ${tracking.connected.joinToString(" and ") { it.watchlistName }}"
         }
         try {
             libraryStore.save(LibraryFile(library.toList()))
@@ -602,35 +640,96 @@ class AppState(
             video = context.video,
             episodes = meta?.videos.orEmpty()
         )
-        val resume = WatchHistory.resumeSeconds(progress, context.videoId)
-        when (val result = ExternalPlayer.play(ranked.stream, context.label, startSeconds = resume)) {
-            is ExternalPlayer.Result.Started -> {
-                message = if (resume != null) "Resuming in ${result.player}" else "Opening in ${result.player}"
-                followProgress(result, target)
+        launchPlayback(ranked.stream, context.label, target)
+    }
+
+    /**
+     * Starts mpv with the player settings and any addon subtitles, resuming from the saved
+     * position, then follows it for Continue Watching and Up Next.
+     */
+    private fun launchPlayback(stream: Stream, label: String, target: PlaybackTarget) {
+        scope.launch {
+            val player = settings.player
+            val resume = WatchHistory.resumeStart(progress, target.videoId)
+            val subtitles = if (player.forwardAddonSubtitles && player.subtitleMode != SubtitleMode.OFF) {
+                addonSubtitles(target, player.subtitleLanguage ?: Locale.getDefault().language)
+            } else {
+                emptyList()
             }
-            is ExternalPlayer.Result.Failed -> message = result.message
+            val options = MpvArgs.build(player, subtitles)
+            when (val result = ExternalPlayer.play(stream, label, start = resume, options = options)) {
+                is ExternalPlayer.Result.Started -> {
+                    message = if (resume != null) "Resuming in ${result.player}" else "Opening in ${result.player}"
+                    followProgress(result, target)
+                }
+                is ExternalPlayer.Result.Failed -> message = result.message
+            }
         }
     }
 
-    /** Saves mpv's position as it plays, for Continue Watching and resume. */
+    /** Up to three addon subtitles in [language], best first as the addons sent them. */
+    private suspend fun addonSubtitles(target: PlaybackTarget, language: String): List<String> {
+        val wanted = MpvArgs.languageCodes(language).split(',').toSet()
+        return withContext(Dispatchers.IO) {
+            client.subtitles(addons.toList(), target.contentType, target.videoId, timeoutMs = 4_000)
+        }.filter { (lang, _) -> lang in wanted }.map { it.second }.distinct().take(3)
+    }
+
+    /** Saves mpv's position as it plays, for Continue Watching and resume, then handles Up Next. */
     private fun followProgress(result: ExternalPlayer.Result.Started, target: PlaybackTarget) {
         val process = result.process ?: return
         val socket = result.ipcSocket ?: return
-        scope.launch(Dispatchers.IO) {
-            MpvProgress.follow(socket, process) { sample ->
-                scope.launch {
-                    saveProgress(
-                        WatchHistory.record(
-                            progress,
-                            target,
-                            positionMs = (sample.positionSec * 1000).toLong(),
-                            durationMs = (sample.durationSec * 1000).toLong(),
-                            now = System.currentTimeMillis()
-                        )
-                    )
+        scope.launch {
+            var scrobbled = false
+            val ending = withContext(Dispatchers.IO) {
+                MpvProgress.followToEnd(socket, process) { sample ->
+                    scope.launch {
+                        recordProgress(target, sample)
+                        // Trakt and Simkl hear about it once it has really started.
+                        if (!scrobbled) {
+                            scrobbled = true
+                            tracking.scrobble(target, ScrobbleAction.START, sample.percent())
+                        }
+                    }
                 }
             }
+            // Stop at 80% or more marks it watched on both services.
+            ending.last?.let { if (scrobbled) tracking.scrobble(target, ScrobbleAction.STOP, it.percent()) }
+            playbackEnded(target, ending)
         }
+    }
+
+    private fun MpvProgress.Sample.percent(): Float =
+        if (durationSec > 0) (positionSec / durationSec * 100).toFloat().coerceIn(0f, 100f) else 0f
+
+    private fun recordProgress(target: PlaybackTarget, sample: MpvProgress.Sample) {
+        saveProgress(
+            WatchHistory.record(
+                progress,
+                target,
+                positionMs = (sample.positionSec * 1000).toLong(),
+                durationMs = (sample.durationSec * 1000).toLong(),
+                now = System.currentTimeMillis()
+            )
+        )
+    }
+
+    /** Up Next: an episode that played to its end starts the next one's best match. */
+    private suspend fun playbackEnded(target: PlaybackTarget, ending: MpvProgress.Ending) {
+        val video = target.video ?: return
+        if (!ending.reachedEnd || !settings.player.autoplayNextEpisode) return
+        val next = WatchHistory.nextEpisode(target.episodes, video, progress.watched.toSet()) ?: return
+        val tag = episodeTag(next.season, next.episode)
+        message = "Up Next: ${listOfNotNull(tag, next.title.takeIf { it.isNotBlank() }).joinToString(" · ")}"
+        val streams = withContext(Dispatchers.IO) { client.streams(addons.toList(), target.contentType, next.id) }
+            .flatMap { it.streams }
+        val best = rank(streams).firstOrNull { it.isEligible }
+        if (best == null) {
+            message = "No source to play ${tag ?: "the next episode"} automatically"
+            return
+        }
+        val label = listOfNotNull(target.name, tag, next.title.takeIf { it.isNotBlank() }).joinToString(" · ")
+        launchPlayback(best.stream, label, target.copy(video = next))
     }
 
     private companion object {

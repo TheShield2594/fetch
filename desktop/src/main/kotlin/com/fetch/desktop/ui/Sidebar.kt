@@ -21,7 +21,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.fetch.desktop.data.DesktopProfile
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,7 +52,12 @@ data class SidebarItem(val label: String, val icon: ImageVector, val selected: B
  * the pointer over it, it opens over the page and shows each label.
  */
 @Composable
-fun Sidebar(items: List<SidebarItem>, modifier: Modifier = Modifier) {
+fun Sidebar(
+    items: List<SidebarItem>,
+    modifier: Modifier = Modifier,
+    profile: DesktopProfile? = null,
+    onProfile: () -> Unit = {}
+) {
     val interaction = remember { MutableInteractionSource() }
     val expanded by interaction.collectIsHoveredAsState()
     val width by animateDpAsState(if (expanded) SidebarExpandedWidth else SidebarWidth, tween(180))
@@ -82,6 +89,35 @@ fun Sidebar(items: List<SidebarItem>, modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(top = 48.dp)
             ) {
                 items.forEach { SidebarEntry(it, expanded) }
+            }
+        }
+        // The profile at the bottom, as on TV: click to switch.
+        if (profile != null) {
+            ProfileEntry(profile, expanded, onProfile, Modifier.align(Alignment.BottomStart).padding(start = 18.dp, end = 18.dp, bottom = 28.dp))
+        }
+    }
+}
+
+@Composable
+private fun ProfileEntry(profile: DesktopProfile, expanded: Boolean, onClick: () -> Unit, modifier: Modifier) {
+    val interaction = remember { MutableInteractionSource() }
+    val hovered by interaction.collectIsHoveredAsState()
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(18.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .hoverable(interaction)
+            .clickable(interactionSource = interaction, indication = null, onClick = onClick)
+            .pointerHoverIcon(PointerIcon.Hand)
+    ) {
+        Box(
+            Modifier.size(52.dp).clip(CircleShape).border(if (hovered) 3.dp else 0.dp, Color.White, CircleShape).padding(4.dp)
+        ) { ProfileAvatar(profile, 44.dp) }
+        AnimatedVisibility(visible = expanded, enter = fadeIn(), exit = fadeOut()) {
+            Column {
+                Text(profile.name, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                Text("Switch profile", color = FetchPalette.TextMuted, fontSize = 13.sp, maxLines = 1)
             }
         }
     }

@@ -73,7 +73,7 @@ object WatchHistory {
 
     /** Continue Watching, most recent first. */
     fun continueWatching(file: ProgressFile): List<ProgressEntry> = file.entries
-        .filter { !it.hidden && (it.upNext || it.positionMs > 0) }
+        .filter { !it.hidden && (it.upNext || it.positionMs > 0 || (it.remotePercent ?: 0f) > 0f) }
         .sortedByDescending { it.lastWatched }
 
     fun hide(file: ProgressFile, contentId: String): ProgressFile =
@@ -89,11 +89,40 @@ object WatchHistory {
         if (entry.durationMs <= 0 || entry.positionMs.toFloat() / entry.durationMs >= WatchProgress.COMPLETED_THRESHOLD) return null
         return (entry.positionMs / 1000).takeIf { it > 0 }
     }
+
+    /**
+     * mpv's --start value to resume [videoId]: seconds from a local position, or a percentage
+     * from Trakt or Simkl ("42%"). Null starts at the beginning.
+     */
+    fun resumeStart(file: ProgressFile, videoId: String): String? {
+        resumeSeconds(file, videoId)?.let { return it.toString() }
+        val entry = file.entries.firstOrNull { it.videoId == videoId && !it.upNext } ?: return null
+        val percent = entry.remotePercent?.takeIf { entry.durationMs <= 0 } ?: return null
+        if (percent < WatchProgress.STARTED_THRESHOLD * 100 || percent >= WatchProgress.COMPLETED_THRESHOLD * 100) return null
+        return "%.1f%%".format(java.util.Locale.ROOT, percent)
+    }
+
+    /**
+     * Merges in-progress titles from Trakt or Simkl: a remote one wins when it is newer than the
+     * local entry for that title (or there is none). Finished or hidden local entries stay.
+     */
+    fun mergeRemote(file: ProgressFile, remote: List<ProgressEntry>, watchedIds: Set<String>): ProgressFile {
+        var entries = file.entries
+        remote.forEach { incoming ->
+            val local = entries.firstOrNull { it.contentId == incoming.contentId }
+            if (local == null || incoming.lastWatched > local.lastWatched) {
+                // Newer activity elsewhere brings a removed title back, as watching it here would.
+                entries = entries.filter { it.contentId != incoming.contentId } + incoming
+            }
+        }
+        return ProgressFile(entries = entries, watched = (file.watched + watchedIds).distinct())
+    }
 }
 
-/** "38m left" / "1h 5m left", as on the TV cards. */
+/** "38m left" / "1h 5m left", as on the TV cards; "40% watched" from Trakt or Simkl. */
 fun remainingLabel(entry: ProgressEntry): String? {
-    if (entry.upNext || entry.durationMs <= 0) return null
+    if (entry.upNext) return null
+    if (entry.durationMs <= 0) return entry.remotePercent?.let { "${it.toInt()}% watched" }
     val minutes = ((entry.durationMs - entry.positionMs).coerceAtLeast(0) / 60_000).coerceAtLeast(1)
     return if (minutes >= 60) "${minutes / 60}h ${minutes % 60}m left" else "${minutes}m left"
 }

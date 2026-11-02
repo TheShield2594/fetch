@@ -24,6 +24,9 @@ object MpvProgress {
     /** Position and duration in seconds. */
     data class Sample(val positionSec: Double, val durationSec: Double)
 
+    /** How playback ended: the last position, and whether mpv reached the end of the file. */
+    data class Ending(val last: Sample?, val reachedEnd: Boolean)
+
     private val json = Json { ignoreUnknownKeys = true }
 
     /**
@@ -36,17 +39,26 @@ object MpvProgress {
         process: Process,
         intervalMs: Long = 5_000,
         onSample: (Sample) -> Unit
-    ): Sample? {
+    ): Sample? = followToEnd(socket, process, intervalMs, onSample).last
+
+    /** Like [follow], and also tells whether the file played to its end (for Up Next). */
+    suspend fun followToEnd(
+        socket: File,
+        process: Process,
+        intervalMs: Long = 5_000,
+        onSample: (Sample) -> Unit
+    ): Ending {
         // mpv creates the socket shortly after it starts.
         var waited = 0L
         while (!socket.exists()) {
-            if (!process.isAlive || waited > 20_000) return null
+            if (!process.isAlive || waited > 20_000) return Ending(null, reachedEnd = false)
             delay(200)
             waited += 200
         }
         var position: Double? = null
         var duration: Double? = null
         var lastEmit = 0L
+        var reachedEnd = false
         try {
             runInterruptible {
                 SocketChannel.open(StandardProtocolFamily.UNIX).use { channel ->
@@ -58,7 +70,9 @@ object MpvProgress {
                     while (true) {
                         val line = reader.readLine() ?: break
                         val event = parse(line) ?: continue
-                        if (event["event"]?.jsonPrimitive?.content != "property-change") continue
+                        val kind = event["event"]?.jsonPrimitive?.content
+                        if (kind == "end-file" && event["reason"]?.jsonPrimitive?.content == "eof") reachedEnd = true
+                        if (kind != "property-change") continue
                         val value = event["data"]?.let { runCatching { it.jsonPrimitive.doubleOrNull }.getOrNull() }
                         when (event["name"]?.jsonPrimitive?.content) {
                             "time-pos" -> if (value != null) position = value
@@ -81,7 +95,8 @@ object MpvProgress {
         }
         val p = position
         val d = duration
-        return if (p != null && d != null && d > 0) Sample(p, d).also(onSample) else null
+        val last = if (p != null && d != null && d > 0) Sample(p, d).also(onSample) else null
+        return Ending(last, reachedEnd)
     }
 
     private fun parse(line: String): JsonObject? =

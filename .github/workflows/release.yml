@@ -39,7 +39,13 @@ jobs:
       - name: Install rpm
         run: sudo apt-get update && sudo apt-get install -y rpm
 
+      # Trakt and Simkl sign-in read the same client IDs as the TV app; unset leaves them hidden.
       - name: Build packages
+        env:
+          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
+          SIMKL_CLIENT_ID: ${{ secrets.SIMKL_CLIENT_ID }}
+          SIMKL_APP_NAME: ${{ secrets.SIMKL_APP_NAME }}
         run: ./gradlew --no-daemon -Pfetch.desktopOnly=true :desktop:test :desktop:packageDeb :desktop:packageRpm :desktop:createDistributable
 
       - name: Name packages after the tag

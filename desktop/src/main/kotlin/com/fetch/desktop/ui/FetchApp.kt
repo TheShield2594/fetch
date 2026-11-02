@@ -27,13 +27,30 @@ import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.runtime.key
 import com.fetch.desktop.AppState
+import com.fetch.desktop.ProfilesState
+import com.fetch.desktop.data.DesktopProfile
 import com.fetch.desktop.Screen
 
 @Composable
 fun FetchApp() {
+    val profiles = remember { ProfilesState() }
+    val active = profiles.active
+    if (active == null) {
+        // "Who's watching?" at start-up (several profiles, Remember Last Profile off) or after
+        // Switch profile.
+        FetchTheme { ProfilePicker(profiles) }
+        return
+    }
+    // Each profile gets its own state, from its own files.
+    key(active.id, active.usesPrimaryAddons) { ProfileApp(profiles, active) }
+}
+
+@Composable
+private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile) {
     val scope = rememberCoroutineScope()
-    val state = remember { AppState(scope).also { FetchPalette.setTheme(it.settings.appTheme) } }
+    val state = remember { AppState(scope, profiles, profile).also { FetchPalette.setTheme(it.settings.appTheme) } }
     LaunchedEffect(Unit) { state.start() }
 
     val snackbar = remember { SnackbarHostState() }
@@ -131,6 +148,8 @@ fun FetchApp() {
                             state.openSection(Screen.Settings())
                         })
                     },
+                    profile = state.profiles.active,
+                    onProfile = state.profiles::switchProfile,
                     modifier = Modifier.align(Alignment.CenterStart)
                 )
             }

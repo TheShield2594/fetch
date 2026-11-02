@@ -31,6 +31,7 @@ class MpvProgressTest {
                     """{"event":"property-change","id":2,"name":"duration","data":3000.0}""",
                     """{"event":"property-change","id":1,"name":"time-pos","data":1200.5}""",
                     """{"request_id":0,"error":"success"}""",
+                    """{"event":"end-file","reason":"eof","playlist_entry_id":1}""",
                     // mpv clears time-pos as it shuts down.
                     """{"event":"property-change","id":1,"name":"time-pos"}"""
                 ).joinToString("\n", postfix = "\n")
@@ -41,9 +42,11 @@ class MpvProgressTest {
         val process = ProcessBuilder("sleep", "10").start()
         try {
             val samples = mutableListOf<MpvProgress.Sample>()
-            val last = withContext(Dispatchers.IO) {
-                MpvProgress.follow(socket, process, intervalMs = 0) { samples += it }
+            val ending = withContext(Dispatchers.IO) {
+                MpvProgress.followToEnd(socket, process, intervalMs = 0) { samples += it }
             }
+            val last = ending.last
+            assertTrue("played to the end, for Up Next", ending.reachedEnd)
             fakeMpv.join()
             assertEquals(MpvProgress.Sample(1200.5, 3000.0), last)
             assertTrue(samples.isNotEmpty())

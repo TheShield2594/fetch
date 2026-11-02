@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.fetch.desktop.AppState
 import com.fetch.desktop.Screen
+import com.fetch.desktop.TrackingService
 import com.fetch.desktop.data.LibraryQuery
 import com.fetch.desktop.data.LibrarySort
 import com.fetch.desktop.data.LibraryView
@@ -34,11 +35,17 @@ import com.fetch.desktop.typeLabel
 @Composable
 fun LibraryScreen(state: AppState) {
     var query by remember { mutableStateOf(LibraryQuery()) }
+    // "Local", or a connected account's watchlist, as the TV Library's source picker.
+    var source by remember { mutableStateOf<TrackingService?>(null) }
+    val remote = source?.let { state.remoteLists[it] }
+    if (source != null && remote == null) source = null
+    val items = remote ?: state.library.toList()
     val watched = state.progress.watched.toSet()
-    val view = LibraryView(state.library.toList(), watched, query)
+    val view = LibraryView(items, watched, query)
     val gridState = rememberLazyGridState()
+    val sourceLabel = source?.watchlistName ?: "Local"
 
-    if (state.library.isEmpty()) {
+    if (state.library.isEmpty() && state.remoteLists.isEmpty()) {
         Column(Modifier.fillMaxSize().padding(top = 40.dp, start = PageGutter, end = PageGutter)) {
             PageHeader("Library", subtitle = "Local")
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -65,7 +72,19 @@ fun LibraryScreen(state: AppState) {
         header = {
             fullWidthItem("header") {
                 Column(verticalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.padding(bottom = 4.dp)) {
-                    PageHeader("Library", subtitle = "Local · ${state.library.size} saved")
+                    PageHeader("Library", subtitle = "$sourceLabel · ${items.size} saved")
+                    if (state.remoteLists.isNotEmpty()) {
+                        FilterDropdown(
+                            label = "Source",
+                            selected = source,
+                            options = listOf(DropdownOption<TrackingService?>(null, "Local")) +
+                                state.remoteLists.keys.map { DropdownOption<TrackingService?>(it, it.watchlistName) },
+                            onSelect = {
+                                source = it
+                                query = LibraryQuery(sort = query.sort)
+                            }
+                        )
+                    }
                     LibraryFilters(view, query, onChange = { query = it })
                 }
             }

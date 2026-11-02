@@ -28,7 +28,10 @@ object ExternalPlayer {
         title: String,
         mpvPath: String? = findMpv(),
         startSeconds: Long? = null,
-        ipcSocket: File? = null
+        ipcSocket: File? = null,
+        options: List<String> = emptyList(),
+        /** mpv's --start as given ("754" or "42%"); wins over [startSeconds]. */
+        start: String? = null
     ): List<String>? {
         val target = playableTarget(stream) ?: return null
         if (mpvPath == null) return listOf("xdg-open", target)
@@ -36,8 +39,10 @@ object ExternalPlayer {
             add(mpvPath)
             add("--force-window=immediate")
             add("--force-media-title=$title")
-            if (startSeconds != null && startSeconds > 0) add("--start=$startSeconds")
+            val from = start ?: startSeconds?.takeIf { it > 0 }?.toString()
+            if (from != null) add("--start=$from")
             if (ipcSocket != null) add("--input-ipc-server=${ipcSocket.absolutePath}")
+            addAll(options)
             stream.behaviorHints?.proxyHeaders?.request.orEmpty().forEach { (name, value) ->
                 // One header per option: a comma inside a value would split a combined list.
                 add("--http-header-fields-append=$name: $value")
@@ -47,10 +52,11 @@ object ExternalPlayer {
         }
     }
 
-    fun play(stream: Stream, title: String, startSeconds: Long? = null): Result {
+    /** [options] are extra mpv options from the player settings ([MpvArgs]). */
+    fun play(stream: Stream, title: String, start: String? = null, options: List<String> = emptyList()): Result {
         val mpv = findMpv()
         val socket = mpv?.let { newIpcSocket() }
-        val command = command(stream, title, mpv, startSeconds, socket)
+        val command = command(stream, title, mpv, startSeconds = null, ipcSocket = socket, options = options, start = start)
             ?: return Result.Failed("This source has no playable link. Fetch plays direct and debrid links only.")
         return start(command, socket)
     }

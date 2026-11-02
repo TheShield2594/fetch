@@ -49,7 +49,11 @@ import com.fetch.desktop.Screen
 import com.fetch.desktop.SettingsPage
 import com.fetch.desktop.data.AppDirs
 import com.fetch.desktop.data.DesktopDefaults
+import com.fetch.desktop.data.HwDec
+import com.fetch.desktop.data.PlayerSettings
+import com.fetch.desktop.data.SubtitleMode
 import com.fetch.desktop.player.ExternalPlayer
+import com.fetch.desktop.player.MpvArgs
 import com.fetch.tv.core.streams.ranking.AudioFormat
 import com.fetch.tv.core.streams.ranking.ReleaseSource
 import com.fetch.tv.core.streams.ranking.StreamLanguage
@@ -94,11 +98,17 @@ fun SettingsScreen(state: AppState, page: SettingsPage) {
                                 .fillMaxWidth()
                         ) {
                             when (page) {
+                                SettingsPage.PROFILES -> ProfilesSettingsPage(state)
+                                SettingsPage.PLAYER -> PlayerPage(state)
                                 SettingsPage.STREAM_SELECTION -> StreamSelectionPage(state)
+                                SettingsPage.UP_NEXT -> UpNextPage(state)
+                                SettingsPage.AUDIO -> AudioPage(state)
+                                SettingsPage.SUBTITLES -> SubtitlesPage(state)
                                 SettingsPage.CONTENT_DISCOVERY -> ContentDiscoveryPage(state)
                                 SettingsPage.HOME_CATALOGS -> HomeCatalogsPage(state)
                                 SettingsPage.APPEARANCE -> AppearancePage(state)
                                 SettingsPage.LAYOUT -> LayoutPage(state)
+                                SettingsPage.TRACKING -> TrackingPage(state)
                                 SettingsPage.ABOUT -> AboutPage(state)
                                 SettingsPage.ADDONS -> Unit
                             }
@@ -112,8 +122,10 @@ fun SettingsScreen(state: AppState, page: SettingsPage) {
 
 @Composable
 private fun SettingsRail(current: SettingsPage, onPick: (SettingsPage) -> Unit, modifier: Modifier = Modifier) {
+    // Scrolls when the window is shorter than the rail.
     Column(
-        modifier.background(FetchPalette.Surface.copy(alpha = 0.5f)).padding(top = 40.dp, start = 20.dp, end = 16.dp),
+        modifier.background(FetchPalette.Surface.copy(alpha = 0.5f)).verticalScroll(rememberScrollState())
+            .padding(top = 40.dp, bottom = 32.dp, start = 20.dp, end = 16.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text("Settings", style = MaterialTheme.typography.headlineSmall, color = Color.White, modifier = Modifier.padding(start = 12.dp, bottom = 16.dp))
@@ -176,6 +188,128 @@ private fun SubPageHeader(
         CircleIconButton(FetchIcons.Back, "Back", onClick = onBack, size = 40.dp)
         Text(title, style = MaterialTheme.typography.headlineSmall, color = Color.White, modifier = Modifier.weight(1f, fill = false))
         actions()
+    }
+}
+
+// --- Playback › Player, Up Next, Audio, Subtitles ---
+
+private fun AppState.updatePlayer(change: (PlayerSettings) -> PlayerSettings) =
+    updateSettings { it.copy(player = change(it.player)) }
+
+private val LanguageOptions: List<DropdownOption<String?>> =
+    MpvArgs.languages.map { DropdownOption<String?>(it.code, it.label) }
+
+@Composable
+private fun PlayerPage(state: AppState) {
+    val p = state.settings.player
+    val mpv = remember { ExternalPlayer.findMpv() }
+    PageHeader("Player", subtitle = "Fetch plays streams in mpv, in its own window.")
+    SettingsSection(null) {
+        SettingsRow(
+            "Default Player",
+            mpv?.let { "mpv ($it)" } ?: "mpv isn't installed, so streams open in your default video player. Install mpv for resume, Continue Watching, subtitles and Up Next."
+        )
+        SettingsToggle("Start in fullscreen", null, p.fullscreen) { v -> state.updatePlayer { it.copy(fullscreen = v) } }
+        SettingsChoice(
+            "Hardware Decoding",
+            "How mpv uses the graphics card to decode video.",
+            p.hwdec,
+            HwDec.entries.map { DropdownOption(it, it.label) }
+        ) { v -> state.updatePlayer { it.copy(hwdec = v) } }
+    }
+    SettingsSection("Advanced") {
+        TextRow(
+            "Extra mpv options",
+            "Added to every playback, for example --volume=80 --sub-font=\"Noto Sans\"",
+            p.extraMpvArgs
+        ) { v -> state.updatePlayer { it.copy(extraMpvArgs = v) } }
+    }
+}
+
+@Composable
+private fun UpNextPage(state: AppState) {
+    val p = state.settings.player
+    PageHeader("Up Next", subtitle = "Next episode autoplay.")
+    SettingsSection(null) {
+        SettingsToggle(
+            "Autoplay next episode",
+            "When an episode plays to its end, start the next one's best match. Closing mpv early never does.",
+            p.autoplayNextEpisode
+        ) { v -> state.updatePlayer { it.copy(autoplayNextEpisode = v) } }
+    }
+}
+
+@Composable
+private fun AudioPage(state: AppState) {
+    val p = state.settings.player
+    PageHeader("Audio")
+    SettingsSection(null) {
+        SettingsChoice(
+            "Preferred Audio Language",
+            "The audio track mpv picks when a file has several.",
+            p.audioLanguage,
+            listOf(DropdownOption<String?>(null, "Default (media file)")) + LanguageOptions
+        ) { v -> state.updatePlayer { it.copy(audioLanguage = v) } }
+        SettingsToggle(
+            "Audio passthrough",
+            "Send Dolby Digital, DD+, DTS and TrueHD to your receiver undecoded. Only with a receiver that supports them.",
+            p.audioPassthrough
+        ) { v -> state.updatePlayer { it.copy(audioPassthrough = v) } }
+    }
+}
+
+@Composable
+private fun SubtitlesPage(state: AppState) {
+    val p = state.settings.player
+    PageHeader("Subtitles")
+    SettingsSection("Languages") {
+        SettingsChoice(
+            "Subtitle language",
+            null,
+            p.subtitleLanguage,
+            listOf(DropdownOption<String?>(null, "Device language")) + LanguageOptions
+        ) { v -> state.updatePlayer { it.copy(subtitleLanguage = v) } }
+        SettingsChoice("Show subtitles", null, p.subtitleMode, SubtitleMode.entries.map { DropdownOption(it, it.label) }) { v ->
+            state.updatePlayer { it.copy(subtitleMode = v) }
+        }
+        SettingsToggle(
+            "Forward subtitles to external player",
+            "Fetch subtitles in your language from addons (such as OpenSubtitles) and pass them to mpv.",
+            p.forwardAddonSubtitles
+        ) { v -> state.updatePlayer { it.copy(forwardAddonSubtitles = v) } }
+    }
+    SettingsSection("Style") {
+        SettingsChoice(
+            "Size",
+            null,
+            p.subtitleScale,
+            listOf(0.75, 1.0, 1.25, 1.5, 2.0).map { DropdownOption(it, "${(it * 100).toInt()}%") }
+        ) { v -> state.updatePlayer { it.copy(subtitleScale = v) } }
+        SettingsToggle("Background box", "A dark box behind the text instead of an outline.", p.subtitleBackground) { v ->
+            state.updatePlayer { it.copy(subtitleBackground = v) }
+        }
+    }
+}
+
+/** A free-text setting, saved when the field loses focus. */
+@Composable
+private fun TextRow(title: String, description: String?, value: String, onChange: (String) -> Unit) {
+    var text by remember(value) { mutableStateOf(value) }
+    SettingsRow(title, description) {
+        BasicTextField(
+            value = text,
+            onValueChange = { text = it },
+            singleLine = true,
+            textStyle = TextStyle(color = Color.White, fontSize = 15.sp),
+            cursorBrush = SolidColor(FetchPalette.Accent),
+            modifier = Modifier
+                .width(320.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(FetchPalette.Background)
+                .border(1.dp, FetchPalette.Outline, RoundedCornerShape(8.dp))
+                .padding(horizontal = 12.dp, vertical = 9.dp)
+                .onFocusChanged { focus -> if (!focus.isFocused && text.trim() != value) onChange(text.trim()) }
+        )
     }
 }
 

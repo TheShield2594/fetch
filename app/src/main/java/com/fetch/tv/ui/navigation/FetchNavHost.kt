@@ -1219,7 +1219,8 @@ private fun PlaybackNavHost(
                     navController.navigate(Screen.CatalogSeeAll.createRoute(catalogId, addonId, type))
                 },
                 onNavigateToSearch = { navController.navigate(Screen.Search.route) { launchSingleTop = true } },
-                onNavigateToSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } },
+                onNavigateToTrackingSettings = { navController.navigate(Screen.Tracking.route) { launchSingleTop = true } }
             )
         }
 

@@ -134,7 +134,9 @@ fun LibraryScreen(
     onNavigateToDetail: (String, String, String?) -> Unit,
     onNavigateToCatalogSeeAll: (String, String, String) -> Unit = { _, _, _ -> },
     onNavigateToSearch: () -> Unit = {},
-    onNavigateToSettings: () -> Unit = {}
+    onNavigateToSettings: () -> Unit = {},
+    // Where "Connect Trakt" / "Connect Simkl" lands: the account page, not the Settings root.
+    onNavigateToTrackingSettings: () -> Unit = onNavigateToSettings
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val watchedMovieIds by viewModel.watchedMovieIds.collectAsState()
@@ -447,7 +449,7 @@ fun LibraryScreen(
                             val providerName = stringResource(
                                 if (uiState.sourceMode == LibrarySourceMode.SIMKL) R.string.simkl_name else R.string.trakt_name
                             )
-                            StateAction(stringResource(R.string.library_action_connect_provider, providerName), onNavigateToSettings)
+                            StateAction(stringResource(R.string.library_action_connect_provider, providerName), onNavigateToTrackingSettings)
                         } else {
                             StateAction(stringResource(R.string.library_action_search_titles), onNavigateToSearch)
                         }

@@ -371,7 +371,7 @@ fun HeroContentSection(
                             upFocusRequester = actionsUp
                         )
 
-                        if (showAddonSetup && onOpenAddonSettings != null) {
+                        if (onOpenAddonSettings != null && !isPlayEnabled) {
                             LaunchedEffect(restorePlayFocusToken) {
                                 if (restorePlayFocusToken > 0) {
                                     playButtonFocusRequester?.requestFocusAfterFrames()

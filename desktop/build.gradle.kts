@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 // Fetch for desktop: a Compose Multiplatform (JVM) app built on :shared. Linux first;
@@ -33,6 +34,29 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+// Trakt and Simkl client IDs, as for the TV app: an environment variable (the release workflow
+// passes the repository secrets) or the root local.properties. Blank leaves that sign-in hidden.
+val localProps = Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use(::load)
+}
+fun credential(name: String, default: String = ""): String =
+    System.getenv(name)?.takeIf { it.isNotBlank() } ?: localProps.getProperty(name)?.takeIf { it.isNotBlank() } ?: default
+
+val resourceValues = mapOf(
+    "version" to appVersionName,
+    "traktClientId" to credential("TRAKT_CLIENT_ID"),
+    "traktClientSecret" to credential("TRAKT_CLIENT_SECRET"),
+    "simklClientId" to credential("SIMKL_CLIENT_ID"),
+    "simklAppName" to credential("SIMKL_APP_NAME", "fetch"),
+    "tmdbApiKey" to credential("TMDB_API_KEY")
+)
+
+// Settings › About shows the version; the accounts read their client IDs from here.
+tasks.processResources {
+    inputs.properties(resourceValues)
+    filesMatching("fetch-desktop.properties") { expand(resourceValues) }
+}
+
 dependencies {
     implementation(project(":shared"))
     implementation(compose.desktop.currentOs)
@@ -40,6 +64,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
     implementation(libs.coil.svg)
+    // The built-in player talks to libmpv (libmpv2 on Debian/Ubuntu) through JNA.
+    implementation("net.java.dev.jna:jna:5.6.0")
 
     testImplementation("junit:junit:4.13.2")
 }

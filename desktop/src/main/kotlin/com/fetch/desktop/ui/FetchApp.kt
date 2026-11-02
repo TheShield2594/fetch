@@ -1,57 +1,59 @@
 package com.fetch.desktop.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.key
 import com.fetch.desktop.AppState
+import com.fetch.desktop.ProfilesState
+import com.fetch.desktop.SyncAccountState
+import com.fetch.desktop.data.DesktopProfile
 import com.fetch.desktop.Screen
-
-private val FetchColors = darkColorScheme(
-    primary = Color(0xFFE0E0E0),
-    onPrimary = Color(0xFF0D0D0D),
-    secondary = Color(0xFFFB8C00),
-    onSecondary = Color(0xFF0D0D0D),
-    background = Color(0xFF0D0D0D),
-    onBackground = Color(0xFFF5F5F5),
-    surface = Color(0xFF1A1A1A),
-    onSurface = Color(0xFFF5F5F5),
-    surfaceVariant = Color(0xFF242424),
-    onSurfaceVariant = Color(0xFFB3B3B3),
-    surfaceContainer = Color(0xFF111111),
-    outline = Color(0xFF4D4D4D),
-    error = Color(0xFFFF6B6B)
-)
 
 @Composable
 fun FetchApp() {
+    val profiles = remember { ProfilesState() }
+    val appScope = rememberCoroutineScope()
+    val account = remember { SyncAccountState(appScope) }
+    val active = profiles.active
+    if (active == null) {
+        // "Who's watching?" at start-up (several profiles, Remember Last Profile off) or after
+        // Switch profile.
+        FetchTheme { ProfilePicker(profiles) }
+        return
+    }
+    // Each profile gets its own state, from its own files.
+    key(active.id, active.usesPrimaryAddons) { ProfileApp(profiles, active, account) }
+}
+
+@Composable
+private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account: SyncAccountState) {
     val scope = rememberCoroutineScope()
-    val state = remember { AppState(scope) }
+    val state = remember { AppState(scope, profiles, profile, account = account).also { FetchPalette.setTheme(it.settings.appTheme) } }
     LaunchedEffect(Unit) { state.start() }
 
     val snackbar = remember { SnackbarHostState() }
@@ -63,52 +65,100 @@ fun FetchApp() {
         }
     }
 
-    MaterialTheme(colorScheme = FetchColors) {
+    // The accent follows Settings › Appearance.
+    val theme = state.settings.appTheme
+    SideEffect { FetchPalette.setTheme(theme) }
+
+    FetchTheme {
         Scaffold(
-            snackbarHost = { SnackbarHost(snackbar) },
+            snackbarHost = {
+                SnackbarHost(snackbar) { data ->
+                    Snackbar(
+                        data,
+                        containerColor = FetchPalette.SurfaceHigh,
+                        contentColor = FetchPalette.TextPrimary
+                    )
+                }
+            },
             containerColor = MaterialTheme.colorScheme.background,
             modifier = Modifier.onPreviewKeyEvent { event ->
-                // Escape and Backspace go back, like Back on the TV remote.
-                val isBack = event.key == Key.Escape || (event.key == Key.Backspace && state.screen is Screen.Detail)
-                if (event.type == KeyEventType.KeyDown && isBack && state.canGoBack) {
-                    state.back()
-                    true
-                } else {
-                    false
+                if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                when {
+                    // Ctrl+F (or Ctrl+K) opens search from anywhere; Ctrl+, opens Settings.
+                    event.isCtrlPressed && (event.key == Key.F || event.key == Key.K) -> {
+                        state.openSection(Screen.Search)
+                        true
+                    }
+                    event.isCtrlPressed && event.key == Key.Comma -> {
+                        state.openSection(Screen.Settings())
+                        true
+                    }
+                    // Escape goes back, like Back on the TV remote. Backspace too on a title page,
+                    // where there is no text field to type in.
+                    (event.key == Key.Escape || (event.key == Key.Backspace && state.screen is Screen.Detail)) &&
+                        state.canGoBack -> {
+                        state.back()
+                        true
+                    }
+                    else -> false
                 }
             }
         ) { padding ->
-            Row(Modifier.fillMaxSize().padding(padding)) {
-                NavigationRail(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    modifier = Modifier.fillMaxHeight().width(96.dp)
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(top = 16.dp)
-                    ) {
-                        NavigationRailItem(
-                            selected = state.screen == Screen.Home || state.screen is Screen.Detail,
-                            onClick = { state.openSection(Screen.Home) },
-                            icon = { Text("⌂", style = MaterialTheme.typography.titleLarge) },
-                            label = { Text("Home") }
-                        )
-                        NavigationRailItem(
-                            selected = state.screen == Screen.Addons,
-                            onClick = { state.openSection(Screen.Addons) },
-                            icon = { Text("⧉", style = MaterialTheme.typography.titleLarge) },
-                            label = { Text("Addons") }
-                        )
-                    }
-                }
-                Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-                    when (val screen = state.screen) {
+            Box(Modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background)) {
+                AnimatedContent(
+                    targetState = state.screen,
+                    // Detail pages share one key, so going from one title to another doesn't fade;
+                    // so do Settings pages, so the rail stays put.
+                    contentKey = {
+                        when (it) {
+                            is Screen.Detail -> "detail"
+                            is Screen.Settings -> "settings"
+                            else -> it.toString()
+                        }
+                    },
+                    transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(160)) },
+                    modifier = Modifier.fillMaxSize().padding(start = SidebarWidth)
+                ) { screen ->
+                    when (screen) {
                         Screen.Home -> HomeScreen(state)
-                        Screen.Addons -> AddonsScreen(state)
+                        Screen.Search -> SearchScreen(state)
+                        Screen.Discover -> DiscoverScreen(state)
+                        Screen.Library -> LibraryScreen(state)
+                        // Read the live page, since Settings pages share one transition key.
+                        is Screen.Settings -> SettingsScreen(state, (state.screen as? Screen.Settings)?.page ?: screen.page)
                         is Screen.Detail -> DetailScreen(state, screen.preview)
                     }
                 }
+                // The TV sidebar: Home, Discover (when it has its own entry), Search, Library,
+                // Settings. Addons lives in Settings › Content & Discovery, as on TV.
+                Sidebar(
+                    items = buildList {
+                        add(SidebarItem("Home", FetchIcons.Home, state.screen == Screen.Home || state.screen is Screen.Detail) {
+                            state.openSection(Screen.Home)
+                        })
+                        if (state.settings.discoverInSidebar) {
+                            add(SidebarItem("Discover", FetchIcons.Discover, state.screen == Screen.Discover) {
+                                state.openSection(Screen.Discover)
+                            })
+                        }
+                        add(SidebarItem("Search", FetchIcons.Search, state.screen == Screen.Search) {
+                            state.openSection(Screen.Search)
+                        })
+                        add(SidebarItem("Library", FetchIcons.Library, state.screen == Screen.Library) {
+                            state.openSection(Screen.Library)
+                        })
+                        add(SidebarItem("Settings", FetchIcons.Settings, state.screen is Screen.Settings) {
+                            state.openSection(Screen.Settings())
+                        })
+                    },
+                    profile = state.profiles.active,
+                    onProfile = state.profiles::switchProfile,
+                    modifier = Modifier.align(Alignment.CenterStart)
+                )
             }
         }
+        // The built-in player covers the whole window while it's open.
+        state.playerSession?.let { session -> PlayerScreen(state, session) }
+        state.screenTimeBlock?.let { block -> ScreenTimeDialog(state, block) }
     }
 }

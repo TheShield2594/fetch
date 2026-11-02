@@ -1156,6 +1156,19 @@ internal fun StreamsList(
         streamListState.scrollToItem(0)
     }
 
+    // Section headers arrive after the first cards when ranking settles. The list keeps the
+    // visible card anchored by key, so a header inserted above it lands off screen, and a header
+    // can't take focus, so D-pad never brings it back. Snap to the top while the user is there.
+    val listScope = rememberCoroutineScope()
+    val leadingHeaderKey = sections.firstOrNull()?.group?.takeIf { showSectionHeaders }
+    LaunchedEffect(leadingHeaderKey) {
+        if (leadingHeaderKey == null) return@LaunchedEffect
+        withFrameNanos { }
+        if (streamListState.firstVisibleItemIndex <= 1 && (focusedStreamKey == null || focusedStreamKey == firstStreamKey)) {
+            runCatching { streamListState.scrollToItem(0) }
+        }
+    }
+
     LaunchedEffect(firstStreamFocusRequestId) {
         val requestedKey = firstStreamKey
         if (firstStreamFocusRequestId <= 0 || requestedKey == null) return@LaunchedEffect
@@ -1300,6 +1313,14 @@ internal fun StreamsList(
                         }
                         if (index == firstShownIndex) {
                             firstCardHasFocus = focused
+                            // Focus only scrolls the card itself into view; show the header and
+                            // party card above it too, so the top of the list is never clipped.
+                            if (focused && streamListState.firstVisibleItemIndex <= lazyIndexOfStream.getOrElse(index) { 0 }) {
+                                listScope.coroutineLaunch {
+                                    withFrameNanos { }
+                                    runCatching { streamListState.animateScrollToItem(0) }
+                                }
+                            }
                         }
                     },
                     onUpKey = if (index == firstShownIndex && sharedStream == null) {{

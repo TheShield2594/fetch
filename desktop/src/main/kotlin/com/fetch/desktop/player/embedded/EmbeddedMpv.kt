@@ -47,7 +47,17 @@ data class MpvTrack(val id: String, val type: String, val title: String?, val la
  * one is ready. Frames go into one of three bitmaps in turn, so the one on screen is never
  * written to.
  */
-class EmbeddedMpv private constructor(private val mpv: LibMpv, private val ctx: Pointer) : AutoCloseable {
+class EmbeddedMpv private constructor(
+    private val mpv: LibMpv,
+    private val ctx: Pointer,
+    private val preferGpu: Boolean,
+    private val allowSoftwareGl: Boolean
+) : AutoCloseable {
+
+    /** True when frames are drawn on the GPU (OpenGL); false for mpv's software renderer. */
+    var usingGpu = false
+        private set
+    private var gl: GlRenderer? = null
 
     // --- State for the controls (written on the UI thread) ---
     var position by mutableStateOf(0.0)
@@ -80,8 +90,8 @@ class EmbeddedMpv private constructor(private val mpv: LibMpv, private val ctx: 
     private var front: Bitmap? = null
     private var back: Bitmap? = null
     private var spare: Bitmap? = null
-    @Volatile private var viewWidth = 1280
-    @Volatile private var viewHeight = 720
+    /** The view's size in pixels, set as one value so the render thread never sees half a change. */
+    @Volatile private var viewSize = 1280 to 720
     @Volatile private var videoWidth = 0
     @Volatile private var videoHeight = 0
 
@@ -97,14 +107,6 @@ class EmbeddedMpv private constructor(private val mpv: LibMpv, private val ctx: 
     private lateinit var renderThread: Thread
 
     private fun start() {
-        val apiType = stringPointer("sw")
-        val params = renderParams(listOf(LibMpv.RENDER_PARAM_API_TYPE to apiType))
-        val res = PointerByReference()
-        val rc = mpv.mpv_render_context_create(res, ctx, params)
-        java.lang.ref.Reference.reachabilityFence(apiType)
-        check(rc >= 0) { "libmpv couldn't start its renderer: ${mpv.mpv_error_string(rc)}" }
-        renderCtx = res.value
-        mpv.mpv_render_context_set_update_callback(res.value, updateCallback, null)
 
         observe("time-pos", LibMpv.FORMAT_DOUBLE)
         observe("duration", LibMpv.FORMAT_DOUBLE)
@@ -117,7 +119,64 @@ class EmbeddedMpv private constructor(private val mpv: LibMpv, private val ctx: 
         observe("dheight", LibMpv.FORMAT_INT64)
 
         eventThread = thread(name = "mpv-events", isDaemon = true) { eventLoop() }
-        renderThread = thread(name = "mpv-render", isDaemon = true) { renderLoop() }
+        // The renderer is made on its own thread: an OpenGL context belongs to the thread that
+        // made it current.
+        val ready = java.util.concurrent.CompletableFuture<Unit>()
+        renderThread = thread(name = "mpv-render", isDaemon = true) {
+            try {
+                createRenderContext()
+                ready.complete(Unit)
+            } catch (e: Throwable) {
+                ready.completeExceptionally(e)
+                return@thread
+            }
+            try {
+                renderLoop()
+            } catch (e: Throwable) {
+                if (!System.getenv("FETCH_MPV_DEBUG").isNullOrBlank()) e.printStackTrace()
+                ui { error = "The player stopped drawing (${e.message})" }
+            } finally {
+                renderCtx?.let { mpv.mpv_render_context_free(it) }
+                renderCtx = null
+                gl?.close()
+                gl = null
+            }
+        }
+        try {
+            ready.get(15, TimeUnit.SECONDS)
+        } catch (e: java.util.concurrent.ExecutionException) {
+            throw e.cause ?: e
+        }
+    }
+
+    /** OpenGL when it's available and wanted, else the software renderer. */
+    private fun createRenderContext() {
+        if (preferGpu) {
+            val renderer = GlRenderer.create(allowSoftware = allowSoftwareGl)
+            if (renderer != null) {
+                val params = renderParams(renderer.createParams())
+                val res = PointerByReference()
+                val created = mpv.mpv_render_context_create(res, ctx, params)
+                java.lang.ref.Reference.reachabilityFence(params)
+                if (created >= 0) {
+                    gl = renderer
+                    usingGpu = true
+                    renderCtx = res.value
+                    mpv.mpv_render_context_set_update_callback(res.value, updateCallback, null)
+                    return
+                }
+                renderer.close()
+            }
+        }
+        val apiType = stringPointer("sw")
+        val params = renderParams(listOf(LibMpv.RENDER_PARAM_API_TYPE to apiType))
+        val res = PointerByReference()
+        val rc = mpv.mpv_render_context_create(res, ctx, params)
+        java.lang.ref.Reference.reachabilityFence(apiType)
+        java.lang.ref.Reference.reachabilityFence(params)
+        check(rc >= 0) { "libmpv couldn't start its renderer: ${mpv.mpv_error_string(rc)}" }
+        renderCtx = res.value
+        mpv.mpv_render_context_set_update_callback(res.value, updateCallback, null)
     }
 
     private fun observe(name: String, format: Int) {
@@ -144,8 +203,16 @@ class EmbeddedMpv private constructor(private val mpv: LibMpv, private val ctx: 
             when (name) {
                 "fs" -> Unit // the window, not mpv, goes fullscreen
                 "sub-file" -> subtitles += value
-                // The software renderer needs decoded frames back in memory.
-                "hwdec" -> set("hwdec", if (value == "no") "no" else "auto-copy-safe")
+                // Decoded frames go straight to the GPU only with an X11 display for VA-API;
+                // otherwise (and for the software renderer) they come back to memory.
+                "hwdec" -> set(
+                    "hwdec",
+                    when {
+                        value == "no" -> "no"
+                        gl?.x11Display != null -> value
+                        else -> "auto-copy-safe"
+                    }
+                )
                 else -> set(name, value)
             }
         }
@@ -170,9 +237,8 @@ class EmbeddedMpv private constructor(private val mpv: LibMpv, private val ctx: 
 
     /** Where the picture should fit, in pixels; frames are rendered no bigger than this. */
     fun setViewSize(width: Int, height: Int) {
-        if (width > 0 && height > 0 && (width != viewWidth || height != viewHeight)) {
-            viewWidth = width
-            viewHeight = height
+        if (width > 0 && height > 0 && viewSize != (width to height)) {
+            viewSize = width to height
             frameReady.release()
         }
     }
@@ -280,12 +346,20 @@ class EmbeddedMpv private constructor(private val mpv: LibMpv, private val ctx: 
             frameReady.drainPermits()
             val render = renderCtx ?: continue
             val flags = mpv.mpv_render_context_update(render)
-            if (flags and LibMpv.RENDER_UPDATE_FRAME == 0L && videoWidth > 0) continue
+            // Software: only new frames. GPU: every update mpv signals, which also covers the first
+            // frame of a paused file and redraws after a seek while paused.
+            if (gl == null && flags and LibMpv.RENDER_UPDATE_FRAME == 0L && videoWidth > 0) continue
             val (w, h) = frameSize() ?: continue
             val target = synchronized(frameLock) {
                 back?.takeIf { it.width == w && it.height == h } ?: newBitmap(w, h).also { back = it }
             }
             val pixels = target.peekPixels() ?: continue
+            val glRenderer = gl
+            if (glRenderer != null) {
+                if (!glRenderer.render(mpv, render, w, h, Pointer(pixels.addr), target.rowBytes)) continue
+                publish(target)
+                continue
+            }
             val stride = Memory(Native.SIZE_T_SIZE.toLong()).apply {
                 if (Native.SIZE_T_SIZE == 8) setLong(0, target.rowBytes.toLong()) else setInt(0, target.rowBytes)
             }
@@ -306,18 +380,29 @@ class EmbeddedMpv private constructor(private val mpv: LibMpv, private val ctx: 
             java.lang.ref.Reference.reachabilityFence(format)
             java.lang.ref.Reference.reachabilityFence(params)
             if (rendered < 0) continue
-            target.notifyPixelsChanged()
-            synchronized(frameLock) {
-                back = spare
-                spare = front
-                front = target
-            }
-            ui { frameVersion++ }
+            publish(target)
         }
     }
 
-    /** The picture's size scaled to fit the view, keeping its shape. */
+    /** Puts [target] on screen and makes the oldest frame the next one to draw into. */
+    private fun publish(target: Bitmap) {
+        target.notifyPixelsChanged()
+        synchronized(frameLock) {
+            back = spare
+            spare = front
+            front = target
+        }
+        ui { frameVersion++ }
+    }
+
+    /**
+     * The size to render at. On the GPU, the whole view: mpv scales and letterboxes the picture
+     * itself, and needs a render as soon as it reconfigures. In software, the picture's size
+     * scaled to fit the view, never larger than the video.
+     */
     private fun frameSize(): Pair<Int, Int>? {
+        val (viewWidth, viewHeight) = viewSize
+        if (gl != null) return (viewWidth.coerceAtLeast(2) and 1.inv()) to (viewHeight.coerceAtLeast(2) and 1.inv())
         val vw = videoWidth
         val vh = videoHeight
         if (vw <= 0 || vh <= 0) return null
@@ -375,9 +460,8 @@ class EmbeddedMpv private constructor(private val mpv: LibMpv, private val ctx: 
         mpv.mpv_wakeup(ctx)
         runCatching { eventThread.join(1_000) }
         frameReady.release()
-        runCatching { renderThread.join(1_000) }
-        renderCtx?.let { mpv.mpv_render_context_free(it) }
-        renderCtx = null
+        // The render thread frees its renderer as it ends; libmpv goes after.
+        runCatching { renderThread.join(2_000) }
         mpv.mpv_terminate_destroy(ctx)
         synchronized(frameLock) {
             listOfNotNull(front, back, spare).distinct().forEach { it.close() }
@@ -391,8 +475,11 @@ class EmbeddedMpv private constructor(private val mpv: LibMpv, private val ctx: 
         /**
          * Starts libmpv with Fetch's defaults: its own controls and keys off, staying open between
          * files. Throws when libmpv is missing or won't start.
+         *
+         * [preferGpu] draws with OpenGL when a graphics card is available; [allowSoftwareGl] also
+         * accepts a CPU-only OpenGL driver, for tests on machines without a GPU.
          */
-        fun create(): EmbeddedMpv {
+        fun create(preferGpu: Boolean = true, allowSoftwareGl: Boolean = false): EmbeddedMpv {
             val lib = LibMpv.instance ?: error("libmpv isn't installed (on Debian and Ubuntu: sudo apt install libmpv2)")
             // libmpv refuses to start unless numbers are formatted the C way.
             runCatching { LibC.instance.setlocale(LibC.LC_NUMERIC, "C") }
@@ -408,12 +495,27 @@ class EmbeddedMpv private constructor(private val mpv: LibMpv, private val ctx: 
                 "hwdec" to "auto-copy-safe",
                 "osd-level" to "1"
             ).forEach { (k, v) -> lib.mpv_set_option_string(ctx, k, v) }
+            // FETCH_MPV_DEBUG=1 prints mpv's log, for reporting playback problems.
+            if (!System.getenv("FETCH_MPV_DEBUG").isNullOrBlank()) {
+                lib.mpv_set_option_string(ctx, "terminal", "yes")
+                lib.mpv_set_option_string(ctx, "msg-level", "all=v")
+            }
             val rc = lib.mpv_initialize(ctx)
             if (rc < 0) {
                 lib.mpv_terminate_destroy(ctx)
                 error("libmpv couldn't start: ${lib.mpv_error_string(rc)}")
             }
-            return EmbeddedMpv(lib, ctx).also { it.start() }
+            val player = EmbeddedMpv(lib, ctx, preferGpu, allowSoftwareGl)
+            try {
+                player.start()
+            } catch (e: Throwable) {
+                player.running = false
+                lib.mpv_wakeup(ctx)
+                runCatching { player.eventThread.join(1_000) }
+                lib.mpv_terminate_destroy(ctx)
+                throw e
+            }
+            return player
         }
 
         private fun stringPointer(value: String): Pointer = Memory(value.length + 1L).apply { setString(0, value) }

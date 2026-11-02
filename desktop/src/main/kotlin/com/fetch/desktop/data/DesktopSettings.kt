@@ -96,6 +96,8 @@ data class PlayerSettings(
     val fullscreen: Boolean = true,
     /** "Default Player": the built-in player (libmpv in Fetch's window) instead of mpv's own window. */
     val builtInPlayer: Boolean = false,
+    /** The built-in player draws with the graphics card (OpenGL); off, it draws in software. */
+    val builtInGpu: Boolean = true,
     /** Up Next: when an episode plays to its end, start the next one's best match. */
     val autoplayNextEpisode: Boolean = true,
     /** Extra mpv options, space-separated, for anything not covered here. */

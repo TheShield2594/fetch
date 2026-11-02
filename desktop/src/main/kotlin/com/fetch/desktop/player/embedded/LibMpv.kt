@@ -62,6 +62,10 @@ interface LibMpv : Library {
         // mpv_render_param_type
         const val RENDER_PARAM_INVALID = 0
         const val RENDER_PARAM_API_TYPE = 1
+        const val RENDER_PARAM_OPENGL_INIT_PARAMS = 2
+        const val RENDER_PARAM_OPENGL_FBO = 3
+        const val RENDER_PARAM_FLIP_Y = 4
+        const val RENDER_PARAM_X11_DISPLAY = 8
         const val RENDER_PARAM_SW_SIZE = 17
         const val RENDER_PARAM_SW_FORMAT = 18
         const val RENDER_PARAM_SW_STRIDE = 19

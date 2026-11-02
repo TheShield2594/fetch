@@ -210,20 +210,28 @@ private val LanguageOptions: List<DropdownOption<String?>> =
 private fun PlayerPage(state: AppState) {
     val p = state.settings.player
     val mpv = remember { ExternalPlayer.findMpv() }
-    PageHeader("Player", subtitle = "Fetch plays streams in mpv, in its own window.")
+    PageHeader("Player", subtitle = "Fetch plays streams with mpv.")
     SettingsSection(null) {
         val libmpv = remember { LibMpv.available }
         SettingsChoice(
             "Default Player",
             when {
                 p.builtInPlayer && !libmpv -> "libmpv isn't installed (sudo apt install libmpv2), so mpv's window is used."
-                p.builtInPlayer -> "Inside Fetch's window, with Fetch's controls. Software rendering: heavy for 4K, and HDR isn't tone-mapped."
+                p.builtInPlayer -> "Inside Fetch's window, with Fetch's controls."
                 else -> mpv?.let { "mpv ($it), in its own window." }
                     ?: "mpv isn't installed, so streams open in your default video player. Install mpv for resume, Continue Watching, subtitles and Up Next."
             },
             p.builtInPlayer,
             listOf(DropdownOption(false, "mpv window"), DropdownOption(true, "Built-in (beta)"))
         ) { v -> state.updatePlayer { it.copy(builtInPlayer = v) } }
+        if (p.builtInPlayer && libmpv) {
+            SettingsToggle(
+                "Draw with the graphics card",
+                if (p.builtInGpu) "OpenGL: smooth scaling and HDR tone mapping. Without a graphics card Fetch draws in software. Turn off if video shows black or glitches."
+                else "Software drawing: works everywhere, but heavy for 4K, and HDR isn't tone-mapped.",
+                p.builtInGpu
+            ) { v -> state.updatePlayer { it.copy(builtInGpu = v) } }
+        }
         SettingsToggle("Start in fullscreen", null, p.fullscreen) { v -> state.updatePlayer { it.copy(fullscreen = v) } }
         SettingsChoice(
             "Hardware Decoding",

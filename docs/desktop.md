@@ -117,9 +117,13 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   is the desktop profile's id.
 - **Built-in player (beta)**: libmpv inside Fetch's window, with Fetch's own controls over the
   picture: seek bar, ±10 s, audio and subtitle tracks, volume, fullscreen, a Skip button for
-  intros and credits, Up Next in the same player, and keys (Space, ←/→, ↑/↓, M, F, Esc). It uses
-  mpv's software renderer drawing into Compose, so it needs no GPU setup but is heavy for 4K and
-  doesn't tone-map HDR; mpv's own window stays the default.
+  intros and credits, Up Next in the same player, and keys (Space, ←/→, ↑/↓, M, F, Esc). It draws
+  with the graphics card: mpv's OpenGL renderer (scaling, HDR tone mapping, VA-API decoding on
+  X11) runs in an offscreen EGL context at the window's size, and the finished frame is read into
+  the bitmap Compose draws. Where there's no EGL/OpenGL, or only a CPU one (Mesa's llvmpipe,
+  which with mpv's lanczos scaler sometimes draws only black), it uses mpv's software renderer;
+  Settings › Player › Draw with the graphics card switches to it too. mpv's own window stays
+  the default. `FETCH_MPV_DEBUG=1` prints libmpv's log for reporting playback problems.
 - **Ratings from TMDB**: a profile's rating limit uses the addon's certificate, else TMDB's
   (picked by country as the TV app does), cached for 30 days. Builds read `TMDB_API_KEY`; you
   can enter your own key in Settings › TMDB.
@@ -170,8 +174,9 @@ Two Kotlin rules now apply across the module boundary:
 
 Roughly in order:
 
-1. **Hardware-rendered built-in player.** Render libmpv through OpenGL into Skia's surface
-   instead of the software renderer, for 4K and HDR, then make it the default.
+1. **Built-in player as the default.** Once it's been tried on real GPUs (it's tested here on
+   Mesa's llvmpipe only), make it the default, and consider sharing the GL texture with Skia
+   instead of reading each frame back.
 2. **Move more of the data layer into `shared`.** Media servers, Trakt/Simkl and sync are
    separate, compact desktop clients today; sharing the Android ones needs their Android
    dependencies put behind interfaces first.

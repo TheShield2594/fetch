@@ -1139,7 +1139,7 @@ class AppState(
             return true
         }
         val session = playerSession ?: try {
-            PlayerSession(withContext(Dispatchers.IO) { EmbeddedMpv.create() })
+            PlayerSession(withContext(Dispatchers.IO) { EmbeddedMpv.create(preferGpu = settings.player.builtInGpu) })
         } catch (e: Exception) {
             message = "The built-in player couldn't start (${e.message}). Using mpv's window."
             return false

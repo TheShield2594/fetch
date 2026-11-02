@@ -33,6 +33,12 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+// Settings › About shows the version.
+tasks.processResources {
+    inputs.property("version", appVersionName)
+    filesMatching("fetch-desktop.properties") { expand("version" to appVersionName) }
+}
+
 dependencies {
     implementation(project(":shared"))
     implementation(compose.desktop.currentOs)

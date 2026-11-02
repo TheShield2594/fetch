@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,6 +41,9 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.fetch.desktop.AppState
 import com.fetch.desktop.Screen
+import com.fetch.desktop.data.ProgressEntry
+import com.fetch.desktop.data.episodeTag
+import com.fetch.desktop.data.remainingLabel
 import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.MetaPreview
 import kotlinx.coroutines.delay
@@ -51,22 +55,42 @@ import kotlinx.coroutines.delay
 @Composable
 fun HomeScreen(state: AppState) {
     when {
-        state.addonsLoading -> CenteredProgress()
-        state.rows.isEmpty() -> EmptyState(
+        state.addonsLoading && state.continueWatching.isEmpty() -> CenteredProgress()
+        state.rows.isEmpty() && state.continueWatching.isEmpty() -> EmptyState(
             title = "Nothing to show yet",
-            body = "Install an addon with catalogs on the Addons page."
+            body = "Install an addon with catalogs in Settings › Content & Discovery › Addons."
         )
         else -> HomeContent(state)
     }
 }
 
+/** What the hero is showing: a catalog title, or a Continue Watching entry with its resume line. */
+private sealed interface HeroSubject {
+    val backdrop: String?
+
+    data class Title(val preview: MetaPreview) : HeroSubject {
+        override val backdrop: String? get() = preview.backdropUrl
+    }
+
+    data class Resume(val entry: ProgressEntry) : HeroSubject {
+        override val backdrop: String? get() = entry.backdrop ?: entry.poster
+    }
+}
+
 @Composable
 private fun HomeContent(state: AppState) {
-    // The first title with a backdrop leads until the pointer picks another.
-    val fallback = state.rows.asSequence().flatMap { it.items }.firstOrNull { it.background != null }
-        ?: state.rows.asSequence().flatMap { it.items }.firstOrNull()
-    var hovered by remember { mutableStateOf<MetaPreview?>(null) }
-    var featured by remember { mutableStateOf<MetaPreview?>(null) }
+    val settings = state.settings
+    val continueWatching = if (settings.showContinueWatching) state.continueWatching else emptyList()
+    val homeRows = state.homeRows
+    // Continue Watching leads, as on TV; otherwise the first title with a backdrop, until the
+    // pointer picks another.
+    val fallback: HeroSubject? = continueWatching.firstOrNull()?.let { HeroSubject.Resume(it) }
+        ?: (
+            homeRows.asSequence().flatMap { it.items }.firstOrNull { it.background != null }
+                ?: homeRows.asSequence().flatMap { it.items }.firstOrNull()
+            )?.let { HeroSubject.Title(it) }
+    var hovered by remember { mutableStateOf<HeroSubject?>(null) }
+    var featured by remember { mutableStateOf<HeroSubject?>(null) }
     // A short pause before the hero follows the pointer, so sweeping across a row doesn't
     // load every backdrop on the way.
     LaunchedEffect(hovered) {
@@ -74,12 +98,22 @@ private fun HomeContent(state: AppState) {
         delay(220)
         featured = next
     }
-    val hero = featured ?: fallback
+    // A removed Continue Watching entry mustn't linger in the hero.
+    val hero = featured?.takeUnless { it is HeroSubject.Resume && continueWatching.none { e -> e.contentId == it.entry.contentId } }
+        ?: fallback
     val listState = state.homeListState
+    val cwActions = remember(state) {
+        ContinueWatchingActions(
+            onPlay = { state.openContinueWatching(it, play = true) },
+            onDetails = { state.openContinueWatching(it, play = false) },
+            onStartOver = state::startFromBeginning,
+            onRemove = state::removeFromContinueWatching
+        )
+    }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val heroHeight = (maxHeight * 0.56f).coerceIn(340.dp, 600.dp)
-        Backdrop(hero?.backdropUrl, height = heroHeight + 120.dp)
+        Backdrop(hero?.backdrop, height = heroHeight + 120.dp)
         ScrollbarBox(listState, Modifier.fillMaxSize()) {
             LazyColumn(
                 state = listState,
@@ -88,25 +122,60 @@ private fun HomeContent(state: AppState) {
                 modifier = Modifier.fillMaxSize()
             ) {
                 item(key = "hero") {
-                    if (hero != null) {
-                        Hero(
-                            item = hero,
+                    when (hero) {
+                        is HeroSubject.Title -> Hero(
+                            item = hero.preview,
                             height = heroHeight,
-                            onPlay = { state.navigate(Screen.Detail(hero, autoPlay = hero.type != ContentType.SERIES)) },
-                            onDetails = { state.navigate(Screen.Detail(hero)) }
+                            onPlay = { state.navigate(Screen.Detail(hero.preview, autoPlay = hero.preview.type != ContentType.SERIES)) },
+                            onDetails = { state.navigate(Screen.Detail(hero.preview)) }
                         )
-                    } else {
-                        Spacer(Modifier.height(heroHeight))
+                        is HeroSubject.Resume -> ResumeHero(
+                            entry = hero.entry,
+                            height = heroHeight,
+                            onPlay = { cwActions.onPlay(hero.entry) },
+                            onDetails = { cwActions.onDetails(hero.entry) }
+                        )
+                        null -> Spacer(Modifier.height(heroHeight))
                     }
                 }
-                items(state.rows, key = { it.key }) { row ->
+                if (continueWatching.isNotEmpty()) {
+                    item(key = "continue-watching") {
+                        ContinueWatchingRow(continueWatching, cwActions, onHover = { hovered = HeroSubject.Resume(it) })
+                    }
+                }
+                items(homeRows, key = { it.key }) { row ->
                     CatalogRowView(
                         row,
                         onOpen = { state.navigate(Screen.Detail(it)) },
-                        onHover = { hovered = it }
+                        onHover = { hovered = HeroSubject.Title(it) },
+                        title = row.title(settings.showCatalogType),
+                        subtitle = row.addon.displayName.takeIf { settings.showAddonName },
+                        showLabels = settings.showPosterLabels
                     )
                 }
             }
+        }
+    }
+}
+
+/** The hero for a Continue Watching entry: "Resume S2 E5" with the time left and a progress line. */
+@Composable
+private fun ResumeHero(entry: ProgressEntry, height: Dp, onPlay: () -> Unit, onDetails: () -> Unit) {
+    Box(Modifier.fillMaxWidth().height(height)) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.align(Alignment.BottomStart)
+                .padding(start = PageGutter, end = PageGutter, bottom = 8.dp)
+                .widthIn(max = 760.dp)
+        ) {
+            TitleArt(entry.name, entry.logo)
+            val line = listOfNotNull(episodeTag(entry.season, entry.episode), entry.episodeTitle).joinToString(" · ")
+            if (line.isNotEmpty()) FactsLine(facts = listOf(line), imdbRating = null)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 6.dp)) {
+                PrimaryButton(entry.playLabel(), onClick = onPlay, detail = remainingLabel(entry) ?: "Next Up".takeIf { entry.upNext })
+                SecondaryButton("Details", onClick = onDetails, icon = FetchIcons.Info)
+            }
+            if (!entry.upNext) ProgressBar(entry.fraction(), Modifier.width(360.dp))
         }
     }
 }

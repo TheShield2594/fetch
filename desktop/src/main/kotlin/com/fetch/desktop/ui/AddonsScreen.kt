@@ -53,13 +53,12 @@ fun AddonsScreen(state: AppState) {
     ScrollbarBox(listState, Modifier.fillMaxSize()) {
     LazyColumn(
         state = listState,
-        contentPadding = PaddingValues(horizontal = PageGutter, vertical = 40.dp),
+        contentPadding = PaddingValues(horizontal = PageGutter, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxSize().widthIn(max = 1100.dp)
     ) {
         item {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(bottom = 12.dp)) {
-                Text("Addons", style = MaterialTheme.typography.headlineLarge)
                 Text(
                     "Streams and catalogs come from Stremio addons. Paste an addon's link (it usually ends in manifest.json). " +
                         "Debrid services are signed in on the addon's own setup page.",
@@ -80,6 +79,9 @@ fun AddonsScreen(state: AppState) {
                     PrimaryButton("Install", onClick = install, icon = null, enabled = url.isNotBlank())
                 }
             }
+        }
+        if (state.addons.isEmpty() && state.unreachableAddons.isEmpty() && !state.addonsLoading) {
+            item { Text("No addons installed. Add one to get started.", color = FetchPalette.TextMuted) }
         }
         itemsIndexed(state.addons, key = { _, addon -> addon.baseUrl }) { index, addon ->
             AddonCard(

@@ -7,7 +7,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.fetch.desktop.data.AddonClient
 import com.fetch.desktop.data.AddonStore
+import com.fetch.desktop.data.DesktopSettings
+import com.fetch.desktop.data.JsonFile
+import com.fetch.desktop.data.LibraryEntry
+import com.fetch.desktop.data.LibraryFile
+import com.fetch.desktop.data.PlaybackTarget
+import com.fetch.desktop.data.ProgressEntry
+import com.fetch.desktop.data.ProgressFile
+import com.fetch.desktop.data.WatchHistory
+import com.fetch.desktop.data.episodeTag
+import com.fetch.desktop.data.libraryFile
+import com.fetch.desktop.data.progressFile
+import com.fetch.desktop.data.settingsFile
+import com.fetch.desktop.data.toPreview
 import com.fetch.desktop.player.ExternalPlayer
+import com.fetch.desktop.player.MpvProgress
 import com.fetch.tv.core.addon.AddonUrls
 import com.fetch.tv.core.addon.needsConfiguration
 import com.fetch.tv.core.streams.ranking.RankedStream
@@ -17,6 +31,7 @@ import com.fetch.tv.domain.model.CatalogDescriptor
 import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.Meta
 import com.fetch.tv.domain.model.MetaPreview
+import com.fetch.tv.domain.model.Stream
 import com.fetch.tv.domain.model.Video
 import com.fetch.tv.domain.model.supportsExtra
 import kotlinx.coroutines.CancellationException
@@ -30,12 +45,31 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/** The Settings pages, in rail order under their group headings (the TV app's groups). */
+enum class SettingsPage(val label: String, val group: String, val parent: SettingsPage? = null) {
+    STREAM_SELECTION("Stream Selection", "Playback"),
+    CONTENT_DISCOVERY("Content & Discovery", "Sources"),
+    ADDONS("Addons", "Sources", parent = CONTENT_DISCOVERY),
+    HOME_CATALOGS("Home catalogs", "Sources", parent = CONTENT_DISCOVERY),
+    APPEARANCE("Appearance", "Home"),
+    LAYOUT("Layout", "Home"),
+    ABOUT("About", "System");
+
+    /** The rail entry this page belongs under. */
+    val railPage: SettingsPage get() = parent ?: this
+}
+
 sealed interface Screen {
     data object Home : Screen
     data object Search : Screen
-    data object Addons : Screen
-    /** [autoPlay] starts the best match as soon as the sources are in (the home hero's Play). */
-    data class Detail(val preview: MetaPreview, val autoPlay: Boolean = false) : Screen
+    data object Discover : Screen
+    data object Library : Screen
+    data class Settings(val page: SettingsPage = SettingsPage.STREAM_SELECTION) : Screen
+    /**
+     * [autoPlay] starts the best match as soon as the sources are in (Play on the home hero or a
+     * Continue Watching card). [videoId] picks the episode, for Continue Watching.
+     */
+    data class Detail(val preview: MetaPreview, val autoPlay: Boolean = false, val videoId: String? = null) : Screen
 }
 
 /** A home row: one addon catalog and what it returned. */
@@ -48,9 +82,13 @@ data class CatalogRow(
 ) {
     val key: String get() = "${addon.baseUrl}|${catalog.apiType}|${catalog.id}"
 
-    /** The row's heading, as the TV app writes it: "Popular - Movies". */
-    val title: String
-        get() = "${catalog.name.replaceFirstChar { it.uppercase() }} - ${typeLabel(catalog.apiType)}"
+    /** The row's heading, as the TV app writes it: "Popular - Movies", or just "Popular". */
+    fun title(showType: Boolean): String {
+        val name = catalog.name.replaceFirstChar { it.uppercase() }
+        return if (showType) "$name - ${typeLabel(catalog.apiType)}" else name
+    }
+
+    val title: String get() = title(showType = true)
 }
 
 fun typeLabel(type: String): String = when (type.lowercase()) {
@@ -63,11 +101,15 @@ fun typeLabel(type: String): String = when (type.lowercase()) {
 
 /** The sources for one title or episode, ranked by the TV app's StreamRanker. */
 data class SourcesState(
+    val preview: MetaPreview,
+    val video: Video?,
     val videoId: String,
     val label: String,
     /** "S2 E6" for an episode, null for a movie. */
     val episodeTag: String? = null,
     val loading: Boolean = true,
+    /** Every stream the addons sent, kept so a change to the rules can rank them again. */
+    val streams: List<Stream> = emptyList(),
     val ranked: List<RankedStream> = emptyList(),
     val failedAddons: List<String> = emptyList()
 ) {
@@ -82,11 +124,17 @@ data class SourcesState(
 class AppState(
     private val scope: CoroutineScope,
     private val client: AddonClient = AddonClient.create(),
-    private val store: AddonStore = AddonStore()
+    private val store: AddonStore = AddonStore(),
+    private val settingsStore: JsonFile<DesktopSettings> = settingsFile(),
+    private val libraryStore: JsonFile<LibraryFile> = libraryFile(),
+    private val progressStore: JsonFile<ProgressFile> = progressFile()
 ) {
     var screen: Screen by mutableStateOf(Screen.Home)
         private set
     private val backStack = ArrayDeque<Screen>()
+
+    var settings: DesktopSettings by mutableStateOf(settingsStore.load())
+        private set
 
     val addons = mutableStateListOf<Addon>()
     var addonsLoading by mutableStateOf(true)
@@ -94,9 +142,14 @@ class AppState(
     /** Saved addon URLs that didn't answer at startup, with why. They stay saved. */
     val unreachableAddons = mutableStateListOf<Pair<String, String>>()
 
+    /** Every home-able catalog, in addon order; [homeRows] applies the pins and hidden ones. */
     val rows = mutableStateListOf<CatalogRow>()
     /** Home's scroll position, kept here so coming back from a title lands where you left. */
     val homeListState = LazyListState()
+
+    val library = mutableStateListOf<LibraryEntry>().apply { addAll(libraryStore.load().items) }
+    var progress: ProgressFile by mutableStateOf(progressStore.load())
+        private set
 
     var detailMeta: Meta? by mutableStateOf(null)
         private set
@@ -107,6 +160,9 @@ class AppState(
     private var sourcesJob: Job? = null
     private var autoPlayPending = false
 
+    /** The sources list sliding in over the detail page. */
+    var sourcesPanelOpen by mutableStateOf(false)
+
     var searchQuery by mutableStateOf("")
         private set
     val searchRows = mutableStateListOf<CatalogRow>()
@@ -114,12 +170,16 @@ class AppState(
         private set
     private var searchJob: Job? = null
 
+    val discover = DiscoverState(scope, client) { key -> updateSettings { it.copy(discoverCatalog = key) } }
+
     /** A one-line message for the snackbar, cleared once shown. */
     var message: String? by mutableStateOf(null)
 
     fun start() {
         scope.launch { reloadAddons() }
     }
+
+    // --- Navigation ---
 
     fun navigate(to: Screen) {
         if (to == screen) return
@@ -133,13 +193,17 @@ class AppState(
             sourcesPanelOpen = false
             return
         }
+        val current = screen
+        if (backStack.isEmpty() && current is Screen.Settings && current.page.parent != null) {
+            show(Screen.Settings(current.page.parent))
+            return
+        }
         backStack.removeLastOrNull()?.let(::show)
     }
 
-    val canGoBack: Boolean get() = sourcesPanelOpen || backStack.isNotEmpty()
-
-    /** The sources list sliding in over the detail page. */
-    var sourcesPanelOpen by mutableStateOf(false)
+    val canGoBack: Boolean
+        get() = sourcesPanelOpen || backStack.isNotEmpty() ||
+            (screen as? Screen.Settings)?.page?.parent != null
 
     fun openSection(section: Screen) {
         backStack.clear()
@@ -151,8 +215,23 @@ class AppState(
         sourcesPanelOpen = false
         if (to is Screen.Detail) {
             autoPlayPending = to.autoPlay
-            loadDetail(to.preview)
+            loadDetail(to.preview, to.videoId)
         }
+    }
+
+    // --- Settings ---
+
+    fun updateSettings(change: (DesktopSettings) -> DesktopSettings) {
+        val before = settings
+        val after = change(before)
+        if (after == before) return
+        settings = after
+        try {
+            settingsStore.save(after)
+        } catch (e: Exception) {
+            message = "Couldn't save settings: ${e.message}"
+        }
+        if (after.rankingRules != before.rankingRules) rerankSources()
     }
 
     // --- Addons ---
@@ -182,7 +261,11 @@ class AppState(
             )
         }
         addonsLoading = false
-        reloadRows()
+        addonsChanged()
+    }
+
+    fun refreshAddons() {
+        scope.launch { reloadAddons() }
     }
 
     fun installAddon(input: String) {
@@ -207,7 +290,7 @@ class AppState(
             addons.add(addon)
             persist()
             message = "Installed ${addon.displayName}"
-            reloadRows()
+            addonsChanged()
         }
     }
 
@@ -215,6 +298,7 @@ class AppState(
         addons.remove(addon)
         persist()
         rows.removeAll { it.addon.baseUrl == addon.baseUrl }
+        discover.setAddons(addons.toList(), settings.discoverCatalog)
     }
 
     fun forgetUnreachable(url: String) {
@@ -229,7 +313,7 @@ class AppState(
         addons.removeAt(from)
         addons.add(to, addon)
         persist()
-        reloadRows()
+        addonsChanged()
     }
 
     private fun persist() {
@@ -242,7 +326,30 @@ class AppState(
         }
     }
 
+    private fun addonsChanged() {
+        reloadRows()
+        discover.setAddons(addons.toList(), settings.discoverCatalog)
+    }
+
     // --- Home ---
+
+    /** The rows Home shows: pinned catalogs first in pin order, then the rest, minus disabled ones. */
+    val homeRows: List<CatalogRow>
+        get() {
+            val pinned = settings.pinnedCatalogs
+            val disabled = settings.disabledCatalogs.toSet()
+            val visible = rows.filter { it.key !in disabled }
+            return visible.filter { it.key in pinned }.sortedBy { pinned.indexOf(it.key) } +
+                visible.filter { it.key !in pinned }
+        }
+
+    fun setCatalogPinned(key: String, pinned: Boolean) = updateSettings { s ->
+        s.copy(pinnedCatalogs = if (pinned) (s.pinnedCatalogs - key) + key else s.pinnedCatalogs - key)
+    }
+
+    fun setCatalogEnabled(key: String, enabled: Boolean) = updateSettings { s ->
+        s.copy(disabledCatalogs = if (enabled) s.disabledCatalogs - key else (s.disabledCatalogs - key) + key)
+    }
 
     private fun reloadRows() {
         val wanted = addons.flatMap { addon ->
@@ -265,6 +372,69 @@ class AppState(
                 val index = rows.indexOfFirst { it.key == row.key }
                 if (index >= 0) rows[index] = updated
             }
+        }
+    }
+
+    // --- Continue Watching ---
+
+    val continueWatching: List<ProgressEntry> get() = WatchHistory.continueWatching(progress)
+
+    /** The saved position for this title, when it is in progress or has a next episode waiting. */
+    fun progressFor(contentId: String): ProgressEntry? =
+        progress.entries.firstOrNull { it.contentId == contentId && !it.hidden }
+
+    fun resumeEntry(videoId: String): ProgressEntry? =
+        progress.entries.firstOrNull { it.videoId == videoId && !it.upNext && WatchHistory.resumeSeconds(progress, videoId) != null }
+
+    fun openContinueWatching(entry: ProgressEntry, play: Boolean) {
+        navigate(Screen.Detail(entry.toPreview(), autoPlay = play, videoId = entry.videoId))
+    }
+
+    fun removeFromContinueWatching(entry: ProgressEntry) {
+        saveProgress(WatchHistory.hide(progress, entry.contentId))
+        message = "Removed ${entry.name} from Continue Watching"
+    }
+
+    fun startFromBeginning(entry: ProgressEntry) {
+        saveProgress(WatchHistory.clearPosition(progress, entry.contentId))
+        navigate(Screen.Detail(entry.toPreview(), autoPlay = true, videoId = entry.videoId))
+    }
+
+    private fun saveProgress(file: ProgressFile) {
+        progress = file
+        try {
+            progressStore.save(file)
+        } catch (_: Exception) {
+            // Losing one position update isn't worth interrupting playback for.
+        }
+    }
+
+    // --- Library ---
+
+    fun isInLibrary(id: String): Boolean = library.any { it.id == id }
+
+    fun toggleLibrary(preview: MetaPreview, meta: Meta? = null) {
+        if (isInLibrary(preview.id)) {
+            library.removeAll { it.id == preview.id }
+            message = "Removed from library"
+        } else {
+            val enriched = if (meta == null) preview else preview.copy(
+                name = meta.name,
+                poster = meta.poster ?: preview.poster,
+                background = meta.background ?: preview.background,
+                logo = meta.logo ?: preview.logo,
+                description = meta.description ?: preview.description,
+                releaseInfo = meta.releaseInfo ?: preview.releaseInfo,
+                imdbRating = meta.imdbRating ?: preview.imdbRating,
+                genres = meta.genres.ifEmpty { preview.genres }
+            )
+            library.add(LibraryEntry.from(enriched, addedAt = System.currentTimeMillis()))
+            message = "Added to library"
+        }
+        try {
+            libraryStore.save(LibraryFile(library.toList()))
+        } catch (e: Exception) {
+            message = "Couldn't save the library: ${e.message}"
         }
     }
 
@@ -323,7 +493,7 @@ class AppState(
 
     // --- Detail and sources ---
 
-    private fun loadDetail(preview: MetaPreview) {
+    private fun loadDetail(preview: MetaPreview, videoId: String?) {
         detailMeta = null
         sources = null
         sourcesJob?.cancel()
@@ -336,13 +506,17 @@ class AppState(
             if (current is Screen.Detail && current.preview.id == preview.id) {
                 detailMeta = meta
                 detailLoading = false
-                // Look up sources straight away: a movie's, or a series' first episode, so the
-                // Play button can name what it will start.
-                val firstEpisode = meta?.videos?.let(::firstEpisode)
-                val isSeries = preview.type == ContentType.SERIES || firstEpisode != null
+                // Look up sources straight away so the Play button can name what it will start:
+                // the movie, or for a series the episode asked for, the one in Continue Watching,
+                // or the first.
+                val videos = meta?.videos.orEmpty()
+                val first = firstEpisode(videos)
+                val isSeries = preview.type == ContentType.SERIES || first != null
+                val wantedId = videoId ?: progressFor(preview.id)?.videoId
+                val episode = videos.firstOrNull { it.id == wantedId } ?: first
                 when {
                     !isSeries -> loadSources(preview)
-                    firstEpisode != null -> loadSources(preview, firstEpisode)
+                    episode != null -> loadSources(preview, episode)
                 }
             }
         }
@@ -350,35 +524,47 @@ class AppState(
 
     fun loadSources(preview: MetaPreview, video: Video? = null) {
         val videoId = video?.id ?: preview.id
-        val episodeTag = video?.let { v ->
-            if (v.season != null && v.episode != null) "S${v.season} E${v.episode}" else null
-        }
-        val label = video?.let { v -> listOfNotNull(episodeTag, v.title.takeIf { it.isNotBlank() }).joinToString(" · ") }
+        val tag = video?.let { episodeTag(it.season, it.episode) }
+        val label = video?.let { v -> listOfNotNull(tag, v.title.takeIf { it.isNotBlank() }).joinToString(" · ") }
             ?.let { "${preview.name} · $it" }
             ?: preview.name
         sourcesJob?.cancel()
-        sources = SourcesState(videoId = videoId, label = label, episodeTag = episodeTag)
+        sources = SourcesState(preview = preview, video = video, videoId = videoId, label = label, episodeTag = tag)
         sourcesJob = scope.launch {
             val results = withContext(Dispatchers.IO) {
                 client.streams(addons.toList(), preview.rawType, videoId)
             }
-            val ranked = withContext(Dispatchers.Default) {
-                StreamRanker.rank(results.flatMap { it.streams }, isPlayable = ExternalPlayer::canPlay)
-            }
+            val streams = results.flatMap { it.streams }
             val loaded = SourcesState(
+                preview = preview,
+                video = video,
                 videoId = videoId,
                 label = label,
-                episodeTag = episodeTag,
+                episodeTag = tag,
                 loading = false,
-                ranked = ranked,
+                streams = streams,
+                ranked = rank(streams),
                 failedAddons = results.filter { it.error != null }.map { "${it.addon.displayName}: ${it.error}" }
             )
             sources = loaded
             if (autoPlayPending) {
                 autoPlayPending = false
                 val best = loaded.best
-                if (best != null) play(best, label) else message = "No source to play automatically. Pick one below."
+                if (best != null) play(best) else message = "No source to play automatically. Pick one below."
             }
+        }
+    }
+
+    private suspend fun rank(streams: List<Stream>): List<RankedStream> = withContext(Dispatchers.Default) {
+        StreamRanker.rank(streams, rules = settings.rankingRules, isPlayable = ExternalPlayer::canPlay)
+    }
+
+    private fun rerankSources() {
+        val current = sources ?: return
+        if (current.loading) return
+        scope.launch {
+            val ranked = rank(current.streams)
+            if (sources?.videoId == current.videoId) sources = current.copy(ranked = ranked)
         }
     }
 
@@ -391,7 +577,7 @@ class AppState(
             return
         }
         val best = current.best
-        if (best != null) play(best, current.label) else sourcesPanelOpen = true
+        if (best != null) play(best) else sourcesPanelOpen = true
     }
 
     fun playTrailer(ytId: String, title: String) {
@@ -401,11 +587,49 @@ class AppState(
         }
     }
 
-    fun play(ranked: RankedStream, title: String) {
+    /** Plays [ranked] for the title or episode the sources are for, resuming where it was left. */
+    fun play(ranked: RankedStream) {
         autoPlayPending = false
-        when (val result = ExternalPlayer.play(ranked.stream, title)) {
-            is ExternalPlayer.Result.Started -> message = "Opening in ${result.player}"
+        val context = sources ?: return
+        val meta = detailMeta?.takeIf { it.id == context.preview.id }
+        val target = PlaybackTarget(
+            contentId = context.preview.id,
+            contentType = context.preview.apiType,
+            name = meta?.name ?: context.preview.name,
+            poster = meta?.poster ?: context.preview.poster,
+            backdrop = meta?.background ?: context.preview.background,
+            logo = meta?.logo ?: context.preview.logo,
+            video = context.video,
+            episodes = meta?.videos.orEmpty()
+        )
+        val resume = WatchHistory.resumeSeconds(progress, context.videoId)
+        when (val result = ExternalPlayer.play(ranked.stream, context.label, startSeconds = resume)) {
+            is ExternalPlayer.Result.Started -> {
+                message = if (resume != null) "Resuming in ${result.player}" else "Opening in ${result.player}"
+                followProgress(result, target)
+            }
             is ExternalPlayer.Result.Failed -> message = result.message
+        }
+    }
+
+    /** Saves mpv's position as it plays, for Continue Watching and resume. */
+    private fun followProgress(result: ExternalPlayer.Result.Started, target: PlaybackTarget) {
+        val process = result.process ?: return
+        val socket = result.ipcSocket ?: return
+        scope.launch(Dispatchers.IO) {
+            MpvProgress.follow(socket, process) { sample ->
+                scope.launch {
+                    saveProgress(
+                        WatchHistory.record(
+                            progress,
+                            target,
+                            positionMs = (sample.positionSec * 1000).toLong(),
+                            durationMs = (sample.durationSec * 1000).toLong(),
+                            now = System.currentTimeMillis()
+                        )
+                    )
+                }
+            }
         }
     }
 

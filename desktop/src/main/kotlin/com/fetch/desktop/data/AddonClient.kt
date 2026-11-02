@@ -39,8 +39,14 @@ class AddonClient(private val api: AddonApi) {
         return manifest.toDomain(baseUrl)
     }
 
-    suspend fun catalog(addon: Addon, catalog: CatalogDescriptor): List<MetaPreview> {
-        val url = AddonUrls.catalog(addon.baseUrl, catalog.apiType, catalog.id)
+    /** One page of a catalog; [extra] carries filters such as a genre, [skip] pages through it. */
+    suspend fun catalog(
+        addon: Addon,
+        catalog: CatalogDescriptor,
+        skip: Int = 0,
+        extra: Map<String, String> = emptyMap()
+    ): List<MetaPreview> {
+        val url = AddonUrls.catalog(addon.baseUrl, catalog.apiType, catalog.id, skip = skip, extraArgs = extra)
         val response = call { api.getCatalog(url) }
         return response.metas.mapNotNull { it?.toDomainOrNull(catalog.apiType, addon.baseUrl) }
     }

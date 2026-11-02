@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -129,13 +130,14 @@ fun PrimaryButton(
             .handCursor()
             .padding(start = 22.dp, end = 28.dp, top = if (detail != null) 10.dp else 13.dp, bottom = if (detail != null) 10.dp else 13.dp)
     ) {
-        if (icon != null) Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(26.dp))
+        val content = if (enabled) FetchPalette.OnAccent else Color.White
+        if (icon != null) Icon(icon, contentDescription = null, tint = content, modifier = Modifier.size(26.dp))
         Column {
-            Text(text, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 17.sp, maxLines = 1)
+            Text(text, color = content, fontWeight = FontWeight.Bold, fontSize = 17.sp, maxLines = 1)
             if (detail != null) {
                 Text(
                     detail,
-                    color = Color.White.copy(alpha = 0.92f),
+                    color = content.copy(alpha = 0.92f),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 14.sp,
                     maxLines = 1,
@@ -278,7 +280,10 @@ fun PosterCard(
     item: MetaPreview,
     onClick: () -> Unit,
     onHover: (MetaPreview) -> Unit = {},
-    shape: PosterShape = item.posterShape
+    shape: PosterShape = item.posterShape,
+    showLabels: Boolean = true,
+    /** Fills the cell's width instead of the shape's fixed width, for grids. */
+    fillWidth: Boolean = false
 ) {
     val size = cardSize(shape)
     val interaction = remember { MutableInteractionSource() }
@@ -289,14 +294,17 @@ fun PosterCard(
     Column(
         verticalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier
-            .width(size.width)
+            .then(if (fillWidth) Modifier.fillMaxWidth() else Modifier.width(size.width))
             .hoverable(interaction)
             .clickable(interactionSource = interaction, indication = null, onClick = onClick)
             .handCursor()
     ) {
         Box(
             Modifier
-                .size(size.width, size.height)
+                .then(
+                    if (fillWidth) Modifier.fillMaxWidth().aspectRatio(size.width / size.height)
+                    else Modifier.size(size.width, size.height)
+                )
                 .graphicsLayer { scaleX = scale; scaleY = scale }
                 .clip(corner)
                 .background(FetchPalette.SurfaceRaised)
@@ -317,21 +325,23 @@ fun PosterCard(
                 )
             }
         }
-        Text(
-            item.name,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium,
-            color = if (hovered) Color.White else FetchPalette.TextPrimary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(top = 4.dp)
-        )
-        Text(
-            item.releaseInfo.orEmpty(),
-            style = MaterialTheme.typography.bodySmall,
-            color = FetchPalette.TextMuted,
-            maxLines = 1
-        )
+        if (showLabels) {
+            Text(
+                item.name,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = if (hovered) Color.White else FetchPalette.TextPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+            Text(
+                item.releaseInfo.orEmpty(),
+                style = MaterialTheme.typography.bodySmall,
+                color = FetchPalette.TextMuted,
+                maxLines = 1
+            )
+        }
     }
 }
 
@@ -372,7 +382,8 @@ fun CatalogRowView(
     onOpen: (MetaPreview) -> Unit,
     onHover: (MetaPreview) -> Unit = {},
     title: String = row.title,
-    subtitle: String? = row.addon.displayName
+    subtitle: String? = row.addon.displayName,
+    showLabels: Boolean = true
 ) {
     val rowInteraction = remember { MutableInteractionSource() }
     val rowHovered by rowInteraction.collectIsHoveredAsState()
@@ -415,7 +426,7 @@ fun CatalogRowView(
                         horizontalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
                         items(row.items, key = { it.id }) { item ->
-                            PosterCard(item, onClick = { onOpen(item) }, onHover = onHover, shape = shape)
+                            PosterCard(item, onClick = { onOpen(item) }, onHover = onHover, shape = shape, showLabels = showLabels)
                         }
                     }
                 }

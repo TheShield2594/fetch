@@ -8,6 +8,11 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
+import com.fetch.tv.domain.model.AppTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -24,14 +29,40 @@ object FetchPalette {
     val TextPrimary = Color(0xFFF5F5F5)
     val TextSecondary = Color(0xFFB3B3B8)
     val TextMuted = Color(0xFF85858C)
-    val Accent = Color(0xFFE5484D)
-    val AccentDim = Color(0xFF3A1416)
-    val OnAccent = Color(0xFFFFFFFF)
+    private val accentState = mutableStateOf(accentFor(AppTheme.FETCH))
+
+    /** The theme's accent. Reading it in composition follows theme changes. */
+    val Accent: Color get() = accentState.value
+    /** The accent sunk into the background, for the selected sidebar tile. */
+    val AccentDim: Color get() = lerp(Background, Accent, 0.22f)
+    /** Text on the accent: dark on the light accents (White, Graphite, Amber…). */
+    val OnAccent: Color get() = if (Accent.luminance() > 0.5f) Color.Black else Color.White
+
+    fun setTheme(theme: AppTheme) {
+        accentState.value = accentFor(theme)
+    }
     val Imdb = Color(0xFFF5C518)
     val Error = Color(0xFFFF6B6B)
 }
 
-private val FetchColors = darkColorScheme(
+/** Each theme's accent, from the TV app's palettes. */
+fun accentFor(theme: AppTheme): Color = when (theme) {
+    AppTheme.FETCH, AppTheme.CUSTOM -> Color(0xFFDC2B33)
+    AppTheme.GOLD -> Color(0xFFE8A91C)
+    AppTheme.JADE -> Color(0xFF22D37C)
+    AppTheme.ROSE_GOLD -> Color(0xFFEC70A9)
+    AppTheme.ARCTIC_BLUE -> Color(0xFF3185F5)
+    AppTheme.GRAPHITE -> Color(0xFFAAB2BE)
+    AppTheme.CRIMSON -> Color(0xFFE5484D)
+    AppTheme.OCEAN -> Color(0xFF4CB5F5)
+    AppTheme.VIOLET -> Color(0xFFA78BFA)
+    AppTheme.EMERALD -> Color(0xFF3DD68C)
+    AppTheme.AMBER -> Color(0xFFF5A524)
+    AppTheme.ROSE -> Color(0xFFF06A9E)
+    AppTheme.WHITE -> Color(0xFFF5F5F5)
+}
+
+private fun fetchColors() = darkColorScheme(
     primary = FetchPalette.Accent,
     onPrimary = FetchPalette.OnAccent,
     primaryContainer = FetchPalette.AccentDim,
@@ -82,7 +113,9 @@ private val FetchScrollbarStyle = ScrollbarStyle(
 
 @Composable
 fun FetchTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = FetchColors, typography = FetchTypography) {
+    val accent = FetchPalette.Accent
+    val colors = remember(accent) { fetchColors() }
+    MaterialTheme(colorScheme = colors, typography = FetchTypography) {
         CompositionLocalProvider(LocalScrollbarStyle provides FetchScrollbarStyle, content = content)
     }
 }

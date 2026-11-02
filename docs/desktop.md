@@ -41,23 +41,46 @@ You don't need the Android SDK for the desktop app:
 configures `:app` and needs the Android SDK, as before. A JDK 17 or newer is required, and
 packaging needs `jpackage`, which ships with the JDK. Building the `.rpm` also needs `rpmbuild`.
 
-Settings live in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`). Today that is only
-`addons.json`, the list of installed addons.
+Everything is kept in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`):
+
+| File | What it holds |
+| --- | --- |
+| `addons.json` | The installed addons, in order |
+| `settings.json` | Settings: stream selection rules, theme, layout, home catalog pins |
+| `library.json` | Titles saved with Add to library |
+| `progress.json` | Where you stopped each title (Continue Watching) and what you finished |
 
 ## What works
 
+- The TV app's navigation: a floating sidebar with Home, Search, Library and Settings (plus
+  Discover when its location is "Show in Side Panel"). It opens to show labels on hover.
+  Addons are in Settings › Content & Discovery, as on TV.
 - Installing, ordering and removing addons by manifest link. A first run starts with Cinemeta
   and OpenSubtitles, like the TV app.
-- A layout modeled on the TV app: a floating sidebar (it opens to show labels on hover), and a
-  Home hero with the highlighted title's backdrop, logo, facts and Play. Hovering a poster puts
-  it in the hero.
+- A Home hero with the highlighted title's backdrop, logo, facts and Play. Hovering a poster
+  puts it in the hero.
+- **Continue Watching** first on Home: landscape cards with the time left and a progress bar,
+  and the hero's "Resume S2 E5 · 38m left". Fetch reads mpv's position through its IPC socket
+  while you watch, resumes from there, and follows the TV app's rules: started at 2%, finished
+  at 90%, one card per show, and a finished episode turns into Next Up for the following one.
+  Right-click a card (or the × on hover) for Go to details, Start from beginning and Remove.
+- **Library**: titles saved with Add to library on the title page, with the TV app's Type,
+  Sort, Genre, Year and Watched filters. It is local; Trakt and Simkl lists aren't on desktop.
+- **Discover**: pick a type, catalog and genre and browse the catalog as a grid that loads more
+  as you scroll. It sits in Search until you type, as on TV, or in the sidebar.
+- **Settings**: Stream Selection (quality, codec, file size, audio languages, skipped release
+  types, audio formats and release groups, result limits), Content & Discovery (Addons, and
+  Home catalogs to pin or hide rows), Appearance (the TV app's color themes), Layout (Continue
+  Watching, catalog type and addon name on rows, poster labels, Discover location) and About.
+  Ctrl+, opens them.
 - Home rows from every addon catalog that needs no search or genre input. Rows keep the
   catalog's poster shape, and hovering one shows arrows to page through it.
 - Search across every addon catalog that takes a search (Ctrl+F or Ctrl+K from anywhere).
-- Title pages like the TV detail page: backdrop, logo, facts, a Play button that names the best
-  source's specs, the best match card, the trailer, episodes by season and the cast, from the
-  first addon that serves metadata.
-- Sources from every stream addon at once, ranked best first by the TV app's `StreamRanker`,
+- Title pages like the TV detail page: backdrop, logo, facts, a Play (or Resume) button that
+  names the best source's specs, Add to library, the best match card, the trailer, episodes by
+  season and the cast, from the first addon that serves metadata.
+- Sources from every stream addon at once, ranked best first by the TV app's `StreamRanker`
+  with your Stream Selection rules,
   with its labels as chips (resolution, HDR, codec, audio, size, cached). Sources it rules out
   are listed last with the reason. All sources open in a side panel.
 - Playback in mpv, in its own window, including addon `proxyHeaders`. Torrent-only results are
@@ -89,9 +112,9 @@ Roughly in order:
 2. **Move more of the data layer into `shared`.** The addon, catalog, meta and stream repositories
    need their Android `Context` (strings, DataStore) and Hilt bindings put behind interfaces first.
    Then both apps get the same caching, addon health tracking and best-match logic.
-3. **Settings and stream rules** on desktop: ranking rules, preferred languages, the stream badge
-   editor.
-4. **Watch state**: Continue Watching, Trakt and Simkl sync, and the sync server.
-5. **Discover** (browse a catalog by genre).
-6. **More packages**: Flatpak (Flathub) and AppImage, then Windows (`.msi`) and macOS (`.dmg`)
+3. **Accounts and sync**: Trakt and Simkl (Library lists, watch history, scrobbling) and the
+   sync server, so desktop and TV share Continue Watching.
+4. **More settings**: profiles, the stream badge editor, subtitles and audio preferences passed
+   to mpv, and media servers (Jellyfin, Emby, Plex).
+5. **More packages**: Flatpak (Flathub) and AppImage, then Windows (`.msi`) and macOS (`.dmg`)
    from the same `nativeDistributions` block.

@@ -58,6 +58,8 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.fetch.desktop.AppState
 import com.fetch.desktop.SourcesState
+import com.fetch.desktop.data.ProgressEntry
+import com.fetch.desktop.data.remainingLabel
 import com.fetch.desktop.player.ExternalPlayer
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.core.streams.ranking.RankedStream
@@ -108,6 +110,9 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         onPlay = state::playBest,
                         onAllSources = { state.sourcesPanelOpen = true },
                         onTrailer = { ytId -> state.playTrailer(ytId, meta?.name ?: preview.name) },
+                        resume = state.sources?.videoId?.let(state::resumeEntry),
+                        inLibrary = state.isInLibrary(preview.id),
+                        onToggleLibrary = { state.toggleLibrary(preview, meta) },
                         minHeight = heroMinHeight
                     )
                 }
@@ -115,7 +120,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                     SourcesSummary(
                         sources = state.sources,
                         loadingMeta = state.detailLoading,
-                        onPlay = { state.play(it, state.sources?.label ?: preview.name) },
+                        onPlay = state::play,
                         onAllSources = { state.sourcesPanelOpen = true }
                     )
                 }
@@ -163,7 +168,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
             if (sources != null) {
                 SourcesPanel(
                     sources = sources,
-                    onPlay = { state.play(it, sources.label) },
+                    onPlay = state::play,
                     onClose = { state.sourcesPanelOpen = false },
                     modifier = Modifier.width(560.dp).fillMaxHeight()
                 )
@@ -172,6 +177,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Hero(
     preview: MetaPreview,
@@ -181,6 +187,9 @@ private fun Hero(
     onPlay: () -> Unit,
     onAllSources: () -> Unit,
     onTrailer: (String) -> Unit,
+    resume: ProgressEntry?,
+    inLibrary: Boolean,
+    onToggleLibrary: () -> Unit,
     minHeight: Dp
 ) {
     Column(
@@ -217,19 +226,24 @@ private fun Hero(
                 overflow = TextOverflow.Ellipsis
             )
         }
-        Row(
+        // Wraps on a narrow window instead of clipping the last buttons.
+        FlowRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            itemVerticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(top = 8.dp)
         ) {
             val best = sources?.best
-            val playLabel = sources?.episodeTag?.let { "Play $it" } ?: "Play"
-            val detail = when {
+            // "Resume S2 E5" with the time left when this episode or movie was started, as on TV.
+            val verb = if (resume != null) "Resume" else "Play"
+            val playLabel = listOfNotNull(verb, sources?.episodeTag).joinToString(" ")
+            val specs = when {
                 sources == null -> if (isSeries) "Pick an episode" else "Loading…"
                 sources.loading -> "Finding the best source…"
                 best != null -> best.specText() ?: best.stream.addonName
                 else -> "No playable source"
             }
+            val detail = listOfNotNull(resume?.let(::remainingLabel), specs).joinToString(" · ")
             PrimaryButton(
                 text = playLabel,
                 detail = detail,
@@ -239,6 +253,11 @@ private fun Hero(
             if (sources != null && !sources.loading && sources.ranked.isNotEmpty()) {
                 SecondaryButton("All sources", onClick = onAllSources, icon = FetchIcons.List)
             }
+            SecondaryButton(
+                if (inLibrary) "In library" else "Add to library",
+                onClick = onToggleLibrary,
+                icon = if (inLibrary) FetchIcons.Check else FetchIcons.Add
+            )
             val trailer = meta?.trailerYtIds?.firstOrNull() ?: preview.trailerYtIds.firstOrNull()
             if (trailer != null) {
                 CircleIconButton(FetchIcons.Trailer, "Play trailer", onClick = { onTrailer(trailer) }, size = 52.dp)

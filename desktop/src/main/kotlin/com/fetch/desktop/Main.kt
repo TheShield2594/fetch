@@ -8,7 +8,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.runtime.CompositionLocalProvider
 import com.fetch.desktop.ui.FetchApp
+import com.fetch.desktop.ui.LocalWindowState
 import org.jetbrains.skia.Image
 
 fun main() = application {
@@ -24,6 +26,6 @@ fun main() = application {
         icon = icon,
         state = windowState
     ) {
-        FetchApp()
+        CompositionLocalProvider(LocalWindowState provides windowState) { FetchApp() }
     }
 }

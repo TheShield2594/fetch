@@ -4,6 +4,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.JsonPrimitive
@@ -64,8 +65,110 @@ class SyncClient(
     /** RPC `sync_pull_profiles`. */
     suspend fun pullProfiles(): List<RemoteProfile> =
         syncJson.decodeFromString<List<ProfileDto>>(rpc("sync_pull_profiles", null)).map {
-            RemoteProfile(it.profileIndex, it.name, it.avatarColorHex, it.usesPrimaryAddons, it.avatarId, it.avatarUrl)
+            RemoteProfile(
+                it.profileIndex, it.name, it.avatarColorHex, it.usesPrimaryAddons, it.avatarId, it.avatarUrl,
+                it.profileBackgroundId, it.profileBackgroundUrl,
+            )
         }.sortedBy { it.profileIndex }
+
+    /**
+     * Replaces the account's profile list (RPC `sync_push_profiles`), as the TV app does after any
+     * profile edit: send every profile, profile 1 included. Like the TV app, `avatar_id` is only
+     * sent when there is no `avatar_url`, and `uses_primary_plugins` is always false.
+     */
+    suspend fun pushProfiles(profiles: List<RemoteProfile>) {
+        val params = buildJsonObject {
+            put("p_client_max_profiles", MAX_PROFILES)
+            putJsonArray("p_profiles") {
+                profiles.sortedBy { it.profileIndex }.forEach { profile ->
+                    addJsonObject {
+                        put("profile_index", profile.profileIndex)
+                        put("name", profile.name)
+                        put("avatar_color_hex", profile.avatarColorHex)
+                        put("uses_primary_addons", profile.usesPrimaryAddons)
+                        put("uses_primary_plugins", false)
+                        put("avatar_id", if (profile.avatarUrl.isNullOrBlank()) profile.avatarId else null)
+                        put("avatar_url", profile.avatarUrl?.takeIf { it.isNotBlank() })
+                        put("profile_background_id", profile.profileBackgroundId)
+                        put("profile_background_url", profile.profileBackgroundUrl?.takeIf { it.isNotBlank() })
+                    }
+                }
+            }
+            putOrigin()
+        }
+        rpc("sync_push_profiles", params)
+    }
+
+    /**
+     * Deletes everything the account holds for a profile (RPC `sync_delete_profile_data`). The TV
+     * app calls this when a profile is deleted, then [pushProfiles] with the profiles left.
+     */
+    suspend fun deleteProfileData(profileId: Int) {
+        require(profileId != PRIMARY_PROFILE_ID) { "The primary profile can't be deleted" }
+        rpc("sync_delete_profile_data", buildJsonObject {
+            put("p_profile_id", profileId)
+            putOrigin()
+        })
+    }
+
+    // --- Profile PINs ---
+    //
+    // The server keeps its own hash of each PIN: the TV app sends the PIN itself to these RPCs
+    // and never syncs its local `v1:<iterations>:<salt>:<hash>` ProfilePinHasher string. A device
+    // checks its local hash first; a PIN only the server has is checked with [verifyProfilePin]
+    // and, once it is right, hashed and kept locally.
+
+    /** Which profiles have a PIN on the server (RPC `sync_pull_profile_locks`). */
+    suspend fun pullProfileLocks(): List<RemoteProfileLock> =
+        syncJson.decodeFromString<List<ProfileLockDto>>(rpc("sync_pull_profile_locks", null))
+            .map { RemoteProfileLock(it.profileIndex, it.pinEnabled, it.pinLockedUntil) }
+            .sortedBy { it.profileIndex }
+
+    /**
+     * Sets a profile's PIN on the server (RPC `set_profile_pin`). A profile that already has one
+     * needs [currentPin]; without it, or with a wrong one, the result is [RemotePinSetResult.CURRENT_PIN_REQUIRED].
+     */
+    suspend fun setProfilePin(profileId: Int, pin: String, currentPin: String? = null): RemotePinSetResult {
+        val params = buildJsonObject {
+            put("p_profile_id", profileId)
+            put("p_pin", pin)
+            if (!currentPin.isNullOrBlank()) put("p_current_pin", currentPin)
+        }
+        return try {
+            rpc("set_profile_pin", params)
+            RemotePinSetResult.SUCCESS
+        } catch (e: SyncException) {
+            if (e !is SyncAuthException && e.message?.contains("Current PIN is required", ignoreCase = true) == true) {
+                RemotePinSetResult.CURRENT_PIN_REQUIRED
+            } else {
+                throw e
+            }
+        }
+    }
+
+    /** Removes a profile's PIN on the server (RPC `clear_profile_pin`). */
+    suspend fun clearProfilePin(profileId: Int, currentPin: String? = null) {
+        rpc("clear_profile_pin", buildJsonObject {
+            put("p_profile_id", profileId)
+            if (!currentPin.isNullOrBlank()) put("p_current_pin", currentPin)
+        })
+    }
+
+    /** Checks a PIN against the server's (RPC `verify_profile_pin`), which also counts failed attempts. */
+    suspend fun verifyProfilePin(profileId: Int, pin: String): RemotePinVerify {
+        val body = rpc("verify_profile_pin", buildJsonObject {
+            put("p_profile_id", profileId)
+            put("p_pin", pin)
+        })
+        val element = runCatching { syncJson.parseToJsonElement(body) }.getOrNull()
+        val row = when (element) {
+            is JsonArray -> element.firstOrNull()
+            is JsonObject -> element
+            else -> null
+        } ?: return RemotePinVerify(unlocked = false, retryAfterSeconds = 0)
+        val dto = syncJson.decodeFromJsonElement(PinVerifyDto.serializer(), row)
+        return RemotePinVerify(dto.unlocked, dto.retryAfterSeconds)
+    }
 
     // --- Library ---
 
@@ -318,6 +421,71 @@ class SyncClient(
         rpc("sync_push_addons", params)
     }
 
+    // --- Profile settings ---
+
+    /**
+     * A profile's settings blob (RPC `sync_pull_profile_settings_blob`), or null when the account
+     * has none yet. [platform] is the TV's by default, so both apps share one blob.
+     */
+    suspend fun pullSettingsBlob(profileId: Int, platform: String = SyncSettingsBlob.PLATFORM_TV): RemoteSettingsBlob? {
+        val body = rpc("sync_pull_profile_settings_blob", buildJsonObject {
+            put("p_profile_id", profileId)
+            put("p_platform", platform)
+        })
+        val element = runCatching { syncJson.parseToJsonElement(body) }.getOrNull()
+        val row = when (element) {
+            is JsonArray -> element.firstOrNull()
+            is JsonObject -> element
+            else -> null
+        } as? JsonObject ?: return null
+        val dto = syncJson.decodeFromJsonElement(SettingsBlobDto.serializer(), row)
+        return RemoteSettingsBlob(dto.profileId ?: profileId, dto.settingsJson ?: return null, dto.updatedAt)
+    }
+
+    /**
+     * Replaces a profile's settings blob (RPC `sync_push_profile_settings_blob`). The TV app replaces
+     * every feature in it with what the blob holds, so send a whole blob: change one pulled with
+     * [pullSettingsBlob] (see [SyncSettingsBlob]), or use [pushSharedSettings] / [pushParentalLimits].
+     */
+    suspend fun pushSettingsBlob(profileId: Int, settingsJson: JsonObject, platform: String = SyncSettingsBlob.PLATFORM_TV) {
+        rpc("sync_push_profile_settings_blob", buildJsonObject {
+            put("p_profile_id", profileId)
+            put("p_settings_json", settingsJson)
+            put("p_platform", platform)
+            putOrigin()
+        })
+    }
+
+    /** The shared settings in a profile's blob; null when the account has no blob for it. */
+    suspend fun pullSharedSettings(profileId: Int): RemoteSharedSettings? =
+        pullSettingsBlob(profileId)?.let { SyncSettingsBlob.sharedSettings(it.settingsJson) }
+
+    /**
+     * Writes [settings]' non-null fields into the profile's blob: pulls it, changes only those keys
+     * and pushes it back, so the TV's other settings (and its parental limits) are kept.
+     */
+    suspend fun pushSharedSettings(profileId: Int, settings: RemoteSharedSettings) {
+        val current = pullSettingsBlob(profileId)?.settingsJson
+        pushSettingsBlob(profileId, SyncSettingsBlob.withSharedSettings(current, settings))
+    }
+
+    /**
+     * A profile's parental limits from its blob; null when it has none, and always for profile 1,
+     * whose limits the TV app never syncs. The TV app only ever tightens its own limits with these
+     * (see [SyncMerge.parentalLimits]).
+     */
+    suspend fun pullParentalLimits(profileId: Int): RemoteParentalLimits? {
+        if (profileId == PRIMARY_PROFILE_ID) return null
+        return SyncSettingsBlob.parentalLimits(pullSettingsBlob(profileId)?.settingsJson)
+    }
+
+    /** Sets a profile's parental limits in its blob, keeping its settings (pull, change, push). */
+    suspend fun pushParentalLimits(profileId: Int, limits: RemoteParentalLimits) {
+        require(profileId != PRIMARY_PROFILE_ID) { "The primary profile has no synced limits" }
+        val current = pullSettingsBlob(profileId)?.settingsJson
+        pushSettingsBlob(profileId, SyncSettingsBlob.withParentalLimits(current, limits))
+    }
+
     // --- Plumbing ---
 
     private fun deltaParams(profileId: Int, since: Long, limit: Int) = buildJsonObject {
@@ -372,6 +540,9 @@ class SyncClient(
 
     companion object {
         const val PRIMARY_PROFILE_ID = 1
+
+        /** The TV app's profile limit (`ProfileManager.MAX_PROFILES`), sent as `p_client_max_profiles`. */
+        const val MAX_PROFILES = 6
         private const val LIBRARY_PAGE_SIZE = 500
         private const val WATCH_PAGE_SIZE = 900
         private const val ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -394,6 +565,28 @@ private data class ProfileDto(
     @SerialName("uses_primary_addons") val usesPrimaryAddons: Boolean = false,
     @SerialName("avatar_id") val avatarId: String? = null,
     @SerialName("avatar_url") val avatarUrl: String? = null,
+    @SerialName("profile_background_id") val profileBackgroundId: String? = null,
+    @SerialName("profile_background_url") val profileBackgroundUrl: String? = null,
+)
+
+@Serializable
+private data class ProfileLockDto(
+    @SerialName("profile_index") val profileIndex: Int,
+    @SerialName("pin_enabled") val pinEnabled: Boolean = false,
+    @SerialName("pin_locked_until") val pinLockedUntil: String? = null,
+)
+
+@Serializable
+private data class PinVerifyDto(
+    val unlocked: Boolean = false,
+    @SerialName("retry_after_seconds") val retryAfterSeconds: Int = 0,
+)
+
+@Serializable
+private data class SettingsBlobDto(
+    @SerialName("profile_id") val profileId: Int? = null,
+    @SerialName("settings_json") val settingsJson: JsonObject? = null,
+    @SerialName("updated_at") val updatedAt: String? = null,
 )
 
 /** A library row (snapshot) or library event (delta): the delta adds `event_id` and `operation`. */

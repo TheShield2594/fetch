@@ -28,7 +28,18 @@ import com.fetch.desktop.data.SubtitleMode
 import com.fetch.desktop.player.MpvArgs
 import com.fetch.desktop.player.MpvProgress
 import com.fetch.desktop.badges.StreamBadgesState
+import com.fetch.desktop.data.AppDirs
+import com.fetch.desktop.ratings.CertificationCache
+import com.fetch.desktop.ratings.RatingsResolver
+import com.fetch.desktop.ratings.TmdbCertificationClient
+import com.fetch.desktop.ratings.TmdbCredentials
+import com.fetch.desktop.parental.PinGate
 import com.fetch.desktop.sync.RemoteLibraryKey
+import com.fetch.desktop.sync.RemotePinSetResult
+import com.fetch.desktop.sync.SyncClient
+import com.fetch.desktop.sync.applyTo
+import com.fetch.desktop.sync.changedFrom
+import com.fetch.desktop.sync.toRemoteSharedSettings
 import com.fetch.desktop.sync.SyncAuthException
 import com.fetch.desktop.sync.SyncBase
 import com.fetch.desktop.sync.SyncMerge
@@ -36,7 +47,10 @@ import com.fetch.desktop.servers.ServerStream
 import com.fetch.tv.data.mediaserver.ServerItemRef
 import com.fetch.desktop.servers.ServersStore
 import com.fetch.desktop.skip.IntroDbClient
+import com.fetch.desktop.skip.Segment
 import com.fetch.desktop.skip.SegmentType
+import com.fetch.desktop.player.embedded.EmbeddedMpv
+import com.fetch.desktop.player.embedded.LibMpv
 import com.fetch.desktop.skip.SkipPlanner
 import com.fetch.desktop.tracking.ScrobbleAction
 import kotlinx.coroutines.withTimeoutOrNull
@@ -84,6 +98,7 @@ enum class SettingsPage(val label: String, val group: String, val parent: Settin
     SUBTITLES("Subtitles", "Playback"),
     SKIP_SEGMENTS("Skip Segments", "Playback"),
     CONTENT_DISCOVERY("Content & Discovery", "Sources"),
+    TMDB("TMDB", "Sources"),
     ADDONS("Addons", "Sources", parent = CONTENT_DISCOVERY),
     HOME_CATALOGS("Home catalogs", "Sources", parent = CONTENT_DISCOVERY),
     APPEARANCE("Appearance", "Home"),
@@ -232,12 +247,42 @@ class AppState(
 
     val limits: ProfileLimits get() = profiles.profiles.firstOrNull { it.id == profile.id }?.limits ?: profile.limits
 
-    /** Whether this profile may see [preview], by its rating (catalogs that give one). */
-    fun allowed(preview: MetaPreview): Boolean =
-        limits.maxRating == null || Parental.allows(limits, preview.ageRating, preview.country)
+    /**
+     * Ratings from TMDB for titles whose addon gives none, as the TV app resolves them. Only
+     * looked up while this profile has a rating limit.
+     */
+    val ratings = RatingsResolver(
+        scope,
+        TmdbCertificationClient(okhttp3.OkHttpClient(), apiKey = { settings.tmdbApiKey?.takeIf { it.isNotBlank() } ?: TmdbCredentials.load() }),
+        CertificationCache(File(AppDirs.config, "certifications.json"))
+    )
 
-    fun allowed(meta: Meta?, preview: MetaPreview): Boolean =
-        limits.maxRating == null || Parental.allows(limits, meta?.ageRating ?: preview.ageRating, meta?.country ?: preview.country)
+    /** The rating to judge [preview] by: the addon's, else TMDB's (asking TMDB if needed). */
+    private fun ratingOf(id: String, type: String, addonRating: String?, addonCountry: String?): Pair<String?, String?> {
+        if (addonRating != null) return addonRating to addonCountry
+        val imdb = id.substringBefore(':').takeIf { it.startsWith("tt") } ?: return null to null
+        val known = ratings.ratings[imdb]
+        if (known == null && imdb !in ratings.ratings) ratings.request(listOf(imdb to type))
+        return known?.rating to known?.country
+    }
+
+    /** Whether this profile may see [preview], by its rating (the addon's, else TMDB's). */
+    fun allowed(preview: MetaPreview): Boolean {
+        if (limits.maxRating == null) return true
+        val (rating, country) = ratingOf(preview.imdbId ?: preview.id, preview.apiType, preview.ageRating, preview.country)
+        return Parental.allows(limits, rating, country)
+    }
+
+    fun allowed(meta: Meta?, preview: MetaPreview): Boolean {
+        if (limits.maxRating == null) return true
+        val (rating, country) = ratingOf(
+            meta?.imdbId ?: preview.imdbId ?: preview.id,
+            preview.apiType,
+            meta?.ageRating ?: preview.ageRating,
+            meta?.country ?: preview.country
+        )
+        return Parental.allows(limits, rating, country)
+    }
 
     private fun currentBlock(): ScreenTimeBlock? {
         screenTime = Parental.today(screenTime, LocalDate.now())
@@ -285,6 +330,7 @@ class AppState(
         scope.launch {
             accountSyncing = true
             try {
+                syncAccountSetup(remote)
                 val id = profile.id
                 // Library: a three-way merge, so a removal on either side carries over.
                 val merge = SyncMerge.library(library.toList(), remote.pullLibrary(id), syncBaseStore.load())
@@ -424,6 +470,120 @@ class AppState(
             message = "Couldn't save settings: ${e.message}"
         }
         if (after.rankingRules != before.rankingRules) rerankSources()
+        if (!applyingFromServer) queueSettingsPush(before)
+    }
+
+    // --- Sync server: settings, addons, profiles ---
+
+    private var applyingFromServer = false
+    private var settingsBeforePush: DesktopSettings? = null
+    private var settingsPushJob: Job? = null
+
+    /** Pushes what changed in the shared settings, two seconds after the last change. */
+    private fun queueSettingsPush(before: DesktopSettings) {
+        val remote = account?.client() ?: return
+        if (settingsBeforePush == null) settingsBeforePush = before
+        settingsPushJob?.cancel()
+        settingsPushJob = scope.launch {
+            delay(2_000)
+            val from = settingsBeforePush ?: return@launch
+            settingsBeforePush = null
+            val diff = settings.toRemoteSharedSettings().changedFrom(from.toRemoteSharedSettings()) ?: return@launch
+            runCatching { remote.pushSharedSettings(profile.id, diff) }
+        }
+    }
+
+    /** The profile whose addons this one uses on the server (profile 1's when shared). */
+    private val addonProfileId: Int get() = if (profile.usesPrimaryAddons) DesktopProfile.PRIMARY_ID else profile.id
+
+    /** Sends the addon list to the server after an install, removal or reorder here. */
+    private fun pushAddonsToServer() {
+        val remote = account?.client() ?: return
+        // A profile sharing the main profile's addons doesn't push them, as on TV.
+        if (!profile.isPrimary && profile.usesPrimaryAddons) return
+        val urls = addons.map { it.baseUrl } + unreachableAddons.map { it.first }
+        scope.launch { runCatching { remote.pushAddons(profile.id, SyncMerge.addonsToPush(urls, remote.pullAddons(profile.id))) } }
+    }
+
+    /** Settings, addons, profiles, locks and limits from the server; the account's win, as on TV. */
+    private suspend fun syncAccountSetup(remote: SyncClient) {
+        remote.pullSharedSettings(profile.id)?.let { shared ->
+            applyingFromServer = true
+            try {
+                updateSettings { shared.applyTo(it) }
+            } finally {
+                applyingFromServer = false
+            }
+        }
+
+        val remoteAddons = remote.pullAddons(addonProfileId)
+        val localUrls = store.load()
+        val addonMerge = SyncMerge.addons(localUrls, remoteAddons)
+        if (addonMerge.local.map(SyncMerge::addonKey) != localUrls.map(SyncMerge::addonKey)) {
+            runCatching { store.save(addonMerge.local) }
+            reloadAddons()
+        }
+
+        // Profiles, locks and limits are the main profile's to sync.
+        if (!profile.isPrimary) return
+        val profileMerge = SyncMerge.profiles(profiles.profiles, remote.pullProfiles())
+        val remoteLocked = SyncMerge.lockedOnlyRemotely(profileMerge.local, remote.pullProfileLocks()).toSet()
+        val merged = profileMerge.local.map { p ->
+            val limits = if (p.isPrimary) p.limits else SyncMerge.parentalLimits(p.limits, remote.pullParentalLimits(p.id))
+            p.copy(serverLocked = p.id in remoteLocked, limits = limits)
+        }
+        profiles.applyFromServer(merged)
+        profileMerge.push?.let { remote.pushProfiles(it) }
+    }
+
+    /** Tells the server about profile, PIN and limit changes made here, while signed in. */
+    private val profileSync = object : ProfilesState.SyncListener {
+        override fun onProfilesChanged(deleted: DesktopProfile?) {
+            val remote = account?.client() ?: return
+            scope.launch {
+                runCatching {
+                    deleted?.let { remote.deleteProfileData(it.id) }
+                    remote.pushProfiles(SyncMerge.profilesToPush(profiles.profiles, remote.pullProfiles()))
+                }
+            }
+        }
+
+        override fun onPinChanged(profile: DesktopProfile, pin: String?) {
+            val remote = account?.client() ?: return
+            scope.launch {
+                runCatching {
+                    if (pin == null) {
+                        remote.clearProfilePin(profile.id)
+                    } else if (remote.setProfilePin(profile.id, pin) == RemotePinSetResult.CURRENT_PIN_REQUIRED) {
+                        message = "${profile.name}'s PIN changed here only: the sync server wants the old PIN, so change it on the TV too."
+                    }
+                }
+            }
+        }
+
+        override fun onLimitsChanged(profile: DesktopProfile) {
+            if (profile.isPrimary) return
+            val remote = account?.client() ?: return
+            scope.launch {
+                runCatching {
+                    remote.pushParentalLimits(profile.id, SyncMerge.parentalLimitsToPush(profile.limits, remote.pullParentalLimits(profile.id)))
+                }
+            }
+        }
+
+        override suspend fun verifyRemotePin(profile: DesktopProfile, pin: String): PinGate.Result? {
+            val remote = account?.client() ?: return null
+            val result = runCatching { remote.verifyProfilePin(profile.id, pin) }.getOrNull() ?: return null
+            return when {
+                result.unlocked -> PinGate.Result.Ok
+                result.retryAfterSeconds > 0 -> PinGate.Result.Locked(result.retryAfterSeconds)
+                else -> PinGate.Result.Wrong("Incorrect PIN")
+            }
+        }
+    }
+
+    init {
+        profiles.listener = profileSync
     }
 
     // --- Addons ---
@@ -481,6 +641,7 @@ class AppState(
             }
             addons.add(addon)
             persist()
+            pushAddonsToServer()
             message = "Installed ${addon.displayName}"
             addonsChanged()
         }
@@ -489,6 +650,7 @@ class AppState(
     fun removeAddon(addon: Addon) {
         addons.remove(addon)
         persist()
+        pushAddonsToServer()
         rows.removeAll { it.addon.baseUrl == addon.baseUrl }
         discover.setAddons(addons.toList(), settings.discoverCatalog)
     }
@@ -505,6 +667,7 @@ class AppState(
         addons.removeAt(from)
         addons.add(to, addon)
         persist()
+        pushAddonsToServer()
         addonsChanged()
     }
 
@@ -845,7 +1008,12 @@ class AppState(
             val played = serverStream?.let { servers.transcodeUrl(it, player.serverMaxBitrateKbps) }
                 ?.let { stream.copy(url = it) } ?: stream
             val options = MpvArgs.build(player, subtitles)
-            val skipper = skipPlanner(target, player.autoSkip)
+            // The built-in player also offers a Skip button for segments that aren't automatic.
+            val segments = if (player.builtInPlayer || player.autoSkip.isNotEmpty()) segmentsFor(target) else emptyList()
+            if (player.builtInPlayer && LibMpv.available &&
+                playEmbedded(played, label, target, resume, options, serverStream, segments)
+            ) return@launch
+            val skipper = SkipPlanner(segments, player.autoSkip).takeUnless { it.isEmpty }
             when (val result = ExternalPlayer.play(played, label, start = resume, options = options)) {
                 is ExternalPlayer.Result.Started -> {
                     message = if (resume != null) "Resuming in ${result.player}" else "Opening in ${result.player}"
@@ -865,13 +1033,11 @@ class AppState(
     }
 
     /** Saves mpv's position as it plays, for Continue Watching and resume, then handles Up Next. */
-    /** IntroDB's segments for [target], when anything is set to auto-skip; null otherwise. */
-    private suspend fun skipPlanner(target: PlaybackTarget, enabled: Set<SegmentType>): SkipPlanner? {
-        if (enabled.isEmpty()) return null
-        val imdb = target.contentId.takeIf { it.startsWith("tt") } ?: return null
+    /** IntroDB's intro, recap and credits times for [target]; empty when unknown. */
+    private suspend fun segmentsFor(target: PlaybackTarget): List<Segment> {
+        val imdb = target.contentId.takeIf { it.startsWith("tt") } ?: return emptyList()
         val video = target.video
-        val segments = withTimeoutOrNull(4_000) { introDb.segments(imdb, video?.season, video?.episode) }.orEmpty()
-        return SkipPlanner(segments, enabled).takeUnless { it.isEmpty }
+        return withTimeoutOrNull(4_000) { introDb.segments(imdb, video?.season, video?.episode) }.orEmpty()
     }
 
     private val introDb by lazy { IntroDbClient(okhttp3.OkHttpClient()) }
@@ -884,16 +1050,29 @@ class AppState(
     ) {
         val process = result.process ?: return
         val socket = result.ipcSocket ?: return
+        follow(target, serverStream, skipper) { onPosition, onSample ->
+            MpvProgress.followToEnd(socket, process, onPosition = onPosition, onSample = onSample)
+        }
+    }
+
+    /**
+     * Follows playback, in mpv's window or the built-in player ([run]): saves the position for
+     * Continue Watching and screen time, skips segments, scrobbles, tells the media server, and
+     * at the end runs Up Next and syncs.
+     */
+    private fun follow(
+        target: PlaybackTarget,
+        serverStream: ServerStream?,
+        skipper: SkipPlanner?,
+        afterEnd: suspend (MpvProgress.Ending) -> Unit = {},
+        run: suspend (onPosition: (Double) -> MpvProgress.Seek?, onSample: (MpvProgress.Sample) -> Unit) -> MpvProgress.Ending
+    ) {
         scope.launch {
             var scrobbled = false
             var lastPosition: Double? = null
             val ending = withContext(Dispatchers.IO) {
-                MpvProgress.followToEnd(
-                    socket,
-                    process,
-                    onPosition = { position ->
-                        skipper?.at(position)?.let { MpvProgress.Seek(it.endSec, "Skipped ${it.type.label.lowercase()}") }
-                    }
+                run(
+                    { position -> skipper?.at(position)?.let { MpvProgress.Seek(it.endSec, "Skipped ${it.type.label.lowercase()}") } }
                 ) { sample ->
                     scope.launch {
                         // Screen time counts what actually played, not seeks.
@@ -923,8 +1102,64 @@ class AppState(
                 )
             }
             playbackEnded(target, ending)
+            afterEnd(ending)
             syncAccount()
         }
+    }
+
+    // --- Built-in player ---
+
+    /** The built-in player while it's open; null shows the app. */
+    var playerSession: PlayerSession? by mutableStateOf(null)
+        private set
+
+    /** Closes the built-in player; the position up to now is saved as it stops. */
+    fun closePlayer() {
+        val session = playerSession ?: return
+        playerSession = null
+        session.mpv.stop()
+        scope.launch {
+            // Let the stop reach Continue Watching, then free libmpv.
+            delay(1_500)
+            withContext(Dispatchers.IO) { session.mpv.close() }
+        }
+    }
+
+    private suspend fun playEmbedded(
+        stream: Stream,
+        label: String,
+        target: PlaybackTarget,
+        resume: String?,
+        options: List<String>,
+        serverStream: ServerStream?,
+        segments: List<Segment>
+    ): Boolean {
+        val url = ExternalPlayer.playableUrl(stream) ?: run {
+            message = "This source has no playable link. Fetch plays direct and debrid links only."
+            return true
+        }
+        val session = playerSession ?: try {
+            PlayerSession(withContext(Dispatchers.IO) { EmbeddedMpv.create() })
+        } catch (e: Exception) {
+            message = "The built-in player couldn't start (${e.message}). Using mpv's window."
+            return false
+        }
+        playerSession = session
+        session.title = label
+        session.segments = segments
+        session.autoSkip = settings.player.autoSkip
+        val load = ++session.loads
+        session.mpv.load(url, label, resume, options, stream.behaviorHints?.proxyHeaders?.request.orEmpty())
+        follow(
+            target,
+            serverStream,
+            SkipPlanner(segments, settings.player.autoSkip).takeUnless { it.isEmpty },
+            afterEnd = { ending ->
+                // Played to the end and nothing came next: close, as the mpv window would.
+                if (ending.reachedEnd && playerSession === session && session.loads == load) closePlayer()
+            }
+        ) { onPosition, onSample -> session.mpv.follow(onPosition = onPosition, onSample = onSample) }
+        return true
     }
 
     private fun MpvProgress.Sample.percent(): Float =

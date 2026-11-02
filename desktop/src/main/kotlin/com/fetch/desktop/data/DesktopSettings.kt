@@ -32,6 +32,8 @@ data class DesktopSettings(
     val discoverCatalog: String? = null,
     /** Audio, Subtitles, Player and Up Next: how mpv is started. */
     val player: PlayerSettings = PlayerSettings(),
+    /** Your own TMDB key (Settings › Sources › TMDB), used before the build's. */
+    val tmdbApiKey: String? = null,
     /** Bumped when a saved default has to change; see [migrated]. */
     val schema: Int = 1
 ) {
@@ -92,6 +94,8 @@ data class PlayerSettings(
     /** Pass AC-3, E-AC-3, DTS, DTS-HD and TrueHD to the receiver undecoded. */
     val audioPassthrough: Boolean = false,
     val fullscreen: Boolean = true,
+    /** "Default Player": the built-in player (libmpv in Fetch's window) instead of mpv's own window. */
+    val builtInPlayer: Boolean = false,
     /** Up Next: when an episode plays to its end, start the next one's best match. */
     val autoplayNextEpisode: Boolean = true,
     /** Extra mpv options, space-separated, for anything not covered here. */

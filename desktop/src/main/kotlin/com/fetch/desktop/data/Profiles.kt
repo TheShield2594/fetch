@@ -18,10 +18,12 @@ data class DesktopProfile(
     /** The TV app's PIN format (salted PBKDF2, see ProfilePinHasher); null when not locked. */
     val pinHash: String? = null,
     /** Limits, set from the main profile, as on TV. */
-    val limits: ProfileLimits = ProfileLimits()
+    val limits: ProfileLimits = ProfileLimits(),
+    /** Locked on the sync server (set on another device) with no PIN here yet; checked online. */
+    val serverLocked: Boolean = false
 ) {
     val isPrimary: Boolean get() = id == PRIMARY_ID
-    val isLocked: Boolean get() = pinHash != null
+    val isLocked: Boolean get() = pinHash != null || serverLocked
 
     override fun toString(): String = "DesktopProfile(id=$id, name=$name, locked=$isLocked)"
 
@@ -37,13 +39,19 @@ data class ProfilesFile(
     /** "Remember Last Profile": skip the picker at start-up. */
     val rememberLastProfile: Boolean = true
 ) {
-    fun nextId(): Int = (profiles.maxOfOrNull { it.id } ?: 0) + 1
+    /** The lowest free id: the sync server numbers profiles 1 to [MAX_PROFILES], like the TV app. */
+    fun nextId(): Int = (2..MAX_PROFILES).firstOrNull { id -> profiles.none { it.id == id } } ?: ((profiles.maxOfOrNull { it.id } ?: 0) + 1)
+
+    val isFull: Boolean get() = profiles.size >= MAX_PROFILES
 
     /** The next unused avatar color, cycling once all are taken. */
     fun nextColor(): String =
         PROFILE_AVATAR_COLORS.firstOrNull { color -> profiles.none { it.colorHex.equals(color, true) } }
             ?: PROFILE_AVATAR_COLORS[profiles.size % PROFILE_AVATAR_COLORS.size]
 }
+
+/** The TV app's profile limit, which the sync server enforces. */
+const val MAX_PROFILES = 6
 
 fun profilesFile(dir: File = AppDirs.config) =
     JsonFile(File(dir, "profiles.json"), ProfilesFile.serializer()) { ProfilesFile() }

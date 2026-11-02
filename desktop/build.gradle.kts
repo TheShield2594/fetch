@@ -47,7 +47,8 @@ val resourceValues = mapOf(
     "traktClientId" to credential("TRAKT_CLIENT_ID"),
     "traktClientSecret" to credential("TRAKT_CLIENT_SECRET"),
     "simklClientId" to credential("SIMKL_CLIENT_ID"),
-    "simklAppName" to credential("SIMKL_APP_NAME", "fetch")
+    "simklAppName" to credential("SIMKL_APP_NAME", "fetch"),
+    "tmdbApiKey" to credential("TMDB_API_KEY")
 )
 
 // Settings › About shows the version; the accounts read their client IDs from here.
@@ -63,6 +64,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
     implementation(libs.coil.svg)
+    // The built-in player talks to libmpv (libmpv2 on Debian/Ubuntu) through JNA.
+    implementation("net.java.dev.jna:jna:5.6.0")
 
     testImplementation("junit:junit:4.13.2")
 }

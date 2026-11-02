@@ -157,6 +157,8 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
                 )
             }
         }
+        // The built-in player covers the whole window while it's open.
+        state.playerSession?.let { session -> PlayerScreen(state, session) }
         state.screenTimeBlock?.let { block -> ScreenTimeDialog(state, block) }
     }
 }

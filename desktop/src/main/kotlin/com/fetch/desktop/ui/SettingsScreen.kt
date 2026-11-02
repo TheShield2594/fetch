@@ -54,6 +54,7 @@ import com.fetch.desktop.data.PlayerSettings
 import com.fetch.desktop.data.SubtitleMode
 import com.fetch.desktop.player.ExternalPlayer
 import com.fetch.desktop.player.MpvArgs
+import com.fetch.desktop.player.embedded.LibMpv
 import com.fetch.desktop.skip.SegmentType
 import com.fetch.tv.core.streams.ranking.AudioFormat
 import com.fetch.tv.core.streams.ranking.ReleaseSource
@@ -111,6 +112,7 @@ fun SettingsScreen(state: AppState, page: SettingsPage) {
                                 SettingsPage.APPEARANCE -> AppearancePage(state)
                                 SettingsPage.LAYOUT -> LayoutPage(state)
                                 SettingsPage.TRACKING -> TrackingPage(state)
+                                SettingsPage.TMDB -> TmdbPage(state)
                                 SettingsPage.ACCOUNT -> AccountPage(state)
                                 SettingsPage.MEDIA_SERVERS -> MediaServersPage(state)
                                 SettingsPage.STREAM_BADGES -> StreamBadgesSettingsPage(state.badges, onBack = state::back)
@@ -210,10 +212,18 @@ private fun PlayerPage(state: AppState) {
     val mpv = remember { ExternalPlayer.findMpv() }
     PageHeader("Player", subtitle = "Fetch plays streams in mpv, in its own window.")
     SettingsSection(null) {
-        SettingsRow(
+        val libmpv = remember { LibMpv.available }
+        SettingsChoice(
             "Default Player",
-            mpv?.let { "mpv ($it)" } ?: "mpv isn't installed, so streams open in your default video player. Install mpv for resume, Continue Watching, subtitles and Up Next."
-        )
+            when {
+                p.builtInPlayer && !libmpv -> "libmpv isn't installed (sudo apt install libmpv2), so mpv's window is used."
+                p.builtInPlayer -> "Inside Fetch's window, with Fetch's controls. Software rendering: heavy for 4K, and HDR isn't tone-mapped."
+                else -> mpv?.let { "mpv ($it), in its own window." }
+                    ?: "mpv isn't installed, so streams open in your default video player. Install mpv for resume, Continue Watching, subtitles and Up Next."
+            },
+            p.builtInPlayer,
+            listOf(DropdownOption(false, "mpv window"), DropdownOption(true, "Built-in (beta)"))
+        ) { v -> state.updatePlayer { it.copy(builtInPlayer = v) } }
         SettingsToggle("Start in fullscreen", null, p.fullscreen) { v -> state.updatePlayer { it.copy(fullscreen = v) } }
         SettingsChoice(
             "Hardware Decoding",
@@ -473,6 +483,28 @@ private fun TextListRow(title: String, values: List<String>, onChange: (List<Str
                     }
                 }
         )
+    }
+}
+
+// --- Sources › TMDB ---
+
+@Composable
+private fun TmdbPage(state: AppState) {
+    val builtIn = remember { com.fetch.desktop.ratings.TmdbCredentials.load() != null }
+    val own = state.settings.tmdbApiKey?.takeIf { it.isNotBlank() }
+    PageHeader("TMDB", subtitle = "The Movie Database: maturity ratings for titles your addons don't rate, for profile limits.")
+    SettingsSection(null) {
+        SettingsRow(
+            "Status",
+            when {
+                own != null -> "Using your key."
+                builtIn -> "Using this build's key."
+                else -> "No key: rating limits only know ratings your addons give. Add a free key from themoviedb.org."
+            }
+        )
+        TextRow("Your TMDB key", "An API key (v3) or read access token (v4). Leave empty to use the build's.", own.orEmpty()) { key ->
+            state.updateSettings { it.copy(tmdbApiKey = key.ifBlank { null }) }
+        }
     }
 }
 

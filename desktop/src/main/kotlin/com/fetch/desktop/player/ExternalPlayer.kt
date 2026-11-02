@@ -96,6 +96,9 @@ object ExternalPlayer {
         return File(dir, "fetch-mpv-${ProcessHandle.current().pid()}-${System.nanoTime()}.sock")
     }
 
+    /** The link mpv opens for [stream], or null when Fetch can't play it. */
+    fun playableUrl(stream: Stream): String? = playableTarget(stream)
+
     /** Whether Fetch can play [stream]: a direct link, or a YouTube id mpv resolves through yt-dlp. */
     fun canPlay(stream: Stream): Boolean = playableTarget(stream) != null
 

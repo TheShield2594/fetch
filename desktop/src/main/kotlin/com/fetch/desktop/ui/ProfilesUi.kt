@@ -23,6 +23,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -100,8 +102,8 @@ fun ProfilePicker(profiles: ProfilesState) {
                         }
                     }) { ProfileAvatar(profile, 120.dp) }
                 }
-                // Adding a profile is the main profile's call when it has a PIN.
-                PickerTile("Add profile", onClick = {
+                // Adding a profile is the main profile's call when it has a PIN; the TV app allows six.
+                if (!profiles.file.isFull) PickerTile("Add profile", onClick = {
                     val main = profiles.primary
                     if (main.isLocked) {
                         pin = PinStep.Unlock(main, "Enter ${main.name}’s PIN to add a profile.", null) { creating = true }
@@ -278,7 +280,7 @@ fun ProfilesSettingsPage(state: AppState) {
     }
     if (onMain) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            SecondaryButton("Add profile", onClick = { creating = true }, icon = FetchIcons.Add)
+            SecondaryButton("Add profile", onClick = { creating = true }, icon = FetchIcons.Add, enabled = !profiles.file.isFull)
             if (profiles.profiles.size > 1) SecondaryButton("Switch profile", onClick = profiles::switchProfile)
         }
     } else {
@@ -340,15 +342,20 @@ sealed interface PinStep {
 @Composable
 fun PinFlow(profiles: ProfilesState, step: PinStep, onStep: (PinStep?) -> Unit) {
     var error by remember(step) { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
     when (step) {
         is PinStep.Unlock -> PinDialog(step.heading, step.support, error, onDismiss = { onStep(null) }) { entered ->
-            when (val result = profiles.pinGate.check(step.profile.id, step.profile.pinHash, entered)) {
-                PinGate.Result.Ok -> {
-                    onStep(null)
-                    step.then()
+            // A PIN set on another device is checked with the sync server.
+            scope.launch {
+                when (val result = profiles.checkPin(step.profile, entered)) {
+                    PinGate.Result.Ok -> {
+                        onStep(null)
+                        step.then()
+                    }
+                    is PinGate.Result.Wrong -> error = result.message.takeIf { it.startsWith("Connect") }
+                        ?: "Incorrect PIN for ${step.profile.name}. Try again."
+                    is PinGate.Result.Locked -> error = "Profile is locked. Try again in ${result.seconds}s."
                 }
-                is PinGate.Result.Wrong -> error = "Incorrect PIN for ${step.profile.name}. Try again."
-                is PinGate.Result.Locked -> error = "Profile is locked. Try again in ${result.seconds}s."
             }
         }
         is PinStep.Create -> PinDialog(
@@ -448,7 +455,7 @@ fun LimitsDialog(profile: DesktopProfile, onDismiss: () -> Unit, onSave: (Profil
                 if (limits.maxRating != null) {
                     SettingsToggle(
                         "Allow unrated titles",
-                        "Many catalogs don't say a title's rating. Off hides everything without one.",
+                        "Ratings come from your addons, else TMDB (Settings › TMDB). Off hides titles with none.",
                         limits.allowUnrated
                     ) { limits = limits.copy(allowUnrated = it) }
                 }

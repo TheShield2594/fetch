@@ -24,7 +24,9 @@ The desktop app has the same version as the TV app, read from `versionName` in
 stable `1.3.0-1`, so installing the stable build upgrades the beta.
 
 Each package bundles its own Java runtime. To play streams, install
-[mpv](https://mpv.io) (`sudo apt install mpv`, `sudo dnf install mpv`). Without mpv, Fetch opens
+[mpv](https://mpv.io) (`sudo apt install mpv`, `sudo dnf install mpv`). The built-in player
+(Settings › Player › Default Player › Built-in) also needs libmpv: `sudo apt install libmpv2`
+(Fedora: `mpv-libs`). Without mpv, Fetch opens
 the link in your default video player. For YouTube trailers, mpv also needs `yt-dlp`.
 
 ## Build and run from source
@@ -54,6 +56,7 @@ Everything is kept in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`):
 | `servers.json` | Jellyfin, Emby and Plex sign-ins (owner-readable only), beside the addons |
 | `device-id` | The id media servers list this installation under |
 | `sync.json` | The sync server address and sign-in (owner-readable only), for the whole app |
+| `certifications.json` | Ratings looked up on TMDB, for 30 days |
 | `screen-time.json`, `stream-badges.json`, `sync-base.json` | Per profile: today's screen time, imported badge URLs, what the last sync saw |
 
 These are the main profile's. Every other profile keeps its own copies in `profiles/<id>/`
@@ -112,6 +115,18 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   in with email and password or a code. Library (with deletes both ways), Continue Watching and
   watched history sync at start-up, after playback and on Sync now. The server's profile number
   is the desktop profile's id.
+- **Built-in player (beta)**: libmpv inside Fetch's window, with Fetch's own controls over the
+  picture: seek bar, ±10 s, audio and subtitle tracks, volume, fullscreen, a Skip button for
+  intros and credits, Up Next in the same player, and keys (Space, ←/→, ↑/↓, M, F, Esc). It uses
+  mpv's software renderer drawing into Compose, so it needs no GPU setup but is heavy for 4K and
+  doesn't tone-map HDR; mpv's own window stays the default.
+- **Ratings from TMDB**: a profile's rating limit uses the addon's certificate, else TMDB's
+  (picked by country as the TV app does), cached for 30 days. Builds read `TMDB_API_KEY`; you
+  can enter your own key in Settings › TMDB.
+- **Sync server, the rest**: shared settings (theme, layout, languages, stream rules, Up Next,
+  auto-skip; only what changed is pushed, so the TV's other settings stay), addons, profiles
+  (at most 6, as the server allows), limits (tightened, never loosened, as on TV) and PINs
+  (a PIN set on the TV is checked with the server, then kept here).
 - **Player settings** passed to mpv: fullscreen, hardware decoding, extra mpv options; preferred
   audio language and passthrough; subtitle language, when to show them, size and background,
   and subtitles from your addons (such as OpenSubtitles) added as subtitle files.
@@ -155,13 +170,11 @@ Two Kotlin rules now apply across the module boundary:
 
 Roughly in order:
 
-1. **Embedded player.** Render libmpv inside the window (through JNA and an OpenGL surface)
-   so the player has Fetch's own controls, subtitles menu and Up Next screen instead of mpv's
-   window.
+1. **Hardware-rendered built-in player.** Render libmpv through OpenGL into Skia's surface
+   instead of the software renderer, for 4K and HDR, then make it the default.
 2. **Move more of the data layer into `shared`.** Media servers, Trakt/Simkl and sync are
    separate, compact desktop clients today; sharing the Android ones needs their Android
    dependencies put behind interfaces first.
-3. **Ratings from TMDB**, so a rating limit knows titles Cinemeta gives no certificate for.
-4. **Sync the rest**: addons, profiles and PINs, settings, and realtime updates.
-5. **More packages**: Flatpak (Flathub) and AppImage, then Windows (`.msi`) and macOS (`.dmg`)
+3. **Sync**: home catalog order and realtime updates.
+4. **More packages**: Flatpak (Flathub) and AppImage, then Windows (`.msi`) and macOS (`.dmg`)
    from the same `nativeDistributions` block.

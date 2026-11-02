@@ -1,6 +1,8 @@
 package com.fetch.desktop.sync
 
+import com.fetch.tv.core.streams.ranking.StreamRankingRules
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 
 /**
  * A self-hosted Fetch sync server: a Supabase-compatible backend (GoTrue auth under `/auth/v1`,
@@ -77,6 +79,79 @@ data class RemoteProfile(
     val usesPrimaryAddons: Boolean,
     val avatarId: String? = null,
     val avatarUrl: String? = null,
+    /** The TV app's profile background; carried through so a push doesn't clear it. */
+    val profileBackgroundId: String? = null,
+    val profileBackgroundUrl: String? = null,
+)
+
+/** Whether the sync server holds a PIN for a profile (RPC `sync_pull_profile_locks`). */
+data class RemoteProfileLock(
+    val profileIndex: Int,
+    val pinEnabled: Boolean,
+    /** ISO timestamp until which the server refuses PIN attempts, after too many wrong ones. */
+    val pinLockedUntil: String? = null,
+)
+
+/** The server's verdict on a PIN (RPC `verify_profile_pin`). */
+data class RemotePinVerify(val unlocked: Boolean, val retryAfterSeconds: Int = 0)
+
+/** What `set_profile_pin` said. Any other failure is thrown as a [SyncException]. */
+enum class RemotePinSetResult {
+    SUCCESS,
+
+    /** The profile already has a PIN on the server and the current one was missing or wrong. */
+    CURRENT_PIN_REQUIRED,
+}
+
+/**
+ * A profile's settings blob as stored (RPC `sync_pull_profile_settings_blob`): the TV app's
+ * `{"version":1,"features":{<feature>:{<key>:{"type":..,"value":..}}},"parental":{..}}`.
+ */
+data class RemoteSettingsBlob(
+    val profileId: Int,
+    val settingsJson: JsonObject,
+    val updatedAt: String? = null,
+)
+
+/**
+ * The TV settings the desktop app has too, read from or written into a profile's settings blob.
+ * Null means "not in the blob" on a pull, and "leave it as it is" on a push. The TV keys are
+ * in [SyncSettingsBlob].
+ */
+data class RemoteSharedSettings(
+    /** `theme_settings.selected_theme`: an [com.fetch.tv.domain.model.AppTheme] name. */
+    val theme: String? = null,
+    /** `layout_settings.continue_watching_enabled` (TV default true). */
+    val showContinueWatching: Boolean? = null,
+    /** `layout_settings.catalog_type_suffix_enabled` (TV default true). */
+    val showCatalogType: Boolean? = null,
+    /** `layout_settings.catalog_addon_name_enabled` (TV default true). */
+    val showAddonName: Boolean? = null,
+    /** `layout_settings.poster_labels_enabled` (TV default true). */
+    val showPosterLabels: Boolean? = null,
+    /** `layout_settings.discover_location`: `OFF`, `IN_SEARCH` (TV default) or `IN_SIDEBAR`. */
+    val discoverLocation: String? = null,
+    /** `player_settings.preferred_audio_language`: a language code, or `device`, `default`, `original`. */
+    val audioLanguage: String? = null,
+    /** `player_settings.subtitle_preferred_language`: a language code, or `device`, `forced`. */
+    val subtitleLanguage: String? = null,
+    /** `player_settings.stream_ranking_rules`, stored by the TV app as a JSON string. */
+    val rankingRules: StreamRankingRules? = null,
+    /** `player_settings.stream_auto_play_next_episode_enabled` (TV default false). */
+    val autoplayNextEpisode: Boolean? = null,
+    /** `player_settings.auto_skip_segment_types`: `intro`, `recap`, `outro`, `movie-credits`. */
+    val autoSkipSegments: Set<String>? = null,
+)
+
+/**
+ * A profile's parental limits as the TV app syncs them, in the settings blob's `parental` object
+ * (only for profiles other than 1). [maxRating] is a [com.fetch.tv.core.parental.CertificationLevel]
+ * name; null means no limit. Daily minutes, bedtime and the autoplay cap stay on each device.
+ */
+data class RemoteParentalLimits(
+    val isKidsProfile: Boolean = false,
+    val maxRating: String? = null,
+    val allowUnrated: Boolean = true,
 )
 
 /** A saved title (the TV app's `SavedLibraryItem`). A title is keyed by ([id], [type]). */

@@ -42,12 +42,23 @@ class ProfilesStateTest {
     fun `deleting a profile removes its files but never the main profile`() {
         val root = Files.createTempDirectory("profiles").toFile()
         val state = ProfilesState(JsonFile(File(root, "profiles.json"), ProfilesFile.serializer()) { ProfilesFile() }, root)
-        val added = state.add("Kid")
+        val added = state.add("Kid")!!
         File(profileDir(added, root), "library.json").apply { parentFile.mkdirs(); writeText("{}") }
         state.delete(added)
         assertFalse(profileDir(added, root).exists())
         state.delete(state.profiles.first())
         assertEquals(1, state.profiles.size)
         assertTrue(File(root, "profiles.json").exists())
+    }
+
+    @Test
+    fun `six profiles at most, as the sync server allows, reusing freed ids`() {
+        val root = Files.createTempDirectory("profiles").toFile()
+        val state = ProfilesState(JsonFile(File(root, "profiles.json"), ProfilesFile.serializer()) { ProfilesFile() }, root)
+        val added = (1..5).map { state.add("P$it")!! }
+        assertEquals(listOf(2, 3, 4, 5, 6), added.map { it.id })
+        assertNull("a seventh is refused", state.add("Too many"))
+        state.delete(added[1])
+        assertEquals(3, state.add("Again")!!.id)
     }
 }

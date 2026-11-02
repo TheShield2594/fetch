@@ -1321,9 +1321,7 @@
     <string name="collections_fetch_url">Hämta URL</string>
     <string name="collections_fetching">Hämtar…</string>
     <string name="collections_valid_json">Giltig JSON</string>
-    <string name="collections_valid_summary">%1$d samling(ar), %2$d mapp(ar)</string>
     <string name="collections_confirm_import">Bekräfta import</string>
-    <string name="collections_folder_count">%1$d mapp(ar)</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Radnamn</string>
@@ -1353,7 +1351,6 @@
     <string name="collections_editor_select_catalogs">Välj kataloger</string>
     <string name="collections_editor_done">Klar</string>
     <string name="collections_editor_choose_emoji">Välj emoji</string>
-    <string name="collections_editor_back">Tillbaka</string>
     <string name="collections_editor_edit_collection">Redigera samling</string>
     <string name="collections_editor_view_mode_tabs">Flikar</string>
     <string name="collections_editor_view_mode_rows">Rader</string>

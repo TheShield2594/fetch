@@ -1556,7 +1556,6 @@
     
     <string name="collections_header">Kolekcie</string>
     <string name="collections_delete_confirm_title">Odstrániť kolekciu?</string>
-    <string name="collections_delete_confirm">Odstrániť</string>
     <string name="collections_delete_confirm_subtitle">Týmto sa natrvalo odstráni „%1$s“. Túto akciu nemožno vrátiť späť.</string>
     <string name="collections_empty">Zatiaľ žiadne kolekcie. Vytvorte jednu, aby ste si usporiadali katalógy.</string>
     <string name="collections_new">Nová kolekcia</string>
@@ -1587,9 +1586,7 @@
     <string name="collections_fetch_url">Načítať URL</string>
     <string name="collections_fetching">Načítava sa…</string>
     <string name="collections_valid_json">Platný JSON</string>
-    <string name="collections_valid_summary">%1$d kolekcií, %2$d priečinkov</string>
     <string name="collections_confirm_import">Potvrdiť import</string>
-    <string name="collections_folder_count">%1$d priečinkov</string>
 
         
     <string name="collections_editor_row_title">Názov riadku</string>
@@ -1620,10 +1617,7 @@
     <string name="collections_editor_select_catalogs">Vybrať katalógy</string>
     <string name="collections_editor_done">Hotovo</string>
     <string name="collections_editor_choose_emoji">Vybrať emoji</string>
-    <string name="collections_editor_back">Späť</string>
     <string name="collections_editor_edit_collection">Upraviť kolekciu</string>
-    <string name="collections_editor_source_count">%1$d zdrojov</string>
-    <string name="collections_editor_sources">Zdroje</string>
     <string name="collections_editor_source">Zdroj</string>
     <string name="collections_editor_view_mode_tabs">Karty</string>
     <string name="collections_editor_view_mode_rows">Riadky</string>
@@ -1796,10 +1790,6 @@
     <string name="collection_editor_resolved_trakt_list">Rozpoznaný Trakt zoznam</string>
     <string name="collection_editor_trakt_search_placeholder">Hľadať názov, Trakt URL alebo ID zoznamu</string>
     <string name="collection_editor_trakt_name_placeholder">Víkendové pozeranie, Ocenené filmy</string>
-    <string name="collection_editor_folder_count_one">%1$d položka</string>
-    <string name="collection_editor_folder_count_other">%1$d položiek</string>
-    <string name="collections_editor_delete_folder_title">Odstrániť priečinok?</string>
-    <string name="collections_editor_delete_folder_subtitle">Týmto sa natrvalo odstráni „%1$s“ aj jeho obsah.</string>
     <string name="folder_error_addon_source">Tento katalóg sa nepodarilo načítať. Skontrolujte, či je jeho doplnok nainštalovaný a online, a skúste to znova.</string>
     <string name="folder_error_addon_missing">Doplnok tohto katalógu nie je nainštalovaný. Nainštalujte ho v sekcii Doplnky alebo odstráňte tento zdroj z priečinka.</string>
     <string name="folder_error_tmdb_source">Obsah z TMDB sa nepodarilo načítať. Skontrolujte pripojenie a skúste to znova.</string>

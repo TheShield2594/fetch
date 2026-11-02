@@ -1921,7 +1921,6 @@
     <!-- 收藏管理 -->
     <string name="collections_header">收藏</string>
     <string name="collections_delete_confirm_title">刪除收藏？</string>
-    <string name="collections_delete_confirm">刪除</string>
     <string name="collections_delete_confirm_subtitle">這將永久刪除「%1$s」。此操作無法復原。</string>
     <string name="collections_empty">尚無收藏。建立一個以組織您的目錄。</string>
     <string name="collections_new">新收藏</string>
@@ -1952,9 +1951,7 @@
     <string name="collections_fetch_url">擷取網址</string>
     <string name="collections_fetching">擷取中…</string>
     <string name="collections_valid_json">有效的 JSON</string>
-    <string name="collections_valid_summary">%1$d 個收藏，%2$d 個資料夾</string>
     <string name="collections_confirm_import">確認匯入</string>
-    <string name="collections_folder_count">%1$d 個資料夾</string>
 
     <!-- 收藏編輯器 -->
     <string name="collections_editor_row_title">列標題</string>
@@ -1985,10 +1982,7 @@
     <string name="collections_editor_select_catalogs">選擇目錄</string>
     <string name="collections_editor_done">完成</string>
     <string name="collections_editor_choose_emoji">選擇表情符號</string>
-    <string name="collections_editor_back">返回</string>
     <string name="collections_editor_edit_collection">編輯收藏</string>
-    <string name="collections_editor_source_count">%1$d 個來源</string>
-    <string name="collections_editor_sources">來源</string>
     <string name="collections_editor_source">來源</string>
     <string name="collections_editor_view_mode_tabs">標籤</string>
     <string name="collections_editor_view_mode_rows">列</string>
@@ -2168,10 +2162,6 @@
     <string name="collection_editor_resolved_trakt_list">已解析的 Trakt 清單</string>
     <string name="collection_editor_trakt_search_placeholder">搜尋標題、Trakt 網址或清單 ID</string>
     <string name="collection_editor_trakt_name_placeholder">週末觀看、獲獎作品</string>
-    <string name="collection_editor_folder_count_one">%1$d 個項目</string>
-    <string name="collection_editor_folder_count_other">%1$d 個項目</string>
-    <string name="collections_editor_delete_folder_title">刪除資料夾？</string>
-    <string name="collections_editor_delete_folder_subtitle">這將永久刪除「%1$s」及其內容。</string>
     <string name="folder_error_addon_source">無法載入此目錄。請檢查其擴充套件是否已安裝且在線上，然後重試。</string>
     <string name="folder_error_addon_missing">此目錄的擴充套件未安裝。請從「擴充套件」安裝，或從資料夾中移除此來源。</string>
     <string name="folder_error_tmdb_source">無法從 TMDB 載入此內容。請檢查您的連線，然後重試。</string>

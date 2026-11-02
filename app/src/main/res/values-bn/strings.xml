@@ -1831,7 +1831,6 @@
     <string name="debug_generate_library_result_added">লাইব্রেরিতে %1$dটি আইটেম যোগ করা হয়েছে</string>
     <string name="collections_header">কালেকশন</string>
     <string name="collections_delete_confirm_title">কালেকশন মুছবেন?</string>
-    <string name="collections_delete_confirm">মুছুন</string>
     <string name="collections_delete_confirm_subtitle">এটি স্থায়ীভাবে \"%1$s\" মুছে ফেলবে। এটি আর ফিরিয়ে আনা যাবে না।</string>
     <string name="collections_empty">এখনও কোনো কালেকশন নেই। আপনার ক্যাটালগগুলো সাজাতে একটি তৈরি করুন।</string>
     <string name="collections_new">নতুন কালেকশন</string>
@@ -1862,9 +1861,7 @@
     <string name="collections_fetch_url">URL ফেচ করুন</string>
     <string name="collections_fetching">ফেচ করা হচ্ছে…</string>
     <string name="collections_valid_json">বৈধ JSON</string>
-    <string name="collections_valid_summary">%1$d কালেকশনগুলি, %2$d ফোল্ডারগুলি</string>
     <string name="collections_confirm_import">ইমপোর্ট নিশ্চিত করুন</string>
-    <string name="collections_folder_count">%1$d ফোল্ডারগুলি</string>
     <string name="collections_editor_row_title">সারি শিরোনাম</string>
     <string name="collections_editor_save">সেভ</string>
     <string name="collections_editor_backdrop">ব্যাকড্রপ ইমেজ</string>
@@ -1893,10 +1890,7 @@
     <string name="collections_editor_select_catalogs">ক্যাটালগ নির্বাচন করুন</string>
     <string name="collections_editor_done">সম্পন্ন</string>
     <string name="collections_editor_choose_emoji">ইমোজি বেছে নিন</string>
-    <string name="collections_editor_back">পিছনে</string>
     <string name="collections_editor_edit_collection">কালেকশন এডিট করুন</string>
-    <string name="collections_editor_source_count">%1$dটি সোর্স</string>
-    <string name="collections_editor_sources">সোর্স</string>
     <string name="collections_editor_source">সোর্স</string>
     <string name="collections_editor_view_mode_tabs">ট্যাব</string>
     <string name="collections_editor_view_mode_rows">সারি</string>
@@ -2077,10 +2071,6 @@
     <string name="collection_editor_resolved_trakt_list">সমাধান করা Trakt তালিকা</string>
     <string name="collection_editor_trakt_search_placeholder">শিরোনাম, Trakt ইউআরএল, বা তালিকা আইডি সার্চ করুন</string>
     <string name="collection_editor_trakt_name_placeholder">উইকএন্ড ওয়াচ, অ্যাওয়ার্ড বিজয়ীরা</string>
-    <string name="collection_editor_folder_count_one">%1$d আইটেম</string>
-    <string name="collection_editor_folder_count_other">%1$dটি আইটেম</string>
-    <string name="collections_editor_delete_folder_title">ফোল্ডার ডিলিট করবেন?</string>
-    <string name="collections_editor_delete_folder_subtitle">এটি স্থায়ীভাবে \"%1$s\" এবং এর কনটেন্ট ডিলিট করবে।</string>
     <string name="folder_error_addon_source">এই ক্যাটালগটি লোড করা যায়নি। এর অ্যাডনটি ইনস্টল করা ও অনলাইনে আছে কিনা চেক করুন, তারপর আবার চেষ্টা করুন।</string>
     <string name="folder_error_addon_missing">এই ক্যাটালগের অ্যাডনটি ইনস্টল করা নেই। অ্যাডনসমূহ থেকে এটি ইনস্টল করুন, অথবা ফোল্ডার থেকে এই সোর্সটি সরিয়ে দিন।</string>
     <string name="folder_error_tmdb_source">TMDB থেকে এটি লোড করা যায়নি। আপনার কানেকশন চেক করুন, তারপর আবার চেষ্টা করুন।</string>

@@ -26,6 +26,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -123,7 +125,7 @@ fun GenrePickerContent(
                     color = FetchTheme.colors.TextSecondary
                 )
             }
-            FetchButton(onClick = onBack) { Text(stringResource(R.string.collections_editor_back)) }
+            FetchButton(onClick = onBack) { Text(stringResource(R.string.collections_editor_done)) }
         }
 
         Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
@@ -293,7 +295,7 @@ fun EmojiPickerContent(
                 style = MaterialTheme.typography.headlineMedium,
                 color = FetchTheme.colors.TextPrimary
             )
-            FetchButton(onClick = onBack) { Text(stringResource(R.string.collections_editor_back)) }
+            FetchButton(onClick = onBack) { Text(stringResource(R.string.collections_editor_done)) }
         }
 
         Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
@@ -353,6 +355,18 @@ fun EmojiPickerContent(
                                         text = emoji,
                                         fontSize = 28.sp
                                     )
+                                    // Focus replaces the selected fill, so the check keeps the current pick visible.
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = stringResource(R.string.cd_selected),
+                                            tint = FetchTheme.colors.TextPrimary,
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .padding(FetchTheme.spacing.xxs)
+                                                .size(14.dp)
+                                        )
+                                    }
                                 }
                             }
                         }

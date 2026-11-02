@@ -1378,7 +1378,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Kolekcje</string>
     <string name="collections_delete_confirm_title">Usunąć kolekcję?</string>
-    <string name="collections_delete_confirm">Usuń</string>
     <string name="collections_delete_confirm_subtitle">Spowoduje to trwałe usunięcie \"%1$s\". Tej operacji nie można cofnąć.</string>
     <string name="collections_empty">Brak kolekcji. Utwórz jedną, aby uporządkować katalogi.</string>
     <string name="collections_new">Nowa kolekcja</string>
@@ -1401,9 +1400,7 @@
     <string name="collections_fetch_url">Pobierz URL</string>
     <string name="collections_fetching">Pobieranie…</string>
     <string name="collections_valid_json">Poprawny JSON</string>
-    <string name="collections_valid_summary">%1$d kolekcji, %2$d folderów</string>
     <string name="collections_confirm_import">Potwierdź import</string>
-    <string name="collections_folder_count">%1$d folderów</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Tytuł wiersza</string>
@@ -1433,7 +1430,6 @@
     <string name="collections_editor_select_catalogs">Wybierz katalogi</string>
     <string name="collections_editor_done">Gotowe</string>
     <string name="collections_editor_choose_emoji">Wybierz emoji</string>
-    <string name="collections_editor_back">Wstecz</string>
     <string name="collections_editor_edit_collection">Edytuj kolekcję</string>
     <string name="collections_editor_view_mode_tabs">Karty</string>
     <string name="collections_editor_view_mode_rows">Wiersze</string>
@@ -1561,8 +1557,6 @@
     <string name="collections_editor_edit_tmdb_source">Edytuj źródło TMDB</string>
     <string name="collections_editor_save_source">Zapisz źródło</string>
     <string name="collections_editor_source">Źródło</string>
-    <string name="collections_editor_source_count">%1$d źródeł</string>
-    <string name="collections_editor_sources">Źródła</string>
     <string name="collections_editor_tmdb_collection">Kolekcja TMDB</string>
     <string name="collections_editor_tmdb_collection_helper">Przykład: Star Wars Collection, Harry Potter Collection lub URL kolekcji.</string>
     <string name="collections_editor_tmdb_collection_id">ID kolekcji</string>
@@ -1651,10 +1645,6 @@
     <string name="auto_skip_movie_credits_sub">Automatycznie pomijaj napisy końcowe filmów, zachowując sceny po napisach.</string>
     <string name="cast_error_load_details_for">Nie udało się załadować szczegółów dla %1$s</string>
     <string name="collection_editor_choice_both">Oba</string>
-    <string name="collection_editor_folder_count_one">%1$d element</string>
-    <string name="collection_editor_folder_count_other">%1$d elementów</string>
-    <string name="collections_editor_delete_folder_title">Usunąć folder?</string>
-    <string name="collections_editor_delete_folder_subtitle">Spowoduje to trwałe usunięcie \"%1$s\" i jego zawartości.</string>
     <string name="folder_error_addon_source">Nie udało się załadować tego katalogu. Sprawdź, czy jego dodatek jest zainstalowany i dostępny online, a potem spróbuj ponownie.</string>
     <string name="folder_error_addon_missing">Dodatek tego katalogu nie jest zainstalowany. Zainstaluj go w sekcji Dodatki albo usuń to źródło z folderu.</string>
     <string name="folder_error_tmdb_source">Nie udało się załadować danych z TMDB. Sprawdź połączenie, a potem spróbuj ponownie.</string>

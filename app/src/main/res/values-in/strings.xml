@@ -1546,7 +1546,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Koleksi</string>
     <string name="collections_delete_confirm_title">Hapus Koleksi?</string>
-    <string name="collections_delete_confirm">Hapus</string>
     <string name="collections_delete_confirm_subtitle">Ini akan menghapus \"%1$s\" selamanya. Tindakan ini bisa dibatalkan.</string>
     <string name="collections_empty">Belum ada koleksi. Buat satu untuk mengatur katalog Anda.</string>
     <string name="collections_new">Koleksi Baru</string>
@@ -1577,9 +1576,7 @@
     <string name="collections_fetch_url">Ambil URL</string>
     <string name="collections_fetching">Mengambil…</string>
     <string name="collections_valid_json">JSON Valid</string>
-    <string name="collections_valid_summary">%1$d koleksi, %2$d folder</string>
     <string name="collections_confirm_import">Konfirmasi Impor</string>
-    <string name="collections_folder_count">%1$d folder</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Judul Baris</string>
@@ -1610,10 +1607,7 @@
     <string name="collections_editor_select_catalogs">Pilih Katalog</string>
     <string name="collections_editor_done">Selesai</string>
     <string name="collections_editor_choose_emoji">Pilih Emoji</string>
-    <string name="collections_editor_back">Kembali</string>
     <string name="collections_editor_edit_collection">Edit Koleksi</string>
-    <string name="collections_editor_source_count">%1$d sumber</string>
-    <string name="collections_editor_sources">Sumber</string>
     <string name="collections_editor_source">Sumber</string>
     <string name="collections_editor_view_mode_tabs">Tab</string>
     <string name="collections_editor_view_mode_rows">Baris</string>
@@ -1786,10 +1780,6 @@
     <string name="collection_editor_resolved_trakt_list">Daftar Trakt yang diselesaikan</string>
     <string name="collection_editor_trakt_search_placeholder">Cari judul, URL Trakt, atau ID daftar</string>
     <string name="collection_editor_trakt_name_placeholder">Tontonan Akhir Pekan, Pemenang Penghargaan</string>
-    <string name="collection_editor_folder_count_one">%1$d item</string>
-    <string name="collection_editor_folder_count_other">%1$d item</string>
-    <string name="collections_editor_delete_folder_title">Hapus Folder?</string>
-    <string name="collections_editor_delete_folder_subtitle">Ini akan menghapus \"%1$s\" dan seluruh isinya secara permanen.</string>
     <string name="folder_error_addon_source">Tidak dapat memuat katalog ini. Pastikan addon-nya terpasang dan online, lalu coba lagi.</string>
     <string name="folder_error_addon_missing">Addon katalog ini tidak terpasang. Pasang dari Addon, atau hapus sumber ini dari folder.</string>
     <string name="folder_error_tmdb_source">Tidak dapat memuat ini dari TMDB. Periksa koneksi Anda, lalu coba lagi.</string>

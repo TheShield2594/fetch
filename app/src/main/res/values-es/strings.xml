@@ -1923,7 +1923,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Colecciones</string>
     <string name="collections_delete_confirm_title">¿Eliminar colección?</string>
-    <string name="collections_delete_confirm">Eliminar</string>
     <string name="collections_delete_confirm_subtitle">Esto eliminará permanentemente \"%1$s\". Esta acción no se puede deshacer.</string>
     <string name="collections_empty">Aún no hay colecciones. Crea una para organizar tus catálogos.</string>
     <string name="collections_new">Nueva colección</string>
@@ -1954,9 +1953,7 @@
     <string name="collections_fetch_url">Obtener URL</string>
     <string name="collections_fetching">Obteniendo…</string>
     <string name="collections_valid_json">JSON válido</string>
-    <string name="collections_valid_summary">%1$d colección(es), %2$d carpeta(s)</string>
     <string name="collections_confirm_import">Confirmar importación</string>
-    <string name="collections_folder_count">%1$d carpeta(s)</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Título de fila</string>
@@ -1987,10 +1984,7 @@
     <string name="collections_editor_select_catalogs">Seleccionar catálogos</string>
     <string name="collections_editor_done">Hecho</string>
     <string name="collections_editor_choose_emoji">Elegir emoji</string>
-    <string name="collections_editor_back">Atrás</string>
     <string name="collections_editor_edit_collection">Editar colección</string>
-    <string name="collections_editor_source_count">%1$d fuente(s)</string>
-    <string name="collections_editor_sources">Fuentes</string>
     <string name="collections_editor_source">Fuente</string>
     <string name="collections_editor_view_mode_tabs">Pestañas</string>
     <string name="collections_editor_view_mode_rows">Filas</string>
@@ -2170,10 +2164,6 @@
     <string name="collection_editor_resolved_trakt_list">Lista de Trakt resuelta</string>
     <string name="collection_editor_trakt_search_placeholder">Buscar título, URL de Trakt o ID de lista</string>
     <string name="collection_editor_trakt_name_placeholder">Weekend Watch, Award Winners</string>
-    <string name="collection_editor_folder_count_one">%1$d elemento</string>
-    <string name="collection_editor_folder_count_other">%1$d elementos</string>
-    <string name="collections_editor_delete_folder_title">¿Eliminar carpeta?</string>
-    <string name="collections_editor_delete_folder_subtitle">Esto eliminará permanentemente \"%1$s\" y su contenido.</string>
     <string name="folder_error_addon_source">No se pudo cargar este catálogo. Comprueba que su complemento esté instalado y en línea, e inténtalo de nuevo.</string>
     <string name="folder_error_addon_missing">El complemento de este catálogo no está instalado. Instálalo desde Complementos o quita esta fuente de la carpeta.</string>
     <string name="folder_error_tmdb_source">No se pudo cargar esto desde TMDB. Comprueba tu conexión e inténtalo de nuevo.</string>

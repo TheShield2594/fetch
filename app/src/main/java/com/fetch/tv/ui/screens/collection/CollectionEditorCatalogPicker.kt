@@ -83,6 +83,7 @@ import com.fetch.tv.domain.model.TmdbCollectionSource
 import com.fetch.tv.domain.model.TmdbCollectionSourceType
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.R
+import com.fetch.tv.ui.components.EmptyScreenState
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.core.tracking.LocalList
 import com.fetch.tv.domain.model.LocalListCollectionSource
@@ -214,6 +215,14 @@ fun CatalogPickerContent(
 
         Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
 
+        if (catalogs.isEmpty()) {
+            EmptyScreenState(
+                title = stringResource(R.string.collections_editor_no_catalogs_title),
+                subtitle = stringResource(R.string.collections_editor_no_catalogs_subtitle)
+            )
+            return@Column
+        }
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, top = FetchTheme.spacing.xs, bottom = FetchTheme.spacing.xxxl),
@@ -265,7 +274,7 @@ fun CatalogPickerContent(
                                 else -> null
                             }
                             Text(
-                                text = listOfNotNull("${catalog.type} - ${catalog.addonName}", supportingGenreText).joinToString(" • "),
+                                text = listOfNotNull(addonCatalogTypeLabel(catalog.type), catalog.addonName, supportingGenreText).joinToString(" • "),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = FetchTheme.colors.TextTertiary
                             )

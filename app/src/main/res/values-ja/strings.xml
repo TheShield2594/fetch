@@ -1575,7 +1575,6 @@
     <!-- Collection Management -->
     <string name="collections_header">コレクション</string>
     <string name="collections_delete_confirm_title">コレクションを削除しますか？</string>
-    <string name="collections_delete_confirm">削除</string>
     <string name="collections_delete_confirm_subtitle">\"%1$s\" を完全に削除します。この操作は取り消せません。</string>
     <string name="collections_empty">コレクションがまだありません。新しく作成してカタログを整理しましょう。</string>
     <string name="collections_new">新規コレクション</string>
@@ -1606,9 +1605,7 @@
     <string name="collections_fetch_url">URLを取得</string>
     <string name="collections_fetching">取得中…</string>
     <string name="collections_valid_json">有効なJSON</string>
-    <string name="collections_valid_summary">%1$d個のコレクション、%2$d個のフォルダー</string>
     <string name="collections_confirm_import">インポートを確認</string>
-    <string name="collections_folder_count">%1$d個のフォルダー</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">行タイトル</string>
@@ -1639,10 +1636,7 @@
     <string name="collections_editor_select_catalogs">カタログを選択</string>
     <string name="collections_editor_done">完了</string>
     <string name="collections_editor_choose_emoji">絵文字を選択</string>
-    <string name="collections_editor_back">戻る</string>
     <string name="collections_editor_edit_collection">コレクションを編集</string>
-    <string name="collections_editor_source_count">%1$d個のソース</string>
-    <string name="collections_editor_sources">ソース</string>
     <string name="collections_editor_source">ソース</string>
     <string name="collections_editor_view_mode_tabs">タブ</string>
     <string name="collections_editor_view_mode_rows">行</string>
@@ -1815,10 +1809,6 @@
     <string name="collection_editor_resolved_trakt_list">解決済みTraktリスト</string>
     <string name="collection_editor_trakt_search_placeholder">タイトル、Trakt URL、リストIDで検索</string>
     <string name="collection_editor_trakt_name_placeholder">週末の視聴、受賞作品</string>
-    <string name="collection_editor_folder_count_one">%1$d個のアイテム</string>
-    <string name="collection_editor_folder_count_other">%1$d個のアイテム</string>
-    <string name="collections_editor_delete_folder_title">フォルダーを削除しますか？</string>
-    <string name="collections_editor_delete_folder_subtitle">\"%1$s\" とその内容を完全に削除します。</string>
     <string name="folder_error_addon_source">このカタログを読み込めませんでした。アドオンがインストール済みでオンラインか確認してから、もう一度お試しください。</string>
     <string name="folder_error_addon_missing">このカタログのアドオンがインストールされていません。アドオンからインストールするか、このソースをフォルダーから削除してください。</string>
     <string name="folder_error_tmdb_source">TMDBから読み込めませんでした。接続を確認してから、もう一度お試しください。</string>

@@ -1838,7 +1838,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Collecties</string>
     <string name="collections_delete_confirm_title">Collectie verwijderen?</string>
-    <string name="collections_delete_confirm">Verwijderen</string>
     <string name="collections_delete_confirm_subtitle">Hiermee wordt \"%1$s\" permanent verwijderd. Dit kan niet ongedaan worden gemaakt.</string>
     <string name="collections_empty">Nog geen collecties. Maak er een om je catalogi te ordenen.</string>
     <string name="collections_new">Nieuwe collectie</string>
@@ -1869,9 +1868,7 @@
     <string name="collections_fetch_url">URL ophalen</string>
     <string name="collections_fetching">Ophalen…</string>
     <string name="collections_valid_json">Geldige JSON</string>
-    <string name="collections_valid_summary">%1$d collectie(s), %2$d map(pen)</string>
     <string name="collections_confirm_import">Importeren bevestigen</string>
-    <string name="collections_folder_count">%1$d map(pen)</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Titel van rij</string>
@@ -1902,10 +1899,7 @@
     <string name="collections_editor_select_catalogs">Catalogi selecteren</string>
     <string name="collections_editor_done">Klaar</string>
     <string name="collections_editor_choose_emoji">Emoji kiezen</string>
-    <string name="collections_editor_back">Terug</string>
     <string name="collections_editor_edit_collection">Collectie bewerken</string>
-    <string name="collections_editor_source_count">%1$d bron(nen)</string>
-    <string name="collections_editor_sources">Bronnen</string>
     <string name="collections_editor_source">Bron</string>
     <string name="collections_editor_view_mode_tabs">Tabbladen</string>
     <string name="collections_editor_view_mode_rows">Rijen</string>
@@ -2085,10 +2079,6 @@
     <string name="collection_editor_resolved_trakt_list">Gevonden Trakt-lijst</string>
     <string name="collection_editor_trakt_search_placeholder">Zoek op titel, Trakt-URL of lijst-ID</string>
     <string name="collection_editor_trakt_name_placeholder">Weekendselectie, Prijswinnaars</string>
-    <string name="collection_editor_folder_count_one">%1$d item</string>
-    <string name="collection_editor_folder_count_other">%1$d items</string>
-    <string name="collections_editor_delete_folder_title">Map verwijderen?</string>
-    <string name="collections_editor_delete_folder_subtitle">Hiermee worden \"%1$s\" en de inhoud ervan permanent verwijderd.</string>
     <string name="folder_error_addon_source">Kon deze catalogus niet laden. Controleer of de add-on geïnstalleerd en online is en probeer het opnieuw.</string>
     <string name="folder_error_addon_missing">De add-on van deze catalogus is niet geïnstalleerd. Installeer hem via Add-ons of verwijder deze bron uit de map.</string>
     <string name="folder_error_tmdb_source">Kon dit niet laden van TMDB. Controleer je verbinding en probeer het opnieuw.</string>

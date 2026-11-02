@@ -87,6 +87,11 @@ import com.fetch.tv.domain.model.TraktCollectionSource
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.R
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.res.pluralStringResource
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
 
@@ -97,6 +102,12 @@ fun FolderEditorContent(
     uiState: CollectionEditorUiState
 ) {
     val folder = uiState.editingFolder ?: return
+
+    // Declared before the picker early returns so the warning survives a trip into a picker.
+    var showSourceRequired by remember { mutableStateOf(false) }
+    LaunchedEffect(folder.sources.isNotEmpty()) {
+        if (folder.sources.isNotEmpty()) showSourceRequired = false
+    }
 
     if (uiState.showCatalogPicker) {
         BackHandler { viewModel.hideCatalogPicker() }
@@ -221,6 +232,14 @@ fun FolderEditorContent(
     }
 
     val titleFocusRequester = remember { FocusRequester() }
+    val isNewFolder = uiState.folders.none { it.id == folder.id }
+    val folderListState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    // With no addon catalogs, Add catalog leads nowhere, so Save points at Add TMDB source instead.
+    val addCatalogFocusRequester = remember { FocusRequester() }
+    val addTmdbFocusRequester = remember { FocusRequester() }
+    val addSourceFocusRequester =
+        if (uiState.availableCatalogs.isEmpty()) addTmdbFocusRequester else addCatalogFocusRequester
 
     LaunchedEffect(Unit) {
         repeat(5) { androidx.compose.runtime.withFrameNanos { } }
@@ -238,7 +257,9 @@ fun FolderEditorContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(R.string.collections_editor_edit_folder),
+                text = stringResource(
+                    if (isNewFolder) R.string.collections_editor_new_folder else R.string.collections_editor_edit_folder
+                ),
                 style = MaterialTheme.typography.headlineMedium.copy(textDirection = TextDirection.Content),
                 color = FetchTheme.colors.TextPrimary,
             )
@@ -246,8 +267,20 @@ fun FolderEditorContent(
                 FetchButton(onClick = { viewModel.cancelFolderEdit() }) {
                     Text(stringResource(R.string.collections_cancel))
                 }
-                val canSaveFolder = folder.sources.isNotEmpty()
-                FetchButton(onClick = { viewModel.saveFolderEdit() }, enabled = canSaveFolder) {
+                // Save stays focusable; with no sources it points at the add-source buttons instead.
+                FetchButton(onClick = {
+                    if (folder.sources.isEmpty()) {
+                        showSourceRequired = true
+                        scope.launch {
+                            val lastIndex = folderListState.layoutInfo.totalItemsCount - 1
+                            if (lastIndex >= 0) folderListState.animateScrollToItem(lastIndex)
+                            repeat(2) { androidx.compose.runtime.withFrameNanos { } }
+                            try { addSourceFocusRequester.requestFocus() } catch (_: Exception) {}
+                        }
+                    } else {
+                        viewModel.saveFolderEdit()
+                    }
+                }) {
                     Text(stringResource(R.string.collections_editor_save))
                 }
             }
@@ -272,6 +305,7 @@ fun FolderEditorContent(
         }
 
         LazyColumn(
+            state = folderListState,
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = FetchTheme.spacing.xs, end = FetchTheme.spacing.xs, bottom = FetchTheme.spacing.xxxl),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
@@ -299,46 +333,14 @@ fun FolderEditorContent(
                 Text(stringResource(R.string.collections_editor_cover), style = MaterialTheme.typography.labelLarge, color = FetchTheme.colors.TextSecondary)
                 Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
                 Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
-                    Button(
-                        onClick = { viewModel.clearFolderCover() },
-                        colors = ButtonDefaults.colors(
-                            containerColor = if (coverMode == "none") FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                            contentColor = if (coverMode == "none") FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
-                            focusedContainerColor = FetchTheme.colors.FocusBackground,
-                            focusedContentColor = FetchTheme.colors.Primary
-                        ),
-                        border = ButtonDefaults.border(
-                            border = if (coverMode == "none") Border(
-                                border = BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.Secondary),
-                                shape = RoundedCornerShape(FetchTheme.radii.md)
-                            ) else Border.None,
-                            focusedBorder = Border(
-                                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                                shape = RoundedCornerShape(FetchTheme.radii.md)
-                            )
-                        ),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
+                    FetchChoiceButton(
+                        selected = coverMode == "none",
+                        onClick = { viewModel.clearFolderCover() }
                     ) { Text(stringResource(R.string.collections_editor_cover_none)) }
 
-                    Button(
-                        onClick = { viewModel.showEmojiPicker() },
-                        colors = ButtonDefaults.colors(
-                            containerColor = if (coverMode == "emoji") FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                            contentColor = if (coverMode == "emoji") FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
-                            focusedContainerColor = FetchTheme.colors.FocusBackground,
-                            focusedContentColor = FetchTheme.colors.Primary
-                        ),
-                        border = ButtonDefaults.border(
-                            border = if (coverMode == "emoji") Border(
-                                border = BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.Secondary),
-                                shape = RoundedCornerShape(FetchTheme.radii.md)
-                            ) else Border.None,
-                            focusedBorder = Border(
-                                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                                shape = RoundedCornerShape(FetchTheme.radii.md)
-                            )
-                        ),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
+                    FetchChoiceButton(
+                        selected = coverMode == "emoji",
+                        onClick = { viewModel.showEmojiPicker() }
                     ) {
                         if (hasEmoji) {
                             Text("${folder.coverEmoji}  ${stringResource(R.string.collections_editor_cover_emoji)}")
@@ -347,25 +349,9 @@ fun FolderEditorContent(
                         }
                     }
 
-                    Button(
-                        onClick = { viewModel.switchToImageMode() },
-                        colors = ButtonDefaults.colors(
-                            containerColor = if (coverMode == "image") FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                            contentColor = if (coverMode == "image") FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
-                            focusedContainerColor = FetchTheme.colors.FocusBackground,
-                            focusedContentColor = FetchTheme.colors.Primary
-                        ),
-                        border = ButtonDefaults.border(
-                            border = if (coverMode == "image") Border(
-                                border = BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.Secondary),
-                                shape = RoundedCornerShape(FetchTheme.radii.md)
-                            ) else Border.None,
-                            focusedBorder = Border(
-                                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                                shape = RoundedCornerShape(FetchTheme.radii.md)
-                            )
-                        ),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
+                    FetchChoiceButton(
+                        selected = coverMode == "image",
+                        onClick = { viewModel.switchToImageMode() }
                     ) { Text(stringResource(R.string.collections_editor_cover_image_url)) }
                 }
 
@@ -382,14 +368,13 @@ fun FolderEditorContent(
                             placeholder = stringResource(R.string.collections_editor_url_short_placeholder)
                         )
                         if (!folder.coverImageUrl.isNullOrBlank()) {
-                            Card(
-                                onClick = {},
+                            Box(
+                                // A plain image, not a card: it has no action, so it is not a D-pad stop.
                                 modifier = Modifier
                                     .width(FetchTheme.spacing.huge)
-                                    .height(FetchTheme.spacing.huge),
-                                shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
-                                colors = CardDefaults.colors(containerColor = FetchTheme.colors.BackgroundCard),
-                                scale = CardDefaults.scale(focusedScale = 1f)
+                                    .height(FetchTheme.spacing.huge)
+                                    .clip(RoundedCornerShape(FetchTheme.radii.md))
+                                    .background(FetchTheme.colors.BackgroundCard)
                             ) {
                                 AsyncImage(
                                     model = folder.coverImageUrl,
@@ -460,14 +445,13 @@ fun FolderEditorContent(
                         placeholder = stringResource(R.string.collections_editor_placeholder_hero_backdrop)
                     )
                     if (!folder.heroBackdropUrl.isNullOrBlank()) {
-                        Card(
-                            onClick = {},
+                        Box(
+                            // A plain image, not a card: it has no action, so it is not a D-pad stop.
                             modifier = Modifier
                                 .width(FetchTheme.spacing.huge)
-                                .height(FetchTheme.spacing.huge),
-                            shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
-                            colors = CardDefaults.colors(containerColor = FetchTheme.colors.BackgroundCard),
-                            scale = CardDefaults.scale(focusedScale = 1f)
+                                .height(FetchTheme.spacing.huge)
+                                .clip(RoundedCornerShape(FetchTheme.radii.md))
+                                .background(FetchTheme.colors.BackgroundCard)
                         ) {
                             AsyncImage(
                                 model = folder.heroBackdropUrl,
@@ -505,14 +489,13 @@ fun FolderEditorContent(
                         placeholder = stringResource(R.string.collections_editor_placeholder_title_logo)
                     )
                     if (!folder.titleLogoUrl.isNullOrBlank()) {
-                        Card(
-                            onClick = {},
+                        Box(
+                            // A plain image, not a card: it has no action, so it is not a D-pad stop.
                             modifier = Modifier
                                 .width(100.dp)
-                                .height(FetchTheme.spacing.huge),
-                            shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
-                            colors = CardDefaults.colors(containerColor = FetchTheme.colors.BackgroundCard),
-                            scale = CardDefaults.scale(focusedScale = 1f)
+                                .height(FetchTheme.spacing.huge)
+                                .clip(RoundedCornerShape(FetchTheme.radii.md))
+                                .background(FetchTheme.colors.BackgroundCard)
                         ) {
                             AsyncImage(
                                 model = folder.titleLogoUrl,
@@ -543,27 +526,10 @@ fun FolderEditorContent(
                             PosterShape.LANDSCAPE -> stringResource(R.string.collections_editor_shape_wide)
                             PosterShape.SQUARE -> stringResource(R.string.collections_editor_shape_square)
                         }
-                        val isSelected = folder.tileShape == shape
-                        Button(
+                        FetchChoiceButton(
+                            selected = folder.tileShape == shape,
                             onClick = { viewModel.updateFolderTileShape(shape) },
-                            modifier = Modifier.focusRequester(shapeFocusRequesters[shape]!!),
-                            colors = ButtonDefaults.colors(
-                                containerColor = if (isSelected) FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                                contentColor = if (isSelected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
-                                focusedContainerColor = FetchTheme.colors.FocusBackground,
-                                focusedContentColor = FetchTheme.colors.Primary
-                            ),
-                            border = ButtonDefaults.border(
-                                border = if (isSelected) Border(
-                                    border = BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.Secondary),
-                                    shape = RoundedCornerShape(FetchTheme.radii.md)
-                                ) else Border.None,
-                                focusedBorder = Border(
-                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(FetchTheme.radii.md)
-                                )
-                            ),
-                            shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
+                            modifier = Modifier.focusRequester(shapeFocusRequesters[shape]!!)
                         ) {
                             Text(label)
                         }
@@ -631,7 +597,7 @@ fun FolderEditorContent(
                 ) {
                     Text(stringResource(R.string.collections_editor_catalogs), style = MaterialTheme.typography.labelLarge, color = FetchTheme.colors.TextSecondary)
                     Text(
-                        "${folder.sources.size} ${stringResource(R.string.collections_editor_sources).lowercase()}",
+                        pluralStringResource(R.plurals.collections_editor_source_count, folder.sources.size, folder.sources.size),
                         style = MaterialTheme.typography.bodySmall,
                         color = FetchTheme.colors.TextTertiary
                     )
@@ -664,11 +630,7 @@ fun FolderEditorContent(
                 } else {
                     stringResource(R.string.collections_editor_all_genres)
                 }
-                val addonTypeLabel = when (addonSource?.type?.lowercase()) {
-                    "movie" -> stringResource(R.string.type_movie)
-                    "series", "tv" -> stringResource(R.string.type_series)
-                    else -> addonSource?.type.orEmpty()
-                }
+                val addonTypeLabel = addonCatalogTypeLabel(addonSource?.type.orEmpty())
                 val hasGenreOptions = addonSource != null && catalog?.genreOptions?.isNotEmpty() == true
                 Surface(
                     shape = RoundedCornerShape(FetchTheme.radii.md),
@@ -702,8 +664,8 @@ fun FolderEditorContent(
                                 text = when {
                                     isMissing && addonSource.addonId in uiState.installedAddonIds -> stringResource(R.string.collections_editor_catalog_missing)
                                     isMissing -> stringResource(R.string.collections_editor_addon_missing, addonSource.addonId)
-                                    addonSource != null && catalog != null -> "$addonTypeLabel - ${catalog.addonName}"
-                                    addonSource != null && addonCatalogInfo != null -> "$addonTypeLabel - ${addonCatalogInfo.addonName}"
+                                    addonSource != null && catalog != null -> "$addonTypeLabel • ${catalog.addonName}"
+                                    addonSource != null && addonCatalogInfo != null -> "$addonTypeLabel • ${addonCatalogInfo.addonName}"
                                     tmdbSource != null -> tmdbSourceSubtitle(tmdbSource)
                                     traktSource != null -> traktSourceSubtitle(traktSource)
                                     localListSource != null -> stringResource(R.string.local_list_source_label)
@@ -743,7 +705,7 @@ fun FolderEditorContent(
                                             containerColor = FetchTheme.colors.BackgroundElevated,
                                             contentColor = FetchTheme.colors.TextSecondary,
                                             focusedContainerColor = FetchTheme.colors.FocusBackground,
-                                            focusedContentColor = FetchTheme.colors.Primary
+                                            focusedContentColor = FetchTheme.colors.TextPrimary
                                         ),
                                         border = ButtonDefaults.border(
                                             focusedBorder = Border(
@@ -870,13 +832,23 @@ fun FolderEditorContent(
             }
 
             item {
-                Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
-                    FetchButton(onClick = { viewModel.showCatalogPicker() }) {
+                // Wraps rather than clipping the last button when the labels run long.
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
+                    verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
+                ) {
+                    FetchButton(
+                        onClick = { viewModel.showCatalogPicker() },
+                        modifier = Modifier.focusRequester(addCatalogFocusRequester)
+                    ) {
                         Icon(Icons.Default.Add, stringResource(R.string.cd_add))
                         Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
                         Text(stringResource(R.string.collections_editor_add_catalog))
                     }
-                    FetchButton(onClick = { viewModel.showTmdbSourcePicker() }) {
+                    FetchButton(
+                        onClick = { viewModel.showTmdbSourcePicker() },
+                        modifier = Modifier.focusRequester(addTmdbFocusRequester)
+                    ) {
                         Icon(Icons.Default.Add, stringResource(R.string.cd_add))
                         Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
                         Text(stringResource(R.string.collections_editor_add_tmdb_source))
@@ -891,6 +863,10 @@ fun FolderEditorContent(
                         Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
                         Text(stringResource(R.string.collections_editor_add_local_list))
                     }
+                }
+                if (showSourceRequired) {
+                    Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
+                    FieldRequirementText(stringResource(R.string.collections_editor_source_required))
                 }
             }
         }

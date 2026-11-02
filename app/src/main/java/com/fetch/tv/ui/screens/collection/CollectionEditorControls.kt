@@ -27,6 +27,12 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -207,31 +213,46 @@ internal fun DiscardChangesDialog(
             ) {
                 Text(stringResource(R.string.collections_editor_keep_editing))
             }
-            FetchButton(onClick = onDiscard) {
+            FetchButton(onClick = onDiscard, destructive = true) {
                 Text(stringResource(R.string.collections_editor_discard))
             }
         }
     }
 }
 
+/**
+ * The one button used across the collection screens. The focused label stays as bright as the
+ * resting one; focus is shown by the ring. [destructive] gives a confirm-delete button the error
+ * fill, so it can't be mistaken for Cancel.
+ */
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun FetchButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    destructive: Boolean = false,
     content: @Composable () -> Unit
 ) {
     Button(
         onClick = onClick,
         modifier = modifier.then(if (!enabled) Modifier.alpha(0.35f) else Modifier),
         enabled = enabled,
-        colors = ButtonDefaults.colors(
-            containerColor = FetchTheme.colors.BackgroundCard,
-            contentColor = FetchTheme.colors.TextPrimary,
-            focusedContainerColor = FetchTheme.colors.FocusBackground,
-            focusedContentColor = FetchTheme.colors.Primary
-        ),
+        colors = if (destructive) {
+            ButtonDefaults.colors(
+                containerColor = FetchStatusTones.errorContainer,
+                contentColor = FetchTheme.colors.TextPrimary,
+                focusedContainerColor = FetchTheme.colors.Error,
+                focusedContentColor = FetchTheme.colors.OnHighlight
+            )
+        } else {
+            ButtonDefaults.colors(
+                containerColor = FetchTheme.colors.BackgroundCard,
+                contentColor = FetchTheme.colors.TextPrimary,
+                focusedContainerColor = FetchTheme.colors.FocusBackground,
+                focusedContentColor = FetchTheme.colors.TextPrimary
+            )
+        },
         border = ButtonDefaults.border(
             focusedBorder = Border(
                 border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
@@ -241,6 +262,73 @@ fun FetchButton(
         shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
         content = { content() }
     )
+}
+
+/**
+ * One option in a row of choices (view mode, cover, tile shape, TMDB/Trakt options). The selected
+ * option carries a check mark, which stays while it has focus, so landing on an option still shows
+ * whether it is the current one.
+ */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun FetchChoiceButton(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    val shape = RoundedCornerShape(FetchTheme.radii.md)
+    Button(
+        onClick = onClick,
+        modifier = modifier.semantics { this.selected = selected },
+        enabled = enabled,
+        colors = ButtonDefaults.colors(
+            containerColor = if (selected) FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
+            contentColor = if (selected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
+            focusedContainerColor = FetchTheme.colors.FocusBackground,
+            focusedContentColor = FetchTheme.colors.TextPrimary
+        ),
+        border = ButtonDefaults.border(
+            border = if (selected) {
+                Border(border = BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.Secondary), shape = shape)
+            } else {
+                Border.None
+            },
+            focusedBorder = Border(border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs), shape = shape)
+        ),
+        shape = ButtonDefaults.shape(shape),
+        scale = ButtonDefaults.scale(focusedScale = 1f)
+    ) {
+        if (selected) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(FetchTheme.spacing.xs))
+        }
+        content()
+    }
+}
+
+/** A short helper line that says what is missing, read out when it appears. */
+@Composable
+internal fun FieldRequirementText(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodySmall,
+        color = FetchStatusTones.errorText,
+        modifier = modifier.semantics { liveRegion = LiveRegionMode.Polite }
+    )
+}
+
+/** An addon catalog's content type in the app language ("movie" → "Movie"); unknown types pass through. */
+@Composable
+internal fun addonCatalogTypeLabel(type: String): String = when (type.lowercase()) {
+    "movie" -> stringResource(R.string.type_movie)
+    "series", "tv" -> stringResource(R.string.type_series)
+    else -> type
 }
 
 fun collectionSourceKey(source: CollectionSource): String {

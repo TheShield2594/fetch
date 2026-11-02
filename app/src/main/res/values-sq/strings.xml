@@ -1654,7 +1654,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Koleksionet</string>
     <string name="collections_delete_confirm_title">Të fshihet koleksioni?</string>
-    <string name="collections_delete_confirm">Fshi</string>
     <string name="collections_delete_confirm_subtitle">Kjo do ta fshijë përgjithmonë \"%1$s\". Kjo nuk mund të zhbëhet.</string>
     <string name="collections_empty">Ende nuk ka koleksione. Krijo një për të organizuar katalogët e tu.</string>
     <string name="collections_new">Koleksion i ri</string>
@@ -1685,9 +1684,7 @@
     <string name="collections_fetch_url">Merr URL-në</string>
     <string name="collections_fetching">Duke marrë…</string>
     <string name="collections_valid_json">JSON i vlefshëm</string>
-    <string name="collections_valid_summary">%1$d koleksion(e), %2$d dosje</string>
     <string name="collections_confirm_import">Konfirmo importimin</string>
-    <string name="collections_folder_count">%1$d dosje</string>
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Titulli i rreshtit</string>
     <string name="collections_editor_save">Ruaj</string>
@@ -1717,10 +1714,7 @@
     <string name="collections_editor_select_catalogs">Zgjidh katalogët</string>
     <string name="collections_editor_done">U krye</string>
     <string name="collections_editor_choose_emoji">Zgjidh emoji</string>
-    <string name="collections_editor_back">Kthehu</string>
     <string name="collections_editor_edit_collection">Redakto koleksionin</string>
-    <string name="collections_editor_source_count">%1$d burim(e)</string>
-    <string name="collections_editor_sources">Burimet</string>
     <string name="collections_editor_source">Burimi</string>
     <string name="collections_editor_view_mode_tabs">Skedat</string>
     <string name="collections_editor_view_mode_rows">Rreshtat</string>
@@ -1900,10 +1894,6 @@
     <string name="collection_editor_resolved_trakt_list">Lista Trakt u zgjidh</string>
     <string name="collection_editor_trakt_search_placeholder">Kërko titullin, URL-në Trakt ose ID-në e listës</string>
     <string name="collection_editor_trakt_name_placeholder">Weekend Watch, Award Winners</string>
-    <string name="collection_editor_folder_count_one">%1$d artikull</string>
-    <string name="collection_editor_folder_count_other">%1$d artikuj</string>
-    <string name="collections_editor_delete_folder_title">Të fshihet dosja?</string>
-    <string name="collections_editor_delete_folder_subtitle">Kjo do ta fshijë përgjithmonë \"%1$s\" dhe përmbajtjen e saj.</string>
     <string name="folder_error_addon_source">Ky katalog nuk u ngarkua. Kontrollo që shtesa e tij është e instaluar dhe online, pastaj provo përsëri.</string>
     <string name="folder_error_addon_missing">Shtesa e këtij katalogu nuk është e instaluar. Instaloje nga Shtesa ose hiqe këtë burim nga dosja.</string>
     <string name="folder_error_tmdb_source">Kjo nuk u ngarkua nga TMDB. Kontrollo lidhjen, pastaj provo përsëri.</string>

@@ -1494,7 +1494,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Coleções</string>
     <string name="collections_delete_confirm_title">Eliminar Coleção?</string>
-    <string name="collections_delete_confirm">Eliminar</string>
     <string name="collections_delete_confirm_subtitle">Isto irá eliminar permanentemente \"%1$s\". Esta ação não pode ser desfeita.</string>
     <string name="collections_empty">Ainda não existem coleções. Cria uma para organizar os teus catálogos.</string>
     <string name="collections_new">Nova coleção</string>
@@ -1525,9 +1524,7 @@
     <string name="collections_fetch_url">Obter URL</string>
     <string name="collections_fetching">A obter…</string>
     <string name="collections_valid_json">JSON Válido</string>
-    <string name="collections_valid_summary">Coleções: %1$d · Pastas: %2$d</string>
     <string name="collections_confirm_import">Confirmar Importação</string>
-    <string name="collections_folder_count">Pastas: %1$d</string>
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Título da Linha</string>
     <string name="collections_editor_save">Guardar</string>
@@ -1557,10 +1554,7 @@
     <string name="collections_editor_select_catalogs">Selecionar catálogos</string>
     <string name="collections_editor_done">Concluído</string>
     <string name="collections_editor_choose_emoji">Escolher Emoji</string>
-    <string name="collections_editor_back">Voltar</string>
     <string name="collections_editor_edit_collection">Editar coleção</string>
-    <string name="collections_editor_source_count">%1$d fonte(s)</string>
-    <string name="collections_editor_sources">Fontes</string>
     <string name="collections_editor_source">Fonte</string>
     <string name="collections_editor_view_mode_tabs">Separadores</string>
     <string name="collections_editor_view_mode_rows">Linhas</string>
@@ -1733,10 +1727,6 @@
     <string name="collection_editor_resolved_trakt_list">Lista do Trakt resolvida</string>
     <string name="collection_editor_trakt_search_placeholder">Pesquisar título, URL do Trakt ou ID da lista</string>
     <string name="collection_editor_trakt_name_placeholder">Filmes do Fim de Semana, Vencedores de Prémios</string>
-    <string name="collection_editor_folder_count_one">%1$d item</string>
-    <string name="collection_editor_folder_count_other">%1$d itens</string>
-    <string name="collections_editor_delete_folder_title">Eliminar Pasta?</string>
-    <string name="collections_editor_delete_folder_subtitle">Isto irá eliminar permanentemente \"%1$s\" e o seu conteúdo.</string>
     <string name="folder_error_addon_source">Não foi possível carregar este catálogo. Verifica se o respetivo addon está instalado e online e tenta novamente.</string>
     <string name="folder_error_addon_missing">O addon deste catálogo não está instalado. Instala-o em Addons ou remove esta fonte da pasta.</string>
     <string name="folder_error_tmdb_source">Não foi possível carregar a partir do TMDB. Verifica a tua ligação e tenta novamente.</string>

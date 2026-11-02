@@ -1997,7 +1997,6 @@
     <!-- Collection Management -->
     <string name="collections_header">Gyűjtemények</string>
     <string name="collections_delete_confirm_title">Gyűjtemény törlése?</string>
-    <string name="collections_delete_confirm">Törlés</string>
     <string name="collections_delete_confirm_subtitle">Ez véglegesen törli a következőt: \&quot;%1$s\&quot;. Ezt nem lehet visszavonni.</string>
     <string name="collections_empty">Még nincsenek gyűjtemények. Hozz létre egyet a katalógusaid rendszerezéséhez.</string>
     <string name="collections_new">Új gyűjtemény</string>
@@ -2028,9 +2027,7 @@
     <string name="collections_fetch_url">URL lekérése</string>
     <string name="collections_fetching">Lekérés…</string>
     <string name="collections_valid_json">Érvényes JSON</string>
-    <string name="collections_valid_summary">%1$d gyűjtemény, %2$d mappa</string>
     <string name="collections_confirm_import">Importálás megerősítése</string>
-    <string name="collections_folder_count">%1$d mappa</string>
 
     <!-- Collection Editor -->
     <string name="collections_editor_row_title">Sor címe</string>
@@ -2061,10 +2058,7 @@
     <string name="collections_editor_select_catalogs">Katalógusok kiválasztása</string>
     <string name="collections_editor_done">Kész</string>
     <string name="collections_editor_choose_emoji">Hangulatjel kiválasztása</string>
-    <string name="collections_editor_back">Vissza</string>
     <string name="collections_editor_edit_collection">Gyűjtemény szerkesztése</string>
-    <string name="collections_editor_source_count">%1$d forrás</string>
-    <string name="collections_editor_sources">Források</string>
     <string name="collections_editor_source">Forrás</string>
     <string name="collections_editor_view_mode_tabs">Fülek</string>
     <string name="collections_editor_view_mode_rows">Sorok</string>
@@ -2245,10 +2239,6 @@
     <string name="collection_editor_resolved_trakt_list">Azonosított Trakt-lista</string>
     <string name="collection_editor_trakt_search_placeholder">Keresés cím, Trakt-URL vagy listaazonosító alapján</string>
     <string name="collection_editor_trakt_name_placeholder">Hétvégi filmezés, Díjnyertesek</string>
-    <string name="collection_editor_folder_count_one">%1$d elem</string>
-    <string name="collection_editor_folder_count_other">%1$d elem</string>
-    <string name="collections_editor_delete_folder_title">Mappa törlése?</string>
-    <string name="collections_editor_delete_folder_subtitle">Ez véglegesen törli a következőt és annak tartalmát: \&quot;%1$s\&quot;.</string>
     <string name="folder_error_addon_source">Nem sikerült betölteni ezt a katalógust. Ellenőrizd, hogy a bővítménye telepítve van és elérhető, majd próbáld újra.</string>
     <string name="folder_error_addon_missing">Ennek a katalógusnak a bővítménye nincs telepítve. Telepítsd a Bővítmények között, vagy távolítsd el ezt a forrást a mappából.</string>
     <string name="folder_error_tmdb_source">Nem sikerült betölteni ezt a TMDB-ről. Ellenőrizd a kapcsolatot, majd próbáld újra.</string>

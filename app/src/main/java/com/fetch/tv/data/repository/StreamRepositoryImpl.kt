@@ -1,5 +1,6 @@
 package com.fetch.tv.data.repository
 
+import com.fetch.tv.core.addon.AddonUrls
 import com.fetch.tv.core.streams.AddonCallResult
 import com.fetch.tv.core.streams.AddonRequestGuard
 import com.fetch.tv.core.streams.AddonRequestKind
@@ -359,7 +360,7 @@ class StreamRepositoryImpl @Inject constructor(
 
     private fun Stream.dedupKey(): String {
         val base = infoHash?.lowercase()?.let { hash -> "$hash:${fileIdx ?: ""}" }
-            ?: clientResolve?.infoHash?.lowercase()?.let { hash -> "$hash:${clientResolve.fileIdx}" }
+            ?: clientResolve?.let { resolve -> resolve.infoHash?.lowercase()?.let { hash -> "$hash:${resolve.fileIdx}" } }
             ?: url
             ?: externalUrl
             ?: ytId
@@ -377,13 +378,7 @@ class StreamRepositoryImpl @Inject constructor(
         type: String,
         videoId: String
     ): NetworkResult<List<Stream>> {
-        val cleanBaseUrl = addon.baseUrl.trimEnd('/')
-        val queryStart = cleanBaseUrl.indexOf('?')
-        val basePath = if (queryStart >= 0) cleanBaseUrl.substring(0, queryStart).trimEnd('/') else cleanBaseUrl
-        val baseQuery = if (queryStart >= 0) cleanBaseUrl.substring(queryStart) else ""
-        val encodedType = encodePathSegment(type)
-        val encodedVideoId = encodePathSegment(videoId)
-        val streamUrl = "$basePath/stream/$encodedType/$encodedVideoId.json$baseQuery"
+        val streamUrl = AddonUrls.stream(addon.baseUrl, type, videoId)
         Log.d(TAG, "Fetching streams type=$type videoId=$videoId url=$streamUrl")
 
         // Display info comes from the installed addon the caller already holds. Calling

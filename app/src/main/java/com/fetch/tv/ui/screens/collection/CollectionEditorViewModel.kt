@@ -736,9 +736,10 @@ class CollectionEditorViewModel @Inject constructor(
     }
 
     fun addTmdbSource(source: TmdbCollectionSource) {
-        if (source.tmdbId != null && source.sourceType in coverMetadataSourceTypes) {
+        val tmdbId = source.tmdbId
+        if (tmdbId != null && source.sourceType in coverMetadataSourceTypes) {
             viewModelScope.launch {
-                val metadata = runCatching { importMetadataFor(source.sourceType, source.tmdbId) }
+                val metadata = runCatching { importMetadataFor(source.sourceType, tmdbId) }
                 val resolved = metadata.getOrNull()
                 addTmdbSourceToFolder(
                     source = if (source.title.isBlank()) source.copy(title = resolved?.title.orEmpty()) else source,

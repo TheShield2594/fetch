@@ -122,11 +122,12 @@ internal fun HomeViewModel.replaceCatalogRow(key: String, row: CatalogRow) {
         val mergedItems = if (previousById != null) {
             row.items.map { newItem ->
                 val prev = previousById[newItem.id]
-                if (prev?.mdbListRatings != null && newItem.mdbListRatings == null) {
+                val prevRatings = prev?.mdbListRatings
+                if (prev != null && prevRatings != null && newItem.mdbListRatings == null) {
                     newItem.copy(
-                        mdbListRatings = prev.mdbListRatings,
+                        mdbListRatings = prevRatings,
                         mdbListRatingOrder = prev.mdbListRatingOrder,
-                        imdbRating = prev.mdbListRatings.imdb?.toFloat() ?: newItem.imdbRating
+                        imdbRating = prevRatings.imdb?.toFloat() ?: newItem.imdbRating
                     )
                 } else newItem
             }

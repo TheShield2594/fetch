@@ -183,12 +183,14 @@ internal fun EpisodeOptionsOverlay(
     val ratingLabel = remember(imdbRating) {
         imdbRating?.takeIf { it > 0.0 }?.let { String.format(Locale.US, "%.1f", it) }
     }
+    val seasonNumber = episode.season
+    val episodeNumber = episode.episode
     val episodeLabel = when {
-        episode.season != null && episode.episode != null -> {
-            stringResource(R.string.season_episode_format, episode.season, episode.episode)
+        seasonNumber != null && episodeNumber != null -> {
+            stringResource(R.string.season_episode_format, seasonNumber, episodeNumber)
         }
-        episode.episode != null -> {
-            "${stringResource(R.string.episodes_episode)} ${episode.episode}"
+        episodeNumber != null -> {
+            "${stringResource(R.string.episodes_episode)} $episodeNumber"
         }
         else -> stringResource(R.string.episodes_dialog_subtitle)
     }

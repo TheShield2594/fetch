@@ -2,6 +2,7 @@ package com.fetch.tv.data.repository
 
 import android.content.Context
 import android.util.Log
+import com.fetch.tv.core.addon.AddonUrls
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.network.safeApiCall
 import com.fetch.tv.core.poster.withCustomPosterUrls
@@ -27,7 +28,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import java.net.URLEncoder
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -196,37 +196,5 @@ class CatalogRepositoryImpl @Inject constructor(
         catalogId: String,
         skip: Int,
         extraArgs: Map<String, String>
-    ): String {
-        val trimmedBase = baseUrl.trimEnd('/')
-        val queryStart = trimmedBase.indexOf('?')
-        val basePath = if (queryStart >= 0) trimmedBase.substring(0, queryStart).trimEnd('/') else trimmedBase
-        val baseQuery = if (queryStart >= 0) trimmedBase.substring(queryStart) else ""
-
-        val catalogPath = if (extraArgs.isEmpty()) {
-            if (skip > 0) {
-                "$basePath/catalog/$type/$catalogId/skip=$skip.json"
-            } else {
-                "$basePath/catalog/$type/$catalogId.json"
-            }
-        } else {
-            val allArgs = LinkedHashMap<String, String>()
-            allArgs.putAll(extraArgs)
-
-            if (!allArgs.containsKey("skip") && skip > 0) {
-                allArgs["skip"] = skip.toString()
-            }
-
-            val encodedArgs = allArgs.entries.joinToString("&") { (key, value) ->
-                "${encodeArg(key)}=${encodeArg(value)}"
-            }
-
-            "$basePath/catalog/$type/$catalogId/$encodedArgs.json"
-        }
-
-        return catalogPath + baseQuery
-    }
-
-    private fun encodeArg(value: String): String {
-        return URLEncoder.encode(value, "UTF-8").replace("+", "%20")
-    }
+    ): String = AddonUrls.catalog(baseUrl, type, catalogId, skip, extraArgs)
 }

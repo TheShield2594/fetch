@@ -100,8 +100,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1214
-        versionName = "1.2.0-beta.14"
+        versionCode = 1215
+        versionName = "1.2.0"
 
         buildConfigField("String", "PARENTAL_GUIDE_API_URL", "\"${localProperties.getProperty("PARENTAL_GUIDE_API_URL", "")}\"")
         buildConfigField("String", "INTRODB_API_URL", buildConfigString(resolveProperty(devProperties, localProperties, "INTRODB_API_URL")))
@@ -357,6 +357,9 @@ configurations.configureEach {
 }
 
 dependencies {
+    // Platform-free code shared with the desktop app.
+    implementation(project(":shared"))
+
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     val composeBom = platform("androidx.compose:compose-bom:2026.05.01")
 

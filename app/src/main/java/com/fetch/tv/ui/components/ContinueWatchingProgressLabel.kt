@@ -17,7 +17,7 @@ internal fun formatContinueWatchingProgressLabel(
     } else if (effectiveDuration > 0L && progress.progressPercent != null) {
         // Trakt provides only a percentage without position/duration from playback.
         // Derive position from the explicit percent so remaining time is correct.
-        (effectiveDuration * (progress.progressPercent / 100f)).toLong()
+        (effectiveDuration * ((progress.progressPercent ?: 0f) / 100f)).toLong()
     } else {
         0L
     }

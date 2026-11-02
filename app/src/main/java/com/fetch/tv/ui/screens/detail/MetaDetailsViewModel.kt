@@ -2663,11 +2663,11 @@ class MetaDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             val previous = if (meta.apiType.equals("other", ignoreCase = true)) {
                 _uiState.value.episodesForSeason.filter { v ->
-                    v.season == targetSeason && v.episode != null && v.episode < targetEpisode
+                    v.season == targetSeason && (v.episode ?: Int.MAX_VALUE) < targetEpisode
                 }
             } else {
                 meta.videos.filter { v ->
-                    v.season == targetSeason && v.episode != null && v.episode < targetEpisode
+                    v.season == targetSeason && (v.episode ?: Int.MAX_VALUE) < targetEpisode
                 }
             }
             val unwatched = previous.filter { v ->
@@ -2711,9 +2711,9 @@ class MetaDetailsViewModel @Inject constructor(
         suppressSeasonAutoSwitch = true
         viewModelScope.launch {
             val episodes = if (meta.apiType.equals("other", ignoreCase = true)) {
-                _uiState.value.episodesForSeason.filter { it.season != null && it.season < targetSeason && it.season > 0 && it.episode != null }
+                _uiState.value.episodesForSeason.filter { (it.season ?: 0) in 1 until targetSeason && it.episode != null }
             } else {
-                meta.videos.filter { it.season != null && it.season < targetSeason && it.season > 0 && it.episode != null }
+                meta.videos.filter { (it.season ?: 0) in 1 until targetSeason && it.episode != null }
             }
             val unwatched = episodes.filter { video ->
                 val s = video.season!!

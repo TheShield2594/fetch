@@ -579,11 +579,12 @@ internal fun HomeViewModel.onItemFocusPipeline(item: MetaPreview) {
                 // snapshot lost them (e.g. row rebuild between batch and focus).
                 if (enriched.mdbListRatings == null) {
                     val existing = _enrichedPreviews.value[item.id]
-                    if (existing?.mdbListRatings != null) {
+                    val existingRatings = existing?.mdbListRatings
+                    if (existing != null && existingRatings != null) {
                         enriched = enriched.copy(
-                            mdbListRatings = existing.mdbListRatings,
+                            mdbListRatings = existingRatings,
                             mdbListRatingOrder = existing.mdbListRatingOrder,
-                            imdbRating = existing.mdbListRatings.imdb?.toFloat() ?: enriched.imdbRating
+                            imdbRating = existingRatings.imdb?.toFloat() ?: enriched.imdbRating
                         )
                     }
                 }
@@ -702,11 +703,12 @@ internal fun HomeViewModel.onItemFocusPipeline(item: MetaPreview) {
                 // Preserve MDBList ratings from batch prefetch.
                 if (preview.mdbListRatings == null) {
                     val existing = _enrichedPreviews.value[item.id]
-                    if (existing?.mdbListRatings != null) {
+                    val existingRatings = existing?.mdbListRatings
+                    if (existing != null && existingRatings != null) {
                         preview = preview.copy(
-                            mdbListRatings = existing.mdbListRatings,
+                            mdbListRatings = existingRatings,
                             mdbListRatingOrder = existing.mdbListRatingOrder,
-                            imdbRating = existing.mdbListRatings.imdb?.toFloat() ?: preview.imdbRating
+                            imdbRating = existingRatings.imdb?.toFloat() ?: preview.imdbRating
                         )
                     }
                 }

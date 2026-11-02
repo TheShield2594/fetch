@@ -137,7 +137,10 @@ fun TmdbSourcePickerContent(
                 style = MaterialTheme.typography.headlineMedium.copy(textDirection = TextDirection.Content),
                 color = FetchTheme.colors.TextPrimary,
             )
-            FetchButton(onClick = onBack) { Text(stringResource(R.string.collections_editor_done)) }
+            // Leaving drops unsaved edits to an existing source, so in edit mode the exit says Cancel.
+            FetchButton(onClick = onBack) {
+                Text(stringResource(if (isEditing) R.string.collections_cancel else R.string.collections_editor_done))
+            }
         }
 
         Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))

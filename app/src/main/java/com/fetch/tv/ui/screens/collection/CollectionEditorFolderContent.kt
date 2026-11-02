@@ -103,6 +103,12 @@ fun FolderEditorContent(
 ) {
     val folder = uiState.editingFolder ?: return
 
+    // Declared before the picker early returns so the warning survives a trip into a picker.
+    var showSourceRequired by remember { mutableStateOf(false) }
+    LaunchedEffect(folder.sources.isNotEmpty()) {
+        if (folder.sources.isNotEmpty()) showSourceRequired = false
+    }
+
     if (uiState.showCatalogPicker) {
         BackHandler { viewModel.hideCatalogPicker() }
         CatalogPickerContent(
@@ -227,14 +233,13 @@ fun FolderEditorContent(
 
     val titleFocusRequester = remember { FocusRequester() }
     val isNewFolder = uiState.folders.none { it.id == folder.id }
-    val addSourceFocusRequester = remember { FocusRequester() }
     val folderListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    // Set when Save is pressed with no sources; cleared once one is added.
-    var showSourceRequired by remember { mutableStateOf(false) }
-    LaunchedEffect(folder.sources.isNotEmpty()) {
-        if (folder.sources.isNotEmpty()) showSourceRequired = false
-    }
+    // With no addon catalogs, Add catalog leads nowhere, so Save points at Add TMDB source instead.
+    val addCatalogFocusRequester = remember { FocusRequester() }
+    val addTmdbFocusRequester = remember { FocusRequester() }
+    val addSourceFocusRequester =
+        if (uiState.availableCatalogs.isEmpty()) addTmdbFocusRequester else addCatalogFocusRequester
 
     LaunchedEffect(Unit) {
         repeat(5) { androidx.compose.runtime.withFrameNanos { } }
@@ -834,13 +839,16 @@ fun FolderEditorContent(
                 ) {
                     FetchButton(
                         onClick = { viewModel.showCatalogPicker() },
-                        modifier = Modifier.focusRequester(addSourceFocusRequester)
+                        modifier = Modifier.focusRequester(addCatalogFocusRequester)
                     ) {
                         Icon(Icons.Default.Add, stringResource(R.string.cd_add))
                         Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
                         Text(stringResource(R.string.collections_editor_add_catalog))
                     }
-                    FetchButton(onClick = { viewModel.showTmdbSourcePicker() }) {
+                    FetchButton(
+                        onClick = { viewModel.showTmdbSourcePicker() },
+                        modifier = Modifier.focusRequester(addTmdbFocusRequester)
+                    ) {
                         Icon(Icons.Default.Add, stringResource(R.string.cd_add))
                         Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
                         Text(stringResource(R.string.collections_editor_add_tmdb_source))

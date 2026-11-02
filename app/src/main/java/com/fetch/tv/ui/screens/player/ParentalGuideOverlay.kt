@@ -33,7 +33,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -131,19 +131,19 @@ fun ParentalGuideOverlay(
                 ) {
                     Text(
                         text = warning.label,
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = FetchTheme.colors.Player.TextSecondary,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = " · ",
-                        fontSize = 12.sp,
-                        color = FetchTheme.colors.Player.TextDisabled,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = FetchTheme.colors.Player.TextTertiary,
                     )
                     Text(
                         text = warning.severity,
-                        fontSize = 12.sp,
-                        color = FetchTheme.colors.Player.TextDisabled,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = FetchTheme.colors.Player.TextTertiary,
                     )
                 }
             }

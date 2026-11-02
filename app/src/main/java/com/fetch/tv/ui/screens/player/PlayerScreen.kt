@@ -92,9 +92,11 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -134,7 +136,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
@@ -2743,11 +2744,7 @@ internal fun PlayerControlsOverlay(
                 val localizedEpisodeTitle = uiState.currentEpisodeTitle
                     ?.takeIf { it.isNotBlank() }
                     ?.localizeEpisodeTitle(appContext)
-                val episodeInfo = if (localizedEpisodeTitle != null) {
-                    "$seasonEpisodeCode • $localizedEpisodeTitle"
-                } else {
-                    seasonEpisodeCode
-                }
+                val episodeInfo = joinPlayerMeta(seasonEpisodeCode, localizedEpisodeTitle)
                 Text(
                     text = episodeInfo,
                     style = MaterialTheme.typography.titleMedium,
@@ -3546,8 +3543,11 @@ private fun ProgressBar(
             .focusable()
             .playerPlayhead(
                 progress = { animatedProgress },
-                dotColor = FetchTheme.colors.Secondary,
-                ringColor = FetchTheme.colors.Background.copy(alpha = 0.6f)
+                // Focus is white in the player: the playhead grows and turns white on focus,
+                // so the seek bar's focus reads over a bright frame, not just a deeper track.
+                dotColor = if (isFocused) FetchTheme.colors.Player.Focus else FetchTheme.colors.Secondary,
+                ringColor = FetchTheme.colors.Background.copy(alpha = 0.6f),
+                radius = if (isFocused) SEEK_BAR_FOCUSED_PLAYHEAD_RADIUS else SEEK_BAR_PLAYHEAD_RADIUS
             )
             .onPreviewKeyEvent { keyEvent ->
                 if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
@@ -3736,16 +3736,13 @@ private fun PlayerClockOverlay(
     ) {
         Text(
             text = timeFormatter.format(Date(nowMs)),
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold
-            ),
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
             color = FetchTheme.colors.Player.TextPrimary
         )
         if (!isLive) {
             Text(
                 text = stringResource(R.string.player_ends_at, endTimeText),
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                style = MaterialTheme.typography.labelMedium,
                 color = FetchTheme.colors.Player.TextSecondary
             )
         }
@@ -3799,9 +3796,10 @@ private fun SubtitleTimingDialogHost(
 private fun AspectRatioIndicator(text: String) {
     val customAspectPainter = rememberRawSvgPainter(R.raw.ic_player_aspect_ratio)
 
-    // Floating pill indicator for aspect ratio changes
+    // Floating pill indicator for aspect ratio changes, announced so TalkBack hears the new mode.
     Row(
         modifier = Modifier
+            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }
             .background(
                 color = FetchTheme.colors.Player.ScrimStrong,
                 shape = RoundedCornerShape(FetchTheme.spacing.xl)
@@ -3833,10 +3831,7 @@ private fun AspectRatioIndicator(text: String) {
         // Text
         Text(
             text = text,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold
-            ),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             color = FetchTheme.colors.Player.TextPrimary
         )
     }
@@ -3846,6 +3841,7 @@ private fun AspectRatioIndicator(text: String) {
 private fun StreamSourceIndicator(text: String) {
     Row(
         modifier = Modifier
+            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }
             .background(
                 color = FetchTheme.colors.Player.ScrimStrong,
                 shape = RoundedCornerShape(FetchTheme.radii.xl)
@@ -3870,6 +3866,7 @@ private fun PlayerEngineSwitchIndicator(
 ) {
     Column(
         modifier = Modifier
+            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }
             .clip(RoundedCornerShape(FetchTheme.radii.xl))
             .background(FetchTheme.colors.Player.ScrimStrong)
             .padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.lg),
@@ -4119,7 +4116,13 @@ private fun LoadingIssueReportAction(
             text = reportMessage,
             style = MaterialTheme.typography.bodyMedium,
             color = FetchTheme.colors.Player.TextSecondary,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            // Announce Sending/Sent/Failed. The idle prompt counts seconds, so it stays quiet.
+            modifier = if (reportStatus != PlaybackIssueReportStatus.Idle) {
+                Modifier.semantics { liveRegion = LiveRegionMode.Polite }
+            } else {
+                Modifier
+            }
         )
         DialogButton(
             text = when (reportStatus) {
@@ -4224,7 +4227,9 @@ private fun ErrorOverlay(
                         else -> FetchTheme.colors.Player.TextTertiary
                     },
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxl)
+                    modifier = Modifier
+                        .semantics { liveRegion = LiveRegionMode.Polite }
+                        .padding(horizontal = FetchTheme.spacing.xxl)
                 )
             }
 
@@ -4446,14 +4451,14 @@ private fun MoreActionItem(
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
             containerColor = FetchTheme.colors.BackgroundCard,
-            focusedContainerColor = FetchTheme.colors.FocusBackground
+            focusedContainerColor = FetchTheme.colors.Player.Focus
         ),
         shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.sm))
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            color = FetchTheme.colors.TextPrimary,
+            color = if (isFocused) FetchTheme.colors.Player.OnFocus else FetchTheme.colors.TextPrimary,
             modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = 14.dp)
         )
     }
@@ -4475,7 +4480,7 @@ private fun SpeedItem(
             .onFocusChanged { isFocused = it.isFocused },
         colors = CardDefaults.colors(
             containerColor = if (isSelected) FetchTheme.colors.Secondary.copy(alpha = 0.2f) else FetchTheme.colors.BackgroundCard,
-            focusedContainerColor = FetchTheme.colors.FocusBackground
+            focusedContainerColor = FetchTheme.colors.Player.Focus
         ),
         shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.sm))
     ) {
@@ -4487,16 +4492,16 @@ private fun SpeedItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = if (speed == 1f) stringResource(R.string.player_speed_normal) else "${speed}x",
+                text = if (speed == 1f) stringResource(R.string.player_speed_normal) else formatSpeedLabel(speed),
                 style = MaterialTheme.typography.bodyLarge,
-                color = FetchTheme.colors.TextPrimary
+                color = if (isFocused) FetchTheme.colors.Player.OnFocus else FetchTheme.colors.TextPrimary
             )
 
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = stringResource(R.string.cd_selected),
-                    tint = FetchTheme.colors.Secondary,
+                    tint = if (isFocused) FetchTheme.colors.Player.OnFocus else FetchTheme.colors.Secondary,
                     modifier = Modifier.size(FetchTheme.spacing.xl)
                 )
             }
@@ -4552,8 +4557,11 @@ private fun partyNoticeText(notice: PartyNotice): String = when (notice.action) 
     PartyAction.Speed -> stringResource(R.string.party_action_speed, notice.name, formatSpeedLabel(notice.rate))
 }
 
-private fun formatSpeedLabel(rate: Float): String =
-    if (rate % 1f == 0f) "${rate.toInt()}x" else "${rate}x"
+@Composable
+private fun formatSpeedLabel(rate: Float): String = stringResource(
+    R.string.playback_speed_value,
+    if (rate % 1f == 0f) rate.toInt().toString() else rate.toString()
+)
 
 private fun formatTime(millis: Long): String {
     if (millis <= 0) return "0:00"
@@ -4593,6 +4601,8 @@ private fun PlayerBufferingIndicator(
     }
 }
 
+private val SEEK_BAR_PLAYHEAD_RADIUS = 6.dp
+private val SEEK_BAR_FOCUSED_PLAYHEAD_RADIUS = 10.dp
 private const val PREFER_NEXT_TIME_DELAY_MS = 4_000L
 private const val PREFER_NEXT_TIME_VISIBLE_MS = 12_000L
 private const val PREFER_NEXT_TIME_MAX_AGE_MS = 3 * 60_000L

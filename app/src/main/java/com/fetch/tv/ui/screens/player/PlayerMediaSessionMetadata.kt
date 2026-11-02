@@ -3,6 +3,7 @@ package com.fetch.tv.ui.screens.player
 import android.net.Uri
 import android.util.Log
 import androidx.media3.common.MediaMetadata
+import com.fetch.tv.R
 
 /**
  * Builds a [MediaMetadata] from the current playback information so that
@@ -16,20 +17,16 @@ internal fun PlayerRuntimeController.buildMediaSessionMetadata(): MediaMetadata 
     // Title: for series use the show name, for movies use the main title.
     val displayTitle = state.contentName?.takeIf { it.isNotBlank() } ?: state.title
 
-    // Subtitle / artist: for series show "S1 E2 – Episode Title", for movies show the year.
+    // Subtitle / artist: for series show "S1 E2 · Episode Title", for movies show the year.
     val displaySubtitle = if (isSeries) {
-        buildString {
-            val s = state.currentSeason
-            val e = state.currentEpisode
-            if (s != null && e != null) {
-                append("S$s E$e")
-                state.currentEpisodeTitle?.takeIf { it.isNotBlank() }?.let {
-                    append(" – $it")
-                }
-            } else {
-                state.currentEpisodeTitle?.takeIf { it.isNotBlank() }?.let { append(it) }
-            }
-        }.takeIf { it.isNotBlank() }
+        val s = state.currentSeason
+        val e = state.currentEpisode
+        context.joinPlayerMeta(
+            listOf(
+                if (s != null && e != null) context.getString(R.string.season_episode_format, s, e) else null,
+                state.currentEpisodeTitle
+            )
+        ).takeIf { it.isNotBlank() }
     } else {
         state.releaseYear
     }

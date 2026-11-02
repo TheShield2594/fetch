@@ -30,7 +30,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
@@ -99,7 +99,7 @@ fun DisplayModeOverlay(
         if (statusMessage != null) {
             Text(
                 text = statusMessage,
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelSmall,
                 color = FetchTheme.colors.Secondary,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.End,
@@ -125,19 +125,19 @@ fun DisplayModeOverlay(
                     ) {
                         Text(
                             text = item.first,
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = FetchTheme.colors.Player.TextSecondary,
                             fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.End
                         )
                         Text(
-                            text = " - ",
-                            fontSize = 12.sp,
-                            color = FetchTheme.colors.Player.TextDisabled,
+                            text = " · ",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = FetchTheme.colors.Player.TextTertiary,
                         )
                         Text(
                             text = item.second,
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.labelSmall,
                             color = FetchTheme.colors.Player.TextTertiary,
                             textAlign = TextAlign.End
                         )
@@ -160,6 +160,7 @@ fun DisplayModeOverlay(
     }
 }
 
+@Composable
 internal fun formatHz(rate: Float): String {
     val rounded = (rate * 1000f).roundToInt() / 1000f
     val whole = rounded.roundToInt()
@@ -168,5 +169,5 @@ internal fun formatHz(rate: Float): String {
     } else {
         String.format("%.3f", rounded)
     }
-    return "$display Hz"
+    return stringResource(R.string.display_refresh_hz, display)
 }

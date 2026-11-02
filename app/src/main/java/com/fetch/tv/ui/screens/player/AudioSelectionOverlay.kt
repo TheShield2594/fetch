@@ -277,11 +277,11 @@ private fun AudioTrackCard(
     rightFocusRequester: FocusRequester,
     focusRequester: FocusRequester?
 ) {
-    val metadata = listOfNotNull(
+    val metadata = joinPlayerMeta(
         track.codec,
-        track.channelCount?.let { "$it ch" },
-        track.sampleRate?.let { "${it / 1000} kHz" }
-    ).joinToString(" | ")
+        track.channelCount?.let { stringResource(R.string.audio_channels, it) },
+        track.sampleRate?.let { stringResource(R.string.audio_sample_rate_khz, it / 1000) }
+    )
 
     Card(
         onClick = onClick,

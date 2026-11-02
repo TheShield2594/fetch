@@ -237,7 +237,7 @@ private fun StreamInfoContent(data: StreamInfoData) {
             InfoItem(label = stringResource(R.string.stream_info_channels), value = data.audioChannels)
             InfoItem(
                 label = stringResource(R.string.stream_info_sample_rate),
-                value = data.audioSampleRate?.let { "${it / 1000} kHz" }
+                value = data.audioSampleRate?.let { stringResource(R.string.audio_sample_rate_khz, it / 1000) }
             )
             InfoItem(
                 label = stringResource(R.string.stream_info_language),
@@ -356,8 +356,8 @@ private fun StreamInfoHudButton(
         colors = ButtonDefaults.colors(
             containerColor = if (enabled) FetchTheme.colors.Secondary.copy(alpha = 0.22f) else FetchTheme.colors.Player.Control,
             contentColor = if (enabled) FetchTheme.colors.Player.TextPrimary else FetchTheme.colors.Player.TextTertiary,
-            focusedContainerColor = if (enabled) FetchTheme.colors.Secondary else FetchTheme.colors.Player.Focus,
-            focusedContentColor = if (enabled) FetchTheme.colors.OnSecondary else FetchTheme.colors.Player.OnFocus
+            focusedContainerColor = FetchTheme.colors.Player.Focus,
+            focusedContentColor = FetchTheme.colors.Player.OnFocus
         ),
         shape = ButtonDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.sm)),
         scale = ButtonDefaults.scale(focusedScale = 1.05f),
@@ -388,7 +388,7 @@ private fun StreamInfoHudButton(
                 .clip(CircleShape)
                 .background(
                     if (enabled) {
-                        if (isFocused) FetchTheme.colors.OnSecondary else FetchTheme.colors.FocusRing
+                        if (isFocused) FetchTheme.colors.Secondary else FetchTheme.colors.FocusRing
                     } else {
                         if (isFocused) FetchTheme.colors.Player.ScrimLight else FetchTheme.colors.Player.TrackFocused
                     }

@@ -9,6 +9,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.inset
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 // Animation state is read during drawing, not composition or measurement.
@@ -39,18 +40,20 @@ internal fun Modifier.playerProgressFill(
 /**
  * The playhead: the same accent dot as a card's ready mark, centred on the end of the played
  * fill. Drawn over the bar on a parent that isn't clipped, so the dot can stand taller than it.
+ * The seek bar passes a larger [radius] and the white focus colour while it has focus.
  */
 internal fun Modifier.playerPlayhead(
     progress: () -> Float,
     dotColor: Color,
-    ringColor: Color
+    ringColor: Color,
+    radius: Dp = 6.dp
 ): Modifier = drawWithContent {
     drawContent()
     val ring = 2.dp.toPx()
-    val radius = 6.dp.toPx()
-    if (size.width < radius * 2f) return@drawWithContent
-    val x = (size.width * progress().coerceIn(0f, 1f)).coerceIn(radius, size.width - radius)
+    val radiusPx = radius.toPx()
+    if (size.width < radiusPx * 2f) return@drawWithContent
+    val x = (size.width * progress().coerceIn(0f, 1f)).coerceIn(radiusPx, size.width - radiusPx)
     val center = Offset(x, size.height / 2f)
-    drawCircle(color = ringColor, radius = radius, center = center)
-    drawCircle(color = dotColor, radius = radius - ring, center = center)
+    drawCircle(color = ringColor, radius = radiusPx, center = center)
+    drawCircle(color = dotColor, radius = radiusPx - ring, center = center)
 }

@@ -714,9 +714,9 @@ private fun PostPlayRecommendationNavigationButton(
             .focusRequester(focusRequester),
         colors = IconButtonDefaults.colors(
             containerColor = FetchTheme.colors.BackgroundCard,
-            focusedContainerColor = FetchTheme.colors.Secondary,
+            focusedContainerColor = FetchTheme.colors.Player.Focus,
             contentColor = FetchTheme.colors.TextPrimary,
-            focusedContentColor = FetchTheme.colors.OnSecondary
+            focusedContentColor = FetchTheme.colors.Player.OnFocus
         ),
         border = IconButtonDefaults.border(
             focusedBorder = Border(
@@ -859,14 +859,8 @@ private fun isSelectOrMenuKey(keyCode: Int): Boolean {
 }
 
 private fun PostPlayRecommendation.metadataLine(context: android.content.Context): String {
-    return buildList {
-        genres.take(2)
-            .map { localizedGenreLabel(context, it) }
-            .filter { it.isNotBlank() }
-            .takeIf { it.isNotEmpty() }
-            ?.joinToString(" • ")
-            ?.let(::add)
-        releaseInfo?.takeIf { it.isNotBlank() }?.let(::add)
-        formatHeroRuntime(runtime)?.takeIf { it.isNotBlank() }?.let(::add)
-    }.joinToString("  •  ")
+    return context.joinPlayerMeta(
+        genres.take(2).map { localizedGenreLabel(context, it) } +
+            listOf(releaseInfo, formatHeroRuntime(runtime))
+    )
 }

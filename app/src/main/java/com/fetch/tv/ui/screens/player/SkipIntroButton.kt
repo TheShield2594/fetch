@@ -49,7 +49,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.Icon
@@ -229,7 +228,7 @@ fun SkipIntroButton(
                 },
             colors = CardDefaults.colors(
                 containerColor = FetchTheme.colors.Player.ScrimStrong,
-                focusedContainerColor = FetchTheme.colors.Secondary
+                focusedContainerColor = FetchTheme.colors.Player.Focus
             ),
             shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md))
         ) {
@@ -243,13 +242,13 @@ fun SkipIntroButton(
                     Icon(
                         imageVector = Icons.Default.SkipNext,
                         contentDescription = null,
-                        tint = if (isFocused) FetchTheme.colors.OnSecondary else FetchTheme.colors.Player.TextPrimary,
+                        tint = if (isFocused) FetchTheme.colors.Player.OnFocus else FetchTheme.colors.Player.TextPrimary,
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
                         text = getSkipLabel(lastType, targetsPostCredits),
-                        color = if (isFocused) FetchTheme.colors.OnSecondary else FetchTheme.colors.Player.TextPrimary,
-                        fontSize = 14.sp,
+                        style = FetchTheme.textStyles.button,
+                        color = if (isFocused) FetchTheme.colors.Player.OnFocus else FetchTheme.colors.Player.TextPrimary,
                         modifier = Modifier.padding(start = FetchTheme.spacing.sm)
                     )
                 }

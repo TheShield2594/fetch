@@ -151,7 +151,7 @@ fun YouTubeScreen(
         Toast.makeText(context, noticeText, Toast.LENGTH_SHORT).show()
         viewModel.consumeNotice()
     }
-    // A video leaving the open playlist takes its card away: the card beside it takes focus.
+    // A video leaving the page under the menu takes its card away: the card beside it takes focus.
     val focusAfterRemoving = { video: YouTubeVideo ->
         pendingFocus = PendingFocus(pageKey, neighbourItem(feed, video.videoId) ?: NO_CARD)
     }
@@ -312,6 +312,14 @@ fun YouTubeScreen(
                     } else {
                         menu.editablePlaylist?.let { viewModel.togglePlaylist(it, closeMenu = true) }
                     }
+                },
+                onRemoveFromHistory = {
+                    focusAfterRemoving(video)
+                    viewModel.removeFromHistory()
+                },
+                onNotInterested = {
+                    focusAfterRemoving(video)
+                    viewModel.markNotInterested()
                 }
             )
         }
@@ -370,6 +378,8 @@ private fun noticeText(notice: YouTubeNotice): String = when (notice) {
         notice.playlist.ifBlank { stringResource(R.string.youtube_watch_later) }
     )
     YouTubeNotice.RemovedFromLiked -> stringResource(R.string.youtube_notice_removed, stringResource(R.string.youtube_liked_videos))
+    YouTubeNotice.RemovedFromHistory -> stringResource(R.string.youtube_notice_removed_from_history)
+    YouTubeNotice.NotInterested -> stringResource(R.string.youtube_notice_not_interested)
     is YouTubeNotice.Subscribed -> notice.channel?.let { stringResource(R.string.youtube_notice_subscribed, it) }
         ?: stringResource(R.string.youtube_action_subscribed)
     is YouTubeNotice.Unsubscribed -> notice.channel?.let { stringResource(R.string.youtube_notice_unsubscribed, it) }
@@ -821,9 +831,10 @@ private fun YouTubeViewAllCard(
 
 /**
  * A video's long-press menu, as in YouTube's TV app and SmartTube: play it, open its channel (or
- * one of a collaboration's), subscribe, save it to Watch Later or a playlist, and take it out of
- * the playlist it's being shown in. The actions that need the channel's playlists or the watch
- * page show once those load.
+ * one of a collaboration's), subscribe, save it to Watch Later or a playlist, take it out of
+ * the playlist it's being shown in, take it out of the watch history (on History), and mark it
+ * "Not interested" (where its tile offers that). The actions that need the channel's playlists
+ * or the watch page show once those load.
  */
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -835,7 +846,9 @@ private fun YouTubeVideoMenu(
     onToggleSubscription: () -> Unit,
     onToggleWatchLater: () -> Unit,
     onSaveToPlaylist: () -> Unit,
-    onRemoveFromOpenPlaylist: () -> Unit
+    onRemoveFromOpenPlaylist: () -> Unit,
+    onRemoveFromHistory: () -> Unit,
+    onNotInterested: () -> Unit
 ) {
     val video = menu.video
     val playFocusRequester = remember { FocusRequester() }
@@ -889,6 +902,13 @@ private fun YouTubeVideoMenu(
                 stringResource(R.string.youtube_menu_remove_from_playlist, removable.title),
                 onClick = onRemoveFromOpenPlaylist
             )
+        }
+        // Only the History feed's tiles carry this token.
+        if (video.removeFromHistoryToken != null) {
+            YouTubeMenuButton(stringResource(R.string.youtube_menu_remove_from_history), onClick = onRemoveFromHistory)
+        }
+        if (video.notInterestedToken != null) {
+            YouTubeMenuButton(stringResource(R.string.youtube_menu_not_interested), onClick = onNotInterested)
         }
     }
 }

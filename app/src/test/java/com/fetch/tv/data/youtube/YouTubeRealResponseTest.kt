@@ -34,6 +34,10 @@ class YouTubeRealResponseTest {
 
     private fun assumeSaved() = assumeTrue("Pinned to the saved responses", liveDir == null)
 
+    /** The signed-in feeds are only there when the fixtures were fetched with YT_ACCESS_TOKEN. */
+    private fun exists(name: String): Boolean =
+        liveDir?.let { File(it, "$name.json").exists() } ?: (javaClass.getResource("/youtube/$name.json") != null)
+
     private fun assertWellFormed(videos: List<YouTubeVideo>) {
         assertTrue("no videos", videos.isNotEmpty())
         videos.forEach { video ->
@@ -142,6 +146,15 @@ class YouTubeRealResponseTest {
         assertEquals(YouTubeChannelTab.SHORTS, tabs["Shorts"])
         assertEquals(YouTubeChannelTab.LIVE, tabs["Live"])
         assertEquals(YouTubeChannelTab.PLAYLISTS, tabs["Playlists"])
+    }
+
+    @Test
+    fun `signed-in history and home tiles carry their menus' feedback tokens`() {
+        assumeTrue("Needs the signed-in responses", exists("history") && exists("home"))
+        val history = YouTubeResponseParser.asHistory(page("history")).shelves.flatMap { it.videos }
+        assertTrue("no remove-from-history token", history.any { it.removeFromHistoryToken != null })
+        assertTrue("history offers not interested", history.none { it.notInterestedToken != null })
+        assertTrue("no not-interested token on home", page("home").shelves.flatMap { it.videos }.any { it.notInterestedToken != null })
     }
 
     private fun currentVideoId(root: JsonElement): String =

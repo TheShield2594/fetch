@@ -149,6 +149,8 @@ sealed interface YouTubeNotice {
     data class Saved(val playlist: String) : YouTubeNotice
     data class Removed(val playlist: String) : YouTubeNotice
     data object RemovedFromLiked : YouTubeNotice
+    data object RemovedFromHistory : YouTubeNotice
+    data object NotInterested : YouTubeNotice
     data class Subscribed(val channel: String?) : YouTubeNotice
     data class Unsubscribed(val channel: String?) : YouTubeNotice
     data object Failed : YouTubeNotice
@@ -763,6 +765,30 @@ class YouTubeViewModel @Inject constructor(
         }
     }
 
+    /** Takes the menu's video out of the watch history, and its card off the page, and closes the menu. */
+    fun removeFromHistory() {
+        val video = _uiState.value.menu?.video ?: return
+        sendFeedback(video, video.removeFromHistoryToken ?: return, YouTubeNotice.RemovedFromHistory)
+    }
+
+    /** Tells YouTube the menu's video isn't of interest, takes its card off the page, and closes the menu. */
+    fun markNotInterested() {
+        val video = _uiState.value.menu?.video ?: return
+        sendFeedback(video, video.notInterestedToken ?: return, YouTubeNotice.NotInterested)
+    }
+
+    /** Sends one of the tile menu's feedback tokens; once YouTube takes it, the card leaves the page it was on. */
+    private fun sendFeedback(video: YouTubeVideo, token: String, done: YouTubeNotice) {
+        // The page under the menu, which the card leaves.
+        val key = currentKey()
+        closeMenu()
+        viewModelScope.launch {
+            val sent = orNull { youTubeService.sendFeedback(token) } != null
+            if (sent) removeFromFeed(key, video.videoId)
+            notify(if (sent) done else YouTubeNotice.Failed)
+        }
+    }
+
     /** Subscribes to the menu's video's channel, or unsubscribes, and closes the menu. */
     fun toggleMenuSubscription() {
         val actions = _uiState.value.menu?.actions ?: return
@@ -822,14 +848,22 @@ class YouTubeViewModel @Inject constructor(
     private fun removeFromPage(browseId: String, videoId: String) {
         _uiState.update { state ->
             state.copy(browse = state.browse.map { page ->
-                if (page.target.browseId != browseId) return@map page
-                val shelves = page.feed.shelves
-                    .map { shelf -> shelf.copy(videos = shelf.videos.filterNot { it.videoId == videoId }) }
-                    .filterNot { it.isEmpty() }
-                page.copy(feed = page.feed.copy(shelves = shelves))
+                if (page.target.browseId != browseId) page else page.copy(feed = page.feed.without(videoId))
             })
         }
     }
+
+    /**
+     * Drops [videoId] from the list [key] names: a tab's feed (History, Home…) or an opened page.
+     * A feed reset since stays reset.
+     */
+    private fun removeFromFeed(key: FeedKey, videoId: String) = updateExistingFeed(key) { it.without(videoId) }
+
+    private fun YouTubeFeedState.without(videoId: String): YouTubeFeedState = copy(
+        shelves = shelves
+            .map { shelf -> shelf.copy(videos = shelf.videos.filterNot { it.videoId == videoId }) }
+            .filterNot { it.isEmpty() }
+    )
 
     fun playNext(next: YouTubeVideo) {
         markProgressOnCard()

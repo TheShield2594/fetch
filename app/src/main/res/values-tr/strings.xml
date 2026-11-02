@@ -1431,16 +1431,16 @@
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d B%2$d</string>
     <string name="player_subtitle_delay">Altyazı Gecikmesi</string>
-    <string name="player_error_title">Oynatma Hatası</string>
+    <string name="player_error_title">Oynatma hatası</string>
     <string name="player_error_choose_source">Başka bir kaynak seçin</string>
-    <string name="player_switch_to_mpv">MPV Oynatıcıya Geç</string>
-    <string name="player_report_issue">Sorun Bildir</string>
+    <string name="player_switch_to_mpv">MPV oynatıcıya geç</string>
+    <string name="player_report_issue">Sorun bildir</string>
     <string name="player_report_issue_sending">Oynatma raporu gönderiliyor...</string>
     <string name="player_report_issue_sending_button">Gönderiliyor...</string>
     <string name="player_report_issue_sent">Rapor gönderildi: %1$s</string>
-    <string name="player_report_issue_sent_button">Rapor Gönderildi</string>
+    <string name="player_report_issue_sent_button">Rapor gönderildi</string>
     <string name="player_report_issue_failed">Rapor gönderilemedi</string>
-    <string name="player_report_loading_issue">Yükleme Sorununu Bildir</string>
+    <string name="player_report_loading_issue">Yükleme sorununu bildir</string>
     <plurals name="player_report_loading_issue_prompt">
             <item quantity="one">%1$d saniye geçmesine rağmen hala yükleniyor</item>
             <item quantity="other">%1$d saniye geçmesine rağmen hala yükleniyor</item>

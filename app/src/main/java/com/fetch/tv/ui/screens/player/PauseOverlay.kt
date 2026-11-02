@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -109,10 +108,8 @@ private fun PauseOverlayClock(modifier: Modifier = Modifier) {
 
     Text(
         text = formatter.format(Date(nowMillis)),
-        style = MaterialTheme.typography.headlineSmall.copy(
-            fontWeight = FontWeight.Normal,
-            fontSize = 34.sp
-        ),
+        // On the type scale (32sp), close to the former 34sp so the clock keeps its weight.
+        style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Normal),
         color = FetchTheme.colors.Player.TextPrimary,
         modifier = modifier
     )
@@ -181,13 +178,13 @@ private fun PauseMetadataView(
 
             if (!year.isNullOrBlank()) {
                 val episodeLabel = if (type in listOf("series", "tv") && season != null && episode != null) {
-                    " • " + stringResource(R.string.season_episode_format, season, episode)
+                    stringResource(R.string.season_episode_format, season, episode)
                 } else {
-                    ""
+                    null
                 }
 
                 Text(
-                    text = "$year$episodeLabel",
+                    text = joinPlayerMeta(year, episodeLabel),
                     style = MaterialTheme.typography.bodyLarge,
                     color = FetchTheme.colors.Player.TextSecondary,
                     modifier = Modifier.padding(top = FetchTheme.spacing.sm)

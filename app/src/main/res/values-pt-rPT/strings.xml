@@ -1079,7 +1079,7 @@
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">T%1$d E%2$d</string>
     <string name="player_subtitle_delay">Atraso das Legendas</string>
-    <string name="player_error_title">Erro de Reprodução</string>
+    <string name="player_error_title">Erro de reprodução</string>
     <string name="player_error_choose_source">Escolhe outra fonte</string>
     <string name="player_speed_title">Velocidade de Reprodução</string>
     <string name="player_more_actions_title">Mais Ações</string>

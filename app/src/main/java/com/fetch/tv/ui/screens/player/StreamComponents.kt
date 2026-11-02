@@ -5,34 +5,13 @@
 
 package com.fetch.tv.ui.screens.player
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.AbsoluteAlignment
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -42,229 +21,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.Key
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import com.fetch.tv.core.streams.StreamBadgePlacement
-import com.fetch.tv.domain.model.Stream
 import com.fetch.tv.ui.components.SourceChipItem
 import com.fetch.tv.ui.components.SourceChipStatus
 import com.fetch.tv.ui.components.SourceStatusFilterChip
-import com.fetch.tv.ui.components.StreamBadgeChips
 import com.fetch.tv.ui.theme.FetchTheme
-import com.fetch.tv.ui.util.contentTextDirection
-import com.fetch.tv.ui.util.toAbsoluteAlignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.launch as coroutineLaunch
 import com.fetch.tv.ui.components.RefreshFilterChip
 import com.fetch.tv.R
-import com.fetch.tv.core.streams.ranking.ExclusionReason
-import com.fetch.tv.core.streams.ranking.StreamTitleParser
-import com.fetch.tv.core.streams.ranking.label
-
-@Composable
-internal fun StreamItem(
-    stream: Stream,
-    focusRequester: FocusRequester? = null,
-    requestInitialFocus: Boolean = true,
-    isCurrentStream: Boolean = false,
-    showFileSizeBadges: Boolean = true,
-    showAddonLogo: Boolean = true,
-    badgePlacement: StreamBadgePlacement = StreamBadgePlacement.BOTTOM,
-    onClick: () -> Unit,
-    onFocusChanged: ((Boolean) -> Unit)? = null,
-    onUpKey: (() -> Unit)? = null,
-    exclusion: ExclusionReason? = null
-) {
-    val context = LocalContext.current
-    val density = LocalDensity.current
-    val unknownStreamLabel = stringResource(R.string.stream_unknown)
-    val exclusionText = exclusion?.let { reason ->
-        val descriptor = remember(stream) { StreamTitleParser.parse(stream) }
-        stringResource(R.string.best_match_excluded, reason.label(context, descriptor))
-    }
-    val streamName = remember(stream, unknownStreamLabel) { stream.getDisplayNameOrNull() ?: unknownStreamLabel }
-    val streamDescription = remember(stream) { stream.getDisplayDescription() }
-    val hasBadges = stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null)
-    // Pre-upscale: decode at 2× target pixels so the hardware compositor
-    // has enough pixel data for smooth edges inside Card RenderNodes.
-    val logoDecodeSize = remember(density) {
-        with(density) { FetchTheme.spacing.xxl.roundToPx() } * 2
-    }
-    val addonLogoModel = remember(context, stream.addonLogo, logoDecodeSize) {
-        stream.addonLogo?.let { logo ->
-            ImageRequest.Builder(context)
-                .data(logo)
-                .size(width = logoDecodeSize, height = logoDecodeSize)
-                .memoryCacheKey("${logo}_${logoDecodeSize}x${logoDecodeSize}")
-                .crossfade(true)
-                .build()
-        }
-    }
-
-    Card(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(if (focusRequester != null && requestInitialFocus) Modifier.focusRequester(focusRequester) else Modifier)
-            .onFocusChanged {
-                onFocusChanged?.invoke(it.isFocused)
-            }
-            .then(if (onUpKey != null) Modifier.onKeyEvent { event ->
-                if (event.nativeKeyEvent.action == android.view.KeyEvent.ACTION_DOWN &&
-                    event.key == Key.DirectionUp) {
-                    onUpKey(); true
-                } else false
-            } else Modifier),
-        colors = CardDefaults.colors(
-            containerColor = FetchTheme.colors.BackgroundElevated,
-            focusedContainerColor = FetchTheme.colors.BackgroundElevated
-        ),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
-        border = CardDefaults.border(
-            border = Border(
-                border = BorderStroke(
-                    FetchTheme.spacing.hairline,
-                    if (isCurrentStream) FetchTheme.colors.Primary.copy(alpha = 0.65f) else Color.Transparent
-                ),
-                shape = RoundedCornerShape(FetchTheme.radii.md)
-            ),
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(FetchTheme.radii.md)
-            )
-        ),
-        scale = CardDefaults.scale(focusedScale = 1.04f)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(FetchTheme.spacing.lg),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
-            ) {
-                if (hasBadges && badgePlacement == StreamBadgePlacement.TOP) {
-                    StreamBadgeChips(
-                        badges = stream.badges,
-                        fileSizeBytes = stream.behaviorHints?.videoSize,
-                        showFileSizeBadge = showFileSizeBadges
-                    )
-                    Spacer(modifier = Modifier.height(FetchTheme.spacing.xxs))
-                }
-
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    Row(
-                        modifier = Modifier.align(streamName.contentTextDirection().toAbsoluteAlignment()),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-                    ) {
-                        Text(
-                            text = streamName,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                textDirection = streamName.contentTextDirection()
-                            ),
-                            color = FetchTheme.colors.TextPrimary
-                        )
-
-                        if (isCurrentStream) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(FetchTheme.radii.full))
-                                    .background(FetchTheme.colors.Primary.copy(alpha = 0.2f))
-                                    .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.sources_playing),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = FetchTheme.colors.Primary
-                                )
-                            }
-                        }
-                    }
-                }
-
-                streamDescription?.let { description ->
-                    if (description != streamName) {
-                        Text(
-                            text = description,
-                            modifier = Modifier.align(description.contentTextDirection().toAbsoluteAlignment()),
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                textDirection = description.contentTextDirection()
-                            ),
-                            color = FetchTheme.extendedColors.textSecondary
-                        )
-                    }
-                }
-
-                exclusionText?.let { text ->
-                    Text(
-                        text = text,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = FetchTheme.extendedColors.textTertiary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                if (hasBadges && badgePlacement == StreamBadgePlacement.BOTTOM) {
-                    StreamBadgeChips(
-                        badges = stream.badges,
-                        fileSizeBytes = stream.behaviorHints?.videoSize,
-                        showFileSizeBadge = showFileSizeBadges,
-                        modifier = Modifier.padding(top = FetchTheme.spacing.xxs)
-                    )
-                }
-            }
-
-            if (showAddonLogo) {
-                Column(
-                    horizontalAlignment = Alignment.End
-                ) {
-                    if (addonLogoModel != null) {
-                        AsyncImage(
-                            model = addonLogoModel,
-                            contentDescription = stream.addonName,
-                            modifier = Modifier
-                                .size(FetchTheme.spacing.xxl)
-                                .clip(RoundedCornerShape(FetchTheme.radii.xs)),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
-
-                    Text(
-                        text = stream.addonName,
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            textDirection = stream.addonName.contentTextDirection()
-                        ),
-                        color = FetchTheme.extendedColors.textTertiary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable

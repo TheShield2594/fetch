@@ -52,6 +52,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -104,6 +105,8 @@ internal fun SubtitleSelectionOverlay(
     val unknownLabel = stringResource(R.string.subtitle_language_unknown)
     val builtInLabel = stringResource(R.string.subtitle_built_in)
     val forcedLabel = stringResource(R.string.sub_forced_lang)
+    val metaContext = LocalContext.current
+    val joinMeta: (List<String?>) -> String = { parts -> metaContext.joinPlayerMeta(parts) }
     var persistedStyleFocusKey by rememberSaveable { mutableStateOf<String?>(null) }
     val sessionPreferredLanguage = remember(visible) { subtitleStyle.preferredLanguage }
     val sessionSecondaryPreferredLanguage = remember(visible) { subtitleStyle.secondaryPreferredLanguage }
@@ -158,7 +161,8 @@ internal fun SubtitleSelectionOverlay(
             installedAddonOrder = sessionInstalledSubtitleAddonOrder,
             selectedOptionId = activeSelectedOptionId,
             builtInLabel = builtInLabel,
-            forcedLabel = forcedLabel
+            forcedLabel = forcedLabel,
+            joinMeta = joinMeta
         )
     }
 
@@ -1893,7 +1897,8 @@ private fun buildSubtitleOptionRailItems(
     installedAddonOrder: List<String>,
     selectedOptionId: String?,
     builtInLabel: String,
-    forcedLabel: String
+    forcedLabel: String,
+    joinMeta: (List<String?>) -> String
 ): List<SubtitleOptionRailItem> {
     if (selectedLanguageKey == SubtitleOffLanguageKey) return emptyList()
 
@@ -1931,10 +1936,9 @@ private fun buildSubtitleOptionRailItems(
                 kind = SubtitleOptionKind.INTERNAL,
                 title = track.name,
                 sourceLabel = builtInLabel,
-                meta = listOfNotNull(
-                    track.codec,
-                    if (track.isForced) forcedLabel else null
-                ).joinToString(" • ").ifBlank { null },
+                meta = joinMeta(
+                    listOf(track.codec, if (track.isForced) forcedLabel else null)
+                ).ifBlank { null },
                 isSelected = "internal:${track.index}" == selectedOptionId,
                 internalTrackIndex = track.index
             )

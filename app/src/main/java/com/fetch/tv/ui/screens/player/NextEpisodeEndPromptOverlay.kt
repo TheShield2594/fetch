@@ -91,7 +91,7 @@ fun NextEpisodeEndPromptOverlay(
             Text(
                 text = stringResource(R.string.next_episode_label),
                 style = MaterialTheme.typography.labelLarge,
-                color = FetchTheme.colors.Player.TextDisabled,
+                color = FetchTheme.colors.Player.TextTertiary,
                 textAlign = TextAlign.Center
             )
 
@@ -147,5 +147,5 @@ private fun nextEpisodeEndPromptLabel(nextEpisode: NextEpisodeInfo): String {
         nextEpisode.season,
         nextEpisode.episode
     )
-    return "$episodeCode - ${nextEpisode.title}"
+    return joinPlayerMeta(episodeCode, nextEpisode.title)
 }

@@ -63,7 +63,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.tv.material3.MaterialTheme
 import com.fetch.tv.ui.util.localizeEpisodeTitle
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
@@ -224,15 +224,14 @@ private fun AutoPlayBody(
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
             Text(
                 text = stringResource(R.string.next_episode_label),
+                style = MaterialTheme.typography.labelSmall,
                 color = FetchTheme.colors.Player.TextSecondary,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
             )
             Spacer(modifier = Modifier.height(FetchTheme.spacing.xxs))
             Text(
                 text = nextEpisodeDisplayLabel(nextEpisode),
+                style = MaterialTheme.typography.titleSmall,
                 color = FetchTheme.colors.Player.TextPrimary,
-                fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.SemiBold,
@@ -286,8 +285,8 @@ private fun AutoPlayBody(
                 } else {
                     stringResource(R.string.next_episode_unaired)
                 },
+                style = FetchTheme.textStyles.button,
                 color = if (isPlayable) FetchTheme.colors.Player.TextPrimary else FetchTheme.colors.Player.TextTertiary,
-                fontSize = 12.sp,
                 modifier = Modifier.padding(start = FetchTheme.spacing.xs),
             )
         }
@@ -324,15 +323,14 @@ private fun StillWatchingBody(
         ) {
             Text(
                 text = stringResource(R.string.still_watching_title),
+                style = MaterialTheme.typography.labelSmall,
                 color = FetchTheme.colors.Player.TextSecondary,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
             )
             Spacer(modifier = Modifier.height(FetchTheme.spacing.xxs))
             Text(
                 text = nextEpisodeDisplayLabel(nextEpisode),
+                style = MaterialTheme.typography.titleSmall,
                 color = FetchTheme.colors.Player.TextPrimary,
-                fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.SemiBold,
@@ -427,8 +425,8 @@ private fun PostPlayPillButton(
             )
             Text(
                 text = label,
+                style = FetchTheme.textStyles.button,
                 color = textColor,
-                fontSize = 12.sp,
                 modifier = Modifier.padding(start = FetchTheme.spacing.xs),
             )
         }
@@ -479,8 +477,8 @@ private fun NextEpisodeThumbnail(
 private fun NextEpisodeStatusLine(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
+        style = MaterialTheme.typography.bodySmall,
         color = FetchTheme.colors.Player.TextTertiary,
-        fontSize = 12.sp,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = modifier,
@@ -497,5 +495,5 @@ private fun nextEpisodeDisplayLabel(nextEpisode: NextEpisodeInfo): String {
         nextEpisode.episode,
     )
     val localizedTitle = nextEpisode.title.localizeEpisodeTitle(context)
-    return "$code • $localizedTitle"
+    return joinPlayerMeta(code, localizedTitle)
 }

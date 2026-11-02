@@ -63,7 +63,7 @@ internal fun queueItemSubtitle(item: QueueItem): String? {
         null
     }
     val episodeTitle = item.episodeTitle?.takeIf { it.isNotBlank() }?.localizeEpisodeTitle(context)
-    return listOfNotNull(code, episodeTitle).joinToString(" · ").takeIf { it.isNotBlank() }
+    return joinPlayerMeta(code, episodeTitle).takeIf { it.isNotBlank() }
 }
 
 /** A queue item the person just removed, and where it sat in the full queue. */

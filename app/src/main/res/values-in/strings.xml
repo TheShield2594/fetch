@@ -1063,7 +1063,7 @@
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">M%1$d E%2$d</string>
     <string name="player_subtitle_delay">Penundaan Subtitle</string>
-    <string name="player_error_title">Error Pemutaran</string>
+    <string name="player_error_title">Error pemutaran</string>
     <string name="player_error_choose_source">Pilih sumber lain</string>
     <string name="player_speed_title">Kecepatan Pemutaran</string>
     <string name="player_more_actions_title">Aksi Lainnya</string>

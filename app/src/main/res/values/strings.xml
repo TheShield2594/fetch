@@ -1666,17 +1666,27 @@
     <string name="player_via">via %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
+    <!-- Two parts of a player metadata line, e.g. "S1 E2 · Pilot" or "AAC · 6 ch". One separator for every player overlay. -->
+    <string name="player_meta_line">%1$s · %2$s</string>
+    <!-- Audio channel count on an audio track, e.g. "6 ch". %1$d = channels. -->
+    <string name="audio_channels">%1$d ch</string>
+    <!-- Audio sample rate, e.g. "48 kHz". %1$d = kilohertz. -->
+    <string name="audio_sample_rate_khz">%1$d kHz</string>
+    <!-- A playback speed, e.g. "1.5×". %1$s = the speed. -->
+    <string name="playback_speed_value">%1$s×</string>
+    <!-- A display refresh rate, e.g. "23.976 Hz". %1$s = the rate. -->
+    <string name="display_refresh_hz">%1$s Hz</string>
     <string name="player_subtitle_delay">Subtitles Delay</string>
-    <string name="player_error_title">Playback Error</string>
+    <string name="player_error_title">Playback error</string>
     <string name="player_error_choose_source">Choose another source</string>
-    <string name="player_switch_to_mpv">Switch to MPV Player</string>
-    <string name="player_report_issue">Report Issue</string>
+    <string name="player_switch_to_mpv">Switch to mpv player</string>
+    <string name="player_report_issue">Report issue</string>
     <string name="player_report_issue_sending">Sending playback report…</string>
     <string name="player_report_issue_sending_button">Sending…</string>
     <string name="player_report_issue_sent">Report sent: %1$s</string>
-    <string name="player_report_issue_sent_button">Report Sent</string>
+    <string name="player_report_issue_sent_button">Report sent</string>
     <string name="player_report_issue_failed">Unable to send report</string>
-    <string name="player_report_loading_issue">Report Loading Issue</string>
+    <string name="player_report_loading_issue">Report loading issue</string>
     <plurals name="player_report_loading_issue_prompt">
         <item quantity="one">Still loading after %1$d second</item>
         <item quantity="other">Still loading after %1$d seconds</item>

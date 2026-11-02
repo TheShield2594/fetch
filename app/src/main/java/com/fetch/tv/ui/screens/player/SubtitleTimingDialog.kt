@@ -147,6 +147,7 @@ private fun SyncPromptPanel(
     onCaptureNow: () -> Unit,
     focusRequester: FocusRequester
 ) {
+    var isFocused by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -161,17 +162,18 @@ private fun SyncPromptPanel(
         Card(
             onClick = onCaptureNow,
             modifier = Modifier
-                .focusRequester(focusRequester),
+                .focusRequester(focusRequester)
+                .onFocusChanged { isFocused = it.isFocused },
             colors = CardDefaults.colors(
-                containerColor = FetchTheme.colors.Player.Divider,
-                focusedContainerColor = FetchTheme.colors.Player.Track
+                containerColor = FetchTheme.colors.Player.Control,
+                focusedContainerColor = FetchTheme.colors.Player.Focus
             ),
             shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
         ) {
             Text(
                 text = stringResource(R.string.subtitle_timing_sync_button),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = FetchTheme.colors.Player.TextPrimary,
+                color = if (isFocused) FetchTheme.colors.Player.OnFocus else FetchTheme.colors.Player.TextPrimary,
                 modifier = Modifier.padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.md)
             )
         }
@@ -318,7 +320,7 @@ private fun CueSelectionPanel(
         Text(
             text = stringResource(R.string.subtitle_timing_press_back_cancel),
             style = MaterialTheme.typography.bodySmall,
-            color = FetchTheme.colors.Player.TextDisabled
+            color = FetchTheme.colors.Player.TextTertiary
         )
     }
 }
@@ -331,8 +333,9 @@ private fun CueRow(
     onClick: () -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val focusedContainer = MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f)
-    val focusedTextColor = MaterialTheme.colorScheme.onSecondary
+    // Focus is white in the player; the accent marks progress and selection, not focus.
+    val focusedContainer = FetchTheme.colors.Player.Focus
+    val focusedTextColor = FetchTheme.colors.Player.OnFocus
 
     Card(
         onClick = onClick,

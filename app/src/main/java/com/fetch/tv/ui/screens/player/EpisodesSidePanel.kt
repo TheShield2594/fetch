@@ -86,6 +86,7 @@ import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.launch as coroutineLaunch
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
+import com.fetch.tv.ui.screens.stream.StreamCard
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -333,13 +334,14 @@ private fun EpisodeStreamsView(
         val episode = uiState.episodeStreamsEpisode
         val title = uiState.episodeStreamsTitle
         Text(
-            text = buildString {
-                if (season != null && episode != null) append("S$season E$episode")
-                if (!title.isNullOrBlank()) {
-                    if (isNotEmpty()) append(" • ")
-                    append(title)
-                }
-            },
+            text = joinPlayerMeta(
+                if (season != null && episode != null) {
+                    stringResource(R.string.season_episode_format, season, episode)
+                } else {
+                    null
+                },
+                title
+            ),
             style = MaterialTheme.typography.bodyLarge,
             color = FetchTheme.extendedColors.textSecondary,
             maxLines = 1,
@@ -473,7 +475,7 @@ private fun EpisodeStreamsView(
                 itemsIndexed(uiState.episodeFilteredStreams, key = { index, _ ->
                     streamKeys[index]
                 }) { index, stream ->
-                    StreamItem(
+                    StreamCard(
                         stream = stream,
                         focusRequester = streamFocusRequesters.getValue(streamKeys[index]),
                         showFileSizeBadges = uiState.showFileSizeBadges,

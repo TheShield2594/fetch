@@ -56,6 +56,7 @@ import com.fetch.tv.ui.components.SourceChipStatus
 import com.fetch.tv.ui.theme.FetchTheme
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
+import com.fetch.tv.ui.screens.stream.StreamCard
 import com.fetch.tv.ui.util.localizeEpisodeTitle
 import androidx.compose.ui.platform.LocalContext
 
@@ -278,8 +279,7 @@ internal fun StreamSourcesSidePanel(
                 ?.takeIf { it.isNotBlank() }
                 ?.localizeEpisodeTitle(context)
             val contentInfoText = when {
-                seasonEpisodeCode != null && localizedEpisodeTitle != null -> "$seasonEpisodeCode • $localizedEpisodeTitle"
-                seasonEpisodeCode != null -> seasonEpisodeCode
+                seasonEpisodeCode != null -> joinPlayerMeta(seasonEpisodeCode, localizedEpisodeTitle)
                 else -> uiState.title
             }
             Text(
@@ -446,10 +446,13 @@ internal fun StreamSourcesSidePanel(
                         itemsIndexed(uiState.sourceFilteredStreams, key = { index, _ ->
                             streamKeys[index]
                         }) { index, stream ->
-                            StreamItem(
+                            val isCurrentStream = index == currentStreamIndex
+                            // The same card as the Sources screen, so a stream reads the same in both.
+                            StreamCard(
                                 stream = stream,
                                 focusRequester = streamFocusRequesters.getValue(streamKeys[index]),
-                                isCurrentStream = index == currentStreamIndex,
+                                marked = isCurrentStream,
+                                markedLabel = if (isCurrentStream) stringResource(R.string.sources_playing) else null,
                                 showFileSizeBadges = uiState.showFileSizeBadges,
                                 showAddonLogo = uiState.showAddonLogo,
                                 badgePlacement = uiState.streamBadgePlacement,

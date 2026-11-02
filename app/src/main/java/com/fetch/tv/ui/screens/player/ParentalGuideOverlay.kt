@@ -33,13 +33,14 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalDensity
+import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private val ROW_HEIGHT = 18.dp
+private val MIN_ROW_HEIGHT = 18.dp
 private val ROW_GAP = FetchTheme.spacing.xxs
 /** Gap between consecutive items starting to fade, on the way in and out. */
 internal const val START_OVERLAY_ITEM_STAGGER_MS = 50L
@@ -63,7 +64,10 @@ fun ParentalGuideOverlay(
     if (warnings.isEmpty()) return
 
     val count = warnings.size
-    val totalLineHeight = (ROW_HEIGHT.value * count) + (ROW_GAP.value * (count - 1))
+    // Rows grow with the font scale (labelSmall's 16sp line is 20.8dp at 1.3), so text never clips.
+    val labelLineHeight = with(LocalDensity.current) { MaterialTheme.typography.labelSmall.lineHeight.toDp() }
+    val rowHeight = maxOf(MIN_ROW_HEIGHT, labelLineHeight)
+    val totalLineHeight = (rowHeight.value * count) + (ROW_GAP.value * (count - 1))
     val accentBrush = FetchTheme.palette.accentBrush()
 
     val containerAlpha = remember { Animatable(0f) }
@@ -125,25 +129,25 @@ fun ParentalGuideOverlay(
             warnings.forEachIndexed { index, warning ->
                 Row(
                     modifier = Modifier
-                        .height(ROW_HEIGHT)
+                        .height(rowHeight)
                         .graphicsLayer { alpha = itemAlphas.getOrNull(index)?.value ?: 0f },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = warning.label,
-                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = FetchTheme.colors.Player.TextSecondary,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = " · ",
-                        fontSize = 12.sp,
-                        color = FetchTheme.colors.Player.TextDisabled,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = FetchTheme.colors.Player.TextTertiary,
                     )
                     Text(
                         text = warning.severity,
-                        fontSize = 12.sp,
-                        color = FetchTheme.colors.Player.TextDisabled,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = FetchTheme.colors.Player.TextTertiary,
                     )
                 }
             }

@@ -45,6 +45,13 @@ class AddonClient(private val api: AddonApi) {
         return response.metas.mapNotNull { it?.toDomainOrNull(catalog.apiType, addon.baseUrl) }
     }
 
+    /** Runs [query] against a catalog that takes the "search" extra. */
+    suspend fun search(addon: Addon, catalog: CatalogDescriptor, query: String): List<MetaPreview> {
+        val url = AddonUrls.catalog(addon.baseUrl, catalog.apiType, catalog.id, extraArgs = mapOf("search" to query))
+        val response = call { api.getCatalog(url) }
+        return response.metas.mapNotNull { it?.toDomainOrNull(catalog.apiType, addon.baseUrl) }
+    }
+
     /** The first addon that serves metadata for [id] answers; null when none does. */
     suspend fun meta(addons: List<Addon>, type: String, id: String): Meta? {
         for (addon in addons.filter { it.enabled && it.supportsResource("meta", type, id) }) {

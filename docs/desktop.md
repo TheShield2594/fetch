@@ -48,14 +48,22 @@ Settings live in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`). Today th
 
 - Installing, ordering and removing addons by manifest link. A first run starts with Cinemeta
   and OpenSubtitles, like the TV app.
-- Home rows from every addon catalog that needs no search or genre input.
-- Title details with seasons and episodes, from the first addon that serves metadata.
-- Sources from every stream addon at once, ranked best first by the TV app's `StreamRanker`
-  with its spec line (resolution, HDR, codec, audio, size, cached). Sources it rules out are
-  listed last with the reason.
+- A layout modeled on the TV app: a floating sidebar (it opens to show labels on hover), and a
+  Home hero with the highlighted title's backdrop, logo, facts and Play. Hovering a poster puts
+  it in the hero.
+- Home rows from every addon catalog that needs no search or genre input. Rows keep the
+  catalog's poster shape, and hovering one shows arrows to page through it.
+- Search across every addon catalog that takes a search (Ctrl+F or Ctrl+K from anywhere).
+- Title pages like the TV detail page: backdrop, logo, facts, a Play button that names the best
+  source's specs, the best match card, the trailer, episodes by season and the cast, from the
+  first addon that serves metadata.
+- Sources from every stream addon at once, ranked best first by the TV app's `StreamRanker`,
+  with its labels as chips (resolution, HDR, codec, audio, size, cached). Sources it rules out
+  are listed last with the reason. All sources open in a side panel.
 - Playback in mpv, in its own window, including addon `proxyHeaders`. Torrent-only results are
   not playable; Fetch is debrid-only, as on TV.
-- Escape goes back.
+- A scrollbar on every long page and list, to grab and drag.
+- Escape goes back (and closes the sources panel first).
 
 ## How the code is split
 
@@ -84,6 +92,6 @@ Roughly in order:
 3. **Settings and stream rules** on desktop: ranking rules, preferred languages, the stream badge
    editor.
 4. **Watch state**: Continue Watching, Trakt and Simkl sync, and the sync server.
-5. **Search and Discover.**
+5. **Discover** (browse a catalog by genre).
 6. **More packages**: Flatpak (Flathub) and AppImage, then Windows (`.msi`) and macOS (`.dmg`)
    from the same `nativeDistributions` block.

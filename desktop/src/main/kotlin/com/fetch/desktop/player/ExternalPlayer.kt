@@ -36,6 +36,20 @@ object ExternalPlayer {
     fun play(stream: Stream, title: String): Result {
         val command = command(stream, title)
             ?: return Result.Failed("This source has no playable link. Fetch plays direct and debrid links only.")
+        return start(command)
+    }
+
+    /** Plays a plain link, such as a YouTube trailer (mpv resolves it through yt-dlp). */
+    fun playUrl(url: String, title: String, mpvPath: String? = findMpv()): Result {
+        val command = if (mpvPath == null) {
+            listOf("xdg-open", url)
+        } else {
+            listOf(mpvPath, "--force-window=immediate", "--force-media-title=$title", "--", url)
+        }
+        return start(command)
+    }
+
+    private fun start(command: List<String>): Result {
         return try {
             ProcessBuilder(command)
                 .redirectErrorStream(true)

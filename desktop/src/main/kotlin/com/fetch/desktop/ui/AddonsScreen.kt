@@ -13,14 +13,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,14 +49,17 @@ fun AddonsScreen(state: AppState) {
             url = ""
         }
     }
+    val listState = rememberLazyListState()
+    ScrollbarBox(listState, Modifier.fillMaxSize()) {
     LazyColumn(
-        contentPadding = PaddingValues(32.dp),
+        state = listState,
+        contentPadding = PaddingValues(horizontal = PageGutter, vertical = 40.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().widthIn(max = 1100.dp)
     ) {
         item {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(bottom = 12.dp)) {
-                Text("Addons", style = MaterialTheme.typography.headlineSmall)
+                Text("Addons", style = MaterialTheme.typography.headlineLarge)
                 Text(
                     "Streams and catalogs come from Stremio addons. Paste an addon's link (it usually ends in manifest.json). " +
                         "Debrid services are signed in on the addon's own setup page.",
@@ -74,7 +77,7 @@ fun AddonsScreen(state: AppState) {
                             } else false
                         }
                     )
-                    Button(onClick = install, enabled = url.isNotBlank()) { Text("Install") }
+                    PrimaryButton("Install", onClick = install, icon = null, enabled = url.isNotBlank())
                 }
             }
         }
@@ -88,7 +91,7 @@ fun AddonsScreen(state: AppState) {
             )
         }
         items(state.unreachableAddons, key = { "unreachable|${it.first}" }) { (addonUrl, error) ->
-            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+            Card(colors = CardDefaults.cardColors(containerColor = FetchPalette.Surface), shape = RoundedCornerShape(14.dp)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth().padding(16.dp)
@@ -101,10 +104,11 @@ fun AddonsScreen(state: AppState) {
                             color = MaterialTheme.colorScheme.error
                         )
                     }
-                    TextButton(onClick = { state.forgetUnreachable(addonUrl) }) { Text("Remove") }
+                    CircleIconButton(FetchIcons.Delete, "Remove", onClick = { state.forgetUnreachable(addonUrl) }, size = 40.dp)
                 }
             }
         }
+    }
     }
 }
 
@@ -116,7 +120,7 @@ private fun AddonCard(
     onMove: (Int) -> Unit,
     onRemove: () -> Unit
 ) {
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
+    Card(colors = CardDefaults.cardColors(containerColor = FetchPalette.Surface), shape = RoundedCornerShape(14.dp)) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -150,9 +154,9 @@ private fun AddonCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            TextButton(onClick = { onMove(-1) }, enabled = canMoveUp) { Text("Up") }
-            TextButton(onClick = { onMove(1) }, enabled = canMoveDown) { Text("Down") }
-            TextButton(onClick = onRemove) { Text("Remove") }
+            CircleIconButton(FetchIcons.ArrowUp, "Move up", onClick = { onMove(-1) }, size = 40.dp, enabled = canMoveUp)
+            CircleIconButton(FetchIcons.ArrowDown, "Move down", onClick = { onMove(1) }, size = 40.dp, enabled = canMoveDown)
+            CircleIconButton(FetchIcons.Delete, "Remove", onClick = onRemove, size = 40.dp)
         }
     }
 }

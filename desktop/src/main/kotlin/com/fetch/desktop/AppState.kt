@@ -1,5 +1,6 @@
 package com.fetch.desktop
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -13,22 +14,28 @@ import com.fetch.tv.core.streams.ranking.RankedStream
 import com.fetch.tv.core.streams.ranking.StreamRanker
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.CatalogDescriptor
+import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.Meta
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.Video
+import com.fetch.tv.domain.model.supportsExtra
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 sealed interface Screen {
     data object Home : Screen
+    data object Search : Screen
     data object Addons : Screen
-    data class Detail(val preview: MetaPreview) : Screen
+    /** [autoPlay] starts the best match as soon as the sources are in (the home hero's Play). */
+    data class Detail(val preview: MetaPreview, val autoPlay: Boolean = false) : Screen
 }
 
 /** A home row: one addon catalog and what it returned. */
@@ -40,16 +47,33 @@ data class CatalogRow(
     val error: String? = null
 ) {
     val key: String get() = "${addon.baseUrl}|${catalog.apiType}|${catalog.id}"
+
+    /** The row's heading, as the TV app writes it: "Popular - Movies". */
+    val title: String
+        get() = "${catalog.name.replaceFirstChar { it.uppercase() }} - ${typeLabel(catalog.apiType)}"
+}
+
+fun typeLabel(type: String): String = when (type.lowercase()) {
+    "movie" -> "Movies"
+    "series" -> "Series"
+    "channel" -> "Channels"
+    "tv" -> "TV"
+    else -> type.replaceFirstChar { it.uppercase() }
 }
 
 /** The sources for one title or episode, ranked by the TV app's StreamRanker. */
 data class SourcesState(
     val videoId: String,
     val label: String,
+    /** "S2 E6" for an episode, null for a movie. */
+    val episodeTag: String? = null,
     val loading: Boolean = true,
     val ranked: List<RankedStream> = emptyList(),
     val failedAddons: List<String> = emptyList()
-)
+) {
+    /** What auto-play would pick: the best source the rules didn't rule out. */
+    val best: RankedStream? get() = ranked.firstOrNull { it.isEligible }
+}
 
 /**
  * The desktop app's state. Network work runs on [Dispatchers.IO]; state is only written from
@@ -71,6 +95,8 @@ class AppState(
     val unreachableAddons = mutableStateListOf<Pair<String, String>>()
 
     val rows = mutableStateListOf<CatalogRow>()
+    /** Home's scroll position, kept here so coming back from a title lands where you left. */
+    val homeListState = LazyListState()
 
     var detailMeta: Meta? by mutableStateOf(null)
         private set
@@ -79,6 +105,14 @@ class AppState(
     var sources: SourcesState? by mutableStateOf(null)
         private set
     private var sourcesJob: Job? = null
+    private var autoPlayPending = false
+
+    var searchQuery by mutableStateOf("")
+        private set
+    val searchRows = mutableStateListOf<CatalogRow>()
+    var searching by mutableStateOf(false)
+        private set
+    private var searchJob: Job? = null
 
     /** A one-line message for the snackbar, cleared once shown. */
     var message: String? by mutableStateOf(null)
@@ -89,15 +123,23 @@ class AppState(
 
     fun navigate(to: Screen) {
         if (to == screen) return
-        backStack.addLast(screen)
+        // Coming back to a page never re-triggers its auto-play.
+        backStack.addLast(screen.let { if (it is Screen.Detail) it.copy(autoPlay = false) else it })
         show(to)
     }
 
     fun back() {
+        if (sourcesPanelOpen) {
+            sourcesPanelOpen = false
+            return
+        }
         backStack.removeLastOrNull()?.let(::show)
     }
 
-    val canGoBack: Boolean get() = backStack.isNotEmpty()
+    val canGoBack: Boolean get() = sourcesPanelOpen || backStack.isNotEmpty()
+
+    /** The sources list sliding in over the detail page. */
+    var sourcesPanelOpen by mutableStateOf(false)
 
     fun openSection(section: Screen) {
         backStack.clear()
@@ -106,7 +148,11 @@ class AppState(
 
     private fun show(to: Screen) {
         screen = to
-        if (to is Screen.Detail) loadDetail(to.preview)
+        sourcesPanelOpen = false
+        if (to is Screen.Detail) {
+            autoPlayPending = to.autoPlay
+            loadDetail(to.preview)
+        }
     }
 
     // --- Addons ---
@@ -222,6 +268,59 @@ class AppState(
         }
     }
 
+    // --- Search ---
+
+    /** Catalogs that can answer a search: they take a "search" extra and need nothing else. */
+    private fun searchableRows(): List<CatalogRow> = addons.flatMap { addon ->
+        addon.catalogs
+            .filter { catalog ->
+                catalog.supportsExtra("search") &&
+                    catalog.extra.none { it.isRequired && !it.name.equals("search", ignoreCase = true) } &&
+                    catalog.extraRequired.none { !it.equals("search", ignoreCase = true) }
+            }
+            .map { CatalogRow(addon, it) }
+    }
+
+    /** Searches every searchable catalog once typing pauses for [SEARCH_DEBOUNCE_MS]. */
+    fun search(query: String) {
+        searchQuery = query
+        searchJob?.cancel()
+        val trimmed = query.trim()
+        if (trimmed.length < 2) {
+            searchRows.clear()
+            searching = false
+            return
+        }
+        searchJob = scope.launch {
+            delay(SEARCH_DEBOUNCE_MS)
+            val wanted = searchableRows()
+            searchRows.clear()
+            searchRows.addAll(wanted)
+            searching = true
+            coroutineScope {
+                wanted.forEach { row ->
+                    launch {
+                        val updated = try {
+                            row.copy(
+                                items = withContext(Dispatchers.IO) { client.search(row.addon, row.catalog, trimmed) },
+                                loading = false
+                            )
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            row.copy(loading = false, error = e.message ?: "Couldn't search")
+                        }
+                        val index = searchRows.indexOfFirst { it.key == row.key }
+                        if (index >= 0) searchRows[index] = updated
+                    }
+                }
+            }
+            searching = false
+        }
+    }
+
+    val hasSearchableCatalogs: Boolean get() = searchableRows().isNotEmpty()
+
     // --- Detail and sources ---
 
     private fun loadDetail(preview: MetaPreview) {
@@ -237,18 +336,28 @@ class AppState(
             if (current is Screen.Detail && current.preview.id == preview.id) {
                 detailMeta = meta
                 detailLoading = false
+                // Look up sources straight away: a movie's, or a series' first episode, so the
+                // Play button can name what it will start.
+                val firstEpisode = meta?.videos?.let(::firstEpisode)
+                val isSeries = preview.type == ContentType.SERIES || firstEpisode != null
+                when {
+                    !isSeries -> loadSources(preview)
+                    firstEpisode != null -> loadSources(preview, firstEpisode)
+                }
             }
         }
     }
 
     fun loadSources(preview: MetaPreview, video: Video? = null) {
         val videoId = video?.id ?: preview.id
-        val label = video?.let { v ->
-            val number = if (v.season != null && v.episode != null) "S${v.season} E${v.episode} · " else ""
-            "$number${v.title}"
-        } ?: preview.name
+        val episodeTag = video?.let { v ->
+            if (v.season != null && v.episode != null) "S${v.season} E${v.episode}" else null
+        }
+        val label = video?.let { v -> listOfNotNull(episodeTag, v.title.takeIf { it.isNotBlank() }).joinToString(" · ") }
+            ?.let { "${preview.name} · $it" }
+            ?: preview.name
         sourcesJob?.cancel()
-        sources = SourcesState(videoId = videoId, label = label)
+        sources = SourcesState(videoId = videoId, label = label, episodeTag = episodeTag)
         sourcesJob = scope.launch {
             val results = withContext(Dispatchers.IO) {
                 client.streams(addons.toList(), preview.rawType, videoId)
@@ -256,20 +365,59 @@ class AppState(
             val ranked = withContext(Dispatchers.Default) {
                 StreamRanker.rank(results.flatMap { it.streams }, isPlayable = ExternalPlayer::canPlay)
             }
-            sources = SourcesState(
+            val loaded = SourcesState(
                 videoId = videoId,
                 label = label,
+                episodeTag = episodeTag,
                 loading = false,
                 ranked = ranked,
                 failedAddons = results.filter { it.error != null }.map { "${it.addon.displayName}: ${it.error}" }
             )
+            sources = loaded
+            if (autoPlayPending) {
+                autoPlayPending = false
+                val best = loaded.best
+                if (best != null) play(best, label) else message = "No source to play automatically. Pick one below."
+            }
+        }
+    }
+
+    /** Plays the best match now, or as soon as the sources are in. */
+    fun playBest() {
+        val current = sources ?: return
+        if (current.loading) {
+            autoPlayPending = true
+            message = "Starting the best match as soon as your addons answer…"
+            return
+        }
+        val best = current.best
+        if (best != null) play(best, current.label) else sourcesPanelOpen = true
+    }
+
+    fun playTrailer(ytId: String, title: String) {
+        when (val result = ExternalPlayer.playUrl("https://www.youtube.com/watch?v=$ytId", "$title (trailer)")) {
+            is ExternalPlayer.Result.Started -> message = "Opening the trailer in ${result.player}"
+            is ExternalPlayer.Result.Failed -> message = result.message
         }
     }
 
     fun play(ranked: RankedStream, title: String) {
+        autoPlayPending = false
         when (val result = ExternalPlayer.play(ranked.stream, title)) {
             is ExternalPlayer.Result.Started -> message = "Opening in ${result.player}"
             is ExternalPlayer.Result.Failed -> message = result.message
         }
     }
+
+    private companion object {
+        const val SEARCH_DEBOUNCE_MS = 350L
+    }
+}
+
+/** The first episode of the first real season (season 0 holds specials), or null for a movie. */
+fun firstEpisode(videos: List<Video>): Video? {
+    val episodes = videos.filter { it.season != null }
+    if (episodes.isEmpty()) return null
+    val season = episodes.mapNotNull { it.season }.filter { it > 0 }.minOrNull() ?: episodes.mapNotNull { it.season }.min()
+    return episodes.filter { it.season == season }.minByOrNull { it.episode ?: Int.MAX_VALUE }
 }

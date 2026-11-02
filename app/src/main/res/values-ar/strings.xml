@@ -244,7 +244,6 @@
     <string name="detail_comments_title">التعليقات</string>
     <string name="detail_comments_subtitle">المراجعات من Trakt</string>
     <string name="detail_comments_subtitle_episode">Reviews from Trakt for S%1$d E%2$d</string>
-    <string name="detail_comments_mode_show">إظهار</string>
     <string name="detail_comments_mode_episode">حلقة</string>
     <string name="detail_comments_mode_episode_change">تغيير الحلقة (%1$s)</string>
     <string name="detail_comments_episode_picker_title">إختر الحلقة</string>

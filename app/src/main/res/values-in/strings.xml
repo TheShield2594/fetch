@@ -244,7 +244,6 @@
     <string name="detail_comments_title">Komentar</string>
     <string name="detail_comments_subtitle">Ulasan dari Trakt</string>
     <string name="detail_comments_subtitle_episode">Ulasan dari Trakt untuk M%1$dE%2$d</string>
-    <string name="detail_comments_mode_show">Serial</string>
     <string name="detail_comments_mode_episode">Episode</string>
     <string name="detail_comments_mode_episode_change">Ganti Episode (%1$s)</string>
     <string name="detail_comments_episode_picker_title">Pilih Episode</string>

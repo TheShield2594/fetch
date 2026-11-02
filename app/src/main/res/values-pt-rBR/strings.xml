@@ -237,7 +237,6 @@
     <string name="detail_comments_title">Comentários</string>
     <string name="detail_comments_subtitle">Avaliações do Trakt</string>
     <string name="detail_comments_subtitle_episode">Avaliações do Trakt para T%1$d:E%2$d</string>
-    <string name="detail_comments_mode_show">Série</string>
     <string name="detail_comments_mode_episode">Episódio</string>
     <string name="detail_comments_mode_episode_change">Alterar episódio (%1$s)</string>
     <string name="detail_comments_episode_picker_title">Escolher episódio</string>

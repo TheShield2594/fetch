@@ -75,8 +75,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fetch.tv.core.util.parseEpisodeReleaseLocalDate
 import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -672,8 +670,9 @@ private fun EpisodeCard(
     val runtimeLabel = remember(episode.runtime) {
         episode.runtime?.takeIf { it > 0 }?.let(::formatEpisodeRuntime)
     }
-    val ratingLabel = remember(imdbRating) {
-        imdbRating?.takeIf { it > 0.0 }?.let { String.format(Locale.US, "%.1f", it) }
+    val displayLocale = configuration.locales[0]
+    val ratingLabel = remember(imdbRating, displayLocale) {
+        imdbRating?.takeIf { it > 0.0 }?.let { String.format(displayLocale, "%.1f", it) }
     }
     val description = remember(episode.overview) { episode.overview?.trim().orEmpty() }
     val isWatched = remember(watchProgress, isMarkedWatched) { watchProgress?.isCompleted() == true || isMarkedWatched }
@@ -1141,26 +1140,18 @@ fun SeasonOptionsDialog(
         title = if (season == 0) stringResource(R.string.episodes_specials) else stringResource(R.string.episodes_season, season),
         subtitle = stringResource(R.string.episodes_season_actions)
     ) {
-        Button(
+        DetailButton(
             onClick = if (isFullyWatched) onMarkSeasonUnwatched else onMarkSeasonWatched,
             modifier = Modifier
                 .fillMaxWidth()
-                .focusRequester(primaryFocusRequester),
-            colors = ButtonDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                contentColor = FetchTheme.colors.TextPrimary
-            )
+                .focusRequester(primaryFocusRequester)
         ) {
             Text(if (isFullyWatched) stringResource(R.string.episodes_mark_season_unwatched) else stringResource(R.string.episodes_mark_season_watched))
         }
 
         if (hasPreviousSeasons && season > 0) {
-            Button(
+            DetailButton(
                 onClick = onMarkPreviousSeasonsWatched,
-                colors = ButtonDefaults.colors(
-                    containerColor = FetchTheme.colors.BackgroundCard,
-                    contentColor = FetchTheme.colors.TextPrimary
-                ),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.episodes_mark_previous_seasons_watched))

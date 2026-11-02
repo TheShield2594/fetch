@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -242,7 +241,7 @@ fun SharedTrailerOverlay(
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
-                    Button(onClick = onRetry) {
+                    DetailButton(onClick = onRetry) {
                         Text(text = stringResource(R.string.action_retry))
                     }
                 }

@@ -240,7 +240,6 @@
     <string name="detail_comments_title">Коментарі</string>
     <string name="detail_comments_subtitle">Відгуки з Trakt</string>
     <string name="detail_comments_subtitle_episode">Відгуки з Trakt для С%1$dЕ%2$d</string>
-    <string name="detail_comments_mode_show">Шоу</string>
     <string name="detail_comments_mode_episode">Епізод</string>
     <string name="detail_comments_mode_episode_change">Змінити епізод (%1$s)</string>
     <string name="detail_comments_episode_picker_title">Оберіть епізод</string>

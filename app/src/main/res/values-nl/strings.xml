@@ -237,7 +237,6 @@
     <string name="detail_comments_title">Reacties</string>
     <string name="detail_comments_subtitle">Recensies van Trakt</string>
     <string name="detail_comments_subtitle_episode">Recensies van Trakt voor S%1$dA%2$d</string>
-    <string name="detail_comments_mode_show">Serie</string>
     <string name="detail_comments_mode_episode">Aflevering</string>
     <string name="detail_comments_mode_episode_change">Aflevering wijzigen (%1$s)</string>
     <string name="detail_comments_episode_picker_title">Aflevering kiezen</string>

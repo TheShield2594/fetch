@@ -245,7 +245,6 @@
     <string name="detail_comments_title">Comentarios</string>
     <string name="detail_comments_subtitle">Reseñas de Trakt</string>
     <string name="detail_comments_subtitle_episode">Reseñas de Trakt para T%1$dE%2$d</string>
-    <string name="detail_comments_mode_show">Serie</string>
     <string name="detail_comments_mode_episode">Episodio</string>
     <string name="detail_comments_mode_episode_change">Cambiar episodio (%1$s)</string>
     <string name="detail_comments_episode_picker_title">Elegir episodio</string>

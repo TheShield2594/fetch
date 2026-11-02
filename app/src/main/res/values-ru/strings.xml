@@ -1511,7 +1511,6 @@
     <string name="detail_all_previous_seasons_watched">Все предыдущие сезоны уже просмотрены</string>
     <string name="detail_tab_trailer">Трейлер</string>
     <string name="detail_comments_subtitle_episode">Отзывы из Trakt для С%1$dЭ%2$d</string>
-    <string name="detail_comments_mode_show">Шоу</string>
     <string name="detail_comments_mode_episode">Эпизод</string>
     <string name="detail_comments_mode_episode_change">Изменить эпизод (%1$s)</string>
     <string name="detail_comments_episode_picker_title">Выберите эпизод</string>

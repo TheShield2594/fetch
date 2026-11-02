@@ -246,6 +246,7 @@ internal fun DetailChildHost(
                         onNavigateToCastDetail = { personId, personName, preferCrew ->
                             childNav.navigate(Screen.CastDetail.createRoute(personId, personName, preferCrew))
                         },
+                        onNavigateToAddons = { parentNavController.navigate(Screen.AddonManager.route) },
                         onNavigateToTmdbEntityBrowse = { entityKind, entityId, entityName, sourceType ->
                             childNav.navigate(
                                 Screen.TmdbEntityBrowse.createRoute(

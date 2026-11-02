@@ -366,6 +366,7 @@ private fun PlaybackNavHost(
                 onNavigateToCastDetail = { personId, personName, preferCrew ->
                     childNav.navigate(Screen.CastDetail.createRoute(personId, personName, preferCrew))
                 },
+                onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
                 onNavigateToTmdbEntityBrowse = { entityKind, entityId, entityName, sourceType ->
                     childNav.navigate(
                         Screen.TmdbEntityBrowse.createRoute(

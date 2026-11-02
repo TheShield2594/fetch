@@ -557,12 +557,14 @@ class PlayerSettingsDataStore @Inject constructor(
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /**
-     * What refresh-rate matching is for a profile that never chose (#204): "start" when this
-     * TV's display can switch to a film rate, otherwise off. Worked out once per process.
+     * What refresh-rate matching is for a profile that never chose (#204): switch when playback
+     * starts and restore the original mode on leaving the player, when this TV's display can
+     * switch to a film rate; otherwise off. Restoring keeps menus from running at 24 Hz after
+     * a film. Worked out once per process.
      */
     private val deviceFrameRateMatchingDefault: FrameRateMatchingMode by lazy {
         if (DisplayCapabilities.defaultsToFrameRateMatching(context)) {
-            FrameRateMatchingMode.START
+            FrameRateMatchingMode.START_STOP
         } else {
             FrameRateMatchingMode.OFF
         }

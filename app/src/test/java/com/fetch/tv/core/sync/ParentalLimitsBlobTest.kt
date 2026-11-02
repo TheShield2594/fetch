@@ -52,4 +52,26 @@ class ParentalLimitsBlobTest {
 
         assertEquals(ProfileRestrictions.KidsPreset, ParentalLimitsBlob.decode(blobWith(parental)))
     }
+
+    @Test
+    fun `round trips kids rules without this TV's list choices`() {
+        val rules = com.fetch.tv.data.local.KidsRules(
+            autoplayEpisodeCap = null,
+            approvedTitlesOnly = true,
+            dailyMinutes = 45,
+            bedtimeStartMinute = 20 * 60,
+            bedtimeEndMinute = 7 * 60,
+            hardStop = true,
+            approvedListIds = listOf("local-list")
+        )
+        val blob = blobWith(ParentalLimitsBlob.encode(ProfileRestrictions.KidsPreset, rules))
+
+        assertEquals(rules.copy(approvedListIds = emptyList()), ParentalLimitsBlob.decodeKidsRules(blob))
+        assertEquals(ProfileRestrictions.KidsPreset, ParentalLimitsBlob.decode(blob))
+    }
+
+    @Test
+    fun `limits without kids rules say nothing about them`() {
+        assertNull(ParentalLimitsBlob.decodeKidsRules(blobWith(ParentalLimitsBlob.encode(ProfileRestrictions.KidsPreset))))
+    }
 }

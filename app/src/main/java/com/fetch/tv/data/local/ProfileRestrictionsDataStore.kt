@@ -65,7 +65,8 @@ data class ProfileRestrictions(
 
 /**
  * Extra rules for a kids profile, set by a parent next to its limits. They apply only while the
- * profile is a kids profile, and are kept on this TV, like the title lists.
+ * profile is a kids profile. Shared with the account like the limits: rules from another TV only
+ * ever tighten the ones here ([tightenedWith]), and loosening is done on each TV behind the parent PIN.
  */
 @Serializable
 data class KidsRules(
@@ -80,9 +81,35 @@ data class KidsRules(
     /** End of the no-watching window, in minutes after midnight. */
     val bedtimeEndMinute: Int? = null,
     /** At the limit, stop right away instead of letting the episode or movie finish. */
-    val hardStop: Boolean = false
+    val hardStop: Boolean = false,
+    /**
+     * Ids of the parent profile's own lists whose titles count as approved too, next to the
+     * profile's allowed list, in "approved titles only" mode. Kept on this TV: list ids are local.
+     */
+    val approvedListIds: List<String> = emptyList()
 ) {
     val hasBedtime: Boolean get() = bedtimeStartMinute != null && bedtimeEndMinute != null
+
+    /**
+     * The stricter of this and [other], rule by rule: the lower autoplay cap, the shorter daily
+     * allowance, a bedtime covering both, and "approved titles only" or "stop right away" when
+     * either has it. Never looser than either. [approvedListIds] stay this TV's own.
+     */
+    fun tightenedWith(other: KidsRules): KidsRules {
+        val (bedStart, bedEnd) = coveringBedtime(this, other)
+        return KidsRules(
+            autoplayEpisodeCap = listOfNotNull(autoplayEpisodeCap, other.autoplayEpisodeCap).minOrNull(),
+            approvedTitlesOnly = approvedTitlesOnly || other.approvedTitlesOnly,
+            dailyMinutes = listOfNotNull(dailyMinutes, other.dailyMinutes).minOrNull(),
+            bedtimeStartMinute = bedStart,
+            bedtimeEndMinute = bedEnd,
+            hardStop = hardStop || other.hardStop,
+            approvedListIds = approvedListIds
+        )
+    }
+
+    /** Only the rules another TV can tighten: [approvedListIds] name lists on this TV. */
+    fun forAccount(): KidsRules = copy(approvedListIds = emptyList())
 
     /** True when [minuteOfDay] falls in the bedtime window, which may run past midnight. */
     fun isBedtime(minuteOfDay: Int): Boolean {
@@ -99,6 +126,48 @@ data class KidsRules(
         const val DEFAULT_AUTOPLAY_EPISODE_CAP = 3
         val Default = KidsRules()
     }
+}
+
+private const val MINUTES_PER_DAY = 24 * 60
+
+/**
+ * The shortest bedtime window that covers both [a]'s and [b]'s, or the one that exists. Two
+ * windows that overlap or touch merge into one; otherwise the gap between them is filled in,
+ * on whichever side keeps the window shortest, so neither TV's bedtime is cut short.
+ */
+internal fun coveringBedtime(a: KidsRules, b: KidsRules): Pair<Int?, Int?> {
+    val windows = listOf(a, b).filter { it.hasBedtime && it.bedtimeStartMinute != it.bedtimeEndMinute }
+    when (windows.size) {
+        0 -> return null to null
+        1 -> return windows[0].bedtimeStartMinute to windows[0].bedtimeEndMinute
+    }
+    if (windows[0].bedtimeStartMinute == windows[1].bedtimeStartMinute &&
+        windows[0].bedtimeEndMinute == windows[1].bedtimeEndMinute
+    ) {
+        return windows[0].bedtimeStartMinute to windows[0].bedtimeEndMinute
+    }
+    val covered = BooleanArray(MINUTES_PER_DAY)
+    windows.forEach { rules ->
+        for (minute in 0 until MINUTES_PER_DAY) if (rules.isBedtime(minute)) covered[minute] = true
+    }
+    // The bedtime is everything outside the longest stretch both TVs allow watching.
+    var bestGapStart = -1
+    var bestGapLength = 0
+    for (start in 0 until MINUTES_PER_DAY) {
+        if (covered[start] || !covered[(start + MINUTES_PER_DAY - 1) % MINUTES_PER_DAY]) continue
+        var length = 0
+        while (length < MINUTES_PER_DAY && !covered[(start + length) % MINUTES_PER_DAY]) length++
+        if (length > bestGapLength) {
+            bestGapLength = length
+            bestGapStart = start
+        }
+    }
+    if (bestGapStart < 0) {
+        // Bedtime all day: the closest a start/end window gets is one minute short of it.
+        return 0 to MINUTES_PER_DAY - 1
+    }
+    val bedtimeStart = (bestGapStart + bestGapLength) % MINUTES_PER_DAY
+    return bedtimeStart to bestGapStart
 }
 
 /** A title on a profile's hidden or allowed list, with every id it's known by. */
@@ -191,6 +260,8 @@ class ProfileRestrictionsDataStore internal constructor(
     // Kept apart from the limits, which a website pull replaces; the lists are only set on this TV.
     private val titleListsKey = stringPreferencesKey("title_lists")
     private val kidsRulesKey = stringPreferencesKey("kids_rules")
+    // The account's kids rules per profile, like the limits' account copy; pushes use the same pending set.
+    private val accountKidsRulesKey = stringPreferencesKey("account_kids_rules")
     private val lockUnrestrictedKey = booleanPreferencesKey("lock_unrestricted_profiles")
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -221,6 +292,24 @@ class ProfileRestrictionsDataStore internal constructor(
         setPendingAccountRestrictions(profileId, restrictions)
     }
 
+    /**
+     * A parent set the profile's kids rules on this TV: they become this TV's rules and the
+     * account's copy (without the TV's own list choices), waiting to be pushed.
+     */
+    suspend fun setKidsRulesByParent(profileId: Int, rules: KidsRules) {
+        setKidsRules(profileId, rules)
+        dataStore.edit { prefs ->
+            val current = decodeKidsRules(prefs[accountKidsRulesKey]).toMutableMap()
+            current[profileId] = rules.forAccount()
+            prefs[accountKidsRulesKey] = encodeKidsRules(current)
+            prefs[pendingAccountPushKey] = (decodePending(prefs) + profileId).mapTo(HashSet()) { it.toString() }
+        }
+    }
+
+    val accountKidsRules: Flow<Map<Int, KidsRules>> = dataStore.data.map { prefs ->
+        decodeKidsRules(prefs[accountKidsRulesKey])
+    }
+
     /** Records [restrictions] as the account's copy for the profile, waiting to be pushed. */
     suspend fun setPendingAccountRestrictions(profileId: Int, restrictions: ProfileRestrictions) {
         dataStore.edit { prefs ->
@@ -236,15 +325,21 @@ class ProfileRestrictionsDataStore internal constructor(
      * pending push of it is done. A copy changed again while this one was being sent is left
      * pending, since that change still needs its own push.
      */
-    suspend fun accountPushSucceeded(profileId: Int, pushed: ProfileRestrictions) {
+    suspend fun accountPushSucceeded(profileId: Int, pushed: ProfileRestrictions, pushedKidsRules: KidsRules? = null) {
         dataStore.edit { prefs ->
             val accountCopies = decode(prefs[accountRestrictionsKey])
+            val accountKidsCopies = decodeKidsRules(prefs[accountKidsRulesKey])
             val pending = decodePending(prefs)
+            val kidsCopy = accountKidsCopies[profileId]
             if (profileId in pending) {
                 if (accountCopies[profileId] != pushed) return@edit
+                if (kidsCopy != null && kidsCopy != pushedKidsRules) return@edit
                 prefs[pendingAccountPushKey] = (pending - profileId).mapTo(HashSet()) { it.toString() }
             } else {
                 prefs[accountRestrictionsKey] = encode(accountCopies + (profileId to pushed))
+            }
+            if (pushedKidsRules != null && kidsCopy != pushedKidsRules) {
+                prefs[accountKidsRulesKey] = encodeKidsRules(accountKidsCopies + (profileId to pushedKidsRules))
             }
         }
     }
@@ -254,13 +349,32 @@ class ProfileRestrictionsDataStore internal constructor(
      * this TV's limits to at least as strict. Returns true when this TV's limits changed. A
      * profile with a pending push is left alone: this TV's change is the newer one.
      */
-    suspend fun tightenFromAccount(profileId: Int, account: ProfileRestrictions): Boolean {
+    suspend fun tightenFromAccount(
+        profileId: Int,
+        account: ProfileRestrictions,
+        accountKidsRules: KidsRules? = null
+    ): Boolean {
         var changed = false
         dataStore.edit { prefs ->
             if (profileId in decodePending(prefs)) return@edit
             val accountCopies = decode(prefs[accountRestrictionsKey]).toMutableMap()
             accountCopies[profileId] = account
             prefs[accountRestrictionsKey] = encode(accountCopies)
+
+            if (accountKidsRules != null) {
+                val accountKidsCopies = decodeKidsRules(prefs[accountKidsRulesKey]).toMutableMap()
+                accountKidsCopies[profileId] = accountKidsRules.forAccount()
+                prefs[accountKidsRulesKey] = encodeKidsRules(accountKidsCopies)
+
+                val localRules = decodeKidsRules(prefs[kidsRulesKey]).toMutableMap()
+                val local = localRules[profileId] ?: KidsRules.Default
+                val tightenedRules = local.tightenedWith(accountKidsRules)
+                if (tightenedRules != local) {
+                    if (tightenedRules == KidsRules.Default) localRules.remove(profileId) else localRules[profileId] = tightenedRules
+                    prefs[kidsRulesKey] = encodeKidsRules(localRules)
+                    changed = true
+                }
+            }
 
             val current = decode(prefs[restrictionsKey]).toMutableMap()
             val local = current[profileId] ?: ProfileRestrictions.None
@@ -306,9 +420,12 @@ class ProfileRestrictionsDataStore internal constructor(
         dataStore.edit { prefs ->
             val current = decodeKidsRules(prefs[kidsRulesKey]).toMutableMap()
             if (rules == KidsRules.Default) current.remove(profileId) else current[profileId] = rules
-            prefs[kidsRulesKey] = json.encodeToString(current.mapKeys { it.key.toString() })
+            prefs[kidsRulesKey] = encodeKidsRules(current)
         }
     }
+
+    private fun encodeKidsRules(map: Map<Int, KidsRules>): String =
+        json.encodeToString(map.mapKeys { it.key.toString() })
 
     /** Drops the profile's limits. Its title lists stay: they're kept on this TV whatever the website says. */
     suspend fun removeProfile(profileId: Int) = setRestrictions(profileId, ProfileRestrictions.None)
@@ -319,6 +436,8 @@ class ProfileRestrictionsDataStore internal constructor(
         dataStore.edit { prefs ->
             val accountCopies = decode(prefs[accountRestrictionsKey])
             if (profileId in accountCopies) prefs[accountRestrictionsKey] = encode(accountCopies - profileId)
+            val accountKidsCopies = decodeKidsRules(prefs[accountKidsRulesKey])
+            if (profileId in accountKidsCopies) prefs[accountKidsRulesKey] = encodeKidsRules(accountKidsCopies - profileId)
             val pending = decodePending(prefs)
             if (profileId in pending) prefs[pendingAccountPushKey] = (pending - profileId).mapTo(HashSet()) { it.toString() }
         }

@@ -301,6 +301,7 @@ fun ProfileSelectionScreen(
     val profileRestrictions by viewModel.profileRestrictions.collectAsState()
     val profileTitleLists by viewModel.profileTitleLists.collectAsState()
     val profileKidsRules by viewModel.profileKidsRules.collectAsState()
+    val parentLists by viewModel.parentLists.collectAsState()
     val isPinOperationInProgress by viewModel.isPinOperationInProgress.collectAsState()
     val avatarImageUrlsById = remember(avatarCatalog, profiles) {
         buildMap {
@@ -1157,7 +1158,8 @@ fun ProfileSelectionScreen(
                     if (restrictions.isRestricted && primaryHasPin) lockOfferFor = targetProfile
                 },
                 titleLists = profileTitleLists[targetProfile.id] ?: com.fetch.tv.data.local.ProfileTitleLists.Empty,
-                onClearTitle = { title -> viewModel.clearParentalTitle(targetProfile.id, title) }
+                onClearTitle = { title -> viewModel.clearParentalTitle(targetProfile.id, title) },
+                parentLists = remember(parentLists) { parentLists.map { it.id to it.name } }
             )
         }
 

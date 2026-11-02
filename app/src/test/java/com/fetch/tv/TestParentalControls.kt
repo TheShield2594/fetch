@@ -24,5 +24,8 @@ fun unrestrictedParentalControls(): ParentalControls = mockk(relaxed = true) {
     every { guardPinProfileId() } returns null
     every { needsGate() } returns false
     every { activeKidsRules } returns MutableStateFlow(null)
+    every { activeTitleLists } returns MutableStateFlow(ProfileTitleLists.Empty)
+    every { activeFilterTitleLists } returns MutableStateFlow(ProfileTitleLists.Empty)
+    every { parentLists } returns MutableStateFlow(emptyList())
     every { autoplayEpisodeCap() } returns null
 }

@@ -109,6 +109,7 @@ fun SettingsScreen(state: AppState, page: SettingsPage) {
                                 SettingsPage.APPEARANCE -> AppearancePage(state)
                                 SettingsPage.LAYOUT -> LayoutPage(state)
                                 SettingsPage.TRACKING -> TrackingPage(state)
+                                SettingsPage.MEDIA_SERVERS -> MediaServersPage(state)
                                 SettingsPage.ABOUT -> AboutPage(state)
                                 SettingsPage.ADDONS -> Unit
                             }
@@ -406,6 +407,9 @@ private fun StreamSelectionPage(state: AppState) {
     }
 
     SettingsSection("Results") {
+        SettingsToggle("Prefer my own library", "Files on your Jellyfin, Emby or Plex server beat anything streamed.", rules.preferOwnLibrary) {
+            update(rules.copy(preferOwnLibrary = it))
+        }
         SettingsToggle("Prefer cached debrid results", "Cached links start instantly.", rules.preferCachedDebrid) {
             update(rules.copy(preferCachedDebrid = it))
         }
@@ -455,6 +459,11 @@ private fun ContentDiscoveryPage(state: AppState) {
             "Addons",
             "Install, order and remove addons. ${state.addons.size} installed.",
             onClick = { state.navigate(Screen.Settings(SettingsPage.ADDONS)) }
+        ) { Chevron() }
+        SettingsRow(
+            "Media servers",
+            "Jellyfin, Emby and Plex: your own files as sources, and your libraries on Home. ${state.servers.accounts.size} connected.",
+            onClick = { state.navigate(Screen.Settings(SettingsPage.MEDIA_SERVERS)) }
         ) { Chevron() }
         SettingsRow(
             "Home catalogs",

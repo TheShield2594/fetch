@@ -56,7 +56,7 @@ import kotlinx.coroutines.delay
 fun HomeScreen(state: AppState) {
     when {
         state.addonsLoading && state.continueWatching.isEmpty() -> CenteredProgress()
-        state.rows.isEmpty() && state.continueWatching.isEmpty() -> EmptyState(
+        state.rows.isEmpty() && state.servers.rows.isEmpty() && state.continueWatching.isEmpty() -> EmptyState(
             title = "Nothing to show yet",
             body = "Install an addon with catalogs in Settings › Content & Discovery › Addons."
         )
@@ -150,6 +150,19 @@ private fun HomeContent(state: AppState) {
                         onHover = { hovered = HeroSubject.Title(it) },
                         title = row.title(settings.showCatalogType),
                         subtitle = row.addon.displayName.takeIf { settings.showAddonName },
+                        showLabels = settings.showPosterLabels
+                    )
+                }
+                // Your Jellyfin, Emby and Plex libraries.
+                items(state.servers.rows, key = { "server|${it.key}" }) { row ->
+                    MediaRowView(
+                        title = row.title,
+                        subtitle = row.subtitle.takeIf { settings.showAddonName },
+                        items = row.items,
+                        loading = row.loading,
+                        error = row.error,
+                        onOpen = { state.navigate(Screen.Detail(it)) },
+                        onHover = { hovered = HeroSubject.Title(it) },
                         showLabels = settings.showPosterLabels
                     )
                 }

@@ -51,6 +51,8 @@ Everything is kept in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`):
 | `progress.json` | Where you stopped each title (Continue Watching) and what you finished |
 | `tracking.json` | Trakt and Simkl sign-ins (owner-readable only) |
 | `profiles.json` | The profiles, and which one opened last |
+| `servers.json` | Jellyfin, Emby and Plex sign-ins (owner-readable only), beside the addons |
+| `device-id` | The id media servers list this installation under |
 
 These are the main profile's. Every other profile keeps its own copies in `profiles/<id>/`
 (its `addons.json` too, unless it uses the main profile's addons).
@@ -83,6 +85,14 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   Trakt, since Simkl's remove also clears that title's history there. Builds need the TV app's
   client IDs: `TRAKT_CLIENT_ID`, `TRAKT_CLIENT_SECRET` and `SIMKL_CLIENT_ID` from the environment
   (the release workflow passes the repository secrets) or the root `local.properties`.
+- **Media servers** (Settings › Content & Discovery › Media servers): Jellyfin and Emby with
+  address, user name and password; Plex with a code at plex.tv/link, adding every server on the
+  account. Your copies of a title or episode (matched by IMDb id) are listed as sources and,
+  with "Prefer my own library" (on by default, as on TV), ranked first; mpv plays them directly.
+  Each picked library adds a "Recently added" row to Home, what you were watching on the server
+  joins Continue Watching, and when mpv closes the server hears where you stopped (or that you
+  finished). Transcoding, server-only titles without an IMDb id, and server subtitles and
+  tracks aren't on desktop yet.
 - **Player settings** passed to mpv: fullscreen, hardware decoding, extra mpv options; preferred
   audio language and passthrough; subtitle language, when to show them, size and background,
   and subtitles from your addons (such as OpenSubtitles) added as subtitle files.
@@ -131,7 +141,8 @@ Roughly in order:
 2. **Move more of the data layer into `shared`.** The addon, catalog, meta and stream repositories
    need their Android `Context` (strings, DataStore) and Hilt bindings put behind interfaces first.
    Then both apps get the same caching, addon health tracking and best-match logic.
-3. **Media servers** (Jellyfin, Emby, Plex): your own library as sources and rows.
+3. **Media servers, the rest**: titles without an IMDb id (opened from the server's own
+   metadata), transcoding for slow links, and the Library's Servers view.
 4. **The sync server** (Settings › Account on TV), so desktop and TV share profiles, addons and
    Continue Watching without Trakt.
 5. **More settings**: the stream badge editor, skip intro (needs the embedded player), PINs

@@ -30,18 +30,29 @@ data class DesktopSettings(
     /** The catalog Discover last showed, restored on the next visit. */
     val discoverCatalog: String? = null,
     /** Audio, Subtitles, Player and Up Next: how mpv is started. */
-    val player: PlayerSettings = PlayerSettings()
+    val player: PlayerSettings = PlayerSettings(),
+    /** Bumped when a saved default has to change; see [migrated]. */
+    val schema: Int = 1
 ) {
     val appTheme: AppTheme get() = AppTheme.entries.firstOrNull { it.name == theme } ?: AppTheme.FETCH
+
+    /**
+     * Brings an older settings file up to date. Schema 2: desktop used to save "prefer my own
+     * library" off because it had no media servers; now it has them, so it starts on, as on TV.
+     */
+    fun migrated(): DesktopSettings {
+        var s = this
+        if (s.schema < 2) s = s.copy(rankingRules = s.rankingRules.copy(preferOwnLibrary = true), schema = 2)
+        return s
+    }
 }
 
 object DesktopDefaults {
     /**
      * The TV defaults, except that the desktop can't tell what a stream will decode to (mpv
-     * plays nearly anything), so it never drops a stream as undecodable or for being from a
-     * media server it doesn't have.
+     * plays nearly anything), so it never drops a stream as undecodable.
      */
-    val rankingRules = StreamRankingRules(dropUndecodable = false, preferOwnLibrary = false)
+    val rankingRules = StreamRankingRules(dropUndecodable = false)
 }
 
 fun settingsFile(dir: File = AppDirs.config) =

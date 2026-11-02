@@ -27,7 +27,10 @@ import com.fetch.desktop.player.ExternalPlayer
 import com.fetch.desktop.data.SubtitleMode
 import com.fetch.desktop.player.MpvArgs
 import com.fetch.desktop.player.MpvProgress
+import com.fetch.desktop.servers.ServerStream
+import com.fetch.desktop.servers.ServersStore
 import com.fetch.desktop.tracking.ScrobbleAction
+import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.desktop.tracking.TrackingStore
 import com.fetch.tv.core.addon.AddonUrls
 import com.fetch.tv.core.addon.needsConfiguration
@@ -67,6 +70,7 @@ enum class SettingsPage(val label: String, val group: String, val parent: Settin
     HOME_CATALOGS("Home catalogs", "Sources", parent = CONTENT_DISCOVERY),
     APPEARANCE("Appearance", "Home"),
     LAYOUT("Layout", "Home"),
+    MEDIA_SERVERS("Media servers", "Sources", parent = CONTENT_DISCOVERY),
     TRACKING("Tracking", "Accounts"),
     ABOUT("About", "System");
 
@@ -151,7 +155,7 @@ class AppState(
         private set
     private val backStack = ArrayDeque<Screen>()
 
-    var settings: DesktopSettings by mutableStateOf(settingsStore.load())
+    var settings: DesktopSettings by mutableStateOf(settingsStore.load().migrated())
         private set
 
     val addons = mutableStateListOf<Addon>()
@@ -203,6 +207,8 @@ class AppState(
     fun start() {
         scope.launch { reloadAddons() }
         scope.launch { syncTracking() }
+        servers.refreshRows()
+        syncServers()
     }
 
     /** Pulls Continue Watching, watched history and watchlists from Trakt and Simkl. */
@@ -211,6 +217,18 @@ class AppState(
             val snapshot = tracking.sync() ?: return@launch
             saveProgress(WatchHistory.mergeRemote(progress, snapshot.playback, snapshot.watchedIds))
             remoteLists = snapshot.watchlists
+        }
+    }
+
+    /** Jellyfin, Emby and Plex: sources, Home rows and their Continue Watching. */
+    val servers = ServersState(scope, ServersStore(File(addonsDir(profile), "servers.json")), onMessage = { message = it })
+
+    /** Merges what you were watching on your media servers into Continue Watching. */
+    fun syncServers() {
+        if (servers.enabled.isEmpty()) return
+        scope.launch {
+            val resume = servers.resume()
+            if (resume.isNotEmpty()) saveProgress(WatchHistory.mergeRemote(progress, resume, emptySet()))
         }
     }
 
@@ -569,10 +587,13 @@ class AppState(
         sourcesJob?.cancel()
         sources = SourcesState(preview = preview, video = video, videoId = videoId, label = label, episodeTag = tag)
         sourcesJob = scope.launch {
-            val results = withContext(Dispatchers.IO) {
-                client.streams(addons.toList(), preview.rawType, videoId)
+            // Addons and your own servers are asked at once; the ranker puts your copies first.
+            val (results, own) = coroutineScope {
+                val fromAddons = async(Dispatchers.IO) { client.streams(addons.toList(), preview.rawType, videoId) }
+                val fromServers = async { servers.streams(preview.rawType, videoId, preview.name, yearOf(preview.releaseInfo)) }
+                fromAddons.await() to fromServers.await()
             }
-            val streams = results.flatMap { it.streams }
+            val streams = own + results.flatMap { it.streams }
             val loaded = SourcesState(
                 preview = preview,
                 video = video,
@@ -650,7 +671,10 @@ class AppState(
     private fun launchPlayback(stream: Stream, label: String, target: PlaybackTarget) {
         scope.launch {
             val player = settings.player
+            val serverStream = servers.serverStream(stream)
+            // Fetch's own position first; otherwise where the server says you stopped.
             val resume = WatchHistory.resumeStart(progress, target.videoId)
+                ?: serverStream?.resumePositionMs?.takeIf { it > 60_000 }?.let { (it / 1000).toString() }
             val subtitles = if (player.forwardAddonSubtitles && player.subtitleMode != SubtitleMode.OFF) {
                 addonSubtitles(target, player.subtitleLanguage ?: Locale.getDefault().language)
             } else {
@@ -660,7 +684,7 @@ class AppState(
             when (val result = ExternalPlayer.play(stream, label, start = resume, options = options)) {
                 is ExternalPlayer.Result.Started -> {
                     message = if (resume != null) "Resuming in ${result.player}" else "Opening in ${result.player}"
-                    followProgress(result, target)
+                    followProgress(result, target, serverStream)
                 }
                 is ExternalPlayer.Result.Failed -> message = result.message
             }
@@ -676,7 +700,7 @@ class AppState(
     }
 
     /** Saves mpv's position as it plays, for Continue Watching and resume, then handles Up Next. */
-    private fun followProgress(result: ExternalPlayer.Result.Started, target: PlaybackTarget) {
+    private fun followProgress(result: ExternalPlayer.Result.Started, target: PlaybackTarget, serverStream: ServerStream? = null) {
         val process = result.process ?: return
         val socket = result.ipcSocket ?: return
         scope.launch {
@@ -695,6 +719,15 @@ class AppState(
             }
             // Stop at 80% or more marks it watched on both services.
             ending.last?.let { if (scrobbled) tracking.scrobble(target, ScrobbleAction.STOP, it.percent()) }
+            // And the media server it came from hears where you stopped, or that you finished.
+            val last = ending.last
+            if (serverStream != null && last != null) {
+                servers.report(
+                    serverStream,
+                    positionMs = (last.positionSec * 1000).toLong(),
+                    finished = last.percent() >= WatchProgress.COMPLETED_THRESHOLD * 100
+                )
+            }
             playbackEnded(target, ending)
         }
     }
@@ -721,8 +754,8 @@ class AppState(
         val next = WatchHistory.nextEpisode(target.episodes, video, progress.watched.toSet()) ?: return
         val tag = episodeTag(next.season, next.episode)
         message = "Up Next: ${listOfNotNull(tag, next.title.takeIf { it.isNotBlank() }).joinToString(" · ")}"
-        val streams = withContext(Dispatchers.IO) { client.streams(addons.toList(), target.contentType, next.id) }
-            .flatMap { it.streams }
+        val streams = servers.streams(target.contentType, next.id, target.name, null) +
+            withContext(Dispatchers.IO) { client.streams(addons.toList(), target.contentType, next.id) }.flatMap { it.streams }
         val best = rank(streams).firstOrNull { it.isEligible }
         if (best == null) {
             message = "No source to play ${tag ?: "the next episode"} automatically"
@@ -736,6 +769,9 @@ class AppState(
         const val SEARCH_DEBOUNCE_MS = 350L
     }
 }
+
+/** The first year in a release line such as "2008–2013". */
+fun yearOf(releaseInfo: String?): Int? = releaseInfo?.let { Regex("(19|20)\\d{2}").find(it)?.value?.toIntOrNull() }
 
 /** The first episode of the first real season (season 0 holds specials), or null for a movie. */
 fun firstEpisode(videos: List<Video>): Video? {

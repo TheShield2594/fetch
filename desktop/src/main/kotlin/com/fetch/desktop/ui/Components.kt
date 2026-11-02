@@ -384,6 +384,19 @@ fun CatalogRowView(
     title: String = row.title,
     subtitle: String? = row.addon.displayName,
     showLabels: Boolean = true
+) = MediaRowView(title, subtitle, row.items, row.loading, row.error, onOpen, onHover, showLabels)
+
+/** A titled row of posters from anywhere: an addon catalog, or a media server library. */
+@Composable
+fun MediaRowView(
+    title: String,
+    subtitle: String?,
+    items: List<MetaPreview>,
+    loading: Boolean,
+    error: String?,
+    onOpen: (MetaPreview) -> Unit,
+    onHover: (MetaPreview) -> Unit = {},
+    showLabels: Boolean = true
 ) {
     val rowInteraction = remember { MutableInteractionSource() }
     val rowHovered by rowInteraction.collectIsHoveredAsState()
@@ -404,20 +417,20 @@ fun CatalogRowView(
             }
         }
         when {
-            row.loading -> SkeletonRow()
-            row.error != null -> Text(
-                "Couldn't load this row (${row.error})",
+            loading -> SkeletonRow()
+            error != null -> Text(
+                "Couldn't load this row ($error)",
                 color = FetchPalette.TextMuted,
                 modifier = Modifier.padding(horizontal = PageGutter)
             )
-            row.items.isEmpty() -> Text(
+            items.isEmpty() -> Text(
                 "Nothing here",
                 color = FetchPalette.TextMuted,
                 modifier = Modifier.padding(horizontal = PageGutter)
             )
             else -> {
                 // Every card in a row has the row's shape, so a stray landscape item doesn't break the line.
-                val shape = row.items.groupingBy { it.posterShape }.eachCount().maxByOrNull { it.value }?.key
+                val shape = items.groupingBy { it.posterShape }.eachCount().maxByOrNull { it.value }?.key
                     ?: PosterShape.POSTER
                 PagedRow(hovered = rowHovered, cardHeight = cardSize(shape).height) { state ->
                     LazyRow(
@@ -425,7 +438,7 @@ fun CatalogRowView(
                         contentPadding = PaddingValues(horizontal = PageGutter, vertical = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
-                        items(row.items, key = { it.id }) { item ->
+                        items(items, key = { it.id }) { item ->
                             PosterCard(item, onClick = { onOpen(item) }, onHover = onHover, shape = shape, showLabels = showLabels)
                         }
                     }

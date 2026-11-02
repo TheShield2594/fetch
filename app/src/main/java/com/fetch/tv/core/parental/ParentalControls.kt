@@ -326,8 +326,6 @@ class ParentalControls @Inject constructor(
     }
 }
 
-private const val PARENT_PROFILE_ID = 1
-
 /**
  * Titles on the parent's lists that [rules] approve: those on each list in
  * [KidsRules.approvedListIds], oldest addition first. None outside "approved titles only" mode.

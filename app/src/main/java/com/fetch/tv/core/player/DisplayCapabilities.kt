@@ -1,9 +1,12 @@
 package com.fetch.tv.core.player
 
 import android.app.Activity
+import android.content.Context
+import android.hardware.display.DisplayManager
 import android.os.Build
 import android.util.Log
 import android.view.Display
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -101,4 +104,74 @@ object DisplayCapabilities {
     }
 
     private fun roundedMilliHz(refreshRate: Float): Int = (refreshRate * 1000f).roundToInt()
+
+    /**
+     * Whether refresh-rate matching should default to "start" on this device (#204): the
+     * built-in display can switch modes and has one that shows film without judder, and the
+     * device isn't a known-bad mode switcher. Reads the default display through the
+     * application context, so no Activity is needed. Any failure counts as not capable.
+     */
+    fun defaultsToFrameRateMatching(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return false
+        if (isKnownBadModeSwitcher(Build.MANUFACTURER, Build.MODEL, Build.DEVICE)) return false
+        return try {
+            val displayManager = context.getSystemService(DisplayManager::class.java) ?: return false
+            val display = displayManager.getDisplay(Display.DEFAULT_DISPLAY) ?: return false
+            val modes = display.supportedModes.map {
+                FrameRateUtils.DisplayModeSpec(it.modeId, it.physicalWidth, it.physicalHeight, it.refreshRate)
+            }
+            supportsFilmRateMatching(modes, display.mode.modeId)
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not read display modes for the frame-rate matching default", e)
+            false
+        }
+    }
+
+    /**
+     * Pure predicate, extracted for unit testing. True when the display offers at least two
+     * refresh rates at its current resolution and one of them is 23.976/24 Hz or a whole
+     * multiple of it (47.952/48, 119.88/120, ...), so 24p content can be shown without
+     * 3:2 pulldown judder.
+     */
+    internal fun supportsFilmRateMatching(
+        modes: List<FrameRateUtils.DisplayModeSpec>,
+        currentModeId: Int,
+    ): Boolean {
+        if (modes.isEmpty()) return false
+        val current = modes.firstOrNull { it.modeId == currentModeId } ?: modes.first()
+        val sameRes = modes.filter { it.width == current.width && it.height == current.height }
+        val distinctRates = sameRes.map { roundedMilliHz(it.refreshRate) }.toSet()
+        if (distinctRates.size < 2) return false
+        return sameRes.any { isFilmRateMultiple(it.refreshRate) }
+    }
+
+    private val FILM_RATES = floatArrayOf(24000f / 1001f, 24f)
+
+    private fun isFilmRateMultiple(refreshRate: Float): Boolean {
+        if (refreshRate <= 0f) return false
+        return FILM_RATES.any { base ->
+            val multiple = (refreshRate / base).roundToInt()
+            multiple >= 1 && abs(refreshRate - multiple * base) <= FILM_RATE_TOLERANCE_HZ * multiple
+        }
+    }
+
+    private const val FILM_RATE_TOLERANCE_HZ = 0.01f
+
+    /**
+     * Devices that report switchable modes but where switching misbehaves (long blackouts,
+     * HDMI handshake loops, or a mode that never takes), matched on lower-cased
+     * [Build.MANUFACTURER] and [Build.MODEL] or [Build.DEVICE]. These keep "off" as the
+     * default; anyone can still turn matching on in Settings. Add a device here once a
+     * report confirms it, with the report in the comment.
+     */
+    internal val knownBadModeSwitchers: List<Pair<String, String>> = emptyList()
+
+    internal fun isKnownBadModeSwitcher(manufacturer: String?, model: String?, device: String?): Boolean {
+        val m = manufacturer.orEmpty().trim().lowercase()
+        val mo = model.orEmpty().trim().lowercase()
+        val d = device.orEmpty().trim().lowercase()
+        return knownBadModeSwitchers.any { (badManufacturer, badModel) ->
+            m == badManufacturer && (mo == badModel || d == badModel)
+        }
+    }
 }

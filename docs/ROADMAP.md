@@ -13,7 +13,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Media3/ExoPlayer + FFmpeg audio extension | ✅ | `ui/screens/player/PlayerRuntimeController*.kt`, `ffmpeg-decoder-downmix/`. Stock Media3 1.8.0 from Maven; the prebuilt upstream fork was dropped (`docs/architecture/media3-fork.md`). |
 | libass ASS/SSA | ✅ | `PlayerLibassCompat.kt`, `FetchAssMatroskaExtractor.kt` (`io.github.peerless2012:ass-media`). |
 | Passthrough AC3 / E-AC3 / TrueHD / DTS | ✅ | `AudioOutputRouteDetector.kt`, audio sink setup in `PlayerRuntimeControllerInitialization.kt`, "force optical passthrough" setting. |
-| Automatic refresh-rate matching | ✅ | `core/player/FrameRateUtils.kt`, `DisplayCapabilities.kt`, `AfrPreflightGate.kt`. Off by default; defaulting to *start* on capable devices is #204. |
+| Automatic refresh-rate matching | ✅ | `core/player/FrameRateUtils.kt`, `DisplayCapabilities.kt`, `ui/screens/player/AfrPreflightGate.kt`. Defaults to *start* for profiles that never set it when the display has a 23.976/24 Hz mode (or a multiple) at its current resolution and isn't a known-bad mode switcher (`DisplayCapabilities.defaultsToFrameRateMatching`); otherwise off. Device testing is still open in #204. |
 | HDR10 / HLG / Dolby Vision with fallback | ✅ | `DolbyVisionCodecFallback.kt`, `DolbyVisionBaseLayerPolicy.kt`, `core/player/dvmkv/`, DV7 handling modes. Stream ranking now also refuses to auto-play DV profile 5 where it can't be displayed. |
 | Subtitle offset, styling, size | ✅ | `SubtitleStyleSidePanel.kt`, `SubtitleTimingDialog.kt`, automatic sync in `player/autosync/`. |
 | One-press external player hand-off | ✅ | `core/player/ExternalPlayerLauncher.kt` (passes headers, position, subtitles, skip segments). |
@@ -65,7 +65,7 @@ from NuvioTV (grouped by area, each linking the original reports).
 | Interface audit (Profile selection → Home) | #178 medium and low findings, #179 scrims on artwork text, #180 large text, #181 truncated names and titles, #183 Home empty states, #184 wrong-PIN messages, #186 and #192 casing and punctuation, #187 neutral fills, #189 shimmer token, #190 unused status colors, #191 wrapping row titles, #193 profile errors that vanish, #194 translations, #195 other FetchDialog callers |
 | Sync | #203 sync interface, backend choice, Supabase decision |
 | Stream picker | #202 parser fixtures from real addon output |
-| Player | #204 refresh-rate matching on by default |
+| Player | #204 refresh-rate matching on by default: device testing and the known-bad list |
 | Platform | #14 first release, #201 device measurements and baseline profile, #206 translate the new parental strings |
 
 All upstream-bug groups (#17–#25) and the earlier roadmap issues are closed. What #4, #8,

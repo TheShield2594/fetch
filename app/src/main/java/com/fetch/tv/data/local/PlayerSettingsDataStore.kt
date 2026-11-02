@@ -1,5 +1,6 @@
 package com.fetch.tv.data.local
 
+import com.fetch.tv.core.player.DisplayCapabilities
 import com.fetch.tv.BuildConfig
 import android.util.Log
 import androidx.compose.ui.graphics.Color
@@ -438,6 +439,26 @@ enum class FrameRateMatchingMode {
     OFF, START, START_STOP
 }
 
+/**
+ * A profile's refresh-rate matching mode. A stored mode (or the older on/off flag, which meant
+ * start/stop) is a choice someone made and is kept. With neither, the profile never touched the
+ * setting and gets [deviceDefault].
+ */
+internal fun resolveFrameRateMatchingMode(
+    storedMode: String?,
+    legacyEnabled: Boolean?,
+    deviceDefault: () -> FrameRateMatchingMode,
+): FrameRateMatchingMode {
+    storedMode?.let { raw ->
+        FrameRateMatchingMode.entries.firstOrNull { it.name == raw }?.let { return it }
+    }
+    return when (legacyEnabled) {
+        true -> FrameRateMatchingMode.START_STOP
+        false -> FrameRateMatchingMode.OFF
+        null -> deviceDefault()
+    }
+}
+
 enum class NextEpisodeThresholdMode {
     PERCENTAGE, MINUTES_BEFORE_END
 }
@@ -534,6 +555,18 @@ class PlayerSettingsDataStore @Inject constructor(
         factory.get(profileId, FEATURE)
 
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    /**
+     * What refresh-rate matching is for a profile that never chose (#204): "start" when this
+     * TV's display can switch to a film rate, otherwise off. Worked out once per process.
+     */
+    private val deviceFrameRateMatchingDefault: FrameRateMatchingMode by lazy {
+        if (DisplayCapabilities.defaultsToFrameRateMatching(context)) {
+            FrameRateMatchingMode.START
+        } else {
+            FrameRateMatchingMode.OFF
+        }
+    }
 
     // Keys
     private val playerPreferenceKey = stringPreferencesKey("player_preference")
@@ -983,9 +1016,11 @@ class PlayerSettingsDataStore @Inject constructor(
                 mpvHi10pGnextSoftwareFallbackEnabled =
                     prefs[mpvHi10pGnextSoftwareFallbackEnabledKey] ?: false,
                 mpvHardwareDecodeMode = parseMpvHardwareDecodeMode(prefs[mpvHardwareDecodeModeKey]),
-                frameRateMatchingMode = prefs[frameRateMatchingModeKey]?.let {
-                    runCatching { FrameRateMatchingMode.valueOf(it) }.getOrNull()
-                } ?: if (prefs[frameRateMatchingKey] == true) FrameRateMatchingMode.START_STOP else FrameRateMatchingMode.OFF,
+                frameRateMatchingMode = resolveFrameRateMatchingMode(
+                    storedMode = prefs[frameRateMatchingModeKey],
+                    legacyEnabled = prefs[frameRateMatchingKey],
+                    deviceDefault = { deviceFrameRateMatchingDefault },
+                ),
                 resolutionMatchingEnabled = prefs[resolutionMatchingEnabledKey] ?: false,
                 streamAutoPlayMode = prefs[streamAutoPlayModeKey]?.let {
                     runCatching { StreamAutoPlayMode.valueOf(it) }.getOrDefault(StreamAutoPlayMode.BEST_MATCH)

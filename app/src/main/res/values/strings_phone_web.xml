@@ -7,7 +7,8 @@
     <string name="phone_web_tv_failed">The TV couldn’t do that. Try again.</string>
     <string name="phone_web_back">All settings</string>
     <string name="phone_web_saved">Saved</string>
-    <string name="phone_web_list_separator">, </string>
+    <!-- Quoted so Android keeps the trailing space. -->
+    <string name="phone_web_list_separator">", "</string>
 
     <!-- Landing page -->
     <string name="phone_web_landing_title">Fetch on your TV</string>

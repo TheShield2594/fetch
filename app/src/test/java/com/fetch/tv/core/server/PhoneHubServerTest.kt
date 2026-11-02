@@ -70,7 +70,9 @@ class PhoneHubServerTest {
 
         val proposedUrls = mutableListOf<String>()
 
-        override suspend fun installedAddons() = listOf(PhoneHubAddon("Cinemeta", streams = false))
+        var installed = listOf(PhoneHubAddon("Cinemeta", streams = false))
+
+        override suspend fun installedAddons() = installed
 
         override fun addonSuggestions() =
             listOf(PhoneHubAddonSuggestion("Subtitles", "Many languages", "https://subs.example/manifest.json"))
@@ -231,6 +233,10 @@ class PhoneHubServerTest {
     fun `the installed list is one sentence the TV wrote`() {
         val json = body(server.serve(FakeHttpSession("/api/addons")))
         assertTrue(json.contains("\"summary\":\"Cinemeta. None of them gives streams yet.\""))
+
+        actions.installed = listOf(PhoneHubAddon("Cinemeta", streams = false), PhoneHubAddon("Torrentio", streams = true))
+        val withStreams = body(server.serve(FakeHttpSession("/api/addons")))
+        assertTrue(withStreams.contains("\"summary\":\"Cinemeta, Torrentio. 1 of them gives streams.\""))
     }
 
     @Test
@@ -239,7 +245,8 @@ class PhoneHubServerTest {
             val page = body(server.serve(FakeHttpSession(uri)))
             assertTrue(uri, page.contains("<html lang=\"en"))
             // Status text uses the ellipsis character, like the TV's own strings.
-            assertFalse(uri, page.contains("...'"))
+            // Strings are emitted as JSON literals, so one ending in "..." is followed by a double quote.
+            assertFalse(uri, page.contains("...\""))
         }
         val ranking = body(server.serve(FakeHttpSession("/ranking")))
         assertTrue(ranking.contains("<legend>Skip languages</legend>"))

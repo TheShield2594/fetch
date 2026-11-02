@@ -25,8 +25,9 @@ class PhoneHubWebPage(private val resources: Resources) {
      */
     private fun j(@StringRes id: Int): String = jsString(resources.getString(id).replace("%1\$s", "{0}"))
 
-    private val languageTag: String =
-        resources.configuration.locales[0].toLanguageTag().ifEmpty { "en" }
+    // From the strings themselves, not the TV's locale: an untranslated page falls back to
+    // English and must say so, or screen readers read it with the wrong language's rules.
+    private val languageTag: String = resources.getString(R.string.phone_web_lang).ifBlank { "en" }
 
     private val style = """
         <meta name="viewport" content="width=device-width, initial-scale=1">

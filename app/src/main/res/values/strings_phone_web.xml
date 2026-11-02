@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The phone pages served by the phone hub (Settings > Configure from phone), shown in the TV's language. -->
 <resources>
+    <!-- The BCP 47 tag of this file's language (for example "de" or "pt-BR"), used as the phone page's lang attribute. -->
+    <string name="phone_web_lang">en</string>
     <string name="phone_web_tv_unreachable">Can’t reach the TV. Open Configure from phone on the TV, then scan the new code.</string>
     <string name="phone_web_tv_failed">The TV couldn’t do that. Try again.</string>
     <string name="phone_web_back">All settings</string>

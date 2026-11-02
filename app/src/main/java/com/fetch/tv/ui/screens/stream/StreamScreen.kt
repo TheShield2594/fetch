@@ -1318,7 +1318,10 @@ internal fun StreamsList(
                             if (focused && streamListState.firstVisibleItemIndex <= lazyIndexOfStream.getOrElse(index) { 0 }) {
                                 listScope.coroutineLaunch {
                                     withFrameNanos { }
-                                    runCatching { streamListState.animateScrollToItem(0) }
+                                    // Focus may have moved on during that frame.
+                                    if (firstCardHasFocus) {
+                                        runCatching { streamListState.animateScrollToItem(0) }
+                                    }
                                 }
                             }
                         }

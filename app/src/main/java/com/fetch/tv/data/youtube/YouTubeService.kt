@@ -217,7 +217,7 @@ class YouTubeService @Inject constructor(
         when (feed) {
             YouTubeFeed.HOME -> loadHome()
             YouTubeFeed.SUBSCRIPTIONS -> browse(SUBSCRIPTIONS_BROWSE_ID)
-            YouTubeFeed.HISTORY -> browse(HISTORY_BROWSE_ID)
+            YouTubeFeed.HISTORY -> YouTubeResponseParser.asHistory(browse(HISTORY_BROWSE_ID))
             YouTubeFeed.LIBRARY -> loadLibrary()
             YouTubeFeed.SEARCH -> {
                 val trimmed = query?.trim().orEmpty()
@@ -246,7 +246,8 @@ class YouTubeService @Inject constructor(
      */
     suspend fun loadMore(feed: YouTubeFeed, token: String): YouTubePage = withContext(Dispatchers.IO) {
         val endpoint = if (feed == YouTubeFeed.SEARCH) "search" else "browse"
-        YouTubeResponseParser.parsePage(innertube(endpoint, validAccessToken()) { put("continuation", token) })
+        val page = YouTubeResponseParser.parsePage(innertube(endpoint, validAccessToken()) { put("continuation", token) })
+        if (feed == YouTubeFeed.HISTORY) YouTubeResponseParser.asHistory(page) else page
     }
 
     /** The channels this Google account can act as: its own and any brand accounts. */
@@ -359,6 +360,21 @@ class YouTubeService @Inject constructor(
         innertube(endpoint, validAccessToken()) {
             putJsonArray("channelIds") { add(channelId) }
             params?.let { put("params", it) }
+        }
+        Unit
+    }
+
+    /**
+     * Sends a tile menu's feedback token: "Remove from watch history" or "Not interested". The
+     * body and the TV context are SmartTube's (FeedbackApiHelper.getNotInterestedQuery). Throws if
+     * YouTube refuses.
+     */
+    suspend fun sendFeedback(feedbackToken: String) = withContext(Dispatchers.IO) {
+        val response = innertube("feedback", validAccessToken()) {
+            putJsonArray("feedbackTokens") { add(feedbackToken) }
+        }
+        if (!YouTubeResponseParser.parseFeedbackProcessed(response)) {
+            throw IllegalStateException("YouTube didn't process the feedback")
         }
         Unit
     }

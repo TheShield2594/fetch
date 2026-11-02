@@ -26,7 +26,17 @@ data class YouTubeVideo(
      */
     val playlistId: String? = null,
     /** Where in [playlistId] the video sits, when YouTube says. */
-    val playlistIndex: Int? = null
+    val playlistIndex: Int? = null,
+    /**
+     * The feedback token of the tile menu's "Remove from watch history", on the History feed.
+     * Sent to InnerTube's `feedback` endpoint, it takes the video out of the history.
+     */
+    val removeFromHistoryToken: String? = null,
+    /**
+     * The feedback token of the tile menu's "Not interested" (the subscriptions feed calls it
+     * "Hide"). Sent to InnerTube's `feedback` endpoint, it drops the video from the feed.
+     */
+    val notInterestedToken: String? = null
 ) {
     val watchUrl: String
         get() = "https://www.youtube.com/watch?v=$videoId"

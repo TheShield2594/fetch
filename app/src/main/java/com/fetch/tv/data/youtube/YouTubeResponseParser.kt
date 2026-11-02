@@ -186,6 +186,12 @@ internal object YouTubeResponseParser {
             .distinctBy { it.playlistId }
     }
 
+    /** False only when a `feedback` response says YouTube didn't process the token (`isProcessed: false`). */
+    fun parseFeedbackProcessed(root: JsonElement?): Boolean {
+        val responses = root.path("feedbackResponses") as? JsonArray ?: return true
+        return responses.none { it.path("isProcessed").booleanOrNull() == false }
+    }
+
     /** Every channel the signed-in Google account can act as: the account itself and its brand accounts. */
     fun parseAccounts(root: JsonElement): List<YouTubeAccount> {
         val accounts = mutableListOf<JsonObject>()
@@ -459,7 +465,7 @@ internal object YouTubeResponseParser {
             channels = channelRefs(lockup["metadata"], lockup["rendererContext"], lockup),
             playlistId = playlistId,
             playlistIndex = playlistIndex
-        )
+        ).withFeedback(metadata?.get("menuButton"))
     }
 
     /** The TV client's tile. Channels and playlists are tiles too; only videos and Shorts are kept. */
@@ -503,7 +509,7 @@ internal object YouTubeResponseParser {
             channels = channelRefs(metadata, tile),
             playlistId = playlistId,
             playlistIndex = playlistIndex
-        )
+        ).withFeedback(tile["menu"], tile.path("onLongPressCommand", "showMenuCommand", "menu"))
     }
 
     /** The playlist a watch command plays the video in, and its place there, when it names one. */
@@ -543,8 +549,67 @@ internal object YouTubeResponseParser {
             channels = channelRefs(renderer["ownerText"], renderer["shortBylineText"], renderer["longBylineText"], renderer),
             playlistId = watchPlaylist(renderer["navigationEndpoint"]).first,
             playlistIndex = watchPlaylist(renderer["navigationEndpoint"]).second
-        )
+        ).withFeedback(renderer["menu"])
     }
+
+    /**
+     * Adds the feedback tokens of the tile's own long-press [menus]: the items whose action is a
+     * `feedbackEndpoint` (SmartTube's MenuItem.getFeedbackToken). An item's icon says which it is
+     * when the menu has icons; the TV client's menus mostly don't, so an unmarked token is the
+     * feed's "Not interested" (or "Hide"), and the History feed relabels it ([asHistory]). The
+     * follow-ups behind a popup ("Don't recommend channel") aren't the item's own and are skipped.
+     */
+    private fun YouTubeVideo.withFeedback(vararg menus: JsonElement?): YouTubeVideo {
+        var removeFromHistory: String? = null
+        var notInterested: String? = null
+        var unmarked: String? = null
+        fun walk(element: JsonElement?, icon: String?, depth: Int) {
+            if (element == null || depth > MAX_DEPTH) return
+            when (element) {
+                is JsonArray -> element.forEach { walk(it, icon, depth + 1) }
+                is JsonObject -> {
+                    val here = element.path("icon", "iconType").stringOrNull() ?: icon
+                    val token = element.path("feedbackEndpoint", "feedbackToken").stringOrNull()
+                    if (token != null) {
+                        when {
+                            here != null && "NOT_INTERESTED" in here -> if (notInterested == null) notInterested = token
+                            here != null && ("DELETE" in here || "REMOVE" in here || "HISTORY" in here) ->
+                                if (removeFromHistory == null) removeFromHistory = token
+                            else -> if (unmarked == null) unmarked = token
+                        }
+                        return
+                    }
+                    for ((key, value) in element) {
+                        if (key in POPUP_KEYS) continue
+                        walk(value, here, depth + 1)
+                    }
+                }
+                else -> Unit
+            }
+        }
+        menus.forEach { walk(it, icon = null, depth = 0) }
+        val notInterestedToken = notInterested ?: unmarked
+        if (removeFromHistory == null && notInterestedToken == null) return this
+        return copy(removeFromHistoryToken = removeFromHistory, notInterestedToken = notInterestedToken)
+    }
+
+    /** Where a menu item keeps a popup whose own feedback ("Don't recommend channel") isn't the item's. */
+    private val POPUP_KEYS = setOf("openPopupAction")
+
+    /**
+     * [page] as the History feed: its menus' feedback token takes the video out of the watch
+     * history; there's no "Not interested" there.
+     */
+    fun asHistory(page: YouTubePage): YouTubePage = page.copy(
+        shelves = page.shelves.map { shelf ->
+            shelf.copy(videos = shelf.videos.map { video ->
+                video.copy(
+                    removeFromHistoryToken = video.removeFromHistoryToken ?: video.notInterestedToken,
+                    notInterestedToken = null
+                )
+            })
+        }
+    )
 
     private fun browseTarget(endpoint: JsonElement?, title: String?): YouTubeBrowseTarget? {
         val browse = endpoint.path("browseEndpoint") ?: return null

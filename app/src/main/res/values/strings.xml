@@ -3249,7 +3249,9 @@
     <string name="youtube_menu_remove_from_playlist">Remove from %1$s</string>
     <string name="youtube_menu_playlists_loading">Loading your playlists…</string>
     <string name="youtube_menu_playlists_failed">Couldn’t load your playlists. Try again later.</string>
-    <string name="youtube_menu_playlists_empty">This channel has no playlists yet.</string>
+    <string name="youtube_menu_playlists_empty">You don’t have any playlists yet.</string>
+    <string name="youtube_menu_remove_from_history">Remove from watch history</string>
+    <string name="youtube_menu_not_interested">Not interested</string>
     <string name="youtube_new_playlist">New playlist…</string>
     <string name="youtube_new_playlist_title">New playlist</string>
     <string name="youtube_new_playlist_name">Name</string>
@@ -3263,6 +3265,8 @@
     <string name="youtube_notice_subscribed">Subscribed to %1$s</string>
     <string name="youtube_notice_unsubscribed">Unsubscribed from %1$s</string>
     <string name="youtube_notice_unsubscribed_plain">Unsubscribed</string>
+    <string name="youtube_notice_removed_from_history">Removed from watch history</string>
+    <string name="youtube_notice_not_interested">Got it. You’ll see fewer videos like this.</string>
     <string name="youtube_actions_hint">Press up to like, save, subscribe or go to the channel</string>
     <string name="youtube_action_like">Like</string>
     <string name="youtube_action_dislike">Dislike</string>

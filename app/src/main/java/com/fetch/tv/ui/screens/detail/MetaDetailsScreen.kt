@@ -79,6 +79,14 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.foundation.layout.size
+import androidx.tv.material3.Icon
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
@@ -410,6 +418,8 @@ fun MetaDetailsScreen(
     onBackPress: () -> Unit,
     onReturnFocusConsumed: () -> Unit = {},
     onNavigateToCastDetail: (personId: Int, personName: String, preferCrew: Boolean) -> Unit = { _, _, _ -> },
+    /** Opens the addon settings, where a title nothing can play gets a streaming addon. */
+    onNavigateToAddons: (() -> Unit)? = null,
     onNavigateToTmdbEntityBrowse: (entityKind: String, entityId: Int, entityName: String, sourceType: String) -> Unit = { _, _, _, _ -> },
     onNavigateToDetail: (itemId: String, itemType: String, addonBaseUrl: String?) -> Unit = { _, _, _ -> },
     onPlayClick: (
@@ -1114,6 +1124,7 @@ fun MetaDetailsScreen(
                     restoreSharedTrailerFocusToken = restoreSharedTrailerFocusToken,
                     onSharedTrailerFocusRestored = { restoreSharedTrailerFocusToken = 0 },
                     onNavigateToCastDetail = onNavigateToCastDetail,
+                    onNavigateToAddons = onNavigateToAddons,
                     onNavigateToTmdbEntityBrowse = onNavigateToTmdbEntityBrowse,
                     onNavigateToDetail = onNavigateToDetail,
                     onPosterLongPress = { item -> viewModel.posterOptions.show(item, null) }
@@ -1331,6 +1342,8 @@ private fun MetaDetailsContent(
     restoreSharedTrailerFocusToken: Int,
     onSharedTrailerFocusRestored: () -> Unit,
     onNavigateToCastDetail: (personId: Int, personName: String, preferCrew: Boolean) -> Unit = { _, _, _ -> },
+    /** Opens the addon settings, where a title nothing can play gets a streaming addon. */
+    onNavigateToAddons: (() -> Unit)? = null,
     onNavigateToTmdbEntityBrowse: (entityKind: String, entityId: Int, entityName: String, sourceType: String) -> Unit = { _, _, _, _ -> },
     onNavigateToDetail: (itemId: String, itemType: String, addonBaseUrl: String?) -> Unit = { _, _, _ -> },
     onPosterLongPress: (MetaPreview) -> Unit = {}
@@ -2577,6 +2590,7 @@ private fun MetaDetailsContent(
                         bestMatch = heroBestMatch.takeIf { !shufflePoolEmpty },
                         onPlayClick = { if (shufflePoolEmpty) showRandomEpisodeOverlay = true else heroPlayClick() },
                         isPlayEnabled = shufflePoolEmpty || isPlayEnabled,
+                        onOpenAddonSettings = onNavigateToAddons,
                         onPlayLongPress = if (!shufflePoolEmpty && isPlayEnabled && (showManualPlayOption || nextToWatch?.isResume == true)) {
                             { showHeroPlayOptionsDialog = true }
                         } else {
@@ -3547,16 +3561,7 @@ private fun PeopleSectionTabs(
     ) {
         @Composable
         fun androidx.compose.foundation.layout.RowScope.renderTabs(items: List<PeopleTabItem>) {
-            items.forEachIndexed { index, item ->
-                if (index > 0) {
-                    Text(
-                        text = "|",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = FetchTheme.colors.TextPrimary.copy(alpha = 0.45f),
-                        modifier = Modifier.padding(horizontal = FetchTheme.spacing.md)
-                    )
-                }
-
+            items.forEach { item ->
                 PeopleSectionTabButton(
                     label = item.label,
                     selected = activeTab == item.tab,
@@ -3570,8 +3575,10 @@ private fun PeopleSectionTabs(
             }
         }
 
+        // The gap alone separates the tabs, so screen readers only meet the tabs themselves.
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)
         ) {
             renderTabs(tabs)
         }
@@ -3665,15 +3672,34 @@ private fun LibraryListPickerDialog(
     onDismiss: () -> Unit
 ) {
     val primaryFocusRequester = remember { FocusRequester() }
+    val saveChangesFocusRequester = remember { FocusRequester() }
+    // The membership the picker opened with; Back only closes silently while nothing differs.
+    val initialMembership = remember { membership }
+    val hasUnsavedChanges = tabs.any { tab ->
+        (membership[tab.key] == true) != (initialMembership[tab.key] == true)
+    }
+    var confirmingDiscard by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        primaryFocusRequester.requestFocus()
+    LaunchedEffect(confirmingDiscard) {
+        if (confirmingDiscard) {
+            saveChangesFocusRequester.requestFocusAfterFrames()
+        } else {
+            primaryFocusRequester.requestFocusAfterFrames()
+        }
     }
 
     FetchDialog(
-        onDismiss = onDismiss,
-        title = title,
-        subtitle = stringResource(R.string.detail_lists_subtitle),
+        onDismiss = {
+            when {
+                confirmingDiscard -> confirmingDiscard = false
+                hasUnsavedChanges && !isPending -> confirmingDiscard = true
+                else -> onDismiss()
+            }
+        },
+        title = if (confirmingDiscard) stringResource(R.string.detail_lists_unsaved_title) else title,
+        subtitle = stringResource(
+            if (confirmingDiscard) R.string.detail_lists_unsaved_subtitle else R.string.detail_lists_subtitle
+        ),
         width = 500.dp,
         scrollable = true
     ) {
@@ -3681,8 +3707,28 @@ private fun LibraryListPickerDialog(
             Text(
                 text = error,
                 style = MaterialTheme.typography.bodyMedium,
-                color = FetchStatusTones.errorText
+                color = FetchStatusTones.errorText,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
             )
+        }
+
+        if (confirmingDiscard) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md, Alignment.End)
+            ) {
+                DetailButton(onClick = onDismiss, enabled = !isPending) {
+                    Text(stringResource(R.string.detail_lists_discard))
+                }
+                DetailButton(
+                    onClick = onSave,
+                    enabled = !isPending,
+                    modifier = Modifier.focusRequester(saveChangesFocusRequester)
+                ) {
+                    Text(if (isPending) stringResource(R.string.action_saving) else stringResource(R.string.action_save))
+                }
+            }
+            return@FetchDialog
         }
 
         LazyColumn(
@@ -3693,27 +3739,59 @@ private fun LibraryListPickerDialog(
         ) {
             items(tabs, key = { it.key }) { tab ->
                 val selected = membership[tab.key] == true
-                val titleText = if (selected) "\u2713 ${tab.localizedMembershipTitle()}" else tab.localizedMembershipTitle()
+                val shape = FetchTheme.shapes.button
                 Button(
                     onClick = { onToggle(tab.key) },
                     enabled = !isPending,
-                    modifier = if (tab.key == tabs.firstOrNull()?.key) {
-                        Modifier
-                            .fillMaxWidth()
-                            .focusRequester(primaryFocusRequester)
-                    } else {
-                        Modifier.fillMaxWidth()
-                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (tab.key == tabs.firstOrNull()?.key) {
+                                Modifier.focusRequester(primaryFocusRequester)
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .semantics(mergeDescendants = true) {
+                            role = Role.Checkbox
+                            toggleableState = ToggleableState(selected)
+                        },
+                    // Membership is the Highlight fill plus a trailing check; focus adds the ring.
                     colors = ButtonDefaults.colors(
-                        containerColor = if (selected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
-                        contentColor = FetchTheme.colors.TextPrimary
-                    )
+                        containerColor = if (selected) FetchTheme.colors.Highlight else FetchTheme.colors.BackgroundCard,
+                        contentColor = if (selected) FetchTheme.colors.OnHighlight else FetchTheme.colors.TextPrimary,
+                        focusedContainerColor = FetchTheme.colors.Highlight,
+                        focusedContentColor = FetchTheme.colors.OnHighlight
+                    ),
+                    shape = ButtonDefaults.shape(shape = shape),
+                    border = ButtonDefaults.border(
+                        focusedBorder = Border(
+                            border = FetchTheme.focusRing.border(FetchTheme.strokes.focus),
+                            shape = shape
+                        )
+                    ),
+                    scale = ButtonDefaults.scale(focusedScale = 1f)
                 ) {
-                    Text(
-                        text = titleText,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = tab.localizedMembershipTitle(),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        if (selected) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(start = FetchTheme.spacing.sm)
+                                    .size(18.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -3721,13 +3799,9 @@ private fun LibraryListPickerDialog(
         HorizontalDivider(color = FetchTheme.colors.Border, thickness = FetchTheme.spacing.hairline)
 
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-            Button(
+            DetailButton(
                 onClick = onSave,
-                enabled = !isPending,
-                colors = ButtonDefaults.colors(
-                    containerColor = FetchTheme.colors.BackgroundCard,
-                    contentColor = FetchTheme.colors.TextPrimary
-                )
+                enabled = !isPending
             ) {
                 Text(if (isPending) stringResource(R.string.action_saving) else stringResource(R.string.action_save))
             }

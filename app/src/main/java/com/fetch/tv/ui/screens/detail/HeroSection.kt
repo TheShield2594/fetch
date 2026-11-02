@@ -92,7 +92,6 @@ import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.rememberRawSvgPainter
 import java.util.Locale
-import com.fetch.tv.ui.theme.FetchStatusTones
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
@@ -127,6 +126,8 @@ fun HeroContentSection(
     bestMatch: com.fetch.tv.core.streams.BestMatchPreview? = null,
     onPlayClick: () -> Unit,
     isPlayEnabled: Boolean = true,
+    /** When nothing can play the title, a button beside Play opens the addon settings. */
+    onOpenAddonSettings: (() -> Unit)? = null,
     onPlayLongPress: (() -> Unit)? = null,
     isInLibrary: Boolean,
     onToggleLibrary: () -> Unit,
@@ -352,20 +353,56 @@ fun HeroContentSection(
                         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // A disabled Play can't take focus, so when nothing can play the title the
+                        // fix-it button takes Play's place as the hero's focus anchor.
+                        val showAddonSetup = !isPlayEnabled && onOpenAddonSettings != null
                         PlayButton(
                             text = if (isPlayEnabled) nextToWatch?.displayText else stringResource(R.string.playback_unavailable),
                             bestMatch = bestMatch,
                             enabled = isPlayEnabled,
                             onClick = onPlayClick,
                             onLongPress = onPlayLongPress,
-                            focusRequester = playButtonFocusRequester,
-                            restoreFocusToken = restorePlayFocusToken,
+                            focusRequester = if (showAddonSetup) null else playButtonFocusRequester,
+                            restoreFocusToken = if (showAddonSetup) 0 else restorePlayFocusToken,
                             onFocusRestored = {
                                 onHeroActionFocused()
                                 onPlayFocusRestored()
                             },
                             upFocusRequester = actionsUp
                         )
+
+                        if (showAddonSetup && onOpenAddonSettings != null) {
+                            LaunchedEffect(restorePlayFocusToken) {
+                                if (restorePlayFocusToken > 0) {
+                                    playButtonFocusRequester?.requestFocusAfterFrames()
+                                }
+                            }
+                            DetailButton(
+                                onClick = onOpenAddonSettings,
+                                modifier = Modifier
+                                    .then(
+                                        if (playButtonFocusRequester != null) {
+                                            Modifier.focusRequester(playButtonFocusRequester)
+                                        } else {
+                                            Modifier
+                                        }
+                                    )
+                                    .focusProperties { up = actionsUp }
+                                    .onFocusChanged {
+                                        if (it.isFocused) {
+                                            onHeroActionFocused()
+                                            onPlayFocusRestored()
+                                        }
+                                    },
+                                contentPadding = PaddingValues(horizontal = FetchTheme.spacing.lg, vertical = 14.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.playback_unavailable_open_addons),
+                                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                                    maxLines = 1
+                                )
+                            }
+                        }
 
                         ActionIconButton(
                             icon = if (isInLibrary) Icons.Default.Check else null,
@@ -397,8 +434,6 @@ fun HeroContentSection(
                                 onClick = onToggleMovieWatched,
                                 enabled = !isMovieWatchedPending,
                                 selected = isMovieWatched,
-                                selectedContainerColor = Color.White,
-                                selectedContentColor = Color.Black,
                                 onFocused = onHeroActionFocused,
                                 upFocusRequester = actionsUp
                             )
@@ -668,8 +703,6 @@ private fun ActionIconButton(
     onLongPress: (() -> Unit)? = null,
     enabled: Boolean = true,
     selected: Boolean = false,
-    selectedContainerColor: Color = FetchStatusTones.toggleOn,
-    selectedContentColor: Color = Color.Black,
     onFocused: () -> Unit = {},
     focusRequester: FocusRequester? = null,
     upFocusRequester: FocusRequester = FocusRequester.Cancel,
@@ -769,11 +802,12 @@ private fun ActionIconButton(
             onClick = click,
             enabled = enabled,
             modifier = keyModifier.size(FetchTheme.spacing.xxxl),
-            // Focus is white, as everywhere; red stays for the main action.
+            // Focus and "on" are the neutral Highlight, as everywhere; red stays for Play. The ring
+            // tells a focused button from a selected one.
             colors = IconButtonDefaults.colors(
-                containerColor = if (selected) selectedContainerColor else FetchTheme.colors.BackgroundCard,
+                containerColor = if (selected) FetchTheme.colors.Highlight else FetchTheme.colors.BackgroundCard,
                 focusedContainerColor = FetchTheme.colors.Highlight,
-                contentColor = if (selected) selectedContentColor else FetchTheme.colors.TextPrimary,
+                contentColor = if (selected) FetchTheme.colors.OnHighlight else FetchTheme.colors.TextPrimary,
                 focusedContentColor = FetchTheme.colors.OnHighlight
             ),
             border = IconButtonDefaults.border(
@@ -891,11 +925,11 @@ private fun MetaInfoRow(
         }
     }
     Log.d("HeroBadge", "name=${meta.name} ageRating=${meta.ageRating} status=${meta.status} ageRatingBadge=$ageRatingBadge statusBadge=$statusBadge")
-    val secondaryItems = remember(runtimeText, meta.country, meta.language) {
+    val secondaryItems = remember(runtimeText, meta.country, meta.language, displayLocale) {
         buildList<String> {
             runtimeText?.takeIf { it.isNotBlank() }?.let { add(it) }
             meta.country?.trim()?.takeIf { it.isNotBlank() }?.let { add(normalizeCountryLabel(it)) }
-            meta.language?.trim()?.takeIf { it.isNotBlank() }?.let { add(it.uppercase()) }
+            meta.language?.trim()?.takeIf { it.isNotBlank() }?.let { add(it.uppercase(displayLocale)) }
         }
     }
 

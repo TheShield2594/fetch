@@ -95,7 +95,4 @@ object FetchStatusTones {
 
     /** Border of a field in an error state. */
     val errorBorder = Color(0xFFE35D5D)
-
-    /** Fill of a toggle that is on, such as "In library". */
-    val toggleOn = Color(0xFF7CFF9B)
 }

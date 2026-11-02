@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
@@ -69,7 +70,8 @@ fun TrailerSection(
     if (trailers.isEmpty()) return
 
     val trailerFallbackTitle = stringResource(R.string.detail_tab_trailer)
-    val trailerItems = remember(trailers, trailerFallbackTitle) {
+    val displayLocale = LocalConfiguration.current.locales[0]
+    val trailerItems = remember(trailers, trailerFallbackTitle, displayLocale) {
         trailers.mapNotNull { trailer ->
             val ytId = trailer.ytId?.trim().orEmpty()
             if (ytId.isBlank()) return@mapNotNull null
@@ -78,7 +80,7 @@ fun TrailerSection(
                 ?: trailerFallbackTitle
             val subtitle = buildList {
                 trailer.type?.takeIf { it.isNotBlank() }?.let(::add)
-                trailer.lang?.takeIf { it.isNotBlank() }?.uppercase()?.let(::add)
+                trailer.lang?.takeIf { it.isNotBlank() }?.uppercase(displayLocale)?.let(::add)
             }.joinToString(" • ")
 
             TrailerListItem(

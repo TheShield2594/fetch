@@ -53,11 +53,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -76,7 +73,6 @@ import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.localizeEpisodeTitle
 import com.fetch.tv.ui.util.toAbsoluteAlignment
 import kotlinx.coroutines.launch
-import java.util.Locale
 import com.fetch.tv.ui.screens.ambient.AmbientDialogEffect
 
 private data class EpisodeOverlayAction(
@@ -180,8 +176,9 @@ internal fun EpisodeOptionsOverlay(
             )
         )
     }
-    val ratingLabel = remember(imdbRating) {
-        imdbRating?.takeIf { it > 0.0 }?.let { String.format(Locale.US, "%.1f", it) }
+    val displayLocale = configuration.locales[0]
+    val ratingLabel = remember(imdbRating, displayLocale) {
+        imdbRating?.takeIf { it > 0.0 }?.let { String.format(displayLocale, "%.1f", it) }
     }
     val seasonNumber = episode.season
     val episodeNumber = episode.episode
@@ -502,7 +499,7 @@ internal fun EpisodeOptionsOverlay(
                     verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
                 ) {
                     actions.forEachIndexed { index, action ->
-                        Button(
+                        DetailButton(
                             onClick = action.onClick,
                             enabled = action.enabled,
                             modifier = Modifier
@@ -526,11 +523,7 @@ internal fun EpisodeOptionsOverlay(
                                     } else {
                                         Modifier
                                     }
-                                ),
-                            colors = ButtonDefaults.colors(
-                                containerColor = FetchTheme.colors.BackgroundCard,
-                                contentColor = FetchTheme.colors.TextPrimary
-                            )
+                                )
                         ) {
                             Text(action.label)
                         }
@@ -568,15 +561,7 @@ private fun episodeOverlayDescriptionStyle(length: Int): TextStyle {
     return when {
         length <= 240 -> typography.headlineMedium.copy(fontWeight = FontWeight.Normal)
         length <= 420 -> typography.titleLarge.copy(fontWeight = FontWeight.Normal)
-        length <= 700 -> typography.titleMedium.copy(
-            fontWeight = FontWeight.Normal,
-            fontSize = 18.sp,
-            lineHeight = 24.sp
-        )
-        else -> typography.bodyLarge.copy(
-            fontSize = 16.sp,
-            lineHeight = 22.sp
-        )
+        else -> typography.bodyLarge
     }
 }
 

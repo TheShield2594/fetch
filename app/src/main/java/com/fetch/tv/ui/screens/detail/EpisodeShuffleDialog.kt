@@ -14,8 +14,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.EpisodeShuffleSettings
@@ -24,7 +22,6 @@ import com.fetch.tv.domain.model.RandomEpisodePicker
 import com.fetch.tv.domain.model.Video
 import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.tv.ui.components.FetchDialog
-import com.fetch.tv.ui.theme.FetchTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -106,24 +103,20 @@ internal fun EpisodeShuffleDialog(
             readyPicker == null -> Text(stringResource(R.string.random_episode_loading))
             allCount == 0 -> {
                 Text(stringResource(R.string.random_episode_empty_subtitle))
-                Button(onClick = onDismiss, modifier = Modifier.focusRequester(focusRequester)) {
+                DetailButton(onClick = onDismiss, modifier = Modifier.focusRequester(focusRequester)) {
                     Text(stringResource(R.string.action_close))
                 }
             }
             else -> {
                 for (include in listOf(false, true)) {
-                    Button(
+                    DetailButton(
                         onClick = {
                             includeWatched = include
                             selectedEpisode = readyPicker.pick(include)
                         },
                         enabled = include || unwatchedCount > 0,
                         modifier = Modifier.fillMaxWidth()
-                            .then(if (include == focusAll) Modifier.focusRequester(focusRequester) else Modifier),
-                        colors = ButtonDefaults.colors(
-                            containerColor = FetchTheme.colors.BackgroundCard,
-                            contentColor = FetchTheme.colors.TextPrimary
-                        )
+                            .then(if (include == focusAll) Modifier.focusRequester(focusRequester) else Modifier)
                     ) {
                         Text(stringResource(if (include) R.string.random_episode_include_watched else R.string.random_episode_unwatched))
                     }

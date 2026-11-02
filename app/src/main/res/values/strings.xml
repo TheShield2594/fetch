@@ -185,9 +185,9 @@
     <string name="hero_mark_watched">Mark as watched</string>
     <string name="hero_mark_unwatched">Mark as unwatched</string>
     <string name="hero_play_trailer">Play trailer</string>
-    <string name="hero_press_back_trailer">Press back to exit trailer</string>
+    <string name="hero_press_back_trailer">Press Back to exit trailer</string>
     <string name="hero_synopsis_read_more">Read more</string>
-    <string name="hero_synopsis_dismiss_hint">Press back to close</string>
+    <string name="hero_synopsis_dismiss_hint">Press Back to close</string>
 
     <string name="episodes_season">Season %1$d</string>
     <string name="episodes_specials">Specials</string>
@@ -221,6 +221,7 @@
     <string name="detail_marked_previous_watched">Previous episodes marked as watched: %1$d</string>
 
     <string name="playback_unavailable">Playback unavailable</string>
+    <string name="playback_unavailable_open_addons">Set up addons</string>
     <string name="playback_unavailable_message">Nothing you’ve set up can play this title. Add or turn on a streaming addon in Settings &gt; Content &amp; Discovery &gt; Addons, or check your media server connection.</string>
     <string name="detail_btn_play">Play</string>
     <string name="detail_btn_resume">Resume</string>
@@ -246,9 +247,9 @@
     <string name="detail_comments_title">Comments</string>
     <string name="detail_comments_subtitle">Reviews from Trakt</string>
     <string name="detail_comments_subtitle_episode">Reviews from Trakt for S%1$d E%2$d</string>
-    <string name="detail_comments_mode_show">Show</string>
+    <string name="detail_comments_mode_show">Whole series</string>
     <string name="detail_comments_mode_episode">Episode</string>
-    <string name="detail_comments_mode_episode_change">Change Episode (%1$s)</string>
+    <string name="detail_comments_mode_episode_change">Change episode (%1$s)</string>
     <string name="detail_comments_episode_picker_title">Choose Episode</string>
     <string name="detail_comments_episode_picker_subtitle">Pick an episode to view its Trakt reviews</string>
     <string name="detail_section_network">Network</string>
@@ -258,7 +259,7 @@
     <string name="detail_trailer_error">Couldn’t load trailer right now.</string>
     <string name="detail_comments_spoiler_hidden">Spoiler review. Press OK to reveal.</string>
     <string name="detail_comments_reveal_spoiler_hint">Press OK to reveal spoiler.</string>
-    <string name="detail_comments_back_hint">Click back to close</string>
+    <string name="detail_comments_back_hint">Press Back to close</string>
     <string name="detail_comments_badge_review">Review</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
     <string name="detail_comments_badge_rating">%1$d/10</string>
@@ -315,6 +316,9 @@
     <string name="movie_status_post_production">Post Production</string>
     <string name="detail_lists_fallback">Lists</string>
     <string name="detail_lists_subtitle">Select which lists should include this title.</string>
+    <string name="detail_lists_unsaved_title">Save your list changes?</string>
+    <string name="detail_lists_unsaved_subtitle">You changed which lists include this title. Discard drops those changes.</string>
+    <string name="detail_lists_discard">Discard</string>
     <string name="action_save">Save</string>
     <string name="action_saving">Saving…</string>
 
@@ -3075,6 +3079,7 @@
     <string name="shuffle_only_episode">This is the only episode in your selection.</string>
     <string name="shuffle_artwork_hidden">Artwork hidden to avoid spoilers</string>
     <string name="shuffle_stop">Stop shuffle</string>
+    <string name="shuffle_pending">Working…</string>
     <string name="shuffle_enabled_all">Shuffle on · All episodes</string>
     <string name="shuffle_enabled_unwatched">Shuffle on · Unwatched episodes</string>
     <string name="shuffle_disabled">Shuffle off</string>

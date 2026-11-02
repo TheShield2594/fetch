@@ -70,12 +70,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -360,7 +357,7 @@ fun CommentsSection(
                         ),
                         color = FetchTheme.colors.TextSecondary
                     )
-                    Button(
+                    DetailButton(
                         onClick = onRetry,
                         modifier = Modifier
                             .focusRequester(firstItemFocusRequester)
@@ -372,11 +369,7 @@ fun CommentsSection(
                                 } else {
                                     upFocusModifier
                                 }
-                            ),
-                        colors = ButtonDefaults.colors(
-                            containerColor = FetchTheme.colors.BackgroundCard,
-                            contentColor = FetchTheme.colors.TextPrimary
-                        )
+                            )
                     ) {
                         Text(stringResource(R.string.action_retry))
                     }
@@ -485,7 +478,8 @@ private fun CommentModeButton(
     rightFocusRequester: FocusRequester? = null,
     onClick: () -> Unit
 ) {
-    Button(
+    DetailChoiceButton(
+        selected = selected,
         onClick = onClick,
         modifier = Modifier
             .focusRequester(focusRequester)
@@ -502,11 +496,7 @@ private fun CommentModeButton(
                 if (rightFocusRequester != null) {
                     right = rightFocusRequester
                 }
-            },
-        colors = ButtonDefaults.colors(
-            containerColor = if (selected) FetchTheme.colors.Secondary else FetchTheme.colors.BackgroundCard,
-            contentColor = if (selected) FetchTheme.colors.OnSecondary else FetchTheme.colors.TextPrimary
-        )
+            }
     ) {
         Text(text)
     }
@@ -565,7 +555,6 @@ private fun CommentCard(
             Text(
                 text = bodyText,
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    lineHeight = 20.sp,
                     textDirection = bodyText.contentTextDirection()
                 ),
                 color = if (review.hasSpoilerContent) {
@@ -685,21 +674,10 @@ private fun EpisodeCommentPickerDialog(
                         } else {
                             Modifier
                         }
-                        Button(
+                        DetailChoiceButton(
+                            selected = seasonNumber == season,
                             onClick = { onSeasonSelected(seasonNumber) },
-                            modifier = seasonModifier,
-                            colors = ButtonDefaults.colors(
-                                containerColor = if (seasonNumber == season) {
-                                    FetchTheme.colors.Secondary
-                                } else {
-                                    FetchTheme.colors.BackgroundCard
-                                },
-                                contentColor = if (seasonNumber == season) {
-                                    FetchTheme.colors.OnSecondary
-                                } else {
-                                    FetchTheme.colors.TextPrimary
-                                }
-                            )
+                            modifier = seasonModifier
                         ) {
                             Text(
                                 text = if (seasonNumber == 0) {
@@ -731,17 +709,10 @@ private fun EpisodeCommentPickerDialog(
                             .focusRequester(primaryFocusRequester)
                         else -> Modifier.fillMaxWidth()
                     }
-                    Button(
+                    DetailChoiceButton(
+                        selected = episode.id == selectedEpisodeId,
                         onClick = { onEpisodeSelected(episode) },
-                        modifier = episodeModifier,
-                        colors = ButtonDefaults.colors(
-                            containerColor = if (episode.id == selectedEpisodeId) {
-                                FetchTheme.colors.FocusBackground
-                            } else {
-                                FetchTheme.colors.BackgroundCard
-                            },
-                            contentColor = FetchTheme.colors.TextPrimary
-                        )
+                        modifier = episodeModifier
                     ) {
                         Text(
                             text = "${selectedEpisodeLabel(episode)} · ${episode.title.localizeEpisodeTitle(androidx.compose.ui.platform.LocalContext.current)}",
@@ -1068,12 +1039,11 @@ private fun OverlayMetaRow(labels: List<String>) {
 private fun readerCommentStyle(length: Int): TextStyle {
     val typography = MaterialTheme.typography
     return when {
-        length <= 160 -> typography.displaySmall.copy(fontSize = 40.sp, lineHeight = 48.sp)
-        length <= 280 -> typography.headlineLarge.copy(fontSize = 30.sp, lineHeight = 38.sp)
-        length <= 420 -> typography.headlineMedium.copy(fontSize = 24.sp, lineHeight = 31.sp)
-        length <= 650 -> typography.titleLarge.copy(fontSize = 20.sp, lineHeight = 26.sp)
-        length <= 900 -> typography.titleMedium.copy(fontSize = 18.sp, lineHeight = 23.sp)
-        else -> typography.bodyLarge.copy(fontSize = 16.sp, lineHeight = 21.sp)
+        length <= 160 -> typography.displaySmall
+        length <= 280 -> typography.headlineLarge
+        length <= 420 -> typography.headlineMedium
+        length <= 650 -> typography.titleLarge
+        else -> typography.bodyLarge
     }
 }
 
@@ -1096,7 +1066,11 @@ private fun formatCommentTimestamp(createdAt: String?, updatedAt: String?): Stri
         }
     }.getOrNull() ?: return null
 
-    val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.getDefault())
+    val locale = Locale.getDefault()
+    val formatter = DateTimeFormatter.ofPattern(
+        android.text.format.DateFormat.getBestDateTimePattern(locale, "MMMdy"),
+        locale
+    )
     return formatter.format(instant.atZone(ZoneId.systemDefault()))
 }
 

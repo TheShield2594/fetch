@@ -248,7 +248,6 @@
     <string name="detail_comments_title">תגובות</string>
     <string name="detail_comments_subtitle">ביקורות מ-Trakt</string>
     <string name="detail_comments_subtitle_episode">ביקורות מ-Trakt עבור S%1$d E%2$d</string>
-    <string name="detail_comments_mode_show">סדרה</string>
     <string name="detail_comments_mode_episode">פרק</string>
     <string name="detail_comments_mode_episode_change">החלפת פרק (%1$s)</string>
     <string name="detail_comments_episode_picker_title">בחירת פרק</string>

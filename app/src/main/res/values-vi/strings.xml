@@ -245,7 +245,6 @@
     <string name="detail_comments_title">Bình luận</string>
     <string name="detail_comments_subtitle">Đánh giá và bình luận từ Trakt</string>
     <string name="detail_comments_subtitle_episode">Đánh giá từ Trakt cho M%1$dT%2$d</string>
-    <string name="detail_comments_mode_show">Hiển thị</string>
     <string name="detail_comments_mode_episode">Tập</string>
     <string name="detail_comments_mode_episode_change">Chuyển sang tập (%1$s)</string>
     <string name="detail_comments_episode_picker_title">Chọn tập</string>

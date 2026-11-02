@@ -1615,7 +1615,6 @@
     <string name="detail_comments_episode_picker_title">Wybierz odcinek</string>
     <string name="detail_comments_mode_episode">Odcinek</string>
     <string name="detail_comments_mode_episode_change">Zmień odcinek (%1$s)</string>
-    <string name="detail_comments_mode_show">Serial</string>
     <string name="detail_comments_subtitle_episode">Recenzje z Trakt dla S%1$d E%2$d</string>
     <string name="episodes_open_comments">Otwórz komentarze odcinka</string>
 

@@ -9,8 +9,8 @@ import org.junit.Test
 
 /**
  * The tile menus' feedback tokens ("Not interested", "Remove from watch history"), in the shapes
- * the TV client sends: SmartTube's test responses (MediaServiceCore's browse/tv/*.json) trimmed to
- * one tile each.
+ * the TV client sends: SmartTube's saved TV browse responses (in MediaServiceCore), trimmed
+ * to one tile each.
  */
 class YouTubeFeedbackTokenTest {
 

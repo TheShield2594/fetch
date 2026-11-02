@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalDensity
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
@@ -38,7 +39,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 
-private val ROW_HEIGHT = 18.dp
+private val MIN_ROW_HEIGHT = 18.dp
 private val ROW_GAP = FetchTheme.spacing.xxs
 
 @Composable
@@ -55,7 +56,10 @@ fun DisplayModeOverlay(
         stringResource(R.string.display_mode_resolution) to "${info.width}x${info.height}"
     )
     val count = items.size
-    val totalLineHeight = (ROW_HEIGHT.value * count) + (ROW_GAP.value * (count - 1))
+    // Rows grow with the font scale (labelSmall's 16sp line is 20.8dp at 1.3), so text never clips.
+    val labelLineHeight = with(LocalDensity.current) { MaterialTheme.typography.labelSmall.lineHeight.toDp() }
+    val rowHeight = maxOf(MIN_ROW_HEIGHT, labelLineHeight)
+    val totalLineHeight = (rowHeight.value * count) + (ROW_GAP.value * (count - 1))
 
     val containerAlpha = remember { Animatable(0f) }
     val lineHeightFraction = remember { Animatable(0f) }
@@ -119,7 +123,7 @@ fun DisplayModeOverlay(
                 items.forEachIndexed { index, item ->
                     Row(
                         modifier = Modifier
-                            .height(ROW_HEIGHT)
+                            .height(rowHeight)
                             .graphicsLayer { alpha = itemAlphas.getOrNull(index)?.value ?: 0f },
                         verticalAlignment = Alignment.CenterVertically
                     ) {

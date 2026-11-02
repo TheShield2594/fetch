@@ -1,11 +1,34 @@
 package com.fetch.tv.core.server
 
-/** Pages for [PhoneHubServer]. Plain HTML and JS so they work in any phone browser. */
-object PhoneHubWebPage {
-    const val BACK_LINK =
-        """<a href="/" style="display:block;padding:12px 16px;color:#9ab;font:15px system-ui,sans-serif;text-decoration:none">&larr; All settings</a>"""
+import android.content.res.Resources
+import androidx.annotation.StringRes
+import com.fetch.tv.R
+import com.fetch.tv.core.streams.ranking.AudioFormat
+import com.fetch.tv.core.streams.ranking.ReleaseSource
+import com.fetch.tv.core.streams.ranking.StreamLanguage
+import com.fetch.tv.core.streams.ranking.StreamResolution
+import com.fetch.tv.core.streams.ranking.VideoCodec
+import kotlinx.serialization.json.JsonPrimitive
 
-    private val STYLE = """
+/**
+ * Pages for [PhoneHubServer]. Plain HTML and JS so they work in any phone browser. Every string
+ * comes from [resources], so the pages follow the TV's language.
+ */
+class PhoneHubWebPage(private val resources: Resources) {
+
+    /** A string for HTML text or an attribute value. */
+    private fun h(@StringRes id: Int): String = escapeHtml(resources.getString(id))
+
+    /**
+     * A string as a JS string literal. A `%1$s` placeholder becomes `{0}`, which the pages fill
+     * with `fmt()`, so translators get whole sentences.
+     */
+    private fun j(@StringRes id: Int): String = jsString(resources.getString(id).replace("%1\$s", "{0}"))
+
+    private val languageTag: String =
+        resources.configuration.locales[0].toLanguageTag().ifEmpty { "en" }
+
+    private val style = """
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
           :root { color-scheme: dark; }
@@ -14,11 +37,13 @@ object PhoneHubWebPage {
           main { max-width: 560px; margin: 0 auto; padding: 16px; }
           h1 { font-size: 24px; margin: 8px 0 16px; }
           h2 { font-size: 18px; margin: 24px 0 8px; }
-          a.card { display: block; padding: 16px; margin: 0 0 12px; border-radius: 14px; background: #1b1f27; color: inherit; text-decoration: none; }
-          a.card span { display: block; color: #9aa3b2; font-size: 14px; margin-top: 4px; }
-          .back { display: inline-block; margin-bottom: 8px; color: #9ab; text-decoration: none; }
-          label { display: block; margin: 12px 0 4px; color: #c3c9d4; font-size: 14px; }
-          input, select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333a46; background: #161a21; color: inherit; font: inherit; }
+          .card { display: block; width: 100%; padding: 16px; margin: 0 0 12px; border: 0; border-radius: 14px; background: #1b1f27; color: inherit; font: inherit; text-align: start; text-decoration: none; cursor: pointer; }
+          .card span { display: block; color: #9aa3b2; font-size: 14px; margin-top: 4px; }
+          .back { display: inline-block; padding: 12px 0; margin-bottom: 4px; color: #9ab; text-decoration: none; }
+          .hint { color: #9aa3b2; font-size: 14px; }
+          label, legend { display: block; margin: 12px 0 4px; padding: 0; color: #c3c9d4; font-size: 14px; }
+          fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+          input, select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #646d7e; background: #161a21; color: inherit; font: inherit; }
           button { padding: 12px 16px; border: 0; border-radius: 10px; background: #2d6cdf; color: #fff; font: inherit; cursor: pointer; }
           button.secondary { background: #2a303b; }
           button:disabled { opacity: 0.5; cursor: default; }
@@ -29,15 +54,17 @@ object PhoneHubWebPage {
           .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 320px; margin: 16px auto; }
           .pad button { height: 72px; font-size: 22px; background: #232833; }
           .pad .ok { background: #2d6cdf; }
-          .check { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
-          .check input { width: auto; }
+          .check { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: 0; }
+          .check > label { flex: 1; align-self: stretch; display: flex; align-items: center; margin: 0; }
+          .check input { width: 20px; height: 20px; flex: none; margin: 0; }
           .code { font-size: 28px; letter-spacing: 4px; font-weight: 700; }
         </style>
     """.trimIndent()
 
-    private val COMMON_JS = """
+    private val commonJs = """
         <script>
-        const TV_UNREACHABLE = 'Can’t reach the TV. Open Configure from phone on the TV, then scan the new code.';
+        const TV_UNREACHABLE = ${j(R.string.phone_web_tv_unreachable)};
+        const TV_FAILED = ${j(R.string.phone_web_tv_failed)};
         // A network failure (the TV closed the page) or a lapsed pairing both mean scanning again.
         async function request(path, options) {
           let response;
@@ -45,7 +72,7 @@ object PhoneHubWebPage {
           let data = {};
           try { data = await response.json(); } catch (e) {}
           if (response.status === 401 || response.status === 403) throw new Error(TV_UNREACHABLE);
-          if (!response.ok) throw new Error(data.error || 'The TV couldn’t do that. Try again.');
+          if (!response.ok) throw new Error(data.error || TV_FAILED);
           return data;
         }
         function post(path, body) {
@@ -54,21 +81,29 @@ object PhoneHubWebPage {
         function load(path) {
           return request(path);
         }
+        // Errors are announced at once; everything else waits for the screen reader to finish.
         function show(id, text, isError) {
           const el = document.getElementById(id);
+          el.setAttribute('role', isError ? 'alert' : 'status');
           el.textContent = text || '';
           el.className = 'status' + (isError ? ' error' : '');
+        }
+        function fmt(template, value) {
+          return template.split('{0}').join(value);
+        }
+        function escapeHtml(value) {
+          return String(value).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; });
         }
         </script>
     """.trimIndent()
 
     private fun page(title: String, body: String, script: String = "", showBack: Boolean = true): String = """
         <!doctype html>
-        <html lang="en"><head><meta charset="utf-8"><title>$title</title>
-        $STYLE
-        $COMMON_JS
+        <html lang="$languageTag"><head><meta charset="utf-8"><title>$title</title>
+        $style
+        $commonJs
         </head><body><main>
-        ${if (showBack) "<a class=\"back\" href=\"/\">&larr; All settings</a>" else ""}
+        ${if (showBack) "<a class=\"back\" href=\"/\">&larr; ${h(R.string.phone_web_back)}</a>" else ""}
         <h1>$title</h1>
         $body
         </main>
@@ -79,53 +114,53 @@ object PhoneHubWebPage {
     fun landing(sections: Set<String>): String {
         val extra = buildString {
             if (PhoneHubServer.SECTION_BADGES in sections) {
-                append(card("/${PhoneHubServer.SECTION_BADGES}/", "Stream badges", "Import and choose badge sets"))
+                append(card("/${PhoneHubServer.SECTION_BADGES}/", R.string.phone_web_card_badges, R.string.phone_web_card_badges_sub))
             }
             if (PhoneHubServer.SECTION_POSTERS in sections) {
-                append(card("/${PhoneHubServer.SECTION_POSTERS}/", "Custom posters", "Poster URL pattern"))
+                append(card("/${PhoneHubServer.SECTION_POSTERS}/", R.string.phone_web_card_posters, R.string.phone_web_card_posters_sub))
             }
         }
         return page(
-            title = "Fetch on your TV",
+            title = h(R.string.phone_web_landing_title),
             showBack = false,
             body = """
-                <p style="color:#9aa3b2;font-size:14px">If this page stops responding, open Configure from phone on the TV and scan the new code.</p>
-                ${card("/remote", "Remote and keyboard", "D-pad, OK, Back, play/pause, and typing into the TV")}
-                ${card("/addons", "Addons", "Add a stream addon by its link. The TV asks before installing it")}
-                ${card("/accounts", "Accounts", "MDBList, Trakt, Simkl and media servers")}
-                ${card("/ranking", "Stream ranking", "Resolution, size, codecs and keywords for Best match")}
-                ${card("/profiles", "Move a profile", "Save a profile to a file, or add one from another TV")}
+                <p class="hint">${h(R.string.phone_web_landing_hint)}</p>
+                ${card("/remote", R.string.phone_web_card_remote, R.string.phone_web_card_remote_sub)}
+                ${card("/addons", R.string.phone_web_card_addons, R.string.phone_web_card_addons_sub)}
+                ${card("/accounts", R.string.phone_web_card_accounts, R.string.phone_web_card_accounts_sub)}
+                ${card("/ranking", R.string.phone_web_card_ranking, R.string.phone_web_card_ranking_sub)}
+                ${card("/profiles", R.string.phone_web_card_profiles, R.string.phone_web_card_profiles_sub)}
                 $extra
-                <h2>On the TV</h2>
-                <p style="color:#9aa3b2;font-size:14px">Removing and reordering addons, catalog order and collections change what the TV loads, so they have screens of their own. Open them on the TV and use their own phone code.</p>
+                <h2>${h(R.string.phone_web_on_tv_heading)}</h2>
+                <p class="hint">${h(R.string.phone_web_on_tv_body)}</p>
             """
         )
     }
 
-    private fun card(href: String, title: String, subtitle: String) =
-        """<a class="card" href="$href">$title<span>$subtitle</span></a>"""
+    private fun card(href: String, @StringRes title: Int, @StringRes subtitle: Int) =
+        """<a class="card" href="$href">${h(title)}<span>${h(subtitle)}</span></a>"""
 
     fun remote(): String = page(
-        title = "Remote",
+        title = h(R.string.phone_web_remote_title),
         body = """
             <div class="pad">
-              <span></span><button data-key="UP" aria-label="Up">&#9650;</button><span></span>
-              <button data-key="LEFT" aria-label="Left">&#9664;</button><button class="ok" data-key="OK">OK</button><button data-key="RIGHT" aria-label="Right">&#9654;</button>
-              <button data-key="BACK" aria-label="Back">&#8617;</button><button data-key="DOWN" aria-label="Down">&#9660;</button><button data-key="PLAY_PAUSE" aria-label="Play or pause">&#9199;</button>
+              <span></span><button data-key="UP" aria-label="${h(R.string.phone_web_key_up)}">&#9650;</button><span></span>
+              <button data-key="LEFT" aria-label="${h(R.string.phone_web_key_left)}">&#9664;</button><button class="ok" data-key="OK">${h(R.string.phone_web_key_ok)}</button><button data-key="RIGHT" aria-label="${h(R.string.phone_web_key_right)}">&#9654;</button>
+              <button data-key="BACK" aria-label="${h(R.string.phone_web_key_back)}">&#8617;</button><button data-key="DOWN" aria-label="${h(R.string.phone_web_key_down)}">&#9660;</button><button data-key="PLAY_PAUSE" aria-label="${h(R.string.phone_web_key_play_pause)}">&#9199;</button>
             </div>
-            <div class="row"><button class="secondary" data-key="REWIND">&#9194; Rewind</button><button class="secondary" data-key="FAST_FORWARD">Forward &#9193;</button></div>
-            <h2>Keyboard</h2>
-            <label for="text">Type here, then send it to the text field selected on the TV</label>
+            <div class="row"><button class="secondary" data-key="REWIND"><span aria-hidden="true">&#9194;</span> ${h(R.string.phone_web_key_rewind)}</button><button class="secondary" data-key="FAST_FORWARD">${h(R.string.phone_web_key_forward)} <span aria-hidden="true">&#9193;</span></button></div>
+            <h2>${h(R.string.phone_web_keyboard_heading)}</h2>
+            <label for="text">${h(R.string.phone_web_keyboard_label)}</label>
             <input id="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="500">
             <div class="row">
-              <button id="send">Type on TV</button>
-              <button class="secondary" data-key="DELETE">&#9003; Delete</button>
+              <button id="send">${h(R.string.phone_web_type_on_tv)}</button>
+              <button class="secondary" data-key="DELETE"><span aria-hidden="true">&#9003;</span> ${h(R.string.phone_web_key_delete)}</button>
             </div>
             <div class="row">
-              <button class="secondary" id="search">Search on TV</button>
-              <button class="secondary" id="settingsSearch">Search settings</button>
+              <button class="secondary" id="search">${h(R.string.phone_web_search_on_tv)}</button>
+              <button class="secondary" id="settingsSearch">${h(R.string.phone_web_search_settings)}</button>
             </div>
-            <div id="status" class="status"></div>
+            <div id="status" class="status" role="status"></div>
         """,
         script = """
             document.querySelectorAll('[data-key]').forEach(function (button) {
@@ -139,7 +174,8 @@ object PhoneHubWebPage {
               const value = field.value;
               if (!value) return;
               const body = type === 'text' ? { type: 'text', text: value } : { type: type, query: value };
-              const done = type === 'search' ? 'Searching on the TV' : type === 'settings_search' ? 'Searching settings on the TV' : 'Sent';
+              const done = type === 'search' ? ${j(R.string.phone_web_searching_on_tv)}
+                : type === 'settings_search' ? ${j(R.string.phone_web_searching_settings)} : ${j(R.string.phone_web_sent)};
               post('/api/remote', body).then(function () { field.value = ''; show('status', done); })
                 .catch(function (e) { show('status', e.message, true); });
             }
@@ -151,44 +187,43 @@ object PhoneHubWebPage {
     )
 
     fun accounts(): String = page(
-        title = "Accounts",
+        title = h(R.string.phone_web_accounts_title),
         body = """
-            <div id="loadStatus" class="status"></div>
-            <h2>MDBList ratings</h2>
-            <label for="mdbKey">API key</label>
+            <div id="loadStatus" class="status" role="status"></div>
+            <h2>${h(R.string.phone_web_mdblist_heading)}</h2>
+            <label for="mdbKey">${h(R.string.phone_web_mdblist_key)}</label>
             <input id="mdbKey" type="password" autocomplete="off">
-            <div class="row"><button id="saveMdb">Save key</button></div>
-            <div id="mdbStatus" class="status"></div>
+            <div class="row"><button id="saveMdb">${h(R.string.phone_web_mdblist_save)}</button></div>
+            <div id="mdbStatus" class="status" role="status"></div>
 
-            <h2>Trakt and Simkl</h2>
-            <div class="row"><button id="trakt">Sign in to Trakt</button><button id="simkl">Sign in to Simkl</button></div>
+            <h2>${h(R.string.phone_web_trackers_heading)}</h2>
+            <div class="row"><button id="trakt">${h(R.string.phone_web_trakt_sign_in)}</button><button id="simkl">${h(R.string.phone_web_simkl_sign_in)}</button></div>
             <div id="trackerCode"></div>
-            <div id="trackerStatus" class="status"></div>
+            <div id="trackerStatus" class="status" role="status"></div>
 
-            <h2>Media server</h2>
-            <label for="serverProvider">Server</label>
+            <h2>${h(R.string.phone_web_server_heading)}</h2>
+            <label for="serverProvider">${h(R.string.phone_web_server_type)}</label>
             <select id="serverProvider"></select>
-            <label for="serverAddress">Address</label>
+            <label for="serverAddress">${h(R.string.phone_web_server_address)}</label>
             <input id="serverAddress" placeholder="http://192.168.1.10:8096" autocomplete="off" autocapitalize="off">
-            <label for="serverUser">Username</label>
-            <input id="serverUser" autocomplete="off" autocapitalize="off">
-            <label for="serverPassword">Password</label>
-            <input id="serverPassword" type="password" autocomplete="off">
-            <div class="row"><button id="connectServer">Connect</button></div>
-            <div id="serverStatus" class="status"></div>
+            <label for="serverUser">${h(R.string.phone_web_server_username)}</label>
+            <input id="serverUser" autocomplete="username" autocapitalize="off">
+            <label for="serverPassword">${h(R.string.phone_web_server_password)}</label>
+            <input id="serverPassword" type="password" autocomplete="current-password">
+            <div class="row"><button id="connectServer">${h(R.string.phone_web_server_connect)}</button></div>
+            <div id="serverStatus" class="status" role="status"></div>
         """,
         script = """
-            function escapeHtml(value) {
-              return String(value).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; });
-            }
+            const SEPARATOR = ${j(R.string.phone_web_list_separator)};
+            const CONNECTED_LIST = ${j(R.string.phone_web_connected_list)};
             function refresh() {
               load('/api/accounts').then(function (s) {
                 show('loadStatus', '');
-                show('mdbStatus', s.mdbList ? 'A key is saved.' : '');
+                show('mdbStatus', s.mdbList ? ${j(R.string.phone_web_mdblist_key_set)} : '');
                 const trackers = [];
                 if (s.trakt.connected) trackers.push('Trakt' + (s.trakt.username ? ' (' + s.trakt.username + ')' : ''));
                 if (s.simkl.connected) trackers.push('Simkl' + (s.simkl.username ? ' (' + s.simkl.username + ')' : ''));
-                show('trackerStatus', trackers.length ? 'Connected: ' + trackers.join(', ') : '');
+                show('trackerStatus', trackers.length ? fmt(CONNECTED_LIST, trackers.join(SEPARATOR)) : '');
                 const select = document.getElementById('serverProvider');
                 if (!select.options.length) {
                   s.mediaServerProviders.forEach(function (p) {
@@ -196,24 +231,25 @@ object PhoneHubWebPage {
                     option.value = p.id; option.textContent = p.name; select.appendChild(option);
                   });
                 }
-                if (s.mediaServers.length) show('serverStatus', 'Connected: ' + s.mediaServers.join(', '));
+                if (s.mediaServers.length) show('serverStatus', fmt(CONNECTED_LIST, s.mediaServers.join(SEPARATOR)));
               }).catch(function (e) {
-                show('loadStatus', e.message === TV_UNREACHABLE ? e.message : 'Couldn’t load your accounts. Reload this page.', true);
+                show('loadStatus', e.message === TV_UNREACHABLE ? e.message : ${j(R.string.phone_web_accounts_load_failed)}, true);
               });
             }
             document.getElementById('saveMdb').addEventListener('click', function () {
-              show('mdbStatus', 'Checking...');
+              show('mdbStatus', ${j(R.string.phone_web_checking)});
               post('/api/accounts/mdblist', { apiKey: document.getElementById('mdbKey').value })
-                .then(function (d) { document.getElementById('mdbKey').value = ''; show('mdbStatus', d.message || 'Saved'); refresh(); })
+                .then(function (d) { document.getElementById('mdbKey').value = ''; show('mdbStatus', d.message || ${j(R.string.phone_web_saved)}); refresh(); })
                 .catch(function (e) { show('mdbStatus', e.message, true); });
             });
             function startTracker(tracker) {
-              show('trackerStatus', 'Starting...');
+              show('trackerStatus', ${j(R.string.phone_web_starting)});
               post('/api/accounts/tracker', { tracker: tracker }).then(function (d) {
+                const link = '<a href="' + escapeHtml(d.verificationUrl) + '" target="_blank" rel="noopener" style="color:#8ab4ff">' + escapeHtml(d.verificationUrl) + '</a>';
                 document.getElementById('trackerCode').innerHTML =
-                  '<p>Open <a href="' + escapeHtml(d.verificationUrl) + '" target="_blank" rel="noopener" style="color:#8ab4ff">' + escapeHtml(d.verificationUrl) + '</a> and enter:</p>' +
+                  '<p>' + fmt(escapeHtml(${j(R.string.phone_web_tracker_open)}), link) + '</p>' +
                   '<p class="code">' + escapeHtml(d.userCode) + '</p>';
-                show('trackerStatus', 'Waiting for approval. The TV finishes signing in by itself.');
+                show('trackerStatus', ${j(R.string.phone_web_tracker_waiting)});
                 poll();
               }).catch(function (e) { show('trackerStatus', e.message, true); });
             }
@@ -226,66 +262,76 @@ object PhoneHubWebPage {
             document.getElementById('trakt').addEventListener('click', function () { startTracker('trakt'); });
             document.getElementById('simkl').addEventListener('click', function () { startTracker('simkl'); });
             document.getElementById('connectServer').addEventListener('click', function () {
-              show('serverStatus', 'Connecting...');
+              show('serverStatus', ${j(R.string.phone_web_connecting)});
               post('/api/accounts/mediaserver', {
                 provider: document.getElementById('serverProvider').value,
                 address: document.getElementById('serverAddress').value,
                 username: document.getElementById('serverUser').value,
                 password: document.getElementById('serverPassword').value
-              }).then(function (d) { document.getElementById('serverPassword').value = ''; show('serverStatus', d.message || 'Connected'); refresh(); })
+              }).then(function (d) { document.getElementById('serverPassword').value = ''; show('serverStatus', d.message || ${j(R.string.phone_web_connected)}); refresh(); })
                 .catch(function (e) { show('serverStatus', e.message, true); });
             });
             refresh();
         """
     )
 
+    private fun checkRow(id: String, @StringRes label: Int) =
+        """<div class="check"><input type="checkbox" id="$id"><label for="$id">${h(label)}</label></div>"""
+
+    // A fieldset, so each checkbox is read with the name of its list.
+    private fun choiceGroup(id: String, @StringRes legend: Int) =
+        """<fieldset><legend>${h(legend)}</legend><div class="checks" id="$id"></div></fieldset>"""
+
+    private fun field(id: String, @StringRes label: Int, control: String) =
+        """<label for="$id">${h(label)}</label>$control"""
+
     fun ranking(): String = page(
-        title = "Stream ranking",
+        title = h(R.string.phone_web_ranking_title),
         body = """
-            <p style="color:#9aa3b2;font-size:14px">Used by Best match to pick a stream. Changes apply to the profile that is active on the TV.</p>
-            <label for="preferredResolution">Preferred resolution</label><select id="preferredResolution"></select>
-            <label for="maxResolution">Highest resolution</label><select id="maxResolution"></select>
-            <label for="minResolution">Lowest resolution</label><select id="minResolution"></select>
-            <label for="maxSizeGb">Largest file (GB, empty for no limit)</label><input id="maxSizeGb" type="number" min="0" step="0.5">
-            <label for="preferredMaxSizeGb">Prefer files up to (GB)</label><input id="preferredMaxSizeGb" type="number" min="0" step="0.5">
-            <div class="check"><input type="checkbox" id="preferHdr"><label for="preferHdr">Prefer HDR</label></div>
-            <div class="check"><input type="checkbox" id="excludeHdr"><label for="excludeHdr">Never pick HDR</label></div>
-            <div class="check"><input type="checkbox" id="excludeDolbyVision"><label for="excludeDolbyVision">Never pick Dolby Vision</label></div>
-            <div class="check"><input type="checkbox" id="excludeCamAndTelesync"><label for="excludeCamAndTelesync">Skip CAM and telesync</label></div>
-            <div class="check"><input type="checkbox" id="exclude3d"><label for="exclude3d">Skip 3D</label></div>
-            <div class="check"><input type="checkbox" id="preferCachedDebrid"><label for="preferCachedDebrid">Prefer cached debrid results</label></div>
-            <div class="check"><input type="checkbox" id="preferOwnLibrary"><label for="preferOwnLibrary">Prefer my media servers</label></div>
-            <div class="check"><input type="checkbox" id="dropUndecodable"><label for="dropUndecodable">Skip formats this TV can't play</label></div>
-            <label for="preferredKeywords">Preferred keywords (one per line)</label><textarea id="preferredKeywords" rows="3"></textarea>
-            <label for="excludedKeywords">Excluded keywords (one per line)</label><textarea id="excludedKeywords" rows="3"></textarea>
-            <label for="minSizeGb">Smallest file (GB, empty for no minimum)</label><input id="minSizeGb" type="number" min="0" step="0.5">
-            <label>Preferred audio languages (first ticked ranks highest)</label><div class="checks" id="preferredLanguages"></div>
-            <label>Only languages (empty for any)</label><div class="checks" id="requiredLanguages"></div>
-            <label>Skip languages</label><div class="checks" id="excludedLanguages"></div>
-            <label>Skip resolutions</label><div class="checks" id="excludedResolutions"></div>
-            <label>Skip release types</label><div class="checks" id="excludedSources"></div>
-            <label>Skip video codecs</label><div class="checks" id="excludedCodecs"></div>
-            <label>Skip audio formats (when a release has nothing else)</label><div class="checks" id="excludedAudio"></div>
-            <label for="preferredReleaseGroups">Preferred release groups (one per line)</label><textarea id="preferredReleaseGroups" rows="3"></textarea>
-            <label for="excludedReleaseGroups">Skipped release groups (one per line)</label><textarea id="excludedReleaseGroups" rows="3"></textarea>
-            <label for="preferredAddons">Preferred addons (one per line)</label><textarea id="preferredAddons" rows="3"></textarea>
-            <label for="maxResults">Results to keep (0 for all)</label><input id="maxResults" type="number" min="0" step="1">
-            <label for="maxPerResolution">Results per resolution (0 for all)</label><input id="maxPerResolution" type="number" min="0" step="1">
-            <label for="maxPerSource">Results per release type (0 for all)</label><input id="maxPerSource" type="number" min="0" step="1">
-            <div class="row"><button id="save" disabled>Save</button></div>
-            <div id="status" class="status"></div>
+            <p class="hint">${h(R.string.phone_web_ranking_intro)}</p>
+            ${field("preferredResolution", R.string.phone_web_ranking_preferred_resolution, """<select id="preferredResolution"></select>""")}
+            ${field("maxResolution", R.string.phone_web_ranking_max_resolution, """<select id="maxResolution"></select>""")}
+            ${field("minResolution", R.string.phone_web_ranking_min_resolution, """<select id="minResolution"></select>""")}
+            ${field("maxSizeGb", R.string.phone_web_ranking_max_size, """<input id="maxSizeGb" type="number" min="0" step="0.5">""")}
+            ${field("preferredMaxSizeGb", R.string.phone_web_ranking_preferred_max_size, """<input id="preferredMaxSizeGb" type="number" min="0" step="0.5">""")}
+            ${checkRow("preferHdr", R.string.phone_web_ranking_prefer_hdr)}
+            ${checkRow("excludeHdr", R.string.phone_web_ranking_exclude_hdr)}
+            ${checkRow("excludeDolbyVision", R.string.phone_web_ranking_exclude_dv)}
+            ${checkRow("excludeCamAndTelesync", R.string.phone_web_ranking_exclude_cam)}
+            ${checkRow("exclude3d", R.string.phone_web_ranking_exclude_3d)}
+            ${checkRow("preferCachedDebrid", R.string.phone_web_ranking_prefer_cached)}
+            ${checkRow("preferOwnLibrary", R.string.phone_web_ranking_prefer_own_library)}
+            ${checkRow("dropUndecodable", R.string.phone_web_ranking_drop_undecodable)}
+            ${field("preferredKeywords", R.string.phone_web_ranking_preferred_keywords, """<textarea id="preferredKeywords" rows="3"></textarea>""")}
+            ${field("excludedKeywords", R.string.phone_web_ranking_excluded_keywords, """<textarea id="excludedKeywords" rows="3"></textarea>""")}
+            ${field("minSizeGb", R.string.phone_web_ranking_min_size, """<input id="minSizeGb" type="number" min="0" step="0.5">""")}
+            ${choiceGroup("preferredLanguages", R.string.phone_web_ranking_preferred_languages)}
+            ${choiceGroup("requiredLanguages", R.string.phone_web_ranking_required_languages)}
+            ${choiceGroup("excludedLanguages", R.string.phone_web_ranking_excluded_languages)}
+            ${choiceGroup("excludedResolutions", R.string.phone_web_ranking_excluded_resolutions)}
+            ${choiceGroup("excludedSources", R.string.phone_web_ranking_excluded_sources)}
+            ${choiceGroup("excludedCodecs", R.string.phone_web_ranking_excluded_codecs)}
+            ${choiceGroup("excludedAudio", R.string.phone_web_ranking_excluded_audio)}
+            ${field("preferredReleaseGroups", R.string.phone_web_ranking_preferred_groups, """<textarea id="preferredReleaseGroups" rows="3"></textarea>""")}
+            ${field("excludedReleaseGroups", R.string.phone_web_ranking_excluded_groups, """<textarea id="excludedReleaseGroups" rows="3"></textarea>""")}
+            ${field("preferredAddons", R.string.phone_web_ranking_preferred_addons, """<textarea id="preferredAddons" rows="3"></textarea>""")}
+            ${field("maxResults", R.string.phone_web_ranking_max_results, """<input id="maxResults" type="number" min="0" step="1">""")}
+            ${field("maxPerResolution", R.string.phone_web_ranking_max_per_resolution, """<input id="maxPerResolution" type="number" min="0" step="1">""")}
+            ${field("maxPerSource", R.string.phone_web_ranking_max_per_source, """<input id="maxPerSource" type="number" min="0" step="1">""")}
+            <div class="row"><button id="save" disabled>${h(R.string.phone_web_save)}</button></div>
+            <div id="status" class="status" role="status"></div>
         """,
         script = """
             const RESOLUTIONS = ${resolutionOptionsJs()};
             const BOOLEANS = ['preferHdr','excludeHdr','excludeDolbyVision','excludeCamAndTelesync','exclude3d','preferCachedDebrid','preferOwnLibrary','dropUndecodable'];
             const CHOICES = {
-              preferredLanguages: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.StreamLanguage.entries) { it.label }},
-              requiredLanguages: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.StreamLanguage.entries) { it.label }},
-              excludedLanguages: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.StreamLanguage.entries) { it.label }},
-              excludedResolutions: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.StreamResolution.entries.filter { it.label.isNotBlank() }) { it.label }},
-              excludedSources: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.ReleaseSource.entries.filter { it.label.isNotBlank() }) { it.label }},
-              excludedCodecs: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.VideoCodec.entries.filter { it.label.isNotBlank() }) { it.label }},
-              excludedAudio: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.AudioFormat.entries) { it.label }}
+              preferredLanguages: ${enumOptionsJs(StreamLanguage.entries) { it.label }},
+              requiredLanguages: ${enumOptionsJs(StreamLanguage.entries) { it.label }},
+              excludedLanguages: ${enumOptionsJs(StreamLanguage.entries) { it.label }},
+              excludedResolutions: ${enumOptionsJs(StreamResolution.entries.filter { it.label.isNotBlank() }) { it.label }},
+              excludedSources: ${enumOptionsJs(ReleaseSource.entries.filter { it.label.isNotBlank() }) { it.label }},
+              excludedCodecs: ${enumOptionsJs(VideoCodec.entries.filter { it.label.isNotBlank() }) { it.label }},
+              excludedAudio: ${enumOptionsJs(AudioFormat.entries) { it.label }}
             };
             const NUMBERS = ['maxResults','maxPerResolution','maxPerSource'];
             Object.keys(CHOICES).forEach(function (id) {
@@ -295,7 +341,7 @@ object PhoneHubWebPage {
                 label.className = 'check';
                 const input = document.createElement('input');
                 input.type = 'checkbox'; input.value = c[0]; input.dataset.group = id;
-                label.appendChild(input); label.appendChild(document.createTextNode(' ' + c[1]));
+                label.appendChild(input); label.appendChild(document.createTextNode(c[1]));
                 box.appendChild(label);
               });
             });
@@ -337,7 +383,7 @@ object PhoneHubWebPage {
               current = loaded;
               document.getElementById('save').disabled = false;
             }).catch(function (e) {
-              show('status', e.message === TV_UNREACHABLE ? e.message : 'Couldn’t load the current rules, so they can’t be saved. Reload this page.', true);
+              show('status', e.message === TV_UNREACHABLE ? e.message : ${j(R.string.phone_web_ranking_load_failed)}, true);
             });
             document.getElementById('save').addEventListener('click', function () {
               if (!current) return;
@@ -354,50 +400,48 @@ object PhoneHubWebPage {
               rules.excludedReleaseGroups = lines('excludedReleaseGroups');
               rules.preferredAddons = lines('preferredAddons');
               NUMBERS.forEach(function (id) { rules[id] = Math.max(0, parseInt(document.getElementById(id).value || '0', 10) || 0); });
-              post('/api/ranking', { rules: rules }).then(function () { current = rules; show('status', 'Saved'); })
+              post('/api/ranking', { rules: rules }).then(function () { current = rules; show('status', ${j(R.string.phone_web_saved)}); })
                 .catch(function (e) { show('status', e.message, true); });
             });
         """
     )
 
     fun profiles(): String = page(
-        title = "Move a profile",
+        title = h(R.string.phone_web_profiles_title),
         body = """
-            <p style="color:#9aa3b2;font-size:14px">A profile file holds the profile's name and avatar, its settings, its library, and what it has watched. Sign-ins, API keys, PINs and parental limits stay on this TV.</p>
-            <h2>Save from this TV</h2>
+            <p class="hint">${h(R.string.phone_web_profiles_intro)}</p>
+            <h2>${h(R.string.phone_web_profiles_save_heading)}</h2>
             <div id="profiles"></div>
-            <div id="exportStatus" class="status"></div>
-            <h2>Add to this TV</h2>
-            <label for="file">A profile file saved from another TV</label>
+            <div id="exportStatus" class="status" role="status"></div>
+            <h2>${h(R.string.phone_web_profiles_add_heading)}</h2>
+            <label for="file">${h(R.string.phone_web_profiles_file_label)}</label>
             <input id="file" type="file" accept=".json,application/json">
-            <div class="row"><button id="import">Add profile</button></div>
-            <div id="importStatus" class="status"></div>
+            <div class="row"><button id="import">${h(R.string.phone_web_profiles_add)}</button></div>
+            <div id="importStatus" class="status" role="status"></div>
         """,
         script = """
-            function escapeHtml(value) {
-              return String(value).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; });
-            }
+            const SAVE_AS_FILE = ${j(R.string.phone_web_profiles_save_as_file)};
             function refresh() {
               load('/api/profiles').then(function (d) {
                 const box = document.getElementById('profiles');
                 box.innerHTML = d.profiles.map(function (p) {
                   return '<a class="card" download href="/api/profiles/export?id=' + encodeURIComponent(p.id) + '">' +
-                    escapeHtml(p.name) + '<span>Save as a file</span></a>';
+                    escapeHtml(p.name) + '<span>' + escapeHtml(SAVE_AS_FILE) + '</span></a>';
                 }).join('');
-                show('exportStatus', d.profiles.length ? '' : 'No profile can be saved. A profile with a PIN has to have it removed on the TV first.');
+                show('exportStatus', d.profiles.length ? '' : ${j(R.string.phone_web_profiles_none)});
               }).catch(function (e) {
-                show('exportStatus', e.message === TV_UNREACHABLE ? e.message : 'Couldn’t load this TV’s profiles. Reload this page.', true);
+                show('exportStatus', e.message === TV_UNREACHABLE ? e.message : ${j(R.string.phone_web_profiles_load_failed)}, true);
               });
             }
             document.getElementById('import').addEventListener('click', function () {
               const file = document.getElementById('file').files[0];
-              if (!file) { show('importStatus', 'Choose a profile file first.', true); return; }
-              show('importStatus', 'Adding...');
+              if (!file) { show('importStatus', ${j(R.string.phone_web_profiles_choose_file)}, true); return; }
+              show('importStatus', ${j(R.string.phone_web_profiles_adding)});
               file.text().then(function (text) {
                 let document_;
-                try { document_ = JSON.parse(text); } catch (e) { throw new Error("That file isn't a Fetch profile."); }
+                try { document_ = JSON.parse(text); } catch (e) { throw new Error(${j(R.string.phone_web_profiles_not_a_profile)}); }
                 return post('/api/profiles/import', document_);
-              }).then(function (d) { show('importStatus', d.message || 'Added'); refresh(); })
+              }).then(function (d) { show('importStatus', d.message || ${j(R.string.phone_web_profiles_added)}); refresh(); })
                 .catch(function (e) { show('importStatus', e.message, true); });
             });
             refresh();
@@ -405,67 +449,63 @@ object PhoneHubWebPage {
     )
 
     fun addons(): String = page(
-        title = "Addons",
+        title = h(R.string.phone_web_addons_title),
         body = """
-            <p style="color:#9aa3b2;font-size:14px">Streams come from addons. Paste an addon's link (it usually ends in manifest.json) and the TV shows what it is and asks before installing it. Debrid services such as Real-Debrid, Premiumize and TorBox are signed in on the addon's own setup page.</p>
-            <label for="url">Addon link</label>
+            <p class="hint">${h(R.string.phone_web_addons_intro)}</p>
+            <label for="url">${h(R.string.phone_web_addons_link_label)}</label>
             <input id="url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://example.com/manifest.json">
-            <div class="row"><button id="send">Send to TV</button></div>
-            <div id="status" class="status"></div>
+            <div class="row"><button id="send">${h(R.string.phone_web_addons_send)}</button></div>
+            <div id="status" class="status" role="status"></div>
             <div id="configure"></div>
             <div id="suggestionsBlock" hidden>
-              <h2>Suggestions</h2>
+              <h2>${h(R.string.phone_web_addons_suggestions)}</h2>
               <div id="suggestions"></div>
             </div>
-            <h2>On this TV</h2>
+            <h2>${h(R.string.phone_web_addons_on_tv)}</h2>
             <div id="installed" class="status"></div>
         """,
         script = """
-            function escapeHtml(value) {
-              return String(value).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; });
-            }
             function safeLink(url) {
               return /^https?:\/\//i.test(url) ? url : '#';
             }
             function refresh() {
               load('/api/addons').then(function (d) {
-                const streams = d.installed.filter(function (a) { return a.streams; }).length;
-                document.getElementById('installed').textContent = d.installed.length
-                  ? d.installed.map(function (a) { return a.name; }).join(', ') + '. ' +
-                    (streams ? streams + (streams === 1 ? ' of them gives' : ' of them give') + ' streams.' : 'None of them gives streams yet.')
-                  : 'No addons yet.';
+                const installed = document.getElementById('installed');
+                installed.removeAttribute('role');
+                installed.className = 'status';
+                installed.textContent = d.summary;
                 const box = document.getElementById('suggestions');
                 document.getElementById('suggestionsBlock').hidden = !d.suggestions.length;
+                // Buttons, not links: a suggestion sends the addon to the TV.
                 box.innerHTML = d.suggestions.map(function (s, i) {
-                  return '<a class="card" href="#" data-index="' + i + '">' + escapeHtml(s.name) + '<span>' + escapeHtml(s.description) + '</span></a>';
+                  return '<button type="button" class="card" data-index="' + i + '">' + escapeHtml(s.name) + '<span>' + escapeHtml(s.description) + '</span></button>';
                 }).join('');
                 box.querySelectorAll('[data-index]').forEach(function (el) {
-                  el.addEventListener('click', function (e) {
-                    e.preventDefault();
+                  el.addEventListener('click', function () {
                     const s = d.suggestions[Number(el.dataset.index)];
                     document.getElementById('url').value = s.url;
                     send();
                   });
                 });
               }).catch(function (e) {
-                show('installed', e.message === TV_UNREACHABLE ? e.message : 'Couldn’t load this TV’s addons. Reload this page.', true);
+                show('installed', e.message === TV_UNREACHABLE ? e.message : ${j(R.string.phone_web_addons_load_failed)}, true);
               });
             }
             let pollTimer = null;
             function showConfigure(d, required) {
               const box = document.getElementById('configure');
               if (!d.configureUrl) { box.innerHTML = ''; return; }
-              const name = escapeHtml(d.name || 'This addon');
-              box.innerHTML = '<p style="color:#9aa3b2;font-size:14px">' + (required
-                ? name + ' has to be set up before it can be installed. Open its setup page, finish there, then paste the link it gives you above and send it again.'
-                : name + ' can also be set up first, for example to sign in to a debrid service. Open its setup page, then send the link it gives you instead.') + '</p>' +
-                '<a class="card" target="_blank" rel="noopener" href="' + escapeHtml(safeLink(d.configureUrl)) + '">Open setup page<span>' + escapeHtml(d.configureUrl) + '</span></a>';
+              const name = d.name || ${j(R.string.phone_web_addons_this_addon)};
+              const text = fmt(required ? ${j(R.string.phone_web_addons_setup_required)} : ${j(R.string.phone_web_addons_setup_optional)}, name);
+              box.innerHTML = '<p class="hint">' + escapeHtml(text) + '</p>' +
+                '<a class="card" target="_blank" rel="noopener" href="' + escapeHtml(safeLink(d.configureUrl)) + '">' +
+                escapeHtml(${j(R.string.phone_web_addons_open_setup)}) + '<span>' + escapeHtml(d.configureUrl) + '</span></a>';
             }
             function handle(d) {
               clearTimeout(pollTimer);
               switch (d.status) {
                 case 'pending':
-                  show('status', 'Confirm ' + (d.name || 'the addon') + ' on the TV.');
+                  show('status', d.name ? fmt(${j(R.string.phone_web_addons_confirm_named)}, d.name) : ${j(R.string.phone_web_addons_confirm)});
                   showConfigure(d, false);
                   pollTimer = setTimeout(function () {
                     fetch('/api/addons/status?id=' + encodeURIComponent(d.id)).then(function (r) { return r.json(); }).then(handle)
@@ -473,26 +513,26 @@ object PhoneHubWebPage {
                   }, 1500);
                   break;
                 case 'installed':
-                  show('status', d.message || ((d.name || 'The addon') + ' is installed.'));
+                  show('status', d.message || (d.name ? fmt(${j(R.string.phone_web_addons_installed_named)}, d.name) : ${j(R.string.phone_web_addons_installed_generic)}));
                   document.getElementById('url').value = '';
                   document.getElementById('configure').innerHTML = '';
                   refresh();
                   break;
                 case 'rejected':
-                  show('status', 'Declined on the TV.', true);
+                  show('status', ${j(R.string.phone_web_addons_declined)}, true);
                   break;
                 case 'needs_configuration':
-                  show('status', d.message || 'This addon needs setting up first.', true);
+                  show('status', d.message || ${j(R.string.phone_web_addons_needs_setup)}, true);
                   showConfigure(d, true);
                   break;
                 default:
-                  show('status', d.message || 'Couldn\'t add the addon.', true);
+                  show('status', d.message || ${j(R.string.phone_web_addons_failed)}, true);
               }
             }
             function send() {
               const url = document.getElementById('url').value.trim();
-              if (!url) { show('status', 'Paste an addon link first.', true); return; }
-              show('status', 'Reading the addon...');
+              if (!url) { show('status', ${j(R.string.phone_web_addons_paste_first)}, true); return; }
+              show('status', ${j(R.string.phone_web_addons_reading)});
               document.getElementById('configure').innerHTML = '';
               post('/api/addons', { url: url }).then(handle).catch(function (e) { show('status', e.message, true); });
             }
@@ -503,12 +543,34 @@ object PhoneHubWebPage {
     )
 
     private fun <T : Enum<T>> enumOptionsJs(values: List<T>, label: (T) -> String): String =
-        values.joinToString(prefix = "[", postfix = "]") { value ->
-            "['${value.name}','${label(value).replace("'", "\\'")}']"
+        values.joinToString(prefix = "[", postfix = "]") { value -> "[${jsString(value.name)},${jsString(label(value))}]" }
+
+    private fun resolutionOptionsJs(): String {
+        val any = resources.getString(R.string.phone_web_ranking_any)
+        return StreamResolution.entries.joinToString(prefix = "[", postfix = "]") { resolution ->
+            "[${jsString(resolution.name)},${jsString(resolution.label.ifBlank { any })}]"
+        }
+    }
+
+    companion object {
+        /** The link back to the landing page that [PhoneHubServer] adds to the section pages. */
+        fun backLink(label: String): String =
+            """<a href="/" style="display:block;padding:12px 16px;color:#9ab;font:15px system-ui,sans-serif;text-decoration:none">&larr; ${escapeHtml(label)}</a>"""
+
+        internal fun escapeHtml(value: String): String = buildString(value.length) {
+            value.forEach { c ->
+                when (c) {
+                    '&' -> append("&amp;")
+                    '<' -> append("&lt;")
+                    '>' -> append("&gt;")
+                    '"' -> append("&quot;")
+                    '\'' -> append("&#39;")
+                    else -> append(c)
+                }
+            }
         }
 
-    private fun resolutionOptionsJs(): String =
-        com.fetch.tv.core.streams.ranking.StreamResolution.entries.joinToString(prefix = "[", postfix = "]") { resolution ->
-            "['${resolution.name}','${resolution.label.ifBlank { "Any" }}']"
-        }
+        /** A JSON string literal that is also safe inside a `<script>` element. */
+        internal fun jsString(value: String): String = JsonPrimitive(value).toString().replace("</", "<\\/")
+    }
 }

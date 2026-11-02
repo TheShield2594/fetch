@@ -1,11 +1,8 @@
 package com.fetch.tv.ui.screens.phone
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -86,23 +83,22 @@ private fun PhoneAddonConfirmContent(
             style = MaterialTheme.typography.bodySmall,
             color = FetchTheme.colors.TextSecondary
         )
-        if (request.installing) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        // The buttons stay while installing, so focus stays on Install (now "Installing…").
+        // Back is already ignored then: rejectPendingAddon() skips a request that is installing.
+        SettingsDialogActionRow {
+            if (request.installing) {
                 LoadingIndicator(modifier = Modifier.size(18.dp))
-                Text(
-                    text = stringResource(R.string.phone_addon_installing),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = FetchTheme.colors.TextSecondary
-                )
             }
-        } else {
-            SettingsDialogActionRow {
-                SettingsDialogActionButton(text = stringResource(R.string.phone_addon_decline), onClick = onReject)
-                SettingsDialogActionButton(text = stringResource(R.string.phone_addon_install), primary = true, onClick = onConfirm)
-            }
+            SettingsDialogActionButton(
+                text = stringResource(R.string.phone_addon_decline),
+                onClick = onReject,
+                enabled = !request.installing
+            )
+            SettingsDialogActionButton(
+                text = stringResource(if (request.installing) R.string.phone_addon_installing else R.string.phone_addon_install),
+                primary = true,
+                onClick = { if (!request.installing) onConfirm() }
+            )
         }
     }
 }

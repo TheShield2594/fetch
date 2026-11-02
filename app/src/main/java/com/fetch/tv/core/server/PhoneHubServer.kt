@@ -1,5 +1,8 @@
 package com.fetch.tv.core.server
 
+import android.content.res.Resources
+import androidx.annotation.StringRes
+import com.fetch.tv.R
 import com.fetch.tv.core.addon.normalizeAddonInstallUrl
 import com.fetch.tv.core.remote.RemoteCommand
 import com.fetch.tv.core.remote.RemoteCommandBus
@@ -87,6 +90,8 @@ interface PhoneHubActions {
  */
 class PhoneHubServer(
     private val actions: PhoneHubActions,
+    /** Resources in the TV's language, read per request so a language change applies at once. */
+    private val resources: () -> Resources,
     private val sections: Map<String, NanoHTTPD> = emptyMap(),
     private val pairingGuard: PairingGuard? = null,
     private val onActivity: () -> Unit = {},
@@ -97,6 +102,8 @@ class PhoneHubServer(
         encodeDefaults = true
         explicitNulls = false
     }
+
+    private fun text(@StringRes id: Int, vararg args: Any): String = resources().getString(id, *args)
 
     fun pairingUrl(host: String): String =
         pairingGuard?.pairingUrl(host, listeningPort) ?: "http://$host:$listeningPort"
@@ -111,19 +118,21 @@ class PhoneHubServer(
         return try {
             route(session, uri)
         } catch (error: SerializationException) {
-            errorResponse("Invalid request.")
+            errorResponse(text(R.string.phone_web_error_invalid_request))
         } catch (error: IllegalArgumentException) {
-            errorResponse(error.message ?: "Invalid request.")
+            errorResponse(error.message ?: text(R.string.phone_web_error_invalid_request))
         }
     }
 
+    private fun pages() = PhoneHubWebPage(resources())
+
     private fun route(session: IHTTPSession, uri: String): Response = when {
-        session.method == Method.GET && uri == "/" -> html(PhoneHubWebPage.landing(sections.keys))
-        session.method == Method.GET && uri == "/remote" -> html(PhoneHubWebPage.remote())
-        session.method == Method.GET && uri == "/accounts" -> html(PhoneHubWebPage.accounts())
-        session.method == Method.GET && uri == "/ranking" -> html(PhoneHubWebPage.ranking())
-        session.method == Method.GET && uri == "/profiles" -> html(PhoneHubWebPage.profiles())
-        session.method == Method.GET && uri == "/addons" -> html(PhoneHubWebPage.addons())
+        session.method == Method.GET && uri == "/" -> html(pages().landing(sections.keys))
+        session.method == Method.GET && uri == "/remote" -> html(pages().remote())
+        session.method == Method.GET && uri == "/accounts" -> html(pages().accounts())
+        session.method == Method.GET && uri == "/ranking" -> html(pages().ranking())
+        session.method == Method.GET && uri == "/profiles" -> html(pages().profiles())
+        session.method == Method.GET && uri == "/addons" -> html(pages().addons())
         session.method == Method.POST && uri == "/api/remote" -> handleRemote(readJson(session))
         session.method == Method.GET && uri == "/api/accounts" -> jsonResponse(accountsJson())
         session.method == Method.POST && uri == "/api/accounts/mdblist" -> handleMdbList(readJson(session))
@@ -151,7 +160,7 @@ class PhoneHubServer(
             "settings_search" -> RemoteCommand.SettingsSearch(body.requiredText("query"))
             else -> throw IllegalArgumentException("Unknown command.")
         }
-        return if (actions.sendRemote(command)) ok() else errorResponse("The TV is busy. Try again.")
+        return if (actions.sendRemote(command)) ok() else errorResponse(text(R.string.phone_web_error_busy))
     }
 
     private fun handleMdbList(body: JsonObject): Response = result(
@@ -180,7 +189,7 @@ class PhoneHubServer(
                     put("verificationUrl", deviceCode.verificationUrl)
                 })
             },
-            onFailure = { errorResponse(it.message ?: "Couldn't start sign-in.") }
+            onFailure = { errorResponse(it.message ?: text(R.string.phone_web_error_sign_in)) }
         )
     }
 
@@ -195,8 +204,10 @@ class PhoneHubServer(
     }
 
     private fun addonsJson(): JsonElement = buildJsonObject {
+        val installed = runBlocking { actions.installedAddons() }
+        put("summary", addonSummary(installed))
         put("installed", buildJsonArray {
-            runBlocking { actions.installedAddons() }.forEach { addon ->
+            installed.forEach { addon ->
                 add(buildJsonObject {
                     put("name", addon.name)
                     put("streams", addon.streams)
@@ -214,19 +225,33 @@ class PhoneHubServer(
         })
     }
 
+    /** One line for the "On this TV" list: the names, then how many give streams. */
+    private fun addonSummary(installed: List<PhoneHubAddon>): String {
+        if (installed.isEmpty()) return text(R.string.phone_web_addons_none)
+        val res = resources()
+        val names = installed.joinToString(res.getString(R.string.phone_web_list_separator)) { it.name }
+        val streams = installed.count { it.streams }
+        val streamsLine = if (streams == 0) {
+            res.getString(R.string.phone_web_addons_no_streams)
+        } else {
+            res.getQuantityString(R.plurals.phone_web_addons_streams, streams, streams)
+        }
+        return res.getString(R.string.phone_web_addons_installed, names, streamsLine)
+    }
+
     private fun handleAddonProposal(body: JsonObject): Response {
         // Configured addon links carry their settings and can run long, so not requiredText's limit.
         val raw = body.string("url")?.trim()?.takeIf { it.isNotEmpty() } ?: throw IllegalArgumentException("Missing url.")
-        require(raw.length <= MAX_ADDON_URL_LENGTH) { "That link is too long." }
+        require(raw.length <= MAX_ADDON_URL_LENGTH) { text(R.string.phone_web_error_link_too_long) }
         val url = normalizeAddonInstallUrl(raw)
-            ?: throw IllegalArgumentException("That isn't an addon link. It starts with https:// and usually ends in manifest.json.")
+            ?: throw IllegalArgumentException(text(R.string.phone_web_error_not_addon_link))
         return proposalResponse(runBlocking { actions.proposeAddon(url) })
     }
 
     private fun handleAddonStatus(session: IHTTPSession): Response {
         val id = session.parameters["id"]?.firstOrNull() ?: throw IllegalArgumentException("Missing id.")
         val proposal = actions.addonProposal(id)
-            ?: PhoneHubAddonProposal(PhoneHubAddonStatus.FAILED, id = id, message = "The TV no longer has this request. Send it again.")
+            ?: PhoneHubAddonProposal(PhoneHubAddonStatus.FAILED, id = id, message = text(R.string.phone_web_error_request_gone))
         return proposalResponse(proposal)
     }
 
@@ -253,7 +278,7 @@ class PhoneHubServer(
         val id = session.parameters["id"]?.firstOrNull()?.toIntOrNull()
             ?: throw IllegalArgumentException("Missing profile.")
         val document = runBlocking { actions.exportProfile(id) }
-            .getOrElse { return errorResponse(it.message ?: "Couldn't export the profile.") }
+            .getOrElse { return errorResponse(it.message ?: text(R.string.phone_web_error_export)) }
         val bytes = document.toString().toByteArray(StandardCharsets.UTF_8)
         return newFixedLengthResponse(
             Response.Status.OK,
@@ -306,7 +331,7 @@ class PhoneHubServer(
         val response = server.serve(PrefixedSession(session, innerUri))
         if (response.mimeType?.startsWith("text/html") != true) return response
         val page = response.data?.use { String(it.readBytes(), StandardCharsets.UTF_8) }.orEmpty()
-        return html(rewriteSectionPage(page, prefix), response.status)
+        return html(rewriteSectionPage(page, prefix, text(R.string.phone_web_back)), response.status)
     }
 
     private class PrefixedSession(
@@ -319,7 +344,7 @@ class PhoneHubServer(
     private fun readJson(session: IHTTPSession, maxBytes: Int = MAX_BODY_BYTES): JsonObject {
         val length = session.headers["content-length"]?.toIntOrNull() ?: 0
         if (length <= 0) return JsonObject(emptyMap())
-        require(length <= maxBytes) { "Request too large." }
+        require(length <= maxBytes) { text(R.string.phone_web_error_too_large) }
         val buffer = ByteArray(length)
         var offset = 0
         while (offset < length) {
@@ -339,7 +364,7 @@ class PhoneHubServer(
     }
 
     private fun result(result: PhoneHubResult): Response =
-        if (result.ok) ok(result.message) else errorResponse(result.message ?: "Couldn't save.")
+        if (result.ok) ok(result.message) else errorResponse(result.message ?: text(R.string.phone_web_error_save))
 
     private fun ok(message: String? = null): Response = jsonResponse(buildJsonObject {
         put("status", "ok")
@@ -376,15 +401,16 @@ class PhoneHubServer(
         // A profile file carries the whole watch history.
         private const val MAX_PROFILE_BYTES = 16 * 1024 * 1024
 
-        internal fun rewriteSectionPage(page: String, prefix: String): String =
+        internal fun rewriteSectionPage(page: String, prefix: String, backLabel: String): String =
             page
                 .replace("'/api/", "'/$prefix/api/")
                 .replace("\"/api/", "\"/$prefix/api/")
                 .replace("\"/logo.png\"", "\"/$prefix/logo.png\"")
-                .replaceFirst(Regex("<body([^>]*)>"), "<body$1>${PhoneHubWebPage.BACK_LINK}")
+                .replaceFirst(Regex("<body([^>]*)>"), "<body$1>${PhoneHubWebPage.backLink(backLabel)}")
 
         fun startOnAvailablePort(
             actions: PhoneHubActions,
+            resources: () -> Resources,
             sections: Map<String, NanoHTTPD>,
             onActivity: () -> Unit,
             startPort: Int = 8095,
@@ -394,6 +420,7 @@ class PhoneHubServer(
                 try {
                     val server = PhoneHubServer(
                         actions = actions,
+                        resources = resources,
                         sections = sections,
                         pairingGuard = PairingGuard(),
                         onActivity = onActivity,

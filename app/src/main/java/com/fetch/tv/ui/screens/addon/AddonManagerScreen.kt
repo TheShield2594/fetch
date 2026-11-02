@@ -50,6 +50,7 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.Reorder
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.graphics.SolidColor
@@ -118,6 +119,8 @@ import androidx.tv.material3.Text
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.ExperienceMode
 import com.fetch.tv.ui.components.ErrorState
+import com.fetch.tv.ui.components.StateAction
+import com.fetch.tv.ui.components.StateActionButton
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.util.contentTextDirection
@@ -1007,13 +1010,20 @@ internal fun QrCodeOverlay(
     instruction: String,
     onClose: () -> Unit,
     hasPendingChange: Boolean = false,
-    qrSize: Dp = 220.dp
+    qrSize: Dp = 220.dp,
+    /**
+     * Set when the server couldn't start: [instruction] is then the error, drawn as one, and
+     * Retry takes the QR code's place and the initial focus.
+     */
+    onRetry: (() -> Unit)? = null
 ) {
     val focusRequester = remember { FocusRequester() }
+    val retryFocusRequester = remember { FocusRequester() }
+    val isError = onRetry != null
 
-    LaunchedEffect(hasPendingChange) {
+    LaunchedEffect(hasPendingChange, isError) {
         if (!hasPendingChange) {
-            focusRequester.requestFocus()
+            runCatching { (if (isError) retryFocusRequester else focusRequester).requestFocus() }
         }
     }
 
@@ -1028,16 +1038,32 @@ internal fun QrCodeOverlay(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (isError) {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = null,
+                    modifier = Modifier.size(FetchTheme.spacing.xxxl),
+                    tint = FetchTheme.colors.Error
+                )
+                Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
+            }
+
             Text(
                 text = instruction,
                 style = MaterialTheme.typography.bodyMedium,
-                color = FetchTheme.colors.TextSecondary,
-                textAlign = TextAlign.Center
+                color = if (isError) FetchTheme.colors.Error else FetchTheme.colors.TextSecondary,
+                textAlign = TextAlign.Center,
+                modifier = if (isError) Modifier.semantics { liveRegion = LiveRegionMode.Assertive } else Modifier
             )
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
 
-            if (qrBitmap != null) {
+            if (onRetry != null) {
+                StateActionButton(
+                    StateAction(stringResource(R.string.action_retry), onRetry),
+                    modifier = Modifier.focusRequester(retryFocusRequester)
+                )
+            } else if (qrBitmap != null) {
                 Image(
                     bitmap = qrBitmap.asImageBitmap(),
                     contentDescription = stringResource(R.string.cd_qr_code),

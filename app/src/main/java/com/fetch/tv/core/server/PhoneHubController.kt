@@ -2,6 +2,7 @@ package com.fetch.tv.core.server
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.StringRes
 import com.fetch.tv.R
 import com.fetch.tv.core.addon.AddonInstallOutcome
 import com.fetch.tv.core.addon.addonConfigureUrl
@@ -15,12 +16,14 @@ import com.fetch.tv.core.profile.ProfileTransfer
 import com.fetch.tv.core.remote.RemoteCommand
 import com.fetch.tv.core.remote.RemoteCommandBus
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
+import com.fetch.tv.core.util.withAppLocale
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.MDBListSettingsDataStore
 import com.fetch.tv.data.local.PlayerSettingsDataStore
 import com.fetch.tv.data.local.StreamBadgeSettingsDataStore
 import com.fetch.tv.data.local.TraktAuthDataStore
 import com.fetch.tv.data.mediaserver.ServerException
+import com.fetch.tv.data.mediaserver.ServerFailure
 import com.fetch.tv.data.mediaserver.ServerRepository
 import com.fetch.tv.data.mediaserver.ServerSignInMethod
 import com.fetch.tv.data.remote.api.MDBListApi
@@ -143,6 +146,9 @@ class PhoneHubController @Inject constructor(
         runCatching { context.resources.openRawResource(R.drawable.app_logo_wordmark).use { it.readBytes() } }.getOrNull()
     }
 
+    /** A message for the phone, in the app's language rather than the system's. */
+    private fun text(@StringRes id: Int, vararg args: Any): String = context.withAppLocale().getString(id, *args)
+
     @Synchronized
     fun onScreenOpened() {
         screenOpen = true
@@ -158,6 +164,7 @@ class PhoneHubController @Inject constructor(
         }
         val started = PhoneHubServer.startOnAvailablePort(
             actions = this,
+            resources = { context.withAppLocale().resources },
             sections = buildSections(),
             onActivity = { lastActivityMs = System.currentTimeMillis() }
         )
@@ -248,7 +255,7 @@ class PhoneHubController @Inject constructor(
 
     // Account changes are also settings changes, so restricted profiles need the TV unlocked.
     private fun settingsBlocked(): PhoneHubResult? =
-        if (parentalControls.needsGate()) PhoneHubResult(false, context.getString(R.string.phone_hub_parental_blocked)) else null
+        if (parentalControls.needsGate()) PhoneHubResult(false, text(R.string.phone_hub_parental_blocked)) else null
 
     override suspend fun saveMdbListKey(apiKey: String): PhoneHubResult {
         settingsBlocked()?.let { return it }
@@ -260,10 +267,10 @@ class PhoneHubController @Inject constructor(
             } catch (error: Exception) {
                 false
             }
-            if (!valid) return PhoneHubResult(false, "That key wasn't accepted by MDBList.")
+            if (!valid) return PhoneHubResult(false, text(R.string.phone_web_mdblist_rejected))
         }
         mdbListSettingsDataStore.setApiKey(apiKey)
-        return PhoneHubResult(true, if (apiKey.isBlank()) "Key removed." else "Key saved.")
+        return PhoneHubResult(true, text(if (apiKey.isBlank()) R.string.phone_web_mdblist_removed else R.string.phone_web_mdblist_saved))
     }
 
     override suspend fun connectMediaServer(
@@ -274,18 +281,29 @@ class PhoneHubController @Inject constructor(
     ): PhoneHubResult {
         settingsBlocked()?.let { return it }
         val provider = serverRepository.providers.firstOrNull { it.id == providerId && it.signInMethod == ServerSignInMethod.PASSWORD }
-            ?: return PhoneHubResult(false, "Unknown server type.")
+            ?: return PhoneHubResult(false, text(R.string.phone_web_server_unknown))
         return try {
             val connection = serverRepository.connect(provider, address.trim(), username.trim(), password)
-            PhoneHubResult(true, "Connected to ${connection.name}.")
+            PhoneHubResult(true, text(R.string.phone_web_server_connected, connection.name))
         } catch (error: CancellationException) {
             throw error
         } catch (error: ServerException) {
-            PhoneHubResult(false, "Couldn't connect (${error.failure.name.lowercase().replace('_', ' ')}).")
+            PhoneHubResult(false, signInMessage(error.failure, provider.displayName, provider.minimumVersion))
         } catch (error: Exception) {
             Log.w(TAG, "Media server sign-in from phone failed", error)
-            PhoneHubResult(false, "Couldn't connect.")
+            PhoneHubResult(false, text(R.string.servers_error_failed))
         }
+    }
+
+    // The same wording as the TV's own sign-in dialog.
+    private fun signInMessage(failure: ServerFailure, providerName: String, minimumVersion: String): String = when (failure) {
+        ServerFailure.AUTH_REQUIRED -> text(R.string.servers_error_auth)
+        ServerFailure.NOT_FOUND -> text(R.string.servers_error_address)
+        ServerFailure.UNREACHABLE -> text(R.string.servers_error_unreachable)
+        ServerFailure.UNSUPPORTED -> text(R.string.servers_error_unsupported, providerName, minimumVersion)
+        ServerFailure.FORBIDDEN -> text(R.string.servers_error_forbidden)
+        ServerFailure.INCOMPLETE,
+        ServerFailure.FAILED -> text(R.string.servers_error_failed)
     }
 
     override suspend fun startTrackerSignIn(tracker: String): Result<PhoneHubDeviceCode> {
@@ -349,7 +367,7 @@ class PhoneHubController @Inject constructor(
         playerSettingsDataStore.playerSettings.first().streamRankingRules
 
     override suspend fun saveRankingRules(rules: StreamRankingRules) {
-        if (parentalControls.needsGate()) throw IllegalArgumentException(context.getString(R.string.phone_hub_parental_blocked))
+        if (parentalControls.needsGate()) throw IllegalArgumentException(text(R.string.phone_hub_parental_blocked))
         playerSettingsDataStore.setStreamRankingRules(rules)
     }
 
@@ -368,7 +386,7 @@ class PhoneHubController @Inject constructor(
     /** Why the active profile can't take an addon now, or null when it can. */
     private fun addonInstallBlocked(): String? =
         settingsBlocked()?.message
-            ?: "This profile uses the main profile's addons. Add it from the main profile instead."
+            ?: text(R.string.phone_web_addon_read_only)
                 .takeIf { AddonManagementAccess.isReadOnly(profileManager.activeProfile) }
 
     override suspend fun proposeAddon(url: String): PhoneHubAddonProposal {
@@ -378,16 +396,18 @@ class PhoneHubController @Inject constructor(
         if (!screenOpen) {
             return PhoneHubAddonProposal(
                 PhoneHubAddonStatus.FAILED,
-                message = "Open Settings → Configure from phone on the TV first, so it can ask before installing."
+                message = text(R.string.phone_web_addon_open_screen)
             )
         }
         val addon = when (val result = withTimeoutOrNull(MANIFEST_TIMEOUT_MS) { addonRepository.fetchAddon(url) }) {
             is NetworkResult.Success -> result.data
             is NetworkResult.Error -> return PhoneHubAddonProposal(
                 PhoneHubAddonStatus.FAILED,
-                message = "Couldn't read that addon" + (result.message.takeIf { it.isNotBlank() }?.let { ": $it" } ?: ".")
+                message = result.message.takeIf { it.isNotBlank() }
+                    ?.let { text(R.string.phone_web_addon_unreadable_reason, it) }
+                    ?: text(R.string.phone_web_addon_unreadable)
             )
-            else -> return PhoneHubAddonProposal(PhoneHubAddonStatus.FAILED, message = "The addon didn't answer. Check the link and try again.")
+            else -> return PhoneHubAddonProposal(PhoneHubAddonStatus.FAILED, message = text(R.string.phone_web_addon_no_answer))
         }
         val name = addon.displayName.ifBlank { addon.name.ifBlank { url } }
         val configureUrl = addonConfigureUrl(url).takeIf { addon.isConfigurable }
@@ -396,13 +416,13 @@ class PhoneHubController @Inject constructor(
                 PhoneHubAddonStatus.NEEDS_CONFIGURATION,
                 name = name,
                 configureUrl = addonConfigureUrl(url),
-                message = "$name has to be set up first."
+                message = text(R.string.phone_web_addon_needs_setup, name)
             )
         }
         val alreadyInstalled = addonRepository.getInstalledAddons().first()
             .any { it.baseUrl.trimEnd('/').equals(url.trimEnd('/'), ignoreCase = true) }
         if (alreadyInstalled) {
-            return PhoneHubAddonProposal(PhoneHubAddonStatus.INSTALLED, name = name, message = "$name is already on this TV.")
+            return PhoneHubAddonProposal(PhoneHubAddonStatus.INSTALLED, name = name, message = text(R.string.phone_web_addon_already_installed, name))
         }
 
         val request = PhoneAddonRequest(
@@ -420,12 +440,12 @@ class PhoneHubController @Inject constructor(
             if (!screenOpen) {
                 return PhoneHubAddonProposal(
                     PhoneHubAddonStatus.FAILED,
-                    message = "The TV closed the phone code screen. Open it again, then send the link again."
+                    message = text(R.string.phone_web_addon_screen_closed)
                 )
             }
             val previous = _pendingAddon.value
             if (previous?.installing == true) {
-                return PhoneHubAddonProposal(PhoneHubAddonStatus.FAILED, message = "The TV is installing another addon. Try again in a moment.")
+                return PhoneHubAddonProposal(PhoneHubAddonStatus.FAILED, message = text(R.string.phone_web_addon_busy))
             }
             // One request at a time on the TV: a newer one replaces one nobody answered.
             previous?.let { addonProposals[it.id] = PhoneHubAddonProposal(PhoneHubAddonStatus.REJECTED, id = it.id, name = it.name) }
@@ -458,13 +478,13 @@ class PhoneHubController @Inject constructor(
                         id = request.id,
                         name = request.name,
                         configureUrl = addonConfigureUrl(request.url),
-                        message = "${request.name} has to be set up first."
+                        message = text(R.string.phone_web_addon_needs_setup, request.name)
                     )
                     is AddonInstallOutcome.Failed -> PhoneHubAddonProposal(
                         PhoneHubAddonStatus.FAILED,
                         id = request.id,
                         name = request.name,
-                        message = outcome.message.ifBlank { "Couldn't install ${request.name}." }
+                        message = outcome.message.ifBlank { text(R.string.phone_web_addon_install_failed, request.name) }
                     )
                 }
             } catch (error: CancellationException) {
@@ -475,7 +495,7 @@ class PhoneHubController @Inject constructor(
                     PhoneHubAddonStatus.FAILED,
                     id = request.id,
                     name = request.name,
-                    message = "Couldn't install ${request.name}."
+                    message = text(R.string.phone_web_addon_install_failed, request.name)
                 )
             } finally {
                 // Whatever happened, the dialog must not stay stuck on Installing.
@@ -504,7 +524,7 @@ class PhoneHubController @Inject constructor(
             Result.failure(error)
         } catch (error: Exception) {
             Log.w(TAG, "Profile export from phone failed", error)
-            Result.failure(IllegalStateException("Couldn't export the profile."))
+            Result.failure(IllegalStateException(text(R.string.phone_web_error_export)))
         }
     }
 
@@ -512,14 +532,14 @@ class PhoneHubController @Inject constructor(
         settingsBlocked()?.let { return it }
         return try {
             val profile = profileTransfer.import(document)
-            PhoneHubResult(true, "Added ${profile.name}. Choose it on the TV from the profile picker.")
+            PhoneHubResult(true, text(R.string.phone_web_profile_added, profile.name))
         } catch (error: CancellationException) {
             throw error
         } catch (error: IllegalArgumentException) {
             PhoneHubResult(false, error.message)
         } catch (error: Exception) {
             Log.w(TAG, "Profile import from phone failed", error)
-            PhoneHubResult(false, "Couldn't add the profile.")
+            PhoneHubResult(false, text(R.string.phone_web_profile_add_failed))
         }
     }
 }

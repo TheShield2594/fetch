@@ -38,7 +38,8 @@ fun PhoneHubScreen(
         instruction = instruction,
         onClose = onBackPress,
         hasPendingChange = pendingAddon != null,
-        qrSize = 260.dp
+        qrSize = 260.dp,
+        onRetry = if (state.error != null) viewModel::onScreenOpened else null
     )
     PhoneAddonConfirmDialog(viewModel)
 }

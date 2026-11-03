@@ -409,7 +409,9 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   `Metered` and connection type, read over D-Bus; without NetworkManager it runs).
 - **Episode ratings grid** on series pages: IMDb's rating per episode by season, coloured as on
   TV, from the TV's ratings services (`IMDB_TAPFRAME_API_BASE_URL`, then
-  `IMDB_RATINGS_API_BASE_URL` by TMDB id, given at build time; without them there's no grid).
+  `IMDB_RATINGS_API_BASE_URL` by TMDB id, given at build time from the environment or the root
+  `local.properties`; the release workflow passes the repository secrets of the same names.
+  Without them there's no grid).
 - **Trakt comments** on title pages (with a Trakt client id in the build): most liked first,
   for the title or the episode picked, spoilers hidden until clicked, whole comment on click.
 - **Shuffle** (Layout › Shuffle): a Shuffle button on series pages picks a random unwatched (or

@@ -99,6 +99,7 @@ object SyncSettingsBlob {
             tmdbLanguage = string(TMDB, "tmdb_language"),
             mdblistFlags = MDBLIST_FLAGS.mapNotNull { key -> boolean(MDBLIST, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
             mdblistRatingOrder = string(MDBLIST, "mdblist_rating_order"),
+            playerExtras = RemotePlayerExtras.read(features),
         )
     }
 
@@ -128,6 +129,7 @@ object SyncSettingsBlob {
         set(TMDB, "tmdb_language", settings.tmdbLanguage?.let(::stringValue))
         settings.mdblistFlags?.forEach { (key, value) -> if (key in MDBLIST_FLAGS) set(MDBLIST, key, booleanValue(value)) }
         set(MDBLIST, "mdblist_rating_order", settings.mdblistRatingOrder?.let(::stringValue))
+        settings.playerExtras?.edits()?.forEach { (feature, key, encoded) -> set(feature, key, encoded) }
 
         val base = blob ?: JsonObject(emptyMap())
         val features = (base[FEATURES] as? JsonObject).orEmpty().toMutableMap()

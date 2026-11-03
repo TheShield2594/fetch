@@ -155,6 +155,8 @@ data class RemoteSharedSettings(
     val mdblistFlags: Map<String, Boolean>? = null,
     /** `mdblist_settings.mdblist_rating_order`: providers joined by commas. The API key is not synced here. */
     val mdblistRatingOrder: String? = null,
+    /** Subtitle, audio, Anime-Skip and trailer settings the TV syncs ([RemotePlayerExtras]). */
+    val playerExtras: RemotePlayerExtras? = null,
 )
 
 /**

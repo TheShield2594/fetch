@@ -25,15 +25,15 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Up Next card with Play now / Cancel | `NextEpisodeEndPromptOverlay.kt` | ✅ before the end or at the credits |
 | Are you still watching? | `PlayerRuntimeControllerStillWatching.kt` | ✅ setting and episode count |
 | Pause overlay | `PauseOverlay.kt` | ✅ |
-| Skip intro/recap/credits, auto-skip, button toggle, IntroDB server | `SkipIntroButton.kt`, `SkipMarkerSettings.kt` | ✅ (IntroDB only) |
-| AniSkip and Anime-Skip | `data/repository/SkipIntroRepository.kt` | ⬜ |
-| Subtitle style: size, bold, color, outline, background, position, ASS override | `PlaybackSubtitleSettings.kt` | ✅ Settings (mpv options); ⬜ live style panel in the player |
+| Skip intro/recap/credits, auto-skip, button toggle, IntroDB server | `SkipIntroButton.kt`, `SkipIntroVisibilityRules.kt`, `SkipMarkerSettings.kt` | ✅ `skip/`, `ui/PlayerExtrasUi.kt`: the TV's button wording (Skip Intro, Recap, Ending, Credits, to Post-Credits), bottom left with its countdown and hide rules; movie end credits and post-credits scenes (auto-skip End Credits keeps the scene); ⬜ IntroDB marker submitting and AniSkip "wrong marker" reports |
+| AniSkip and Anime-Skip | `data/repository/SkipIntroRepository.kt`, `AnimeSkipSettingsScreen.kt` | ✅ `skip/SkipSources.kt`: merged best-of with IntroDB (IntroDB, Anime-Skip, AniSkip), anime ids through Simkl (needs the build's Simkl client id), Anime-Skip with your client id (checked when saved); `animeskip_enabled` synced, the client id not |
+| Subtitle style: size, bold, color, outline, background, position, ASS override | `PlaybackSubtitleSettings.kt`, `SubtitleStyleSidePanel.kt`, `SubtitleColorPresets.kt`, `SubtitleOutlineOpacity.kt`, `SubtitleLiftRules.kt` | ✅ Settings (mpv options) and the built-in player's Style panel (Subtitles › Style): size, bold, the TV's colors and opacity, outline, background, position, reset, applied live as mpv properties and saved as defaults; subtitles lift above the controls and the Skip button |
 | Forced subtitles, strip SDH, secondary languages | `PlaybackSubtitleSettings.kt`, `PlaybackAudioSettings.kt` | ✅ |
-| Subtitle organisation, only preferred languages | `PlaybackSubtitleSettings.kt` | ⬜ |
-| HDR subtitle color and brightness | `PlaybackSubtitleSettings.kt` | ⬜ |
-| Automatic subtitle sync | `player/autosync/` | ⬜ |
+| Subtitle organisation, only preferred languages | `PlaybackSubtitleSettings.kt`, `SubtitleSelectionOverlay.kt` | ✅ built-in player: file tracks and addon subtitles in one list, by language (yours first, the file's before the addons'), by source or flat; "only preferred" keeps the playing language; both synced. 🟡 addon subtitles don't carry their addon's name yet |
+| HDR subtitle color and brightness | `PlaybackSubtitleSettings.kt` | ✅ built-in player, on PQ/HLG video (mpv's `video-params/gamma`); synced |
+| Automatic subtitle sync | `player/autosync/` | 🟡 `player/autosync/AutoSync.kt`: the TV's delay-only stage — the addon subtitle against the video's own text subtitle track as mpv shows it (a hidden secondary track), one constant offset applied when confident, with the tolerance and thorough search; ⬜ affine/cue re-timing, alternative-subtitle search, image subtitles as reference |
 | Downmix channels, normalization, volume boost | `PlaybackAudioSettings.kt` | ✅ |
-| Dialogue (centre) boost, skip silence, audio delay per output | `PlaybackAudioSettings.kt` | ⬜ |
+| Dialogue (centre) boost, skip silence, audio delay per output | `PlaybackAudioSettings.kt`, `PlayerRuntimeControllerAudioDelayRoutes.kt` | ✅ dialogue boost as swresample's centre level when surround is mixed down (Settings › Audio and the Audio panel); skip silence (built-in player: an `astats` level meter, faster playback through silence; off in a party; synced); audio delay remembered per `audio-device` or default PulseAudio/PipeWire sink |
 | Cache size | `PlaybackBufferNetworkSettings.kt` | ✅ (mpv's demuxer cache) |
 | Next-episode threshold by percent | `PlaybackAutoPlaySettings.kt` | 🟡 Up Next starts at the end; the card offers it earlier |
 | Reuse last link, preload next episode, fallback to next source, binge group | `PlaybackAutoPlaySettings.kt` | ⬜ |
@@ -41,7 +41,7 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | "Prefer this next time" prompt | `PreferNextTimePrompt.kt` | ⬜ (the source menu sets the same rules) |
 | Playback queue | `QueueSidePanel.kt` | ⬜ |
 | Parental guide overlay at start | `ParentalGuideOverlay.kt` | ⬜ |
-| Debug stats HUD | `PlayerDebugStatsOverlay.kt` | 🟡 stream info shows drops and buffer |
+| Debug stats HUD | `PlayerDebugStatsOverlay.kt` | ✅ Settings › Player › Advanced › Playback stats overlay, then a toggle in stream info (I): cpu, paging, memory, buffer, bitrate, network, dropped frames, temperature (instead of Android's thermal headroom) |
 | Fetching panel with live per-addon progress | `stream/FetchingPanel.kt` | ⬜ sources appear when every addon has answered |
 | ExoPlayer engine, AFR, DV7 conversion, tunneling, decoder priority, Exo buffers | `player/*` | ➖ mpv does this its own way |
 
@@ -79,7 +79,7 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Library provider order | `library/LibraryProviderOrder.kt` | ⬜ |
 | Kids Home layout | `HomeUiState.kidsHome` | ⬜ |
 | Hero carousel, trailer on focus, card size and shape options | `settings/LayoutHomeSettings.kt`, `LayoutCardSettings.kt` | ⬜ |
-| In-app trailer playback | `data/trailer/` | 🟡 trailers open in mpv with yt-dlp |
+| In-app trailer playback | `data/trailer/`, `TrailerSettingsDataStore.kt` | ✅ `trailer/TrailerPlayer.kt`: the built-in player (libmpv with yt-dlp) when it's the Default Player, back to the title page at the end, else mpv's window; 4K trailers (device only), Auto-play Trailers with the delay (synced; built-in player only). ⬜ background/hero trailers, mute and pause on scroll |
 
 ## Accounts, profiles and system
 

@@ -144,8 +144,11 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   rated above it are hidden and can't be played; catalogs that give no rating count as unrated),
   daily screen time, bedtime and how many episodes Up Next plays in a row. "That's all for
   today" offers more time with the main profile's PIN.
-- **Skip Segments**: intros, recaps and credits from introdb.app; mpv jumps over them through
-  its IPC socket and says so on screen.
+- **Skip Segments**: intros, recaps and credits from introdb.app, and for anime also AniSkip and
+  Anime Skip (with your own client id), merged best-of as on TV; movie end credits that never
+  skip a post-credits scene. mpv jumps over them through its IPC socket and says so on screen;
+  the built-in player's Skip button uses the TV's wording (Skip Intro, Skip Ending, Skip to
+  Post-Credits…) and timing.
 - **Stream badges**: Fusion badge URLs (Settings › Stream Selection › Stream badges) put the TV
   app's badges on each source.
 - **Sync server** (Settings › Account): your self-hosted Fetch server, found by address, signed
@@ -242,7 +245,16 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   added on demand), Sources (switch mid-playback, keeping the position) and Episodes; playback
   speed (`[` `]`), picture fit (Fit, Crop, Stretch, Zoom), stream info (I), an Up Next card
   with Play now and Cancel before the end or at the credits, "Are you still watching?", and a
-  pause overlay. Z/X shift subtitles, N plays the next episode.
+  pause overlay. Z/X shift subtitles, N plays the next episode. The subtitle list groups the
+  file's tracks and your addons' by language (yours first) or by source, optionally only your
+  languages; Subtitles › Style changes size, colour, opacity, outline, background and position
+  live (saved as defaults), with a separate HDR colour and brightness on HDR video. Auto Sync
+  matches an addon subtitle to the video's own subtitle track; the Audio panel has a dialogue
+  boost; skip silence and the audio delay per output device are in Settings › Audio. A stats
+  overlay (Settings › Player › Advanced) shows cpu, memory, buffer, bitrate and network.
+- **Trailers** play in the built-in player when it's your Default Player (mpv's window
+  otherwise), at 1080p unless 4K trailers are on, and can auto-play on title pages
+  (Settings › Layout › Trailers).
 - **Play mode** (Stream Selection › When you press Play): Best match, First source, a pattern,
   or Pick every time; and how long to wait for addons. "Default Player: Ask every time".
 - **Sources**: grouped as on TV (Best match, by resolution, Not auto-played), filtered by

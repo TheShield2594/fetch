@@ -63,6 +63,8 @@ object MpvArgs {
         if (settings.audioChannels != AudioChannels.AUTO) add("--audio-channels=${settings.audioChannels.mpvValue}")
         if (settings.normalizeDownmix) add("--audio-normalize-downmix=yes")
         if (settings.volumeBoostDb > 0) add("--af=lavfi=[volume=${settings.volumeBoostDb.coerceAtMost(20)}dB]")
+        // Dialogue level when surround is mixed down.
+        addAll(AudioExtras.mpvArgs(settings.extras))
         addAll(fitArgs(settings.videoFit))
         settings.cacheMb?.let {
             add("--cache=yes")

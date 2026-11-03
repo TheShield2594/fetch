@@ -794,6 +794,7 @@ private fun TmdbPage(state: AppState) {
         ) { v -> update { it.copy(enabled = v) } }
         if (t.enabled) {
             SettingsChoice("Language", "For titles, descriptions, episode names and logos.", t.language, TmdbLanguages) { v -> update { it.copy(language = v) } }
+            TmdbHomeToggles(state)
         }
     }
     if (t.enabled) {
@@ -855,38 +856,14 @@ private fun Chevron() {
 private fun HomeCatalogsPage(state: AppState) {
     SubPageHeader("Home catalogs", onBack = state::back)
     Text(
-        "Pinned rows lead Home in the order you pin them; the rest follow your addon order.",
+        "Pinned rows lead Home in the order you pin them; move rows and collections to place them, rename or hide them.",
         color = FetchPalette.TextSecondary
     )
-    if (state.rows.isEmpty()) {
+    if (state.rows.isEmpty() && state.collections.collections.isEmpty()) {
         Text("No home catalogs available yet.", color = FetchPalette.TextMuted)
         return
     }
-    val pinned = state.settings.pinnedCatalogs
-    val disabled = state.settings.disabledCatalogs.toSet()
-    // Shown in Home's order, hidden rows after.
-    val ordered = state.homeRows + state.rows.filter { it.key in disabled }
-    SettingsSection(null) {
-        ordered.forEach { row ->
-            val isPinned = row.key in pinned
-            val isEnabled = row.key !in disabled
-            SettingsRow(
-                title = row.title(state.settings.showCatalogType),
-                description = listOfNotNull(
-                    row.addon.displayName,
-                    "Pinned to the top of Home".takeIf { isPinned && isEnabled },
-                    "Disabled on Home".takeIf { !isEnabled }
-                ).joinToString(" · ")
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    if (isEnabled) {
-                        SecondaryButton(if (isPinned) "Unpin" else "Pin to top", onClick = { state.setCatalogPinned(row.key, !isPinned) })
-                    }
-                    SecondaryButton(if (isEnabled) "Disable" else "Enable", onClick = { state.setCatalogEnabled(row.key, !isEnabled) })
-                }
-            }
-        }
-    }
+    HomeCatalogsList(state)
 }
 
 // --- Home › Appearance and Layout ---
@@ -990,6 +967,7 @@ private fun LayoutPage(state: AppState) {
             listOf(DropdownOption(false, "In Search"), DropdownOption(true, "Show in Side Panel"))
         ) { v -> state.updateSettings { it.copy(discoverInSidebar = v) } }
     }
+    LayoutExtrasSections(state)
 }
 
 // --- System › About ---

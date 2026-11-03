@@ -43,8 +43,10 @@ class PlayerExtrasSyncTest {
         assertEquals(60, applied.subtitleHdrBrightness)
         assertTrue(applied.skipSilence)
         assertTrue(applied.animeSkipEnabled)
-        assertTrue(applied.trailerAutoplay)
-        assertEquals(10, applied.trailerDelaySeconds)
+        // Trailer on/off and delay are Layout's (LayoutSync), one setting as on TV.
+        val full = SyncSettingsBlob.sharedSettings(tvBlob).applyTo(DesktopSettings())
+        assertTrue(full.layout.trailersEnabled)
+        assertEquals(10, full.layout.trailerDelaySeconds)
         assertEquals("device-only on TV: not synced", 0, applied.centerMixLevelDb)
         assertFalse("device-only on TV: not synced", applied.trailer4k)
         assertNull(SyncSettingsBlob.sharedSettings(JsonObject(emptyMap())).playerExtras)
@@ -53,7 +55,8 @@ class PlayerExtrasSyncTest {
     @Test
     fun `pushing writes the TV's types and keeps the client id local`() {
         val desktop = DesktopSettings(
-            player = PlayerSettings(extras = PlayerExtras(subtitleHdrColor = "#00E5FF", animeSkipEnabled = true, animeSkipClientId = "secret", trailerDelaySeconds = 5))
+            player = PlayerSettings(extras = PlayerExtras(subtitleHdrColor = "#00E5FF", animeSkipEnabled = true, animeSkipClientId = "secret")),
+            layout = com.fetch.desktop.data.LayoutPrefs(trailerDelaySeconds = 5)
         )
         val blob = SyncSettingsBlob.withSharedSettings(tvBlob, desktop.toRemoteSharedSettings())
         val features = blob["features"]!!.jsonObject

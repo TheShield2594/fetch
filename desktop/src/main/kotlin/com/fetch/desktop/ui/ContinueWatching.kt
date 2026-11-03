@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -57,7 +58,9 @@ class ContinueWatchingActions(
     val onRemove: (ProgressEntry) -> Unit,
     /** "Add to queue" / "Remove from queue", as on TV; null leaves it out. */
     val onToggleQueue: ((ProgressEntry) -> Unit)? = null,
-    val isQueued: (ProgressEntry) -> Boolean = { false }
+    val isQueued: (ProgressEntry) -> Boolean = { false },
+    /** "Shuffle": a random episode of the show instead (Layout › Shuffle, shows only). */
+    val onShuffle: ((ProgressEntry) -> Unit)? = null
 )
 
 /** The 0–1 progress through [entry]; 0 for a Next Up card. */
@@ -123,16 +126,17 @@ fun ContinueWatchingRow(
     }
 }
 
-private val CardWidth: Dp = 320.dp
-private val CardHeight: Dp = 180.dp
-
 @Composable
-private fun ContinueCard(entry: ProgressEntry, actions: ContinueWatchingActions, onHover: (ProgressEntry) -> Unit) {
+internal fun ContinueCard(entry: ProgressEntry, actions: ContinueWatchingActions, onHover: (ProgressEntry) -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
     if (hovered) LaunchedEffect(entry.contentId) { onHover(entry) }
     val scale by animateFloatAsState(if (hovered) 1.04f else 1f, tween(160))
     val shape = RoundedCornerShape(12.dp)
+    // Layout › Continue Watching: card shape, episode stills, blurred Next Up (see ContinueWatchingStyle).
+    val style = LocalContinueWatchingStyle.current
+    LaunchedEffect(entry.contentId, entry.videoId, style.episodeThumbnails) { style.requestArt(entry) }
+    val wide = style.card == com.fetch.tv.domain.model.ContinueWatchingCardStyle.WIDE
 
     ContextMenuArea(items = {
         buildList {
@@ -143,29 +147,36 @@ private fun ContinueCard(entry: ProgressEntry, actions: ContinueWatchingActions,
             actions.onToggleQueue?.takeIf { !upcoming }?.let { toggle ->
                 add(ContextMenuItem(if (actions.isQueued(entry)) "Remove from queue" else "Add to queue") { toggle(entry) })
             }
+            if (entry.season != null) actions.onShuffle?.let { shuffle -> add(ContextMenuItem("Shuffle episodes") { shuffle(entry) }) }
             add(ContextMenuItem("Remove") { actions.onRemove(entry) })
         }
     }) {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier
-                .width(CardWidth)
+                .width(style.width)
                 .hoverable(interaction)
                 .clickable(interactionSource = interaction, indication = null) { actions.onPlay(entry) }
                 .pointerHoverIcon(PointerIcon.Hand)
         ) {
             Box(
                 Modifier
-                    .size(CardWidth, CardHeight)
+                    .size(style.width, style.height)
                     .graphicsLayer { scaleX = scale; scaleY = scale }
                     .clip(shape)
                     .background(FetchPalette.SurfaceRaised)
                     .then(if (hovered) Modifier.border(3.dp, Color.White, shape) else Modifier)
             ) {
                 ArtPlaceholder(entry.name)
-                val art = entry.backdrop ?: entry.poster
+                val (art, isStill) = style.imageFor(entry)
                 if (art != null) {
-                    AsyncImage(model = art, contentDescription = entry.name, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                    AsyncImage(
+                        model = art,
+                        contentDescription = entry.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                            .then(if (style.blurred(entry, isStill)) Modifier.blur(18.dp) else Modifier)
+                    )
                 }
                 // Darken the bottom so the progress bar reads on any artwork.
                 Box(
@@ -194,6 +205,13 @@ private fun ContinueCard(entry: ProgressEntry, actions: ContinueWatchingActions,
                         modifier = Modifier.align(Alignment.TopStart).padding(8.dp)
                     )
                 }
+                if (wide) {
+                    Column(Modifier.align(Alignment.BottomStart).padding(start = 14.dp, end = 14.dp, bottom = if (entry.upNext) 12.dp else 24.dp)) {
+                        Text(style.nameFor(entry), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        val line = listOfNotNull(episodeTag(entry.season, entry.episode), entry.episodeTitle).joinToString(" · ")
+                        if (line.isNotEmpty()) Text(line, color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                }
                 if (!entry.upNext) {
                     ProgressBar(
                         entry.fraction(),
@@ -201,24 +219,29 @@ private fun ContinueCard(entry: ProgressEntry, actions: ContinueWatchingActions,
                     )
                 }
             }
-            Text(
-                entry.name,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(top = 6.dp)
-            )
-            val subtitle = listOfNotNull(episodeTag(entry.season, entry.episode), entry.episodeTitle).joinToString(" · ")
-            Text(
-                subtitle.ifEmpty { "Movie" },
-                style = MaterialTheme.typography.bodySmall,
-                color = FetchPalette.TextMuted,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            if (!wide) CardLabels(entry, style.nameFor(entry))
         }
     }
+}
+
+@Composable
+private fun CardLabels(entry: ProgressEntry, name: String) {
+    Text(
+        name,
+        style = MaterialTheme.typography.bodyLarge,
+        fontWeight = FontWeight.Medium,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.padding(top = 6.dp)
+    )
+    val subtitle = listOfNotNull(episodeTag(entry.season, entry.episode), entry.episodeTitle).joinToString(" · ")
+    Text(
+        subtitle.ifEmpty { "Movie" },
+        style = MaterialTheme.typography.bodySmall,
+        color = FetchPalette.TextMuted,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 /** A thin accent bar over a dim track. */

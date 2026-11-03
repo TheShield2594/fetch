@@ -1,9 +1,13 @@
 package com.fetch.desktop.data
 
-/** The TV Library's local sort options. */
+/** The TV Library's sort options; which a provider offers is [com.fetch.desktop.library.LibraryProviderOrder.sortOptions]. */
 enum class LibrarySort(val label: String) {
+    /** The list's own order on Trakt, Simkl or MDBList. */
+    PROVIDER("Provider order"),
     RECENTLY_ADDED("Recently added"),
     FIRST_ADDED("First added"),
+    RELEASED_DESC("Newest releases"),
+    RELEASED_ASC("Oldest releases"),
     TITLE_ASC("Title A–Z"),
     TITLE_DESC("Title Z–A")
 }
@@ -59,6 +63,10 @@ class LibraryView(items: List<LibraryEntry>, private val watchedIds: Set<String>
     }
 
     private fun sort(items: List<LibraryEntry>): List<LibraryEntry> = when (query.sort) {
+        // [all] is in the provider's order; filtering keeps it.
+        LibrarySort.PROVIDER -> items.sortedWith(com.fetch.desktop.library.LibraryProviderOrder.of(all).comparator())
+        LibrarySort.RELEASED_DESC -> items.sortedWith(compareByDescending<LibraryEntry, String?>(nullsFirst()) { yearOf(it) }.thenBy { titleSortKey(it.name) })
+        LibrarySort.RELEASED_ASC -> items.sortedWith(compareBy<LibraryEntry, String?>(nullsLast()) { yearOf(it) }.thenBy { titleSortKey(it.name) })
         LibrarySort.RECENTLY_ADDED -> items.sortedByDescending { it.addedAt }
         LibrarySort.FIRST_ADDED -> items.sortedBy { it.addedAt }
         LibrarySort.TITLE_ASC -> items.sortedBy { titleSortKey(it.name) }

@@ -165,6 +165,11 @@ data class RemoteSharedSettings(
     val autoPlay: Map<String, kotlinx.serialization.json.JsonPrimitive>? = null,
     /** `episode_queue.items`: the playback queue as the TV's JSON array. */
     val episodeQueue: String? = null,
+    /**
+     * Layout's other settings ([com.fetch.desktop.data.LayoutSync]): the blob's typed entries
+     * (`{"type":…,"value":…}`) by `feature/key`; only the ones present.
+     */
+    val layoutValues: Map<String, kotlinx.serialization.json.JsonObject>? = null,
 )
 
 /**

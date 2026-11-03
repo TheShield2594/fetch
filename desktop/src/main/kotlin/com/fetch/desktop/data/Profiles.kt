@@ -78,8 +78,10 @@ data class ProfileLimits(
     /** Minutes after midnight when bedtime starts; it ends at 7:00. */
     val bedtimeStartMinute: Int? = null,
     /** Episodes Up Next plays in a row before stopping; null means no cap. */
-    val autoplayCap: Int? = null
+    val autoplayCap: Int? = null,
+    /** A kids profile, as on TV: a Home of its own (see [com.fetch.desktop.home.HomeLayout]). Synced. */
+    val kidsProfile: Boolean = false
 ) {
     val isRestricted: Boolean
-        get() = maxRating != null || dailyMinutes != null || bedtimeStartMinute != null || autoplayCap != null
+        get() = maxRating != null || dailyMinutes != null || bedtimeStartMinute != null || autoplayCap != null || kidsProfile
 }

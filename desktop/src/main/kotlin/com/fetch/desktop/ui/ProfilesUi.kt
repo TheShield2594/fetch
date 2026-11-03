@@ -446,6 +446,11 @@ fun LimitsDialog(profile: DesktopProfile, onDismiss: () -> Unit, onSave: (Profil
         title = { Text("Limits for ${profile.name}", color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.width(560.dp)) {
+                SettingsToggle(
+                    "Kids profile",
+                    "A simpler Home: no hero or recommendations, a few rows of bigger cards, and Switch profile first in the sidebar.",
+                    limits.kidsProfile
+                ) { limits = limits.copy(kidsProfile = it) }
                 SettingsChoice(
                     "Maturity rating",
                     "Titles rated above this are hidden and can't be played.",

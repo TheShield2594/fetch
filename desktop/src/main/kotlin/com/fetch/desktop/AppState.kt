@@ -452,11 +452,12 @@ class AppState(
         libraryItems = { library.toList() },
         setInLibrary = { preview, on -> setInLocalLibrary(preview, on) },
         onMessage = { message = it },
-        mdblist = mdbListAccount
+        mdblist = mdbListAccount,
+        onLocalListRenamed = { id, name -> collections.renameLocalList(id, name) }
     )
 
     /** Collections: Home rows of folders, each a page of sources, synced with the TV. */
-    val collections = com.fetch.desktop.collections.CollectionsState(
+    val collections: com.fetch.desktop.collections.CollectionsState = com.fetch.desktop.collections.CollectionsState(
         scope,
         com.fetch.desktop.collections.CollectionsStore.inProfile(profileDir(profile)),
         com.fetch.desktop.collections.CollectionSourceResolver(
@@ -474,6 +475,18 @@ class AppState(
         profileId = profile.id,
         onMessage = { message = it }
     )
+
+    /** Home's extras: Ready tonight, Continue Watching artwork, TMDB on the hero, shuffle. */
+    val homeExtras = com.fetch.desktop.home.HomeExtras(
+        scope, client, { addons.toList() },
+        com.fetch.desktop.tmdb.MetaPreviewEnricher(tmdb.client) { settings.tmdb.language },
+        { settings }, profileDir(profile),
+        rankedSources = { type, id, name -> rank(streamsFor(type, id, name)) },
+        autoPlayIsBestMatch = { settings.autoPlayMode == AutoPlayMode.BEST_MATCH }
+    )
+
+    /** The title page's IMDb episode ratings grid and Trakt comments. */
+    val detailExtras = com.fetch.desktop.detail.DetailExtras(scope, tmdb.client, { tracking.credentials.traktClientId })
 
     /** The title "Manage lists" is open for. */
     var manageListsFor: MetaPreview? by mutableStateOf(null)
@@ -1392,7 +1405,9 @@ class AppState(
                 // A title only on your media server comes from the server, not the addons.
                 isServer -> servers.details(preview.id)
                 TmdbClient.parseTmdbId(preview.id) != null -> tmdb.metaFor(tmdbOnly!!, preview.type == ContentType.SERIES)
-                else -> withContext(Dispatchers.IO) { client.meta(addons.toList(), preview.rawType, preview.id) }
+                else -> withContext(Dispatchers.IO) {
+                    client.meta(com.fetch.desktop.home.metaAddonOrder(addons.toList(), preview, settings.layout.preferExternalMeta), preview.rawType, preview.id)
+                }
             }
             val current = screen
             if (current is Screen.Detail && current.preview.id == preview.id) {
@@ -1474,6 +1489,8 @@ class AppState(
                 }
             }
             publish(done = true)
+            // What Best match picked, for Ready tonight and the Home hero's spec line.
+            sources?.takeIf { it.videoId == videoId }?.let { homeExtras.saveBestMatch(preview.apiType, videoId, it.best) }
         }
     }
 

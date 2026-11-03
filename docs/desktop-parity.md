@@ -62,7 +62,7 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Catalog "See all" grid | `screens/CatalogSeeAllScreen.kt` | ✅ "See all" on each addon row, paged, with its genres |
 | Continue Watching airing rules: caught-up shows return when a new episode is listed, unaired Next Up with its air date | `home/ContinueWatchingAiringRules.kt`, `HomeViewModelContinueWatching.kt` | ✅ re-checked at start-up and every 6 hours |
 | Show unaired Next Up, Next Up from furthest episode, sort order with a separate Upcoming row | `settings/LayoutHomeSettings.kt` | ✅ synced with the TV |
-| Continue Watching card style, episode thumbnails, blur Next Up | `settings/LayoutHomeSettings.kt` | ⬜ |
+| Continue Watching card style, episode thumbnails, blur Next Up | `settings/LayoutHomeSettings.kt` | ✅ `ui/ContinueWatchingStyle.kt`, Settings › Layout; synced with the TV |
 | TMDB enrichment: artwork, title and description in your language, details, cast and crew, episodes, trailers | `core/tmdb/TmdbMetadataService.kt`, `detail/MetaDetailsViewModel.kt` | ✅ `tmdb/`, Settings › TMDB, each part switchable, synced with the TV |
 | TMDB rating, director or creator, show status on the title page | `detail/HeroSection.kt` | ✅ |
 | More like this, Because you watched | `detail/MoreLikeThisSection.kt`, `home/HomeViewModelBecauseYouWatched.kt` | ✅ (without the TV's "Also directed by" reasons) |
@@ -70,18 +70,18 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Collections ("Part of …") | `detail/CollectionSection.kt` | ✅ |
 | Studio and network logos and pages | `detail/CompanyLogosSection.kt`, `screens/tmdb/` | ✅ paged, movies or series for studios |
 | Titles only on TMDB (no IMDb id) | `core/tmdb/` | ✅ page built from TMDB; episode ids `tmdb:<id>:<s>:<e>` for addons that take them |
-| TMDB's modern Home and Continue Watching enrichment | `TmdbSettingsScreen.kt` | ⬜ (kept untouched when syncing) |
-| Episode ratings grid (IMDb), Trakt comments | `detail/EpisodeRatingsSection.kt`, `CommentsSection.kt` | 🟡 TMDB's per-episode rating on each episode card; no grid or comments |
-| Episode shuffle | `detail/DetailEpisodeShuffle.kt` | ⬜ |
-| Ready tonight row | `home/ReadyTonight.kt` | ⬜ |
-| Collections: Home rows of folders (tile shape, cover image or emoji, hidden title), pinned to the top or after the catalog rows; folder pages as tabbed grid with "All", rows, or Home-style layout; sources from addon catalogs (with genre), TMDB (list, collection, studio, network, person, director, discover filters), Trakt lists and local lists, each paged; management and editor; import/export JSON; sync | `screens/collection/`, `home/CollectionRowSection.kt`, `core/sync/CollectionSyncService.kt` | ✅ `collections/`, `ui/CollectionsUi.kt`, Settings › Content & Discovery › Collections (no Fetch website lists, hero videos or hiding a collection from Home catalogs) |
+| TMDB's modern Home and Continue Watching enrichment | `TmdbSettingsScreen.kt`, `core/tmdb/MetaPreviewEnricher.kt` | ✅ `tmdb/MetaPreviewEnricher.kt`: the hero and Continue Watching cards; synced |
+| Episode ratings grid (IMDb), Trakt comments | `detail/EpisodeRatingsSection.kt`, `CommentsSection.kt` | ✅ `detail/EpisodeRatings.kt`, `detail/TraktComments.kt`, `ui/DetailExtrasUi.kt` (the grid needs the build's ratings service addresses; comments for the title or an episode) |
+| Episode shuffle | `detail/DetailEpisodeShuffle.kt`, `EpisodeShuffleDialog.kt`, `home/HomeEpisodeShuffle.kt` | ✅ shared `EpisodeShuffle`; Shuffle on series pages, shuffled shows' Continue Watching cards, "Shuffle episodes" in the card menu |
+| Ready tonight row | `home/ReadyTonight.kt`, `HomeReadyChecker.kt` | ✅ `home/ReadyTonight.kt`, `home/HomeExtras.kt` (no metered-network check on desktop) |
+| Collections: Home rows of folders (tile shape, cover image or emoji, hidden title), pinned to the top or after the catalog rows; folder pages as tabbed grid with "All", rows, or Home-style layout; sources from addon catalogs (with genre), TMDB (list, collection, studio, network, person, director, discover filters), Trakt lists and local lists, each paged; management and editor; import/export JSON; sync | `screens/collection/`, `home/CollectionRowSection.kt`, `core/sync/CollectionSyncService.kt` | ✅ `collections/`, `ui/CollectionsUi.kt`, Settings › Content & Discovery › Collections (no Fetch website lists); hide a collection or place it among the rows on Home catalogs; folder hero videos (libmpv); renaming a local list renames its sources |
 | Filter rows: a server library (genre, years, watched, rating, sort) or an addon catalog's genre as a Home row | `screens/filterrows/`, `domain/model/FilterRow.kt` | ✅ Settings › Content & Discovery › Filter rows; addon ones pin and hide like other rows and have See all |
 | Lists: local lists, Trakt watchlist and personal lists, Simkl status lists, as Library tabs | `library/LibraryScreen.kt`, `data/simkl/SimklLibraryProjection.kt` | ✅ |
 | Manage lists for a title; create, edit (privacy on Trakt), reorder and delete lists | `library/LibraryListDialogs.kt`, `posteroptions/` | ✅ poster menu and the title page's Lists button |
 | MDBList lists: Watchlist, static, dynamic, external and liked lists as Library tabs; Manage lists; create, rename, delete static lists; hide lists | `data/mdblist/MdbListLibrary*.kt`, `settings/MdbListLibraryListsDialog.kt` | ✅ `mdblist/MdbListAccountState.kt`, `ListsState.kt` (no MDBList sort orders) |
-| Library provider order | `library/LibraryProviderOrder.kt` | ⬜ |
-| Kids Home layout | `HomeUiState.kidsHome` | ⬜ |
-| Hero carousel, trailer on focus, card size and shape options | `settings/LayoutHomeSettings.kt`, `LayoutCardSettings.kt` | ⬜ |
+| Library provider order | `library/LibraryProviderOrder.kt` | ✅ `library/LibraryProviderOrder.kt`: Provider order (Trakt ranks), MDBList release sorts |
+| Kids Home layout | `HomeUiState.kidsHome` | ✅ `home/HomeLayout.kt`; kids switch in a profile's Limits, synced as `isKidsProfile` |
+| Hero carousel, trailer on focus, card size and shape options | `settings/LayoutHomeSettings.kt`, `LayoutCardSettings.kt`, `LayoutDetailSettings.kt`, `TrailerSettingsDataStore` | ✅ `data/LayoutPrefs.kt`, `ui/LayoutExtrasSettings.kt`, `ui/CardStyle.kt`: hero on/off and catalogs, full-screen backdrop, trailer on hover (muted, crop, delay; libmpv), card width/height/radius, landscape cards, backdrop expand, logo on landscape cards, full release date, ratings, follow addon order, custom titles, custom poster URL pattern, detail options; 🟡 the trailer always plays in the hero (no "expanded card" target) |
 | In-app trailer playback | `data/trailer/`, `TrailerSettingsDataStore.kt` | ✅ `trailer/TrailerPlayer.kt`: the built-in player (libmpv with yt-dlp) when it's the Default Player, back to the title page at the end, else mpv's window; 4K trailers (device only), Auto-play Trailers with the delay (synced; built-in player only). ⬜ background/hero trailers, mute and pause on scroll |
 
 ## Accounts, profiles and system

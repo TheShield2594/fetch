@@ -177,15 +177,17 @@ fun StatsHudSetting(state: AppState) {
 @Composable
 fun TrailerSettings(state: AppState) {
     val e = state.settings.player.extras
+    val l = state.settings.layout
     SettingsSection("Trailers") {
+        // The TV's one trailer_enabled / trailer_delay_seconds, shared with Home's hover trailer.
         SettingsToggle(
             "Auto-play Trailers",
-            "Play a title's trailer on its page after a few seconds, in the built-in player (when it's your Default Player).",
-            e.trailerAutoplay
-        ) { v -> state.updateExtras { it.copy(trailerAutoplay = v) } }
-        if (e.trailerAutoplay) {
-            SettingsChoice("Trailer Delay", null, e.trailerDelaySeconds, listOf(3, 5, 7, 10, 15, 20, 30).map { DropdownOption(it, "$it s") }.withCurrentInt(e.trailerDelaySeconds)) { v ->
-                state.updateExtras { it.copy(trailerDelaySeconds = v) }
+            "Play a title's trailer on its page after a few seconds, in the built-in player (when it's your Default Player), and in Home's hero when that's on.",
+            l.trailersEnabled
+        ) { v -> state.updateSettings { it.copy(layout = it.layout.copy(trailersEnabled = v)) } }
+        if (l.trailersEnabled) {
+            SettingsChoice("Trailer Delay", null, l.trailerDelaySeconds, listOf(3, 5, 7, 10, 15, 20, 30).map { DropdownOption(it, "$it s") }.withCurrentInt(l.trailerDelaySeconds)) { v ->
+                state.updateSettings { it.copy(layout = it.layout.copy(trailerDelaySeconds = v)) }
             }
         }
         SettingsToggle("4K Trailers", "Play trailers above 1080p when available. Uses much more bandwidth and memory.", e.trailer4k) { v ->
@@ -200,13 +202,13 @@ fun TrailerSettings(state: AppState) {
  */
 @Composable
 fun TrailerAutoplay(state: AppState, ytId: String?, title: String) {
-    val e = state.settings.player.extras
+    val l = state.settings.layout
     val p = state.settings.player
-    val enabled = e.trailerAutoplay && ytId != null && p.builtInPlayer && !p.askPlayer && LibMpv.available
+    val enabled = l.trailersEnabled && ytId != null && p.builtInPlayer && !p.askPlayer && LibMpv.available
     val screen = state.screen
     LaunchedEffect(ytId, enabled) {
         if (!enabled || ytId == null) return@LaunchedEffect
-        delay(e.trailerDelaySeconds.coerceIn(0, 60) * 1000L)
+        delay(l.trailerDelaySeconds.coerceIn(0, 60) * 1000L)
         if (state.screen == screen && !state.isPlaying && !state.sourcesPanelOpen) state.playTrailer(ytId, title)
     }
 }

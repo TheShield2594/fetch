@@ -348,6 +348,44 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   unpacked builds register themselves for `fetch://` with `xdg-mime` (a hidden entry in
   `~/.local/share/applications`), and for `stremio://` when no other app has it; Settings ›
   About shows which app opens each and can take them over.
+- **Layout** (Settings › Layout, synced with the TV under its `layout_settings`,
+  `trailer_settings` and `player_settings` keys, see `data/LayoutPrefs.kt`): Continue Watching
+  card style (Card, Wide, Poster), episode stills instead of the backdrop and blurred Next Up
+  stills; the hero on or off, hero catalogs it cycles through every 10 seconds, a full-window
+  backdrop, ratings on Home on or off and full release dates; poster card width, height and
+  corner radius (the TV's sizes, scaled), landscape cards everywhere and backdrop-with-logo
+  landscape cards; the hovered poster growing into its backdrop after a delay; a muted (or not)
+  trailer in the hero after the trailer delay, cropped or letterboxed (libmpv and yt-dlp); on
+  title pages the episode options backdrop (Blur, Artwork, None) behind an episode's sources,
+  Shuffle, blurred unwatched episodes, episode ratings (show, hide unwatched, hide), the
+  trailer button and "prefer meta from external addon"; and a custom poster URL pattern (the
+  TV's resolver) for Home, Continue Watching, collections, Library, Search and title pages.
+- **Home catalogs** (Settings › Content & Discovery › Home catalogs): every row and collection
+  in Home's order to move, pin, rename or hide; "Follow addons order" keeps the catalogs in
+  addon order and lets only collections move.
+- **TMDB on Home** (Settings › TMDB): "Enable on Home" puts TMDB's artwork and details in the
+  hero; "Enrich Continue Watching" gives cards TMDB's artwork, logo and title.
+- **Ready tonight**: with Best match as the Play mode, Fetch asks the addons in the background
+  (while Home is up, at most 6 titles, each at most every 12 hours) about Continue Watching and
+  watchlist movies; those whose Best match is cached on a debrid service (confirmed in the last
+  day) show in a row after Continue Watching. Title pages save their Best match too
+  (`best-match.json`).
+- **Episode ratings grid** on series pages: IMDb's rating per episode by season, coloured as on
+  TV, from the TV's ratings services (`IMDB_TAPFRAME_API_BASE_URL`, then
+  `IMDB_RATINGS_API_BASE_URL` by TMDB id, given at build time; without them there's no grid).
+- **Trakt comments** on title pages (with a Trakt client id in the build): most liked first,
+  for the title or the episode picked, spoilers hidden until clicked, whole comment on click.
+- **Shuffle** (Layout › Shuffle): a Shuffle button on series pages picks a random unwatched (or
+  any) episode to preview and play; the show stays shuffled, so its Continue Watching card
+  plays a new pick, and any card's right-click menu offers "Shuffle episodes" (`shuffle.json`).
+- **Kids profiles** (Profiles › Limits › Kids profile, synced as the TV's `isKidsProfile`): no
+  hero, upcoming row, recommendations, Ready tonight or YouTube row; at most six rows after
+  Continue Watching, cards a quarter bigger, no addon names or ratings, and Switch profile
+  first in the sidebar.
+- **Library sort**: Trakt, Simkl and MDBList lists open in their own order ("Provider order",
+  Trakt's ranks), and MDBList also sorts by release.
+- **Collection folders' hero videos** play behind the folder page, and behind Home's hero while
+  the folder's tile is pointed at. Renaming a local list renames the collection sources showing it.
 - A scrollbar on every long page and list, to grab and drag.
 - Escape goes back (and closes the sources panel first).
 

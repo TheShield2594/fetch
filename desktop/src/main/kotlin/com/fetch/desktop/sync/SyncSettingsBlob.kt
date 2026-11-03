@@ -45,7 +45,7 @@ object SyncSettingsBlob {
     val TMDB_FLAGS = listOf(
         "tmdb_enabled", "tmdb_use_artwork", "tmdb_use_basic_info", "tmdb_use_details", "tmdb_use_credits",
         "tmdb_use_productions", "tmdb_use_networks", "tmdb_use_episodes", "tmdb_use_trailers",
-        "tmdb_use_more_like_this", "tmdb_use_collections"
+        "tmdb_use_more_like_this", "tmdb_use_collections", "tmdb_modern_home_enabled", "tmdb_enrich_continue_watching"
     )
 
     const val MDBLIST = "mdblist_settings"
@@ -104,6 +104,10 @@ object SyncSettingsBlob {
             playerExtras = RemotePlayerExtras.read(features),
             autoPlay = AutoPlaySync.read(features?.get(PLAYER) as? JsonObject),
             episodeQueue = AutoPlaySync.readQueue(features?.get(AutoPlaySync.QUEUE_FEATURE)),
+            layoutValues = com.fetch.desktop.data.LayoutSync.ids.mapNotNull { id ->
+                val (feature, key) = com.fetch.desktop.data.LayoutSync.split(id)
+                ((features?.get(feature) as? JsonObject)?.get(key) as? JsonObject)?.let { id to it }
+            }.toMap().takeIf { it.isNotEmpty() },
         )
     }
 
@@ -137,6 +141,12 @@ object SyncSettingsBlob {
         settings.playerExtras?.edits()?.forEach { (feature, key, encoded) -> set(feature, key, encoded) }
         settings.autoPlay?.forEach { (key, value) -> set(PLAYER, key, AutoPlaySync.encode(key, value)) }
         set(AutoPlaySync.QUEUE_FEATURE, AutoPlaySync.QUEUE_KEY, settings.episodeQueue?.let(AutoPlaySync::encodeQueue))
+        settings.layoutValues?.forEach { (id, entry) ->
+            if (id in com.fetch.desktop.data.LayoutSync.ids) {
+                val (feature, key) = com.fetch.desktop.data.LayoutSync.split(id)
+                set(feature, key, entry)
+            }
+        }
 
         val base = blob ?: JsonObject(emptyMap())
         val features = (base[FEATURES] as? JsonObject).orEmpty().toMutableMap()

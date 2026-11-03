@@ -31,11 +31,8 @@ data class RemotePlayerExtras(
     /** `player_settings.skip_silence`. */
     val skipSilence: Boolean? = null,
     /** `animeskip_settings.animeskip_enabled`. */
-    val animeSkipEnabled: Boolean? = null,
-    /** `trailer_settings.trailer_enabled`. */
-    val trailerEnabled: Boolean? = null,
-    /** `trailer_settings.trailer_delay_seconds`. */
-    val trailerDelaySeconds: Int? = null
+    val animeSkipEnabled: Boolean? = null
+    // trailer_enabled / trailer_delay_seconds sync through LayoutSync (Settings › Layout).
 ) {
     /** These over [extras]; what's null keeps its value. */
     fun applyTo(extras: PlayerExtras): PlayerExtras = extras.copy(
@@ -45,9 +42,7 @@ data class RemotePlayerExtras(
         subtitleHdrColor = subtitleHdrColor?.let(Argb::format) ?: extras.subtitleHdrColor,
         subtitleHdrBrightness = subtitleHdrBrightness?.coerceIn(0, 100) ?: extras.subtitleHdrBrightness,
         skipSilence = skipSilence ?: extras.skipSilence,
-        animeSkipEnabled = animeSkipEnabled ?: extras.animeSkipEnabled,
-        trailerAutoplay = trailerEnabled ?: extras.trailerAutoplay,
-        trailerDelaySeconds = trailerDelaySeconds?.coerceIn(0, 60) ?: extras.trailerDelaySeconds
+        animeSkipEnabled = animeSkipEnabled ?: extras.animeSkipEnabled
     )
 
     /** Only what differs from [before]; null when nothing does. */
@@ -61,9 +56,7 @@ data class RemotePlayerExtras(
             subtitleHdrColor = pick(subtitleHdrColor, then.subtitleHdrColor),
             subtitleHdrBrightness = pick(subtitleHdrBrightness, then.subtitleHdrBrightness),
             skipSilence = pick(skipSilence, then.skipSilence),
-            animeSkipEnabled = pick(animeSkipEnabled, then.animeSkipEnabled),
-            trailerEnabled = pick(trailerEnabled, then.trailerEnabled),
-            trailerDelaySeconds = pick(trailerDelaySeconds, then.trailerDelaySeconds)
+            animeSkipEnabled = pick(animeSkipEnabled, then.animeSkipEnabled)
         )
         return diff.takeUnless { it == RemotePlayerExtras() }
     }
@@ -80,14 +73,11 @@ data class RemotePlayerExtras(
         int(PLAYER, "subtitle_hdr_brightness", subtitleHdrBrightness)
         bool(PLAYER, "skip_silence", skipSilence)
         bool(ANIMESKIP, "animeskip_enabled", animeSkipEnabled)
-        bool(TRAILER, "trailer_enabled", trailerEnabled)
-        int(TRAILER, "trailer_delay_seconds", trailerDelaySeconds)
     }
 
     companion object {
         const val PLAYER = SyncSettingsBlob.PLAYER
         const val ANIMESKIP = "animeskip_settings"
-        const val TRAILER = "trailer_settings"
 
         fun from(extras: PlayerExtras): RemotePlayerExtras = RemotePlayerExtras(
             subtitleOnlyPreferred = extras.subtitleOnlyPreferredLanguages,
@@ -96,9 +86,7 @@ data class RemotePlayerExtras(
             subtitleHdrColor = Argb.parse(extras.subtitleHdrColor) ?: Argb.WHITE,
             subtitleHdrBrightness = extras.subtitleHdrBrightness,
             skipSilence = extras.skipSilence,
-            animeSkipEnabled = extras.animeSkipEnabled,
-            trailerEnabled = extras.trailerAutoplay,
-            trailerDelaySeconds = extras.trailerDelaySeconds
+            animeSkipEnabled = extras.animeSkipEnabled
         )
 
         /** What the blob's `features` hold of these; null when none of them. */
@@ -118,9 +106,7 @@ data class RemotePlayerExtras(
                 subtitleHdrColor = int(PLAYER, "subtitle_hdr_text_color"),
                 subtitleHdrBrightness = int(PLAYER, "subtitle_hdr_brightness"),
                 skipSilence = bool(PLAYER, "skip_silence"),
-                animeSkipEnabled = bool(ANIMESKIP, "animeskip_enabled"),
-                trailerEnabled = bool(TRAILER, "trailer_enabled"),
-                trailerDelaySeconds = int(TRAILER, "trailer_delay_seconds")
+                animeSkipEnabled = bool(ANIMESKIP, "animeskip_enabled")
             ).takeUnless { it == RemotePlayerExtras() }
         }
 

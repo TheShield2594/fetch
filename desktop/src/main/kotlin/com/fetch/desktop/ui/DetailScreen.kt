@@ -1,5 +1,7 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.poster.withCustomPosterUrls
+import com.fetch.desktop.poster.posterPatternFor
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -53,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -106,7 +109,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
         return
     }
 
-    CompositionLocalProvider(LocalStreamBadges provides state.badges) {
+    CompositionLocalProvider(LocalStreamBadges provides state.badges, LocalDetailLayout provides state.settings.layout) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         TrailerAutoplay(state, meta?.trailerYtIds?.firstOrNull() ?: preview.trailerYtIds.firstOrNull(), meta?.name ?: preview.name)
         val heroMinHeight = maxHeight * 0.5f
@@ -154,6 +157,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         extraActions = {
                             PartyDetailButton(state)
                             QueueDetailButton(state, preview)
+                            ShuffleDetailButton(state, preview, meta)
                         }
                     )
                 }
@@ -213,6 +217,10 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         }
                     }
                 }
+                // The IMDb ratings grid, as on TV (Layout › Episode Ratings).
+                if (isSeries && meta != null && !state.detailLoading) {
+                    item(key = "ratings") { EpisodeRatingsSection(state, meta) }
+                }
                 val cast = meta?.castMembers.orEmpty()
                 if (cast.isNotEmpty()) {
                     item(key = "cast") { Cast(cast, onOpen = state::openPerson) }
@@ -223,7 +231,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         MediaRowView(
                             title = collection.name,
                             subtitle = "Collection",
-                            items = collection.parts.filter(state::allowed),
+                            items = collection.parts.filter(state::allowed).withCustomPosterUrls(state.settings.layout.posterPatternFor(com.fetch.desktop.poster.CustomPosterScreen.DETAILS)),
                             loading = false,
                             error = null,
                             onOpen = { state.navigate(Screen.Detail(it)) },
@@ -236,7 +244,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         MediaRowView(
                             title = "More like this",
                             subtitle = null,
-                            items = recs,
+                            items = recs.withCustomPosterUrls(state.settings.layout.posterPatternFor(com.fetch.desktop.poster.CustomPosterScreen.DETAILS)),
                             loading = false,
                             error = null,
                             onOpen = { state.navigate(Screen.Detail(it)) },
@@ -249,18 +257,28 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                 if (companies.any { it.first.tmdbId != null }) {
                     item(key = "companies") { Companies(companies.filter { it.first.tmdbId != null }.distinctBy { it.first.tmdbId to it.second }) { c, k -> state.openEntity(c, k) } }
                 }
+                // Trakt comments for the title or the episode picked, as on TV.
+                if (!state.detailLoading) {
+                    item(key = "comments") { TraktCommentsSection(state, preview, meta, isSeries) }
+                }
             }
         }
 
         // The full list slides in from the right over a dimmed page.
         AnimatedVisibility(visible = state.sourcesPanelOpen, enter = fadeIn(), exit = fadeOut()) {
-            Box(
-                Modifier.fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.55f))
-                    .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                        state.sourcesPanelOpen = false
-                    }
-            )
+            // Layout › Episode Options Overlay: the episode's artwork, blurred or not, behind its sources.
+            val artwork = state.sources?.video?.thumbnail?.takeIf { !state.settings.layout.blurUnwatchedEpisodes || state.isWatched(state.sources?.videoId.orEmpty()) }
+            if (artwork != null && state.settings.layout.episodeOptionsOverlay != com.fetch.tv.domain.model.EpisodeOptionsOverlayStyle.NONE) {
+                EpisodeOptionsScrim(state.settings.layout.episodeOptionsOverlay, artwork) { state.sourcesPanelOpen = false }
+            } else {
+                Box(
+                    Modifier.fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.55f))
+                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                            state.sourcesPanelOpen = false
+                        }
+                )
+            }
         }
         AnimatedVisibility(
             visible = state.sourcesPanelOpen,
@@ -334,12 +352,15 @@ private fun Hero(
             .heightIn(min = minHeight)
     ) {
         TitleArt(meta?.name ?: preview.name, meta?.logo ?: preview.logo, maxLogoHeight = 140.dp, fontSize = 60)
+        val layout = LocalDetailLayout.current
+        // Layout › Overall Ratings: off hides the standard and TMDB ratings (MDBList's keep their own setting).
+        val showRatings = layout.homeRatings.showRatings
         FactsLine(
             facts = listOfNotNull(
                 (meta?.genres ?: preview.genres).take(3).joinToString(", ").takeIf { it.isNotBlank() },
-                meta?.releaseInfo ?: preview.releaseInfo
+                detailReleaseLabel(meta, preview, isSeries, layout.showFullReleaseDate)
             ),
-            imdbRating = (meta?.imdbRating ?: preview.imdbRating).takeIf { mdbListRatings == null }
+            imdbRating = (meta?.imdbRating ?: preview.imdbRating).takeIf { mdbListRatings == null && showRatings }
         )
         mdbListRatings?.let { MdbListRatingsRow(it, mdbListOrder) }
         // TMDB's own rating beside IMDb's, and who made it, as on the TV detail page.
@@ -349,7 +370,7 @@ private fun Hero(
         }
         if (tmdbRating != null || credit != null || meta?.status != null) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                tmdbRating?.let { SpecChip("TMDB %.1f".format(java.util.Locale.ROOT, it)) }
+                tmdbRating?.takeIf { showRatings }?.let { SpecChip("TMDB %.1f".format(java.util.Locale.ROOT, it)) }
                 meta?.status?.takeIf { isSeries }?.let { SpecChip(it) }
                 credit?.let { Text(it, color = FetchPalette.TextSecondary, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) }
             }
@@ -418,7 +439,7 @@ private fun Hero(
                 )
             }
             val trailer = meta?.trailerYtIds?.firstOrNull() ?: preview.trailerYtIds.firstOrNull()
-            if (trailer != null) {
+            if (trailer != null && layout.detailTrailerButton) {
                 CircleIconButton(FetchIcons.Trailer, "Play trailer", onClick = { onTrailer(trailer) }, size = 52.dp)
             }
             extraActions()
@@ -783,12 +804,14 @@ private fun EpisodeCard(video: Video, selected: Boolean, watched: Boolean, progr
                     }
                 )
         ) {
+            val layout = LocalDetailLayout.current
             if (video.thumbnail != null) {
                 AsyncImage(
                     model = video.thumbnail,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    // "Blur Unwatched Episodes", against spoilers.
+                    modifier = Modifier.fillMaxSize().then(if (layout.blurUnwatchedEpisodes && !watched) Modifier.blur(18.dp) else Modifier)
                 )
             }
             if (hovered) {
@@ -822,7 +845,7 @@ private fun EpisodeCard(video: Video, selected: Boolean, watched: Boolean, progr
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 )
             }
-            video.rating?.takeIf { it > 0 }?.let {
+            video.rating?.takeIf { it > 0 && layout.detailRatings.showEpisodeRating(watched) }?.let {
                 Text(
                     "★ %.1f".format(java.util.Locale.ROOT, it),
                     fontSize = 12.sp,

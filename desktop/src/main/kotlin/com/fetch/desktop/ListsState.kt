@@ -87,7 +87,9 @@ class ListsState(
     private val setInLibrary: (MetaPreview, Boolean) -> Unit,
     private val onMessage: (String) -> Unit,
     /** The MDBList account's lists, when this profile has one connected. */
-    private val mdblist: com.fetch.desktop.mdblist.MdbListAccountState? = null
+    private val mdblist: com.fetch.desktop.mdblist.MdbListAccountState? = null,
+    /** A local list got a new name (collections' sources follow it). */
+    private val onLocalListRenamed: (id: String, name: String) -> Unit = { _, _ -> }
 ) {
     var local: List<LocalList> by mutableStateOf(store.load().lists)
         private set
@@ -269,8 +271,10 @@ class ListsState(
     fun update(list: LibraryList, name: String, description: String?, privacy: ListPrivacy) {
         val clean = name.trim().takeIf { it.isNotEmpty() } ?: return
         when (list.provider) {
-            ListProvider.LOCAL -> updateLocal(list.key.removePrefix("local:")) {
-                it.copy(name = clean, description = description?.trim()?.ifEmpty { null })
+            ListProvider.LOCAL -> {
+                val id = list.key.removePrefix("local:")
+                updateLocal(id) { it.copy(name = clean, description = description?.trim()?.ifEmpty { null }) }
+                if (clean != list.title) onLocalListRenamed(id, clean)
             }
             ListProvider.TRAKT -> remote("Saved $clean") {
                 val id = list.key.removePrefix("trakt:list:").toLong()

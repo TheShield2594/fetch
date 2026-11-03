@@ -92,10 +92,13 @@ fun RemoteSharedSettings.applyTo(settings: DesktopSettings): DesktopSettings {
             useEpisodes = f["tmdb_use_episodes"] ?: tmdb.useEpisodes,
             useTrailers = f["tmdb_use_trailers"] ?: tmdb.useTrailers,
             useMoreLikeThis = f["tmdb_use_more_like_this"] ?: tmdb.useMoreLikeThis,
-            useCollections = f["tmdb_use_collections"] ?: tmdb.useCollections
+            useCollections = f["tmdb_use_collections"] ?: tmdb.useCollections,
+            modernHomeEnabled = f["tmdb_modern_home_enabled"] ?: tmdb.modernHomeEnabled,
+            enrichContinueWatching = f["tmdb_enrich_continue_watching"] ?: tmdb.enrichContinueWatching
         )
     }
     tmdbLanguage?.takeIf { it.isNotBlank() }?.let { tmdb = tmdb.copy(language = it) }
+    layoutValues?.let { s = s.copy(layout = com.fetch.desktop.data.LayoutSync.apply(it, s.layout)) }
     s = s.copy(player = player, tmdb = tmdb, mdblist = applyMdbList(s.mdblist))
     autoPlay?.let { s = AutoPlaySync.apply(it, s) }
     episodeQueue?.let { s = AutoPlaySync.applyQueue(it, s) }
@@ -173,7 +176,9 @@ fun DesktopSettings.toRemoteSharedSettings(remote: RemoteSharedSettings? = null)
             "tmdb_use_episodes" to tmdb.useEpisodes,
             "tmdb_use_trailers" to tmdb.useTrailers,
             "tmdb_use_more_like_this" to tmdb.useMoreLikeThis,
-            "tmdb_use_collections" to tmdb.useCollections
+            "tmdb_use_collections" to tmdb.useCollections,
+            "tmdb_modern_home_enabled" to tmdb.modernHomeEnabled,
+            "tmdb_enrich_continue_watching" to tmdb.enrichContinueWatching
         ),
         tmdbLanguage = tmdb.language,
         mdblistFlags = mdblist.toRemoteFlags(),
@@ -181,6 +186,7 @@ fun DesktopSettings.toRemoteSharedSettings(remote: RemoteSharedSettings? = null)
         playerExtras = RemotePlayerExtras.from(player.extras),
         autoPlay = AutoPlaySync.values(this),
         episodeQueue = AutoPlaySync.queueOf(this),
+        layoutValues = com.fetch.desktop.data.LayoutSync.encode(layout),
     )
 }
 

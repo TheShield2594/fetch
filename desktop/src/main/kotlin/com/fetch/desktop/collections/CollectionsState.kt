@@ -107,6 +107,11 @@ class CollectionsState(
         return null
     }
 
+    /** A local list was renamed: the sources showing it take its new name, as on TV. */
+    fun renameLocalList(listId: String, name: String) {
+        renameLocalListSources(collections, listId, name)?.let(::commit)
+    }
+
     private fun commit(list: List<Collection>) {
         collections = list
         runCatching { store.save(list) }.onFailure { onMessage("Couldn't save collections: ${it.message}") }

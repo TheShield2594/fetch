@@ -48,11 +48,7 @@ data class PlayerExtras(
     /** `player_stats_hud_active`: the overlay is on. */
     val statsHudActive: Boolean = false,
 
-    // --- Trailers ---
-    /** `trailer_enabled` (synced): play a title's trailer on its page after [trailerDelaySeconds]. */
-    val trailerAutoplay: Boolean = false,
-    /** `trailer_delay_seconds` (synced). */
-    val trailerDelaySeconds: Int = 7,
+    // --- Trailers (on and delay are Layout's: [com.fetch.desktop.data.LayoutPrefs]) ---
     /** `trailer_allow_4k` (device only): trailers above 1080p. */
     val trailer4k: Boolean = false
 ) {

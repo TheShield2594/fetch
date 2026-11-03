@@ -121,7 +121,7 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
                     wasShowing
                 }
         ) {
-        androidx.compose.runtime.CompositionLocalProvider(LocalPosterActions provides posterActions) {
+        androidx.compose.runtime.CompositionLocalProvider(LocalPosterActions provides posterActions, LocalCardStyle provides cardStyleFor(state)) {
         Scaffold(
             snackbarHost = {
                 SnackbarHost(snackbar) { data ->
@@ -229,6 +229,7 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
                     },
                     profile = state.profiles.active,
                     onProfile = state.profiles::switchProfile,
+                    profileFirst = state.limits.kidsProfile,
                     modifier = Modifier.align(Alignment.CenterStart)
                 )
             }

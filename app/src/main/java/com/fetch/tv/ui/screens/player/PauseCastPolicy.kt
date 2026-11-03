@@ -3,31 +3,36 @@ package com.fetch.tv.ui.screens.player
 import com.fetch.tv.domain.model.MetaCastMember
 
 /**
- * Who the pause overlay's X-Ray-style cast strip shows.
+ * Who the pause overlay's X-Ray-style cast strip shows, for a row with room for [limit] people.
  *
  * Nothing public says who is on screen at a given moment (Prime Video's X-Ray comes from IMDb's
  * own scene tagging), so the strip shows who is in what is playing: the title's billed cast,
- * then, for an episode, that episode's guest stars. Each person appears once, matched by TMDB id
- * when both sides have one and by name otherwise.
+ * then, for an episode, that episode's guest stars. A series' billed cast is often longer than
+ * the row, so up to half the row is kept for guest stars, and either side gets the other's unused
+ * room. Each person appears once, matched by TMDB id when both sides have one and by name otherwise.
  */
 internal fun pauseOverlayCast(
     cast: List<MetaCastMember>,
-    episodeGuestStars: List<MetaCastMember>
+    episodeGuestStars: List<MetaCastMember>,
+    limit: Int = Int.MAX_VALUE
 ): List<MetaCastMember> {
-    if (episodeGuestStars.isEmpty()) return cast
+    if (limit <= 0) return emptyList()
     val seenIds = HashSet<Int>()
     val seenNames = HashSet<String>()
-    val merged = ArrayList<MetaCastMember>(cast.size + episodeGuestStars.size)
-    for (member in cast + episodeGuestStars) {
+    fun List<MetaCastMember>.unseen(): List<MetaCastMember> = filter { member ->
         val nameKey = member.name.trim().lowercase()
         val id = member.tmdbId
-        if (id != null && id in seenIds) continue
-        if (nameKey in seenNames) continue
+        if ((id != null && id in seenIds) || nameKey in seenNames) return@filter false
         if (id != null) seenIds += id
         seenNames += nameKey
-        merged += member
+        true
     }
-    return merged
+    val main = cast.unseen()
+    val guests = episodeGuestStars.unseen()
+    val guestSlots = minOf(guests.size, limit / 2)
+    val mainTake = minOf(main.size, limit - guestSlots)
+    val guestTake = minOf(guests.size, limit - mainTake)
+    return main.take(mainTake) + guests.take(guestTake)
 }
 
 /**

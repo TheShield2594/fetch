@@ -2,7 +2,6 @@ package com.fetch.tv.ui.screens.player
 
 import com.fetch.tv.domain.model.MetaCastMember
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertSame
 import org.junit.Test
 
 class PauseCastPolicyTest {
@@ -29,7 +28,26 @@ class PauseCastPolicyTest {
     fun `no guest stars returns the cast unchanged`() {
         val cast = listOf(lead, second)
 
-        assertSame(cast, pauseOverlayCast(cast, emptyList()))
+        assertEquals(cast, pauseOverlayCast(cast, emptyList()))
+    }
+
+    @Test
+    fun `a long main cast leaves up to half the row for guest stars`() {
+        val main = (1..20).map { MetaCastMember(name = "Regular $it", tmdbId = it) }
+        val guests = (1..3).map { MetaCastMember(name = "Guest $it", tmdbId = 100 + it) }
+
+        val shown = pauseOverlayCast(main, guests, limit = 7)
+
+        assertEquals(main.take(4) + guests, shown)
+    }
+
+    @Test
+    fun `either side takes the room the other does not use`() {
+        val main = (1..2).map { MetaCastMember(name = "Regular $it", tmdbId = it) }
+        val guests = (1..10).map { MetaCastMember(name = "Guest $it", tmdbId = 100 + it) }
+
+        assertEquals(main + guests.take(5), pauseOverlayCast(main, guests, limit = 7))
+        assertEquals(main.take(1), pauseOverlayCast(main, emptyList(), limit = 1))
     }
 
     @Test

@@ -61,6 +61,7 @@ fun PauseOverlay(
     description: String?,
     cast: List<MetaCastMember>,
     modifier: Modifier = Modifier,
+    episodeGuestStars: List<MetaCastMember> = emptyList(),
     showClock: Boolean = true
 ) {
     PlayerOverlayScaffold(
@@ -96,7 +97,8 @@ fun PauseOverlay(
                 year = year,
                 type = type,
                 description = description,
-                cast = cast
+                cast = cast,
+                episodeGuestStars = episodeGuestStars
             )
         }
     }
@@ -136,9 +138,10 @@ private fun PauseMetadataView(
     year: String?,
     type: String?,
     description: String?,
-    cast: List<MetaCastMember>
+    cast: List<MetaCastMember>,
+    episodeGuestStars: List<MetaCastMember>
 ) {
-    val showCastStrip = cast.any { !it.photo.isNullOrBlank() }
+    val showCastStrip = (cast + episodeGuestStars).any { !it.photo.isNullOrBlank() }
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Bottom
@@ -229,7 +232,7 @@ private fun PauseMetadataView(
                 )
             }
 
-            if (cast.isNotEmpty()) {
+            if (cast.isNotEmpty() || episodeGuestStars.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
@@ -244,10 +247,10 @@ private fun PauseMetadataView(
                 // cast is drawn as plain, non-focusable items rather than as cards that
                 // look selectable but can't be reached with a remote.
                 if (showCastStrip) {
-                    PauseCastStrip(cast = cast)
+                    PauseCastStrip(cast = cast, episodeGuestStars = episodeGuestStars)
                 } else {
                     Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)) {
-                        cast.take(8).forEach { member ->
+                        pauseOverlayCast(cast, episodeGuestStars, limit = 8).forEach { member ->
                             Text(
                                 text = member.name,
                                 style = MaterialTheme.typography.bodyMedium,
@@ -268,16 +271,19 @@ private val PauseCastItemWidth = 104.dp
 
 /**
  * X-Ray-style row: a headshot, the actor and the character for as many people as fit on one
- * line. Billing order is kept, so an episode's guest stars come after the main cast.
+ * line, with part of the row kept for an episode's guest stars (see [pauseOverlayCast]).
  */
 @Composable
-private fun PauseCastStrip(cast: List<MetaCastMember>) {
+private fun PauseCastStrip(cast: List<MetaCastMember>, episodeGuestStars: List<MetaCastMember>) {
     val spacing = FetchTheme.spacing.lg
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val fitting = ((maxWidth + spacing) / (PauseCastItemWidth + spacing)).toInt()
             .coerceIn(1, PAUSE_CAST_MAX_ITEMS)
         Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
-            cast.take(fitting).forEach { member ->
+            val shown = remember(cast, episodeGuestStars, fitting) {
+                pauseOverlayCast(cast, episodeGuestStars, limit = fitting)
+            }
+            shown.forEach { member ->
                 PauseCastItem(member = member)
             }
         }

@@ -331,15 +331,26 @@ class AppState(
         return known?.rating to known?.country
     }
 
-    /** Whether this profile may see [preview], by its rating (the addon's, else TMDB's). */
+    /** The titles a parent hid from this profile or allowed on it. */
+    val titleLists: com.fetch.desktop.parental.ProfileTitleLists get() = profiles.titleLists.listsFor(profile.id)
+
+    /**
+     * Whether this profile may see [preview]: never when a parent hid it, always when they allowed
+     * it, otherwise by its rating (the addon's, else TMDB's).
+     */
     fun allowed(preview: MetaPreview): Boolean {
-        if (limits.maxRating == null) return true
+        val lists = titleLists
+        if (lists.isHidden(preview.id, preview.imdbId, preview.apiType)) return false
+        if (limits.maxRating == null || lists.isAllowed(preview.id, preview.imdbId, preview.apiType)) return true
         val (rating, country) = ratingOf(preview.imdbId ?: preview.id, preview.apiType, preview.ageRating, preview.country)
         return Parental.allows(limits, rating, country)
     }
 
     fun allowed(meta: Meta?, preview: MetaPreview): Boolean {
-        if (limits.maxRating == null) return true
+        val lists = titleLists
+        val imdb = meta?.imdbId ?: preview.imdbId
+        if (lists.isHidden(preview.id, imdb, preview.apiType)) return false
+        if (limits.maxRating == null || lists.isAllowed(preview.id, imdb, preview.apiType)) return true
         val (rating, country) = ratingOf(
             meta?.imdbId ?: preview.imdbId ?: preview.id,
             preview.apiType,
@@ -941,7 +952,7 @@ class AppState(
                 visible.filter { it.key !in pinned }
             // A rating limit hides what it rules out, as on TV, and so does "Hide unreleased".
             val hideUnreleased = settings.hideUnreleased
-            if (limits.maxRating == null && !hideUnreleased) return ordered
+            if (limits.maxRating == null && titleLists.hidden.isEmpty() && !hideUnreleased) return ordered
             return ordered.map { row -> row.copy(items = row.items.filter { allowed(it) && !(hideUnreleased && isUnreleased(it)) }) }
         }
 
@@ -1074,7 +1085,10 @@ class AppState(
     // --- Continue Watching ---
 
     private val continueWatchingRows: Pair<List<ProgressEntry>, List<ProgressEntry>>
-        get() = WatchHistory.continueWatchingRows(progress, LocalDate.now(), settings.showUnairedNextUp, settings.continueWatchingSort)
+        get() = WatchHistory.continueWatchingRows(
+            com.fetch.desktop.parental.visibleProgress(progress, titleLists),
+            LocalDate.now(), settings.showUnairedNextUp, settings.continueWatchingSort
+        )
 
     /** Continue Watching, by Layout › Continue Watching's settings. */
     val continueWatching: List<ProgressEntry> get() = continueWatchingRows.first

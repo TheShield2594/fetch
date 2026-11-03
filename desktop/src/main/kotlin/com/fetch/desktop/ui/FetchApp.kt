@@ -228,6 +228,7 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
             StillWatchingOverlay(prompt.label, onContinue = { state.answerStillWatching(true) }, onStop = { state.answerStillWatching(false) })
         }
         if (state.playerChoice != null) PlayerChoiceDialog(state)
+        ParentalTitleDialogHost(state)
         state.manageListsFor?.let { preview -> ManageListsDialog(state, preview, onDismiss = { state.manageListsFor = null }) }
         state.updates.available?.takeIf { !state.updates.dismissed && state.playerSession == null }?.let { update ->
             UpdateBanner(state, update)
@@ -255,6 +256,7 @@ private class AppPosterActions(private val state: AppState) : PosterActions {
         add(androidx.compose.foundation.ContextMenuItem(if (watched) "Mark as unwatched" else "Mark as watched") {
             state.withImdbId(item) { state.setTitleWatched(it, !watched) }
         })
+        addAll(parentalTitleMenu(state, item))
     }
 
     override fun isWatched(item: com.fetch.tv.domain.model.MetaPreview): Boolean =

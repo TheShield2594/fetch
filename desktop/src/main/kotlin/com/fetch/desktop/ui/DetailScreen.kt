@@ -96,7 +96,11 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("Not available on ${state.profile.name}", style = MaterialTheme.typography.titleLarge, color = Color.White)
-                Text("This title is rated above the limit set for this profile.", color = FetchPalette.TextSecondary)
+                Text(
+                    if (state.titleLists.isHidden(preview.id, meta?.imdbId ?: preview.imdbId, preview.apiType)) "A parent hid this title from this profile."
+                    else "This title is rated above the limit set for this profile.",
+                    color = FetchPalette.TextSecondary
+                )
                 if (state.canGoBack) SecondaryButton("Back", onClick = state::back, icon = FetchIcons.Back)
             }
         }

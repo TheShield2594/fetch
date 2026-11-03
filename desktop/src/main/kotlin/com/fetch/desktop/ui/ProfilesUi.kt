@@ -307,7 +307,7 @@ fun ProfilesSettingsPage(state: AppState) {
         }
     }
     limiting?.let { profile ->
-        LimitsDialog(profile, onDismiss = { limiting = null }) { limits ->
+        LimitsDialog(profile, onDismiss = { limiting = null }, extra = { ProfileTitleListsSection(profiles, profile) }) { limits ->
             limiting = null
             profiles.setLimits(profile, limits)
         }
@@ -438,7 +438,7 @@ private fun clockLabel(minuteOfDay: Int): String = "%d:%02d".format(minuteOfDay 
 
 /** The TV app's limits for a profile, set from the main profile. */
 @Composable
-fun LimitsDialog(profile: DesktopProfile, onDismiss: () -> Unit, onSave: (ProfileLimits) -> Unit) {
+fun LimitsDialog(profile: DesktopProfile, onDismiss: () -> Unit, extra: @Composable () -> Unit = {}, onSave: (ProfileLimits) -> Unit) {
     var limits by remember { mutableStateOf(profile.limits) }
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -477,6 +477,7 @@ fun LimitsDialog(profile: DesktopProfile, onDismiss: () -> Unit, onSave: (Profil
                     limits.autoplayCap,
                     AutoplayChoices.map { DropdownOption(it, it?.toString() ?: "No limit") }
                 ) { limits = limits.copy(autoplayCap = it) }
+                extra()
             }
         },
         confirmButton = { PrimaryButton("Save", icon = null, onClick = { onSave(limits) }) },

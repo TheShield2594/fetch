@@ -30,6 +30,9 @@ class ProfilesState(
 
     val profiles: List<DesktopProfile> get() = file.profiles
 
+    /** Titles hidden from or allowed on each profile, set from a poster's menu. */
+    val titleLists = com.fetch.desktop.parental.TitleListsState(com.fetch.desktop.parental.titleListsFile(root))
+
     fun select(profile: DesktopProfile) {
         active = profile
         save(file.copy(lastProfileId = profile.id))
@@ -63,6 +66,7 @@ class ProfilesState(
         if (profile.isPrimary) return
         save(file.copy(profiles = file.profiles.filter { it.id != profile.id }, lastProfileId = file.lastProfileId.takeIf { it != profile.id }))
         profileDir(profile, root).deleteRecursively()
+        titleLists.deleteProfile(profile.id)
         if (active?.id == profile.id) active = file.profiles.first()
         listener?.onProfilesChanged(profile)
     }

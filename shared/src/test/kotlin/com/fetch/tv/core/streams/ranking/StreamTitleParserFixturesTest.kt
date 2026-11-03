@@ -128,14 +128,20 @@ class StreamTitleParserFixturesTest {
             val seeders = Regex("👤 (\\d+)").find(text)?.groupValues?.get(1)?.toInt()
             val size = Regex("💾 (\\d+(?:\\.\\d+)?) (GB|MB)").find(text)?.let { match ->
                 val unit = if (match.groupValues[2] == "GB") 1_073_741_824.0 else 1_048_576.0
-                match.groupValues[1].toDouble() * unit
+                val decimals = match.groupValues[1].substringAfter('.', "").length
+                // The badge is rounded to its last digit; allow half of one, plus 1 % (GB vs GiB).
+                val tolerance = unit * 0.5 * Math.pow(10.0, -decimals.toDouble())
+                Pair(match.groupValues[1].toDouble() * unit, tolerance)
             }
             buildList {
                 if (seeders != null && parsed.seeders != seeders) add("seeders ${parsed.seeders}, badge says $seeders")
                 val parsedSize = parsed.sizeBytes
-                // Comet's videoSize is exact; the badge is rounded to a decimal place.
-                if (size != null && (parsedSize == null || kotlin.math.abs(parsedSize - size) > size * 0.01)) {
-                    add("size $parsedSize, badge says ${size.toLong()}")
+                // Comet's videoSize is exact; the badge is rounded.
+                if (size != null) {
+                    val (badge, tolerance) = size
+                    if (parsedSize == null || kotlin.math.abs(parsedSize - badge) > tolerance + badge * 0.01) {
+                        add("size $parsedSize, badge says ${badge.toLong()}")
+                    }
                 }
             }.takeIf { it.isNotEmpty() }?.let { "${fixture.key}: ${it.joinToString("; ")}" }
         }

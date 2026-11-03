@@ -71,7 +71,8 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Episode ratings grid (IMDb), Trakt comments | `detail/EpisodeRatingsSection.kt`, `CommentsSection.kt` | 🟡 TMDB's per-episode rating on each episode card; no grid or comments |
 | Episode shuffle | `detail/DetailEpisodeShuffle.kt` | ⬜ |
 | Ready tonight row | `home/ReadyTonight.kt` | ⬜ |
-| Collections, folders and filter rows | `screens/collection/`, `screens/filterrows/` | ⬜ |
+| Collections and folders | `screens/collection/` | ⬜ |
+| Filter rows: a server library (genre, years, watched, rating, sort) or an addon catalog's genre as a Home row | `screens/filterrows/`, `domain/model/FilterRow.kt` | ✅ Settings › Content & Discovery › Filter rows; addon ones pin and hide like other rows and have See all |
 | Lists: local lists, Trakt watchlist and personal lists, Simkl status lists, as Library tabs | `library/LibraryScreen.kt`, `data/simkl/SimklLibraryProjection.kt` | ✅ |
 | Manage lists for a title; create, edit (privacy on Trakt), reorder and delete lists | `library/LibraryListDialogs.kt`, `posteroptions/` | ✅ poster menu and the title page's Lists button |
 | MDBList lists: Watchlist, static, dynamic, external and liked lists as Library tabs; Manage lists; create, rename, delete static lists; hide lists | `data/mdblist/MdbListLibrary*.kt`, `settings/MdbListLibraryListsDialog.kt` | ✅ `mdblist/MdbListAccountState.kt`, `ListsState.kt` (no MDBList sort orders) |

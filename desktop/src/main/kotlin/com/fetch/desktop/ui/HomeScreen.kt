@@ -190,6 +190,19 @@ private fun HomeContent(state: AppState) {
                         onSeeAll = { state.openSeeAll(row, row.title(settings.showCatalogType)) }
                     )
                 }
+                // Filter rows over your server libraries.
+                items(state.serverFilterRows, key = { "server-filter|${it.row.id}" }) { view ->
+                    MediaRowView(
+                        title = view.row.title,
+                        subtitle = null,
+                        items = view.items.filter(state::allowed),
+                        loading = view.loading,
+                        error = view.error,
+                        onOpen = { state.navigate(Screen.Detail(it)) },
+                        onHover = { hovered = HeroSubject.Title(it) },
+                        showLabels = settings.showPosterLabels
+                    )
+                }
                 // Your Jellyfin, Emby and Plex libraries.
                 items(state.servers.rows, key = { "server|${it.key}" }) { row ->
                     MediaRowView(

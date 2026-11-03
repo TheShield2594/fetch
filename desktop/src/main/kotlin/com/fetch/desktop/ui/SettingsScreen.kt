@@ -118,6 +118,7 @@ fun SettingsScreen(state: AppState, page: SettingsPage) {
                                 SettingsPage.SKIP_SEGMENTS -> SkipSegmentsPage(state)
                                 SettingsPage.CONTENT_DISCOVERY -> ContentDiscoveryPage(state)
                                 SettingsPage.HOME_CATALOGS -> HomeCatalogsPage(state)
+                                SettingsPage.FILTER_ROWS -> FilterRowsPage(state)
                                 SettingsPage.APPEARANCE -> AppearancePage(state)
                                 SettingsPage.LAYOUT -> LayoutPage(state)
                                 SettingsPage.TRACKING -> TrackingPage(state)
@@ -194,7 +195,7 @@ private fun RailEntry(label: String, selected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun SubPageHeader(
+internal fun SubPageHeader(
     title: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -799,6 +800,11 @@ private fun ContentDiscoveryPage(state: AppState) {
             "Home catalogs",
             "Reorder home catalogs: pin rows to the top or hide them.",
             onClick = { state.navigate(Screen.Settings(SettingsPage.HOME_CATALOGS)) }
+        ) { Chevron() }
+        SettingsRow(
+            "Filter rows",
+            "Home rows filtered from a server library (genre, years, watched, rating) or an addon catalog's genre. ${state.filterRows.size} made.",
+            onClick = { state.navigate(Screen.Settings(SettingsPage.FILTER_ROWS)) }
         ) { Chevron() }
     }
 }

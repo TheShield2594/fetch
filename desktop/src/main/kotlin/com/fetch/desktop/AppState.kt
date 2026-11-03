@@ -121,6 +121,7 @@ enum class SettingsPage(val label: String, val group: String, val parent: Settin
     MDBLIST("MDBList", "Sources"),
     ADDONS("Addons", "Sources", parent = CONTENT_DISCOVERY),
     HOME_CATALOGS("Home catalogs", "Sources", parent = CONTENT_DISCOVERY),
+    FILTER_ROWS("Filter rows", "Sources", parent = CONTENT_DISCOVERY),
     APPEARANCE("Appearance", "Home"),
     LAYOUT("Layout", "Home"),
     MEDIA_SERVERS("Media servers", "Sources", parent = CONTENT_DISCOVERY),
@@ -164,13 +165,18 @@ data class CatalogRow(
     val catalog: CatalogDescriptor,
     val items: List<MetaPreview> = emptyList(),
     val loading: Boolean = true,
-    val error: String? = null
+    val error: String? = null,
+    /** Set for a filter row over this catalog: its own key and title, and its genre. */
+    val filter: FilterRow? = null
 ) {
-    val key: String get() = "${addon.baseUrl}|${catalog.apiType}|${catalog.id}"
+    val key: String get() = filter?.let(::filterRowKey) ?: "${addon.baseUrl}|${catalog.apiType}|${catalog.id}"
+
+    /** The genre a filter row asks the catalog for. */
+    val extra: Map<String, String> get() = filter?.filters?.genre?.let { mapOf("genre" to it) }.orEmpty()
 
     /** The row's heading, as the TV app writes it: "Popular - Movies", or just "Popular". */
     fun title(showType: Boolean): String {
-        val name = catalog.name.replaceFirstChar { it.uppercase() }
+        val name = (filter?.title ?: catalog.name).replaceFirstChar { it.uppercase() }
         return if (showType) "$name - ${typeLabel(catalog.apiType)}" else name
     }
 
@@ -267,7 +273,12 @@ class AppState(
     val seeAll = DiscoverState(scope, client) {}
 
     fun openSeeAll(row: CatalogRow, title: String) {
-        if (seeAll.selected?.key != row.key) seeAll.select(DiscoverCatalog(row.addon, row.catalog), remember = false)
+        val catalog = DiscoverCatalog(row.addon, row.catalog)
+        if (seeAll.selected?.key != catalog.key || seeAll.genre != row.filter?.filters?.genre) {
+            seeAll.select(catalog, remember = false)
+            // A filter row's See all keeps its genre.
+            row.filter?.filters?.genre?.let(seeAll::selectGenre)
+        }
         navigate(Screen.SeeAll(row.key, title))
     }
 
@@ -516,6 +527,7 @@ class AppState(
         scope.launch { party.events.collect(::onPartyEvent) }
         scope.launch { syncTracking() }
         servers.refreshRows()
+        refreshServerFilterRows()
         syncServers()
     }
 
@@ -894,14 +906,20 @@ class AppState(
             addon.catalogs
                 // Catalogs that need an extra (search, genre) can't be shown as a plain row.
                 .filter { catalog -> catalog.extra.none { it.isRequired } && catalog.extraRequired.isEmpty() }
-                .map { CatalogRow(addon, it) }
+                .map { CatalogRow(addon, it) } +
+                // Filter rows over this addon's catalogs follow them, as on TV.
+                filterRows.mapNotNull { row ->
+                    val source = row.source as? FilterRowSource.AddonCatalog ?: return@mapNotNull null
+                    if (source.addonId != addon.id) return@mapNotNull null
+                    addon.catalogs.firstOrNull { it.id == source.catalogId && it.apiType == source.type }?.let { CatalogRow(addon, it, filter = row) }
+                }
         }
         rows.clear()
         rows.addAll(wanted)
         wanted.forEach { row ->
             scope.launch {
                 val updated = try {
-                    row.copy(items = withContext(Dispatchers.IO) { client.catalog(row.addon, row.catalog) }, loading = false)
+                    row.copy(items = withContext(Dispatchers.IO) { client.catalog(row.addon, row.catalog, extra = row.extra) }, loading = false)
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -909,6 +927,58 @@ class AppState(
                 }
                 val index = rows.indexOfFirst { it.key == row.key }
                 if (index >= 0) rows[index] = updated
+            }
+        }
+    }
+
+    // --- Filter rows ---
+
+    private val filterRowsStore = filterRowsFile(profileDir(profile))
+
+    /** Home rows built from filters (Settings › Content & Discovery › Filter rows). */
+    var filterRows: List<FilterRow> by mutableStateOf(filterRowsStore.load().rows)
+        private set
+
+    /** A filter row over a media server library, as Home shows it. */
+    data class ServerFilterRowView(val row: FilterRow, val items: List<MetaPreview> = emptyList(), val loading: Boolean = true, val error: String? = null)
+
+    val serverFilterRows = mutableStateListOf<ServerFilterRowView>()
+
+    fun saveFilterRow(row: FilterRow) {
+        val updated = if (filterRows.any { it.id == row.id }) filterRows.map { if (it.id == row.id) row else it } else filterRows + row
+        storeFilterRows(updated)
+    }
+
+    fun deleteFilterRow(id: String) = storeFilterRows(filterRows.filterNot { it.id == id })
+
+    private fun storeFilterRows(rows: List<FilterRow>) {
+        filterRows = rows
+        runCatching { filterRowsStore.save(FilterRowsFile(rows)) }.onFailure { message = "Couldn't save filter rows: ${it.message}" }
+        reloadRows()
+        refreshServerFilterRows()
+    }
+
+    /** Loads each server filter row's first page from its server. */
+    fun refreshServerFilterRows() {
+        val wanted = filterRows.filter { r ->
+            val s = r.source as? FilterRowSource.ServerLibrary ?: return@filter false
+            servers.enabled.any { a -> a.id == s.accountId && a.libraries.any { it.id == s.libraryId } }
+        }
+        serverFilterRows.clear()
+        serverFilterRows.addAll(wanted.map { ServerFilterRowView(it) })
+        wanted.forEach { row ->
+            val source = row.source as FilterRowSource.ServerLibrary
+            scope.launch {
+                val view = try {
+                    val page = servers.filtered(source.accountId, source.libraryId, row.filters, 0, FILTER_ROW_PAGE)
+                    ServerFilterRowView(row, page?.items.orEmpty(), loading = false)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    ServerFilterRowView(row, loading = false, error = e.message ?: "Couldn't load")
+                }
+                val i = serverFilterRows.indexOfFirst { it.row.id == row.id }
+                if (i >= 0) serverFilterRows[i] = view
             }
         }
     }
@@ -1941,6 +2011,7 @@ class AppState(
     private companion object {
         const val SEARCH_DEBOUNCE_MS = 350L
         const val MAX_RECENT_SEARCHES = 10
+        const val FILTER_ROW_PAGE = 40
         const val AIRING_RECHECK_MS = 6 * 60 * 60 * 1000L
     }
 }

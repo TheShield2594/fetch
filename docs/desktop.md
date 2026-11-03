@@ -97,6 +97,10 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   read-only there too); the Library's Manage lists creates, renames, reorders and deletes your
   own and Trakt's lists, and creates, renames (private or public) and deletes MDBList's static
   lists.
+- **Filter rows** (Settings › Content & Discovery › Filter rows), kept per profile in
+  `filter-rows.json` as the TV keeps them per TV: a Home row from a Jellyfin, Emby or Plex
+  library narrowed by genre, years, watched and minimum rating, in the order you pick (the
+  server does the filtering), or from an addon catalog that takes a genre.
 - **See all** on a Home row opens its whole catalog as a grid that loads more as you scroll.
 - **Discover**: pick a type, catalog and genre and browse the catalog as a grid that loads more
   as you scroll. It sits in Search until you type, as on TV, or in the sidebar.

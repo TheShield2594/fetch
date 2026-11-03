@@ -21,15 +21,28 @@ import androidx.compose.ui.unit.sp
 
 /** The TV app's default dark palette: near-black surfaces, white text and its red accent. */
 object FetchPalette {
-    val Background = Color(0xFF0B0B0C)
-    val Surface = Color(0xFF16161A)
-    val SurfaceRaised = Color(0xFF1E1E23)
-    val SurfaceHigh = Color(0xFF2A2A30)
-    val Outline = Color(0xFF3A3A42)
-    val TextPrimary = Color(0xFFF5F5F5)
-    val TextSecondary = Color(0xFFB3B3B8)
-    val TextMuted = Color(0xFF85858C)
+    // The surfaces and text follow Appearance's contrast, AMOLED and Custom theme settings (see
+    // ThemeLook.kt). Reading them in composition follows changes.
+    private var appearance = com.fetch.desktop.data.AppearanceSettings()
+    private var theme = AppTheme.FETCH
+    private val surfaceState = mutableStateOf(SurfaceColors.Default)
+    val Surfaces: SurfaceColors get() = surfaceState.value
+    val Background: Color get() = surfaceState.value.background
+    val Surface: Color get() = surfaceState.value.surface
+    val SurfaceRaised: Color get() = surfaceState.value.surfaceRaised
+    val SurfaceHigh: Color get() = surfaceState.value.surfaceHigh
+    val Outline: Color get() = surfaceState.value.outline
+    val TextPrimary: Color get() = surfaceState.value.textPrimary
+    val TextSecondary: Color get() = surfaceState.value.textSecondary
+    val TextMuted: Color get() = surfaceState.value.textMuted
     private val accentState = mutableStateOf(accentFor(AppTheme.FETCH))
+    private val fontState = mutableStateOf(com.fetch.tv.domain.model.AppFont.SCHIBSTED_GROTESK)
+
+    /** Appearance › App Font. */
+    val Font: com.fetch.tv.domain.model.AppFont get() = fontState.value
+
+    /** The Custom theme's accent, from its colours. */
+    val CustomAccent: Color get() = customAccent(appearance.customColors)
 
     /** The theme's accent. Reading it in composition follows theme changes. */
     val Accent: Color get() = accentState.value
@@ -39,7 +52,16 @@ object FetchPalette {
     val OnAccent: Color get() = if (Accent.luminance() > 0.5f) Color.Black else Color.White
 
     fun setTheme(theme: AppTheme) {
+        this.theme = theme
         accentState.value = accentFor(theme)
+        surfaceState.value = surfaceColors(theme, appearance)
+    }
+
+    /** Appearance's contrast, AMOLED, Custom theme colours and font. */
+    fun setAppearance(appearance: com.fetch.desktop.data.AppearanceSettings) {
+        this.appearance = appearance
+        fontState.value = appearance.appFont
+        setTheme(theme)
     }
     val Imdb = Color(0xFFF5C518)
     val Error = Color(0xFFFF6B6B)
@@ -47,7 +69,8 @@ object FetchPalette {
 
 /** Each theme's accent, from the TV app's palettes. */
 fun accentFor(theme: AppTheme): Color = when (theme) {
-    AppTheme.FETCH, AppTheme.CUSTOM -> Color(0xFFDC2B33)
+    AppTheme.FETCH -> Color(0xFFDC2B33)
+    AppTheme.CUSTOM -> FetchPalette.CustomAccent
     AppTheme.GOLD -> Color(0xFFE8A91C)
     AppTheme.JADE -> Color(0xFF22D37C)
     AppTheme.ROSE_GOLD -> Color(0xFFEC70A9)
@@ -114,8 +137,11 @@ private val FetchScrollbarStyle = ScrollbarStyle(
 @Composable
 fun FetchTheme(content: @Composable () -> Unit) {
     val accent = FetchPalette.Accent
-    val colors = remember(accent) { fetchColors() }
-    MaterialTheme(colorScheme = colors, typography = FetchTypography) {
+    val surfaces = FetchPalette.Surfaces
+    val colors = remember(accent, surfaces) { fetchColors() }
+    val font = FetchPalette.Font
+    val typography = remember(font) { FetchTypography.withFontFamily(fontFamilyFor(font)) }
+    MaterialTheme(colorScheme = colors, typography = typography) {
         CompositionLocalProvider(LocalScrollbarStyle provides FetchScrollbarStyle, content = content)
     }
 }

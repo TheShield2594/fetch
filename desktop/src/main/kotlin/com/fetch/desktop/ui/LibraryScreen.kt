@@ -1,5 +1,7 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.poster.withCustomPosterUrls
+import com.fetch.desktop.poster.posterPatternFor
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,9 +21,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.text.font.FontWeight
+import com.fetch.desktop.ListProvider
 import com.fetch.desktop.AppState
 import com.fetch.desktop.Screen
-import com.fetch.desktop.TrackingService
 import com.fetch.desktop.servers.ServerSort
 import com.fetch.tv.domain.model.MetaPreview
 import androidx.compose.material3.CircularProgressIndicator
@@ -47,13 +60,16 @@ fun LibraryScreen(state: AppState) {
     var query by remember { mutableStateOf(LibraryQuery()) }
     // "Local", a connected account's watchlist, or a media server library, as the TV Library's
     // source picker ("Saved" and "Servers").
-    var source by remember { mutableStateOf<LibrarySource>(LibrarySource.Local) }
+    // Opens on Settings › Tracking › Library source, as on TV.
+    var source by remember { mutableStateOf(initialLibrarySource(state)) }
     val serverSources = state.servers.enabled.flatMap { account ->
         account.libraries.filter { it.selected }.map { LibrarySource.Server(account.id, it.id, "${it.name} · ${account.name}") }
     }
-    val sources = listOf(LibrarySource.Local) +
-        state.remoteLists.keys.map { LibrarySource.Watchlist(it) } + serverSources
+    val sources = state.lists.providers.map { LibrarySource.Lists(it) } + serverSources
     if (source !in sources) source = LibrarySource.Local
+    // The provider's list tab; the local Library shows tabs only once you've made a list, as on TV.
+    var listKey by remember { mutableStateOf<String?>(null) }
+    var managing by remember { mutableStateOf(false) }
     val picker: @Composable () -> Unit = {
         if (sources.size > 1) {
             FilterDropdown(
@@ -62,7 +78,9 @@ fun LibraryScreen(state: AppState) {
                 options = sources.map { DropdownOption(it, it.label) },
                 onSelect = {
                     source = it
-                    query = LibraryQuery(sort = query.sort)
+                    listKey = null
+                    // A provider starts in its own order, local lists by when added, as on TV.
+                    query = LibraryQuery(sort = (it as? LibrarySource.Lists)?.provider?.let { p -> com.fetch.desktop.library.LibraryProviderOrder.sortOptions(p).first() } ?: query.sort)
                 }
             )
         }
@@ -73,13 +91,34 @@ fun LibraryScreen(state: AppState) {
         return
     }
 
-    val remote = (source as? LibrarySource.Watchlist)?.let { state.remoteLists[it.service] }
-    val items = remote ?: state.library.toList()
+    val provider = (source as? LibrarySource.Lists)?.provider ?: ListProvider.LOCAL
+    val providerLists = state.lists.lists(provider)
+    val currentList = providerLists.firstOrNull { it.key == listKey } ?: providerLists.firstOrNull()
+    val items = currentList?.items.orEmpty()
     val watched = state.progress.watched.toSet()
-    val view = LibraryView(items, watched, query)
+    // Each provider's sort options, its own order first (Library provider order, as on TV).
+    val sortOptions = com.fetch.desktop.library.LibraryProviderOrder.sortOptions(provider)
+    val effectiveQuery = query.copy(sort = com.fetch.desktop.library.LibraryProviderOrder.sortFor(provider, query.sort))
+    // MDBList's release orders come from MDBList itself, as on TV.
+    val mdbOrderKey = when (effectiveQuery.sort) {
+        LibrarySort.RELEASED_DESC, LibrarySort.RELEASED_ASC -> "released"
+        else -> null
+    }.takeIf { provider == ListProvider.MDBLIST }
+    val mdbOrder by androidx.compose.runtime.produceState<List<String>?>(null, currentList?.key, mdbOrderKey) {
+        value = null
+        val key = currentList?.key ?: return@produceState
+        if (mdbOrderKey != null) value = runCatching { state.mdbListAccount.order(key, mdbOrderKey) }.getOrNull()
+    }
+    val view = LibraryView(items, watched, effectiveQuery).let { v ->
+        val order = mdbOrder ?: return@let v
+        val oldestFirst = LibrarySort.byOrder(v.results, order) { it.id }
+        v.withResults(if (effectiveQuery.sort == LibrarySort.RELEASED_DESC) oldestFirst.asReversed() else oldestFirst)
+    }
     val gridState = rememberLazyGridState()
 
-    if (sources.size == 1 && state.library.isEmpty()) {
+    if (managing) ListsManagerDialog(state, provider, onDismiss = { managing = false })
+
+    if (sources.size == 1 && state.library.isEmpty() && state.lists.local.isEmpty()) {
         Column(Modifier.fillMaxSize().padding(top = 40.dp, start = PageGutter, end = PageGutter)) {
             PageHeader("Library", subtitle = "Local")
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -91,6 +130,7 @@ fun LibraryScreen(state: AppState) {
                         textAlign = TextAlign.Center
                     )
                     SecondaryButton("Search for titles", onClick = { state.openSection(Screen.Search) }, icon = FetchIcons.Search)
+                    SecondaryButton("New list", onClick = { managing = true }, icon = FetchIcons.Add)
                 }
             }
         }
@@ -98,7 +138,7 @@ fun LibraryScreen(state: AppState) {
     }
 
     PosterGrid(
-        items = view.results.map { it.toPreview() }.filter(state::allowed),
+        items = view.results.map { it.toPreview() }.filter(state::allowed).withCustomPosterUrls(state.settings.layout.posterPatternFor(com.fetch.desktop.poster.CustomPosterScreen.LIBRARY)),
         state = gridState,
         onOpen = { state.navigate(Screen.Detail(it)) },
         showLabels = state.settings.showPosterLabels,
@@ -106,9 +146,32 @@ fun LibraryScreen(state: AppState) {
         header = {
             fullWidthItem("header") {
                 Column(verticalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.padding(bottom = 4.dp)) {
-                    PageHeader("Library", subtitle = "${source.label} · ${items.size} saved")
-                    picker()
-                    LibraryFilters(view, query, onChange = { query = it })
+                    PageHeader("Library", subtitle = "${source.label} · ${currentList?.title ?: ""} · ${items.size} titles")
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        picker()
+                        if (provider != ListProvider.SIMKL) SecondaryButton("Manage lists", onClick = { managing = true }, icon = FetchIcons.List)
+                        if (provider != ListProvider.LOCAL && state.lists.refreshing) {
+                            CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
+                        }
+                    }
+                    if (providerLists.size > 1) {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(providerLists, key = { it.key }) { list ->
+                                val selected = list.key == currentList?.key
+                                Text(
+                                    "${list.title} ${list.items.size}",
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (selected) Color.Black else Color.White,
+                                    modifier = Modifier.clip(RoundedCornerShape(50))
+                                        .background(if (selected) Color.White else Color.White.copy(alpha = 0.08f))
+                                        .clickable { listKey = list.key; query = LibraryQuery(sort = query.sort) }
+                                        .pointerHoverIcon(PointerIcon.Hand)
+                                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
+                            }
+                        }
+                    }
+                    LibraryFilters(view, effectiveQuery, onChange = { query = it }, sortOptions = sortOptions)
                 }
             }
             if (view.results.isEmpty()) {
@@ -128,12 +191,13 @@ fun LibraryScreen(state: AppState) {
 sealed interface LibrarySource {
     val label: String
 
-    data object Local : LibrarySource {
-        override val label = "Local"
+    companion object {
+        val Local: LibrarySource = Lists(ListProvider.LOCAL)
     }
 
-    data class Watchlist(val service: TrackingService) : LibrarySource {
-        override val label: String get() = service.watchlistName
+    /** A provider's lists: Local (the library and lists of your own), Trakt or Simkl. */
+    data class Lists(val provider: ListProvider) : LibrarySource {
+        override val label: String get() = provider.label
     }
 
     data class Server(val accountId: String, val libId: String, override val label: String) : LibrarySource
@@ -220,7 +284,7 @@ private fun ServerLibraryGrid(state: AppState, source: LibrarySource.Server, pic
 }
 
 @Composable
-private fun LibraryFilters(view: LibraryView, query: LibraryQuery, onChange: (LibraryQuery) -> Unit) {
+private fun LibraryFilters(view: LibraryView, query: LibraryQuery, onChange: (LibraryQuery) -> Unit, sortOptions: List<LibrarySort> = LibrarySort.entries) {
     @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
     androidx.compose.foundation.layout.FlowRow(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -236,7 +300,7 @@ private fun LibraryFilters(view: LibraryView, query: LibraryQuery, onChange: (Li
         FilterDropdown(
             label = "Sort",
             selected = query.sort,
-            options = LibrarySort.entries.map { DropdownOption(it, it.label) },
+            options = sortOptions.map { DropdownOption(it, it.label) },
             onSelect = { onChange(query.copy(sort = it)) }
         )
         if (view.genres.isNotEmpty()) {
@@ -262,4 +326,15 @@ private fun LibraryFilters(view: LibraryView, query: LibraryQuery, onChange: (Li
             onSelect = { onChange(query.copy(watched = it)) }
         )
     }
+}
+
+/** The Library source Settings › Tracking picks, when this profile has it; else Fetch's own. */
+private fun initialLibrarySource(state: AppState): LibrarySource {
+    val wanted = when (state.settings.tracking.library) {
+        com.fetch.desktop.tracking.LibrarySourceOption.LOCAL -> ListProvider.LOCAL
+        com.fetch.desktop.tracking.LibrarySourceOption.TRAKT -> ListProvider.TRAKT
+        com.fetch.desktop.tracking.LibrarySourceOption.SIMKL -> ListProvider.SIMKL
+        com.fetch.desktop.tracking.LibrarySourceOption.MDBLIST -> ListProvider.MDBLIST
+    }
+    return LibrarySource.Lists(wanted).takeIf { wanted in state.lists.providers } ?: LibrarySource.Local
 }

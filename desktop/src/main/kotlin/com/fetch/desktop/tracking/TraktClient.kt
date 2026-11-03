@@ -4,6 +4,7 @@ import com.fetch.desktop.AppInfo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
@@ -131,7 +132,12 @@ class TraktClient(
     }
 
     /** Marks a movie or one episode watched now (POST sync/history). A series without an episode is ignored. */
-    suspend fun addToHistory(tokens: TrackingTokens, item: TrackedItem) {
+    suspend fun addToHistory(tokens: TrackingTokens, item: TrackedItem) = changeHistory(tokens, item, remove = false)
+
+    /** Takes a movie or one episode out of the watched history (POST sync/history/remove). */
+    suspend fun removeFromHistory(tokens: TrackingTokens, item: TrackedItem) = changeHistory(tokens, item, remove = true)
+
+    private suspend fun changeHistory(tokens: TrackingTokens, item: TrackedItem, remove: Boolean) {
         val imdb = item.imdbId.imdbOrNull() ?: return
         val body = when {
             item.isMovie -> buildJsonObject { putJsonArray("movies") { add(idsObject(imdb)) } }
@@ -150,7 +156,7 @@ class TraktClient(
             }
             else -> return
         }
-        post(base + "sync/history", body, tokens).requireOk(SERVICE, "history update")
+        post(base + if (remove) "sync/history/remove" else "sync/history", body, tokens).requireOk(SERVICE, "history update")
     }
 
     /** The watchlist's movies and shows (GET sync/watchlist/movies and sync/watchlist/shows). */
@@ -158,8 +164,7 @@ class TraktClient(
         listOf("movies", "shows").flatMap { type ->
             get("sync/watchlist/$type?page=1&limit=1000", tokens).requireOk(SERVICE, "watchlist")
                 .decode<List<TraktListItemDto>>()
-                .mapNotNull { it.toRemote() }
-        }.sortedByDescending { it.addedAtEpochMs ?: 0L }
+        }.inRankOrder().mapNotNull { it.toRemote() }
 
     /** Adds the movie or series to the watchlist, or removes it (POST sync/watchlist[/remove]). */
     suspend fun setWatchlisted(tokens: TrackingTokens, item: TrackedItem, on: Boolean) {
@@ -169,6 +174,108 @@ class TraktClient(
         }
         val path = if (on) "sync/watchlist" else "sync/watchlist/remove"
         post(base + path, body, tokens).requireOk(SERVICE, "watchlist update")
+    }
+
+    // --- Personal lists (users/me/lists) ---
+
+    /** Your lists, in your order. */
+    suspend fun lists(tokens: TrackingTokens): List<RemoteList> =
+        get("users/me/lists", tokens).requireOk(SERVICE, "lists").decode<List<TraktListDto>>().mapNotNull { it.toRemote() }
+
+    /** A list's movies and shows, newest first. */
+    suspend fun listItems(tokens: TrackingTokens, listId: Long): List<RemoteListItem> =
+        get("users/me/lists/$listId/items/movie,show?page=1&limit=1000", tokens).requireOk(SERVICE, "list items")
+            .decode<List<TraktListItemDto>>()
+            .inRankOrder()
+            .mapNotNull { it.toRemote() }
+
+    suspend fun createList(tokens: TrackingTokens, name: String, description: String?, privacy: String): RemoteList? =
+        post(base + "users/me/lists", listBody(name, description, privacy), tokens).requireOk(SERVICE, "list create")
+            .decode<TraktListDto>().toRemote()
+
+    suspend fun updateList(tokens: TrackingTokens, listId: Long, name: String, description: String?, privacy: String) {
+        http.send(request(base + "users/me/lists/$listId", tokens).put(listBody(name, description, privacy).toJsonBody()).build())
+            .requireOk(SERVICE, "list update")
+    }
+
+    suspend fun deleteList(tokens: TrackingTokens, listId: Long) {
+        http.send(request(base + "users/me/lists/$listId", tokens).delete().build()).requireOk(SERVICE, "list delete")
+    }
+
+    /** Puts your lists in [listIds]' order (POST users/me/lists/reorder). */
+    suspend fun reorderLists(tokens: TrackingTokens, listIds: List<Long>) {
+        val body = buildJsonObject { putJsonArray("rank") { listIds.forEach { add(JsonPrimitive(it)) } } }
+        post(base + "users/me/lists/reorder", body, tokens).requireOk(SERVICE, "list order")
+    }
+
+    /** Adds the movie or series to a list, or takes it off (POST …/items[/remove]). */
+    suspend fun setListed(tokens: TrackingTokens, listId: Long, item: TrackedItem, on: Boolean) {
+        val imdb = item.imdbId.imdbOrNull() ?: return
+        val body = buildJsonObject { putJsonArray(if (item.isMovie) "movies" else "shows") { add(idsObject(imdb)) } }
+        val path = "users/me/lists/$listId/items" + if (on) "" else "/remove"
+        post(base + path, body, tokens).requireOk(SERVICE, "list update")
+    }
+
+    // --- Public lists (collection folders, as the TV's TraktPublicListSourceResolver) ---
+
+    /**
+     * A page of any list's movies or shows ([type] `movie` or `show`), sorted as asked, with the
+     * page count from `X-Pagination-Page-Count`. [tokens] is optional: public lists answer to the
+     * client id alone, and a private list of yours needs your sign-in.
+     */
+    suspend fun publicListItems(
+        tokens: TrackingTokens?,
+        listId: String,
+        type: String,
+        page: Int,
+        limit: Int,
+        sortBy: String,
+        sortHow: String
+    ): TraktListPage {
+        val url = "${base}lists/$listId/items/$type?extended=full,images&page=$page&limit=$limit&sort_by=$sortBy&sort_how=$sortHow"
+        val result = http.send(request(url, tokens).get().build()).requireOk(SERVICE, "list")
+        val items = result.decode<List<TraktPublicItemDto>>().mapNotNull { it.toItem() }
+        return TraktListPage(items, result.headers["X-Pagination-Page-Count"]?.toIntOrNull() ?: page)
+    }
+
+    /** A list's name, numeric id and cover, by id, slug or address. */
+    suspend fun publicList(tokens: TrackingTokens?, listId: String): TraktPublicList? {
+        val result = http.send(request("${base}lists/$listId?extended=full,images", tokens).get().build())
+        if (result.code == 404) return null
+        return result.requireOk(SERVICE, "list").decode<TraktPublicListDto>().toList()
+    }
+
+    /** Public lists matching [query] (search/list). */
+    suspend fun searchLists(tokens: TrackingTokens?, query: String): List<TraktPublicList> {
+        val q = java.net.URLEncoder.encode(query.trim(), Charsets.UTF_8)
+        return http.send(request("${base}search/list?query=$q&extended=full,images&limit=20", tokens).get().build())
+            .requireOk(SERVICE, "list search")
+            .decode<List<TraktListSearchDto>>()
+            .mapNotNull { it.list?.toList() }
+    }
+
+    /** Titles like [imdb] (GET movies|shows/{id}/related), for More like this. */
+    suspend fun related(tokens: TrackingTokens?, imdb: String, isShow: Boolean, limit: Int = 20): List<TraktPublicItem> {
+        val kind = if (isShow) "shows" else "movies"
+        val result = http.send(request("$base$kind/$imdb/related?extended=full,images&limit=$limit", tokens).get().build())
+        if (result.code == 404) return emptyList()
+        return result.requireOk(SERVICE, "related").decode<List<TraktFullMediaDto>>().mapNotNull { media ->
+            (if (isShow) TraktPublicItemDto(show = media) else TraktPublicItemDto(movie = media)).toItem()
+        }
+    }
+
+    /** The most liked comments on [imdb] (GET movies|shows/{id}/comments/likes), as the TV's comments row. */
+    suspend fun comments(tokens: TrackingTokens?, imdb: String, isShow: Boolean, limit: Int = 20): List<TraktComment> {
+        val kind = if (isShow) "shows" else "movies"
+        val result = http.send(request("$base$kind/$imdb/comments/likes?limit=$limit&extended=full", tokens).get().build())
+        if (result.code == 404) return emptyList()
+        return result.requireOk(SERVICE, "comments").decode<List<TraktCommentDto>>().mapNotNull { it.toComment() }
+    }
+
+    private fun listBody(name: String, description: String?, privacy: String) = buildJsonObject {
+        put("name", name)
+        put("description", description.orEmpty())
+        put("privacy", privacy)
     }
 
     private suspend fun get(path: String, tokens: TrackingTokens): HttpResult =
@@ -298,7 +405,26 @@ private data class TraktWatchedShowDto(val show: TraktMediaDto? = null, val seas
 private data class TraktWatchedSeasonDto(val number: Int? = null, val episodes: List<TraktEpisodeDto>? = null)
 
 @Serializable
+private data class TraktListIdsDto(val trakt: Long? = null, val slug: String? = null)
+
+@Serializable
+private data class TraktListDto(
+    val name: String? = null,
+    val description: String? = null,
+    val privacy: String? = null,
+    @SerialName("item_count") val itemCount: Int? = null,
+    val ids: TraktListIdsDto? = null,
+) {
+    fun toRemote(): RemoteList? {
+        val id = ids?.trakt ?: return null
+        return RemoteList(id, ids.slug, name?.takeIf { it.isNotBlank() } ?: return null, description?.takeIf { it.isNotBlank() }, privacy ?: "private", itemCount)
+    }
+}
+
+@Serializable
 private data class TraktListItemDto(
+    /** The list's own order (the Library's "Provider order"). */
+    val rank: Int? = null,
     @SerialName("listed_at") val listedAt: String? = null,
     val type: String? = null,
     val movie: TraktMediaDto? = null,
@@ -309,5 +435,161 @@ private data class TraktListItemDto(
         val imdb = media.ids?.imdb.imdbOrNull() ?: return null
         val type = if (movie != null) TrackedItem.TYPE_MOVIE else TrackedItem.TYPE_SERIES
         return RemoteListItem(imdb, type, media.title.orEmpty(), media.year, parseIsoEpochMs(listedAt))
+    }
+}
+
+/** Items in the list's own order (rank), newest first without one. */
+private fun List<TraktListItemDto>.inRankOrder(): List<TraktListItemDto> =
+    sortedWith(compareBy<TraktListItemDto> { it.rank ?: Int.MAX_VALUE }.thenByDescending { parseIsoEpochMs(it.listedAt) ?: 0L })
+
+/** A page of a Trakt list's items, for a collection folder. */
+data class TraktListPage(val items: List<TraktPublicItem>, val pageCount: Int)
+
+/** One movie or show on a Trakt list. [id] is the IMDb id, else `tmdb:<id>`, else `trakt:<id>` (as on TV). */
+data class TraktPublicItem(
+    val id: String,
+    val isShow: Boolean,
+    val title: String,
+    val year: Int?,
+    val overview: String?,
+    val rating: Double?,
+    val genres: List<String>,
+    val runtime: Int?,
+    val poster: String?,
+    val fanart: String?,
+    val logo: String?
+)
+
+/** A Trakt list found by id or search. */
+data class TraktPublicList(val id: Long, val name: String, val owner: String?, val itemCount: Int?, val cover: String?)
+
+/** Trakt image paths come without a scheme ("walter-r2.trakt.tv/…"). */
+internal fun List<String>?.traktImageUrl(): String? {
+    val raw = this.orEmpty().firstOrNull { it.isNotBlank() }?.trim() ?: return null
+    return when {
+        raw.startsWith("https://", true) -> raw
+        raw.startsWith("http://", true) -> "https://" + raw.substringAfter("://")
+        raw.startsWith("//") -> "https:$raw"
+        else -> "https://$raw"
+    }
+}
+
+@Serializable
+private data class TraktFullIdsDto(val trakt: Long? = null, val slug: String? = null, val imdb: String? = null, val tmdb: Int? = null)
+
+@Serializable
+private data class TraktImagesDto(
+    val poster: List<String>? = null,
+    val fanart: List<String>? = null,
+    val logo: List<String>? = null,
+    val thumb: List<String>? = null
+)
+
+@Serializable
+private data class TraktFullMediaDto(
+    val title: String? = null,
+    val year: Int? = null,
+    val ids: TraktFullIdsDto? = null,
+    val overview: String? = null,
+    val rating: Double? = null,
+    val genres: List<String>? = null,
+    val runtime: Int? = null,
+    val released: String? = null,
+    @SerialName("first_aired") val firstAired: String? = null,
+    val images: TraktImagesDto? = null
+)
+
+@Serializable
+private data class TraktPublicItemDto(val movie: TraktFullMediaDto? = null, val show: TraktFullMediaDto? = null) {
+    fun toItem(): TraktPublicItem? {
+        val media = movie ?: show ?: return null
+        val title = media.title?.takeIf { it.isNotBlank() } ?: return null
+        val ids = media.ids
+        val id = ids?.imdb.imdbOrNull()
+            ?: ids?.tmdb?.let { "tmdb:$it" }
+            ?: ids?.trakt?.let { "trakt:$it" }
+            ?: return null
+        val images = media.images
+        return TraktPublicItem(
+            id = id,
+            isShow = movie == null,
+            title = title,
+            year = media.year ?: (media.released ?: media.firstAired)?.take(4)?.toIntOrNull(),
+            overview = media.overview?.takeIf { it.isNotBlank() },
+            rating = media.rating,
+            genres = media.genres.orEmpty(),
+            runtime = media.runtime?.takeIf { it > 0 },
+            poster = images?.poster.traktImageUrl() ?: images?.fanart.traktImageUrl(),
+            fanart = images?.fanart.traktImageUrl() ?: images?.thumb.traktImageUrl(),
+            logo = images?.logo.traktImageUrl()
+        )
+    }
+}
+
+@Serializable
+private data class TraktListUserDto(val username: String? = null)
+
+@Serializable
+private data class TraktListImagesDto(val posters: List<String>? = null)
+
+@Serializable
+private data class TraktPublicListDto(
+    val name: String? = null,
+    @SerialName("item_count") val itemCount: Int? = null,
+    val ids: TraktFullIdsDto? = null,
+    val user: TraktListUserDto? = null,
+    val images: TraktListImagesDto? = null
+) {
+    fun toList(): TraktPublicList? {
+        val id = ids?.trakt ?: return null
+        return TraktPublicList(id, name?.takeIf { it.isNotBlank() } ?: "Trakt List $id", user?.username, itemCount, images?.posters.traktImageUrl())
+    }
+}
+
+@Serializable
+private data class TraktListSearchDto(val type: String? = null, val list: TraktPublicListDto? = null)
+
+/** A comment on a title, as the TV's comments row shows it. */
+data class TraktComment(
+    val id: Long,
+    val author: String,
+    val text: String,
+    val spoiler: Boolean,
+    val review: Boolean,
+    val likes: Int,
+    /** The author's rating out of 10, when they gave one. */
+    val rating: Int?,
+    val createdAt: String?
+)
+
+@Serializable
+private data class TraktCommentUserDto(val username: String? = null, val name: String? = null)
+
+@Serializable
+private data class TraktCommentStatsDto(val rating: Int? = null)
+
+@Serializable
+private data class TraktCommentDto(
+    val id: Long? = null,
+    val comment: String? = null,
+    val spoiler: Boolean = false,
+    val review: Boolean = false,
+    val likes: Int = 0,
+    @SerialName("created_at") val createdAt: String? = null,
+    val user: TraktCommentUserDto? = null,
+    @SerialName("user_stats") val userStats: TraktCommentStatsDto? = null
+) {
+    fun toComment(): TraktComment? {
+        val text = comment?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+        return TraktComment(
+            id = id ?: return null,
+            author = user?.name?.takeIf { it.isNotBlank() } ?: user?.username ?: "Trakt user",
+            text = text,
+            spoiler = spoiler,
+            review = review,
+            likes = likes,
+            rating = userStats?.rating,
+            createdAt = createdAt
+        )
     }
 }

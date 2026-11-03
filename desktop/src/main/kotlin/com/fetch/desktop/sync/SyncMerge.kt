@@ -205,6 +205,8 @@ object SyncMerge {
                 usesPrimaryAddons = if (r.profileIndex == DesktopProfile.PRIMARY_ID) mine?.usesPrimaryAddons ?: true else r.usesPrimaryAddons,
                 pinHash = mine?.pinHash,
                 limits = mine?.limits ?: ProfileLimits(),
+                avatarId = r.avatarId,
+                avatarUrl = r.avatarUrl?.takeIf { it.isNotBlank() },
             )
         }.toMutableList()
         if (merged.none { it.isPrimary }) {
@@ -229,8 +231,9 @@ object SyncMerge {
                 name = p.name,
                 avatarColorHex = p.colorHex,
                 usesPrimaryAddons = !p.isPrimary && p.usesPrimaryAddons,
-                avatarId = theirs?.avatarId,
-                avatarUrl = theirs?.avatarUrl,
+                // An avatar picked here replaces the account's picture; with none picked here, theirs is kept.
+                avatarId = p.avatarId ?: theirs?.avatarId,
+                avatarUrl = if (p.avatarId != null && p.avatarId != theirs?.avatarId) null else theirs?.avatarUrl,
                 profileBackgroundId = theirs?.profileBackgroundId,
                 profileBackgroundUrl = theirs?.profileBackgroundUrl,
             )
@@ -261,17 +264,16 @@ object SyncMerge {
         val level = listOfNotNull(localLevel, remoteLevel).minByOrNull { it.rank }
         val localAllows = localLevel == null || local.allowUnrated
         val remoteAllows = remoteLevel == null || remote.allowUnrated
-        return local.copy(maxRating = level?.name, allowUnrated = level == null || (localAllows && remoteAllows))
+        return local.copy(maxRating = level?.name, allowUnrated = level == null || (localAllows && remoteAllows), kidsProfile = remote.isKidsProfile)
     }
 
     /**
-     * A profile's limits as [SyncClient.pushParentalLimits] takes them. This app has no kids-profile
-     * switch, so the account's is kept.
+     * A profile's limits as [SyncClient.pushParentalLimits] takes them, with its kids-profile switch.
      */
     fun parentalLimitsToPush(local: ProfileLimits, remote: RemoteParentalLimits?): RemoteParentalLimits {
         val level = local.maxRating?.let { CertificationLevel.fromName(it) ?: CertificationLevel.ALL_AGES }
         return RemoteParentalLimits(
-            isKidsProfile = remote?.isKidsProfile ?: false,
+            isKidsProfile = local.kidsProfile,
             maxRating = level?.name,
             allowUnrated = level == null || local.allowUnrated,
         )

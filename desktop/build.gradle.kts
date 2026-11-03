@@ -48,13 +48,22 @@ val resourceValues = mapOf(
     "traktClientSecret" to credential("TRAKT_CLIENT_SECRET"),
     "simklClientId" to credential("SIMKL_CLIENT_ID"),
     "simklAppName" to credential("SIMKL_APP_NAME", "fetch"),
-    "tmdbApiKey" to credential("TMDB_API_KEY")
+    "tmdbApiKey" to credential("TMDB_API_KEY"),
+    "mdblistClientId" to credential("MDBLIST_CLIENT_ID"),
+    // The TV's episode ratings services (IMDb by IMDb id, SeriesGraph by TMDB id).
+    "imdbTapframeApiBaseUrl" to credential("IMDB_TAPFRAME_API_BASE_URL"),
+    "imdbRatingsApiBaseUrl" to credential("IMDB_RATINGS_API_BASE_URL")
 )
 
 // Settings › About shows the version; the accounts read their client IDs from here.
 tasks.processResources {
     inputs.properties(resourceValues)
     filesMatching("fetch-desktop.properties") { expand(resourceValues) }
+    // Appearance › App Font: the TV app's fonts, from its res/font (not duplicated in the repo).
+    from(rootProject.file("app/src/main/res/font")) {
+        into("fonts")
+        include("schibsted_grotesk_variable.ttf", "inter_variable.ttf", "dm_sans_variable.ttf", "opensans_variable.ttf")
+    }
 }
 
 dependencies {

@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.fetch.desktop.AppState
+import com.fetch.tv.core.addon.isConfigurable
 import com.fetch.tv.domain.model.Addon
 
 @Composable
@@ -50,6 +51,10 @@ fun AddonsScreen(state: AppState) {
         }
     }
     val listState = rememberLazyListState()
+    // As on TV: a profile using the main profile's addons only lists them, and Essential mode
+    // leaves out the order buttons.
+    val readOnly = com.fetch.desktop.data.AddonManagementAccess.isReadOnly(state.profile)
+    val reorder = !readOnly && com.fetch.desktop.data.ExperiencePolicy.canReorderAddons(state.settings.experience.mode)
     ScrollbarBox(listState, Modifier.fillMaxSize()) {
     LazyColumn(
         state = listState,
@@ -57,7 +62,10 @@ fun AddonsScreen(state: AppState) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxSize().widthIn(max = 1100.dp)
     ) {
-        item {
+        if (readOnly) item {
+            Text("This profile uses the main profile's addons. Switch to the main profile to change them.", color = FetchPalette.TextSecondary)
+        }
+        if (!readOnly) item {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(bottom = 12.dp)) {
                 Text(
                     "Streams and catalogs come from Stremio addons. Paste an addon's link (it usually ends in manifest.json). " +
@@ -78,6 +86,8 @@ fun AddonsScreen(state: AppState) {
                     )
                     PrimaryButton("Install", onClick = install, icon = null, enabled = url.isNotBlank())
                 }
+                // Addon health and Catalog order are Advanced only, as on TV; Catalog order also needs your own addons.
+                if (!state.settings.experience.isEssential) AddonToolsRow(state, catalogOrder = !readOnly)
             }
         }
         if (state.addons.isEmpty() && state.unreachableAddons.isEmpty() && !state.addonsLoading) {
@@ -88,8 +98,9 @@ fun AddonsScreen(state: AppState) {
                 addon = addon,
                 canMoveUp = index > 0,
                 canMoveDown = index < state.addons.lastIndex,
-                onMove = { delta -> state.moveAddon(addon, delta) },
-                onRemove = { state.removeAddon(addon) }
+                onMove = if (reorder) { delta -> state.moveAddon(addon, delta) } else null,
+                onRemove = if (readOnly) null else ({ state.removeAddon(addon) }),
+                onConfigure = if (addon.isConfigurable) ({ state.configureAddon(addon) }) else null
             )
         }
         items(state.unreachableAddons, key = { "unreachable|${it.first}" }) { (addonUrl, error) ->
@@ -119,8 +130,9 @@ private fun AddonCard(
     addon: Addon,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
-    onMove: (Int) -> Unit,
-    onRemove: () -> Unit
+    onMove: ((Int) -> Unit)?,
+    onRemove: (() -> Unit)?,
+    onConfigure: (() -> Unit)?
 ) {
     Card(colors = CardDefaults.cardColors(containerColor = FetchPalette.Surface), shape = RoundedCornerShape(14.dp)) {
         Row(
@@ -156,9 +168,12 @@ private fun AddonCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            CircleIconButton(FetchIcons.ArrowUp, "Move up", onClick = { onMove(-1) }, size = 40.dp, enabled = canMoveUp)
-            CircleIconButton(FetchIcons.ArrowDown, "Move down", onClick = { onMove(1) }, size = 40.dp, enabled = canMoveDown)
-            CircleIconButton(FetchIcons.Delete, "Remove", onClick = onRemove, size = 40.dp)
+            if (onConfigure != null) SecondaryButton("Configure", onClick = onConfigure, icon = FetchIcons.Settings)
+            if (onMove != null) {
+                CircleIconButton(FetchIcons.ArrowUp, "Move up", onClick = { onMove(-1) }, size = 40.dp, enabled = canMoveUp)
+                CircleIconButton(FetchIcons.ArrowDown, "Move down", onClick = { onMove(1) }, size = 40.dp, enabled = canMoveDown)
+            }
+            if (onRemove != null) CircleIconButton(FetchIcons.Delete, "Remove", onClick = onRemove, size = 40.dp)
         }
     }
 }

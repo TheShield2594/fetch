@@ -43,6 +43,12 @@ interface MediaServerClient {
      */
     suspend fun browse(account: ServerAccount, lib: ServerLib, start: Int, limit: Int, sort: ServerSort = ServerSort.ADDED): ServerPageResult
 
+    /** A page of [lib] narrowed and sorted by a filter row's [filters], applied by the server (TV: `filteredLibraryPage`). */
+    suspend fun filteredPage(account: ServerAccount, lib: ServerLib, filters: com.fetch.desktop.FilterRowFilters, start: Int, limit: Int): ServerPageResult
+
+    /** The genres [lib] has, for a filter row's genre picker. */
+    suspend fun genres(account: ServerAccount, lib: ServerLib): List<String>
+
     /**
      * Full metadata of the server movie or series [itemId] (a raw server item id, not a [ServerItemRef]).
      * The meta's id is the item's [ServerItemRef]; a series lists every episode in `videos`, each

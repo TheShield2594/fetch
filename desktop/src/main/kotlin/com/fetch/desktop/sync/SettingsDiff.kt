@@ -18,7 +18,23 @@ fun RemoteSharedSettings.changedFrom(before: RemoteSharedSettings): RemoteShared
         subtitleLanguage = pick(subtitleLanguage, before.subtitleLanguage),
         rankingRules = pick(rankingRules, before.rankingRules),
         autoplayNextEpisode = pick(autoplayNextEpisode, before.autoplayNextEpisode),
-        autoSkipSegments = pick(autoSkipSegments, before.autoSkipSegments)
+        autoSkipSegments = pick(autoSkipSegments, before.autoSkipSegments),
+        showUnairedNextUp = pick(showUnairedNextUp, before.showUnairedNextUp),
+        nextUpFromFurthest = pick(nextUpFromFurthest, before.nextUpFromFurthest),
+        continueWatchingSort = pick(continueWatchingSort, before.continueWatchingSort),
+        tmdbFlags = tmdbFlags?.filter { (k, v) -> before.tmdbFlags?.get(k) != v }?.takeIf { it.isNotEmpty() },
+        tmdbLanguage = pick(tmdbLanguage, before.tmdbLanguage),
+        mdblistFlags = mdblistFlags?.filter { (k, v) -> before.mdblistFlags?.get(k) != v }?.takeIf { it.isNotEmpty() },
+        mdblistRatingOrder = pick(mdblistRatingOrder, before.mdblistRatingOrder),
+        appearance = appearance.changedFrom(before.appearance),
+        experience = experience.changedFrom(before.experience),
+        playerExtras = playerExtras?.changedFrom(before.playerExtras),
+        autoPlay = autoPlay?.filter { (k, v) -> before.autoPlay?.get(k) != v }?.takeIf { it.isNotEmpty() },
+        episodeQueue = pick(episodeQueue, before.episodeQueue),
+        layoutValues = layoutValues?.filter { (k, v) -> before.layoutValues?.get(k) != v }?.takeIf { it.isNotEmpty() },
+        trackingStrings = trackingStrings?.filter { (k, v) -> before.trackingStrings?.get(k) != v }?.takeIf { it.isNotEmpty() },
+        trackingInts = trackingInts?.filter { (k, v) -> before.trackingInts?.get(k) != v }?.takeIf { it.isNotEmpty() },
+        trackingFlags = trackingFlags?.filter { (k, v) -> before.trackingFlags?.get(k) != v }?.takeIf { it.isNotEmpty() }
     )
     return diff.takeUnless { it == RemoteSharedSettings() }
 }

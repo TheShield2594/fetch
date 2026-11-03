@@ -45,10 +45,10 @@ import com.fetch.desktop.servers.ServerKind
 
 /** Settings › Content & Discovery › Media servers. */
 @Composable
-fun MediaServersPage(state: AppState) {
+fun MediaServersPage(state: AppState, header: Boolean = true) {
     val servers = state.servers
     var adding by remember { mutableStateOf<ServerKind?>(null) }
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+    if (header) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         CircleIconButton(FetchIcons.Back, "Back", onClick = state::back, size = 40.dp)
         PageHeader("Media servers", subtitle = "Your Jellyfin, Emby and Plex files as sources, ranked first, and your libraries on Home.")
     }

@@ -1,0 +1,848 @@
+{
+ "estimatedResults": "33726382",
+ "continuationContents": {
+  "sectionListContinuation": {
+   "contents": [
+    {
+     "shelfRenderer": {
+      "content": {
+       "horizontalListRenderer": {
+        "items": [
+         {
+          "lockupViewModel": {
+           "contentImage": {
+            "thumbnailViewModel": {
+             "image": {
+              "sources": [
+               {
+                "url": "//yt3.ggpht.com/HAdGHRmwJGJ04ZqmzdSq_JB8TOzZVErNxgKfb6ZQn90dczJeXRFe7qvoylXHGdufcIY62bKCng=s176-c-k-c0x00ffffff-no-rj-mo",
+                "width": 176,
+                "height": 176
+               }
+              ]
+             }
+            }
+           },
+           "metadata": {
+            "lockupMetadataViewModel": {
+             "title": {
+              "content": "NASA Science"
+             },
+             "metadata": {
+              "contentMetadataViewModel": {
+               "metadataRows": [
+                {
+                 "metadataParts": [
+                  {
+                   "text": {
+                    "content": "@NASAScience"
+                   }
+                  }
+                 ]
+                },
+                {
+                 "metadataParts": [
+                  {
+                   "text": {
+                    "content": "219K subscribers"
+                   }
+                  }
+                 ]
+                }
+               ],
+               "delimiter": " • "
+              }
+             }
+            }
+           },
+           "contentId": "UCKt6dYzHqHfpcp1lgj4bl1A",
+           "contentType": "LOCKUP_CONTENT_TYPE_CHANNEL",
+           "rendererContext": {
+            "commandContext": {
+             "onTap": {
+              "innertubeCommand": {
+               "browseEndpoint": {
+                "browseId": "UCKt6dYzHqHfpcp1lgj4bl1A"
+               }
+              }
+             },
+             "onLongPress": {
+              "innertubeCommand": {
+               "showMenuCommand": {
+                "contentId": "UCKt6dYzHqHfpcp1lgj4bl1A",
+                "thumbnail": {
+                 "thumbnails": [
+                  {
+                   "url": "//yt3.ggpht.com/HAdGHRmwJGJ04ZqmzdSq_JB8TOzZVErNxgKfb6ZQn90dczJeXRFe7qvoylXHGdufcIY62bKCng=s176-c-k-c0x00ffffff-no-rj-mo",
+                   "width": 176,
+                   "height": 176
+                  }
+                 ]
+                },
+                "title": {
+                 "simpleText": "NASA Science"
+                },
+                "subtitle": {
+                 "simpleText": "@NASAScience"
+                },
+                "menu": {
+                 "menuRenderer": {
+                  "items": [
+                   {
+                    "menuNavigationItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "View channel"
+                       }
+                      ]
+                     },
+                     "navigationEndpoint": {
+                      "browseEndpoint": {
+                       "browseId": "UCKt6dYzHqHfpcp1lgj4bl1A"
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         },
+         {
+          "lockupViewModel": {
+           "contentImage": {
+            "thumbnailViewModel": {
+             "image": {
+              "sources": [
+               {
+                "url": "//yt3.ggpht.com/Qc8LKJsm3lqSGkKSb9kkJbJWW4PXBgt25eLVwWuMFZiSRl6RHptXnC2MwfmSl2kddj4Fhb3yQw=s176-c-k-c0x00ffffff-no-rj-mo",
+                "width": 176,
+                "height": 176
+               }
+              ]
+             }
+            }
+           },
+           "metadata": {
+            "lockupMetadataViewModel": {
+             "title": {
+              "content": "NASA Jet Propulsion Laboratory"
+             },
+             "metadata": {
+              "contentMetadataViewModel": {
+               "metadataRows": [
+                {
+                 "metadataParts": [
+                  {
+                   "text": {
+                    "content": "@NASAJPL"
+                   }
+                  }
+                 ]
+                },
+                {
+                 "metadataParts": [
+                  {
+                   "text": {
+                    "content": "1.24M subscribers"
+                   }
+                  }
+                 ]
+                }
+               ],
+               "delimiter": " • "
+              }
+             }
+            }
+           },
+           "contentId": "UCryGec9PdUCLjpJW2mgCuLw",
+           "contentType": "LOCKUP_CONTENT_TYPE_CHANNEL",
+           "rendererContext": {
+            "commandContext": {
+             "onTap": {
+              "innertubeCommand": {
+               "browseEndpoint": {
+                "browseId": "UCryGec9PdUCLjpJW2mgCuLw"
+               }
+              }
+             },
+             "onLongPress": {
+              "innertubeCommand": {
+               "showMenuCommand": {
+                "contentId": "UCryGec9PdUCLjpJW2mgCuLw",
+                "thumbnail": {
+                 "thumbnails": [
+                  {
+                   "url": "//yt3.ggpht.com/Qc8LKJsm3lqSGkKSb9kkJbJWW4PXBgt25eLVwWuMFZiSRl6RHptXnC2MwfmSl2kddj4Fhb3yQw=s176-c-k-c0x00ffffff-no-rj-mo",
+                   "width": 176,
+                   "height": 176
+                  }
+                 ]
+                },
+                "title": {
+                 "simpleText": "NASA Jet Propulsion Laboratory"
+                },
+                "subtitle": {
+                 "simpleText": "@NASAJPL"
+                },
+                "menu": {
+                 "menuRenderer": {
+                  "items": [
+                   {
+                    "menuNavigationItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "View channel"
+                       }
+                      ]
+                     },
+                     "navigationEndpoint": {
+                      "browseEndpoint": {
+                       "browseId": "UCryGec9PdUCLjpJW2mgCuLw"
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         },
+         {
+          "lockupViewModel": {
+           "contentImage": {
+            "thumbnailViewModel": {
+             "image": {
+              "sources": [
+               {
+                "url": "https://i.ytimg.com/vi/A-NgmnHRSwk/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLDq2gfzYbcC1lXHIP_pAwce6ZRxhQ",
+                "width": 640,
+                "height": 360
+               }
+              ]
+             },
+             "overlays": [
+              {
+               "thumbnailBottomOverlayViewModel": {
+                "badges": [
+                 {
+                  "thumbnailBadgeViewModel": {
+                   "icon": {
+                    "sources": [
+                     {
+                      "clientResource": {
+                       "imageName": "AUDIO"
+                      }
+                     }
+                    ]
+                   },
+                   "text": "1:39",
+                   "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT",
+                   "rendererContext": {
+                    "accessibilityContext": {
+                     "label": "1 minute, 39 seconds"
+                    }
+                   }
+                  }
+                 }
+                ]
+               }
+              }
+             ]
+            }
+           },
+           "metadata": {
+            "lockupMetadataViewModel": {
+             "title": {
+              "content": "NCT WISH 엔시티 위시 'NASA' Dance Practice (Moving Ver.)"
+             },
+             "metadata": {
+              "contentMetadataViewModel": {
+               "metadataRows": [
+                {
+                 "metadataParts": [
+                  {
+                   "text": {
+                    "content": "NCT WISH"
+                   }
+                  }
+                 ]
+                },
+                {
+                 "metadataParts": [
+                  {
+                   "text": {
+                    "content": "1.8M views"
+                   }
+                  },
+                  {
+                   "text": {
+                    "content": "2 years ago"
+                   },
+                   "accessibilityLabel": "2 years ago"
+                  }
+                 ],
+                 "badges": [
+                  {
+                   "badgeViewModel": {
+                    "badgeText": "4K",
+                    "badgeStyle": "BADGE_DEFAULT"
+                   }
+                  }
+                 ]
+                }
+               ],
+               "delimiter": " • "
+              }
+             }
+            }
+           },
+           "contentId": "A-NgmnHRSwk",
+           "contentType": "LOCKUP_CONTENT_TYPE_MUSIC",
+           "rendererContext": {
+            "commandContext": {
+             "onTap": {
+              "innertubeCommand": {
+               "watchEndpoint": {
+                "videoId": "A-NgmnHRSwk",
+                "playlistId": "RDA-NgmnHRSwk",
+                "params": "qgMEbmFzYboDCgik-r_S6aGIzwy6AwoI7-_ng_75nqJpugMLCOTCsPqnsp-TmwG6AwsI196AlIvzw_yNAboDCwi75-GYgPW0_bcBugMKCJeB-cPM69fna7oDCwiw7Pnr042lzO0BugMKCPPwnIr866X3KboDCgjN7eXRtMO40zG6AwoIqdDA86Ln--4IugMLCJ3dt_ierZbS9AG6AwsI9eCa67bu1vrrAboDCwj9hqvT6bmYgOgBugMKCOrrkK-qwZCMLLoDCgjP05Wovu6elUS4BQE%3D"
+               }
+              }
+             },
+             "onLongPress": {
+              "innertubeCommand": {
+               "showMenuCommand": {
+                "contentId": "A-NgmnHRSwk",
+                "thumbnail": {
+                 "thumbnails": [
+                  {
+                   "url": "https://i.ytimg.com/vi/A-NgmnHRSwk/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLDq2gfzYbcC1lXHIP_pAwce6ZRxhQ",
+                   "width": 640,
+                   "height": 360
+                  }
+                 ]
+                },
+                "title": {
+                 "simpleText": "NCT WISH 엔시티 위시 'NASA' Dance Practice (Moving Ver.)"
+                },
+                "subtitle": {
+                 "simpleText": "NCT WISH"
+                },
+                "menu": {
+                 "menuRenderer": {
+                  "items": [
+                   {
+                    "menuNavigationItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "Play"
+                       }
+                      ]
+                     },
+                     "navigationEndpoint": {
+                      "watchEndpoint": {
+                       "videoId": "A-NgmnHRSwk",
+                       "playlistId": "RDA-NgmnHRSwk",
+                       "params": "qgMEbmFzYboDCgik-r_S6aGIzwy6AwoI7-_ng_75nqJpugMLCOTCsPqnsp-TmwG6AwsI196AlIvzw_yNAboDCwi75-GYgPW0_bcBugMKCJeB-cPM69fna7oDCwiw7Pnr042lzO0BugMKCPPwnIr866X3KboDCgjN7eXRtMO40zG6AwoIqdDA86Ln--4IugMLCJ3dt_ierZbS9AG6AwsI9eCa67bu1vrrAboDCwj9hqvT6bmYgOgBugMKCOrrkK-qwZCMLLoDCgjP05Wovu6elUS4BQE%3D"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "menuNavigationItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "Go to channel"
+                       }
+                      ]
+                     },
+                     "navigationEndpoint": {
+                      "browseEndpoint": {
+                       "browseId": "UCiZqWVAeChfqlom5ZPR3ZJA"
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         },
+         {
+          "lockupViewModel": {
+           "contentImage": {
+            "thumbnailViewModel": {
+             "image": {
+              "sources": [
+               {
+                "url": "//yt3.googleusercontent.com/ytc/AIdro_m5NUo88TvQPARQJVKLU-Te8tSue00rkj1DazSxu0IluLg=s176-c-k-c0x00ffffff-no-rj-mo",
+                "width": 176,
+                "height": 176
+               }
+              ]
+             }
+            }
+           },
+           "metadata": {
+            "lockupMetadataViewModel": {
+             "title": {
+              "content": "NASA Space Place"
+             },
+             "metadata": {
+              "contentMetadataViewModel": {
+               "metadataRows": [
+                {
+                 "metadataParts": [
+                  {
+                   "text": {
+                    "content": "@NASASpacePlace"
+                   }
+                  }
+                 ]
+                },
+                {
+                 "metadataParts": [
+                  {
+                   "text": {
+                    "content": "72.2K subscribers"
+                   }
+                  }
+                 ]
+                }
+               ],
+               "delimiter": " • "
+              }
+             }
+            }
+           },
+           "contentId": "UCMRzqb0rmcil3OxeVFVRIMw",
+           "contentType": "LOCKUP_CONTENT_TYPE_CHANNEL",
+           "rendererContext": {
+            "commandContext": {
+             "onTap": {
+              "innertubeCommand": {
+               "browseEndpoint": {
+                "browseId": "UCMRzqb0rmcil3OxeVFVRIMw"
+               }
+              }
+             },
+             "onLongPress": {
+              "innertubeCommand": {
+               "showMenuCommand": {
+                "contentId": "UCMRzqb0rmcil3OxeVFVRIMw",
+                "thumbnail": {
+                 "thumbnails": [
+                  {
+                   "url": "//yt3.googleusercontent.com/ytc/AIdro_m5NUo88TvQPARQJVKLU-Te8tSue00rkj1DazSxu0IluLg=s176-c-k-c0x00ffffff-no-rj-mo",
+                   "width": 176,
+                   "height": 176
+                  }
+                 ]
+                },
+                "title": {
+                 "simpleText": "NASA Space Place"
+                },
+                "subtitle": {
+                 "simpleText": "@NASASpacePlace"
+                },
+                "menu": {
+                 "menuRenderer": {
+                  "items": [
+                   {
+                    "menuNavigationItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "View channel"
+                       }
+                      ]
+                     },
+                     "navigationEndpoint": {
+                      "browseEndpoint": {
+                       "browseId": "UCMRzqb0rmcil3OxeVFVRIMw"
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         },
+         {
+          "lockupViewModel": {
+           "contentImage": {
+            "thumbnailViewModel": {
+             "image": {
+              "sources": [
+               {
+                "url": "https://i.ytimg.com/vi/DJ4hDppP_SQ/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLB_GDgg6ytAz8TJn_HWkyA8Zst08A",
+                "width": 640,
+                "height": 360
+               }
+              ]
+             },
+             "overlays": [
+              {
+               "thumbnailBottomOverlayViewModel": {
+                "badges": [
+                 {
+                  "thumbnailBadgeViewModel": {
+                   "text": "3:01",
+                   "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT",
+                   "rendererContext": {
+                    "accessibilityContext": {
+                     "label": "3 minutes, 1 second"
+                    }
+                   }
+                  }
+                 }
+                ]
+               }
+              }
+             ]
+            }
+           },
+           "metadata": {
+            "lockupMetadataViewModel": {
+             "title": {
+              "content": "See a NASA Physicist's Incredible Origami"
+             },
+             "metadata": {
+              "contentMetadataViewModel": {
+               "metadataRows": [
+                {
+                 "metadataParts": [
+                  {
+                   "text": {
+                    "content": "Great Big Story"
+                   }
+                  }
+                 ]
+                },
+                {
+                 "metadataParts": [
+                  {
+                   "text": {
+                    "content": "15M views"
+                   }
+                  },
+                  {
+                   "text": {
+                    "content": "9 years ago"
+                   },
+                   "accessibilityLabel": "9 years ago"
+                  }
+                 ],
+                 "badges": [
+                  {
+                   "badgeViewModel": {
+                    "badgeText": "CC",
+                    "badgeStyle": "BADGE_DEFAULT"
+                   }
+                  }
+                 ]
+                }
+               ],
+               "delimiter": " • "
+              }
+             }
+            }
+           },
+           "contentId": "DJ4hDppP_SQ",
+           "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+           "rendererContext": {
+            "commandContext": {
+             "onTap": {
+              "innertubeCommand": {
+               "watchEndpoint": {
+                "videoId": "DJ4hDppP_SQ",
+                "params": "qgMEbmFzYboDCgiJlsWOp5PY8QO6AwoI7-_ng_75nqJpugMLCOTCsPqnsp-TmwG6AwsI196AlIvzw_yNAboDCwi75-GYgPW0_bcBugMKCJeB-cPM69fna7oDCwiw7Pnr042lzO0BugMKCPPwnIr866X3KboDCgjN7eXRtMO40zG6AwoIqdDA86Ln--4IugMLCJ3dt_ierZbS9AG6AwsI9eCa67bu1vrrAboDCwj9hqvT6bmYgOgBugMKCOrrkK-qwZCMLLoDCgjP05Wovu6elUQ%3D"
+               }
+              }
+             },
+             "onLongPress": {
+              "innertubeCommand": {
+               "showMenuCommand": {
+                "contentId": "DJ4hDppP_SQ",
+                "thumbnail": {
+                 "thumbnails": [
+                  {
+                   "url": "https://i.ytimg.com/vi/DJ4hDppP_SQ/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLB_GDgg6ytAz8TJn_HWkyA8Zst08A",
+                   "width": 640,
+                   "height": 360
+                  }
+                 ]
+                },
+                "title": {
+                 "simpleText": "See a NASA Physicist's Incredible Origami"
+                },
+                "subtitle": {
+                 "simpleText": "Great Big Story"
+                },
+                "menu": {
+                 "menuRenderer": {
+                  "items": [
+                   {
+                    "menuNavigationItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "Play"
+                       }
+                      ]
+                     },
+                     "navigationEndpoint": {
+                      "watchEndpoint": {
+                       "videoId": "DJ4hDppP_SQ",
+                       "params": "qgMEbmFzYboDCgiJlsWOp5PY8QO6AwoI7-_ng_75nqJpugMLCOTCsPqnsp-TmwG6AwsI196AlIvzw_yNAboDCwi75-GYgPW0_bcBugMKCJeB-cPM69fna7oDCwiw7Pnr042lzO0BugMKCPPwnIr866X3KboDCgjN7eXRtMO40zG6AwoIqdDA86Ln--4IugMLCJ3dt_ierZbS9AG6AwsI9eCa67bu1vrrAboDCwj9hqvT6bmYgOgBugMKCOrrkK-qwZCMLLoDCgjP05Wovu6elUQ%3D"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "menuNavigationItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "Go to channel"
+                       }
+                      ]
+                     },
+                     "navigationEndpoint": {
+                      "browseEndpoint": {
+                       "browseId": "UCajXeitgFL-rb5-gXI-aG8Q"
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         },
+         {
+          "lockupViewModel": {
+           "contentImage": {
+            "thumbnailViewModel": {
+             "image": {
+              "sources": [
+               {
+                "url": "https://i.ytimg.com/vi/RCp7c-UFac8/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLCWVPt8T3CVVpcV0FOZMbwJXeKfyg",
+                "width": 640,
+                "height": 360
+               }
+              ]
+             },
+             "overlays": [
+              {
+               "thumbnailBottomOverlayViewModel": {
+                "badges": [
+                 {
+                  "thumbnailBadgeViewModel": {
+                   "icon": {
+                    "sources": [
+                     {
+                      "clientResource": {
+                       "imageName": "AUDIO"
+                      }
+                     }
+                    ]
+                   },
+                   "text": "3:24",
+                   "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_DEFAULT",
+                   "rendererContext": {
+                    "accessibilityContext": {
+                     "label": "3 minutes, 24 seconds"
+                    }
+                   }
+                  }
+                 }
+                ]
+               }
+              }
+             ]
+            }
+           },
+           "metadata": {
+            "lockupMetadataViewModel": {
+             "title": {
+              "content": "NASA - ATEEZ 에이티즈 [Music Bank] | KBS WORLD TV 260206"
+             },
+             "metadata": {
+              "contentMetadataViewModel": {
+               "metadataRows": [
+                {
+                 "metadataParts": [
+                  {
+                   "text": {
+                    "content": "KBS WORLD Latino"
+                   }
+                  }
+                 ]
+                },
+                {
+                 "metadataParts": [
+                  {
+                   "text": {
+                    "content": "239K views"
+                   }
+                  },
+                  {
+                   "text": {
+                    "content": "8 months ago"
+                   },
+                   "accessibilityLabel": "8 months ago"
+                  }
+                 ]
+                }
+               ],
+               "delimiter": " • "
+              }
+             }
+            }
+           },
+           "contentId": "RCp7c-UFac8",
+           "contentType": "LOCKUP_CONTENT_TYPE_MUSIC",
+           "rendererContext": {
+            "commandContext": {
+             "onTap": {
+              "innertubeCommand": {
+               "watchEndpoint": {
+                "videoId": "RCp7c-UFac8",
+                "playlistId": "RDRCp7c-UFac8",
+                "params": "qgMEbmFzYboDCgiJlsWOp5PY8QO6AwoIpPq_0umhiM8MugMKCO_v54P--Z6iaboDCwjkwrD6p7Kfk5sBugMLCNfegJSL88P8jQG6AwsIu-fhmID1tP23AboDCgiXgfnDzOvX52u6AwsIsOz569ONpcztAboDCgjz8JyK_Oul9ym6AwoIze3l0bTDuNMxugMKCKnQwPOi5_vuCLoDCwid3bf4nq2W0vQBugMLCPXgmuu27tb66wG6AwsI_Yar0-m5mIDoAboDCgjq65CvqsGQjCy4BQE%3D"
+               }
+              }
+             },
+             "onLongPress": {
+              "innertubeCommand": {
+               "showMenuCommand": {
+                "contentId": "RCp7c-UFac8",
+                "thumbnail": {
+                 "thumbnails": [
+                  {
+                   "url": "https://i.ytimg.com/vi/RCp7c-UFac8/hq720.jpg?sqp=-oaymwEVCIAFEOgCSFDyq4qpAwcVAACIQhgB&rs=AOn4CLCWVPt8T3CVVpcV0FOZMbwJXeKfyg",
+                   "width": 640,
+                   "height": 360
+                  }
+                 ]
+                },
+                "title": {
+                 "simpleText": "NASA - ATEEZ 에이티즈 [Music Bank] | KBS WORLD TV 260206"
+                },
+                "subtitle": {
+                 "simpleText": "KBS WORLD Latino"
+                },
+                "menu": {
+                 "menuRenderer": {
+                  "items": [
+                   {
+                    "menuNavigationItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "Play"
+                       }
+                      ]
+                     },
+                     "navigationEndpoint": {
+                      "watchEndpoint": {
+                       "videoId": "RCp7c-UFac8",
+                       "playlistId": "RDRCp7c-UFac8",
+                       "params": "qgMEbmFzYboDCgiJlsWOp5PY8QO6AwoIpPq_0umhiM8MugMKCO_v54P--Z6iaboDCwjkwrD6p7Kfk5sBugMLCNfegJSL88P8jQG6AwsIu-fhmID1tP23AboDCgiXgfnDzOvX52u6AwsIsOz569ONpcztAboDCgjz8JyK_Oul9ym6AwoIze3l0bTDuNMxugMKCKnQwPOi5_vuCLoDCwid3bf4nq2W0vQBugMLCPXgmuu27tb66wG6AwsI_Yar0-m5mIDoAboDCgjq65CvqsGQjCy4BQE%3D"
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "menuNavigationItemRenderer": {
+                     "text": {
+                      "runs": [
+                       {
+                        "text": "Go to channel"
+                       }
+                      ]
+                     },
+                     "navigationEndpoint": {
+                      "browseEndpoint": {
+                       "browseId": "UC_vrqgb3YLoe2MYSJm2aO-A"
+                      }
+                     }
+                    }
+                   }
+                  ]
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        ],
+        "continuations": [
+         {
+          "nextContinuationData": {
+           "continuation": "ErsDEgRuYXNhGrIDU0NpQ0FSaFZRMHQwTm1SWmVraHhTR1p3WTNBeGJHZHFOR0pzTVVHQ0FSaFZRM0o1UjJWak9WQmtWVU5NYW5CS1Z6SnRaME4xVEhlQ0FRdEJMVTVuYlc1SVVsTjNhNElCR0ZWRFRWSjZjV0l3Y20xamFXd3pUM2hsVmtaV1VrbE5kNElCQzBSS05HaEVjSEJRWDFOUmdnRUxZVlZTTjNvdFFqVTVMVGlDQVF0dGVWbzVhMjQ1VFVsWFVZSUJDMnBtYTFCdFRFdEJUREZqZ2dFTGRGOXlWSEZCVFZsak4zT0NBUXRoT0RsbVdFMW9MVkZLWTRJQkN6ZGFhVlZpVkRFdFpHcEJnZ0VMUzJVMldGZzRSa2hQU0UyQ0FRdE5ZV0pwUnpCdk5XUnpNSUlCQzBOT00zWlBhVFYzUzBOcmdnRUxPVXRTV21GbE9FNDNjRENDQVFzMlgxWmlZekl4YlhOSVZZSUJDelpCUW1oNmNIQnhkek13Z2dFTFRFSm9RME54V0d0T1pXLUNBUXRTUTNBM1l5MVZSbUZqT0xJQkJnb0VDQVVRQS1vQkJBZ0JFRGclM0QYgeDoGA%3D%3D"
+          }
+         }
+        ],
+        "collapsedItemCount": 3,
+        "visibleItemCount": 3
+       }
+      },
+      "headerRenderer": {
+       "shelfHeaderRenderer": {
+        "avatarLockup": {
+         "avatarLockupRenderer": {
+          "title": {
+           "simpleText": "Search results for nasa"
+          },
+          "size": "AVATAR_LOCKUP_SIZE_SMALL"
+         }
+        }
+       }
+      },
+      "tvhtml5Style": {
+       "style": "TV_SHELF_STYLE_DEFAULT",
+       "sizeStrategy": "TV_SHELF_SIZE_STRATEGY_FIXED"
+      }
+     }
+    }
+   ]
+  }
+ },
+ "isSafeSearchTriggered": true
+}

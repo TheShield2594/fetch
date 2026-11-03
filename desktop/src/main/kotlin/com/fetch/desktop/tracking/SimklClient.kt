@@ -31,6 +31,8 @@ class SimklClient(
     private val credentials: TrackingCredentials,
     baseUrl: String = "https://api.simkl.com/",
     private val appVersion: String = AppInfo.version,
+    /** Settings › Tracking › Simkl anime id: which id an anime on your lists opens with. */
+    private val animeIdPreference: () -> SimklAnimeIdOption = { SimklAnimeIdOption.IMDB },
 ) {
     private val base = baseUrl.toHttpUrl()
 
@@ -119,7 +121,12 @@ class SimklClient(
     }
 
     /** Marks a movie or one episode watched now (POST sync/history). A series without an episode is ignored. */
-    suspend fun addToHistory(tokens: TrackingTokens, item: TrackedItem) {
+    suspend fun addToHistory(tokens: TrackingTokens, item: TrackedItem) = changeHistory(tokens, item, remove = false)
+
+    /** Takes a movie or one episode out of the watched history (POST sync/history/remove). */
+    suspend fun removeFromHistory(tokens: TrackingTokens, item: TrackedItem) = changeHistory(tokens, item, remove = true)
+
+    private suspend fun changeHistory(tokens: TrackingTokens, item: TrackedItem, remove: Boolean) {
         val media = mediaObject(item) ?: return
         val body = when {
             item.isMovie -> buildJsonObject { putJsonArray("movies") { add(media) } }
@@ -133,7 +140,7 @@ class SimklClient(
             }
             else -> return
         }
-        post("sync/history", body, tokens).requireOk(SERVICE, "history update")
+        post(if (remove) "sync/history/remove" else "sync/history", body, tokens).requireOk(SERVICE, "history update")
     }
 
     /** The "Plan to Watch" list (GET sync/all-items/{type}/plantowatch). */
@@ -141,16 +148,49 @@ class SimklClient(
         MEDIA_TYPES.flatMap { type ->
             allItems(tokens, type, status = PLAN_TO_WATCH).mapNotNull { entry ->
                 val media = entry.media ?: return@mapNotNull null
-                val imdb = media.imdb() ?: return@mapNotNull null
+                val id = media.contentId(type) ?: return@mapNotNull null
                 RemoteListItem(
-                    imdbId = imdb,
+                    imdbId = id,
                     type = if (entry.isMovie(type)) TrackedItem.TYPE_MOVIE else TrackedItem.TYPE_SERIES,
                     title = media.title.orEmpty(),
                     year = media.year,
                     addedAtEpochMs = parseIsoEpochMs(entry.addedToWatchlistAt),
+                    poster = media.posterUrl(),
                 )
             }
         }.sortedByDescending { it.addedAtEpochMs ?: 0L }
+
+    /**
+     * Every title on your Simkl lists, by status (`watching`, `plantowatch`, `hold`,
+     * `completed`, `dropped`), newest first, as the TV's Simkl library tabs show them.
+     */
+    suspend fun statusLists(tokens: TrackingTokens): Map<String, List<RemoteListItem>> {
+        val byStatus = mutableMapOf<String, MutableList<RemoteListItem>>()
+        MEDIA_TYPES.forEach { type ->
+            allItems(tokens, type, status = null).forEach { entry ->
+                val status = entry.status ?: return@forEach
+                val media = entry.media ?: return@forEach
+                val id = media.contentId(type) ?: return@forEach
+                byStatus.getOrPut(status) { mutableListOf() } += RemoteListItem(
+                    imdbId = id,
+                    type = if (entry.isMovie(type)) TrackedItem.TYPE_MOVIE else TrackedItem.TYPE_SERIES,
+                    title = media.title.orEmpty(),
+                    year = media.year,
+                    addedAtEpochMs = parseIsoEpochMs(entry.addedToWatchlistAt ?: entry.lastWatchedAt),
+                    poster = media.posterUrl(),
+                )
+            }
+        }
+        return byStatus.mapValues { (_, items) -> items.distinctBy { it.imdbId }.sortedByDescending { it.addedAtEpochMs ?: 0L } }
+    }
+
+    /** Moves the item to a Simkl list ([status]: `watching`, `plantowatch`, `hold`, `completed`, `dropped`). */
+    suspend fun setStatus(tokens: TrackingTokens, item: TrackedItem, status: String) {
+        val media = mediaObject(item.copy(season = null, episode = null)) ?: return
+        val key = if (item.isMovie) "movies" else "shows"
+        val body = buildJsonObject { putJsonArray(key) { add(JsonObject(mapOf("to" to JsonPrimitive(status)) + media)) } }
+        post("sync/add-to-list", body, tokens).requireOk(SERVICE, "list update")
+    }
 
     /**
      * Moves the item to "Plan to Watch" (POST sync/add-to-list), or takes it off Simkl's lists
@@ -166,6 +206,52 @@ class SimklClient(
         }
         val path = if (on) "sync/add-to-list" else "sync/history/remove"
         post(path, body, tokens).requireOk(SERVICE, "watchlist update")
+    }
+
+    /**
+     * The id a list entry opens with: its IMDb id, or for anime the id Settings › Tracking picks
+     * (as the TV's `canonicalContentId`). Movies and shows keep needing an IMDb id, as before.
+     */
+    private fun SimklMediaDto.contentId(type: String): String? {
+        if (type != "anime") return imdb()
+        val strings = ids.mapNotNull { (k, v) -> (v as? JsonPrimitive)?.content?.let { k to it } }.toMap()
+        return simklContentId(strings, isAnime = true, preference = animeIdPreference())
+    }
+
+    /**
+     * Simkl's users' recommendations and similar titles for [imdb], as the TV's More like this
+     * from Simkl: the id is looked up (search/id), then its page read with `extended=full`.
+     */
+    suspend fun related(imdb: String, limit: Int = 20): List<SimklRelated> {
+        val found = get("search/id", null, mapOf("imdb" to imdb))
+        if (found.code !in 200..299) return emptyList()
+        val hit = runCatching { found.decode<List<SimklSearchHitDto>>() }.getOrDefault(emptyList()).firstOrNull { it.ids?.simkl != null } ?: return emptyList()
+        val path = when (hit.type?.lowercase()) {
+            "movie", "movies" -> "movies"
+            "anime" -> "anime"
+            else -> "tv"
+        }
+        val detail = get("$path/${hit.ids!!.simkl}", null, mapOf("extended" to "full"))
+        if (detail.code !in 200..299) return emptyList()
+        val dto = runCatching { detail.decode<SimklDetailDto>() }.getOrNull() ?: return emptyList()
+        val raw = dto.usersRecommendations.orEmpty() + dto.similar.orEmpty()
+        val preference = animeIdPreference()
+        return raw.distinctBy { (it.ids?.get("simkl") as? JsonPrimitive)?.content ?: it.title }.mapNotNull { item ->
+            val title = item.enTitle?.takeIf { it.isNotBlank() } ?: item.title?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+            val ids = item.ids.orEmpty().mapNotNull { (k, v) -> (v as? JsonPrimitive)?.content?.let { k to it } }.toMap()
+            val id = simklContentId(ids, isAnime = item.type.equals("anime", true), preference = preference) ?: return@mapNotNull null
+            val poster = item.poster?.trim()?.trim('/')?.takeIf { it.isNotBlank() }
+            val fanart = item.fanart?.trim()?.trim('/')?.takeIf { it.isNotBlank() }
+            SimklRelated(
+                id = id,
+                isMovie = item.type.equals("movie", true) || item.animeType == "movie",
+                title = title,
+                year = item.year,
+                poster = poster?.let { "https://wsrv.nl/?url=https://simkl.in/posters/${it}_m.webp&q=90" },
+                fanart = fanart?.let { "https://wsrv.nl/?url=https://simkl.in/fanart/${it}_w.webp&q=90" },
+                imdbId = ids["imdb"]?.takeIf { it.startsWith("tt") }
+            )
+        }.take(limit)
     }
 
     private suspend fun allItems(tokens: TrackingTokens, type: String, status: String?): List<SimklLibraryEntryDto> {
@@ -262,8 +348,12 @@ private data class SimklMediaDto(
     val title: String? = null,
     val year: Int? = null,
     val ids: Map<String, JsonElement> = emptyMap(),
+    val poster: String? = null,
 ) {
     fun imdb(): String? = (ids["imdb"] as? JsonPrimitive)?.content.imdbOrNull()
+
+    /** Simkl's poster ("ab/cdef") as an image link, for titles without an IMDb id. */
+    fun posterUrl(): String? = poster?.trim()?.trim('/')?.takeIf { it.isNotBlank() }?.let { "https://wsrv.nl/?url=https://simkl.in/posters/${it}_m.webp&q=90" }
 }
 
 @Serializable
@@ -335,3 +425,38 @@ private data class SimklLibraryEntryDto(
     /** A movie, or an anime movie. */
     fun isMovie(type: String): Boolean = type == "movies" || (type == "anime" && animeType == "movie")
 }
+
+/** A title Simkl recommends next to another. */
+data class SimklRelated(
+    val id: String,
+    val isMovie: Boolean,
+    val title: String,
+    val year: Int?,
+    val poster: String?,
+    val fanart: String?,
+    val imdbId: String?
+)
+
+@Serializable
+private data class SimklSearchIdsDto(val simkl: Long? = null)
+
+@Serializable
+private data class SimklSearchHitDto(val type: String? = null, val ids: SimklSearchIdsDto? = null)
+
+@Serializable
+private data class SimklRelatedItemDto(
+    val title: String? = null,
+    @SerialName("en_title") val enTitle: String? = null,
+    val year: Int? = null,
+    val poster: String? = null,
+    val fanart: String? = null,
+    val type: String? = null,
+    @SerialName("anime_type") val animeType: String? = null,
+    val ids: Map<String, JsonElement>? = null
+)
+
+@Serializable
+private data class SimklDetailDto(
+    val similar: List<SimklRelatedItemDto>? = null,
+    @SerialName("users_recommendations") val usersRecommendations: List<SimklRelatedItemDto>? = null
+)

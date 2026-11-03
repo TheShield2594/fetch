@@ -278,6 +278,20 @@ class ServersState(
         return withContext(Dispatchers.IO) { client(account.kind).browse(account, lib, start, limit, sort) }
     }
 
+    /** A filter row's page of a library, narrowed by the server. */
+    suspend fun filtered(accountId: String, libId: String, filters: com.fetch.desktop.FilterRowFilters, start: Int, limit: Int): ServerPageResult? {
+        val account = accounts.firstOrNull { it.id == accountId } ?: return null
+        val lib = account.libraries.firstOrNull { it.id == libId } ?: return null
+        return withContext(Dispatchers.IO) { client(account.kind).filteredPage(account, lib, filters, start, limit) }
+    }
+
+    /** A library's genres, for the filter row editor. */
+    suspend fun genres(accountId: String, libId: String): List<String> {
+        val account = accounts.firstOrNull { it.id == accountId } ?: return emptyList()
+        val lib = account.libraries.firstOrNull { it.id == libId } ?: return emptyList()
+        return withContext(Dispatchers.IO) { client(account.kind).genres(account, lib) }
+    }
+
     /** The server stream behind a [Stream] this state handed out, when it is one. */
     fun serverStream(stream: Stream): ServerStream? = stream.url?.let { synchronized(issued) { issued[it] } }
 

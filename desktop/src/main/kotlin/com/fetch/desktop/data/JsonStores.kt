@@ -61,7 +61,9 @@ data class ProgressEntry(
     /** 0–100 from Trakt or Simkl, which report a percentage, not a position. */
     val remotePercent: Float? = null,
     /** "trakt" or "simkl" when the entry came from that account. */
-    val source: String? = null
+    val source: String? = null,
+    /** For Next Up: when that episode airs (or aired), from the addon's episode list. */
+    val airDate: String? = null
 ) {
     fun toWatchProgress() = WatchProgress(
         contentId = contentId,
@@ -85,8 +87,29 @@ data class ProgressFile(
     /** The latest position per title (movie or show), one entry each. */
     val entries: List<ProgressEntry> = emptyList(),
     /** Videos watched to the end, so series know which episode comes next. */
-    val watched: List<String> = emptyList()
+    val watched: List<String> = emptyList(),
+    /** Titles finished most recently, newest first, for "Because you watched". */
+    val finished: List<FinishedTitle> = emptyList(),
+    /** Shows watched up to their last known episode; they return when a new one airs. */
+    val caughtUp: List<CaughtUpShow> = emptyList()
 )
+
+/** A show you've watched all of so far, checked now and then for a new episode. */
+@Serializable
+data class CaughtUpShow(
+    val contentId: String,
+    val contentType: String,
+    val name: String,
+    val poster: String? = null,
+    val backdrop: String? = null,
+    val logo: String? = null,
+    val lastVideoId: String,
+    val at: Long
+)
+
+/** A movie or show finished (or an episode of it), with its name for row titles. */
+@Serializable
+data class FinishedTitle(val contentId: String, val contentType: String, val name: String, val at: Long)
 
 fun progressFile(dir: File = AppDirs.config) =
     JsonFile(File(dir, "progress.json"), ProgressFile.serializer()) { ProgressFile() }

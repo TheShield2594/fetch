@@ -51,6 +51,8 @@ object MpvProgress {
         intervalMs: Long = 5_000,
         /** Asked on every position change; a [Seek] makes mpv jump (Skip Segments). */
         onPosition: (Double) -> Seek? = { null },
+        /** Called once the socket is open with a way to show text on mpv's OSD (YouTube's vote counts). */
+        onConnected: (showText: (String) -> Unit) -> Unit = {},
         onSample: (Sample) -> Unit
     ): Ending {
         // mpv creates the socket shortly after it starts.
@@ -71,6 +73,9 @@ object MpvProgress {
                     val commands = """{"command":["observe_property",1,"time-pos"]}""" + "\n" +
                         """{"command":["observe_property",2,"duration"]}""" + "\n"
                     channel.write(ByteBuffer.wrap(commands.toByteArray()))
+                    onConnected { text ->
+                        if (channel.isOpen) runCatching { channel.write(ByteBuffer.wrap(showTextCommand(text, OSD_NOTE_MS).toByteArray())) }
+                    }
                     val reader = Channels.newReader(channel, Charsets.UTF_8).buffered()
                     while (true) {
                         val line = reader.readLine() ?: break
@@ -111,6 +116,13 @@ object MpvProgress {
         val last = if (p != null && d != null && d > 0) Sample(p, d).also(onSample) else null
         return Ending(last, reachedEnd)
     }
+
+    /** How long an [followToEnd] OSD note stays up. */
+    const val OSD_NOTE_MS = 6_000
+
+    /** mpv's IPC `show-text` for [text], JSON-escaped, as one line. */
+    fun showTextCommand(text: String, durationMs: Int): String =
+        "{\"command\":[\"show-text\",${kotlinx.serialization.json.JsonPrimitive(text)},$durationMs]}\n"
 
     private fun parse(line: String): JsonObject? =
         runCatching { json.parseToJsonElement(line).jsonObject }.getOrNull()

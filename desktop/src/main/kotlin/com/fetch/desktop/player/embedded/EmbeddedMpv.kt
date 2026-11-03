@@ -29,12 +29,27 @@ import javax.swing.SwingUtilities
 import kotlin.concurrent.thread
 
 /** An audio or subtitle track of the playing file. */
-data class MpvTrack(val id: String, val type: String, val title: String?, val lang: String?, val codec: String?, val external: Boolean, val selected: Boolean) {
+data class MpvTrack(
+    val id: String,
+    val type: String,
+    val title: String?,
+    val lang: String?,
+    val codec: String?,
+    val external: Boolean,
+    val selected: Boolean,
+    val forced: Boolean = false,
+    val isDefault: Boolean = false,
+    /** Audio: "5.1(side)" and the like. */
+    val channels: String? = null,
+    /** An added file's path or URL (mpv's external-filename), so an addon subtitle can be found again. */
+    val externalFilename: String? = null
+) {
     val label: String
         get() = listOfNotNull(
             title?.takeIf { it.isNotBlank() },
             lang?.uppercase(),
             codec?.uppercase(),
+            channels,
             "External".takeIf { external }
         ).distinct().joinToString(" · ").ifEmpty { "Track $id" }
 }
@@ -74,6 +89,15 @@ class EmbeddedMpv private constructor(
         private set
     var tracks by mutableStateOf<List<MpvTrack>>(emptyList())
         private set
+    /** Playback speed, 1.0 normal. */
+    var speed by mutableStateOf(1.0)
+        private set
+    /** Seconds; positive delays the sound. */
+    var audioDelay by mutableStateOf(0.0)
+        private set
+    /** Seconds; positive shows subtitles later. */
+    var subtitleDelay by mutableStateOf(0.0)
+        private set
     /** Bumped for every new frame, so the picture redraws. */
     var frameVersion by mutableStateOf(0L)
         private set
@@ -92,6 +116,8 @@ class EmbeddedMpv private constructor(
     private var spare: Bitmap? = null
     /** The view's size in pixels, set as one value so the render thread never sees half a change. */
     @Volatile private var viewSize = 1280 to 720
+    /** Render at the view's size even in software, so crop and stretch can fill it. */
+    @Volatile private var fillView = false
     @Volatile private var videoWidth = 0
     @Volatile private var videoHeight = 0
 
@@ -115,6 +141,9 @@ class EmbeddedMpv private constructor(
         observe("volume", LibMpv.FORMAT_DOUBLE)
         observe("mute", LibMpv.FORMAT_FLAG)
         observe("track-list", LibMpv.FORMAT_NONE)
+        observe("speed", LibMpv.FORMAT_DOUBLE)
+        observe("audio-delay", LibMpv.FORMAT_DOUBLE)
+        observe("sub-delay", LibMpv.FORMAT_DOUBLE)
         observe("dwidth", LibMpv.FORMAT_INT64)
         observe("dheight", LibMpv.FORMAT_INT64)
 
@@ -225,6 +254,9 @@ class EmbeddedMpv private constructor(
     }
 
     fun togglePause() = set("pause", if (paused) "no" else "yes")
+    fun pause(value: Boolean) = set("pause", if (value) "yes" else "no")
+    /** A frame-exact seek, for keeping a watch party in step. */
+    fun seekExact(seconds: Double) = command("seek", seconds.coerceAtLeast(0.0).toString(), "absolute+exact")
     fun seekTo(seconds: Double) = command("seek", seconds.coerceAtLeast(0.0).toString(), "absolute")
     fun seekBy(seconds: Double) = command("seek", seconds.toString(), "relative")
     fun changeVolume(value: Double) = set("volume", value.coerceIn(0.0, 130.0).toString())
@@ -233,6 +265,30 @@ class EmbeddedMpv private constructor(
     /** A subtitle track id, or null for off. */
     fun selectSubtitle(id: String?) = set("sid", id ?: "no")
     fun showText(text: String) = command("show-text", text, "2000")
+    fun changeSpeed(value: Double) = set("speed", value.coerceIn(0.25, 4.0).toString())
+    fun changeAudioDelay(seconds: Double) = set("audio-delay", "%.3f".format(java.util.Locale.ROOT, seconds))
+    fun changeSubtitleDelay(seconds: Double) = set("sub-delay", "%.3f".format(java.util.Locale.ROOT, seconds))
+
+    /** Adds a subtitle file (an addon's) and shows it. */
+    fun addSubtitle(url: String, title: String?, lang: String?) {
+        command("sub-add", url, "select", title ?: lang ?: "Addon", lang ?: "")
+    }
+
+    /** How the picture fills the view: properties from [com.fetch.desktop.player.MpvArgs.fitProperties]. */
+    fun setFit(properties: List<Pair<String, String>>, fill: Boolean) {
+        properties.forEach { (k, v) -> set(k, v) }
+        fillView = fill
+        frameReady.release()
+    }
+
+    /** Sets an mpv property while playing (the subtitle style panel, audio extras). */
+    fun setProperty(name: String, value: String) = set(name, value)
+
+    /** Runs an mpv command ("af", "add", …). */
+    fun runCommand(vararg args: String) = command(*args)
+
+    /** A property as text, for the stream info overlay; null when mpv has none. */
+    fun property(name: String): String? = getString(name)?.takeIf { it.isNotBlank() }
     fun stop() = command("stop")
 
     /** Where the picture should fit, in pixels; frames are rendered no bigger than this. */
@@ -333,6 +389,9 @@ class EmbeddedMpv private constructor(
             "mute" -> data?.getInt(0)?.let { v -> ui { muted = v != 0 } }
             "dwidth" -> data?.getLong(0)?.let { videoWidth = it.toInt(); frameReady.release() }
             "dheight" -> data?.getLong(0)?.let { videoHeight = it.toInt(); frameReady.release() }
+            "speed" -> data?.getDouble(0)?.let { v -> ui { speed = v } }
+            "audio-delay" -> data?.getDouble(0)?.let { v -> ui { audioDelay = v } }
+            "sub-delay" -> data?.getDouble(0)?.let { v -> ui { subtitleDelay = v } }
             "track-list" -> {
                 val list = parseTracks(getString("track-list"))
                 ui { tracks = list }
@@ -402,7 +461,7 @@ class EmbeddedMpv private constructor(
      */
     private fun frameSize(): Pair<Int, Int>? {
         val (viewWidth, viewHeight) = viewSize
-        if (gl != null) return (viewWidth.coerceAtLeast(2) and 1.inv()) to (viewHeight.coerceAtLeast(2) and 1.inv())
+        if (gl != null || fillView) return (viewWidth.coerceAtLeast(2) and 1.inv()) to (viewHeight.coerceAtLeast(2) and 1.inv())
         val vw = videoWidth
         val vh = videoHeight
         if (vw <= 0 || vh <= 0) return null
@@ -446,7 +505,11 @@ class EmbeddedMpv private constructor(
                 lang = str("lang"),
                 codec = str("codec"),
                 external = o["external"]?.jsonPrimitive?.booleanOrNull == true,
-                selected = o["selected"]?.jsonPrimitive?.booleanOrNull == true
+                selected = o["selected"]?.jsonPrimitive?.booleanOrNull == true,
+                forced = o["forced"]?.jsonPrimitive?.booleanOrNull == true,
+                isDefault = o["default"]?.jsonPrimitive?.booleanOrNull == true,
+                channels = str("demux-channels") ?: o["demux-channel-count"]?.jsonPrimitive?.intOrNull?.let { "${it}ch" },
+                externalFilename = str("external-filename")
             )
         }
     }.getOrDefault(emptyList())

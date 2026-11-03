@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -54,7 +55,12 @@ class ContinueWatchingActions(
     val onPlay: (ProgressEntry) -> Unit,
     val onDetails: (ProgressEntry) -> Unit,
     val onStartOver: (ProgressEntry) -> Unit,
-    val onRemove: (ProgressEntry) -> Unit
+    val onRemove: (ProgressEntry) -> Unit,
+    /** "Add to queue" / "Remove from queue", as on TV; null leaves it out. */
+    val onToggleQueue: ((ProgressEntry) -> Unit)? = null,
+    val isQueued: (ProgressEntry) -> Boolean = { false },
+    /** "Shuffle": a random episode of the show instead (Layout › Shuffle, shows only). */
+    val onShuffle: ((ProgressEntry) -> Unit)? = null
 )
 
 /** The 0–1 progress through [entry]; 0 for a Next Up card. */
@@ -62,6 +68,23 @@ fun ProgressEntry.fraction(): Float = when {
     upNext -> 0f
     durationMs > 0 -> (positionMs.toFloat() / durationMs).coerceIn(0f, 1f)
     else -> ((remotePercent ?: 0f) / 100f).coerceIn(0f, 1f)
+}
+
+/**
+ * A Next Up card's badge, as on TV: "Airs Fri, Nov 7" (or Today, Tomorrow) before the episode
+ * airs, "New episode" for one that aired in the last week, else "Next Up".
+ */
+fun ProgressEntry.nextUpBadge(today: java.time.LocalDate = java.time.LocalDate.now()): String {
+    val date = com.fetch.desktop.data.WatchHistory.airDateOf(this) ?: return "Next Up"
+    return when {
+        date.isAfter(today.plusDays(1)) -> "Airs " + date.format(
+            java.time.format.DateTimeFormatter.ofPattern(if (date.year == today.year) "EEE, MMM d" else "MMM d, yyyy")
+        )
+        date == today.plusDays(1) -> "Airs tomorrow"
+        date == today -> "New today"
+        !date.isBefore(today.minusDays(7)) -> "New episode"
+        else -> "Next Up"
+    }
 }
 
 /** "Resume S2 E5", "Resume", or "Play S2 E6" for a Next Up card, as on the TV hero. */
@@ -82,11 +105,12 @@ fun ProgressEntry.playLabel(): String {
 fun ContinueWatchingRow(
     entries: List<ProgressEntry>,
     actions: ContinueWatchingActions,
-    onHover: (ProgressEntry) -> Unit
+    onHover: (ProgressEntry) -> Unit,
+    title: String = "Continue Watching"
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text(
-            "Continue Watching",
+            title,
             style = MaterialTheme.typography.titleLarge,
             color = FetchPalette.TextPrimary,
             modifier = Modifier.padding(horizontal = PageGutter)
@@ -102,52 +126,64 @@ fun ContinueWatchingRow(
     }
 }
 
-private val CardWidth: Dp = 320.dp
-private val CardHeight: Dp = 180.dp
-
 @Composable
-private fun ContinueCard(entry: ProgressEntry, actions: ContinueWatchingActions, onHover: (ProgressEntry) -> Unit) {
+internal fun ContinueCard(entry: ProgressEntry, actions: ContinueWatchingActions, onHover: (ProgressEntry) -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
     if (hovered) LaunchedEffect(entry.contentId) { onHover(entry) }
     val scale by animateFloatAsState(if (hovered) 1.04f else 1f, tween(160))
     val shape = RoundedCornerShape(12.dp)
+    // Layout › Continue Watching: card shape, episode stills, blurred Next Up (see ContinueWatchingStyle).
+    val style = LocalContinueWatchingStyle.current
+    LaunchedEffect(entry.contentId, entry.videoId, style.episodeThumbnails) { style.requestArt(entry) }
+    val wide = style.card == com.fetch.tv.domain.model.ContinueWatchingCardStyle.WIDE
 
     ContextMenuArea(items = {
         buildList {
-            add(ContextMenuItem(entry.playLabel()) { actions.onPlay(entry) })
+            val upcoming = com.fetch.desktop.data.WatchHistory.isUpcoming(entry, java.time.LocalDate.now())
+            if (!upcoming) add(ContextMenuItem(entry.playLabel()) { actions.onPlay(entry) })
             add(ContextMenuItem("Go to details") { actions.onDetails(entry) })
             if (!entry.upNext) add(ContextMenuItem("Start from beginning") { actions.onStartOver(entry) })
+            actions.onToggleQueue?.takeIf { !upcoming }?.let { toggle ->
+                add(ContextMenuItem(if (actions.isQueued(entry)) "Remove from queue" else "Add to queue") { toggle(entry) })
+            }
+            if (entry.season != null) actions.onShuffle?.let { shuffle -> add(ContextMenuItem("Shuffle episodes") { shuffle(entry) }) }
             add(ContextMenuItem("Remove") { actions.onRemove(entry) })
         }
     }) {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier
-                .width(CardWidth)
+                .width(style.width)
                 .hoverable(interaction)
                 .clickable(interactionSource = interaction, indication = null) { actions.onPlay(entry) }
                 .pointerHoverIcon(PointerIcon.Hand)
         ) {
             Box(
                 Modifier
-                    .size(CardWidth, CardHeight)
+                    .size(style.width, style.height)
                     .graphicsLayer { scaleX = scale; scaleY = scale }
                     .clip(shape)
                     .background(FetchPalette.SurfaceRaised)
                     .then(if (hovered) Modifier.border(3.dp, Color.White, shape) else Modifier)
             ) {
                 ArtPlaceholder(entry.name)
-                val art = entry.backdrop ?: entry.poster
+                val (art, isStill) = style.imageFor(entry)
                 if (art != null) {
-                    AsyncImage(model = art, contentDescription = entry.name, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                    AsyncImage(
+                        model = art,
+                        contentDescription = entry.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                            .then(if (style.blurred(entry, isStill)) Modifier.blur(18.dp) else Modifier)
+                    )
                 }
                 // Darken the bottom so the progress bar reads on any artwork.
                 Box(
                     Modifier.fillMaxWidth().height(70.dp).align(Alignment.BottomCenter)
                         .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))))
                 )
-                val badge = if (entry.upNext) "Next Up" else remainingLabel(entry)
+                val badge = if (entry.upNext) entry.nextUpBadge() else remainingLabel(entry)
                 if (badge != null) {
                     Text(
                         badge,
@@ -169,6 +205,13 @@ private fun ContinueCard(entry: ProgressEntry, actions: ContinueWatchingActions,
                         modifier = Modifier.align(Alignment.TopStart).padding(8.dp)
                     )
                 }
+                if (wide) {
+                    Column(Modifier.align(Alignment.BottomStart).padding(start = 14.dp, end = 14.dp, bottom = if (entry.upNext) 12.dp else 24.dp)) {
+                        Text(style.nameFor(entry), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 17.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        val line = listOfNotNull(episodeTag(entry.season, entry.episode), entry.episodeTitle).joinToString(" · ")
+                        if (line.isNotEmpty()) Text(line, color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                }
                 if (!entry.upNext) {
                     ProgressBar(
                         entry.fraction(),
@@ -176,24 +219,29 @@ private fun ContinueCard(entry: ProgressEntry, actions: ContinueWatchingActions,
                     )
                 }
             }
-            Text(
-                entry.name,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(top = 6.dp)
-            )
-            val subtitle = listOfNotNull(episodeTag(entry.season, entry.episode), entry.episodeTitle).joinToString(" · ")
-            Text(
-                subtitle.ifEmpty { "Movie" },
-                style = MaterialTheme.typography.bodySmall,
-                color = FetchPalette.TextMuted,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            if (!wide) CardLabels(entry, style.nameFor(entry))
         }
     }
+}
+
+@Composable
+private fun CardLabels(entry: ProgressEntry, name: String) {
+    Text(
+        name,
+        style = MaterialTheme.typography.bodyLarge,
+        fontWeight = FontWeight.Medium,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.padding(top = 6.dp)
+    )
+    val subtitle = listOfNotNull(episodeTag(entry.season, entry.episode), entry.episodeTitle).joinToString(" · ")
+    Text(
+        subtitle.ifEmpty { "Movie" },
+        style = MaterialTheme.typography.bodySmall,
+        color = FetchPalette.TextMuted,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 /** A thin accent bar over a dim track. */

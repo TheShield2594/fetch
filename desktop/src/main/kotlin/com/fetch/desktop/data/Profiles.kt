@@ -20,7 +20,11 @@ data class DesktopProfile(
     /** Limits, set from the main profile, as on TV. */
     val limits: ProfileLimits = ProfileLimits(),
     /** Locked on the sync server (set on another device) with no PIN here yet; checked online. */
-    val serverLocked: Boolean = false
+    val serverLocked: Boolean = false,
+    /** The TV's avatar id: a bundled one (`fetch:fox`) or the sync server catalog's; null shows the initial. */
+    val avatarId: String? = null,
+    /** A picture of the profile's own on the sync server (the TV's `avatar_url`), shown when set. */
+    val avatarUrl: String? = null
 ) {
     val isPrimary: Boolean get() = id == PRIMARY_ID
     val isLocked: Boolean get() = pinHash != null || serverLocked
@@ -78,8 +82,10 @@ data class ProfileLimits(
     /** Minutes after midnight when bedtime starts; it ends at 7:00. */
     val bedtimeStartMinute: Int? = null,
     /** Episodes Up Next plays in a row before stopping; null means no cap. */
-    val autoplayCap: Int? = null
+    val autoplayCap: Int? = null,
+    /** A kids profile, as on TV: a Home of its own (see [com.fetch.desktop.home.HomeLayout]). Synced. */
+    val kidsProfile: Boolean = false
 ) {
     val isRestricted: Boolean
-        get() = maxRating != null || dailyMinutes != null || bedtimeStartMinute != null || autoplayCap != null
+        get() = maxRating != null || dailyMinutes != null || bedtimeStartMinute != null || autoplayCap != null || kidsProfile
 }

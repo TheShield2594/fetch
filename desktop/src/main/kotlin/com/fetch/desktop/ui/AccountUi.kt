@@ -41,9 +41,9 @@ import java.util.Date
  * self-hosted Fetch server, the same one the TV app signs in to.
  */
 @Composable
-fun AccountPage(state: AppState) {
+fun AccountPage(state: AppState, header: Boolean = true) {
     val account = state.account ?: return
-    PageHeader(
+    if (header) PageHeader(
         "Account",
         subtitle = "Sync Library, Continue Watching and watched history with your own Fetch sync server, the same one the TV app uses."
     )
@@ -65,6 +65,8 @@ fun AccountPage(state: AppState) {
             SettingsRow("Sign out", "This computer stops syncing; nothing is deleted.", onClick = account::signOut)
         }
         account.error?.let { Text(it, color = FetchPalette.Error) }
+        SyncCodeSection(state)
+        FetchWebsiteSection(state)
         return
     }
 
@@ -105,6 +107,7 @@ fun AccountPage(state: AppState) {
         }
     }
     account.error?.let { Text(it, color = FetchPalette.Error) }
+    FetchWebsiteSection(state)
     account.deviceLogin?.let { login -> DeviceCodeDialog(login.userCode, login.verificationUrlComplete, onCancel = account::cancelDeviceLogin) }
 }
 

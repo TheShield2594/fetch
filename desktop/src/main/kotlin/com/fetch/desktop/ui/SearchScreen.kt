@@ -1,5 +1,7 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.poster.withCustomPosterUrls
+import com.fetch.desktop.poster.posterPatternFor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +38,17 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import com.fetch.desktop.AppState
 import com.fetch.desktop.Screen
 import com.fetch.desktop.typeLabel
@@ -62,8 +75,19 @@ fun SearchScreen(state: AppState) {
             SearchField(
                 value = state.searchQuery,
                 onValueChange = state::search,
+                onSubmit = { state.rememberSearch() },
                 modifier = Modifier.focusRequester(focus)
             )
+            // Recent searches, until you type, as on TV.
+            val recent = state.settings.recentSearches
+            if (query.isEmpty() && recent.isNotEmpty()) {
+                RecentSearches(
+                    recent,
+                    onPick = { state.search(it) },
+                    onRemove = state::removeRecentSearch,
+                    onClear = state::clearRecentSearches
+                )
+            }
             if (!state.addonsLoading && !state.hasSearchableCatalogs) {
                 Text(
                     "None of your addons can search. Install one with a search catalog, such as Cinemeta, in Settings › Content & Discovery › Addons.",
@@ -112,8 +136,11 @@ fun SearchScreen(state: AppState) {
                         val shown = state.searchRows.filter { it.loading || it.items.isNotEmpty() }
                         items(shown, key = { it.key }) { row ->
                             CatalogRowView(
-                                row.copy(items = row.items.filter(state::allowed)),
-                                onOpen = { state.navigate(Screen.Detail(it)) },
+                                row.copy(items = row.items.filter(state::allowed).withCustomPosterUrls(state.settings.layout.posterPatternFor(com.fetch.desktop.poster.CustomPosterScreen.SEARCH))),
+                                onOpen = {
+                                    state.rememberSearch()
+                                    state.navigate(Screen.Detail(it))
+                                },
                                 title = typeLabel(row.catalog.apiType),
                                 subtitle = row.addon.displayName,
                                 showLabels = state.settings.showPosterLabels
@@ -127,7 +154,7 @@ fun SearchScreen(state: AppState) {
 }
 
 @Composable
-private fun SearchField(value: String, onValueChange: (String) -> Unit, modifier: Modifier = Modifier) {
+private fun SearchField(value: String, onValueChange: (String) -> Unit, onSubmit: () -> Unit, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(50)
     Row(
         horizontalArrangement = Arrangement.spacedBy(14.dp),
@@ -151,11 +178,53 @@ private fun SearchField(value: String, onValueChange: (String) -> Unit, modifier
                 singleLine = true,
                 textStyle = TextStyle(color = Color.White, fontSize = 18.sp),
                 cursorBrush = SolidColor(FetchPalette.Accent),
-                modifier = modifier.fillMaxWidth()
+                modifier = modifier.fillMaxWidth().onPreviewKeyEvent { e ->
+                    if (e.type == KeyEventType.KeyDown && (e.key == Key.Enter || e.key == Key.NumPadEnter)) {
+                        onSubmit()
+                        true
+                    } else false
+                }
             )
         }
         if (value.isNotEmpty()) {
             CircleIconButton(FetchIcons.Close, "Clear", onClick = { onValueChange("") }, size = 30.dp)
+        }
+    }
+}
+
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun RecentSearches(recent: List<String>, onPick: (String) -> Unit, onRemove: (String) -> Unit, onClear: () -> Unit) {
+    var confirming by remember { mutableStateOf(false) }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("RECENT SEARCHES", style = OverlineStyle, color = FetchPalette.TextMuted)
+            if (confirming) {
+                Text("Clear all?", color = FetchPalette.TextSecondary, fontSize = 13.sp)
+                SecondaryButton("Clear", onClick = { confirming = false; onClear() })
+                SecondaryButton("Keep", onClick = { confirming = false })
+            } else {
+                Text(
+                    "Clear",
+                    color = FetchPalette.TextSecondary,
+                    fontSize = 13.sp,
+                    modifier = Modifier.clickable { confirming = true }.pointerHoverIcon(PointerIcon.Hand)
+                )
+            }
+        }
+        androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            recent.forEach { q ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.clip(RoundedCornerShape(50)).background(FetchPalette.Surface)
+                        .clickable { onPick(q) }.pointerHoverIcon(PointerIcon.Hand)
+                        .padding(start = 14.dp, end = 6.dp, top = 4.dp, bottom = 4.dp)
+                ) {
+                    Text(q, color = Color.White, fontSize = 14.sp)
+                    CircleIconButton(FetchIcons.Close, "Remove $q", onClick = { onRemove(q) }, size = 24.dp)
+                }
+            }
         }
     }
 }

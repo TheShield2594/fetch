@@ -1,11 +1,17 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.poster.withCustomPosterUrls
+import com.fetch.desktop.poster.posterPatternFor
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.ContextMenuArea
+import androidx.compose.foundation.ContextMenuItem
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -49,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -61,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.fetch.desktop.AppState
 import com.fetch.desktop.SourcesState
+import com.fetch.desktop.party.PartySourceMarks
 import com.fetch.desktop.data.ProgressEntry
 import com.fetch.desktop.data.remainingLabel
 import com.fetch.desktop.player.ExternalPlayer
@@ -69,6 +77,9 @@ import com.fetch.tv.core.streams.ranking.RankedStream
 import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.Meta
 import com.fetch.tv.domain.model.MetaCastMember
+import com.fetch.tv.domain.model.MetaCompany
+import com.fetch.desktop.Screen
+import com.fetch.desktop.tmdb.TmdbEntityKind
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.Video
 
@@ -83,21 +94,29 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
     val isSeries = preview.type == ContentType.SERIES ||
         (meta?.videos?.any { it.season != null } == true && preview.type != ContentType.MOVIE)
     val listState = rememberLazyListState()
+    // The watch party's source and shared stream, marked in the lists as on the TV.
+    val partyMarks = state.sources.let { s -> rememberPartySourceMarks(state, s?.preview?.apiType, s?.preview?.id, s?.video?.season, s?.video?.episode) }
 
     // A rating limit blocks the title, as on TV.
     if (!state.detailLoading && !state.allowed(meta, preview)) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("Not available on ${state.profile.name}", style = MaterialTheme.typography.titleLarge, color = Color.White)
-                Text("This title is rated above the limit set for this profile.", color = FetchPalette.TextSecondary)
+                Text(
+                    if (state.titleLists.isHidden(preview.id, meta?.imdbId ?: preview.imdbId, preview.apiType)) "A parent hid this title from this profile."
+                    else "This title is rated above the limit set for this profile.",
+                    color = FetchPalette.TextSecondary
+                )
                 if (state.canGoBack) SecondaryButton("Back", onClick = state::back, icon = FetchIcons.Back)
             }
         }
         return
     }
 
-    CompositionLocalProvider(LocalStreamBadges provides state.badges) {
+    val extras = rememberTitleExtras(state, meta, preview)
+    CompositionLocalProvider(LocalStreamBadges provides state.badges, LocalDetailLayout provides state.settings.layout) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
+        TrailerAutoplay(state, meta?.trailerYtIds?.firstOrNull() ?: preview.trailerYtIds.firstOrNull(), meta?.name ?: preview.name)
         val heroMinHeight = maxHeight * 0.5f
         Backdrop(meta?.background ?: preview.backdropUrl, height = maxHeight * 0.85f)
         ScrollbarBox(listState, Modifier.fillMaxSize()) {
@@ -127,9 +146,24 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         onAllSources = { state.sourcesPanelOpen = true },
                         onTrailer = { ytId -> state.playTrailer(ytId, meta?.name ?: preview.name) },
                         resume = state.sources?.videoId?.let(state::resumeEntry),
+                        onStartOver = state::startOverDetail,
                         inLibrary = state.isInLibrary(preview.id),
                         onToggleLibrary = { state.toggleLibrary(preview, meta) },
-                        minHeight = heroMinHeight
+                        onManageLists = { state.manageLists(preview) },
+                        watched = state.isTitleWatched(preview, meta?.videos.orEmpty()),
+                        tmdbRating = state.tmdb.tmdbRating?.takeIf { state.tmdb.extrasFor == meta?.id },
+                        mdbListRatings = state.mdbListRatings.forTitle(meta?.imdbId ?: preview.imdbId ?: preview.id, preview.apiType),
+                        mdbListOrder = state.settings.mdblist.enabledOrder(),
+                        onToggleWatched = { on ->
+                            if (isSeries) state.setWatched(preview, meta?.videos.orEmpty().filter { (it.season ?: 0) > 0 && com.fetch.desktop.isAired(it) }, on)
+                            else state.setWatched(preview, emptyList(), on)
+                        },
+                        minHeight = heroMinHeight,
+                        extraActions = {
+                            PartyDetailButton(state)
+                            QueueDetailButton(state, preview)
+                            ShuffleDetailButton(state, preview, meta)
+                        }
                     )
                 }
                 item(key = "sources") {
@@ -137,7 +171,10 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         sources = state.sources,
                         loadingMeta = state.detailLoading,
                         onPlay = state::play,
-                        onAllSources = { state.sourcesPanelOpen = true }
+                        onAllSources = { state.sourcesPanelOpen = true },
+                        menu = { sourceMenu(state, it) },
+                        partyMarks = partyMarks,
+                        onFind = { state.sources?.let { s -> state.loadSources(s.preview, s.video) } }
                     )
                 }
                 if (isSeries && !state.detailLoading) {
@@ -152,27 +189,90 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                                 onPick = {
                                     state.loadSources(preview, it)
                                     state.sourcesPanelOpen = true
+                                },
+                                watched = state::isWatched,
+                                progress = { id -> state.resumeEntry(id)?.let { e -> if (e.durationMs > 0) e.positionMs.toFloat() / e.durationMs else e.remotePercent?.div(100f) } },
+                                menu = { video ->
+                                    val watched = state.isWatched(video.id)
+                                    val season = videos.filter { it.season == video.season && com.fetch.desktop.isAired(it) }
+                                    buildList {
+                                        add(ContextMenuItem("Play") {
+                                            state.loadSources(preview, video)
+                                            state.playBest()
+                                        })
+                                        add(ContextMenuItem("Choose source") {
+                                            state.loadSources(preview, video)
+                                            state.sourcesPanelOpen = true
+                                        })
+                                        queueMenuItem(state, preview, video)?.let(::add)
+                                        add(ContextMenuItem(if (watched) "Mark as unwatched" else "Mark as watched") { state.setWatched(preview, listOf(video), !watched) })
+                                        val before = com.fetch.desktop.data.WatchHistory.episodesBefore(videos, video)
+                                        if (before.any { !state.isWatched(it.id) }) {
+                                            add(ContextMenuItem("Mark previous episodes as watched") { state.setWatched(preview, before, true) })
+                                        }
+                                        if (video.season != null && video.season != 0) {
+                                            val seasonWatched = season.isNotEmpty() && season.all { state.isWatched(it.id) }
+                                            add(ContextMenuItem(if (seasonWatched) "Mark season ${video.season} as unwatched" else "Mark season ${video.season} as watched") {
+                                                state.setWatched(preview, season, !seasonWatched)
+                                            })
+                                        }
+                                    }
                                 }
                             )
                         }
                     }
                 }
+                // The IMDb ratings grid, as on TV (Layout › Episode Ratings).
+                if (isSeries && meta != null && !state.detailLoading) {
+                    item(key = "ratings") { EpisodeRatingsSection(state, meta) }
+                }
                 val cast = meta?.castMembers.orEmpty()
                 if (cast.isNotEmpty()) {
-                    item(key = "cast") { Cast(cast) }
+                    item(key = "cast") { Cast(cast, onOpen = state::openPerson) }
+                }
+                val tmdbExtras = state.tmdb.takeIf { it.extrasFor == meta?.id }
+                tmdbExtras?.collection?.let { collection ->
+                    item(key = "collection") {
+                        MediaRowView(
+                            title = collection.name,
+                            subtitle = "Collection",
+                            items = collection.parts.filter(state::allowed).withCustomPosterUrls(state.settings.layout.posterPatternFor(com.fetch.desktop.poster.CustomPosterScreen.DETAILS)),
+                            loading = false,
+                            error = null,
+                            onOpen = { state.navigate(Screen.Detail(it)) },
+                            showLabels = state.settings.showPosterLabels
+                        )
+                    }
+                }
+                // More like this from Settings › Tracking's source (TMDB's otherwise).
+                titleExtras(state, extras, tmdbExtras?.moreLikeThis?.withCustomPosterUrls(state.settings.layout.posterPatternFor(com.fetch.desktop.poster.CustomPosterScreen.DETAILS)))
+                val companies = meta?.networks.orEmpty().map { it to TmdbEntityKind.NETWORK } +
+                    meta?.productionCompanies.orEmpty().map { it to TmdbEntityKind.COMPANY }
+                if (companies.any { it.first.tmdbId != null }) {
+                    item(key = "companies") { Companies(companies.filter { it.first.tmdbId != null }.distinctBy { it.first.tmdbId to it.second }) { c, k -> state.openEntity(c, k) } }
+                }
+                // Trakt comments for the title or the episode picked, as on TV.
+                if (!state.detailLoading && state.settings.tracking.showComments) {
+                    item(key = "comments") { TraktCommentsSection(state, preview, meta, isSeries) }
                 }
             }
         }
 
         // The full list slides in from the right over a dimmed page.
         AnimatedVisibility(visible = state.sourcesPanelOpen, enter = fadeIn(), exit = fadeOut()) {
-            Box(
-                Modifier.fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.55f))
-                    .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                        state.sourcesPanelOpen = false
-                    }
-            )
+            // Layout › Episode Options Overlay: the episode's artwork, blurred or not, behind its sources.
+            val artwork = state.sources?.video?.thumbnail?.takeIf { !state.settings.layout.blurUnwatchedEpisodes || state.isWatched(state.sources?.videoId.orEmpty()) }
+            if (artwork != null && state.settings.layout.episodeOptionsOverlay != com.fetch.tv.domain.model.EpisodeOptionsOverlayStyle.NONE) {
+                EpisodeOptionsScrim(state.settings.layout.episodeOptionsOverlay, artwork) { state.sourcesPanelOpen = false }
+            } else {
+                Box(
+                    Modifier.fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.55f))
+                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                            state.sourcesPanelOpen = false
+                        }
+                )
+            }
         }
         AnimatedVisibility(
             visible = state.sourcesPanelOpen,
@@ -186,7 +286,23 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                     sources = sources,
                     onPlay = state::play,
                     onClose = { state.sourcesPanelOpen = false },
+                    menu = { sourceMenu(state, it) },
+                    partyMarks = partyMarks,
+                    onPlayShared = { state.party.state.value.party?.media?.let(state::watchWithParty) },
                     modifier = Modifier.width(560.dp).fillMaxHeight()
+                )
+            }
+        }
+        // Play pressed while the addons answer: the TV's fetching panel.
+        val waiting = state.sources?.takeIf { state.extras.autoPlayWaiting && !state.sourcesPanelOpen }
+        if (waiting != null) {
+            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.6f)), contentAlignment = Alignment.Center) {
+                FetchingPanel(
+                    sources = waiting,
+                    deadlineMs = state.extras.autoPlayDeadlineMs,
+                    onPlayNow = state::playBestSoFar,
+                    onShowAllSources = state::showAllSourcesNow,
+                    modifier = Modifier.padding(32.dp)
                 )
             }
         }
@@ -208,9 +324,18 @@ private fun Hero(
     onAllSources: () -> Unit,
     onTrailer: (String) -> Unit,
     resume: ProgressEntry?,
+    onStartOver: () -> Unit,
     inLibrary: Boolean,
     onToggleLibrary: () -> Unit,
-    minHeight: Dp
+    onManageLists: () -> Unit,
+    watched: Boolean,
+    onToggleWatched: (Boolean) -> Unit,
+    tmdbRating: Float?,
+    minHeight: Dp,
+    /** MDBList's ratings (Settings › MDBList), in [mdbListOrder]; they replace the addon's IMDb badge, as on TV. */
+    mdbListRatings: com.fetch.tv.domain.model.MDBListRatings? = null,
+    mdbListOrder: List<String> = emptyList(),
+    extraActions: @Composable () -> Unit = {}
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom),
@@ -221,13 +346,29 @@ private fun Hero(
             .heightIn(min = minHeight)
     ) {
         TitleArt(meta?.name ?: preview.name, meta?.logo ?: preview.logo, maxLogoHeight = 140.dp, fontSize = 60)
+        val layout = LocalDetailLayout.current
+        // Layout › Overall Ratings: off hides the standard and TMDB ratings (MDBList's keep their own setting).
+        val showRatings = layout.homeRatings.showRatings
         FactsLine(
             facts = listOfNotNull(
                 (meta?.genres ?: preview.genres).take(3).joinToString(", ").takeIf { it.isNotBlank() },
-                meta?.releaseInfo ?: preview.releaseInfo
+                detailReleaseLabel(meta, preview, isSeries, layout.showFullReleaseDate)
             ),
-            imdbRating = meta?.imdbRating ?: preview.imdbRating
+            imdbRating = (meta?.imdbRating ?: preview.imdbRating).takeIf { mdbListRatings == null && showRatings }
         )
+        mdbListRatings?.let { MdbListRatingsRow(it, mdbListOrder) }
+        // TMDB's own rating beside IMDb's, and who made it, as on the TV detail page.
+        val credit = when {
+            isSeries -> meta?.castMembers?.filter { it.character == "Creator" }?.map { it.name }?.takeIf { it.isNotEmpty() }?.let { "Created by ${it.take(3).joinToString(", ")}" }
+            else -> meta?.director?.takeIf { it.isNotEmpty() }?.let { "Directed by ${it.take(3).joinToString(", ")}" }
+        }
+        if (tmdbRating != null || credit != null || meta?.status != null) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                tmdbRating?.takeIf { showRatings }?.let { SpecChip("TMDB %.1f".format(java.util.Locale.ROOT, it)) }
+                meta?.status?.takeIf { isSeries }?.let { SpecChip(it) }
+                credit?.let { Text(it, color = FetchPalette.TextSecondary, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+            }
+        }
         val ageRating = meta?.ageRating ?: preview.ageRating
         val second = listOfNotNull(meta?.runtime ?: preview.runtime, (meta?.language ?: preview.language)?.uppercase()?.take(12))
         if (ageRating != null || second.isNotEmpty()) {
@@ -259,6 +400,8 @@ private fun Hero(
             val playLabel = listOfNotNull(verb, sources?.episodeTag).joinToString(" ")
             val specs = when {
                 sources == null -> if (isSeries) "Pick an episode" else "Loading…"
+                sources.idle -> "Best match"
+                sources.loading && best != null -> listOfNotNull("Best so far", best.specText()).joinToString(" · ")
                 sources.loading -> "Finding the best source…"
                 best != null -> best.specText() ?: best.stream.addonName
                 else -> "No playable source"
@@ -268,9 +411,12 @@ private fun Hero(
                 text = playLabel,
                 detail = detail,
                 onClick = onPlay,
-                enabled = sources != null && (sources.loading || sources.ranked.isNotEmpty())
+                enabled = sources != null && (sources.loading || sources.idle || sources.ranked.isNotEmpty())
             )
-            if (sources != null && !sources.loading && sources.ranked.isNotEmpty()) {
+            if (resume != null && sources != null) {
+                SecondaryButton("Start over", onClick = onStartOver, icon = FetchIcons.Replay10)
+            }
+            if (sources != null && sources.ranked.isNotEmpty()) {
                 SecondaryButton("All sources", onClick = onAllSources, icon = FetchIcons.List)
             }
             SecondaryButton(
@@ -278,10 +424,19 @@ private fun Hero(
                 onClick = onToggleLibrary,
                 icon = if (inLibrary) FetchIcons.Check else FetchIcons.Add
             )
+            SecondaryButton("Lists", onClick = onManageLists, icon = FetchIcons.List)
+            if (!isSeries || meta?.videos?.any { (it.season ?: 0) > 0 } == true) {
+                SecondaryButton(
+                    if (watched) "Watched" else if (isSeries) "Mark all watched" else "Mark watched",
+                    onClick = { onToggleWatched(!watched) },
+                    icon = if (watched) FetchIcons.Check else null
+                )
+            }
             val trailer = meta?.trailerYtIds?.firstOrNull() ?: preview.trailerYtIds.firstOrNull()
-            if (trailer != null) {
+            if (trailer != null && layout.detailTrailerButton) {
                 CircleIconButton(FetchIcons.Trailer, "Play trailer", onClick = { onTrailer(trailer) }, size = 52.dp)
             }
+            extraActions()
         }
     }
 }
@@ -295,14 +450,22 @@ private fun SourcesSummary(
     sources: SourcesState?,
     loadingMeta: Boolean,
     onPlay: (RankedStream) -> Unit,
-    onAllSources: () -> Unit
+    onAllSources: () -> Unit,
+    menu: @Composable (RankedStream) -> List<ContextMenuItem>,
+    partyMarks: PartySourceMarks? = null,
+    onFind: () -> Unit = {}
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.padding(horizontal = PageGutter)) {
         Text("Sources", style = MaterialTheme.typography.titleLarge)
         when {
             loadingMeta -> LoadingLine("Loading details…")
             sources == null -> Text("Pick an episode below to see its sources.", color = FetchPalette.TextMuted)
-            sources.loading -> LoadingLine("Asking your addons…")
+            sources.idle -> Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("Your addons are asked when you press Play.", color = FetchPalette.TextMuted)
+                SecondaryButton("Find sources", onClick = onFind, icon = FetchIcons.Search)
+            }
+            // Sources arrive as each addon answers, ranked as they come.
+            sources.loading && sources.ranked.isEmpty() -> FetchingProgressLine(sources)
             sources.ranked.isEmpty() -> Text(
                 "No sources found. Install a stream addon on the Addons page.",
                 color = FetchPalette.TextMuted
@@ -310,7 +473,10 @@ private fun SourcesSummary(
             else -> Row(horizontalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.widthIn(max = 1200.dp)) {
                 val best = sources.best
                 if (best != null) {
-                    SourceCard(best, isBest = true, onPlay = { onPlay(best) }, modifier = Modifier.weight(1.7f))
+                    SourceCard(
+                        best, isBest = true, onPlay = { onPlay(best) }, menu = menu(best), modifier = Modifier.weight(1.7f),
+                        partySource = partyMarks?.isPartySource(best.stream) == true
+                    )
                 }
                 SummaryCard(
                     title = "All sources",
@@ -324,6 +490,7 @@ private fun SourcesSummary(
                 )
             }
         }
+        if (sources != null && sources.loading && sources.ranked.isNotEmpty()) FetchingProgressLine(sources)
         sources?.failedAddons?.forEach {
             Text(it, style = MaterialTheme.typography.bodySmall, color = FetchPalette.Error)
         }
@@ -362,25 +529,43 @@ private fun SummaryCard(title: String, body: String, onClick: () -> Unit, modifi
 
 /** One source: who sent it, its parsed specs as chips and the release name. */
 @Composable
-private fun SourceCard(ranked: RankedStream, isBest: Boolean, onPlay: () -> Unit, modifier: Modifier = Modifier) {
+private fun SourceCard(
+    ranked: RankedStream,
+    isBest: Boolean,
+    onPlay: () -> Unit,
+    menu: List<ContextMenuItem> = emptyList(),
+    modifier: Modifier = Modifier,
+    /** The watch party's host plays this source: marked, as on the TV's Sources screen. */
+    partySource: Boolean = false
+) {
     val stream = ranked.stream
     val playable = ExternalPlayer.canPlay(stream)
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
     val shape = RoundedCornerShape(14.dp)
+    ContextMenuArea(items = { menu }) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
             .clip(shape)
             .background(FetchPalette.Surface.copy(alpha = 0.92f))
-            .border(if (hovered && playable) 2.dp else 1.dp, if (hovered && playable) Color.White else FetchPalette.SurfaceHigh, shape)
+            .border(
+                if ((hovered && playable) || partySource) 2.dp else 1.dp,
+                when {
+                    hovered && playable -> Color.White
+                    partySource -> FetchPalette.Accent
+                    else -> FetchPalette.SurfaceHigh
+                },
+                shape
+            )
             .hoverable(interaction)
             // A ruled-out source still plays when picked by hand; only unplayable links are disabled.
             .clickable(enabled = playable, interactionSource = interaction, indication = null, onClick = onPlay)
             .then(if (playable) Modifier.pointerHoverIcon(PointerIcon.Hand) else Modifier)
             .padding(horizontal = 24.dp, vertical = 20.dp)
     ) {
-        if (isBest) Text("BEST MATCH", style = OverlineStyle, color = FetchPalette.Accent)
+        val overline = listOfNotNull("BEST MATCH".takeIf { isBest }, PARTY_SOURCE_LABEL.takeIf { partySource })
+        if (overline.isNotEmpty()) Text(overline.joinToString(" · "), style = OverlineStyle, color = FetchPalette.Accent)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(
                 stream.addonName.ifBlank { "Source" },
@@ -418,6 +603,7 @@ private fun SourceCard(ranked: RankedStream, isBest: Boolean, onPlay: () -> Unit
             Text(notes.joinToString(SpecLine.SEPARATOR), style = MaterialTheme.typography.labelSmall, color = FetchPalette.TextMuted)
         }
     }
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -437,9 +623,13 @@ private fun SourcesPanel(
     sources: SourcesState,
     onPlay: (RankedStream) -> Unit,
     onClose: () -> Unit,
-    modifier: Modifier = Modifier
+    menu: @Composable (RankedStream) -> List<ContextMenuItem>,
+    modifier: Modifier = Modifier,
+    partyMarks: PartySourceMarks? = null,
+    onPlayShared: () -> Unit = {}
 ) {
     val listState = rememberLazyListState()
+    var addonFilter by remember(sources.videoId) { mutableStateOf<String?>(null) }
     Column(
         modifier
             .background(FetchPalette.Background)
@@ -456,8 +646,9 @@ private fun SourcesPanel(
             CircleIconButton(FetchIcons.Close, "Close", onClick = onClose, size = 40.dp)
         }
         Box(Modifier.height(16.dp))
+        if (sources.loading) FetchingProgressLine(sources, Modifier.padding(end = 12.dp, bottom = 16.dp))
         when {
-            sources.loading -> LoadingLine("Asking your addons…")
+            sources.loading && sources.ranked.isEmpty() -> Unit
             sources.ranked.isEmpty() -> Text(
                 "No sources found. Install a stream addon on the Addons page.",
                 color = FetchPalette.TextMuted
@@ -473,14 +664,34 @@ private fun SourcesPanel(
                     )
                     Box(Modifier.height(16.dp))
                 }
+                // Addon chips, as on the TV's Sources screen.
+                val addonNames = sources.ranked.map { it.stream.addonName.ifBlank { "Source" } }.distinct()
+                if (addonNames.size > 1) {
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(end = 12.dp, bottom = 12.dp)) {
+                        item { SeasonTab("All", selected = addonFilter == null, onClick = { addonFilter = null }) }
+                        items(addonNames) { name -> SeasonTab(name, selected = addonFilter == name, onClick = { addonFilter = name }) }
+                    }
+                }
+                val shown = sources.ranked.filter { addonFilter == null || it.stream.addonName.ifBlank { "Source" } == addonFilter }
                 ScrollbarBox(listState, Modifier.weight(1f)) {
                     LazyColumn(
                         state = listState,
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         contentPadding = PaddingValues(end = 14.dp, bottom = 24.dp)
                     ) {
-                        items(sources.ranked, key = { it.stream.stableKey(it.originalIndex) }) { ranked ->
-                            SourceCard(ranked, isBest = ranked === best, onPlay = { onPlay(ranked) })
+                        partyMarks?.shared?.let { shared ->
+                            item(key = "party_shared_stream") { PartySharedSourceCard(shared, partyMarks.hostName, onPlay = onPlayShared) }
+                        }
+                        sourceGroups(shown, best).forEach { (heading, group) ->
+                            item(key = "h:$heading") {
+                                Text(heading.uppercase(), style = OverlineStyle, color = FetchPalette.TextMuted, modifier = Modifier.padding(top = 8.dp, start = 4.dp))
+                            }
+                            items(group, key = { it.stream.stableKey(it.originalIndex) }) { ranked ->
+                                SourceCard(
+                                    ranked, isBest = ranked === best, onPlay = { onPlay(ranked) }, menu = menu(ranked),
+                                    partySource = partyMarks?.isPartySource(ranked.stream) == true
+                                )
+                            }
                         }
                         if (sources.failedAddons.isNotEmpty()) {
                             item(key = "failed") {
@@ -500,7 +711,14 @@ private fun SourcesPanel(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun Episodes(videos: List<Video>, selectedId: String?, onPick: (Video) -> Unit) {
+private fun Episodes(
+    videos: List<Video>,
+    selectedId: String?,
+    onPick: (Video) -> Unit,
+    watched: (String) -> Boolean,
+    progress: (String) -> Float?,
+    menu: (Video) -> List<ContextMenuItem>
+) {
     val seasons = videos.mapNotNull { it.season }.distinct().sorted()
     // Season 0 holds specials; start on the season of the selected episode, else the first real one.
     val selectedSeason = videos.firstOrNull { it.id == selectedId }?.season
@@ -520,7 +738,11 @@ private fun Episodes(videos: List<Video>, selectedId: String?, onPick: (Video) -
             videos
                 .filter { season == null || it.season == season }
                 .sortedBy { it.episode ?: 0 }
-                .forEach { video -> EpisodeCard(video, selected = video.id == selectedId, onClick = { onPick(video) }) }
+                .forEach { video ->
+                    ContextMenuArea(items = { menu(video) }) {
+                        EpisodeCard(video, selected = video.id == selectedId, watched = watched(video.id), progress = progress(video.id), onClick = { onPick(video) })
+                    }
+                }
         }
     }
 }
@@ -550,7 +772,7 @@ private fun SeasonTab(label: String, selected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun EpisodeCard(video: Video, selected: Boolean, onClick: () -> Unit) {
+private fun EpisodeCard(video: Video, selected: Boolean, watched: Boolean, progress: Float?, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
     val shape = RoundedCornerShape(10.dp)
@@ -576,12 +798,14 @@ private fun EpisodeCard(video: Video, selected: Boolean, onClick: () -> Unit) {
                     }
                 )
         ) {
+            val layout = LocalDetailLayout.current
             if (video.thumbnail != null) {
                 AsyncImage(
                     model = video.thumbnail,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    // "Blur Unwatched Episodes", against spoilers.
+                    modifier = Modifier.fillMaxSize().then(if (layout.blurUnwatchedEpisodes && !watched) Modifier.blur(18.dp) else Modifier)
                 )
             }
             if (hovered) {
@@ -591,6 +815,40 @@ private fun EpisodeCard(video: Video, selected: Boolean, onClick: () -> Unit) {
                 ) {
                     Icon(FetchIcons.Play, contentDescription = "Play", tint = Color.White, modifier = Modifier.size(30.dp))
                 }
+            }
+            if (watched) {
+                Box(
+                    Modifier.align(Alignment.TopEnd).padding(8.dp).size(26.dp).clip(CircleShape).background(Color.Black.copy(alpha = 0.7f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(FetchIcons.Check, contentDescription = "Watched", tint = Color.White, modifier = Modifier.size(16.dp))
+                }
+            }
+            if (progress != null && progress > 0f) {
+                Box(Modifier.align(Alignment.BottomStart).fillMaxWidth().height(4.dp).background(Color.White.copy(alpha = 0.25f))) {
+                    Box(Modifier.fillMaxWidth(progress.coerceIn(0f, 1f)).height(4.dp).background(FetchPalette.Accent))
+                }
+            }
+            if (!com.fetch.desktop.isAired(video)) {
+                Text(
+                    "Not aired yet",
+                    fontSize = 12.sp,
+                    color = Color.White,
+                    modifier = Modifier.align(Alignment.TopStart).padding(8.dp)
+                        .clip(RoundedCornerShape(4.dp)).background(Color.Black.copy(alpha = 0.7f))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                )
+            }
+            video.rating?.takeIf { it > 0 && layout.detailRatings.showEpisodeRating(watched) }?.let {
+                Text(
+                    "★ %.1f".format(java.util.Locale.ROOT, it),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    modifier = Modifier.align(Alignment.BottomStart).padding(8.dp)
+                        .clip(RoundedCornerShape(4.dp)).background(Color.Black.copy(alpha = 0.7f))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                )
             }
             video.runtime?.let {
                 Text(
@@ -618,7 +876,7 @@ private fun EpisodeCard(video: Video, selected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun Cast(cast: List<MetaCastMember>) {
+private fun Cast(cast: List<MetaCastMember>, onOpen: (MetaCastMember) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("Cast", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = PageGutter))
         LazyRow(
@@ -626,13 +884,23 @@ private fun Cast(cast: List<MetaCastMember>) {
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             items(cast.take(30)) { member ->
+                val interaction = remember { MutableInteractionSource() }
+                val hovered by interaction.collectIsHoveredAsState()
+                val clickable = member.tmdbId != null
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier.width(110.dp)
+                        .then(
+                            if (clickable) Modifier.hoverable(interaction)
+                                .clickable(interactionSource = interaction, indication = null) { onOpen(member) }
+                                .pointerHoverIcon(PointerIcon.Hand)
+                            else Modifier
+                        )
                 ) {
                     Box(
-                        Modifier.size(96.dp).clip(CircleShape).background(FetchPalette.SurfaceRaised),
+                        Modifier.size(96.dp).clip(CircleShape).background(FetchPalette.SurfaceRaised)
+                            .then(if (hovered && clickable) Modifier.border(3.dp, Color.White, CircleShape) else Modifier),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(member.name.take(1).uppercase(), style = MaterialTheme.typography.headlineSmall, color = FetchPalette.TextMuted)
@@ -658,4 +926,89 @@ private fun Cast(cast: List<MetaCastMember>) {
 @Composable
 private fun Note(text: String) {
     Text(text, color = FetchPalette.TextMuted, modifier = Modifier.padding(horizontal = PageGutter))
+}
+
+/**
+ * The TV's source sections: Best match first, then by resolution, then what the rules passed
+ * over. Empty sections are left out.
+ */
+internal fun sourceGroups(ranked: List<RankedStream>, best: RankedStream?): List<Pair<String, List<RankedStream>>> {
+    val eligible = ranked.filter { it.isEligible && it !== best }
+    val passed = ranked.filter { !it.isEligible }
+    fun res(r: RankedStream) = r.descriptor.resolution?.label
+    val byRes = eligible.groupBy { res(it) ?: "Other" }
+    val order = listOf("2160p", "4K", "1440p", "1080p", "720p", "480p")
+    val keys = byRes.keys.sortedWith(compareBy { k -> order.indexOfFirst { k.contains(it, ignoreCase = true) }.let { if (it < 0) 99 else it } })
+    return buildList {
+        if (best != null && best in ranked) add("Best match" to listOf(best))
+        keys.forEach { add(it to byRes.getValue(it)) }
+        if (passed.isNotEmpty()) add("Not auto-played" to passed)
+    }
+}
+
+/** A source's right-click menu: where to play it, a rule from it, its link. */
+@Composable
+private fun sourceMenu(state: AppState, ranked: RankedStream): List<ContextMenuItem> {
+    val clipboard = LocalClipboardManager.current
+    val stream = ranked.stream
+    val rules = state.settings.rankingRules
+    return buildList {
+        if (ExternalPlayer.canPlay(stream)) {
+            add(ContextMenuItem("Play") { state.play(ranked) })
+            if (com.fetch.desktop.player.embedded.LibMpv.available) add(ContextMenuItem("Play in the built-in player") { state.play(ranked, builtIn = true) })
+            add(ContextMenuItem("Play in mpv's window") { state.play(ranked, builtIn = false) })
+        }
+        val addon = stream.addonName.trim()
+        if (addon.isNotEmpty() && rules.preferredAddons.none { it.equals(addon, ignoreCase = true) }) {
+            add(ContextMenuItem("Prefer $addon") {
+                state.applyRankingRule({ r -> r.copy(preferredAddons = listOf(addon) + r.preferredAddons.filterNot { it.equals(addon, ignoreCase = true) }) }, "$addon now ranks first")
+            })
+        }
+        val group = state.releaseGroupOf(stream)
+        if (group != null && rules.excludedReleaseGroups.none { it.equals(group, ignoreCase = true) }) {
+            add(ContextMenuItem("Never auto-play $group") {
+                state.applyRankingRule({ r ->
+                    r.copy(
+                        excludedReleaseGroups = r.excludedReleaseGroups.filterNot { it.equals(group, ignoreCase = true) } + group,
+                        preferredReleaseGroups = r.preferredReleaseGroups.filterNot { it.equals(group, ignoreCase = true) }
+                    )
+                }, "$group won't be auto-played")
+            })
+        }
+        ExternalPlayer.playableUrl(stream)?.let { url -> add(ContextMenuItem("Copy link") { clipboard.setText(AnnotatedString(url)) }) }
+    }
+}
+
+/** The studios and networks behind a title, as logos that open their pages (TV: company logos). */
+@Composable
+private fun Companies(companies: List<Pair<MetaCompany, TmdbEntityKind>>, onOpen: (MetaCompany, TmdbEntityKind) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text("Production", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = PageGutter))
+        LazyRow(contentPadding = PaddingValues(horizontal = PageGutter), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            items(companies) { (company, kind) ->
+                val interaction = remember { MutableInteractionSource() }
+                val hovered by interaction.collectIsHoveredAsState()
+                val shape = RoundedCornerShape(12.dp)
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .height(72.dp)
+                        .widthIn(min = 120.dp, max = 220.dp)
+                        .clip(shape)
+                        .background(if (company.logo != null) Color.White.copy(alpha = 0.92f) else FetchPalette.SurfaceRaised)
+                        .border(if (hovered) 3.dp else 0.dp, if (hovered) FetchPalette.Accent else Color.Transparent, shape)
+                        .hoverable(interaction)
+                        .clickable(interactionSource = interaction, indication = null) { onOpen(company, kind) }
+                        .pointerHoverIcon(PointerIcon.Hand)
+                        .padding(horizontal = 18.dp, vertical = 12.dp)
+                ) {
+                    if (company.logo != null) {
+                        AsyncImage(model = company.logo, contentDescription = company.name, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
+                    } else {
+                        Text(company.name, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis, fontSize = 14.sp)
+                    }
+                }
+            }
+        }
+    }
 }

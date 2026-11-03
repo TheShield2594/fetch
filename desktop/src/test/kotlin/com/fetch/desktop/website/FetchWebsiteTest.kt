@@ -1,0 +1,104 @@
+package com.fetch.desktop.website
+
+import com.fetch.desktop.tracking.FakeHttp
+import com.fetch.desktop.ui.syncCodeOf
+import kotlinx.coroutines.runBlocking
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Protocol
+import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import java.io.File
+import java.nio.file.Files
+
+class FetchWebsiteTest {
+    private fun tempStore() = WebsiteStore(File(Files.createTempDirectory("web").toFile(), "website.json"))
+
+    @Test
+    fun `addresses are tidied as on TV`() {
+        assertEquals("http://192.168.1.25:7000", FetchWebsiteClient.normalizeServerUrl(" 192.168.1.25:7000/ "))
+        assertEquals("https://fetch.example.com/api", FetchWebsiteClient.normalizeServerUrl("https://fetch.example.com/api/"))
+        assertNull(FetchWebsiteClient.normalizeServerUrl("  "))
+    }
+
+    @Test
+    fun `pairing shows the code, then keeps the token once it's confirmed`() = runBlocking {
+        var polls = 0
+        val fake = FakeHttp { request ->
+            when (request.url.encodedPath) {
+                "/api/devices/pair/start" -> 200 to """{"code":"K7Q2-9XPL","pollSecret":"s3","expiresAt":"2999-01-01T00:00:00Z","intervalSec":1,"confirmUrl":"https://web/confirm?c=K7Q2"}"""
+                "/api/devices/pair/poll" -> if (++polls < 2) 202 to "{}" else 200 to """{"status":"approved","token":"tok","device":{"id":"d","name":"Living room PC"}}"""
+                else -> 404 to "{}"
+            }
+        }
+        val website = FetchWebsiteState(tempStore(), fake.client)
+        website.pair("http://web.test/api", deviceName = "Fetch Desktop")
+        assertEquals(WebsitePairing.Paired("Living room PC"), website.pairing)
+        assertEquals(WebsiteSession("http://web.test/api", "tok", "Living room PC"), website.session)
+        assertEquals("""{"name":"Fetch Desktop"}""", fake.sent[0].body)
+        assertEquals("s3", fake.sent[1].request.header("x-pairing-secret"))
+        // Kept across restarts, with the address for next time.
+        val reloaded = tempStore().also { it.save(website.file) }.load()
+        assertEquals("http://web.test/api", reloaded.lastServerUrl)
+    }
+
+    @Test
+    fun `an expired code says so`() = runBlocking {
+        val fake = FakeHttp { request ->
+            if (request.url.encodedPath.endsWith("start")) 200 to """{"code":"A","pollSecret":"s","expiresAt":"2999-01-01T00:00:00Z","intervalSec":1}"""
+            else 404 to "{}"
+        }
+        val website = FetchWebsiteState(tempStore(), fake.client)
+        website.pair("web.test")
+        assertEquals(WebsitePairing.Expired, website.pairing)
+        assertNull(website.session)
+    }
+
+    @Test
+    fun `website lists load for the profile in this slot, with its id header`() = runBlocking {
+        val fake = FakeHttp { request ->
+            when (request.url.encodedPath) {
+                "/devices/me/profiles" -> 200 to """{"profiles":[{"slot":1,"id":"p-main","name":"Me"},{"slot":2,"id":"p-kid","name":"Kid","hasPin":true}]}"""
+                "/stremio/list/l1" -> 200 to """{"metas":[{"id":"tt1","type":${'"'}${request.url.queryParameter("type")}${'"'},"name":"One","year":2001}]}"""
+                else -> 404 to "{}"
+            }
+        }
+        val store = tempStore().apply { save(WebsiteFile(WebsiteSession("http://web.test", "tok", "PC"))) }
+        val website = FetchWebsiteState(store, fake.client)
+        val items = website.listItems(2, "l1", listOf("movie", "series"))
+        assertEquals(listOf("movie", "series"), items.map { it.apiType })
+        assertEquals("tt1", items[0].imdbId)
+        val listCall = fake.sent.first { it.request.url.encodedPath == "/stremio/list/l1" }
+        assertEquals("p-kid", listCall.request.header("x-profile-id"))
+        assertEquals("Bearer tok", listCall.request.header("Authorization"))
+        assertEquals("p-kid", listCall.request.url.queryParameter("profileId"))
+    }
+
+    @Test
+    fun `a revoked token signs this computer out`() = runBlocking {
+        val client = OkHttpClient.Builder().addInterceptor { chain ->
+            Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(401).message("")
+                .header("WWW-Authenticate", "Bearer error=\"invalid_token\"")
+                .body("{}".toResponseBody("application/json".toMediaType())).build()
+        }.build()
+        val store = tempStore().apply { save(WebsiteFile(WebsiteSession("http://web.test", "tok", "PC"))) }
+        val website = FetchWebsiteState(store, client)
+        website.checkSession()
+        assertNull(website.session)
+        assertTrue(website.file.signedOutByWebsite)
+        website.dismissSignedOutNotice()
+        assertFalse(website.file.signedOutByWebsite)
+    }
+
+    @Test
+    fun `sync codes are read from the RPC's list`() {
+        assertEquals("ABCD-EFGH", syncCodeOf("""[{"code":"ABCD-EFGH"}]"""))
+        assertEquals("X1", syncCodeOf("""{"code":"X1"}"""))
+        assertNull(syncCodeOf("[]"))
+    }
+}

@@ -86,6 +86,18 @@ data class RemoteListItem(
     val title: String,
     val year: Int?,
     val addedAtEpochMs: Long?,
+    /** The service's own poster, for titles without an IMDb id. */
+    val poster: String? = null,
+)
+
+/** A Trakt personal list. [privacy] is `private`, `link`, `friends` or `public`. */
+data class RemoteList(
+    val id: Long,
+    val slug: String?,
+    val name: String,
+    val description: String?,
+    val privacy: String,
+    val itemCount: Int?,
 )
 
 enum class ScrobbleAction { START, PAUSE, STOP }

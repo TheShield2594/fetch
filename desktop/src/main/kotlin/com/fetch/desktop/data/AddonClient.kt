@@ -13,6 +13,10 @@ import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.Stream
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -31,6 +35,31 @@ data class AddonStreamResult(val addon: Addon, val streams: List<Stream>, val er
  */
 class AddonClient(private val api: AddonApi) {
 
+    /** Where each request's time and outcome is recorded (Addons › Addon health), as on TV. */
+    var health: com.fetch.desktop.addons.AddonHealthTracker? = null
+
+    /** Runs [block] for [addon], recording how it went; an empty answer counts as [AddonRequestOutcome.EMPTY]. */
+    private suspend fun <T> tracked(
+        addon: Addon,
+        kind: com.fetch.desktop.addons.AddonRequestKind,
+        isEmpty: (T) -> Boolean = { false },
+        block: suspend () -> T
+    ): T {
+        val tracker = health ?: return block()
+        val start = System.currentTimeMillis()
+        try {
+            val result = block()
+            val outcome = if (isEmpty(result)) com.fetch.desktop.addons.AddonRequestOutcome.EMPTY else com.fetch.desktop.addons.AddonRequestOutcome.SUCCESS
+            tracker.record(addon.displayName, outcome, System.currentTimeMillis() - start, kind = kind)
+            return result
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            tracker.record(addon.displayName, com.fetch.desktop.addons.AddonRequestOutcome.ERROR, System.currentTimeMillis() - start, e.message ?: e.javaClass.simpleName, kind)
+            throw e
+        }
+    }
+
     /** Normalizes [input], fetches its manifest and returns the addon, or throws with a readable message. */
     suspend fun fetchAddon(input: String): Addon {
         val baseUrl = normalizeAddonInstallUrl(input)
@@ -47,14 +76,14 @@ class AddonClient(private val api: AddonApi) {
         extra: Map<String, String> = emptyMap()
     ): List<MetaPreview> {
         val url = AddonUrls.catalog(addon.baseUrl, catalog.apiType, catalog.id, skip = skip, extraArgs = extra)
-        val response = call { api.getCatalog(url) }
+        val response = tracked(addon, com.fetch.desktop.addons.AddonRequestKind.CATALOG) { call { api.getCatalog(url) } }
         return response.metas.mapNotNull { it?.toDomainOrNull(catalog.apiType, addon.baseUrl) }
     }
 
     /** Runs [query] against a catalog that takes the "search" extra. */
     suspend fun search(addon: Addon, catalog: CatalogDescriptor, query: String): List<MetaPreview> {
         val url = AddonUrls.catalog(addon.baseUrl, catalog.apiType, catalog.id, extraArgs = mapOf("search" to query))
-        val response = call { api.getCatalog(url) }
+        val response = tracked(addon, com.fetch.desktop.addons.AddonRequestKind.CATALOG) { call { api.getCatalog(url) } }
         return response.metas.mapNotNull { it?.toDomainOrNull(catalog.apiType, addon.baseUrl) }
     }
 
@@ -63,6 +92,10 @@ class AddonClient(private val api: AddonApi) {
      * or broken addon just adds nothing.
      */
     suspend fun subtitles(addons: List<Addon>, type: String, videoId: String, timeoutMs: Long = 8_000): List<Pair<String, String>> =
+        subtitlesBySource(addons, type, videoId, timeoutMs).map { it.language to it.url }
+
+    /** As [subtitles], with the name of the addon each came from (the player groups them by it). */
+    suspend fun subtitlesBySource(addons: List<Addon>, type: String, videoId: String, timeoutMs: Long = 8_000): List<SourcedSubtitle> =
         coroutineScope {
             addons.filter { it.enabled && it.supportsResource("subtitles", type, videoId) }.map { addon ->
                 async {
@@ -72,7 +105,7 @@ class AddonClient(private val api: AddonApi) {
                         withTimeoutOrNull(timeoutMs) { call { api.getSubtitles(url) } }?.subtitles.orEmpty()
                             .mapNotNull { s ->
                                 val link = s.url?.takeIf { it.startsWith("http") } ?: return@mapNotNull null
-                                (s.lang ?: s.language ?: "").lowercase() to link
+                                SourcedSubtitle((s.lang ?: s.language ?: "").lowercase(), link, addon.displayName)
                             }
                     } catch (e: CancellationException) {
                         throw e
@@ -87,7 +120,7 @@ class AddonClient(private val api: AddonApi) {
     suspend fun meta(addons: List<Addon>, type: String, id: String): Meta? {
         for (addon in addons.filter { it.enabled && it.supportsResource("meta", type, id) }) {
             try {
-                val meta = call { api.getMeta(AddonUrls.meta(addon.baseUrl, type, id)) }.meta
+                val meta = tracked(addon, com.fetch.desktop.addons.AddonRequestKind.META) { call { api.getMeta(AddonUrls.meta(addon.baseUrl, type, id)) } }.meta
                 if (meta != null) return meta.toDomain()
             } catch (e: CancellationException) {
                 throw e
@@ -109,20 +142,59 @@ class AddonClient(private val api: AddonApi) {
             .filter { it.enabled && it.supportsResource("stream", type, videoId) }
             .map { addon ->
                 async {
+                    val start = System.currentTimeMillis()
+                    fun note(outcome: com.fetch.desktop.addons.AddonRequestOutcome, error: String? = null) =
+                        health?.record(addon.displayName, outcome, System.currentTimeMillis() - start, error, com.fetch.desktop.addons.AddonRequestKind.STREAM)
                     try {
                         val response = withTimeoutOrNull(timeoutMs) {
                             call { api.getStreams(AddonUrls.stream(addon.baseUrl, type, videoId)) }
-                        } ?: return@async AddonStreamResult(addon, emptyList(), "Timed out")
+                        } ?: return@async AddonStreamResult(addon, emptyList(), "Timed out").also {
+                            note(com.fetch.desktop.addons.AddonRequestOutcome.TIMEOUT, "Timed out")
+                        }
                         val streams = response.streams.orEmpty().map { it.toDomain(addon.displayName, addon.logo) }
+                        note(if (streams.isEmpty()) com.fetch.desktop.addons.AddonRequestOutcome.EMPTY else com.fetch.desktop.addons.AddonRequestOutcome.SUCCESS)
                         AddonStreamResult(addon, streams)
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
+                        note(com.fetch.desktop.addons.AddonRequestOutcome.ERROR, e.message ?: "Request failed")
                         AddonStreamResult(addon, emptyList(), e.message ?: "Request failed")
                     }
                 }
             }
             .awaitAll()
+    }
+
+    /** The addons [streams] asks for [videoId], in addon order. */
+    fun streamAddons(addons: List<Addon>, type: String, videoId: String): List<Addon> =
+        addons.filter { it.enabled && it.supportsResource("stream", type, videoId) }
+
+    /**
+     * The same requests as [streams], each answer emitted as it comes (the TV's fetching panel),
+     * so sources can be shown and ranked before the slowest addon has answered.
+     */
+    fun streamsAsAnswered(
+        addons: List<Addon>,
+        type: String,
+        videoId: String,
+        timeoutMs: Long = STREAM_TIMEOUT_MS
+    ): Flow<AddonStreamResult> = channelFlow {
+        streamAddons(addons, type, videoId).forEach { addon ->
+            launch(Dispatchers.IO) {
+                val result = try {
+                    val response = withTimeoutOrNull(timeoutMs) {
+                        call { api.getStreams(AddonUrls.stream(addon.baseUrl, type, videoId)) }
+                    }
+                    if (response == null) AddonStreamResult(addon, emptyList(), "Timed out")
+                    else AddonStreamResult(addon, response.streams.orEmpty().map { it.toDomain(addon.displayName, addon.logo) })
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    AddonStreamResult(addon, emptyList(), e.message ?: "Request failed")
+                }
+                send(result)
+            }
+        }
     }
 
     private suspend fun <T> call(block: suspend () -> Response<T>): T {
@@ -150,3 +222,6 @@ class AddonClient(private val api: AddonApi) {
             .build()
     }
 }
+
+/** One addon subtitle: its language, link and the addon that offered it. */
+data class SourcedSubtitle(val language: String, val url: String, val addon: String)

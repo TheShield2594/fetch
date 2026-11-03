@@ -137,11 +137,12 @@ fun PosterGrid(
     header: (LazyGridScope.() -> Unit)? = null,
     footer: (LazyGridScope.() -> Unit)? = null
 ) {
-    val shape = items.groupingBy { it.posterShape }.eachCount().maxByOrNull { it.value }?.key ?: PosterShape.POSTER
+    val style = LocalCardStyle.current
+    val shape = style.shapeFor(items.groupingBy { it.posterShape }.eachCount().maxByOrNull { it.value }?.key ?: PosterShape.POSTER)
     Box(modifier) {
         LazyVerticalGrid(
             state = state,
-            columns = GridCells.Adaptive(cardSize(shape).width),
+            columns = GridCells.Adaptive(style.size(shape).width),
             contentPadding = PaddingValues(start = PageGutter, end = PageGutter, top = 40.dp, bottom = 48.dp),
             horizontalArrangement = Arrangement.spacedBy(20.dp),
             verticalArrangement = Arrangement.spacedBy(28.dp),
@@ -190,11 +191,14 @@ fun SettingsRow(
 ) {
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
+    // The row Settings search jumped to scrolls into view and lights up for a moment.
+    val highlighted = settingsRowHighlighted(title)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
             .fillMaxWidth()
+            .settingsHighlight(highlighted)
             .background(if (hovered && onClick != null) Color.White.copy(alpha = 0.05f) else Color.Transparent)
             .hoverable(interaction)
             .then(

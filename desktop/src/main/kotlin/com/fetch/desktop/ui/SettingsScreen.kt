@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,11 @@ import com.fetch.desktop.SettingsPage
 import com.fetch.desktop.data.AppDirs
 import com.fetch.desktop.data.DesktopDefaults
 import com.fetch.desktop.data.HwDec
+import com.fetch.desktop.data.AssOverride
+import com.fetch.desktop.data.AudioChannels
+import com.fetch.desktop.data.AutoPlayMode
+import com.fetch.desktop.data.VideoFit
+import com.fetch.desktop.skip.IntroDbClient
 import com.fetch.desktop.data.PlayerSettings
 import com.fetch.desktop.data.SubtitleMode
 import com.fetch.desktop.player.ExternalPlayer
@@ -72,15 +78,43 @@ private val RailPages = SettingsPage.entries.filter { it.parent == null }
  * System, and the chosen page beside it. Addons lives here, under Content & Discovery.
  */
 @Composable
-fun SettingsScreen(state: AppState, page: SettingsPage) {
+fun SettingsScreen(state: AppState, requestedPage: SettingsPage) {
+    // Essential mode folds Playback into one page and hides some (see ExperiencePolicy).
+    val mode = state.settings.experience.mode
+    val essential = state.settings.experience.isEssential
+    val page = com.fetch.desktop.data.ExperiencePolicy.substitute(requestedPage, mode)
     Row(Modifier.fillMaxSize()) {
+        // Watch party is listed only when the sync server offers it, as on TV.
+        val partyAvailable by state.party.available.collectAsState()
+        val hidden = (if (partyAvailable) emptySet() else setOf(SettingsPage.WATCH_PARTY)) +
+            com.fetch.desktop.data.ExperiencePolicy.hiddenPages(mode)
         SettingsRail(
+            hidden = hidden,
             current = page.railPage,
-            onPick = { state.openSection(Screen.Settings(it)) },
+            onPick = { SettingsSearchState.query = ""; state.openSection(Screen.Settings(it)) },
             modifier = Modifier.width(260.dp).fillMaxHeight()
         )
+        // Settings search shows its results in place of the page; a result lights its row up.
+        val results = SettingsSearch.search(SettingsSearchState.query, mode, hidden)
+        val highlight = SettingsSearchState.highlight?.takeIf { it.first == page }?.second
+        androidx.compose.runtime.LaunchedEffect(SettingsSearchState.highlight) {
+            if (SettingsSearchState.highlight != null) {
+                kotlinx.coroutines.delay(3_000)
+                SettingsSearchState.highlight = null
+            }
+        }
         Box(Modifier.weight(1f).fillMaxHeight()) {
-            when (page) {
+            androidx.compose.runtime.CompositionLocalProvider(LocalSettingsHighlight provides highlight) {
+            when (if (SettingsSearchState.query.isNotBlank()) null else page) {
+                null -> {
+                    val scroll = rememberScrollState()
+                    ScrollbarBox(scroll, Modifier.fillMaxSize()) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(28.dp),
+                            modifier = Modifier.verticalScroll(scroll).padding(horizontal = PageGutter, vertical = 40.dp).widthIn(max = 880.dp).fillMaxWidth()
+                        ) { SettingsSearchResults(state, results) }
+                    }
+                }
                 // Addons keeps its own scrolling list.
                 SettingsPage.ADDONS -> Column(Modifier.fillMaxSize()) {
                     SubPageHeader("Addons", onBack = state::back, modifier = Modifier.padding(start = PageGutter, top = 32.dp)) {
@@ -109,26 +143,35 @@ fun SettingsScreen(state: AppState, page: SettingsPage) {
                                 SettingsPage.SKIP_SEGMENTS -> SkipSegmentsPage(state)
                                 SettingsPage.CONTENT_DISCOVERY -> ContentDiscoveryPage(state)
                                 SettingsPage.HOME_CATALOGS -> HomeCatalogsPage(state)
+                                SettingsPage.FILTER_ROWS -> FilterRowsPage(state)
+                                SettingsPage.COLLECTIONS -> CollectionsSettingsPage(state, onBack = state::back)
                                 SettingsPage.APPEARANCE -> AppearancePage(state)
-                                SettingsPage.LAYOUT -> LayoutPage(state)
+                                SettingsPage.LAYOUT -> if (essential) EssentialLayoutPage(state) else LayoutPage(state)
                                 SettingsPage.TRACKING -> TrackingPage(state)
-                                SettingsPage.TMDB -> TmdbPage(state)
+                                SettingsPage.YOUTUBE -> YouTubeSettingsPage(state)
+                                SettingsPage.WATCH_PARTY -> WatchPartyPage(state)
+                                SettingsPage.TMDB -> if (essential) EssentialTmdbPage(state) else TmdbPage(state)
+                                SettingsPage.MDBLIST -> if (essential) EssentialMdbListPage(state) else MdbListPage(state)
                                 SettingsPage.ACCOUNT -> AccountPage(state)
                                 SettingsPage.MEDIA_SERVERS -> MediaServersPage(state)
                                 SettingsPage.STREAM_BADGES -> StreamBadgesSettingsPage(state.badges, onBack = state::back)
-                                SettingsPage.ABOUT -> AboutPage(state)
+                                SettingsPage.PLAYBACK_BASICS -> PlaybackBasicsPage(state)
+                                SettingsPage.ADVANCED -> AdvancedSettingsPage(state)
+                                SettingsPage.ABOUT -> if (essential) EssentialAboutPage(state) else AboutPage(state)
                                 SettingsPage.ADDONS -> Unit
                             }
                         }
                     }
                 }
             }
+            }
         }
     }
 }
 
 @Composable
-private fun SettingsRail(current: SettingsPage, onPick: (SettingsPage) -> Unit, modifier: Modifier = Modifier) {
+private fun SettingsRail(current: SettingsPage, onPick: (SettingsPage) -> Unit, modifier: Modifier = Modifier, hidden: Set<SettingsPage> = emptySet()) {
+    val pages = RailPages.filter { it !in hidden }
     // Scrolls when the window is shorter than the rail.
     Column(
         modifier.background(FetchPalette.Surface.copy(alpha = 0.5f)).verticalScroll(rememberScrollState())
@@ -136,8 +179,9 @@ private fun SettingsRail(current: SettingsPage, onPick: (SettingsPage) -> Unit, 
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text("Settings", style = MaterialTheme.typography.headlineSmall, color = Color.White, modifier = Modifier.padding(start = 12.dp, bottom = 16.dp))
-        RailPages.forEachIndexed { index, page ->
-            if (index == 0 || RailPages[index - 1].group != page.group) {
+        SettingsSearchField(Modifier.padding(bottom = 18.dp))
+        pages.forEachIndexed { index, page ->
+            if (index == 0 || pages[index - 1].group != page.group) {
                 Text(
                     page.group.uppercase(),
                     style = OverlineStyle,
@@ -181,7 +225,7 @@ private fun RailEntry(label: String, selected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun SubPageHeader(
+internal fun SubPageHeader(
     title: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -216,14 +260,15 @@ private fun PlayerPage(state: AppState) {
         SettingsChoice(
             "Default Player",
             when {
+                p.askPlayer -> "Fetch asks each time you press Play."
                 p.builtInPlayer && !libmpv -> "libmpv isn't installed (sudo apt install libmpv2), so mpv's window is used."
                 p.builtInPlayer -> "Inside Fetch's window, with Fetch's controls."
                 else -> mpv?.let { "mpv ($it), in its own window." }
                     ?: "mpv isn't installed, so streams open in your default video player. Install mpv for resume, Continue Watching, subtitles and Up Next."
             },
-            p.builtInPlayer,
-            listOf(DropdownOption(false, "mpv window"), DropdownOption(true, "Built-in (beta)"))
-        ) { v -> state.updatePlayer { it.copy(builtInPlayer = v) } }
+            if (p.askPlayer) null else p.builtInPlayer,
+            listOf(DropdownOption<Boolean?>(false, "mpv window"), DropdownOption<Boolean?>(true, "Built-in (beta)"), DropdownOption<Boolean?>(null, "Ask every time"))
+        ) { v -> state.updatePlayer { it.copy(builtInPlayer = v ?: it.builtInPlayer, askPlayer = v == null) } }
         if (p.builtInPlayer && libmpv) {
             SettingsToggle(
                 "Draw with the graphics card",
@@ -239,6 +284,26 @@ private fun PlayerPage(state: AppState) {
             p.hwdec,
             HwDec.entries.map { DropdownOption(it, it.label) }
         ) { v -> state.updatePlayer { it.copy(hwdec = v) } }
+        SettingsChoice(
+            "Picture",
+            "How the video fills the screen. The built-in player can change it while playing.",
+            p.videoFit,
+            VideoFit.entries.map { DropdownOption(it, it.label) }
+        ) { v -> state.updatePlayer { it.copy(videoFit = v) } }
+    }
+    SettingsSection("Player interface") {
+        SettingsToggle("Pause overlay", "The title, episode and synopsis after a few seconds paused (built-in player).", p.pauseOverlay) { v ->
+            state.updatePlayer { it.copy(pauseOverlay = v) }
+        }
+        ContentWarningsSetting(state)
+    }
+    SettingsSection("Buffer") {
+        SettingsChoice(
+            "Cache size",
+            "How much of the stream mpv reads ahead. More smooths out slow servers; it uses memory.",
+            p.cacheMb,
+            listOf<Int?>(null, 150, 300, 600, 1200).map { DropdownOption(it, it?.let { mb -> "$mb MB" } ?: "Default") }
+        ) { v -> state.updatePlayer { it.copy(cacheMb = v) } }
     }
     SettingsSection("Advanced") {
         TextRow(
@@ -246,6 +311,7 @@ private fun PlayerPage(state: AppState) {
             "Added to every playback, for example --volume=80 --sub-font=\"Noto Sans\"",
             p.extraMpvArgs
         ) { v -> state.updatePlayer { it.copy(extraMpvArgs = v) } }
+        StatsHudSetting(state)
     }
 }
 
@@ -256,10 +322,28 @@ private fun UpNextPage(state: AppState) {
     SettingsSection(null) {
         SettingsToggle(
             "Autoplay next episode",
-            "When an episode plays to its end, start the next one's best match. Closing mpv early never does.",
+            "Start the next episode's best match at the threshold below in the built-in player, at the end in mpv's window. Closing mpv early never does.",
             p.autoplayNextEpisode
         ) { v -> state.updatePlayer { it.copy(autoplayNextEpisode = v) } }
+        if (p.autoplayNextEpisode) {
+            SettingsChoice(
+                "Up Next prompt",
+                "When the built-in player shows the next episode with Play now, before the end (or at the credits).",
+                p.upNextPromptSeconds,
+                listOf(10, 20, 30, 45, 60, 90, 120).map { DropdownOption(it, "$it s before the end") }
+            ) { v -> state.updatePlayer { it.copy(upNextPromptSeconds = v) } }
+            SettingsToggle("Are you still watching?", "Ask before starting another episode after several in a row.", p.stillWatching) { v ->
+                state.updatePlayer { it.copy(stillWatching = v) }
+            }
+            if (p.stillWatching) {
+                SettingsChoice("Ask after", null, p.stillWatchingEpisodes, (1..6).map { DropdownOption(it, if (it == 1) "1 episode" else "$it episodes") }) { v ->
+                    state.updatePlayer { it.copy(stillWatchingEpisodes = v) }
+                }
+            }
+        }
     }
+    // Threshold, preloading, binge groups, the movie recommendation (AutoPlaySettingsUi.kt).
+    UpNextAutoPlaySettings(state)
 }
 
 @Composable
@@ -273,12 +357,33 @@ private fun AudioPage(state: AppState) {
             p.audioLanguage,
             listOf(DropdownOption<String?>(null, "Default (media file)")) + LanguageOptions
         ) { v -> state.updatePlayer { it.copy(audioLanguage = v) } }
+        SettingsChoice(
+            "Secondary Audio Language",
+            "Used when the first isn't in the file.",
+            p.secondaryAudioLanguage,
+            listOf(DropdownOption<String?>(null, "None")) + LanguageOptions
+        ) { v -> state.updatePlayer { it.copy(secondaryAudioLanguage = v) } }
         SettingsToggle(
             "Audio passthrough",
             "Send Dolby Digital, DD+, DTS and TrueHD to your receiver undecoded. Only with a receiver that supports them.",
             p.audioPassthrough
         ) { v -> state.updatePlayer { it.copy(audioPassthrough = v) } }
     }
+    SettingsSection("Mixing") {
+        SettingsChoice("Channels", "Mix surround down to fewer speakers, or keep what the file has.", p.audioChannels, AudioChannels.entries.map { DropdownOption(it, it.label) }) { v ->
+            state.updatePlayer { it.copy(audioChannels = v) }
+        }
+        SettingsToggle("Normalize downmix", "Keep a downmixed track as loud as the original, so dialogue doesn't get quiet.", p.normalizeDownmix) { v ->
+            state.updatePlayer { it.copy(normalizeDownmix = v) }
+        }
+        SettingsChoice(
+            "Volume boost",
+            "Amplify quiet files. Not applied to passthrough audio.",
+            p.volumeBoostDb,
+            listOf(0, 3, 6, 9, 12).map { DropdownOption(it, if (it == 0) "Off" else "+$it dB") }
+        ) { v -> state.updatePlayer { it.copy(volumeBoostDb = v) } }
+    }
+    AudioExtrasSettings(state)
 }
 
 @Composable
@@ -292,6 +397,12 @@ private fun SubtitlesPage(state: AppState) {
             p.subtitleLanguage,
             listOf(DropdownOption<String?>(null, "Device language")) + LanguageOptions
         ) { v -> state.updatePlayer { it.copy(subtitleLanguage = v) } }
+        SettingsChoice(
+            "Secondary subtitle language",
+            "Used when there's no subtitle in the first.",
+            p.secondarySubtitleLanguage,
+            listOf(DropdownOption<String?>(null, "None")) + LanguageOptions
+        ) { v -> state.updatePlayer { it.copy(secondarySubtitleLanguage = v) } }
         SettingsChoice("Show subtitles", null, p.subtitleMode, SubtitleMode.entries.map { DropdownOption(it, it.label) }) { v ->
             state.updatePlayer { it.copy(subtitleMode = v) }
         }
@@ -300,6 +411,12 @@ private fun SubtitlesPage(state: AppState) {
             "Fetch subtitles in your language from addons (such as OpenSubtitles) and pass them to mpv.",
             p.forwardAddonSubtitles
         ) { v -> state.updatePlayer { it.copy(forwardAddonSubtitles = v) } }
+        SettingsToggle("Use forced subtitles", "Show the forced track (signs, lines in another language) when no other subtitle is picked.", p.useForcedSubtitles) { v ->
+            state.updatePlayer { it.copy(useForcedSubtitles = v) }
+        }
+        SettingsToggle("Remove hearing-impaired text", "Drop [MUSIC], (laughs) and speaker names.", p.stripSdh) { v ->
+            state.updatePlayer { it.copy(stripSdh = v) }
+        }
     }
     SettingsSection("Style") {
         SettingsChoice(
@@ -308,24 +425,157 @@ private fun SubtitlesPage(state: AppState) {
             p.subtitleScale,
             listOf(0.75, 1.0, 1.25, 1.5, 2.0).map { DropdownOption(it, "${(it * 100).toInt()}%") }
         ) { v -> state.updatePlayer { it.copy(subtitleScale = v) } }
+        SettingsToggle("Bold", null, p.subtitleBold) { v -> state.updatePlayer { it.copy(subtitleBold = v) } }
+        SettingsChoice("Text color", null, p.subtitleColor.uppercase(), TextColors) { v -> state.updatePlayer { it.copy(subtitleColor = v) } }
         SettingsToggle("Background box", "A dark box behind the text instead of an outline.", p.subtitleBackground) { v ->
             state.updatePlayer { it.copy(subtitleBackground = v) }
         }
+        if (!p.subtitleBackground) {
+            SettingsToggle("Outline", null, p.subtitleOutline) { v -> state.updatePlayer { it.copy(subtitleOutline = v) } }
+            if (p.subtitleOutline) {
+                SettingsChoice("Outline color", null, p.subtitleOutlineColor.uppercase(), OutlineColors) { v -> state.updatePlayer { it.copy(subtitleOutlineColor = v) } }
+                SettingsChoice(
+                    "Outline width",
+                    null,
+                    p.subtitleOutlineSize,
+                    listOf(1.0, 2.0, 3.0, 4.0, 5.0).map { DropdownOption(it, if (it == 3.0) "Normal" else it.toInt().toString()) }
+                ) { v -> state.updatePlayer { it.copy(subtitleOutlineSize = v) } }
+            }
+        }
+        SettingsChoice(
+            "Vertical position",
+            "Move subtitles up from the bottom of the picture.",
+            p.subtitlePosition,
+            listOf(100, 95, 90, 85, 80, 70).map { DropdownOption(it, if (it == 100) "Bottom" else "${100 - it}% up") }
+        ) { v -> state.updatePlayer { it.copy(subtitlePosition = v) } }
+        SettingsChoice(
+            "Styled subtitles (ASS/SSA)",
+            "Anime and fansubs often carry their own fonts and colors.",
+            p.assOverride,
+            AssOverride.entries.map { DropdownOption(it, it.label) }
+        ) { v -> state.updatePlayer { it.copy(assOverride = v) } }
     }
+    SubtitleExtrasSettings(state)
 }
+
+private val TextColors = listOf(
+    "#FFFFFF" to "White", "#FFFF00" to "Yellow", "#00FFFF" to "Cyan", "#00FF00" to "Green", "#FF00FF" to "Magenta", "#C0C0C0" to "Light gray"
+).map { DropdownOption(it.first, it.second) }
+
+private val OutlineColors = listOf("#000000" to "Black", "#404040" to "Dark gray", "#FFFFFF" to "White", "#000080" to "Navy")
+    .map { DropdownOption(it.first, it.second) }
+
+/** The TV's TMDB languages (`AVAILABLE_TMDB_LANGUAGES`), so a synced choice reads the same. */
+private val TmdbLanguages = listOf(
+    "af" to "Afrikaans",
+    "sq" to "Albanian",
+    "am" to "Amharic",
+    "ar" to "Arabic",
+    "hy" to "Armenian",
+    "az" to "Azerbaijani",
+    "eu" to "Basque",
+    "be" to "Belarusian",
+    "bn" to "Bengali",
+    "bs" to "Bosnian",
+    "bg" to "Bulgarian",
+    "my" to "Burmese",
+    "ca" to "Catalan",
+    "zh" to "Chinese",
+    "zh-CN" to "Chinese (Simplified)",
+    "zh-TW" to "Chinese (Traditional)",
+    "hr" to "Croatian",
+    "cs" to "Czech",
+    "da" to "Danish",
+    "nl" to "Dutch",
+    "en" to "English",
+    "et" to "Estonian",
+    "tl" to "Filipino",
+    "fi" to "Finnish",
+    "fr" to "French",
+    "gl" to "Galician",
+    "ka" to "Georgian",
+    "de" to "German",
+    "el" to "Greek",
+    "gu" to "Gujarati",
+    "he" to "Hebrew",
+    "hi" to "Hindi",
+    "hu" to "Hungarian",
+    "is" to "Icelandic",
+    "id" to "Indonesian",
+    "ga" to "Irish",
+    "it" to "Italian",
+    "ja" to "Japanese",
+    "kn" to "Kannada",
+    "kk" to "Kazakh",
+    "km" to "Khmer",
+    "ko" to "Korean",
+    "lo" to "Lao",
+    "lv" to "Latvian",
+    "lt" to "Lithuanian",
+    "mk" to "Macedonian",
+    "ms" to "Malay",
+    "ml" to "Malayalam",
+    "mt" to "Maltese",
+    "mr" to "Marathi",
+    "mn" to "Mongolian",
+    "ne" to "Nepali",
+    "no" to "Norwegian",
+    "pa" to "Punjabi",
+    "fa" to "Persian",
+    "pl" to "Polish",
+    "pt" to "Portuguese (Portugal)",
+    "pt-br" to "Portuguese (Brazil)",
+    "ro" to "Romanian",
+    "ru" to "Russian",
+    "sr" to "Serbian",
+    "si" to "Sinhala",
+    "sk" to "Slovak",
+    "sl" to "Slovenian",
+    "es" to "Spanish",
+    "es-419" to "Spanish (Latin America)",
+    "sw" to "Swahili",
+    "sv" to "Swedish",
+    "ta" to "Tamil",
+    "te" to "Telugu",
+    "th" to "Thai",
+    "tr" to "Turkish",
+    "uk" to "Ukrainian",
+    "ur" to "Urdu",
+    "uz" to "Uzbek",
+    "vi" to "Vietnamese",
+    "cy" to "Welsh",
+    "zu" to "Zulu",
+    "en-AU" to "English (Australia)",
+    "en-CA" to "English (Canada)",
+    "en-GB" to "English (United Kingdom)"
+).sortedBy { it.second }.map { DropdownOption(it.first, it.second) }
 
 @Composable
 private fun SkipSegmentsPage(state: AppState) {
     val p = state.settings.player
-    PageHeader("Skip Segments", subtitle = "Intros, recaps and credits, from introdb.app. mpv jumps over them and says so on screen.")
+    PageHeader("Skip Segments", subtitle = "Intros, recaps and credits from introdb.app, and for anime from AniSkip and Anime Skip. mpv jumps over them and says so on screen.")
     SettingsSection("Automatic Skipping") {
-        SegmentType.entries.forEach { type ->
-            SettingsToggle(
-                "Skip ${type.label.lowercase()}",
-                if (type == SegmentType.OUTRO) "Skipping the credits ends the episode, so Up Next starts sooner." else null,
-                type in p.autoSkip
-            ) { on -> state.updatePlayer { it.copy(autoSkip = if (on) it.autoSkip + type else it.autoSkip - type) } }
+        SegmentType.autoSkippable.forEach { type ->
+            val (title, description) = autoSkipTitle(type)
+            SettingsToggle(title, description, type in p.autoSkip) { on ->
+                state.updatePlayer { it.copy(autoSkip = if (on) it.autoSkip + type else it.autoSkip - type) }
+            }
         }
+    }
+    AnimeSkipSettings(state)
+    SettingsSection("Skip button") {
+        SettingsToggle(
+            "Show Skip button",
+            "The built-in player offers Skip for intros, recaps and credits that aren't skipped automatically.",
+            p.skipButton
+        ) { v -> state.updatePlayer { it.copy(skipButton = v) } }
+    }
+    SettingsSection("Advanced") {
+        TextRow(
+            "IntroDB server",
+            "Leave empty for ${IntroDbClient.DEFAULT_URL}",
+            p.introDbUrl.orEmpty()
+        ) { v -> state.updatePlayer { it.copy(introDbUrl = v.ifBlank { null }) } }
     }
 }
 
@@ -376,6 +626,20 @@ private fun StreamSelectionPage(state: AppState) {
     val update: (StreamRankingRules) -> Unit = { new -> state.updateSettings { it.copy(rankingRules = new) } }
 
     PageHeader("Stream Selection", subtitle = "How Fetch picks the best match when you press Play. Every source stays in All sources.")
+
+    SettingsSection("When you press Play") {
+        val s = state.settings
+        SettingsChoice("Play", "What Play starts once the sources are in.", s.autoPlayMode, AutoPlayMode.entries.map { DropdownOption(it, it.label) }) { v ->
+            state.updateSettings { it.copy(autoPlayMode = v) }
+        }
+        if (s.autoPlayMode == AutoPlayMode.REGEX_MATCH) {
+            TextRow("Pattern", "A regular expression matched against each source's name and release, any case. Example: 2160p.*REMUX", s.autoPlayRegex) { v ->
+                state.updateSettings { it.copy(autoPlayRegex = v) }
+            }
+        }
+        // Timeout, Start early, Reuse Last Link, the pick on the Play button (AutoPlaySettingsUi.kt).
+        StreamAutoPlaySettings(state)
+    }
 
     SettingsSection(null) {
         SettingsRow(
@@ -446,6 +710,10 @@ private fun StreamSelectionPage(state: AppState) {
         }
     }
 
+    SettingsSection("Addons") {
+        TextListRow("Preferred addons", rules.preferredAddons) { update(rules.copy(preferredAddons = it)) }
+    }
+
     SettingsSection("Release groups") {
         TextListRow("Preferred release groups", rules.preferredReleaseGroups) { update(rules.copy(preferredReleaseGroups = it)) }
         TextListRow("Skip release groups", rules.excludedReleaseGroups) { update(rules.copy(excludedReleaseGroups = it)) }
@@ -500,18 +768,47 @@ private fun TextListRow(title: String, values: List<String>, onChange: (List<Str
 private fun TmdbPage(state: AppState) {
     val builtIn = remember { com.fetch.desktop.ratings.TmdbCredentials.load() != null }
     val own = state.settings.tmdbApiKey?.takeIf { it.isNotBlank() }
-    PageHeader("TMDB", subtitle = "The Movie Database: maturity ratings for titles your addons don't rate, for profile limits.")
+    val t = state.settings.tmdb
+    val update: ((com.fetch.desktop.data.TmdbSettings) -> com.fetch.desktop.data.TmdbSettings) -> Unit = { change ->
+        state.updateSettings { it.copy(tmdb = change(it.tmdb)) }
+    }
+    PageHeader("TMDB", subtitle = "The Movie Database: richer title pages, More like this, people and studios, and ratings for profile limits.")
     SettingsSection(null) {
         SettingsRow(
             "Status",
             when {
                 own != null -> "Using your key."
                 builtIn -> "Using this build's key."
-                else -> "No key: rating limits only know ratings your addons give. Add a free key from themoviedb.org."
+                else -> "No key: TMDB features are off, and rating limits only know ratings your addons give. Add a free key from themoviedb.org."
             }
         )
         TextRow("Your TMDB key", "An API key (v3) or read access token (v4). Leave empty to use the build's.", own.orEmpty()) { key ->
             state.updateSettings { it.copy(tmdbApiKey = key.ifBlank { null }) }
+        }
+    }
+    SettingsSection("Enrichment") {
+        SettingsToggle(
+            "Use TMDB",
+            "Fill title pages in from TMDB: artwork, details, cast and crew, episodes, trailers, More like this and collections. Ratings for profile limits work either way.",
+            t.enabled
+        ) { v -> update { it.copy(enabled = v) } }
+        if (t.enabled) {
+            SettingsChoice("Language", "For titles, descriptions, episode names and logos.", t.language, TmdbLanguages) { v -> update { it.copy(language = v) } }
+            TmdbHomeToggles(state)
+        }
+    }
+    if (t.enabled) {
+        SettingsSection("What TMDB fills in") {
+            SettingsToggle("Artwork", "Backdrops and title logos.", t.useArtwork) { v -> update { it.copy(useArtwork = v) } }
+            SettingsToggle("Title, description and genres", "In the language above. Also shows TMDB's rating.", t.useBasicInfo) { v -> update { it.copy(useBasicInfo = v) } }
+            SettingsToggle("Details", "Runtime, status, country and language.", t.useDetails) { v -> update { it.copy(useDetails = v) } }
+            SettingsToggle("Cast and crew", "With photos; click someone for their page.", t.useCredits) { v -> update { it.copy(useCredits = v) } }
+            SettingsToggle("Production companies", "Logos that open a studio's titles.", t.useProductions) { v -> update { it.copy(useProductions = v) } }
+            SettingsToggle("Networks", "Logos that open a network's shows.", t.useNetworks) { v -> update { it.copy(useNetworks = v) } }
+            SettingsToggle("Episodes", "Episode names, descriptions, stills and ratings.", t.useEpisodes) { v -> update { it.copy(useEpisodes = v) } }
+            SettingsToggle("Trailers", null, t.useTrailers) { v -> update { it.copy(useTrailers = v) } }
+            SettingsToggle("More like this", "On title pages, and Because you watched on Home.", t.useMoreLikeThis) { v -> update { it.copy(useMoreLikeThis = v) } }
+            SettingsToggle("Collections", "The other films in a series, such as a trilogy.", t.useCollections) { v -> update { it.copy(useCollections = v) } }
         }
     }
 }
@@ -537,6 +834,16 @@ private fun ContentDiscoveryPage(state: AppState) {
             "Reorder home catalogs: pin rows to the top or hide them.",
             onClick = { state.navigate(Screen.Settings(SettingsPage.HOME_CATALOGS)) }
         ) { Chevron() }
+        SettingsRow(
+            "Collections",
+            "Home rows of folders, each a page of catalogs, TMDB, Trakt and your lists. ${state.collections.collections.size} made.",
+            onClick = { state.navigate(Screen.Settings(SettingsPage.COLLECTIONS)) }
+        ) { Chevron() }
+        SettingsRow(
+            "Filter rows",
+            "Home rows filtered from a server library (genre, years, watched, rating) or an addon catalog's genre. ${state.filterRows.size} made.",
+            onClick = { state.navigate(Screen.Settings(SettingsPage.FILTER_ROWS)) }
+        ) { Chevron() }
     }
 }
 
@@ -549,85 +856,58 @@ private fun Chevron() {
 private fun HomeCatalogsPage(state: AppState) {
     SubPageHeader("Home catalogs", onBack = state::back)
     Text(
-        "Pinned rows lead Home in the order you pin them; the rest follow your addon order.",
+        "Pinned rows lead Home in the order you pin them; move rows and collections to place them, rename or hide them.",
         color = FetchPalette.TextSecondary
     )
-    if (state.rows.isEmpty()) {
+    if (state.rows.isEmpty() && state.collections.collections.isEmpty()) {
         Text("No home catalogs available yet.", color = FetchPalette.TextMuted)
         return
     }
-    val pinned = state.settings.pinnedCatalogs
-    val disabled = state.settings.disabledCatalogs.toSet()
-    // Shown in Home's order, hidden rows after.
-    val ordered = state.homeRows + state.rows.filter { it.key in disabled }
-    SettingsSection(null) {
-        ordered.forEach { row ->
-            val isPinned = row.key in pinned
-            val isEnabled = row.key !in disabled
-            SettingsRow(
-                title = row.title(state.settings.showCatalogType),
-                description = listOfNotNull(
-                    row.addon.displayName,
-                    "Pinned to the top of Home".takeIf { isPinned && isEnabled },
-                    "Disabled on Home".takeIf { !isEnabled }
-                ).joinToString(" · ")
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    if (isEnabled) {
-                        SecondaryButton(if (isPinned) "Unpin" else "Pin to top", onClick = { state.setCatalogPinned(row.key, !isPinned) })
-                    }
-                    SecondaryButton(if (isEnabled) "Disable" else "Enable", onClick = { state.setCatalogEnabled(row.key, !isEnabled) })
-                }
-            }
-        }
-    }
+    HomeCatalogsList(state)
 }
 
 // --- Home › Appearance and Layout ---
 
 @Composable
 private fun AppearancePage(state: AppState) {
-    PageHeader("Appearance", subtitle = "Color Theme")
-    val current = state.settings.appTheme
-    @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
-    androidx.compose.foundation.layout.FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        AppTheme.entries.filter { it != AppTheme.CUSTOM }.forEach { theme ->
-            ThemeSwatch(theme, selected = theme == current) { state.updateSettings { it.copy(theme = theme.name) } }
-        }
-    }
+    // Themes (with Custom), contrast, AMOLED and font: ThemeSettingsUi.kt.
+    ThemeSettingsContent(state)
+    AmbientSettingsSection(state)
 }
 
+/** Ambient Mode, as the TV's settings: on, after how long, artwork or clock, and which catalogs. */
 @Composable
-private fun ThemeSwatch(theme: AppTheme, selected: Boolean, onClick: () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    val hovered by interaction.collectIsHoveredAsState()
-    val shape = RoundedCornerShape(14.dp)
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier
-            .width(128.dp)
-            .clip(shape)
-            .background(FetchPalette.Surface)
-            .border(
-                if (selected || hovered) 2.dp else 1.dp,
-                when {
-                    hovered -> Color.White
-                    selected -> accentFor(theme)
-                    else -> FetchPalette.SurfaceHigh
-                },
-                shape
-            )
-            .hoverable(interaction)
-            .clickable(interactionSource = interaction, indication = null, onClick = onClick)
-            .pointerHoverIcon(PointerIcon.Hand)
-            .padding(vertical = 18.dp)
-    ) {
-        Box(Modifier.size(44.dp).clip(CircleShape).background(accentFor(theme)))
-        Text(theme.displayName, color = if (selected) Color.White else FetchPalette.TextSecondary, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)
+private fun AmbientSettingsSection(state: AppState) {
+    val a = state.settings.ambient
+    val update: (com.fetch.desktop.data.AmbientSettings) -> Unit = { new -> state.updateSettings { it.copy(ambient = new) } }
+    Box(Modifier.padding(top = 24.dp))
+    SettingsSection("Ambient Mode") {
+        SettingsToggle("Ambient Mode", "Fill the window with backdrops after a while with no mouse or keyboard input. Never during playback.", a.enabled) {
+            update(a.copy(enabled = it))
+        }
+        if (a.enabled) {
+            SettingsChoice(
+                "Start After",
+                "How long to wait before Ambient Mode starts.",
+                a.timeoutMinutes,
+                listOf(1, 2, 5, 10, 15, 30).map { DropdownOption(it, if (it == 1) "1 minute" else "$it minutes") }
+            ) { update(a.copy(timeoutMinutes = it)) }
+            SettingsChoice(
+                "Show",
+                "Artwork from your catalogs, or a clock with what to resume.",
+                a.face,
+                listOf(DropdownOption(com.fetch.tv.domain.model.AmbientFace.ARTWORK, "Artwork"), DropdownOption(com.fetch.tv.domain.model.AmbientFace.CLOCK, "Clock"))
+            ) { update(a.copy(face = it)) }
+            if (a.face == com.fetch.tv.domain.model.AmbientFace.ARTWORK) {
+                SettingsRow("Catalogs", "Choose up to 3 Home rows to take artwork from. None: the first row.")
+                ChipPicker(
+                    options = state.rows.map { DropdownOption(it.key, "${it.catalog.name} · ${it.addon.displayName}") },
+                    selected = a.catalogKeys,
+                    onChange = { update(a.copy(catalogKeys = it.take(3))) },
+                    ordered = true
+                )
+            }
+        }
     }
 }
 
@@ -639,11 +919,38 @@ private fun LayoutPage(state: AppState) {
         SettingsToggle("Show Continue Watching", "The row of titles you started, first on Home.", s.showContinueWatching) { v ->
             state.updateSettings { it.copy(showContinueWatching = v) }
         }
+        if (s.showContinueWatching) {
+            SettingsToggle("Show Unaired Next Up Episodes", "Include upcoming episodes in Continue Watching before they air.", s.showUnairedNextUp) { v ->
+                state.updateSettings { it.copy(showUnairedNextUp = v) }
+            }
+            SettingsToggle(
+                "Up Next From Furthest Episode",
+                "Show the episode after the furthest one watched. Turn off for rewatches, to follow the most recent one instead.",
+                s.nextUpFromFurthest
+            ) { v -> state.updateSettings { it.copy(nextUpFromFurthest = v) } }
+            SettingsChoice(
+                "Sort Order",
+                when (s.continueWatchingSort) {
+                    com.fetch.tv.domain.model.ContinueWatchingSortMode.DEFAULT -> "Sort all items by recency."
+                    com.fetch.tv.domain.model.ContinueWatchingSortMode.STREAMING_STYLE -> "Released items first, upcoming at the end."
+                    com.fetch.tv.domain.model.ContinueWatchingSortMode.SPLIT_UPCOMING -> "Move unaired episodes to a separate Upcoming row."
+                },
+                s.continueWatchingSort,
+                listOf(
+                    DropdownOption(com.fetch.tv.domain.model.ContinueWatchingSortMode.DEFAULT, "Default"),
+                    DropdownOption(com.fetch.tv.domain.model.ContinueWatchingSortMode.STREAMING_STYLE, "Streaming Style"),
+                    DropdownOption(com.fetch.tv.domain.model.ContinueWatchingSortMode.SPLIT_UPCOMING, "Separate Upcoming Row")
+                )
+            ) { v -> state.updateSettings { it.copy(continueWatchingSort = v) } }
+        }
         SettingsToggle("Show Catalog Type", "Add “- Movies” or “- Series” to row titles.", s.showCatalogType) { v ->
             state.updateSettings { it.copy(showCatalogType = v) }
         }
         SettingsToggle("Show Addon Name", "Name the addon beside each row title.", s.showAddonName) { v ->
             state.updateSettings { it.copy(showAddonName = v) }
+        }
+        SettingsToggle("Hide unreleased content", "Leave titles that aren't out yet off Home's rows.", s.hideUnreleased) { v ->
+            state.updateSettings { it.copy(hideUnreleased = v) }
         }
     }
     SettingsSection("Posters") {
@@ -651,6 +958,7 @@ private fun LayoutPage(state: AppState) {
             state.updateSettings { it.copy(showPosterLabels = v) }
         }
     }
+    TrailerSettings(state)
     SettingsSection("Navigation") {
         SettingsChoice(
             "Discover Location",
@@ -659,6 +967,7 @@ private fun LayoutPage(state: AppState) {
             listOf(DropdownOption(false, "In Search"), DropdownOption(true, "Show in Side Panel"))
         ) { v -> state.updateSettings { it.copy(discoverInSidebar = v) } }
     }
+    LayoutExtrasSections(state)
 }
 
 // --- System › About ---
@@ -675,6 +984,56 @@ private fun AboutPage(state: AppState) {
             mpv?.let { "mpv at $it" } ?: "mpv isn't installed, so streams open in your default video player and Continue Watching can't follow them. Install mpv (sudo apt install mpv, sudo dnf install mpv)."
         )
         SettingsRow("Settings folder", AppDirs.config.absolutePath)
+    }
+    SettingsSection("Updates") {
+        val s = state.settings
+        val updates = state.updates
+        SettingsToggle("Check for updates", "Look for a newer Fetch on GitHub at start-up. Installing stays with apt, dnf or the tarball.", s.checkForUpdates) { v ->
+            state.updateSettings { it.copy(checkForUpdates = v) }
+        }
+        SettingsToggle("Include beta releases", null, s.betaUpdates) { v -> state.updateSettings { it.copy(betaUpdates = v) } }
+        SettingsRow(
+            if (updates.checking) "Checking…" else "Check now",
+            updates.status,
+            onClick = { updates.dismissed = false; updates.check(beta = s.betaUpdates) }
+        ) { Chevron() }
+        updates.available?.let { update ->
+            SettingsRow("Download Fetch ${update.version}", update.packageUrl ?: update.pageUrl, onClick = { state.openInBrowser(update.packageUrl ?: update.pageUrl) }) { Chevron() }
+        }
+    }
+    SettingsSection("Links") {
+        var status by remember { mutableStateOf<Pair<String?, String?>?>(null) }
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+            status = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { com.fetch.desktop.deeplink.LinkRegistration.status() }
+        }
+        val ours = com.fetch.desktop.deeplink.LinkRegistration.ENTRY
+        val installed = com.fetch.desktop.deeplink.LinkRegistration.launcher != null
+        SettingsRow(
+            "fetch:// links",
+            when {
+                !installed -> "Links open Fetch once it's installed from a package or the tarball (not when run from source)."
+                status == null -> "Checking…"
+                status?.first == ours -> "Open in Fetch: titles, watch party invites and addons."
+                else -> "Another app opens them (${status?.first ?: "none"})."
+            }
+        )
+        SettingsRow(
+            "stremio:// links",
+            when {
+                !installed -> "—"
+                status?.second == ours -> "Addon install links (such as an addon's Install button) open in Fetch."
+                else -> "Opened by ${status?.second ?: "nothing"}. Fetch can take them over, to install addons from their pages."
+            }
+        ) {
+            if (installed && status != null && (status?.first != ours || status?.second != ours)) {
+                SecondaryButton("Open with Fetch", onClick = {
+                    com.fetch.desktop.deeplink.LinkRegistration.register(takeStremio = true)
+                    status = com.fetch.desktop.deeplink.LinkRegistration.status()
+                })
+            }
+        }
+    }
+    SettingsSection("Legal") {
         SettingsRow("Privacy Policy", "No telemetry, no required account.", onClick = { uri.openUri(AppInfo.PRIVACY_URL) }) { Chevron() }
         SettingsRow("Licenses & Attribution", null, onClick = { uri.openUri(AppInfo.LICENSE_URL) }) { Chevron() }
         SettingsRow("Source code", AppInfo.REPO_URL, onClick = { uri.openUri(AppInfo.REPO_URL) }) { Chevron() }

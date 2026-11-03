@@ -278,6 +278,39 @@ class PlexServerClient(
         )
     }
 
+    override suspend fun filteredPage(
+        account: ServerAccount,
+        lib: ServerLib,
+        filters: com.fetch.desktop.FilterRowFilters,
+        start: Int,
+        limit: Int
+    ): ServerPageResult {
+        val from = start.coerceAtLeast(0)
+        val genreKey = filters.genre?.let { name -> genreKeys(account, lib)[name] ?: return ServerPageResult(emptyList(), 0) }
+        val result = container(
+            account,
+            "/library/sections/${pathSegment(lib.id)}/all",
+            mapOf("type" to plexType(lib), "includeGuids" to "1") + filterQuery(filters, genreKey) + page(from, limit.coerceIn(1, 500))
+        )
+        return ServerPageResult(
+            items = result.metadata.mapNotNull { preview(account, it) },
+            total = result.totalSize ?: (from + result.metadata.size)
+        )
+    }
+
+    override suspend fun genres(account: ServerAccount, lib: ServerLib): List<String> = genreKeys(account, lib).keys.toList()
+
+    private val genreKeyCache = java.util.concurrent.ConcurrentHashMap<String, Map<String, String>>()
+
+    /** Genre name → Plex's key for it in [lib] (Plex filters by key). */
+    private suspend fun genreKeys(account: ServerAccount, lib: ServerLib): Map<String, String> =
+        genreKeyCache["${account.id}:${lib.id}"] ?: container(
+            account,
+            "/library/sections/${pathSegment(lib.id)}/genre",
+            mapOf("type" to plexType(lib))
+        ).directories.mapNotNull { g -> g.title?.takeIf(String::isNotBlank)?.let { it to g.key } }.toMap()
+            .also { genreKeyCache["${account.id}:${lib.id}"] = it }
+
     override suspend fun details(account: ServerAccount, itemId: String): Meta? {
         val item = metadata(account, itemId) ?: return null
         val type = item.contentType() ?: return null
@@ -471,6 +504,26 @@ class PlexServerClient(
     }
 
     private fun plexType(lib: ServerLib): String = if (lib.type == "series") "2" else "1"
+
+    /** Plex's filter syntax, as on TV: `year>>=1999` is "after 1999", `year<<=2011` "before 2011". */
+    internal fun filterQuery(filters: com.fetch.desktop.FilterRowFilters, genreKey: String?): Map<String, String?> = mapOf(
+        "genre" to genreKey,
+        "year>>" to filters.yearFrom?.minus(1)?.toString(),
+        "year<<" to filters.yearTo?.plus(1)?.toString(),
+        "unwatched" to when (filters.watched) {
+            com.fetch.desktop.RowWatched.ANY -> null
+            com.fetch.desktop.RowWatched.WATCHED -> "0"
+            com.fetch.desktop.RowWatched.UNWATCHED -> "1"
+        },
+        "audienceRating>>" to filters.minRating?.let { (it - 0.05).toString() },
+        "sort" to when (filters.sort) {
+            com.fetch.desktop.RowSort.DATE_ADDED -> "addedAt"
+            com.fetch.desktop.RowSort.TITLE -> "titleSort"
+            com.fetch.desktop.RowSort.RELEASE_DATE -> "originallyAvailableAt"
+            com.fetch.desktop.RowSort.RATING -> "audienceRating"
+            com.fetch.desktop.RowSort.RANDOM -> "random"
+        } + if (filters.descending) ":desc" else ""
+    )
 
     private fun page(start: Int, size: Int): Map<String, String> =
         mapOf("X-Plex-Container-Start" to start.toString(), "X-Plex-Container-Size" to size.toString())

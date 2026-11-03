@@ -45,6 +45,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -271,6 +272,14 @@ fun cardSize(shape: PosterShape): CardSize = when (shape) {
     PosterShape.SQUARE -> CardSize(200.dp, 200.dp)
 }
 
+/** What a poster's right-click menu offers and whether it's watched; provided by the app. */
+interface PosterActions {
+    fun menu(item: MetaPreview): List<androidx.compose.foundation.ContextMenuItem>
+    fun isWatched(item: MetaPreview): Boolean
+}
+
+val LocalPosterActions = androidx.compose.runtime.staticCompositionLocalOf<PosterActions?> { null }
+
 /**
  * A poster with its title and year. Hovering lifts it and draws the white focus ring the TV app
  * uses; [onHover] lets the page show the hovered title in its hero.
@@ -285,12 +294,27 @@ fun PosterCard(
     /** Fills the cell's width instead of the shape's fixed width, for grids. */
     fillWidth: Boolean = false
 ) {
-    val size = cardSize(shape)
+    val style = LocalCardStyle.current
+    val baseSize = style.size(shape)
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
     if (hovered) LaunchedEffect(item.id) { onHover(item) }
-    val scale by animateFloatAsState(if (hovered) 1.05f else 1f, tween(160))
-    val corner = RoundedCornerShape(10.dp)
+    // "Expand Focused Poster to Backdrop": a poster held under the pointer grows into its backdrop.
+    var expanded by remember(item.id) { mutableStateOf(false) }
+    if (style.expand && shape == PosterShape.POSTER && !fillWidth && item.backdropUrl != null) {
+        LaunchedEffect(hovered) {
+            if (!hovered) { expanded = false; return@LaunchedEffect }
+            kotlinx.coroutines.delay(style.expandDelayMs)
+            expanded = true
+        }
+    }
+    val expandedWidth = baseSize.height * (16f / 9f)
+    val width by androidx.compose.animation.core.animateDpAsState(if (expanded) expandedWidth else baseSize.width, tween(260))
+    val size = CardSize(width, baseSize.height)
+    val scale by animateFloatAsState(if (hovered && !expanded) 1.05f else 1f, tween(160))
+    val corner = RoundedCornerShape(style.corner)
+    val actions = LocalPosterActions.current
+    androidx.compose.foundation.ContextMenuArea(items = { actions?.menu(item).orEmpty() }) {
     Column(
         verticalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier
@@ -312,8 +336,12 @@ fun PosterCard(
         ) {
             // The name stays underneath, so a missing or broken image still shows what this is.
             ArtPlaceholder(item.name)
-            val image = when (shape) {
-                PosterShape.LANDSCAPE -> item.landscapePoster ?: item.background ?: item.poster
+            val landscapeArt = shape == PosterShape.LANDSCAPE || expanded
+            // "Always Backdrop with Logo": the backdrop and the title's logo, not the addon's landscape art.
+            val withLogo = landscapeArt && item.logo != null && (expanded || style.alwaysLogo || item.landscapePoster == null) && item.background != null
+            val image = when {
+                withLogo -> item.background
+                landscapeArt -> item.landscapePoster ?: item.background ?: item.poster
                 else -> item.poster
             }
             if (image != null) {
@@ -323,6 +351,25 @@ fun PosterCard(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
+            }
+            if (withLogo) {
+                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.55f)))))
+                AsyncImage(
+                    model = item.logo,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    alignment = Alignment.BottomStart,
+                    modifier = Modifier.align(Alignment.BottomStart).padding(12.dp).fillMaxWidth(0.6f).height(size.height * 0.32f)
+                )
+            }
+            if (actions?.isWatched(item) == true) {
+                Box(
+                    Modifier.align(Alignment.TopEnd).padding(8.dp).size(26.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(Color.Black.copy(alpha = 0.7f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    androidx.compose.material3.Icon(FetchIcons.Check, contentDescription = "Watched", tint = Color.White, modifier = Modifier.size(16.dp))
+                }
             }
         }
         if (showLabels) {
@@ -342,6 +389,7 @@ fun PosterCard(
                 maxLines = 1
             )
         }
+    }
     }
 }
 
@@ -383,8 +431,9 @@ fun CatalogRowView(
     onHover: (MetaPreview) -> Unit = {},
     title: String = row.title,
     subtitle: String? = row.addon.displayName,
-    showLabels: Boolean = true
-) = MediaRowView(title, subtitle, row.items, row.loading, row.error, onOpen, onHover, showLabels)
+    showLabels: Boolean = true,
+    onSeeAll: (() -> Unit)? = null
+) = MediaRowView(title, subtitle, row.items, row.loading, row.error, onOpen, onHover, showLabels, onSeeAll)
 
 /** A titled row of posters from anywhere: an addon catalog, or a media server library. */
 @Composable
@@ -396,7 +445,9 @@ fun MediaRowView(
     error: String?,
     onOpen: (MetaPreview) -> Unit,
     onHover: (MetaPreview) -> Unit = {},
-    showLabels: Boolean = true
+    showLabels: Boolean = true,
+    /** Opens the whole catalog as a grid ("See all", as on TV). */
+    onSeeAll: (() -> Unit)? = null
 ) {
     val rowInteraction = remember { MutableInteractionSource() }
     val rowHovered by rowInteraction.collectIsHoveredAsState()
@@ -415,6 +466,14 @@ fun MediaRowView(
                     modifier = Modifier.padding(bottom = 2.dp)
                 )
             }
+            if (onSeeAll != null && items.isNotEmpty()) {
+                Text(
+                    "See all",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (rowHovered) FetchPalette.TextPrimary else FetchPalette.TextMuted,
+                    modifier = Modifier.padding(bottom = 2.dp).clickable(onClick = onSeeAll).pointerHoverIcon(PointerIcon.Hand)
+                )
+            }
         }
         when {
             loading -> SkeletonRow()
@@ -430,9 +489,11 @@ fun MediaRowView(
             )
             else -> {
                 // Every card in a row has the row's shape, so a stray landscape item doesn't break the line.
-                val shape = items.groupingBy { it.posterShape }.eachCount().maxByOrNull { it.value }?.key
-                    ?: PosterShape.POSTER
-                PagedRow(hovered = rowHovered, cardHeight = cardSize(shape).height) { state ->
+                val style = LocalCardStyle.current
+                val shape = style.shapeFor(
+                    items.groupingBy { it.posterShape }.eachCount().maxByOrNull { it.value }?.key ?: PosterShape.POSTER
+                )
+                PagedRow(hovered = rowHovered, cardHeight = style.size(shape).height) { state ->
                     LazyRow(
                         state = state,
                         contentPadding = PaddingValues(horizontal = PageGutter, vertical = 8.dp),

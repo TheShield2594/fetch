@@ -283,6 +283,37 @@ class MediaBrowserServerClient(
         )
     }
 
+    override suspend fun filteredPage(
+        account: ServerAccount,
+        lib: ServerLib,
+        filters: com.fetch.desktop.FilterRowFilters,
+        start: Int,
+        limit: Int
+    ): ServerPageResult {
+        val page = get(
+            account,
+            itemsEndpoint(account).first,
+            itemsEndpoint(account).second + libraryQuery(lib) + listQuery() + filterQuery(filters) + mapOf(
+                "startIndex" to start.coerceAtLeast(0).toString(),
+                "limit" to limit.coerceIn(1, 500).toString(),
+                "enableTotalRecordCount" to "true"
+            ),
+            MbItems.serializer()
+        )
+        return ServerPageResult(
+            items = page.items.mapNotNull { preview(account, it) },
+            total = page.totalRecordCount ?: (start.coerceAtLeast(0) + page.items.size)
+        )
+    }
+
+    override suspend fun genres(account: ServerAccount, lib: ServerLib): List<String> =
+        get(
+            account,
+            "/Genres",
+            mapOf("parentId" to lib.id, "userId" to account.userId, "sortBy" to "SortName"),
+            MbItems.serializer()
+        ).items.mapNotNull { it.name?.takeIf(String::isNotBlank) }.distinct()
+
     override suspend fun details(account: ServerAccount, itemId: String): Meta? {
         val item = orNullIfMissing { item(account, itemId, DETAIL_FIELDS) } ?: return null
         val type = item.contentType() ?: return null
@@ -482,6 +513,27 @@ class MediaBrowserServerClient(
             append("\", Version=\"").append(AppInfo.version.headerValue()).append('"')
             if (token != null) append(", Token=\"").append(token.headerValue()).append('"')
         }
+    )
+
+    /** The TV's filter query for Jellyfin and Emby. Genre names may hold commas; the API splits on "|". */
+    internal fun filterQuery(filters: com.fetch.desktop.FilterRowFilters): Map<String, String?> = mapOf(
+        "genres" to filters.genre,
+        "minPremiereDate" to filters.yearFrom?.let { "$it-01-01T00:00:00Z" },
+        "maxPremiereDate" to filters.yearTo?.let { "$it-12-31T23:59:59Z" },
+        "isPlayed" to when (filters.watched) {
+            com.fetch.desktop.RowWatched.ANY -> null
+            com.fetch.desktop.RowWatched.WATCHED -> "true"
+            com.fetch.desktop.RowWatched.UNWATCHED -> "false"
+        },
+        "minCommunityRating" to filters.minRating?.toString(),
+        "sortBy" to when (filters.sort) {
+            com.fetch.desktop.RowSort.DATE_ADDED -> "DateCreated,SortName"
+            com.fetch.desktop.RowSort.TITLE -> "SortName"
+            com.fetch.desktop.RowSort.RELEASE_DATE -> "PremiereDate,ProductionYear,SortName"
+            com.fetch.desktop.RowSort.RATING -> "CommunityRating,SortName"
+            com.fetch.desktop.RowSort.RANDOM -> "Random"
+        },
+        "sortOrder" to if (filters.descending) "Descending" else "Ascending"
     )
 
     private fun libraryQuery(lib: ServerLib): Map<String, String?> = mapOf(

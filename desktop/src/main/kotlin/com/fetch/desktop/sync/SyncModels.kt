@@ -141,6 +141,41 @@ data class RemoteSharedSettings(
     val autoplayNextEpisode: Boolean? = null,
     /** `player_settings.auto_skip_segment_types`: `intro`, `recap`, `outro`, `movie-credits`. */
     val autoSkipSegments: Set<String>? = null,
+    /** `layout_settings.show_unaired_next_up` (TV default true). */
+    val showUnairedNextUp: Boolean? = null,
+    /** `layout_settings.next_up_from_furthest_episode` (TV default true). */
+    val nextUpFromFurthest: Boolean? = null,
+    /** `layout_settings.continue_watching_sort_mode`: a ContinueWatchingSortMode name. */
+    val continueWatchingSort: String? = null,
+    /** `tmdb_settings` booleans by key (`tmdb_enabled`, `tmdb_use_artwork`, …); only the ones present. */
+    val tmdbFlags: Map<String, Boolean>? = null,
+    /** `tmdb_settings.tmdb_language`. */
+    val tmdbLanguage: String? = null,
+    /** `mdblist_settings` booleans by key (`mdblist_enabled`, `mdblist_show_imdb`, …); only the ones present. */
+    val mdblistFlags: Map<String, Boolean>? = null,
+    /** `mdblist_settings.mdblist_rating_order`: providers joined by commas. The API key is not synced here. */
+    val mdblistRatingOrder: String? = null,
+    /** `theme_settings`' contrast, AMOLED, custom colours and font (see AppearanceExperienceSync.kt). */
+    val appearance: RemoteAppearance? = null,
+    /** `experience_settings`: Essential or Advanced. */
+    val experience: RemoteExperience? = null,
+    /** Subtitle, audio, Anime-Skip and trailer settings the TV syncs ([RemotePlayerExtras]). */
+    val playerExtras: RemotePlayerExtras? = null,
+    /** `player_settings` auto-play keys ([AutoPlaySync.KEYS]) with their values; only the ones present. */
+    val autoPlay: Map<String, kotlinx.serialization.json.JsonPrimitive>? = null,
+    /** `episode_queue.items`: the playback queue as the TV's JSON array. */
+    val episodeQueue: String? = null,
+    /**
+     * Layout's other settings ([com.fetch.desktop.data.LayoutSync]): the blob's typed entries
+     * (`{"type":…,"value":…}`) by `feature/key`; only the ones present.
+     */
+    val layoutValues: Map<String, kotlinx.serialization.json.JsonObject>? = null,
+    /** `trakt_settings` strings by key (`library_source_mode`, `watch_progress_source`, …); only the ones present. */
+    val trackingStrings: Map<String, String>? = null,
+    /** `trakt_settings` ints by key (`continue_watching_days_cap`). */
+    val trackingInts: Map<String, Int>? = null,
+    /** `trakt_settings` booleans by key (`show_meta_comments`). */
+    val trackingFlags: Map<String, Boolean>? = null,
 )
 
 /**

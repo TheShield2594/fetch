@@ -153,9 +153,11 @@ class SyncMergeProfilesTest {
     }
 
     @Test
-    fun `limits to push keep the account's kids flag`() {
-        val push = SyncMerge.parentalLimitsToPush(ProfileLimits(maxRating = "TEENS", allowUnrated = false), RemoteParentalLimits(isKidsProfile = true))
+    fun `limits to push carry this profile's kids flag`() {
+        val push = SyncMerge.parentalLimitsToPush(ProfileLimits(maxRating = "TEENS", allowUnrated = false, kidsProfile = true), RemoteParentalLimits(isKidsProfile = false))
         assertEquals(RemoteParentalLimits(true, "TEENS", false), push)
+        // The account's flag arrives with the pull.
+        assertEquals(true, SyncMerge.parentalLimits(ProfileLimits(), RemoteParentalLimits(isKidsProfile = true)).kidsProfile)
         assertEquals(RemoteParentalLimits(false, null, true), SyncMerge.parentalLimitsToPush(ProfileLimits(allowUnrated = false), null))
     }
 
@@ -244,8 +246,8 @@ class SyncMergeProfilesTest {
         assertEquals("de", shared.audioLanguage)
         assertNull(shared.subtitleLanguage)
         assertEquals(true, shared.rankingRules!!.dropUndecodable)
-        assertEquals(setOf("outro", "movie-credits"), shared.autoSkipSegments)
-        assertNull("the fallback theme doesn't replace a custom one", DesktopSettings().toRemoteSharedSettings(remote).theme)
+        assertEquals("movie credits are a desktop type too, so off here means off", setOf("outro"), shared.autoSkipSegments)
+        assertEquals("FETCH", DesktopSettings().toRemoteSharedSettings(remote).theme)
 
         val applied = RemoteSharedSettings(
             theme = "CUSTOM",
@@ -256,14 +258,14 @@ class SyncMergeProfilesTest {
             rankingRules = StreamRankingRules(dropUndecodable = true, preferOwnLibrary = false),
             autoSkipSegments = setOf("intro", "movie-credits"),
         ).applyTo(desktop)
-        assertEquals("OCEAN", applied.theme)
+        assertEquals("a TV custom theme shows here too", "CUSTOM", applied.theme)
         assertFalse(applied.showContinueWatching)
         assertTrue(applied.discoverInSidebar)
         assertEquals("de", applied.player.audioLanguage)
         assertEquals("fr", applied.player.subtitleLanguage)
         assertFalse(applied.rankingRules.dropUndecodable)
         assertFalse(applied.rankingRules.preferOwnLibrary)
-        assertEquals(setOf(SegmentType.INTRO), applied.player.autoSkip)
+        assertEquals(setOf(SegmentType.INTRO, SegmentType.MOVIE_CREDITS), applied.player.autoSkip)
         assertNull(RemoteSharedSettings(audioLanguage = "default").applyTo(desktop).player.audioLanguage)
     }
 }

@@ -39,8 +39,34 @@ object SyncSettingsBlob {
     const val THEME = "theme_settings"
     const val LAYOUT = "layout_settings"
     const val PLAYER = "player_settings"
+    const val TMDB = "tmdb_settings"
 
-    private val rankingJson = Json { ignoreUnknownKeys = true; encodeDefaults = false }
+    /** The TV's `tmdb_settings` switches the desktop has, by key. */
+    val TMDB_FLAGS = listOf(
+        "tmdb_enabled", "tmdb_use_artwork", "tmdb_use_basic_info", "tmdb_use_details", "tmdb_use_credits",
+        "tmdb_use_productions", "tmdb_use_networks", "tmdb_use_episodes", "tmdb_use_trailers",
+        "tmdb_use_more_like_this", "tmdb_use_collections", "tmdb_modern_home_enabled", "tmdb_enrich_continue_watching"
+    )
+
+    const val MDBLIST = "mdblist_settings"
+
+    /**
+     * The TV's `mdblist_settings` switches, by key. As on TV, `mdblist_api_key` never goes in the
+     * blob (the TV syncs it separately, as a provider credential).
+     */
+    val MDBLIST_FLAGS = listOf(
+        "mdblist_enabled", "mdblist_show_trakt", "mdblist_show_imdb", "mdblist_show_tmdb", "mdblist_show_letterboxd",
+        "mdblist_show_tomatoes", "mdblist_show_audience", "mdblist_show_metacritic", "mdblist_show_mal", "mdblist_show_on_hero"
+    )
+
+    const val TRACKING = "trakt_settings"
+
+    /** The TV's `trakt_settings` the desktop has (Settings › Tracking), by type. */
+    val TRACKING_STRINGS = listOf("library_source_mode", "watch_progress_source", "more_like_this_source", "simkl_anime_id_preference")
+    val TRACKING_INTS = listOf("continue_watching_days_cap")
+    val TRACKING_FLAGS = listOf("show_meta_comments")
+
+    private val rankingJson =Json { ignoreUnknownKeys = true; encodeDefaults = false }
 
     /** The shared settings in [blob]; fields the blob doesn't have are null. */
     fun sharedSettings(blob: JsonObject?): RemoteSharedSettings {
@@ -54,6 +80,8 @@ object SyncSettingsBlob {
             value(feature, key)?.takeIf { it.first == "string" }?.second?.let { (it as? JsonPrimitive)?.takeUnless { p -> p is JsonNull }?.contentOrNull }
         fun boolean(feature: String, key: String): Boolean? =
             value(feature, key)?.takeIf { it.first == "boolean" }?.second?.let { (it as? JsonPrimitive)?.contentOrNull?.toBooleanStrictOrNull() }
+        fun int(feature: String, key: String): Int? =
+            value(feature, key)?.takeIf { it.first == "int" || it.first == "long" }?.second?.let { (it as? JsonPrimitive)?.contentOrNull?.toIntOrNull() }
         fun stringSet(feature: String, key: String): Set<String>? =
             value(feature, key)?.takeIf { it.first == "string_set" }?.second?.let { element ->
                 (element as? JsonArray)?.mapNotNull { (it as? JsonPrimitive)?.contentOrNull }?.toSet()
@@ -73,6 +101,25 @@ object SyncSettingsBlob {
             },
             autoplayNextEpisode = boolean(PLAYER, "stream_auto_play_next_episode_enabled"),
             autoSkipSegments = stringSet(PLAYER, "auto_skip_segment_types"),
+            showUnairedNextUp = boolean(LAYOUT, "show_unaired_next_up"),
+            nextUpFromFurthest = boolean(LAYOUT, "next_up_from_furthest_episode"),
+            continueWatchingSort = string(LAYOUT, "continue_watching_sort_mode"),
+            tmdbFlags = TMDB_FLAGS.mapNotNull { key -> boolean(TMDB, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
+            tmdbLanguage = string(TMDB, "tmdb_language"),
+            mdblistFlags = MDBLIST_FLAGS.mapNotNull { key -> boolean(MDBLIST, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
+            mdblistRatingOrder = string(MDBLIST, "mdblist_rating_order"),
+            appearance = AppearanceExperienceSync.appearance(blob),
+            experience = AppearanceExperienceSync.experience(blob),
+            playerExtras = RemotePlayerExtras.read(features),
+            autoPlay = AutoPlaySync.read(features?.get(PLAYER) as? JsonObject),
+            episodeQueue = AutoPlaySync.readQueue(features?.get(AutoPlaySync.QUEUE_FEATURE)),
+            layoutValues = com.fetch.desktop.data.LayoutSync.ids.mapNotNull { id ->
+                val (feature, key) = com.fetch.desktop.data.LayoutSync.split(id)
+                ((features?.get(feature) as? JsonObject)?.get(key) as? JsonObject)?.let { id to it }
+            }.toMap().takeIf { it.isNotEmpty() },
+            trackingStrings = TRACKING_STRINGS.mapNotNull { key -> string(TRACKING, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
+            trackingInts = TRACKING_INTS.mapNotNull { key -> int(TRACKING, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
+            trackingFlags = TRACKING_FLAGS.mapNotNull { key -> boolean(TRACKING, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
         )
     }
 
@@ -95,6 +142,26 @@ object SyncSettingsBlob {
         })
         set(PLAYER, "stream_auto_play_next_episode_enabled", settings.autoplayNextEpisode?.let(::booleanValue))
         set(PLAYER, "auto_skip_segment_types", settings.autoSkipSegments?.let(::stringSetValue))
+        set(LAYOUT, "show_unaired_next_up", settings.showUnairedNextUp?.let(::booleanValue))
+        set(LAYOUT, "next_up_from_furthest_episode", settings.nextUpFromFurthest?.let(::booleanValue))
+        set(LAYOUT, "continue_watching_sort_mode", settings.continueWatchingSort?.let(::stringValue))
+        settings.tmdbFlags?.forEach { (key, value) -> if (key in TMDB_FLAGS) set(TMDB, key, booleanValue(value)) }
+        set(TMDB, "tmdb_language", settings.tmdbLanguage?.let(::stringValue))
+        settings.mdblistFlags?.forEach { (key, value) -> if (key in MDBLIST_FLAGS) set(MDBLIST, key, booleanValue(value)) }
+        set(MDBLIST, "mdblist_rating_order", settings.mdblistRatingOrder?.let(::stringValue))
+        AppearanceExperienceSync.edits(settings).forEach { (feature, key, value) -> set(feature, key, value) }
+        settings.playerExtras?.edits()?.forEach { (feature, key, encoded) -> set(feature, key, encoded) }
+        settings.autoPlay?.forEach { (key, value) -> set(PLAYER, key, AutoPlaySync.encode(key, value)) }
+        set(AutoPlaySync.QUEUE_FEATURE, AutoPlaySync.QUEUE_KEY, settings.episodeQueue?.let(AutoPlaySync::encodeQueue))
+        settings.layoutValues?.forEach { (id, entry) ->
+            if (id in com.fetch.desktop.data.LayoutSync.ids) {
+                val (feature, key) = com.fetch.desktop.data.LayoutSync.split(id)
+                set(feature, key, entry)
+            }
+        }
+        settings.trackingStrings?.forEach { (key, value) -> if (key in TRACKING_STRINGS) set(TRACKING, key, stringValue(value)) }
+        settings.trackingInts?.forEach { (key, value) -> if (key in TRACKING_INTS) set(TRACKING, key, intValue(value)) }
+        settings.trackingFlags?.forEach { (key, value) -> if (key in TRACKING_FLAGS) set(TRACKING, key, booleanValue(value)) }
 
         val base = blob ?: JsonObject(emptyMap())
         val features = (base[FEATURES] as? JsonObject).orEmpty().toMutableMap()
@@ -149,6 +216,8 @@ object SyncSettingsBlob {
     private fun JsonObject?.orEmpty(): JsonObject = this ?: JsonObject(emptyMap())
 
     private fun stringValue(value: String) = buildJsonObject { put("type", "string"); put("value", value) }
+
+    private fun intValue(value: Int) = buildJsonObject { put("type", "int"); put("value", value) }
 
     private fun booleanValue(value: Boolean) = buildJsonObject { put("type", "boolean"); put("value", value) }
 

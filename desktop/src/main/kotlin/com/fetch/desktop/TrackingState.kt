@@ -55,8 +55,12 @@ class TrackingState(
     val credentials: TrackingCredentials = TrackingCredentials.load(),
     http: OkHttpClient = OkHttpClient.Builder().connectTimeout(15, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS).build(),
     private val trakt: TraktClient = TraktClient(http, credentials),
-    private val simkl: SimklClient = SimklClient(http, credentials),
-    private val onMessage: (String) -> Unit = {}
+    /** Settings › Tracking › Simkl anime id. */
+    animeIdPreference: () -> com.fetch.desktop.tracking.SimklAnimeIdOption = { com.fetch.desktop.tracking.SimklAnimeIdOption.IMDB },
+    private val simkl: SimklClient = SimklClient(http, credentials, animeIdPreference = animeIdPreference),
+    private val onMessage: (String) -> Unit = {},
+    /** MDBList's account, a tracking service too as on TV: scrobbles, history and resume points. */
+    private val mdbList: () -> com.fetch.desktop.mdblist.MdbListTracker? = { null }
 ) {
     var accounts: TrackingAccounts by mutableStateOf(store.load())
         private set
@@ -179,6 +183,25 @@ class TrackingState(
         }
     }
 
+    /** Runs [block] with Trakt and a fresh token; null when Trakt isn't connected (or signed out). */
+    suspend fun <T> withTrakt(block: suspend TraktClient.(TrackingTokens) -> T): T? = withTokens(TrackingService.TRAKT) { trakt.block(it) }
+
+    /**
+     * Runs [block] with Trakt for public data (collection folders' Trakt lists): with your token
+     * when Trakt is connected, else with the client id alone. Null when this build has no Trakt.
+     */
+    suspend fun <T> withTraktPublic(block: suspend TraktClient.(TrackingTokens?) -> T): T? {
+        if (!credentials.traktAvailable) return null
+        if (account(TrackingService.TRAKT) == null) return trakt.block(null)
+        return withTrakt { trakt.block(it) }
+    }
+
+    /** Simkl's recommendations next to [imdb] (public, no sign-in needed). */
+    suspend fun simklRelated(imdb: String) = simkl.related(imdb)
+
+    /** Runs [block] with Simkl and its token; null when Simkl isn't connected. */
+    suspend fun <T> withSimkl(block: suspend SimklClient.(TrackingTokens) -> T): T? = withTokens(TrackingService.SIMKL) { simkl.block(it) }
+
     private suspend fun refreshTrakt(account: TrackingAccount): TrackingTokens? = try {
         trakt.refresh(account.tokens).also { setAccount(TrackingService.TRAKT, account.copy(tokens = it)) }
     } catch (e: CancellationException) {
@@ -191,6 +214,7 @@ class TrackingState(
 
     /** Tells every connected service what is playing and how far along it is (0–100). */
     fun scrobble(target: PlaybackTarget, action: ScrobbleAction, percent: Float) {
+        mdbList()?.takeIf { it.connected }?.let { tracker -> scope.launch { tracker.scrobble(target, action, percent) } }
         val item = trackedItem(target) ?: return
         connected.forEach { service ->
             scope.launch {
@@ -199,6 +223,26 @@ class TrackingState(
                         when (service) {
                             TrackingService.TRAKT -> trakt.scrobble(tokens, action, item, percent)
                             TrackingService.SIMKL -> simkl.scrobble(tokens, action, item, percent)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // --- Watched history ---
+
+    /** Marks [target] (a movie or one episode) watched or unwatched on every connected service. */
+    fun setWatched(target: PlaybackTarget, watched: Boolean) {
+        mdbList()?.takeIf { it.connected }?.let { tracker -> scope.launch { tracker.setWatched(target, watched) } }
+        val item = trackedItem(target) ?: return
+        connected.forEach { service ->
+            scope.launch {
+                runCatching {
+                    withTokens(service) { tokens ->
+                        when (service) {
+                            TrackingService.TRAKT -> if (watched) trakt.addToHistory(tokens, item) else trakt.removeFromHistory(tokens, item)
+                            TrackingService.SIMKL -> if (watched) simkl.addToHistory(tokens, item) else simkl.removeFromHistory(tokens, item)
                         }
                     }
                 }
@@ -233,7 +277,8 @@ class TrackingState(
 
     /** Pulls Continue Watching, watched history and watchlists from every connected service. */
     suspend fun sync(): TrackingSnapshot? {
-        if (connected.isEmpty() || syncing) return null
+        val mdb = mdbList()?.takeIf { it.connected }
+        if ((connected.isEmpty() && mdb == null) || syncing) return null
         syncing = true
         try {
             val playback = mutableListOf<ProgressEntry>()
@@ -262,6 +307,18 @@ class TrackingState(
                     throw e
                 } catch (e: Exception) {
                     onMessage("Couldn't sync ${service.label}: ${e.message}")
+                }
+            }
+            if (mdb != null) {
+                try {
+                    mdb.pull()?.let { (remotePlayback, remoteWatched) ->
+                        playback += remotePlayback
+                        watched += remoteWatched
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    onMessage("Couldn't sync MDBList: ${e.message}")
                 }
             }
             lastSyncedAt = System.currentTimeMillis()
@@ -315,8 +372,8 @@ class TrackingState(
             id = imdbId,
             type = if (type == TrackedItem.TYPE_MOVIE) "movie" else "series",
             name = title,
-            poster = "https://images.metahub.space/poster/small/$imdbId/img",
-            background = "https://images.metahub.space/background/medium/$imdbId/img",
+            poster = if (imdbId.startsWith("tt")) "https://images.metahub.space/poster/small/$imdbId/img" else poster,
+            background = if (imdbId.startsWith("tt")) "https://images.metahub.space/background/medium/$imdbId/img" else null,
             releaseInfo = year?.toString(),
             addedAt = addedAtEpochMs ?: 0L
         )

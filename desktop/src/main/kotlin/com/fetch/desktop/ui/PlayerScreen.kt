@@ -26,6 +26,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,8 +59,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import com.fetch.desktop.AppState
+import com.fetch.desktop.PlayerPanel
 import com.fetch.desktop.PlayerSession
-import com.fetch.desktop.player.embedded.MpvTrack
+import com.fetch.desktop.data.VideoFit
 import kotlinx.coroutines.delay
 import java.awt.Cursor
 import java.awt.Point
@@ -86,6 +88,10 @@ private val HiddenCursor: PointerIcon by lazy {
 @Composable
 fun PlayerScreen(state: AppState, session: PlayerSession) {
     val mpv = session.mpv
+    // Pause, seek and speed: mpv's, or the watch party's while one follows this player.
+    val controls = session.controls
+    val partyAvailable by state.party.available.collectAsState()
+    val inParty = state.party.state.collectAsState().value.party != null
     val window = LocalWindowState.current
     var controlsVisible by remember { mutableStateOf(true) }
     var lastActivity by remember { mutableStateOf(System.currentTimeMillis()) }
@@ -123,14 +129,28 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                 if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
                 poke()
                 when (event.key) {
-                    Key.Spacebar, Key.K -> mpv.togglePause()
-                    Key.DirectionLeft, Key.J -> mpv.seekBy(-10.0)
-                    Key.DirectionRight, Key.L -> mpv.seekBy(10.0)
+                    Key.Spacebar, Key.K -> controls.togglePause()
+                    Key.I -> session.showInfo = !session.showInfo
+                    Key.N -> if (session.nextEpisode != null) state.playNextNow() else return@onKeyEvent false
+                    Key.Z -> mpv.changeSubtitleDelay(mpv.subtitleDelay - 0.1)
+                    Key.X -> mpv.changeSubtitleDelay(mpv.subtitleDelay + 0.1)
+                    Key.LeftBracket -> controls.changeSpeed(previousSpeed(controls.speed))
+                    Key.RightBracket -> controls.changeSpeed(nextSpeed(controls.speed))
+                    Key.Backspace -> controls.changeSpeed(1.0)
+                    Key.DirectionLeft, Key.J -> controls.seekBy(-10.0)
+                    Key.DirectionRight, Key.L -> controls.seekBy(10.0)
                     Key.DirectionUp -> mpv.changeVolume(mpv.volume + 5)
                     Key.DirectionDown -> mpv.changeVolume(mpv.volume - 5)
                     Key.M -> mpv.toggleMute()
                     Key.F -> toggleFullscreen()
-                    Key.Escape -> if (window?.placement == WindowPlacement.Fullscreen) toggleFullscreen() else leave()
+                    Key.Escape -> when {
+                        closeExtraPanels(session) -> Unit
+                        session.partyPanelOpen -> session.partyPanelOpen = false
+                        state.extras.queuePanelOpen -> state.extras.queuePanelOpen = false
+                        session.panel != null -> session.panel = null
+                        window?.placement == WindowPlacement.Fullscreen -> toggleFullscreen()
+                        else -> leave()
+                    }
                     else -> return@onKeyEvent false
                 }
                 true
@@ -143,7 +163,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                 .onSizeChanged { mpv.setViewSize(it.width, it.height) }
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
                     poke()
-                    mpv.togglePause()
+                    controls.togglePause()
                 }
         ) {
             @Suppress("UNUSED_EXPRESSION") mpv.frameVersion // redraw on every new frame
@@ -169,14 +189,22 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
             }
         }
 
-        // Skip intro / recap / credits, for segments not skipped automatically.
-        session.skippable(mpv.position)?.let { segment ->
-            Box(Modifier.align(Alignment.BottomEnd).padding(end = 48.dp, bottom = 150.dp)) {
-                PrimaryButton("Skip ${segment.type.label.lowercase()}", icon = FetchIcons.ChevronRight, onClick = {
-                    mpv.seekTo(segment.endSec)
-                })
-            }
+        // Paused for a few seconds with the controls gone: what's on, as on TV.
+        if (state.settings.player.pauseOverlay) PauseOverlay(session, visible = mpv.paused && !controlsVisible)
+        if (session.showInfo) StreamInfoOverlay(session, Modifier.align(Alignment.TopEnd).padding(top = 96.dp, end = 32.dp), footer = { StatsHudToggle(state) })
+        session.upNextCountdown(mpv.position, mpv.duration, state.settings.player.upNextPromptSeconds)?.let { seconds ->
+            UpNextCard(
+                session = session,
+                seconds = seconds,
+                status = state.extras.upNextStatus,
+                onPlay = state::playNextNow,
+                onCancel = state::cancelUpNext,
+                modifier = Modifier.align(Alignment.BottomEnd).padding(end = 48.dp, bottom = 150.dp)
+            )
         }
+
+        // Skip intro / recap / credits (the TV's wording and timing), stats overlay, live subtitle style and audio extras.
+        PlayerExtrasLayer(state, session, controlsVisible || mpv.paused)
 
         AnimatedVisibility(controlsVisible || mpv.paused, enter = fadeIn(), exit = fadeOut(), modifier = Modifier.fillMaxSize()) {
             Box(Modifier.fillMaxSize()) {
@@ -200,6 +228,8 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                 ) {
                     val duration = mpv.duration.coerceAtLeast(0.0)
                     val shown = seeking ?: mpv.position.toFloat()
+                    // A YouTube video's SponsorBlock marks, chapters and storyboard frames ride on the bar.
+                    YouTubeSeekBar(session, duration) {
                     Slider(
                         value = shown.coerceIn(0f, duration.toFloat().coerceAtLeast(0.01f)),
                         onValueChange = {
@@ -207,7 +237,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                             seeking = it
                         },
                         onValueChangeFinished = {
-                            seeking?.let { mpv.seekTo(it.toDouble()) }
+                            seeking?.let { controls.seekTo(it.toDouble()) }
                             seeking = null
                         },
                         valueRange = 0f..duration.toFloat().coerceAtLeast(0.01f),
@@ -217,10 +247,11 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                             inactiveTrackColor = Color.White.copy(alpha = 0.3f)
                         )
                     )
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        CircleIconButton(if (mpv.paused) FetchIcons.Play else FetchIcons.Pause, if (mpv.paused) "Play" else "Pause", onClick = mpv::togglePause)
-                        CircleIconButton(FetchIcons.Replay10, "Back 10 seconds", onClick = { mpv.seekBy(-10.0) })
-                        CircleIconButton(FetchIcons.Forward10, "Forward 10 seconds", onClick = { mpv.seekBy(10.0) })
+                        CircleIconButton(if (mpv.paused) FetchIcons.Play else FetchIcons.Pause, if (mpv.paused) "Play" else "Pause", onClick = controls::togglePause)
+                        CircleIconButton(FetchIcons.Replay10, "Back 10 seconds", onClick = { controls.seekBy(-10.0) })
+                        CircleIconButton(FetchIcons.Forward10, "Forward 10 seconds", onClick = { controls.seekBy(10.0) })
                         Text(
                             "${clock(shown.toDouble())} / ${clock(duration)}",
                             color = Color.White,
@@ -228,8 +259,6 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                             modifier = Modifier.padding(start = 8.dp)
                         )
                         Spacer(Modifier.weight(1f))
-                        TrackMenu("Audio", mpv.tracks.filter { it.type == "audio" }, allowOff = false) { id -> id?.let(mpv::selectAudio) }
-                        TrackMenu("Subtitles", mpv.tracks.filter { it.type == "sub" }, allowOff = true, onPick = mpv::selectSubtitle)
                         CircleIconButton(if (mpv.muted) FetchIcons.VolumeOff else FetchIcons.VolumeUp, "Mute", onClick = mpv::toggleMute)
                         Slider(
                             value = mpv.volume.toFloat().coerceIn(0f, 130f),
@@ -240,42 +269,82 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                         )
                         CircleIconButton(FetchIcons.Fullscreen, "Fullscreen", onClick = ::toggleFullscreen)
                     }
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (session.nextEpisode != null) {
+                            SecondaryButton("Next episode", onClick = state::playNextNow, icon = FetchIcons.ChevronRight)
+                        }
+                        ValueMenu("Speed", speedLabel(controls.speed), Speeds.map { it to speedLabel(it) }, controls.speed) { controls.changeSpeed(it) }
+                        ValueMenu("Picture", session.fit.label, VideoFit.entries.map { it to it.label }, session.fit) { state.setFit(it) }
+                        YouTubePlayerButtons(session)
+                        PlayerPanel.entries.filter { panelAvailable(session, it) }.forEach { panel ->
+                            SecondaryButton(panel.label, onClick = {
+                                session.partyPanelOpen = false
+                                session.panel = if (session.panel == panel) null else panel
+                            })
+                        }
+                        SecondaryButton("Queue", icon = FetchIcons.List, onClick = {
+                            session.panel = null
+                            session.partyPanelOpen = false
+                            state.extras.queuePanelOpen = !state.extras.queuePanelOpen
+                        })
+                        if (partyAvailable || inParty) {
+                            SecondaryButton("Watch party", icon = PartyIcon, onClick = {
+                                session.panel = null
+                                session.partyPanelOpen = !session.partyPanelOpen
+                            })
+                        }
+                        CircleIconButton(FetchIcons.Info, "Stream info (I)", onClick = { session.showInfo = !session.showInfo })
+                    }
                 }
             }
         }
+
+        PartyPlayerPill(state, session, controlsVisible || mpv.paused, Modifier.align(Alignment.TopCenter).padding(top = 28.dp))
+        YouTubePlayerLayer(state, session, controlsVisible || mpv.paused)
+        session.panel?.let { panel ->
+            PlayerSidePanel(state, session, panel, Modifier.align(Alignment.CenterEnd))
+        }
+        PlayerExtrasPanels(state, session)
+        if (session.partyPanelOpen) PartyPlayerPanel(state, session, Modifier.align(Alignment.CenterEnd))
+        // Content warnings, the Queue panel and "Up next in queue", the movie's recommendation.
+        PlayerExtrasLayer(state, session)
+        state.stillWatching?.let { prompt ->
+            StillWatchingOverlay(prompt.label, onContinue = { state.answerStillWatching(true) }, onStop = { state.answerStillWatching(false) })
+        }
     }
 }
 
-/** A pill opening a list of tracks; [allowOff] adds "Off" (subtitles). */
+/** The speeds the TV player offers. */
+internal val Speeds = listOf(0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0)
+
+private fun previousSpeed(current: Double) = Speeds.lastOrNull { it < current - 0.001 } ?: Speeds.first()
+private fun nextSpeed(current: Double) = Speeds.firstOrNull { it > current + 0.001 } ?: Speeds.last()
+internal fun speedLabel(speed: Double) = if (speed == 1.0) "Normal" else "${"%.2f".format(java.util.Locale.ROOT, speed).trimEnd('0').trimEnd('.')}×"
+
+private fun panelAvailable(session: PlayerSession, panel: PlayerPanel): Boolean = when (panel) {
+    PlayerPanel.EPISODES -> session.target?.episodes?.any { it.season != null } == true
+    PlayerPanel.SOURCES -> session.target != null
+    else -> true
+}
+
+/** A pill opening a menu of values, the current one highlighted. */
 @Composable
-private fun TrackMenu(label: String, tracks: List<MpvTrack>, allowOff: Boolean, onPick: (String?) -> Unit) {
-    if (tracks.isEmpty()) return
+private fun <T> ValueMenu(label: String, current: String, options: List<Pair<T, String>>, selected: T, onPick: (T) -> Unit) {
     var open by remember { mutableStateOf(false) }
-    val current = tracks.firstOrNull { it.selected }
     Box {
-        SecondaryButton(
-            "$label: ${current?.label ?: if (allowOff) "Off" else "None"}",
-            onClick = { open = true },
-            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
-        )
+        SecondaryButton("$label: $current", onClick = { open = true }, modifier = Modifier.pointerHoverIcon(PointerIcon.Hand))
         DropdownMenu(expanded = open, onDismissRequest = { open = false }, containerColor = FetchPalette.SurfaceRaised) {
-            if (allowOff) {
-                DropdownMenuItem(text = { Text("Off", color = if (current == null) FetchPalette.Accent else Color.White) }, onClick = {
+            options.forEach { (value, text) ->
+                DropdownMenuItem(text = { Text(text, color = if (value == selected) FetchPalette.Accent else Color.White) }, onClick = {
                     open = false
-                    onPick(null)
-                })
-            }
-            tracks.forEach { track ->
-                DropdownMenuItem(text = { Text(track.label, color = if (track.selected) FetchPalette.Accent else Color.White) }, onClick = {
-                    open = false
-                    onPick(track.id)
+                    onPick(value)
                 })
             }
         }
     }
 }
 
-private fun clock(seconds: Double): String {
+internal fun clock(seconds: Double): String {
     val s = seconds.toLong().coerceAtLeast(0)
     return if (s >= 3600) "%d:%02d:%02d".format(s / 3600, s % 3600 / 60, s % 60) else "%d:%02d".format(s / 60, s % 60)
 }

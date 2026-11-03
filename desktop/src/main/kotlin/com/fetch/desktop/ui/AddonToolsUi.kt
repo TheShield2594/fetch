@@ -43,7 +43,12 @@ fun AddonToolsRow(state: AppState, catalogOrder: Boolean = true) {
         SecondaryButton("Addon health", onClick = { health = true })
         if (catalogOrder) SecondaryButton("Catalog order", onClick = { order = true }, enabled = state.rows.any { it.filter == null })
     }
-    if (health) AddonHealthDialog(state.addons.toList(), onDismiss = { health = false })
+    if (health) AddonHealthDialog(
+        state.addons.toList(),
+        onDismiss = { health = false },
+        // The TV's "Disable": only for your own addons, not the main profile's.
+        onDisable = if (catalogOrder) ({ addon -> state.setAddonEnabled(addon, false) }) else null
+    )
     if (order) CatalogOrderDialog(state, onDismiss = { order = false })
 }
 
@@ -65,11 +70,18 @@ private fun relativeTime(atMs: Long, now: Long = System.currentTimeMillis()): St
  * restarts. Clear history asks twice, as on TV.
  */
 @Composable
-fun AddonHealthDialog(addons: List<Addon>, onDismiss: () -> Unit, tracker: AddonHealthTracker = AddonHealthTracker.shared) {
+fun AddonHealthDialog(
+    addons: List<Addon>,
+    onDismiss: () -> Unit,
+    onDisable: ((Addon) -> Unit)? = null,
+    tracker: AddonHealthTracker = AddonHealthTracker.shared
+) {
     var sort by remember { mutableStateOf(AddonHealthSort.entries.first()) }
     var clearArmed by remember { mutableStateOf(false) }
     val health = tracker.health
     val rows = sortByHealth(addons, { it.displayName }, { health[it.displayName] }, sort)
+    // Health is kept by name: when two addons share one, it can't say which failed, so neither offers Disable.
+    val sharedNames = addons.groupingBy { it.displayName }.eachCount().filterValues { it > 1 }.keys
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
@@ -87,7 +99,15 @@ fun AddonHealthDialog(addons: List<Addon>, onDismiss: () -> Unit, tracker: Addon
                 }
                 Column(Modifier.heightIn(max = 440.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (rows.isEmpty()) Text("No addons installed.", color = FetchPalette.TextMuted)
-                    rows.forEach { addon -> HealthRow(addon.displayName, health[addon.displayName]?.takeIf { it.requests > 0 }) }
+                    rows.forEach { addon ->
+                        HealthRow(
+                            addon.displayName,
+                            health[addon.displayName]?.takeIf { it.requests > 0 },
+                            enabled = addon.enabled,
+                            sharedName = addon.displayName in sharedNames,
+                            onDisable = onDisable?.takeIf { addon.displayName !in sharedNames }?.let { disable -> { disable(addon) } }
+                        )
+                    }
                 }
             }
         },
@@ -106,12 +126,12 @@ fun AddonHealthDialog(addons: List<Addon>, onDismiss: () -> Unit, tracker: Addon
 }
 
 @Composable
-private fun HealthRow(name: String, health: AddonHealth?) {
+private fun HealthRow(name: String, health: AddonHealth?, enabled: Boolean = true, sharedName: Boolean = false, onDisable: (() -> Unit)? = null) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(FetchPalette.Background).padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        Text(name, color = Color.White, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(name + if (enabled) "" else " · Off", color = if (enabled) Color.White else FetchPalette.TextMuted, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
         if (health == null) {
             Text("No requests yet", color = FetchPalette.TextSecondary, fontSize = 13.sp)
             return@Column
@@ -126,8 +146,17 @@ private fun HealthRow(name: String, health: AddonHealth?) {
             color = if (failurePercent >= 50) FetchPalette.Error else FetchPalette.TextSecondary,
             fontSize = 13.sp
         )
-        if (health.shouldSuggestDisabling) {
-            Text("Failed ${health.consecutiveFailures} times in a row · consider removing it", color = FetchPalette.Error, fontSize = 13.sp)
+        // A record shared by two addons of one name can't say which failed, so it suggests nothing.
+        if (health.shouldSuggestDisabling && enabled && !sharedName) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    "Failed ${health.consecutiveFailures} times in a row · " + if (onDisable != null) "consider turning it off" else "consider removing it",
+                    color = FetchPalette.Error,
+                    fontSize = 13.sp,
+                    modifier = Modifier.weight(1f)
+                )
+                if (onDisable != null) SecondaryButton("Disable", onClick = onDisable)
+            }
         }
         health.lastError?.let { Text("Last error: $it", color = FetchPalette.TextMuted, fontSize = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis) }
     }

@@ -4,9 +4,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * The parts of a title the TV app can skip: an episode's intro (anime openings too), recap and
@@ -119,6 +123,33 @@ class IntroDbClient(
                 }
             }
         }.getOrDefault(emptyList())
+    }
+
+    /**
+     * Sends a marker you recorded to IntroDB (its `submit` endpoint, with your API key), as the
+     * TV's SkipIntroRepository.submitMarker. False when IntroDB refused it or wasn't reached.
+     */
+    suspend fun submit(apiKey: String, target: MarkerTarget, type: SegmentType, startSec: Double, endSec: Double): Boolean = withContext(Dispatchers.IO) {
+        val key = apiKey.trim()
+        if (key.isBlank() || !SkipMarkerRules.isImdbId(target.imdbId) || startSec < 0 || endSec <= startSec) return@withContext false
+        val segmentType = SkipMarkerRules.submissionType(type, target.isMovie) ?: return@withContext false
+        val body = buildJsonObject {
+            put("segment_type", segmentType)
+            put("imdb_id", target.imdbId)
+            if (target.isMovie) {
+                put("is_movie", true)
+            } else {
+                put("season", target.season)
+                put("episode", target.episode)
+            }
+            put("start_sec", startSec)
+            put("end_sec", endSec)
+        }.toString().toRequestBody("application/json".toMediaType())
+        runCatching {
+            val request = Request.Builder().url(baseUrl().trimEnd('/') + "/submit")
+                .header("X-API-Key", key).header("Accept", "application/json").post(body).build()
+            http.newCall(request).execute().use { it.isSuccessful }
+        }.getOrDefault(false)
     }
 
     private fun Times.toSegment(type: SegmentType): Segment? {

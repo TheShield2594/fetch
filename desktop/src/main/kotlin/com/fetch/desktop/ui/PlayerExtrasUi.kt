@@ -92,6 +92,10 @@ class PlayerSessionExtras {
     val syncResults = mutableMapOf<String, com.fetch.desktop.player.autosync.TimeMap>()
     /** The Skip button is on screen (subtitles move up out of its way). */
     var skipVisible by mutableStateOf(false)
+    /** Where a marker recorded here goes on IntroDB; null hides the Mark button (no API key or IMDb id). */
+    var markerTarget by mutableStateOf<com.fetch.desktop.skip.MarkerTarget?>(null)
+    /** The start the Mark button recorded, waiting for the end. */
+    var markerStartSec by mutableStateOf<Double?>(null)
     /** The audio output the delay was last applied for, and that delay. */
     var audioRoute: String? = null
     var appliedAudioDelay: Double? = null
@@ -177,8 +181,22 @@ fun BoxScope.PlayerExtrasLayer(state: AppState, session: PlayerSession, controls
 
     // The Skip button (bottom left, as on TV), unless Up Next is up.
     val upNext = session.upNextCountdown(mpv.position, mpv.duration, p.upNextPromptSeconds) != null
+    // The Mark button needs an IntroDB key and a title IntroDB knows by IMDb id, as on TV.
+    val introDbKey = p.introDbApiKey?.takeIf { it.isNotBlank() }
+    LaunchedEffect(session.target, introDbKey != null) {
+        session.extras.markerStartSec = null
+        session.extras.markerTarget = null
+        val target = session.target ?: return@LaunchedEffect
+        if (introDbKey == null) return@LaunchedEffect
+        // A failed or slow Simkl lookup is tried again a couple of times before the button stays hidden.
+        repeat(3) { attempt ->
+            state.markerTargetFor(target)?.let { session.extras.markerTarget = it; return@LaunchedEffect }
+            if (attempt < 2) delay(5_000)
+        }
+    }
     SkipSegmentButton(
         session = session,
+        onReport = { segment -> state.reportSkipSegment(session, segment) },
         controlsVisible = controlsVisible,
         hidden = upNext,
         modifier = Modifier.align(Alignment.BottomStart).padding(start = 48.dp, bottom = 150.dp)
@@ -213,7 +231,13 @@ fun StatsHudToggle(state: AppState) {
 // --- Skip button ---
 
 @Composable
-private fun SkipSegmentButton(session: PlayerSession, controlsVisible: Boolean, hidden: Boolean, modifier: Modifier) {
+private fun SkipSegmentButton(
+    session: PlayerSession,
+    onReport: (Segment) -> Unit,
+    controlsVisible: Boolean,
+    hidden: Boolean,
+    modifier: Modifier
+) {
     val mpv = session.mpv
     val candidates = if (session.skipButton) session.segments.filter { !it.skipsAutomatically(session.autoSkip) } else emptyList()
     val active: Segment? = if (hidden) null else SkipButtonRules.active(candidates, mpv.position)
@@ -258,6 +282,19 @@ private fun SkipSegmentButton(session: PlayerSession, controlsVisible: Boolean, 
             ) {
                 Icon(FetchIcons.ChevronRight, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
                 Text(SkipButtonRules.label(segment, targetsPostCredits), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                // An AniSkip marker can be reported as wrong (the TV's long press on the button).
+                if (com.fetch.desktop.skip.SkipMarkerRules.canReport(segment)) {
+                    Text(
+                        "Wrong?",
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontSize = 13.sp,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable { onReport(segment) }
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
             }
             // The countdown bar: how long the button stays when left alone.
             val countdownHidden = controlsVisible || autoHidden

@@ -60,6 +60,7 @@ import com.fetch.tv.data.mediaserver.ServerItemRef
 import com.fetch.desktop.servers.ServersStore
 import com.fetch.desktop.skip.IntroDbClient
 import com.fetch.desktop.skip.Segment
+import com.fetch.desktop.ui.extras
 import com.fetch.desktop.skip.SegmentType
 import com.fetch.desktop.player.embedded.EmbeddedMpv
 import com.fetch.desktop.player.embedded.LibMpv
@@ -101,6 +102,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.withLock
 import com.fetch.desktop.data.ProfileLimits
 import com.fetch.desktop.parental.Parental
 import com.fetch.desktop.parental.ScreenTimeBlock
@@ -486,7 +488,8 @@ class AppState(
         scope,
         com.fetch.desktop.collections.CollectionsStore.inProfile(profileDir(profile)),
         com.fetch.desktop.collections.CollectionSourceResolver(
-            addons = { addons.toList() },
+            addons = { activeAddons },
+            disabledAddons = { addons.filter { !it.enabled } },
             addonClient = client,
             tmdb = com.fetch.desktop.tmdb.TmdbCollectionSources(tmdb.client),
             tmdbLanguage = { settings.tmdb.language },
@@ -496,7 +499,7 @@ class AppState(
             localLists = { lists.local },
             websiteList = { id, types -> com.fetch.desktop.website.FetchWebsiteState.shared.listItems(profile.id, id, types) }
         ),
-        addons = { addons.toList() },
+        addons = { activeAddons },
         remote = { account?.client() },
         profileId = profile.id,
         onMessage = { message = it }
@@ -504,7 +507,7 @@ class AppState(
 
     /** Home's extras: Ready tonight, Continue Watching artwork, TMDB on the hero, shuffle. */
     val homeExtras = com.fetch.desktop.home.HomeExtras(
-        scope, client, { addons.toList() },
+        scope, client, { activeAddons },
         com.fetch.desktop.tmdb.MetaPreviewEnricher(tmdb.client) { settings.tmdb.language },
         { settings }, profileDir(profile),
         rankedSources = { type, id, name -> rank(streamsFor(type, id, name)) },
@@ -624,7 +627,7 @@ class AppState(
     private suspend fun fillProgressNames() {
         progress.entries.filter { it.name == it.contentId }.forEach { entry ->
             val meta = runCatching {
-                withContext(Dispatchers.IO) { client.meta(addons.toList(), entry.contentType, entry.contentId) }
+                withContext(Dispatchers.IO) { client.meta(activeAddons, entry.contentType, entry.contentId) }
             }.getOrNull() ?: return@forEach
             val episode = meta.videos.firstOrNull { it.id == entry.videoId }
             saveProgress(
@@ -868,12 +871,27 @@ class AppState(
     private val addonProfileId: Int get() = if (profile.usesPrimaryAddons) DesktopProfile.PRIMARY_ID else profile.id
 
     /** Sends the addon list to the server after an install, removal or reorder here. */
-    private fun pushAddonsToServer() {
+    /** Orders addon pushes, so an older list can't reach the server after a newer one. */
+    private val addonPushLock = kotlinx.coroutines.sync.Mutex()
+
+    /**
+     * Sends the addon list to the server. The list and switches are read when the push runs, under
+     * [addonPushLock], so the last push always carries the latest state. [removed] are addons
+     * removed here, kept out of the push even when the account has them switched off.
+     */
+    private fun pushAddonsToServer(removed: Set<String> = emptySet()) {
         val remote = account?.client() ?: return
         // A profile sharing the main profile's addons doesn't push them, as on TV.
         if (!profile.isPrimary && profile.usesPrimaryAddons) return
-        val urls = addons.map { it.baseUrl } + unreachableAddons.map { it.first }
-        scope.launch { runCatching { remote.pushAddons(profile.id, SyncMerge.addonsToPush(urls, remote.pullAddons(profile.id))) } }
+        scope.launch {
+            addonPushLock.withLock {
+                runCatching {
+                    val pulled = remote.pullAddons(profile.id)
+                    val urls = addons.map { it.baseUrl } + unreachableAddons.map { it.first }
+                    remote.pushAddons(profile.id, SyncMerge.addonsToPush(urls, pulled, disabledAddonUrls(), removed))
+                }
+            }
+        }
     }
 
     /** Settings, addons, profiles, locks and limits from the server; the account's win, as on TV. */
@@ -889,10 +907,16 @@ class AppState(
 
         val remoteAddons = remote.pullAddons(addonProfileId)
         val localUrls = store.load()
-        val addonMerge = SyncMerge.addons(localUrls, remoteAddons)
-        if (addonMerge.local.map(SyncMerge::addonKey) != localUrls.map(SyncMerge::addonKey)) {
-            runCatching { store.save(addonMerge.local) }
-            reloadAddons()
+        val localDisabled = store.loadDisabled()
+        val addonMerge = SyncMerge.addons(localUrls, remoteAddons, localDisabled = localDisabled)
+        val listChanged = addonMerge.local.map(SyncMerge::addonKey) != localUrls.map(SyncMerge::addonKey)
+        val switchesChanged = addonMerge.disabled.map(SyncMerge::addonKey).toSet() != localDisabled.map(SyncMerge::addonKey).toSet()
+        if (listChanged || switchesChanged) {
+            val saved = runCatching { store.save(addonMerge.local, addonMerge.disabled) }
+                .onFailure { message = "Couldn't save the addon list from your account: ${it.message}" }
+                .isSuccess
+            // When the file couldn't be written, the account's list still applies for this session.
+            if (saved) reloadAddons() else reloadAddons(addonMerge.local, addonMerge.disabled)
         }
 
         // Profiles, locks and limits are the main profile's to sync.
@@ -968,9 +992,10 @@ class AppState(
 
     // --- Addons ---
 
-    private suspend fun reloadAddons() {
+    /** Fetches the saved addons, or [override] and its switched-off ones when the file couldn't take them. */
+    private suspend fun reloadAddons(override: List<String>? = null, overrideDisabled: Set<String> = emptySet()) {
         addonsLoading = true
-        val urls = store.load()
+        val urls = override ?: store.load()
         val results = withContext(Dispatchers.IO) {
             urls.map { url ->
                 async {
@@ -984,11 +1009,13 @@ class AppState(
                 }
             }.awaitAll()
         }
+        // Read after the fetches, so a switch flipped while they ran isn't undone here.
+        val disabled = if (override != null) overrideDisabled else store.loadDisabled()
         addons.clear()
         unreachableAddons.clear()
         results.forEach { (url, result) ->
             result.fold(
-                onSuccess = { addons.add(it) },
+                onSuccess = { addons.add(it.copy(enabled = url !in disabled)) },
                 onFailure = { unreachableAddons.add(url to (it.message ?: "Unreachable")) }
             )
         }
@@ -1025,7 +1052,7 @@ class AppState(
             val replaced = addons.indexOfFirst { it.id == addon.id && (configuring.remove(it.id) || it.needsConfiguration) }
             if (replaced >= 0) {
                 val old = addons[replaced]
-                addons[replaced] = addon
+                addons[replaced] = addon.copy(enabled = old.enabled)
                 rows.removeAll { it.addon.baseUrl == old.baseUrl }
                 persist()
                 pushAddonsToServer()
@@ -1041,12 +1068,33 @@ class AppState(
         }
     }
 
+    /** The installed addons that are switched on: the ones streams, catalogs, meta and subtitles come from. */
+    val activeAddons: List<Addon> get() = addons.filter { it.enabled }
+
+    /** Installed addons switched off, by saved URL; unreachable ones keep what was saved for them. */
+    private fun disabledAddonUrls(): Set<String> {
+        val unreachableDisabled = store.loadDisabled().filter { url -> unreachableAddons.any { it.first == url } }
+        return addons.filter { !it.enabled }.map { it.baseUrl }.toSet() + unreachableDisabled
+    }
+
+    /** The TV's per-addon enable switch: a switched-off addon stays installed but is never asked. */
+    fun setAddonEnabled(addon: Addon, enabled: Boolean) {
+        val index = addons.indexOfFirst { it.baseUrl == addon.baseUrl }
+        if (index < 0 || addons[index].enabled == enabled) return
+        addons[index] = addons[index].copy(enabled = enabled)
+        persist()
+        pushAddonsToServer()
+        addonsChanged()
+        // Search results come from the switched-on addons only.
+        if (searchQuery.isNotBlank()) search(searchQuery)
+    }
+
     fun removeAddon(addon: Addon) {
         addons.remove(addon)
         persist()
-        pushAddonsToServer()
+        pushAddonsToServer(removed = setOf(addon.baseUrl))
         rows.removeAll { it.addon.baseUrl == addon.baseUrl }
-        discover.setAddons(addons.toList(), settings.discoverCatalog)
+        discover.setAddons(activeAddons, settings.discoverCatalog)
     }
 
     /** The addon's own settings page, for addons that say they're configurable. */
@@ -1087,7 +1135,7 @@ class AppState(
         // Unreachable addons stay saved so a network blip at startup doesn't uninstall them.
         val urls = addons.map { it.baseUrl } + unreachableAddons.map { it.first }
         try {
-            store.save(urls)
+            store.save(urls, disabledAddonUrls())
         } catch (e: Exception) {
             message = "Couldn't save the addon list: ${e.message}"
         }
@@ -1095,7 +1143,7 @@ class AppState(
 
     private fun addonsChanged() {
         reloadRows()
-        discover.setAddons(addons.toList(), settings.discoverCatalog)
+        discover.setAddons(activeAddons, settings.discoverCatalog)
     }
 
     // --- Home ---
@@ -1168,7 +1216,7 @@ class AppState(
     }
 
     private fun reloadRows() {
-        val wanted = addons.flatMap { addon ->
+        val wanted = activeAddons.flatMap { addon ->
             addon.catalogs
                 // Catalogs that need an extra (search, genre) can't be shown as a plain row.
                 .filter { catalog -> catalog.extra.none { it.isRequired } && catalog.extraRequired.isEmpty() }
@@ -1182,6 +1230,7 @@ class AppState(
         }
         rows.clear()
         rows.addAll(wanted)
+        val generation = ++rowsGeneration
         wanted.forEach { row ->
             scope.launch {
                 val updated = try {
@@ -1191,11 +1240,15 @@ class AppState(
                 } catch (e: Exception) {
                     row.copy(loading = false, error = e.message ?: "Couldn't load")
                 }
+                // A newer reload replaced these rows; its own request fills them.
+                if (generation != rowsGeneration) return@launch
                 val index = rows.indexOfFirst { it.key == row.key }
                 if (index >= 0) rows[index] = updated
             }
         }
     }
+
+    private var rowsGeneration = 0
 
     // --- Links (fetch://, stremio://) ---
 
@@ -1321,7 +1374,7 @@ class AppState(
             .filter { (id, _, _) -> !ServerItemRef.isServerId(id) && now - (airingChecked[id] ?: 0L) >= AIRING_RECHECK_MS }
         for ((id, type, name) in shows) {
             airingChecked[id] = now
-            val meta = runCatching { withContext(Dispatchers.IO) { client.meta(addons.toList(), type, id) } }.getOrNull() ?: continue
+            val meta = runCatching { withContext(Dispatchers.IO) { client.meta(activeAddons, type, id) } }.getOrNull() ?: continue
             if (meta.videos.isEmpty()) continue
             val known = progress.entries.firstOrNull { it.contentId == id }
             val caught = progress.caughtUp.firstOrNull { it.contentId == id }
@@ -1438,7 +1491,7 @@ class AppState(
             return
         }
         scope.launch {
-            val meta = runCatching { withContext(Dispatchers.IO) { client.meta(addons.toList(), preview.rawType, preview.id) } }.getOrNull()
+            val meta = runCatching { withContext(Dispatchers.IO) { client.meta(activeAddons, preview.rawType, preview.id) } }.getOrNull()
             val episodes = meta?.videos.orEmpty().filter { (it.season ?: 0) > 0 && isAired(it) }
             if (episodes.isEmpty()) {
                 message = "Couldn't load ${preview.name}'s episodes"
@@ -1499,7 +1552,7 @@ class AppState(
     // --- Search ---
 
     /** Catalogs that can answer a search: they take a "search" extra and need nothing else. */
-    private fun searchableRows(): List<CatalogRow> = addons.flatMap { addon ->
+    private fun searchableRows(): List<CatalogRow> = activeAddons.flatMap { addon ->
         addon.catalogs
             .filter { catalog ->
                 catalog.supportsExtra("search") &&
@@ -1586,7 +1639,7 @@ class AppState(
                 isServer -> servers.details(preview.id)
                 TmdbClient.parseTmdbId(preview.id) != null -> tmdb.metaFor(tmdbOnly!!, preview.type == ContentType.SERIES)
                 else -> withContext(Dispatchers.IO) {
-                    client.meta(com.fetch.desktop.home.metaAddonOrder(addons.toList(), preview, settings.layout.preferExternalMeta), preview.rawType, preview.id)
+                    client.meta(com.fetch.desktop.home.metaAddonOrder(activeAddons, preview, settings.layout.preferExternalMeta), preview.rawType, preview.id)
                 }
             }
             val current = screen
@@ -1626,7 +1679,7 @@ class AppState(
             ?: preview.name
         sourcesJob?.cancel()
         val serverItem = ServerItemRef.isServerId(videoId)
-        val asked = if (serverItem) emptyList() else client.streamAddons(addons.toList(), preview.rawType, videoId)
+        val asked = if (serverItem) emptyList() else client.streamAddons(activeAddons, preview.rawType, videoId)
         sources = SourcesState(
             preview = preview, video = video, videoId = videoId, label = label, episodeTag = tag,
             addons = com.fetch.desktop.playback.FetchProgress.start(asked.map { it.displayName })
@@ -1660,7 +1713,7 @@ class AppState(
                     own = servers.streams(preview.rawType, videoId, preview.name, yearOf(preview.releaseInfo))
                     if (own.isNotEmpty()) publish(done = false)
                 }
-                client.streamsAsAnswered(addons.toList(), preview.rawType, videoId, timeoutMs = addonRequestTimeoutMs).collect { result ->
+                client.streamsAsAnswered(activeAddons, preview.rawType, videoId, timeoutMs = addonRequestTimeoutMs).collect { result ->
                     results += result
                     sources?.takeIf { it.videoId == videoId }?.let { s ->
                         sources = s.copy(addons = com.fetch.desktop.playback.FetchProgress.answered(s.addons, result))
@@ -1782,6 +1835,8 @@ class AppState(
         val current = sources ?: return false
         if (!ap.reuseLastLink || ServerItemRef.isServerId(current.videoId)) return false
         val link = linkCache.validLink(current.videoId, ap.reuseLastLinkCacheHours) ?: return false
+        // Not a link from an addon that is switched off now.
+        if (activeAddons.none { it.displayName == link.addonName } && addons.any { !it.enabled && it.displayName == link.addonName }) return false
         stopAutoPlayWait()
         playStream(link.toStream(), builtIn = null)
         return true
@@ -1972,7 +2027,7 @@ class AppState(
     private suspend fun addonSubtitles(target: PlaybackTarget, language: String): List<String> {
         val wanted = MpvArgs.languageCodes(language).split(',').toSet()
         return withContext(Dispatchers.IO) {
-            client.subtitles(addons.toList(), target.contentType, target.videoId, timeoutMs = 4_000)
+            client.subtitles(activeAddons, target.contentType, target.videoId, timeoutMs = 4_000)
         }.filter { (lang, _) -> lang in wanted }.map { it.second }.distinct().take(3)
     }
 
@@ -1985,6 +2040,52 @@ class AppState(
     }
 
     private val skipSources by lazy { com.fetch.desktop.skip.defaultSkipSources { settings.player } }
+
+    // --- Skip markers: IntroDB submitting and AniSkip "wrong marker" reports, as on TV ---
+
+    /** Where a marker recorded on [target] goes on IntroDB; null when it has no IMDb id there. */
+    suspend fun markerTargetFor(target: PlaybackTarget): com.fetch.desktop.skip.MarkerTarget? {
+        val video = target.video
+        return withTimeoutOrNull(6_000) {
+            skipSources.markerTarget(target.contentId, video?.id, video?.season, video?.episode, isMovie = target.contentType == "movie")
+        }
+    }
+
+    /**
+     * The player's Mark button: the first press records where the intro (a movie's credits)
+     * starts, the next sends start-to-here to IntroDB with your API key.
+     */
+    fun markSkipSegment(session: PlayerSession) {
+        val apiKey = settings.player.introDbApiKey?.takeIf { it.isNotBlank() } ?: return
+        val target = session.target ?: return
+        val marker = session.extras.markerTarget ?: return
+        val mpv = session.mpv
+        when (val press = com.fetch.desktop.skip.SkipMarkerRules.press(session.extras.markerStartSec, mpv.position)) {
+            is com.fetch.desktop.skip.SkipMarkerRules.Press.Start -> {
+                session.extras.markerStartSec = press.atSec
+                mpv.showText("Start marked. Press again where it ends.")
+            }
+            is com.fetch.desktop.skip.SkipMarkerRules.Press.Submit -> {
+                val type = com.fetch.desktop.skip.SkipMarkerRules.markedType(marker.isMovie)
+                scope.launch {
+                    val ok = skipSources.submitMarker(apiKey, target.contentId, marker, type, press.startSec, press.endSec)
+                    // A failed send keeps the start, so pressing Mark again retries without re-marking it.
+                    if (ok && session.extras.markerStartSec == press.startSec) session.extras.markerStartSec = null
+                    mpv.showText(if (ok) "Marker sent to IntroDB" else "Couldn't send the marker to IntroDB. Press Mark again to retry.")
+                }
+            }
+        }
+    }
+
+    /** Reports the Skip button's [segment] as wrong to AniSkip, and stops offering it. */
+    fun reportSkipSegment(session: PlayerSession, segment: Segment) {
+        if (!com.fetch.desktop.skip.SkipMarkerRules.canReport(segment)) return
+        session.segments = session.segments - segment
+        scope.launch {
+            val ok = skipSources.reportWrong(segment)
+            session.mpv.showText(if (ok) "Reported the wrong marker. Thanks!" else "Couldn't report the marker")
+        }
+    }
 
     private fun followProgress(
         result: ExternalPlayer.Result.Started,
@@ -2263,7 +2364,7 @@ class AppState(
         session.addonSubtitlesLoading = true
         scope.launch {
             val subs = runCatching {
-                withContext(Dispatchers.IO) { client.subtitlesBySource(addons.toList(), target.contentType, target.videoId, timeoutMs = 8_000) }
+                withContext(Dispatchers.IO) { client.subtitlesBySource(activeAddons, target.contentType, target.videoId, timeoutMs = 8_000) }
             }.getOrDefault(emptyList())
             session.addonSubtitles = subs.distinctBy { it.url }.map { AddonSubtitle(it.language, it.url, it.addon) }
                 .sortedWith(compareBy({ !preferredSubtitle(it.language) }, { it.language }))
@@ -2335,7 +2436,7 @@ class AppState(
         val own = async { servers.streams(type, videoId, name, null) }
         val wait = settings.addonTimeoutSeconds
         val collected = mutableListOf<Stream>()
-        val answers = client.streamsAsAnswered(addons.toList(), type, videoId, timeoutMs = addonRequestTimeoutMs)
+        val answers = client.streamsAsAnswered(activeAddons, type, videoId, timeoutMs = addonRequestTimeoutMs)
         when {
             complete || wait == com.fetch.desktop.data.AutoPlaySettings.TIMEOUT_UNLIMITED -> answers.collect { collected += it.streams }
             wait == 0 -> answers.transformWhile { emit(it); it.streams.isEmpty() }.collect { collected += it.streams }
@@ -2507,7 +2608,7 @@ class AppState(
         scope.launch {
             // The episode Continue Watching would play, else the first one.
             val meta = detailMeta?.takeIf { it.id == preview.id }
-                ?: runCatching { withContext(Dispatchers.IO) { client.meta(addons.toList(), preview.rawType, preview.id) } }.getOrNull()
+                ?: runCatching { withContext(Dispatchers.IO) { client.meta(activeAddons, preview.rawType, preview.id) } }.getOrNull()
             val videos = meta?.videos.orEmpty()
             val entry = progressFor(preview.id)
             val video = entry?.let { e -> videos.firstOrNull { it.id == e.videoId } } ?: firstEpisode(videos)
@@ -2556,7 +2657,7 @@ class AppState(
 
     private suspend fun playQueued(item: com.fetch.desktop.playback.QueueItem) {
         message = "Loading ${item.label}…"
-        val meta = runCatching { withContext(Dispatchers.IO) { client.meta(addons.toList(), item.contentType, item.contentId) } }.getOrNull()
+        val meta = runCatching { withContext(Dispatchers.IO) { client.meta(activeAddons, item.contentType, item.contentId) } }.getOrNull()
         val videos = meta?.videos.orEmpty()
         val video = videos.firstOrNull { it.id == item.videoId }
             ?: videos.firstOrNull { item.season != null && it.season == item.season && it.episode == item.episode }
@@ -2776,7 +2877,7 @@ class AppState(
                 imdbRating = null,
                 genres = emptyList()
             )
-            val meta = runCatching { withContext(Dispatchers.IO) { client.meta(addons.toList(), media.metaType, media.metaId) } }.getOrNull()
+            val meta = runCatching { withContext(Dispatchers.IO) { client.meta(activeAddons, media.metaType, media.metaId) } }.getOrNull()
             if (!allowed(meta, preview)) {
                 message = "Not available on ${profile.name}"
                 return@launch

@@ -125,6 +125,7 @@ val settingsSearchIndex: List<SettingsSearchEntry> = listOf(
     e("Skip credits", SKIP_SEGMENTS, "outro", "credits", "ending", "auto skip", section = "Automatic Skipping"),
     e("Show Skip button", SKIP_SEGMENTS, "skip intro", "button"),
     e("IntroDB server", SKIP_SEGMENTS, "introdb", "self-hosted", section = "Advanced"),
+    e("IntroDB API key", SKIP_SEGMENTS, "introdb", "mark", "submit", "markers", section = "Advanced"),
 
     // Playback basics (Essential)
     e("Default Player", PLAYBACK_BASICS, "mpv", "built-in", "ask every time", section = "Playback basics"),

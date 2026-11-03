@@ -1,5 +1,7 @@
 package com.fetch.desktop.ui
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -269,7 +271,12 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                         )
                         CircleIconButton(FetchIcons.Fullscreen, "Fullscreen", onClick = ::toggleFullscreen)
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        // Scrolls in a narrow window, so the last buttons stay reachable.
+                        modifier = Modifier.horizontalScroll(rememberScrollState())
+                    ) {
                         if (session.nextEpisode != null) {
                             SecondaryButton("Next episode", onClick = state::playNextNow, icon = FetchIcons.ChevronRight)
                         }
@@ -292,6 +299,15 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                                 session.panel = null
                                 session.partyPanelOpen = !session.partyPanelOpen
                             })
+                        }
+                        // Mark an intro (or a movie's credits) for IntroDB: start, then end (the TV's flag button).
+                        session.extras.markerTarget?.let { marker ->
+                            val marking = session.extras.markerStartSec != null
+                            SecondaryButton(
+                                com.fetch.desktop.skip.SkipMarkerRules.markLabel(marker.isMovie, marking),
+                                onClick = { state.markSkipSegment(session) },
+                                icon = if (marking) FetchIcons.Check else null
+                            )
                         }
                         CircleIconButton(FetchIcons.Info, "Stream info (I)", onClick = { session.showInfo = !session.showInfo })
                     }

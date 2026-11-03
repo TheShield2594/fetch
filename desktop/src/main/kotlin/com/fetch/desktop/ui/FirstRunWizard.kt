@@ -113,7 +113,7 @@ fun FirstRunHost(state: AppState) {
         })
         needsEssentialAddonSetup(
             state.settings.experience,
-            state.addons.toList(),
+            state.activeAddons,
             state.addonsLoading,
             AddonManagementAccess.isReadOnly(state.profile)
         ) -> EssentialAddonSetup(state, onSkip = {

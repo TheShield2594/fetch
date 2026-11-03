@@ -576,6 +576,11 @@ private fun SkipSegmentsPage(state: AppState) {
             "Leave empty for ${IntroDbClient.DEFAULT_URL}",
             p.introDbUrl.orEmpty()
         ) { v -> state.updatePlayer { it.copy(introDbUrl = v.ifBlank { null }) } }
+        TextRow(
+            "IntroDB API key",
+            "Lets you mark intros and end credits from the built-in player and send them to IntroDB. Create a key on introdb.app; it starts with idb_.",
+            p.introDbApiKey.orEmpty()
+        ) { v -> state.updatePlayer { it.copy(introDbApiKey = v.ifBlank { null }) } }
     }
 }
 

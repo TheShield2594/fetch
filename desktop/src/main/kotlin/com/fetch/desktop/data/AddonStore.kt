@@ -16,30 +16,44 @@ object AppDirs {
 }
 
 @Serializable
-private data class AddonStoreFile(val addons: List<String> = emptyList())
+private data class AddonStoreFile(
+    val addons: List<String> = emptyList(),
+    /** Installed addons switched off (the TV's per-addon enable switch), by URL as in [addons]. */
+    val disabled: List<String> = emptyList()
+)
 
 /**
- * The installed addons, as an ordered list of base URLs in `addons.json`. A first run starts
- * with the same defaults as the TV app.
+ * The installed addons, as an ordered list of base URLs in `addons.json`, and the ones switched
+ * off. A first run starts with the same defaults as the TV app.
  */
 class AddonStore(private val file: File = File(AppDirs.config, "addons.json")) {
 
     private val json = Json { ignoreUnknownKeys = true; prettyPrint = true }
 
-    fun load(): List<String> {
-        if (!file.exists()) return DEFAULT_ADDONS
+    private fun read(): AddonStoreFile? {
+        if (!file.exists()) return null
         return try {
-            json.decodeFromString<AddonStoreFile>(file.readText()).addons
+            json.decodeFromString<AddonStoreFile>(file.readText())
         } catch (_: Exception) {
-            DEFAULT_ADDONS
+            null
         }
     }
 
-    fun save(urls: List<String>) {
+    fun load(): List<String> = read()?.addons ?: DEFAULT_ADDONS
+
+    /** The installed addons that are switched off; always a subset of [load]. */
+    fun loadDisabled(): Set<String> {
+        val stored = read() ?: return emptySet()
+        return stored.disabled.filter { it in stored.addons }.toSet()
+    }
+
+    /** Saves the list; [disabled] keeps its entries that are in [urls]. */
+    fun save(urls: List<String>, disabled: Set<String> = loadDisabled()) {
         file.parentFile?.mkdirs()
+        val list = urls.distinct()
         // Write then rename, so a crash mid-write never leaves a half-written list.
         val tmp = File(file.parentFile, "${file.name}.tmp")
-        tmp.writeText(json.encodeToString(AddonStoreFile.serializer(), AddonStoreFile(urls.distinct())))
+        tmp.writeText(json.encodeToString(AddonStoreFile.serializer(), AddonStoreFile(list, list.filter { it in disabled })))
         Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
     }
 

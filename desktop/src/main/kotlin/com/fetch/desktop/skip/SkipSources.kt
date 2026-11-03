@@ -88,6 +88,16 @@ class AniSkipClient(private val http: OkHttpClient, private val baseUrl: String 
         }
     }
 
+    /** Reports the segment AniSkip gave [skipId] as wrong (a downvote, the TV's report). */
+    suspend fun reportWrong(skipId: String): Boolean = withContext(Dispatchers.IO) {
+        if (skipId.isBlank()) return@withContext false
+        val body = buildJsonObject { put("voteType", "downvote") }.toString().toRequestBody("application/json".toMediaType())
+        runCatching {
+            val url = (baseUrl.trimEnd('/') + "/skip-times").toHttpUrl().newBuilder().addPathSegment(skipId).addPathSegment("votes").build()
+            http.newCall(Request.Builder().url(url).header("Accept", "application/json").post(body).build()).execute().use { it.isSuccessful }
+        }.getOrDefault(false)
+    }
+
     companion object {
         const val DEFAULT_URL = "https://api.aniskip.com/v2/"
         const val PROVIDER = "aniskip"
@@ -313,6 +323,8 @@ class SkipSources(
     private val animeSkipClientId: () -> String?
 ) {
     private val cache = ConcurrentHashMap<String, List<Segment>>()
+    /** Bumped per title when a submitted marker clears its cache, so a lookup already running doesn't store old times. */
+    private val invalidations = ConcurrentHashMap<String, Int>()
 
     /**
      * Segments for [contentId] (`tt…`, `kitsu:…`, `mal:…`); [season]/[episode] from the episode, or
@@ -321,6 +333,7 @@ class SkipSources(
     suspend fun segments(contentId: String, videoId: String?, season: Int?, episode: Int?, isMovie: Boolean): List<Segment> {
         val key = "$contentId|$videoId|$season|$episode|$isMovie"
         cache[key]?.let { return it }
+        val version = invalidations[contentId] ?: 0
         val parts = contentId.split(':')
         val scheme = parts[0]
         val result = when {
@@ -332,18 +345,56 @@ class SkipSources(
             }
             else -> emptyList()
         }
-        return result.also { cache[key] = it }
+        return result.also { if ((invalidations[contentId] ?: 0) == version) cache[key] = it }
     }
 
     private suspend fun movie(contentId: String, videoId: String?): List<Segment> {
+        val imdb = movieImdbId(contentId, videoId) ?: return emptyList()
+        return introDb.segments(imdb, null, null)
+    }
+
+    private suspend fun movieImdbId(contentId: String, videoId: String?): String? {
         val ids = listOfNotNull(contentId, videoId).distinct()
-        val imdb = ids.firstNotNullOfOrNull { id -> id.substringBefore(':').takeIf { it.matches(Regex("tt[0-9]+")) } }
+        return ids.firstNotNullOfOrNull { id -> id.substringBefore(':').takeIf(SkipMarkerRules::isImdbId) }
             ?: ids.firstNotNullOfOrNull { id ->
                 val p = id.split(':')
-                if (p.size >= 2 && (p[0] == "mal" || p[0] == "kitsu")) simkl.resolveIds(p[0], p[1])?.imdb else null
+                if (p.size >= 2 && (p[0] == "mal" || p[0] == "kitsu")) simkl.resolveIds(p[0], p[1])?.imdb?.takeIf(SkipMarkerRules::isImdbId) else null
             }
-            ?: return emptyList()
-        return introDb.segments(imdb, null, null)
+    }
+
+    /**
+     * Where a marker recorded on [contentId] goes on IntroDB, found the way [segments] looks it up
+     * (anime through Simkl's TVDB numbering); null when the title has no IMDb id.
+     */
+    suspend fun markerTarget(contentId: String, videoId: String?, season: Int?, episode: Int?, isMovie: Boolean): MarkerTarget? {
+        if (isMovie) return movieImdbId(contentId, videoId)?.let { MarkerTarget(it, null, null) }
+        val parts = contentId.split(':')
+        val imdb = parts[0].takeIf(SkipMarkerRules::isImdbId)
+        if (imdb != null) return if (season != null && episode != null) MarkerTarget(imdb, season, episode) else null
+        if ((parts[0] == "kitsu" || parts[0] == "mal") && parts.size >= 2) {
+            val number = episode ?: videoId?.split(':')?.getOrNull(2)?.toIntOrNull() ?: return null
+            val ids = simkl.resolveIds(parts[0], parts[1]) ?: return null
+            val showImdb = ids.imdb?.takeIf(SkipMarkerRules::isImdbId) ?: return null
+            val (s, e) = simkl.episodeTvdb(parts[0], parts[1], number) ?: return null
+            return MarkerTarget(showImdb, s, e)
+        }
+        return null
+    }
+
+    /** Sends a recorded marker to IntroDB; on success the title's segments are looked up afresh next time. */
+    suspend fun submitMarker(apiKey: String, contentId: String, target: MarkerTarget, type: SegmentType, startSec: Double, endSec: Double): Boolean {
+        val ok = introDb.submit(apiKey, target, type, startSec, endSec)
+        if (ok) {
+            invalidations.merge(contentId, 1, Int::plus)
+            cache.keys.removeAll { it.startsWith("$contentId|") }
+        }
+        return ok
+    }
+
+    /** Reports [segment] as wrong to its provider (AniSkip only); false when it can't be reported. */
+    suspend fun reportWrong(segment: Segment): Boolean {
+        if (!SkipMarkerRules.canReport(segment)) return false
+        return aniSkip.reportWrong(segment.sourceId!!)
     }
 
     private suspend fun imdbEpisode(imdb: String, season: Int, episode: Int): List<Segment> = coroutineScope {

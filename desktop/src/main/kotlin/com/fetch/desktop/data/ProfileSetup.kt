@@ -115,7 +115,12 @@ fun copiedSettings(source: DesktopSettings, target: DesktopSettings, copyMissing
         // Device-specific: the update check and mpv's own options stay as this profile had them.
         checkForUpdates = target.checkForUpdates,
         betaUpdates = target.betaUpdates,
-        player = source.player.copy(extraMpvArgs = target.player.extraMpvArgs, builtInGpu = target.player.builtInGpu),
+        // The IntroDB key is this profile's own, like the API keys above.
+        player = source.player.copy(
+            extraMpvArgs = target.player.extraMpvArgs,
+            builtInGpu = target.player.builtInGpu,
+            introDbApiKey = target.player.introDbApiKey?.takeIf { it.isNotBlank() } ?: source.player.introDbApiKey.takeIf { copyMissingKeys }
+        ),
         schema = target.schema
     )
 }

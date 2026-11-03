@@ -9,20 +9,22 @@ import com.fetch.desktop.tracking.SimklAnimeIdOption
 import com.fetch.desktop.tracking.TrackingOptions
 import com.fetch.desktop.tracking.WatchProgressSourceOption
 
-/** The Library sources this profile can open with: Fetch's own, and each connected service. */
+/** The Library sources this profile can open with: Fetch's own, each connected service and the paired Fetch website. */
 fun availableLibrarySources(state: AppState): List<LibrarySourceOption> = buildList {
     add(LibrarySourceOption.LOCAL)
     if (state.tracking.account(TrackingService.TRAKT) != null) add(LibrarySourceOption.TRAKT)
     if (state.tracking.account(TrackingService.SIMKL) != null) add(LibrarySourceOption.SIMKL)
     if (state.mdbListAccount.connected) add(LibrarySourceOption.MDBLIST)
+    if (state.websiteTracking.paired) add(LibrarySourceOption.FETCH_WEBSITE)
 }
 
-/** The Continue Watching sources this profile has: each connected service and the sync server. */
+/** The Continue Watching sources this profile has: each connected service, the sync server and the paired Fetch website. */
 fun availableProgressSources(state: AppState): Set<WatchProgressSourceOption> = buildSet {
     if (state.tracking.account(TrackingService.TRAKT) != null) add(WatchProgressSourceOption.TRAKT)
     if (state.tracking.account(TrackingService.SIMKL) != null) add(WatchProgressSourceOption.SIMKL)
     if (state.mdbListAccount.connected) add(WatchProgressSourceOption.MDBLIST)
     if (state.account?.signedIn == true) add(WatchProgressSourceOption.FETCH_SYNC)
+    if (state.websiteTracking.paired) add(WatchProgressSourceOption.FETCH_WEBSITE)
 }
 
 private fun AppState.updateTracking(change: (TrackingOptions) -> TrackingOptions) =

@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.foundation.background
@@ -68,7 +69,7 @@ fun AddonsScreen(state: AppState) {
         modifier = Modifier.fillMaxSize().widthIn(max = 1100.dp)
     ) {
         if (readOnly) item {
-            Text("This profile uses the main profile's addons. Switch to the main profile to change them.", color = FetchPalette.TextSecondary)
+            Text(tr("This profile uses the main profile's addons. Switch to the main profile to change them."), color = FetchPalette.TextSecondary)
         }
         if (!readOnly) item {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(bottom = 12.dp)) {
@@ -96,7 +97,7 @@ fun AddonsScreen(state: AppState) {
             }
         }
         if (state.addons.isEmpty() && state.unreachableAddons.isEmpty() && !state.addonsLoading) {
-            item { Text("No addons installed. Add one to get started.", color = FetchPalette.TextMuted) }
+            item { Text(tr("No addons installed. Add one to get started."), color = FetchPalette.TextMuted) }
         }
         itemsIndexed(state.addons, key = { _, addon -> addon.baseUrl }) { index, addon ->
             AddonCard(
@@ -163,7 +164,7 @@ private fun AddonCard(
             Column(dim.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text("${addon.displayName}  ${addon.version}", style = MaterialTheme.typography.titleMedium)
                 if (!addon.enabled) {
-                    Text("Off: not asked for streams, catalogs, details or subtitles", style = MaterialTheme.typography.labelSmall, color = FetchPalette.TextMuted)
+                    Text(tr("Off: not asked for streams, catalogs, details or subtitles"), style = MaterialTheme.typography.labelSmall, color = FetchPalette.TextMuted)
                 }
                 addon.description?.takeIf { it.isNotBlank() }?.let {
                     Text(

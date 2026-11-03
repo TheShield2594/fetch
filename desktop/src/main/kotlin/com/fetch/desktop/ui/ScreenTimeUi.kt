@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,7 +32,7 @@ fun ScreenTimeDialog(state: AppState, block: ScreenTimeBlock) {
     AlertDialog(
         onDismissRequest = { state.screenTimeBlock = null },
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text(if (choosing) "How much more time?" else block.title, color = Color.White) },
+        title = { Text(if (choosing) tr("How much more time?") else block.title, color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (!choosing) {
@@ -39,7 +40,7 @@ fun ScreenTimeDialog(state: AppState, block: ScreenTimeBlock) {
                 } else {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(15, 30, 60).forEach { minutes ->
-                            SecondaryButton("+$minutes min", onClick = { state.addScreenTime(minutes) })
+                            SecondaryButton(tr("+%1\$s min", minutes), onClick = { state.addScreenTime(minutes) })
                         }
                     }
                     SecondaryButton("No limit for the rest of today", onClick = { state.addScreenTime(null) })

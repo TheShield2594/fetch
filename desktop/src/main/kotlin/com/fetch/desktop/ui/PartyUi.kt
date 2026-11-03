@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -160,7 +161,7 @@ fun PartyPlayerPanel(state: AppState, session: PlayerSession, modifier: Modifier
             .padding(top = 24.dp, start = 24.dp, end = 12.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = 12.dp, bottom = 16.dp)) {
-            Text("Watch party", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Text(tr("Watch party"), color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
             CircleIconButton(FetchIcons.Close, "Close", onClick = { session.partyPanelOpen = false }, size = 40.dp)
         }
         val scroll = rememberScrollState()
@@ -187,15 +188,15 @@ fun PartyPlayerPanel(state: AppState, session: PlayerSession, modifier: Modifier
 @Composable
 private fun StartPartyContent(state: AppState, busy: Boolean, available: Boolean, canStart: Boolean) {
     SeatsHero(state.party.currentProfile.name, state.party.currentProfile.color, state.profiles.active?.avatarId)
-    Text("Watch together", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+    Text(tr("Watch together"), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
     Text(
-        "Invite your friends. Everyone plays from their own sources and stays in sync.",
+        tr("Invite your friends. Everyone plays from their own sources and stays in sync."),
         color = FetchPalette.TextSecondary
     )
     when {
         !available -> Text(PartyError.Unavailable.message, color = FetchPalette.TextMuted)
         !state.party.canUse -> Text(PartyError.SignInRequired.message, color = FetchPalette.TextMuted)
-        !canStart -> Text("This can't be watched in a party.", color = FetchPalette.TextMuted)
+        !canStart -> Text(tr("This can't be watched in a party."), color = FetchPalette.TextMuted)
         else -> PrimaryButton("Start watch party", onClick = state::startPartyInPlayer, icon = null, enabled = !busy, modifier = Modifier.fillMaxWidth())
     }
     Text(EXPERIMENTAL, color = FetchPalette.TextMuted, fontSize = 13.sp)
@@ -238,7 +239,7 @@ private fun PlayerPartyContent(state: AppState, session: PlayerSession, party: A
     PartyActions(state, party, onDone = { session.partyPanelOpen = false })
     if (confirmSwitch && playerMedia != null) {
         ConfirmDialog(
-            title = "Switch the party?",
+            title = tr("Switch the party?"),
             message = "Everyone will start watching ${playerMedia.displayTitle} with you.",
             confirm = "Switch",
             onConfirm = {
@@ -356,7 +357,7 @@ private fun JoinPartySection(state: AppState, available: Boolean, busy: Boolean)
         SettingsSection(null) {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp), horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(28.dp)) {
                 AvatarStack(party.members, size = 56.dp)
-                Text("You’re in", color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
+                Text(tr("You’re in"), color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
                 Text(party.media.displayTitle, color = FetchPalette.TextSecondary, fontSize = 17.sp)
             }
         }
@@ -377,8 +378,8 @@ private fun JoinPartySection(state: AppState, available: Boolean, busy: Boolean)
                 }
             } else {
                 SeatsHero(state.party.currentProfile.name, state.party.currentProfile.color, state.profiles.active?.avatarId)
-                Text("Join a watch party", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
-                Text("Enter the 6-character code your friend shared, or paste their invite link.", color = FetchPalette.TextSecondary)
+                Text(tr("Join a watch party"), color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+                Text(tr("Enter the 6-character code your friend shared, or paste their invite link."), color = FetchPalette.TextSecondary)
             }
             CodeEntry(code, enabled = blocked == null && !busy, onChange = ::changeCode, onSubmit = ::submit)
             Text(shownError?.message.orEmpty(), color = FetchPalette.Error, fontSize = 14.sp)
@@ -393,7 +394,7 @@ private fun JoinPartySection(state: AppState, available: Boolean, busy: Boolean)
                 if (busy || previewing) CircularProgressIndicator(Modifier.size(22.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
             }
             Text(EXPERIMENTAL, color = FetchPalette.TextMuted, fontSize = 13.sp)
-            if (current == null) Text("To host, use Watch together on a title page, or Watch party in the player.", color = FetchPalette.TextMuted, fontSize = 13.sp)
+            if (current == null) Text(tr("To host, use Watch together on a title page, or Watch party in the player."), color = FetchPalette.TextMuted, fontSize = 13.sp)
         }
     }
 }
@@ -453,7 +454,7 @@ fun PartyDetailButton(state: AppState) {
         AlertDialog(
             onDismissRequest = { open = false },
             containerColor = FetchPalette.SurfaceRaised,
-            title = { Text("Watch party", color = Color.White) },
+            title = { Text(tr("Watch party"), color = Color.White) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.width(480.dp).verticalScroll(rememberScrollState())) {
                     Text("The party is watching ${party.media.displayTitle}", color = FetchPalette.TextSecondary)
@@ -493,11 +494,11 @@ private fun CodeSection(party: ActiveParty) {
     val clipboard = LocalClipboardManager.current
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (party.connected) {
-            Text("PARTY CODE", style = OverlineStyle, color = FetchPalette.TextMuted)
+            Text(tr("PARTY CODE"), style = OverlineStyle, color = FetchPalette.TextMuted)
         } else {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(8.dp).clip(CircleShape).background(FetchPalette.Accent))
-                Text("RECONNECTING", style = OverlineStyle, color = FetchPalette.Accent)
+                Text(tr("RECONNECTING"), style = OverlineStyle, color = FetchPalette.Accent)
             }
         }
         CodeSlots(party.code, slotHeight = 48.dp)
@@ -507,10 +508,10 @@ private fun CodeSection(party: ActiveParty) {
         }
         // The invite link as a QR code, as on TV: a phone scans it to join.
         Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
-            QrImage(party.inviteLink, 132.dp, description = "Watch party invite QR code")
+            QrImage(party.inviteLink, 132.dp, description = tr("Watch party invite QR code"))
             Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.weight(1f)) {
-                Text("Scan with a phone to join", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                Text("Or share the code. Friends can enter it in Watch party on any Fetch app.", color = FetchPalette.TextMuted, fontSize = 13.sp)
+                Text(tr("Scan with a phone to join"), color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text(tr("Or share the code. Friends can enter it in Watch party on any Fetch app."), color = FetchPalette.TextMuted, fontSize = 13.sp)
             }
         }
     }
@@ -569,7 +570,7 @@ private fun MembersSection(state: AppState, party: ActiveParty, selfBehindMs: Lo
                                 color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium,
                                 maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false)
                             )
-                            if (member.id == party.hostMemberId) Text("Host", color = FetchPalette.Accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            if (member.id == party.hostMemberId) Text(tr("Host"), color = FetchPalette.Accent, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         }
                         val behind = if (member.id == party.memberId) selfBehindMs else party.behindMs(member)
                         Text(
@@ -578,19 +579,19 @@ private fun MembersSection(state: AppState, party: ActiveParty, selfBehindMs: Lo
                         )
                     }
                     if (party.isHost && member.id != party.memberId) {
-                        CircleIconButton(FetchIcons.Close, "Remove ${member.displayName}", onClick = { removing = member }, size = 32.dp)
+                        CircleIconButton(FetchIcons.Close, tr("Remove %1\$s", member.displayName), onClick = { removing = member }, size = 32.dp)
                     }
                 }
             }
         }
         if (party.members.size < party.maxMembers) {
-            Text("Invite a friend: share the code above.", color = FetchPalette.TextSecondary, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
+            Text(tr("Invite a friend: share the code above."), color = FetchPalette.TextSecondary, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
         }
     }
     removing?.let { member ->
         ConfirmDialog(
-            title = "Remove ${member.displayName}?",
-            message = "They won’t be able to join this party again.",
+            title = tr("Remove %1\$s?", member.displayName),
+            message = tr("They won’t be able to join this party again."),
             confirm = "Remove",
             onConfirm = {
                 removing = null
@@ -622,7 +623,7 @@ private fun HostSettings(state: AppState, party: ActiveParty, sharingNote: Strin
 
 @Composable
 private fun HostOnlyNote() {
-    Text("Only the host can control playback", color = FetchPalette.TextSecondary, fontSize = 14.sp)
+    Text(tr("Only the host can control playback"), color = FetchPalette.TextSecondary, fontSize = 14.sp)
 }
 
 @Composable
@@ -637,8 +638,8 @@ private fun PartyActions(state: AppState, party: ActiveParty, onDone: () -> Unit
     }
     if (confirmEnd) {
         ConfirmDialog(
-            title = "End the watch party?",
-            message = "Everyone will be disconnected from the party.",
+            title = tr("End the watch party?"),
+            message = tr("Everyone will be disconnected from the party."),
             confirm = "End for everyone",
             onConfirm = {
                 confirmEnd = false

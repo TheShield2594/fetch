@@ -112,4 +112,54 @@ class StreamTitleParserTest {
         // Two-letter codes are ordinary words in free text and are not read as languages.
         assertTrue(StreamTitleParser.parse("It Ends With Us 2024 1080p").languages.isEmpty())
     }
+
+    // ── Cases from real addon output (see StreamTitleParserFixturesTest) ──────
+
+    @Test
+    fun `a pixel height beats a UHD source tag`() {
+        assertEquals(StreamResolution.QHD_1440, StreamTitleParser.parse("The Shawshank Redemption (1994) UHD BDRip 1440p | 4K | HDR10").resolution)
+        assertEquals(StreamResolution.FHD_1080, StreamTitleParser.parse("Movie (1994) UHD BDRip-HEVC 1080p | HDR").resolution)
+        assertEquals(StreamResolution.UHD_2160, StreamTitleParser.parse("Movie 4k UHD HDR").resolution)
+    }
+
+    @Test
+    fun `reads atmos and dolby vision glued together`() {
+        val d = StreamTitleParser.parse("The Last of Us - S01E01 - [WEBDL-2160p]x265 EAC3 AtmosDV HDR10.mkv")
+        assertTrue(d.hasAtmos)
+        assertTrue(d.hasDolbyVision)
+        assertTrue(HdrFormat.HDR10 in d.hdr)
+    }
+
+    @Test
+    fun `reads anime style sources and leading groups`() {
+        val d = StreamTitleParser.parse("[Judas] Sousou no Frieren (Season 01) [BD 1080p][HEVC x265 10bit][Dual-Audio][Eng-Subs] (Batch)")
+        assertEquals(ReleaseSource.BLURAY, d.source)
+        assertEquals("Judas", d.releaseGroup)
+        assertEquals(ReleaseSource.BLURAY, StreamTitleParser.parse("[DB]Sousou no Frieren (Dual Audio 10bit BD1080p x265).mkv").source)
+        assertEquals("SubsPlease", StreamTitleParser.parse("[SubsPlease] Sousou no Frieren - 01 (1080p) [F02B9CEE].mkv").releaseGroup)
+        // A bracket that describes the file isn't a group.
+        assertNull(StreamTitleParser.parse("[1080p] Some Show - 01.mkv").releaseGroup)
+        assertEquals("FGT", StreamTitleParser.parse("[YTS] Movie.2024.1080p.WEB-DL-FGT").releaseGroup)
+    }
+
+    @Test
+    fun `reads glued audio layouts and other rip names`() {
+        assertEquals(setOf(AudioFormat.OPUS), StreamTitleParser.parse("Breaking.Bad.S01E01.1080p.WEBRIP.HEVC.OPUS2.0").audio)
+        assertTrue(AudioFormat.OPUS in StreamTitleParser.parse("Movie.2160p.HDR10.BRRip.OPUS5.1.AV1").audio)
+        assertEquals(ReleaseSource.BLURAY, StreamTitleParser.parse("[BluRayRip 2160p] [10 bit x265 HEVC HDR10]").source)
+        assertEquals(ReleaseSource.BLURAY, StreamTitleParser.parse("Le.ali.della.liberta.1994.UHDRip.2160p.Hevc.HDR").source)
+        assertEquals(ReleaseSource.REMUX, StreamTitleParser.parse("Oppenheimer.2023.2160p.IMAX.UHDRemux.HYBRID.HDR.DV").source)
+    }
+
+    @Test
+    fun `multi subs are not multi audio`() {
+        assertFalse(StreamLanguage.MULTI in StreamTitleParser.parse("Frieren - 01 [WebRip 2160p HEVC OPUS Multi-Subs]").languages)
+        assertTrue(StreamLanguage.MULTI in StreamTitleParser.parse("Frieren.S01E01.2160p.WEB-DL.Multi.AUDIO.x265.Multi.Subs").languages)
+        assertTrue(StreamLanguage.JAPANESE in StreamTitleParser.parse("[RUS(int) JAP+Sub] [2023 WEB-DL] [1080p]").languages)
+    }
+
+    @Test
+    fun `reads release groups in other scripts`() {
+        assertEquals("Нечипорук", StreamTitleParser.parse("Dune.Part.Two.2024.2160p.UHD.BDREMUX.HDR.DV.HEVC-Нечипорук.mkv").releaseGroup)
+    }
 }

@@ -301,7 +301,7 @@ private fun FolderGrid(state: AppState, view: FolderView, index: Int, onBack: ((
                         if (onBack == null) FolderTabs(view, index, onSelect = state.collections::selectTab)
                     }
                 }
-                if (items.isEmpty()) fullWidthItem("folder-state") { TabState(tab) }
+                if (items.isEmpty()) fullWidthItem("folder-state") { TabState(tab, onUnlocked = state.collections::reloadFolder) }
             },
             footer = {
                 if (items.isNotEmpty()) fullWidthItem("folder-more") {
@@ -319,10 +319,15 @@ private fun FolderGrid(state: AppState, view: FolderView, index: Int, onBack: ((
 }
 
 @Composable
-private fun TabState(tab: FolderTab) {
+private fun TabState(tab: FolderTab, onUnlocked: () -> Unit = {}) {
     when {
         tab.loading -> Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = FetchPalette.Accent)
+        }
+        // A website list of a locked profile: its PIN here shows it.
+        tab.error != null && tab.lockedSlot != null -> Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            EmptyState("Couldn't load ${tab.label}", tab.error, Modifier.fillMaxWidth().padding(top = 60.dp))
+            WebsiteProfileUnlock(tab.lockedSlot, onUnlocked)
         }
         tab.error != null -> EmptyState("Couldn't load ${tab.label}", tab.error, Modifier.fillMaxWidth().padding(top = 60.dp))
         else -> EmptyState("Nothing here", "This source has no titles right now.", Modifier.fillMaxWidth().padding(top = 60.dp))

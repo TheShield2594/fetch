@@ -60,7 +60,9 @@ class TrackingState(
     private val simkl: SimklClient = SimklClient(http, credentials, animeIdPreference = animeIdPreference),
     private val onMessage: (String) -> Unit = {},
     /** MDBList's account, a tracking service too as on TV: scrobbles, history and resume points. */
-    private val mdbList: () -> com.fetch.desktop.mdblist.MdbListTracker? = { null }
+    private val mdbList: () -> com.fetch.desktop.mdblist.MdbListTracker? = { null },
+    /** The paired Fetch website, a tracking service too as on TV: scrobbles, history and resume points. */
+    private val website: () -> com.fetch.desktop.website.FetchWebsiteTracker? = { null }
 ) {
     var accounts: TrackingAccounts by mutableStateOf(store.load())
         private set
@@ -212,9 +214,10 @@ class TrackingState(
 
     // --- Scrobbling ---
 
-    /** Tells every connected service what is playing and how far along it is (0–100). */
+    /** Tells every connected service, and the paired Fetch website, what is playing and how far along it is (0–100). */
     fun scrobble(target: PlaybackTarget, action: ScrobbleAction, percent: Float) {
         mdbList()?.takeIf { it.connected }?.let { tracker -> scope.launch { tracker.scrobble(target, action, percent) } }
+        website()?.takeIf { it.paired }?.let { tracker -> scope.launch { tracker.scrobble(target, action, percent) } }
         val item = trackedItem(target) ?: return
         connected.forEach { service ->
             scope.launch {
@@ -232,9 +235,10 @@ class TrackingState(
 
     // --- Watched history ---
 
-    /** Marks [target] (a movie or one episode) watched or unwatched on every connected service. */
+    /** Marks [target] (a movie or one episode) watched or unwatched on every connected service and the Fetch website. */
     fun setWatched(target: PlaybackTarget, watched: Boolean) {
         mdbList()?.takeIf { it.connected }?.let { tracker -> scope.launch { tracker.setWatched(target, watched) } }
+        website()?.takeIf { it.paired }?.let { tracker -> scope.launch { tracker.setWatched(target, watched) } }
         val item = trackedItem(target) ?: return
         connected.forEach { service ->
             scope.launch {
@@ -248,6 +252,21 @@ class TrackingState(
                 }
             }
         }
+    }
+
+    // --- Resume points ---
+
+    /**
+     * Saves where [target] is now with the Fetch website, the watch progress source that keeps
+     * positions (the TV's `applyOptimisticProgress`); throttled per title by the website tracker.
+     */
+    fun savePosition(target: PlaybackTarget, positionMs: Long, durationMs: Long) {
+        website()?.takeIf { it.paired }?.savePosition(target, positionMs, durationMs)
+    }
+
+    /** Drops the Fetch website's resume points for a title leaving Continue Watching. */
+    fun forgetPosition(contentId: String, season: Int?, episode: Int?) {
+        website()?.takeIf { it.paired }?.let { tracker -> scope.launch { tracker.forgetPosition(contentId, season, episode) } }
     }
 
     // --- Watchlist ---

@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -197,12 +198,12 @@ private fun YouTubeUnavailable(state: AppState) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
             when {
                 state.limits.isRestricted -> {
-                    Text("YouTube isn't available on this profile", style = MaterialTheme.typography.titleLarge)
-                    Text("Profiles with limits don't have YouTube, as on the TV app.", color = FetchPalette.TextSecondary)
+                    Text(tr("YouTube isn't available on this profile"), style = MaterialTheme.typography.titleLarge)
+                    Text(tr("Profiles with limits don't have YouTube, as on the TV app."), color = FetchPalette.TextSecondary)
                 }
                 else -> {
-                    Text("You're signed out of YouTube", style = MaterialTheme.typography.titleLarge)
-                    Text("Sign in again in Settings to see your feeds.", color = FetchPalette.TextSecondary)
+                    Text(tr("You're signed out of YouTube"), style = MaterialTheme.typography.titleLarge)
+                    Text(tr("Sign in again in Settings to see your feeds."), color = FetchPalette.TextSecondary)
                     PrimaryButton("Open YouTube settings", icon = null, onClick = {
                         yt.cancelSignIn()
                         state.openSection(Screen.Settings(SettingsPage.YOUTUBE))
@@ -256,7 +257,7 @@ private fun YouTubeSearchBar(yt: YouTubeState) {
         ) {
             Icon(FetchIcons.Search, contentDescription = null, tint = FetchPalette.TextSecondary, modifier = Modifier.size(22.dp))
             Box(Modifier.weight(1f)) {
-                if (yt.searchQuery.isEmpty()) Text("Search YouTube", color = FetchPalette.TextMuted, fontSize = 17.sp)
+                if (yt.searchQuery.isEmpty()) Text(tr("Search YouTube"), color = FetchPalette.TextMuted, fontSize = 17.sp)
                 BasicTextField(
                     value = yt.searchQuery,
                     onValueChange = yt::onSearchQueryChange,
@@ -282,7 +283,7 @@ private fun YouTubeSearchBar(yt: YouTubeState) {
                 modifier = Modifier.widthIn(max = 900.dp)
             ) {
                 Text(
-                    if (yt.searchQuery.isBlank()) "RECENT" else "SUGGESTIONS",
+                    if (yt.searchQuery.isBlank()) tr("RECENT") else tr("SUGGESTIONS"),
                     style = OverlineStyle,
                     color = FetchPalette.TextMuted,
                     modifier = Modifier.align(Alignment.CenterVertically).padding(end = 4.dp)
@@ -290,7 +291,7 @@ private fun YouTubeSearchBar(yt: YouTubeState) {
                 chips.forEach { text -> TabChip(text, selected = false, onClick = { yt.search(text) }) }
                 if (yt.searchQuery.isBlank()) {
                     Text(
-                        "Clear recent searches",
+                        tr("Clear recent searches"),
                         color = FetchPalette.TextSecondary,
                         fontSize = 13.sp,
                         modifier = Modifier.align(Alignment.CenterVertically).clickable(onClick = yt::clearRecentSearches)
@@ -316,7 +317,7 @@ fun YouTubeFeedView(state: AppState, key: YouTubeFeedKey, modifier: Modifier = M
         }
         feed.failed && feed.shelves.isEmpty() -> Box(modifier, contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Text("Couldn't load YouTube. Check your connection and try again.", color = FetchPalette.TextSecondary)
+                Text(tr("Couldn't load YouTube. Check your connection and try again."), color = FetchPalette.TextSecondary)
                 SecondaryButton("Try again", onClick = { yt.refresh(key) })
             }
         }
@@ -443,7 +444,7 @@ fun YouTubeShelfRow(
                 subtitle?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = FetchPalette.TextMuted, modifier = Modifier.padding(bottom = 2.dp)) }
                 if (onViewAll != null) {
                     Text(
-                        "View all",
+                        tr("View all"),
                         style = MaterialTheme.typography.bodyMedium,
                         color = if (rowHovered) FetchPalette.TextPrimary else FetchPalette.TextMuted,
                         modifier = Modifier.padding(bottom = 2.dp).clickable(onClick = onViewAll).pointerHoverIcon(PointerIcon.Hand)
@@ -610,20 +611,20 @@ private fun openLink(state: AppState, link: YouTubeLink) {
 /** The TV's long-press menu for a video, as a right-click menu. */
 private fun videoMenu(state: AppState, video: YouTubeVideo, key: YouTubeFeedKey?): List<ContextMenuItem> = buildList {
     val yt = state.youtube
-    add(ContextMenuItem("Play") { yt.play(video) })
+    add(ContextMenuItem(tr("Play")) { yt.play(video) })
     val channels = video.channels.ifEmpty { listOfNotNull(video.channelId?.let { com.fetch.desktop.youtube.YouTubeChannelRef(it, video.channelName) }) }
     channels.forEach { channel ->
         val name = channel.name ?: video.channelName
-        add(ContextMenuItem(if (name != null && channels.size > 1) "Go to $name" else "Go to channel") {
+        add(ContextMenuItem(if (name != null && channels.size > 1) tr("Go to %1\$s", name) else tr("Go to channel")) {
             state.navigate(Screen.YouTubeBrowse(YouTubeBrowseTarget(channel.channelId, title = name)))
         })
     }
     val onWatchLater = (key as? YouTubeFeedKey.Browse)?.target?.browseId == YouTubeClient.WATCH_LATER_BROWSE_ID
-    add(ContextMenuItem(if (onWatchLater) "Remove from Watch later" else "Save to Watch later") { yt.setWatchLater(video, save = !onWatchLater) })
-    add(ContextMenuItem("Save to playlist…") { yt.openPlaylistPicker(video) })
-    video.removeFromHistoryToken?.let { add(ContextMenuItem("Remove from watch history") { yt.removeFromHistory(video) }) }
-    video.notInterestedToken?.let { add(ContextMenuItem("Not interested") { yt.markNotInterested(video) }) }
-    add(ContextMenuItem("Open on YouTube") { state.openInBrowser(video.watchUrl) })
+    add(ContextMenuItem(if (onWatchLater) tr("Remove from Watch later") else tr("Save to Watch later")) { yt.setWatchLater(video, save = !onWatchLater) })
+    add(ContextMenuItem(tr("Save to playlist…")) { yt.openPlaylistPicker(video) })
+    video.removeFromHistoryToken?.let { add(ContextMenuItem(tr("Remove from watch history")) { yt.removeFromHistory(video) }) }
+    video.notInterestedToken?.let { add(ContextMenuItem(tr("Not interested")) { yt.markNotInterested(video) }) }
+    add(ContextMenuItem(tr("Open on YouTube")) { state.openInBrowser(video.watchUrl) })
 }
 
 /** "Save to playlist": the channel's playlists with a mark on those holding the video, and New playlist. */
@@ -636,21 +637,21 @@ fun YouTubePlaylistDialog(yt: YouTubeState) {
     AlertDialog(
         onDismissRequest = yt::closePlaylistPicker,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Save to playlist", color = Color.White) },
+        title = { Text(tr("Save to playlist"), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.widthIn(min = 360.dp)) {
                 Text(picker.video.title, color = FetchPalette.TextSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(bottom = 8.dp))
                 val options = picker.options
                 when {
-                    picker.failed -> Text("Couldn't load your playlists. Try again later.", color = FetchPalette.TextMuted)
+                    picker.failed -> Text(tr("Couldn't load your playlists. Try again later."), color = FetchPalette.TextMuted)
                     options == null -> Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(Modifier.size(18.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                        Text("Loading your playlists…", color = FetchPalette.TextMuted)
+                        Text(tr("Loading your playlists…"), color = FetchPalette.TextMuted)
                     }
-                    options.isEmpty() -> Text("You don't have any playlists yet.", color = FetchPalette.TextMuted)
+                    options.isEmpty() -> Text(tr("You don't have any playlists yet."), color = FetchPalette.TextMuted)
                     else -> options.forEach { option ->
                         SettingsRow(option.title, onClick = { yt.togglePlaylist(option) }) {
-                            if (option.containsVideo) Icon(FetchIcons.Check, contentDescription = "Saved", tint = FetchPalette.Accent)
+                            if (option.containsVideo) Icon(FetchIcons.Check, contentDescription = tr("Saved"), tint = FetchPalette.Accent)
                         }
                     }
                 }
@@ -664,7 +665,7 @@ fun YouTubePlaylistDialog(yt: YouTubeState) {
                             cursorBrush = SolidColor(FetchPalette.Accent),
                             decorationBox = { inner ->
                                 Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(FetchPalette.Background).padding(12.dp)) {
-                                    if (name.isEmpty()) Text("Name", color = FetchPalette.TextMuted)
+                                    if (name.isEmpty()) Text(tr("Name"), color = FetchPalette.TextMuted)
                                     inner()
                                 }
                             }
@@ -697,7 +698,7 @@ fun YouTubeHomeRow(state: AppState) {
     val yt = state.youtube
     if (!yt.homeRowShown) return
     YouTubeShelfRow(
-        title = "YouTube subscriptions",
+        title = tr("YouTube subscriptions"),
         videos = yt.homeRow,
         onPlay = { yt.play(it) },
         onViewAll = {

@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -134,7 +135,7 @@ fun PrimaryButton(
         val content = if (enabled) FetchPalette.OnAccent else Color.White
         if (icon != null) Icon(icon, contentDescription = null, tint = content, modifier = Modifier.size(26.dp))
         Column {
-            Text(text, color = content, fontWeight = FontWeight.Bold, fontSize = 17.sp, maxLines = 1)
+            Text(tr(text), color = content, fontWeight = FontWeight.Bold, fontSize = 17.sp, maxLines = 1)
             if (detail != null) {
                 Text(
                     detail,
@@ -173,7 +174,7 @@ fun SecondaryButton(
             .alpha(if (enabled) 1f else 0.4f)
     ) {
         if (icon != null) Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
-        Text(text, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, maxLines = 1)
+        Text(tr(text), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, maxLines = 1)
     }
 }
 
@@ -200,7 +201,7 @@ fun CircleIconButton(
             .handCursor()
             .alpha(if (enabled) 1f else 0.35f)
     ) {
-        Icon(icon, contentDescription = contentDescription, tint = Color.White, modifier = Modifier.size(size * 0.5f))
+        Icon(icon, contentDescription = tr(contentDescription), tint = Color.White, modifier = Modifier.size(size * 0.5f))
     }
 }
 
@@ -386,7 +387,7 @@ fun PosterCard(
                         .background(Color.Black.copy(alpha = 0.7f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    androidx.compose.material3.Icon(FetchIcons.Check, contentDescription = "Watched", tint = Color.White, modifier = Modifier.size(16.dp))
+                    androidx.compose.material3.Icon(FetchIcons.Check, contentDescription = tr("Watched"), tint = Color.White, modifier = Modifier.size(16.dp))
                 }
             }
         }
@@ -486,7 +487,7 @@ fun MediaRowView(
             }
             if (onSeeAll != null && items.isNotEmpty()) {
                 Text(
-                    "See all",
+                    tr("See all"),
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (rowHovered) FetchPalette.TextPrimary else FetchPalette.TextMuted,
                     modifier = Modifier.padding(bottom = 2.dp).clickable(onClick = onSeeAll).pointerHoverIcon(PointerIcon.Hand)
@@ -501,7 +502,7 @@ fun MediaRowView(
                 modifier = Modifier.padding(horizontal = PageGutter)
             )
             items.isEmpty() -> Text(
-                "Nothing here",
+                tr("Nothing here"),
                 color = FetchPalette.TextMuted,
                 modifier = Modifier.padding(horizontal = PageGutter)
             )
@@ -583,8 +584,8 @@ fun SkeletonRow(count: Int = 10) {
 fun EmptyState(title: String, body: String, modifier: Modifier = Modifier.fillMaxSize()) {
     Box(modifier, contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(title, style = MaterialTheme.typography.titleLarge)
-            Text(body, color = FetchPalette.TextSecondary, textAlign = TextAlign.Center)
+            Text(tr(title), style = MaterialTheme.typography.titleLarge)
+            Text(tr(body), color = FetchPalette.TextSecondary, textAlign = TextAlign.Center)
         }
     }
 }

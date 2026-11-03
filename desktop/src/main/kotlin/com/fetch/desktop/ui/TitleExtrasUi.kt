@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -119,7 +120,7 @@ fun LazyListScope.titleExtras(state: AppState, extras: TitleExtras?, tmdbRow: Li
     if (row != null) {
         item(key = "more-like-this") {
             MediaRowView(
-                title = "More like this",
+                title = tr("More like this"),
                 subtitle = extras?.moreLikeThis?.let { extras.moreLikeThisSource },
                 items = row,
                 loading = false,

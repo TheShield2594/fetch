@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
@@ -74,7 +75,7 @@ fun FetchingPanel(
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text(FetchProgress.headline(sources.addons), color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
             if (secondsLeft != null && best != null) {
-                Text(if (secondsLeft == 1) "Starting in 1 second" else "Starting in $secondsLeft seconds", color = FetchPalette.TextSecondary, fontSize = 15.sp)
+                Text(if (secondsLeft == 1) tr("Starting in 1 second") else "Starting in $secondsLeft seconds", color = FetchPalette.TextSecondary, fontSize = 15.sp)
             }
         }
         AnimatedVisibility(visible = best != null, enter = fadeIn(), exit = fadeOut()) {
@@ -103,7 +104,7 @@ fun FetchingProgressLine(sources: SourcesState, modifier: Modifier = Modifier) {
 @Composable
 private fun BestSoFar(best: RankedStream) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("BEST SO FAR", style = OverlineStyle, color = FetchPalette.TextSecondary)
+        Text(tr("BEST SO FAR"), style = OverlineStyle, color = FetchPalette.TextSecondary)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), itemVerticalAlignment = Alignment.CenterVertically) {
             val labels = best.descriptor.summaryLabels()
             // The spec line's words, as on the Play button; size and addon are the quiet detail.

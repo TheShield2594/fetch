@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,10 +46,10 @@ fun parentalTitleMenu(state: AppState, item: MetaPreview): List<ContextMenuItem>
     val profiles = state.profiles
     val title = parentalTitleOf(item)
     return when {
-        !state.profile.isPrimary -> listOf(ContextMenuItem("Hide from ${state.profile.name}") {
+        !state.profile.isPrimary -> listOf(ContextMenuItem(tr("Hide from %1\$s", state.profile.name)) {
             profiles.titleLists.pendingHide = state.profile.id to title
         })
-        profiles.profiles.any { !it.isPrimary } -> listOf(ContextMenuItem("Parental limits for this title…") {
+        profiles.profiles.any { !it.isPrimary } -> listOf(ContextMenuItem(tr("Parental limits for this title…")) {
             profiles.titleLists.editing = title
         })
         else -> emptyList()
@@ -137,7 +138,7 @@ fun ProfileTitleListsSection(profiles: ProfilesState, profile: DesktopProfile) {
     val lists = profiles.titleLists.listsFor(profile.id)
     if (lists.isEmpty) return
     Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 12.dp)) {
-        Text("Select a title to leave it to the rating limit again", color = FetchPalette.TextSecondary, fontSize = 13.sp)
+        Text(tr("Select a title to leave it to the rating limit again"), color = FetchPalette.TextSecondary, fontSize = 13.sp)
         Column(Modifier.heightIn(max = 220.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf("Hidden titles" to lists.hidden, "Always allowed titles" to lists.allowed)
                 .filter { it.second.isNotEmpty() }
@@ -152,7 +153,7 @@ fun ProfileTitleListsSection(profiles: ProfilesState, profile: DesktopProfile) {
                         ) {
                             Text(title.name, color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                             Spacer(Modifier.size(8.dp))
-                            Text("Clear", color = FetchPalette.TextMuted, fontSize = 13.sp)
+                            Text(tr("Clear"), color = FetchPalette.TextMuted, fontSize = 13.sp)
                         }
                     }
                 }

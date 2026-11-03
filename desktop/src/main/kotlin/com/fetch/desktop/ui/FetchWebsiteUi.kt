@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fetch.desktop.AppState
+import com.fetch.desktop.parental.PinGate
 import com.fetch.desktop.website.FetchWebsiteState
 import com.fetch.desktop.website.WebsitePairing
 import kotlinx.coroutines.Job
@@ -110,13 +111,18 @@ fun FetchWebsiteSection(state: AppState) {
             if (session != null) {
                 Text("Signed in as ${session.deviceName} · ${session.serverUrl}", color = Color.White)
                 Text(
-                    "Lists made on the website can be added to collections (Content & Discovery › Collections › Website list).",
+                    "Profiles, addons, settings, Home rows and collections sync with the website, as on TV. " +
+                        "Lists made on the website can be added to collections (Content & Discovery › Collections › Website list).",
                     color = FetchPalette.TextSecondary
                 )
-                SecondaryButton("Sign out", onClick = {
-                    job?.cancel()
-                    website.signOut()
-                })
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    SecondaryButton("Sync now", enabled = !state.accountSyncing, onClick = state::syncAccount)
+                    SecondaryButton("Sign out", onClick = {
+                        job?.cancel()
+                        website.signOut()
+                    })
+                    if (state.accountSyncing) CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
+                }
                 return@Column
             }
             when (val pairing = website.pairing) {
@@ -129,7 +135,11 @@ fun FetchWebsiteSection(state: AppState) {
                     Field(address, { address = it }, "http://192.168.1.25:7000")
                     PrimaryButton("Continue", icon = null, enabled = address.isNotBlank(), onClick = {
                         job?.cancel()
-                        job = scope.launch { website.pair(address) }
+                        job = scope.launch {
+                            website.pair(address)
+                            // Paired: the website's profiles, addons and settings come down now.
+                            if (website.isPaired) state.syncAccount()
+                        }
                     })
                     if (pairing is WebsitePairing.Failed) {
                         Text("Couldn’t reach the website: ${pairing.message ?: "check the address"}", color = FetchPalette.Error)
@@ -247,6 +257,83 @@ fun SyncCodeSection(state: AppState) {
                 }
             }
             error?.let { Text(it, color = FetchPalette.Error) }
+        }
+    }
+}
+
+/**
+ * The PIN of a website profile that is locked there, asked where one of its lists couldn't load.
+ * The website checks it and hands back a profile token, kept for a few hours as on TV; then
+ * [onUnlocked] loads the list again.
+ */
+@Composable
+fun WebsiteProfileUnlock(slot: Int, onUnlocked: () -> Unit) {
+    val website = FetchWebsiteState.shared
+    val scope = rememberCoroutineScope()
+    var pin by remember { mutableStateOf("") }
+    var busy by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    fun unlock() {
+        busy = true
+        error = null
+        scope.launch {
+            try {
+                val result = website.verifyPin(slot, pin)
+                error = when (result) {
+                    PinGate.Result.Ok -> null
+                    is PinGate.Result.Wrong -> result.message
+                    is PinGate.Result.Locked -> "Too many wrong PINs. Try again in ${result.seconds} seconds."
+                    null -> "Couldn't reach the Fetch website."
+                }
+                if (result == PinGate.Result.Ok) onUnlocked()
+            } finally {
+                busy = false
+                pin = ""
+            }
+        }
+    }
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 16.dp)) {
+        Field(pin, { pin = it.take(8) }, "PIN", secret = true, width = 220)
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            PrimaryButton("Unlock", icon = null, enabled = pin.length >= 4 && !busy, onClick = { unlock() })
+            if (busy) CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
+        }
+        error?.let { Text(it, color = FetchPalette.Error) }
+    }
+}
+
+/**
+ * "Enter sync code", as on TV: links this computer to the account that generated the code, with
+ * its PIN (`claim_sync_code`). Signed out of the sync server, an anonymous sign-in is made first
+ * on the server found above, so nothing else needs signing in to.
+ */
+@Composable
+fun ClaimSyncCodeSection(state: AppState) {
+    val account = state.account ?: return
+    var code by remember { mutableStateOf("") }
+    var pin by remember { mutableStateOf("") }
+    var linked by remember { mutableStateOf(false) }
+    SettingsSection("Enter a sync code") {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(20.dp)) {
+            if (linked) {
+                Text("This computer is linked. The account's data is syncing now.", color = Color.White)
+                return@Column
+            }
+            Text(
+                "Generated a sync code on another device? Enter it and its PIN to link this computer to that account.",
+                color = FetchPalette.TextSecondary
+            )
+            Field(code, { code = it.uppercase().take(20) }, "Sync code", width = 260)
+            Field(pin, { pin = it.take(8) }, "PIN", secret = true, width = 220)
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                PrimaryButton("Link", icon = null, enabled = code.isNotBlank() && pin.length >= 4 && !account.busy, onClick = {
+                    account.claimSyncCode(code, pin) {
+                        linked = true
+                        state.syncAccount()
+                    }
+                })
+                if (account.busy) CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
+            }
         }
     }
 }

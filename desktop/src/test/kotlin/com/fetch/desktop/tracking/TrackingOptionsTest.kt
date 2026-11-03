@@ -65,7 +65,9 @@ class TrackingOptionsTest {
         ).jsonObject
         val applied = SyncSettingsBlob.sharedSettings(blob).applyTo(DesktopSettings()).tracking
         assertEquals("FETCH_WEBSITE", applied.librarySource)
-        assertEquals(LibrarySourceOption.TRAKT, applied.library)
+        assertEquals(LibrarySourceOption.FETCH_WEBSITE, applied.library)
+        // A source this build doesn't know falls back to the default.
+        assertEquals(LibrarySourceOption.TRAKT, applied.copy(librarySource = "SOMETHING_NEW").library)
         assertEquals(WatchProgressSourceOption.SIMKL, applied.progress)
         assertEquals(30, applied.continueWatchingDays)
         assertFalse(applied.showComments)

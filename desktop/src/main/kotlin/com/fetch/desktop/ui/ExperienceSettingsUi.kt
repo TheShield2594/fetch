@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.width
@@ -43,11 +44,11 @@ fun ExperienceModeConfirmationDialog(target: ExperienceMode, onConfirm: () -> Un
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text(if (essential) "Switch to Essential?" else "Switch to Advanced?", color = FetchPalette.TextPrimary) },
+        title = { Text(if (essential) tr("Switch to Essential?") else tr("Switch to Advanced?"), color = FetchPalette.TextPrimary) },
         text = {
             Text(
-                if (essential) "Advanced setup surfaces will be hidden, but your saved settings stay unchanged. You can switch back anytime."
-                else "This reveals the full settings surface, including advanced setup, catalog, collection, and tuning controls.",
+                if (essential) tr("Advanced setup surfaces will be hidden, but your saved settings stay unchanged. You can switch back anytime.")
+                else tr("This reveals the full settings surface, including advanced setup, catalog, collection, and tuning controls."),
                 color = FetchPalette.TextSecondary
             )
         },
@@ -226,7 +227,7 @@ fun EssentialAboutPage(state: AppState) {
     val s = state.settings
     PageHeader("About", subtitle = "Fetch for desktop")
     SettingsSection(null) {
-        SettingsRow("Version ${AppInfo.version}", "Same version as the TV app.")
+        SettingsRow(tr("Version %1\$s", AppInfo.version), "Same version as the TV app.")
     }
     SettingsSection("Updates") {
         SettingsToggle("Check for updates", "Look for a newer Fetch on GitHub at start-up.", s.checkForUpdates) { v -> state.updateSettings { it.copy(checkForUpdates = v) } }

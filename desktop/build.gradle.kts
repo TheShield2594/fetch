@@ -64,6 +64,12 @@ tasks.processResources {
         into("fonts")
         include("schibsted_grotesk_variable.ttf", "inter_variable.ttf", "dm_sans_variable.ttf", "opensans_variable.ttf")
     }
+    // Appearance › Language: the TV app's strings and their translations, which the desktop
+    // looks its English up in (com.fetch.desktop.i18n). Not duplicated in the repo either.
+    from(rootProject.file("app/src/main/res")) {
+        into("i18n/tv")
+        include("values/strings.xml", "values-*/strings.xml")
+    }
 }
 
 dependencies {

@@ -241,6 +241,8 @@ class AppState(
     val profile: DesktopProfile = profiles.active ?: profiles.profiles.first(),
     /** The sync server account (Settings › Account), shared by every profile; null in tests. */
     val account: SyncAccountState? = null,
+    /** The Fetch website sign-in, shared by every profile; null in tests. */
+    val website: com.fetch.desktop.website.FetchWebsiteState? = null,
     private val client: AddonClient = AddonClient.create().apply { health = com.fetch.desktop.addons.AddonHealthTracker.shared },
     private val store: AddonStore = AddonStore(File(addonsDir(profile), "addons.json")),
     private val settingsStore: JsonFile<DesktopSettings> = settingsFile(profileDir(profile)),
@@ -443,11 +445,15 @@ class AppState(
     /** Fusion stream badges (Settings › Stream Selection › Stream badges), per profile. */
     val badges = StreamBadgesState(scope, File(profileDir(profile), "stream-badges.json"))
 
-    /** Trakt and Simkl for this profile. */
+    /** The Fetch website as a tracking provider for this profile, while this computer is paired with one. */
+    val websiteTracking = com.fetch.desktop.website.FetchWebsiteTracker(website, profile.id, scope)
+
+    /** Trakt and Simkl for this profile (and MDBList and the Fetch website for scrobbles and watched marks). */
     val tracking = TrackingState(
         scope, TrackingStore(File(profileDir(profile), "tracking.json")), onMessage = { message = it },
         animeIdPreference = { settings.tracking.animeId },
-        mdbList = { mdbListTracker }
+        mdbList = { mdbListTracker },
+        website = { websiteTracking }
     )
 
     /** MDBList: the account's lists (Settings › MDBList) and ratings on title pages and the Home hero. */
@@ -484,7 +490,8 @@ class AppState(
         setInLibrary = { preview, on -> setInLocalLibrary(preview, on) },
         onMessage = { message = it },
         mdblist = mdbListAccount,
-        onLocalListRenamed = { id, name -> collections.renameLocalList(id, name) }
+        onLocalListRenamed = { id, name -> collections.renameLocalList(id, name) },
+        website = websiteTracking
     )
 
     /** Collections: Home rows of folders, each a page of sources, synced with the TV. */
@@ -506,7 +513,8 @@ class AppState(
         addons = { activeAddons },
         remote = { account?.client() },
         profileId = profile.id,
-        onMessage = { message = it }
+        onMessage = { message = it },
+        website = { websiteSync?.collections(profile.id) }
     )
 
     /** Home's extras: Ready tonight, Continue Watching artwork, TMDB on the hero, shuffle. */
@@ -542,15 +550,21 @@ class AppState(
      * as the TV app does, so both see the same. The server's profile number is this profile's id.
      */
     fun syncAccount() {
-        val sync = account ?: return
-        val remote = sync.client() ?: return
+        val paired = websiteSync
+        val sync = account
+        val remote = sync?.client()
+        if ((sync == null || remote == null) && paired == null) return
         if (accountSyncing) return
         scope.launch {
             accountSyncing = true
             try {
-                syncAccountSetup(remote)
+                // Paired with a Fetch website, it holds the profiles, addons, settings, Home layout
+                // and collections, as on TV; the sync server keeps the watch data.
+                if (paired != null) syncWebsite(paired)
+                if (sync == null || remote == null) return@launch
+                if (paired == null) syncAccountSetup(remote)
                 syncProviderCredentials(remote)
-                pullHomeCatalogs(remote)
+                if (paired == null) pullHomeCatalogs(remote)
                 val id = profile.id
                 // Library: a three-way merge, so a removal on either side carries over.
                 val merge = SyncMerge.library(library.toList(), remote.pullLibrary(id), syncBaseStore.load())
@@ -574,7 +588,7 @@ class AppState(
                 saveProgress(progress.copy(watched = (progress.watched + watchedIds).distinct()))
 
                 // Collections: the server's copy wins, as on TV; ours go up when it has none.
-                try {
+                if (paired == null) try {
                     collections.sync(remote)
                 } catch (e: CancellationException) {
                     throw e
@@ -589,12 +603,102 @@ class AppState(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: SyncAuthException) {
-                sync.sessionExpired()
+                sync?.sessionExpired()
             } catch (e: Exception) {
                 message = "Couldn't sync with your server: ${e.message}"
             } finally {
                 accountSyncing = false
             }
+        }
+    }
+
+    // --- Fetch website ---
+
+    /** The website's side of the sync while this computer is paired with one; null otherwise. */
+    private val websiteSync: com.fetch.desktop.website.FetchWebsiteSync?
+        get() = website?.takeIf { it.isPaired }?.sync
+
+    /** The Home layout the website last gave this profile, so a push keeps its titles. */
+    private var websiteHome: com.fetch.desktop.addons.SyncHomeCatalogPayload? = null
+
+    /**
+     * Profiles, this profile's addons, Home layout, settings (Tracking's among them) and
+     * collections with the Fetch website, as the TV's FetchWebsiteSyncService does, then tells the
+     * website how it went. Each comes in the sync server's shapes and is merged by the same rules.
+     */
+    private suspend fun syncWebsite(web: com.fetch.desktop.website.FetchWebsiteSync) {
+        var signedIn = false
+        val error = try {
+            if (web.checkSession()) {
+                signedIn = true
+                syncWebsiteProfiles(web)
+                syncWebsiteAddons(web)
+                pullWebsiteHomeLayout(web)
+                pullWebsiteSettings(web)
+                try {
+                    collections.sync(web.collections(profile.id))
+                } catch (_: com.fetch.desktop.website.WebsiteProfileLockedException) {
+                    // A locked profile's collections can't be read until its PIN is entered here.
+                }
+            }
+            null
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            message = "Couldn't sync with the Fetch website: ${e.message}"
+            e
+        }
+        if (signedIn) web.report(error)
+    }
+
+    /** The website's profiles replace the ones here; a website with none for this computer gets ours. */
+    private suspend fun syncWebsiteProfiles(web: com.fetch.desktop.website.FetchWebsiteSync) {
+        val remote = web.profiles()
+        if (remote.isEmpty()) {
+            if (profile.isPrimary) web.pushProfiles(profiles.profiles)
+            return
+        }
+        profiles.applyFromServer(com.fetch.desktop.website.FetchWebsiteMappings.mergeProfiles(profiles.profiles, remote))
+    }
+
+    /** The website's addon list applies here; one it never had for this profile is given ours, as on TV. */
+    private suspend fun syncWebsiteAddons(web: com.fetch.desktop.website.FetchWebsiteSync) {
+        val list = web.addons(addonProfileId) ?: return
+        if (list.everSet) return applyAccountAddons(list.addons)
+        if (profile.isPrimary || !profile.usesPrimaryAddons) {
+            web.pushAddons(profile.id, SyncMerge.addonsToPush(store.load(), emptyList(), store.loadDisabled()))
+        }
+    }
+
+    private fun installedAddonIds(): Set<String> = addons.mapTo(HashSet()) { it.id }
+
+    /** The website's Home row order and hidden rows apply here; one it never had is given ours. */
+    private suspend fun pullWebsiteHomeLayout(web: com.fetch.desktop.website.FetchWebsiteSync) {
+        val local = com.fetch.desktop.addons.HomeCatalogSync.payload(syncableCatalogs, settings, websiteHome, collections.collections.map { it.id })
+        val payload = web.pullHomeLayout(profile.id, local, installedAddonIds()) ?: return
+        websiteHome = payload
+        applyingFromServer = true
+        try {
+            // The website's layout has no "Hide unreleased"; that stays with the settings blob.
+            updateSettings { com.fetch.desktop.addons.HomeCatalogSync.apply(it, payload, hasHideUnreleased = false) }
+        } finally {
+            applyingFromServer = false
+        }
+    }
+
+    /** The website's settings blob applies here, as the sync server's does; one it never had is given ours. */
+    private suspend fun pullWebsiteSettings(web: com.fetch.desktop.website.FetchWebsiteSync) {
+        val remote = web.settings(profile.id) ?: return
+        if (remote.version == 0) {
+            web.pushSharedSettings(profile.id, settings.toRemoteSharedSettings())
+            return
+        }
+        val shared = com.fetch.desktop.sync.SyncSettingsBlob.sharedSettings(remote.settings)
+        applyingFromServer = true
+        try {
+            updateSettings { shared.applyTo(it) }
+        } finally {
+            applyingFromServer = false
         }
     }
 
@@ -667,10 +771,14 @@ class AppState(
         syncServers()
     }
 
-    /** Pulls Continue Watching, watched history and watchlists from Trakt and Simkl. */
+    /** Pulls Continue Watching, watched history and watchlists from Trakt, Simkl, MDBList and the Fetch website. */
     fun syncTracking() {
         scope.launch {
-            // MDBList's lists load even when Trakt and Simkl aren't connected.
+            if (websiteTracking.paired) {
+                websiteTracking.refresh(force = true)
+                applyWebsiteTracking()
+            }
+            // MDBList's and the website's lists load even when Trakt and Simkl aren't connected.
             val snapshot = tracking.sync() ?: return@launch lists.refresh()
             // Settings › Tracking › Watch progress source: whose resume points join Continue Watching.
             val playback = com.fetch.desktop.tracking.playbackForSource(
@@ -680,6 +788,50 @@ class AppState(
             remoteLists = snapshot.watchlists
             lists.refresh()
         }
+    }
+
+    /**
+     * Reads the Fetch website again unless the last read is under a minute old (with [force],
+     * always), and takes in what changed there. Called on start, when the window gets focus, and
+     * every minute while it has it ([followWebsiteTracking]), as the TV polls while it shows it.
+     */
+    suspend fun refreshWebsiteTracking(force: Boolean = false) {
+        if (websiteTracking.paired && websiteTracking.refresh(force)) applyWebsiteTracking()
+    }
+
+    /** [refreshWebsiteTracking] every minute, until cancelled (the window losing focus). */
+    suspend fun followWebsiteTracking() {
+        if (website == null) return
+        while (true) {
+            refreshWebsiteTracking()
+            delay(com.fetch.desktop.website.FetchWebsiteTracker.POLL_INTERVAL_MS)
+        }
+    }
+
+    /** The website keeps this profile's resume points: it is the chosen watch progress source, and paired. */
+    private val websiteKeepsProgress: Boolean
+        get() = websiteTracking.paired && settings.tracking.progress == com.fetch.desktop.tracking.WatchProgressSourceOption.FETCH_WEBSITE
+
+    /**
+     * Takes the website's watch state into Continue Watching and watched marks: its watched titles
+     * always, as Trakt's and Simkl's are; its resume points by the watch progress source rules
+     * ([com.fetch.desktop.tracking.playbackForSource]); its Next Up while it is the source.
+     */
+    private fun applyWebsiteTracking() {
+        if (websiteTracking.snapshot == null) return
+        val projection = websiteTracking.progress
+        val playback = com.fetch.desktop.tracking.playbackForSource(
+            com.fetch.desktop.website.FetchWebsiteProgress.entries(projection),
+            settings.tracking.progress,
+            com.fetch.desktop.ui.availableProgressSources(this)
+        )
+        val nextUp = if (websiteKeepsProgress) com.fetch.desktop.website.FetchWebsiteProgress.nextUp(projection, settings.nextUpFromFurthest) else emptyList()
+        val merged = com.fetch.desktop.website.FetchWebsiteProgress.merge(progress, playback, com.fetch.desktop.website.FetchWebsiteProgress.watchedIds(projection), nextUp)
+        if (merged == progress) return
+        val newShows = merged.caughtUp.any { show -> progress.caughtUp.none { it == show } }
+        saveProgress(merged)
+        // A show the website moved on finds its next episode now, not at the next airing check.
+        if (newShows) scope.launch { refreshAiring() }
     }
 
     /** Jellyfin, Emby and Plex: sources, Home rows and their Continue Watching. */
@@ -811,7 +963,9 @@ class AppState(
 
     /** Pushes what changed in the shared settings, two seconds after the last change. */
     private fun queueSettingsPush(before: DesktopSettings) {
-        val remote = account?.client() ?: return
+        // Paired with a Fetch website, the settings go there instead, as on TV.
+        val web = websiteSync
+        val remote = if (web == null) account?.client() ?: return else null
         if (settingsBeforePush == null) settingsBeforePush = before
         settingsPushJob?.cancel()
         settingsPushJob = scope.launch {
@@ -819,7 +973,9 @@ class AppState(
             val from = settingsBeforePush ?: return@launch
             settingsBeforePush = null
             val diff = settings.toRemoteSharedSettings().changedFrom(from.toRemoteSharedSettings()) ?: return@launch
-            runCatching { remote.pushSharedSettings(profile.id, diff) }
+            runCatching {
+                if (web != null) web.pushSharedSettings(profile.id, diff) else remote?.pushSharedSettings(profile.id, diff)
+            }
         }
     }
 
@@ -831,6 +987,10 @@ class AppState(
      * server: the copy stays on this computer, and the account's settings win on the next sync.
      */
     fun copyProfileSetupOnServer(source: DesktopProfile, target: DesktopProfile, copyMissingKeys: Boolean) {
+        websiteSync?.let { web ->
+            copyProfileSetupOnWebsite(web, source, target)
+            return
+        }
         val remote = account?.client() ?: return
         if (source.id == target.id) return
         // The local copy just queued this profile's settings push; the server copy replaces the
@@ -871,6 +1031,29 @@ class AppState(
         }
     }
 
+    /**
+     * "Copy settings" while paired with a Fetch website: [source]'s settings go into [target]'s
+     * blob there, so the next sync doesn't bring [target]'s old ones back. Limits stay each profile's.
+     */
+    private fun copyProfileSetupOnWebsite(web: com.fetch.desktop.website.FetchWebsiteSync, source: DesktopProfile, target: DesktopProfile) {
+        if (source.id == target.id) return
+        // The copy below carries everything the queued push would.
+        if (target.id == profile.id) {
+            settingsPushJob?.cancel()
+            settingsBeforePush = null
+        }
+        scope.launch {
+            try {
+                val from = if (source.id == profile.id) settings else settingsFile(profileDir(source)).load().migrated()
+                web.pushSharedSettings(target.id, from.toRemoteSharedSettings())
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                message = "Settings copied on this computer, but the Fetch website didn't take them: ${e.message}"
+            }
+        }
+    }
+
     /** The profile whose addons this one uses on the server (profile 1's when shared). */
     private val addonProfileId: Int get() = if (profile.usesPrimaryAddons) DesktopProfile.PRIMARY_ID else profile.id
 
@@ -884,15 +1067,18 @@ class AppState(
      * removed here, kept out of the push even when the account has them switched off.
      */
     private fun pushAddonsToServer(removed: Set<String> = emptySet()) {
-        val remote = account?.client() ?: return
+        // Paired with a Fetch website, the list goes there instead, as on TV.
+        val web = websiteSync
+        val remote = if (web == null) account?.client() ?: return else null
         // A profile sharing the main profile's addons doesn't push them, as on TV.
         if (!profile.isPrimary && profile.usesPrimaryAddons) return
         scope.launch {
             addonPushLock.withLock {
                 runCatching {
-                    val pulled = remote.pullAddons(profile.id)
+                    val pulled = if (web != null) web.addons(profile.id)?.addons.orEmpty() else remote?.pullAddons(profile.id).orEmpty()
                     val urls = addons.map { it.baseUrl } + unreachableAddons.map { it.first }
-                    remote.pushAddons(profile.id, SyncMerge.addonsToPush(urls, pulled, disabledAddonUrls(), removed))
+                    val push = SyncMerge.addonsToPush(urls, pulled, disabledAddonUrls(), removed)
+                    if (web != null) web.pushAddons(profile.id, push) else remote?.pushAddons(profile.id, push)
                 }
             }
         }
@@ -909,19 +1095,7 @@ class AppState(
             }
         }
 
-        val remoteAddons = remote.pullAddons(addonProfileId)
-        val localUrls = store.load()
-        val localDisabled = store.loadDisabled()
-        val addonMerge = SyncMerge.addons(localUrls, remoteAddons, localDisabled = localDisabled)
-        val listChanged = addonMerge.local.map(SyncMerge::addonKey) != localUrls.map(SyncMerge::addonKey)
-        val switchesChanged = addonMerge.disabled.map(SyncMerge::addonKey).toSet() != localDisabled.map(SyncMerge::addonKey).toSet()
-        if (listChanged || switchesChanged) {
-            val saved = runCatching { store.save(addonMerge.local, addonMerge.disabled) }
-                .onFailure { message = "Couldn't save the addon list from your account: ${it.message}" }
-                .isSuccess
-            // When the file couldn't be written, the account's list still applies for this session.
-            if (saved) reloadAddons() else reloadAddons(addonMerge.local, addonMerge.disabled)
-        }
+        applyAccountAddons(remote.pullAddons(addonProfileId))
 
         // Profiles, locks and limits are the main profile's to sync.
         if (!profile.isPrimary) return
@@ -951,9 +1125,37 @@ class AppState(
         profileMerge.push?.let { remote.pushProfiles(it) }
     }
 
-    /** Tells the server about profile, PIN and limit changes made here, while signed in. */
+    /** The account's addon list (the sync server's or the website's) applied here; see [SyncMerge.addons]. */
+    private suspend fun applyAccountAddons(remoteAddons: List<com.fetch.desktop.sync.RemoteAddon>) {
+        val localUrls = store.load()
+        val localDisabled = store.loadDisabled()
+        val addonMerge = SyncMerge.addons(localUrls, remoteAddons, localDisabled = localDisabled)
+        val listChanged = addonMerge.local.map(SyncMerge::addonKey) != localUrls.map(SyncMerge::addonKey)
+        val switchesChanged = addonMerge.disabled.map(SyncMerge::addonKey).toSet() != localDisabled.map(SyncMerge::addonKey).toSet()
+        if (listChanged || switchesChanged) {
+            val saved = runCatching { store.save(addonMerge.local, addonMerge.disabled) }
+                .onFailure { message = "Couldn't save the addon list from your account: ${it.message}" }
+                .isSuccess
+            // When the file couldn't be written, the account's list still applies for this session.
+            if (saved) reloadAddons() else reloadAddons(addonMerge.local, addonMerge.disabled)
+        }
+    }
+
+    /**
+     * Tells the server about profile, PIN and limit changes made here, while signed in; or the
+     * Fetch website, while paired with one, as on TV.
+     */
     private val profileSync = object : ProfilesState.SyncListener {
         override fun onProfilesChanged(deleted: DesktopProfile?) {
+            websiteSync?.let { web ->
+                scope.launch {
+                    runCatching {
+                        deleted?.let { web.deleteProfile(it.id) }
+                        web.pushProfiles(profiles.profiles)
+                    }
+                }
+                return
+            }
             val remote = account?.client() ?: return
             scope.launch {
                 runCatching {
@@ -964,6 +1166,16 @@ class AppState(
         }
 
         override fun onPinChanged(profile: DesktopProfile, pin: String?) {
+            websiteSync?.let { web ->
+                scope.launch {
+                    runCatching {
+                        if (!web.setPin(profile.id, pin)) {
+                            message = "${profile.name}'s PIN changed here only: the Fetch website wants the old PIN, so change it there too."
+                        }
+                    }
+                }
+                return
+            }
             val remote = account?.client() ?: return
             scope.launch {
                 runCatching {
@@ -977,6 +1189,11 @@ class AppState(
         }
 
         override fun onLimitsChanged(profile: DesktopProfile) {
+            // The website keeps a profile's limits on the profile itself.
+            websiteSync?.let { web ->
+                scope.launch { runCatching { web.pushProfiles(listOf(profile)) } }
+                return
+            }
             if (profile.isPrimary) return
             val remote = account?.client() ?: return
             scope.launch {
@@ -986,8 +1203,9 @@ class AppState(
             }
         }
 
+        // A profile the website locks is checked there, which also brings its profile token.
         override suspend fun verifyRemotePin(profile: DesktopProfile, pin: String): PinGate.Result? =
-            account?.client()?.verifyPin(profile, pin)
+            website?.verifyPin(profile.id, pin) ?: account?.client()?.verifyPin(profile, pin)
     }
 
     init {
@@ -1205,6 +1423,19 @@ class AppState(
 
     /** A change to Home's catalogs here goes to the account half a second later. */
     private fun pushHomeCatalogs() {
+        // Paired with a Fetch website, the order goes to its Home layout instead, as on TV.
+        websiteSync?.let { web ->
+            homeCatalogPush?.cancel()
+            homeCatalogPush = scope.launch {
+                delay(500)
+                val payload = com.fetch.desktop.addons.HomeCatalogSync.payload(syncableCatalogs, settings, websiteHome, collections.collections.map { it.id })
+                runCatching {
+                    web.pushHomeLayout(profile.id, payload, installedAddonIds())
+                    websiteHome = payload
+                }
+            }
+            return
+        }
         val remote = account?.client() ?: return
         homeCatalogPush?.cancel()
         homeCatalogPush = scope.launch {
@@ -1412,6 +1643,8 @@ class AppState(
         saveProgress(WatchHistory.hide(progress, entry.contentId))
         // MDBList's resume point goes too, as on TV, so the next sync doesn't bring it back.
         if (entry.source == "mdblist") scope.launch { mdbListTracker.clear(entry) }
+        // As does the website's, while it keeps them.
+        if (websiteKeepsProgress) tracking.forgetPosition(entry.contentId, null, null)
         message = "Removed ${entry.name} from Continue Watching"
     }
 
@@ -2566,16 +2799,20 @@ class AppState(
         if (durationSec > 0) (positionSec / durationSec * 100).toFloat().coerceIn(0f, 100f) else 0f
 
     private fun recordProgress(target: PlaybackTarget, sample: MpvProgress.Sample) {
+        val positionMs = (sample.positionSec * 1000).toLong()
+        val durationMs = (sample.durationSec * 1000).toLong()
         saveProgress(
             WatchHistory.record(
                 progress,
                 target,
-                positionMs = (sample.positionSec * 1000).toLong(),
-                durationMs = (sample.durationSec * 1000).toLong(),
+                positionMs = positionMs,
+                durationMs = durationMs,
                 now = System.currentTimeMillis(),
                 fromFurthest = settings.nextUpFromFurthest
             )
         )
+        // The website keeps the exact second when it is the watch progress source, as on TV.
+        if (websiteKeepsProgress) tracking.savePosition(target, positionMs, durationMs)
     }
 
     /**

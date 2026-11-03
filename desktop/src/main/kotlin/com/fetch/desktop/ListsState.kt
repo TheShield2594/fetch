@@ -37,7 +37,7 @@ data class LocalListsFile(val lists: List<LocalList> = emptyList())
 fun localListsFile(dir: File) = JsonFile(File(dir, "lists.json"), LocalListsFile.serializer()) { LocalListsFile() }
 
 /** Where a list lives: the Library's sources. */
-enum class ListProvider(val label: String) { LOCAL("Local"), TRAKT("Trakt"), SIMKL("Simkl"), MDBLIST("MDBList") }
+enum class ListProvider(val label: String) { LOCAL("Local"), TRAKT("Trakt"), SIMKL("Simkl"), MDBLIST("MDBList"), FETCH_WEBSITE("Fetch website") }
 
 /** Trakt's list privacy choices. */
 enum class ListPrivacy(val apiValue: String, val label: String) {
@@ -54,7 +54,8 @@ enum class ListPrivacy(val apiValue: String, val label: String) {
 /**
  * One list the Library shows as a tab and "Manage lists" offers, as the TV's `LibraryListTab`.
  * [key]: `local:library`, `local:<id>`, `trakt:watchlist`, `trakt:list:<id>`,
- * `simkl:status:<status>` or `mdblist:…` (see [com.fetch.desktop.mdblist.MdbListList.key]). Lists in the same [selectionGroup] hold a title at most once (Simkl's
+ * `simkl:status:<status>`, `mdblist:…` (see [com.fetch.desktop.mdblist.MdbListList.key]) or
+ * `fetch:list:<id>` (the Fetch website's). Lists in the same [selectionGroup] hold a title at most once (Simkl's
  * statuses); a list that isn't a [membershipDestination] can't be picked by hand (Completed).
  */
 data class LibraryList(
@@ -76,7 +77,8 @@ data class LibraryList(
 
 /**
  * Your lists beyond the local library: lists of your own on this computer, Trakt's watchlist and
- * personal lists, and Simkl's status lists, as the TV Library has them. The local library itself
+ * personal lists, Simkl's status lists, MDBList's lists and the Fetch website's, as the TV Library
+ * has them. The local library itself
  * stays with [AppState]; [libraryItems] and [setInLibrary] reach it.
  */
 class ListsState(
@@ -89,7 +91,9 @@ class ListsState(
     /** The MDBList account's lists, when this profile has one connected. */
     private val mdblist: com.fetch.desktop.mdblist.MdbListAccountState? = null,
     /** A local list got a new name (collections' sources follow it). */
-    private val onLocalListRenamed: (id: String, name: String) -> Unit = { _, _ -> }
+    private val onLocalListRenamed: (id: String, name: String) -> Unit = { _, _ -> },
+    /** The Fetch website's lists, while this computer is paired with one. */
+    private val website: com.fetch.desktop.website.FetchWebsiteTracker? = null
 ) {
     var local: List<LocalList> by mutableStateOf(store.load().lists)
         private set
@@ -107,11 +111,14 @@ class ListsState(
     var busy by mutableStateOf(false)
         private set
 
-    /** The providers with lists to show: Local always, Trakt, Simkl and MDBList when connected. */
+    /** The providers with lists to show: Local always, Trakt, Simkl, MDBList and the Fetch website when connected. */
     val providers: List<ListProvider>
         get() = listOf(ListProvider.LOCAL) + tracking.connected.map {
             if (it == TrackingService.TRAKT) ListProvider.TRAKT else ListProvider.SIMKL
-        } + listOfNotNull(ListProvider.MDBLIST.takeIf { mdblist?.connected == true })
+        } + listOfNotNull(
+            ListProvider.MDBLIST.takeIf { mdblist?.connected == true },
+            ListProvider.FETCH_WEBSITE.takeIf { website?.paired == true }
+        )
 
     /** [provider]'s lists, in the TV's order. */
     fun lists(provider: ListProvider): List<LibraryList> = when (provider) {
@@ -132,6 +139,7 @@ class ListsState(
                 )
             }
         ListProvider.MDBLIST -> mdblist?.libraryLists().orEmpty()
+        ListProvider.FETCH_WEBSITE -> website?.libraryLists().orEmpty()
     }
 
     /** Every list a title can go on, for Manage lists. */
@@ -140,7 +148,7 @@ class ListsState(
 
     fun isMember(list: LibraryList, id: String): Boolean = list.items.any { it.id == id }
 
-    /** Pulls Trakt's and Simkl's lists. Called with every tracking sync. */
+    /** Pulls Trakt's, Simkl's, MDBList's and the Fetch website's lists. Called with every tracking sync. */
     fun refresh() {
         if (refreshing) return
         scope.launch {
@@ -150,7 +158,8 @@ class ListsState(
                     val trakt = async { runSafely { refreshTrakt() } }
                     val simkl = async { runSafely { refreshSimkl() } }
                     val mdb = async { runSafely { mdblist?.refresh() } }
-                    listOf(trakt, simkl, mdb).awaitAll()
+                    val web = async { runSafely { website?.refresh() } }
+                    listOf(trakt, simkl, mdb, web).awaitAll()
                 }
             } finally {
                 refreshing = false
@@ -204,11 +213,16 @@ class ListsState(
         val mdbChanges = changes.filterKeys { it.startsWith("mdblist:") }
         if (mdbChanges.isNotEmpty() && mdblist != null) remote(null) {
             mdbChanges.forEach { (key, on) -> mdblist.setMember(key, preview, on) }
-            if (changes.keys.all { it.startsWith("mdblist:") || it.startsWith("local:") }) onMessage("Lists updated")
+            if (changes.keys.all { it.startsWith("mdblist:") || isOwnOrWebsite(it) }) onMessage("Lists updated")
         }
-        val remote = changes.filterKeys { !it.startsWith("local:") && !it.startsWith("mdblist:") }
+        val webChanges = changes.filterKeys { it.startsWith(com.fetch.tv.data.website.FETCH_WEBSITE_LIST_KEY_PREFIX) }
+        if (webChanges.isNotEmpty() && website != null) remote(null) {
+            webChanges.forEach { (key, on) -> website.setMember(key, preview, on) }
+            if (mdbChanges.isEmpty() && changes.keys.all { isOwnOrWebsite(it) }) onMessage("Lists updated")
+        }
+        val remote = changes.filterKeys { !isOwnOrWebsite(it) && !it.startsWith("mdblist:") }
         if (remote.isEmpty()) {
-            if (mdbChanges.isNotEmpty()) return
+            if (mdbChanges.isNotEmpty() || webChanges.isNotEmpty()) return
             onMessage("Lists updated")
             return
         }
@@ -265,6 +279,7 @@ class ListsState(
             }
             ListProvider.SIMKL -> Unit
             ListProvider.MDBLIST -> remote("Created $clean") { mdblist?.createList(clean, privacy) }
+            ListProvider.FETCH_WEBSITE -> remote("Created $clean") { website?.createList(clean) }
         }
     }
 
@@ -284,6 +299,7 @@ class ListsState(
             }
             ListProvider.SIMKL -> Unit
             ListProvider.MDBLIST -> remote("Saved $clean") { mdblist?.updateList(list.key, clean, privacy) }
+            ListProvider.FETCH_WEBSITE -> remote("Saved $clean") { website?.renameList(list.key, clean) }
         }
     }
 
@@ -302,6 +318,7 @@ class ListsState(
             }
             ListProvider.SIMKL -> Unit
             ListProvider.MDBLIST -> remote("Deleted ${list.title}") { mdblist?.deleteList(list.key) }
+            ListProvider.FETCH_WEBSITE -> remote("Deleted ${list.title}") { website?.deleteList(list.key) }
         }
     }
 
@@ -323,10 +340,13 @@ class ListsState(
                 traktLists = reordered
                 remote(null) { tracking.withTrakt { reorderLists(it, reordered.map { l -> l.id }) } }
             }
-            // MDBList keeps its own list order (TV: no reordering either).
-            ListProvider.SIMKL, ListProvider.MDBLIST -> Unit
+            // MDBList and the Fetch website keep their own list order (TV: no reordering either).
+            ListProvider.SIMKL, ListProvider.MDBLIST, ListProvider.FETCH_WEBSITE -> Unit
         }
     }
+
+    /** Local lists and the Fetch website's: the ones that don't go through Trakt or Simkl. */
+    private fun isOwnOrWebsite(key: String) = key.startsWith("local:") || key.startsWith(com.fetch.tv.data.website.FETCH_WEBSITE_LIST_KEY_PREFIX)
 
     private fun remote(success: String?, action: suspend () -> Unit) {
         scope.launch {

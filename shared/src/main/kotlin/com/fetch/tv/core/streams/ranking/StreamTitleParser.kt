@@ -48,7 +48,7 @@ object StreamTitleParser {
             hdr = hdr,
             dolbyVisionProfile = if (HdrFormat.DOLBY_VISION in hdr) parseDolbyVisionProfile(text) else null,
             audio = parseAudio(text),
-            hasAtmos = ATMOS.containsMatchIn(text),
+            hasAtmos = ATMOS.containsMatchIn(text) || ATMOS_DV.containsMatchIn(text),
             audioChannels = parseChannels(text),
             sizeBytes = parseSize(text),
             source = parseSource(text),
@@ -63,6 +63,9 @@ object StreamTitleParser {
 
     // ── Resolution ────────────────────────────────────────────────────────────
 
+    // A pixel height ("1440p") says what the file is; "4K" and "UHD" often name only the source
+    // ("UHD BDRip 1440p"), so they count only when no height is given.
+    private val RES_HEIGHT = Regex("(?<![A-Za-z0-9])(2160|1440|1080|720|576|480|360)[pi](?![A-Za-z0-9])", RegexOption.IGNORE_CASE)
     private val RES_2160 = token("2160p?|4k|uhd")
     private val RES_1440 = token("1440p?|2k|qhd")
     private val RES_1080 = token("1080[pi]?|fhd|full ?hd")
@@ -71,15 +74,20 @@ object StreamTitleParser {
     private val RES_480 = token("480p?|sd|dvd ?rip")
     private val RES_360 = token("360p?")
 
-    private fun parseResolution(text: String): StreamResolution = when {
-        RES_2160.containsMatchIn(text) -> StreamResolution.UHD_2160
-        RES_1440.containsMatchIn(text) -> StreamResolution.QHD_1440
-        RES_1080.containsMatchIn(text) -> StreamResolution.FHD_1080
-        RES_720.containsMatchIn(text) -> StreamResolution.HD_720
-        RES_576.containsMatchIn(text) -> StreamResolution.SD_576
-        RES_480.containsMatchIn(text) -> StreamResolution.SD_480
-        RES_360.containsMatchIn(text) -> StreamResolution.SD_360
-        else -> StreamResolution.UNKNOWN
+    private fun parseResolution(text: String): StreamResolution {
+        RES_HEIGHT.findAll(text).mapNotNull { it.groupValues[1].toIntOrNull() }.maxOrNull()?.let { height ->
+            StreamResolution.entries.firstOrNull { it.height == height }?.let { return it }
+        }
+        return when {
+            RES_2160.containsMatchIn(text) -> StreamResolution.UHD_2160
+            RES_1440.containsMatchIn(text) -> StreamResolution.QHD_1440
+            RES_1080.containsMatchIn(text) -> StreamResolution.FHD_1080
+            RES_720.containsMatchIn(text) -> StreamResolution.HD_720
+            RES_576.containsMatchIn(text) -> StreamResolution.SD_576
+            RES_480.containsMatchIn(text) -> StreamResolution.SD_480
+            RES_360.containsMatchIn(text) -> StreamResolution.SD_360
+            else -> StreamResolution.UNKNOWN
+        }
     }
 
     // ── Video ─────────────────────────────────────────────────────────────────
@@ -107,9 +115,12 @@ object StreamTitleParser {
     private val HLG = token("hlg")
     private val SDR = token("sdr")
 
+    // Some file names glue the two Dolby tags together ("EAC3 AtmosDV HDR10").
+    private val ATMOS_DV = token("atmos ?dv")
+
     private fun parseHdr(text: String): Set<HdrFormat> {
         val formats = linkedSetOf<HdrFormat>()
-        if (DOLBY_VISION.containsMatchIn(text)) formats += HdrFormat.DOLBY_VISION
+        if (DOLBY_VISION.containsMatchIn(text) || ATMOS_DV.containsMatchIn(text)) formats += HdrFormat.DOLBY_VISION
         if (HDR10_PLUS.containsMatchIn(text)) formats += HdrFormat.HDR10_PLUS
         if (HDR10.containsMatchIn(text.replace(HDR10_PLUS, " "))) formats += HdrFormat.HDR10
         if (HLG.containsMatchIn(text)) formats += HdrFormat.HLG
@@ -152,10 +163,10 @@ object StreamTitleParser {
     private val DTS = token("dts$LAYOUT")
     private val EAC3 = token("e-?ac-?3$LAYOUT|ddp$LAYOUT|dd\\+$LAYOUT|dolby ?digital ?plus")
     private val AC3 = token("ac-?3$LAYOUT|dd$LAYOUT|dolby ?digital")
-    private val FLAC = token("flac")
-    private val OPUS = token("opus")
+    private val FLAC = token("flac$LAYOUT")
+    private val OPUS = token("opus$LAYOUT")
     private val AAC = token("aac(?:\\d\\.\\d)?")
-    private val MP3 = token("mp3")
+    private val MP3 = token("mp3$LAYOUT")
     private val ATMOS = token("atmos")
 
     private fun parseAudio(text: String): Set<AudioFormat> {
@@ -212,8 +223,10 @@ object StreamTitleParser {
 
     // ── Source ────────────────────────────────────────────────────────────────
 
-    private val REMUX = token("remux|bdremux")
-    private val BLURAY = token("blu-?ray|bd-?rip|brrip|bdmv|uhd ?bd")
+    private val REMUX = token("remux|bd-?remux|uhd ?remux")
+    // "BD" alone is how anime releases say BluRay ("[BD 1080p]", "BD1080p"); "UHDRip" is ripped from one.
+    private val BLURAY = token("blu-?ray(?: ?rip)?|bd-?rip|brrip|bdmv|uhd ?bd|bd|uhd ?rip")
+    private val BLURAY_GLUED = Regex("(?<![A-Za-z0-9])bd(?=\\d{3,4}p)", RegexOption.IGNORE_CASE)
     private val WEB_DL = token("web-?dl|web")
     private val WEBRIP = token("web-?rip")
     private val HDTV = token("hdtv|pdtv|dsr")
@@ -228,7 +241,7 @@ object StreamTitleParser {
         CAM.containsMatchIn(text) -> ReleaseSource.CAM
         TELESYNC.containsMatchIn(text) -> ReleaseSource.TELESYNC
         REMUX.containsMatchIn(text) -> ReleaseSource.REMUX
-        BLURAY.containsMatchIn(text) -> ReleaseSource.BLURAY
+        BLURAY.containsMatchIn(text) || BLURAY_GLUED.containsMatchIn(text) -> ReleaseSource.BLURAY
         WEBRIP.containsMatchIn(text) -> ReleaseSource.WEBRIP
         WEB_DL.containsMatchIn(text) -> ReleaseSource.WEB_DL
         HDTV.containsMatchIn(text) -> ReleaseSource.HDTV
@@ -242,10 +255,15 @@ object StreamTitleParser {
         token(language.names.joinToString("|") { name -> name.split(' ').joinToString("[ .\\-]?") { Regex.escape(it) } })
     }
 
-    private fun parseLanguages(text: String): Set<StreamLanguage> =
-        StreamLanguage.entries.filterTo(linkedSetOf()) { language ->
+    // "Multi-Subs" names the subtitles, not a multi-language audio track.
+    private val MULTI_SUBS = token("multi[ .\\-]?subs?")
+
+    private fun parseLanguages(rawText: String): Set<StreamLanguage> {
+        val text = rawText.replace(MULTI_SUBS, " ")
+        return StreamLanguage.entries.filterTo(linkedSetOf()) { language ->
             language.flags.any { it in text } || LANGUAGE_NAMES.getValue(language).containsMatchIn(text)
         }
+    }
 
     // ── Misc ──────────────────────────────────────────────────────────────────
 
@@ -254,16 +272,27 @@ object StreamTitleParser {
         RegexOption.IGNORE_CASE
     )
     private val SEEDERS = Regex("(?:👤|seeders?:?|seeds?:?|\\bS:)\\s?(\\d{1,6})", RegexOption.IGNORE_CASE)
-    private val RELEASE_GROUP = Regex("-([A-Za-z0-9]{2,15})(?:\\.(?:mkv|mp4|avi|ts|m2ts))?\\s*$")
+    private val RELEASE_GROUP = Regex("-([\\p{L}\\p{N}]{2,15})(?:\\.(?:mkv|mp4|avi|ts|m2ts))?\\s*$")
+
+    // Fansub and many Asian releases put the group first: "[SubsPlease] Show - 01 (1080p).mkv".
+    private val LEADING_GROUP = Regex("^(?:📄\\s*)?\\[([A-Za-z0-9][A-Za-z0-9 ._-]{1,19})]")
 
     private fun parseReleaseGroup(text: String): String? {
-        val candidate = text.lineSequence()
-            .map { it.trim() }
-            .firstOrNull { RELEASE_GROUP.containsMatchIn(it) }
-            ?: return null
-        return RELEASE_GROUP.find(candidate)?.groupValues?.get(1)
+        val lines = text.lineSequence().map { it.trim() }
+        lines.firstOrNull { RELEASE_GROUP.containsMatchIn(it) }
+            ?.let { RELEASE_GROUP.find(it)?.groupValues?.get(1) }
             ?.takeUnless { it.equals("dl", true) || it.equals("rip", true) || it.all(Char::isDigit) }
+            ?.let { return it }
+        return lines.mapNotNull { LEADING_GROUP.find(it)?.groupValues?.get(1)?.trim(' ', '.', '-', '_') }
+            .firstOrNull { group -> group.any(Char::isLetter) && !looksLikeQualityTag(group) }
     }
+
+    /** "[1080p]", "[BD]", "[Dual Audio]": a bracket that describes the file, not who made it. */
+    private fun looksLikeQualityTag(tag: String): Boolean =
+        RES_HEIGHT.containsMatchIn(tag) || RES_2160.containsMatchIn(tag) || BLURAY.containsMatchIn(tag) ||
+            WEB_DL.containsMatchIn(tag) || WEBRIP.containsMatchIn(tag) || HDTV.containsMatchIn(tag) ||
+            parseCodec(tag) != VideoCodec.UNKNOWN || parseAudio(tag).isNotEmpty() ||
+            tag.equals("tv", true) || parseLanguages(tag).isNotEmpty()
 
     /** A case-insensitive pattern that must be bounded by non-alphanumerics on both sides. */
     private fun token(pattern: String): Regex =

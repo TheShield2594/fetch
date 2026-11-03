@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ContextMenuArea
@@ -106,7 +107,7 @@ fun ContinueWatchingRow(
     entries: List<ProgressEntry>,
     actions: ContinueWatchingActions,
     onHover: (ProgressEntry) -> Unit,
-    title: String = "Continue Watching"
+    title: String = tr("Continue Watching")
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text(
@@ -142,13 +143,13 @@ internal fun ContinueCard(entry: ProgressEntry, actions: ContinueWatchingActions
         buildList {
             val upcoming = com.fetch.desktop.data.WatchHistory.isUpcoming(entry, java.time.LocalDate.now())
             if (!upcoming) add(ContextMenuItem(entry.playLabel()) { actions.onPlay(entry) })
-            add(ContextMenuItem("Go to details") { actions.onDetails(entry) })
-            if (!entry.upNext) add(ContextMenuItem("Start from beginning") { actions.onStartOver(entry) })
+            add(ContextMenuItem(tr("Go to details")) { actions.onDetails(entry) })
+            if (!entry.upNext) add(ContextMenuItem(tr("Start from beginning")) { actions.onStartOver(entry) })
             actions.onToggleQueue?.takeIf { !upcoming }?.let { toggle ->
-                add(ContextMenuItem(if (actions.isQueued(entry)) "Remove from queue" else "Add to queue") { toggle(entry) })
+                add(ContextMenuItem(if (actions.isQueued(entry)) tr("Remove from queue") else tr("Add to queue")) { toggle(entry) })
             }
-            if (entry.season != null) actions.onShuffle?.let { shuffle -> add(ContextMenuItem("Shuffle episodes") { shuffle(entry) }) }
-            add(ContextMenuItem("Remove") { actions.onRemove(entry) })
+            if (entry.season != null) actions.onShuffle?.let { shuffle -> add(ContextMenuItem(tr("Shuffle episodes")) { shuffle(entry) }) }
+            add(ContextMenuItem(tr("Remove")) { actions.onRemove(entry) })
         }
     }) {
         Column(

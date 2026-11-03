@@ -32,7 +32,6 @@ import com.fetch.tv.domain.model.WatchedItem
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,9 +53,6 @@ import kotlinx.serialization.json.put
 // knows titles by IMDb id; anything else stays on this TV.
 
 private const val TAG = "FetchWebsiteTracking"
-
-/** The website's longest position; a duration past it isn't sent. */
-private const val MAX_PLAYBACK_SECONDS = 12L * 60 * 60
 
 @Singleton
 class FetchWebsiteTrackingProvider @Inject constructor(
@@ -387,35 +383,6 @@ internal fun fetchWebsiteWatchBody(item: TrackingHistoryItem): JsonObject? {
     }
 }
 
-/** A resume point to `PUT /playback`, in whole seconds when the player knows them. */
-internal fun fetchWebsitePlaybackBody(progress: WatchProgress): JsonObject? {
-    if (!progress.contentId.startsWith("tt")) return null
-    val isEpisode = progress.season != null && progress.episode != null
-    if (!isEpisode && !progress.contentType.equals("movie", ignoreCase = true)) return null
-    val durationSeconds = progress.duration / 1000L
-    val positionSeconds = progress.position / 1000L
-    return buildJsonObject {
-        put("type", if (isEpisode) "episode" else "movie")
-        put("imdbId", progress.contentId)
-        if (isEpisode) {
-            put("seriesImdbId", progress.contentId)
-            put("season", progress.season)
-            put("episode", progress.episode)
-        }
-        if (durationSeconds in 1..MAX_PLAYBACK_SECONDS && positionSeconds in 0..durationSeconds) {
-            put("positionSeconds", positionSeconds)
-            put("durationSeconds", durationSeconds)
-        } else {
-            put("progress", (progress.progressPercentage * 100f * 10f).roundToInt() / 10.0)
-        }
-    }
-}
-
-/** A resume point held here before the website has given it an id; never sent back to it. */
-private const val LOCAL_PLAYBACK_ID_PREFIX = "local:"
-
-internal fun isLocalPlaybackId(id: String): Boolean = id.startsWith(LOCAL_PLAYBACK_ID_PREFIX)
-
 private fun LibraryEntryInput.websiteImdbId(): String? =
     imdbId?.takeIf { it.startsWith("tt") } ?: itemId.takeIf { it.startsWith("tt") }?.substringBefore(':')
 
@@ -439,13 +406,8 @@ private fun WatchProgress.toWebsitePlayback(): WebsitePlayback? {
 }
 
 // ─── Optimistic snapshot edits, confirmed by the next read ───
-
-internal fun FetchWebsiteTrackingSnapshot.withPlayback(entry: WebsitePlayback): FetchWebsiteTrackingSnapshot {
-    val others = playback.filterNot { it.imdbId == entry.imdbId && it.season == entry.season && it.episode == entry.episode }
-    val previous = playback.firstOrNull { it.imdbId == entry.imdbId && it.season == entry.season && it.episode == entry.episode }
-    val merged = previous?.let { entry.copy(id = it.id, name = entry.name ?: it.name, poster = entry.poster ?: it.poster) } ?: entry
-    return copy(playback = listOf(merged) + others)
-}
+//
+// The ones the desktop app makes too (resume points, list membership) are in :shared.
 
 internal fun FetchWebsiteTrackingSnapshot.withWatched(items: Collection<TrackingHistoryItem>): FetchWebsiteTrackingSnapshot {
     var state = watchState
@@ -480,29 +442,4 @@ internal fun FetchWebsiteTrackingSnapshot.withoutWatched(targets: Collection<Fet
         }
     }
     return copy(watchState = state)
-}
-
-internal fun FetchWebsiteTrackingSnapshot.withListMembership(
-    addTo: Collection<String>,
-    removeFrom: Collection<String>,
-    type: String,
-    imdbId: String,
-    input: LibraryEntryInput
-): FetchWebsiteTrackingSnapshot {
-    val added = WebsiteListItem(
-        type = type,
-        imdbId = imdbId,
-        addedAt = Instant.now().toString(),
-        title = input.title,
-        metadata = WebsiteListItemMetadata(name = input.title, poster = input.poster, year = input.year)
-    )
-    val updated = listItems.toMutableMap()
-    addTo.forEach { listId ->
-        val items = updated[listId].orEmpty()
-        if (items.none { it.type == type && it.imdbId == imdbId }) updated[listId] = listOf(added) + items
-    }
-    removeFrom.forEach { listId ->
-        updated[listId] = updated[listId].orEmpty().filterNot { it.type == type && it.imdbId == imdbId }
-    }
-    return copy(listItems = updated)
 }

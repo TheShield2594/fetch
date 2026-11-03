@@ -33,3 +33,9 @@ dependencies {
 
     testImplementation("junit:junit:4.13.2")
 }
+
+tasks.test {
+    // `-Dfetch.updateStreamFixtures=true` rewrites the stream parser's fixture table
+    // (StreamTitleParserFixturesTest).
+    System.getProperty("fetch.updateStreamFixtures")?.let { systemProperty("fetch.updateStreamFixtures", it) }
+}

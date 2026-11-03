@@ -2,7 +2,7 @@ package com.fetch.tv.core.tracking
 
 import com.fetch.tv.domain.model.WatchProgress
 
-internal fun selectPreferredTrackingNextUpSeeds(
+fun selectPreferredTrackingNextUpSeeds(
     candidates: List<WatchProgress>,
     preferFurthestEpisode: Boolean
 ): List<WatchProgress> = candidates
@@ -16,7 +16,7 @@ internal fun selectPreferredTrackingNextUpSeeds(
             .thenByDescending { it.episode ?: -1 }
     )
 
-internal fun selectPreferredTrackingNextUpSeed(
+fun selectPreferredTrackingNextUpSeed(
     candidates: List<WatchProgress>,
     preferFurthestEpisode: Boolean
 ): WatchProgress? {

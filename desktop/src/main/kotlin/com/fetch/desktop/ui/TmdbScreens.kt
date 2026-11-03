@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,7 +55,7 @@ fun PersonScreen(state: AppState, screen: Screen.Person) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 when {
                     tmdb.personLoading -> CircularProgressIndicator(color = FetchPalette.Accent)
-                    !tmdb.client.isConfigured -> Text("Add a TMDB key in Settings › TMDB to see people.", color = FetchPalette.TextSecondary)
+                    !tmdb.client.isConfigured -> Text(tr("Add a TMDB key in Settings › TMDB to see people."), color = FetchPalette.TextSecondary)
                     else -> Text(tmdb.personError ?: screen.name, color = FetchPalette.TextSecondary)
                 }
                 if (state.canGoBack) SecondaryButton("Back", onClick = state::back, icon = FetchIcons.Back)
@@ -94,7 +95,7 @@ fun PersonScreen(state: AppState, screen: Screen.Person) {
                             person.biography?.let { bio -> ExpandableText(bio) }
                         }
                     }
-                    if (person.credits.isNotEmpty()) Text("Known for", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 12.dp))
+                    if (person.credits.isNotEmpty()) Text(tr("Known for"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 12.dp))
                 }
             }
         }

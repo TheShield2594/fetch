@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -66,6 +67,7 @@ fun AccountPage(state: AppState, header: Boolean = true) {
         }
         account.error?.let { Text(it, color = FetchPalette.Error) }
         SyncCodeSection(state)
+        ClaimSyncCodeSection(state)
         FetchWebsiteSection(state)
         return
     }
@@ -76,7 +78,7 @@ fun AccountPage(state: AppState, header: Boolean = true) {
     val found = account.discovered
     SettingsSection("Server") {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(20.dp)) {
-            AccountField("Server address", address, { address = it }, placeholder = "https://fetch.example.com")
+            AccountField(tr("Server address"), address, { address = it }, placeholder = "https://fetch.example.com")
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                 SecondaryButton("Find server", onClick = { account.findServer(address) }, enabled = address.isNotBlank() && !account.busy)
                 if (account.busy) CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
@@ -88,12 +90,12 @@ fun AccountPage(state: AppState, header: Boolean = true) {
         SettingsSection("Sign in") {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(20.dp)) {
                 if (found.tvLogin) {
-                    Text("Approve a code from your phone or browser, where you're already signed in:", color = FetchPalette.TextSecondary)
+                    Text(tr("Approve a code from your phone or browser, where you're already signed in:"), color = FetchPalette.TextSecondary)
                     SecondaryButton("Sign in with a code", onClick = account::startDeviceLogin)
                 }
                 if (found.emailPasswordAuth) {
-                    AccountField("Email", email, { email = it })
-                    AccountField("Password", password, { password = it }, secret = true)
+                    AccountField(tr("Email"), email, { email = it })
+                    AccountField(tr("Password"), password, { password = it }, secret = true)
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         PrimaryButton("Sign in", icon = null, enabled = email.isNotBlank() && password.isNotBlank() && !account.busy, onClick = {
                             account.signIn(email, password)
@@ -105,6 +107,7 @@ fun AccountPage(state: AppState, header: Boolean = true) {
                 }
             }
         }
+        ClaimSyncCodeSection(state)
     }
     account.error?.let { Text(it, color = FetchPalette.Error) }
     FetchWebsiteSection(state)
@@ -140,10 +143,10 @@ private fun DeviceCodeDialog(code: String, url: String, onCancel: () -> Unit) {
     AlertDialog(
         onDismissRequest = onCancel,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Sign in with a code", color = Color.White) },
+        title = { Text(tr("Sign in with a code"), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("Open this link where you're signed in and approve this code:", color = FetchPalette.TextSecondary)
+                Text(tr("Open this link where you're signed in and approve this code:"), color = FetchPalette.TextSecondary)
                 Text(url, color = FetchPalette.TextPrimary, fontSize = 14.sp)
                 Text(
                     code,
@@ -156,7 +159,7 @@ private fun DeviceCodeDialog(code: String, url: String, onCancel: () -> Unit) {
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(Modifier.size(18.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                    Text("Waiting for approval…", color = FetchPalette.TextMuted)
+                    Text(tr("Waiting for approval…"), color = FetchPalette.TextMuted)
                 }
             }
         },

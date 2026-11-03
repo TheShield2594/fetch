@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import com.fetch.desktop.poster.withCustomPosterUrls
 import com.fetch.desktop.poster.posterPatternFor
 import androidx.compose.foundation.background
@@ -90,7 +91,7 @@ fun SearchScreen(state: AppState) {
             }
             if (!state.addonsLoading && !state.hasSearchableCatalogs) {
                 Text(
-                    "None of your addons can search. Install one with a search catalog, such as Cinemeta, in Settings › Content & Discovery › Addons.",
+                    tr("None of your addons can search. Install one with a search catalog, such as Cinemeta, in Settings › Content & Discovery › Addons."),
                     color = FetchPalette.TextMuted
                 )
             }
@@ -99,7 +100,7 @@ fun SearchScreen(state: AppState) {
             // Discover's default place on the TV app: inside Search, until you type.
             DiscoverGrid(state, gridState, Modifier.fillMaxSize()) {
                 fullWidthItem("discover-title") {
-                    Text("Discover", style = MaterialTheme.typography.headlineSmall, color = Color.White)
+                    Text(tr("Discover"), style = MaterialTheme.typography.headlineSmall, color = Color.White)
                 }
             }
             return@Column
@@ -170,7 +171,7 @@ private fun SearchField(value: String, onValueChange: (String) -> Unit, onSubmit
         Icon(FetchIcons.Search, contentDescription = null, tint = FetchPalette.TextSecondary, modifier = Modifier.size(24.dp))
         Box(Modifier.weight(1f)) {
             if (value.isEmpty()) {
-                Text("Search movies and shows", color = FetchPalette.TextMuted, fontSize = 18.sp)
+                Text(tr("Search movies and shows"), color = FetchPalette.TextMuted, fontSize = 18.sp)
             }
             BasicTextField(
                 value = value,
@@ -198,14 +199,14 @@ private fun RecentSearches(recent: List<String>, onPick: (String) -> Unit, onRem
     var confirming by remember { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("RECENT SEARCHES", style = OverlineStyle, color = FetchPalette.TextMuted)
+            Text(tr("RECENT SEARCHES"), style = OverlineStyle, color = FetchPalette.TextMuted)
             if (confirming) {
-                Text("Clear all?", color = FetchPalette.TextSecondary, fontSize = 13.sp)
+                Text(tr("Clear all?"), color = FetchPalette.TextSecondary, fontSize = 13.sp)
                 SecondaryButton("Clear", onClick = { confirming = false; onClear() })
                 SecondaryButton("Keep", onClick = { confirming = false })
             } else {
                 Text(
-                    "Clear",
+                    tr("Clear"),
                     color = FetchPalette.TextSecondary,
                     fontSize = 13.sp,
                     modifier = Modifier.clickable { confirming = true }.pointerHoverIcon(PointerIcon.Hand)
@@ -222,7 +223,7 @@ private fun RecentSearches(recent: List<String>, onPick: (String) -> Unit, onRem
                         .padding(start = 14.dp, end = 6.dp, top = 4.dp, bottom = 4.dp)
                 ) {
                     Text(q, color = Color.White, fontSize = 14.sp)
-                    CircleIconButton(FetchIcons.Close, "Remove $q", onClick = { onRemove(q) }, size = 24.dp)
+                    CircleIconButton(FetchIcons.Close, tr("Remove %1\$s", q), onClick = { onRemove(q) }, size = 24.dp)
                 }
             }
         }

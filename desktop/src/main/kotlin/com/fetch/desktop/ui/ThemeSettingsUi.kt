@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -45,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fetch.desktop.AppState
 import com.fetch.desktop.data.AppearanceSettings
+import com.fetch.desktop.i18n.I18n
+import com.fetch.desktop.i18n.Languages
 import com.fetch.tv.domain.model.AppFont
 import com.fetch.tv.domain.model.AppTheme
 import com.fetch.tv.domain.model.CustomThemeColors
@@ -66,7 +69,7 @@ fun ThemeSettingsContent(state: AppState) {
     val look = state.settings.appearance
     var editing by remember { mutableStateOf(false) }
 
-    PageHeader("Appearance", subtitle = if (essential) "Choose your color theme" else "Choose your color theme and font")
+    PageHeader("Appearance", subtitle = if (essential) "Choose your color theme and language" else "Choose your color theme, font and language")
     SettingsSection("Color Theme") {
         @OptIn(ExperimentalLayoutApi::class)
         FlowRow(
@@ -104,15 +107,18 @@ fun ThemeSettingsContent(state: AppState) {
             }
         }
     }
-    if (!essential) {
-        SettingsSection("Font") {
+    // The font is Advanced; the language stays in Essential too, as on TV.
+    SettingsSection(if (essential) "App Language" else "Font and Language") {
+        if (!essential) {
             SettingsChoice(
                 "App Font",
                 "Choose your preferred font",
                 look.appFont,
-                AppFont.entries.map { DropdownOption(it, it.displayName) }
+                AppFont.entries.map { DropdownOption(it, it.displayName) },
+                translateOptions = false
             ) { font -> state.updateAppearance { it.copy(font = font.name) } }
         }
+        AppLanguageRow()
     }
 
     if (editing) {
@@ -126,6 +132,22 @@ fun ThemeSettingsContent(state: AppState) {
             }
         )
     }
+}
+
+/**
+ * Appearance › App Language, as on TV: System default (the computer's language) or one of the
+ * TV's languages, each in its own name. Applies at once; kept on this computer (`locale_tag`).
+ */
+@Composable
+private fun AppLanguageRow() {
+    val options = remember { Languages.pickerOptions() }
+    SettingsChoice<String?>(
+        "App Language",
+        "Override system language",
+        I18n.chosenTag,
+        listOf(DropdownOption<String?>(null, tr("System default"))) + options.map { (tag, name) -> DropdownOption<String?>(tag, name) },
+        translateOptions = false
+    ) { tag -> I18n.choose(tag) }
 }
 
 @Composable
@@ -161,7 +183,7 @@ private fun ThemeSwatch(theme: AppTheme, selected: Boolean, colors: CustomThemeC
             Modifier.background(accent)
         }
         Box(Modifier.size(44.dp).clip(CircleShape).then(fill))
-        Text(theme.displayName, color = if (selected) FetchPalette.TextPrimary else FetchPalette.TextSecondary, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)
+        Text(tr(theme.displayName), color = if (selected) FetchPalette.TextPrimary else FetchPalette.TextSecondary, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)
     }
 }
 
@@ -185,24 +207,24 @@ fun CustomThemeEditorDialog(initial: CustomThemeColors, onDismiss: () -> Unit, o
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text(if (gradient) "Your custom gradient" else "Your custom color", color = FetchPalette.TextPrimary) },
+        title = { Text(if (gradient) tr("Your custom gradient") else tr("Your custom color"), color = FetchPalette.TextPrimary) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.width(500.dp)) {
                 Text(
-                    if (gradient) "Choose three colors for your theme. Select a color to edit it." else "Choose a color for your theme.",
+                    if (gradient) tr("Choose three colors for your theme. Select a color to edit it.") else tr("Choose a color for your theme."),
                     color = FetchPalette.TextSecondary
                 )
                 // A gradient comes from the TV (a supporter theme there); it can be kept or made one colour.
                 if (!initial.isSolid) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ModeChip("Gradient", gradient) { gradient = true }
-                        ModeChip("Single color", !gradient) { gradient = false }
+                        ModeChip(tr("Gradient"), gradient) { gradient = true }
+                        ModeChip(tr("Single color"), !gradient) { gradient = false }
                     }
                 }
                 if (gradient) {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         (0..2).forEach { i ->
-                            ColorSlot("Color ${i + 1}", draft.colors[i], selected = slot == i) { slot = i }
+                            ColorSlot(tr("Color %1\$s", i + 1), draft.colors[i], selected = slot == i) { slot = i }
                         }
                     }
                 }
@@ -277,9 +299,9 @@ fun ThemeColorPicker(color: Int, onChange: (Int) -> Unit) {
                 )
             }
         }
-        ChannelSlider("Hue", hue, Brush.horizontalGradient((0..6).map { Color.hsv(it * 60f % 360f, 1f, 1f) })) { emit(h = it) }
-        ChannelSlider("Saturation", sat, Brush.horizontalGradient(listOf(Color.hsv(hue * 360f, 0f, bri), Color.hsv(hue * 360f, 1f, bri)))) { emit(s = it) }
-        ChannelSlider("Brightness", bri, Brush.horizontalGradient(listOf(Color.Black, Color.hsv(hue * 360f, sat, 1f)))) { emit(b = it) }
+        ChannelSlider(tr("Hue"), hue, Brush.horizontalGradient((0..6).map { Color.hsv(it * 60f % 360f, 1f, 1f) })) { emit(h = it) }
+        ChannelSlider(tr("Saturation"), sat, Brush.horizontalGradient(listOf(Color.hsv(hue * 360f, 0f, bri), Color.hsv(hue * 360f, 1f, bri)))) { emit(s = it) }
+        ChannelSlider(tr("Brightness"), bri, Brush.horizontalGradient(listOf(Color.Black, Color.hsv(hue * 360f, sat, 1f)))) { emit(b = it) }
         HexColorField(color, onChange = ::adopt)
     }
 }
@@ -309,7 +331,7 @@ fun HexColorField(color: Int, onChange: (Int) -> Unit) {
     var text by remember(color) { mutableStateOf(formatHexColor(color).removePrefix("#")) }
     val valid = parseHexColor(text) != null
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Hex color", color = FetchPalette.TextSecondary, fontSize = 14.sp, modifier = Modifier.width(84.dp))
+        Text(tr("Hex color"), color = FetchPalette.TextSecondary, fontSize = 14.sp, modifier = Modifier.width(84.dp))
         Text("#", color = FetchPalette.TextMuted, fontSize = 15.sp)
         BasicTextField(
             value = text,
@@ -325,7 +347,7 @@ fun HexColorField(color: Int, onChange: (Int) -> Unit) {
                 .border(1.dp, if (valid) FetchPalette.Outline else FetchPalette.Error, RoundedCornerShape(8.dp))
                 .padding(horizontal = 10.dp, vertical = 8.dp)
         )
-        if (!valid) Text("Six characters, 0–9 and A–F", color = FetchPalette.TextMuted, fontSize = 13.sp)
+        if (!valid) Text(tr("Six characters, 0–9 and A–F"), color = FetchPalette.TextMuted, fontSize = 13.sp)
     }
 }
 
@@ -337,10 +359,10 @@ private fun CustomThemePreview(colors: CustomThemeColors) {
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(surfaces.background).padding(16.dp)
     ) {
-        Text("PREVIEW", style = OverlineStyle, color = surfaces.textMuted)
+        Text(tr("PREVIEW"), style = OverlineStyle, color = surfaces.textMuted)
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                "Play",
+                tr("Play"),
                 color = if (accent.luminance() > 0.5f) Color.Black else Color.White,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.clip(RoundedCornerShape(50)).background(accent).padding(horizontal = 22.dp, vertical = 10.dp)
@@ -353,7 +375,7 @@ private fun CustomThemePreview(colors: CustomThemeColors) {
             }
         }
         if (customAccentAdjusted(colors)) {
-            Text("Lightened a little so buttons stay visible on dark backgrounds", color = surfaces.textSecondary, fontSize = 13.sp)
+            Text(tr("Lightened a little so buttons stay visible on dark backgrounds"), color = surfaces.textSecondary, fontSize = 13.sp)
         }
     }
 }

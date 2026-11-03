@@ -1229,7 +1229,9 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 publishPartyPlayback(paused = playing)
             } else {
                 _exoPlayer?.let { player ->
-                    if (player.isPlaying) {
+                    // playWhenReady, not isPlaying: isPlaying is false while buffering (after a
+                    // seek or a stall), so a pause pressed then called play() and did nothing.
+                    if (player.playWhenReady) {
                         userPausedManually = true
                         player.pause()
                         schedulePauseOverlay()

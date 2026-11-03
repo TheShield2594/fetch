@@ -1014,14 +1014,16 @@ fun PlayerScreen(
                             viewModel.onEvent(PlayerEvent.OnPlayPause)
                             true
                         }
+                        // Play intent, not uiState.isPlaying: that reads false while buffering,
+                        // so Pause pressed mid-buffer was ignored until a second press.
                         KeyEvent.KEYCODE_MEDIA_PLAY -> {
-                            if (!uiState.isPlaying) {
+                            if (!viewModel.controller.hasActivePlayIntent()) {
                                 viewModel.onEvent(PlayerEvent.OnPlayPause)
                             }
                             true
                         }
                         KeyEvent.KEYCODE_MEDIA_PAUSE -> {
-                            if (uiState.isPlaying) {
+                            if (viewModel.controller.hasActivePlayIntent()) {
                                 viewModel.onEvent(PlayerEvent.OnPlayPause)
                             }
                             true

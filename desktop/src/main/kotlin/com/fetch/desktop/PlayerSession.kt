@@ -77,6 +77,8 @@ class PlayerSession(val mpv: EmbeddedMpv) {
     var party: com.fetch.desktop.party.PartyPlayerSync? by mutableStateOf(null)
     /** The Watch party panel is open (beside [panel], which closes while it is). */
     var partyPanelOpen by mutableStateOf(false)
+    /** A YouTube video's seek bar marks, actions and menus; see [com.fetch.desktop.youtube.youTubeExtras]. */
+    var youTube: com.fetch.desktop.youtube.YouTubePlayerExtras? by mutableStateOf(null)
 
     /** The segment to offer a Skip button for at [position]: one that isn't skipped automatically. */
     fun skippable(position: Double): Segment? =

@@ -14,7 +14,19 @@ import com.fetch.desktop.youtube.DeArrowClient
 import com.fetch.desktop.youtube.ReturnYouTubeDislikeClient
 import com.fetch.desktop.youtube.SponsorBlockClient
 import com.fetch.desktop.youtube.YOUTUBE_HOME_ROW_CACHE_TTL_MS
+import com.fetch.desktop.youtube.MpvOsdNote
 import com.fetch.desktop.youtube.YouTubeAccount
+import com.fetch.desktop.youtube.YouTubeCaptionPreference
+import com.fetch.desktop.youtube.YouTubeCaptionTrack
+import com.fetch.desktop.youtube.YouTubeCaptions
+import com.fetch.desktop.youtube.YouTubeLikeStatus
+import com.fetch.desktop.youtube.YouTubePlayerExtras
+import com.fetch.desktop.youtube.YouTubeSkipNotice
+import com.fetch.desktop.youtube.YouTubeStoryboard
+import com.fetch.desktop.youtube.YouTubeUpNext
+import com.fetch.desktop.youtube.YouTubeUpNextPrompt
+import com.fetch.desktop.youtube.YouTubeVideoActions
+import com.fetch.desktop.youtube.youTubeExtras
 import com.fetch.desktop.youtube.YouTubeAuthStore
 import com.fetch.desktop.youtube.YouTubeBrowseTarget
 import com.fetch.desktop.youtube.YouTubeChannelTab
@@ -69,6 +81,8 @@ interface YouTubeHost {
     suspend fun openBuiltInPlayer(): PlayerSession?
     val currentPlayer: PlayerSession?
     fun closePlayer()
+    /** Leaves the player for a YouTube channel or playlist page (the player's "Go to channel"). */
+    fun openBrowse(target: YouTubeBrowseTarget) {}
 }
 
 /** One feed or opened page: its rows, and the token for more. */
@@ -630,13 +644,20 @@ class YouTubeState(
             val segments = async {
                 if (yt.sponsorBlockEnabled) sponsorBlock.segments(video.videoId, YouTubePlayback.categoriesToFetch(modes)) else emptyList()
             }
-            val playerInfo = async { if (yt.watchHistoryEnabled && signedIn) client.loadPlayerInfo(video.videoId) else null }
+            // Signed in: history links, caption tracks and the storyboard for seek bar previews.
+            val playerInfo = async { if (signedIn) client.loadPlayerInfo(video.videoId) else null }
             val watchNext = async {
                 if (!signedIn) null else runCatching { client.loadWatchNext(video.videoId, video.playlistId, video.playlistIndex) }.getOrNull()
             }
             val votes = async { if (yt.returnDislikeEnabled) returnDislike.votes(video.videoId) else null }
             val start = youTubeResumeStart(localData.resume.firstOrNull { it.videoId == video.videoId }, video.watchedPercent)
-            val options = YouTubePlayback.mpvOptions(host.playerSettings, yt)
+            // Captions left on last time: mpv's window picks yt-dlp's track in that language; the
+            // built-in player shows YouTube's own track once it's known (below), as the TV does.
+            val captionPreference = localData.captions
+            val options = YouTubePlayback.mpvOptions(
+                host.playerSettings, yt, captions = if (useBuiltIn) YouTubeCaptionPreference() else captionPreference
+            )
+            cancelUpNext()
             val stream = Stream(
                 name = "YouTube", title = video.title, description = null, url = video.watchUrl, ytId = null,
                 infoHash = null, fileIdx = null, externalUrl = null, behaviorHints = null, addonName = "YouTube", addonLogo = null
@@ -649,8 +670,14 @@ class YouTubeState(
             var lastSample: MpvProgress.Sample? = null
             var lastResumeSave = 0L
             var lastReport = 0L
+            var extras: YouTubePlayerExtras? = null
+            val osd = MpvOsdNote()
             val onPosition: (Double) -> MpvProgress.Seek? = { position ->
-                planner?.at(position)?.let { MpvProgress.Seek(it.endSec, "Skipped ${it.displayLabel}") }
+                planner?.at(position)?.let { segment ->
+                    // The built-in player offers to go back and watch it (the TV's "undo skip").
+                    extras?.let { e -> scope.launch { e.skipNotice = YouTubeSkipNotice(segment.displayLabel, segment.startSec, now()) } }
+                    MpvProgress.Seek(segment.endSec, "Skipped ${segment.displayLabel}")
+                }
             }
             val onSample: (MpvProgress.Sample) -> Unit = { sample ->
                 lastSample = sample
@@ -682,6 +709,7 @@ class YouTubeState(
                 session.skipButton = true
                 session.description = listOfNotNull(video.channelName, video.detail).joinToString(" · ").ifBlank { null }
                 load = ++session.loads
+                extras = YouTubePlayerExtras(video, load).also { session.youTube = it }
                 session.mpv.load(video.watchUrl, video.title, start, options, emptyMap())
                 follow = { session.mpv.follow(onPosition = onPosition, onSample = onSample) }
             } else {
@@ -695,7 +723,7 @@ class YouTubeState(
                             nowPlaying = null
                             return@launch
                         }
-                        follow = { MpvProgress.followToEnd(socket, process, onPosition = onPosition, onSample = onSample) }
+                        follow = { MpvProgress.followToEnd(socket, process, onPosition = onPosition, onConnected = osd::attach, onSample = onSample) }
                     }
                     is ExternalPlayer.Result.Failed -> {
                         nowPlaying = null
@@ -707,25 +735,54 @@ class YouTubeState(
             val current = { session == null || (host.currentPlayer === session && session.loads == load) }
 
             launch {
-                val skips: List<Segment> = YouTubePlayback.skipSegments(segments.await(), modes)
+                val fetched = segments.await()
+                val skips: List<Segment> = YouTubePlayback.skipSegments(fetched, modes)
                 planner = SkipPlanner(skips, emptySet()).takeUnless { it.isEmpty }
-                if (current()) session?.segments = skips
+                if (current()) {
+                    session?.segments = skips
+                    extras?.marks = YouTubePlayback.seekBarMarks(fetched, modes)
+                }
             }
             launch {
                 val info = playerInfo.await()
                 // When playback already resumed, history starts from there rather than from 0.
-                history = client.newWatchSession(video.videoId, info, startPositionSec = (lastSample?.positionSec ?: 0.0).toFloat())
+                if (yt.watchHistoryEnabled) {
+                    history = client.newWatchSession(video.videoId, info, startPositionSec = (lastSample?.positionSec ?: 0.0).toFloat())
+                }
+                val e = extras?.takeIf { current() } ?: return@launch
+                e.storyboard = YouTubeStoryboard.parse(info?.storyboardSpec)
+                val player = host.playerSettings
+                val languages = listOfNotNull(localData.captions.languageCode, player.subtitleLanguage, player.secondarySubtitleLanguage)
+                    .ifEmpty { listOf(java.util.Locale.getDefault().language.ifBlank { "en" }) }
+                e.captionTracks = YouTubeCaptions.tracks(listOf(info?.captions), translateInto = languages)
+                if (captionPreference.enabled && host.playerSettings.subtitleMode != com.fetch.desktop.data.SubtitleMode.OFF) {
+                    val track = YouTubeCaptions.pickDefault(e.captionTracks, languages)
+                    // mpv adds a subtitle only to a file it has opened (yt-dlp takes a few seconds).
+                    var waited = 0
+                    while (session != null && (session.mpv.buffering || session.mpv.duration <= 0) && waited < 60_000 && current()) {
+                        delay(250)
+                        waited += 250
+                    }
+                    if (track != null && session != null && current()) selectCaption(session, track)
+                }
             }
             launch {
                 val next = watchNext.await()?.let { settings.feedFilter.apply(it) } ?: return@launch
                 if (plays == play) nowPlaying = nowPlaying?.takeIf { it.video.videoId == video.videoId }?.copy(upNext = next.next, watchNext = next)
+                extras?.takeIf { current() }?.let { e ->
+                    e.actions = next.actions
+                    e.chapters = next.chapters
+                }
                 brandNowPlaying(video.videoId)
             }
             launch {
                 val counts = votes.await() ?: return@launch
                 if (session != null && current()) {
                     session.description = listOfNotNull(session.description, YouTubePlayback.votesLine(counts)).joinToString("\n")
+                    extras?.votes = counts
                 }
+                // mpv's window: the counts on its OSD as playback starts.
+                if (session == null) osd.show(YouTubePlayback.votesLine(counts))
             }
 
             val ending = withContext(Dispatchers.IO) { follow() }
@@ -737,14 +794,212 @@ class YouTubeState(
             }
             // Another video started meanwhile (in the same player or another window): it carries on.
             if (plays != play) return@launch
-            val next = nowPlaying?.upNext
+            val watched = nowPlaying?.watchNext
             nowPlaying = null
-            if (ending.reachedEnd && settings.autoplayEnabled && next != null && !host.restricted) {
-                host.message("Up next: ${next.title}")
-                play(next, builtIn = session != null && host.currentPlayer === session)
+            val builtInStill = session != null && host.currentPlayer === session && current()
+            val prompt = if (ending.reachedEnd && !host.restricted && (session == null || builtInStill)) {
+                YouTubeUpNext.prompt(watched, settings.autoplayEnabled, builtIn = session != null)
+            } else {
+                null
+            }
+            if (prompt != null) {
+                // The TV's end card: ten seconds to YouTube's pick, or a choice when autoplay is off.
+                showUpNext(prompt, session)
             } else if (session != null && ending.reachedEnd && current()) {
                 // Played to the end and nothing comes next: close, as mpv's window would.
                 host.closePlayer()
+            }
+        }
+    }
+
+    // --- Up Next card ---
+
+    /** The end card counting down to the next video; shown over the built-in player or the app. */
+    var upNext: YouTubeUpNextPrompt? by mutableStateOf(null)
+        private set
+    private var upNextJob: Job? = null
+
+    private fun showUpNext(prompt: YouTubeUpNextPrompt, session: PlayerSession?) {
+        upNextJob?.cancel()
+        upNext = prompt
+        upNextJob = scope.launch {
+            while (true) {
+                val current = upNext ?: return@launch
+                // The built-in player was closed (or plays something else): the card goes with it.
+                if (session != null && host.currentPlayer !== session) {
+                    upNext = null
+                    return@launch
+                }
+                if (current.due) {
+                    playUpNext(current.next ?: return@launch)
+                    return@launch
+                }
+                delay(1_000)
+                upNext = upNext?.tick()
+            }
+        }
+    }
+
+    /** Plays [video] from the end card ("Play now", or a related video). */
+    fun playUpNext(video: YouTubeVideo) {
+        val prompt = upNext ?: return
+        cancelUpNext()
+        play(video, builtIn = prompt.builtIn && host.currentPlayer != null)
+    }
+
+    /** Stops the countdown; the card stays to pick from (the TV stops it when focus moves). */
+    fun stopUpNextCountdown() {
+        upNext = upNext?.copy(counting = false)
+    }
+
+    /** Closes the end card, and the built-in player it was over. */
+    fun closeUpNext() {
+        val prompt = upNext ?: return
+        cancelUpNext()
+        if (prompt.builtIn) host.closePlayer()
+    }
+
+    private fun cancelUpNext() {
+        upNextJob?.cancel()
+        upNextJob = null
+        upNext = null
+    }
+
+    // --- The built-in player's YouTube actions ---
+
+    private val playingExtras: YouTubePlayerExtras? get() = host.currentPlayer?.youTubeExtras()
+
+    /** Rates the playing video. Shown at once, and undone if YouTube refuses (the TV's). */
+    fun ratePlaying(status: YouTubeLikeStatus) {
+        val extras = playingExtras ?: return
+        val actions = extras.actions?.takeIf { it.likeStatus != null } ?: return
+        changeActions(extras, actions, actions.copy(likeStatus = status)) { client.setLikeStatus(extras.video.videoId, status) }
+    }
+
+    /** Subscribes to the playing video's channel, or unsubscribes. Shown at once, and undone if YouTube refuses. */
+    fun togglePlayingSubscription() {
+        val extras = playingExtras ?: return
+        val actions = extras.actions ?: return
+        val channelId = actions.channelId ?: return
+        val subscribed = actions.subscribed ?: return
+        changeActions(extras, actions, actions.copy(subscribed = !subscribed)) {
+            client.setSubscribed(channelId, subscribed = !subscribed, params = if (subscribed) actions.unsubscribeParams else actions.subscribeParams)
+        }
+    }
+
+    private fun changeActions(extras: YouTubePlayerExtras, before: YouTubeVideoActions, after: YouTubeVideoActions, request: suspend () -> Unit) {
+        extras.actions = after
+        extras.actionFailed = false
+        scope.launch {
+            val done = try {
+                request()
+                true
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: YouTubeSignedOutException) {
+                expired()
+                false
+            } catch (e: Exception) {
+                false
+            }
+            // Only undone if nothing changed it since.
+            if (!done && extras.actions == after) {
+                extras.actions = before
+                extras.actionFailed = true
+            }
+        }
+    }
+
+    /** Leaves the player for the playing video's channel. */
+    fun openPlayingChannel() {
+        val extras = playingExtras ?: return
+        val channelId = extras.actions?.channelId ?: extras.video.channelId ?: return
+        val name = extras.actions?.channelName ?: extras.video.channelName
+        host.closePlayer()
+        host.openBrowse(YouTubeBrowseTarget(browseId = channelId, title = name))
+    }
+
+    /** The playing video's Save list: the channel's playlists, read when it opens (the TV's player Save list). */
+    fun loadPlayingPlaylists() {
+        val extras = playingExtras ?: return
+        extras.playlists = null
+        extras.playlistsFailed = false
+        scope.launch {
+            val options = try {
+                client.loadPlaylistOptions(extras.video.videoId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                null
+            }
+            extras.playlists = options
+            extras.playlistsFailed = options == null
+        }
+    }
+
+    /** Saves the playing video to [option], or takes it out. Shown at once, and undone if YouTube refuses. */
+    fun togglePlayingPlaylist(option: YouTubePlaylistOption) {
+        val extras = playingExtras ?: return
+        val add = !option.containsVideo
+        fun mark(contains: Boolean) {
+            extras.playlists = extras.playlists?.map { if (it.playlistId == option.playlistId) it.copy(containsVideo = contains) else it }
+        }
+        mark(add)
+        scope.launch {
+            if (action { client.setInPlaylist(option.playlistId, extras.video.videoId, add) }) {
+                if (!add) removeFromPage("VL" + option.playlistId, extras.video.videoId)
+                host.currentPlayer?.mpv?.showText(if (add) "Saved to ${option.title}" else "Removed from ${option.title}")
+            } else {
+                mark(!add)
+            }
+        }
+    }
+
+    fun createPlayingPlaylist(title: String, privacy: YouTubePlaylistPrivacy) {
+        val extras = playingExtras ?: return
+        val name = title.trim().takeIf { it.isNotEmpty() } ?: return
+        scope.launch {
+            val id = try {
+                client.createPlaylist(name, extras.video.videoId, privacy)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                host.currentPlayer?.mpv?.showText("YouTube didn't accept that. Try again.")
+                return@launch
+            }
+            extras.playlists = extras.playlists.orEmpty() + YouTubePlaylistOption(id, name, containsVideo = true)
+            host.currentPlayer?.mpv?.showText("Saved to $name")
+        }
+    }
+
+    /**
+     * Shows [track] (a YouTube caption, loaded into mpv as WebVTT), or turns captions off with null.
+     * Remembered for the next video, as on TV.
+     */
+    fun selectCaption(session: PlayerSession, track: YouTubeCaptionTrack?) {
+        val extras = session.youTubeExtras() ?: return
+        saveLocal(localData.copy(captions = YouTubeCaptionPreference(enabled = track != null, languageCode = track?.languageCode ?: localData.captions.languageCode)))
+        extras.selectedCaption = track?.id
+        if (track == null) {
+            session.mpv.selectSubtitle(null)
+            return
+        }
+        val existing = extras.addedCaptions[track.id]?.takeIf { id -> session.mpv.tracks.any { it.type == "sub" && it.id == id } }
+        if (existing != null) {
+            session.mpv.selectSubtitle(existing)
+            return
+        }
+        val url = track.webVttUrl ?: return
+        val before = session.mpv.tracks.filter { it.type == "sub" }.map { it.id }.toSet()
+        session.mpv.addSubtitle(url, track.label, track.languageCode)
+        // Learn mpv's id for it once the track list updates, so picking it again reuses it.
+        scope.launch {
+            repeat(20) {
+                delay(250)
+                session.mpv.tracks.firstOrNull { it.type == "sub" && it.id !in before }?.let { added ->
+                    extras.addedCaptions[track.id] = added.id
+                    return@launch
+                }
             }
         }
     }

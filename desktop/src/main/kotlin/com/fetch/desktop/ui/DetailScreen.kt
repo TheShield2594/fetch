@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.fetch.desktop.AppState
 import com.fetch.desktop.SourcesState
+import com.fetch.desktop.party.PartySourceMarks
 import com.fetch.desktop.data.ProgressEntry
 import com.fetch.desktop.data.remainingLabel
 import com.fetch.desktop.player.ExternalPlayer
@@ -90,6 +91,8 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
     val isSeries = preview.type == ContentType.SERIES ||
         (meta?.videos?.any { it.season != null } == true && preview.type != ContentType.MOVIE)
     val listState = rememberLazyListState()
+    // The watch party's source and shared stream, marked in the lists as on the TV.
+    val partyMarks = state.sources.let { s -> rememberPartySourceMarks(state, s?.preview?.apiType, s?.preview?.id, s?.video?.season, s?.video?.episode) }
 
     // A rating limit blocks the title, as on TV.
     if (!state.detailLoading && !state.allowed(meta, preview)) {
@@ -156,7 +159,8 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         loadingMeta = state.detailLoading,
                         onPlay = state::play,
                         onAllSources = { state.sourcesPanelOpen = true },
-                        menu = { sourceMenu(state, it) }
+                        menu = { sourceMenu(state, it) },
+                        partyMarks = partyMarks
                     )
                 }
                 if (isSeries && !state.detailLoading) {
@@ -265,6 +269,8 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                     onPlay = state::play,
                     onClose = { state.sourcesPanelOpen = false },
                     menu = { sourceMenu(state, it) },
+                    partyMarks = partyMarks,
+                    onPlayShared = { state.party.state.value.party?.media?.let(state::watchWithParty) },
                     modifier = Modifier.width(560.dp).fillMaxHeight()
                 )
             }
@@ -409,7 +415,8 @@ private fun SourcesSummary(
     loadingMeta: Boolean,
     onPlay: (RankedStream) -> Unit,
     onAllSources: () -> Unit,
-    menu: @Composable (RankedStream) -> List<ContextMenuItem>
+    menu: @Composable (RankedStream) -> List<ContextMenuItem>,
+    partyMarks: PartySourceMarks? = null
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.padding(horizontal = PageGutter)) {
         Text("Sources", style = MaterialTheme.typography.titleLarge)
@@ -424,7 +431,10 @@ private fun SourcesSummary(
             else -> Row(horizontalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.widthIn(max = 1200.dp)) {
                 val best = sources.best
                 if (best != null) {
-                    SourceCard(best, isBest = true, onPlay = { onPlay(best) }, menu = menu(best), modifier = Modifier.weight(1.7f))
+                    SourceCard(
+                        best, isBest = true, onPlay = { onPlay(best) }, menu = menu(best), modifier = Modifier.weight(1.7f),
+                        partySource = partyMarks?.isPartySource(best.stream) == true
+                    )
                 }
                 SummaryCard(
                     title = "All sources",
@@ -481,7 +491,9 @@ private fun SourceCard(
     isBest: Boolean,
     onPlay: () -> Unit,
     menu: List<ContextMenuItem> = emptyList(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** The watch party's host plays this source: marked, as on the TV's Sources screen. */
+    partySource: Boolean = false
 ) {
     val stream = ranked.stream
     val playable = ExternalPlayer.canPlay(stream)
@@ -494,14 +506,23 @@ private fun SourceCard(
         modifier = modifier
             .clip(shape)
             .background(FetchPalette.Surface.copy(alpha = 0.92f))
-            .border(if (hovered && playable) 2.dp else 1.dp, if (hovered && playable) Color.White else FetchPalette.SurfaceHigh, shape)
+            .border(
+                if ((hovered && playable) || partySource) 2.dp else 1.dp,
+                when {
+                    hovered && playable -> Color.White
+                    partySource -> FetchPalette.Accent
+                    else -> FetchPalette.SurfaceHigh
+                },
+                shape
+            )
             .hoverable(interaction)
             // A ruled-out source still plays when picked by hand; only unplayable links are disabled.
             .clickable(enabled = playable, interactionSource = interaction, indication = null, onClick = onPlay)
             .then(if (playable) Modifier.pointerHoverIcon(PointerIcon.Hand) else Modifier)
             .padding(horizontal = 24.dp, vertical = 20.dp)
     ) {
-        if (isBest) Text("BEST MATCH", style = OverlineStyle, color = FetchPalette.Accent)
+        val overline = listOfNotNull("BEST MATCH".takeIf { isBest }, PARTY_SOURCE_LABEL.takeIf { partySource })
+        if (overline.isNotEmpty()) Text(overline.joinToString(" · "), style = OverlineStyle, color = FetchPalette.Accent)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(
                 stream.addonName.ifBlank { "Source" },
@@ -560,7 +581,9 @@ private fun SourcesPanel(
     onPlay: (RankedStream) -> Unit,
     onClose: () -> Unit,
     menu: @Composable (RankedStream) -> List<ContextMenuItem>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    partyMarks: PartySourceMarks? = null,
+    onPlayShared: () -> Unit = {}
 ) {
     val listState = rememberLazyListState()
     var addonFilter by remember(sources.videoId) { mutableStateOf<String?>(null) }
@@ -612,12 +635,18 @@ private fun SourcesPanel(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         contentPadding = PaddingValues(end = 14.dp, bottom = 24.dp)
                     ) {
+                        partyMarks?.shared?.let { shared ->
+                            item(key = "party_shared_stream") { PartySharedSourceCard(shared, partyMarks.hostName, onPlay = onPlayShared) }
+                        }
                         sourceGroups(shown, best).forEach { (heading, group) ->
                             item(key = "h:$heading") {
                                 Text(heading.uppercase(), style = OverlineStyle, color = FetchPalette.TextMuted, modifier = Modifier.padding(top = 8.dp, start = 4.dp))
                             }
                             items(group, key = { it.stream.stableKey(it.originalIndex) }) { ranked ->
-                                SourceCard(ranked, isBest = ranked === best, onPlay = { onPlay(ranked) }, menu = menu(ranked))
+                                SourceCard(
+                                    ranked, isBest = ranked === best, onPlay = { onPlay(ranked) }, menu = menu(ranked),
+                                    partySource = partyMarks?.isPartySource(ranked.stream) == true
+                                )
                             }
                         }
                         if (sources.failedAddons.isNotEmpty()) {

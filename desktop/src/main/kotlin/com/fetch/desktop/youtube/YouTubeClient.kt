@@ -339,10 +339,22 @@ class YouTubeClient(
 
     // --- Watch history ---
 
-    /** The video's history tracking links, asked signed in. Null when the request fails; the video still plays. */
+    /**
+     * What the TV player says about the video, asked signed in: its history tracking links, caption
+     * tracks and storyboard. When the TV response has no storyboard, the web player is asked for
+     * one, signed out. Null when the request fails; the video still plays.
+     */
     suspend fun loadPlayerInfo(videoId: String): YouTubePlayerInfo? = withContext(Dispatchers.IO) {
         runCatching {
-            YouTubePlayerInfo(trackingLinks = parseWatchTracking(innertube("player", validAccessToken()) { put("videoId", videoId) }))
+            val response = innertube("player", validAccessToken()) { put("videoId", videoId) }
+            val storyboard = YouTubeResponseParser.parseStoryboardSpec(response)
+                ?: runCatching { YouTubeResponseParser.parseStoryboardSpec(innertube("player", null, webClient = true) { put("videoId", videoId) }) }
+                    .getOrNull()
+            YouTubePlayerInfo(
+                trackingLinks = parseWatchTracking(response),
+                captions = (response as? JsonObject)?.get("captions"),
+                storyboardSpec = storyboard
+            )
         }.getOrNull()
     }
 

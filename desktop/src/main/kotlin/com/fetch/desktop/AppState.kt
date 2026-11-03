@@ -617,6 +617,7 @@ class AppState(
             }
             override val currentPlayer get() = playerSession
             override fun closePlayer() = this@AppState.closePlayer()
+            override fun openBrowse(target: com.fetch.desktop.youtube.YouTubeBrowseTarget) = navigate(Screen.YouTubeBrowse(target))
         },
         com.fetch.desktop.youtube.youTubeAuthFile(profileDir(profile)),
         com.fetch.desktop.youtube.youTubeDataFile(profileDir(profile))

@@ -27,6 +27,7 @@ import com.fetch.desktop.AppState
 import com.fetch.desktop.youtube.SponsorBlockCategory
 import com.fetch.desktop.youtube.SponsorBlockMode
 import com.fetch.desktop.youtube.YouTubeDeviceCode
+import com.fetch.desktop.youtube.YouTubePlayback
 import com.fetch.desktop.youtube.YouTubeSettings
 import java.io.File
 
@@ -98,7 +99,14 @@ fun YouTubeSettingsPage(state: AppState) {
             s.videoHeight,
             YouTubeSettings.VIDEO_HEIGHT_OPTIONS.map { DropdownOption(it, "Up to ${it}p") }
         ) { height -> update { it.copy(maxVideoHeight = height) } }
-        SettingsToggle("Autoplay next video", "When a video ends, play YouTube's Up Next pick", s.autoplayEnabled) { on ->
+        SettingsChoice(
+            "Play signed in",
+            "Members-only, age-restricted and private videos need a sign-in to play. yt-dlp borrows the YouTube sign-in of the " +
+                "browser you pick (close the browser first if it's Chrome-based); Fetch's own sign-in can't be handed to it",
+            YouTubePlayback.cookiesBrowser(s),
+            listOf(DropdownOption<String?>(null, "Off (signed out)")) + YouTubeSettings.COOKIE_BROWSERS.map { (name, label) -> DropdownOption<String?>(name, label) }
+        ) { browser -> update { it.copy(playbackCookiesBrowser = browser) } }
+        SettingsToggle("Autoplay next video", "When a video ends, count down ten seconds to YouTube's Up Next pick", s.autoplayEnabled) { on ->
             update { it.copy(autoplayEnabled = on) }
         }
         SettingsToggle(
@@ -108,7 +116,7 @@ fun YouTubeSettingsPage(state: AppState) {
         ) { on -> update { it.copy(watchHistoryEnabled = on) } }
         SettingsToggle(
             "Show dislike counts",
-            "Show like and dislike counts in the built-in player's pause screen, estimated by Return YouTube Dislike. It's told which videos you play",
+            "Show like and dislike counts in the built-in player, and on mpv's window as a video starts, estimated by Return YouTube Dislike. It's told which videos you play",
             s.returnDislikeEnabled
         ) { on -> update { it.copy(returnDislikeEnabled = on) } }
     }
@@ -116,7 +124,8 @@ fun YouTubeSettingsPage(state: AppState) {
         SettingsSection("SponsorBlock segments") {
             SettingsRow(
                 "What happens with each kind of segment",
-                "Skip jumps past it (in either player). Ask shows a Skip button in the built-in player. Show marks it on the TV's seek bar; desktop plays it through."
+                "Skip jumps past it (in either player; the built-in player offers to go back and watch it). Ask shows a Skip button in the built-in player. " +
+                    "Show plays it through, marked on the built-in player's seek bar in its colour, as the other kinds are."
             )
             SponsorBlockCategory.entries.forEach { category ->
                 SettingsChoice(

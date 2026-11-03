@@ -194,15 +194,34 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   video for the TV's menu: Go to channel, Save to Watch later, Save to playlist (or a new one),
   Remove from watch history, Not interested. Videos play in mpv (the built-in player or its
   window) through yt-dlp, capped at the quality you pick, resuming where you stopped, added to
-  your YouTube history, skipping SponsorBlock segments by category (Skip jumps, Ask shows the
-  built-in player's Skip button), and going on to YouTube's Up Next pick (a playlist's next
-  video) when autoplay is on. DeArrow titles and thumbnails, Return YouTube Dislike counts (in the
-  built-in player's pause screen), the Shorts, live and watched filters and a "YouTube
-  subscriptions" row on Home are optional, as on TV. Captions in your subtitle languages are
-  loaded and start off. Not on desktop yet: the in-player like, subscribe and save row, the
-  10-second autoplay countdown, seek bar thumbnails and SponsorBlock marks on the seek bar.
-  Videos play signed out (yt-dlp doesn't get the sign-in), so members-only and age-restricted
-  videos may not play.
+  your YouTube history, skipping SponsorBlock segments by category (Skip jumps, and the
+  built-in player then offers "Skipped sponsor · Watch it" for a few seconds; Ask shows the
+  built-in player's Skip button; Show plays through), and, when a video ends, the TV's end card:
+  YouTube's Up Next pick (a playlist's next video) counting down ten seconds with Play now,
+  Cancel and Close, and the related videos (over the built-in player, or over the app after
+  mpv's window closes; with autoplay off it waits for a pick). In the built-in player a YouTube
+  video also has, as on TV: SponsorBlock segments marked on the seek bar in their categories'
+  colours, chapter breaks, and under the pointer the storyboard frame for that point with its
+  time and chapter; a like (with the count), dislike (with Return YouTube Dislike's estimate),
+  Subscribe, Save (the account's playlists, or a new one) and channel row at the top right;
+  Chapters (mpv's chapter list from yt-dlp, else the watch page's) and Captions (YouTube's own
+  tracks, labelled auto-generated or auto-translated, with translations into your subtitle
+  languages, loaded into mpv as WebVTT). Captions use your subtitle style from the player
+  settings (size, colour, outline, background, position), and the last choice (on or off, and
+  its language) carries on to the next video, in either player. DeArrow titles and thumbnails,
+  Return YouTube Dislike counts (in the built-in player, and on mpv's window's OSD as a video
+  starts), the Shorts, live and watched filters and a "YouTube subscriptions" row on Home are
+  optional, as on TV.
+  **Signed-in playback**: Settings › YouTube › Play signed in has yt-dlp borrow a browser's
+  YouTube sign-in (`--cookies-from-browser`), which plays members-only, age-restricted and
+  private videos. Fetch's own sign-in can't do it: the TV app plays signed out too (its
+  `data/trailer/` extractor asks the VISIONOS, ANDROID and IOS player clients with no account and
+  only uses the signed-in TV player request for history, captions and storyboards). The signed-in
+  TV (TVHTML5) player response that does unlock those videos gives cipher-protected stream URLs
+  (`signatureCipher` and the `n` throttling parameter), which only YouTube's player JavaScript
+  can decode; the JVM has no JavaScript engine and adding one is a new dependency, and yt-dlp
+  dropped OAuth sign-in in 2024 (Google blocks the TV client's tokens there), so the device-code
+  token can't be handed to it either. Off by default: videos play signed out, as on TV.
 - **Player settings** passed to mpv: fullscreen, hardware decoding, extra mpv options; preferred
   audio language and passthrough; subtitle language, when to show them, size and background,
   and subtitles from your addons (such as OpenSubtitles) added as subtitle files.
@@ -237,7 +256,10 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   in the player. When the host moves on, the next episode follows by itself and anything else
   offers Watch with the party, which plays the host's shared stream, your source that matches
   the host's, or your best match. A party always plays in the built-in player (it has to drive
-  mpv), even when mpv's window is your default; the player says so.
+  mpv), even when mpv's window is your default; the player says so. As on the TV's Sources
+  screen, the source the host plays is marked "Party source" on title pages and in the player's
+  Sources panel, and a member sees the host's shared stream first in All sources ("Shared by …").
+  Members' profile pictures show in the party (the initial on their colour when there's none).
 - **Built-in player panels**, as on TV: Audio and Subtitles (tracks, delay, any addon subtitle
   added on demand), Sources (switch mid-playback, keeping the position) and Episodes; playback
   speed (`[` `]`), picture fit (Fit, Crop, Stretch, Zoom), stream info (I), an Up Next card

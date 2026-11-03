@@ -144,7 +144,7 @@ enum class SponsorBlockMode(val label: String) {
     SKIP("Skip"),
     /** Offers a skip; the built-in player's Skip button takes it. */
     ASK("Ask"),
-    /** Only marks it (the TV's seek bar); desktop has no marks, so it plays through. */
+    /** Only marks it on the built-in player's seek bar, as on the TV's; it plays through. */
     SHOW("Show on seek bar"),
     /** Not fetched or shown. */
     OFF("Off")
@@ -224,9 +224,13 @@ enum class YouTubeLikeStatus {
     INDIFFERENT
 }
 
-/** What the signed-in TV player says about a video: its history tracking links. */
+/** What the signed-in TV player says about a video: its history links, caption tracks and storyboard. */
 data class YouTubePlayerInfo(
-    val trackingLinks: Pair<String, String>?
+    val trackingLinks: Pair<String, String>?,
+    /** The response's `captions`, for [YouTubeCaptions.tracks]. */
+    val captions: kotlinx.serialization.json.JsonElement? = null,
+    /** The `playerStoryboardSpecRenderer` spec, for thumbnails while seeking. */
+    val storyboardSpec: String? = null
 )
 
 /** One playback that YouTube is told about, so it shows in the account's history. */

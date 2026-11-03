@@ -231,6 +231,8 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                 ) {
                     val duration = mpv.duration.coerceAtLeast(0.0)
                     val shown = seeking ?: mpv.position.toFloat()
+                    // A YouTube video's SponsorBlock marks, chapters and storyboard frames ride on the bar.
+                    YouTubeSeekBar(session, duration) {
                     Slider(
                         value = shown.coerceIn(0f, duration.toFloat().coerceAtLeast(0.01f)),
                         onValueChange = {
@@ -248,6 +250,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                             inactiveTrackColor = Color.White.copy(alpha = 0.3f)
                         )
                     )
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         CircleIconButton(if (mpv.paused) FetchIcons.Play else FetchIcons.Pause, if (mpv.paused) "Play" else "Pause", onClick = controls::togglePause)
                         CircleIconButton(FetchIcons.Replay10, "Back 10 seconds", onClick = { controls.seekBy(-10.0) })
@@ -275,6 +278,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                         }
                         ValueMenu("Speed", speedLabel(controls.speed), Speeds.map { it to speedLabel(it) }, controls.speed) { controls.changeSpeed(it) }
                         ValueMenu("Picture", session.fit.label, VideoFit.entries.map { it to it.label }, session.fit) { state.setFit(it) }
+                        YouTubePlayerButtons(session)
                         PlayerPanel.entries.filter { panelAvailable(session, it) }.forEach { panel ->
                             SecondaryButton(panel.label, onClick = {
                                 session.partyPanelOpen = false
@@ -294,6 +298,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
         }
 
         PartyPlayerPill(state, session, controlsVisible || mpv.paused, Modifier.align(Alignment.TopCenter).padding(top = 28.dp))
+        YouTubePlayerLayer(state, session, controlsVisible || mpv.paused)
         session.panel?.let { panel ->
             PlayerSidePanel(state, session, panel, Modifier.align(Alignment.CenterEnd))
         }

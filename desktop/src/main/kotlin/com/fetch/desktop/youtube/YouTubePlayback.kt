@@ -11,7 +11,8 @@ import java.util.Locale
 /**
  * How the desktop plays YouTube: mpv opens the watch page and resolves it through yt-dlp (mpv's
  * `ytdl` hook), as trailers already do. The TV app extracts the streams itself; on desktop yt-dlp
- * does that job, so playback needs no sign-in and plays without ads.
+ * does that job, so playback needs no sign-in and plays without ads. Signed in, it borrows a
+ * browser's YouTube sign-in ([cookiesBrowser]); Fetch's own token can't be used (docs/desktop.md).
  */
 object YouTubePlayback {
 
@@ -24,22 +25,42 @@ object YouTubePlayback {
      * with the quality cap, and captions in the subtitle languages loaded as tracks but left off,
      * as on TV (YouTube's auto-captions would otherwise show on nearly every video).
      */
-    fun mpvOptions(player: PlayerSettings, settings: YouTubeSettings, locale: Locale = Locale.getDefault()): List<String> = buildList {
+    fun mpvOptions(
+        player: PlayerSettings,
+        settings: YouTubeSettings,
+        locale: Locale = Locale.getDefault(),
+        /** Captions on for the last video: they start on again, in its language first (the TV's caption preference). */
+        captions: YouTubeCaptionPreference = YouTubeCaptionPreference()
+    ): List<String> = buildList {
         addAll(MpvArgs.build(player))
         add("--ytdl=yes")
         add("--ytdl-format=${ytdlFormat(settings.videoHeight)}")
+        val raw = buildList {
+            if (player.subtitleMode != SubtitleMode.OFF) {
+                add("write-subs=")
+                add("write-auto-subs=")
+                add("sub-langs=${captionLanguages(player, locale, captions.languageCode)}")
+            }
+            cookiesBrowser(settings)?.let { add("cookies-from-browser=$it") }
+        }
+        if (raw.isNotEmpty()) add("--ytdl-raw-options=${raw.joinToString(",")}")
         if (player.subtitleMode != SubtitleMode.OFF) {
-            add("--ytdl-raw-options=write-subs=,write-auto-subs=,sub-langs=${captionLanguages(player, locale)}")
-            add("--sid=no")
+            val language = captions.languageCode?.takeIf { captions.enabled }
+            if (language != null) add("--slang=${(listOf(language) + listOfNotNull(player.subtitleLanguage, player.secondarySubtitleLanguage)).distinct().joinToString(",")}")
+            else add("--sid=no")
         }
     }
+
+    /** yt-dlp's name for the browser to borrow a sign-in from; null for one it doesn't know. */
+    fun cookiesBrowser(settings: YouTubeSettings): String? =
+        settings.playbackCookiesBrowser?.lowercase()?.takeIf { name -> YouTubeSettings.COOKIE_BROWSERS.any { it.first == name } }
 
     /**
      * yt-dlp's `--sub-langs` for the subtitle languages, as one pattern ("^(en|de)(-.*)?$"), so the
      * option holds no comma: mpv splits its `ytdl-raw-options` list on commas.
      */
-    fun captionLanguages(player: PlayerSettings, locale: Locale = Locale.getDefault()): String {
-        val codes = listOfNotNull(player.subtitleLanguage, player.secondarySubtitleLanguage)
+    fun captionLanguages(player: PlayerSettings, locale: Locale = Locale.getDefault(), extra: String? = null): String {
+        val codes = listOfNotNull(extra, player.subtitleLanguage, player.secondarySubtitleLanguage)
             .ifEmpty { listOf(locale.language.ifBlank { "en" }) }
             .map { StreamLanguage.fromCode(it)?.code ?: it }
             .map { it.lowercase().filter { c -> c.isLetter() || c == '-' } }
@@ -63,6 +84,16 @@ object YouTubePlayback {
             }
             Segment(SegmentType.INTRO, segment.startMs / 1000.0, segment.endMs / 1000.0, label = category.label, autoSkip = auto)
         }
+
+    /**
+     * The segments the built-in player's seek bar marks, as the TV's does: every one of a known
+     * category that isn't Off (Skip and Ask as well as Show), in time order.
+     */
+    fun seekBarMarks(segments: List<YouTubeSkipSegment>, modes: Map<SponsorBlockCategory, SponsorBlockMode>): List<YouTubeSkipSegment> =
+        segments.filter { segment ->
+            val category = segment.sponsorBlockCategory ?: return@filter false
+            (modes[category] ?: category.defaultMode) != SponsorBlockMode.OFF && segment.endMs > segment.startMs
+        }.sortedBy { it.startMs }
 
     /** SponsorBlock's names of the categories to ask for: every one not Off (Show is fetched too, as on TV). */
     fun categoriesToFetch(modes: Map<SponsorBlockCategory, SponsorBlockMode>): List<String> =

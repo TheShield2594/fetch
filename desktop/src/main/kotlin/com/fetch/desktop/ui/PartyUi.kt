@@ -370,7 +370,7 @@ private fun JoinPartySection(state: AppState, available: Boolean, busy: Boolean)
                 MediaHeader(current.media)
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     current.host?.let { host ->
-                        Avatar(host.displayName, host.avatarColor, 28.dp)
+                        Avatar(host.displayName, host.avatarColor, 28.dp, host.avatarUrl)
                         Text("Hosted by ${host.displayName}", color = FetchPalette.TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     Text("${current.members} of ${current.maxMembers} seats", color = FetchPalette.TextMuted, fontSize = 13.sp)
@@ -552,7 +552,7 @@ private fun MembersSection(state: AppState, party: ActiveParty, selfBehindMs: Lo
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)
                 ) {
                     Box {
-                        Avatar(member.displayName, member.avatarColor, 40.dp)
+                        Avatar(member.displayName, member.avatarColor, 40.dp, member.avatarUrl)
                         PresenceDot(party.presenceState(member), Modifier.align(Alignment.BottomEnd))
                     }
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -656,12 +656,21 @@ private fun ConfirmDialog(title: String, message: String, confirm: String, onCon
 }
 
 @Composable
-private fun Avatar(name: String, colorHex: String?, size: Dp) {
+private fun Avatar(name: String, colorHex: String?, size: Dp, imageUrl: String? = null) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.size(size).clip(CircleShape).background(parseColor(colorHex) ?: FetchPalette.SurfaceHigh)
     ) {
         Text(name.trim().take(1).uppercase(), color = Color.White, fontSize = (size.value * 0.42f).sp, fontWeight = FontWeight.SemiBold)
+        // The member's profile picture over the initial, as on TV (the server only passes its own storage's).
+        if (imageUrl != null) {
+            coil3.compose.AsyncImage(
+                model = imageUrl,
+                contentDescription = name,
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                modifier = Modifier.matchParentSize()
+            )
+        }
     }
 }
 
@@ -674,7 +683,7 @@ private fun AvatarStack(members: List<PartyMember>, size: Dp) {
     Box(Modifier.width(size + step * (slots - 1).coerceAtLeast(0))) {
         shown.forEachIndexed { index, member ->
             Box(Modifier.offset(x = step * index).zIndex((slots - index).toFloat()).border(2.dp, Color.Black.copy(alpha = 0.6f), CircleShape)) {
-                Avatar(member.displayName, member.avatarColor, size)
+                Avatar(member.displayName, member.avatarColor, size, member.avatarUrl)
             }
         }
         if (extra > 0) {

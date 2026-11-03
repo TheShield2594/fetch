@@ -34,7 +34,13 @@ data class YouTubeSettings(
     /** Like and dislike counts from Return YouTube Dislike while a video plays. */
     val returnDislikeEnabled: Boolean = false,
     /** A row of the newest subscription videos on Home. */
-    val homeRowEnabled: Boolean = false
+    val homeRowEnabled: Boolean = false,
+    /**
+     * The browser whose YouTube sign-in yt-dlp borrows for playback (its `--cookies-from-browser`),
+     * so members-only, age-restricted and private videos play; null plays signed out. Fetch's own
+     * sign-in can't be handed to yt-dlp, which no longer takes OAuth tokens (see docs/desktop.md).
+     */
+    val playbackCookiesBrowser: String? = null
 ) {
     val feedFilter: YouTubeFeedFilter get() = YouTubeFeedFilter(showShorts = showShorts, showLive = showLive, hideWatched = hideWatched)
 
@@ -55,6 +61,17 @@ data class YouTubeSettings(
         /** TV screens are 1080p or 4K; 1080p keeps 4K streams off machines and networks that struggle. */
         const val DEFAULT_MAX_VIDEO_HEIGHT = 1080
         val VIDEO_HEIGHT_OPTIONS = listOf(720, 1080, 1440, 2160)
+
+        /** The browsers yt-dlp can read a sign-in from, by its names for them, with the labels shown. */
+        val COOKIE_BROWSERS = listOf(
+            "firefox" to "Firefox",
+            "chrome" to "Chrome",
+            "chromium" to "Chromium",
+            "brave" to "Brave",
+            "edge" to "Edge",
+            "opera" to "Opera",
+            "vivaldi" to "Vivaldi"
+        )
     }
 }
 
@@ -147,7 +164,9 @@ data class YouTubeResumePoint(
 @Serializable
 data class YouTubeLocalData(
     val recentSearches: List<String> = emptyList(),
-    val resume: List<YouTubeResumePoint> = emptyList()
+    val resume: List<YouTubeResumePoint> = emptyList(),
+    /** Captions on or off, and their language, carried from one video to the next (the TV's). */
+    val captions: YouTubeCaptionPreference = YouTubeCaptionPreference()
 )
 
 fun youTubeDataFile(dir: File) = JsonFile(File(dir, "youtube.json"), YouTubeLocalData.serializer()) { YouTubeLocalData() }

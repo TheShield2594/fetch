@@ -222,6 +222,8 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
         }
         // The built-in player covers the whole window while it's open.
         state.playerSession?.let { session -> PlayerScreen(state, session) }
+        // YouTube's end card, over the built-in player or (after mpv's window) the app.
+        YouTubeUpNextOverlay(state)
         state.screenTimeBlock?.let { block -> ScreenTimeDialog(state, block) }
         // "Are you still watching?" after mpv's own window closed (the built-in player shows its own).
         state.stillWatching?.takeIf { state.playerSession == null }?.let { prompt ->

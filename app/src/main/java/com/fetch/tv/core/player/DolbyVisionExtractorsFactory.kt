@@ -191,8 +191,12 @@ private class DolbyVisionExtractor(
     private val stripHdr10PlusSei: Boolean = false
 ) : Extractor {
 
+    private var wrappedOutput: DolbyVisionExtractorOutput? = null
+
     override fun init(output: ExtractorOutput) {
-        delegate.init(DolbyVisionExtractorOutput(output, config, nalFormat, stripDvRpu, stripHdr10PlusSei))
+        val wrapped = DolbyVisionExtractorOutput(output, config, nalFormat, stripDvRpu, stripHdr10PlusSei)
+        wrappedOutput = wrapped
+        delegate.init(wrapped)
     }
 
     @Throws(IOException::class)
@@ -202,7 +206,11 @@ private class DolbyVisionExtractor(
     override fun read(input: ExtractorInput, seekPosition: PositionHolder): Int =
         delegate.read(input, seekPosition)
 
-    override fun seek(position: Long, timeUs: Long) = delegate.seek(position, timeUs)
+    override fun seek(position: Long, timeUs: Long) {
+        // A seek can cut a sample off half-read; its bytes must not be glued onto the next one.
+        wrappedOutput?.discardPendingSamples()
+        delegate.seek(position, timeUs)
+    }
 
     override fun release() = delegate.release()
 
@@ -219,6 +227,11 @@ private class DolbyVisionExtractorOutput(
     private val stripHdr10PlusSei: Boolean = false
 ) : ExtractorOutput {
 
+    private val videoOutputs = mutableListOf<NativeOptimizedVideoTrackOutput>()
+
+    /** Drops partly read video samples, as the sample queues drop theirs on a seek. */
+    fun discardPendingSamples() = videoOutputs.forEach { it.discardPending() }
+
     override fun track(id: Int, type: Int): TrackOutput {
         val track = delegate.track(id, type)
         return if (type == C.TRACK_TYPE_VIDEO) {
@@ -228,7 +241,7 @@ private class DolbyVisionExtractorOutput(
                 nalFormat = nalFormat,
                 stripDvRpu = stripDvRpu,
                 stripHdr10PlusSei = stripHdr10PlusSei
-            )
+            ).also { videoOutputs += it }
         } else {
             track
         }
@@ -274,6 +287,11 @@ private class NativeOptimizedVideoTrackOutput(
             while (newSize < size) newSize = newSize shl 1
             inputScratch = ByteArray(newSize)
         }
+    }
+
+    /** Forgets the bytes of a sample whose metadata never came (the load was cut off by a seek). */
+    fun discardPending() {
+        pendingLen = 0
     }
 
     override fun durationUs(durationUs: Long) = delegate.durationUs(durationUs)

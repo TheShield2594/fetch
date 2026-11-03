@@ -115,12 +115,13 @@ internal fun PlayerRuntimeController.skipInterval(interval: SkipInterval): Boole
     } else {
         (targetTime * 1000).toLong()
     }
-    val seekParameters = if (postCredits != null || interval.type == "movie-credits") {
-        SeekParameters.EXACT
-    } else SeekParameters.NEXT_SYNC
+    // Exact, like a watch party's seeks. A skip jumps out of the buffer to a marker's end; it used
+    // NEXT_SYNC (the next keyframe, possibly seconds on) for intros, the only far seek that did,
+    // and audio was reported out of step after skipping an IntroDB intro but not after other seeks.
     val requested = seekMs.coerceAtMost(duration)
     val target = if (isPartyControlLocked) ownSeekTarget(requested) ?: return false else requested
-    seekPlaybackTo(target, seekParameters)
+    seekPlaybackTo(target, SeekParameters.EXACT)
+    updatePlaybackTimeline(currentPosition = target)
     scheduleProgressSyncAfterSeek()
     publishPartyPlayback(positionMs = target)
     skippedIntervalKey = interval.autoSkipKey()

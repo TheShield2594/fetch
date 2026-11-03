@@ -73,6 +73,12 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
     val scope = rememberCoroutineScope()
     val state = remember { AppState(scope, profiles, profile, account = account).also { FetchPalette.setTheme(it.settings.appTheme) } }
     LaunchedEffect(Unit) { state.start() }
+    // Links from the command line or a later launch (fetch://…, stremio://…), once a profile is open.
+    LaunchedEffect(state) {
+        com.fetch.desktop.deeplink.DeepLinks.pending.collect { links ->
+            if (links.isNotEmpty()) com.fetch.desktop.deeplink.DeepLinks.take().forEach(state::openDeepLink)
+        }
+    }
     // The watch party follows the sync sign-in, and ends with this profile.
     LaunchedEffect(account.signedIn) { state.party.refreshAvailability() }
     androidx.compose.runtime.DisposableEffect(state) { onDispose { state.party.dispose() } }

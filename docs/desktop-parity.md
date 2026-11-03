@@ -100,7 +100,7 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | First-run wizard | `screens/setup/` | ⬜ |
 | Settings search, Essential/Advanced mode | `settings/SettingsSearch*.kt`, `ExperienceMode*` | ⬜ |
 | Theme extras (high contrast, AMOLED, custom), fonts, UI language | `settings/ThemeSettingsScreen.kt` | ⬜ |
-| Deep links (`fetch://`, `stremio://`) | `core/deeplink/` | ⬜ |
+| Deep links (`fetch://`, `stremio://`) | `core/deeplink/` | ✅ the TV's parser; titles, addon install (replacing an addon whose Configure page sent it), party invites; one Fetch per user, later launches hand their link over; registered with xdg-mime (`stremio://` only when nothing else has it, or from Settings › About) |
 | Fetch website pairing, show a sign-in code | `screens/account/` | 🟡 desktop claims codes only |
 | YouTube sign-in (TV device code at youtube.com/activate), brand channel switching | `data/youtube/YouTubeService.kt`, `settings/YouTubeSettingsScreen.kt` | ✅ `youtube/YouTubeClient.kt`, Settings › YouTube |
 | YouTube page in the sidebar while signed in (not on restricted profiles): Home, Subscriptions, History, Library, Search | `screens/youtube/YouTubeScreen.kt`, `MainActivity.kt` | ✅ `ui/YouTubeScreen.kt`, `YouTubeState.kt` |

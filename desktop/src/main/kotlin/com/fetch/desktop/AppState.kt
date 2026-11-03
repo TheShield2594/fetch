@@ -851,6 +851,19 @@ class AppState(
                 message = "${addon.displayName} is already installed"
                 return@launch
             }
+            // The link from an addon's configure page replaces the addon in place (TV: installOrReplace),
+            // keeping its order: one Configure was opened for, or one that can't work until configured.
+            val replaced = addons.indexOfFirst { it.id == addon.id && (configuring.remove(it.id) || it.needsConfiguration) }
+            if (replaced >= 0) {
+                val old = addons[replaced]
+                addons[replaced] = addon
+                rows.removeAll { it.addon.baseUrl == old.baseUrl }
+                persist()
+                pushAddonsToServer()
+                message = "Updated ${addon.displayName}"
+                addonsChanged()
+                return@launch
+            }
             addons.add(addon)
             persist()
             pushAddonsToServer()
@@ -870,9 +883,13 @@ class AppState(
     /** The addon's own settings page, for addons that say they're configurable. */
     fun configureUrl(addon: Addon): String = com.fetch.tv.core.addon.addonConfigureUrl(addon.baseUrl)
 
+    /** Addons whose configure page is open: the link it sends back replaces them. */
+    private val configuring = mutableSetOf<String>()
+
     fun configureAddon(addon: Addon) {
+        configuring += addon.id
         openInBrowser(configureUrl(addon))
-        message = "Opened ${addon.displayName}'s settings in your browser. Install the new link it gives you here."
+        message = "Opened ${addon.displayName}'s settings in your browser. Its Install button sends the new link back to Fetch."
     }
 
     fun openInBrowser(url: String) {
@@ -963,6 +980,42 @@ class AppState(
                 val index = rows.indexOfFirst { it.key == row.key }
                 if (index >= 0) rows[index] = updated
             }
+        }
+    }
+
+    // --- Links (fetch://, stremio://) ---
+
+    /** A party code from a `fetch://party/…` link, for Settings › Watch party to fill in. */
+    var pendingPartyCode: String? by mutableStateOf(null)
+
+    /**
+     * Opens a link as the TV's MainActivity does: a title's page, an addon to install (not on
+     * a restricted profile), or the watch party join page with the code filled in.
+     */
+    fun openDeepLink(url: String) {
+        when (val link = com.fetch.desktop.deeplink.DeepLinkParser.parse(url)) {
+            is com.fetch.desktop.deeplink.AppDeepLink.Meta -> navigate(
+                Screen.Detail(
+                    MetaPreview(
+                        id = link.id, type = ContentType.fromString(link.type), name = "", poster = null,
+                        posterShape = com.fetch.tv.domain.model.PosterShape.POSTER, background = null, logo = null,
+                        description = null, releaseInfo = null, imdbRating = null, genres = emptyList(),
+                        imdbId = link.id.takeIf { it.startsWith("tt") }
+                    )
+                )
+            )
+            is com.fetch.desktop.deeplink.AppDeepLink.AddonInstall -> if (limits.isRestricted) {
+                message = "Addons can't be installed on ${profile.name}"
+            } else {
+                openSection(Screen.Settings(SettingsPage.ADDONS))
+                message = "Installing the addon…"
+                installAddon(com.fetch.tv.core.addon.normalizeAddonInstallUrl(link.manifestUrl) ?: link.manifestUrl)
+            }
+            is com.fetch.desktop.deeplink.AppDeepLink.Party -> {
+                pendingPartyCode = link.code
+                openSection(Screen.Settings(SettingsPage.WATCH_PARTY))
+            }
+            null -> message = "Fetch can't open that link"
         }
     }
 

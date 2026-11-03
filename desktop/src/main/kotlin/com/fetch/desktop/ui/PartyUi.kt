@@ -329,6 +329,14 @@ private fun JoinPartySection(state: AppState, available: Boolean, busy: Boolean)
         if (isValidPartyCode(value)) lookUp(value)
     }
 
+    // A fetch://party/<code> link fills the code in and looks it up.
+    LaunchedEffect(state.pendingPartyCode) {
+        state.pendingPartyCode?.let { pending ->
+            state.pendingPartyCode = null
+            changeCode(pending)
+        }
+    }
+
     fun submit() {
         if (!isValidPartyCode(code) || busy || blocked != null) return
         scope.launch {

@@ -1031,6 +1031,38 @@ private fun AboutPage(state: AppState) {
             SettingsRow("Download Fetch ${update.version}", update.packageUrl ?: update.pageUrl, onClick = { state.openInBrowser(update.packageUrl ?: update.pageUrl) }) { Chevron() }
         }
     }
+    SettingsSection("Links") {
+        var status by remember { mutableStateOf<Pair<String?, String?>?>(null) }
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+            status = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { com.fetch.desktop.deeplink.LinkRegistration.status() }
+        }
+        val ours = com.fetch.desktop.deeplink.LinkRegistration.ENTRY
+        val installed = com.fetch.desktop.deeplink.LinkRegistration.launcher != null
+        SettingsRow(
+            "fetch:// links",
+            when {
+                !installed -> "Links open Fetch once it's installed from a package or the tarball (not when run from source)."
+                status == null -> "Checking…"
+                status?.first == ours -> "Open in Fetch: titles, watch party invites and addons."
+                else -> "Another app opens them (${status?.first ?: "none"})."
+            }
+        )
+        SettingsRow(
+            "stremio:// links",
+            when {
+                !installed -> "—"
+                status?.second == ours -> "Addon install links (such as an addon's Install button) open in Fetch."
+                else -> "Opened by ${status?.second ?: "nothing"}. Fetch can take them over, to install addons from their pages."
+            }
+        ) {
+            if (installed && status != null && (status?.first != ours || status?.second != ours)) {
+                SecondaryButton("Open with Fetch", onClick = {
+                    com.fetch.desktop.deeplink.LinkRegistration.register(takeStremio = true)
+                    status = com.fetch.desktop.deeplink.LinkRegistration.status()
+                })
+            }
+        }
+    }
     SettingsSection("Legal") {
         SettingsRow("Privacy Policy", "No telemetry, no required account.", onClick = { uri.openUri(AppInfo.PRIVACY_URL) }) { Chevron() }
         SettingsRow("Licenses & Attribution", null, onClick = { uri.openUri(AppInfo.LICENSE_URL) }) { Chevron() }

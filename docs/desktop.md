@@ -261,6 +261,15 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   time you pick) with no mouse or keyboard input, and never while something plays, the window
   shows a slideshow of backdrops from up to three Home rows, or a clock with what to resume.
   Any input closes it.
+- **Links**: `fetch://` links open in Fetch, as on TV: a title (`fetch://movie/tt0111161`,
+  `fetch://meta?type=series&id=…`, `fetch://tmdb/movie/603`), a watch party invite
+  (`fetch://party/ABC234` fills in the code) and addon links, which install the addon (not on
+  restricted profiles). `stremio://` addon links work too: an addon's Install button after
+  Configure replaces the addon in place. Fetch runs once per user: launching it again (or
+  clicking a link) hands the link to the open window and brings it forward. Installed and
+  unpacked builds register themselves for `fetch://` with `xdg-mime` (a hidden entry in
+  `~/.local/share/applications`), and for `stremio://` when no other app has it; Settings ›
+  About shows which app opens each and can take them over.
 - A scrollbar on every long page and list, to grab and drag.
 - Escape goes back (and closes the sources panel first).
 

@@ -912,9 +912,11 @@ class AppState(
         val listChanged = addonMerge.local.map(SyncMerge::addonKey) != localUrls.map(SyncMerge::addonKey)
         val switchesChanged = addonMerge.disabled.map(SyncMerge::addonKey).toSet() != localDisabled.map(SyncMerge::addonKey).toSet()
         if (listChanged || switchesChanged) {
-            runCatching { store.save(addonMerge.local, addonMerge.disabled) }
+            val saved = runCatching { store.save(addonMerge.local, addonMerge.disabled) }
                 .onFailure { message = "Couldn't save the addon list from your account: ${it.message}" }
-            reloadAddons()
+                .isSuccess
+            // When the file couldn't be written, the account's list still applies for this session.
+            if (saved) reloadAddons() else reloadAddons(addonMerge.local, addonMerge.disabled)
         }
 
         // Profiles, locks and limits are the main profile's to sync.
@@ -990,9 +992,10 @@ class AppState(
 
     // --- Addons ---
 
-    private suspend fun reloadAddons() {
+    /** Fetches the saved addons, or [override] and its switched-off ones when the file couldn't take them. */
+    private suspend fun reloadAddons(override: List<String>? = null, overrideDisabled: Set<String> = emptySet()) {
         addonsLoading = true
-        val urls = store.load()
+        val urls = override ?: store.load()
         val results = withContext(Dispatchers.IO) {
             urls.map { url ->
                 async {
@@ -1007,7 +1010,7 @@ class AppState(
             }.awaitAll()
         }
         // Read after the fetches, so a switch flipped while they ran isn't undone here.
-        val disabled = store.loadDisabled()
+        val disabled = if (override != null) overrideDisabled else store.loadDisabled()
         addons.clear()
         unreachableAddons.clear()
         results.forEach { (url, result) ->

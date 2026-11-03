@@ -41,9 +41,9 @@ import java.util.Date
  * self-hosted Fetch server, the same one the TV app signs in to.
  */
 @Composable
-fun AccountPage(state: AppState) {
+fun AccountPage(state: AppState, header: Boolean = true) {
     val account = state.account ?: return
-    PageHeader(
+    if (header) PageHeader(
         "Account",
         subtitle = "Sync Library, Continue Watching and watched history with your own Fetch sync server, the same one the TV app uses."
     )

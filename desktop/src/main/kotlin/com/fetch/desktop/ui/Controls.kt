@@ -190,11 +190,14 @@ fun SettingsRow(
 ) {
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
+    // The row Settings search jumped to scrolls into view and lights up for a moment.
+    val highlighted = settingsRowHighlighted(title)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
             .fillMaxWidth()
+            .settingsHighlight(highlighted)
             .background(if (hovered && onClick != null) Color.White.copy(alpha = 0.05f) else Color.Transparent)
             .hoverable(interaction)
             .then(

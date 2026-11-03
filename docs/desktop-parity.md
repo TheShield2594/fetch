@@ -97,9 +97,12 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Addon configure page | `screens/addon/AddonManagerScreen.kt` | ✅ opens in the browser; install the link it gives |
 | Addon health panel, catalog order | `screens/addon/` | ⬜ |
 | Update check (stable/beta) | `updater/` | ✅ banner and Settings › About; installing stays with apt, dnf or the tarball |
-| First-run wizard | `screens/setup/` | ⬜ |
-| Settings search, Essential/Advanced mode | `settings/SettingsSearch*.kt`, `ExperienceMode*` | ⬜ |
-| Theme extras (high contrast, AMOLED, custom), fonts, UI language | `settings/ThemeSettingsScreen.kt` | ⬜ |
+| First-run wizard: Server, Sources, Metadata, Experience, each skippable; only Experience on a profile with limits | `screens/setup/` | ✅ `ui/FirstRunWizard.kt`, on a fresh install (a settings file from before it reads as Advanced, so existing users never see it); fields instead of the phone code; System › Advanced runs it again |
+| Settings search: an index of every setting (title and keywords), opening its page with the row lit up | `settings/SettingsSearch*.kt`, `SettingsSearchIndex.kt` | ✅ `ui/SettingsSearchIndex.kt`, `ui/SettingsSearchUi.kt`: the field atop the Settings rail, Ctrl+F in Settings |
+| Essential / Advanced mode: the confirmation, Playback basics in place of Playback's pages, fewer rows on Layout, Appearance, TMDB, MDBList and About, no YouTube page or addon reordering, Essential's addon setup; synced (`experience_settings`) | `ExperienceMode*`, `EssentialSettingsIndex.kt`, `addon/EssentialAddonSetupScreen.kt`, `AddonManagementAccess.kt` | ✅ `data/ExperienceSettings.kt` (`ExperiencePolicy`), `ui/ExperienceSettingsUi.kt`, System › Advanced; addon setup shows while no addon gives streams (desktop starts with Cinemeta and OpenSubtitles); 🟡 the player keeps all its controls in Essential |
+| Addons read-only on a profile using the main profile's addons | `addon/AddonManagementAccess.kt` | ✅ |
+| Theme extras: Increase contrast, AMOLED Mode, Pure Black Surfaces, Custom theme editor (swatches, hue/saturation/brightness, hex, a TV gradient kept), app font; synced (`theme_settings`) | `settings/ThemeSettingsScreen.kt`, `CustomThemeEditor.kt`, `ThemeColorPicker.kt`, `HexColorDialog.kt` | ✅ `ui/ThemeSettingsUi.kt`, `ui/ThemeLook.kt`; the TV's fonts are copied from `app/src/main/res/font` at build time; desktop draws a gradient with its middle colour |
+| UI language | `settings/ThemeSettingsScreen.kt` | ⬜ |
 | Deep links (`fetch://`, `stremio://`) | `core/deeplink/` | ✅ the TV's parser; titles, addon install (replacing an addon whose Configure page sent it), party invites; one Fetch per user, later launches hand their link over; registered with xdg-mime (`stremio://` only when nothing else has it, or from Settings › About) |
 | Fetch website pairing, show a sign-in code | `screens/account/` | 🟡 desktop claims codes only |
 | YouTube sign-in (TV device code at youtube.com/activate), brand channel switching | `data/youtube/YouTubeService.kt`, `settings/YouTubeSettingsScreen.kt` | ✅ `youtube/YouTubeClient.kt`, Settings › YouTube |

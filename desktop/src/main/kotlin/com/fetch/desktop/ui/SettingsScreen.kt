@@ -78,18 +78,43 @@ private val RailPages = SettingsPage.entries.filter { it.parent == null }
  * System, and the chosen page beside it. Addons lives here, under Content & Discovery.
  */
 @Composable
-fun SettingsScreen(state: AppState, page: SettingsPage) {
+fun SettingsScreen(state: AppState, requestedPage: SettingsPage) {
+    // Essential mode folds Playback into one page and hides some (see ExperiencePolicy).
+    val mode = state.settings.experience.mode
+    val essential = state.settings.experience.isEssential
+    val page = com.fetch.desktop.data.ExperiencePolicy.substitute(requestedPage, mode)
     Row(Modifier.fillMaxSize()) {
         // Watch party is listed only when the sync server offers it, as on TV.
         val partyAvailable by state.party.available.collectAsState()
+        val hidden = (if (partyAvailable) emptySet() else setOf(SettingsPage.WATCH_PARTY)) +
+            com.fetch.desktop.data.ExperiencePolicy.hiddenPages(mode)
         SettingsRail(
-            hidden = if (partyAvailable) emptySet() else setOf(SettingsPage.WATCH_PARTY),
+            hidden = hidden,
             current = page.railPage,
-            onPick = { state.openSection(Screen.Settings(it)) },
+            onPick = { SettingsSearchState.query = ""; state.openSection(Screen.Settings(it)) },
             modifier = Modifier.width(260.dp).fillMaxHeight()
         )
+        // Settings search shows its results in place of the page; a result lights its row up.
+        val results = SettingsSearch.search(SettingsSearchState.query, mode, hidden)
+        val highlight = SettingsSearchState.highlight?.takeIf { it.first == page }?.second
+        androidx.compose.runtime.LaunchedEffect(SettingsSearchState.highlight) {
+            if (SettingsSearchState.highlight != null) {
+                kotlinx.coroutines.delay(3_000)
+                SettingsSearchState.highlight = null
+            }
+        }
         Box(Modifier.weight(1f).fillMaxHeight()) {
-            when (page) {
+            androidx.compose.runtime.CompositionLocalProvider(LocalSettingsHighlight provides highlight) {
+            when (if (SettingsSearchState.query.isNotBlank()) null else page) {
+                null -> {
+                    val scroll = rememberScrollState()
+                    ScrollbarBox(scroll, Modifier.fillMaxSize()) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(28.dp),
+                            modifier = Modifier.verticalScroll(scroll).padding(horizontal = PageGutter, vertical = 40.dp).widthIn(max = 880.dp).fillMaxWidth()
+                        ) { SettingsSearchResults(state, results) }
+                    }
+                }
                 // Addons keeps its own scrolling list.
                 SettingsPage.ADDONS -> Column(Modifier.fillMaxSize()) {
                     SubPageHeader("Addons", onBack = state::back, modifier = Modifier.padding(start = PageGutter, top = 32.dp)) {
@@ -121,21 +146,24 @@ fun SettingsScreen(state: AppState, page: SettingsPage) {
                                 SettingsPage.FILTER_ROWS -> FilterRowsPage(state)
                                 SettingsPage.COLLECTIONS -> CollectionsSettingsPage(state, onBack = state::back)
                                 SettingsPage.APPEARANCE -> AppearancePage(state)
-                                SettingsPage.LAYOUT -> LayoutPage(state)
+                                SettingsPage.LAYOUT -> if (essential) EssentialLayoutPage(state) else LayoutPage(state)
                                 SettingsPage.TRACKING -> TrackingPage(state)
                                 SettingsPage.YOUTUBE -> YouTubeSettingsPage(state)
                                 SettingsPage.WATCH_PARTY -> WatchPartyPage(state)
-                                SettingsPage.TMDB -> TmdbPage(state)
-                                SettingsPage.MDBLIST -> MdbListPage(state)
+                                SettingsPage.TMDB -> if (essential) EssentialTmdbPage(state) else TmdbPage(state)
+                                SettingsPage.MDBLIST -> if (essential) EssentialMdbListPage(state) else MdbListPage(state)
                                 SettingsPage.ACCOUNT -> AccountPage(state)
                                 SettingsPage.MEDIA_SERVERS -> MediaServersPage(state)
                                 SettingsPage.STREAM_BADGES -> StreamBadgesSettingsPage(state.badges, onBack = state::back)
-                                SettingsPage.ABOUT -> AboutPage(state)
+                                SettingsPage.PLAYBACK_BASICS -> PlaybackBasicsPage(state)
+                                SettingsPage.ADVANCED -> AdvancedSettingsPage(state)
+                                SettingsPage.ABOUT -> if (essential) EssentialAboutPage(state) else AboutPage(state)
                                 SettingsPage.ADDONS -> Unit
                             }
                         }
                     }
                 }
+            }
             }
         }
     }
@@ -151,6 +179,7 @@ private fun SettingsRail(current: SettingsPage, onPick: (SettingsPage) -> Unit, 
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text("Settings", style = MaterialTheme.typography.headlineSmall, color = Color.White, modifier = Modifier.padding(start = 12.dp, bottom = 16.dp))
+        SettingsSearchField(Modifier.padding(bottom = 18.dp))
         pages.forEachIndexed { index, page ->
             if (index == 0 || pages[index - 1].group != page.group) {
                 Text(
@@ -862,17 +891,8 @@ private fun HomeCatalogsPage(state: AppState) {
 
 @Composable
 private fun AppearancePage(state: AppState) {
-    PageHeader("Appearance", subtitle = "Color Theme")
-    val current = state.settings.appTheme
-    @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
-    androidx.compose.foundation.layout.FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        AppTheme.entries.filter { it != AppTheme.CUSTOM }.forEach { theme ->
-            ThemeSwatch(theme, selected = theme == current) { state.updateSettings { it.copy(theme = theme.name) } }
-        }
-    }
+    // Themes (with Custom), contrast, AMOLED and font: ThemeSettingsUi.kt.
+    ThemeSettingsContent(state)
     AmbientSettingsSection(state)
 }
 
@@ -909,37 +929,6 @@ private fun AmbientSettingsSection(state: AppState) {
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun ThemeSwatch(theme: AppTheme, selected: Boolean, onClick: () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    val hovered by interaction.collectIsHoveredAsState()
-    val shape = RoundedCornerShape(14.dp)
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier
-            .width(128.dp)
-            .clip(shape)
-            .background(FetchPalette.Surface)
-            .border(
-                if (selected || hovered) 2.dp else 1.dp,
-                when {
-                    hovered -> Color.White
-                    selected -> accentFor(theme)
-                    else -> FetchPalette.SurfaceHigh
-                },
-                shape
-            )
-            .hoverable(interaction)
-            .clickable(interactionSource = interaction, indication = null, onClick = onClick)
-            .pointerHoverIcon(PointerIcon.Hand)
-            .padding(vertical = 18.dp)
-    ) {
-        Box(Modifier.size(44.dp).clip(CircleShape).background(accentFor(theme)))
-        Text(theme.displayName, color = if (selected) Color.White else FetchPalette.TextSecondary, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)
     }
 }
 

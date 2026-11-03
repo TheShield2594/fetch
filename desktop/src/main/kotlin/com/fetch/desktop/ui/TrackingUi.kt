@@ -29,9 +29,9 @@ import java.util.Date
 
 /** Settings › Tracking: connect Trakt and Simkl with a code, as on the TV app. */
 @Composable
-fun TrackingPage(state: AppState) {
+fun TrackingPage(state: AppState, header: Boolean = true) {
     val tracking = state.tracking
-    PageHeader(
+    if (header) PageHeader(
         "Tracking",
         subtitle = "Sync Continue Watching, what you've watched and your watchlist, and scrobble what you play in mpv."
     )

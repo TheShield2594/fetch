@@ -245,7 +245,7 @@ class SyncMergeProfilesTest {
         assertNull(shared.subtitleLanguage)
         assertEquals(true, shared.rankingRules!!.dropUndecodable)
         assertEquals(setOf("outro", "movie-credits"), shared.autoSkipSegments)
-        assertNull("the fallback theme doesn't replace a custom one", DesktopSettings().toRemoteSharedSettings(remote).theme)
+        assertEquals("FETCH", DesktopSettings().toRemoteSharedSettings(remote).theme)
 
         val applied = RemoteSharedSettings(
             theme = "CUSTOM",
@@ -256,7 +256,7 @@ class SyncMergeProfilesTest {
             rankingRules = StreamRankingRules(dropUndecodable = true, preferOwnLibrary = false),
             autoSkipSegments = setOf("intro", "movie-credits"),
         ).applyTo(desktop)
-        assertEquals("OCEAN", applied.theme)
+        assertEquals("a TV custom theme shows here too", "CUSTOM", applied.theme)
         assertFalse(applied.showContinueWatching)
         assertTrue(applied.discoverInSidebar)
         assertEquals("de", applied.player.audioLanguage)

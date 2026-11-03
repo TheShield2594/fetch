@@ -71,7 +71,7 @@ fun FetchApp() {
 @Composable
 private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account: SyncAccountState) {
     val scope = rememberCoroutineScope()
-    val state = remember { AppState(scope, profiles, profile, account = account).also { FetchPalette.setTheme(it.settings.appTheme) } }
+    val state = remember { AppState(scope, profiles, profile, account = account).also { FetchPalette.setAppearance(it.settings.appearance); FetchPalette.setTheme(it.settings.appTheme) } }
     LaunchedEffect(Unit) { state.start() }
     // Links from the command line or a later launch (fetch://…, stremio://…), once a profile is open.
     LaunchedEffect(state) {
@@ -94,7 +94,11 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
 
     // The accent follows Settings › Appearance.
     val theme = state.settings.appTheme
-    SideEffect { FetchPalette.setTheme(theme) }
+    val appearance = state.settings.appearance
+    SideEffect {
+        FetchPalette.setAppearance(appearance)
+        FetchPalette.setTheme(theme)
+    }
 
     val posterActions = remember(state) { AppPosterActions(state) }
     // Ambient Mode: the last mouse or key input, and whether it's showing.
@@ -132,6 +136,16 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
             modifier = Modifier.onPreviewKeyEvent { event ->
                 if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                 when {
+                    // In Settings, Ctrl+F searches the settings.
+                    event.isCtrlPressed && event.key == Key.F && state.screen is Screen.Settings -> {
+                        SettingsSearchState.requestFocus()
+                        true
+                    }
+                    // Escape clears a settings search before it goes back.
+                    event.key == Key.Escape && state.screen is Screen.Settings && SettingsSearchState.query.isNotEmpty() -> {
+                        SettingsSearchState.query = ""
+                        true
+                    }
                     // Ctrl+F (or Ctrl+K) opens search from anywhere; Ctrl+, opens Settings.
                     event.isCtrlPressed && (event.key == Key.F || event.key == Key.K) -> {
                         state.openSection(Screen.Search)
@@ -239,6 +253,8 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
             // A click on Ambient Mode only closes it.
             Box(Modifier.fillMaxSize().clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null, onClick = input))
         }
+        // First run on a fresh install, then Essential's addon setup (FirstRunWizard.kt).
+        FirstRunHost(state)
         }
     }
 }

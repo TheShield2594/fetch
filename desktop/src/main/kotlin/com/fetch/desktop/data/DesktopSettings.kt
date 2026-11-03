@@ -62,6 +62,10 @@ data class DesktopSettings(
     val checkForUpdates: Boolean = true,
     /** Include beta releases in the update check. */
     val betaUpdates: Boolean = false,
+    /** Appearance: Increase contrast, AMOLED, the Custom theme's colours and the font (TV `theme_settings`). */
+    val appearance: AppearanceSettings = AppearanceSettings(),
+    /** Essential or Advanced (TV `experience_settings`). A file from before it reads as Advanced; a fresh install has none yet. */
+    val experience: ExperienceSettings = ExperienceSettings.Advanced,
     /** Bumped when a saved default has to change; see [migrated]. */
     val schema: Int = 1
 ) {
@@ -87,7 +91,7 @@ object DesktopDefaults {
 }
 
 fun settingsFile(dir: File = AppDirs.config) =
-    JsonFile(File(dir, "settings.json"), DesktopSettings.serializer()) { DesktopSettings() }
+    JsonFile(File(dir, "settings.json"), DesktopSettings.serializer()) { DesktopSettings(experience = ExperienceSettings.Fresh) }
 
 /**
  * The TV app's TMDB settings (`tmdb_settings`): off by default; when on, each part of a title

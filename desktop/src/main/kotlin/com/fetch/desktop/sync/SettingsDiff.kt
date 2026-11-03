@@ -25,7 +25,9 @@ fun RemoteSharedSettings.changedFrom(before: RemoteSharedSettings): RemoteShared
         tmdbFlags = tmdbFlags?.filter { (k, v) -> before.tmdbFlags?.get(k) != v }?.takeIf { it.isNotEmpty() },
         tmdbLanguage = pick(tmdbLanguage, before.tmdbLanguage),
         mdblistFlags = mdblistFlags?.filter { (k, v) -> before.mdblistFlags?.get(k) != v }?.takeIf { it.isNotEmpty() },
-        mdblistRatingOrder = pick(mdblistRatingOrder, before.mdblistRatingOrder)
+        mdblistRatingOrder = pick(mdblistRatingOrder, before.mdblistRatingOrder),
+        appearance = appearance.changedFrom(before.appearance),
+        experience = experience.changedFrom(before.experience)
     )
     return diff.takeUnless { it == RemoteSharedSettings() }
 }

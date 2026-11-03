@@ -171,6 +171,20 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   are listed last with the reason. All sources open in a side panel.
 - Playback in mpv, in its own window, including addon `proxyHeaders`. Torrent-only results are
   not playable; Fetch is debrid-only, as on TV.
+- **Watch party** (experimental, as on TV), when you're signed in to a sync server whose
+  discovery lists `watch_party`: **Watch together** on a title page, or Watch party in the
+  built-in player, starts one; Settings › Watch party joins with the 6-character code (or a
+  pasted `fetch://party/…` link) after showing what's playing, who hosts and the seats left.
+  Desktops and TVs share a party: the same RPCs, the same private Realtime channel
+  (`watch-party:<id>`, presence and broadcasts) and the same sync rules, with the server's clock,
+  speed nudges for small drift and seeks for large, and waiting for a member who is loading.
+  The party panel lists members and what each is doing, has the code and invite link to copy,
+  and for the host Only I can control playback (then a member's pause or rewind is their own,
+  with Catch up), Share my stream, Remove and End for everyone. "Sam paused" and the like show
+  in the player. When the host moves on, the next episode follows by itself and anything else
+  offers Watch with the party, which plays the host's shared stream, your source that matches
+  the host's, or your best match. A party always plays in the built-in player (it has to drive
+  mpv), even when mpv's window is your default; the player says so.
 - **Built-in player panels**, as on TV: Audio and Subtitles (tracks, delay, any addon subtitle
   added on demand), Sources (switch mid-playback, keeping the position) and Episodes; playback
   speed (`[` `]`), picture fit (Fit, Crop, Stretch, Zoom), stream info (I), an Up Next card

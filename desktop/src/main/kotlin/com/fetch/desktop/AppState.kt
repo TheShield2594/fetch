@@ -63,6 +63,15 @@ import com.fetch.desktop.player.embedded.EmbeddedMpv
 import com.fetch.desktop.player.embedded.LibMpv
 import com.fetch.desktop.skip.SkipPlanner
 import com.fetch.desktop.tracking.ScrobbleAction
+import com.fetch.desktop.party.MpvPartyPlayer
+import com.fetch.desktop.party.PartyEvent
+import com.fetch.desktop.party.PartyMedia
+import com.fetch.desktop.party.PartyPlayerSync
+import com.fetch.desktop.party.PartyProfile
+import com.fetch.desktop.party.PartyState
+import com.fetch.desktop.party.PartySync
+import com.fetch.desktop.party.SyncPartyBackend
+import com.fetch.desktop.party.partyMediaKey
 import kotlinx.coroutines.withTimeoutOrNull
 import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.desktop.tracking.TrackingStore
@@ -117,6 +126,7 @@ enum class SettingsPage(val label: String, val group: String, val parent: Settin
     STREAM_BADGES("Stream badges", "Playback", parent = STREAM_SELECTION),
     ACCOUNT("Account", "Accounts"),
     TRACKING("Tracking", "Accounts"),
+    WATCH_PARTY("Watch party", "Accounts"),
     ABOUT("About", "System");
 
     /** The rail entry this page belongs under. */
@@ -478,6 +488,8 @@ class AppState(
         }
         if (settings.checkForUpdates) updates.check(beta = settings.betaUpdates)
         syncAccount()
+        party.refreshAvailability()
+        scope.launch { party.events.collect(::onPartyEvent) }
         scope.launch { syncTracking() }
         servers.refreshRows()
         syncServers()
@@ -1299,7 +1311,9 @@ class AppState(
             return
         }
         // "Ask every time": the built-in player or mpv's window, unless one is already open.
-        if (builtIn == null && settings.player.askPlayer && playerSession == null && LibMpv.available) {
+        // A watch party needs the built-in player: it keeps mpv in step with the others.
+        val inParty = party.state.value.party != null && LibMpv.available
+        if (builtIn == null && settings.player.askPlayer && playerSession == null && LibMpv.available && !inParty) {
             playerChoice = { choice ->
                 playerChoice = null
                 if (choice != null) launchPlayback(stream, label, target, start, choice, alternatives)
@@ -1310,7 +1324,7 @@ class AppState(
             val player = settings.player
             val serverStream = servers.serverStream(stream)
             // Fetch's own position first; otherwise where the server says you stopped.
-            val resume = start ?: WatchHistory.resumeStart(progress, target.videoId)
+            val resume = start ?: partyStart(target) ?: WatchHistory.resumeStart(progress, target.videoId)
                 ?: serverStream?.resumePositionMs?.takeIf { it > 60_000 }?.let { (it / 1000).toString() }
             val subtitles = if (player.subtitleMode == SubtitleMode.OFF) {
                 emptyList()
@@ -1329,10 +1343,14 @@ class AppState(
             val options = MpvArgs.build(player, subtitles)
             // The built-in player also offers a Skip button for segments that aren't automatic.
             val segments = if (player.builtInPlayer || player.autoSkip.isNotEmpty()) segmentsFor(target) else emptyList()
-            val useBuiltIn = builtIn ?: (player.builtInPlayer || playerSession != null)
+            val useBuiltIn = (builtIn ?: (player.builtInPlayer || playerSession != null)) || inParty
+            val partyOverrode = inParty && builtIn != true && !player.builtInPlayer && playerSession == null
             if (useBuiltIn && LibMpv.available &&
                 playEmbedded(stream, played, label, target, resume, options, serverStream, segments, alternatives)
-            ) return@launch
+            ) {
+                if (partyOverrode) playerSession?.party?.showMessage("Watch parties play in the built-in player")
+                return@launch
+            }
             val skipper = SkipPlanner(segments, player.autoSkip).takeUnless { it.isEmpty }
             closePlayer()
             when (val result = ExternalPlayer.play(played, label, start = resume, options = options)) {
@@ -1439,6 +1457,8 @@ class AppState(
     fun closePlayer() {
         val session = playerSession ?: return
         playerSession = null
+        session.party?.leave()
+        partySyncJob?.cancel()
         session.mpv.stop()
         scope.launch {
             // Let the stop reach Continue Watching, then free libmpv.
@@ -1469,6 +1489,7 @@ class AppState(
             return false
         }
         playerSession = session
+        if (session.party == null) attachParty(session)
         val sameTitle = session.target?.videoId == target.videoId
         session.title = label
         session.segments = segments
@@ -1494,7 +1515,7 @@ class AppState(
                 // Played to the end and nothing came next: close, as the mpv window would.
                 if (ending.reachedEnd && !continued && stillWatching == null && playerSession === session && session.loads == load) closePlayer()
             }
-        ) { onPosition, onSample -> session.mpv.follow(onPosition = onPosition, onSample = onSample) }
+        ) { onPosition, onSample -> session.mpv.follow(onPosition = partySkips(session, onPosition), onSample = onSample) }
         return true
     }
 
@@ -1550,6 +1571,7 @@ class AppState(
     fun playEpisodeInPlayer(video: Video) {
         val session = playerSession ?: return
         val target = session.target ?: return
+        if (!session.controls.mayChangeMedia()) return
         session.panel = null
         scope.launch { startEpisode(target, video, viaUpNext = false) }
     }
@@ -1558,6 +1580,7 @@ class AppState(
     fun playNextNow() {
         val session = playerSession ?: return
         val target = session.target ?: return
+        if (!session.controls.mayChangeMedia()) return
         val next = session.nextEpisode ?: return
         session.upNextDismissed = true
         autoplayRun++
@@ -1638,6 +1661,7 @@ class AppState(
      */
     private suspend fun playbackEnded(target: PlaybackTarget, ending: MpvProgress.Ending): Boolean {
         val video = target.video ?: return false
+        if (playerSession?.controls?.mayChangeMedia(userInitiated = false) == false) return false
         if (!ending.reachedEnd || !settings.player.autoplayNextEpisode) return false
         if (upNextCancelledFor == target.videoId) {
             upNextCancelledFor = null
@@ -1665,6 +1689,186 @@ class AppState(
         }
         autoplayRun++
         return startEpisode(target, next, viaUpNext = true)
+    }
+
+    // --- Watch party ---
+
+    /** The watch party (TV: `PartyRepository`), on the sync server's account; see [PartyState]. */
+    val party = PartyState(
+        parentScope = scope,
+        connect = {
+            val account = account
+            account?.client()?.let { client -> SyncPartyBackend(client, account.httpClient, account.state.originClientId.orEmpty(), scope) }
+        },
+        signedIn = { account?.signedIn == true },
+        profile = { PartyProfile(name = profile.name, imageUrl = null, color = profile.colorHex) },
+        capability = { account?.watchPartyCapability() },
+        onAuthLost = { scope.launch { account?.sessionExpired() } }
+    )
+
+    private var partySyncJob: Job? = null
+
+    /** The party's position for [target] when the party is watching it, as mpv's --start. */
+    private fun partyStart(target: PlaybackTarget): String? {
+        val current = party.state.value.party ?: return null
+        val key = partyMediaKey(target.contentType, target.contentId, target.video?.season, target.video?.episode)
+        if (current.media.key != key) return null
+        val playback = party.playback.value?.takeIf { it.mediaKey == null || it.mediaKey == key } ?: return null
+        val ms = PartySync.expectedPositionMs(playback, party.nowMs())
+        return "%.3f".format(Locale.ROOT, ms / 1000.0)
+    }
+
+    /** Keeps [session] with the watch party while one is on (the loop idles otherwise). */
+    private fun attachParty(session: PlayerSession) {
+        val sync = PartyPlayerSync(party, MpvPartyPlayer(session), MpvControls(session.mpv))
+        session.party = sync
+        session.controls = sync
+        partySyncJob?.cancel()
+        partySyncJob = scope.launch { sync.run() }
+    }
+
+    /**
+     * Auto-skips in a party go to everyone, like any seek; a member the host controls leaves
+     * them to the host. Called on mpv's thread, so the seek is made on the UI's.
+     */
+    private fun partySkips(session: PlayerSession, onPosition: (Double) -> MpvProgress.Seek?): (Double) -> MpvProgress.Seek? = { position ->
+        val seek = onPosition(position)
+        val sync = session.party
+        when {
+            seek == null || sync == null || party.state.value.party == null || !sync.isSynced -> seek
+            sync.isControlLocked -> null
+            else -> {
+                scope.launch {
+                    session.controls.seekTo(seek.toSec)
+                    session.mpv.showText(seek.message)
+                }
+                null
+            }
+        }
+    }
+
+    private fun onPartyEvent(event: PartyEvent) {
+        val session = playerSession
+        if (event is PartyEvent.MediaChanged && session != null) {
+            // The host moved on: the next episode follows straight away; anything else offers
+            // "Watch with the party" in the party panel, as on TV.
+            val target = session.target
+            val next = session.nextEpisode
+            val playingKey = target?.let { partyMediaKey(it.contentType, it.contentId, it.video?.season, it.video?.episode) }
+            if (event.media.key == playingKey) return
+            if (target != null && event.media.metaId == target.contentId && next != null && isAired(next) &&
+                next.season == event.media.season && next.episode == event.media.episode
+            ) {
+                scope.launch { startEpisode(target, next, viaUpNext = false) }
+                return
+            }
+            session.panel = null
+            session.partyPanelOpen = true
+            return
+        }
+        if (session == null) message = event.message else session.party?.showMessage(event.message)
+    }
+
+    /** Starts a watch party for the title page's title or episode, then plays it in the built-in player. */
+    fun startPartyFromDetail() {
+        val context = sources ?: return
+        val meta = detailMeta?.takeIf { it.id == context.preview.id }
+        val video = context.video
+        val media = PartyMedia(
+            type = context.preview.apiType,
+            metaId = context.preview.id,
+            metaType = context.preview.apiType,
+            videoId = video?.id,
+            season = video?.season,
+            episode = video?.episode,
+            title = meta?.name ?: context.preview.name,
+            episodeTitle = video?.title?.takeIf { it.isNotBlank() },
+            description = (video?.overview ?: meta?.description ?: context.preview.description)?.take(600),
+            poster = meta?.poster ?: context.preview.poster,
+            background = meta?.background ?: context.preview.background,
+            logo = meta?.logo ?: context.preview.logo,
+        )
+        scope.launch {
+            val error = party.create(media)
+            if (error != null) message = error.message else playBest()
+        }
+    }
+
+    /** Starts a watch party for what the built-in player is playing (the TV's player panel). */
+    fun startPartyInPlayer() {
+        val session = playerSession ?: return
+        val media = MpvPartyPlayer(session).currentMedia() ?: return
+        scope.launch {
+            val error = party.create(media)
+            if (error != null) session.party?.showMessage(error.message)
+        }
+    }
+
+    /**
+     * "Watch with the party": plays what the party is watching in the built-in player: the
+     * host's shared stream when there is one, else your source that matches the host's, else
+     * your best match. With none, its title page opens to pick one.
+     */
+    fun watchWithParty(media: PartyMedia) {
+        scope.launch {
+            val preview = MetaPreview(
+                id = media.metaId,
+                type = ContentType.fromString(media.metaType),
+                rawType = media.metaType,
+                name = media.title,
+                poster = media.poster,
+                posterShape = com.fetch.tv.domain.model.PosterShape.POSTER,
+                background = media.background,
+                logo = media.logo,
+                description = media.description,
+                releaseInfo = null,
+                imdbRating = null,
+                genres = emptyList()
+            )
+            val meta = runCatching { withContext(Dispatchers.IO) { client.meta(addons.toList(), media.metaType, media.metaId) } }.getOrNull()
+            if (!allowed(meta, preview)) {
+                message = "Not available on ${profile.name}"
+                return@launch
+            }
+            val videos = meta?.videos.orEmpty()
+            val video = media.videoId?.let { id -> videos.firstOrNull { it.id == id } }
+                ?: videos.firstOrNull { media.season != null && it.season == media.season && it.episode == media.episode }
+                ?: media.videoId?.takeIf { media.season != null }?.let {
+                    Video(id = it, title = media.episodeTitle.orEmpty(), released = null, thumbnail = null, season = media.season, episode = media.episode, overview = null)
+                }
+            val target = PlaybackTarget(
+                contentId = media.metaId,
+                contentType = media.metaType,
+                name = meta?.name ?: media.title,
+                poster = meta?.poster ?: media.poster,
+                backdrop = meta?.background ?: media.background,
+                logo = meta?.logo ?: media.logo,
+                video = video,
+                episodes = videos
+            )
+            playerSession?.party?.showMessage("Loading ${media.displayTitle}…") ?: run { message = "Loading ${media.displayTitle}…" }
+            val ranked = rank(streamsFor(media.metaType, target.videoId, target.name))
+            val current = party.state.value.party
+            val shared = party.sharedStream.value?.takeIf { current != null && !current.isHost && it.mediaKey == media.key }
+            val pick = shared?.toStream()
+                ?: ranked.firstOrNull { media.source?.matches(it.stream) == true && ExternalPlayer.canPlay(it.stream) }?.stream
+                ?: (pickAuto(ranked) ?: ranked.firstOrNull { it.isEligible })?.stream
+            if (pick == null) {
+                closePlayer()
+                message = "No source to play ${media.displayTitle} automatically. Pick one below."
+                navigate(Screen.Detail(preview, videoId = video?.id))
+                return@launch
+            }
+            val label = listOfNotNull(target.name, video?.let { episodeTag(it.season, it.episode) }, video?.title?.takeIf { it.isNotBlank() }).joinToString(" · ")
+            launchPlayback(pick, label, target, builtIn = true, alternatives = ranked)
+        }
+    }
+
+    /** The host's "Switch the party to …": the party follows what this player plays. */
+    fun switchPartyToPlayer() {
+        val session = playerSession ?: return
+        val media = MpvPartyPlayer(session).currentMedia() ?: return
+        party.publishMedia(media, positionMs = (session.mpv.position * 1000).toLong())
     }
 
     private companion object {

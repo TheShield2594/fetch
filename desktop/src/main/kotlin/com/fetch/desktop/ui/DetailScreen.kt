@@ -144,7 +144,8 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                             if (isSeries) state.setWatched(preview, meta?.videos.orEmpty().filter { (it.season ?: 0) > 0 && com.fetch.desktop.isAired(it) }, on)
                             else state.setWatched(preview, emptyList(), on)
                         },
-                        minHeight = heroMinHeight
+                        minHeight = heroMinHeight,
+                        extraActions = { PartyDetailButton(state) }
                     )
                 }
                 item(key = "sources") {
@@ -291,7 +292,8 @@ private fun Hero(
     watched: Boolean,
     onToggleWatched: (Boolean) -> Unit,
     tmdbRating: Float?,
-    minHeight: Dp
+    minHeight: Dp,
+    extraActions: @Composable () -> Unit = {}
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom),
@@ -386,6 +388,7 @@ private fun Hero(
             if (trailer != null) {
                 CircleIconButton(FetchIcons.Trailer, "Play trailer", onClick = { onTrailer(trailer) }, size = 52.dp)
             }
+            extraActions()
         }
     }
 }

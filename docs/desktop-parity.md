@@ -99,7 +99,7 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Deep links (`fetch://`, `stremio://`) | `core/deeplink/` | ⬜ |
 | Fetch website pairing, show a sign-in code | `screens/account/` | 🟡 desktop claims codes only |
 | YouTube (feeds, SponsorBlock, DeArrow) | `screens/youtube/`, `data/youtube/` | ⬜ |
-| Watch party | `screens/party/`, `core/party/` | ⬜ |
+| Watch party | `screens/party/`, `core/party/` | ✅ `party/` (the TV's RPCs, Realtime channel, sync and tolerances), Watch together on title pages, Watch party in the player and in Settings; 🟡 no QR invite or `fetch://party` link handler (a pasted invite link works), initials instead of avatar images |
 | Ambient mode | `screens/ambient/` | ⬜ |
 | Phone hub | `screens/phone/` | ➖ a desktop has a keyboard; may return for sending links |
 | Watch Next row, launcher channels, app icon picker | `core/recommendations/`, `AppIconPicker.kt` | ➖ |

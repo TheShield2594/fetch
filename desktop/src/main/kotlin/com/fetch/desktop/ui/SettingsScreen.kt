@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -79,7 +80,10 @@ private val RailPages = SettingsPage.entries.filter { it.parent == null }
 @Composable
 fun SettingsScreen(state: AppState, page: SettingsPage) {
     Row(Modifier.fillMaxSize()) {
+        // Watch party is listed only when the sync server offers it, as on TV.
+        val partyAvailable by state.party.available.collectAsState()
         SettingsRail(
+            hidden = if (partyAvailable) emptySet() else setOf(SettingsPage.WATCH_PARTY),
             current = page.railPage,
             onPick = { state.openSection(Screen.Settings(it)) },
             modifier = Modifier.width(260.dp).fillMaxHeight()
@@ -117,6 +121,7 @@ fun SettingsScreen(state: AppState, page: SettingsPage) {
                                 SettingsPage.APPEARANCE -> AppearancePage(state)
                                 SettingsPage.LAYOUT -> LayoutPage(state)
                                 SettingsPage.TRACKING -> TrackingPage(state)
+                                SettingsPage.WATCH_PARTY -> WatchPartyPage(state)
                                 SettingsPage.TMDB -> TmdbPage(state)
                                 SettingsPage.ACCOUNT -> AccountPage(state)
                                 SettingsPage.MEDIA_SERVERS -> MediaServersPage(state)
@@ -133,7 +138,8 @@ fun SettingsScreen(state: AppState, page: SettingsPage) {
 }
 
 @Composable
-private fun SettingsRail(current: SettingsPage, onPick: (SettingsPage) -> Unit, modifier: Modifier = Modifier) {
+private fun SettingsRail(current: SettingsPage, onPick: (SettingsPage) -> Unit, modifier: Modifier = Modifier, hidden: Set<SettingsPage> = emptySet()) {
+    val pages = RailPages.filter { it !in hidden }
     // Scrolls when the window is shorter than the rail.
     Column(
         modifier.background(FetchPalette.Surface.copy(alpha = 0.5f)).verticalScroll(rememberScrollState())
@@ -141,8 +147,8 @@ private fun SettingsRail(current: SettingsPage, onPick: (SettingsPage) -> Unit, 
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text("Settings", style = MaterialTheme.typography.headlineSmall, color = Color.White, modifier = Modifier.padding(start = 12.dp, bottom = 16.dp))
-        RailPages.forEachIndexed { index, page ->
-            if (index == 0 || RailPages[index - 1].group != page.group) {
+        pages.forEachIndexed { index, page ->
+            if (index == 0 || pages[index - 1].group != page.group) {
                 Text(
                     page.group.uppercase(),
                     style = OverlineStyle,

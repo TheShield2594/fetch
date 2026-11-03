@@ -26,6 +26,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -87,6 +88,10 @@ private val HiddenCursor: PointerIcon by lazy {
 @Composable
 fun PlayerScreen(state: AppState, session: PlayerSession) {
     val mpv = session.mpv
+    // Pause, seek and speed: mpv's, or the watch party's while one follows this player.
+    val controls = session.controls
+    val partyAvailable by state.party.available.collectAsState()
+    val inParty = state.party.state.collectAsState().value.party != null
     val window = LocalWindowState.current
     var controlsVisible by remember { mutableStateOf(true) }
     var lastActivity by remember { mutableStateOf(System.currentTimeMillis()) }
@@ -124,21 +129,22 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                 if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
                 poke()
                 when (event.key) {
-                    Key.Spacebar, Key.K -> mpv.togglePause()
+                    Key.Spacebar, Key.K -> controls.togglePause()
                     Key.I -> session.showInfo = !session.showInfo
                     Key.N -> if (session.nextEpisode != null) state.playNextNow() else return@onKeyEvent false
                     Key.Z -> mpv.changeSubtitleDelay(mpv.subtitleDelay - 0.1)
                     Key.X -> mpv.changeSubtitleDelay(mpv.subtitleDelay + 0.1)
-                    Key.LeftBracket -> mpv.changeSpeed(previousSpeed(mpv.speed))
-                    Key.RightBracket -> mpv.changeSpeed(nextSpeed(mpv.speed))
-                    Key.Backspace -> mpv.changeSpeed(1.0)
-                    Key.DirectionLeft, Key.J -> mpv.seekBy(-10.0)
-                    Key.DirectionRight, Key.L -> mpv.seekBy(10.0)
+                    Key.LeftBracket -> controls.changeSpeed(previousSpeed(controls.speed))
+                    Key.RightBracket -> controls.changeSpeed(nextSpeed(controls.speed))
+                    Key.Backspace -> controls.changeSpeed(1.0)
+                    Key.DirectionLeft, Key.J -> controls.seekBy(-10.0)
+                    Key.DirectionRight, Key.L -> controls.seekBy(10.0)
                     Key.DirectionUp -> mpv.changeVolume(mpv.volume + 5)
                     Key.DirectionDown -> mpv.changeVolume(mpv.volume - 5)
                     Key.M -> mpv.toggleMute()
                     Key.F -> toggleFullscreen()
                     Key.Escape -> when {
+                        session.partyPanelOpen -> session.partyPanelOpen = false
                         session.panel != null -> session.panel = null
                         window?.placement == WindowPlacement.Fullscreen -> toggleFullscreen()
                         else -> leave()
@@ -155,7 +161,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                 .onSizeChanged { mpv.setViewSize(it.width, it.height) }
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
                     poke()
-                    mpv.togglePause()
+                    controls.togglePause()
                 }
         ) {
             @Suppress("UNUSED_EXPRESSION") mpv.frameVersion // redraw on every new frame
@@ -198,7 +204,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
         session.skippable(mpv.position)?.takeIf { session.upNextCountdown(mpv.position, mpv.duration, state.settings.player.upNextPromptSeconds) == null }?.let { segment ->
             Box(Modifier.align(Alignment.BottomEnd).padding(end = 48.dp, bottom = 150.dp)) {
                 PrimaryButton("Skip ${segment.type.label.lowercase()}", icon = FetchIcons.ChevronRight, onClick = {
-                    mpv.seekTo(segment.endSec)
+                    controls.seekTo(segment.endSec)
                 })
             }
         }
@@ -232,7 +238,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                             seeking = it
                         },
                         onValueChangeFinished = {
-                            seeking?.let { mpv.seekTo(it.toDouble()) }
+                            seeking?.let { controls.seekTo(it.toDouble()) }
                             seeking = null
                         },
                         valueRange = 0f..duration.toFloat().coerceAtLeast(0.01f),
@@ -243,9 +249,9 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                         )
                     )
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        CircleIconButton(if (mpv.paused) FetchIcons.Play else FetchIcons.Pause, if (mpv.paused) "Play" else "Pause", onClick = mpv::togglePause)
-                        CircleIconButton(FetchIcons.Replay10, "Back 10 seconds", onClick = { mpv.seekBy(-10.0) })
-                        CircleIconButton(FetchIcons.Forward10, "Forward 10 seconds", onClick = { mpv.seekBy(10.0) })
+                        CircleIconButton(if (mpv.paused) FetchIcons.Play else FetchIcons.Pause, if (mpv.paused) "Play" else "Pause", onClick = controls::togglePause)
+                        CircleIconButton(FetchIcons.Replay10, "Back 10 seconds", onClick = { controls.seekBy(-10.0) })
+                        CircleIconButton(FetchIcons.Forward10, "Forward 10 seconds", onClick = { controls.seekBy(10.0) })
                         Text(
                             "${clock(shown.toDouble())} / ${clock(duration)}",
                             color = Color.White,
@@ -267,10 +273,19 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                         if (session.nextEpisode != null) {
                             SecondaryButton("Next episode", onClick = state::playNextNow, icon = FetchIcons.ChevronRight)
                         }
-                        ValueMenu("Speed", speedLabel(mpv.speed), Speeds.map { it to speedLabel(it) }, mpv.speed) { mpv.changeSpeed(it) }
+                        ValueMenu("Speed", speedLabel(controls.speed), Speeds.map { it to speedLabel(it) }, controls.speed) { controls.changeSpeed(it) }
                         ValueMenu("Picture", session.fit.label, VideoFit.entries.map { it to it.label }, session.fit) { state.setFit(it) }
                         PlayerPanel.entries.filter { panelAvailable(session, it) }.forEach { panel ->
-                            SecondaryButton(panel.label, onClick = { session.panel = if (session.panel == panel) null else panel })
+                            SecondaryButton(panel.label, onClick = {
+                                session.partyPanelOpen = false
+                                session.panel = if (session.panel == panel) null else panel
+                            })
+                        }
+                        if (partyAvailable || inParty) {
+                            SecondaryButton("Watch party", icon = PartyIcon, onClick = {
+                                session.panel = null
+                                session.partyPanelOpen = !session.partyPanelOpen
+                            })
                         }
                         CircleIconButton(FetchIcons.Info, "Stream info (I)", onClick = { session.showInfo = !session.showInfo })
                     }
@@ -278,9 +293,11 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
             }
         }
 
+        PartyPlayerPill(state, session, controlsVisible || mpv.paused, Modifier.align(Alignment.TopCenter).padding(top = 28.dp))
         session.panel?.let { panel ->
             PlayerSidePanel(state, session, panel, Modifier.align(Alignment.CenterEnd))
         }
+        if (session.partyPanelOpen) PartyPlayerPanel(state, session, Modifier.align(Alignment.CenterEnd))
         state.stillWatching?.let { prompt ->
             StillWatchingOverlay(prompt.label, onContinue = { state.answerStillWatching(true) }, onStop = { state.answerStillWatching(false) })
         }

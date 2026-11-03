@@ -502,6 +502,20 @@ class SyncClient(
             ?: 0L
     }
 
+    // --- Watch party ---
+
+    /** The server this account is on (for Realtime's address and apikey). */
+    val server: SyncServerConfig get() = config
+
+    /** Any RPC with this session (the watch party's `watch_party_*`); returns the body. */
+    suspend fun callRpc(name: String, params: JsonObject?): String = rpc(name, params)
+
+    /** The access token, refreshed first when it is about to expire (Realtime's `access_token`). */
+    suspend fun freshAccessToken(): String {
+        if (session.expiresSoon(nowEpochSec())) refreshFrom(session.accessToken)
+        return session.accessToken
+    }
+
     private fun JsonObjectBuilder.putOrigin() {
         put("p_origin_client_id", originClientId)
     }

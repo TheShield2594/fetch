@@ -19,6 +19,8 @@ data class SyncState(
     val server: SyncServerConfig? = null,
     val session: SyncSession? = null,
     val originClientId: String? = null,
+    /** The server's discovery said `watch_party` at sign-in; null for sign-ins from before it was kept. */
+    val watchParty: Boolean? = null,
 )
 
 /**

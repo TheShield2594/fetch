@@ -21,7 +21,53 @@ class PauseCastPolicyTest {
         val sameId = lead.copy(character = "Captain (young)")
         val sameName = MetaCastMember(name = " tom hale ", tmdbId = null)
 
-        assertEquals(listOf(lead, second), pauseOverlayCast(listOf(lead, second), listOf(sameId, sameName)))
+        // The merged entry takes the episode's character.
+        assertEquals(
+            listOf(lead.copy(character = "Captain (young)"), second),
+            pauseOverlayCast(listOf(lead, second), listOf(sameId, sameName))
+        )
+    }
+
+    @Test
+    fun `a guest with the same TMDB id under another name is listed once`() {
+        val sameIdNewName = lead.copy(name = "Ana R.", character = null)
+
+        assertEquals(listOf(lead, second), pauseOverlayCast(listOf(lead, second), listOf(sameIdNewName)))
+    }
+
+    @Test
+    fun `namesakes with different TMDB ids are both shown`() {
+        val namesake = lead.copy(character = "Stranger", photo = "n.jpg", tmdbId = 77)
+
+        assertEquals(listOf(lead, second, namesake), pauseOverlayCast(listOf(lead, second), listOf(namesake)))
+    }
+
+    @Test
+    fun `a guest whose main-cast entry is outside the row keeps a guest slot`() {
+        val main = (1..20).map { MetaCastMember(name = "Regular $it", tmdbId = it) }
+        val recurring = MetaCastMember(name = "Regular 15", character = "Guest role", photo = "g.jpg", tmdbId = 15)
+
+        assertEquals(main.take(6) + recurring, pauseOverlayCast(main, listOf(recurring), limit = 7))
+    }
+
+    @Test
+    fun `a photographed guest fills in a names-only main-cast entry`() {
+        val namesOnly = MetaCastMember(name = "Ana Reyes")
+        val guest = lead.copy(character = "Captain (this episode)")
+
+        assertEquals(
+            listOf(namesOnly.copy(photo = "a.jpg", character = "Captain (this episode)", tmdbId = 1), second),
+            pauseOverlayCast(listOf(namesOnly, second), listOf(guest), limit = 7)
+        )
+    }
+
+    @Test
+    fun `a guest that duplicates a shown main entry frees its slot for the main cast`() {
+        val main = (1..20).map { MetaCastMember(name = "Regular $it", tmdbId = it) }
+        val guests = listOf(main[0], main[1], MetaCastMember(name = "Guest", tmdbId = 100))
+
+        // Two of the three guests are already shown, so only one guest slot is needed.
+        assertEquals(main.take(6) + guests[2], pauseOverlayCast(main, guests, limit = 7))
     }
 
     @Test
@@ -55,6 +101,17 @@ class PauseCastPolicyTest {
         val namesOnly = listOf(MetaCastMember(name = "Ana Reyes"))
 
         assertEquals(listOf(lead), preferCastWithPhotos(namesOnly, listOf(lead)))
+    }
+
+    @Test
+    fun `photos are merged per person when the current cast has only some`() {
+        val withPhoto = MetaCastMember(name = "Ana Reyes", photo = "addon.jpg")
+        val namesOnly = MetaCastMember(name = "Tom Hale")
+
+        assertEquals(
+            listOf(withPhoto, second),
+            preferCastWithPhotos(listOf(withPhoto, namesOnly), listOf(lead, second))
+        )
     }
 
     @Test

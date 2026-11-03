@@ -1772,7 +1772,8 @@ private fun TmdbEpisode.toEnrichment(): TmdbEpisodeEnrichment {
         airDate = airDate,
         runtimeMinutes = runtime,
         guestStars = guestStars.orEmpty().mapNotNull { member ->
-            val name = (member.name ?: member.originalName)?.takeIf { it.isNotBlank() }
+            val name = member.name?.takeIf { it.isNotBlank() }
+                ?: member.originalName?.takeIf { it.isNotBlank() }
                 ?: return@mapNotNull null
             MetaCastMember(
                 name = name,

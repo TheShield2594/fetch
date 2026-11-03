@@ -97,14 +97,6 @@ private suspend fun PlayerRuntimeController.enrichDescriptionFromTmdb(id: String
         "series", "tv" -> ContentType.SERIES
         else -> ContentType.MOVIE
     }
-    val enrichment = runCatching {
-        tmdbMetadataService.fetchEnrichment(
-            tmdbId = tmdbId,
-            contentType = contentType,
-            language = settings.language
-        )
-    }.getOrNull() ?: return
-
     val isSeries = type.lowercase() in listOf("series", "tv")
     val season = currentSeason
     val episode = currentEpisode
@@ -119,6 +111,23 @@ private suspend fun PlayerRuntimeController.enrichDescriptionFromTmdb(id: String
             )[season to episode]
         }.getOrNull()
     } else null
+
+    // This episode's guest stars, for the pause overlay's cast strip. Set before the title
+    // lookup below so a failure there doesn't lose them, and skipped if the player moved to
+    // another episode while TMDB was answering.
+    val guestStars = episodeEnrichment?.guestStars.orEmpty()
+    val stillOnThisEpisode = currentSeason == season && currentEpisode == episode
+    if (guestStars.isNotEmpty() && stillOnThisEpisode) {
+        _uiState.update { it.copy(episodeGuestStars = guestStars) }
+    }
+
+    val enrichment = runCatching {
+        tmdbMetadataService.fetchEnrichment(
+            tmdbId = tmdbId,
+            contentType = contentType,
+            language = settings.language
+        )
+    }.getOrNull() ?: return
 
     val tmdbDescription = episodeEnrichment?.overview ?: enrichment.description
     if (settings.useBasicInfo && !tmdbDescription.isNullOrBlank()) {
@@ -154,15 +163,6 @@ private suspend fun PlayerRuntimeController.enrichDescriptionFromTmdb(id: String
         _uiState.update { state ->
             state.copy(castMembers = preferCastWithPhotos(state.castMembers, enrichment.castMembers))
         }
-    }
-
-    // This episode's guest stars, for the pause overlay's cast strip. Skipped if the
-    // player moved to another episode while TMDB was answering.
-    val guestStars = episodeEnrichment?.guestStars.orEmpty()
-    if (settings.useBasicInfo && guestStars.isNotEmpty() &&
-        currentSeason == season && currentEpisode == episode
-    ) {
-        _uiState.update { it.copy(episodeGuestStars = guestStars) }
     }
 
     // Fill in content language from TMDB if still unknown, so "original

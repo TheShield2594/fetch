@@ -88,6 +88,8 @@ data class PlayerUiState(
     val logo: String? = null,
     val description: String? = null,
     val castMembers: List<MetaCastMember> = emptyList(),
+    /** Guest stars of the playing episode (TMDB), shown after [castMembers] on the pause overlay. */
+    val episodeGuestStars: List<MetaCastMember> = emptyList(),
     val showControls: Boolean = true,
     val showSeekOverlay: Boolean = false,
     val pendingPreviewSeekPosition: Long? = null,

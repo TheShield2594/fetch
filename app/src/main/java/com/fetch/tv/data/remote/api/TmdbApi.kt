@@ -504,7 +504,8 @@ data class TmdbEpisode(
     @Json(name = "overview") val overview: String? = null,
     @Json(name = "still_path") val stillPath: String? = null,
     @Json(name = "air_date") val airDate: String? = null,
-    @Json(name = "runtime") val runtime: Int? = null
+    @Json(name = "runtime") val runtime: Int? = null,
+    @Json(name = "guest_stars") val guestStars: List<TmdbCastMember>? = null
 )
 
 @JsonClass(generateAdapter = true)

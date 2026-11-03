@@ -1345,7 +1345,9 @@ fun PlayerScreen(
             year = uiState.releaseYear,
             type = uiState.contentType,
             description = uiState.description,
-            cast = uiState.castMembers,
+            cast = remember(uiState.castMembers, uiState.episodeGuestStars) {
+                pauseOverlayCast(uiState.castMembers, uiState.episodeGuestStars)
+            },
             showClock = uiState.osdClockEnabled && !uiState.isLive,
             modifier = Modifier
                 .fillMaxSize()

@@ -52,7 +52,7 @@ internal fun PlayerRuntimeController.applyMetaDetails(meta: Meta) {
     _uiState.update { state ->
         state.copy(
             description = description ?: state.description,
-            castMembers = if (meta.castMembers.isNotEmpty()) meta.castMembers else state.castMembers,
+            castMembers = preferCastWithPhotos(state.castMembers, meta.castMembers),
             isNextEpisodeMetadataResolved = true
         )
     }
@@ -76,7 +76,8 @@ internal fun PlayerRuntimeController.updateEpisodeDescription() {
     }?.overview
 
     // Always update description when switching episodes - clear stale description
-    _uiState.update { it.copy(description = overview) }
+    // and the previous episode's guest stars.
+    _uiState.update { it.copy(description = overview, episodeGuestStars = emptyList()) }
 
     // Push episode metadata to the MediaSession so Google Home shows the new episode.
     updateMediaSessionMetadata()
@@ -148,12 +149,20 @@ private suspend fun PlayerRuntimeController.enrichDescriptionFromTmdb(id: String
         }
     }
 
-    // Enrich cast from TMDB if addon didn't provide any.
+    // Enrich cast from TMDB if the addon didn't provide any, or provided names without photos.
     if (settings.useBasicInfo && enrichment.castMembers.isNotEmpty()) {
         _uiState.update { state ->
-            if (state.castMembers.isEmpty()) state.copy(castMembers = enrichment.castMembers)
-            else state
+            state.copy(castMembers = preferCastWithPhotos(state.castMembers, enrichment.castMembers))
         }
+    }
+
+    // This episode's guest stars, for the pause overlay's cast strip. Skipped if the
+    // player moved to another episode while TMDB was answering.
+    val guestStars = episodeEnrichment?.guestStars.orEmpty()
+    if (settings.useBasicInfo && guestStars.isNotEmpty() &&
+        currentSeason == season && currentEpisode == episode
+    ) {
+        _uiState.update { it.copy(episodeGuestStars = guestStars) }
     }
 
     // Fill in content language from TMDB if still unknown, so "original

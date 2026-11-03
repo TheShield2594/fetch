@@ -36,6 +36,8 @@ object ProfileBackgrounds {
     private var stored: List<Stored> = emptyList()
     private var loaded = false
     private var lastRefreshMs = 0L
+    /** The server and account the catalog was last loaded for; another one refreshes at once. */
+    private var loadedFor: String? = null
 
     /** The catalog: what the server last listed, with the pictures that are on disk. */
     val all: List<ProfileBackgroundItem>
@@ -58,10 +60,13 @@ object ProfileBackgrounds {
     /** Reloads the server's catalog and downloads missing pictures, at most every 15 minutes. */
     suspend fun refresh(account: SyncAccountState, force: Boolean = false) {
         val now = System.currentTimeMillis()
-        if (!force && now - lastRefreshMs < 15 * 60_000L) return
         val client = account.client() ?: return
+        val owner = "${account.state.server?.baseUrl}|${client.session.userId}"
+        if (!force && owner == loadedFor && now - lastRefreshMs < 15 * 60_000L) return
         lastRefreshMs = now
+        loadedFor = owner
         all
+        var failed = false
         try {
             val remote = client.profileBackgroundCatalog()
             stored = remote.map { Stored(it.id, it.displayName, it.storagePath, it.assetVersion) }
@@ -80,14 +85,20 @@ object ProfileBackgrounds {
                             tmp.delete()
                         }
                     }
-                }.onFailure { if (it is CancellationException) throw it }
+                }.onFailure {
+                    if (it is CancellationException) throw it
+                    failed = true
+                }
                 items = stored.map { it.toItem() }
             }
         } catch (e: CancellationException) {
             throw e
         } catch (_: Exception) {
             // Keep what was stored.
+            failed = true
         }
+        // Try again on the next visit rather than in 15 minutes.
+        if (failed) lastRefreshMs = 0L
     }
 
     private fun file(item: Stored) = File(imageDir, "${safeName(item.id)}-v${item.assetVersion}.png")

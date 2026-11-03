@@ -223,6 +223,8 @@ fun ProfileSetupEditorDialog(
     var avatarCleared by remember { mutableStateOf(initial?.avatarCleared ?: false) }
     var backgroundId by remember { mutableStateOf(initial?.profileBackgroundId) }
     var backgroundUrl by remember { mutableStateOf(initial?.profileBackgroundUrl) }
+    // Any pick here, None included, replaces the account's background on save.
+    var backgroundPicked by remember { mutableStateOf(false) }
     var share by remember { mutableStateOf(initial?.usesPrimaryAddons ?: true) }
     var kids by remember { mutableStateOf(false) }
     var copyFrom by remember { mutableStateOf<DesktopProfile?>(null) }
@@ -233,7 +235,8 @@ fun ProfileSetupEditorDialog(
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
     val backgrounds = ProfileBackgrounds.all
-    val showBackgrounds = !creating && (backgrounds.isNotEmpty() || !initial?.profileBackgroundUrl.isNullOrBlank())
+    val showBackgrounds = !creating && (backgrounds.isNotEmpty() || !initial?.profileBackgroundUrl.isNullOrBlank() ||
+        initial?.profileBackgroundId != null)
     val tabs = if (creating) listOf(EditorTab.Avatar, EditorTab.Setup)
     else listOfNotNull(EditorTab.Avatar, EditorTab.Background.takeIf { showBackgrounds }, EditorTab.Preferences)
     // The picture shown: the one picked here, else the profile's own until it's changed or removed.
@@ -310,6 +313,7 @@ fun ProfileSetupEditorDialog(
                     EditorTab.Background -> ProfileBackgroundPicker(backgrounds, backgroundId, backgroundUrl) { id, url ->
                         backgroundId = id
                         backgroundUrl = url
+                        backgroundPicked = true
                     }
                     EditorTab.Setup -> Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(
@@ -381,8 +385,7 @@ fun ProfileSetupEditorDialog(
                         avatarCleared = avatarCleared && avatarId == null,
                         profileBackgroundId = backgroundId,
                         profileBackgroundUrl = backgroundUrl,
-                        backgroundEdited = initial.backgroundEdited ||
-                            backgroundId != initial.profileBackgroundId || backgroundUrl != initial.profileBackgroundUrl
+                        backgroundEdited = initial.backgroundEdited || backgroundPicked
                     )
                     profiles.update(edited)
                     val changed = prefs

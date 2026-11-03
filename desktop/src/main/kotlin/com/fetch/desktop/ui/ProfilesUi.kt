@@ -63,7 +63,6 @@ import com.fetch.desktop.ProfilesState
 import com.fetch.desktop.data.DesktopProfile
 import com.fetch.desktop.data.ProfileBackgrounds
 import com.fetch.desktop.SyncAccountState
-import com.fetch.desktop.sync.SyncMerge
 import com.fetch.desktop.sync.copyProfileSetupKeepingLimits
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
@@ -88,6 +87,8 @@ fun ProfilePicker(profiles: ProfilesState, account: SyncAccountState? = null) {
     var pin by remember { mutableStateOf<PinStep?>(null) }
     var nudgeFor by remember { mutableStateOf<DesktopProfile?>(null) }
     var hovered by remember { mutableStateOf<DesktopProfile?>(null) }
+    // Backgrounds for a fresh install, or ones added since: the picker can open before any profile.
+    LaunchedEffect(account?.signedIn) { account?.let { ProfileBackgrounds.refresh(it) } }
     Box(Modifier.fillMaxSize().background(FetchPalette.Background), contentAlignment = Alignment.Center) {
         val background = hovered?.let(ProfileBackgrounds::imageFor)
         if (background != null) {
@@ -137,13 +138,11 @@ fun ProfilePicker(profiles: ProfilesState, account: SyncAccountState? = null) {
         ProfileSetupEditorDialog(profiles, initial = null, state = null, onDismiss = { creating = false }, onCreated = { created ->
             if (created.limits.isRestricted) nudgeFor = created
         }, onCopiedLocally = { source, target, copyKeys ->
-            // No profile is open here, so nothing has told the account about the new profile yet:
-            // push the list first (only the main profile's data is used), then copy on the server.
+            // No profile is open here; the copy pushes the profile list first, so the new one exists.
             val remote = account?.client() ?: return@ProfileSetupEditorDialog
             scope.launch {
                 try {
-                    remote.pushProfiles(SyncMerge.profilesToPush(profiles.profiles, remote.pullProfiles()))
-                    remote.copyProfileSetupKeepingLimits(source, target, copyKeys)
+                    remote.copyProfileSetupKeepingLimits(profiles, source, target, copyKeys)
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
                 } catch (e: Exception) {

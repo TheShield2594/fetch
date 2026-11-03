@@ -54,7 +54,7 @@ jobs:
           IMDB_RATINGS_API_BASE_URL: ${{ secrets.IMDB_RATINGS_API_BASE_URL }}
         run: |
           for key in TRAKT_CLIENT_ID TRAKT_CLIENT_SECRET SIMKL_CLIENT_ID TMDB_API_KEY MDBLIST_CLIENT_ID IMDB_TAPFRAME_API_BASE_URL IMDB_RATINGS_API_BASE_URL; do
-            if [ -z "${!key}" ]; then
+            if [ -z "${!key//[[:space:]]/}" ]; then
               echo "::warning::Secret $key is not set; that desktop feature will be unavailable in this build."
             fi
           done
@@ -138,7 +138,7 @@ jobs:
           IMDB_RATINGS_API_BASE_URL: ${{ secrets.IMDB_RATINGS_API_BASE_URL }}
         run: |
           for key in TRAKT_CLIENT_ID TRAKT_REDIRECT_URI SIMKL_CLIENT_ID MDBLIST_CLIENT_ID TMDB_API_KEY IMDB_TAPFRAME_API_BASE_URL IMDB_RATINGS_API_BASE_URL; do
-            if [ -z "${!key}" ]; then
+            if [ -z "${!key//[[:space:]]/}" ]; then
               echo "::warning::Secret $key is not set; that integration will be unavailable in this build."
             fi
           done

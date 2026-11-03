@@ -297,7 +297,7 @@ class SyncMergeProfilesTest {
 
     @Test
     fun `backgrounds come from the account and are only replaced once picked here`() {
-        val remote = listOf(RemoteProfile(1, "Me", "#111111", false, profileBackgroundId = "space"))
+        val remote = listOf(RemoteProfile(1, "Me", "#111111", false, profileBackgroundId = "space", profileBackgroundUrl = "https://x/custom.png"))
         val merged = SyncMerge.profiles(listOf(DesktopProfile(1, "Me", "#111111")), remote).local.single()
         assertEquals("space", merged.profileBackgroundId)
 
@@ -308,5 +308,6 @@ class SyncMergeProfilesTest {
         assertNull(SyncMerge.profilesToPush(listOf(picked), remote).single().profileBackgroundId)
         val other = picked.copy(profileBackgroundId = "forest")
         assertEquals("forest", SyncMerge.profilesToPush(listOf(other), remote).single().profileBackgroundId)
+        assertNull("a catalog pick drops the account's own picture", SyncMerge.profilesToPush(listOf(other), remote).single().profileBackgroundUrl)
     }
 }

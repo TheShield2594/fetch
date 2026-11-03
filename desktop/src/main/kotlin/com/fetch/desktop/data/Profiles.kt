@@ -60,7 +60,12 @@ data class ProfilesFile(
      * PIN to open, so a restricted profile can't skip its limits by switching. Kept on this
      * computer, as on TV.
      */
-    val lockUnrestrictedProfiles: Boolean = false
+    val lockUnrestrictedProfiles: Boolean = false,
+    /**
+     * Profiles whose limits a server-side settings copy replaced with the source's and that still
+     * owe the account their own; pushed on the next account sync.
+     */
+    val pendingLimitsPush: Set<Int> = emptySet()
 ) {
     /** The lowest free id: the sync server numbers profiles 1 to [MAX_PROFILES], like the TV app. */
     fun nextId(): Int = (2..MAX_PROFILES).firstOrNull { id -> profiles.none { it.id == id } } ?: ((profiles.maxOfOrNull { it.id } ?: 0) + 1)

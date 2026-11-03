@@ -80,6 +80,8 @@ fun AddonHealthDialog(
     var clearArmed by remember { mutableStateOf(false) }
     val health = tracker.health
     val rows = sortByHealth(addons, { it.displayName }, { health[it.displayName] }, sort)
+    // Health is kept by name: when two addons share one, it can't say which failed, so neither offers Disable.
+    val sharedNames = addons.groupingBy { it.displayName }.eachCount().filterValues { it > 1 }.keys
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
@@ -102,7 +104,7 @@ fun AddonHealthDialog(
                             addon.displayName,
                             health[addon.displayName]?.takeIf { it.requests > 0 },
                             enabled = addon.enabled,
-                            onDisable = onDisable?.let { disable -> { disable(addon) } }
+                            onDisable = onDisable?.takeIf { addon.displayName !in sharedNames }?.let { disable -> { disable(addon) } }
                         )
                     }
                 }

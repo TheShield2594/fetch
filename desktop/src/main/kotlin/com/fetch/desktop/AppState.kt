@@ -102,6 +102,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.withLock
 import com.fetch.desktop.data.ProfileLimits
 import com.fetch.desktop.parental.Parental
 import com.fetch.desktop.parental.ScreenTimeBlock
@@ -488,6 +489,7 @@ class AppState(
         com.fetch.desktop.collections.CollectionsStore.inProfile(profileDir(profile)),
         com.fetch.desktop.collections.CollectionSourceResolver(
             addons = { activeAddons },
+            disabledAddons = { addons.filter { !it.enabled } },
             addonClient = client,
             tmdb = com.fetch.desktop.tmdb.TmdbCollectionSources(tmdb.client),
             tmdbLanguage = { settings.tmdb.language },
@@ -869,13 +871,27 @@ class AppState(
     private val addonProfileId: Int get() = if (profile.usesPrimaryAddons) DesktopProfile.PRIMARY_ID else profile.id
 
     /** Sends the addon list to the server after an install, removal or reorder here. */
-    private fun pushAddonsToServer() {
+    /** Orders addon pushes, so an older list can't reach the server after a newer one. */
+    private val addonPushLock = kotlinx.coroutines.sync.Mutex()
+
+    /**
+     * Sends the addon list to the server. The list and switches are read when the push runs, under
+     * [addonPushLock], so the last push always carries the latest state. [removed] are addons
+     * removed here, kept out of the push even when the account has them switched off.
+     */
+    private fun pushAddonsToServer(removed: Set<String> = emptySet()) {
         val remote = account?.client() ?: return
         // A profile sharing the main profile's addons doesn't push them, as on TV.
         if (!profile.isPrimary && profile.usesPrimaryAddons) return
-        val urls = addons.map { it.baseUrl } + unreachableAddons.map { it.first }
-        val disabled = disabledAddonUrls()
-        scope.launch { runCatching { remote.pushAddons(profile.id, SyncMerge.addonsToPush(urls, remote.pullAddons(profile.id), disabled)) } }
+        scope.launch {
+            addonPushLock.withLock {
+                runCatching {
+                    val pulled = remote.pullAddons(profile.id)
+                    val urls = addons.map { it.baseUrl } + unreachableAddons.map { it.first }
+                    remote.pushAddons(profile.id, SyncMerge.addonsToPush(urls, pulled, disabledAddonUrls(), removed))
+                }
+            }
+        }
     }
 
     /** Settings, addons, profiles, locks and limits from the server; the account's win, as on TV. */
@@ -897,6 +913,7 @@ class AppState(
         val switchesChanged = addonMerge.disabled.map(SyncMerge::addonKey).toSet() != localDisabled.map(SyncMerge::addonKey).toSet()
         if (listChanged || switchesChanged) {
             runCatching { store.save(addonMerge.local, addonMerge.disabled) }
+                .onFailure { message = "Couldn't save the addon list from your account: ${it.message}" }
             reloadAddons()
         }
 
@@ -976,7 +993,6 @@ class AppState(
     private suspend fun reloadAddons() {
         addonsLoading = true
         val urls = store.load()
-        val disabled = store.loadDisabled()
         val results = withContext(Dispatchers.IO) {
             urls.map { url ->
                 async {
@@ -990,6 +1006,8 @@ class AppState(
                 }
             }.awaitAll()
         }
+        // Read after the fetches, so a switch flipped while they ran isn't undone here.
+        val disabled = store.loadDisabled()
         addons.clear()
         unreachableAddons.clear()
         results.forEach { (url, result) ->
@@ -1064,12 +1082,14 @@ class AppState(
         persist()
         pushAddonsToServer()
         addonsChanged()
+        // Search results come from the switched-on addons only.
+        if (searchQuery.isNotBlank()) search(searchQuery)
     }
 
     fun removeAddon(addon: Addon) {
         addons.remove(addon)
         persist()
-        pushAddonsToServer()
+        pushAddonsToServer(removed = setOf(addon.baseUrl))
         rows.removeAll { it.addon.baseUrl == addon.baseUrl }
         discover.setAddons(activeAddons, settings.discoverCatalog)
     }
@@ -1207,6 +1227,7 @@ class AppState(
         }
         rows.clear()
         rows.addAll(wanted)
+        val generation = ++rowsGeneration
         wanted.forEach { row ->
             scope.launch {
                 val updated = try {
@@ -1216,11 +1237,15 @@ class AppState(
                 } catch (e: Exception) {
                     row.copy(loading = false, error = e.message ?: "Couldn't load")
                 }
+                // A newer reload replaced these rows; its own request fills them.
+                if (generation != rowsGeneration) return@launch
                 val index = rows.indexOfFirst { it.key == row.key }
                 if (index >= 0) rows[index] = updated
             }
         }
     }
+
+    private var rowsGeneration = 0
 
     // --- Links (fetch://, stremio://) ---
 
@@ -1807,6 +1832,8 @@ class AppState(
         val current = sources ?: return false
         if (!ap.reuseLastLink || ServerItemRef.isServerId(current.videoId)) return false
         val link = linkCache.validLink(current.videoId, ap.reuseLastLinkCacheHours) ?: return false
+        // Not a link from an addon that is switched off now.
+        if (activeAddons.none { it.displayName == link.addonName } && addons.any { !it.enabled && it.displayName == link.addonName }) return false
         stopAutoPlayWait()
         playStream(link.toStream(), builtIn = null)
         return true

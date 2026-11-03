@@ -40,6 +40,8 @@ fun interface TraktListReader {
  */
 class CollectionSourceResolver(
     private val addons: () -> List<Addon>,
+    /** Installed addons that are switched off: their catalogs give nothing, and aren't fetched from the saved link. */
+    private val disabledAddons: () -> List<Addon> = { emptyList() },
     private val addonClient: AddonClient,
     private val tmdb: TmdbCollectionSources,
     private val tmdbLanguage: () -> String,
@@ -60,6 +62,7 @@ class CollectionSourceResolver(
     }
 
     private suspend fun addonPage(source: AddonCatalogCollectionSource, page: Int): SourcePage {
+        if (findCatalog(addons(), source) == null && findCatalog(disabledAddons(), source) != null) return SourcePage(emptyList(), false)
         val (addon, catalog) = findCatalog(addons(), source) ?: run {
             val url = source.addonUrl ?: error(ADDON_MISSING)
             val remote = remoteAddons[url] ?: addonClient.fetchAddon(url).also { remoteAddons[url] = it }

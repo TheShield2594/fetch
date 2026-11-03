@@ -1,5 +1,7 @@
 package com.fetch.desktop.ui
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -269,7 +271,12 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                         )
                         CircleIconButton(FetchIcons.Fullscreen, "Fullscreen", onClick = ::toggleFullscreen)
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        // Scrolls in a narrow window, so the last buttons stay reachable.
+                        modifier = Modifier.horizontalScroll(rememberScrollState())
+                    ) {
                         if (session.nextEpisode != null) {
                             SecondaryButton("Next episode", onClick = state::playNextNow, icon = FetchIcons.ChevronRight)
                         }

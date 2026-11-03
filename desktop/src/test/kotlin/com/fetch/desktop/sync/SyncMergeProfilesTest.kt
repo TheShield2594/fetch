@@ -52,6 +52,13 @@ class SyncMergeProfilesTest {
     }
 
     @Test
+    fun `an addon removed here isn't pushed back as disabled`() {
+        val remote = listOf(RemoteAddon("https://a", 0), RemoteAddon("https://off", 1, enabled = false))
+        assertEquals(listOf("https://a"), SyncMerge.addonsToPush(listOf("https://a"), remote, removed = setOf("https://off/manifest.json")).map { it.url })
+        assertEquals(listOf("https://a", "https://off"), SyncMerge.addonsToPush(listOf("https://a"), remote).map { it.url })
+    }
+
+    @Test
     fun `addons switched off here are pushed disabled`() {
         val push = SyncMerge.addonsToPush(listOf("https://a", "https://b/manifest.json"), emptyList(), disabled = setOf("https://B"))
         assertEquals(listOf(RemoteAddon("https://a", 0), RemoteAddon("https://b", 1, enabled = false)), push)

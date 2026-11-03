@@ -168,19 +168,25 @@ object SyncMerge {
      * This computer's addon list as [SyncClient.pushAddons] takes it, in local order, with the
      * ones in [disabled] switched off. Names the user set on TV are kept, and the account's
      * disabled addons that aren't installed here stay in the list, disabled, after the addon they
-     * followed there.
+     * followed there, unless they are in [removed] (taken off here).
      */
-    fun addonsToPush(local: List<String>, remote: List<RemoteAddon>, disabled: Set<String> = emptySet()): List<RemoteAddon> {
+    fun addonsToPush(
+        local: List<String>,
+        remote: List<RemoteAddon>,
+        disabled: Set<String> = emptySet(),
+        removed: Set<String> = emptySet(),
+    ): List<RemoteAddon> {
         val remoteOrdered = remote.sortedBy { it.order }.distinctBy { addonKey(it.url) }
         val remoteByKey = remoteOrdered.associateBy { addonKey(it.url) }
         val disabledKeys = disabled.map(::addonKey).toSet()
+        val removedKeys = removed.map(::addonKey).toSet()
         val result = local.map(::canonicalAddonUrl).filter { it.isNotBlank() }.distinctBy(::addonKey)
             .map { url -> RemoteAddon(url, 0, enabled = addonKey(url) !in disabledKeys, name = remoteByKey[addonKey(url)]?.name) }
             .toMutableList()
         var previousKey: String? = null
         remoteOrdered.forEach { addon ->
             val key = addonKey(addon.url)
-            if (!addon.enabled && result.none { addonKey(it.url) == key }) {
+            if (!addon.enabled && key !in removedKeys && result.none { addonKey(it.url) == key }) {
                 val after = previousKey?.let { prev -> result.indexOfFirst { addonKey(it.url) == prev } } ?: -1
                 result.add(after + 1, addon)
             }

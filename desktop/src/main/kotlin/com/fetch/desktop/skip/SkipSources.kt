@@ -323,6 +323,8 @@ class SkipSources(
     private val animeSkipClientId: () -> String?
 ) {
     private val cache = ConcurrentHashMap<String, List<Segment>>()
+    /** Bumped per title when a submitted marker clears its cache, so a lookup already running doesn't store old times. */
+    private val invalidations = ConcurrentHashMap<String, Int>()
 
     /**
      * Segments for [contentId] (`tt…`, `kitsu:…`, `mal:…`); [season]/[episode] from the episode, or
@@ -331,6 +333,7 @@ class SkipSources(
     suspend fun segments(contentId: String, videoId: String?, season: Int?, episode: Int?, isMovie: Boolean): List<Segment> {
         val key = "$contentId|$videoId|$season|$episode|$isMovie"
         cache[key]?.let { return it }
+        val version = invalidations[contentId] ?: 0
         val parts = contentId.split(':')
         val scheme = parts[0]
         val result = when {
@@ -342,7 +345,7 @@ class SkipSources(
             }
             else -> emptyList()
         }
-        return result.also { cache[key] = it }
+        return result.also { if ((invalidations[contentId] ?: 0) == version) cache[key] = it }
     }
 
     private suspend fun movie(contentId: String, videoId: String?): List<Segment> {
@@ -355,7 +358,7 @@ class SkipSources(
         return ids.firstNotNullOfOrNull { id -> id.substringBefore(':').takeIf(SkipMarkerRules::isImdbId) }
             ?: ids.firstNotNullOfOrNull { id ->
                 val p = id.split(':')
-                if (p.size >= 2 && (p[0] == "mal" || p[0] == "kitsu")) simkl.resolveIds(p[0], p[1])?.imdb else null
+                if (p.size >= 2 && (p[0] == "mal" || p[0] == "kitsu")) simkl.resolveIds(p[0], p[1])?.imdb?.takeIf(SkipMarkerRules::isImdbId) else null
             }
     }
 
@@ -381,7 +384,10 @@ class SkipSources(
     /** Sends a recorded marker to IntroDB; on success the title's segments are looked up afresh next time. */
     suspend fun submitMarker(apiKey: String, contentId: String, target: MarkerTarget, type: SegmentType, startSec: Double, endSec: Double): Boolean {
         val ok = introDb.submit(apiKey, target, type, startSec, endSec)
-        if (ok) cache.keys.removeAll { it.startsWith("$contentId|") }
+        if (ok) {
+            invalidations.merge(contentId, 1, Int::plus)
+            cache.keys.removeAll { it.startsWith("$contentId|") }
+        }
         return ok
     }
 

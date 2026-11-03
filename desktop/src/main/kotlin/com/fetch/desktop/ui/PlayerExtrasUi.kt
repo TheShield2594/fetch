@@ -187,7 +187,12 @@ fun BoxScope.PlayerExtrasLayer(state: AppState, session: PlayerSession, controls
         session.extras.markerStartSec = null
         session.extras.markerTarget = null
         val target = session.target ?: return@LaunchedEffect
-        if (introDbKey != null) session.extras.markerTarget = state.markerTargetFor(target)
+        if (introDbKey == null) return@LaunchedEffect
+        // A failed or slow Simkl lookup is tried again a couple of times before the button stays hidden.
+        repeat(3) { attempt ->
+            state.markerTargetFor(target)?.let { session.extras.markerTarget = it; return@LaunchedEffect }
+            if (attempt < 2) delay(5_000)
+        }
     }
     SkipSegmentButton(
         session = session,

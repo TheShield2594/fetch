@@ -48,7 +48,8 @@ val resourceValues = mapOf(
     "traktClientSecret" to credential("TRAKT_CLIENT_SECRET"),
     "simklClientId" to credential("SIMKL_CLIENT_ID"),
     "simklAppName" to credential("SIMKL_APP_NAME", "fetch"),
-    "tmdbApiKey" to credential("TMDB_API_KEY")
+    "tmdbApiKey" to credential("TMDB_API_KEY"),
+    "mdblistClientId" to credential("MDBLIST_CLIENT_ID")
 )
 
 // Settings › About shows the version; the accounts read their client IDs from here.

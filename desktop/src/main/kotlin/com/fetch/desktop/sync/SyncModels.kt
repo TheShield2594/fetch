@@ -151,6 +151,10 @@ data class RemoteSharedSettings(
     val tmdbFlags: Map<String, Boolean>? = null,
     /** `tmdb_settings.tmdb_language`. */
     val tmdbLanguage: String? = null,
+    /** `mdblist_settings` booleans by key (`mdblist_enabled`, `mdblist_show_imdb`, …); only the ones present. */
+    val mdblistFlags: Map<String, Boolean>? = null,
+    /** `mdblist_settings.mdblist_rating_order`: providers joined by commas. The API key is not synced here. */
+    val mdblistRatingOrder: String? = null,
 )
 
 /**

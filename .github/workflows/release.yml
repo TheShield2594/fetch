@@ -47,6 +47,7 @@ jobs:
           SIMKL_CLIENT_ID: ${{ secrets.SIMKL_CLIENT_ID }}
           SIMKL_APP_NAME: ${{ secrets.SIMKL_APP_NAME }}
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          MDBLIST_CLIENT_ID: ${{ secrets.MDBLIST_CLIENT_ID }}
         run: ./gradlew --no-daemon -Pfetch.desktopOnly=true :desktop:test :desktop:packageDeb :desktop:packageRpm :desktop:createDistributable
 
       - name: Name packages after the tag

@@ -23,7 +23,9 @@ fun RemoteSharedSettings.changedFrom(before: RemoteSharedSettings): RemoteShared
         nextUpFromFurthest = pick(nextUpFromFurthest, before.nextUpFromFurthest),
         continueWatchingSort = pick(continueWatchingSort, before.continueWatchingSort),
         tmdbFlags = tmdbFlags?.filter { (k, v) -> before.tmdbFlags?.get(k) != v }?.takeIf { it.isNotEmpty() },
-        tmdbLanguage = pick(tmdbLanguage, before.tmdbLanguage)
+        tmdbLanguage = pick(tmdbLanguage, before.tmdbLanguage),
+        mdblistFlags = mdblistFlags?.filter { (k, v) -> before.mdblistFlags?.get(k) != v }?.takeIf { it.isNotEmpty() },
+        mdblistRatingOrder = pick(mdblistRatingOrder, before.mdblistRatingOrder)
     )
     return diff.takeUnless { it == RemoteSharedSettings() }
 }

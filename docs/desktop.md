@@ -58,6 +58,8 @@ Everything is kept in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`):
 | `device-id` | The id media servers list this installation under |
 | `sync.json` | The sync server address and sign-in (owner-readable only), for the whole app |
 | `certifications.json` | Ratings looked up on TMDB, for 30 days |
+| `mdblist-ratings.json` | Ratings from MDBList, for 12 hours, for the whole app |
+| `mdblist.json` | Per profile: the MDBList account (owner-readable only) and the lists hidden from the Library |
 | `screen-time.json`, `stream-badges.json`, `sync-base.json` | Per profile: today's screen time, imported badge URLs, what the last sync saw |
 
 These are the main profile's. Every other profile keeps its own copies in `profiles/<id>/`
@@ -84,10 +86,13 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   and Sort Order (Default, Streaming Style, or a separate Upcoming row).
 - **Library**: titles saved with Add to library on the title page, with the TV app's Type,
   Sort, Genre, Year and Watched filters. Its sources are Local (the library and lists of your
-  own, kept in `lists.json`), Trakt (watchlist and personal lists) and Simkl (Watching, Plan to
-  Watch, On Hold, Completed, Dropped), each list a tab. **Manage lists** (a poster's right-click
-  menu, or Lists on a title page) puts a title on any of them; the Library's Manage lists
-  creates, renames, reorders and deletes your own and Trakt's lists.
+  own, kept in `lists.json`), Trakt (watchlist and personal lists), Simkl (Watching, Plan to
+  Watch, On Hold, Completed, Dropped) and MDBList (Watchlist, static, dynamic, external and
+  liked lists), each list a tab. **Manage lists** (a poster's right-click menu, or Lists on a
+  title page) puts a title on any of them (MDBList's Watchlist and static lists; the others are
+  read-only there too); the Library's Manage lists creates, renames, reorders and deletes your
+  own and Trakt's lists, and creates, renames (private or public) and deletes MDBList's static
+  lists.
 - **See all** on a Home row opens its whole catalog as a grid that loads more as you scroll.
 - **Discover**: pick a type, catalog and genre and browse the catalog as a grid that loads more
   as you scroll. It sits in Search until you type, as on TV, or in the sidebar.
@@ -143,6 +148,16 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   (biography and filmography) or a logo for a studio's or network's titles. Home gets
   **Because you watched** rows for the last two titles you finished. Titles TMDB knows only by
   its own id open with their IMDb id when TMDB has one, otherwise from TMDB's details.
+- **MDBList** (Settings › MDBList, off by default as on TV, and synced with it except the API
+  key): ratings from IMDb, Trakt, TMDB, Rotten Tomatoes (fresh, rotten, Certified Fresh), the
+  audience score (Verified Hot), Letterboxd, Metacritic and MyAnimeList as badges on the title
+  page, in the order you set and with the ones you turn off left out; with "Use ratings on Home's
+  hero" the first three on Home's hero too. They take the place of the addon's IMDb badge.
+  Lookups go by IMDb id, a whole Home row in one request, and are cached for 12 hours, as on TV.
+  Ratings use your API key, or the connected MDBList account. The account, connected with a code
+  (builds need `MDBLIST_CLIENT_ID`, as for the TV) or an API key, adds its lists to the Library
+  (see Library above); Settings › MDBList › Library lists picks which of them show. Watched
+  history and scrobbling to MDBList aren't there yet.
 - **Ratings from TMDB**: a profile's rating limit uses the addon's certificate, else TMDB's
   (picked by country as the TV app does), cached for 30 days. Builds read `TMDB_API_KEY`; you
   can enter your own key in Settings › TMDB.

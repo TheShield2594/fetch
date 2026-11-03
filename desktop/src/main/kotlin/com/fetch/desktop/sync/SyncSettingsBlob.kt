@@ -48,7 +48,18 @@ object SyncSettingsBlob {
         "tmdb_use_more_like_this", "tmdb_use_collections"
     )
 
-    private val rankingJson = Json { ignoreUnknownKeys = true; encodeDefaults = false }
+    const val MDBLIST = "mdblist_settings"
+
+    /**
+     * The TV's `mdblist_settings` switches, by key. As on TV, `mdblist_api_key` never goes in the
+     * blob (the TV syncs it separately, as a provider credential).
+     */
+    val MDBLIST_FLAGS = listOf(
+        "mdblist_enabled", "mdblist_show_trakt", "mdblist_show_imdb", "mdblist_show_tmdb", "mdblist_show_letterboxd",
+        "mdblist_show_tomatoes", "mdblist_show_audience", "mdblist_show_metacritic", "mdblist_show_mal", "mdblist_show_on_hero"
+    )
+
+    private val rankingJson =Json { ignoreUnknownKeys = true; encodeDefaults = false }
 
     /** The shared settings in [blob]; fields the blob doesn't have are null. */
     fun sharedSettings(blob: JsonObject?): RemoteSharedSettings {
@@ -86,6 +97,8 @@ object SyncSettingsBlob {
             continueWatchingSort = string(LAYOUT, "continue_watching_sort_mode"),
             tmdbFlags = TMDB_FLAGS.mapNotNull { key -> boolean(TMDB, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
             tmdbLanguage = string(TMDB, "tmdb_language"),
+            mdblistFlags = MDBLIST_FLAGS.mapNotNull { key -> boolean(MDBLIST, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
+            mdblistRatingOrder = string(MDBLIST, "mdblist_rating_order"),
         )
     }
 
@@ -113,6 +126,8 @@ object SyncSettingsBlob {
         set(LAYOUT, "continue_watching_sort_mode", settings.continueWatchingSort?.let(::stringValue))
         settings.tmdbFlags?.forEach { (key, value) -> if (key in TMDB_FLAGS) set(TMDB, key, booleanValue(value)) }
         set(TMDB, "tmdb_language", settings.tmdbLanguage?.let(::stringValue))
+        settings.mdblistFlags?.forEach { (key, value) -> if (key in MDBLIST_FLAGS) set(MDBLIST, key, booleanValue(value)) }
+        set(MDBLIST, "mdblist_rating_order", settings.mdblistRatingOrder?.let(::stringValue))
 
         val base = blob ?: JsonObject(emptyMap())
         val features = (base[FEATURES] as? JsonObject).orEmpty().toMutableMap()

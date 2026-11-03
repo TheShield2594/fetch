@@ -420,6 +420,91 @@ private val TextColors = listOf(
 private val OutlineColors = listOf("#000000" to "Black", "#404040" to "Dark gray", "#FFFFFF" to "White", "#000080" to "Navy")
     .map { DropdownOption(it.first, it.second) }
 
+/** The TV's TMDB languages (`AVAILABLE_TMDB_LANGUAGES`), so a synced choice reads the same. */
+private val TmdbLanguages = listOf(
+    "af" to "Afrikaans",
+    "sq" to "Albanian",
+    "am" to "Amharic",
+    "ar" to "Arabic",
+    "hy" to "Armenian",
+    "az" to "Azerbaijani",
+    "eu" to "Basque",
+    "be" to "Belarusian",
+    "bn" to "Bengali",
+    "bs" to "Bosnian",
+    "bg" to "Bulgarian",
+    "my" to "Burmese",
+    "ca" to "Catalan",
+    "zh" to "Chinese",
+    "zh-CN" to "Chinese (Simplified)",
+    "zh-TW" to "Chinese (Traditional)",
+    "hr" to "Croatian",
+    "cs" to "Czech",
+    "da" to "Danish",
+    "nl" to "Dutch",
+    "en" to "English",
+    "et" to "Estonian",
+    "tl" to "Filipino",
+    "fi" to "Finnish",
+    "fr" to "French",
+    "gl" to "Galician",
+    "ka" to "Georgian",
+    "de" to "German",
+    "el" to "Greek",
+    "gu" to "Gujarati",
+    "he" to "Hebrew",
+    "hi" to "Hindi",
+    "hu" to "Hungarian",
+    "is" to "Icelandic",
+    "id" to "Indonesian",
+    "ga" to "Irish",
+    "it" to "Italian",
+    "ja" to "Japanese",
+    "kn" to "Kannada",
+    "kk" to "Kazakh",
+    "km" to "Khmer",
+    "ko" to "Korean",
+    "lo" to "Lao",
+    "lv" to "Latvian",
+    "lt" to "Lithuanian",
+    "mk" to "Macedonian",
+    "ms" to "Malay",
+    "ml" to "Malayalam",
+    "mt" to "Maltese",
+    "mr" to "Marathi",
+    "mn" to "Mongolian",
+    "ne" to "Nepali",
+    "no" to "Norwegian",
+    "pa" to "Punjabi",
+    "fa" to "Persian",
+    "pl" to "Polish",
+    "pt" to "Portuguese (Portugal)",
+    "pt-br" to "Portuguese (Brazil)",
+    "ro" to "Romanian",
+    "ru" to "Russian",
+    "sr" to "Serbian",
+    "si" to "Sinhala",
+    "sk" to "Slovak",
+    "sl" to "Slovenian",
+    "es" to "Spanish",
+    "es-419" to "Spanish (Latin America)",
+    "sw" to "Swahili",
+    "sv" to "Swedish",
+    "ta" to "Tamil",
+    "te" to "Telugu",
+    "th" to "Thai",
+    "tr" to "Turkish",
+    "uk" to "Ukrainian",
+    "ur" to "Urdu",
+    "uz" to "Uzbek",
+    "vi" to "Vietnamese",
+    "cy" to "Welsh",
+    "zu" to "Zulu",
+    "en-AU" to "English (Australia)",
+    "en-CA" to "English (Canada)",
+    "en-GB" to "English (United Kingdom)"
+).sortedBy { it.second }.map { DropdownOption(it.first, it.second) }
+
 @Composable
 private fun SkipSegmentsPage(state: AppState) {
     val p = state.settings.player
@@ -642,18 +727,46 @@ private fun TextListRow(title: String, values: List<String>, onChange: (List<Str
 private fun TmdbPage(state: AppState) {
     val builtIn = remember { com.fetch.desktop.ratings.TmdbCredentials.load() != null }
     val own = state.settings.tmdbApiKey?.takeIf { it.isNotBlank() }
-    PageHeader("TMDB", subtitle = "The Movie Database: maturity ratings for titles your addons don't rate, for profile limits.")
+    val t = state.settings.tmdb
+    val update: ((com.fetch.desktop.data.TmdbSettings) -> com.fetch.desktop.data.TmdbSettings) -> Unit = { change ->
+        state.updateSettings { it.copy(tmdb = change(it.tmdb)) }
+    }
+    PageHeader("TMDB", subtitle = "The Movie Database: richer title pages, More like this, people and studios, and ratings for profile limits.")
     SettingsSection(null) {
         SettingsRow(
             "Status",
             when {
                 own != null -> "Using your key."
                 builtIn -> "Using this build's key."
-                else -> "No key: rating limits only know ratings your addons give. Add a free key from themoviedb.org."
+                else -> "No key: TMDB features are off, and rating limits only know ratings your addons give. Add a free key from themoviedb.org."
             }
         )
         TextRow("Your TMDB key", "An API key (v3) or read access token (v4). Leave empty to use the build's.", own.orEmpty()) { key ->
             state.updateSettings { it.copy(tmdbApiKey = key.ifBlank { null }) }
+        }
+    }
+    SettingsSection("Enrichment") {
+        SettingsToggle(
+            "Use TMDB",
+            "Fill title pages in from TMDB: artwork, details, cast and crew, episodes, trailers, More like this and collections. Ratings for profile limits work either way.",
+            t.enabled
+        ) { v -> update { it.copy(enabled = v) } }
+        if (t.enabled) {
+            SettingsChoice("Language", "For titles, descriptions, episode names and logos.", t.language, TmdbLanguages) { v -> update { it.copy(language = v) } }
+        }
+    }
+    if (t.enabled) {
+        SettingsSection("What TMDB fills in") {
+            SettingsToggle("Artwork", "Backdrops and title logos.", t.useArtwork) { v -> update { it.copy(useArtwork = v) } }
+            SettingsToggle("Title, description and genres", "In the language above. Also shows TMDB's rating.", t.useBasicInfo) { v -> update { it.copy(useBasicInfo = v) } }
+            SettingsToggle("Details", "Runtime, status, country and language.", t.useDetails) { v -> update { it.copy(useDetails = v) } }
+            SettingsToggle("Cast and crew", "With photos; click someone for their page.", t.useCredits) { v -> update { it.copy(useCredits = v) } }
+            SettingsToggle("Production companies", "Logos that open a studio's titles.", t.useProductions) { v -> update { it.copy(useProductions = v) } }
+            SettingsToggle("Networks", "Logos that open a network's shows.", t.useNetworks) { v -> update { it.copy(useNetworks = v) } }
+            SettingsToggle("Episodes", "Episode names, descriptions, stills and ratings.", t.useEpisodes) { v -> update { it.copy(useEpisodes = v) } }
+            SettingsToggle("Trailers", null, t.useTrailers) { v -> update { it.copy(useTrailers = v) } }
+            SettingsToggle("More like this", "On title pages, and Because you watched on Home.", t.useMoreLikeThis) { v -> update { it.copy(useMoreLikeThis = v) } }
+            SettingsToggle("Collections", "The other films in a series, such as a trilogy.", t.useCollections) { v -> update { it.copy(useCollections = v) } }
         }
     }
 }

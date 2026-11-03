@@ -37,7 +37,7 @@ object WatchHistory {
             val watched = (file.watched + target.videoId).distinct()
             val next = target.video?.let { nextEpisode(target.episodes, it, watched.toSet()) }
             val entries = if (next == null) others else others + entryFor(target, next, 0, 0, now).copy(upNext = true)
-            return ProgressFile(entries = entries, watched = watched)
+            return file.copy(entries = entries, watched = watched, finished = finished(file, target, now))
         }
         // Opening a stream and closing it straight away doesn't start a title.
         if (fraction < WatchProgress.STARTED_THRESHOLD && existing?.videoId != target.videoId) return file
@@ -98,8 +98,15 @@ object WatchHistory {
                 if (next == null) others else others + entryFor(target, next, 0, 0, now).copy(upNext = true)
             }
         }
-        return ProgressFile(entries = entries, watched = watchedIds)
+        return file.copy(entries = entries, watched = watchedIds, finished = finished(file, target, now))
     }
+
+    /** [file]'s finished titles with [target]'s show or movie first. */
+    private fun finished(file: ProgressFile, target: PlaybackTarget, now: Long): List<FinishedTitle> =
+        (listOf(FinishedTitle(target.contentId, target.contentType, target.name, now)) + file.finished.filter { it.contentId != target.contentId })
+            .take(MAX_FINISHED)
+
+    private const val MAX_FINISHED = 30
 
     /** The aired episodes before [episode] in season and episode order (specials excluded). */
     fun episodesBefore(episodes: List<Video>, episode: Video): List<Video> =
@@ -146,7 +153,7 @@ object WatchHistory {
                 entries = entries.filter { it.contentId != incoming.contentId } + incoming
             }
         }
-        return ProgressFile(entries = entries, watched = (file.watched + watchedIds).distinct())
+        return file.copy(entries = entries, watched = (file.watched + watchedIds).distinct())
     }
 }
 

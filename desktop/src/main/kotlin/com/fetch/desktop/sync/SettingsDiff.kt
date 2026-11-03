@@ -18,7 +18,9 @@ fun RemoteSharedSettings.changedFrom(before: RemoteSharedSettings): RemoteShared
         subtitleLanguage = pick(subtitleLanguage, before.subtitleLanguage),
         rankingRules = pick(rankingRules, before.rankingRules),
         autoplayNextEpisode = pick(autoplayNextEpisode, before.autoplayNextEpisode),
-        autoSkipSegments = pick(autoSkipSegments, before.autoSkipSegments)
+        autoSkipSegments = pick(autoSkipSegments, before.autoSkipSegments),
+        tmdbFlags = tmdbFlags?.filter { (k, v) -> before.tmdbFlags?.get(k) != v }?.takeIf { it.isNotEmpty() },
+        tmdbLanguage = pick(tmdbLanguage, before.tmdbLanguage)
     )
     return diff.takeUnless { it == RemoteSharedSettings() }
 }

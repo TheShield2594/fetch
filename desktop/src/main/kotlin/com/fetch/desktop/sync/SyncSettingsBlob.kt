@@ -39,6 +39,14 @@ object SyncSettingsBlob {
     const val THEME = "theme_settings"
     const val LAYOUT = "layout_settings"
     const val PLAYER = "player_settings"
+    const val TMDB = "tmdb_settings"
+
+    /** The TV's `tmdb_settings` switches the desktop has, by key. */
+    val TMDB_FLAGS = listOf(
+        "tmdb_enabled", "tmdb_use_artwork", "tmdb_use_basic_info", "tmdb_use_details", "tmdb_use_credits",
+        "tmdb_use_productions", "tmdb_use_networks", "tmdb_use_episodes", "tmdb_use_trailers",
+        "tmdb_use_more_like_this", "tmdb_use_collections"
+    )
 
     private val rankingJson = Json { ignoreUnknownKeys = true; encodeDefaults = false }
 
@@ -73,6 +81,8 @@ object SyncSettingsBlob {
             },
             autoplayNextEpisode = boolean(PLAYER, "stream_auto_play_next_episode_enabled"),
             autoSkipSegments = stringSet(PLAYER, "auto_skip_segment_types"),
+            tmdbFlags = TMDB_FLAGS.mapNotNull { key -> boolean(TMDB, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
+            tmdbLanguage = string(TMDB, "tmdb_language"),
         )
     }
 
@@ -95,6 +105,8 @@ object SyncSettingsBlob {
         })
         set(PLAYER, "stream_auto_play_next_episode_enabled", settings.autoplayNextEpisode?.let(::booleanValue))
         set(PLAYER, "auto_skip_segment_types", settings.autoSkipSegments?.let(::stringSetValue))
+        settings.tmdbFlags?.forEach { (key, value) -> if (key in TMDB_FLAGS) set(TMDB, key, booleanValue(value)) }
+        set(TMDB, "tmdb_language", settings.tmdbLanguage?.let(::stringValue))
 
         val base = blob ?: JsonObject(emptyMap())
         val features = (base[FEATURES] as? JsonObject).orEmpty().toMutableMap()

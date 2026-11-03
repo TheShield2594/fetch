@@ -141,6 +141,10 @@ data class RemoteSharedSettings(
     val autoplayNextEpisode: Boolean? = null,
     /** `player_settings.auto_skip_segment_types`: `intro`, `recap`, `outro`, `movie-credits`. */
     val autoSkipSegments: Set<String>? = null,
+    /** `tmdb_settings` booleans by key (`tmdb_enabled`, `tmdb_use_artwork`, …); only the ones present. */
+    val tmdbFlags: Map<String, Boolean>? = null,
+    /** `tmdb_settings.tmdb_language`. */
+    val tmdbLanguage: String? = null,
 )
 
 /**

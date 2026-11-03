@@ -125,6 +125,14 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   which with mpv's lanczos scaler sometimes draws only black), it uses mpv's software renderer;
   Settings › Player › Draw with the graphics card switches to it too. mpv's own window stays
   the default. `FETCH_MPV_DEBUG=1` prints libmpv's log for reporting playback problems.
+- **TMDB** (Settings › TMDB, off by default as on TV, and synced with it): title pages filled
+  in from TMDB (artwork, title and description in your language, runtime and status, cast and
+  crew with photos, episode names, stills and ratings, trailers), each part switchable; TMDB's
+  rating and the director or creator in the hero; **More like this**, the title's
+  **collection**, and its studios and networks as logos. Click a person for their page
+  (biography and filmography) or a logo for a studio's or network's titles. Home gets
+  **Because you watched** rows for the last two titles you finished. Titles TMDB knows only by
+  its own id open with their IMDb id when TMDB has one, otherwise from TMDB's details.
 - **Ratings from TMDB**: a profile's rating limit uses the addon's certificate, else TMDB's
   (picked by country as the TV app does), cached for 30 days. Builds read `TMDB_API_KEY`; you
   can enter your own key in Settings › TMDB.

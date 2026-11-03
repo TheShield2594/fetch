@@ -34,6 +34,8 @@ data class DesktopSettings(
     val player: PlayerSettings = PlayerSettings(),
     /** Your own TMDB key (Settings › Sources › TMDB), used before the build's. */
     val tmdbApiKey: String? = null,
+    /** Settings › TMDB: enrichment from The Movie Database, as on TV (synced with it). */
+    val tmdb: TmdbSettings = TmdbSettings(),
     /** "Stream selection": what Play does once the sources are in, as on TV. */
     val autoPlayMode: AutoPlayMode = AutoPlayMode.BEST_MATCH,
     /** For [AutoPlayMode.REGEX_MATCH]: the first source whose text matches this plays. */
@@ -74,6 +76,26 @@ object DesktopDefaults {
 
 fun settingsFile(dir: File = AppDirs.config) =
     JsonFile(File(dir, "settings.json"), DesktopSettings.serializer()) { DesktopSettings() }
+
+/**
+ * The TV app's TMDB settings (`tmdb_settings`): off by default; when on, each part of a title
+ * page TMDB may fill in. [language] is an ISO 639-1 code or a tag such as `pt-BR`.
+ */
+@Serializable
+data class TmdbSettings(
+    val enabled: Boolean = false,
+    val language: String = "en",
+    val useArtwork: Boolean = true,
+    val useBasicInfo: Boolean = true,
+    val useDetails: Boolean = true,
+    val useCredits: Boolean = true,
+    val useProductions: Boolean = true,
+    val useNetworks: Boolean = true,
+    val useEpisodes: Boolean = true,
+    val useTrailers: Boolean = true,
+    val useMoreLikeThis: Boolean = true,
+    val useCollections: Boolean = true
+)
 
 /** What Play does with the ranked sources (the TV's StreamAutoPlayMode). */
 enum class AutoPlayMode(val label: String) {

@@ -106,4 +106,13 @@ class WatchHistoryTest {
     fun `episodes before skip specials and keep order`() {
         assertEquals(listOf("tt1:1:1", "tt1:1:2"), WatchHistory.episodesBefore(episodes, ep(2, 1)).map { it.id })
     }
+
+    @Test
+    fun `finished titles are remembered newest first, one per show`() {
+        var file = WatchHistory.record(ProgressFile(), show(ep(1, 1)), 2_900_000, 3_000_000, now = 1)
+        file = WatchHistory.record(file, movie, 5_900_000, 6_000_000, now = 2)
+        file = WatchHistory.record(file, show(ep(1, 2)), 2_900_000, 3_000_000, now = 3)
+        assertEquals(listOf("tt1", "tt9"), file.finished.map { it.contentId })
+        assertEquals("Show", file.finished.first().name)
+    }
 }

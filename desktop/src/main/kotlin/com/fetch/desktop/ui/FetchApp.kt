@@ -142,14 +142,18 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
                         Screen.Library -> LibraryScreen(state)
                         // Read the live page, since Settings pages share one transition key.
                         is Screen.Settings -> SettingsScreen(state, (state.screen as? Screen.Settings)?.page ?: screen.page)
-                        is Screen.Detail -> DetailScreen(state, screen.preview)
+                        // Read the live screen: a TMDB title's page swaps in its IMDb id once known.
+                        is Screen.Detail -> DetailScreen(state, (state.screen as? Screen.Detail)?.preview ?: screen.preview)
+                        is Screen.Person -> PersonScreen(state, screen)
+                        is Screen.Entity -> EntityScreen(state, screen)
                     }
                 }
                 // The TV sidebar: Home, Discover (when it has its own entry), Search, Library,
                 // Settings. Addons lives in Settings › Content & Discovery, as on TV.
                 Sidebar(
                     items = buildList {
-                        add(SidebarItem("Home", FetchIcons.Home, state.screen == Screen.Home || state.screen is Screen.Detail) {
+                        add(SidebarItem("Home", FetchIcons.Home, state.screen == Screen.Home || state.screen is Screen.Detail ||
+                            state.screen is Screen.Person || state.screen is Screen.Entity) {
                             state.openSection(Screen.Home)
                         })
                         if (state.settings.discoverInSidebar) {
@@ -194,9 +198,13 @@ private class AppPosterActions(private val state: AppState) : PosterActions {
         add(androidx.compose.foundation.ContextMenuItem("Play") { state.navigate(Screen.Detail(item, autoPlay = true)) })
         add(androidx.compose.foundation.ContextMenuItem("Go to details") { state.navigate(Screen.Detail(item)) })
         val inLibrary = state.isInLibrary(item.id)
-        add(androidx.compose.foundation.ContextMenuItem(if (inLibrary) "Remove from library" else "Add to library") { state.toggleLibrary(item) })
+        add(androidx.compose.foundation.ContextMenuItem(if (inLibrary) "Remove from library" else "Add to library") {
+            state.withImdbId(item) { state.toggleLibrary(it) }
+        })
         val watched = isWatched(item)
-        add(androidx.compose.foundation.ContextMenuItem(if (watched) "Mark as unwatched" else "Mark as watched") { state.setTitleWatched(item, !watched) })
+        add(androidx.compose.foundation.ContextMenuItem(if (watched) "Mark as unwatched" else "Mark as watched") {
+            state.withImdbId(item) { state.setTitleWatched(it, !watched) }
+        })
     }
 
     override fun isWatched(item: com.fetch.tv.domain.model.MetaPreview): Boolean =

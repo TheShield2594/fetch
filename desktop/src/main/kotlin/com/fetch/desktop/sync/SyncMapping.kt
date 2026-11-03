@@ -69,7 +69,24 @@ fun RemoteSharedSettings.applyTo(settings: DesktopSettings): DesktopSettings {
     autoSkipSegments?.let { stored ->
         player = player.copy(autoSkip = SEGMENT_STORED.filterValues { it in stored }.keys)
     }
-    return s.copy(player = player)
+    var tmdb = s.tmdb
+    tmdbFlags?.let { f ->
+        tmdb = tmdb.copy(
+            enabled = f["tmdb_enabled"] ?: tmdb.enabled,
+            useArtwork = f["tmdb_use_artwork"] ?: tmdb.useArtwork,
+            useBasicInfo = f["tmdb_use_basic_info"] ?: tmdb.useBasicInfo,
+            useDetails = f["tmdb_use_details"] ?: tmdb.useDetails,
+            useCredits = f["tmdb_use_credits"] ?: tmdb.useCredits,
+            useProductions = f["tmdb_use_productions"] ?: tmdb.useProductions,
+            useNetworks = f["tmdb_use_networks"] ?: tmdb.useNetworks,
+            useEpisodes = f["tmdb_use_episodes"] ?: tmdb.useEpisodes,
+            useTrailers = f["tmdb_use_trailers"] ?: tmdb.useTrailers,
+            useMoreLikeThis = f["tmdb_use_more_like_this"] ?: tmdb.useMoreLikeThis,
+            useCollections = f["tmdb_use_collections"] ?: tmdb.useCollections
+        )
+    }
+    tmdbLanguage?.takeIf { it.isNotBlank() }?.let { tmdb = tmdb.copy(language = it) }
+    return s.copy(player = player, tmdb = tmdb)
 }
 
 /**
@@ -93,6 +110,20 @@ fun DesktopSettings.toRemoteSharedSettings(remote: RemoteSharedSettings? = null)
         rankingRules = rankingRules.copy(dropUndecodable = tvDropUndecodable),
         autoplayNextEpisode = player.autoplayNextEpisode,
         autoSkipSegments = player.autoSkip.mapNotNull { SEGMENT_STORED[it] }.toSet() + extraSegments,
+        tmdbFlags = mapOf(
+            "tmdb_enabled" to tmdb.enabled,
+            "tmdb_use_artwork" to tmdb.useArtwork,
+            "tmdb_use_basic_info" to tmdb.useBasicInfo,
+            "tmdb_use_details" to tmdb.useDetails,
+            "tmdb_use_credits" to tmdb.useCredits,
+            "tmdb_use_productions" to tmdb.useProductions,
+            "tmdb_use_networks" to tmdb.useNetworks,
+            "tmdb_use_episodes" to tmdb.useEpisodes,
+            "tmdb_use_trailers" to tmdb.useTrailers,
+            "tmdb_use_more_like_this" to tmdb.useMoreLikeThis,
+            "tmdb_use_collections" to tmdb.useCollections
+        ),
+        tmdbLanguage = tmdb.language,
     )
 }
 

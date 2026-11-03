@@ -37,7 +37,7 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Cache size | `PlaybackBufferNetworkSettings.kt` | ✅ (mpv's demuxer cache) |
 | Next-episode threshold by percent | `PlaybackAutoPlaySettings.kt` | 🟡 Up Next starts at the end; the card offers it earlier |
 | Reuse last link, preload next episode, fallback to next source, binge group | `PlaybackAutoPlaySettings.kt` | ⬜ |
-| Post-play recommendation after a movie | `PostPlayRecommendation*.kt` | ⬜ needs TMDB recommendations |
+| Post-play recommendation after a movie | `PostPlayRecommendation*.kt` | ⬜ (TMDB recommendations are now available to build it on) |
 | "Prefer this next time" prompt | `PreferNextTimePrompt.kt` | ⬜ (the source menu sets the same rules) |
 | Playback queue | `QueueSidePanel.kt` | ⬜ |
 | Parental guide overlay at start | `ParentalGuideOverlay.kt` | ⬜ |
@@ -58,8 +58,15 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Recent searches | `search/SearchScreen.kt` | ✅ |
 | Catalog "See all" grid | `screens/CatalogSeeAllScreen.kt` | ⬜ |
 | Continue Watching airing rules, Upcoming row, card style options | `home/ContinueWatching*.kt` | ⬜ |
-| More like this, Because you watched, cast pages, TMDB collections, company logos, TMDB browse | `detail/`, `cast/`, `tmdb/`, `home/HomeViewModelBecauseYouWatched.kt` | ⬜ needs a TMDB metadata client on desktop |
-| Episode ratings, Trakt comments | `detail/EpisodeRatingsSection.kt`, `CommentsSection.kt` | ⬜ |
+| TMDB enrichment: artwork, title and description in your language, details, cast and crew, episodes, trailers | `core/tmdb/TmdbMetadataService.kt`, `detail/MetaDetailsViewModel.kt` | ✅ `tmdb/`, Settings › TMDB, each part switchable, synced with the TV |
+| TMDB rating, director or creator, show status on the title page | `detail/HeroSection.kt` | ✅ |
+| More like this, Because you watched | `detail/MoreLikeThisSection.kt`, `home/HomeViewModelBecauseYouWatched.kt` | ✅ (without the TV's "Also directed by" reasons) |
+| Cast and crew pages | `screens/cast/` | ✅ biography, facts, filmography |
+| Collections ("Part of …") | `detail/CollectionSection.kt` | ✅ |
+| Studio and network logos and pages | `detail/CompanyLogosSection.kt`, `screens/tmdb/` | ✅ paged, movies or series for studios |
+| Titles only on TMDB (no IMDb id) | `core/tmdb/` | ✅ page built from TMDB; episode ids `tmdb:<id>:<s>:<e>` for addons that take them |
+| TMDB's modern Home and Continue Watching enrichment | `TmdbSettingsScreen.kt` | ⬜ (kept untouched when syncing) |
+| Episode ratings grid (IMDb), Trakt comments | `detail/EpisodeRatingsSection.kt`, `CommentsSection.kt` | 🟡 TMDB's per-episode rating on each episode card; no grid or comments |
 | Episode shuffle | `detail/DetailEpisodeShuffle.kt` | ⬜ |
 | Ready tonight row | `home/ReadyTonight.kt` | ⬜ |
 | Collections, folders and filter rows | `screens/collection/`, `screens/filterrows/` | ⬜ |

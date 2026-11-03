@@ -73,6 +73,9 @@ import com.fetch.tv.core.streams.ranking.RankedStream
 import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.Meta
 import com.fetch.tv.domain.model.MetaCastMember
+import com.fetch.tv.domain.model.MetaCompany
+import com.fetch.desktop.Screen
+import com.fetch.desktop.tmdb.TmdbEntityKind
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.Video
 
@@ -135,6 +138,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         inLibrary = state.isInLibrary(preview.id),
                         onToggleLibrary = { state.toggleLibrary(preview, meta) },
                         watched = state.isTitleWatched(preview, meta?.videos.orEmpty()),
+                        tmdbRating = state.tmdb.tmdbRating?.takeIf { state.tmdb.extrasFor == meta?.id },
                         onToggleWatched = { on ->
                             if (isSeries) state.setWatched(preview, meta?.videos.orEmpty().filter { (it.season ?: 0) > 0 && com.fetch.desktop.isAired(it) }, on)
                             else state.setWatched(preview, emptyList(), on)
@@ -197,7 +201,39 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                 }
                 val cast = meta?.castMembers.orEmpty()
                 if (cast.isNotEmpty()) {
-                    item(key = "cast") { Cast(cast) }
+                    item(key = "cast") { Cast(cast, onOpen = state::openPerson) }
+                }
+                val tmdbExtras = state.tmdb.takeIf { it.extrasFor == meta?.id }
+                tmdbExtras?.collection?.let { collection ->
+                    item(key = "collection") {
+                        MediaRowView(
+                            title = collection.name,
+                            subtitle = "Collection",
+                            items = collection.parts.filter(state::allowed),
+                            loading = false,
+                            error = null,
+                            onOpen = { state.navigate(Screen.Detail(it)) },
+                            showLabels = state.settings.showPosterLabels
+                        )
+                    }
+                }
+                tmdbExtras?.moreLikeThis?.filter(state::allowed)?.takeIf { it.isNotEmpty() }?.let { recs ->
+                    item(key = "more-like-this") {
+                        MediaRowView(
+                            title = "More like this",
+                            subtitle = null,
+                            items = recs,
+                            loading = false,
+                            error = null,
+                            onOpen = { state.navigate(Screen.Detail(it)) },
+                            showLabels = state.settings.showPosterLabels
+                        )
+                    }
+                }
+                val companies = meta?.networks.orEmpty().map { it to TmdbEntityKind.NETWORK } +
+                    meta?.productionCompanies.orEmpty().map { it to TmdbEntityKind.COMPANY }
+                if (companies.any { it.first.tmdbId != null }) {
+                    item(key = "companies") { Companies(companies.filter { it.first.tmdbId != null }.distinctBy { it.first.tmdbId to it.second }) { c, k -> state.openEntity(c, k) } }
                 }
             }
         }
@@ -252,6 +288,7 @@ private fun Hero(
     onToggleLibrary: () -> Unit,
     watched: Boolean,
     onToggleWatched: (Boolean) -> Unit,
+    tmdbRating: Float?,
     minHeight: Dp
 ) {
     Column(
@@ -270,6 +307,18 @@ private fun Hero(
             ),
             imdbRating = meta?.imdbRating ?: preview.imdbRating
         )
+        // TMDB's own rating beside IMDb's, and who made it, as on the TV detail page.
+        val credit = when {
+            isSeries -> meta?.castMembers?.filter { it.character == "Creator" }?.map { it.name }?.takeIf { it.isNotEmpty() }?.let { "Created by ${it.take(3).joinToString(", ")}" }
+            else -> meta?.director?.takeIf { it.isNotEmpty() }?.let { "Directed by ${it.take(3).joinToString(", ")}" }
+        }
+        if (tmdbRating != null || credit != null || meta?.status != null) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                tmdbRating?.let { SpecChip("TMDB %.1f".format(java.util.Locale.ROOT, it)) }
+                meta?.status?.takeIf { isSeries }?.let { SpecChip(it) }
+                credit?.let { Text(it, color = FetchPalette.TextSecondary, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+            }
+        }
         val ageRating = meta?.ageRating ?: preview.ageRating
         val second = listOfNotNull(meta?.runtime ?: preview.runtime, (meta?.language ?: preview.language)?.uppercase()?.take(12))
         if (ageRating != null || second.isNotEmpty()) {
@@ -703,6 +752,17 @@ private fun EpisodeCard(video: Video, selected: Boolean, watched: Boolean, progr
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 )
             }
+            video.rating?.takeIf { it > 0 }?.let {
+                Text(
+                    "★ %.1f".format(java.util.Locale.ROOT, it),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                    modifier = Modifier.align(Alignment.BottomStart).padding(8.dp)
+                        .clip(RoundedCornerShape(4.dp)).background(Color.Black.copy(alpha = 0.7f))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                )
+            }
             video.runtime?.let {
                 Text(
                     "${it}m",
@@ -729,7 +789,7 @@ private fun EpisodeCard(video: Video, selected: Boolean, watched: Boolean, progr
 }
 
 @Composable
-private fun Cast(cast: List<MetaCastMember>) {
+private fun Cast(cast: List<MetaCastMember>, onOpen: (MetaCastMember) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text("Cast", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = PageGutter))
         LazyRow(
@@ -737,13 +797,23 @@ private fun Cast(cast: List<MetaCastMember>) {
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             items(cast.take(30)) { member ->
+                val interaction = remember { MutableInteractionSource() }
+                val hovered by interaction.collectIsHoveredAsState()
+                val clickable = member.tmdbId != null
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier.width(110.dp)
+                        .then(
+                            if (clickable) Modifier.hoverable(interaction)
+                                .clickable(interactionSource = interaction, indication = null) { onOpen(member) }
+                                .pointerHoverIcon(PointerIcon.Hand)
+                            else Modifier
+                        )
                 ) {
                     Box(
-                        Modifier.size(96.dp).clip(CircleShape).background(FetchPalette.SurfaceRaised),
+                        Modifier.size(96.dp).clip(CircleShape).background(FetchPalette.SurfaceRaised)
+                            .then(if (hovered && clickable) Modifier.border(3.dp, Color.White, CircleShape) else Modifier),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(member.name.take(1).uppercase(), style = MaterialTheme.typography.headlineSmall, color = FetchPalette.TextMuted)
@@ -819,5 +889,39 @@ private fun sourceMenu(state: AppState, ranked: RankedStream): List<ContextMenuI
             })
         }
         ExternalPlayer.playableUrl(stream)?.let { url -> add(ContextMenuItem("Copy link") { clipboard.setText(AnnotatedString(url)) }) }
+    }
+}
+
+/** The studios and networks behind a title, as logos that open their pages (TV: company logos). */
+@Composable
+private fun Companies(companies: List<Pair<MetaCompany, TmdbEntityKind>>, onOpen: (MetaCompany, TmdbEntityKind) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text("Production", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = PageGutter))
+        LazyRow(contentPadding = PaddingValues(horizontal = PageGutter), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            items(companies) { (company, kind) ->
+                val interaction = remember { MutableInteractionSource() }
+                val hovered by interaction.collectIsHoveredAsState()
+                val shape = RoundedCornerShape(12.dp)
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .height(72.dp)
+                        .widthIn(min = 120.dp, max = 220.dp)
+                        .clip(shape)
+                        .background(if (company.logo != null) Color.White.copy(alpha = 0.92f) else FetchPalette.SurfaceRaised)
+                        .border(if (hovered) 3.dp else 0.dp, if (hovered) FetchPalette.Accent else Color.Transparent, shape)
+                        .hoverable(interaction)
+                        .clickable(interactionSource = interaction, indication = null) { onOpen(company, kind) }
+                        .pointerHoverIcon(PointerIcon.Hand)
+                        .padding(horizontal = 18.dp, vertical = 12.dp)
+                ) {
+                    if (company.logo != null) {
+                        AsyncImage(model = company.logo, contentDescription = company.name, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
+                    } else {
+                        Text(company.name, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis, fontSize = 14.sp)
+                    }
+                }
+            }
+        }
     }
 }

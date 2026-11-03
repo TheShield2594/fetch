@@ -102,6 +102,11 @@ private fun HomeContent(state: AppState) {
     val hero = featured?.takeUnless { it is HeroSubject.Resume && continueWatching.none { e -> e.contentId == it.entry.contentId } }
         ?: fallback
     val listState = state.homeListState
+    // "Because you watched": TMDB's picks for the titles finished last, after Continue Watching.
+    val finished = state.progress.finished
+    LaunchedEffect(finished.take(2).map { it.contentId }, settings.tmdb, settings.tmdbApiKey) {
+        state.tmdb.refreshBecauseYouWatched(finished)
+    }
     val cwActions = remember(state) {
         ContinueWatchingActions(
             onPlay = { state.openContinueWatching(it, play = true) },
@@ -142,6 +147,18 @@ private fun HomeContent(state: AppState) {
                     item(key = "continue-watching") {
                         ContinueWatchingRow(continueWatching, cwActions, onHover = { hovered = HeroSubject.Resume(it) })
                     }
+                }
+                items(state.tmdb.becauseYouWatched, key = { "byw|${it.seed.contentId}" }) { row ->
+                    MediaRowView(
+                        title = "Because you watched ${row.seed.name}",
+                        subtitle = null,
+                        items = row.items.filter { state.allowed(it) && !(settings.hideUnreleased && com.fetch.desktop.isUnreleased(it)) },
+                        loading = false,
+                        error = null,
+                        onOpen = { state.navigate(Screen.Detail(it)) },
+                        onHover = { hovered = HeroSubject.Title(it) },
+                        showLabels = settings.showPosterLabels
+                    )
                 }
                 items(homeRows, key = { it.key }) { row ->
                     CatalogRowView(

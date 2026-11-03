@@ -85,8 +85,14 @@ data class ProgressFile(
     /** The latest position per title (movie or show), one entry each. */
     val entries: List<ProgressEntry> = emptyList(),
     /** Videos watched to the end, so series know which episode comes next. */
-    val watched: List<String> = emptyList()
+    val watched: List<String> = emptyList(),
+    /** Titles finished most recently, newest first, for "Because you watched". */
+    val finished: List<FinishedTitle> = emptyList()
 )
+
+/** A movie or show finished (or an episode of it), with its name for row titles. */
+@Serializable
+data class FinishedTitle(val contentId: String, val contentType: String, val name: String, val at: Long)
 
 fun progressFile(dir: File = AppDirs.config) =
     JsonFile(File(dir, "progress.json"), ProgressFile.serializer()) { ProgressFile() }

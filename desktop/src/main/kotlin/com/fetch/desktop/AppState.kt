@@ -26,6 +26,11 @@ import com.fetch.desktop.data.toPreview
 import com.fetch.desktop.player.ExternalPlayer
 import com.fetch.desktop.data.SubtitleMode
 import com.fetch.desktop.data.AutoPlayMode
+import com.fetch.desktop.tmdb.TmdbClient
+import com.fetch.desktop.tmdb.TmdbEntityKind
+import com.fetch.desktop.tmdb.TmdbState
+import com.fetch.tv.domain.model.MetaCastMember
+import com.fetch.tv.domain.model.MetaCompany
 import com.fetch.desktop.data.VideoFit
 import com.fetch.desktop.sync.RemoteWatchedKey
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
@@ -129,6 +134,10 @@ sealed interface Screen {
      * Continue Watching card). [videoId] picks the episode, for Continue Watching.
      */
     data class Detail(val preview: MetaPreview, val autoPlay: Boolean = false, val videoId: String? = null) : Screen
+    /** A cast or crew member's TMDB page. */
+    data class Person(val tmdbId: Int, val name: String) : Screen
+    /** A studio's or network's titles, from TMDB. */
+    data class Entity(val kind: TmdbEntityKind, val tmdbId: Int, val name: String) : Screen
 }
 
 /** A home row: one addon catalog and what it returned. */
@@ -319,6 +328,34 @@ class AppState(
         runCatching { screenTimeStore.save(screenTime) }
     }
 
+    /** The Movie Database: title page details, More like this, collections, people, studios. */
+    val tmdb = TmdbState(
+        scope,
+        TmdbClient(okhttp3.OkHttpClient(), apiKey = { settings.tmdbApiKey?.takeIf { it.isNotBlank() } ?: TmdbCredentials.load() })
+    ) { settings.tmdb }
+
+    fun openPerson(member: MetaCastMember) {
+        val id = member.tmdbId ?: return
+        navigate(Screen.Person(id, member.name))
+    }
+
+    fun openEntity(company: MetaCompany, kind: TmdbEntityKind) {
+        val id = company.tmdbId ?: return
+        navigate(Screen.Entity(kind, id, company.name))
+    }
+
+    /**
+     * Runs [action] with [preview]'s IMDb id in place of a `tmdb:` one when TMDB knows it, so
+     * the library, watched marks and Trakt see the same title as everywhere else.
+     */
+    fun withImdbId(preview: MetaPreview, action: (MetaPreview) -> Unit) {
+        val tmdbId = TmdbClient.parseTmdbId(preview.id) ?: return action(preview)
+        scope.launch {
+            val imdb = runCatching { tmdb.client.imdbId(tmdbId, preview.type == ContentType.SERIES) }.getOrNull()
+            action(if (imdb == null) preview else preview.copy(id = imdb, imdbId = imdb))
+        }
+    }
+
     /** Fusion stream badges (Settings › Stream Selection › Stream badges), per profile. */
     val badges = StreamBadgesState(scope, File(profileDir(profile), "stream-badges.json"))
 
@@ -468,9 +505,14 @@ class AppState(
     private fun show(to: Screen) {
         screen = to
         sourcesPanelOpen = false
-        if (to is Screen.Detail) {
-            autoPlayPending = to.autoPlay
-            loadDetail(to.preview, to.videoId)
+        when (to) {
+            is Screen.Detail -> {
+                autoPlayPending = to.autoPlay
+                loadDetail(to.preview, to.videoId)
+            }
+            is Screen.Person -> tmdb.loadPerson(to.tmdbId)
+            is Screen.Entity -> tmdb.openEntity(to.kind, to.tmdbId, to.name)
+            else -> Unit
         }
     }
 
@@ -983,17 +1025,30 @@ class AppState(
 
     // --- Detail and sources ---
 
-    private fun loadDetail(preview: MetaPreview, videoId: String?) {
+    private fun loadDetail(requested: MetaPreview, videoId: String?) {
         detailMeta = null
         sources = null
         sourcesJob?.cancel()
         detailLoading = true
         scope.launch {
-            // A title only on your media server comes from the server, not the addons.
-            val meta = if (ServerItemRef.isServerId(preview.id)) {
-                servers.details(preview.id)
-            } else {
-                withContext(Dispatchers.IO) { client.meta(addons.toList(), preview.rawType, preview.id) }
+            // A title from TMDB (More like this, a person's page) opens by its IMDb id when TMDB
+            // knows one, so it comes from your addons like any other.
+            var preview = requested
+            val tmdbOnly = TmdbClient.parseTmdbId(requested.id)
+            if (tmdbOnly != null) {
+                val imdb = runCatching { tmdb.client.imdbId(tmdbOnly, requested.type == ContentType.SERIES) }.getOrNull()
+                if (imdb != null) {
+                    preview = requested.copy(id = imdb, imdbId = imdb)
+                    val current = screen
+                    if (current is Screen.Detail && current.preview.id == requested.id) screen = current.copy(preview = preview)
+                }
+            }
+            val isServer = ServerItemRef.isServerId(preview.id)
+            val meta = when {
+                // A title only on your media server comes from the server, not the addons.
+                isServer -> servers.details(preview.id)
+                TmdbClient.parseTmdbId(preview.id) != null -> tmdb.metaFor(tmdbOnly!!, preview.type == ContentType.SERIES)
+                else -> withContext(Dispatchers.IO) { client.meta(addons.toList(), preview.rawType, preview.id) }
             }
             val current = screen
             if (current is Screen.Detail && current.preview.id == preview.id) {
@@ -1010,6 +1065,15 @@ class AppState(
                 when {
                     !isSeries -> loadSources(preview)
                     episode != null -> loadSources(preview, episode)
+                }
+                // TMDB's details arrive after the addon's, so the page and sources don't wait.
+                if (meta != null && !isServer && TmdbClient.parseTmdbId(meta.id) == null) {
+                    val enriched = tmdb.enrich(meta, isSeries)
+                    if (enriched !== meta && detailMeta === meta && (screen as? Screen.Detail)?.preview?.id == preview.id) {
+                        detailMeta = enriched
+                        // The episode being offered gets TMDB's title and artwork too.
+                        sources?.video?.let { v -> enriched.videos.firstOrNull { it.id == v.id } }?.let { v -> sources = sources?.copy(video = v) }
+                    }
                 }
             }
         }

@@ -300,15 +300,20 @@ fun PosterCard(
     val hovered by interaction.collectIsHoveredAsState()
     if (hovered) LaunchedEffect(item.id) { onHover(item) }
     // "Expand Focused Poster to Backdrop": a poster held under the pointer grows into its backdrop.
+    // With the Expanded card trailer location the expanded card plays the trailer; landscape
+    // cards, already the backdrop's shape, play it in place after the same pause (as on TV).
     var expanded by remember(item.id) { mutableStateOf(false) }
-    if (style.expand && shape == PosterShape.POSTER && !fillWidth && item.backdropUrl != null) {
+    val trailerId = item.trailerYtIds.firstOrNull()?.takeIf { style.trailer != null && !fillWidth }
+    val posterExpands = style.expand && shape == PosterShape.POSTER && !fillWidth && item.backdropUrl != null
+    val landscapeTrailer = trailerId != null && shape == PosterShape.LANDSCAPE
+    if (posterExpands || landscapeTrailer) {
         LaunchedEffect(hovered) {
             if (!hovered) { expanded = false; return@LaunchedEffect }
             kotlinx.coroutines.delay(style.expandDelayMs)
             expanded = true
         }
     }
-    val expandedWidth = baseSize.height * (16f / 9f)
+    val expandedWidth = if (shape == PosterShape.POSTER) baseSize.height * (16f / 9f) else baseSize.width
     val width by androidx.compose.animation.core.animateDpAsState(if (expanded) expandedWidth else baseSize.width, tween(260))
     val size = CardSize(width, baseSize.height)
     val scale by animateFloatAsState(if (hovered && !expanded) 1.05f else 1f, tween(160))
@@ -351,6 +356,19 @@ fun PosterCard(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
+            }
+            val cardTrailer = style.trailer
+            if (expanded && cardTrailer != null && trailerId != null) {
+                androidx.compose.runtime.key(item.id, trailerId) {
+                    BackgroundVideo(
+                        url = youTubeWatchUrl(trailerId),
+                        muted = cardTrailer.muted,
+                        crop = cardTrailer.crop,
+                        modifier = Modifier.fillMaxSize(),
+                        startDelayMs = cardTrailer.delayAfterExpandMs,
+                        gpu = cardTrailer.gpu
+                    )
+                }
             }
             if (withLogo) {
                 Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.55f)))))

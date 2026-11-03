@@ -77,7 +77,7 @@ fun LayoutExtrasSections(state: AppState) {
         SettingsToggle(
             "Check what's ready in the background",
             "Asks your addons about up to 6 titles from Continue Watching and your Watchlist, each at most every 12 hours, " +
-                "so Ready tonight can show the ones that start instantly. Needs Best match as the Play mode.",
+                "so Ready tonight can show the ones that start instantly. Needs Best match as the Play mode; skipped on metered or mobile connections.",
             l.readyCheckEnabled
         ) { v -> update { it.copy(readyCheckEnabled = v) } }
     }
@@ -144,10 +144,23 @@ fun LayoutExtrasSections(state: AppState) {
                 (listOf(1, 2, 3, 5, 8) + l.expandFocusedPosterDelaySeconds).distinct().sorted().map { DropdownOption(it, "$it s") }
             ) { v -> update { it.copy(expandFocusedPosterDelaySeconds = v) } }
         }
-        SettingsToggle("Autoplay Trailer", "Play a trailer in the hero for the title you point at, when it has one (needs libmpv and yt-dlp).", l.focusedPosterTrailer) { v ->
+        SettingsToggle("Autoplay Trailer", "Play a trailer for the title you point at, when it has one (needs libmpv and yt-dlp).", l.focusedPosterTrailer) { v ->
             update { it.copy(focusedPosterTrailer = v) }
         }
         if (l.focusedPosterTrailer) {
+            SettingsChoice(
+                "Trailer Location",
+                when (l.focusedPosterTrailerTarget) {
+                    FocusedPosterTrailerPlaybackTarget.EXPANDED_CARD ->
+                        "Inside the card once it expands (posters need Expand Focused Poster to Backdrop; landscape cards play in place)."
+                    FocusedPosterTrailerPlaybackTarget.HERO_MEDIA -> "Over the hero's backdrop at the top of Home."
+                },
+                l.focusedPosterTrailerTarget,
+                listOf(
+                    DropdownOption(FocusedPosterTrailerPlaybackTarget.HERO_MEDIA, "Hero"),
+                    DropdownOption(FocusedPosterTrailerPlaybackTarget.EXPANDED_CARD, "Expanded card")
+                )
+            ) { v -> update { it.copy(focusedPosterTrailerTarget = v) } }
             SettingsToggle("Play Trailer Muted", "Mute trailer audio during autoplay preview.", l.focusedPosterTrailerMuted) { v ->
                 update { it.copy(focusedPosterTrailerMuted = v) }
             }
@@ -260,7 +273,8 @@ fun HomeCatalogsList(state: AppState) {
         l.homeOrder,
         s.pinnedCatalogs,
         // Catalogs are already in their (synced) order; the saved Home order places collections.
-        true
+        true,
+        aliases = catalogs.filter { it.filter == null }.associate { it.tvKey() to it.key }
     )
     val rowByKey = catalogs.associateBy { it.key }
     val collectionByKey = collections.associateBy { HomeLayout.collectionKey(it.id) }

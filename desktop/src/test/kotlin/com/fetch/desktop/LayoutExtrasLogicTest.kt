@@ -93,4 +93,20 @@ class LayoutExtrasLogicTest {
         assertEquals(listOf("New", "Other"), renamed.single().folders.single().sources.filterIsInstance<LocalListCollectionSource>().map { it.title })
         assertNull(renameLocalListSources(collections, "l9", "New"))
     }
+
+    @Test
+    fun `the Expanded card trailer location gives cards the trailer, the hero location doesn't`() {
+        val card = LayoutPrefs(
+            focusedPosterTrailer = true,
+            focusedPosterTrailerTarget = com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget.EXPANDED_CARD,
+            trailerDelaySeconds = 7,
+            expandFocusedPosterDelaySeconds = 3
+        )
+        val trailer = CardStyle.from(card).trailer!!
+        // The trailer delay counts from the pointer landing; the expand delay already took 3 s of it.
+        assertEquals(4_000L, trailer.delayAfterExpandMs)
+        assertNull(CardStyle.from(card, playerOpen = true).trailer)
+        assertNull(CardStyle.from(card.copy(focusedPosterTrailerTarget = com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget.HERO_MEDIA)).trailer)
+        assertNull(CardStyle.from(card.copy(focusedPosterTrailer = false)).trailer)
+    }
 }

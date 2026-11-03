@@ -106,8 +106,8 @@ data class AutoSyncResult(
  * The TV's delay-only check (AutoSync V2's first stage), on the cues mpv showed so far of a
  * subtitle track inside the video: the shift of the addon subtitle whose speech lines up best with
  * the reference's over the stretch that played, applied only when it clearly beats every other.
- * The TV goes on to stretch and re-time cue by cue for subtitles made for another cut; mpv's
- * sub-delay is one constant shift, so only a confident constant offset is applied here.
+ * Stretching and re-timing line by line, for subtitles made for another frame rate or cut, is
+ * [AutoSyncRetimer]'s.
  */
 object AutoSyncAligner {
     const val BIN_MS = 100L
@@ -202,10 +202,14 @@ object AutoSyncAligner {
 
 /**
  * Collects the reference track's cues as mpv shows them (its `secondary-sub-start` and
- * `secondary-sub-end`, the track kept hidden): one cue per new start time.
+ * `secondary-sub-end`, the track kept hidden): one cue per new start time. [tick] records the
+ * stretches of the video that played ([spans]), so a seek doesn't count the skipped part as a
+ * stretch without speech.
  */
 class LiveReference {
     private val cues = LinkedHashMap<Long, Cue>()
+    private val spans = mutableListOf<Span>()
+    private var lastPositionMs: Long? = null
 
     val size: Int get() = cues.size
 
@@ -216,7 +220,30 @@ class LiveReference {
         cues[start] = Cue(start, (endSec * 1000).roundToLong(), text)
     }
 
+    /** Playback is at [positionMs]: extends the stretch that's playing, or starts one after a jump. */
+    fun tick(positionMs: Long) {
+        val last = lastPositionMs
+        lastPositionMs = positionMs
+        if (last != null && positionMs >= last && positionMs - last <= MAX_STEP_MS && spans.isNotEmpty() && spans.last().endMs == last) {
+            spans[spans.lastIndex] = spans.last().copy(endMs = positionMs)
+        } else {
+            spans += Span(positionMs, positionMs)
+        }
+    }
+
     fun cues(): List<Cue> = cues.values.sortedBy { it.startMs }
 
-    fun clear() = cues.clear()
+    /** The stretches that played; empty when nothing was ticked (then the cues' own stretch counts). */
+    fun spans(): List<Span> = spans.filter { it.lengthMs > 0 }.toList()
+
+    fun clear() {
+        cues.clear()
+        spans.clear()
+        lastPositionMs = null
+    }
+
+    private companion object {
+        /** Further than this between two ticks is a seek. */
+        const val MAX_STEP_MS = 5_000L
+    }
 }

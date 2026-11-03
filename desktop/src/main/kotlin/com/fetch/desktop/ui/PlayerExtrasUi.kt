@@ -65,10 +65,6 @@ import com.fetch.desktop.player.SilenceSkipper
 import com.fetch.desktop.player.SubtitleChoice
 import com.fetch.desktop.player.SubtitleOrganisation
 import com.fetch.desktop.player.SubtitleStyle
-import com.fetch.desktop.player.autosync.AutoSyncAligner
-import com.fetch.desktop.player.autosync.AutoSyncResult
-import com.fetch.desktop.player.autosync.CueParser
-import com.fetch.desktop.player.autosync.LiveReference
 import com.fetch.desktop.player.embedded.EmbeddedMpv
 import com.fetch.desktop.skip.Segment
 import com.fetch.desktop.skip.SkipButtonRules
@@ -90,6 +86,10 @@ class PlayerSessionExtras {
     var syncedDelaySec: Double? = null
     /** "Auto sync: comparing with the video's subtitles…" while it works. */
     var autoSyncStatus by mutableStateOf<String?>(null)
+    /** Re-timed copies Auto Sync loaded into mpv (file path → the addon subtitle's URL). */
+    val syncedFiles = androidx.compose.runtime.mutableStateMapOf<String, String>()
+    /** What Auto Sync did for each addon subtitle, so choosing one again reapplies it at once. */
+    val syncResults = mutableMapOf<String, com.fetch.desktop.player.autosync.TimeMap>()
     /** The Skip button is on screen (subtitles move up out of its way). */
     var skipVisible by mutableStateOf(false)
     /** The audio output the delay was last applied for, and that delay. */
@@ -343,90 +343,6 @@ private fun AudioDelayPerOutputEffect(state: AppState, session: PlayerSession) {
     }
 }
 
-// --- Automatic subtitle sync ---
-
-/** Text subtitle codecs mpv can show as a (hidden) secondary track. */
-private val TextSubtitleCodecs = setOf("subrip", "srt", "ass", "ssa", "webvtt", "vtt", "mov_text", "text", "microdvd")
-
-@Composable
-private fun AutoSyncEffect(state: AppState, session: PlayerSession) {
-    val mpv = session.mpv
-    val extras = session.extras
-    val settings = state.settings.player.extras
-    val selected = mpv.tracks.firstOrNull { it.type == "sub" && it.selected }
-    val url = selected?.takeIf { it.external }?.externalFilename?.takeIf { it.startsWith("http://") || it.startsWith("https://") }
-    LaunchedEffect(url, settings.autoSync) {
-        if (!settings.autoSync || url == null || extras.syncedSubtitleUrl == url) return@LaunchedEffect
-        // A delay auto sync set for another subtitle doesn't belong to this one.
-        extras.syncedDelaySec?.let { if (kotlin.math.abs(mpv.subtitleDelay - it) < 0.0005) mpv.changeSubtitleDelay(0.0) }
-        extras.syncedDelaySec = null
-        extras.syncedSubtitleUrl = null
-        val reference = mpv.tracks.firstOrNull { it.type == "sub" && !it.external && (it.codec?.lowercase() in TextSubtitleCodecs) }
-        if (reference == null) {
-            mpv.showText("Sync failed: this video has no embedded subtitles to compare with.")
-            return@LaunchedEffect
-        }
-        val target = withContext(Dispatchers.IO) { downloadSubtitle(url) }?.let(CueParser::parse).orEmpty()
-        if (target.isEmpty()) {
-            mpv.showText("Sync failed: Auto Sync doesn't support this subtitle format.")
-            return@LaunchedEffect
-        }
-        extras.autoSyncStatus = "Auto Sync: comparing with the video's subtitles…"
-        mpv.setProperty("secondary-sub-visibility", "no")
-        mpv.setProperty("secondary-sid", reference.id)
-        val live = LiveReference()
-        var checkpoint = AutoSyncAligner.MIN_REFERENCE_CUES
-        var previous: AutoSyncResult? = null
-        try {
-            while (true) {
-                delay(250)
-                live.observe(
-                    mpv.property("secondary-sub-start")?.toDoubleOrNull(),
-                    mpv.property("secondary-sub-end")?.toDoubleOrNull(),
-                    mpv.property("secondary-sub-text")
-                )
-                if (live.size < checkpoint) continue
-                val cues = live.cues()
-                if (!AutoSyncAligner.enoughReference(cues)) {
-                    checkpoint = live.size + 1
-                    continue
-                }
-                val result = withContext(Dispatchers.Default) { AutoSyncAligner.align(cues, target) }
-                // Thorough: two estimates in a row must agree; otherwise the first confident one is used.
-                val accepted = if (settings.autoSyncThorough) result?.takeIf { AutoSyncAligner.agree(previous, it) } else result?.takeIf { it.confident }
-                previous = result
-                if (accepted != null) {
-                    val offset = AutoSyncAligner.delayToApply(accepted, settings.autoSyncToleranceMs) ?: 0
-                    if (offset != 0L) mpv.changeSubtitleDelay(offset / 1000.0)
-                    extras.syncedDelaySec = offset / 1000.0
-                    extras.syncedSubtitleUrl = url
-                    mpv.showText(if (offset == 0L) "Subtitle timing already matches" else "Sync applied: ${AutoSyncAligner.label(offset)}")
-                    break
-                }
-                checkpoint = live.size + 15
-                if (live.size >= 150) {
-                    mpv.showText("Sync failed: Auto Sync couldn't match this subtitle to the video.")
-                    break
-                }
-            }
-        } finally {
-            extras.autoSyncStatus = null
-            mpv.setProperty("secondary-sid", "no")
-        }
-    }
-}
-
-private fun downloadSubtitle(url: String): String? = runCatching {
-    val client = okhttp3.OkHttpClient.Builder().callTimeout(15, java.util.concurrent.TimeUnit.SECONDS).build()
-    client.newCall(okhttp3.Request.Builder().url(url).build()).execute().use { response ->
-        if (!response.isSuccessful) return@use null
-        val bytes = response.body?.byteStream()?.use { it.readNBytes(4 * 1024 * 1024) } ?: return@use null
-        val gz = bytes.size > 2 && bytes[0] == 0x1f.toByte() && bytes[1] == 0x8b.toByte()
-        val raw = if (gz) java.util.zip.GZIPInputStream(bytes.inputStream()).use { it.readNBytes(8 * 1024 * 1024) } else bytes
-        String(raw, Charsets.UTF_8).takeUnless { it.contains('�') } ?: String(raw, Charsets.ISO_8859_1)
-    }
-}.getOrNull()
-
 // --- Stats overlay ---
 
 @Composable
@@ -497,7 +413,9 @@ internal fun LazyListScope.subtitlePanelItems(state: AppState, session: PlayerSe
         mode = p.extras.subtitleOrganization,
         preferred = preferred,
         onlyPreferred = p.extras.subtitleOnlyPreferredLanguages,
-        addonOrder = state.addons.map { it.displayName }
+        addonOrder = state.addons.map { it.displayName },
+        // Auto Sync's re-timed copies stand for their addon subtitle.
+        aliases = extras.syncedFiles.toMap()
     )
     groups.forEach { group ->
         if (group.label.isNotBlank()) item(key = "group:${group.key}") { PanelHeading(group.label) }
@@ -520,7 +438,7 @@ internal fun LazyListScope.subtitlePanelItems(state: AppState, session: PlayerSe
                 is SubtitleChoice.Addon -> {
                     val sub = choice.subtitle
                     val added = choice.added
-                    val synced = added?.selected == true && extras.syncedSubtitleUrl == sub.url
+                    val synced = added?.selected == true && (extras.syncedSubtitleUrl == sub.url || added.externalFilename in extras.syncedFiles)
                     PanelRow(
                         SubtitleOrganisation.languageLabel(choice.languageKey),
                         detail = listOfNotNull(

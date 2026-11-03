@@ -38,6 +38,13 @@ class HomeLayoutTest {
     }
 
     @Test
+    fun `a synced order naming catalogs by the TV's keys places collections too`() {
+        val synced = listOf("addon_movie_a", "addon_movie_b", "collection_x", "addon_movie_c")
+        val aliases = mapOf("addon_movie_a" to "a", "addon_movie_b" to "b", "addon_movie_c" to "c")
+        assertEquals(listOf("a", "b", "collection_x", "c"), HomeLayout.middle(catalogs, listOf("x"), synced, followAddonsOrder = true, aliases = aliases))
+    }
+
+    @Test
     fun `rows put pinned collections first, then recommendations, and hide hidden collections`() {
         val rows = HomeLayout.rows(
             catalogs = catalogs,

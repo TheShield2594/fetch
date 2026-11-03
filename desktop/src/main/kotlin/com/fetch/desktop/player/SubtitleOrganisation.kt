@@ -70,6 +70,8 @@ object SubtitleOrganisation {
     /**
      * The list for [tracks] (mpv's subtitle tracks) and [addonSubtitles]. An addon file already
      * added shows once, as the addon's, with its track. [addonOrder] is your addons by name.
+     * [aliases] are files standing for an addon subtitle (Auto Sync's re-timed copies, file →
+     * URL): they show as that subtitle, with the copy as its track unless the original plays.
      */
     fun organise(
         tracks: List<MpvTrack>,
@@ -77,12 +79,18 @@ object SubtitleOrganisation {
         mode: SubtitleOrganization,
         preferred: List<String>,
         onlyPreferred: Boolean,
-        addonOrder: List<String> = emptyList()
+        addonOrder: List<String> = emptyList(),
+        aliases: Map<String, String> = emptyMap()
     ): List<SubtitleGroup> {
         val subs = tracks.filter { it.type == "sub" }
-        val addedByUrl = subs.filter { it.external && it.externalFilename != null }.associateBy { it.externalFilename!! }
+        val external = subs.filter { it.external && it.externalFilename != null }
+        val originals = external.filter { it.externalFilename !in aliases }.associateBy { it.externalFilename!! }
+        val copies = external.filter { it.externalFilename in aliases }.groupBy { aliases.getValue(it.externalFilename!!) }
+        val addedByUrl = originals + copies.mapValues { (url, list) ->
+            listOfNotNull(originals[url]).plus(list).firstOrNull { it.selected } ?: list.last()
+        }
         val addonUrls = addonSubtitles.map { it.url }.toSet()
-        val own = subs.filter { !(it.external && it.externalFilename in addonUrls) }
+        val own = subs.filter { !(it.external && (it.externalFilename in addonUrls || it.externalFilename in aliases)) }
             .map { SubtitleChoice.Track(it, languageKey(it.lang, it.title)) }
         val order = addonOrder.withIndex().associate { (i, name) -> name to i }
         val addons = addonSubtitles.distinctBy { it.url }.withIndex()

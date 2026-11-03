@@ -236,8 +236,8 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   Subscribe, Save (the account's playlists, or a new one) and channel row at the top right;
   Chapters (mpv's chapter list from yt-dlp, else the watch page's) and Captions (YouTube's own
   tracks, labelled auto-generated or auto-translated, with translations into your subtitle
-  languages, loaded into mpv as WebVTT). Captions use your subtitle style from the player
-  settings (size, colour, outline, background, position), and the last choice (on or off, and
+  languages). Fetch draws captions itself, as the TV does, in your subtitle style from the
+  player settings (size, colour, outline, background, position), and the last choice (on or off, and
   its language) carries on to the next video, in either player. DeArrow titles and thumbnails,
   Return YouTube Dislike counts (in the built-in player, and on mpv's window's OSD as a video
   starts), the Shorts, live and watched filters and a "YouTube subscriptions" row on Home are
@@ -349,7 +349,9 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   file's tracks and your addons' by language (yours first) or by source, optionally only your
   languages; Subtitles › Style changes size, colour, opacity, outline, background and position
   live (saved as defaults), with a separate HDR colour and brightness on HDR video. Auto Sync
-  matches an addon subtitle to the video's own subtitle track; the Audio panel has a dialogue
+  matches an addon subtitle to the video's own subtitle track (text, or PGS/VobSub by their
+  timings in the file): a shift, or a re-timed copy when it was made for another frame rate or
+  cut; if it won't match, other subtitles in that language are tried; the Audio panel has a dialogue
   boost; skip silence and the audio delay per output device are in Settings › Audio. A stats
   overlay (Settings › Player › Advanced) shows cpu, memory, buffer, bitrate and network.
 - **Trailers** play in the built-in player when it's your Default Player (mpv's window
@@ -403,7 +405,8 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   (while Home is up, at most 6 titles, each at most every 12 hours) about Continue Watching and
   watchlist movies; those whose Best match is cached on a debrid service (confirmed in the last
   day) show in a row after Continue Watching. Title pages save their Best match too
-  (`best-match.json`).
+  (`best-match.json`). As on TV it doesn't run on metered or mobile connections (NetworkManager's
+  `Metered` and connection type, read over D-Bus; without NetworkManager it runs).
 - **Episode ratings grid** on series pages: IMDb's rating per episode by season, coloured as on
   TV, from the TV's ratings services (`IMDB_TAPFRAME_API_BASE_URL`, then
   `IMDB_RATINGS_API_BASE_URL` by TMDB id, given at build time; without them there's no grid).

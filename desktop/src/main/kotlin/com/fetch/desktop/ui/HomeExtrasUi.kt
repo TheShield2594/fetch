@@ -39,13 +39,15 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 /**
- * Layout › Focused Poster › Autoplay Trailer: the hero's title's trailer plays over its backdrop
- * after the trailer delay, muted unless "Play Trailer Muted" is off. Never under the player.
+ * Layout › Focused Poster › Autoplay Trailer with the Hero location: the hero's title's trailer
+ * plays over its backdrop after the trailer delay, muted unless "Play Trailer Muted" is off.
+ * Never under the player. With the Expanded card location the card plays it instead ([CardStyle.trailer]).
  */
 @Composable
 fun HeroTrailer(state: AppState, preview: MetaPreview?, height: androidx.compose.ui.unit.Dp) {
     val layout = state.settings.layout
     if (preview == null || !layout.focusedPosterTrailer || !layout.trailersEnabled || state.playerSession != null) return
+    if (layout.focusedPosterTrailerTarget != com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget.HERO_MEDIA) return
     val yt = preview.trailerYtIds.firstOrNull() ?: return
     androidx.compose.runtime.key(preview.id) {
         BackgroundVideo(

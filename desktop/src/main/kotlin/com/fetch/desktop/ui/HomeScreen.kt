@@ -246,7 +246,9 @@ private fun HomeContent(state: AppState) {
                     hidden = settings.disabledCatalogs.toSet(),
                     // Catalogs arrive in their order (homeRows); the saved order only places collections.
                     followAddonsOrder = true,
-                    kids = kids
+                    kids = kids,
+                    // A synced order names catalogs by the TV's keys.
+                    aliases = homeRows.filter { it.filter == null }.associate { it.tvKey() to it.key }
                 )
                 val showAddonNames = settings.showAddonName && !kids
                 items(rowRefs, key = { it.key }) { ref ->

@@ -48,7 +48,8 @@ data class LayoutPrefs(
     /**
      * Home catalogs order set here: desktop row keys and `collection_<id>`s (see
      * [com.fetch.desktop.home.HomeLayout.middle]); empty keeps addon order, collections after.
-     * Not synced: the TV keys its order differently.
+     * A synced order (`home_catalog_shared`) holds the TV's catalog keys instead; collection
+     * places go to the account with the catalog order and come back from it.
      */
     val homeOrder: List<String> = emptyList(),
     /** Renamed rows, by TV row key. */

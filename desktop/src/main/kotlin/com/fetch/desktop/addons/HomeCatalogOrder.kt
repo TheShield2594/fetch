@@ -1,6 +1,7 @@
 package com.fetch.desktop.addons
 
 import com.fetch.desktop.data.DesktopSettings
+import com.fetch.desktop.home.HomeLayout
 import com.fetch.tv.domain.model.catalogRowLegacyKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -90,41 +91,88 @@ object HomeCatalogSync {
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 
     /**
-     * Home's catalogs in their order with whether each shows, as the TV pushes them. The account's
-     * collection entries (which the desktop orders elsewhere) are kept after the catalogs, and
-     * custom titles the TV set are kept too.
+     * Home's catalogs and collections in their order with whether each shows, as the TV pushes
+     * them. [collectionIds] are this profile's collections; each goes where Home shows it (after
+     * the catalog it follows in the Home catalogs order, `layout.homeOrder`), as on TV.
+     * Collections only the account knows keep their place from [remote], and custom titles the
+     * TV set are kept too.
      */
-    fun payload(catalogs: List<SyncableCatalog>, settings: DesktopSettings, remote: SyncHomeCatalogPayload?): SyncHomeCatalogPayload {
-        val ordered = HomeCatalogOrder.ordered(catalogs.distinctBy { it.tvKey }, settings, { it.key }, { it.tvKey })
-        val titles = remote?.items.orEmpty().filter { !it.isCollection }.associate { tvCatalogKey(it.addonId, it.type, it.catalogId) to it.customTitle }
-        val items = ordered.mapIndexed { index, c ->
-            SyncCatalogItem(
-                addonId = c.addonId, type = c.type, catalogId = c.catalogId,
-                enabled = !HomeCatalogOrder.isDisabled(settings, c.ordered),
-                order = index,
-                customTitle = titles[c.tvKey].orEmpty()
-            )
+    fun payload(
+        catalogs: List<SyncableCatalog>,
+        settings: DesktopSettings,
+        remote: SyncHomeCatalogPayload?,
+        collectionIds: List<String> = emptyList()
+    ): SyncHomeCatalogPayload {
+        val distinct = catalogs.distinctBy { it.tvKey }
+        val ordered = HomeCatalogOrder.ordered(distinct, settings, { it.key }, { it.tvKey })
+        val byTvKey = ordered.associateBy { it.tvKey }
+        val remoteItems = remote?.items.orEmpty().sortedBy { it.order }
+        val titles = remoteItems.associate { itemKey(it) to it.customTitle }
+        val remoteCollections = remoteItems.filter { it.isCollection && it.collectionId.isNotBlank() }.associateBy { it.collectionId }
+        // Where collections go: the local Home order (desktop or TV keys), else the account's.
+        val toTvKey = distinct.associate { it.key to it.tvKey }
+        val placement = settings.layout.homeOrder.map { toTvKey[it] ?: it }.ifEmpty { remoteItems.map(::itemKey) }
+        val keys = HomeLayout.middle(
+            catalogs = ordered.map { it.tvKey },
+            collections = (collectionIds + remoteCollections.keys).distinct(),
+            order = placement,
+            followAddonsOrder = true
+        )
+        val hidden = settings.disabledCatalogs.toSet()
+        val items = keys.mapIndexedNotNull { index, key ->
+            val catalog = byTvKey[key]
+            if (catalog != null) {
+                SyncCatalogItem(
+                    addonId = catalog.addonId, type = catalog.type, catalogId = catalog.catalogId,
+                    enabled = !HomeCatalogOrder.isDisabled(settings, catalog.ordered),
+                    order = index,
+                    customTitle = titles[key].orEmpty()
+                )
+            } else {
+                val id = key.removePrefix(COLLECTION_PREFIX)
+                val local = id in collectionIds
+                SyncCatalogItem(
+                    addonId = "", type = "", catalogId = "",
+                    enabled = if (local) key !in hidden else remoteCollections[id]?.enabled ?: true,
+                    order = index,
+                    customTitle = titles[key].orEmpty(),
+                    isCollection = true,
+                    collectionId = id
+                )
+            }
         }
-        val collections = remote?.items.orEmpty().filter { it.isCollection }.sortedBy { it.order }
-            .mapIndexed { i, item -> item.copy(order = items.size + i) }
-        return SyncHomeCatalogPayload(settings.hideUnreleased, items + collections)
+        return SyncHomeCatalogPayload(settings.hideUnreleased, items)
     }
 
+    private const val COLLECTION_PREFIX = "collection_"
+
+    /** The TV's order key for [item]: `addonId_type_catalogId`, or `collection_<id>`. */
+    private fun itemKey(item: SyncCatalogItem): String =
+        if (item.isCollection) HomeLayout.collectionKey(item.collectionId) else tvCatalogKey(item.addonId, item.type, item.catalogId)
+
     /**
-     * [settings] with the account's order, hidden catalogs and "Hide unreleased" (when the payload
-     * has it). Hidden filter rows, which only this app has, stay hidden.
+     * [settings] with the account's order, hidden catalogs and collections and "Hide unreleased"
+     * (when the payload has it). The payload's collection places become Home's order
+     * (`layout.homeOrder`, in the TV's keys). Hidden filter rows, which only this app has, stay
+     * hidden, as do hidden collections the payload doesn't name.
      */
     fun apply(settings: DesktopSettings, remote: SyncHomeCatalogPayload, hasHideUnreleased: Boolean): DesktopSettings {
-        val catalogs = remote.items.filter { !it.isCollection }.sortedBy { it.order }
+        val sorted = remote.items.sortedBy { it.order }
+        val catalogs = sorted.filter { !it.isCollection }
         if (catalogs.isEmpty()) return settings
-        val order = catalogs.map { tvCatalogKey(it.addonId, it.type, it.catalogId) }
-        val disabled = catalogs.filter { !it.enabled }.map { tvCatalogKey(it.addonId, it.type, it.catalogId) }
-        val localOnly = settings.disabledCatalogs.filter { it.startsWith("filter|") }
+        val collections = sorted.filter { it.isCollection && it.collectionId.isNotBlank() }
+        val order = catalogs.map(::itemKey)
+        val disabled = sorted.filter { !it.enabled && (!it.isCollection || it.collectionId.isNotBlank()) }.map(::itemKey)
+        val named = collections.map(::itemKey).toSet()
+        val localOnly = settings.disabledCatalogs.filter {
+            it.startsWith("filter|") || (it.startsWith(COLLECTION_PREFIX) && it !in named)
+        }
         return settings.copy(
             catalogOrder = order,
             pinnedCatalogs = emptyList(),
             disabledCatalogs = localOnly + disabled,
-            hideUnreleased = if (hasHideUnreleased) remote.hideUnreleasedContent else settings.hideUnreleased
+            hideUnreleased = if (hasHideUnreleased) remote.hideUnreleasedContent else settings.hideUnreleased,
+            layout = if (collections.isEmpty()) settings.layout else settings.layout.copy(homeOrder = sorted.map(::itemKey).distinct())
         )
     }
 

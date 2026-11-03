@@ -783,7 +783,8 @@ class AppState(
         }
         if (after.rankingRules != before.rankingRules) rerankSources()
         if (!applyingFromServer && (after.catalogOrder != before.catalogOrder || after.pinnedCatalogs != before.pinnedCatalogs ||
-                after.disabledCatalogs != before.disabledCatalogs || after.hideUnreleased != before.hideUnreleased)) {
+                after.disabledCatalogs != before.disabledCatalogs || after.hideUnreleased != before.hideUnreleased ||
+                after.layout.homeOrder != before.layout.homeOrder)) {
             pushHomeCatalogs()
         }
         // A new MDBList key goes to the account straight away, as on TV.
@@ -1098,7 +1099,7 @@ class AppState(
         homeCatalogPush = scope.launch {
             delay(500)
             val previous = homeCatalogRemote?.let(com.fetch.desktop.addons.HomeCatalogSync::decode)?.first
-            val payload = com.fetch.desktop.addons.HomeCatalogSync.payload(syncableCatalogs, settings, previous)
+            val payload = com.fetch.desktop.addons.HomeCatalogSync.payload(syncableCatalogs, settings, previous, collections.collections.map { it.id })
             val json = com.fetch.desktop.addons.HomeCatalogSync.merged(homeCatalogRemote, payload)
             runCatching {
                 remote.callRpc("sync_push_home_catalog_settings", com.fetch.desktop.addons.HomeCatalogSync.pushParams(profile.id, json, account?.state?.originClientId))

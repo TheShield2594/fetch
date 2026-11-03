@@ -62,6 +62,10 @@ data class DesktopSettings(
     val checkForUpdates: Boolean = true,
     /** Include beta releases in the update check. */
     val betaUpdates: Boolean = false,
+    /** Up Next threshold, Reuse Last Link, binge groups, post-play and the rest of the TV's auto-play settings. */
+    val autoPlay: AutoPlaySettings = AutoPlaySettings(),
+    /** The playback queue (the TV's `episode_queue`), synced with it. */
+    val episodeQueue: List<com.fetch.desktop.playback.QueueItem> = emptyList(),
     /** Bumped when a saved default has to change; see [migrated]. */
     val schema: Int = 1
 ) {

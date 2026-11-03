@@ -91,7 +91,10 @@ fun RemoteSharedSettings.applyTo(settings: DesktopSettings): DesktopSettings {
         )
     }
     tmdbLanguage?.takeIf { it.isNotBlank() }?.let { tmdb = tmdb.copy(language = it) }
-    return s.copy(player = player, tmdb = tmdb, mdblist = applyMdbList(s.mdblist))
+    s = s.copy(player = player, tmdb = tmdb, mdblist = applyMdbList(s.mdblist))
+    autoPlay?.let { s = AutoPlaySync.apply(it, s) }
+    episodeQueue?.let { s = AutoPlaySync.applyQueue(it, s) }
+    return s
 }
 
 /** The TV's `mdblist_settings` (all but the API key) over [m]; keys the blob lacks keep their value. */
@@ -169,6 +172,8 @@ fun DesktopSettings.toRemoteSharedSettings(remote: RemoteSharedSettings? = null)
         tmdbLanguage = tmdb.language,
         mdblistFlags = mdblist.toRemoteFlags(),
         mdblistRatingOrder = mdblist.ratingOrder.joinToString(","),
+        autoPlay = AutoPlaySync.values(this),
+        episodeQueue = AutoPlaySync.queueOf(this),
     )
 }
 

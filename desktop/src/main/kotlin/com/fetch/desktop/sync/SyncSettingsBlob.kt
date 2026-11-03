@@ -99,6 +99,8 @@ object SyncSettingsBlob {
             tmdbLanguage = string(TMDB, "tmdb_language"),
             mdblistFlags = MDBLIST_FLAGS.mapNotNull { key -> boolean(MDBLIST, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
             mdblistRatingOrder = string(MDBLIST, "mdblist_rating_order"),
+            autoPlay = AutoPlaySync.read(features?.get(PLAYER) as? JsonObject),
+            episodeQueue = AutoPlaySync.readQueue(features?.get(AutoPlaySync.QUEUE_FEATURE)),
         )
     }
 
@@ -128,6 +130,8 @@ object SyncSettingsBlob {
         set(TMDB, "tmdb_language", settings.tmdbLanguage?.let(::stringValue))
         settings.mdblistFlags?.forEach { (key, value) -> if (key in MDBLIST_FLAGS) set(MDBLIST, key, booleanValue(value)) }
         set(MDBLIST, "mdblist_rating_order", settings.mdblistRatingOrder?.let(::stringValue))
+        settings.autoPlay?.forEach { (key, value) -> set(PLAYER, key, AutoPlaySync.encode(key, value)) }
+        set(AutoPlaySync.QUEUE_FEATURE, AutoPlaySync.QUEUE_KEY, settings.episodeQueue?.let(AutoPlaySync::encodeQueue))
 
         val base = blob ?: JsonObject(emptyMap())
         val features = (base[FEATURES] as? JsonObject).orEmpty().toMutableMap()

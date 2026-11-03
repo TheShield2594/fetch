@@ -114,7 +114,9 @@ private fun HomeContent(state: AppState) {
             onPlay = { state.openContinueWatching(it, play = true) },
             onDetails = { state.openContinueWatching(it, play = false) },
             onStartOver = state::startFromBeginning,
-            onRemove = state::removeFromContinueWatching
+            onRemove = state::removeFromContinueWatching,
+            onToggleQueue = state::toggleQueued,
+            isQueued = { state.extras.isQueued(it.videoId) }
         )
     }
 

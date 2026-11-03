@@ -73,6 +73,8 @@ import com.fetch.desktop.party.PartySync
 import com.fetch.desktop.party.SyncPartyBackend
 import com.fetch.desktop.party.partyMediaKey
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.flow.transformWhile
+import com.fetch.desktop.playback.NextEpisodeRules
 import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.desktop.tracking.TrackingStore
 import com.fetch.tv.core.addon.AddonUrls
@@ -206,7 +208,11 @@ data class SourcesState(
     /** Every stream the addons sent, kept so a change to the rules can rank them again. */
     val streams: List<Stream> = emptyList(),
     val ranked: List<RankedStream> = emptyList(),
-    val failedAddons: List<String> = emptyList()
+    val failedAddons: List<String> = emptyList(),
+    /** Each addon's answer so far, for the fetching panel (sources arrive as each addon answers). */
+    val addons: List<com.fetch.desktop.playback.AddonProgress> = emptyList(),
+    /** Not asked yet: "Show the pick on the Play button" is off, so Play asks the addons. */
+    val idle: Boolean = false
 ) {
     /** What auto-play would pick: the best source the rules didn't rule out. */
     val best: RankedStream? get() = ranked.firstOrNull { it.isEligible }
@@ -262,6 +268,21 @@ class AppState(
 
     /** The sources list sliding in over the detail page. */
     var sourcesPanelOpen by mutableStateOf(false)
+
+    /** Queue, "Prefer this next time", content warnings, the movie's recommendation; see [PlaybackExtras]. */
+    val extras = PlaybackExtras(scope, object : PlaybackExtras.Host {
+        override val settings: DesktopSettings get() = this@AppState.settings
+        override fun updateSettings(change: (DesktopSettings) -> DesktopSettings) = this@AppState.updateSettings(change)
+        override fun message(text: String) { message = text }
+        override val tmdb: TmdbClient? get() = this@AppState.tmdb.client.takeIf { this@AppState.tmdb.active && settings.tmdb.useMoreLikeThis }
+        override val tmdbLanguage: String get() = settings.tmdb.language
+        override fun allowed(preview: MetaPreview): Boolean = this@AppState.allowed(preview)
+        override fun isWatched(id: String): Boolean = this@AppState.isWatched(id)
+        override fun rating(target: PlaybackTarget): String? {
+            val meta = detailMeta?.takeIf { it.id == target.contentId }
+            return ratingOf(meta?.imdbId ?: target.contentId, target.contentType, meta?.ageRating, meta?.country).first
+        }
+    })
 
     var searchQuery by mutableStateOf("")
         private set
@@ -632,6 +653,8 @@ class AppState(
     }
 
     fun back() {
+        // The fetching panel first: Play stops waiting, the page stays.
+        if (extras.autoPlayWaiting) return stopAutoPlayWait()
         if (sourcesPanelOpen) {
             sourcesPanelOpen = false
             return
@@ -656,6 +679,7 @@ class AppState(
     private fun show(to: Screen) {
         screen = to
         sourcesPanelOpen = false
+        stopAutoPlayWait()
         when (to) {
             is Screen.Detail -> {
                 autoPlayPending = to.autoPlay
@@ -1378,8 +1402,8 @@ class AppState(
                 val wantedId = videoId ?: progressFor(preview.id)?.videoId
                 val episode = videos.firstOrNull { it.id == wantedId } ?: first
                 when {
-                    !isSeries -> loadSources(preview)
-                    episode != null -> loadSources(preview, episode)
+                    !isSeries -> offerSources(preview)
+                    episode != null -> offerSources(preview, episode)
                 }
                 // TMDB's details arrive after the addon's, so the page and sources don't wait.
                 if (meta != null && !isServer && TmdbClient.parseTmdbId(meta.id) == null) {
@@ -1401,42 +1425,165 @@ class AppState(
             ?.let { "${preview.name} · $it" }
             ?: preview.name
         sourcesJob?.cancel()
-        sources = SourcesState(preview = preview, video = video, videoId = videoId, label = label, episodeTag = tag)
+        val serverItem = ServerItemRef.isServerId(videoId)
+        val asked = if (serverItem) emptyList() else client.streamAddons(addons.toList(), preview.rawType, videoId)
+        sources = SourcesState(
+            preview = preview, video = video, videoId = videoId, label = label, episodeTag = tag,
+            addons = com.fetch.desktop.playback.FetchProgress.start(asked.map { it.displayName })
+        )
+        // Play pressed before the sources: the last link that worked, or the fetching panel's wait.
+        if (autoPlayPending && !reuseLastLink()) startAutoPlayWait()
         sourcesJob = scope.launch {
-            // Addons and your own servers are asked at once; the ranker puts your copies first.
-            val (results, own) = if (ServerItemRef.isServerId(videoId)) {
-                emptyList<com.fetch.desktop.data.AddonStreamResult>() to servers.streamsForItem(videoId)
-            } else coroutineScope {
-                val fromAddons = async(Dispatchers.IO) { client.streams(addons.toList(), preview.rawType, videoId, timeoutMs = addonTimeoutMs) }
-                val fromServers = async { servers.streams(preview.rawType, videoId, preview.name, yearOf(preview.releaseInfo)) }
-                fromAddons.await() to fromServers.await()
+            // Addons and your own servers are asked at once; each answer is ranked in as it comes
+            // (the TV's fetching panel), and the ranker puts your copies first.
+            var own = emptyList<Stream>()
+            val results = mutableListOf<com.fetch.desktop.data.AddonStreamResult>()
+            suspend fun publish(done: Boolean) {
+                val streams = own + results.flatMap { it.streams }
+                val ranked = rank(streams)
+                val current = sources?.takeIf { it.videoId == videoId } ?: return
+                var progress = current.addons
+                if (done) progress = com.fetch.desktop.playback.FetchProgress.finished(progress)
+                sources = current.copy(
+                    loading = !done,
+                    streams = streams,
+                    ranked = ranked,
+                    failedAddons = results.filter { it.error != null }.map { "${it.addon.displayName}: ${it.error}" },
+                    addons = progress
+                )
+                checkAutoPlay()
             }
-            val streams = own + results.flatMap { it.streams }
-            val loaded = SourcesState(
-                preview = preview,
-                video = video,
-                videoId = videoId,
-                label = label,
-                episodeTag = tag,
-                loading = false,
-                streams = streams,
-                ranked = rank(streams),
-                failedAddons = results.filter { it.error != null }.map { "${it.addon.displayName}: ${it.error}" }
-            )
-            sources = loaded
-            if (autoPlayPending) {
-                autoPlayPending = false
-                if (settings.autoPlayMode == AutoPlayMode.MANUAL) {
-                    sourcesPanelOpen = true
-                } else {
-                    val pick = pickAuto(loaded.ranked)
-                    if (pick != null) play(pick) else message = "No source to play automatically. Pick one below."
+            if (serverItem) {
+                own = servers.streamsForItem(videoId)
+            } else coroutineScope {
+                launch {
+                    own = servers.streams(preview.rawType, videoId, preview.name, yearOf(preview.releaseInfo))
+                    if (own.isNotEmpty()) publish(done = false)
+                }
+                client.streamsAsAnswered(addons.toList(), preview.rawType, videoId, timeoutMs = addonRequestTimeoutMs).collect { result ->
+                    results += result
+                    sources?.takeIf { it.videoId == videoId }?.let { s ->
+                        sources = s.copy(addons = com.fetch.desktop.playback.FetchProgress.answered(s.addons, result))
+                    }
+                    publish(done = false)
                 }
             }
+            publish(done = true)
         }
     }
 
-    private val addonTimeoutMs: Long get() = settings.addonTimeoutSeconds.coerceIn(3, 120) * 1000L
+    /** A title page's sources: asked for now, or left for Play when "Show the pick on the Play button" is off. */
+    private fun offerSources(preview: MetaPreview, video: Video? = null) {
+        if (settings.autoPlay.bestMatchPreview || autoPlayPending) return loadSources(preview, video)
+        sourcesJob?.cancel()
+        val tag = video?.let { episodeTag(it.season, it.episode) }
+        val label = video?.let { v -> listOfNotNull(tag, v.title.takeIf { it.isNotBlank() }).joinToString(" · ") }?.let { "${preview.name} · $it" } ?: preview.name
+        sources = SourcesState(preview, video, video?.id ?: preview.id, label, tag, loading = false, idle = true)
+    }
+
+    /** How long one addon's request may take (Settings › Stream Selection › Stream selection timeout). */
+    private val addonRequestTimeoutMs: Long get() = com.fetch.desktop.data.AutoPlaySettings.requestTimeoutMs(settings.addonTimeoutSeconds)
+
+    // --- Auto-play: the fetching panel's wait (the TV's direct auto-play) ---
+
+    private val linkCache = com.fetch.desktop.playback.StreamLinkCache(profileDir(profile))
+    private var autoPlayTimer: Job? = null
+    private var autoPlayWaitOver = false
+
+    /** The binge group to look for first, when Reuse Binge Group remembers one for this show. */
+    private fun rememberedBingeGroup(contentId: String): com.fetch.desktop.playback.BingeHint? {
+        val ap = settings.autoPlay
+        return if (ap.reuseBingeGroup && ap.preferBingeGroup) linkCache.bingeGroup(contentId) else null
+    }
+
+    /** Starts waiting for the addons as the TV does: Instant, a few seconds, or Unlimited (every addon). */
+    private fun startAutoPlayWait() {
+        val current = sources ?: return
+        if (settings.autoPlayMode == AutoPlayMode.MANUAL && rememberedBingeGroup(current.preview.id) == null) {
+            // "Pick every time": the sources open and fill in as the addons answer.
+            stopAutoPlayWait()
+            sourcesPanelOpen = true
+            return
+        }
+        val wait = settings.addonTimeoutSeconds
+        autoPlayTimer?.cancel()
+        autoPlayWaitOver = wait == 0
+        extras.autoPlayWaiting = true
+        extras.autoPlayDeadlineMs = if (com.fetch.desktop.data.AutoPlaySettings.isBoundedTimeout(wait)) System.currentTimeMillis() + wait * 1000L else null
+        if (com.fetch.desktop.data.AutoPlaySettings.isBoundedTimeout(wait)) {
+            autoPlayTimer = scope.launch {
+                delay(wait * 1000L)
+                autoPlayWaitOver = true
+                extras.autoPlayDeadlineMs = null
+                checkAutoPlay()
+            }
+        }
+        checkAutoPlay()
+    }
+
+    private fun stopAutoPlayWait() {
+        autoPlayPending = false
+        autoPlayTimer?.cancel()
+        autoPlayWaitOver = false
+        extras.autoPlayWaiting = false
+        extras.autoPlayDeadlineMs = null
+    }
+
+    /** Runs auto-play's rules on the sources in so far; see [com.fetch.desktop.playback.AutoPlayPicker.decide]. */
+    private fun checkAutoPlay() {
+        if (!autoPlayPending) return
+        val current = sources ?: return
+        if (current.idle) return
+        val ap = settings.autoPlay
+        val decision = com.fetch.desktop.playback.AutoPlayPicker.decide(
+            ranked = current.ranked,
+            mode = settings.autoPlayMode,
+            regex = settings.autoPlayRegex,
+            rules = settings.rankingRules,
+            startEarly = ap.startEarly,
+            bingeHint = rememberedBingeGroup(current.preview.id),
+            next = current.video?.let { it.season to (it.episode ?: 0) },
+            anyAnswered = current.ranked.isNotEmpty() || current.addons.any { it.status != com.fetch.desktop.playback.AddonFetchStatus.LOADING },
+            allAnswered = !current.loading,
+            waitOver = autoPlayWaitOver
+        )
+        when (decision) {
+            is com.fetch.desktop.playback.AutoPlayDecision.Play -> {
+                stopAutoPlayWait()
+                play(decision.pick, manual = false)
+            }
+            com.fetch.desktop.playback.AutoPlayDecision.ShowSources -> {
+                stopAutoPlayWait()
+                sourcesPanelOpen = true
+                message = if (current.ranked.isEmpty() && !current.loading) "No sources found" else "No source to play automatically. Pick one below."
+            }
+            com.fetch.desktop.playback.AutoPlayDecision.Wait -> Unit
+        }
+    }
+
+    /** The fetching panel's "Play now": the best so far, without waiting for the rest. */
+    fun playBestSoFar() {
+        val pick = sources?.best ?: return
+        stopAutoPlayWait()
+        play(pick, manual = false)
+    }
+
+    /** The fetching panel's "See all sources". */
+    fun showAllSourcesNow() {
+        stopAutoPlayWait()
+        sourcesPanelOpen = true
+    }
+
+    /** "Reuse Last Link": plays the link that last worked for these sources' video, if it's fresh enough. */
+    private fun reuseLastLink(): Boolean {
+        val ap = settings.autoPlay
+        val current = sources ?: return false
+        if (!ap.reuseLastLink || ServerItemRef.isServerId(current.videoId)) return false
+        val link = linkCache.validLink(current.videoId, ap.reuseLastLinkCacheHours) ?: return false
+        stopAutoPlayWait()
+        playStream(link.toStream(), builtIn = null)
+        return true
+    }
 
     /**
      * The source Play starts, by Settings › Stream Selection › Play: the best match, the first
@@ -1471,14 +1618,23 @@ class AppState(
     /** Plays the best match now, or as soon as the sources are in. */
     fun playBest() {
         val current = sources ?: return
-        if (current.loading) {
+        if (current.idle) {
+            // Not asked yet ("Show the pick on the Play button" is off): ask now, then play.
             autoPlayPending = true
-            message = if (settings.autoPlayMode == AutoPlayMode.MANUAL) "Your sources open as soon as your addons answer…"
-            else "Starting the best match as soon as your addons answer…"
+            loadSources(current.preview, current.video)
             return
         }
-        val pick = pickAuto(current.ranked)
-        if (pick != null) play(pick) else sourcesPanelOpen = true
+        if (current.loading) {
+            if (autoPlayPending) return
+            autoPlayPending = true
+            if (!reuseLastLink()) startAutoPlayWait()
+            return
+        }
+        if (reuseLastLink()) return
+        val remembered = rememberedBingeGroup(current.preview.id)
+            ?.let { com.fetch.desktop.playback.AutoPlayPicker.bingeMatch(current.ranked, it, null, current.video?.let { v -> v.season to (v.episode ?: 0) }) }
+        val pick = remembered ?: pickAuto(current.ranked)
+        if (pick != null) play(pick, manual = false) else sourcesPanelOpen = true
     }
 
     fun playTrailer(ytId: String, title: String) {
@@ -1489,8 +1645,23 @@ class AppState(
     }
 
     /** Plays [ranked] for the title or episode the sources are for, resuming where it was left. */
-    fun play(ranked: RankedStream, builtIn: Boolean? = null) {
-        autoPlayPending = false
+    fun play(ranked: RankedStream, builtIn: Boolean? = null, manual: Boolean = true) {
+        val context = sources ?: return
+        // Picked by hand over Best match's choice: offer "Prefer this next time" once it plays.
+        if (manual) {
+            com.fetch.tv.core.streams.ranking.PreferNextTime.recordManualPick(
+                ranked.stream,
+                context.streams.filter(ExternalPlayer::canPlay),
+                settings.rankingRules,
+                com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities.Permissive
+            )
+        }
+        playStream(ranked.stream, builtIn)
+    }
+
+    /** Plays [stream] for the title or episode the sources are for. */
+    private fun playStream(stream: Stream, builtIn: Boolean?) {
+        stopAutoPlayWait()
         autoplayRun = 0
         val context = sources ?: return
         val meta = detailMeta?.takeIf { it.id == context.preview.id }
@@ -1508,7 +1679,23 @@ class AppState(
             video = context.video,
             episodes = meta?.videos.orEmpty()
         )
-        launchPlayback(ranked.stream, context.label, target, builtIn = builtIn, alternatives = context.ranked)
+        launchPlayback(stream, context.label, target, builtIn = builtIn, alternatives = context.ranked)
+    }
+
+    /** The stream playing (or last played), for the next episode's binge group. */
+    private var playingStream: Stream? = null
+
+    /**
+     * Bookkeeping as [stream] starts for [target]: Reuse Last Link and the binge group remember
+     * it, the queue lets go of it, and "Prefer this next time" is offered if it was picked by hand.
+     */
+    private fun startedPlaying(stream: Stream, target: PlaybackTarget) {
+        playingStream = stream
+        linkCache.saveLink(target.videoId, stream)
+        if (stream.serverTarget == null) linkCache.saveBingeGroup(target.contentId, stream)
+        extras.markStarted(target.videoId)
+        extras.clearPostPlay(exceptVideoId = target.videoId)
+        extras.offerPreferNextTime()
     }
 
     /**
@@ -1537,6 +1724,7 @@ class AppState(
             }
             return
         }
+        startedPlaying(stream, target)
         scope.launch {
             val player = settings.player
             val serverStream = servers.serverStream(stream)
@@ -1640,6 +1828,10 @@ class AppState(
                         }
                         lastPosition = sample.positionSec
                         recordProgress(target, sample)
+                        // A movie's recommendation is looked up before its end (mpv's window too).
+                        if (target.video == null && com.fetch.desktop.playback.PostPlayTiming.shouldPrefetch(sample.positionSec, sample.durationSec, emptyList(), settings.autoPlay)) {
+                            extras.prefetchPostPlay(target)
+                        }
                         // Trakt and Simkl hear about it once it has really started.
                         if (!scrobbled) {
                             scrobbled = true
@@ -1682,6 +1874,7 @@ class AppState(
     fun closePlayer() {
         val session = playerSession ?: return
         playerSession = null
+        extras.playerClosed()
         session.party?.leave()
         partySyncJob?.cancel()
         session.mpv.stop()
@@ -1729,18 +1922,106 @@ class AppState(
         session.nextEpisode = target.video?.takeIf { settings.player.autoplayNextEpisode }
             ?.let { WatchHistory.nextEpisode(target.episodes, it, progress.watched.toSet()) }?.takeIf { isAired(it) }
         session.description = (target.video?.overview ?: detailMeta?.takeIf { it.id == target.contentId }?.description)
+        // The card (and with autoplay, the next episode) comes at the TV's threshold.
+        session.upNextAt = { position, duration -> NextEpisodeRules.thresholdReached(position, duration, session.segments, settings.autoPlay) }
+        session.nextEpisode?.let { extras.seedNextEpisode(target, it) }
+        extras.startGuide(target)
         val load = ++session.loads
         session.mpv.load(url, label, resume, options, stream.behaviorHints?.proxyHeaders?.request.orEmpty())
         if (session.loads == 1 && settings.player.videoFit != VideoFit.FIT) setFit(settings.player.videoFit)
+        val watch = PositionWatch(session, target, load)
         follow(
             target,
             serverStream,
             SkipPlanner(segments, settings.player.autoSkip).takeUnless { it.isEmpty },
-            afterEnd = { ending, continued ->
+            afterEnd = end@{ ending, continued ->
+                // A source that wouldn't open: the next one in the ranking, when that's on.
+                if (!ending.reachedEnd && ending.last == null && session.mpv.error != null && playerSession === session &&
+                    session.loads == load && tryNextSource(session, target, original)
+                ) return@end
                 // Played to the end and nothing came next: close, as the mpv window would.
                 if (ending.reachedEnd && !continued && stillWatching == null && playerSession === session && session.loads == load) closePlayer()
             }
-        ) { onPosition, onSample -> session.mpv.follow(onPosition = partySkips(session, onPosition), onSample = onSample) }
+        ) { onPosition, onSample ->
+            val skips = partySkips(session, onPosition)
+            session.mpv.follow(onPosition = { position -> watch.on(position); skips(position) }, onSample = onSample)
+        }
+        return true
+    }
+
+    /**
+     * Follows the built-in player's position (on mpv's thread) for what the TV does near the end:
+     * preloading the next episode's sources, starting Up Next at the threshold, and looking up a
+     * movie's recommendation. Nothing fires until the position was once away from the end.
+     */
+    private inner class PositionWatch(val session: PlayerSession, val target: PlaybackTarget, val load: Int) {
+        @Volatile private var armed = false
+        @Volatile private var preloaded = false
+        @Volatile private var upNextStarted = false
+        @Volatile private var recommendationLooked = false
+
+        fun on(position: Double) {
+            val duration = session.mpv.duration
+            if (duration <= 0 || session.loads != load) return
+            val ap = settings.autoPlay
+            val segments = session.segments
+            if (!armed) {
+                if (!NextEpisodeRules.isAwayFromEnd(position, duration, segments, ap)) return
+                armed = true
+            }
+            val next = session.nextEpisode
+            if (next != null) {
+                if (ap.preloadNextEpisode && !preloaded && NextEpisodeRules.shouldPreload(position, duration, segments, ap, settings.addonTimeoutSeconds)) {
+                    preloaded = true
+                    scope.launch { preloadEpisode(target, next) }
+                }
+                if (!upNextStarted && !session.upNextDismissed && NextEpisodeRules.thresholdReached(position, duration, segments, ap)) {
+                    upNextStarted = true
+                    scope.launch { upNextAtThreshold(session, target, load) }
+                }
+            } else if (target.video == null && !recommendationLooked && com.fetch.desktop.playback.PostPlayTiming.shouldPrefetch(position, duration, segments, ap)) {
+                recommendationLooked = true
+                scope.launch { extras.prefetchPostPlay(target) }
+            }
+        }
+    }
+
+    /** Up Next at the threshold in the built-in player: the next episode starts now, as on TV. */
+    private suspend fun upNextAtThreshold(session: PlayerSession, target: PlaybackTarget, load: Int) {
+        if (playerSession !== session || session.loads != load || session.upNextDismissed) return
+        if (!settings.player.autoplayNextEpisode || upNextCancelledFor == target.videoId) return
+        val video = target.video ?: return
+        if (!continueToNext(target, video, countdown = true)) {
+            // Nothing started (no source, a limit): don't try again at the end.
+            if (playerSession === session && session.loads == load) upNextCancelledFor = target.videoId
+        }
+    }
+
+    /** The next episode's sources, looked up ahead ("Preload Next Episode Sources"). */
+    private var preloadedEpisode: Pair<String, kotlinx.coroutines.Deferred<List<RankedStream>>>? = null
+
+    private fun preloadEpisode(target: PlaybackTarget, next: Video) {
+        if (preloadedEpisode?.first == next.id) return
+        preloadedEpisode = next.id to scope.async { rank(streamsFor(target.contentType, next.id, target.name)) }
+    }
+
+    /** Sources that failed to open in the built-in player for the title on screen. */
+    private val failedSources = mutableSetOf<String>()
+    private var failedFor: String? = null
+
+    /** The built-in player couldn't open [failed]: the next eligible source plays, from where it was. */
+    private fun tryNextSource(session: PlayerSession, target: PlaybackTarget, failed: Stream): Boolean {
+        linkCache.forgetLink(target.videoId)
+        if (!settings.autoPlay.nextSourceOnFailure) return false
+        if (failedFor != target.videoId) {
+            failedFor = target.videoId
+            failedSources.clear()
+        }
+        failedSources += failed.stableKey()
+        val candidates = session.sources.ifEmpty { sources?.takeIf { it.videoId == target.videoId }?.ranked.orEmpty() }
+        val next = candidates.firstOrNull { it.isEligible && ExternalPlayer.canPlay(it.stream) && it.stream.stableKey() !in failedSources } ?: return false
+        message = "That source didn't open. Trying ${next.stream.addonName.ifBlank { "the next one" }}…"
+        launchPlayback(next.stream, session.title, target, builtIn = true, alternatives = candidates)
         return true
     }
 
@@ -1752,6 +2033,10 @@ class AppState(
         val target = session.target ?: return
         val at = session.mpv.position.takeIf { it > 5 }?.let { it.toLong().toString() }
         session.panel = null
+        com.fetch.tv.core.streams.ranking.PreferNextTime.recordManualPick(
+            ranked.stream, session.sources.map { it.stream }.filter(ExternalPlayer::canPlay), settings.rankingRules,
+            com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities.Permissive
+        )
         launchPlayback(ranked.stream, session.title, target, start = at, builtIn = true, alternatives = session.sources)
     }
 
@@ -1763,7 +2048,7 @@ class AppState(
         session.sourcesLoading = true
         scope.launch {
             try {
-                session.sources = rank(streamsFor(target.contentType, target.videoId, target.name))
+                session.sources = rank(streamsFor(target.contentType, target.videoId, target.name, complete = true))
             } finally {
                 session.sourcesLoading = false
             }
@@ -1842,27 +2127,97 @@ class AppState(
         playerChoice?.invoke(builtIn)
     }
 
-    private suspend fun streamsFor(type: String, videoId: String, name: String): List<Stream> =
-        servers.streams(type, videoId, name, null) +
-            withContext(Dispatchers.IO) { client.streams(addons.toList(), type, videoId, timeoutMs = addonTimeoutMs) }.flatMap { it.streams }
+    /**
+     * Sources for a video outside the title page (Up Next, the queue, a watch party). As on TV
+     * they're taken when the stream selection timeout ends, or at the first answer with sources
+     * when it's Instant; [complete] waits for every addon (the player's Sources panel).
+     */
+    private suspend fun streamsFor(type: String, videoId: String, name: String, complete: Boolean = false): List<Stream> = coroutineScope {
+        val own = async { servers.streams(type, videoId, name, null) }
+        val wait = settings.addonTimeoutSeconds
+        val collected = mutableListOf<Stream>()
+        val answers = client.streamsAsAnswered(addons.toList(), type, videoId, timeoutMs = addonRequestTimeoutMs)
+        when {
+            complete || wait == com.fetch.desktop.data.AutoPlaySettings.TIMEOUT_UNLIMITED -> answers.collect { collected += it.streams }
+            wait == 0 -> answers.transformWhile { emit(it); it.streams.isEmpty() }.collect { collected += it.streams }
+            else -> withTimeoutOrNull(wait * 1000L) { answers.collect { collected += it.streams } }
+        }
+        own.await() + collected
+    }
 
-    /** Finds and plays [next]'s source for [target]'s show; false when there's none. */
-    private suspend fun startEpisode(target: PlaybackTarget, next: Video, viaUpNext: Boolean): Boolean {
+    /**
+     * Finds and plays [next]'s source for [target]'s show; false when there's none. The binge
+     * group of what played comes first, as on TV. With [countdown] (Up Next at the threshold) the
+     * card counts down three seconds before it switches, and Cancel stops it.
+     */
+    private suspend fun startEpisode(target: PlaybackTarget, next: Video, viaUpNext: Boolean, countdown: Boolean = false): Boolean {
         val tag = episodeTag(next.season, next.episode)
         val title = listOfNotNull(tag, next.title.takeIf { it.isNotBlank() }).joinToString(" · ")
-        message = if (viaUpNext) "Up Next: $title" else "Loading $title…"
-        val ranked = rank(streamsFor(target.contentType, next.id, target.name))
+        val inPlayer = playerSession
+        if (countdown && inPlayer != null) extras.upNextStatus = "Finding a source…"
+        else message = if (viaUpNext) "Up Next: $title" else "Loading $title…"
+        val preloaded = preloadedEpisode?.takeIf { it.first == next.id }?.second
+        preloadedEpisode = null
+        val ranked = preloaded?.let { runCatching { it.await() }.getOrNull() } ?: rank(streamsFor(target.contentType, next.id, target.name))
+        val ap = settings.autoPlay
+        val playing = playingStream
         // "Pick every time" still needs a source for Up Next: it takes the best match.
-        val pick = pickAuto(ranked) ?: ranked.firstOrNull { it.isEligible }
+        val pick = com.fetch.desktop.playback.AutoPlayPicker.nextEpisodePick(
+            ranked = ranked,
+            mode = settings.autoPlayMode,
+            regex = settings.autoPlayRegex,
+            hint = playing?.let(com.fetch.desktop.playback.BingeHint::of) ?: rememberedBingeGroup(target.contentId),
+            playingFilename = playing?.behaviorHints?.filename,
+            preferBingeGroup = ap.preferBingeGroup,
+            fallback = ap.nextEpisodeFallback,
+            current = target.video?.let { it.season to (it.episode ?: 0) },
+            next = next.season to (next.episode ?: 0)
+        )
         if (pick == null) {
-            message = "No source to play ${tag ?: "the next episode"} automatically"
-            return false
+            extras.upNextStatus = null
+            if (ranked.none { it.isEligible }) {
+                message = "No source to play ${tag ?: "the next episode"} automatically"
+                return false
+            }
+            // "Fallback when binge group fails" is off: the sources for that episode, as the TV's picker.
+            message = "No source from the same group for ${tag ?: "the next episode"}. Pick one."
+            closePlayer()
+            navigate(Screen.Detail(target.toPreview(), videoId = next.id))
+            sourcesPanelOpen = true
+            return true
         }
+        if (countdown && inPlayer != null) {
+            val from = pick.stream.addonName.ifBlank { null }
+            for (seconds in 3 downTo 1) {
+                extras.upNextStatus = listOfNotNull("Starting in $seconds", from).joinToString(" · ")
+                delay(1_000)
+                if (playerSession !== inPlayer || upNextCancelledFor == target.videoId || inPlayer.upNextDismissed) {
+                    extras.upNextStatus = null
+                    return false
+                }
+            }
+        }
+        extras.upNextStatus = null
         val label = listOfNotNull(target.name, tag, next.title.takeIf { it.isNotBlank() }).joinToString(" · ")
         // Stays in the player that's playing: no "Ask every time" between episodes.
         launchPlayback(pick.stream, label, target.copy(video = next), builtIn = playerSession != null, alternatives = ranked)
         return true
     }
+
+    private fun PlaybackTarget.toPreview(): MetaPreview = MetaPreview(
+        id = contentId,
+        type = ContentType.fromString(contentType),
+        rawType = contentType,
+        name = name,
+        poster = poster,
+        posterShape = com.fetch.tv.domain.model.PosterShape.POSTER,
+        background = backdrop,
+        logo = logo,
+        description = null,
+        releaseInfo = null,
+        imdbRating = null,
+        genres = emptyList()
+    )
 
     private fun MpvProgress.Sample.percent(): Float =
         if (durationSec > 0) (positionSec / durationSec * 100).toFloat().coerceIn(0f, 100f) else 0f
@@ -1885,13 +2240,36 @@ class AppState(
      * when something else is starting (or waiting on "Are you still watching?").
      */
     private suspend fun playbackEnded(target: PlaybackTarget, ending: MpvProgress.Ending): Boolean {
-        val video = target.video ?: return false
         if (playerSession?.controls?.mayChangeMedia(userInitiated = false) == false) return false
-        if (!ending.reachedEnd || !settings.player.autoplayNextEpisode) return false
+        if (!ending.reachedEnd) return false
+        val video = target.video
+        val hasNext = video != null && WatchHistory.nextEpisode(target.episodes, video, progress.watched.toSet())?.takeIf { isAired(it) } != null
+        // Nothing of this show comes next: the queue plays on, else a movie's recommendation shows.
+        if (!hasNext) return queueOrRecommendation(target)
+        if (!settings.player.autoplayNextEpisode) return false
         if (upNextCancelledFor == target.videoId) {
             upNextCancelledFor = null
             return false
         }
+        return continueToNext(target, video!!, countdown = false)
+    }
+
+    /** At the end of something with no next episode: the queue's next item, or the movie's recommendation card. */
+    private fun queueOrRecommendation(target: PlaybackTarget): Boolean {
+        val head = extras.upcoming(target.videoId).firstOrNull()
+        if (head != null && settings.player.autoplayNextEpisode && upNextCancelledFor != target.videoId) {
+            if (currentBlock() != null) return false
+            playQueueItem(head)
+            return true
+        }
+        upNextCancelledFor = null
+        if (target.video != null) return false
+        val inPlayer = playerSession?.target?.videoId == target.videoId
+        return extras.onMovieEnded(target.videoId, inPlayer) { playRecommendationTrailer(it) }
+    }
+
+    /** Starts [video]'s next episode as Up Next does: the autoplay cap, limits and "Are you still watching?" first. */
+    private suspend fun continueToNext(target: PlaybackTarget, video: Video, countdown: Boolean): Boolean {
         limits.autoplayCap?.let { cap ->
             if (autoplayRun >= cap) {
                 message = "Up Next stopped after $cap ${if (cap == 1) "episode" else "episodes"} in a row"
@@ -1913,7 +2291,153 @@ class AppState(
             return true
         }
         autoplayRun++
-        return startEpisode(target, next, viaUpNext = true)
+        return startEpisode(target, next, viaUpNext = true, countdown = countdown)
+    }
+
+    // --- Playback queue ---
+
+    /** Adds [preview] (a movie, or a show's next episode to watch) to the queue. */
+    fun addToQueue(preview: MetaPreview) {
+        if (preview.type != ContentType.SERIES) {
+            extras.add(com.fetch.desktop.playback.QueueItem(
+                contentId = preview.id, contentType = preview.apiType, videoId = preview.id, name = preview.name,
+                poster = preview.poster, backdrop = preview.background, logo = preview.logo
+            ))
+            return
+        }
+        scope.launch {
+            // The episode Continue Watching would play, else the first one.
+            val meta = detailMeta?.takeIf { it.id == preview.id }
+                ?: runCatching { withContext(Dispatchers.IO) { client.meta(addons.toList(), preview.rawType, preview.id) } }.getOrNull()
+            val videos = meta?.videos.orEmpty()
+            val entry = progressFor(preview.id)
+            val video = entry?.let { e -> videos.firstOrNull { it.id == e.videoId } } ?: firstEpisode(videos)
+            if (video == null) {
+                message = "No episodes to queue for ${preview.name}"
+                return@launch
+            }
+            addEpisodeToQueue(preview, video, meta)
+        }
+    }
+
+    /** Continue Watching's "Add to queue" / "Remove from queue". */
+    fun toggleQueued(entry: ProgressEntry) {
+        if (extras.isQueued(entry.videoId)) return extras.remove(entry.videoId)
+        extras.add(com.fetch.desktop.playback.QueueItem(
+            contentId = entry.contentId, contentType = entry.contentType, videoId = entry.videoId, name = entry.name,
+            season = entry.season, episode = entry.episode, episodeTitle = entry.episodeTitle,
+            poster = entry.poster, backdrop = entry.backdrop, logo = entry.logo
+        ))
+    }
+
+    /** Adds one episode of [preview] to the queue. */
+    fun addEpisodeToQueue(preview: MetaPreview, video: Video, meta: com.fetch.tv.domain.model.Meta? = detailMeta?.takeIf { it.id == preview.id }) {
+        extras.add(com.fetch.desktop.playback.QueueItem(
+            contentId = preview.id, contentType = preview.apiType, videoId = video.id, name = meta?.name ?: preview.name,
+            season = video.season, episode = video.episode, episodeTitle = video.title.takeIf { it.isNotBlank() },
+            poster = video.thumbnail ?: meta?.poster ?: preview.poster, backdrop = meta?.background ?: preview.background, logo = meta?.logo ?: preview.logo
+        ))
+    }
+
+    /** Plays [item]: in place when it's the next episode of what's on, otherwise its best match. */
+    fun playQueueItem(item: com.fetch.desktop.playback.QueueItem) {
+        extras.queuePanelOpen = false
+        val session = playerSession
+        val target = session?.target
+        if (session != null && !session.controls.mayChangeMedia()) return
+        if (session != null && target != null && item.contentId == target.contentId) {
+            target.episodes.firstOrNull { it.id == item.videoId }?.let { video ->
+                session.upNextDismissed = true
+                scope.launch { startEpisode(target, video, viaUpNext = true) }
+                return
+            }
+        }
+        scope.launch { playQueued(item) }
+    }
+
+    private suspend fun playQueued(item: com.fetch.desktop.playback.QueueItem) {
+        message = "Loading ${item.label}…"
+        val meta = runCatching { withContext(Dispatchers.IO) { client.meta(addons.toList(), item.contentType, item.contentId) } }.getOrNull()
+        val videos = meta?.videos.orEmpty()
+        val video = videos.firstOrNull { it.id == item.videoId }
+            ?: videos.firstOrNull { item.season != null && it.season == item.season && it.episode == item.episode }
+            ?: item.videoId.takeIf { it != item.contentId }?.let {
+                Video(id = it, title = item.episodeTitle.orEmpty(), released = null, thumbnail = null, season = item.season, episode = item.episode, overview = null)
+            }
+        val target = PlaybackTarget(
+            contentId = item.contentId,
+            contentType = item.contentType,
+            name = meta?.name ?: item.name,
+            poster = meta?.poster ?: item.poster,
+            backdrop = meta?.background ?: item.backdrop,
+            logo = meta?.logo ?: item.logo,
+            video = video,
+            episodes = videos
+        )
+        val preview = target.toPreview()
+        if (!allowed(meta, preview)) {
+            message = "Not available on ${profile.name}"
+            return
+        }
+        val ranked = rank(streamsFor(item.contentType, target.videoId, target.name))
+        val pick = pickAuto(ranked) ?: ranked.firstOrNull { it.isEligible }
+        if (pick == null) {
+            closePlayer()
+            message = "No source to play ${item.label} automatically. Pick one below."
+            navigate(Screen.Detail(preview, videoId = video?.id))
+            return
+        }
+        val label = listOfNotNull(target.name, video?.let { episodeTag(it.season, it.episode) }, video?.title?.takeIf { it.isNotBlank() }).joinToString(" · ")
+        autoplayRun = 0
+        launchPlayback(pick.stream, label, target, builtIn = if (playerSession != null) true else null, alternatives = ranked)
+    }
+
+    // --- The movie's recommendation ---
+
+    /** Plays the recommendation's trailer in the built-in player, under the card (as the TV's docked window). */
+    private fun playRecommendationTrailer(recommendation: com.fetch.desktop.playback.PostPlayRecommendation) {
+        val ytId = recommendation.trailerYtId ?: return
+        val session = playerSession ?: return playTrailer(ytId, recommendation.title)
+        extras.trailerStarted()
+        session.segments = emptyList()
+        session.nextEpisode = null
+        session.upNextAt = null
+        session.title = "${recommendation.title} (trailer)"
+        val load = ++session.loads
+        session.mpv.load(
+            "https://www.youtube.com/watch?v=$ytId",
+            session.title,
+            null,
+            listOf("--ytdl=yes", "--ytdl-format=${com.fetch.desktop.youtube.YouTubePlayback.ytdlFormat(1080)}"),
+            emptyMap()
+        )
+        scope.launch {
+            withContext(Dispatchers.IO) { session.mpv.follow { } }
+            if (playerSession === session && session.loads == load) extras.trailerEnded()
+        }
+    }
+
+    /** The card's Play: the recommendation's page, starting its best match (a show opens its page). */
+    fun playRecommendation(recommendation: com.fetch.desktop.playback.PostPlayRecommendation, details: Boolean = false) {
+        closePlayer()
+        extras.clearPostPlay()
+        val preview = recommendation.preview
+        navigate(Screen.Detail(preview, autoPlay = !details && preview.type != ContentType.SERIES))
+    }
+
+    /** The card's trailer button. */
+    fun recommendationTrailer(recommendation: com.fetch.desktop.playback.PostPlayRecommendation) {
+        val ytId = recommendation.trailerYtId ?: return
+        if (playerSession != null && extras.postPlay?.inPlayer == true) playRecommendationTrailer(recommendation)
+        else playTrailer(ytId, recommendation.title)
+    }
+
+    /** The card's Back: before the end, the movie plays on; after it, the player closes. */
+    fun closeRecommendation() {
+        val session = playerSession
+        val ended = session == null || session.mpv.duration <= 0 || session.mpv.duration - session.mpv.position < 1.0 || extras.postPlay?.trailerPlayed == true
+        extras.dismissPostPlay()
+        if (ended && extras.postPlay?.inPlayer == true) closePlayer()
     }
 
     // --- Watch party ---

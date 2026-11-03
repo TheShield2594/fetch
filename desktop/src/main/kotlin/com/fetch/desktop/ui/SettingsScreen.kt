@@ -266,6 +266,7 @@ private fun PlayerPage(state: AppState) {
         SettingsToggle("Pause overlay", "The title, episode and synopsis after a few seconds paused (built-in player).", p.pauseOverlay) { v ->
             state.updatePlayer { it.copy(pauseOverlay = v) }
         }
+        ContentWarningsSetting(state)
     }
     SettingsSection("Buffer") {
         SettingsChoice(
@@ -291,7 +292,7 @@ private fun UpNextPage(state: AppState) {
     SettingsSection(null) {
         SettingsToggle(
             "Autoplay next episode",
-            "When an episode plays to its end, start the next one's best match. Closing mpv early never does.",
+            "Start the next episode's best match at the threshold below in the built-in player, at the end in mpv's window. Closing mpv early never does.",
             p.autoplayNextEpisode
         ) { v -> state.updatePlayer { it.copy(autoplayNextEpisode = v) } }
         if (p.autoplayNextEpisode) {
@@ -311,6 +312,8 @@ private fun UpNextPage(state: AppState) {
             }
         }
     }
+    // Threshold, preloading, binge groups, the movie recommendation (AutoPlaySettingsUi.kt).
+    UpNextAutoPlaySettings(state)
 }
 
 @Composable
@@ -602,12 +605,8 @@ private fun StreamSelectionPage(state: AppState) {
                 state.updateSettings { it.copy(autoPlayRegex = v) }
             }
         }
-        SettingsChoice(
-            "Addon timeout",
-            "How long to wait for each addon's sources. Slow addons are left out after this.",
-            s.addonTimeoutSeconds,
-            listOf(5, 10, 15, 20, 30, 60).map { DropdownOption(it, "$it s") }
-        ) { v -> state.updateSettings { it.copy(addonTimeoutSeconds = v) } }
+        // Timeout, Start early, Reuse Last Link, the pick on the Play button (AutoPlaySettingsUi.kt).
+        StreamAutoPlaySettings(state)
     }
 
     SettingsSection(null) {

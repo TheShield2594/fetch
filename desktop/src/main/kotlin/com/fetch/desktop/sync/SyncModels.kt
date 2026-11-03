@@ -155,6 +155,10 @@ data class RemoteSharedSettings(
     val mdblistFlags: Map<String, Boolean>? = null,
     /** `mdblist_settings.mdblist_rating_order`: providers joined by commas. The API key is not synced here. */
     val mdblistRatingOrder: String? = null,
+    /** `player_settings` auto-play keys ([AutoPlaySync.KEYS]) with their values; only the ones present. */
+    val autoPlay: Map<String, kotlinx.serialization.json.JsonPrimitive>? = null,
+    /** `episode_queue.items`: the playback queue as the TV's JSON array. */
+    val episodeQueue: String? = null,
 )
 
 /**

@@ -13,6 +13,10 @@ import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.Stream
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -123,6 +127,38 @@ class AddonClient(private val api: AddonApi) {
                 }
             }
             .awaitAll()
+    }
+
+    /** The addons [streams] asks for [videoId], in addon order. */
+    fun streamAddons(addons: List<Addon>, type: String, videoId: String): List<Addon> =
+        addons.filter { it.enabled && it.supportsResource("stream", type, videoId) }
+
+    /**
+     * The same requests as [streams], each answer emitted as it comes (the TV's fetching panel),
+     * so sources can be shown and ranked before the slowest addon has answered.
+     */
+    fun streamsAsAnswered(
+        addons: List<Addon>,
+        type: String,
+        videoId: String,
+        timeoutMs: Long = STREAM_TIMEOUT_MS
+    ): Flow<AddonStreamResult> = channelFlow {
+        streamAddons(addons, type, videoId).forEach { addon ->
+            launch(Dispatchers.IO) {
+                val result = try {
+                    val response = withTimeoutOrNull(timeoutMs) {
+                        call { api.getStreams(AddonUrls.stream(addon.baseUrl, type, videoId)) }
+                    }
+                    if (response == null) AddonStreamResult(addon, emptyList(), "Timed out")
+                    else AddonStreamResult(addon, response.streams.orEmpty().map { it.toDomain(addon.displayName, addon.logo) })
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    AddonStreamResult(addon, emptyList(), e.message ?: "Request failed")
+                }
+                send(result)
+            }
+        }
     }
 
     private suspend fun <T> call(block: suspend () -> Response<T>): T {

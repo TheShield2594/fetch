@@ -155,7 +155,7 @@ private fun streamInfo(session: PlayerSession): List<Pair<String, String>> {
 
 /** The Up Next card near the end of an episode: a countdown with Play now and Cancel. */
 @Composable
-internal fun UpNextCard(session: PlayerSession, seconds: Int, onPlay: () -> Unit, onCancel: () -> Unit, modifier: Modifier = Modifier) {
+internal fun UpNextCard(session: PlayerSession, seconds: Int, onPlay: () -> Unit, onCancel: () -> Unit, modifier: Modifier = Modifier, status: String? = null) {
     val next = session.nextEpisode ?: return
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -166,7 +166,8 @@ internal fun UpNextCard(session: PlayerSession, seconds: Int, onPlay: () -> Unit
             .border(1.dp, FetchPalette.SurfaceHigh, RoundedCornerShape(14.dp))
             .padding(20.dp)
     ) {
-        Text("UP NEXT IN $seconds S", style = OverlineStyle, color = FetchPalette.Accent)
+        // While autoplay finds and starts it: "Finding a source…", "Starting in 3".
+        Text(status?.uppercase() ?: "UP NEXT IN $seconds S", style = OverlineStyle, color = FetchPalette.Accent)
         Text(
             listOfNotNull(episodeTag(next.season, next.episode), next.title.takeIf { it.isNotBlank() }).joinToString(" · "),
             color = Color.White,

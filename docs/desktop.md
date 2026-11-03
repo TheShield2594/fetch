@@ -63,6 +63,7 @@ Everything is kept in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`):
 | `mdblist-ratings.json` | Ratings from MDBList, for 12 hours, for the whole app |
 | `mdblist.json` | Per profile: the MDBList account (owner-readable only) and the lists hidden from the Library |
 | `screen-time.json`, `stream-badges.json`, `sync-base.json` | Per profile: today's screen time, imported badge URLs, what the last sync saw |
+| `stream-cache.json` | Per profile: the last link per movie or episode (Reuse Last Link) and each show's binge group |
 | `youtube-auth.json` | Per profile: the YouTube sign-in (owner-readable only) |
 | `youtube.json` | Per profile: YouTube searches and where each video stopped |
 
@@ -183,7 +184,8 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   (picked by country as the TV app does), cached for 30 days. Builds read `TMDB_API_KEY`; you
   can enter your own key in Settings › TMDB.
 - **Sync server, the rest**: shared settings (theme, layout, languages, stream rules, Up Next,
-  auto-skip; only what changed is pushed, so the TV's other settings stay), addons, profiles
+  auto-skip, the TV's auto-play settings and the playback queue; only what changed is pushed,
+  so the TV's other settings stay), addons, profiles
   (at most 6, as the server allows), limits (tightened, never loosened, as on TV) and PINs
   (a PIN set on the TV is checked with the server, then kept here).
 - **YouTube** (Settings › YouTube): sign in as YouTube's TV app does, with a code at
@@ -207,6 +209,34 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   audio language and passthrough; subtitle language, when to show them, size and background,
   and subtitles from your addons (such as OpenSubtitles) added as subtitle files.
 - **Up Next**: when an episode plays to its end in mpv, the next episode's best match starts.
+  In the built-in player it starts at the TV's next-episode threshold (Settings › Up Next: a
+  percentage or minutes before the end, or the credits when IntroDB knows them): the card says
+  "Finding a source…", counts down three seconds and switches, and Cancel stops it. The next
+  episode tries the same binge group (addon and release) first, then the same release by file
+  name; with Fallback off, its sources open instead. Preload Next Episode Sources asks the
+  addons ahead of the card, and Reuse Binge Group remembers a show's group for later sessions.
+- **Fetching panel**: sources appear and are ranked again as each addon answers, with a chip
+  per addon (answered, failed, timed out) on the title page. Pressing Play before they're all
+  in shows the TV's panel: the best source so far, Play now, See all sources, and "Starting in
+  N seconds" for the Stream selection timeout (Instant, 1–30 s or Unlimited, as on TV). Start
+  without waiting plays a best match that already meets your quality (and cached) rules, Reuse
+  Last Link plays the link that last worked for the same movie or episode (kept per profile in
+  `stream-cache.json`, for the hours you pick), and with Show the pick on the Play button off
+  the addons are only asked when you press Play. In the built-in player, a source that won't
+  open is followed by the next one in the ranking.
+- **Playback queue**, as on TV: Add to queue from a poster's menu, a title page, an episode or
+  a Continue Watching card; the built-in player's Queue panel plays, reorders and removes
+  (with Undo); autoplay puts the next episode first; near the end of something with nothing
+  next, "Up next in queue" offers the queue's next item, which plays when the title ends. The
+  queue syncs with the TV (`episode_queue`).
+- **After a movie**: with Settings › TMDB and More like this on, a recommendation from TMDB
+  appears near the end (the TV's timing: 96 % or the credits), skipping what you've watched,
+  with Play, Details, its trailer and up to four to page through. At the end its trailer plays
+  in the built-in player after a five-second countdown; after mpv's window it shows over the app.
+- **Prefer this next time?**: a few seconds into playing a source you picked over Best match's
+  choice, one click makes Best match prefer its release group, language, resolution or size.
+- **Content warnings** (Player › Content warnings): as the built-in player starts, the rating
+  and IMDb's parents guide (the TV's source) show for five seconds at the top left.
 - **Settings**: Stream Selection (quality, codec, file size, audio languages, skipped release
   types, audio formats and release groups, result limits), Content & Discovery (Addons, and
   Home catalogs to pin or hide rows), Appearance (the TV app's color themes), Layout (Continue

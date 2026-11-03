@@ -1703,7 +1703,9 @@ data class TmdbEpisodeEnrichment(
     val overview: String?,
     val thumbnail: String?,
     val airDate: String?,
-    val runtimeMinutes: Int?
+    val runtimeMinutes: Int?,
+    /** Actors billed for this episode only (TMDB `guest_stars`), in billing order. */
+    val guestStars: List<MetaCastMember> = emptyList()
 )
 
 enum class TmdbEntityKind(val routeValue: String) {
@@ -1768,7 +1770,19 @@ private fun TmdbEpisode.toEnrichment(): TmdbEpisodeEnrichment {
         overview = overview,
         thumbnail = thumbnail,
         airDate = airDate,
-        runtimeMinutes = runtime
+        runtimeMinutes = runtime,
+        guestStars = guestStars.orEmpty().mapNotNull { member ->
+            val name = member.name?.takeIf { it.isNotBlank() }
+                ?: member.originalName?.takeIf { it.isNotBlank() }
+                ?: return@mapNotNull null
+            MetaCastMember(
+                name = name,
+                character = member.character?.takeIf { it.isNotBlank() },
+                photo = member.profilePath?.takeIf { it.isNotBlank() }
+                    ?.let { "https://image.tmdb.org/t/p/w185$it" },
+                tmdbId = member.id
+            )
+        }
     )
 }
 

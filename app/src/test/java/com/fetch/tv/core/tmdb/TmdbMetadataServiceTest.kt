@@ -275,6 +275,42 @@ class TmdbMetadataServiceTest {
     }
 
     @Test
+    fun `episode enrichment maps guest stars and falls back to the original name`() = runTest {
+        val api = mockk<TmdbApi>()
+        coEvery { api.getTvSeasonDetails(any(), any(), any(), any()) } returns Response.success(
+            TmdbSeasonResponse(
+                seasonNumber = 1,
+                episodes = listOf(
+                    TmdbEpisode(
+                        episodeNumber = 3,
+                        guestStars = listOf(
+                            TmdbCastMember(id = 7, name = "Lia Moss", character = "Stranger", profilePath = "/lia.jpg"),
+                            TmdbCastMember(id = 8, name = " ", originalName = "Kenji Sato", character = ""),
+                            TmdbCastMember(id = 9, name = null, originalName = "")
+                        )
+                    )
+                )
+            )
+        )
+
+        val service = TmdbMetadataService(api)
+        val guests = service.fetchEpisodeEnrichment(tmdbId = "42", seasonNumbers = listOf(1))[1 to 3]
+            ?.guestStars
+
+        assertEquals(2, guests?.size)
+        val first = guests!![0]
+        assertEquals("Lia Moss", first.name)
+        assertEquals("Stranger", first.character)
+        assertEquals("https://image.tmdb.org/t/p/w185/lia.jpg", first.photo)
+        assertEquals(7, first.tmdbId)
+        val second = guests[1]
+        assertEquals("Kenji Sato", second.name)
+        assertNull(second.character)
+        assertNull(second.photo)
+        assertEquals(8, second.tmdbId)
+    }
+
+    @Test
     fun `company browse requests movie then tv rails when source type is movie`() = runTest {
         val api = mockk<TmdbApi>()
         val movieCalls = mutableListOf<MovieDiscoverCall>()

@@ -2,7 +2,16 @@ package com.fetch.tv.ui.screens.player
 
 import com.fetch.tv.ui.theme.FetchTheme
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -52,6 +61,7 @@ fun PauseOverlay(
     description: String?,
     cast: List<MetaCastMember>,
     modifier: Modifier = Modifier,
+    episodeGuestStars: List<MetaCastMember> = emptyList(),
     showClock: Boolean = true
 ) {
     PlayerOverlayScaffold(
@@ -64,7 +74,9 @@ fun PauseOverlay(
             start = FetchTheme.spacing.huge,
             end = FetchTheme.spacing.huge,
             top = 40.dp,
-            bottom = 120.dp
+            // The player controls are hidden while this overlay is up, so the
+            // content can sit lower and leave room for the cast headshots.
+            bottom = 72.dp
         ),
         topEndContent = {
             if (showClock) {
@@ -85,7 +97,8 @@ fun PauseOverlay(
                 year = year,
                 type = type,
                 description = description,
-                cast = cast
+                cast = cast,
+                episodeGuestStars = episodeGuestStars
             )
         }
     }
@@ -125,8 +138,10 @@ private fun PauseMetadataView(
     year: String?,
     type: String?,
     description: String?,
-    cast: List<MetaCastMember>
+    cast: List<MetaCastMember>,
+    episodeGuestStars: List<MetaCastMember>
 ) {
+    val showCastStrip = (cast + episodeGuestStars).any { !it.photo.isNullOrBlank() }
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Bottom
@@ -210,13 +225,14 @@ private fun PauseMetadataView(
                         textDirection = description.contentTextDirection()
                     ),
                     color = FetchTheme.colors.Player.TextSecondary,
-                    maxLines = 3,
+                    // Two lines when the headshot strip is shown, so it all fits at 540dp.
+                    maxLines = if (showCastStrip) 2 else 3,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(top = FetchTheme.spacing.lg)
                 )
             }
 
-            if (cast.isNotEmpty()) {
+            if (cast.isNotEmpty() || episodeGuestStars.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
@@ -227,21 +243,122 @@ private fun PauseMetadataView(
 
                 Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
 
-                // The overlay doesn't take focus (any D-pad key dismisses it), so
-                // the cast is shown as plain text rather than as chips that look
-                // selectable but can't be reached with a remote.
-                Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)) {
-                    cast.take(8).forEach { member ->
-                        Text(
-                            text = member.name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = FetchTheme.colors.Player.TextPrimary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                // The overlay doesn't take focus (any D-pad key dismisses it), so the
+                // cast is drawn as plain, non-focusable items rather than as cards that
+                // look selectable but can't be reached with a remote.
+                if (showCastStrip) {
+                    PauseCastStrip(cast = cast, episodeGuestStars = episodeGuestStars)
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)) {
+                        pauseOverlayCast(cast, episodeGuestStars, limit = 8).forEach { member ->
+                            Text(
+                                text = member.name,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = FetchTheme.colors.Player.TextPrimary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
             }
+        }
+    }
+}
+
+private val PauseCastPhotoSize = 56.dp
+private val PauseCastItemWidth = 104.dp
+
+/**
+ * X-Ray-style row: a headshot, the actor and the character for as many people as fit on one
+ * line, with part of the row kept for an episode's guest stars (see [pauseOverlayCast]).
+ */
+@Composable
+private fun PauseCastStrip(cast: List<MetaCastMember>, episodeGuestStars: List<MetaCastMember>) {
+    val spacing = FetchTheme.spacing.lg
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val fitting = ((maxWidth + spacing) / (PauseCastItemWidth + spacing)).toInt()
+            .coerceIn(1, PAUSE_CAST_MAX_ITEMS)
+        Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
+            val shown = remember(cast, episodeGuestStars, fitting) {
+                pauseOverlayCast(cast, episodeGuestStars, limit = fitting)
+            }
+            shown.forEach { member ->
+                PauseCastItem(member = member)
+            }
+        }
+    }
+}
+
+private const val PAUSE_CAST_MAX_ITEMS = 10
+
+@Composable
+private fun PauseCastItem(member: MetaCastMember) {
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    val photoPx = remember(density) { with(density) { PauseCastPhotoSize.roundToPx() } }
+    val photo = member.photo?.takeIf { it.isNotBlank() }
+    var photoFailed by remember(photo) { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier.width(PauseCastItemWidth),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(PauseCastPhotoSize)
+                .clip(CircleShape)
+                .background(FetchTheme.colors.Player.Control),
+            contentAlignment = Alignment.Center
+        ) {
+            if (photo != null && !photoFailed) {
+                AsyncImage(
+                    model = remember(context, photo, photoPx) {
+                        ImageRequest.Builder(context)
+                            .data(photo)
+                            .size(photoPx, photoPx)
+                            .crossfade(true)
+                            .build()
+                    },
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                    onError = { photoFailed = true }
+                )
+            } else {
+                Text(
+                    text = member.name.firstOrNull()?.uppercase() ?: "?",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = FetchTheme.colors.Player.TextPrimary
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
+
+        Text(
+            text = member.name,
+            style = MaterialTheme.typography.labelMedium.copy(
+                textDirection = member.name.contentTextDirection()
+            ),
+            color = FetchTheme.colors.Player.TextPrimary,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        val character = member.character
+        if (!character.isNullOrBlank()) {
+            Text(
+                text = character,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    textDirection = character.contentTextDirection()
+                ),
+                color = FetchTheme.colors.Player.TextTertiary,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }

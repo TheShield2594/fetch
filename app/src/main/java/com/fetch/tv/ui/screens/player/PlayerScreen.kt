@@ -1346,6 +1346,7 @@ fun PlayerScreen(
             type = uiState.contentType,
             description = uiState.description,
             cast = uiState.castMembers,
+            episodeGuestStars = uiState.episodeGuestStars,
             showClock = uiState.osdClockEnabled && !uiState.isLive,
             modifier = Modifier
                 .fillMaxSize()

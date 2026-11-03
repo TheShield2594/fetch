@@ -2063,11 +2063,12 @@ class AppState(
                 mpv.showText("Start marked. Press again where it ends.")
             }
             is com.fetch.desktop.skip.SkipMarkerRules.Press.Submit -> {
-                session.extras.markerStartSec = null
                 val type = com.fetch.desktop.skip.SkipMarkerRules.markedType(marker.isMovie)
                 scope.launch {
                     val ok = skipSources.submitMarker(apiKey, target.contentId, marker, type, press.startSec, press.endSec)
-                    mpv.showText(if (ok) "Marker sent to IntroDB" else "Couldn't send the marker to IntroDB")
+                    // A failed send keeps the start, so pressing Mark again retries without re-marking it.
+                    if (ok && session.extras.markerStartSec == press.startSec) session.extras.markerStartSec = null
+                    mpv.showText(if (ok) "Marker sent to IntroDB" else "Couldn't send the marker to IntroDB. Press Mark again to retry.")
                 }
             }
         }

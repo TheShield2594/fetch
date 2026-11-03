@@ -86,7 +86,8 @@ fun AddonsScreen(state: AppState) {
                     )
                     PrimaryButton("Install", onClick = install, icon = null, enabled = url.isNotBlank())
                 }
-                AddonToolsRow(state)
+                // Addon health and Catalog order are Advanced only, as on TV; Catalog order also needs your own addons.
+                if (!state.settings.experience.isEssential) AddonToolsRow(state, catalogOrder = !readOnly)
             }
         }
         if (state.addons.isEmpty() && state.unreachableAddons.isEmpty() && !state.addonsLoading) {

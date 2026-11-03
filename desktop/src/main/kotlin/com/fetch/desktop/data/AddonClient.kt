@@ -92,6 +92,10 @@ class AddonClient(private val api: AddonApi) {
      * or broken addon just adds nothing.
      */
     suspend fun subtitles(addons: List<Addon>, type: String, videoId: String, timeoutMs: Long = 8_000): List<Pair<String, String>> =
+        subtitlesBySource(addons, type, videoId, timeoutMs).map { it.language to it.url }
+
+    /** As [subtitles], with the name of the addon each came from (the player groups them by it). */
+    suspend fun subtitlesBySource(addons: List<Addon>, type: String, videoId: String, timeoutMs: Long = 8_000): List<SourcedSubtitle> =
         coroutineScope {
             addons.filter { it.enabled && it.supportsResource("subtitles", type, videoId) }.map { addon ->
                 async {
@@ -101,7 +105,7 @@ class AddonClient(private val api: AddonApi) {
                         withTimeoutOrNull(timeoutMs) { call { api.getSubtitles(url) } }?.subtitles.orEmpty()
                             .mapNotNull { s ->
                                 val link = s.url?.takeIf { it.startsWith("http") } ?: return@mapNotNull null
-                                (s.lang ?: s.language ?: "").lowercase() to link
+                                SourcedSubtitle((s.lang ?: s.language ?: "").lowercase(), link, addon.displayName)
                             }
                     } catch (e: CancellationException) {
                         throw e
@@ -218,3 +222,6 @@ class AddonClient(private val api: AddonApi) {
             .build()
     }
 }
+
+/** One addon subtitle: its language, link and the addon that offered it. */
+data class SourcedSubtitle(val language: String, val url: String, val addon: String)

@@ -496,7 +496,8 @@ internal fun LazyListScope.subtitlePanelItems(state: AppState, session: PlayerSe
         addonSubtitles = session.addonSubtitles.orEmpty(),
         mode = p.extras.subtitleOrganization,
         preferred = preferred,
-        onlyPreferred = p.extras.subtitleOnlyPreferredLanguages
+        onlyPreferred = p.extras.subtitleOnlyPreferredLanguages,
+        addonOrder = state.addons.map { it.displayName }
     )
     groups.forEach { group ->
         if (group.label.isNotBlank()) item(key = "group:${group.key}") { PanelHeading(group.label) }

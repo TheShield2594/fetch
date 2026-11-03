@@ -48,7 +48,8 @@ object ExperiencePolicy {
     /** Settings pages left out of the rail (and of search) in [mode]. */
     fun hiddenPages(mode: ExperienceMode?): Set<SettingsPage> =
         if (mode == ExperienceMode.ESSENTIAL) {
-            playbackPages + SettingsPage.STREAM_BADGES + SettingsPage.YOUTUBE
+            // Collections and Filter rows are Advanced-only entries in the TV's addon manager.
+            playbackPages + SettingsPage.STREAM_BADGES + SettingsPage.YOUTUBE + SettingsPage.COLLECTIONS + SettingsPage.FILTER_ROWS
         } else {
             setOf(SettingsPage.PLAYBACK_BASICS)
         }

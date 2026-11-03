@@ -2203,9 +2203,9 @@ class AppState(
         session.addonSubtitlesLoading = true
         scope.launch {
             val subs = runCatching {
-                withContext(Dispatchers.IO) { client.subtitles(addons.toList(), target.contentType, target.videoId, timeoutMs = 8_000) }
+                withContext(Dispatchers.IO) { client.subtitlesBySource(addons.toList(), target.contentType, target.videoId, timeoutMs = 8_000) }
             }.getOrDefault(emptyList())
-            session.addonSubtitles = subs.distinctBy { it.second }.map { (lang, url) -> AddonSubtitle(lang, url, "") }
+            session.addonSubtitles = subs.distinctBy { it.url }.map { AddonSubtitle(it.language, it.url, it.addon) }
                 .sortedWith(compareBy({ !preferredSubtitle(it.language) }, { it.language }))
             session.addonSubtitlesLoading = false
         }

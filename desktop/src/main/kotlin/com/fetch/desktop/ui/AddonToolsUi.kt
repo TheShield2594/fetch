@@ -36,12 +36,12 @@ import com.fetch.tv.domain.model.Addon
 
 /** Addons' "Addon health" and "Catalog order", as the TV's addon manager offers them. */
 @Composable
-fun AddonToolsRow(state: AppState) {
+fun AddonToolsRow(state: AppState, catalogOrder: Boolean = true) {
     var health by remember { mutableStateOf(false) }
     var order by remember { mutableStateOf(false) }
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         SecondaryButton("Addon health", onClick = { health = true })
-        SecondaryButton("Catalog order", onClick = { order = true }, enabled = state.rows.any { it.filter == null })
+        if (catalogOrder) SecondaryButton("Catalog order", onClick = { order = true }, enabled = state.rows.any { it.filter == null })
     }
     if (health) AddonHealthDialog(state.addons.toList(), onDismiss = { health = false })
     if (order) CatalogOrderDialog(state, onDismiss = { order = false })

@@ -224,7 +224,7 @@ fun MdbListPage(state: AppState) {
 
 /** The ratings API key, checked with MDBList before it's saved, as on TV. */
 @Composable
-private fun ApiKeyRow(value: String, description: String, verify: suspend (String) -> Boolean, onSave: (String) -> Unit) {
+internal fun ApiKeyRow(value: String, description: String, verify: suspend (String) -> Boolean, onSave: (String) -> Unit) {
     var text by remember(value) { mutableStateOf(value) }
     var checking by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }

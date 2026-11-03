@@ -182,8 +182,8 @@ These are the main profile's. Every other profile keeps its own copies in `profi
 - **Ratings from TMDB**: a profile's rating limit uses the addon's certificate, else TMDB's
   (picked by country as the TV app does), cached for 30 days. Builds read `TMDB_API_KEY`; you
   can enter your own key in Settings › TMDB.
-- **Sync server, the rest**: shared settings (theme, layout, languages, stream rules, Up Next,
-  auto-skip; only what changed is pushed, so the TV's other settings stay), addons, profiles
+- **Sync server, the rest**: shared settings (theme with its contrast, AMOLED, custom colours and
+  font, Essential or Advanced, layout, languages, stream rules, Up Next, auto-skip; only what changed is pushed, so the TV's other settings stay), addons, profiles
   (at most 6, as the server allows), limits (tightened, never loosened, as on TV) and PINs
   (a PIN set on the TV is checked with the server, then kept here).
 - **YouTube** (Settings › YouTube): sign in as YouTube's TV app does, with a code at
@@ -211,7 +211,20 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   types, audio formats and release groups, result limits), Content & Discovery (Addons, and
   Home catalogs to pin or hide rows), Appearance (the TV app's color themes), Layout (Continue
   Watching, catalog type and addon name on rows, poster labels, Discover location) and About.
-  Ctrl+, opens them.
+  Ctrl+, opens them. **Search settings** (the field atop the rail, or Ctrl+F in Settings) finds
+  any setting by name or a word such as "dolby" and opens its page with the row lit up.
+- **First run**, as on TV: a fresh install opens a wizard (Server, Sources, Metadata,
+  Experience), each step skippable, with the sync server sign-in, an addon link field, media
+  servers, TMDB, the MDBList key and Trakt or Simkl right on the step. Existing installs skip it;
+  System › Advanced › First-run setup runs it again.
+- **Essential or Advanced** (System › Advanced, with the TV's confirmation, synced with it):
+  Essential shows one Playback basics page instead of Playback's six, fewer rows on Layout,
+  Appearance, TMDB, MDBList and About, no YouTube settings and no addon reordering, and asks for a
+  stream addon ("Set up addons") until one is installed or you continue for now. Nothing saved
+  changes when you switch.
+- **Appearance extras**, synced with the TV: Increase contrast, AMOLED Mode and Pure Black
+  Surfaces, a Custom theme (a colour from swatches, sliders or a hex code; a TV's custom theme
+  shows here too) and the TV's fonts (Fetch, Inter, DM Sans, Open Sans).
 - Home rows from every addon catalog that needs no search or genre input. Rows keep the
   catalog's poster shape, and hovering one shows arrows to page through it.
 - Search across every addon catalog that takes a search (Ctrl+F or Ctrl+K from anywhere).

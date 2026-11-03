@@ -116,6 +116,8 @@ enum class SettingsPage(val label: String, val group: String, val parent: Settin
     AUDIO("Audio", "Playback"),
     SUBTITLES("Subtitles", "Playback"),
     SKIP_SEGMENTS("Skip Segments", "Playback"),
+    /** Essential mode's single Playback page (see [com.fetch.desktop.data.ExperiencePolicy]). */
+    PLAYBACK_BASICS("Playback basics", "Playback"),
     CONTENT_DISCOVERY("Content & Discovery", "Sources"),
     TMDB("TMDB", "Sources"),
     MDBLIST("MDBList", "Sources"),
@@ -131,6 +133,8 @@ enum class SettingsPage(val label: String, val group: String, val parent: Settin
     TRACKING("Tracking", "Accounts"),
     YOUTUBE("YouTube", "Accounts"),
     WATCH_PARTY("Watch party", "Accounts"),
+    /** System › Advanced: the Essential / Advanced switch, as on TV. */
+    ADVANCED("Advanced", "System"),
     ABOUT("About", "System");
 
     /** The rail entry this page belongs under. */

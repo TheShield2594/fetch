@@ -56,6 +56,11 @@ val resourceValues = mapOf(
 tasks.processResources {
     inputs.properties(resourceValues)
     filesMatching("fetch-desktop.properties") { expand(resourceValues) }
+    // Appearance › App Font: the TV app's fonts, from its res/font (not duplicated in the repo).
+    from(rootProject.file("app/src/main/res/font")) {
+        into("fonts")
+        include("schibsted_grotesk_variable.ttf", "inter_variable.ttf", "dm_sans_variable.ttf", "opensans_variable.ttf")
+    }
 }
 
 dependencies {

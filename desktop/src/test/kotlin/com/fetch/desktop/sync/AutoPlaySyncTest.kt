@@ -85,4 +85,29 @@ class AutoPlaySyncTest {
         val queued = s.copy(episodeQueue = listOf(QueueItem("tt2", "movie", "tt2", "Film")))
         assertEquals(queued.episodeQueue, shared.applyTo(queued).episodeQueue)
     }
+
+    @Test
+    fun `allowed addons for autoplay sync as the TV's string set`() {
+        val tv = Json.parseToJsonElement(
+            """{"features":{"player_settings":{"stream_auto_play_selected_addons":{"type":"string_set","value":["Torrentio","Comet"]}}}}"""
+        ).jsonObject
+        val applied = SyncSettingsBlob.sharedSettings(tv).applyTo(DesktopSettings())
+        assertEquals(setOf("Torrentio", "Comet"), applied.autoPlay.allowedAddons)
+
+        // Narrowed here: only that key goes up, sorted as the TV writes it.
+        val after = applied.copy(autoPlay = applied.autoPlay.copy(allowedAddons = setOf("Torrentio")))
+        val diff = after.toRemoteSharedSettings().changedFrom(applied.toRemoteSharedSettings())!!
+        assertEquals(setOf("Torrentio"), diff.autoPlayAddons)
+        assertNull(diff.autoPlay)
+        val entry = SyncSettingsBlob.withSharedSettings(tv, diff)["features"]!!.jsonObject["player_settings"]!!
+            .jsonObject["stream_auto_play_selected_addons"]!!.jsonObject
+        assertEquals("string_set", entry["type"]!!.jsonPrimitive.content)
+        assertEquals(Json.parseToJsonElement("""["Torrentio"]"""), entry["value"])
+
+        // Back to every addon: an empty set, which the TV reads as "all".
+        val all = after.copy(autoPlay = after.autoPlay.copy(allowedAddons = emptySet()))
+        assertEquals(emptySet<String>(), all.toRemoteSharedSettings().changedFrom(after.toRemoteSharedSettings())!!.autoPlayAddons)
+        // A blob without the key leaves the choice alone.
+        assertEquals(setOf("Torrentio"), SyncSettingsBlob.sharedSettings(JsonObject(emptyMap())).applyTo(after).autoPlay.allowedAddons)
+    }
 }

@@ -36,6 +36,29 @@ sealed interface AutoPlayDecision {
 object AutoPlayPicker {
 
     /**
+     * "Allowed addons for autoplay" (the TV's `candidates`): with addons chosen, auto-play only
+     * picks their sources. Your own media servers always count, and so do sources from addons
+     * that aren't installed (YouTube). Nothing chosen means every addon. Choosing a source by
+     * hand isn't limited.
+     */
+    fun allowed(ranked: List<RankedStream>, installedAddonNames: Set<String>, allowedAddons: Set<String>): List<RankedStream> {
+        if (allowedAddons.isEmpty()) return ranked
+        return ranked.filter { r ->
+            r.stream.serverTarget != null || r.stream.addonName !in installedAddonNames || r.stream.addonName in allowedAddons
+        }
+    }
+
+    /**
+     * The TV's `sourcesNeededForPick`: with addons chosen, auto-play needs only their answers
+     * (and the media servers'), not every addon's. Null when it waits for all of them: nothing
+     * chosen, or none of the chosen addons was asked.
+     */
+    fun addonsNeededForPick(askedAddonNames: Collection<String>, allowedAddons: Set<String>): Set<String>? {
+        if (allowedAddons.isEmpty()) return null
+        return askedAddonNames.filter { it in allowedAddons }.toSet().takeIf { it.isNotEmpty() }
+    }
+
+    /**
      * "Start without waiting": the best so far reaches the preferred quality (never above the
      * maximum) and, when cached debrid is preferred, is cached. Your own servers needn't be
      * cached; a bare torrent never qualifies.
@@ -98,12 +121,15 @@ object AutoPlayPicker {
         preferBingeGroup: Boolean,
         fallback: Boolean,
         current: Pair<Int?, Int>?,
-        next: Pair<Int?, Int>?
+        next: Pair<Int?, Int>?,
+        installedAddonNames: Set<String> = emptySet(),
+        allowedAddons: Set<String> = emptySet()
     ): RankedStream? {
         if (preferBingeGroup && hint != null) {
             bingeMatch(ranked, hint, current, next)?.let { return it }
             if (!fallback) return null
         }
+        val ranked = allowed(ranked, installedAddonNames, allowedAddons)
         filenameMatch(ranked, playingFilename ?: hint?.filename, current, next)?.let { return it }
         return pickSource(ranked, mode, regex) ?: ranked.firstOrNull { it.isEligible }
     }
@@ -124,9 +150,13 @@ object AutoPlayPicker {
         next: Pair<Int?, Int>?,
         anyAnswered: Boolean,
         allAnswered: Boolean,
-        waitOver: Boolean
+        waitOver: Boolean,
+        installedAddonNames: Set<String> = emptySet(),
+        allowedAddons: Set<String> = emptySet()
     ): AutoPlayDecision {
+        // As on TV, a remembered binge group isn't limited by the allowed addons.
         if (bingeHint != null) bingeMatch(ranked, bingeHint, null, next)?.let { return AutoPlayDecision.Play(it) }
+        val ranked = allowed(ranked, installedAddonNames, allowedAddons)
         if (mode == AutoPlayMode.MANUAL) {
             // Only a remembered binge group could have started anything.
             return if (allAnswered) AutoPlayDecision.ShowSources else AutoPlayDecision.Wait

@@ -460,7 +460,11 @@ class AppState(
     )
 
     /** MDBList's history, resume points and scrobbling for the connected account (in [tracking]). */
-    val mdbListTracker = com.fetch.desktop.mdblist.MdbListTracker(mdbListAccount, com.fetch.desktop.mdblist.MdbListSyncClient(mdbListHttp))
+    val mdbListTracker = com.fetch.desktop.mdblist.MdbListTracker(
+        mdbListAccount,
+        com.fetch.desktop.mdblist.MdbListSyncClient(mdbListHttp),
+        com.fetch.desktop.mdblist.mdbListSyncCacheFile(profileDir(profile))
+    )
 
     val mdbListRatings = com.fetch.desktop.mdblist.MdbListRatingsState(
         scope,
@@ -1790,6 +1794,11 @@ class AppState(
         val current = sources ?: return
         if (current.idle) return
         val ap = settings.autoPlay
+        // With allowed addons chosen, their answers are all auto-play waits for (the TV's sourcesNeededForPick).
+        val needed = com.fetch.desktop.playback.AutoPlayPicker.addonsNeededForPick(current.addons.map { it.name }, ap.allowedAddons)
+        val neededAnswered = needed != null && needed.all { name ->
+            current.addons.any { it.name == name && it.status != com.fetch.desktop.playback.AddonFetchStatus.LOADING }
+        }
         val decision = com.fetch.desktop.playback.AutoPlayPicker.decide(
             ranked = current.ranked,
             mode = settings.autoPlayMode,
@@ -1799,8 +1808,10 @@ class AppState(
             bingeHint = rememberedBingeGroup(current.preview.id),
             next = current.video?.let { it.season to (it.episode ?: 0) },
             anyAnswered = current.ranked.isNotEmpty() || current.addons.any { it.status != com.fetch.desktop.playback.AddonFetchStatus.LOADING },
-            allAnswered = !current.loading,
-            waitOver = autoPlayWaitOver
+            allAnswered = !current.loading || neededAnswered,
+            waitOver = autoPlayWaitOver,
+            installedAddonNames = installedAddonNames,
+            allowedAddons = ap.allowedAddons
         )
         when (decision) {
             is com.fetch.desktop.playback.AutoPlayDecision.Play -> {
@@ -1848,7 +1859,10 @@ class AppState(
      * or when nothing qualifies.
      */
     fun pickAuto(ranked: List<RankedStream>, mode: AutoPlayMode = settings.autoPlayMode): RankedStream? =
-        pickSource(ranked, mode, settings.autoPlayRegex)
+        pickSource(com.fetch.desktop.playback.AutoPlayPicker.allowed(ranked, installedAddonNames, settings.autoPlay.allowedAddons), mode, settings.autoPlayRegex)
+
+    /** The installed addons' names, as their sources carry them (for "Allowed addons for autoplay"). */
+    val installedAddonNames: Set<String> get() = addons.mapTo(linkedSetOf()) { it.displayName }
 
     /** A rule from a source's menu ("Prefer addon", "Never this release group"), saved to Stream Selection. */
     fun applyRankingRule(change: (StreamRankingRules) -> StreamRankingRules, confirmation: String) {
@@ -2016,7 +2030,7 @@ class AppState(
             when (val result = ExternalPlayer.play(played, label, start = resume, options = options)) {
                 is ExternalPlayer.Result.Started -> {
                     message = if (resume != null) "Resuming in ${result.player}" else "Opening in ${result.player}"
-                    followProgress(result, target, serverStream, skipper)
+                    followProgress(result, target, serverStream, skipper, segments)
                 }
                 is ExternalPlayer.Result.Failed -> message = result.message
             }
@@ -2091,12 +2105,39 @@ class AppState(
         result: ExternalPlayer.Result.Started,
         target: PlaybackTarget,
         serverStream: ServerStream? = null,
-        skipper: SkipPlanner? = null
+        skipper: SkipPlanner? = null,
+        segments: List<Segment> = emptyList()
     ) {
         val process = result.process ?: return
         val socket = result.ipcSocket ?: return
-        follow(target, serverStream, skipper) { onPosition, onSample ->
-            MpvProgress.followToEnd(socket, process, onPosition = onPosition, onSample = onSample)
+        upNextCancelledFor = null
+        // Up Next at the threshold, preloading and the queue, in mpv's window too (over IPC).
+        val next = target.video?.takeIf { settings.player.autoplayNextEpisode }
+            ?.let { WatchHistory.nextEpisode(target.episodes, it, progress.watched.toSet()) }?.takeIf { isAired(it) }
+        val upNext = com.fetch.desktop.playback.MpvWindowUpNext(
+            settings = { settings.autoPlay },
+            segments = segments,
+            nextLabel = next?.let { v -> listOfNotNull(episodeTag(v.season, v.episode), v.title.takeIf { it.isNotBlank() }).joinToString(" · ") },
+            timeoutSeconds = { settings.addonTimeoutSeconds },
+            upcoming = { extras.upcoming(target.videoId).map { item -> listOfNotNull(item.name, item.subtitle).joinToString(" · ") } },
+            onPreload = { if (next != null) scope.launch { preloadEpisode(target, next) } },
+            onCancelled = { scope.launch { upNextCancelledFor = target.videoId } }
+        )
+        follow(
+            target, serverStream, skipper,
+            afterEnd = { _, continued ->
+                // The countdown ran out and closed the window: the next episode, as at the end of the file.
+                if (upNext.movedOn && !continued && upNextCancelledFor != target.videoId) target.video?.let { continueToNext(target, it, countdown = false) }
+            }
+        ) { onPosition, onSample ->
+            MpvProgress.followToEnd(
+                socket, process,
+                onPosition = onPosition,
+                startup = upNext.startup(),
+                onTimes = upNext::onTimes,
+                onClientMessage = upNext::onClientMessage,
+                onSample = onSample
+            )
         }
     }
 
@@ -2471,7 +2512,9 @@ class AppState(
             preferBingeGroup = ap.preferBingeGroup,
             fallback = ap.nextEpisodeFallback,
             current = target.video?.let { it.season to (it.episode ?: 0) },
-            next = next.season to (next.episode ?: 0)
+            next = next.season to (next.episode ?: 0),
+            installedAddonNames = installedAddonNames,
+            allowedAddons = ap.allowedAddons
         )
         if (pick == null) {
             extras.upNextStatus = null

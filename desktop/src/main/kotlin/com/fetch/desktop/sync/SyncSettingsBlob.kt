@@ -101,6 +101,7 @@ object SyncSettingsBlob {
             },
             autoplayNextEpisode = boolean(PLAYER, "stream_auto_play_next_episode_enabled"),
             autoSkipSegments = stringSet(PLAYER, "auto_skip_segment_types"),
+            autoPlayAddons = stringSet(PLAYER, AutoPlaySync.ALLOWED_ADDONS_KEY),
             showUnairedNextUp = boolean(LAYOUT, "show_unaired_next_up"),
             nextUpFromFurthest = boolean(LAYOUT, "next_up_from_furthest_episode"),
             continueWatchingSort = string(LAYOUT, "continue_watching_sort_mode"),
@@ -142,6 +143,7 @@ object SyncSettingsBlob {
         })
         set(PLAYER, "stream_auto_play_next_episode_enabled", settings.autoplayNextEpisode?.let(::booleanValue))
         set(PLAYER, "auto_skip_segment_types", settings.autoSkipSegments?.let(::stringSetValue))
+        set(PLAYER, AutoPlaySync.ALLOWED_ADDONS_KEY, settings.autoPlayAddons?.let(::stringSetValue))
         set(LAYOUT, "show_unaired_next_up", settings.showUnairedNextUp?.let(::booleanValue))
         set(LAYOUT, "next_up_from_furthest_episode", settings.nextUpFromFurthest?.let(::booleanValue))
         set(LAYOUT, "continue_watching_sort_mode", settings.continueWatchingSort?.let(::stringValue))

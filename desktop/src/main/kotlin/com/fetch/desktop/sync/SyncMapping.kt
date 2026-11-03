@@ -101,6 +101,7 @@ fun RemoteSharedSettings.applyTo(settings: DesktopSettings): DesktopSettings {
     layoutValues?.let { s = s.copy(layout = com.fetch.desktop.data.LayoutSync.apply(it, s.layout)) }
     s = s.copy(player = player, tmdb = tmdb, mdblist = applyMdbList(s.mdblist), tracking = applyTracking(s.tracking))
     autoPlay?.let { s = AutoPlaySync.apply(it, s) }
+    autoPlayAddons?.let { s = s.copy(autoPlay = s.autoPlay.copy(allowedAddons = it)) }
     episodeQueue?.let { s = AutoPlaySync.applyQueue(it, s) }
     return s
 }
@@ -198,6 +199,7 @@ fun DesktopSettings.toRemoteSharedSettings(remote: RemoteSharedSettings? = null)
         mdblistRatingOrder = mdblist.ratingOrder.joinToString(","),
         playerExtras = RemotePlayerExtras.from(player.extras),
         autoPlay = AutoPlaySync.values(this),
+        autoPlayAddons = autoPlay.allowedAddons,
         episodeQueue = AutoPlaySync.queueOf(this),
         layoutValues = com.fetch.desktop.data.LayoutSync.encode(layout),
         trackingStrings = mapOf(

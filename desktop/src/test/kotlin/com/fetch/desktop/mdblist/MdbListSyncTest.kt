@@ -31,9 +31,10 @@ class MdbListSyncTest {
             ]"""
         )
         val playback = MdbListSyncClient(fake.http()).playback(auth)
-        assertEquals(3, playback.size)
+        assertEquals(4, playback.size)
         val entries = playback.mapNotNull { it.toProgressEntry() }
-        assertEquals(listOf("tt0113277", "tt0411008:1:3"), entries.map { it.videoId })
+        // A title without an IMDb id comes back under its TMDB id.
+        assertEquals(listOf("tt0113277", "tt0411008:1:3", "tmdb:5"), entries.map { it.videoId })
         assertEquals(42.5f, entries[0].remotePercent)
         assertEquals("mdblist", entries[1].source)
         assertEquals("Tabula Rasa", entries[1].episodeTitle)
@@ -77,8 +78,16 @@ class MdbListSyncTest {
         client.setWatched(auth, listOf(movie), watched = false)
         assertEquals("/sync/watched/remove", fake.sent[2].path)
         assertEquals(json("""{"movies":[{"ids":{"imdb":"tt1"}}]}"""), json(fake.sent[2].body))
-        // Titles without an IMDb id aren't sent.
-        assertNull(MdbListTarget.of(PlaybackTarget("tmdb:5", "movie", "X", null, null, null, null)))
+        // Titles without an IMDb id are sent by their TMDB, TVDB, Trakt or MDBList id.
+        val tmdb = MdbListTarget.of(PlaybackTarget("tmdb:5", "movie", "X", null, null, null, null))!!
+        client.setWatched(auth, listOf(tmdb), watched = false)
+        assertEquals(json("""{"movies":[{"ids":{"tmdb":5}}]}"""), json(fake.sent[3].body))
+        val anime = PlaybackTarget("tvdb:81797", "series", "One Piece", null, null, null,
+            Video(id = "tvdb:81797:1:2", title = "", released = null, thumbnail = null, season = 1, episode = 2, overview = null))
+        client.scrobble(auth, ScrobbleAction.START, MdbListTarget.of(anime)!!, 1.0)
+        assertEquals(json("""{"show":{"ids":{"tvdb":81797},"season":1,"episode":2},"progress":1.0}"""), json(fake.sent[4].body))
+        // Ids MDBList can't match (Kitsu, MAL) still aren't sent.
+        assertNull(MdbListTarget.of(PlaybackTarget("kitsu:1", "movie", "X", null, null, null, null)))
     }
 
     @Test

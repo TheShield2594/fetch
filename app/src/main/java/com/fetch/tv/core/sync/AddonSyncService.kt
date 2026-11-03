@@ -1,156 +1,72 @@
 package com.fetch.tv.core.sync
 
 import android.util.Log
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.core.sync.backend.SyncAddon
+import com.fetch.tv.core.sync.backend.SyncBackends
 import com.fetch.tv.data.local.AddonPreferences
-import com.fetch.tv.data.remote.supabase.SupabaseAddon
-import com.fetch.tv.data.website.FetchWebsiteSyncService
-import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.addJsonObject
 import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val TAG = "AddonSyncService"
 
+/** The active profile's installed addons, through whichever sync backend is in use ([SyncBackends]). */
 @Singleton
 class AddonSyncService @Inject constructor(
-    private val postgrestLazy: dagger.Lazy<Postgrest>,
-    private val authManager: AuthManager,
     private val addonPreferences: AddonPreferences,
     private val profileManager: ProfileManager,
-    private val syncClientIdentity: SyncClientIdentity,
-    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>
+    private val backends: SyncBackends
 ) {
-    private val postgrest: Postgrest get() = postgrestLazy.get()
+    /** Whether there is anywhere to sync to. */
+    val canSync: Boolean get() = backends.canSync
 
-    /** Whether there is anywhere to sync to: the Supabase account, or a Fetch website this TV is paired with. */
-    val canSync: Boolean get() = websiteSync.get().isPaired || authManager.isAuthenticated
-
-    private suspend fun <T> withJwtRefreshRetry(block: suspend () -> T): T {
-        return try {
-            block()
-        } catch (e: Exception) {
-            if (!authManager.refreshSessionIfJwtExpired(e)) throw e
-            block()
-        }
+    /** The profile whose addon list the active one uses: its own, or the primary's for a profile set to share them. */
+    private fun ownerProfileId(): Int {
+        val active = profileManager.activeProfile
+        return if (active != null && !active.isPrimary && active.usesPrimaryAddons) 1 else profileManager.activeProfileId.value
     }
+
+    /** Sends the active profile's addons, in order, with their on/off states and names. */
+    suspend fun pushToRemote(): Result<Unit> = withContext(Dispatchers.IO) {
+        val backend = backends.active ?: return@withContext Result.success(Unit)
+        val localUrls = addonPreferences.installedAddonUrls.first()
+        val userSetNames = addonPreferences.userSetNames.first()
+        val enabledStates = addonPreferences.addonEnabledStates.first()
+        val addons = localUrls.map { url ->
+            val canonicalUrl = canonicalizeUrl(url)
+            SyncAddon(
+                url = url,
+                enabled = enabledStates[canonicalUrl] ?: true,
+                name = (userSetNames[canonicalUrl] ?: userSetNames[url])?.takeIf { it.isNotBlank() }
+            )
+        }
+        backend.pushAddons(ownerProfileId(), addons)
+            .onSuccess { Log.d(TAG, "Pushed ${addons.size} addons to ${backend.kind}") }
+            .onFailure { Log.e(TAG, "Failed to push addons to ${backend.kind}", it) }
+    }
+
+    /** The account's addon URLs, in order; empty when it has none. See [pullRemoteAddonUrls]. */
+    suspend fun getRemoteAddonUrls(): Result<List<String>> = pullRemoteAddonUrls().map { it.orEmpty() }
 
     /**
-     * Push local addon URLs to Supabase via RPC.
-     * Uses a SECURITY DEFINER function to handle RLS for linked devices.
+     * The account's addon URLs, in order, with their names and on/off states written into the
+     * addon preferences on the way. Null when the account has never had a list for this profile.
      */
-    suspend fun pushToRemote(): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            val activeProfile = profileManager.activeProfile
-            val profileId = profileManager.activeProfileId.value
-            Log.d(TAG, "pushToRemote: activeProfile=${activeProfile?.id} isPrimary=${activeProfile?.isPrimary} usesPrimaryAddons=${activeProfile?.usesPrimaryAddons} profileId=$profileId")
-
-            if (activeProfile != null && !activeProfile.isPrimary && activeProfile.usesPrimaryAddons) {
-                Log.d(TAG, "Profile ${activeProfile.id} uses primary addons, skipping push")
-                return@withContext Result.success(Unit)
-            }
-
-            val localUrls = addonPreferences.installedAddonUrls.first()
-            val userSetNames = addonPreferences.userSetNames.first()
-            val enabledStates = addonPreferences.addonEnabledStates.first()
-            Log.d(TAG, "pushToRemote: localUrls count=${localUrls.size} for profile $profileId")
-
-            // A TV signed in to a Fetch website keeps its addons there instead.
-            if (websiteSync.get().isPaired) {
-                websiteSync.get().pushAddons(
-                    urls = localUrls,
-                    enabled = localUrls.associateWith { enabledStates[canonicalizeUrl(it)] ?: true },
-                    names = localUrls.mapNotNull { url ->
-                        (userSetNames[canonicalizeUrl(url)] ?: userSetNames[url])?.let { url to it }
-                    }.toMap()
+    suspend fun pullRemoteAddonUrls(): Result<List<String>?> = withContext(Dispatchers.IO) {
+        val backend = backends.active
+            ?: return@withContext Result.failure(IllegalStateException("No sync backend is connected"))
+        backend.pullAddons(ownerProfileId()).map { remote ->
+            if (!remote.isNullOrEmpty()) {
+                addonPreferences.setUserSetNames(
+                    remote.mapNotNull { addon -> addon.name?.let { canonicalizeUrl(addon.url) to it } }.toMap()
                 )
-                return@withContext Result.success(Unit)
+                addonPreferences.setAddonEnabledStates(remote.associate { canonicalizeUrl(it.url) to it.enabled })
             }
-
-            val params = buildJsonObject {
-                put("p_addons", buildJsonArray {
-                    localUrls.forEachIndexed { index, url ->
-                        val canonicalUrl = canonicalizeUrl(url)
-                        addJsonObject {
-                            put("url", url)
-                            put("sort_order", index)
-                            put("enabled", enabledStates[canonicalUrl] ?: true)
-                            val name = userSetNames[canonicalUrl] ?: userSetNames[url]
-                            if (!name.isNullOrBlank()) {
-                                put("name", name)
-                            }
-                        }
-                    }
-                })
-                put("p_profile_id", profileId)
-                putSyncOriginClientId(syncClientIdentity)
-            }
-            Log.d(TAG, "pushToRemote: calling RPC sync_push_addons with profile_id=$profileId")
-            withJwtRefreshRetry {
-                postgrest.rpc("sync_push_addons", params)
-            }
-
-            Log.d(TAG, "Pushed ${localUrls.size} addons to remote for profile $profileId")
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to push addons to remote", e)
-            Result.failure(e)
-        }
-    }
-
-    suspend fun getRemoteAddonUrls(): Result<List<String>> = withContext(Dispatchers.IO) {
-        if (websiteSync.get().isPaired) {
-            return@withContext runCatching { websiteSync.get().websiteAddonUrls().orEmpty() }
-        }
-        try {
-            val effectiveUserId = authManager.getEffectiveUserId(fallbackToOwnIdOnFailure = false)
-                ?: return@withContext Result.failure(
-                    IllegalStateException("Unable to resolve sync owner for addon sync")
-                )
-
-            val activeProfile = profileManager.activeProfile
-            val profileId = if (activeProfile != null && !activeProfile.isPrimary && activeProfile.usesPrimaryAddons) 1
-                            else profileManager.activeProfileId.value
-
-            val remoteAddons = withJwtRefreshRetry {
-                postgrest.from("addons")
-                    .select { filter {
-                        eq("user_id", effectiveUserId)
-                        eq("profile_id", profileId)
-                    } }
-                    .decodeList<SupabaseAddon>()
-            }
-
-            val nameMap = mutableMapOf<String, String>()
-            val enabledMap = mutableMapOf<String, Boolean>()
-            remoteAddons.forEach { addon ->
-                val canonicalUrl = canonicalizeUrl(addon.url)
-                if (!addon.name.isNullOrBlank()) {
-                    nameMap[canonicalUrl] = addon.name
-                }
-                enabledMap[canonicalUrl] = addon.enabled
-            }
-            if (remoteAddons.isNotEmpty()) {
-                addonPreferences.setUserSetNames(nameMap)
-                addonPreferences.setAddonEnabledStates(enabledMap)
-            }
-
-            Result.success(
-                remoteAddons
-                .sortedBy { it.sortOrder }
-                .map { it.url }
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to get remote addon URLs", e)
-            Result.failure(e)
-        }
+            remote?.map { it.url }
+        }.onFailure { Log.e(TAG, "Failed to get remote addon URLs from ${backend.kind}", it) }
     }
 
     private fun canonicalizeUrl(url: String): String {

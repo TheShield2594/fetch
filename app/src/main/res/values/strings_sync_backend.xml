@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Account: which sync backend this TV uses (core/sync/backend/). -->
+    <string name="sync_backend_title">Sync</string>
+    <string name="sync_backend_picker_subtitle">Where this TV keeps its profiles, addons, Home rows, settings and watch state. Only one is used at a time.</string>
+    <string name="sync_backend_local">Local only</string>
+    <string name="sync_backend_local_description">Everything stays on this TV. No account, no server.</string>
+    <string name="sync_backend_website">Fetch website</string>
+    <string name="sync_backend_website_description">Your self-hosted Fetch website. Manage profiles, addons, Home rows and settings from a phone or computer.</string>
+    <string name="sync_backend_supabase">Supabase-compatible server</string>
+    <string name="sync_backend_supabase_description">A self-hosted server that speaks the sync protocol Fetch inherited from NuvioTV. Needed for watch party.</string>
+    <string name="sync_backend_local_note">Sync is off. Fetch keeps your addons, progress and settings on this TV and needs no account.</string>
+    <string name="sync_backend_switch_title">Switch to %1$s?</string>
+    <string name="sync_backend_switch_body">This TV signs out of the %1$s. Everything on it stays as it is now, and you can sign in again later.</string>
+    <string name="sync_backend_switch_confirm">Switch</string>
+</resources>

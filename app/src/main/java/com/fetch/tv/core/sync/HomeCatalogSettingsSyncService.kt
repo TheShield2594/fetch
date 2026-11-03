@@ -1,16 +1,12 @@
 package com.fetch.tv.core.sync
 
 import android.util.Log
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.core.sync.backend.SyncBackends
 import com.fetch.tv.data.local.CollectionsDataStore
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
-import com.fetch.tv.data.remote.supabase.SupabaseHomeCatalogSettingsBlob
-import com.fetch.tv.data.website.FetchWebsiteSyncService
-import com.fetch.tv.domain.model.AuthState
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.domain.repository.AddonRepository
-import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -21,20 +17,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.put
 import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val TAG = "HomeCatalogSettingsSyncService"
-private const val HOME_CATALOG_SHARED_SYNC_PLATFORM = "home_catalog_shared"
 private const val PAYLOAD_SAMPLE_LIMIT = 5
-private const val HIDE_UNRELEASED_CONTENT_KEY = "hide_unreleased_content"
-/** The scope's owner while paired: the website has no user id, and only one account per TV. */
-private const val WEBSITE_SCOPE_USER = "fetch-website"
 
 @Serializable
 data class SyncCatalogItem(
@@ -54,14 +44,10 @@ data class SyncHomeCatalogPayload(
     val items: List<SyncCatalogItem> = emptyList(),
 )
 
+/** The account and profile a sync started for; a result for another one is dropped. */
 private data class HomeCatalogSyncScope(
-    val userId: String,
+    val accountKey: String,
     val profileId: Int
-)
-
-private data class CachedSharedSettings(
-    val scope: HomeCatalogSyncScope,
-    val settingsJson: JsonObject
 )
 
 internal fun mergeHomeCatalogSettingsJson(
@@ -72,52 +58,35 @@ internal fun mergeHomeCatalogSettingsJson(
     localJson.forEach { (key, value) -> put(key, value) }
 }
 
+/** The active profile's Home row order, through whichever sync backend is in use ([SyncBackends]). */
 @Singleton
 class HomeCatalogSettingsSyncService @Inject constructor(
-    private val postgrestLazy: dagger.Lazy<Postgrest>,
-    private val authManager: AuthManager,
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
     private val profileManager: ProfileManager,
     private val addonRepository: AddonRepository,
     private val collectionsDataStore: CollectionsDataStore,
-    private val syncClientIdentity: SyncClientIdentity,
-    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>
+    private val backends: SyncBackends
 ) {
-    private val postgrest: Postgrest get() = postgrestLazy.get()
-
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val json = Json {
-        ignoreUnknownKeys = true
-        encodeDefaults = true
-    }
 
     @Volatile
     var isSyncingFromRemote: Boolean = false
 
     private var pushJob: Job? = null
-    @Volatile
-    private var cachedSharedSettings: CachedSharedSettings? = null
-
-    private suspend fun <T> withJwtRefreshRetry(block: suspend () -> T): T {
-        return try {
-            block()
-        } catch (e: Exception) {
-            if (!authManager.refreshSessionIfJwtExpired(e)) throw e
-            block()
-        }
-    }
 
     suspend fun pushToRemote(reason: String = "unspecified"): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val profileId = profileManager.activeProfileId.value
-            val syncScope = currentScope(profileId)
-                ?: return@withContext Result.success(Unit)
+            val backend = backends.active ?: return@withContext Result.success(Unit)
+            currentScope(profileId) ?: return@withContext Result.success(Unit)
             val payload = loadLocalPayload()
-            Log.d(TAG, "Push start profile=$profileId reason=$reason ${payload.summary()}")
-            pushPayload(syncScope, payload)
+            Log.d(TAG, "Push start backend=${backend.kind} profile=$profileId reason=$reason ${payload.summary()}")
+            backend.pushHomeLayout(profileId, payload).getOrThrow()
 
             Log.d(TAG, "Push success profile=$profileId reason=$reason")
             Result.success(Unit)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Push failed reason=$reason", e)
             Result.failure(e)
@@ -127,10 +96,11 @@ class HomeCatalogSettingsSyncService @Inject constructor(
     suspend fun pullFromRemote(): Result<Boolean> = withContext(Dispatchers.IO) {
         try {
             val profileId = profileManager.activeProfileId.value
+            val backend = backends.active ?: return@withContext Result.success(false)
             val syncScope = currentScope(profileId)
                 ?: return@withContext Result.success(false)
             val localState = layoutPreferenceDataStore.getHomeCatalogSettingsState()
-            Log.d(TAG, "Pull start profile=$profileId ${localState.summary()}")
+            Log.d(TAG, "Pull start backend=${backend.kind} profile=$profileId ${localState.summary()}")
 
             if (localState.disabledKeys.any(::hasLegacyHomeCatalogDisabledKeyFormat)) {
                 val localPayload = loadLocalPayload()
@@ -147,39 +117,12 @@ class HomeCatalogSettingsSyncService @Inject constructor(
             }
 
             val localPayload = loadLocalPayload()
-
-            // A TV signed in to a Fetch website keeps its Home layout there instead.
-            if (websiteSync.get().isPaired) {
-                val remotePayload = websiteSync.get().pullHomeLayout(localPayload)
-                if (remotePayload == null || remotePayload.items.isEmpty() || currentScope(profileId) != syncScope) {
-                    return@withContext Result.success(false)
-                }
-                isSyncingFromRemote = true
-                try {
-                    layoutPreferenceDataStore.applyCatalogSettingsFromRemote(remotePayload)
-                } finally {
-                    isSyncingFromRemote = false
-                }
-                Log.d(TAG, "Pull from website applied profile=$profileId ${remotePayload.summary()}")
-                return@withContext Result.success(true)
-            }
-
-            val remoteBlob = fetchRemoteBlob(profileId)
+            val remotePayload = backend.pullHomeLayout(profileId, localPayload).getOrThrow()
             if (currentScope(profileId) != syncScope) {
                 return@withContext Result.success(false)
             }
-            cachedSharedSettings = CachedSharedSettings(
-                scope = syncScope,
-                settingsJson = remoteBlob?.settingsJson ?: buildJsonObject { }
-            )
-            if (remoteBlob == null) {
-                Log.d(TAG, "No remote row profile=$profileId; preserving local (startup is pull-only)")
-                return@withContext Result.success(false)
-            }
-
-            val remotePayload = decodePayloadPreservingLocalDefaults(remoteBlob.settingsJson, localPayload)
             if (remotePayload == null) {
-                Log.w(TAG, "Pull parse failure profile=$profileId")
+                Log.d(TAG, "No remote Home rows profile=$profileId; preserving local (startup is pull-only)")
                 return@withContext Result.success(false)
             }
             Log.d(TAG, "Pull remote payload profile=$profileId ${remotePayload.summary()}")
@@ -198,6 +141,8 @@ class HomeCatalogSettingsSyncService @Inject constructor(
 
             Log.d(TAG, "Pull apply success profile=$profileId ${remotePayload.summary()}")
             Result.success(true)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Failed to pull home catalog settings", e)
             Result.failure(e)
@@ -206,7 +151,7 @@ class HomeCatalogSettingsSyncService @Inject constructor(
 
     fun triggerPush() {
         if (isSyncingFromRemote) return
-        if (!authManager.isAuthenticated && !websiteSync.get().isPaired) return
+        if (!backends.canSync) return
         pushJob?.cancel()
         pushJob = scope.launch {
             delay(500)
@@ -220,67 +165,10 @@ class HomeCatalogSettingsSyncService @Inject constructor(
         return layoutPreferenceDataStore.exportCatalogSettingsToSyncPayload(addons, collections)
     }
 
-    private suspend fun pushPayload(syncScope: HomeCatalogSyncScope, payload: SyncHomeCatalogPayload) {
-        if (websiteSync.get().isPaired) {
-            websiteSync.get().pushHomeLayout(payload)
-            return
-        }
-        val jsonElement = mergedSharedPayloadJson(syncScope, payload)
-
-        val params = buildJsonObject {
-            put("p_profile_id", syncScope.profileId)
-            put("p_settings_json", jsonElement)
-            put("p_platform", HOME_CATALOG_SHARED_SYNC_PLATFORM)
-            putSyncOriginClientId(syncClientIdentity)
-        }
-
-        withJwtRefreshRetry {
-            postgrest.rpc("sync_push_home_catalog_settings", params)
-        }
-        cachedSharedSettings = CachedSharedSettings(scope = syncScope, settingsJson = jsonElement)
-    }
-
-    private suspend fun fetchRemoteBlob(profileId: Int): SupabaseHomeCatalogSettingsBlob? {
-        val params = buildJsonObject {
-            put("p_profile_id", profileId)
-            put("p_platform", HOME_CATALOG_SHARED_SYNC_PLATFORM)
-        }
-        val response = withJwtRefreshRetry {
-            postgrest.rpc("sync_pull_home_catalog_settings", params)
-        }
-        return response.decodeList<SupabaseHomeCatalogSettingsBlob>().firstOrNull()
-    }
-
-    private fun decodePayloadPreservingLocalDefaults(
-        settingsJson: JsonObject,
-        localPayload: SyncHomeCatalogPayload
-    ): SyncHomeCatalogPayload? = runCatching {
-        val decoded = json.decodeFromJsonElement(SyncHomeCatalogPayload.serializer(), settingsJson)
-        decoded.copy(
-            hideUnreleasedContent = if (settingsJson.containsKey(HIDE_UNRELEASED_CONTENT_KEY)) {
-                decoded.hideUnreleasedContent
-            } else {
-                localPayload.hideUnreleasedContent
-            }
-        )
-    }.getOrNull()
-
-    private fun mergedSharedPayloadJson(
-        syncScope: HomeCatalogSyncScope,
-        payload: SyncHomeCatalogPayload
-    ): JsonObject {
-        val localJson = json.encodeToJsonElement(SyncHomeCatalogPayload.serializer(), payload).jsonObject
-        val remoteJson = cachedSharedSettings
-            ?.takeIf { cached -> cached.scope == syncScope }
-            ?.settingsJson
-        return mergeHomeCatalogSettingsJson(remoteJson, localJson)
-    }
-
     private fun currentScope(profileId: Int): HomeCatalogSyncScope? {
         if (profileManager.activeProfileId.value != profileId) return null
-        if (websiteSync.get().isPaired) return HomeCatalogSyncScope(userId = WEBSITE_SCOPE_USER, profileId = profileId)
-        val state = authManager.authState.value as? AuthState.FullAccount ?: return null
-        return HomeCatalogSyncScope(userId = state.userId, profileId = profileId)
+        val accountKey = backends.active?.accountKey ?: return null
+        return HomeCatalogSyncScope(accountKey = accountKey, profileId = profileId)
     }
 
 }

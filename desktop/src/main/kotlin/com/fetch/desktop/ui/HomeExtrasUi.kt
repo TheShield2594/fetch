@@ -60,6 +60,28 @@ fun HeroTrailer(state: AppState, preview: MetaPreview?, height: androidx.compose
     }
 }
 
+/**
+ * A collection folder's hero video (set in the folder editor), looping behind its page, or
+ * behind Home's hero while the folder's tile is pointed at, as on TV. Muted with "Play Trailer Muted".
+ */
+@Composable
+fun FolderHeroVideo(state: AppState, folder: com.fetch.tv.domain.model.CollectionFolder?, height: androidx.compose.ui.unit.Dp, startDelayMs: Long = 600) {
+    val url = folder?.heroVideoUrl?.trim()?.takeIf { it.startsWith("http") } ?: return
+    if (state.playerSession != null) return
+    val layout = state.settings.layout
+    androidx.compose.runtime.key(folder.id, url) {
+        BackgroundVideo(
+            url = url,
+            muted = layout.focusedPosterTrailerMuted,
+            crop = layout.trailerCropToFill,
+            modifier = Modifier.fillMaxWidth().height(height),
+            startDelayMs = startDelayMs,
+            gpu = state.settings.player.builtInGpu,
+            overlay = { BackdropScrim() }
+        )
+    }
+}
+
 /** Backdrop's fades, for a video drawn over it. */
 @Composable
 fun BackdropScrim() {

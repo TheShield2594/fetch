@@ -427,11 +427,12 @@ class AppState(
         libraryItems = { library.toList() },
         setInLibrary = { preview, on -> setInLocalLibrary(preview, on) },
         onMessage = { message = it },
-        mdblist = mdbListAccount
+        mdblist = mdbListAccount,
+        onLocalListRenamed = { id, name -> collections.renameLocalList(id, name) }
     )
 
     /** Collections: Home rows of folders, each a page of sources, synced with the TV. */
-    val collections = com.fetch.desktop.collections.CollectionsState(
+    val collections: com.fetch.desktop.collections.CollectionsState = com.fetch.desktop.collections.CollectionsState(
         scope,
         com.fetch.desktop.collections.CollectionsStore.inProfile(profileDir(profile)),
         com.fetch.desktop.collections.CollectionSourceResolver(

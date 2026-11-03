@@ -89,7 +89,7 @@ fun folderTileSize(shape: PosterShape): CardSize {
 
 /** A collection on Home: its title and a row of its folders, as the TV's `CollectionRowSection`. */
 @Composable
-fun CollectionRowView(collection: Collection, onOpen: (CollectionFolder) -> Unit) {
+fun CollectionRowView(collection: Collection, onOpen: (CollectionFolder) -> Unit, onHover: (CollectionFolder) -> Unit = {}) {
     val rowInteraction = remember { MutableInteractionSource() }
     val rowHovered by rowInteraction.collectIsHoveredAsState()
     val tallest = collection.folders.maxOfOrNull { folderTileSize(it.tileShape).height } ?: 0.dp
@@ -102,12 +102,12 @@ fun CollectionRowView(collection: Collection, onOpen: (CollectionFolder) -> Unit
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(horizontal = PageGutter)
         )
-        FolderRow(collection, rowHovered, tallest, onOpen)
+        FolderRow(collection, rowHovered, tallest, onOpen, onHover)
     }
 }
 
 @Composable
-private fun FolderRow(collection: Collection, rowHovered: Boolean, tallest: Dp, onOpen: (CollectionFolder) -> Unit) {
+private fun FolderRow(collection: Collection, rowHovered: Boolean, tallest: Dp, onOpen: (CollectionFolder) -> Unit, onHover: (CollectionFolder) -> Unit) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     var widthPx by remember { mutableIntStateOf(0) }
@@ -119,7 +119,7 @@ private fun FolderRow(collection: Collection, rowHovered: Boolean, tallest: Dp, 
             verticalAlignment = Alignment.Bottom
         ) {
             itemsIndexed(collection.folders, key = { i, f -> "${f.id}#$i" }) { _, folder ->
-                FolderTile(folder, onClick = { onOpen(folder) })
+                FolderTile(folder, onClick = { onOpen(folder) }, onHover = onHover)
             }
         }
         val arrow = Modifier.padding(top = 8.dp).height(tallest).width(PageGutter)
@@ -138,10 +138,11 @@ private fun FolderRow(collection: Collection, rowHovered: Boolean, tallest: Dp, 
 
 /** One folder: its cover image, else its emoji, else its initials; the title on it unless hidden. */
 @Composable
-fun FolderTile(folder: CollectionFolder, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun FolderTile(folder: CollectionFolder, onClick: () -> Unit, modifier: Modifier = Modifier, onHover: (CollectionFolder) -> Unit = {}) {
     val size = folderTileSize(folder.tileShape)
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
+    if (hovered) LaunchedEffect(folder.id) { onHover(folder) }
     val scale by animateFloatAsState(if (hovered) 1.05f else 1f, tween(160))
     val corner = RoundedCornerShape(10.dp)
     Box(
@@ -283,6 +284,7 @@ private fun FolderGrid(state: AppState, view: FolderView, index: Int, onBack: ((
     val backdrop = view.folder.heroBackdropUrl?.takeIf { it.isNotBlank() } ?: view.collection.backdropImageUrl?.takeIf { it.isNotBlank() }
     Box(Modifier.fillMaxSize()) {
         if (backdrop != null) Backdrop(backdrop, height = 420.dp)
+        FolderHeroVideo(state, view.folder, 420.dp)
         PosterGrid(
             items = items,
             state = grid,
@@ -337,6 +339,8 @@ private fun FolderRows(state: AppState, view: FolderView, hero: Boolean, onSeeAl
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val heroHeight = (maxHeight * 0.5f).coerceIn(300.dp, 540.dp)
         Backdrop(backdrop, height = if (hero) heroHeight + 120.dp else 420.dp)
+        // The folder's hero video, until a title is pointed at.
+        if (hovered == null) FolderHeroVideo(state, view.folder, if (hero) heroHeight + 120.dp else 420.dp)
         ScrollbarBox(listState, Modifier.fillMaxSize()) {
             LazyColumn(
                 state = listState,

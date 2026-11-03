@@ -164,8 +164,7 @@ class TraktClient(
         listOf("movies", "shows").flatMap { type ->
             get("sync/watchlist/$type?page=1&limit=1000", tokens).requireOk(SERVICE, "watchlist")
                 .decode<List<TraktListItemDto>>()
-                .mapNotNull { it.toRemote() }
-        }.sortedByDescending { it.addedAtEpochMs ?: 0L }
+        }.inRankOrder().mapNotNull { it.toRemote() }
 
     /** Adds the movie or series to the watchlist, or removes it (POST sync/watchlist[/remove]). */
     suspend fun setWatchlisted(tokens: TrackingTokens, item: TrackedItem, on: Boolean) {
@@ -187,8 +186,8 @@ class TraktClient(
     suspend fun listItems(tokens: TrackingTokens, listId: Long): List<RemoteListItem> =
         get("users/me/lists/$listId/items/movie,show?page=1&limit=1000", tokens).requireOk(SERVICE, "list items")
             .decode<List<TraktListItemDto>>()
+            .inRankOrder()
             .mapNotNull { it.toRemote() }
-            .sortedByDescending { it.addedAtEpochMs ?: 0L }
 
     suspend fun createList(tokens: TrackingTokens, name: String, description: String?, privacy: String): RemoteList? =
         post(base + "users/me/lists", listBody(name, description, privacy), tokens).requireOk(SERVICE, "list create")
@@ -406,6 +405,8 @@ private data class TraktListDto(
 
 @Serializable
 private data class TraktListItemDto(
+    /** The list's own order (the Library's "Provider order"). */
+    val rank: Int? = null,
     @SerialName("listed_at") val listedAt: String? = null,
     val type: String? = null,
     val movie: TraktMediaDto? = null,
@@ -418,6 +419,10 @@ private data class TraktListItemDto(
         return RemoteListItem(imdb, type, media.title.orEmpty(), media.year, parseIsoEpochMs(listedAt))
     }
 }
+
+/** Items in the list's own order (rank), newest first without one. */
+private fun List<TraktListItemDto>.inRankOrder(): List<TraktListItemDto> =
+    sortedWith(compareBy<TraktListItemDto> { it.rank ?: Int.MAX_VALUE }.thenByDescending { parseIsoEpochMs(it.listedAt) ?: 0L })
 
 /** A page of a Trakt list's items, for a collection folder. */
 data class TraktListPage(val items: List<TraktPublicItem>, val pageCount: Int)

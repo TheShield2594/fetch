@@ -98,6 +98,9 @@ private fun HomeContent(state: AppState) {
             )?.let { HeroSubject.Title(it) }
     var hovered by remember { mutableStateOf<HeroSubject?>(null) }
     var featured by remember { mutableStateOf<HeroSubject?>(null) }
+    // A collection folder pointed at: its hero video plays behind the hero, as on TV.
+    var heroFolder by remember { mutableStateOf<com.fetch.tv.domain.model.CollectionFolder?>(null) }
+    LaunchedEffect(hovered) { heroFolder = null }
     // A short pause before the hero follows the pointer, so sweeping across a row doesn't
     // load every backdrop on the way.
     LaunchedEffect(hovered) {
@@ -161,7 +164,8 @@ private fun HomeContent(state: AppState) {
             // "Fullscreen Hero Backdrop" fills the window behind Home instead of its top half.
             val backdropHeight = if (layout.fullScreenHeroBackdrop) maxHeight else heroHeight + 120.dp
             Backdrop(heroTitle?.backdropUrl ?: hero?.backdrop, height = backdropHeight)
-            HeroTrailer(state, heroTitle, backdropHeight)
+            if (heroFolder?.heroVideoUrl.isNullOrBlank()) HeroTrailer(state, heroTitle, backdropHeight)
+            else FolderHeroVideo(state, heroFolder, backdropHeight)
         }
         ScrollbarBox(listState, Modifier.fillMaxSize()) {
             LazyColumn(
@@ -245,7 +249,7 @@ private fun HomeContent(state: AppState) {
                 items(rowRefs, key = { it.key }) { ref ->
                     when (ref) {
                         is com.fetch.desktop.home.HomeRowRef.Collection -> collectionById[ref.id]?.let { collection ->
-                            CollectionRowView(collection, onOpen = { state.navigate(Screen.Folder(collection.id, it.id)) })
+                            CollectionRowView(collection, onOpen = { state.navigate(Screen.Folder(collection.id, it.id)) }, onHover = { heroFolder = it })
                         }
                         is com.fetch.desktop.home.HomeRowRef.BecauseYouWatched -> becauseYouWatched.getOrNull(ref.index)?.let { row ->
                             MediaRowView(

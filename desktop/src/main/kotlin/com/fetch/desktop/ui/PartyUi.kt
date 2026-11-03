@@ -505,7 +505,14 @@ private fun CodeSection(party: ActiveParty) {
             SecondaryButton("Copy code", onClick = { clipboard.setText(AnnotatedString(party.code)) })
             SecondaryButton("Copy invite link", onClick = { clipboard.setText(AnnotatedString(party.inviteLink)) })
         }
-        Text("Friends enter the code in Watch party on any Fetch app.", color = FetchPalette.TextMuted, fontSize = 13.sp)
+        // The invite link as a QR code, as on TV: a phone scans it to join.
+        Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
+            QrImage(party.inviteLink, 132.dp, description = "Watch party invite QR code")
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.weight(1f)) {
+                Text("Scan with a phone to join", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text("Or share the code. Friends can enter it in Watch party on any Fetch app.", color = FetchPalette.TextMuted, fontSize = 13.sp)
+            }
+        }
     }
 }
 

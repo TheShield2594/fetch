@@ -261,17 +261,16 @@ object SyncMerge {
         val level = listOfNotNull(localLevel, remoteLevel).minByOrNull { it.rank }
         val localAllows = localLevel == null || local.allowUnrated
         val remoteAllows = remoteLevel == null || remote.allowUnrated
-        return local.copy(maxRating = level?.name, allowUnrated = level == null || (localAllows && remoteAllows))
+        return local.copy(maxRating = level?.name, allowUnrated = level == null || (localAllows && remoteAllows), kidsProfile = remote.isKidsProfile)
     }
 
     /**
-     * A profile's limits as [SyncClient.pushParentalLimits] takes them. This app has no kids-profile
-     * switch, so the account's is kept.
+     * A profile's limits as [SyncClient.pushParentalLimits] takes them, with its kids-profile switch.
      */
     fun parentalLimitsToPush(local: ProfileLimits, remote: RemoteParentalLimits?): RemoteParentalLimits {
         val level = local.maxRating?.let { CertificationLevel.fromName(it) ?: CertificationLevel.ALL_AGES }
         return RemoteParentalLimits(
-            isKidsProfile = remote?.isKidsProfile ?: false,
+            isKidsProfile = local.kidsProfile,
             maxRating = level?.name,
             allowUnrated = level == null || local.allowUnrated,
         )

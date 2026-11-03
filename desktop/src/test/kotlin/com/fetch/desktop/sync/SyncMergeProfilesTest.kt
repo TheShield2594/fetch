@@ -153,9 +153,11 @@ class SyncMergeProfilesTest {
     }
 
     @Test
-    fun `limits to push keep the account's kids flag`() {
-        val push = SyncMerge.parentalLimitsToPush(ProfileLimits(maxRating = "TEENS", allowUnrated = false), RemoteParentalLimits(isKidsProfile = true))
+    fun `limits to push carry this profile's kids flag`() {
+        val push = SyncMerge.parentalLimitsToPush(ProfileLimits(maxRating = "TEENS", allowUnrated = false, kidsProfile = true), RemoteParentalLimits(isKidsProfile = false))
         assertEquals(RemoteParentalLimits(true, "TEENS", false), push)
+        // The account's flag arrives with the pull.
+        assertEquals(true, SyncMerge.parentalLimits(ProfileLimits(), RemoteParentalLimits(isKidsProfile = true)).kidsProfile)
         assertEquals(RemoteParentalLimits(false, null, true), SyncMerge.parentalLimitsToPush(ProfileLimits(allowUnrated = false), null))
     }
 

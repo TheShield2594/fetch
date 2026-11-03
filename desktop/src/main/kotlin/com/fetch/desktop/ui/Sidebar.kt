@@ -56,7 +56,9 @@ fun Sidebar(
     items: List<SidebarItem>,
     modifier: Modifier = Modifier,
     profile: DesktopProfile? = null,
-    onProfile: () -> Unit = {}
+    onProfile: () -> Unit = {},
+    /** A kids profile: Switch profile leads the sidebar instead of sitting at the bottom, as on TV. */
+    profileFirst: Boolean = false
 ) {
     val interaction = remember { MutableInteractionSource() }
     val expanded by interaction.collectIsHoveredAsState()
@@ -88,11 +90,14 @@ fun Sidebar(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier.padding(top = 48.dp)
             ) {
+                if (profile != null && profileFirst) {
+                    ProfileEntry(profile, expanded, onProfile, Modifier.padding(bottom = 14.dp))
+                }
                 items.forEach { SidebarEntry(it, expanded) }
             }
         }
         // The profile at the bottom, as on TV: click to switch.
-        if (profile != null) {
+        if (profile != null && !profileFirst) {
             ProfileEntry(profile, expanded, onProfile, Modifier.align(Alignment.BottomStart).padding(start = 18.dp, end = 18.dp, bottom = 28.dp))
         }
     }

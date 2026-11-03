@@ -45,7 +45,7 @@ object SyncSettingsBlob {
     val TMDB_FLAGS = listOf(
         "tmdb_enabled", "tmdb_use_artwork", "tmdb_use_basic_info", "tmdb_use_details", "tmdb_use_credits",
         "tmdb_use_productions", "tmdb_use_networks", "tmdb_use_episodes", "tmdb_use_trailers",
-        "tmdb_use_more_like_this", "tmdb_use_collections"
+        "tmdb_use_more_like_this", "tmdb_use_collections", "tmdb_modern_home_enabled", "tmdb_enrich_continue_watching"
     )
 
     const val MDBLIST = "mdblist_settings"
@@ -99,6 +99,10 @@ object SyncSettingsBlob {
             tmdbLanguage = string(TMDB, "tmdb_language"),
             mdblistFlags = MDBLIST_FLAGS.mapNotNull { key -> boolean(MDBLIST, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
             mdblistRatingOrder = string(MDBLIST, "mdblist_rating_order"),
+            layoutValues = com.fetch.desktop.data.LayoutSync.ids.mapNotNull { id ->
+                val (feature, key) = com.fetch.desktop.data.LayoutSync.split(id)
+                ((features?.get(feature) as? JsonObject)?.get(key) as? JsonObject)?.let { id to it }
+            }.toMap().takeIf { it.isNotEmpty() },
         )
     }
 
@@ -128,6 +132,12 @@ object SyncSettingsBlob {
         set(TMDB, "tmdb_language", settings.tmdbLanguage?.let(::stringValue))
         settings.mdblistFlags?.forEach { (key, value) -> if (key in MDBLIST_FLAGS) set(MDBLIST, key, booleanValue(value)) }
         set(MDBLIST, "mdblist_rating_order", settings.mdblistRatingOrder?.let(::stringValue))
+        settings.layoutValues?.forEach { (id, entry) ->
+            if (id in com.fetch.desktop.data.LayoutSync.ids) {
+                val (feature, key) = com.fetch.desktop.data.LayoutSync.split(id)
+                set(feature, key, entry)
+            }
+        }
 
         val base = blob ?: JsonObject(emptyMap())
         val features = (base[FEATURES] as? JsonObject).orEmpty().toMutableMap()

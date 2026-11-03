@@ -155,6 +155,11 @@ data class RemoteSharedSettings(
     val mdblistFlags: Map<String, Boolean>? = null,
     /** `mdblist_settings.mdblist_rating_order`: providers joined by commas. The API key is not synced here. */
     val mdblistRatingOrder: String? = null,
+    /**
+     * Layout's other settings ([com.fetch.desktop.data.LayoutSync]): the blob's typed entries
+     * (`{"type":…,"value":…}`) by `feature/key`; only the ones present.
+     */
+    val layoutValues: Map<String, kotlinx.serialization.json.JsonObject>? = null,
 )
 
 /**

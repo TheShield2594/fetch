@@ -62,6 +62,8 @@ data class DesktopSettings(
     val checkForUpdates: Boolean = true,
     /** Include beta releases in the update check. */
     val betaUpdates: Boolean = false,
+    /** Layout's Continue Watching, Home, card, title page and custom poster options, as on TV (synced with it). */
+    val layout: LayoutPrefs = LayoutPrefs(),
     /** Bumped when a saved default has to change; see [migrated]. */
     val schema: Int = 1
 ) {
@@ -96,6 +98,10 @@ fun settingsFile(dir: File = AppDirs.config) =
 @Serializable
 data class TmdbSettings(
     val enabled: Boolean = false,
+    /** Also enrich Home's hero and cards (the TV's modern Home). */
+    val modernHomeEnabled: Boolean = false,
+    /** Enrich Continue Watching cards: artwork, logo and title from TMDB. */
+    val enrichContinueWatching: Boolean = true,
     val language: String = "en",
     val useArtwork: Boolean = true,
     val useBasicInfo: Boolean = true,

@@ -71,6 +71,7 @@ fun TrackingPage(state: AppState) {
             }
         }
     }
+    TrackingOptionsSection(state)
     tracking.pending?.let { pending -> SignInDialog(pending.service, pending.code.userCode, pending.code.verificationUrl, onCancel = tracking::cancelSignIn) }
 }
 

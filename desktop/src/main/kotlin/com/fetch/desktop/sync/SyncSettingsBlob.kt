@@ -59,6 +59,13 @@ object SyncSettingsBlob {
         "mdblist_show_tomatoes", "mdblist_show_audience", "mdblist_show_metacritic", "mdblist_show_mal", "mdblist_show_on_hero"
     )
 
+    const val TRACKING = "trakt_settings"
+
+    /** The TV's `trakt_settings` the desktop has (Settings › Tracking), by type. */
+    val TRACKING_STRINGS = listOf("library_source_mode", "watch_progress_source", "more_like_this_source", "simkl_anime_id_preference")
+    val TRACKING_INTS = listOf("continue_watching_days_cap")
+    val TRACKING_FLAGS = listOf("show_meta_comments")
+
     private val rankingJson =Json { ignoreUnknownKeys = true; encodeDefaults = false }
 
     /** The shared settings in [blob]; fields the blob doesn't have are null. */
@@ -73,6 +80,8 @@ object SyncSettingsBlob {
             value(feature, key)?.takeIf { it.first == "string" }?.second?.let { (it as? JsonPrimitive)?.takeUnless { p -> p is JsonNull }?.contentOrNull }
         fun boolean(feature: String, key: String): Boolean? =
             value(feature, key)?.takeIf { it.first == "boolean" }?.second?.let { (it as? JsonPrimitive)?.contentOrNull?.toBooleanStrictOrNull() }
+        fun int(feature: String, key: String): Int? =
+            value(feature, key)?.takeIf { it.first == "int" || it.first == "long" }?.second?.let { (it as? JsonPrimitive)?.contentOrNull?.toIntOrNull() }
         fun stringSet(feature: String, key: String): Set<String>? =
             value(feature, key)?.takeIf { it.first == "string_set" }?.second?.let { element ->
                 (element as? JsonArray)?.mapNotNull { (it as? JsonPrimitive)?.contentOrNull }?.toSet()
@@ -99,6 +108,9 @@ object SyncSettingsBlob {
             tmdbLanguage = string(TMDB, "tmdb_language"),
             mdblistFlags = MDBLIST_FLAGS.mapNotNull { key -> boolean(MDBLIST, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
             mdblistRatingOrder = string(MDBLIST, "mdblist_rating_order"),
+            trackingStrings = TRACKING_STRINGS.mapNotNull { key -> string(TRACKING, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
+            trackingInts = TRACKING_INTS.mapNotNull { key -> int(TRACKING, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
+            trackingFlags = TRACKING_FLAGS.mapNotNull { key -> boolean(TRACKING, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
         )
     }
 
@@ -128,6 +140,9 @@ object SyncSettingsBlob {
         set(TMDB, "tmdb_language", settings.tmdbLanguage?.let(::stringValue))
         settings.mdblistFlags?.forEach { (key, value) -> if (key in MDBLIST_FLAGS) set(MDBLIST, key, booleanValue(value)) }
         set(MDBLIST, "mdblist_rating_order", settings.mdblistRatingOrder?.let(::stringValue))
+        settings.trackingStrings?.forEach { (key, value) -> if (key in TRACKING_STRINGS) set(TRACKING, key, stringValue(value)) }
+        settings.trackingInts?.forEach { (key, value) -> if (key in TRACKING_INTS) set(TRACKING, key, intValue(value)) }
+        settings.trackingFlags?.forEach { (key, value) -> if (key in TRACKING_FLAGS) set(TRACKING, key, booleanValue(value)) }
 
         val base = blob ?: JsonObject(emptyMap())
         val features = (base[FEATURES] as? JsonObject).orEmpty().toMutableMap()
@@ -182,6 +197,8 @@ object SyncSettingsBlob {
     private fun JsonObject?.orEmpty(): JsonObject = this ?: JsonObject(emptyMap())
 
     private fun stringValue(value: String) = buildJsonObject { put("type", "string"); put("value", value) }
+
+    private fun intValue(value: Int) = buildJsonObject { put("type", "int"); put("value", value) }
 
     private fun booleanValue(value: Boolean) = buildJsonObject { put("type", "boolean"); put("value", value) }
 

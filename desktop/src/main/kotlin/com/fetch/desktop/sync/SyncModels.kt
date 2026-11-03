@@ -155,6 +155,12 @@ data class RemoteSharedSettings(
     val mdblistFlags: Map<String, Boolean>? = null,
     /** `mdblist_settings.mdblist_rating_order`: providers joined by commas. The API key is not synced here. */
     val mdblistRatingOrder: String? = null,
+    /** `trakt_settings` strings by key (`library_source_mode`, `watch_progress_source`, …); only the ones present. */
+    val trackingStrings: Map<String, String>? = null,
+    /** `trakt_settings` ints by key (`continue_watching_days_cap`). */
+    val trackingInts: Map<String, Int>? = null,
+    /** `trakt_settings` booleans by key (`show_meta_comments`). */
+    val trackingFlags: Map<String, Boolean>? = null,
 )
 
 /**

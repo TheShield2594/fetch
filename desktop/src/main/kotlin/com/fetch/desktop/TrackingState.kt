@@ -55,7 +55,9 @@ class TrackingState(
     val credentials: TrackingCredentials = TrackingCredentials.load(),
     http: OkHttpClient = OkHttpClient.Builder().connectTimeout(15, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS).build(),
     private val trakt: TraktClient = TraktClient(http, credentials),
-    private val simkl: SimklClient = SimklClient(http, credentials),
+    /** Settings › Tracking › Simkl anime id. */
+    animeIdPreference: () -> com.fetch.desktop.tracking.SimklAnimeIdOption = { com.fetch.desktop.tracking.SimklAnimeIdOption.IMDB },
+    private val simkl: SimklClient = SimklClient(http, credentials, animeIdPreference = animeIdPreference),
     private val onMessage: (String) -> Unit = {}
 ) {
     var accounts: TrackingAccounts by mutableStateOf(store.load())
@@ -191,6 +193,9 @@ class TrackingState(
         if (account(TrackingService.TRAKT) == null) return trakt.block(null)
         return withTrakt { trakt.block(it) }
     }
+
+    /** Simkl's recommendations next to [imdb] (public, no sign-in needed). */
+    suspend fun simklRelated(imdb: String) = simkl.related(imdb)
 
     /** Runs [block] with Simkl and its token; null when Simkl isn't connected. */
     suspend fun <T> withSimkl(block: suspend SimklClient.(TrackingTokens) -> T): T? = withTokens(TrackingService.SIMKL) { simkl.block(it) }
@@ -350,8 +355,8 @@ class TrackingState(
             id = imdbId,
             type = if (type == TrackedItem.TYPE_MOVIE) "movie" else "series",
             name = title,
-            poster = "https://images.metahub.space/poster/small/$imdbId/img",
-            background = "https://images.metahub.space/background/medium/$imdbId/img",
+            poster = if (imdbId.startsWith("tt")) "https://images.metahub.space/poster/small/$imdbId/img" else poster,
+            background = if (imdbId.startsWith("tt")) "https://images.metahub.space/background/medium/$imdbId/img" else null,
             releaseInfo = year?.toString(),
             addedAt = addedAtEpochMs ?: 0L
         )

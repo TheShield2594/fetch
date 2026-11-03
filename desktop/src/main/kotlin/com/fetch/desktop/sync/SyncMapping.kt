@@ -91,7 +91,20 @@ fun RemoteSharedSettings.applyTo(settings: DesktopSettings): DesktopSettings {
         )
     }
     tmdbLanguage?.takeIf { it.isNotBlank() }?.let { tmdb = tmdb.copy(language = it) }
-    return s.copy(player = player, tmdb = tmdb, mdblist = applyMdbList(s.mdblist))
+    return s.copy(player = player, tmdb = tmdb, mdblist = applyMdbList(s.mdblist), tracking = applyTracking(s.tracking))
+}
+
+/** The TV's `trakt_settings` over [t]; keys the blob lacks keep their value. */
+private fun RemoteSharedSettings.applyTracking(t: com.fetch.desktop.tracking.TrackingOptions): com.fetch.desktop.tracking.TrackingOptions {
+    val strings = trackingStrings.orEmpty()
+    return t.copy(
+        librarySource = strings["library_source_mode"] ?: t.librarySource,
+        watchProgressSource = strings["watch_progress_source"] ?: t.watchProgressSource,
+        moreLikeThisSource = strings["more_like_this_source"] ?: t.moreLikeThisSource,
+        simklAnimeId = strings["simkl_anime_id_preference"] ?: t.simklAnimeId,
+        continueWatchingDays = trackingInts?.get("continue_watching_days_cap")?.let(com.fetch.desktop.tracking.TrackingOptions::normalizeDays) ?: t.continueWatchingDays,
+        showComments = trackingFlags?.get("show_meta_comments") ?: t.showComments
+    )
 }
 
 /** The TV's `mdblist_settings` (all but the API key) over [m]; keys the blob lacks keep their value. */
@@ -169,6 +182,14 @@ fun DesktopSettings.toRemoteSharedSettings(remote: RemoteSharedSettings? = null)
         tmdbLanguage = tmdb.language,
         mdblistFlags = mdblist.toRemoteFlags(),
         mdblistRatingOrder = mdblist.ratingOrder.joinToString(","),
+        trackingStrings = mapOf(
+            "library_source_mode" to tracking.librarySource,
+            "watch_progress_source" to tracking.watchProgressSource,
+            "more_like_this_source" to tracking.moreLikeThisSource,
+            "simkl_anime_id_preference" to tracking.simklAnimeId
+        ),
+        trackingInts = mapOf("continue_watching_days_cap" to tracking.continueWatchingDays),
+        trackingFlags = mapOf("show_meta_comments" to tracking.showComments),
     )
 }
 

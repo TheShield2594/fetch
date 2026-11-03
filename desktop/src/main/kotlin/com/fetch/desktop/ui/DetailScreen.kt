@@ -107,6 +107,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
         return
     }
 
+    val extras = rememberTitleExtras(state, meta, preview)
     CompositionLocalProvider(LocalStreamBadges provides state.badges) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val heroMinHeight = maxHeight * 0.5f
@@ -225,19 +226,8 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         )
                     }
                 }
-                tmdbExtras?.moreLikeThis?.filter(state::allowed)?.takeIf { it.isNotEmpty() }?.let { recs ->
-                    item(key = "more-like-this") {
-                        MediaRowView(
-                            title = "More like this",
-                            subtitle = null,
-                            items = recs,
-                            loading = false,
-                            error = null,
-                            onOpen = { state.navigate(Screen.Detail(it)) },
-                            showLabels = state.settings.showPosterLabels
-                        )
-                    }
-                }
+                // More like this from Settings › Tracking's source (TMDB's otherwise), and Trakt comments.
+                titleExtras(state, extras, tmdbExtras?.moreLikeThis)
                 val companies = meta?.networks.orEmpty().map { it to TmdbEntityKind.NETWORK } +
                     meta?.productionCompanies.orEmpty().map { it to TmdbEntityKind.COMPANY }
                 if (companies.any { it.first.tmdbId != null }) {

@@ -255,6 +255,24 @@ class TraktClient(
             .mapNotNull { it.list?.toList() }
     }
 
+    /** Titles like [imdb] (GET movies|shows/{id}/related), for More like this. */
+    suspend fun related(tokens: TrackingTokens?, imdb: String, isShow: Boolean, limit: Int = 20): List<TraktPublicItem> {
+        val kind = if (isShow) "shows" else "movies"
+        val result = http.send(request("$base$kind/$imdb/related?extended=full,images&limit=$limit", tokens).get().build())
+        if (result.code == 404) return emptyList()
+        return result.requireOk(SERVICE, "related").decode<List<TraktFullMediaDto>>().mapNotNull { media ->
+            (if (isShow) TraktPublicItemDto(show = media) else TraktPublicItemDto(movie = media)).toItem()
+        }
+    }
+
+    /** The most liked comments on [imdb] (GET movies|shows/{id}/comments/likes), as the TV's comments row. */
+    suspend fun comments(tokens: TrackingTokens?, imdb: String, isShow: Boolean, limit: Int = 20): List<TraktComment> {
+        val kind = if (isShow) "shows" else "movies"
+        val result = http.send(request("$base$kind/$imdb/comments/likes?limit=$limit&extended=full", tokens).get().build())
+        if (result.code == 404) return emptyList()
+        return result.requireOk(SERVICE, "comments").decode<List<TraktCommentDto>>().mapNotNull { it.toComment() }
+    }
+
     private fun listBody(name: String, description: String?, privacy: String) = buildJsonObject {
         put("name", name)
         put("description", description.orEmpty())
@@ -525,3 +543,48 @@ private data class TraktPublicListDto(
 
 @Serializable
 private data class TraktListSearchDto(val type: String? = null, val list: TraktPublicListDto? = null)
+
+/** A comment on a title, as the TV's comments row shows it. */
+data class TraktComment(
+    val id: Long,
+    val author: String,
+    val text: String,
+    val spoiler: Boolean,
+    val review: Boolean,
+    val likes: Int,
+    /** The author's rating out of 10, when they gave one. */
+    val rating: Int?,
+    val createdAt: String?
+)
+
+@Serializable
+private data class TraktCommentUserDto(val username: String? = null, val name: String? = null)
+
+@Serializable
+private data class TraktCommentStatsDto(val rating: Int? = null)
+
+@Serializable
+private data class TraktCommentDto(
+    val id: Long? = null,
+    val comment: String? = null,
+    val spoiler: Boolean = false,
+    val review: Boolean = false,
+    val likes: Int = 0,
+    @SerialName("created_at") val createdAt: String? = null,
+    val user: TraktCommentUserDto? = null,
+    @SerialName("user_stats") val userStats: TraktCommentStatsDto? = null
+) {
+    fun toComment(): TraktComment? {
+        val text = comment?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+        return TraktComment(
+            id = id ?: return null,
+            author = user?.name?.takeIf { it.isNotBlank() } ?: user?.username ?: "Trakt user",
+            text = text,
+            spoiler = spoiler,
+            review = review,
+            likes = likes,
+            rating = userStats?.rating,
+            createdAt = createdAt
+        )
+    }
+}

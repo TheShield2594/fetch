@@ -58,7 +58,8 @@ fun LibraryScreen(state: AppState) {
     var query by remember { mutableStateOf(LibraryQuery()) }
     // "Local", a connected account's watchlist, or a media server library, as the TV Library's
     // source picker ("Saved" and "Servers").
-    var source by remember { mutableStateOf<LibrarySource>(LibrarySource.Local) }
+    // Opens on Settings › Tracking › Library source, as on TV.
+    var source by remember { mutableStateOf(initialLibrarySource(state)) }
     val serverSources = state.servers.enabled.flatMap { account ->
         account.libraries.filter { it.selected }.map { LibrarySource.Server(account.id, it.id, "${it.name} · ${account.name}") }
     }
@@ -305,4 +306,15 @@ private fun LibraryFilters(view: LibraryView, query: LibraryQuery, onChange: (Li
             onSelect = { onChange(query.copy(watched = it)) }
         )
     }
+}
+
+/** The Library source Settings › Tracking picks, when this profile has it; else Fetch's own. */
+private fun initialLibrarySource(state: AppState): LibrarySource {
+    val wanted = when (state.settings.tracking.library) {
+        com.fetch.desktop.tracking.LibrarySourceOption.LOCAL -> ListProvider.LOCAL
+        com.fetch.desktop.tracking.LibrarySourceOption.TRAKT -> ListProvider.TRAKT
+        com.fetch.desktop.tracking.LibrarySourceOption.SIMKL -> ListProvider.SIMKL
+        com.fetch.desktop.tracking.LibrarySourceOption.MDBLIST -> ListProvider.MDBLIST
+    }
+    return LibrarySource.Lists(wanted).takeIf { wanted in state.lists.providers } ?: LibrarySource.Local
 }

@@ -411,7 +411,10 @@ class AppState(
     val badges = StreamBadgesState(scope, File(profileDir(profile), "stream-badges.json"))
 
     /** Trakt and Simkl for this profile. */
-    val tracking = TrackingState(scope, TrackingStore(File(profileDir(profile), "tracking.json")), onMessage = { message = it })
+    val tracking = TrackingState(
+        scope, TrackingStore(File(profileDir(profile), "tracking.json")), onMessage = { message = it },
+        animeIdPreference = { settings.tracking.animeId }
+    )
 
     /** MDBList: the account's lists (Settings › MDBList) and ratings on title pages and the Home hero. */
     private val mdbListHttp = com.fetch.desktop.mdblist.MdbListHttp(okhttp3.OkHttpClient())
@@ -581,7 +584,11 @@ class AppState(
         scope.launch {
             // MDBList's lists load even when Trakt and Simkl aren't connected.
             val snapshot = tracking.sync() ?: return@launch lists.refresh()
-            saveProgress(WatchHistory.mergeRemote(progress, snapshot.playback, snapshot.watchedIds))
+            // Settings › Tracking › Watch progress source: whose resume points join Continue Watching.
+            val playback = com.fetch.desktop.tracking.playbackForSource(
+                snapshot.playback, settings.tracking.progress, com.fetch.desktop.ui.availableProgressSources(this@AppState)
+            )
+            saveProgress(WatchHistory.mergeRemote(progress, playback, snapshot.watchedIds))
             remoteLists = snapshot.watchlists
             lists.refresh()
         }
@@ -1086,7 +1093,10 @@ class AppState(
 
     private val continueWatchingRows: Pair<List<ProgressEntry>, List<ProgressEntry>>
         get() = WatchHistory.continueWatchingRows(
-            com.fetch.desktop.parental.visibleProgress(progress, titleLists),
+            com.fetch.desktop.tracking.withinWindow(
+                com.fetch.desktop.parental.visibleProgress(progress, titleLists),
+                settings.tracking.continueWatchingDays, System.currentTimeMillis()
+            ),
             LocalDate.now(), settings.showUnairedNextUp, settings.continueWatchingSort
         )
 

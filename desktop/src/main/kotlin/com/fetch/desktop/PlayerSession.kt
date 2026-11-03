@@ -20,6 +20,28 @@ enum class PlayerPanel(val label: String) {
     EPISODES("Episodes")
 }
 
+/**
+ * What the player's buttons and keys do: straight to mpv ([MpvControls]), or through the watch
+ * party while one follows this player ([com.fetch.desktop.party.PartyPlayerSync]).
+ */
+interface PlayerControls {
+    val speed: Double
+    fun togglePause()
+    fun seekTo(seconds: Double)
+    fun seekBy(seconds: Double)
+    fun changeSpeed(value: Double)
+    /** False when a watch party's host-only control keeps this player on the party's episode. */
+    fun mayChangeMedia(userInitiated: Boolean = true): Boolean = true
+}
+
+class MpvControls(private val mpv: EmbeddedMpv) : PlayerControls {
+    override val speed: Double get() = mpv.speed
+    override fun togglePause() = mpv.togglePause()
+    override fun seekTo(seconds: Double) = mpv.seekTo(seconds)
+    override fun seekBy(seconds: Double) = mpv.seekBy(seconds)
+    override fun changeSpeed(value: Double) = mpv.changeSpeed(value)
+}
+
 /** A subtitle file an addon offers for what's playing. */
 data class AddonSubtitle(val language: String, val url: String, val addon: String)
 
@@ -48,6 +70,13 @@ class PlayerSession(val mpv: EmbeddedMpv) {
     /** Whether to show the Skip button for segments that aren't skipped automatically. */
     var skipButton by mutableStateOf(true)
     var description: String? by mutableStateOf(null)
+
+    /** Pause, seek and speed for the buttons and keys; the watch party's while it follows this player. */
+    var controls: PlayerControls by mutableStateOf(MpvControls(mpv))
+    /** The watch party following this player, if any. */
+    var party: com.fetch.desktop.party.PartyPlayerSync? by mutableStateOf(null)
+    /** The Watch party panel is open (beside [panel], which closes while it is). */
+    var partyPanelOpen by mutableStateOf(false)
 
     /** The segment to offer a Skip button for at [position]: one that isn't skipped automatically. */
     fun skippable(position: Double): Segment? =

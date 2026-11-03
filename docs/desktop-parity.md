@@ -118,7 +118,7 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | YouTube chapters, speed | `YouTubePlayerMenus.kt` | 🟡 mpv reads chapters from yt-dlp; speed in the built-in player's menu; no chapter list |
 | In-player like, dislike, subscribe and save | `YouTubePlayerOverlay.kt` | ⬜ (the client has them; the built-in player has no YouTube actions row yet) |
 | Seek bar thumbnails (storyboards) | `YouTubeStoryboard.kt`, `YouTubeSeekBar.kt` | ⬜ |
-| Watch party | `screens/party/`, `core/party/` | ⬜ |
+| Watch party | `screens/party/`, `core/party/` | ✅ `party/` (the TV's RPCs, Realtime channel, sync and tolerances), Watch together on title pages, Watch party in the player and in Settings; 🟡 no QR invite or `fetch://party` link handler (a pasted invite link works), initials instead of avatar images |
 | Ambient mode | `screens/ambient/` | ✅ Appearance › Ambient Mode: artwork slideshow (Ken Burns, up to 3 Home rows) or clock with what to resume; never during playback |
 | Phone hub | `screens/phone/` | ➖ a desktop has a keyboard; may return for sending links |
 | Watch Next row, launcher channels, app icon picker | `core/recommendations/`, `AppIconPicker.kt` | ➖ |

@@ -73,6 +73,9 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
     val scope = rememberCoroutineScope()
     val state = remember { AppState(scope, profiles, profile, account = account).also { FetchPalette.setTheme(it.settings.appTheme) } }
     LaunchedEffect(Unit) { state.start() }
+    // The watch party follows the sync sign-in, and ends with this profile.
+    LaunchedEffect(account.signedIn) { state.party.refreshAvailability() }
+    androidx.compose.runtime.DisposableEffect(state) { onDispose { state.party.dispose() } }
 
     val snackbar = remember { SnackbarHostState() }
     val message = state.message

@@ -146,7 +146,8 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                             if (isSeries) state.setWatched(preview, meta?.videos.orEmpty().filter { (it.season ?: 0) > 0 && com.fetch.desktop.isAired(it) }, on)
                             else state.setWatched(preview, emptyList(), on)
                         },
-                        minHeight = heroMinHeight
+                        minHeight = heroMinHeight,
+                        extraActions = { PartyDetailButton(state) }
                     )
                 }
                 item(key = "sources") {
@@ -296,7 +297,8 @@ private fun Hero(
     minHeight: Dp,
     /** MDBList's ratings (Settings › MDBList), in [mdbListOrder]; they replace the addon's IMDb badge, as on TV. */
     mdbListRatings: com.fetch.tv.domain.model.MDBListRatings? = null,
-    mdbListOrder: List<String> = emptyList()
+    mdbListOrder: List<String> = emptyList(),
+    extraActions: @Composable () -> Unit = {}
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom),
@@ -392,6 +394,7 @@ private fun Hero(
             if (trailer != null) {
                 CircleIconButton(FetchIcons.Trailer, "Play trailer", onClick = { onTrailer(trailer) }, size = 52.dp)
             }
+            extraActions()
         }
     }
 }

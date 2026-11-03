@@ -54,7 +54,7 @@ class SyncAccountState(
     fun signIn(email: String, password: String) = work {
         val server = discovered ?: return@work
         val session = SyncAuthClient(http, server.config).signIn(email.trim(), password)
-        save(state.copy(server = server.config, session = session))
+        save(state.copy(server = server.config, session = session, watchParty = server.watchParty))
     }
 
     fun signUp(email: String, password: String) = work {
@@ -63,7 +63,7 @@ class SyncAccountState(
         if (session == null) {
             error = "Check your email to confirm the account, then sign in."
         } else {
-            save(state.copy(server = server.config, session = session))
+            save(state.copy(server = server.config, session = session, watchParty = server.watchParty))
         }
     }
 
@@ -82,7 +82,7 @@ class SyncAccountState(
                     when (val poll = auth.pollDeviceLogin(login)) {
                         DeviceLoginPoll.Pending -> Unit
                         DeviceLoginPoll.Approved -> {
-                            save(state.copy(server = server.config, session = auth.exchangeDeviceLogin(login)))
+                            save(state.copy(server = server.config, session = auth.exchangeDeviceLogin(login), watchParty = server.watchParty))
                             deviceLogin = null
                             return@launch
                         }
@@ -122,6 +122,21 @@ class SyncAccountState(
         val origin = state.originClientId ?: SyncClient.newOriginClientId().also { save(state.copy(originClientId = it)) }
         return SyncClient(http, SyncAuthClient(http, server), session, origin, onSessionChanged = ::updateSession)
     }
+
+    /**
+     * Whether the server offers watch parties (its discovery's `watch_party`), as kept at sign-in.
+     * An older sign-in reads the backend's `/.well-known/fetch` once; null when that fails too.
+     */
+    suspend fun watchPartyCapability(): Boolean? {
+        state.watchParty?.let { return it }
+        val server = state.server ?: return null
+        val found = runCatching { SyncAuthClient.discover(http, server.url) }.getOrNull() ?: return null
+        if (found.config.baseUrl == server.baseUrl) save(state.copy(watchParty = found.watchParty))
+        return found.watchParty
+    }
+
+    /** The HTTP client the account uses, for the watch party's WebSocket. */
+    internal val httpClient: OkHttpClient get() = http
 
     private fun updateSession(session: SyncSession) {
         scope.launch { save(state.copy(session = session)) }

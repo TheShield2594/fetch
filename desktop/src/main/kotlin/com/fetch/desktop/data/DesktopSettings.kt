@@ -42,6 +42,8 @@ data class DesktopSettings(
     val tmdbApiKey: String? = null,
     /** Settings › TMDB: enrichment from The Movie Database, as on TV (synced with it). */
     val tmdb: TmdbSettings = TmdbSettings(),
+    /** Settings › YouTube, as on TV (not synced: the TV keeps them per profile on the device). */
+    val youtube: com.fetch.desktop.youtube.YouTubeSettings = com.fetch.desktop.youtube.YouTubeSettings(),
     /** "Stream selection": what Play does once the sources are in, as on TV. */
     val autoPlayMode: AutoPlayMode = AutoPlayMode.BEST_MATCH,
     /** For [AutoPlayMode.REGEX_MATCH]: the first source whose text matches this plays. */

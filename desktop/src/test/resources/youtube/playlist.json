@@ -1,0 +1,1252 @@
+{
+ "contents": {
+  "tvBrowseRenderer": {
+   "content": {
+    "tvSurfaceContentRenderer": {
+     "content": {
+      "twoColumnRenderer": {
+       "leftColumn": {
+        "entityMetadataRenderer": {
+         "title": {
+          "simpleText": "Artemis III"
+         },
+         "description": {},
+         "buttons": [
+          {
+           "buttonRenderer": {
+            "isDisabled": false,
+            "text": {
+             "simpleText": "Repeat"
+            },
+            "icon": {
+             "iconType": "LOOP"
+            },
+            "navigationEndpoint": {
+             "watchEndpoint": {
+              "videoId": "yMoGiIeDH9s",
+              "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+              "params": "GAM%3D"
+             }
+            }
+           }
+          },
+          {
+           "toggleButtonRenderer": {
+            "style": {
+             "styleType": "STYLE_DEFAULT"
+            },
+            "size": {
+             "sizeType": "SIZE_DEFAULT"
+            },
+            "isToggled": false,
+            "isDisabled": false,
+            "defaultIcon": {
+             "iconType": "BOOKMARK_BORDER"
+            },
+            "defaultText": {
+             "simpleText": "Save to Library"
+            },
+            "defaultServiceEndpoint": {
+             "authDeterminedCommand": {
+              "authenticatedCommand": {
+               "commandExecutorCommand": {
+                "commands": [
+                 {
+                  "likeEndpoint": {
+                   "status": "LIKE",
+                   "target": {
+                    "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+                   },
+                   "likeParams": "CiQSIlBMMmFCWnVDZUR3bFJhRjZBSWV5N3VsbVcxWDBTSEkxbVE%3D"
+                  }
+                 },
+                 {
+                  "openPopupAction": {
+                   "popup": {
+                    "overlayMessageRenderer": {
+                     "title": {
+                      "runs": [
+                       {
+                        "text": "Saved to Library"
+                       }
+                      ]
+                     },
+                     "style": "OVERLAY_MESSAGE_STYLE_TOAST"
+                    }
+                   },
+                   "popupType": "TOAST"
+                  }
+                 }
+                ]
+               }
+              },
+              "unauthenticatedCommand": {
+               "authRequiredCommand": {
+                "identityActionContext": {
+                 "eventTrigger": "ACCOUNT_EVENT_TRIGGER_LIKE_DISLIKE",
+                 "nextEndpoint": {
+                  "commandExecutorCommand": {
+                   "commands": [
+                    {
+                     "signalAction": {
+                      "signal": "CLOSE_POPUP"
+                     }
+                    },
+                    {
+                     "commandExecutorCommand": {
+                      "commands": [
+                       {
+                        "likeEndpoint": {
+                         "status": "LIKE",
+                         "target": {
+                          "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+                         },
+                         "likeParams": "CiQSIlBMMmFCWnVDZUR3bFJhRjZBSWV5N3VsbVcxWDBTSEkxbVE%3D"
+                        }
+                       },
+                       {
+                        "openPopupAction": {
+                         "popup": {
+                          "overlayMessageRenderer": {
+                           "title": {
+                            "runs": [
+                             {
+                              "text": "Saved to Library"
+                             }
+                            ]
+                           },
+                           "style": "OVERLAY_MESSAGE_STYLE_TOAST"
+                          }
+                         },
+                         "popupType": "TOAST"
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   ]
+                  }
+                 }
+                }
+               }
+              }
+             }
+            },
+            "toggledIcon": {
+             "iconType": "BOOKMARK"
+            },
+            "toggledText": {
+             "simpleText": "Remove from Library"
+            },
+            "toggledServiceEndpoint": {
+             "authDeterminedCommand": {
+              "authenticatedCommand": {
+               "commandExecutorCommand": {
+                "commands": [
+                 {
+                  "likeEndpoint": {
+                   "status": "INDIFFERENT",
+                   "target": {
+                    "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+                   },
+                   "removeLikeParams": "CiQSIlBMMmFCWnVDZUR3bFJhRjZBSWV5N3VsbVcxWDBTSEkxbVE%3D"
+                  }
+                 },
+                 {
+                  "openPopupAction": {
+                   "popup": {
+                    "overlayMessageRenderer": {
+                     "title": {
+                      "runs": [
+                       {
+                        "text": "Removed from Library"
+                       }
+                      ]
+                     },
+                     "style": "OVERLAY_MESSAGE_STYLE_TOAST"
+                    }
+                   },
+                   "popupType": "TOAST"
+                  }
+                 }
+                ]
+               }
+              },
+              "unauthenticatedCommand": {
+               "authRequiredCommand": {
+                "identityActionContext": {
+                 "eventTrigger": "ACCOUNT_EVENT_TRIGGER_LIKE_DISLIKE",
+                 "nextEndpoint": {
+                  "commandExecutorCommand": {
+                   "commands": [
+                    {
+                     "signalAction": {
+                      "signal": "CLOSE_POPUP"
+                     }
+                    },
+                    {
+                     "commandExecutorCommand": {
+                      "commands": [
+                       {
+                        "likeEndpoint": {
+                         "status": "INDIFFERENT",
+                         "target": {
+                          "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+                         },
+                         "removeLikeParams": "CiQSIlBMMmFCWnVDZUR3bFJhRjZBSWV5N3VsbVcxWDBTSEkxbVE%3D"
+                        }
+                       },
+                       {
+                        "openPopupAction": {
+                         "popup": {
+                          "overlayMessageRenderer": {
+                           "title": {
+                            "runs": [
+                             {
+                              "text": "Removed from Library"
+                             }
+                            ]
+                           },
+                           "style": "OVERLAY_MESSAGE_STYLE_TOAST"
+                          }
+                         },
+                         "popupType": "TOAST"
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   ]
+                  }
+                 }
+                }
+               }
+              }
+             }
+            },
+            "toggledStyle": {
+             "styleType": "STYLE_DEFAULT"
+            },
+            "toggledAccessibilityData": {}
+           }
+          }
+         ],
+         "buttonLayout": "ENTITY_METADATA_BUTTON_LAYOUT_HORIZONTAL",
+         "bylines": [
+          {
+           "lineRenderer": {
+            "items": [
+             {
+              "lineItemRenderer": {
+               "badge": {
+                "metadataBadgeRenderer": {
+                 "icon": {
+                  "iconType": "PRIVACY_PUBLIC"
+                 },
+                 "style": "BADGE_STYLE_TYPE_VERIFIED"
+                }
+               }
+              }
+             },
+             {
+              "lineItemRenderer": {
+               "text": {
+                "simpleText": "NASA"
+               }
+              }
+             },
+             {
+              "lineItemRenderer": {
+               "text": {
+                "simpleText": "•"
+               }
+              }
+             },
+             {
+              "lineItemRenderer": {
+               "text": {
+                "runs": [
+                 {
+                  "text": "9"
+                 },
+                 {
+                  "text": " videos"
+                 }
+                ]
+               }
+              }
+             },
+             {
+              "lineItemRenderer": {
+               "text": {
+                "simpleText": "•"
+               }
+              }
+             },
+             {
+              "lineItemRenderer": {
+               "text": {
+                "simpleText": "34K views"
+               }
+              }
+             }
+            ]
+           }
+          }
+         ]
+        }
+       },
+       "rightColumn": {
+        "playlistVideoListRenderer": {
+         "contents": [
+          {
+           "tileRenderer": {
+            "style": "TILE_STYLE_YTLR_VERTICAL_LIST",
+            "header": {
+             "tileHeaderRenderer": {
+              "thumbnail": {
+               "thumbnails": [
+                {
+                 "url": "https://i.ytimg.com/vi/yMoGiIeDH9s/sddefault.jpg",
+                 "width": 640,
+                 "height": 480
+                }
+               ]
+              },
+              "thumbnailOverlays": [
+               {
+                "thumbnailOverlayTimeStatusRenderer": {
+                 "text": {
+                  "simpleText": "5:33"
+                 },
+                 "style": "DEFAULT"
+                }
+               }
+              ]
+             }
+            },
+            "metadata": {
+             "tileMetadataRenderer": {
+              "title": {
+               "simpleText": "Andre Douglas Artemis III Crew Announcement Resource Reel"
+              },
+              "lines": [
+               {
+                "lineRenderer": {
+                 "items": [
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "runs": [
+                      {
+                       "text": "NASA Video"
+                      }
+                     ]
+                    }
+                   }
+                  }
+                 ]
+                }
+               },
+               {
+                "lineRenderer": {
+                 "items": [
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "54K views"
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "•"
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "4 months ago"
+                    }
+                   }
+                  }
+                 ]
+                }
+               }
+              ]
+             }
+            },
+            "onSelectCommand": {
+             "watchEndpoint": {
+              "videoId": "yMoGiIeDH9s",
+              "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+             }
+            },
+            "contentId": "yMoGiIeDH9s",
+            "contentType": "TILE_CONTENT_TYPE_VIDEO",
+            "customData": {
+             "playlistPageTileData": {
+              "setThumbnailAsAppBackground": true
+             }
+            },
+            "onLongPressCommand": {
+             "showMenuCommand": {
+              "contentId": "yMoGiIeDH9s",
+              "thumbnail": {
+               "thumbnails": [
+                {
+                 "url": "https://i.ytimg.com/vi/yMoGiIeDH9s/sddefault.jpg",
+                 "width": 640,
+                 "height": 480
+                }
+               ]
+              },
+              "title": {
+               "simpleText": "Andre Douglas Artemis III Crew Announcement Resource Reel"
+              },
+              "subtitle": {
+               "simpleText": "NASA Video • @NASAgovVideo"
+              },
+              "menu": {
+               "menuRenderer": {
+                "items": [
+                 {
+                  "menuNavigationItemRenderer": {
+                   "text": {
+                    "runs": [
+                     {
+                      "text": "Play"
+                     }
+                    ]
+                   },
+                   "navigationEndpoint": {
+                    "watchEndpoint": {
+                     "videoId": "yMoGiIeDH9s",
+                     "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+                    }
+                   }
+                  }
+                 },
+                 {
+                  "menuNavigationItemRenderer": {
+                   "text": {
+                    "runs": [
+                     {
+                      "text": "Go to channel"
+                     }
+                    ]
+                   },
+                   "navigationEndpoint": {
+                    "browseEndpoint": {
+                     "browseId": "UC_aP7p621ATY_yAa8jMqUVA"
+                    }
+                   }
+                  }
+                 }
+                ]
+               }
+              }
+             }
+            }
+           }
+          },
+          {
+           "tileRenderer": {
+            "style": "TILE_STYLE_YTLR_VERTICAL_LIST",
+            "header": {
+             "tileHeaderRenderer": {
+              "thumbnail": {
+               "thumbnails": [
+                {
+                 "url": "https://i.ytimg.com/vi/SGVxZ4idYvc/sddefault.jpg",
+                 "width": 640,
+                 "height": 480
+                }
+               ]
+              },
+              "thumbnailOverlays": [
+               {
+                "thumbnailOverlayTimeStatusRenderer": {
+                 "text": {
+                  "simpleText": "4:14"
+                 },
+                 "style": "DEFAULT"
+                }
+               }
+              ]
+             }
+            },
+            "metadata": {
+             "tileMetadataRenderer": {
+              "title": {
+               "simpleText": "Frank Rubio Artemis III Crew Announcement Resource Reel"
+              },
+              "lines": [
+               {
+                "lineRenderer": {
+                 "items": [
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "runs": [
+                      {
+                       "text": "NASA Video"
+                      }
+                     ]
+                    }
+                   }
+                  }
+                 ]
+                }
+               },
+               {
+                "lineRenderer": {
+                 "items": [
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "11K views"
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "•"
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "4 months ago"
+                    }
+                   }
+                  }
+                 ]
+                }
+               }
+              ]
+             }
+            },
+            "onSelectCommand": {
+             "watchEndpoint": {
+              "videoId": "SGVxZ4idYvc",
+              "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+             }
+            },
+            "contentId": "SGVxZ4idYvc",
+            "contentType": "TILE_CONTENT_TYPE_VIDEO",
+            "customData": {
+             "playlistPageTileData": {
+              "setThumbnailAsAppBackground": true
+             }
+            },
+            "onLongPressCommand": {
+             "showMenuCommand": {
+              "contentId": "SGVxZ4idYvc",
+              "thumbnail": {
+               "thumbnails": [
+                {
+                 "url": "https://i.ytimg.com/vi/SGVxZ4idYvc/sddefault.jpg",
+                 "width": 640,
+                 "height": 480
+                }
+               ]
+              },
+              "title": {
+               "simpleText": "Frank Rubio Artemis III Crew Announcement Resource Reel"
+              },
+              "subtitle": {
+               "simpleText": "NASA Video • @NASAgovVideo"
+              },
+              "menu": {
+               "menuRenderer": {
+                "items": [
+                 {
+                  "menuNavigationItemRenderer": {
+                   "text": {
+                    "runs": [
+                     {
+                      "text": "Play"
+                     }
+                    ]
+                   },
+                   "navigationEndpoint": {
+                    "watchEndpoint": {
+                     "videoId": "SGVxZ4idYvc",
+                     "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+                    }
+                   }
+                  }
+                 },
+                 {
+                  "menuNavigationItemRenderer": {
+                   "text": {
+                    "runs": [
+                     {
+                      "text": "Go to channel"
+                     }
+                    ]
+                   },
+                   "navigationEndpoint": {
+                    "browseEndpoint": {
+                     "browseId": "UC_aP7p621ATY_yAa8jMqUVA"
+                    }
+                   }
+                  }
+                 }
+                ]
+               }
+              }
+             }
+            }
+           }
+          },
+          {
+           "tileRenderer": {
+            "style": "TILE_STYLE_YTLR_VERTICAL_LIST",
+            "header": {
+             "tileHeaderRenderer": {
+              "thumbnail": {
+               "thumbnails": [
+                {
+                 "url": "https://i.ytimg.com/vi/11ZbXP1kjBs/sddefault.jpg",
+                 "width": 640,
+                 "height": 480
+                }
+               ]
+              },
+              "thumbnailOverlays": [
+               {
+                "thumbnailOverlayTimeStatusRenderer": {
+                 "text": {
+                  "simpleText": "4:57"
+                 },
+                 "style": "DEFAULT"
+                }
+               }
+              ]
+             }
+            },
+            "metadata": {
+             "tileMetadataRenderer": {
+              "title": {
+               "simpleText": "Luca Parmitano Artemis III Crew Announcement Resource Reel"
+              },
+              "lines": [
+               {
+                "lineRenderer": {
+                 "items": [
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "runs": [
+                      {
+                       "text": "NASA Video"
+                      }
+                     ]
+                    }
+                   }
+                  }
+                 ]
+                }
+               },
+               {
+                "lineRenderer": {
+                 "items": [
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "9.6K views"
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "•"
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "4 months ago"
+                    }
+                   }
+                  }
+                 ]
+                }
+               }
+              ]
+             }
+            },
+            "onSelectCommand": {
+             "watchEndpoint": {
+              "videoId": "11ZbXP1kjBs",
+              "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+             }
+            },
+            "contentId": "11ZbXP1kjBs",
+            "contentType": "TILE_CONTENT_TYPE_VIDEO",
+            "customData": {
+             "playlistPageTileData": {
+              "setThumbnailAsAppBackground": true
+             }
+            },
+            "onLongPressCommand": {
+             "showMenuCommand": {
+              "contentId": "11ZbXP1kjBs",
+              "thumbnail": {
+               "thumbnails": [
+                {
+                 "url": "https://i.ytimg.com/vi/11ZbXP1kjBs/sddefault.jpg",
+                 "width": 640,
+                 "height": 480
+                }
+               ]
+              },
+              "title": {
+               "simpleText": "Luca Parmitano Artemis III Crew Announcement Resource Reel"
+              },
+              "subtitle": {
+               "simpleText": "NASA Video • @NASAgovVideo"
+              },
+              "menu": {
+               "menuRenderer": {
+                "items": [
+                 {
+                  "menuNavigationItemRenderer": {
+                   "text": {
+                    "runs": [
+                     {
+                      "text": "Play"
+                     }
+                    ]
+                   },
+                   "navigationEndpoint": {
+                    "watchEndpoint": {
+                     "videoId": "11ZbXP1kjBs",
+                     "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+                    }
+                   }
+                  }
+                 },
+                 {
+                  "menuNavigationItemRenderer": {
+                   "text": {
+                    "runs": [
+                     {
+                      "text": "Go to channel"
+                     }
+                    ]
+                   },
+                   "navigationEndpoint": {
+                    "browseEndpoint": {
+                     "browseId": "UC_aP7p621ATY_yAa8jMqUVA"
+                    }
+                   }
+                  }
+                 }
+                ]
+               }
+              }
+             }
+            }
+           }
+          },
+          {
+           "tileRenderer": {
+            "style": "TILE_STYLE_YTLR_VERTICAL_LIST",
+            "header": {
+             "tileHeaderRenderer": {
+              "thumbnail": {
+               "thumbnails": [
+                {
+                 "url": "https://i.ytimg.com/vi/VUz8wMKnDe4/sddefault.jpg",
+                 "width": 640,
+                 "height": 480
+                }
+               ]
+              },
+              "thumbnailOverlays": [
+               {
+                "thumbnailOverlayTimeStatusRenderer": {
+                 "text": {
+                  "simpleText": "3:34"
+                 },
+                 "style": "DEFAULT"
+                }
+               }
+              ]
+             }
+            },
+            "metadata": {
+             "tileMetadataRenderer": {
+              "title": {
+               "simpleText": "Randy Bresnik Artemis III Crew Announcement Resource Reel"
+              },
+              "lines": [
+               {
+                "lineRenderer": {
+                 "items": [
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "runs": [
+                      {
+                       "text": "NASA Video"
+                      }
+                     ]
+                    }
+                   }
+                  }
+                 ]
+                }
+               },
+               {
+                "lineRenderer": {
+                 "items": [
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "8.4K views"
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "•"
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "4 months ago"
+                    }
+                   }
+                  }
+                 ]
+                }
+               }
+              ]
+             }
+            },
+            "onSelectCommand": {
+             "watchEndpoint": {
+              "videoId": "VUz8wMKnDe4",
+              "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+             }
+            },
+            "contentId": "VUz8wMKnDe4",
+            "contentType": "TILE_CONTENT_TYPE_VIDEO",
+            "customData": {
+             "playlistPageTileData": {
+              "setThumbnailAsAppBackground": true
+             }
+            },
+            "onLongPressCommand": {
+             "showMenuCommand": {
+              "contentId": "VUz8wMKnDe4",
+              "thumbnail": {
+               "thumbnails": [
+                {
+                 "url": "https://i.ytimg.com/vi/VUz8wMKnDe4/sddefault.jpg",
+                 "width": 640,
+                 "height": 480
+                }
+               ]
+              },
+              "title": {
+               "simpleText": "Randy Bresnik Artemis III Crew Announcement Resource Reel"
+              },
+              "subtitle": {
+               "simpleText": "NASA Video • @NASAgovVideo"
+              },
+              "menu": {
+               "menuRenderer": {
+                "items": [
+                 {
+                  "menuNavigationItemRenderer": {
+                   "text": {
+                    "runs": [
+                     {
+                      "text": "Play"
+                     }
+                    ]
+                   },
+                   "navigationEndpoint": {
+                    "watchEndpoint": {
+                     "videoId": "VUz8wMKnDe4",
+                     "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+                    }
+                   }
+                  }
+                 },
+                 {
+                  "menuNavigationItemRenderer": {
+                   "text": {
+                    "runs": [
+                     {
+                      "text": "Go to channel"
+                     }
+                    ]
+                   },
+                   "navigationEndpoint": {
+                    "browseEndpoint": {
+                     "browseId": "UC_aP7p621ATY_yAa8jMqUVA"
+                    }
+                   }
+                  }
+                 }
+                ]
+               }
+              }
+             }
+            }
+           }
+          },
+          {
+           "tileRenderer": {
+            "style": "TILE_STYLE_YTLR_VERTICAL_LIST",
+            "header": {
+             "tileHeaderRenderer": {
+              "thumbnail": {
+               "thumbnails": [
+                {
+                 "url": "https://i.ytimg.com/vi/G-GD8SQ0AvU/sddefault.jpg",
+                 "width": 640,
+                 "height": 480
+                }
+               ]
+              },
+              "thumbnailOverlays": [
+               {
+                "thumbnailOverlayTimeStatusRenderer": {
+                 "text": {
+                  "simpleText": "2:08"
+                 },
+                 "style": "DEFAULT"
+                }
+               }
+              ]
+             }
+            },
+            "metadata": {
+             "tileMetadataRenderer": {
+              "title": {
+               "simpleText": "Artemis III Announcement Recap: Crew, Mission Details, and What’s Next"
+              },
+              "lines": [
+               {
+                "lineRenderer": {
+                 "items": [
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "runs": [
+                      {
+                       "text": "NASA"
+                      }
+                     ]
+                    }
+                   }
+                  }
+                 ]
+                }
+               },
+               {
+                "lineRenderer": {
+                 "items": [
+                  {
+                   "lineItemRenderer": {
+                    "badge": {
+                     "metadataBadgeRenderer": {
+                      "style": "BADGE_STYLE_TYPE_SIMPLE",
+                      "label": "4K"
+                     }
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "90K views"
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "•"
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "4 months ago"
+                    }
+                   }
+                  }
+                 ]
+                }
+               }
+              ]
+             }
+            },
+            "onSelectCommand": {
+             "watchEndpoint": {
+              "videoId": "G-GD8SQ0AvU",
+              "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+             }
+            },
+            "contentId": "G-GD8SQ0AvU",
+            "contentType": "TILE_CONTENT_TYPE_VIDEO",
+            "customData": {
+             "playlistPageTileData": {
+              "setThumbnailAsAppBackground": true
+             }
+            },
+            "onLongPressCommand": {
+             "showMenuCommand": {
+              "contentId": "G-GD8SQ0AvU",
+              "thumbnail": {
+               "thumbnails": [
+                {
+                 "url": "https://i.ytimg.com/vi/G-GD8SQ0AvU/sddefault.jpg",
+                 "width": 640,
+                 "height": 480
+                }
+               ]
+              },
+              "title": {
+               "simpleText": "Artemis III Announcement Recap: Crew, Mission Details, and What’s Next"
+              },
+              "subtitle": {
+               "simpleText": "NASA • @NASA"
+              },
+              "menu": {
+               "menuRenderer": {
+                "items": [
+                 {
+                  "menuNavigationItemRenderer": {
+                   "text": {
+                    "runs": [
+                     {
+                      "text": "Play"
+                     }
+                    ]
+                   },
+                   "navigationEndpoint": {
+                    "watchEndpoint": {
+                     "videoId": "G-GD8SQ0AvU",
+                     "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+                    }
+                   }
+                  }
+                 },
+                 {
+                  "menuNavigationItemRenderer": {
+                   "text": {
+                    "runs": [
+                     {
+                      "text": "Go to channel"
+                     }
+                    ]
+                   },
+                   "navigationEndpoint": {
+                    "browseEndpoint": {
+                     "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ"
+                    }
+                   }
+                  }
+                 }
+                ]
+               }
+              }
+             }
+            }
+           }
+          },
+          {
+           "tileRenderer": {
+            "style": "TILE_STYLE_YTLR_VERTICAL_LIST",
+            "header": {
+             "tileHeaderRenderer": {
+              "thumbnail": {
+               "thumbnails": [
+                {
+                 "url": "https://i.ytimg.com/vi/jHKf1eHp3eQ/sddefault.jpg",
+                 "width": 640,
+                 "height": 480
+                }
+               ]
+              },
+              "thumbnailOverlays": [
+               {
+                "thumbnailOverlayTimeStatusRenderer": {
+                 "text": {
+                  "simpleText": "1:01"
+                 },
+                 "style": "DEFAULT"
+                }
+               }
+              ]
+             }
+            },
+            "metadata": {
+             "tileMetadataRenderer": {
+              "title": {
+               "simpleText": "Artemis III: Our Next Step Back to the Moon"
+              },
+              "lines": [
+               {
+                "lineRenderer": {
+                 "items": [
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "runs": [
+                      {
+                       "text": "NASA"
+                      }
+                     ]
+                    }
+                   }
+                  }
+                 ]
+                }
+               },
+               {
+                "lineRenderer": {
+                 "items": [
+                  {
+                   "lineItemRenderer": {
+                    "badge": {
+                     "metadataBadgeRenderer": {
+                      "style": "BADGE_STYLE_TYPE_SIMPLE",
+                      "label": "4K"
+                     }
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "154K views"
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "•"
+                    }
+                   }
+                  },
+                  {
+                   "lineItemRenderer": {
+                    "text": {
+                     "simpleText": "1 month ago"
+                    }
+                   }
+                  }
+                 ]
+                }
+               }
+              ]
+             }
+            },
+            "onSelectCommand": {
+             "watchEndpoint": {
+              "videoId": "jHKf1eHp3eQ",
+              "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+             }
+            },
+            "contentId": "jHKf1eHp3eQ",
+            "contentType": "TILE_CONTENT_TYPE_VIDEO",
+            "customData": {
+             "playlistPageTileData": {
+              "setThumbnailAsAppBackground": true
+             }
+            },
+            "onLongPressCommand": {
+             "showMenuCommand": {
+              "contentId": "jHKf1eHp3eQ",
+              "thumbnail": {
+               "thumbnails": [
+                {
+                 "url": "https://i.ytimg.com/vi/jHKf1eHp3eQ/sddefault.jpg",
+                 "width": 640,
+                 "height": 480
+                }
+               ]
+              },
+              "title": {
+               "simpleText": "Artemis III: Our Next Step Back to the Moon"
+              },
+              "subtitle": {
+               "simpleText": "NASA • @NASA"
+              },
+              "menu": {
+               "menuRenderer": {
+                "items": [
+                 {
+                  "menuNavigationItemRenderer": {
+                   "text": {
+                    "runs": [
+                     {
+                      "text": "Play"
+                     }
+                    ]
+                   },
+                   "navigationEndpoint": {
+                    "watchEndpoint": {
+                     "videoId": "jHKf1eHp3eQ",
+                     "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+                    }
+                   }
+                  }
+                 },
+                 {
+                  "menuNavigationItemRenderer": {
+                   "text": {
+                    "runs": [
+                     {
+                      "text": "Go to channel"
+                     }
+                    ]
+                   },
+                   "navigationEndpoint": {
+                    "browseEndpoint": {
+                     "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ"
+                    }
+                   }
+                  }
+                 }
+                ]
+               }
+              }
+             }
+            }
+           }
+          }
+         ],
+         "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+         "isEditable": false,
+         "targetId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

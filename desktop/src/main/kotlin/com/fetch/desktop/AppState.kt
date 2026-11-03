@@ -117,6 +117,7 @@ enum class SettingsPage(val label: String, val group: String, val parent: Settin
     STREAM_BADGES("Stream badges", "Playback", parent = STREAM_SELECTION),
     ACCOUNT("Account", "Accounts"),
     TRACKING("Tracking", "Accounts"),
+    YOUTUBE("YouTube", "Accounts"),
     ABOUT("About", "System");
 
     /** The rail entry this page belongs under. */
@@ -140,6 +141,10 @@ sealed interface Screen {
     data class SeeAll(val rowKey: String, val title: String) : Screen
     /** A studio's or network's titles, from TMDB. */
     data class Entity(val kind: TmdbEntityKind, val tmdbId: Int, val name: String) : Screen
+    /** The YouTube page (sidebar, while signed in): its feeds and search. */
+    data object YouTube : Screen
+    /** A YouTube channel, playlist or "View all" page opened from it. */
+    data class YouTubeBrowse(val target: com.fetch.desktop.youtube.YouTubeBrowseTarget) : Screen
 }
 
 /** A home row: one addon catalog and what it returned. */
@@ -504,6 +509,40 @@ class AppState(
             if (resume.isNotEmpty()) saveProgress(WatchHistory.mergeRemote(progress, resume, emptySet()))
         }
     }
+
+    // --- YouTube ---
+
+    /** YouTube for this profile (its sign-in, feeds and playback); see [YouTubeState]. */
+    val youtube = YouTubeState(
+        scope,
+        object : YouTubeHost {
+            override val playerSettings get() = settings.player
+            override val youTubeSettings get() = settings.youtube
+            override val restricted get() = limits.isRestricted
+            override fun message(text: String) { message = text }
+            override suspend fun chooseBuiltIn(): Boolean? {
+                if (!LibMpv.available) return false
+                if (playerSession != null) return true
+                if (!settings.player.askPlayer) return settings.player.builtInPlayer
+                val answer = kotlinx.coroutines.CompletableDeferred<Boolean?>()
+                playerChoice = { choice ->
+                    playerChoice = null
+                    answer.complete(choice)
+                }
+                return answer.await()
+            }
+            override suspend fun openBuiltInPlayer(): PlayerSession? = playerSession ?: try {
+                PlayerSession(withContext(Dispatchers.IO) { EmbeddedMpv.create(preferGpu = settings.player.builtInGpu) }).also { playerSession = it }
+            } catch (e: Exception) {
+                message = "The built-in player couldn't start (${e.message}). Using mpv's window."
+                null
+            }
+            override val currentPlayer get() = playerSession
+            override fun closePlayer() = this@AppState.closePlayer()
+        },
+        com.fetch.desktop.youtube.youTubeAuthFile(profileDir(profile)),
+        com.fetch.desktop.youtube.youTubeDataFile(profileDir(profile))
+    )
 
     // --- Navigation ---
 

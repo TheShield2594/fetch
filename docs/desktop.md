@@ -28,7 +28,9 @@ Each package bundles its own Java runtime. To play streams, install
 [mpv](https://mpv.io) (`sudo apt install mpv`, `sudo dnf install mpv`). The built-in player
 (Settings › Player › Default Player › Built-in) also needs libmpv: `sudo apt install libmpv2`
 (Fedora: `mpv-libs`). Without mpv, Fetch opens
-the link in your default video player. For YouTube trailers, mpv also needs `yt-dlp`.
+the link in your default video player. For YouTube (trailers and the YouTube page), mpv also needs
+`yt-dlp` (`sudo apt install yt-dlp`; distribution packages can lag behind YouTube, so `pipx install yt-dlp`
+is the safer choice).
 
 ## Build and run from source
 
@@ -59,6 +61,8 @@ Everything is kept in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`):
 | `sync.json` | The sync server address and sign-in (owner-readable only), for the whole app |
 | `certifications.json` | Ratings looked up on TMDB, for 30 days |
 | `screen-time.json`, `stream-badges.json`, `sync-base.json` | Per profile: today's screen time, imported badge URLs, what the last sync saw |
+| `youtube-auth.json` | Per profile: the YouTube sign-in (owner-readable only) |
+| `youtube.json` | Per profile: YouTube searches and where each video stopped |
 
 These are the main profile's. Every other profile keeps its own copies in `profiles/<id>/`
 (its `addons.json` too, unless it uses the main profile's addons).
@@ -66,7 +70,7 @@ These are the main profile's. Every other profile keeps its own copies in `profi
 ## What works
 
 - The TV app's navigation: a floating sidebar with Home, Search, Library and Settings (plus
-  Discover when its location is "Show in Side Panel"). It opens to show labels on hover.
+  Discover when its location is "Show in Side Panel", and YouTube while signed in). It opens to show labels on hover.
   Addons are in Settings › Content & Discovery, as on TV.
 - Installing, ordering and removing addons by manifest link. A first run starts with Cinemeta
   and OpenSubtitles, like the TV app.
@@ -150,6 +154,23 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   auto-skip; only what changed is pushed, so the TV's other settings stay), addons, profiles
   (at most 6, as the server allows), limits (tightened, never loosened, as on TV) and PINs
   (a PIN set on the TV is checked with the server, then kept here).
+- **YouTube** (Settings › YouTube): sign in as YouTube's TV app does, with a code at
+  youtube.com/activate, and pick which of the account's channels to act as. While signed in (and
+  not on a profile with limits) YouTube is in the sidebar, as on TV, with Home, Subscriptions,
+  History, Library (Watch later, Liked videos, your playlists) and Search (YouTube's suggestions
+  and your recent searches); channels, playlists and "View all" open as pages. Right-click a
+  video for the TV's menu: Go to channel, Save to Watch later, Save to playlist (or a new one),
+  Remove from watch history, Not interested. Videos play in mpv (the built-in player or its
+  window) through yt-dlp, capped at the quality you pick, resuming where you stopped, added to
+  your YouTube history, skipping SponsorBlock segments by category (Skip jumps, Ask shows the
+  built-in player's Skip button), and going on to YouTube's Up Next pick (a playlist's next
+  video) when autoplay is on. DeArrow titles and thumbnails, Return YouTube Dislike counts (in the
+  built-in player's pause screen), the Shorts, live and watched filters and a "YouTube
+  subscriptions" row on Home are optional, as on TV. Captions in your subtitle languages are
+  loaded and start off. Not on desktop yet: the in-player like, subscribe and save row, the
+  10-second autoplay countdown, seek bar thumbnails and SponsorBlock marks on the seek bar.
+  Videos play signed out (yt-dlp doesn't get the sign-in), so members-only and age-restricted
+  videos may not play.
 - **Player settings** passed to mpv: fullscreen, hardware decoding, extra mpv options; preferred
   audio language and passthrough; subtitle language, when to show them, size and background,
   and subtitles from your addons (such as OpenSubtitles) added as subtitle files.

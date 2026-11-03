@@ -34,6 +34,8 @@ data class DesktopSettings(
     /** Home catalogs by row key: pinned ones lead in pin order, disabled ones are hidden. */
     val pinnedCatalogs: List<String> = emptyList(),
     val disabledCatalogs: List<String> = emptyList(),
+    /** Catalog order (Addons › Catalog order), in the TV's keys (`addonId_type_catalogId`), synced with it. */
+    val catalogOrder: List<String> = emptyList(),
     /** The catalog Discover last showed, restored on the next visit. */
     val discoverCatalog: String? = null,
     /** Audio, Subtitles, Player and Up Next: how mpv is started. */

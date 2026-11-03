@@ -174,6 +174,10 @@ data class CatalogRow(
 ) {
     val key: String get() = filter?.let(::filterRowKey) ?: "${addon.baseUrl}|${catalog.apiType}|${catalog.id}"
 
+    /** The row's keys for Catalog order: its own, and the TV's (`addonId_type_catalogId`). */
+    val ordered: com.fetch.desktop.addons.OrderedCatalog
+        get() = com.fetch.desktop.addons.OrderedCatalog(key, if (filter != null) key else com.fetch.desktop.addons.tvCatalogKey(addon.id, catalog.apiType, catalog.id))
+
     /** The genre a filter row asks the catalog for. */
     val extra: Map<String, String> get() = filter?.filters?.genre?.let { mapOf("genre" to it) }.orEmpty()
 
@@ -223,7 +227,7 @@ class AppState(
     val profile: DesktopProfile = profiles.active ?: profiles.profiles.first(),
     /** The sync server account (Settings › Account), shared by every profile; null in tests. */
     val account: SyncAccountState? = null,
-    private val client: AddonClient = AddonClient.create(),
+    private val client: AddonClient = AddonClient.create().apply { health = com.fetch.desktop.addons.AddonHealthTracker.shared },
     private val store: AddonStore = AddonStore(File(addonsDir(profile), "addons.json")),
     private val settingsStore: JsonFile<DesktopSettings> = settingsFile(profileDir(profile)),
     private val libraryStore: JsonFile<LibraryFile> = libraryFile(profileDir(profile)),
@@ -499,6 +503,7 @@ class AppState(
             try {
                 syncAccountSetup(remote)
                 syncProviderCredentials(remote)
+                pullHomeCatalogs(remote)
                 val id = profile.id
                 // Library: a three-way merge, so a removal on either side carries over.
                 val merge = SyncMerge.library(library.toList(), remote.pullLibrary(id), syncBaseStore.load())
@@ -735,6 +740,10 @@ class AppState(
             message = "Couldn't save settings: ${e.message}"
         }
         if (after.rankingRules != before.rankingRules) rerankSources()
+        if (!applyingFromServer && (after.catalogOrder != before.catalogOrder || after.pinnedCatalogs != before.pinnedCatalogs ||
+                after.disabledCatalogs != before.disabledCatalogs || after.hideUnreleased != before.hideUnreleased)) {
+            pushHomeCatalogs()
+        }
         // A new MDBList key goes to the account straight away, as on TV.
         if (after.mdblist.apiKey != before.mdblist.apiKey && !applyingFromServer) {
             account?.client()?.let { remote -> scope.launch { runCatching { syncProviderCredentials(remote) } } }
@@ -992,11 +1001,9 @@ class AppState(
     /** The rows Home shows: pinned catalogs first in pin order, then the rest, minus disabled ones. */
     val homeRows: List<CatalogRow>
         get() {
-            val pinned = settings.pinnedCatalogs
-            val disabled = settings.disabledCatalogs.toSet()
-            val visible = rows.filter { it.key !in disabled }
-            val ordered = visible.filter { it.key in pinned }.sortedBy { pinned.indexOf(it.key) } +
-                visible.filter { it.key !in pinned }
+            val visible = rows.filter { !com.fetch.desktop.addons.HomeCatalogOrder.isDisabled(settings, it.ordered) }
+            // Pinned rows first, then Catalog order (synced with the TV), then the rest in addon order.
+            val ordered = com.fetch.desktop.addons.HomeCatalogOrder.ordered(visible, settings, { it.key }, { it.ordered.tvKey })
             // A rating limit hides what it rules out, as on TV, and so does "Hide unreleased".
             val hideUnreleased = settings.hideUnreleased
             if (limits.maxRating == null && titleLists.hidden.isEmpty() && !hideUnreleased) return ordered
@@ -1008,7 +1015,49 @@ class AppState(
     }
 
     fun setCatalogEnabled(key: String, enabled: Boolean) = updateSettings { s ->
+        val row = rows.firstOrNull { it.key == key }
+        if (row != null) return@updateSettings com.fetch.desktop.addons.HomeCatalogOrder.setEnabled(s, row.ordered, enabled)
         s.copy(disabledCatalogs = if (enabled) s.disabledCatalogs - key else (s.disabledCatalogs - key) + key)
+    }
+
+    // --- Home catalog order and its sync (the TV's HomeCatalogSettingsSyncService) ---
+
+    private var homeCatalogRemote: kotlinx.serialization.json.JsonObject? = null
+    private var homeCatalogPush: Job? = null
+
+    /** Home's addon catalogs (not filter rows), as the TV's catalog sync names them. */
+    val syncableCatalogs: List<com.fetch.desktop.addons.SyncableCatalog>
+        get() = rows.filter { it.filter == null }.map { com.fetch.desktop.addons.SyncableCatalog(it.key, it.addon.id, it.catalog.apiType, it.catalog.id) }
+
+    /** At start-up the account's catalog order comes down (pull only, as on TV). */
+    private suspend fun pullHomeCatalogs(remote: com.fetch.desktop.sync.SyncClient) {
+        val json = runCatching {
+            com.fetch.desktop.addons.HomeCatalogSync.settingsJsonOf(remote.callRpc("sync_pull_home_catalog_settings", com.fetch.desktop.addons.HomeCatalogSync.pullParams(profile.id)))
+        }.getOrNull() ?: return
+        homeCatalogRemote = json
+        val (payload, hasHide) = com.fetch.desktop.addons.HomeCatalogSync.decode(json) ?: return
+        applyingFromServer = true
+        try {
+            updateSettings { com.fetch.desktop.addons.HomeCatalogSync.apply(it, payload, hasHide) }
+        } finally {
+            applyingFromServer = false
+        }
+    }
+
+    /** A change to Home's catalogs here goes to the account half a second later. */
+    private fun pushHomeCatalogs() {
+        val remote = account?.client() ?: return
+        homeCatalogPush?.cancel()
+        homeCatalogPush = scope.launch {
+            delay(500)
+            val previous = homeCatalogRemote?.let(com.fetch.desktop.addons.HomeCatalogSync::decode)?.first
+            val payload = com.fetch.desktop.addons.HomeCatalogSync.payload(syncableCatalogs, settings, previous)
+            val json = com.fetch.desktop.addons.HomeCatalogSync.merged(homeCatalogRemote, payload)
+            runCatching {
+                remote.callRpc("sync_push_home_catalog_settings", com.fetch.desktop.addons.HomeCatalogSync.pushParams(profile.id, json, account?.state?.originClientId))
+                homeCatalogRemote = json
+            }
+        }
     }
 
     private fun reloadRows() {

@@ -834,11 +834,12 @@ private fun HomeCatalogsPage(state: AppState) {
     val pinned = state.settings.pinnedCatalogs
     val disabled = state.settings.disabledCatalogs.toSet()
     // Shown in Home's order, hidden rows after.
-    val ordered = state.homeRows + state.rows.filter { it.key in disabled }
+    val ordered = state.homeRows + state.rows.filter { com.fetch.desktop.addons.HomeCatalogOrder.isDisabled(state.settings, it.ordered) }
+    CatalogOrderButton(state)
     SettingsSection(null) {
         ordered.forEach { row ->
             val isPinned = row.key in pinned
-            val isEnabled = row.key !in disabled
+            val isEnabled = !com.fetch.desktop.addons.HomeCatalogOrder.isDisabled(state.settings, row.ordered)
             SettingsRow(
                 title = row.title(state.settings.showCatalogType),
                 description = listOfNotNull(

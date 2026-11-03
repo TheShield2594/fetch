@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -82,7 +83,7 @@ private fun SignInDialog(service: TrackingService, code: String, url: String, on
     AlertDialog(
         onDismissRequest = onCancel,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Connect ${service.label}", color = Color.White) },
+        title = { Text(tr("Connect %1\$s", service.label), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("Open $url and enter this code:", color = FetchPalette.TextSecondary)
@@ -97,7 +98,7 @@ private fun SignInDialog(service: TrackingService, code: String, url: String, on
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(Modifier.size(18.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                    Text("Waiting for you to enter the code…", color = FetchPalette.TextMuted)
+                    Text(tr("Waiting for you to enter the code…"), color = FetchPalette.TextMuted)
                 }
             }
         },

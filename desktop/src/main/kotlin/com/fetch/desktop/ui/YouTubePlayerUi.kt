@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -422,7 +423,7 @@ internal fun YouTubeActionsRow(
                 ActionPill(
                     icon = ThumbUpIcon,
                     text = votes?.let { YouTubePlayback.compact(it.likes) },
-                    description = "Like",
+                    description = tr("Like"),
                     selected = status == YouTubeLikeStatus.LIKE,
                     enabled = status != null,
                     onClick = { onRate(if (status == YouTubeLikeStatus.LIKE) YouTubeLikeStatus.INDIFFERENT else YouTubeLikeStatus.LIKE) }
@@ -430,7 +431,7 @@ internal fun YouTubeActionsRow(
                 ActionPill(
                     icon = ThumbDownIcon,
                     text = votes?.let { YouTubePlayback.compact(it.dislikes) },
-                    description = "Dislike",
+                    description = tr("Dislike"),
                     selected = status == YouTubeLikeStatus.DISLIKE,
                     enabled = status != null,
                     onClick = { onRate(if (status == YouTubeLikeStatus.DISLIKE) YouTubeLikeStatus.INDIFFERENT else YouTubeLikeStatus.DISLIKE) }
@@ -438,14 +439,14 @@ internal fun YouTubeActionsRow(
             }
             val subscribed = actions?.subscribed?.takeIf { actions.channelId != null }
             if (subscribed != null) {
-                ActionPill(icon = null, text = if (subscribed) "Subscribed" else "Subscribe", description = null, selected = subscribed, filled = !subscribed, onClick = onSubscribe)
+                ActionPill(icon = null, text = if (subscribed) tr("Subscribed") else tr("Subscribe"), description = null, selected = subscribed, filled = !subscribed, onClick = onSubscribe)
             }
-            if (signedIn) ActionPill(icon = FetchIcons.Add, text = "Save", description = "Save to playlist", selected = false, onClick = onSave)
+            if (signedIn) ActionPill(icon = FetchIcons.Add, text = tr("Save"), description = tr("Save to playlist"), selected = false, onClick = onSave)
             actions?.channelName?.takeIf { actions.channelId != null }?.let { name ->
-                ActionPill(icon = null, text = name, description = "Go to channel", selected = false, onClick = onChannel)
+                ActionPill(icon = null, text = name, description = tr("Go to channel"), selected = false, onClick = onChannel)
             }
         }
-        if (failed) Text("YouTube didn't accept that. Try again.", color = FetchPalette.Error, fontSize = 13.sp)
+        if (failed) Text(tr("YouTube didn't accept that. Try again."), color = FetchPalette.Error, fontSize = 13.sp)
     }
 }
 
@@ -524,7 +525,7 @@ private fun YouTubeSidePanel(state: AppState, session: PlayerSession, extras: Yo
                         val tracks = YouTubeCaptions.menuOrder(extras.captionTracks)
                         val subs = session.mpv.tracks.filter { it.type == "sub" }
                         val selectedMpv = subs.firstOrNull { it.selected }?.id
-                        item { YtRow("Off", selected = selectedMpv == null && extras.selectedCaption == null) { yt.selectCaption(session, null) } }
+                        item { YtRow(tr("Off"), selected = selectedMpv == null && extras.selectedCaption == null) { yt.selectCaption(session, null) } }
                         if (tracks.isNotEmpty()) {
                             items(tracks, key = { it.id }) { track ->
                                 // Drawn by Fetch, or by mpv when its cues couldn't be read.
@@ -535,11 +536,11 @@ private fun YouTubeSidePanel(state: AppState, session: PlayerSession, extras: Yo
                         } else {
                             // Signed out, or YouTube didn't list them: the tracks yt-dlp loaded.
                             items(subs, key = { it.id }) { t -> YtRow(t.label, selected = t.selected) { session.mpv.selectSubtitle(t.id) } }
-                            if (subs.isEmpty()) item { Text("No captions for this video in your subtitle languages.", color = FetchPalette.TextMuted, modifier = Modifier.padding(8.dp)) }
+                            if (subs.isEmpty()) item { Text(tr("No captions for this video in your subtitle languages."), color = FetchPalette.TextMuted, modifier = Modifier.padding(8.dp)) }
                         }
                         item {
                             Text(
-                                "Fetch draws YouTube's captions in your subtitle style from Settings › Player (size, colour, outline, background and position). Your choice carries on to the next video.",
+                                tr("Fetch draws YouTube's captions in your subtitle style from Settings › Player (size, colour, outline, background and position). Your choice carries on to the next video."),
                                 color = FetchPalette.TextMuted,
                                 fontSize = 12.sp,
                                 modifier = Modifier.padding(top = 12.dp, start = 4.dp, end = 4.dp)
@@ -549,11 +550,11 @@ private fun YouTubeSidePanel(state: AppState, session: PlayerSession, extras: Yo
                     YouTubePlayerPanel.SAVE -> {
                         val options = extras.playlists
                         when {
-                            extras.playlistsFailed -> item { Text("Couldn't load your playlists. Try again later.", color = FetchPalette.TextMuted, modifier = Modifier.padding(8.dp)) }
+                            extras.playlistsFailed -> item { Text(tr("Couldn't load your playlists. Try again later."), color = FetchPalette.TextMuted, modifier = Modifier.padding(8.dp)) }
                             options == null -> item {
                                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(8.dp)) {
                                     CircularProgressIndicator(Modifier.size(18.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                                    Text("Loading your playlists…", color = FetchPalette.TextSecondary)
+                                    Text(tr("Loading your playlists…"), color = FetchPalette.TextSecondary)
                                 }
                             }
                             else -> items(options, key = { it.playlistId }) { option: YouTubePlaylistOption ->
@@ -573,7 +574,7 @@ private fun NewPlaylistRow(onCreate: (String, YouTubePlaylistPrivacy) -> Unit) {
     var name by remember { mutableStateOf("") }
     var privacy by remember { mutableStateOf(YouTubePlaylistPrivacy.PRIVATE) }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 14.dp, start = 4.dp)) {
-        Text("NEW PLAYLIST", style = OverlineStyle, color = FetchPalette.TextMuted)
+        Text(tr("NEW PLAYLIST"), style = OverlineStyle, color = FetchPalette.TextMuted)
         BasicTextField(
             value = name,
             onValueChange = { name = it },
@@ -582,7 +583,7 @@ private fun NewPlaylistRow(onCreate: (String, YouTubePlaylistPrivacy) -> Unit) {
             cursorBrush = SolidColor(FetchPalette.Accent),
             decorationBox = { inner ->
                 Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(FetchPalette.SurfaceRaised).padding(12.dp)) {
-                    if (name.isEmpty()) Text("Name", color = FetchPalette.TextMuted)
+                    if (name.isEmpty()) Text(tr("Name"), color = FetchPalette.TextMuted)
                     inner()
                 }
             }

@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -141,7 +142,7 @@ fun LayoutExtrasSections(state: AppState) {
                 "Backdrop Expand Delay",
                 "How long to wait before expanding a card.",
                 l.expandFocusedPosterDelaySeconds,
-                (listOf(1, 2, 3, 5, 8) + l.expandFocusedPosterDelaySeconds).distinct().sorted().map { DropdownOption(it, "$it s") }
+                (listOf(1, 2, 3, 5, 8) + l.expandFocusedPosterDelaySeconds).distinct().sorted().map { DropdownOption(it, tr("%1\$s s", it)) }
             ) { v -> update { it.copy(expandFocusedPosterDelaySeconds = v) } }
         }
         SettingsToggle("Autoplay Trailer", "Play a trailer for the title you point at, when it has one (needs libmpv and yt-dlp).", l.focusedPosterTrailer) { v ->
@@ -172,7 +173,7 @@ fun LayoutExtrasSections(state: AppState) {
                     FocusedPosterTrailerPlaybackTarget.HERO_MEDIA -> "How long a title stays in the hero before its trailer starts."
                 },
                 l.trailerDelaySeconds,
-                (listOf(2, 3, 5, 7, 10, 15) + l.trailerDelaySeconds).distinct().sorted().map { DropdownOption(it, "$it s") }
+                (listOf(2, 3, 5, 7, 10, 15) + l.trailerDelaySeconds).distinct().sorted().map { DropdownOption(it, tr("%1\$s s", it)) }
             ) { v -> update { it.copy(trailerDelaySeconds = v) } }
             SettingsToggle(
                 "Crop trailers to fill",

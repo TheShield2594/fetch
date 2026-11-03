@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.runtime.Composable
 import com.fetch.desktop.AppState
 import com.fetch.desktop.data.AutoPlayMode
@@ -112,7 +113,7 @@ fun UpNextAutoPlaySettings(state: AppState) {
                 "Threshold minutes",
                 "Show this many minutes before the end when no credits time is known.",
                 AutoPlaySettings.halfStep(ap.nextEpisodeThresholdMinutesBeforeEnd, 0f, 3.5f),
-                halfSteps(0f, 3.5f).map { DropdownOption(it, "${number(it)} min") }
+                halfSteps(0f, 3.5f).map { DropdownOption(it, tr("%1\$s min", number(it))) }
             ) { v -> state.updateAutoPlay { it.copy(nextEpisodeThresholdMinutesBeforeEnd = v) } }
         }
         if (autoplay) {

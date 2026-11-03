@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -117,7 +118,7 @@ fun SettingsScreen(state: AppState, requestedPage: SettingsPage) {
                 }
                 // Addons keeps its own scrolling list.
                 SettingsPage.ADDONS -> Column(Modifier.fillMaxSize()) {
-                    SubPageHeader("Addons", onBack = state::back, modifier = Modifier.padding(start = PageGutter, top = 32.dp)) {
+                    SubPageHeader(tr("Addons"), onBack = state::back, modifier = Modifier.padding(start = PageGutter, top = 32.dp)) {
                         SecondaryButton("Refresh addons", onClick = state::refreshAddons)
                     }
                     AddonsScreen(state)
@@ -178,18 +179,18 @@ private fun SettingsRail(current: SettingsPage, onPick: (SettingsPage) -> Unit, 
             .padding(top = 40.dp, bottom = 32.dp, start = 20.dp, end = 16.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Text("Settings", style = MaterialTheme.typography.headlineSmall, color = Color.White, modifier = Modifier.padding(start = 12.dp, bottom = 16.dp))
+        Text(tr("Settings"), style = MaterialTheme.typography.headlineSmall, color = Color.White, modifier = Modifier.padding(start = 12.dp, bottom = 16.dp))
         SettingsSearchField(Modifier.padding(bottom = 18.dp))
         pages.forEachIndexed { index, page ->
             if (index == 0 || pages[index - 1].group != page.group) {
                 Text(
-                    page.group.uppercase(),
+                    tr(page.group).uppercase(),
                     style = OverlineStyle,
                     color = FetchPalette.TextMuted,
                     modifier = Modifier.padding(start = 12.dp, top = if (index == 0) 0.dp else 18.dp, bottom = 6.dp)
                 )
             }
-            RailEntry(page.label, selected = page == current, onClick = { onPick(page) })
+            RailEntry(tr(page.label), selected = page == current, onClick = { onPick(page) })
         }
     }
 }
@@ -859,13 +860,13 @@ private fun Chevron() {
 
 @Composable
 private fun HomeCatalogsPage(state: AppState) {
-    SubPageHeader("Home catalogs", onBack = state::back)
+    SubPageHeader(tr("Home catalogs"), onBack = state::back)
     Text(
-        "Pinned rows lead Home in the order you pin them; move rows and collections to place them, rename or hide them.",
+        tr("Pinned rows lead Home in the order you pin them; move rows and collections to place them, rename or hide them."),
         color = FetchPalette.TextSecondary
     )
     if (state.rows.isEmpty() && state.collections.collections.isEmpty()) {
-        Text("No home catalogs available yet.", color = FetchPalette.TextMuted)
+        Text(tr("No home catalogs available yet."), color = FetchPalette.TextMuted)
         return
     }
     HomeCatalogsList(state)
@@ -983,7 +984,7 @@ private fun AboutPage(state: AppState) {
     val mpv = remember { ExternalPlayer.findMpv() }
     PageHeader("About", subtitle = "Fetch for desktop")
     SettingsSection(null) {
-        SettingsRow("Version ${AppInfo.version}", "Same version as the TV app.")
+        SettingsRow(tr("Version %1\$s", AppInfo.version), "Same version as the TV app.")
         SettingsRow(
             "Player",
             mpv?.let { "mpv at $it" } ?: "mpv isn't installed, so streams open in your default video player and Continue Watching can't follow them. Install mpv (sudo apt install mpv, sudo dnf install mpv)."

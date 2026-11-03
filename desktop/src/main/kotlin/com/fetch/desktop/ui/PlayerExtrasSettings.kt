@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -129,7 +130,7 @@ fun SubtitleExtrasSettings(state: AppState) {
                 "Auto Sync Tolerance",
                 "Keep the original timing when the correction needed is this small or smaller.",
                 e.autoSyncToleranceMs,
-                PlayerExtras.autoSyncToleranceOptionsMs.map { DropdownOption(it, if (it == 0) "Off" else "$it ms") }
+                PlayerExtras.autoSyncToleranceOptionsMs.map { DropdownOption(it, if (it == 0) "Off" else tr("%1\$s ms", it)) }
             ) { v -> state.updateExtras { it.copy(autoSyncToleranceMs = v) } }
             SettingsToggle(
                 "Thorough Auto Sync Search",
@@ -186,7 +187,7 @@ fun TrailerSettings(state: AppState) {
             l.trailersEnabled
         ) { v -> state.updateSettings { it.copy(layout = it.layout.copy(trailersEnabled = v)) } }
         if (l.trailersEnabled) {
-            SettingsChoice("Trailer Delay", null, l.trailerDelaySeconds, listOf(3, 5, 7, 10, 15, 20, 30).map { DropdownOption(it, "$it s") }.withCurrentInt(l.trailerDelaySeconds)) { v ->
+            SettingsChoice("Trailer Delay", null, l.trailerDelaySeconds, listOf(3, 5, 7, 10, 15, 20, 30).map { DropdownOption(it, tr("%1\$s s", it)) }.withCurrentInt(l.trailerDelaySeconds)) { v ->
                 state.updateSettings { it.copy(layout = it.layout.copy(trailerDelaySeconds = v)) }
             }
         }

@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -119,14 +120,14 @@ fun EpisodeRatingsSection(state: AppState, meta: Meta) {
     if (seasons.isEmpty()) return
     var season by remember(meta.id) { mutableStateOf(seasons.first()) }
     Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.padding(horizontal = PageGutter)) {
-        Text("Ratings", style = MaterialTheme.typography.titleLarge)
+        Text(tr("Ratings"), style = MaterialTheme.typography.titleLarge)
         if (view.loading) {
-            Text("Loading ratings…", color = FetchPalette.TextMuted)
+            Text(tr("Loading ratings…"), color = FetchPalette.TextMuted)
             return@Column
         }
         if (seasons.size > 1) {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(seasons) { s -> Pill("Season $s", selected = s == season) { season = s } }
+                items(seasons) { s -> Pill(tr("Season %1\$s", s), selected = s == season) { season = s } }
             }
         }
         val episodes = meta.videos.filter { it.season == season && it.episode != null }.distinctBy { it.episode }.sortedBy { it.episode }
@@ -140,7 +141,7 @@ fun EpisodeRatingsSection(state: AppState, meta: Meta) {
                         .padding(vertical = 8.dp)
                 ) {
                     val text = rating?.let { Color(episodeRatingTextColor(it)) } ?: FetchPalette.TextSecondary
-                    Text("E${video.episode}", fontSize = 12.sp, color = text.copy(alpha = 0.8f))
+                    Text(tr("E%1\$s", video.episode), fontSize = 12.sp, color = text.copy(alpha = 0.8f))
                     Text(rating?.let { "%.1f".format(Locale.ROOT, it) } ?: "—", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = text)
                 }
             }
@@ -188,17 +189,17 @@ fun TraktCommentsSection(state: AppState, preview: MetaPreview, meta: Meta?, isS
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = PageGutter)
         ) {
-            Text("Comments", style = MaterialTheme.typography.titleLarge)
+            Text(tr("Comments"), style = MaterialTheme.typography.titleLarge)
             if (view.total > 0) Text("${view.total} on Trakt", color = FetchPalette.TextMuted)
             if (episode != null) {
-                Pill(if (isSeries) "This show" else "This title", selected = !useEpisode) { forEpisode = false }
-                Pill(episodeTag(episode.season, episode.episode) ?: "Episode", selected = useEpisode) { forEpisode = true }
+                Pill(if (isSeries) tr("This show") else tr("This title"), selected = !useEpisode) { forEpisode = false }
+                Pill(episodeTag(episode.season, episode.episode) ?: tr("Episode"), selected = useEpisode) { forEpisode = true }
             }
         }
         when {
-            view.items.isEmpty() && view.loading -> Text("Loading comments…", color = FetchPalette.TextMuted, modifier = Modifier.padding(horizontal = PageGutter))
+            view.items.isEmpty() && view.loading -> Text(tr("Loading comments…"), color = FetchPalette.TextMuted, modifier = Modifier.padding(horizontal = PageGutter))
             view.items.isEmpty() && view.error != null -> Text(view.error, color = FetchPalette.TextMuted, modifier = Modifier.padding(horizontal = PageGutter))
-            view.items.isEmpty() -> Text("No comments on Trakt yet.", color = FetchPalette.TextMuted, modifier = Modifier.padding(horizontal = PageGutter))
+            view.items.isEmpty() -> Text(tr("No comments on Trakt yet."), color = FetchPalette.TextMuted, modifier = Modifier.padding(horizontal = PageGutter))
             else -> LazyRow(contentPadding = PaddingValues(horizontal = PageGutter), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 items(view.items, key = { it.id }) { c ->
                     val hidden = c.hasSpoilerContent && c.id !in revealed.value
@@ -209,7 +210,7 @@ fun TraktCommentsSection(state: AppState, preview: MetaPreview, meta: Meta?, isS
                 if (view.hasMore || view.loading) {
                     item(key = "more") {
                         Box(Modifier.height(200.dp).width(160.dp), contentAlignment = Alignment.Center) {
-                            if (view.loading) Text("Loading…", color = FetchPalette.TextMuted)
+                            if (view.loading) Text(tr("Loading…"), color = FetchPalette.TextMuted)
                             else SecondaryButton("Load more", onClick = state.detailExtras::loadMoreComments)
                         }
                     }
@@ -274,7 +275,7 @@ private fun CommentCard(c: TraktCommentReview, hidden: Boolean, onClick: () -> U
             )
             if (hidden) {
                 Text(
-                    "Spoiler: click to show",
+                    tr("Spoiler: click to show"),
                     color = Color.White,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.align(Alignment.Center).clip(RoundedCornerShape(6.dp)).background(Color.Black.copy(alpha = 0.7f)).padding(horizontal = 10.dp, vertical = 5.dp)
@@ -316,7 +317,7 @@ fun EpisodeShuffleDialog(state: AppState, preview: MetaPreview, meta: Meta, onDi
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Shuffle", color = Color.White) },
+        title = { Text(tr("Shuffle"), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.width(520.dp)) {
                 val current = pick
@@ -324,9 +325,9 @@ fun EpisodeShuffleDialog(state: AppState, preview: MetaPreview, meta: Meta, onDi
                     val unwatched = picker.count(false)
                     val all = picker.count(true)
                     when {
-                        all == 0 -> Text("No episodes are available to shuffle.", color = FetchPalette.TextSecondary)
+                        all == 0 -> Text(tr("No episodes are available to shuffle."), color = FetchPalette.TextSecondary)
                         else -> {
-                            Text("Choose which episodes to shuffle.", color = FetchPalette.TextSecondary)
+                            Text(tr("Choose which episodes to shuffle."), color = FetchPalette.TextSecondary)
                             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 SecondaryButton("Unwatched episodes ($unwatched)", enabled = unwatched > 0, onClick = {
                                     includeWatched = false
@@ -337,7 +338,7 @@ fun EpisodeShuffleDialog(state: AppState, preview: MetaPreview, meta: Meta, onDi
                                     pick = picker.pick(true)
                                 })
                             }
-                            if (unwatched == 0) Text("You have watched every episode. Choose All episodes to watch again.", color = FetchPalette.TextMuted)
+                            if (unwatched == 0) Text(tr("You have watched every episode. Choose All episodes to watch again."), color = FetchPalette.TextMuted)
                         }
                     }
                 } else {

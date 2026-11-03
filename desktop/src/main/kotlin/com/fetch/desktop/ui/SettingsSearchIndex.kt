@@ -1,6 +1,7 @@
 package com.fetch.desktop.ui
 
 import com.fetch.desktop.SettingsPage
+import com.fetch.desktop.i18n.tr
 import com.fetch.desktop.SettingsPage.ABOUT
 import com.fetch.desktop.SettingsPage.ACCOUNT
 import com.fetch.desktop.SettingsPage.ADDONS
@@ -178,7 +179,8 @@ val settingsSearchIndex: List<SettingsSearchEntry> = listOf(
     e("Increase contrast", APPEARANCE, "high contrast", "accessibility", "brighter text", essential = true),
     e("AMOLED Mode", APPEARANCE, "pure black", "oled", "dark"),
     e("Pure Black Surfaces", APPEARANCE, "amoled", "oled", "cards", "black"),
-    e("App Font", APPEARANCE, "font", "typeface", "inter", "dm sans", "open sans"),
+    e("App Font", APPEARANCE, "font", "typeface", "inter", "dm sans", "open sans", section = "Font and Language"),
+    e("App Language", APPEARANCE, "language", "locale", "translation", "system default", "english", section = "Font and Language", essential = true),
     e("Ambient Mode", APPEARANCE, "screensaver", "idle", "artwork", "clock", section = "Ambient Mode", essential = true),
     e("Start After", APPEARANCE, "ambient", "idle", "minutes", section = "Ambient Mode", essential = true),
     e("Show", APPEARANCE, "ambient", "artwork", "clock", section = "Ambient Mode", essential = true),
@@ -243,14 +245,17 @@ object SettingsSearch {
         val words = q.split(Regex("\\s+"))
         return visibleEntries(mode, hidden, index)
             .mapNotNull { entry ->
+                // The English and, in another language, the translated text both count.
+                val shown = tr(entry.title).lowercase()
                 val title = entry.title.lowercase()
-                val haystack = (listOf(title, entry.page.label.lowercase(), entry.page.railPage.label.lowercase(), entry.section.orEmpty().lowercase()) +
+                val places = listOf(entry.page.label, entry.page.railPage.label, entry.section.orEmpty())
+                val haystack = (listOf(title, shown) + places.map { it.lowercase() } + places.map { tr(it).lowercase() } +
                     entry.keywords.map { it.lowercase() }).joinToString(" | ")
                 if (!words.all { it in haystack }) return@mapNotNull null
                 val rank = when {
-                    title.startsWith(q) -> 0
-                    title.contains(q) -> 1
-                    words.all { it in title } -> 2
+                    title.startsWith(q) || shown.startsWith(q) -> 0
+                    title.contains(q) || shown.contains(q) -> 1
+                    words.all { it in title } || words.all { it in shown } -> 2
                     entry.keywords.any { it.lowercase().contains(q) } -> 3
                     else -> 4
                 }

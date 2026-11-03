@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import com.fetch.desktop.poster.withCustomPosterUrls
 import com.fetch.desktop.poster.posterPatternFor
 import androidx.compose.foundation.layout.Arrangement
@@ -123,9 +124,9 @@ fun LibraryScreen(state: AppState) {
             PageHeader("Library", subtitle = "Local")
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("No items yet", style = MaterialTheme.typography.titleLarge)
+                    Text(tr("No items yet"), style = MaterialTheme.typography.titleLarge)
                     Text(
-                        "Start saving your favorites to see them here. Use Add to library on any title.",
+                        tr("Start saving your favorites to see them here. Use Add to library on any title."),
                         color = FetchPalette.TextSecondary,
                         textAlign = TextAlign.Center
                     )

@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -75,7 +76,7 @@ fun YouTubeSettingsPage(state: AppState) {
                         account.handle ?: account.email,
                         onClick = { yt.selectAccount(account) }
                     ) {
-                        if (account.pageId == selected) Text("Current", color = FetchPalette.Accent, fontWeight = FontWeight.SemiBold)
+                        if (account.pageId == selected) Text(tr("Current"), color = FetchPalette.Accent, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -97,7 +98,7 @@ fun YouTubeSettingsPage(state: AppState) {
             "Video quality",
             "The highest quality to play, when the video has it",
             s.videoHeight,
-            YouTubeSettings.VIDEO_HEIGHT_OPTIONS.map { DropdownOption(it, "Up to ${it}p") }
+            YouTubeSettings.VIDEO_HEIGHT_OPTIONS.map { DropdownOption(it, tr("Up to %1\$sp", it)) }
         ) { height -> update { it.copy(maxVideoHeight = height) } }
         SettingsChoice(
             "Play signed in",
@@ -174,7 +175,7 @@ private fun YouTubeSignInDialog(code: YouTubeDeviceCode, onCancel: () -> Unit) {
     AlertDialog(
         onDismissRequest = onCancel,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Sign in to YouTube", color = Color.White) },
+        title = { Text(tr("Sign in to YouTube"), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("On your phone or computer, go to ${code.verificationUrl.removePrefix("https://")}, then enter this code:", color = FetchPalette.TextSecondary)
@@ -189,7 +190,7 @@ private fun YouTubeSignInDialog(code: YouTubeDeviceCode, onCancel: () -> Unit) {
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(Modifier.size(18.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                    Text("Waiting for you to approve on YouTube…", color = FetchPalette.TextMuted)
+                    Text(tr("Waiting for you to approve on YouTube…"), color = FetchPalette.TextMuted)
                 }
             }
         },

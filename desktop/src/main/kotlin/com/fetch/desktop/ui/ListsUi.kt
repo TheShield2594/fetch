@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -74,10 +75,10 @@ fun ManageListsDialog(state: AppState, preview: MetaPreview, onDismiss: () -> Un
                                 }
                             }
                         }
-                        if (single) ChoiceRow("None", group.none { it.key in selected }, radio = true) { selected = selected - group.map { it.key }.toSet() }
+                        if (single) ChoiceRow(tr("None"), group.none { it.key in selected }, radio = true) { selected = selected - group.map { it.key }.toSet() }
                     }
                 }
-                if (state.lists.refreshing) Text("Loading your Trakt, Simkl and MDBList lists…", color = FetchPalette.TextMuted, fontSize = 13.sp)
+                if (state.lists.refreshing) Text(tr("Loading your Trakt, Simkl and MDBList lists…"), color = FetchPalette.TextMuted, fontSize = 13.sp)
             }
         },
         confirmButton = {
@@ -143,7 +144,7 @@ fun ListsManagerDialog(state: AppState, provider: ListProvider, onDismiss: () ->
                 text = {
                     Text(
                         if (provider == ListProvider.TRAKT || provider == ListProvider.MDBLIST) "The list is deleted on ${provider.label} too. Titles stay in your library."
-                        else "Titles on it stay in your library.",
+                        else tr("Titles on it stay in your library."),
                         color = FetchPalette.TextSecondary
                     )
                 },
@@ -159,7 +160,7 @@ fun ListsManagerDialog(state: AppState, provider: ListProvider, onDismiss: () ->
         title = { Text("${provider.label} lists", color = Color.White) },
         text = {
             Column(Modifier.width(520.dp).heightIn(max = 480.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (personal.isEmpty()) Text("No lists yet.", color = FetchPalette.TextMuted)
+                if (personal.isEmpty()) Text(tr("No lists yet."), color = FetchPalette.TextMuted)
                 personal.forEachIndexed { i, list ->
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Column(Modifier.weight(1f)) {
@@ -193,11 +194,11 @@ private fun ListEditorDialog(provider: ListProvider, initial: LibraryList?, onSa
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text(if (initial == null) "New ${provider.label} list" else "Edit list", color = Color.White) },
+        title = { Text(if (initial == null) "New ${provider.label} list" else tr("Edit list"), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.width(460.dp)) {
-                Field(name, "Name", onChange = { name = it.take(60) })
-                if (provider != ListProvider.MDBLIST) Field(description, "Description (optional)", onChange = { description = it.take(300) })
+                Field(name, tr("Name"), onChange = { name = it.take(60) })
+                if (provider != ListProvider.MDBLIST) Field(description, tr("Description (optional)"), onChange = { description = it.take(300) })
                 if (provider == ListProvider.TRAKT) {
                     FilterDropdown("Privacy", privacy, ListPrivacy.entries.map { DropdownOption(it, it.label) }, onSelect = { privacy = it })
                 }

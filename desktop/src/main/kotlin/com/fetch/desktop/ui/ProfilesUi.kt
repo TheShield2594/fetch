@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -96,7 +97,7 @@ fun ProfilePicker(profiles: ProfilesState, account: SyncAccountState? = null) {
             Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.55f)))
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(40.dp)) {
-            Text("Who's watching?", style = MaterialTheme.typography.displaySmall, color = Color.White)
+            Text(tr("Who's watching?"), style = MaterialTheme.typography.displaySmall, color = Color.White)
             notice?.let { Text(it, color = FetchPalette.TextSecondary, fontSize = 15.sp) }
             Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
                 profiles.profiles.forEach { profile ->
@@ -118,7 +119,7 @@ fun ProfilePicker(profiles: ProfilesState, account: SyncAccountState? = null) {
                     }) { ProfileAvatar(profile, 120.dp) }
                 }
                 // Adding a profile is the main profile's call when it has a PIN; the TV app allows six.
-                if (!profiles.file.isFull) PickerTile("Add profile", onClick = {
+                if (!profiles.file.isFull) PickerTile(tr("Add profile"), onClick = {
                     val main = profiles.primary
                     if (main.isLocked) {
                         pin = PinStep.Unlock(main, "Enter ${main.name}’s PIN to add a profile.", null) { creating = true }
@@ -169,15 +170,15 @@ fun ParentalNudge(profiles: ProfilesState, restricted: DesktopProfile, onSetPin:
         !main.isLocked -> AlertDialog(
             onDismissRequest = onDismiss,
             containerColor = FetchPalette.SurfaceRaised,
-            title = { Text("Protect ${restricted.name}’s limits", color = Color.White) },
+            title = { Text(tr("Protect %1\$s’s limits", restricted.name), color = Color.White) },
             text = {
                 Text(
-                    "Set a PIN on ${main.name}. Without one, anyone can change ${restricted.name}’s limits or switch to another profile.",
+                    tr("Set a PIN on %1\$s. Without one, anyone can change %2\$s’s limits or switch to another profile.", main.name, restricted.name),
                     color = FetchPalette.TextSecondary
                 )
             },
             confirmButton = {
-                PrimaryButton("Set a PIN on ${main.name}", icon = null, onClick = {
+                PrimaryButton(tr("Set a PIN on %1\$s", main.name), icon = null, onClick = {
                     onDismiss()
                     onSetPin(PinStep.Create(main))
                 })
@@ -187,7 +188,7 @@ fun ParentalNudge(profiles: ProfilesState, restricted: DesktopProfile, onSetPin:
         !profiles.file.lockUnrestrictedProfiles && unlocked.isNotEmpty() -> AlertDialog(
             onDismissRequest = onDismiss,
             containerColor = FetchPalette.SurfaceRaised,
-            title = { Text("Lock the other profiles too?", color = Color.White) },
+            title = { Text(tr("Lock the other profiles too?"), color = Color.White) },
             text = {
                 Text(
                     "${restricted.name} can open ${unlocked.joinToString(", ") { it.name }} and skip every limit, since they have no PIN. " +
@@ -196,7 +197,7 @@ fun ParentalNudge(profiles: ProfilesState, restricted: DesktopProfile, onSetPin:
                 )
             },
             confirmButton = {
-                PrimaryButton("Ask for ${main.name}’s PIN", icon = null, onClick = {
+                PrimaryButton(tr("Ask for %1\$s’s PIN", main.name), icon = null, onClick = {
                     profiles.setLockUnrestrictedProfiles(true)
                     onDismiss()
                 })
@@ -257,7 +258,7 @@ fun ProfileEditorDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text(if (initial == null) "Create profile" else "Edit profile", color = Color.White) },
+        title = { Text(if (initial == null) tr("Create profile") else tr("Edit profile"), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
                 BasicTextField(
@@ -268,7 +269,7 @@ fun ProfileEditorDialog(
                     cursorBrush = SolidColor(FetchPalette.Accent),
                     decorationBox = { field ->
                         Box {
-                            if (name.isEmpty()) Text("Profile name", color = FetchPalette.TextMuted, fontSize = 17.sp)
+                            if (name.isEmpty()) Text(tr("Profile name"), color = FetchPalette.TextMuted, fontSize = 17.sp)
                             field()
                         }
                     },
@@ -376,7 +377,7 @@ fun ProfilesSettingsPage(state: AppState) {
             if (profiles.profiles.size > 1) SecondaryButton("Switch profile", onClick = profiles::switchProfile)
         }
     } else {
-        Text("Other profiles, limits and new profiles are managed from the main profile.", color = FetchPalette.TextMuted)
+        Text(tr("Other profiles, limits and new profiles are managed from the main profile."), color = FetchPalette.TextMuted)
     }
     SettingsSection("At Start-up") {
         SettingsToggle(
@@ -419,7 +420,7 @@ fun ProfilesSettingsPage(state: AppState) {
             onDismissRequest = { deleting = null },
             containerColor = FetchPalette.SurfaceRaised,
             title = { Text("Delete ${profile.name}?", color = Color.White) },
-            text = { Text("Its Library, Continue Watching and settings are deleted too.", color = FetchPalette.TextSecondary) },
+            text = { Text(tr("Its Library, Continue Watching and settings are deleted too."), color = FetchPalette.TextSecondary) },
             confirmButton = {
                 PrimaryButton("Delete", icon = FetchIcons.Delete, onClick = {
                     deleting = null
@@ -461,13 +462,13 @@ fun PinFlow(profiles: ProfilesState, step: PinStep, onStep: (PinStep?) -> Unit) 
         }
         is PinStep.Create -> PinDialog(
             "Create a PIN for ${step.profile.name}.",
-            "4 to 8 digits. It will be required before opening this profile.",
+            tr("4 to 8 digits. It will be required before opening this profile."),
             error,
             onDismiss = { onStep(null) }
         ) { entered ->
             if (ProfilePinHasher.isValidPin(entered)) onStep(PinStep.Confirm(step.profile, entered)) else error = "Use 4 to 8 digits."
         }
-        is PinStep.Confirm -> PinDialog("Confirm your new PIN.", "Re-enter the same digits to finish setup.", error, onDismiss = { onStep(null) }) { entered ->
+        is PinStep.Confirm -> PinDialog(tr("Confirm your new PIN."), tr("Re-enter the same digits to finish setup."), error, onDismiss = { onStep(null) }) { entered ->
             if (entered == step.first) {
                 profiles.setPin(step.profile, entered)
                 onStep(null)

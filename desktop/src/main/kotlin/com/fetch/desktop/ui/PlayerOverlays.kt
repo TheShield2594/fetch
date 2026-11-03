@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -80,7 +81,7 @@ internal fun PauseOverlay(session: PlayerSession, visible: Boolean) {
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier.align(Alignment.CenterStart).padding(start = 64.dp).widthIn(max = 620.dp)
             ) {
-                Text("YOU'RE WATCHING", style = OverlineStyle, color = FetchPalette.TextMuted)
+                Text(tr("YOU'RE WATCHING"), style = OverlineStyle, color = FetchPalette.TextMuted)
                 Text(target?.name ?: session.title, color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.Bold, maxLines = 2)
                 target?.video?.let { v ->
                     Text(
@@ -93,7 +94,7 @@ internal fun PauseOverlay(session: PlayerSession, visible: Boolean) {
                 session.description?.takeIf { it.isNotBlank() }?.let {
                     Text(it, color = FetchPalette.TextSecondary, fontSize = 16.sp, lineHeight = 24.sp, maxLines = 6, overflow = TextOverflow.Ellipsis)
                 }
-                Text("Paused", color = FetchPalette.TextMuted, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
+                Text(tr("Paused"), color = FetchPalette.TextMuted, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
             }
         }
     }
@@ -117,7 +118,7 @@ internal fun StreamInfoOverlay(session: PlayerSession, modifier: Modifier = Modi
             .background(Color.Black.copy(alpha = 0.78f))
             .padding(18.dp)
     ) {
-        Text("Stream info", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+        Text(tr("Stream info"), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
         lines.forEach { (k, v) ->
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(k, color = FetchPalette.TextMuted, fontSize = 13.sp, modifier = Modifier.width(110.dp))
@@ -189,7 +190,7 @@ internal fun UpNextCard(session: PlayerSession, seconds: Int, onPlay: () -> Unit
 internal fun StillWatchingOverlay(label: String, onContinue: () -> Unit, onStop: () -> Unit) {
     Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.8f)), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text("Are you still watching?", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+            Text(tr("Are you still watching?"), color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
             Text("Up next: $label", color = FetchPalette.TextSecondary, fontSize = 17.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 PrimaryButton("Keep watching", onClick = onContinue)
@@ -222,7 +223,7 @@ internal fun PlayerSidePanel(state: AppState, session: PlayerSession, panel: Pla
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = 12.dp, bottom = 12.dp)) {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
                 items(PlayerPanel.entries.filter { it != PlayerPanel.EPISODES || session.target?.episodes?.any { e -> e.season != null } == true }) { p ->
-                    PanelTab(p.label, selected = p == panel) { session.panel = p }
+                    PanelTab(tr(p.label), selected = p == panel) { session.panel = p }
                 }
             }
             CircleIconButton(FetchIcons.Close, "Close", onClick = { session.panel = null }, size = 40.dp)
@@ -235,9 +236,9 @@ internal fun PlayerSidePanel(state: AppState, session: PlayerSession, panel: Pla
             ) {
                 when (panel) {
                     PlayerPanel.AUDIO -> {
-                        item { DelayRow("Audio delay", session.mpv.audioDelay, step = 0.05, onChange = session.mpv::changeAudioDelay) }
+                        item { DelayRow(tr("Audio delay"), session.mpv.audioDelay, step = 0.05, onChange = session.mpv::changeAudioDelay) }
                         audioPanelExtraItems(state, session)
-                        item { PanelHeading("Tracks") }
+                        item { PanelHeading(tr("Tracks")) }
                         items(session.mpv.tracks.filter { it.type == "audio" }) { t ->
                             PanelRow(t.label, detail = trackDetail(t), selected = t.selected) { session.mpv.selectAudio(t.id) }
                         }
@@ -245,7 +246,7 @@ internal fun PlayerSidePanel(state: AppState, session: PlayerSession, panel: Pla
                     // Grouped and filtered as on TV (PlayerExtrasUi.kt).
                     PlayerPanel.SUBTITLES -> subtitlePanelItems(state, session)
                     PlayerPanel.SOURCES -> {
-                        if (session.sourcesLoading) item { LoadingRow("Asking your addons…") }
+                        if (session.sourcesLoading) item { LoadingRow(tr("Asking your addons…")) }
                         items(session.sources, key = { it.stream.stableKey(it.originalIndex) }) { ranked ->
                             val playing = session.stream?.let { it.url == ranked.stream.url && it.addonName == ranked.stream.addonName } == true
                             val spec = SpecLine.of(labels = ranked.descriptor.summaryLabels(), isCached = ranked.descriptor.isDebridCached, cachedLabel = "Cached")?.text

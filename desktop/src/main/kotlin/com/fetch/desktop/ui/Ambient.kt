@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -253,7 +254,7 @@ private fun ResumeWidget(entry: ProgressEntry, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.width(420.dp).border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp)).padding(20.dp)
     ) {
-        Text(if (entry.upNext) "UP NEXT" else "RESUME", style = Mono.copy(fontSize = 14.sp, letterSpacing = 1.sp), color = FetchPalette.TextMuted)
+        Text(if (entry.upNext) tr("UP NEXT") else tr("RESUME"), style = Mono.copy(fontSize = 14.sp, letterSpacing = 1.sp), color = FetchPalette.TextMuted)
         Text(entry.name, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         val line = listOfNotNull(episodeTag(entry.season, entry.episode), remainingLabel(entry)).joinToString(" · ")
         if (line.isNotEmpty()) Text(line, style = Mono.copy(fontSize = 14.sp), color = FetchPalette.TextSecondary)

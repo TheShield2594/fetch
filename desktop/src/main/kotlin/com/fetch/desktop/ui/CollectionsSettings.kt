@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -104,7 +105,7 @@ fun CollectionsSettingsPage(state: AppState, onBack: () -> Unit) {
         return
     }
 
-    SettingsHeader("Collections", onBack) {
+    SettingsHeader(tr("Collections"), onBack) {
         SecondaryButton("Import", onClick = { importing = true })
         if (collections.collections.isNotEmpty()) SecondaryButton("Export", onClick = { exporting = true })
         PrimaryButton("New collection", icon = FetchIcons.Add, onClick = { editing = CollectionEditing.newCollection(collections.newId()) })
@@ -115,7 +116,7 @@ fun CollectionsSettingsPage(state: AppState, onBack: () -> Unit) {
         color = FetchPalette.TextSecondary
     )
     if (collections.collections.isEmpty()) {
-        Text("No collections yet.", color = FetchPalette.TextMuted)
+        Text(tr("No collections yet."), color = FetchPalette.TextMuted)
     } else {
         SettingsSection(null) {
             collections.collections.forEachIndexed { i, c ->
@@ -145,7 +146,7 @@ fun CollectionsSettingsPage(state: AppState, onBack: () -> Unit) {
             onDismissRequest = { deleting = null },
             containerColor = FetchPalette.SurfaceRaised,
             title = { Text("Delete ${c.title.ifBlank { "this collection" }}?", color = Color.White) },
-            text = { Text("Its folders go too, here and on your other devices.", color = FetchPalette.TextSecondary) },
+            text = { Text(tr("Its folders go too, here and on your other devices."), color = FetchPalette.TextSecondary) },
             confirmButton = { PrimaryButton("Delete", icon = null, onClick = { collections.delete(c.id); deleting = null }) },
             dismissButton = { SecondaryButton("Keep", onClick = { deleting = null }) }
         )
@@ -171,11 +172,11 @@ private fun ImportDialog(state: AppState, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Import collections", color = Color.White) },
+        title = { Text(tr("Import collections"), color = Color.White) },
         text = {
             Column(Modifier.width(560.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Paste collections JSON, as the TV's Export or the website gives it.", color = FetchPalette.TextSecondary)
-                CollectionField(text, "[ { \"id\": …, \"title\": …, \"folders\": [ … ] } ]", onChange = { text = it; error = null }, singleLine = false, minHeight = 180)
+                Text(tr("Paste collections JSON, as the TV's Export or the website gives it."), color = FetchPalette.TextSecondary)
+                CollectionField(text, tr("[ { \"id\": …, \"title\": …, \"folders\": [ … ] } ]"), onChange = { text = it; error = null }, singleLine = false, minHeight = 180)
                 FilterDropdown("Mode", replace, listOf(DropdownOption(false, "Add to mine"), DropdownOption(true, "Replace all of mine")), onSelect = { replace = it })
                 error?.let { Text(it, color = FetchPalette.Error) }
             }
@@ -196,10 +197,10 @@ private fun ExportDialog(json: String, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Export collections", color = Color.White) },
+        title = { Text(tr("Export collections"), color = Color.White) },
         text = {
             Column(Modifier.width(560.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("The TV's format: import it on a TV, the website or another computer.", color = FetchPalette.TextSecondary)
+                Text(tr("The TV's format: import it on a TV, the website or another computer."), color = FetchPalette.TextSecondary)
                 CollectionField(json, "", onChange = {}, singleLine = false, minHeight = 220, maxHeight = 360)
             }
         },
@@ -228,14 +229,14 @@ private fun CollectionEditor(state: AppState, initial: Collection, onDone: (Coll
         return
     }
 
-    SettingsHeader(if (isNew) "New collection" else "Edit collection", onBack = { onDone(null) }) {
+    SettingsHeader(if (isNew) tr("New collection") else tr("Edit collection"), onBack = { onDone(null) }) {
         SecondaryButton("Cancel", onClick = { onDone(null) })
         PrimaryButton("Save", icon = null, enabled = draft.folders.isNotEmpty(), onClick = { onDone(CollectionEditing.cleanCollection(draft)) })
     }
-    if (draft.folders.isEmpty()) Text("Add a folder to save this collection.", color = FetchPalette.TextMuted)
+    if (draft.folders.isEmpty()) Text(tr("Add a folder to save this collection."), color = FetchPalette.TextMuted)
     SettingsSection("Collection") {
-        LabeledField("Title", draft.title, "Untitled collection") { draft = draft.copy(title = it.take(80)) }
-        LabeledField("Backdrop image", draft.backdropImageUrl.orEmpty(), "https://… (shown behind its folders' pages)") { draft = draft.copy(backdropImageUrl = it) }
+        LabeledField(tr("Title"), draft.title, tr("Untitled collection")) { draft = draft.copy(title = it.take(80)) }
+        LabeledField(tr("Backdrop image"), draft.backdropImageUrl.orEmpty(), "https://… (shown behind its folders' pages)") { draft = draft.copy(backdropImageUrl = it) }
         SettingsToggle("Pin to top", "Show this collection before the other rows on Home.", draft.pinToTop) { draft = draft.copy(pinToTop = it) }
         SettingsChoice("Folder view", "How a folder's page shows its sources.", draft.viewMode, ViewModes) { draft = draft.copy(viewMode = it) }
         SettingsToggle("Show \"All\" tab", "A tab with every source together, for folders with two sources or more.", draft.showAllTab) { draft = draft.copy(showAllTab = it) }
@@ -265,8 +266,8 @@ private fun CollectionEditor(state: AppState, initial: Collection, onDone: (Coll
         AlertDialog(
             onDismissRequest = { deletingFolder = null },
             containerColor = FetchPalette.SurfaceRaised,
-            title = { Text("Remove ${f.title.ifBlank { "this folder" }}?", color = Color.White) },
-            text = { Text("It goes when you save the collection.", color = FetchPalette.TextSecondary) },
+            title = { Text(tr("Remove %1\$s?", f.title.ifBlank { "this folder" }), color = Color.White) },
+            text = { Text(tr("It goes when you save the collection."), color = FetchPalette.TextSecondary) },
             confirmButton = { PrimaryButton("Remove", icon = null, onClick = { draft = draft.copy(folders = draft.folders.filterNot { it.id == f.id }); deletingFolder = null }) },
             dismissButton = { SecondaryButton("Keep", onClick = { deletingFolder = null }) }
         )
@@ -308,22 +309,22 @@ private fun FolderEditor(state: AppState, initial: CollectionFolder, onDone: (Co
     val catalogs = remember(state.activeAddons) { CollectionEditing.pickableCatalogs(state.activeAddons) }
     val isNew = folder.sources.isEmpty() && initial.title.isBlank()
 
-    SettingsHeader(if (isNew) "New folder" else "Edit folder", onBack = { onDone(null) }) {
+    SettingsHeader(if (isNew) tr("New folder") else tr("Edit folder"), onBack = { onDone(null) }) {
         SecondaryButton("Cancel", onClick = { onDone(null) })
         PrimaryButton("Done", icon = null, enabled = folder.sources.isNotEmpty(), onClick = { onDone(CollectionEditing.cleanFolder(folder)) })
     }
     Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.Top) {
         FolderTile(CollectionEditing.cleanFolder(folder), onClick = {})
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text("PREVIEW", style = OverlineStyle, color = FetchPalette.TextMuted)
+            Text(tr("PREVIEW"), style = OverlineStyle, color = FetchPalette.TextMuted)
             Text(
-                if (folder.sources.isEmpty()) "Add a source below: a folder needs one at least." else "${folder.sources.size} source${if (folder.sources.size == 1) "" else "s"}",
+                if (folder.sources.isEmpty()) tr("Add a source below: a folder needs one at least.") else "${folder.sources.size} source${if (folder.sources.size == 1) "" else "s"}",
                 color = FetchPalette.TextSecondary
             )
         }
     }
     SettingsSection("Folder") {
-        LabeledField("Title", folder.title, "Untitled") { folder = folder.copy(title = it.take(60)) }
+        LabeledField(tr("Title"), folder.title, tr("Untitled")) { folder = folder.copy(title = it.take(60)) }
         SettingsChoice("Cover", null, cover, CoverKind.entries.map { DropdownOption(it, it.label) }) {
             cover = it
             folder = when (it) {
@@ -333,22 +334,22 @@ private fun FolderEditor(state: AppState, initial: CollectionFolder, onDone: (Co
             }
         }
         when (cover) {
-            CoverKind.IMAGE -> LabeledField("Cover image", folder.coverImageUrl.orEmpty(), "https://…") { folder = folder.copy(coverImageUrl = it) }
+            CoverKind.IMAGE -> LabeledField(tr("Cover image"), folder.coverImageUrl.orEmpty(), "https://…") { folder = folder.copy(coverImageUrl = it) }
             CoverKind.EMOJI -> {
-                LabeledField("Emoji", folder.coverEmoji.orEmpty(), "Type or pick one") { folder = folder.copy(coverEmoji = it.take(16)) }
+                LabeledField(tr("Emoji"), folder.coverEmoji.orEmpty(), tr("Type or pick one")) { folder = folder.copy(coverEmoji = it.take(16)) }
                 EmojiPicks(selected = folder.coverEmoji) { folder = folder.copy(coverEmoji = it) }
             }
             CoverKind.NONE -> Unit
         }
         SettingsChoice("Tile shape", null, folder.tileShape, TileShapes) { folder = folder.copy(tileShape = it) }
         SettingsToggle("Hide title", "Show only the cover on the tile.", folder.hideTitle) { folder = folder.copy(hideTitle = it) }
-        LabeledField("Hover animation", folder.focusGifUrl.orEmpty(), "A GIF address, played over the cover on hover (optional)") { folder = folder.copy(focusGifUrl = it) }
-        LabeledField("Page backdrop", folder.heroBackdropUrl.orEmpty(), "https://… (optional)") { folder = folder.copy(heroBackdropUrl = it) }
-        LabeledField("Title logo", folder.titleLogoUrl.orEmpty(), "https://… (optional, shown on its page)") { folder = folder.copy(titleLogoUrl = it) }
+        LabeledField(tr("Hover animation"), folder.focusGifUrl.orEmpty(), tr("A GIF address, played over the cover on hover (optional)")) { folder = folder.copy(focusGifUrl = it) }
+        LabeledField(tr("Page backdrop"), folder.heroBackdropUrl.orEmpty(), "https://… (optional)") { folder = folder.copy(heroBackdropUrl = it) }
+        LabeledField(tr("Title logo"), folder.titleLogoUrl.orEmpty(), "https://… (optional, shown on its page)") { folder = folder.copy(titleLogoUrl = it) }
     }
     SettingsSection("Sources") {
         if (folder.sources.isEmpty()) {
-            Text("No sources yet.", color = FetchPalette.TextMuted, modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp))
+            Text(tr("No sources yet."), color = FetchPalette.TextMuted, modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp))
         }
         folder.sources.forEachIndexed { i, source ->
             val (label, kind) = CollectionSourceResolver.label(source, state.addons.toList())
@@ -361,7 +362,7 @@ private fun FolderEditor(state: AppState, initial: CollectionFolder, onDone: (Co
                                 catalog.genres.map { DropdownOption<String?>(it, it) }
                             FilterDropdown("Genre", source.genre, options, onSelect = { g -> folder = CollectionEditing.setGenre(folder, i, g, catalogs) })
                         }
-                        if (catalog == null) Text("Not installed", color = FetchPalette.TextMuted, fontSize = 13.sp)
+                        if (catalog == null) Text(tr("Not installed"), color = FetchPalette.TextMuted, fontSize = 13.sp)
                     }
                     CircleIconButton(FetchIcons.ArrowUp, "Move up", onClick = { folder = folder.copy(sources = CollectionEditing.move(folder.sources, i, -1)) }, size = 34.dp, enabled = i > 0)
                     CircleIconButton(FetchIcons.ArrowDown, "Move down", onClick = { folder = folder.copy(sources = CollectionEditing.move(folder.sources, i, 1)) }, size = 34.dp, enabled = i < folder.sources.lastIndex)
@@ -473,8 +474,8 @@ private fun CheckRow(label: String, detail: String?, on: Boolean, onClick: () ->
 
 @Composable
 private fun CatalogPickerDialog(catalogs: List<PickableCatalog>, folder: CollectionFolder, onToggle: (PickableCatalog) -> Unit, onDismiss: () -> Unit) {
-    PickerDialog("Addon catalogs", onDismiss) {
-        if (catalogs.isEmpty()) Text("Install an addon with catalogs in Settings › Content & Discovery › Addons first.", color = FetchPalette.TextMuted)
+    PickerDialog(tr("Addon catalogs"), onDismiss) {
+        if (catalogs.isEmpty()) Text(tr("Install an addon with catalogs in Settings › Content & Discovery › Addons first."), color = FetchPalette.TextMuted)
         catalogs.groupBy { it.addon.baseUrl }.values.forEach { group ->
             Text(group.first().addon.displayName.uppercase(), style = OverlineStyle, color = FetchPalette.TextMuted, modifier = Modifier.padding(top = 6.dp))
             group.forEach { c ->
@@ -500,12 +501,12 @@ private fun WebsiteListPickerDialog(state: AppState, folder: CollectionFolder, o
             website.client.lists(profile.id)
         }
     }
-    PickerDialog("Fetch website lists", onDismiss) {
+    PickerDialog(tr("Fetch website lists"), onDismiss) {
         val result = loaded
         when {
-            result == null -> Text("Loading…", color = FetchPalette.TextMuted)
-            result.isFailure -> Text(result.exceptionOrNull()?.message ?: "Couldn’t load the website’s lists.", color = FetchPalette.TextMuted)
-            result.getOrThrow().isEmpty() -> Text("This profile has no lists on the website yet.", color = FetchPalette.TextMuted)
+            result == null -> Text(tr("Loading…"), color = FetchPalette.TextMuted)
+            result.isFailure -> Text(result.exceptionOrNull()?.message ?: tr("Couldn’t load the website’s lists."), color = FetchPalette.TextMuted)
+            result.getOrThrow().isEmpty() -> Text(tr("This profile has no lists on the website yet."), color = FetchPalette.TextMuted)
             else -> {
                 FilterDropdown(
                     "Show", media,
@@ -529,9 +530,9 @@ private fun WebsiteListPickerDialog(state: AppState, folder: CollectionFolder, o
 @Composable
 private fun LocalListPickerDialog(state: AppState, folder: CollectionFolder, onChange: (CollectionFolder) -> Unit, onDismiss: () -> Unit) {
     var media by remember { mutableStateOf<TmdbCollectionMediaType?>(null) }
-    PickerDialog("Local lists", onDismiss) {
+    PickerDialog(tr("Local lists"), onDismiss) {
         val lists = state.lists.local
-        if (lists.isEmpty()) Text("Make a list in the Library first (Manage lists).", color = FetchPalette.TextMuted)
+        if (lists.isEmpty()) Text(tr("Make a list in the Library first (Manage lists)."), color = FetchPalette.TextMuted)
         else FilterDropdown(
             "Show", media,
             listOf(DropdownOption<TmdbCollectionMediaType?>(null, "Movies and series"), DropdownOption(TmdbCollectionMediaType.MOVIE, "Movies"), DropdownOption(TmdbCollectionMediaType.TV, "Series")),
@@ -608,7 +609,7 @@ private fun TmdbPickerDialog(state: AppState, onAdd: (List<CollectionSource>, St
     }
 
     PickerDialog(
-        "TMDB source",
+        tr("TMDB source"),
         onDismiss,
         confirm = {
             if (mode != null) PrimaryButton("Add", icon = null, enabled = !busy, onClick = {
@@ -621,11 +622,11 @@ private fun TmdbPickerDialog(state: AppState, onAdd: (List<CollectionSource>, St
             })
         }
     ) {
-        if (!state.tmdb.client.hasKey) Text("TMDB sources need a TMDB API key: add yours in Settings › TMDB.", color = FetchPalette.Error)
+        if (!state.tmdb.client.hasKey) Text(tr("TMDB sources need a TMDB API key: add yours in Settings › TMDB."), color = FetchPalette.Error)
         FilterDropdown("Source", mode, TmdbModes, onSelect = { mode = it; hits = emptyList(); input = ""; error = null })
         val type = mode
         if (type == null) {
-            Text("Studios and streaming networks, in one click.", color = FetchPalette.TextSecondary)
+            Text(tr("Studios and streaming networks, in one click."), color = FetchPalette.TextSecondary)
             @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
             androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 CollectionEditing.tmdbPresets.forEach { preset ->
@@ -641,7 +642,7 @@ private fun TmdbPickerDialog(state: AppState, onAdd: (List<CollectionSource>, St
             val searchable = type in setOf(TmdbCollectionSourceType.COMPANY, TmdbCollectionSourceType.COLLECTION, TmdbCollectionSourceType.PERSON, TmdbCollectionSourceType.DIRECTOR)
             if (searchable) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.weight(1f)) { CollectionField(query, "Search TMDB", onChange = { query = it }) }
+                    Box(Modifier.weight(1f)) { CollectionField(query, tr("Search TMDB"), onChange = { query = it }) }
                     SecondaryButton("Search", enabled = query.isNotBlank() && !busy, onClick = {
                         scope.launch {
                             busy = true
@@ -663,9 +664,9 @@ private fun TmdbPickerDialog(state: AppState, onAdd: (List<CollectionSource>, St
                 }
             }
             if (type != TmdbCollectionSourceType.DISCOVER) {
-                CollectionField(input, if (searchable) "…or a TMDB id or address" else "TMDB id or address (themoviedb.org/${if (type == TmdbCollectionSourceType.NETWORK) "network" else "list"}/…)", onChange = { input = it })
+                CollectionField(input, if (searchable) tr("…or a TMDB id or address") else "TMDB id or address (themoviedb.org/${if (type == TmdbCollectionSourceType.NETWORK) "network" else "list"}/…)", onChange = { input = it })
             }
-            CollectionField(title, "Title (optional)", onChange = { title = it.take(60) })
+            CollectionField(title, tr("Title (optional)"), onChange = { title = it.take(60) })
             @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
             androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (type in setOf(TmdbCollectionSourceType.COMPANY, TmdbCollectionSourceType.PERSON, TmdbCollectionSourceType.DIRECTOR, TmdbCollectionSourceType.DISCOVER)) {
@@ -702,7 +703,7 @@ private fun SearchHitRow(name: String, subtitle: String?, image: String?, onClic
             Text(name, color = Color.White, fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
             if (!subtitle.isNullOrBlank()) Text(subtitle, color = FetchPalette.TextMuted, fontSize = 12.sp, maxLines = 1)
         }
-        Text("Add", color = FetchPalette.Accent, fontWeight = FontWeight.SemiBold)
+        Text(tr("Add"), color = FetchPalette.Accent, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -719,32 +720,32 @@ private fun DiscoverFilters(tmdb: TmdbCollectionSources, language: String, media
     fun ids(raw: String?): List<Int> = raw.orEmpty().split(',', '|').mapNotNull { it.trim().toIntOrNull() }
     fun join(list: List<Int>): String? = list.distinct().joinToString(",").ifBlank { null }
 
-    Text("FILTERS", style = OverlineStyle, color = FetchPalette.TextMuted, modifier = Modifier.padding(top = 8.dp))
+    Text(tr("FILTERS"), style = OverlineStyle, color = FetchPalette.TextMuted, modifier = Modifier.padding(top = 8.dp))
     if (genres.isNotEmpty()) {
-        Text("Genres", color = FetchPalette.TextSecondary)
+        Text(tr("Genres"), color = FetchPalette.TextSecondary)
         ChipPicker(genres.entries.map { DropdownOption(it.key, it.value) }, ids(filters.withGenres), onChange = { onChange(filters.copy(withGenres = join(it))) })
-        Text("Without genres", color = FetchPalette.TextSecondary)
+        Text(tr("Without genres"), color = FetchPalette.TextSecondary)
         ChipPicker(genres.entries.map { DropdownOption(it.key, it.value) }, ids(filters.withoutGenres), onChange = { onChange(filters.copy(withoutGenres = join(it))) })
     }
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Box(Modifier.weight(1f)) { CollectionField(filters.releaseDateGte.orEmpty(), "Released from (YYYY-MM-DD)", onChange = { onChange(filters.copy(releaseDateGte = it.trim().ifBlank { null })) }) }
-        Box(Modifier.weight(1f)) { CollectionField(filters.releaseDateLte.orEmpty(), "Released until (YYYY-MM-DD)", onChange = { onChange(filters.copy(releaseDateLte = it.trim().ifBlank { null })) }) }
+        Box(Modifier.weight(1f)) { CollectionField(filters.releaseDateGte.orEmpty(), tr("Released from (YYYY-MM-DD)"), onChange = { onChange(filters.copy(releaseDateGte = it.trim().ifBlank { null })) }) }
+        Box(Modifier.weight(1f)) { CollectionField(filters.releaseDateLte.orEmpty(), tr("Released until (YYYY-MM-DD)"), onChange = { onChange(filters.copy(releaseDateLte = it.trim().ifBlank { null })) }) }
     }
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Box(Modifier.weight(1f)) { NumberField(filters.voteAverageGte?.toString(), "Rating at least (0–10)") { onChange(filters.copy(voteAverageGte = it?.toDoubleOrNull())) } }
-        Box(Modifier.weight(1f)) { NumberField(filters.voteAverageLte?.toString(), "Rating at most") { onChange(filters.copy(voteAverageLte = it?.toDoubleOrNull())) } }
-        Box(Modifier.weight(1f)) { NumberField(filters.voteCountGte?.toString(), "Votes at least") { onChange(filters.copy(voteCountGte = it?.toIntOrNull())) } }
+        Box(Modifier.weight(1f)) { NumberField(filters.voteAverageGte?.toString(), tr("Rating at least (0–10)")) { onChange(filters.copy(voteAverageGte = it?.toDoubleOrNull())) } }
+        Box(Modifier.weight(1f)) { NumberField(filters.voteAverageLte?.toString(), tr("Rating at most")) { onChange(filters.copy(voteAverageLte = it?.toDoubleOrNull())) } }
+        Box(Modifier.weight(1f)) { NumberField(filters.voteCountGte?.toString(), tr("Votes at least")) { onChange(filters.copy(voteCountGte = it?.toIntOrNull())) } }
     }
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Box(Modifier.weight(1f)) { CollectionField(filters.withOriginalLanguage.orEmpty(), "Original language (en, ko, ja…)", onChange = { onChange(filters.copy(withOriginalLanguage = it.trim().lowercase().ifBlank { null })) }) }
-        Box(Modifier.weight(1f)) { CollectionField(filters.withOriginCountry.orEmpty(), "Country (US, KR, JP…)", onChange = { onChange(filters.copy(withOriginCountry = it.trim().uppercase().ifBlank { null })) }) }
-        Box(Modifier.weight(1f)) { NumberField(filters.year?.toString(), "Year") { onChange(filters.copy(year = it?.toIntOrNull())) } }
+        Box(Modifier.weight(1f)) { CollectionField(filters.withOriginalLanguage.orEmpty(), tr("Original language (en, ko, ja…)"), onChange = { onChange(filters.copy(withOriginalLanguage = it.trim().lowercase().ifBlank { null })) }) }
+        Box(Modifier.weight(1f)) { CollectionField(filters.withOriginCountry.orEmpty(), tr("Country (US, KR, JP…)"), onChange = { onChange(filters.copy(withOriginCountry = it.trim().uppercase().ifBlank { null })) }) }
+        Box(Modifier.weight(1f)) { NumberField(filters.year?.toString(), tr("Year")) { onChange(filters.copy(year = it?.toIntOrNull())) } }
     }
-    Text("Keywords", color = FetchPalette.TextSecondary)
+    Text(tr("Keywords"), color = FetchPalette.TextSecondary)
     val chosen = ids(filters.withKeywords)
     if (chosen.isNotEmpty()) Text("Keyword ids: ${chosen.joinToString(", ")}", color = FetchPalette.TextMuted, fontSize = 13.sp)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.weight(1f)) { CollectionField(keywordQuery, "Search keywords (\"time travel\")", onChange = { keywordQuery = it }) }
+        Box(Modifier.weight(1f)) { CollectionField(keywordQuery, tr("Search keywords (\"time travel\")"), onChange = { keywordQuery = it }) }
         SecondaryButton("Search", enabled = keywordQuery.isNotBlank(), onClick = {
             scope.launch { keywordHits = runCatching { tmdb.searchKeywords(keywordQuery) }.getOrDefault(emptyList()) }
         })
@@ -777,7 +778,7 @@ private fun TraktPickerDialog(state: AppState, onAdd: (List<CollectionSource>, S
     }
 
     PickerDialog(
-        "Trakt list",
+        tr("Trakt list"),
         onDismiss,
         confirm = {
             PrimaryButton("Add", icon = null, enabled = input.isNotBlank() && !busy, onClick = {
@@ -803,12 +804,12 @@ private fun TraktPickerDialog(state: AppState, onAdd: (List<CollectionSource>, S
     ) {
         val mine = state.lists.traktLists
         if (mine.isNotEmpty()) {
-            Text("YOUR LISTS", style = OverlineStyle, color = FetchPalette.TextMuted)
+            Text(tr("YOUR LISTS"), style = OverlineStyle, color = FetchPalette.TextMuted)
             mine.forEach { list -> SearchHitRow(list.name, list.itemCount?.let { "$it titles" }, null) { add(list.id, list.name, null) } }
         }
-        Text("PUBLIC LISTS", style = OverlineStyle, color = FetchPalette.TextMuted, modifier = Modifier.padding(top = 6.dp))
+        Text(tr("PUBLIC LISTS"), style = OverlineStyle, color = FetchPalette.TextMuted, modifier = Modifier.padding(top = 6.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.weight(1f)) { CollectionField(query, "Search Trakt lists", onChange = { query = it }) }
+            Box(Modifier.weight(1f)) { CollectionField(query, tr("Search Trakt lists"), onChange = { query = it }) }
             SecondaryButton("Search", enabled = query.isNotBlank() && !busy, onClick = {
                 scope.launch {
                     busy = true
@@ -824,8 +825,8 @@ private fun TraktPickerDialog(state: AppState, onAdd: (List<CollectionSource>, S
                 add(list.id, list.name, list.cover)
             }
         }
-        CollectionField(input, "…or a list id or address (trakt.tv/users/…/lists/…)", onChange = { input = it })
-        CollectionField(title, "Title (optional)", onChange = { title = it.take(60) })
+        CollectionField(input, tr("…or a list id or address (trakt.tv/users/…/lists/…)"), onChange = { input = it })
+        CollectionField(title, tr("Title (optional)"), onChange = { title = it.take(60) })
         @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
         androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             FilterDropdown("Show", media, MediaChoice.entries.map { DropdownOption(it, it.label) }, onSelect = { media = it })

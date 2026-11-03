@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -220,7 +221,7 @@ private fun HomeContent(state: AppState) {
                 val upcoming = if (settings.showContinueWatching && !kids) state.upcoming else emptyList()
                 if (upcoming.isNotEmpty()) {
                     item(key = "upcoming") {
-                        ContinueWatchingRow(upcoming, cwActions, onHover = { hovered = HeroSubject.Resume(it) }, title = "Upcoming")
+                        ContinueWatchingRow(upcoming, cwActions, onHover = { hovered = HeroSubject.Resume(it) }, title = tr("Upcoming"))
                     }
                 }
                 // "YouTube subscriptions" (Settings › YouTube), after Continue Watching as on TV.
@@ -258,7 +259,7 @@ private fun HomeContent(state: AppState) {
                         }
                         is com.fetch.desktop.home.HomeRowRef.BecauseYouWatched -> becauseYouWatched.getOrNull(ref.index)?.let { row ->
                             MediaRowView(
-                                title = "Because you watched ${row.seed.name}",
+                                title = tr("Because you watched %1\$s", row.seed.name),
                                 subtitle = null,
                                 items = row.items.filter { state.allowed(it) && !(settings.hideUnreleased && com.fetch.desktop.isUnreleased(it)) },
                                 loading = false,

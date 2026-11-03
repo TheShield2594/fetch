@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -165,7 +166,7 @@ fun ReadyTonightRow(
     onOpenMovie: (MetaPreview) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Text("Ready tonight", style = MaterialTheme.typography.titleLarge, color = FetchPalette.TextPrimary, modifier = Modifier.padding(horizontal = PageGutter))
+        Text(tr("Ready tonight"), style = MaterialTheme.typography.titleLarge, color = FetchPalette.TextPrimary, modifier = Modifier.padding(horizontal = PageGutter))
         LazyRow(
             contentPadding = PaddingValues(horizontal = PageGutter, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(18.dp)

@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -53,7 +54,7 @@ fun MediaServersPage(state: AppState, header: Boolean = true) {
         PageHeader("Media servers", subtitle = "Your Jellyfin, Emby and Plex files as sources, ranked first, and your libraries on Home.")
     }
     if (servers.accounts.isEmpty()) {
-        Text("No servers yet. Add one below.", color = FetchPalette.TextMuted)
+        Text(tr("No servers yet. Add one below."), color = FetchPalette.TextMuted)
     }
     servers.accounts.forEach { account ->
         SettingsSection(null) {
@@ -117,14 +118,14 @@ private fun PasswordSignInDialog(state: AppState, kind: ServerKind, onDone: () -
         title = { Text("Add ${kind.label}", color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.width(420.dp)) {
-                DialogField("Server address", address, { address = it }, placeholder = "http://192.168.1.10:8096", modifier = Modifier.focusRequester(focus))
-                DialogField("User name", user, { user = it })
-                DialogField("Password", password, { password = it }, secret = true)
+                DialogField(tr("Server address"), address, { address = it }, placeholder = "http://192.168.1.10:8096", modifier = Modifier.focusRequester(focus))
+                DialogField(tr("User name"), user, { user = it })
+                DialogField(tr("Password"), password, { password = it }, secret = true)
                 state.servers.signInError?.let { Text(it, color = FetchPalette.Error, fontSize = 14.sp) }
                 if (busy) {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(Modifier.size(18.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                        Text("Signing in…", color = FetchPalette.TextMuted)
+                        Text(tr("Signing in…"), color = FetchPalette.TextMuted)
                     }
                 }
             }
@@ -176,7 +177,7 @@ private fun PlexLinkDialog(code: String, url: String, onCancel: () -> Unit) {
     AlertDialog(
         onDismissRequest = onCancel,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Add Plex", color = Color.White) },
+        title = { Text(tr("Add Plex"), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("Open $url, sign in to Plex and enter this code:", color = FetchPalette.TextSecondary)
@@ -191,7 +192,7 @@ private fun PlexLinkDialog(code: String, url: String, onCancel: () -> Unit) {
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(Modifier.size(18.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                    Text("Waiting for you to enter the code… Fetch adds every server on that account.", color = FetchPalette.TextMuted)
+                    Text(tr("Waiting for you to enter the code… Fetch adds every server on that account."), color = FetchPalette.TextMuted)
                 }
             }
         },

@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -65,12 +66,16 @@ fun <T> FilterDropdown(
     options: List<DropdownOption<T>>,
     onSelect: (T) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = "Select"
+    placeholder: String = "Select",
+    /** Off for labels that mustn't be translated, such as each language in its own name. */
+    translateOptions: Boolean = true
 ) {
+    val shownLabel = tr(label)
+    val optionLabel: (DropdownOption<T>) -> String = { if (translateOptions) tr(it.label) else it.label }
     var open by remember { mutableStateOf(false) }
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
-    val current = options.firstOrNull { it.value == selected }?.label ?: placeholder
+    val current = options.firstOrNull { it.value == selected }?.let(optionLabel) ?: tr(placeholder)
     Box(modifier) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -84,7 +89,7 @@ fun <T> FilterDropdown(
                 .pointerHoverIcon(PointerIcon.Hand)
                 .padding(start = 16.dp, end = 10.dp, top = 9.dp, bottom = 9.dp)
         ) {
-            if (label.isNotEmpty()) Text("$label:", color = FetchPalette.TextMuted, fontSize = 14.sp)
+            if (shownLabel.isNotEmpty()) Text("$shownLabel:", color = FetchPalette.TextMuted, fontSize = 14.sp)
             Text(current, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
             Icon(FetchIcons.ArrowDown, contentDescription = null, tint = FetchPalette.TextSecondary, modifier = Modifier.size(18.dp))
         }
@@ -99,7 +104,7 @@ fun <T> FilterDropdown(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            option.label,
+                            optionLabel(option),
                             color = if (isSelected) FetchPalette.Accent else FetchPalette.TextPrimary,
                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
                         )
@@ -118,8 +123,8 @@ fun <T> FilterDropdown(
 @Composable
 fun PageHeader(title: String, subtitle: String? = null, modifier: Modifier = Modifier) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = modifier) {
-        Text(title, style = MaterialTheme.typography.headlineLarge, color = Color.White)
-        if (subtitle != null) Text(subtitle, color = FetchPalette.TextSecondary)
+        Text(tr(title), style = MaterialTheme.typography.headlineLarge, color = Color.White)
+        if (subtitle != null) Text(tr(subtitle), color = FetchPalette.TextSecondary)
     }
 }
 
@@ -173,7 +178,7 @@ fun LazyGridScope.fullWidthItem(key: Any, content: @Composable () -> Unit) {
 fun SettingsSection(title: String?, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = modifier.fillMaxWidth()) {
         if (title != null) {
-            Text(title.uppercase(), style = OverlineStyle, color = FetchPalette.TextMuted, modifier = Modifier.padding(start = 4.dp, bottom = 4.dp))
+            Text(tr(title).uppercase(), style = OverlineStyle, color = FetchPalette.TextMuted, modifier = Modifier.padding(start = 4.dp, bottom = 4.dp))
         }
         Column(
             Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(FetchPalette.Surface)
@@ -210,9 +215,9 @@ fun SettingsRow(
             .padding(horizontal = 20.dp, vertical = 14.dp)
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(title, color = FetchPalette.TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            Text(tr(title), color = FetchPalette.TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
             if (description != null) {
-                Text(description, color = FetchPalette.TextMuted, fontSize = 13.sp, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Text(tr(description), color = FetchPalette.TextMuted, fontSize = 13.sp, maxLines = 3, overflow = TextOverflow.Ellipsis)
             }
         }
         trailing()
@@ -243,10 +248,11 @@ fun <T> SettingsChoice(
     description: String? = null,
     selected: T,
     options: List<DropdownOption<T>>,
+    translateOptions: Boolean = true,
     onSelect: (T) -> Unit
 ) {
     SettingsRow(title, description) {
-        FilterDropdown(label = "", selected = selected, options = options, onSelect = onSelect)
+        FilterDropdown(label = "", selected = selected, options = options, onSelect = onSelect, translateOptions = translateOptions)
     }
 }
 
@@ -270,7 +276,7 @@ fun <T> ChipPicker(
             val interaction = remember { MutableInteractionSource() }
             val hovered by interaction.collectIsHoveredAsState()
             Text(
-                if (on && ordered) "${index + 1}. ${option.label}" else option.label,
+                if (on && ordered) "${index + 1}. ${tr(option.label)}" else tr(option.label),
                 fontSize = 14.sp,
                 fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal,
                 color = if (on) FetchPalette.OnAccent else FetchPalette.TextPrimary,

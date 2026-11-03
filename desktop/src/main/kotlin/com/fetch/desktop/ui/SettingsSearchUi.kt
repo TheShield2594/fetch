@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -124,7 +125,7 @@ internal fun SettingsSearchField(modifier: Modifier = Modifier) {
             cursorBrush = SolidColor(FetchPalette.Accent),
             decorationBox = { field ->
                 Box {
-                    if (query.isEmpty()) Text("Search settings", color = FetchPalette.TextMuted, fontSize = 14.sp)
+                    if (query.isEmpty()) Text(tr("Search settings"), color = FetchPalette.TextMuted, fontSize = 14.sp)
                     field()
                 }
             },
@@ -155,7 +156,7 @@ private fun SearchResultRow(entry: SettingsSearchEntry, onClick: () -> Unit) {
     // Not a SettingsRow, so a result never lights up as a search target itself.
     val where = listOfNotNull(entry.page.railPage.group, entry.page.railPage.label, entry.page.label.takeIf { entry.page.parent != null }, entry.section)
         .distinct()
-        .joinToString(" › ")
+        .joinToString(" › ") { tr(it) }
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
     Row(
@@ -169,7 +170,7 @@ private fun SearchResultRow(entry: SettingsSearchEntry, onClick: () -> Unit) {
             .padding(horizontal = 20.dp, vertical = 12.dp)
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(entry.title, color = FetchPalette.TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            Text(tr(entry.title), color = FetchPalette.TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
             Text(where, color = FetchPalette.TextMuted, fontSize = 13.sp)
         }
         Icon(FetchIcons.ChevronRight, contentDescription = null, tint = FetchPalette.TextMuted)

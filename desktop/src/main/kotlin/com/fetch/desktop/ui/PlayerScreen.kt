@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.animation.AnimatedVisibility
@@ -186,7 +187,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
         }
         mpv.error?.let { error ->
             Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(error, color = Color.White, fontSize = 18.sp)
+                Text(tr(error), color = Color.White, fontSize = 18.sp)
                 SecondaryButton("Close", onClick = ::leave)
             }
         }
@@ -280,8 +281,8 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                         if (session.nextEpisode != null) {
                             SecondaryButton("Next episode", onClick = state::playNextNow, icon = FetchIcons.ChevronRight)
                         }
-                        ValueMenu("Speed", speedLabel(controls.speed), Speeds.map { it to speedLabel(it) }, controls.speed) { controls.changeSpeed(it) }
-                        ValueMenu("Picture", session.fit.label, VideoFit.entries.map { it to it.label }, session.fit) { state.setFit(it) }
+                        ValueMenu(tr("Speed"), speedLabel(controls.speed), Speeds.map { it to speedLabel(it) }, controls.speed) { controls.changeSpeed(it) }
+                        ValueMenu(tr("Picture"), tr(session.fit.label), VideoFit.entries.map { it to tr(it.label) }, session.fit) { state.setFit(it) }
                         YouTubePlayerButtons(session)
                         PlayerPanel.entries.filter { panelAvailable(session, it) }.forEach { panel ->
                             SecondaryButton(panel.label, onClick = {

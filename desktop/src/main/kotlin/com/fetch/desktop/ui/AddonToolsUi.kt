@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -85,12 +86,12 @@ fun AddonHealthDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Addon health", color = Color.White) },
+        title = { Text(tr("Addon health"), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.width(720.dp)) {
-                Text("Over each addon’s last ${AddonHealth.WINDOW_SIZE} requests for streams, catalogs and details", color = FetchPalette.TextSecondary, fontSize = 14.sp)
+                Text(tr("Over each addon’s last %1\$s requests for streams, catalogs and details", AddonHealth.WINDOW_SIZE), color = FetchPalette.TextSecondary, fontSize = 14.sp)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Sort by", color = FetchPalette.TextMuted, fontSize = 14.sp)
+                    Text(tr("Sort by"), color = FetchPalette.TextMuted, fontSize = 14.sp)
                     ChipPicker(
                         options = AddonHealthSort.entries.map { DropdownOption(it, it.label) },
                         selected = listOf(sort),
@@ -98,7 +99,7 @@ fun AddonHealthDialog(
                     )
                 }
                 Column(Modifier.heightIn(max = 440.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (rows.isEmpty()) Text("No addons installed.", color = FetchPalette.TextMuted)
+                    if (rows.isEmpty()) Text(tr("No addons installed."), color = FetchPalette.TextMuted)
                     rows.forEach { addon ->
                         HealthRow(
                             addon.displayName,
@@ -131,9 +132,9 @@ private fun HealthRow(name: String, health: AddonHealth?, enabled: Boolean = tru
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(FetchPalette.Background).padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        Text(name + if (enabled) "" else " · Off", color = if (enabled) Color.White else FetchPalette.TextMuted, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(name + if (enabled) "" else tr(" · Off"), color = if (enabled) Color.White else FetchPalette.TextMuted, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
         if (health == null) {
-            Text("No requests yet", color = FetchPalette.TextSecondary, fontSize = 13.sp)
+            Text(tr("No requests yet"), color = FetchPalette.TextSecondary, fontSize = 13.sp)
             return@Column
         }
         val failurePercent = (health.failureRate * 100).toInt()
@@ -150,7 +151,7 @@ private fun HealthRow(name: String, health: AddonHealth?, enabled: Boolean = tru
         if (health.shouldSuggestDisabling && enabled && !sharedName) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
-                    "Failed ${health.consecutiveFailures} times in a row · " + if (onDisable != null) "consider turning it off" else "consider removing it",
+                    "Failed ${health.consecutiveFailures} times in a row · " + if (onDisable != null) tr("consider turning it off") else tr("consider removing it"),
                     color = FetchPalette.Error,
                     fontSize = 13.sp,
                     modifier = Modifier.weight(1f)
@@ -158,7 +159,7 @@ private fun HealthRow(name: String, health: AddonHealth?, enabled: Boolean = tru
                 if (onDisable != null) SecondaryButton("Disable", onClick = onDisable)
             }
         }
-        health.lastError?.let { Text("Last error: $it", color = FetchPalette.TextMuted, fontSize = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis) }
+        health.lastError?.let { Text(tr("Last error: %1\$s", it), color = FetchPalette.TextMuted, fontSize = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis) }
     }
 }
 
@@ -175,10 +176,10 @@ fun CatalogOrderDialog(state: AppState, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Catalog order", color = Color.White) },
+        title = { Text(tr("Catalog order"), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.width(680.dp)) {
-                Text("The order of your addon catalogs on Home. Synced with your other devices.", color = FetchPalette.TextSecondary, fontSize = 14.sp)
+                Text(tr("The order of your addon catalogs on Home. Synced with your other devices."), color = FetchPalette.TextSecondary, fontSize = 14.sp)
                 Column(Modifier.heightIn(max = 480.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     ordered.forEachIndexed { index, row ->
                         val shown = !HomeCatalogOrder.isDisabled(settings, row.ordered)
@@ -190,7 +191,7 @@ fun CatalogOrderDialog(state: AppState, onDismiss: () -> Unit) {
                             Text("${index + 1}", color = FetchPalette.TextMuted, fontSize = 13.sp, modifier = Modifier.width(24.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(row.title(true), color = if (shown) Color.White else FetchPalette.TextMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Text(row.addon.displayName + if (shown) "" else " · Hidden", color = FetchPalette.TextMuted, fontSize = 12.sp, maxLines = 1)
+                                Text(row.addon.displayName + if (shown) "" else tr(" · Hidden"), color = FetchPalette.TextMuted, fontSize = 12.sp, maxLines = 1)
                             }
                             CircleIconButton(FetchIcons.ArrowUp, "Move up", onClick = {
                                 state.updateSettings { HomeCatalogOrder.move(it, all, row.ordered, -1) }

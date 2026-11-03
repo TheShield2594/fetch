@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -83,8 +84,8 @@ fun QueueDetailButton(state: AppState, preview: MetaPreview) {
 /** An episode's or poster's "Add to queue" / "Remove from queue". */
 fun queueMenuItem(state: AppState, preview: MetaPreview, video: Video? = null): ContextMenuItem? {
     val videoId = video?.id ?: preview.id.takeIf { preview.type != ContentType.SERIES }
-    if (videoId != null && state.extras.isQueued(videoId)) return ContextMenuItem("Remove from queue") { state.extras.remove(videoId) }
-    return ContextMenuItem("Add to queue") { if (video != null) state.addEpisodeToQueue(preview, video) else state.addToQueue(preview) }
+    if (videoId != null && state.extras.isQueued(videoId)) return ContextMenuItem(tr("Remove from queue")) { state.extras.remove(videoId) }
+    return ContextMenuItem(tr("Add to queue")) { if (video != null) state.addEpisodeToQueue(preview, video) else state.addToQueue(preview) }
 }
 
 // --- In the built-in player ---
@@ -198,7 +199,7 @@ fun PreferNextTimePrompt(
             .border(1.dp, FetchPalette.SurfaceHigh, RoundedCornerShape(14.dp))
             .padding(20.dp)
     ) {
-        Text("Prefer this next time?", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+        Text(tr("Prefer this next time?"), color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             suggestions.forEachIndexed { index, suggestion ->
                 if (index == 0) PrimaryButton(suggestion.label, onClick = { onPrefer(suggestion) }, icon = FetchIcons.Check)
@@ -257,7 +258,7 @@ fun QueueSidePanel(state: AppState, currentVideoId: String?, modifier: Modifier 
             .padding(top = 24.dp, start = 24.dp, end = 12.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = 12.dp, bottom = 16.dp)) {
-            Text("Queue", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Text(tr("Queue"), color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
             CircleIconButton(FetchIcons.Close, "Close", onClick = { extras.queuePanelOpen = false }, size = 40.dp)
         }
         extras.lastRemoved?.let { (item, _) ->
@@ -266,13 +267,13 @@ fun QueueSidePanel(state: AppState, currentVideoId: String?, modifier: Modifier 
                 modifier = Modifier.padding(end = 12.dp, bottom = 12.dp).fillMaxWidth()
                     .clip(RoundedCornerShape(10.dp)).background(FetchPalette.SurfaceRaised).padding(horizontal = 14.dp, vertical = 8.dp)
             ) {
-                Text("Removed ${item.label} from the queue", color = FetchPalette.TextSecondary, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                Text(tr("Removed %1\$s from the queue", item.label), color = FetchPalette.TextSecondary, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                 SecondaryButton("Undo", onClick = extras::undoRemove)
             }
         }
         if (upcoming.isEmpty()) {
             Text(
-                "Nothing in your queue. Right-click a title, an episode or a Continue Watching card and choose Add to queue.",
+                tr("Nothing in your queue. Right-click a title, an episode or a Continue Watching card and choose Add to queue."),
                 color = FetchPalette.TextMuted,
                 modifier = Modifier.padding(end = 12.dp)
             )
@@ -334,7 +335,7 @@ private fun PostPlayOverlay(state: AppState, postPlay: PlaybackExtras.PostPlay, 
                 AsyncImage(model = recommendation.backdrop, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("BECAUSE YOU WATCHED ${postPlay.movieTitle.uppercase()}", style = OverlineStyle, color = FetchPalette.Accent, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(tr("Because you watched %1\$s", postPlay.movieTitle).uppercase(), style = OverlineStyle, color = FetchPalette.Accent, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 if (recommendation.logo != null) {
                     AsyncImage(model = recommendation.logo, contentDescription = recommendation.title, modifier = Modifier.height(64.dp).widthIn(max = 360.dp), alignment = Alignment.CenterStart)
                 } else {
@@ -350,7 +351,7 @@ private fun PostPlayOverlay(state: AppState, postPlay: PlaybackExtras.PostPlay, 
                     if (recommendation.trailerYtId != null && !postPlay.trailerPlaying) {
                         SecondaryButton(countdown?.let { "Trailer in $it" } ?: "Trailer", icon = FetchIcons.Trailer, onClick = { state.recommendationTrailer(recommendation) })
                     }
-                    if (postPlay.trailerPlaying) Text("Trailer playing", color = FetchPalette.TextSecondary, modifier = Modifier.align(Alignment.CenterVertically))
+                    if (postPlay.trailerPlaying) Text(tr("Trailer playing"), color = FetchPalette.TextSecondary, modifier = Modifier.align(Alignment.CenterVertically))
                     if (postPlay.items.size > 1) {
                         CircleIconButton(FetchIcons.ChevronLeft, "Previous recommendation", onClick = { state.extras.pagePostPlay(-1) }, enabled = postPlay.index > 0)
                         CircleIconButton(FetchIcons.ChevronRight, "Next recommendation", onClick = { state.extras.pagePostPlay(1) }, enabled = postPlay.index < postPlay.items.size - 1)

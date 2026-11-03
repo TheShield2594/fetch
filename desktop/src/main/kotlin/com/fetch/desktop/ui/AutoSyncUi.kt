@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import com.fetch.desktop.AppState
@@ -74,13 +75,13 @@ private class AutoSyncRun(private val state: AppState, private val session: Play
 
         val reference = AutoSyncSources.reference(mpv.tracks, language)
         if (reference == null) {
-            mpv.showText("Sync failed: this video has no embedded subtitles to compare with.")
+            mpv.showText(tr("Sync failed: this video has no embedded subtitles to compare with."))
             return
         }
         val raw = withContext(Dispatchers.IO) { downloadSubtitle(url) }
         val cues = raw?.let(CueParser::parse).orEmpty()
         if (raw == null || cues.isEmpty()) {
-            mpv.showText("Sync failed: Auto Sync doesn't support this subtitle format.")
+            mpv.showText(tr("Sync failed: Auto Sync doesn't support this subtitle format."))
             return
         }
         val candidate = SyncCandidate(url, raw, cues, language, addon?.addon)
@@ -162,7 +163,7 @@ private class AutoSyncRun(private val state: AppState, private val session: Play
                     if (tryAlternatives(candidate, cues, spans, result)) break
                 }
                 if (live.size >= 150) {
-                    mpv.showText("Sync failed: Auto Sync couldn't match this subtitle to the video.")
+                    mpv.showText(tr("Sync failed: Auto Sync couldn't match this subtitle to the video."))
                     break
                 }
             }
@@ -195,7 +196,7 @@ private class AutoSyncRun(private val state: AppState, private val session: Play
             return
         }
         if (tryAlternatives(candidate, file.cues, file.spans, result)) return
-        mpv.showText("Sync failed: Auto Sync couldn't match this subtitle to the video.")
+        mpv.showText(tr("Sync failed: Auto Sync couldn't match this subtitle to the video."))
     }
 
     /** The image track's timings: the Matroska index first (a few small reads), else ffprobe's sampled packets. */
@@ -262,7 +263,7 @@ private class AutoSyncRun(private val state: AppState, private val session: Play
             small || (map.isConstantShift && map.offsetMs.toLong() == 0L) -> {
                 showOriginal(candidate, label, switched)
                 extras.syncedDelaySec = 0.0
-                if (announce) mpv.showText(if (switched) "$prefix: timing already matches" else "Subtitle timing already matches")
+                if (announce) mpv.showText(if (switched) "$prefix: timing already matches" else tr("Subtitle timing already matches"))
             }
             map.isConstantShift -> {
                 val offset = map.offsetMs.toLong()
@@ -275,7 +276,7 @@ private class AutoSyncRun(private val state: AppState, private val session: Play
                 val text = SubtitleRetimeWriter.retime(candidate.raw, map)
                 val file = text?.let { writeCopy(candidate.url, it) }
                 if (file == null) {
-                    mpv.showText("Sync failed: couldn't write the re-timed subtitle.")
+                    mpv.showText(tr("Sync failed: couldn't write the re-timed subtitle."))
                     extras.syncResults.remove(candidate.url)
                     extras.syncedSubtitleUrl = null
                     return

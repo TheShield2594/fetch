@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -228,7 +229,7 @@ private fun Hint(text: String) = Text(text, color = FetchPalette.TextMuted, font
 private fun ServerStep(state: AppState, status: FirstRunStatus) {
     Row(horizontalArrangement = Arrangement.spacedBy(64.dp), verticalAlignment = Alignment.CenterVertically) {
         StepIntro(
-            "Connect your Fetch server",
+            tr("Connect your Fetch server"),
             "A self-hosted Fetch website keeps profiles, parental limits, collections and watch history in sync with your TVs. " +
                 "No server? Skip this and Fetch works on this computer on its own.",
             Modifier.weight(1f)
@@ -236,7 +237,7 @@ private fun ServerStep(state: AppState, status: FirstRunStatus) {
         Column(verticalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.weight(1.2f)) {
             val account = state.account
             if (status.serverSignedIn && account != null) {
-                StatusLine("Fetch server", listOfNotNull(account.state.session?.email, account.state.server?.url).joinToString(" · "), done = true)
+                StatusLine(tr("Fetch server"), listOfNotNull(account.state.session?.email, account.state.server?.url).joinToString(" · "), done = true)
             } else {
                 AccountPage(state, header = false)
             }
@@ -251,7 +252,7 @@ private fun SourcesStep(state: AppState, status: FirstRunStatus) {
     var showServers by remember { mutableStateOf(false) }
     Row(horizontalArrangement = Arrangement.spacedBy(64.dp), verticalAlignment = Alignment.Top) {
         Column(verticalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.weight(1.3f)) {
-            StepIntro("Add something to watch", "Streams come from Stremio addons. Paste a stream addon's link; it usually ends in manifest.json.")
+            StepIntro(tr("Add something to watch"), tr("Streams come from Stremio addons. Paste a stream addon's link; it usually ends in manifest.json."))
             AddonLinkField(state)
             if (state.addons.isNotEmpty()) {
                 Text("Installed: " + state.addons.joinToString(", ") { it.displayName }, color = FetchPalette.TextSecondary, fontSize = 14.sp)
@@ -262,17 +263,17 @@ private fun SourcesStep(state: AppState, status: FirstRunStatus) {
         }
         Column(verticalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.weight(1f)) {
             StatusLine(
-                "Stream addons",
-                if (status.streamAddons > 0) "${status.streamAddons} installed" else "None yet. Movies and shows will list, but won't play.",
+                tr("Stream addons"),
+                if (status.streamAddons > 0) "${status.streamAddons} installed" else tr("None yet. Movies and shows will list, but won't play."),
                 done = status.streamAddons > 0
             )
             StatusLine(
-                "Media servers",
-                status.mediaServers.takeIf { it.isNotEmpty() }?.joinToString(", ") ?: "None yet. Jellyfin, Emby and Plex add your own files.",
+                tr("Media servers"),
+                status.mediaServers.takeIf { it.isNotEmpty() }?.joinToString(", ") ?: tr("None yet. Jellyfin, Emby and Plex add your own files."),
                 done = status.mediaServers.isNotEmpty()
             )
             if (!showServers) SecondaryButton("Connect a media server", onClick = { showServers = true })
-            Hint("Real-Debrid, Premiumize and TorBox sign in on a stream addon's own setup page, which opens in your browser when the addon has one.")
+            Hint(tr("Real-Debrid, Premiumize and TorBox sign in on a stream addon's own setup page, which opens in your browser when the addon has one."))
         }
     }
 }
@@ -320,7 +321,7 @@ private fun MetadataStep(state: AppState, status: FirstRunStatus) {
     val builtInTmdb = remember { com.fetch.desktop.ratings.TmdbCredentials.load() != null }
     Row(horizontalArrangement = Arrangement.spacedBy(64.dp), verticalAlignment = Alignment.Top) {
         Column(verticalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.weight(1.3f)) {
-            StepIntro("Ratings and tracking", "Richer title pages from TMDB, ratings from MDBList, and Trakt or Simkl to keep what you watch in sync.")
+            StepIntro(tr("Ratings and tracking"), tr("Richer title pages from TMDB, ratings from MDBList, and Trakt or Simkl to keep what you watch in sync."))
             SettingsSection(null) {
                 SettingsToggle("Richer details from TMDB", "Artwork, cast, episode titles and trailers on top of what addons give.", status.tmdbEnabled) { v ->
                     state.updateSettings { it.copy(tmdb = it.tmdb.copy(enabled = v)) }
@@ -340,10 +341,10 @@ private fun MetadataStep(state: AppState, status: FirstRunStatus) {
             TrackingPage(state, header = false)
         }
         Column(verticalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.weight(1f)) {
-            StatusLine("MDBList ratings", if (status.mdbListReady) "Key added" else "No key yet", done = status.mdbListReady)
+            StatusLine(tr("MDBList ratings"), if (status.mdbListReady) tr("Key added") else tr("No key yet"), done = status.mdbListReady)
             StatusLine(
-                "Trakt and Simkl",
-                status.trackingConnected.takeIf { it.isNotEmpty() }?.joinToString(", ", prefix = "Connected: ") ?: "Not connected",
+                tr("Trakt and Simkl"),
+                status.trackingConnected.takeIf { it.isNotEmpty() }?.joinToString(", ", prefix = "Connected: ") ?: tr("Not connected"),
                 done = status.trackingConnected.isNotEmpty()
             )
         }
@@ -355,20 +356,20 @@ private fun MetadataStep(state: AppState, status: FirstRunStatus) {
 @Composable
 private fun ExperienceStep(onChoose: (ExperienceMode) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.widthIn(max = 760.dp)) {
-        Text("Choose your Fetch experience", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = FetchPalette.TextPrimary)
+        Text(tr("Choose your Fetch experience"), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = FetchPalette.TextPrimary)
         ExperienceModeCard(
-            "Essential",
-            "Focused setup, addons, playback basics, Trakt, and account settings.",
+            tr("Essential"),
+            tr("Focused setup, addons, playback basics, Trakt, and account settings."),
             recommended = true,
             onClick = { onChoose(ExperienceMode.ESSENTIAL) }
         )
         ExperienceModeCard(
-            "Advanced",
-            "Full settings, layout controls, catalog order, collections, integrations, and tuning.",
+            tr("Advanced"),
+            tr("Full settings, layout controls, catalog order, collections, integrations, and tuning."),
             recommended = false,
             onClick = { onChoose(ExperienceMode.ADVANCED) }
         )
-        Text("Start simple or unlock every customization. You can switch anytime in Settings › Advanced.", color = FetchPalette.TextMuted)
+        Text(tr("Start simple or unlock every customization. You can switch anytime in Settings › Advanced."), color = FetchPalette.TextMuted)
     }
 }
 
@@ -391,7 +392,7 @@ private fun ExperienceModeCard(title: String, subtitle: String, recommended: Boo
             Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = FetchPalette.TextPrimary)
             if (recommended) {
                 Text(
-                    "Recommended",
+                    tr("Recommended"),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = FetchPalette.TextSecondary,
@@ -417,15 +418,15 @@ fun EssentialAddonSetup(state: AppState, onSkip: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
             modifier = Modifier.fillMaxSize().padding(72.dp)
         ) {
-            Text("Set up addons", style = MaterialTheme.typography.headlineLarge, color = FetchPalette.TextPrimary)
-            Text("Install one addon to start streaming. You can add more later from Addons.", color = FetchPalette.TextSecondary)
+            Text(tr("Set up addons"), style = MaterialTheme.typography.headlineLarge, color = FetchPalette.TextPrimary)
+            Text(tr("Install one addon to start streaming. You can add more later from Addons."), color = FetchPalette.TextSecondary)
             Column(
                 verticalArrangement = Arrangement.spacedBy(14.dp),
                 modifier = Modifier.widthIn(max = 720.dp).fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(FetchPalette.SurfaceRaised).padding(24.dp)
             ) {
-                Text("Install addon", style = MaterialTheme.typography.titleMedium, color = FetchPalette.TextPrimary)
+                Text(tr("Install addon"), style = MaterialTheme.typography.titleMedium, color = FetchPalette.TextPrimary)
                 AddonLinkField(state)
-                Hint("Paste a stream addon's link; it usually ends in manifest.json. Debrid services sign in on the addon's own setup page.")
+                Hint(tr("Paste a stream addon's link; it usually ends in manifest.json. Debrid services sign in on the addon's own setup page."))
                 if (state.addons.isNotEmpty()) {
                     Text("Installed: " + state.addons.joinToString(", ") { it.displayName }, color = FetchPalette.TextSecondary, fontSize = 14.sp)
                 }

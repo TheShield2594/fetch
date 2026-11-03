@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -285,7 +286,7 @@ private fun SkipSegmentButton(
                 // An AniSkip marker can be reported as wrong (the TV's long press on the button).
                 if (com.fetch.desktop.skip.SkipMarkerRules.canReport(segment)) {
                     Text(
-                        "Wrong?",
+                        tr("Wrong?"),
                         color = Color.White.copy(alpha = 0.7f),
                         fontSize = 13.sp,
                         modifier = Modifier
@@ -431,7 +432,7 @@ internal fun LazyListScope.subtitlePanelItems(state: AppState, session: PlayerSe
     val mpv = session.mpv
     val p = state.settings.player
     val extras = session.extras
-    item { DelayRow("Subtitle delay (Z / X)", mpv.subtitleDelay, step = 0.1, onChange = mpv::changeSubtitleDelay) }
+    item { DelayRow(tr("Subtitle delay (Z / X)"), mpv.subtitleDelay, step = 0.1, onChange = mpv::changeSubtitleDelay) }
     item {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)) {
             SecondaryButton("Style", onClick = {
@@ -442,7 +443,7 @@ internal fun LazyListScope.subtitlePanelItems(state: AppState, session: PlayerSe
     }
     extras.autoSyncStatus?.let { status -> item { LoadingRow(status) } }
     val subs = mpv.tracks.filter { it.type == "sub" }
-    item { PanelRow("Off", selected = subs.none { it.selected }) { mpv.selectSubtitle(null) } }
+    item { PanelRow(tr("Off"), selected = subs.none { it.selected }) { mpv.selectSubtitle(null) } }
     val preferred = preferredSubtitleKeys(p)
     val groups = SubtitleOrganisation.organise(
         tracks = mpv.tracks,
@@ -493,16 +494,16 @@ internal fun LazyListScope.subtitlePanelItems(state: AppState, session: PlayerSe
         }
     }
     when {
-        session.addonSubtitlesLoading -> item { LoadingRow("Asking your addons…") }
+        session.addonSubtitlesLoading -> item { LoadingRow(tr("Asking your addons…")) }
         session.addonSubtitles.isNullOrEmpty() && session.target != null -> item {
-            Text("No addon subtitles.", color = FetchPalette.TextMuted, modifier = Modifier.padding(8.dp))
+            Text(tr("No addon subtitles."), color = FetchPalette.TextMuted, modifier = Modifier.padding(8.dp))
         }
     }
     if (p.extras.subtitleOnlyPreferredLanguages) {
         val hidden = SubtitleOrganisation.hiddenCount(mpv.tracks, session.addonSubtitles.orEmpty(), preferred, p.extras.subtitleOrganization, extras.syncedFiles.toMap())
         if (hidden > 0) item {
             PanelRow(
-                "Show all languages",
+                tr("Show all languages"),
                 detail = "$hidden in other languages hidden (Settings › Subtitles › Show only preferred languages)",
                 selected = false
             ) { state.updateExtras { it.copy(subtitleOnlyPreferredLanguages = false) } }
@@ -517,7 +518,7 @@ internal fun LazyListScope.audioPanelExtraItems(state: AppState, session: Player
     val applies = AudioExtras.centerMixApplies(track?.channels)
     item {
         Column(Modifier.padding(horizontal = 4.dp, vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Dialogue boost (centre mix)", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+            Text(tr("Dialogue boost (centre mix)"), color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Medium)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 SecondaryButton("−", enabled = applies && db > PlayerExtras.CENTER_MIX_MIN_DB, onClick = {
                     state.updateExtras { it.copy(centerMixLevelDb = (it.centerMixLevelDb - 1).coerceAtLeast(PlayerExtras.CENTER_MIX_MIN_DB)) }
@@ -529,8 +530,8 @@ internal fun LazyListScope.audioPanelExtraItems(state: AppState, session: Player
                 if (db != 0) SecondaryButton("Reset", onClick = { state.updateExtras { it.copy(centerMixLevelDb = 0) } })
             }
             Text(
-                if (applies) "Raises the dialogue when surround is mixed down to fewer speakers (Settings › Audio › Channels)."
-                else "Only for surround tracks mixed down to fewer speakers.",
+                if (applies) tr("Raises the dialogue when surround is mixed down to fewer speakers (Settings › Audio › Channels).")
+                else tr("Only for surround tracks mixed down to fewer speakers."),
                 color = FetchPalette.TextMuted,
                 fontSize = 12.sp
             )
@@ -563,19 +564,19 @@ private fun SubtitleStylePanel(state: AppState, session: PlayerSession, modifier
                 session.extras.stylePanelOpen = false
                 session.panel = com.fetch.desktop.PlayerPanel.SUBTITLES
             }, size = 40.dp)
-            Text("Subtitle style", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Text(tr("Subtitle style"), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
             CircleIconButton(FetchIcons.Close, "Close", onClick = { session.extras.stylePanelOpen = false }, size = 40.dp)
         }
         Column(Modifier.verticalScroll(rememberScrollState()).padding(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            StyleCard("Font size") {
+            StyleCard(tr("Font size")) {
                 Stepper("${Math.round(p.subtitleScale * 100)}%",
                     onMinus = { state.updatePlayerSettings { it.copy(subtitleScale = ((it.subtitleScale * 10).let(Math::round) - 1).coerceAtLeast(5) / 10.0) } },
                     onPlus = { state.updatePlayerSettings { it.copy(subtitleScale = ((it.subtitleScale * 10).let(Math::round) + 1).coerceAtMost(20) / 10.0) } })
             }
-            StyleCard("Bold") {
+            StyleCard(tr("Bold")) {
                 ToggleChip(p.subtitleBold) { state.updatePlayerSettings { it.copy(subtitleBold = !it.subtitleBold) } }
             }
-            StyleCard(if (hdr) "Text color (HDR)" else "Text color") {
+            StyleCard(if (hdr) tr("Text color (HDR)") else tr("Text color")) {
                 val current = if (hdr) e.subtitleHdrColor else p.subtitleColor
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -588,7 +589,7 @@ private fun SubtitleStylePanel(state: AppState, session: PlayerSession, modifier
                     }
                     val opacity = SubtitleStyle.opacityPercent(current)
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text(if (hdr) "Opacity (HDR)" else "Opacity", color = FetchPalette.TextMuted, fontSize = 13.sp, modifier = Modifier.width(90.dp))
+                        Text(if (hdr) tr("Opacity (HDR)") else tr("Opacity"), color = FetchPalette.TextMuted, fontSize = 13.sp, modifier = Modifier.width(90.dp))
                         Stepper("$opacity%",
                             onMinus = {
                                 val color = SubtitleStyle.withOpacity(current, (opacity - 10).coerceAtLeast(0))
@@ -602,13 +603,13 @@ private fun SubtitleStylePanel(state: AppState, session: PlayerSession, modifier
                 }
             }
             if (hdr) {
-                StyleCard("Brightness (HDR)") {
+                StyleCard(tr("Brightness (HDR)")) {
                     Stepper("${e.subtitleHdrBrightness}%",
                         onMinus = { state.updateExtras { it.copy(subtitleHdrBrightness = (it.subtitleHdrBrightness - 10).coerceAtLeast(0)) } },
                         onPlus = { state.updateExtras { it.copy(subtitleHdrBrightness = (it.subtitleHdrBrightness + 10).coerceAtMost(100)) } })
                 }
             }
-            StyleCard("Outline") {
+            StyleCard(tr("Outline")) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     ToggleChip(p.subtitleOutline && !p.subtitleBackground) {
                         state.updatePlayerSettings { it.copy(subtitleOutline = !(it.subtitleOutline && !it.subtitleBackground), subtitleBackground = false) }
@@ -622,16 +623,16 @@ private fun SubtitleStylePanel(state: AppState, session: PlayerSession, modifier
                     }
                 }
             }
-            StyleCard("Background box") {
+            StyleCard(tr("Background box")) {
                 ToggleChip(p.subtitleBackground) { state.updatePlayerSettings { it.copy(subtitleBackground = !it.subtitleBackground) } }
             }
-            StyleCard("Position") {
+            StyleCard(tr("Position")) {
                 Stepper(if (p.subtitlePosition >= 100) "Bottom" else "${100 - p.subtitlePosition}% up",
                     onMinus = { state.updatePlayerSettings { it.copy(subtitlePosition = (it.subtitlePosition + 5).coerceAtMost(SubtitleStyle.MAX_POSITION)) } },
                     onPlus = { state.updatePlayerSettings { it.copy(subtitlePosition = (it.subtitlePosition - 5).coerceAtLeast(SubtitleStyle.MIN_POSITION)) } },
                     minus = "▼", plus = "▲")
             }
-            StyleCard("Defaults") {
+            StyleCard(tr("Defaults")) {
                 SecondaryButton("Reset", onClick = {
                     val d = PlayerSettings()
                     state.updateSettings {
@@ -644,7 +645,7 @@ private fun SubtitleStylePanel(state: AppState, session: PlayerSession, modifier
                     }
                 })
             }
-            Text("Changes apply now and become your defaults.", color = FetchPalette.TextMuted, fontSize = 12.sp)
+            Text(tr("Changes apply now and become your defaults."), color = FetchPalette.TextMuted, fontSize = 12.sp)
         }
     }
 }

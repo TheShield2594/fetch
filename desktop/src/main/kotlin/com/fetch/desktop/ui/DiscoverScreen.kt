@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -104,7 +105,7 @@ fun DiscoverGrid(
                         when {
                             discover.loading -> CircularProgressIndicator(color = FetchPalette.Accent, modifier = Modifier.size(28.dp))
                             !discover.endReached -> SecondaryButton("Load more", onClick = discover::loadMore)
-                            else -> Text("That's everything in this catalog.", color = FetchPalette.TextMuted)
+                            else -> Text(tr("That's everything in this catalog."), color = FetchPalette.TextMuted)
                         }
                     }
                 }

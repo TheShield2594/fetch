@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -122,7 +123,7 @@ private fun ProfileEntry(profile: DesktopProfile, expanded: Boolean, onClick: ()
         AnimatedVisibility(visible = expanded, enter = fadeIn(), exit = fadeOut()) {
             Column {
                 Text(profile.name, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
-                Text("Switch profile", color = FetchPalette.TextMuted, fontSize = 13.sp, maxLines = 1)
+                Text(tr("Switch profile"), color = FetchPalette.TextMuted, fontSize = 13.sp, maxLines = 1)
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -92,8 +93,8 @@ fun FilterRowsPage(state: AppState) {
     var creating by remember { mutableStateOf(false) }
     val options = filterRowSources(state)
     val labels = options.associate { it.key to it.label }
-    SubPageHeader("Filter rows", onBack = state::back)
-    Text("Home rows narrowed from one source. They show on Home with your other rows.", color = FetchPalette.TextSecondary)
+    SubPageHeader(tr("Filter rows"), onBack = state::back)
+    Text(tr("Home rows narrowed from one source. They show on Home with your other rows."), color = FetchPalette.TextSecondary)
     SettingsSection(null) {
         if (state.filterRows.isEmpty()) SettingsRow("No filter rows yet", "Make one from a media server library or an addon catalog with genres.")
         state.filterRows.forEach { row ->
@@ -110,7 +111,7 @@ fun FilterRowsPage(state: AppState) {
         PrimaryButton("New filter row", icon = FetchIcons.Add, enabled = options.isNotEmpty(), onClick = { creating = true })
     }
     if (options.isEmpty()) {
-        Text("Connect a media server, or install an addon whose catalogs take a genre, to make a filter row.", color = FetchPalette.TextMuted)
+        Text(tr("Connect a media server, or install an addon whose catalogs take a genre, to make a filter row."), color = FetchPalette.TextMuted)
     }
     if (creating || editing != null) {
         FilterRowEditor(state, options, editing, onDone = { creating = false; editing = null })
@@ -151,11 +152,11 @@ private fun FilterRowEditor(state: AppState, options: List<FilterRowSourceOption
     AlertDialog(
         onDismissRequest = onDone,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text(if (initial == null) "New filter row" else "Edit filter row", color = Color.White) },
+        title = { Text(if (initial == null) tr("New filter row") else tr("Edit filter row"), color = Color.White) },
         text = {
             Column(Modifier.width(560.dp).heightIn(max = 560.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Field(title, option?.label?.substringAfter(" · ")?.let { "Title (default: ${it})" } ?: "Title") { title = it.take(60) }
-                Labeled("Source") {
+                Field(title, option?.label?.substringAfter(" · ")?.let { "Title (default: ${it})" } ?: tr("Title")) { title = it.take(60) }
+                Labeled(tr("Source")) {
                     FilterDropdown("Source", sourceKey, options.map { DropdownOption(it.key, it.label) }, onSelect = { key ->
                         val next = options.firstOrNull { it.key == key } ?: return@FilterDropdown
                         sourceKey = key
@@ -163,7 +164,7 @@ private fun FilterRowEditor(state: AppState, options: List<FilterRowSourceOption
                         filters = if (next.isServer) filters.copy(genre = null) else FilterRowFilters()
                     })
                 }
-                Labeled("Genre") {
+                Labeled(tr("Genre")) {
                     FilterDropdown(
                         "Genre",
                         filters.genre,
@@ -174,16 +175,16 @@ private fun FilterRowEditor(state: AppState, options: List<FilterRowSourceOption
                 }
                 if (option?.isServer == true) {
                     val years = (java.time.LocalDate.now().year downTo 1920).toList()
-                    Labeled("Years") {
+                    Labeled(tr("Years")) {
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                             FilterDropdown("From", filters.yearFrom, listOf(DropdownOption<Int?>(null, "Any")) + years.map { DropdownOption<Int?>(it, "$it") }, onSelect = { filters = filters.copy(yearFrom = it) })
                             FilterDropdown("To", filters.yearTo, listOf(DropdownOption<Int?>(null, "Any")) + years.map { DropdownOption<Int?>(it, "$it") }, onSelect = { filters = filters.copy(yearTo = it) })
                         }
                     }
-                    Labeled("Watched") {
+                    Labeled(tr("Watched")) {
                         FilterDropdown("Watched", filters.watched, RowWatched.entries.map { DropdownOption(it, it.label) }, onSelect = { filters = filters.copy(watched = it) })
                     }
-                    Labeled("Minimum rating") {
+                    Labeled(tr("Minimum rating")) {
                         FilterDropdown(
                             "Rating",
                             filters.minRating,
@@ -191,7 +192,7 @@ private fun FilterRowEditor(state: AppState, options: List<FilterRowSourceOption
                             onSelect = { filters = filters.copy(minRating = it) }
                         )
                     }
-                    Labeled("Sort") {
+                    Labeled(tr("Sort")) {
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             FilterDropdown("Sort", filters.sort, RowSort.entries.map { DropdownOption(it, it.label) }, onSelect = { filters = filters.copy(sort = it) })
                             FilterDropdown(
@@ -203,7 +204,7 @@ private fun FilterRowEditor(state: AppState, options: List<FilterRowSourceOption
                         }
                     }
                 } else {
-                    Text("Addon catalogs only filter by genre.", color = FetchPalette.TextMuted, fontSize = 13.sp)
+                    Text(tr("Addon catalogs only filter by genre."), color = FetchPalette.TextMuted, fontSize = 13.sp)
                 }
             }
         },

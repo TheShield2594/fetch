@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -92,7 +93,7 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
     val message = state.message
     LaunchedEffect(message) {
         if (message != null) {
-            snackbar.showSnackbar(message)
+            snackbar.showSnackbar(tr(message))
             state.message = null
         }
     }
@@ -207,19 +208,19 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
                 // Settings. Addons lives in Settings › Content & Discovery, as on TV.
                 Sidebar(
                     items = buildList {
-                        add(SidebarItem("Home", FetchIcons.Home, state.screen == Screen.Home || state.screen is Screen.Detail ||
+                        add(SidebarItem(tr("Home"), FetchIcons.Home, state.screen == Screen.Home || state.screen is Screen.Detail ||
                             state.screen is Screen.Person || state.screen is Screen.Entity || state.screen is Screen.SeeAll || state.screen is Screen.Folder) {
                             state.openSection(Screen.Home)
                         })
                         if (state.settings.discoverInSidebar) {
-                            add(SidebarItem("Discover", FetchIcons.Discover, state.screen == Screen.Discover) {
+                            add(SidebarItem(tr("Discover"), FetchIcons.Discover, state.screen == Screen.Discover) {
                                 state.openSection(Screen.Discover)
                             })
                         }
-                        add(SidebarItem("Search", FetchIcons.Search, state.screen == Screen.Search) {
+                        add(SidebarItem(tr("Search"), FetchIcons.Search, state.screen == Screen.Search) {
                             state.openSection(Screen.Search)
                         })
-                        add(SidebarItem("Library", FetchIcons.Library, state.screen == Screen.Library) {
+                        add(SidebarItem(tr("Library"), FetchIcons.Library, state.screen == Screen.Library) {
                             state.openSection(Screen.Library)
                         })
                         // YouTube, while this profile is signed in to it and has no limits (as on TV).
@@ -228,7 +229,7 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
                                 state.openSection(Screen.YouTube)
                             })
                         }
-                        add(SidebarItem("Settings", FetchIcons.Settings, state.screen is Screen.Settings) {
+                        add(SidebarItem(tr("Settings"), FetchIcons.Settings, state.screen is Screen.Settings) {
                             state.openSection(Screen.Settings())
                         })
                     },
@@ -271,16 +272,16 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
 /** The TV's poster long-press options, as a right-click menu. */
 private class AppPosterActions(private val state: AppState) : PosterActions {
     override fun menu(item: com.fetch.tv.domain.model.MetaPreview) = buildList {
-        add(androidx.compose.foundation.ContextMenuItem("Play") { state.navigate(Screen.Detail(item, autoPlay = true)) })
-        add(androidx.compose.foundation.ContextMenuItem("Go to details") { state.navigate(Screen.Detail(item)) })
+        add(androidx.compose.foundation.ContextMenuItem(tr("Play")) { state.navigate(Screen.Detail(item, autoPlay = true)) })
+        add(androidx.compose.foundation.ContextMenuItem(tr("Go to details")) { state.navigate(Screen.Detail(item)) })
         val inLibrary = state.isInLibrary(item.id)
-        add(androidx.compose.foundation.ContextMenuItem(if (inLibrary) "Remove from library" else "Add to library") {
+        add(androidx.compose.foundation.ContextMenuItem(if (inLibrary) tr("Remove from library") else tr("Add to library")) {
             state.withImdbId(item) { state.toggleLibrary(it) }
         })
-        add(androidx.compose.foundation.ContextMenuItem("Manage lists…") { state.manageLists(item) })
+        add(androidx.compose.foundation.ContextMenuItem(tr("Manage lists…")) { state.manageLists(item) })
         queueMenuItem(state, item)?.let(::add)
         val watched = isWatched(item)
-        add(androidx.compose.foundation.ContextMenuItem(if (watched) "Mark as unwatched" else "Mark as watched") {
+        add(androidx.compose.foundation.ContextMenuItem(if (watched) tr("Mark as unwatched") else tr("Mark as watched")) {
             state.withImdbId(item) { state.setTitleWatched(it, !watched) }
         })
         addAll(parentalTitleMenu(state, item))
@@ -296,8 +297,8 @@ private fun PlayerChoiceDialog(state: AppState) {
     AlertDialog(
         onDismissRequest = { state.answerPlayerChoice(null) },
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Play with", color = Color.White) },
-        text = { Text("Built-in plays inside Fetch's window with Fetch's controls; mpv opens its own window.", color = FetchPalette.TextSecondary) },
+        title = { Text(tr("Play with"), color = Color.White) },
+        text = { Text(tr("Built-in plays inside Fetch's window with Fetch's controls; mpv opens its own window."), color = FetchPalette.TextSecondary) },
         confirmButton = { PrimaryButton("Built-in player", onClick = { state.answerPlayerChoice(true) }) },
         dismissButton = { SecondaryButton("mpv window", onClick = { state.answerPlayerChoice(false) }) }
     )

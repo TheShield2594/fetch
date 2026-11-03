@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -264,7 +265,7 @@ private fun AddBadgeUrl(state: StreamBadgesState) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp)
     ) {
-        Text("Fusion badge JSON URL", color = FetchPalette.TextSecondary, fontSize = 13.sp)
+        Text(tr("Fusion badge JSON URL"), color = FetchPalette.TextSecondary, fontSize = 13.sp)
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             BasicTextField(
                 value = url,
@@ -279,7 +280,7 @@ private fun AddBadgeUrl(state: StreamBadgesState) {
                     Box {
                         if (url.isEmpty()) {
                             Text(
-                                if (canAdd) "https://example.com/badges.json" else "Delete a URL to import another",
+                                if (canAdd) "https://example.com/badges.json" else tr("Delete a URL to import another"),
                                 color = FetchPalette.TextMuted,
                                 fontSize = 15.sp,
                                 maxLines = 1,

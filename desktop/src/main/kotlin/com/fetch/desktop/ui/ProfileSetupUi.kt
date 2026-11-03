@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -147,7 +148,7 @@ fun AvatarPickerGrid(avatars: List<AvatarItem>, selectedId: String?, onSelect: (
             }
         }
         Text(
-            hovered?.name ?: "Point at an avatar to see its name",
+            hovered?.name ?: tr("Point at an avatar to see its name"),
             color = if (hovered != null) Color.White else FetchPalette.TextMuted,
             fontWeight = if (hovered != null) FontWeight.SemiBold else FontWeight.Normal,
             fontSize = 15.sp,
@@ -249,7 +250,7 @@ fun ProfileSetupEditorDialog(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 AvatarCircle(name.ifBlank { "?" }, color, avatarId, keptAvatarUrl, 48.dp)
-                Text(if (creating) "Create profile" else "Edit profile", color = Color.White)
+                Text(if (creating) tr("Create profile") else tr("Edit profile"), color = Color.White)
             }
         },
         text = {
@@ -262,7 +263,7 @@ fun ProfileSetupEditorDialog(
                     cursorBrush = SolidColor(FetchPalette.Accent),
                     decorationBox = { field ->
                         Box {
-                            if (name.isEmpty()) Text("Profile name", color = FetchPalette.TextMuted, fontSize = 17.sp)
+                            if (name.isEmpty()) Text(tr("Profile name"), color = FetchPalette.TextMuted, fontSize = 17.sp)
                             field()
                         }
                     },
@@ -333,13 +334,13 @@ fun ProfileSetupEditorDialog(
                             SettingsToggle("Copy missing API keys", "Your own TMDB and MDBList keys, where this profile has none.", copyKeys) { copyKeys = it }
                         }
                         Text(
-                            "Accounts, addons, Home layout, PIN, history and Library stay unchanged.",
+                            tr("Accounts, addons, Home layout, PIN, history and Library stay unchanged."),
                             color = FetchPalette.TextMuted,
                             fontSize = 13.sp
                         )
                     }
                     EditorTab.Preferences -> Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text("Only this profile uses these. The rest are in Settings while it is active.", color = FetchPalette.TextSecondary, fontSize = 14.sp)
+                        Text(tr("Only this profile uses these. The rest are in Settings while it is active."), color = FetchPalette.TextSecondary, fontSize = 14.sp)
                         val p = prefs ?: return@Column
                         val languages = MpvArgs.languages.map { DropdownOption<String?>(it.code, it.label) }
                         SettingsChoice("Audio language", null, p.audioLanguage, listOf(DropdownOption<String?>(null, "Default (media file)")) + languages) {
@@ -413,14 +414,14 @@ private fun ProfileBackgroundPicker(
 ) {
     val customUrl = remember { selectedUrl?.takeIf { it.isNotBlank() } }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("Shown behind this profile on the profile picker.", color = FetchPalette.TextSecondary, fontSize = 14.sp)
+        Text(tr("Shown behind this profile on the profile picker."), color = FetchPalette.TextSecondary, fontSize = 14.sp)
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier.heightIn(max = 300.dp).verticalScroll(rememberScrollState()).padding(4.dp)
         ) {
-            BackgroundTile("None", selectedId == null && selectedUrl.isNullOrBlank(), image = null) { onSelect(null, null) }
-            if (customUrl != null) BackgroundTile("Your own picture", selectedUrl == customUrl, customUrl) { onSelect(null, customUrl) }
+            BackgroundTile(tr("None"), selectedId == null && selectedUrl.isNullOrBlank(), image = null) { onSelect(null, null) }
+            if (customUrl != null) BackgroundTile(tr("Your own picture"), selectedUrl == customUrl, customUrl) { onSelect(null, customUrl) }
             backgrounds.forEach { bg ->
                 BackgroundTile(bg.name, selectedUrl.isNullOrBlank() && selectedId == bg.id, bg.imageFile) { onSelect(bg.id, null) }
             }
@@ -438,7 +439,7 @@ private fun BackgroundTile(label: String, selected: Boolean, image: Any?, onClic
                 .clickable(onClick = onClick).pointerHoverIcon(PointerIcon.Hand)
         ) {
             if (image != null) AsyncImage(image, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-            else Text(if (label == "None") "None" else "…", color = FetchPalette.TextMuted, fontSize = 14.sp)
+            else Text(if (label == "None") tr("None") else "…", color = FetchPalette.TextMuted, fontSize = 14.sp)
         }
         Text(label, color = if (selected) Color.White else FetchPalette.TextSecondary, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
@@ -453,16 +454,16 @@ fun CopySettingsDialog(profiles: ProfilesState, target: DesktopProfile, state: A
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Copy settings to ${target.name}", color = Color.White) },
+        title = { Text(tr("Copy settings to %1\$s", target.name), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.width(560.dp)) {
-                Text("Choose a source profile. Its settings will replace this profile’s settings once.", color = FetchPalette.TextSecondary, fontSize = 14.sp)
+                Text(tr("Choose a source profile. Its settings will replace this profile’s settings once."), color = FetchPalette.TextSecondary, fontSize = 14.sp)
                 SettingsChoice("Copy from", null, source?.id, sources.map { DropdownOption<Int?>(it.id, it.copySourceLabel()) }) { id ->
                     source = sources.firstOrNull { it.id == id }
                 }
                 SettingsToggle("Copy missing API keys", "Your own TMDB and MDBList keys, where ${target.name} has none.", copyKeys) { copyKeys = it }
                 Text(
-                    "Existing API keys are kept. Accounts, addons, Home layout, PIN, history, Library and device-specific settings stay unchanged.",
+                    tr("Existing API keys are kept. Accounts, addons, Home layout, PIN, history, Library and device-specific settings stay unchanged."),
                     color = FetchPalette.TextMuted,
                     fontSize = 13.sp
                 )
@@ -493,10 +494,10 @@ fun ViewingActivityDialog(profile: DesktopProfile, state: AppState?, onDismiss: 
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("${profile.name}’s viewing activity", color = Color.White) },
+        title = { Text(tr("%1\$s’s viewing activity", profile.name), color = Color.White) },
         text = {
             Column(Modifier.width(640.dp).heightIn(max = 460.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                if (entries.isEmpty()) Text("Nothing watched on this profile yet.", color = FetchPalette.TextSecondary)
+                if (entries.isEmpty()) Text(tr("Nothing watched on this profile yet."), color = FetchPalette.TextSecondary)
                 entries.forEach { ViewingActivityRow(it, dateFormat.format(Date(it.watchedAt))) }
             }
         },
@@ -517,7 +518,7 @@ private fun ViewingActivityRow(entry: ViewingActivityEntry, date: String) {
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(date, color = FetchPalette.TextSecondary, fontSize = 13.sp)
-            Text(entry.percentWatched?.let { "$it% watched" } ?: "Finished", color = FetchPalette.TextMuted, fontSize = 13.sp)
+            Text(entry.percentWatched?.let { "$it% watched" } ?: tr("Finished"), color = FetchPalette.TextMuted, fontSize = 13.sp)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -262,7 +263,7 @@ private fun KeyField(value: String, onChange: (String) -> Unit) {
         visualTransformation = PasswordVisualTransformation(),
         decorationBox = { field ->
             Box {
-                if (value.isEmpty()) Text("Not set", color = FetchPalette.TextMuted, fontSize = 15.sp)
+                if (value.isEmpty()) Text(tr("Not set"), color = FetchPalette.TextMuted, fontSize = 15.sp)
                 field()
             }
         },
@@ -282,7 +283,7 @@ private fun MdbListSignInDialog(code: String, url: String, completeUrl: String, 
     AlertDialog(
         onDismissRequest = onCancel,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Connect MDBList", color = Color.White) },
+        title = { Text(tr("Connect MDBList"), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("Open $url and enter this code, then approve the connection:", color = FetchPalette.TextSecondary)
@@ -297,7 +298,7 @@ private fun MdbListSignInDialog(code: String, url: String, completeUrl: String, 
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(Modifier.size(18.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                    Text("Waiting for you to approve…", color = FetchPalette.TextMuted)
+                    Text(tr("Waiting for you to approve…"), color = FetchPalette.TextMuted)
                 }
             }
         },

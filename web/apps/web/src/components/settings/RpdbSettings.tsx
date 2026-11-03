@@ -91,7 +91,7 @@ export function RpdbSettings() {
               placeholder="Paste your RPDB API key"
               aria-label="RPDB API key"
               className="w-full rounded-xl border px-4 py-3 pr-20 text-sm field-control"
-              style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
+              style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
             />
             <button
               type="button"

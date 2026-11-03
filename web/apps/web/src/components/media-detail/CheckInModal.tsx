@@ -94,7 +94,7 @@ export function CheckInModal({
                 type="number" min="1" value={season}
                 onChange={(e) => setSeason(e.target.value)}
                 className="w-full rounded-xl border px-3 py-2.5 text-sm field-control"
-                style={{ borderColor: "var(--border-strong)", background: "var(--surface)", color: "var(--text)" }}
+                style={{ borderColor: "var(--border-field)", background: "var(--surface)", color: "var(--text)" }}
               />
             </div>
             <div className="flex-1">
@@ -104,7 +104,7 @@ export function CheckInModal({
                 type="number" min="1" value={episode}
                 onChange={(e) => setEpisode(e.target.value)}
                 className="w-full rounded-xl border px-3 py-2.5 text-sm field-control"
-                style={{ borderColor: "var(--border-strong)", background: "var(--surface)", color: "var(--text)" }}
+                style={{ borderColor: "var(--border-field)", background: "var(--surface)", color: "var(--text)" }}
               />
             </div>
           </div>

@@ -40,7 +40,7 @@ function WebhookUrl({ label, url }: { label: string; url: string }) {
           aria-label={`${label} webhook URL`}
           onFocus={(e) => e.currentTarget.select()}
           className="w-full min-w-0 rounded-lg border px-2.5 py-1.5 font-mono text-xs field-control"
-          style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-0)" }}
+          style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-0)" }}
         />
         <button type="button" onClick={copy} className="btn-secondary flex-none" aria-label={`Copy ${label} webhook URL`}>
           {copied ? <Check size={16} /> : <Copy size={16} />}

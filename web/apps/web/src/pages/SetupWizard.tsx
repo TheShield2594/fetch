@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { Check, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, ArrowRight } from "lucide-react";
 import { type Account, api, ApiError, inviteCodeFromPath, runtimeConfig } from "../api";
 import { BrandLockup } from "../components/BrandMark";
@@ -90,43 +90,112 @@ function WizardShell({
 type AccountMode = "bootstrap" | "login" | "register";
 
 const INPUT_CLASS =
-  "w-full rounded-xl border border-[var(--border-strong)] bg-[var(--bg-0)] px-4 py-3 text-sm text-[var(--text)] field-control";
+  "w-full rounded-xl border border-[var(--border-field)] bg-[var(--bg-0)] px-4 py-3 text-sm text-[var(--text)] field-control";
 
-/** A password field with a show/hide toggle. */
+const LABEL_CLASS = "block text-xs font-semibold";
+
+/** The message under a field that failed validation, read out as its description. */
+function FieldError({ id, message }: { id: string; message: string | undefined }) {
+  if (!message) return null;
+  return (
+    <p id={id} className="mt-1.5 flex items-center gap-1.5 text-xs text-danger">
+      <AlertCircle size={14} aria-hidden="true" /> {message}
+    </p>
+  );
+}
+
+/**
+ * A labelled text field. The label sits above the field and stays while you
+ * type: a placeholder standing in for one vanished on the first keystroke, and
+ * on the account form left three rows of identical dots.
+ */
+function TextField({
+  label,
+  value,
+  onChange,
+  error,
+  inputRef,
+  ...rest
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string | undefined;
+  inputRef?: React.Ref<HTMLInputElement>;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">) {
+  const id = useId();
+  const errorId = `${id}-error`;
+  return (
+    <div>
+      <label htmlFor={id} className={LABEL_CLASS} style={{ color: "var(--text)" }}>
+        {label}
+      </label>
+      <input
+        {...rest}
+        id={id}
+        ref={inputRef}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        className={`mt-1.5 ${INPUT_CLASS}`}
+      />
+      <FieldError id={errorId} message={error} />
+    </div>
+  );
+}
+
+/** A labelled password field with a show/hide toggle. */
 function PasswordInput({
   label,
   value,
   onChange,
   autoComplete,
+  error,
+  inputRef,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   autoComplete: string;
+  error?: string | undefined;
+  inputRef?: React.Ref<HTMLInputElement>;
 }) {
   const [visible, setVisible] = useState(false);
+  const id = useId();
+  const errorId = `${id}-error`;
   return (
-    <div className="relative">
-      <input
-        type={visible ? "text" : "password"}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={label}
-        aria-label={label}
-        autoComplete={autoComplete}
-        className={`${INPUT_CLASS} pr-12`}
-      />
-      <button
-        type="button"
-        onClick={() => setVisible((p) => !p)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-[var(--text-mute)] transition-colors hover:bg-[var(--surface-strong)] hover:text-[var(--text)]"
-        aria-label={visible ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}
-      >
-        {visible ? <EyeOff size={16} /> : <Eye size={16} />}
-      </button>
+    <div>
+      <label htmlFor={id} className={LABEL_CLASS} style={{ color: "var(--text)" }}>
+        {label}
+      </label>
+      <div className="relative mt-1.5">
+        <input
+          id={id}
+          ref={inputRef}
+          type={visible ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          autoComplete={autoComplete}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
+          className={`${INPUT_CLASS} pr-12`}
+        />
+        <button
+          type="button"
+          onClick={() => setVisible((p) => !p)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-[var(--text-mute)] transition-colors hover:bg-[var(--surface-strong)] hover:text-[var(--text)]"
+          aria-label={visible ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}
+        >
+          {visible ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      </div>
+      <FieldError id={errorId} message={error} />
     </div>
   );
 }
+
+type AccountField = "apiToken" | "username" | "password" | "confirm";
 
 const ACCOUNT_COPY: Record<AccountMode, { title: string; body: string; submit: string }> = {
   bootstrap: {
@@ -163,13 +232,41 @@ function AccountStep({
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<AccountField, string>>>({});
   const copy = ACCOUNT_COPY[mode];
   const creating = mode !== "login";
+  const apiTokenRef = useRef<HTMLInputElement>(null);
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmRef = useRef<HTMLInputElement>(null);
+
+  /**
+   * What's wrong with the form, field by field, in the order the fields
+   * appear. Checked on submit rather than by holding the button disabled: a
+   * greyed-out button doesn't say which field it is waiting for, and on the
+   * first-run form that is usually the API token, above the fold on a phone.
+   */
+  const validate = (): Partial<Record<AccountField, string>> => {
+    const errors: Partial<Record<AccountField, string>> = {};
+    if (mode === "bootstrap" && !apiToken.trim()) errors.apiToken = "Enter the API token your server was configured with.";
+    if (!username.trim()) errors.username = "Enter a username.";
+    if (!password) errors.password = "Enter a password.";
+    if (creating) {
+      if (!confirm) errors.confirm = "Enter the password again.";
+      else if (password && password !== confirm) errors.confirm = "The passwords don't match.";
+    }
+    return errors;
+  };
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (creating && password !== confirm) {
-      setError("The passwords don't match.");
+    const errors = validate();
+    setFieldErrors(errors);
+    const first = (["apiToken", "username", "password", "confirm"] as const).find((f) => errors[f]);
+    if (first) {
+      setError(null);
+      const refs = { apiToken: apiTokenRef, username: usernameRef, password: passwordRef, confirm: confirmRef };
+      refs[first].current?.focus();
       return;
     }
 
@@ -194,11 +291,8 @@ function AccountStep({
     }
   };
 
-  const ready =
-    username.trim() && password && (!creating || confirm) && (mode !== "bootstrap" || apiToken.trim());
-
   return (
-    <form onSubmit={submit} className="space-y-4">
+    <form onSubmit={submit} noValidate className="space-y-4">
       <div>
         {/* Not "Welcome to Fetch": the lockup above already says the name,
             and a step's heading is better spent saying what the step wants. */}
@@ -208,34 +302,50 @@ function AccountStep({
         </p>
       </div>
       {mode === "bootstrap" && (
-        <PasswordInput label="API token" value={apiToken} onChange={setApiToken} autoComplete="off" />
+        <PasswordInput
+          label="API token"
+          value={apiToken}
+          onChange={setApiToken}
+          autoComplete="off"
+          error={fieldErrors.apiToken}
+          inputRef={apiTokenRef}
+        />
       )}
-      <input
+      <TextField
+        label="Username"
         autoFocus={mode !== "bootstrap"}
         type="text"
         value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Username"
-        aria-label="Username"
+        onChange={setUsername}
         autoComplete="username"
         autoCapitalize="none"
         spellCheck={false}
-        className={INPUT_CLASS}
+        error={fieldErrors.username}
+        inputRef={usernameRef}
       />
       <PasswordInput
         label="Password"
         value={password}
         onChange={setPassword}
         autoComplete={creating ? "new-password" : "current-password"}
+        error={fieldErrors.password}
+        inputRef={passwordRef}
       />
       {creating && (
-        <PasswordInput label="Confirm password" value={confirm} onChange={setConfirm} autoComplete="new-password" />
+        <PasswordInput
+          label="Confirm password"
+          value={confirm}
+          onChange={setConfirm}
+          autoComplete="new-password"
+          error={fieldErrors.confirm}
+          inputRef={confirmRef}
+        />
       )}
       {error && (
         <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
       )}
-      <button type="submit" disabled={submitting || !ready} className="btn-primary btn-lg w-full">
-        {submitting ? <><Loader2 size={16} className="animate-spin" /> Working...</> : <>{copy.submit} <ArrowRight size={16} /></>}
+      <button type="submit" disabled={submitting} className="btn-primary btn-lg w-full">
+        {submitting ? <><Loader2 size={16} className="animate-spin" /> Working…</> : <>{copy.submit} <ArrowRight size={16} /></>}
       </button>
     </form>
   );
@@ -262,7 +372,7 @@ function TmdbStep({ onContinue, onBack }: { onContinue: () => void; onBack: () =
   return (
     <div className="space-y-4">
       <div>
-        <h1 className={SECTION_TITLE}>TMDB Metadata</h1>
+        <h1 className={SECTION_TITLE}>TMDB metadata</h1>
         <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
           Add a key now, or skip and add one later in Settings.
         </p>
@@ -323,7 +433,7 @@ function DoneStep({ onFinish, onBack }: { onFinish: () => void; onBack: () => vo
         onClick={onFinish}
         className="btn-primary btn-lg w-full"
       >
-        Get Started
+        Get started
       </button>
       <BackButton onBack={onBack} />
     </div>

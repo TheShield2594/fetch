@@ -98,7 +98,7 @@ export function TraktSettings() {
   };
 
   if (loading) {
-    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}><Loader2 size={16} className="animate-spin" /> Checking Trakt status...</div>;
+    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}><Loader2 size={16} className="animate-spin" /> Checking Trakt status…</div>;
   }
 
   return (
@@ -141,7 +141,7 @@ export function TraktSettings() {
               disabled={importing}
               className="btn-primary"
             >
-              {importing ? <><Loader2 size={16} className="animate-spin" /> Importing...</> : "Run Full Import"}
+              {importing ? <><Loader2 size={16} className="animate-spin" /> Importing…</> : "Run full import"}
             </button>
             <button
               type="button"

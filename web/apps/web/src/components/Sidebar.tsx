@@ -67,7 +67,7 @@ const RAIL_ROW =
 function RailSectionLabel({ children, expanded }: { children: string; expanded: boolean }) {
   return (
     <p
-      className="px-2.5 pb-1 pt-4 text-[0.6875rem] font-semibold transition-opacity"
+      className="px-2.5 pb-1 pt-4 text-2xs font-semibold transition-opacity"
       // Quaternary rather than the secondary the rows take: a heading that
       // competes with the rows under it is a row.
       style={{ color: "var(--text-mute)", opacity: expanded ? 1 : 0 }}
@@ -522,14 +522,18 @@ export function Sidebar({
               aria-label={profile ? `Switch profile (currently ${profile.name})` : "Switch profile"}
               title={expanded ? undefined : (profile?.name ?? "Switch profile")}
             >
+              {/* An icon rather than the profile's initial: at this size the
+                  letter came out at 8px, under the 12px floor, and the name
+                  beside it (or the tooltip on the rail) already says whose. */}
               <span
-                className="flex h-[1.0625rem] w-[1.0625rem] flex-none items-center justify-center rounded-full text-[0.5rem] font-bold"
+                className="flex h-[1.0625rem] w-[1.0625rem] flex-none items-center justify-center rounded-full"
+                aria-hidden="true"
                 style={{
                   background: "linear-gradient(145deg, rgb(var(--accent-2-rgb)), rgb(var(--accent-rgb)))",
                   color: "var(--on-accent)",
                 }}
               >
-                {profile?.name?.trim().charAt(0).toUpperCase() ?? <User className="h-3 w-3" />}
+                <User className="h-3 w-3" />
               </span>
               <span className="truncate whitespace-nowrap" style={{ opacity: expanded ? 1 : 0 }}>
                 {profile?.name ?? "Switch profile"}

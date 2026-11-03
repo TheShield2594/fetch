@@ -101,7 +101,14 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
       return reply
         .code(403)
         .type("text/html")
-        .send(renderOAuthHtml(oauthErrorDescription ?? oauthError, "Trakt Authorization Failed"));
+        .send(
+          renderOAuthHtml(
+            // Trakt's own description names what went wrong but not what to do
+            // about it, so the next step is added here.
+            `${(oauthErrorDescription ?? oauthError).trim().replace(/[.!]?$/, ".")} Start again from Settings in Fetch.`,
+            "Trakt authorization failed"
+          )
+        );
     }
 
     // Checked before the code is looked at, let alone exchanged: an
@@ -119,7 +126,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
         .send(
           renderOAuthHtml(
             "This authorization could not be verified — it was not started from this Fetch install, or it took too long to complete. Start again from Settings.",
-            "Trakt Authorization Failed"
+            "Trakt authorization failed"
           )
         );
     }
@@ -167,7 +174,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
       const body = await tokenResponse.text();
       request.log.error({ status: tokenResponse.status, body }, "Trakt token exchange failed");
       const contentType = tokenResponse.headers.get("content-type") ?? "";
-      let detail = "Failed to exchange authorization code";
+      let detail = "Trakt didn't accept the authorization code. Start again from Settings in Fetch.";
       if (!contentType.includes("json")) {
         detail =
           "Trakt's security service (Cloudflare) blocked this request before it reached Trakt's API. This is usually a temporary block on the server's outbound IP — wait a bit and try again.";
@@ -199,7 +206,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
 
     return reply
       .type("text/html")
-      .send(renderOAuthHtml("You can close this tab and return to Fetch.", "Trakt Connected!"));
+      .send(renderOAuthHtml("Your Trakt account is now linked to Fetch.", "Trakt connected"));
   });
 
   app.post("/trakt/disconnect", { preHandler: resolveProfile }, async (request, reply) => {

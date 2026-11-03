@@ -269,7 +269,7 @@ export function GameDetailPanel({
               placeholder="Add personal notes about this game..."
               rows={4}
               className="w-full rounded-xl border p-3 text-sm field-control"
-              style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
+              style={{ borderColor: "var(--border-field)", background: "var(--surface)", color: "var(--text)" }}
             />
           </div>
 

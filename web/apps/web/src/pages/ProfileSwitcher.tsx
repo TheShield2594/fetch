@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { AlertCircle, ArrowRight, Loader2, Lock, Plus, X } from "lucide-react";
 import { api, ApiError, type Profile, runtimeConfig } from "../api";
 import { BrandLockup, BrandMark, BrandWordmark } from "../components/BrandMark";
@@ -8,6 +8,10 @@ import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { SECTION_TITLE } from "../components/typography";
 import { ProfileAvatar } from "../components/ProfileAvatar";
+
+const LABEL_CLASS = "block text-xs font-semibold";
+const INPUT_CLASS = "w-full rounded-xl border px-4 py-3 text-sm field-control";
+const INPUT_STYLE = { borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" };
 
 // Standing in for the switcher's own title. As a full page (first run) it is the
 // document's h1; opened as a modal over the app, the page behind already owns the
@@ -93,6 +97,8 @@ function CreateProfileForm({
   const [pin, setPin] = useState("");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const nameId = useId();
+  const pinId = useId();
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -120,28 +126,36 @@ function CreateProfileForm({
         <Heading className={SECTION_TITLE} style={{ color: "var(--text)" }}>{title}</Heading>
         <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>{subtitle}</p>
       </div>
-      <input
-        autoFocus
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Profile name"
-        aria-label="Profile name"
-        className="w-full rounded-xl border px-4 py-3 text-sm field-control"
-        style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
-      />
-      <input
-        type="password"
-        inputMode="numeric"
-        // Matches MIN_PIN_LENGTH on the server.
-        minLength={4}
-        value={pin}
-        onChange={(e) => setPin(e.target.value)}
-        placeholder="PIN (optional)"
-        aria-label="PIN (optional)"
-        className="w-full rounded-xl border px-4 py-3 text-sm field-control"
-        style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
-      />
+      {/* Visible labels rather than placeholders, which vanished on the
+          first keystroke. */}
+      <div>
+        <label htmlFor={nameId} className={LABEL_CLASS} style={{ color: "var(--text)" }}>Profile name</label>
+        <input
+          id={nameId}
+          autoFocus
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className={`mt-1.5 ${INPUT_CLASS}`}
+          style={INPUT_STYLE}
+        />
+      </div>
+      <div>
+        <label htmlFor={pinId} className={LABEL_CLASS} style={{ color: "var(--text)" }}>
+          PIN <span className="font-normal" style={{ color: "var(--text-mute)" }}>(optional)</span>
+        </label>
+        <input
+          id={pinId}
+          type="password"
+          inputMode="numeric"
+          // Matches MIN_PIN_LENGTH on the server.
+          minLength={4}
+          value={pin}
+          onChange={(e) => setPin(e.target.value)}
+          className={`mt-1.5 ${INPUT_CLASS}`}
+          style={INPUT_STYLE}
+        />
+      </div>
       {error && (
         <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
       )}
@@ -160,7 +174,7 @@ function CreateProfileForm({
           disabled={creating || !name.trim()}
           className="btn-primary btn-lg flex-1"
         >
-          {creating ? <><Loader2 size={16} className="animate-spin" /> Creating...</> : <>Create <ArrowRight size={16} /></>}
+          {creating ? <><Loader2 size={16} className="animate-spin" /> Creating…</> : <>Create <ArrowRight size={16} /></>}
         </button>
       </div>
     </form>
@@ -181,6 +195,7 @@ function PinPrompt({
   const [pin, setPin] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const pinId = useId();
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -206,17 +221,19 @@ function PinPrompt({
         <Heading className={SECTION_TITLE} style={{ color: "var(--text)" }}>Enter PIN for {profile.name}</Heading>
         <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>This profile is PIN-protected.</p>
       </div>
-      <input
-        autoFocus
-        type="password"
-        inputMode="numeric"
-        value={pin}
-        onChange={(e) => setPin(e.target.value)}
-        placeholder="PIN"
-        aria-label={`PIN for ${profile.name}`}
-        className="w-full rounded-xl border px-4 py-3 text-sm field-control"
-        style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
-      />
+      <div>
+        <label htmlFor={pinId} className={LABEL_CLASS} style={{ color: "var(--text)" }}>PIN</label>
+        <input
+          id={pinId}
+          autoFocus
+          type="password"
+          inputMode="numeric"
+          value={pin}
+          onChange={(e) => setPin(e.target.value)}
+          className={`mt-1.5 ${INPUT_CLASS}`}
+          style={INPUT_STYLE}
+        />
+      </div>
       {error && (
         <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
       )}

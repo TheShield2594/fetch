@@ -65,7 +65,7 @@ const isItemActive = (item: NavItem, pathname: string) =>
   item.end ? pathname === item.to : pathname.startsWith(item.to);
 
 const TAB_CLASSES =
-  "relative flex min-w-0 flex-1 flex-col items-center justify-center gap-[3px] rounded-[1.75rem] py-2 text-[0.625rem] leading-none transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus";
+  "relative flex min-w-0 flex-1 flex-col items-center justify-center gap-[3px] rounded-[1.75rem] py-2 text-2xs leading-none transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus";
 
 /**
  * The floating tab bar.

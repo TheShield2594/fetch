@@ -53,7 +53,7 @@ function renderAt(path: string) {
   );
 }
 
-const headerSearch = () => screen.queryByRole("button", { name: "Search (⌘K)" });
+const headerSearch = () => screen.queryByRole("button", { name: "Search" });
 
 describe("top bar search", () => {
   it("offers the palette trigger on a route with no search field of its own", async () => {

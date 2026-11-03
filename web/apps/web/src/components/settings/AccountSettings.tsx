@@ -4,7 +4,7 @@ import { api } from "../../api";
 import { useAccount } from "../../hooks/useAccount";
 
 const INPUT_CLASS =
-  "w-full rounded-xl border border-[var(--border)] bg-[var(--bg-0)] px-4 py-3 text-sm text-[var(--text)] field-control";
+  "w-full rounded-xl border border-[var(--border-field)] bg-[var(--bg-0)] px-4 py-3 text-sm text-[var(--text)] field-control";
 
 function ChangePasswordForm() {
   const [current, setCurrent] = useState("");

@@ -289,7 +289,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
             value={query}
             onChange={(e) => { setQuery(e.target.value); setActiveIndex(0); }}
             onKeyDown={onKeyDown}
-            placeholder="Search everything..."
+            placeholder="Search everything…"
             className="w-full rounded-md bg-transparent text-sm field-control"
             style={{ color: "var(--text)" }}
             aria-label="Search everything"

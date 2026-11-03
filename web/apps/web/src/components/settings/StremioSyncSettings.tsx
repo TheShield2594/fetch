@@ -119,7 +119,7 @@ export function StremioSyncSettings() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full max-w-sm rounded-xl px-3 py-2 text-sm field-control"
-              style={{ border: "1px solid var(--border-strong)", background: "var(--bg-1)" }}
+              style={{ border: "1px solid var(--border-field)", background: "var(--bg-1)" }}
             />
           </div>
           <div className="space-y-1">
@@ -133,7 +133,7 @@ export function StremioSyncSettings() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full max-w-sm rounded-xl px-3 py-2 text-sm field-control"
-              style={{ border: "1px solid var(--border-strong)", background: "var(--bg-1)" }}
+              style={{ border: "1px solid var(--border-field)", background: "var(--bg-1)" }}
             />
           </div>
           <button

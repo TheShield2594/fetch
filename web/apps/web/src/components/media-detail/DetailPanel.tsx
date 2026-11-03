@@ -520,7 +520,7 @@ export function DetailPanel({
                   )}
                   {item.certification?.trim() && (
                     <span
-                      className="rounded-[3px] px-1 text-[0.625rem] font-bold leading-[1.4]"
+                      className="rounded-[3px] px-1 text-2xs font-bold"
                       style={{ border: "1px solid var(--border-strong)", color: "var(--text-dim)" }}
                     >
                       {item.certification.trim()}
@@ -530,7 +530,7 @@ export function DetailPanel({
                       hairline from the same token as its text, and a utility
                       ring would outrank it. */}
                   {item.status && (
-                    <span className={`rounded-full px-2 py-0.5 text-[0.6875rem] font-semibold ${statusColor(item.status)}`}>
+                    <span className={`rounded-full px-2 py-0.5 text-2xs font-semibold ${statusColor(item.status)}`}>
                       {item.status}
                     </span>
                   )}

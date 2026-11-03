@@ -55,7 +55,7 @@ export function TmdbSettings() {
   };
 
   if (loading) {
-    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}><Loader2 size={16} className="animate-spin" /> Checking TMDB status...</div>;
+    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}><Loader2 size={16} className="animate-spin" /> Checking TMDB status…</div>;
   }
 
   return (
@@ -95,7 +95,7 @@ export function TmdbSettings() {
             placeholder={status.configured ? "Paste a new TMDB API key" : "Paste your TMDB API key"}
             aria-label="TMDB API key"
             className="w-full rounded-xl border px-4 py-3 pr-20 text-sm field-control"
-            style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
+            style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
           />
           <button
             type="button"
@@ -113,7 +113,7 @@ export function TmdbSettings() {
             disabled={saving || !apiKey.trim()}
             className={`btn-primary ${saved ? "btn-saved" : ""}`}
           >
-            {saved ? <><Check size={16} /> Saved</> : saving ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : status.configured ? "Replace TMDB Key" : "Save TMDB Key"}
+            {saved ? <><Check size={16} /> Saved</> : saving ? <><Loader2 size={16} className="animate-spin" /> Saving…</> : status.configured ? "Replace TMDB key" : "Save TMDB key"}
           </button>
           {status.source === "db" && (
             <button

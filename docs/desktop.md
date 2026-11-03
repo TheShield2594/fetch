@@ -190,6 +190,10 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   your own and the Skip button toggle.
 - **Recent searches**, hide unreleased titles, a Configure button for configurable addons, and
   an update check (Settings › About) that links the package for this install.
+- **Ambient Mode** (Settings › Appearance), on by default as on TV: after five minutes (or the
+  time you pick) with no mouse or keyboard input, and never while something plays, the window
+  shows a slideshow of backdrops from up to three Home rows, or a clock with what to resume.
+  Any input closes it.
 - A scrollbar on every long page and list, to grab and drag.
 - Escape goes back (and closes the sources panel first).
 

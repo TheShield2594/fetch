@@ -1390,6 +1390,7 @@ class AppState(
         run: suspend (onPosition: (Double) -> MpvProgress.Seek?, onSample: (MpvProgress.Sample) -> Unit) -> MpvProgress.Ending
     ) {
         scope.launch {
+            playbackFollowers++
             var scrobbled = false
             var lastPosition: Double? = null
             val ending = withContext(Dispatchers.IO) {
@@ -1423,11 +1424,18 @@ class AppState(
                     finished = last.percent() >= WatchProgress.COMPLETED_THRESHOLD * 100
                 )
             }
+            playbackFollowers--
             val continued = playbackEnded(target, ending)
             afterEnd(ending, continued)
             syncAccount()
         }
     }
+
+    /** Playbacks being followed (mpv's window or the built-in player); Ambient Mode waits while any are. */
+    var playbackFollowers by mutableStateOf(0)
+        private set
+
+    val isPlaying: Boolean get() = playbackFollowers > 0 || playerSession != null
 
     // --- Built-in player ---
 

@@ -40,6 +40,8 @@ data class DesktopSettings(
     val player: PlayerSettings = PlayerSettings(),
     /** Your own TMDB key (Settings › Sources › TMDB), used before the build's. */
     val tmdbApiKey: String? = null,
+    /** Appearance › Ambient Mode: artwork or a clock after the window sits idle, as on TV. */
+    val ambient: AmbientSettings = AmbientSettings(),
     /** Settings › TMDB: enrichment from The Movie Database, as on TV (synced with it). */
     val tmdb: TmdbSettings = TmdbSettings(),
     /** "Stream selection": what Play does once the sources are in, as on TV. */
@@ -101,6 +103,16 @@ data class TmdbSettings(
     val useTrailers: Boolean = true,
     val useMoreLikeThis: Boolean = true,
     val useCollections: Boolean = true
+)
+
+/** The TV's Ambient Mode settings (on by default, five minutes, artwork, the hero's catalogs). */
+@Serializable
+data class AmbientSettings(
+    val enabled: Boolean = true,
+    val timeoutMinutes: Int = 5,
+    /** Up to three Home row keys to take artwork from; empty uses the first Home row. */
+    val catalogKeys: List<String> = emptyList(),
+    val face: com.fetch.tv.domain.model.AmbientFace = com.fetch.tv.domain.model.AmbientFace.ARTWORK
 )
 
 /** What Play does with the ranked sources (the TV's StreamAutoPlayMode). */

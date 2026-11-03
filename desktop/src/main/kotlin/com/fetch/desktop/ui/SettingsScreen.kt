@@ -853,6 +853,43 @@ private fun AppearancePage(state: AppState) {
             ThemeSwatch(theme, selected = theme == current) { state.updateSettings { it.copy(theme = theme.name) } }
         }
     }
+    AmbientSettingsSection(state)
+}
+
+/** Ambient Mode, as the TV's settings: on, after how long, artwork or clock, and which catalogs. */
+@Composable
+private fun AmbientSettingsSection(state: AppState) {
+    val a = state.settings.ambient
+    val update: (com.fetch.desktop.data.AmbientSettings) -> Unit = { new -> state.updateSettings { it.copy(ambient = new) } }
+    Box(Modifier.padding(top = 24.dp))
+    SettingsSection("Ambient Mode") {
+        SettingsToggle("Ambient Mode", "Fill the window with backdrops after a while with no mouse or keyboard input. Never during playback.", a.enabled) {
+            update(a.copy(enabled = it))
+        }
+        if (a.enabled) {
+            SettingsChoice(
+                "Start After",
+                "How long to wait before Ambient Mode starts.",
+                a.timeoutMinutes,
+                listOf(1, 2, 5, 10, 15, 30).map { DropdownOption(it, if (it == 1) "1 minute" else "$it minutes") }
+            ) { update(a.copy(timeoutMinutes = it)) }
+            SettingsChoice(
+                "Show",
+                "Artwork from your catalogs, or a clock with what to resume.",
+                a.face,
+                listOf(DropdownOption(com.fetch.tv.domain.model.AmbientFace.ARTWORK, "Artwork"), DropdownOption(com.fetch.tv.domain.model.AmbientFace.CLOCK, "Clock"))
+            ) { update(a.copy(face = it)) }
+            if (a.face == com.fetch.tv.domain.model.AmbientFace.ARTWORK) {
+                SettingsRow("Catalogs", "Choose up to 3 Home rows to take artwork from. None: the first row.")
+                ChipPicker(
+                    options = state.rows.map { DropdownOption(it.key, "${it.catalog.name} · ${it.addon.displayName}") },
+                    selected = a.catalogKeys,
+                    onChange = { update(a.copy(catalogKeys = it.take(3))) },
+                    ordered = true
+                )
+            }
+        }
+    }
 }
 
 @Composable

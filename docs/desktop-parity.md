@@ -100,6 +100,6 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Fetch website pairing, show a sign-in code | `screens/account/` | 🟡 desktop claims codes only |
 | YouTube (feeds, SponsorBlock, DeArrow) | `screens/youtube/`, `data/youtube/` | ⬜ |
 | Watch party | `screens/party/`, `core/party/` | ⬜ |
-| Ambient mode | `screens/ambient/` | ⬜ |
+| Ambient mode | `screens/ambient/` | ✅ Appearance › Ambient Mode: artwork slideshow (Ken Burns, up to 3 Home rows) or clock with what to resume; never during playback |
 | Phone hub | `screens/phone/` | ➖ a desktop has a keyboard; may return for sending links |
 | Watch Next row, launcher channels, app icon picker | `core/recommendations/`, `AppIconPicker.kt` | ➖ |

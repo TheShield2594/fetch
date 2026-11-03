@@ -41,6 +41,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import com.fetch.desktop.AppState
 import com.fetch.desktop.AvailableUpdate
 import com.fetch.desktop.ProfilesState
@@ -84,7 +88,26 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
     SideEffect { FetchPalette.setTheme(theme) }
 
     val posterActions = remember(state) { AppPosterActions(state) }
+    // Ambient Mode: the last mouse or key input, and whether it's showing.
+    var lastInput by remember { androidx.compose.runtime.mutableLongStateOf(System.currentTimeMillis()) }
+    var ambient by remember { androidx.compose.runtime.mutableStateOf(false) }
+    val input = {
+        lastInput = System.currentTimeMillis()
+        ambient = false
+    }
     FetchTheme {
+        @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
+        Box(
+            Modifier.fillMaxSize()
+                .onPointerEvent(androidx.compose.ui.input.pointer.PointerEventType.Move, androidx.compose.ui.input.pointer.PointerEventPass.Initial) { input() }
+                .onPointerEvent(androidx.compose.ui.input.pointer.PointerEventType.Scroll, androidx.compose.ui.input.pointer.PointerEventPass.Initial) { input() }
+                .onPreviewKeyEvent {
+                    val wasShowing = ambient
+                    input()
+                    // The key that closes Ambient Mode does nothing else, as on TV.
+                    wasShowing
+                }
+        ) {
         androidx.compose.runtime.CompositionLocalProvider(LocalPosterActions provides posterActions) {
         Scaffold(
             snackbarHost = {
@@ -190,6 +213,12 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
         state.manageListsFor?.let { preview -> ManageListsDialog(state, preview, onDismiss = { state.manageListsFor = null }) }
         state.updates.available?.takeIf { !state.updates.dismissed && state.playerSession == null }?.let { update ->
             UpdateBanner(state, update)
+        }
+        AmbientHost(state, lastInput, showing = ambient, onShow = { ambient = true }, onDismiss = input)
+        if (ambient) {
+            // A click on Ambient Mode only closes it.
+            Box(Modifier.fillMaxSize().clickable(interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, indication = null, onClick = input))
+        }
         }
     }
 }

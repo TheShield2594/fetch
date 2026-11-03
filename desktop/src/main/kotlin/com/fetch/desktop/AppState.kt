@@ -459,6 +459,9 @@ class AppState(
         autoPlayIsBestMatch = { settings.autoPlayMode == AutoPlayMode.BEST_MATCH }
     )
 
+    /** The title page's IMDb episode ratings grid and Trakt comments. */
+    val detailExtras = com.fetch.desktop.detail.DetailExtras(scope, tmdb.client, { tracking.credentials.traktClientId })
+
     /** The title "Manage lists" is open for. */
     var manageListsFor: MetaPreview? by mutableStateOf(null)
 

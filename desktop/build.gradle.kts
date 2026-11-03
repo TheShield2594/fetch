@@ -49,7 +49,10 @@ val resourceValues = mapOf(
     "simklClientId" to credential("SIMKL_CLIENT_ID"),
     "simklAppName" to credential("SIMKL_APP_NAME", "fetch"),
     "tmdbApiKey" to credential("TMDB_API_KEY"),
-    "mdblistClientId" to credential("MDBLIST_CLIENT_ID")
+    "mdblistClientId" to credential("MDBLIST_CLIENT_ID"),
+    // The TV's episode ratings services (IMDb by IMDb id, SeriesGraph by TMDB id).
+    "imdbTapframeApiBaseUrl" to credential("IMDB_TAPFRAME_API_BASE_URL"),
+    "imdbRatingsApiBaseUrl" to credential("IMDB_RATINGS_API_BASE_URL")
 )
 
 // Settings › About shows the version; the accounts read their client IDs from here.

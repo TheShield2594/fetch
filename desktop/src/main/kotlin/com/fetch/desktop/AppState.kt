@@ -109,6 +109,7 @@ enum class SettingsPage(val label: String, val group: String, val parent: Settin
     SKIP_SEGMENTS("Skip Segments", "Playback"),
     CONTENT_DISCOVERY("Content & Discovery", "Sources"),
     TMDB("TMDB", "Sources"),
+    MDBLIST("MDBList", "Sources"),
     ADDONS("Addons", "Sources", parent = CONTENT_DISCOVERY),
     HOME_CATALOGS("Home catalogs", "Sources", parent = CONTENT_DISCOVERY),
     APPEARANCE("Appearance", "Home"),
@@ -372,14 +373,32 @@ class AppState(
     /** Trakt and Simkl for this profile. */
     val tracking = TrackingState(scope, TrackingStore(File(profileDir(profile), "tracking.json")), onMessage = { message = it })
 
-    /** Lists of your own here, and Trakt's and Simkl's lists (the Library's sources and Manage lists). */
+    /** MDBList: the account's lists (Settings › MDBList) and ratings on title pages and the Home hero. */
+    private val mdbListHttp = com.fetch.desktop.mdblist.MdbListHttp(okhttp3.OkHttpClient())
+    val mdbListAccount = com.fetch.desktop.mdblist.MdbListAccountState(
+        scope,
+        com.fetch.desktop.mdblist.mdbListAccountFile(profileDir(profile)),
+        com.fetch.desktop.mdblist.MdbListAccountClient(mdbListHttp),
+        onMessage = { message = it }
+    )
+    val mdbListRatings = com.fetch.desktop.mdblist.MdbListRatingsState(
+        scope,
+        com.fetch.desktop.mdblist.MdbListRatingsClient(mdbListHttp),
+        com.fetch.desktop.mdblist.MdbListRatingsCache(File(AppDirs.config, "mdblist-ratings.json")),
+        settings = { settings.mdblist },
+        accountConnected = { mdbListAccount.connected },
+        accountAuth = { mdbListAccount.auth() }
+    )
+
+    /** Lists of your own here, and Trakt's, Simkl's and MDBList's lists (the Library's sources and Manage lists). */
     val lists = ListsState(
         scope,
         tracking,
         localListsFile(profileDir(profile)),
         libraryItems = { library.toList() },
         setInLibrary = { preview, on -> setInLocalLibrary(preview, on) },
-        onMessage = { message = it }
+        onMessage = { message = it },
+        mdblist = mdbListAccount
     )
 
     /** The title "Manage lists" is open for. */
@@ -486,7 +505,8 @@ class AppState(
     /** Pulls Continue Watching, watched history and watchlists from Trakt and Simkl. */
     fun syncTracking() {
         scope.launch {
-            val snapshot = tracking.sync() ?: return@launch
+            // MDBList's lists load even when Trakt and Simkl aren't connected.
+            val snapshot = tracking.sync() ?: return@launch lists.refresh()
             saveProgress(WatchHistory.mergeRemote(progress, snapshot.playback, snapshot.watchedIds))
             remoteLists = snapshot.watchlists
             lists.refresh()

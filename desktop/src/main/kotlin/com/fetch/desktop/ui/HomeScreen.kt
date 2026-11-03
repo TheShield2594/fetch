@@ -132,7 +132,9 @@ private fun HomeContent(state: AppState) {
                             item = hero.preview,
                             height = heroHeight,
                             onPlay = { state.navigate(Screen.Detail(hero.preview, autoPlay = hero.preview.type != ContentType.SERIES)) },
-                            onDetails = { state.navigate(Screen.Detail(hero.preview)) }
+                            onDetails = { state.navigate(Screen.Detail(hero.preview)) },
+                            mdbListRatings = state.mdbListRatings.forHero(hero.preview.imdbId ?: hero.preview.id, hero.preview.apiType),
+                            mdbListOrder = settings.mdblist.enabledOrder()
                         )
                         is HeroSubject.Resume -> ResumeHero(
                             entry = hero.entry,
@@ -171,7 +173,11 @@ private fun HomeContent(state: AppState) {
                     CatalogRowView(
                         row,
                         onOpen = { state.navigate(Screen.Detail(it)) },
-                        onHover = { hovered = HeroSubject.Title(it) },
+                        onHover = {
+                            hovered = HeroSubject.Title(it)
+                            // MDBList's ratings for the whole row in one request, before the hero needs them.
+                            state.mdbListRatings.prefetch(row.items.map { p -> (p.imdbId ?: p.id) to p.apiType })
+                        },
                         title = row.title(settings.showCatalogType),
                         subtitle = row.addon.displayName.takeIf { settings.showAddonName },
                         showLabels = settings.showPosterLabels,
@@ -262,7 +268,15 @@ fun Backdrop(url: String?, height: Dp, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun Hero(item: MetaPreview, height: Dp, onPlay: () -> Unit, onDetails: () -> Unit) {
+private fun Hero(
+    item: MetaPreview,
+    height: Dp,
+    onPlay: () -> Unit,
+    onDetails: () -> Unit,
+    /** MDBList's ratings with "Use ratings on Home's hero" on: the first three, in place of the IMDb badge, as on TV. */
+    mdbListRatings: com.fetch.tv.domain.model.MDBListRatings? = null,
+    mdbListOrder: List<String> = emptyList()
+) {
     Box(Modifier.fillMaxWidth().height(height)) {
         Crossfade(targetState = item, animationSpec = tween(300), label = "hero", modifier = Modifier.align(Alignment.BottomStart)) { shown ->
             Column(
@@ -276,8 +290,9 @@ private fun Hero(item: MetaPreview, height: Dp, onPlay: () -> Unit, onDetails: (
                         shown.releaseInfo,
                         shown.runtime
                     ),
-                    imdbRating = shown.imdbRating
+                    imdbRating = shown.imdbRating.takeIf { mdbListRatings == null || shown != item }
                 )
+                if (shown == item) mdbListRatings?.let { MdbListRatingsRow(it, mdbListOrder, maxItems = 3) }
                 shown.description?.takeIf { it.isNotBlank() }?.let {
                     Text(
                         it,

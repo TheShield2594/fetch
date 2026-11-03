@@ -140,6 +140,8 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         onManageLists = { state.manageLists(preview) },
                         watched = state.isTitleWatched(preview, meta?.videos.orEmpty()),
                         tmdbRating = state.tmdb.tmdbRating?.takeIf { state.tmdb.extrasFor == meta?.id },
+                        mdbListRatings = state.mdbListRatings.forTitle(meta?.imdbId ?: preview.imdbId ?: preview.id, preview.apiType),
+                        mdbListOrder = state.settings.mdblist.enabledOrder(),
                         onToggleWatched = { on ->
                             if (isSeries) state.setWatched(preview, meta?.videos.orEmpty().filter { (it.season ?: 0) > 0 && com.fetch.desktop.isAired(it) }, on)
                             else state.setWatched(preview, emptyList(), on)
@@ -291,7 +293,10 @@ private fun Hero(
     watched: Boolean,
     onToggleWatched: (Boolean) -> Unit,
     tmdbRating: Float?,
-    minHeight: Dp
+    minHeight: Dp,
+    /** MDBList's ratings (Settings › MDBList), in [mdbListOrder]; they replace the addon's IMDb badge, as on TV. */
+    mdbListRatings: com.fetch.tv.domain.model.MDBListRatings? = null,
+    mdbListOrder: List<String> = emptyList()
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Bottom),
@@ -307,8 +312,9 @@ private fun Hero(
                 (meta?.genres ?: preview.genres).take(3).joinToString(", ").takeIf { it.isNotBlank() },
                 meta?.releaseInfo ?: preview.releaseInfo
             ),
-            imdbRating = meta?.imdbRating ?: preview.imdbRating
+            imdbRating = (meta?.imdbRating ?: preview.imdbRating).takeIf { mdbListRatings == null }
         )
+        mdbListRatings?.let { MdbListRatingsRow(it, mdbListOrder) }
         // TMDB's own rating beside IMDb's, and who made it, as on the TV detail page.
         val credit = when {
             isSeries -> meta?.castMembers?.filter { it.character == "Creator" }?.map { it.name }?.takeIf { it.isNotEmpty() }?.let { "Created by ${it.take(3).joinToString(", ")}" }

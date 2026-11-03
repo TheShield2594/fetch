@@ -42,6 +42,8 @@ data class DesktopSettings(
     val tmdbApiKey: String? = null,
     /** Settings › TMDB: enrichment from The Movie Database, as on TV (synced with it). */
     val tmdb: TmdbSettings = TmdbSettings(),
+    /** Settings › MDBList: ratings from MDBList on title pages and the Home hero, as on TV (synced with it, but the key). */
+    val mdblist: com.fetch.desktop.mdblist.MdbListSettings = com.fetch.desktop.mdblist.MdbListSettings(),
     /** "Stream selection": what Play does once the sources are in, as on TV. */
     val autoPlayMode: AutoPlayMode = AutoPlayMode.BEST_MATCH,
     /** For [AutoPlayMode.REGEX_MATCH]: the first source whose text matches this plays. */

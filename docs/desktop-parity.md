@@ -74,7 +74,7 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Collections, folders and filter rows | `screens/collection/`, `screens/filterrows/` | ⬜ |
 | Lists: local lists, Trakt watchlist and personal lists, Simkl status lists, as Library tabs | `library/LibraryScreen.kt`, `data/simkl/SimklLibraryProjection.kt` | ✅ |
 | Manage lists for a title; create, edit (privacy on Trakt), reorder and delete lists | `library/LibraryListDialogs.kt`, `posteroptions/` | ✅ poster menu and the title page's Lists button |
-| MDBList lists | `data/mdblist/` | ⬜ |
+| MDBList lists: Watchlist, static, dynamic, external and liked lists as Library tabs; Manage lists; create, rename, delete static lists; hide lists | `data/mdblist/MdbListLibrary*.kt`, `settings/MdbListLibraryListsDialog.kt` | ✅ `mdblist/MdbListAccountState.kt`, `ListsState.kt` (no MDBList sort orders) |
 | Library provider order | `library/LibraryProviderOrder.kt` | ⬜ |
 | Kids Home layout | `HomeUiState.kidsHome` | ⬜ |
 | Hero carousel, trailer on focus, card size and shape options | `settings/LayoutHomeSettings.kt`, `LayoutCardSettings.kt` | ⬜ |
@@ -89,7 +89,10 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Profile setup with copied settings, preferences tab, viewing activity, avatar images | `screens/profile/` | ⬜ |
 | Trakt, Simkl, Jellyfin, Emby, Plex, sync server | `core/tracking/`, `data/mediaserver/`, `core/sync/` | ✅ |
 | Tracking options (sources for library, progress, More like this) | `TrackingSettingsScreen.kt` | ⬜ |
-| MDBList ratings and lists | `data/mdblist/` | ⬜ |
+| MDBList ratings on the title page and Home hero: which, in what order, batched and cached 12 h | `data/mdblist/MdbListRatings*.kt`, `settings/MDBListSettingsScreen.kt`, `components/MDBListRatingsRow.kt` | ✅ Settings › MDBList, `mdblist/MdbListRatingsState.kt`, `ui/MdbListUi.kt`; synced with the TV except the API key |
+| MDBList account: connect with a code | `data/mdblist/MdbListAuthRepository.kt`, `settings/MdbListAccountDialog.kt` | ✅ needs `MDBLIST_CLIENT_ID`; an API key also connects |
+| MDBList watched history, playback progress and scrobbling | `data/mdblist/MdbListSync*.kt`, `MdbListScrobbleService.kt` | ⬜ |
+| MDBList API key synced between devices (provider credentials) | `core/sync/ProviderCredentialSyncService.kt` | ⬜ entered on each device |
 | Addon configure page | `screens/addon/AddonManagerScreen.kt` | ✅ opens in the browser; install the link it gives |
 | Addon health panel, catalog order | `screens/addon/` | ⬜ |
 | Update check (stable/beta) | `updater/` | ✅ banner and Settings › About; installing stays with apt, dnf or the tarball |

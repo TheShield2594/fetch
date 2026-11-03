@@ -77,7 +77,7 @@ fun ManageListsDialog(state: AppState, preview: MetaPreview, onDismiss: () -> Un
                         if (single) ChoiceRow("None", group.none { it.key in selected }, radio = true) { selected = selected - group.map { it.key }.toSet() }
                     }
                 }
-                if (state.lists.refreshing) Text("Loading your Trakt and Simkl lists…", color = FetchPalette.TextMuted, fontSize = 13.sp)
+                if (state.lists.refreshing) Text("Loading your Trakt, Simkl and MDBList lists…", color = FetchPalette.TextMuted, fontSize = 13.sp)
             }
         },
         confirmButton = {
@@ -142,7 +142,7 @@ fun ListsManagerDialog(state: AppState, provider: ListProvider, onDismiss: () ->
                 title = { Text("Delete ${list.title}?", color = Color.White) },
                 text = {
                     Text(
-                        if (provider == ListProvider.TRAKT) "The list is deleted on Trakt too. Titles stay in your library."
+                        if (provider == ListProvider.TRAKT || provider == ListProvider.MDBLIST) "The list is deleted on ${provider.label} too. Titles stay in your library."
                         else "Titles on it stay in your library.",
                         color = FetchPalette.TextSecondary
                     )
@@ -171,8 +171,9 @@ fun ListsManagerDialog(state: AppState, provider: ListProvider, onDismiss: () ->
                                 maxLines = 1
                             )
                         }
-                        CircleIconButton(FetchIcons.ArrowUp, "Move up", onClick = { state.lists.move(list, -1) }, size = 34.dp, enabled = i > 0 && !state.lists.busy)
-                        CircleIconButton(FetchIcons.ArrowDown, "Move down", onClick = { state.lists.move(list, 1) }, size = 34.dp, enabled = i < personal.lastIndex && !state.lists.busy)
+                        // MDBList keeps its own list order, so its lists aren't reordered here.
+                        if (provider != ListProvider.MDBLIST) CircleIconButton(FetchIcons.ArrowUp, "Move up", onClick = { state.lists.move(list, -1) }, size = 34.dp, enabled = i > 0 && !state.lists.busy)
+                        if (provider != ListProvider.MDBLIST) CircleIconButton(FetchIcons.ArrowDown, "Move down", onClick = { state.lists.move(list, 1) }, size = 34.dp, enabled = i < personal.lastIndex && !state.lists.busy)
                         SecondaryButton("Edit", onClick = { editing = list })
                         CircleIconButton(FetchIcons.Delete, "Delete", onClick = { deleting = list }, size = 34.dp)
                     }
@@ -196,9 +197,13 @@ private fun ListEditorDialog(provider: ListProvider, initial: LibraryList?, onSa
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.width(460.dp)) {
                 Field(name, "Name", onChange = { name = it.take(60) })
-                Field(description, "Description (optional)", onChange = { description = it.take(300) })
+                if (provider != ListProvider.MDBLIST) Field(description, "Description (optional)", onChange = { description = it.take(300) })
                 if (provider == ListProvider.TRAKT) {
                     FilterDropdown("Privacy", privacy, ListPrivacy.entries.map { DropdownOption(it, it.label) }, onSelect = { privacy = it })
+                }
+                // MDBList's lists are private or public, and have no description Fetch can set (as on TV).
+                if (provider == ListProvider.MDBLIST) {
+                    FilterDropdown("Privacy", privacy, listOf(ListPrivacy.PRIVATE, ListPrivacy.PUBLIC).map { DropdownOption(it, it.label) }, onSelect = { privacy = it })
                 }
             }
         },

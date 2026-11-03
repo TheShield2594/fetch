@@ -118,6 +118,7 @@ fun SettingsScreen(state: AppState, page: SettingsPage) {
                                 SettingsPage.LAYOUT -> LayoutPage(state)
                                 SettingsPage.TRACKING -> TrackingPage(state)
                                 SettingsPage.TMDB -> TmdbPage(state)
+                                SettingsPage.MDBLIST -> MdbListPage(state)
                                 SettingsPage.ACCOUNT -> AccountPage(state)
                                 SettingsPage.MEDIA_SERVERS -> MediaServersPage(state)
                                 SettingsPage.STREAM_BADGES -> StreamBadgesSettingsPage(state.badges, onBack = state::back)

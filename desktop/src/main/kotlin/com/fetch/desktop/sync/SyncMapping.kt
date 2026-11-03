@@ -91,8 +91,43 @@ fun RemoteSharedSettings.applyTo(settings: DesktopSettings): DesktopSettings {
         )
     }
     tmdbLanguage?.takeIf { it.isNotBlank() }?.let { tmdb = tmdb.copy(language = it) }
-    return s.copy(player = player, tmdb = tmdb)
+    return s.copy(player = player, tmdb = tmdb, mdblist = applyMdbList(s.mdblist))
 }
+
+/** The TV's `mdblist_settings` (all but the API key) over [m]; keys the blob lacks keep their value. */
+private fun RemoteSharedSettings.applyMdbList(m: com.fetch.desktop.mdblist.MdbListSettings): com.fetch.desktop.mdblist.MdbListSettings {
+    var out = m
+    mdblistFlags?.let { f ->
+        out = out.copy(
+            enabled = f["mdblist_enabled"] ?: out.enabled,
+            showTrakt = f["mdblist_show_trakt"] ?: out.showTrakt,
+            showImdb = f["mdblist_show_imdb"] ?: out.showImdb,
+            showTmdb = f["mdblist_show_tmdb"] ?: out.showTmdb,
+            showLetterboxd = f["mdblist_show_letterboxd"] ?: out.showLetterboxd,
+            showTomatoes = f["mdblist_show_tomatoes"] ?: out.showTomatoes,
+            showAudience = f["mdblist_show_audience"] ?: out.showAudience,
+            showMetacritic = f["mdblist_show_metacritic"] ?: out.showMetacritic,
+            showMal = f["mdblist_show_mal"] ?: out.showMal,
+            showOnHero = f["mdblist_show_on_hero"] ?: out.showOnHero
+        )
+    }
+    // As the TV reads it: comma-separated, blanks dropped.
+    mdblistRatingOrder?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() }?.takeIf { it.isNotEmpty() }?.let { out = out.copy(ratingOrder = it) }
+    return out
+}
+
+private fun com.fetch.desktop.mdblist.MdbListSettings.toRemoteFlags(): Map<String, Boolean> = mapOf(
+    "mdblist_enabled" to enabled,
+    "mdblist_show_trakt" to showTrakt,
+    "mdblist_show_imdb" to showImdb,
+    "mdblist_show_tmdb" to showTmdb,
+    "mdblist_show_letterboxd" to showLetterboxd,
+    "mdblist_show_tomatoes" to showTomatoes,
+    "mdblist_show_audience" to showAudience,
+    "mdblist_show_metacritic" to showMetacritic,
+    "mdblist_show_mal" to showMal,
+    "mdblist_show_on_hero" to showOnHero
+)
 
 /**
  * [settings] as shared settings to push. [remote] is the account's current copy: the TV's own
@@ -132,6 +167,8 @@ fun DesktopSettings.toRemoteSharedSettings(remote: RemoteSharedSettings? = null)
             "tmdb_use_collections" to tmdb.useCollections
         ),
         tmdbLanguage = tmdb.language,
+        mdblistFlags = mdblist.toRemoteFlags(),
+        mdblistRatingOrder = mdblist.ratingOrder.joinToString(","),
     )
 }
 

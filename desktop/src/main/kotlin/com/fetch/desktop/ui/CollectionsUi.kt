@@ -1,5 +1,7 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.poster.withCustomPosterUrls
+import com.fetch.desktop.poster.posterPatternFor
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -196,6 +198,7 @@ fun FolderTile(folder: CollectionFolder, onClick: () -> Unit, modifier: Modifier
 /** The titles a profile may see, minus unreleased ones when Hide unreleased is on. */
 private fun AppState.visible(items: List<MetaPreview>): List<MetaPreview> =
     items.filter { allowed(it) && !(settings.hideUnreleased && isUnreleased(it)) }
+        .withCustomPosterUrls(settings.layout.posterPatternFor(com.fetch.desktop.poster.CustomPosterScreen.COLLECTIONS))
 
 /**
  * A folder's page, by its collection's view mode, as the TV's `FolderDetailScreen`: Tabbed grid

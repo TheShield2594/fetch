@@ -1,5 +1,7 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.poster.withCustomPosterUrls
+import com.fetch.desktop.poster.posterPatternFor
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -121,7 +123,7 @@ fun LibraryScreen(state: AppState) {
     }
 
     PosterGrid(
-        items = view.results.map { it.toPreview() }.filter(state::allowed),
+        items = view.results.map { it.toPreview() }.filter(state::allowed).withCustomPosterUrls(state.settings.layout.posterPatternFor(com.fetch.desktop.poster.CustomPosterScreen.LIBRARY)),
         state = gridState,
         onOpen = { state.navigate(Screen.Detail(it)) },
         showLabels = state.settings.showPosterLabels,

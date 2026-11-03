@@ -205,12 +205,15 @@ fun LayoutExtrasSections(state: AppState) {
     SettingsSection("Custom Poster Source") {
         LayoutTextRow(
             "URL Pattern",
-            "Provide a poster URL pattern from an external service. If a placeholder has no value for a given title, the original poster is used instead. " +
-                "Placeholders: {id}, {id_type}, {typed_id}, {type}, {shape}, {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id}; {imdb_id|tmdb_id} for the first one a title has; " +
-                "add ? for optional ({imdb_id?}). Landscape cards only get custom art when the pattern has {shape}.",
+            "A poster URL pattern from an external service. If a placeholder has no value for a title, its own poster is used.",
             l.customPosterUrlPattern,
             width = 420.dp
         ) { v -> update { it.copy(customPosterUrlPattern = v) } }
+        SettingsRow(
+            "Placeholders",
+            "{id}, {id_type}, {typed_id}, {type}, {shape}, {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id}. {imdb_id|tmdb_id} takes the first a title has; " +
+                "add ? for optional ({imdb_id?}). Landscape cards only get custom art with {shape}."
+        )
         if (l.customPosterUrlPattern.isNotBlank()) {
             SettingsRow("Apply to", null)
             val selected = CustomPosterScreen.shown.filter { l.customPosterScreens == null || it.key in l.customPosterScreens }

@@ -1,5 +1,7 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.poster.withCustomPosterUrls
+import com.fetch.desktop.poster.posterPatternFor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -134,7 +136,7 @@ fun SearchScreen(state: AppState) {
                         val shown = state.searchRows.filter { it.loading || it.items.isNotEmpty() }
                         items(shown, key = { it.key }) { row ->
                             CatalogRowView(
-                                row.copy(items = row.items.filter(state::allowed)),
+                                row.copy(items = row.items.filter(state::allowed).withCustomPosterUrls(state.settings.layout.posterPatternFor(com.fetch.desktop.poster.CustomPosterScreen.SEARCH))),
                                 onOpen = {
                                     state.rememberSearch()
                                     state.navigate(Screen.Detail(it))

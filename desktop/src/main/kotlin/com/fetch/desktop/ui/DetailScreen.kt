@@ -1,5 +1,7 @@
 package com.fetch.desktop.ui
 
+import com.fetch.desktop.poster.withCustomPosterUrls
+import com.fetch.desktop.poster.posterPatternFor
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -221,7 +223,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         MediaRowView(
                             title = collection.name,
                             subtitle = "Collection",
-                            items = collection.parts.filter(state::allowed),
+                            items = collection.parts.filter(state::allowed).withCustomPosterUrls(state.settings.layout.posterPatternFor(com.fetch.desktop.poster.CustomPosterScreen.DETAILS)),
                             loading = false,
                             error = null,
                             onOpen = { state.navigate(Screen.Detail(it)) },
@@ -234,7 +236,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         MediaRowView(
                             title = "More like this",
                             subtitle = null,
-                            items = recs,
+                            items = recs.withCustomPosterUrls(state.settings.layout.posterPatternFor(com.fetch.desktop.poster.CustomPosterScreen.DETAILS)),
                             loading = false,
                             error = null,
                             onOpen = { state.navigate(Screen.Detail(it)) },

@@ -34,6 +34,8 @@ data class DesktopSettings(
     /** Home catalogs by row key: pinned ones lead in pin order, disabled ones are hidden. */
     val pinnedCatalogs: List<String> = emptyList(),
     val disabledCatalogs: List<String> = emptyList(),
+    /** Catalog order (Addons › Catalog order), in the TV's keys (`addonId_type_catalogId`), synced with it. */
+    val catalogOrder: List<String> = emptyList(),
     /** The catalog Discover last showed, restored on the next visit. */
     val discoverCatalog: String? = null,
     /** Audio, Subtitles, Player and Up Next: how mpv is started. */
@@ -46,6 +48,8 @@ data class DesktopSettings(
     val tmdb: TmdbSettings = TmdbSettings(),
     /** Settings › MDBList: ratings from MDBList on title pages and the Home hero, as on TV (synced with it, but the key). */
     val mdblist: com.fetch.desktop.mdblist.MdbListSettings = com.fetch.desktop.mdblist.MdbListSettings(),
+    /** Settings › Tracking's options, as on TV (its `trakt_settings`, synced with it). */
+    val tracking: com.fetch.desktop.tracking.TrackingOptions = com.fetch.desktop.tracking.TrackingOptions(),
     /** Settings › YouTube, as on TV (not synced: the TV keeps them per profile on the device). */
     val youtube: com.fetch.desktop.youtube.YouTubeSettings = com.fetch.desktop.youtube.YouTubeSettings(),
     /** "Stream selection": what Play does once the sources are in, as on TV. */

@@ -186,7 +186,7 @@ fun PartyPlayerPanel(state: AppState, session: PlayerSession, modifier: Modifier
 
 @Composable
 private fun StartPartyContent(state: AppState, busy: Boolean, available: Boolean, canStart: Boolean) {
-    SeatsHero(state.party.currentProfile.name, state.party.currentProfile.color)
+    SeatsHero(state.party.currentProfile.name, state.party.currentProfile.color, state.profiles.active?.avatarId)
     Text("Watch together", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
     Text(
         "Invite your friends. Everyone plays from their own sources and stays in sync.",
@@ -376,7 +376,7 @@ private fun JoinPartySection(state: AppState, available: Boolean, busy: Boolean)
                     Text("${current.members} of ${current.maxMembers} seats", color = FetchPalette.TextMuted, fontSize = 13.sp)
                 }
             } else {
-                SeatsHero(state.party.currentProfile.name, state.party.currentProfile.color)
+                SeatsHero(state.party.currentProfile.name, state.party.currentProfile.color, state.profiles.active?.avatarId)
                 Text("Join a watch party", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
                 Text("Enter the 6-character code your friend shared, or paste their invite link.", color = FetchPalette.TextSecondary)
             }
@@ -505,7 +505,14 @@ private fun CodeSection(party: ActiveParty) {
             SecondaryButton("Copy code", onClick = { clipboard.setText(AnnotatedString(party.code)) })
             SecondaryButton("Copy invite link", onClick = { clipboard.setText(AnnotatedString(party.inviteLink)) })
         }
-        Text("Friends enter the code in Watch party on any Fetch app.", color = FetchPalette.TextMuted, fontSize = 13.sp)
+        // The invite link as a QR code, as on TV: a phone scans it to join.
+        Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
+            QrImage(party.inviteLink, 132.dp, description = "Watch party invite QR code")
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.weight(1f)) {
+                Text("Scan with a phone to join", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text("Or share the code. Friends can enter it in Watch party on any Fetch app.", color = FetchPalette.TextMuted, fontSize = 13.sp)
+            }
+        }
     }
 }
 
@@ -657,21 +664,8 @@ private fun ConfirmDialog(title: String, message: String, confirm: String, onCon
 
 @Composable
 private fun Avatar(name: String, colorHex: String?, size: Dp, imageUrl: String? = null) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.size(size).clip(CircleShape).background(parseColor(colorHex) ?: FetchPalette.SurfaceHigh)
-    ) {
-        Text(name.trim().take(1).uppercase(), color = Color.White, fontSize = (size.value * 0.42f).sp, fontWeight = FontWeight.SemiBold)
-        // The member's profile picture over the initial, as on TV (the server only passes its own storage's).
-        if (imageUrl != null) {
-            coil3.compose.AsyncImage(
-                model = imageUrl,
-                contentDescription = name,
-                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                modifier = Modifier.matchParentSize()
-            )
-        }
-    }
+    // The member's picture from the server's storage (as on TV), else their initial on their colour.
+    AvatarCircle(name, colorHex?.takeIf { parseColor(it) != null }, avatarId = null, avatarUrl = imageUrl, size = size)
 }
 
 @Composable
@@ -697,7 +691,7 @@ private fun AvatarStack(members: List<PartyMember>, size: Dp) {
 
 /** You, and two open seats. */
 @Composable
-private fun SeatsHero(name: String, color: String?) {
+private fun SeatsHero(name: String, color: String?, avatarId: String? = null) {
     val size = 56.dp
     val step = size * 0.72f
     Box(Modifier.width(size + step * 2)) {
@@ -707,7 +701,7 @@ private fun SeatsHero(name: String, color: String?) {
                 modifier = Modifier.offset(x = step * (2 - index)).size(size).clip(CircleShape).border(1.dp, FetchPalette.TextMuted, CircleShape)
             ) { Text("+", color = FetchPalette.TextSecondary, fontSize = 22.sp) }
         }
-        Box(Modifier.zIndex(1f).border(3.dp, FetchPalette.Background, CircleShape)) { Avatar(name, color, size) }
+        Box(Modifier.zIndex(1f).border(3.dp, FetchPalette.Background, CircleShape)) { AvatarCircle(name, color, avatarId, null, size) }
     }
 }
 

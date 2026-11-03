@@ -180,6 +180,10 @@ data class CatalogRow(
 ) {
     val key: String get() = filter?.let(::filterRowKey) ?: "${addon.baseUrl}|${catalog.apiType}|${catalog.id}"
 
+    /** The row's keys for Catalog order: its own, and the TV's (`addonId_type_catalogId`). */
+    val ordered: com.fetch.desktop.addons.OrderedCatalog
+        get() = com.fetch.desktop.addons.OrderedCatalog(key, if (filter != null) key else com.fetch.desktop.addons.tvCatalogKey(addon.id, catalog.apiType, catalog.id))
+
     /** The genre a filter row asks the catalog for. */
     val extra: Map<String, String> get() = filter?.filters?.genre?.let { mapOf("genre" to it) }.orEmpty()
 
@@ -233,7 +237,7 @@ class AppState(
     val profile: DesktopProfile = profiles.active ?: profiles.profiles.first(),
     /** The sync server account (Settings › Account), shared by every profile; null in tests. */
     val account: SyncAccountState? = null,
-    private val client: AddonClient = AddonClient.create(),
+    private val client: AddonClient = AddonClient.create().apply { health = com.fetch.desktop.addons.AddonHealthTracker.shared },
     private val store: AddonStore = AddonStore(File(addonsDir(profile), "addons.json")),
     private val settingsStore: JsonFile<DesktopSettings> = settingsFile(profileDir(profile)),
     private val libraryStore: JsonFile<LibraryFile> = libraryFile(profileDir(profile)),
@@ -356,15 +360,26 @@ class AppState(
         return known?.rating to known?.country
     }
 
-    /** Whether this profile may see [preview], by its rating (the addon's, else TMDB's). */
+    /** The titles a parent hid from this profile or allowed on it. */
+    val titleLists: com.fetch.desktop.parental.ProfileTitleLists get() = profiles.titleLists.listsFor(profile.id)
+
+    /**
+     * Whether this profile may see [preview]: never when a parent hid it, always when they allowed
+     * it, otherwise by its rating (the addon's, else TMDB's).
+     */
     fun allowed(preview: MetaPreview): Boolean {
-        if (limits.maxRating == null) return true
+        val lists = titleLists
+        if (lists.isHidden(preview.id, preview.imdbId, preview.apiType)) return false
+        if (limits.maxRating == null || lists.isAllowed(preview.id, preview.imdbId, preview.apiType)) return true
         val (rating, country) = ratingOf(preview.imdbId ?: preview.id, preview.apiType, preview.ageRating, preview.country)
         return Parental.allows(limits, rating, country)
     }
 
     fun allowed(meta: Meta?, preview: MetaPreview): Boolean {
-        if (limits.maxRating == null) return true
+        val lists = titleLists
+        val imdb = meta?.imdbId ?: preview.imdbId
+        if (lists.isHidden(preview.id, imdb, preview.apiType)) return false
+        if (limits.maxRating == null || lists.isAllowed(preview.id, imdb, preview.apiType)) return true
         val (rating, country) = ratingOf(
             meta?.imdbId ?: preview.imdbId ?: preview.id,
             preview.apiType,
@@ -425,7 +440,11 @@ class AppState(
     val badges = StreamBadgesState(scope, File(profileDir(profile), "stream-badges.json"))
 
     /** Trakt and Simkl for this profile. */
-    val tracking = TrackingState(scope, TrackingStore(File(profileDir(profile), "tracking.json")), onMessage = { message = it })
+    val tracking = TrackingState(
+        scope, TrackingStore(File(profileDir(profile), "tracking.json")), onMessage = { message = it },
+        animeIdPreference = { settings.tracking.animeId },
+        mdbList = { mdbListTracker }
+    )
 
     /** MDBList: the account's lists (Settings › MDBList) and ratings on title pages and the Home hero. */
     private val mdbListHttp = com.fetch.desktop.mdblist.MdbListHttp(okhttp3.OkHttpClient())
@@ -435,6 +454,10 @@ class AppState(
         com.fetch.desktop.mdblist.MdbListAccountClient(mdbListHttp),
         onMessage = { message = it }
     )
+
+    /** MDBList's history, resume points and scrobbling for the connected account (in [tracking]). */
+    val mdbListTracker = com.fetch.desktop.mdblist.MdbListTracker(mdbListAccount, com.fetch.desktop.mdblist.MdbListSyncClient(mdbListHttp))
+
     val mdbListRatings = com.fetch.desktop.mdblist.MdbListRatingsState(
         scope,
         com.fetch.desktop.mdblist.MdbListRatingsClient(mdbListHttp),
@@ -468,7 +491,8 @@ class AppState(
             trakt = { id, type, page, limit, sortBy, sortHow ->
                 tracking.withTraktPublic { publicListItems(it, id.toString(), type, page, limit, sortBy, sortHow) }
             },
-            localLists = { lists.local }
+            localLists = { lists.local },
+            websiteList = { id, types -> com.fetch.desktop.website.FetchWebsiteState.shared.listItems(profile.id, id, types) }
         ),
         addons = { addons.toList() },
         remote = { account?.client() },
@@ -516,6 +540,8 @@ class AppState(
             accountSyncing = true
             try {
                 syncAccountSetup(remote)
+                syncProviderCredentials(remote)
+                pullHomeCatalogs(remote)
                 val id = profile.id
                 // Library: a three-way merge, so a removal on either side carries over.
                 val merge = SyncMerge.library(library.toList(), remote.pullLibrary(id), syncBaseStore.load())
@@ -559,6 +585,35 @@ class AppState(
                 message = "Couldn't sync with your server: ${e.message}"
             } finally {
                 accountSyncing = false
+            }
+        }
+    }
+
+    private val providerCredentialBase = com.fetch.desktop.sync.providerCredentialBaseFile(profileDir(profile))
+
+    /** MDBList's API key with the account, as the TV's provider credential sync does. */
+    private suspend fun syncProviderCredentials(remote: com.fetch.desktop.sync.SyncClient) {
+        val key = try {
+            com.fetch.desktop.sync.ProviderCredentialSync.sync(
+                rpc = { name, params -> remote.callRpc(name, params) },
+                profileId = profile.id,
+                localMdbListKey = settings.mdblist.apiKey,
+                base = providerCredentialBase,
+                originClientId = account?.state?.originClientId
+            )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: SyncAuthException) {
+            throw e
+        } catch (_: Exception) {
+            return // An older server without provider credentials: keys stay per device.
+        }
+        if (key != settings.mdblist.apiKey) {
+            applyingFromServer = true
+            try {
+                updateSettings { it.copy(mdblist = it.mdblist.copy(apiKey = key)) }
+            } finally {
+                applyingFromServer = false
             }
         }
     }
@@ -608,7 +663,11 @@ class AppState(
         scope.launch {
             // MDBList's lists load even when Trakt and Simkl aren't connected.
             val snapshot = tracking.sync() ?: return@launch lists.refresh()
-            saveProgress(WatchHistory.mergeRemote(progress, snapshot.playback, snapshot.watchedIds))
+            // Settings › Tracking › Watch progress source: whose resume points join Continue Watching.
+            val playback = com.fetch.desktop.tracking.playbackForSource(
+                snapshot.playback, settings.tracking.progress, com.fetch.desktop.ui.availableProgressSources(this@AppState)
+            )
+            saveProgress(WatchHistory.mergeRemote(progress, playback, snapshot.watchedIds))
             remoteLists = snapshot.watchlists
             lists.refresh()
         }
@@ -723,6 +782,14 @@ class AppState(
             message = "Couldn't save settings: ${e.message}"
         }
         if (after.rankingRules != before.rankingRules) rerankSources()
+        if (!applyingFromServer && (after.catalogOrder != before.catalogOrder || after.pinnedCatalogs != before.pinnedCatalogs ||
+                after.disabledCatalogs != before.disabledCatalogs || after.hideUnreleased != before.hideUnreleased)) {
+            pushHomeCatalogs()
+        }
+        // A new MDBList key goes to the account straight away, as on TV.
+        if (after.mdblist.apiKey != before.mdblist.apiKey && !applyingFromServer) {
+            account?.client()?.let { remote -> scope.launch { runCatching { syncProviderCredentials(remote) } } }
+        }
         if (!applyingFromServer) queueSettingsPush(before)
     }
 
@@ -976,14 +1043,17 @@ class AppState(
     /** The rows Home shows: pinned catalogs first in pin order, then the rest, minus disabled ones. */
     val homeRows: List<CatalogRow>
         get() {
-            val pinned = settings.pinnedCatalogs
-            val disabled = settings.disabledCatalogs.toSet()
-            val visible = rows.filter { it.key !in disabled }
-            val ordered = visible.filter { it.key in pinned }.sortedBy { pinned.indexOf(it.key) } +
-                visible.filter { it.key !in pinned }
+            val visible = rows.filter { !com.fetch.desktop.addons.HomeCatalogOrder.isDisabled(settings, it.ordered) }
+            // Pinned rows first, then the catalog order (synced with the TV), then the rest in addon
+            // order. "Follow addons order" keeps addon order (pins still lead). Collections are
+            // placed among these by Layout's Home order (HomeLayout).
+            val ordered = if (settings.layout.followAddonsOrder) {
+                visible.filter { it.key in settings.pinnedCatalogs }.sortedBy { settings.pinnedCatalogs.indexOf(it.key) } +
+                    visible.filter { it.key !in settings.pinnedCatalogs }
+            } else com.fetch.desktop.addons.HomeCatalogOrder.ordered(visible, settings, { it.key }, { it.ordered.tvKey })
             // A rating limit hides what it rules out, as on TV, and so does "Hide unreleased".
             val hideUnreleased = settings.hideUnreleased
-            if (limits.maxRating == null && !hideUnreleased) return ordered
+            if (limits.maxRating == null && titleLists.hidden.isEmpty() && !hideUnreleased) return ordered
             return ordered.map { row -> row.copy(items = row.items.filter { allowed(it) && !(hideUnreleased && isUnreleased(it)) }) }
         }
 
@@ -992,7 +1062,49 @@ class AppState(
     }
 
     fun setCatalogEnabled(key: String, enabled: Boolean) = updateSettings { s ->
+        val row = rows.firstOrNull { it.key == key }
+        if (row != null) return@updateSettings com.fetch.desktop.addons.HomeCatalogOrder.setEnabled(s, row.ordered, enabled)
         s.copy(disabledCatalogs = if (enabled) s.disabledCatalogs - key else (s.disabledCatalogs - key) + key)
+    }
+
+    // --- Home catalog order and its sync (the TV's HomeCatalogSettingsSyncService) ---
+
+    private var homeCatalogRemote: kotlinx.serialization.json.JsonObject? = null
+    private var homeCatalogPush: Job? = null
+
+    /** Home's addon catalogs (not filter rows), as the TV's catalog sync names them. */
+    val syncableCatalogs: List<com.fetch.desktop.addons.SyncableCatalog>
+        get() = rows.filter { it.filter == null }.map { com.fetch.desktop.addons.SyncableCatalog(it.key, it.addon.id, it.catalog.apiType, it.catalog.id) }
+
+    /** At start-up the account's catalog order comes down (pull only, as on TV). */
+    private suspend fun pullHomeCatalogs(remote: com.fetch.desktop.sync.SyncClient) {
+        val json = runCatching {
+            com.fetch.desktop.addons.HomeCatalogSync.settingsJsonOf(remote.callRpc("sync_pull_home_catalog_settings", com.fetch.desktop.addons.HomeCatalogSync.pullParams(profile.id)))
+        }.getOrNull() ?: return
+        homeCatalogRemote = json
+        val (payload, hasHide) = com.fetch.desktop.addons.HomeCatalogSync.decode(json) ?: return
+        applyingFromServer = true
+        try {
+            updateSettings { com.fetch.desktop.addons.HomeCatalogSync.apply(it, payload, hasHide) }
+        } finally {
+            applyingFromServer = false
+        }
+    }
+
+    /** A change to Home's catalogs here goes to the account half a second later. */
+    private fun pushHomeCatalogs() {
+        val remote = account?.client() ?: return
+        homeCatalogPush?.cancel()
+        homeCatalogPush = scope.launch {
+            delay(500)
+            val previous = homeCatalogRemote?.let(com.fetch.desktop.addons.HomeCatalogSync::decode)?.first
+            val payload = com.fetch.desktop.addons.HomeCatalogSync.payload(syncableCatalogs, settings, previous)
+            val json = com.fetch.desktop.addons.HomeCatalogSync.merged(homeCatalogRemote, payload)
+            runCatching {
+                remote.callRpc("sync_push_home_catalog_settings", com.fetch.desktop.addons.HomeCatalogSync.pushParams(profile.id, json, account?.state?.originClientId))
+                homeCatalogRemote = json
+            }
+        }
     }
 
     private fun reloadRows() {
@@ -1116,7 +1228,13 @@ class AppState(
     // --- Continue Watching ---
 
     private val continueWatchingRows: Pair<List<ProgressEntry>, List<ProgressEntry>>
-        get() = WatchHistory.continueWatchingRows(progress, LocalDate.now(), settings.showUnairedNextUp, settings.continueWatchingSort)
+        get() = WatchHistory.continueWatchingRows(
+            com.fetch.desktop.tracking.withinWindow(
+                com.fetch.desktop.parental.visibleProgress(progress, titleLists),
+                settings.tracking.continueWatchingDays, System.currentTimeMillis()
+            ),
+            LocalDate.now(), settings.showUnairedNextUp, settings.continueWatchingSort
+        )
 
     /** Continue Watching, by Layout › Continue Watching's settings. */
     val continueWatching: List<ProgressEntry> get() = continueWatchingRows.first
@@ -1175,6 +1293,8 @@ class AppState(
 
     fun removeFromContinueWatching(entry: ProgressEntry) {
         saveProgress(WatchHistory.hide(progress, entry.contentId))
+        // MDBList's resume point goes too, as on TV, so the next sync doesn't bring it back.
+        if (entry.source == "mdblist") scope.launch { mdbListTracker.clear(entry) }
         message = "Removed ${entry.name} from Continue Watching"
     }
 
@@ -2469,7 +2589,10 @@ class AppState(
             account?.client()?.let { client -> SyncPartyBackend(client, account.httpClient, account.state.originClientId.orEmpty(), scope) }
         },
         signedIn = { account?.signedIn == true },
-        profile = { PartyProfile(name = profile.name, imageUrl = null, color = profile.colorHex) },
+        profile = {
+            val current = profiles.profiles.firstOrNull { it.id == profile.id } ?: profile
+            PartyProfile(name = current.name, imageUrl = com.fetch.desktop.data.AvatarCatalog.shareableUrl(current, account?.state?.server?.baseUrl), color = current.colorHex)
+        },
         capability = { account?.watchPartyCapability() },
         onAuthLost = { scope.launch { account?.sessionExpired() } }
     )

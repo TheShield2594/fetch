@@ -30,6 +30,9 @@ class ProfilesState(
 
     val profiles: List<DesktopProfile> get() = file.profiles
 
+    /** Titles hidden from or allowed on each profile, set from a poster's menu. */
+    val titleLists = com.fetch.desktop.parental.TitleListsState(com.fetch.desktop.parental.titleListsFile(root))
+
     fun select(profile: DesktopProfile) {
         active = profile
         save(file.copy(lastProfileId = profile.id))
@@ -40,11 +43,21 @@ class ProfilesState(
         active = null
     }
 
-    fun add(name: String, colorHex: String = file.nextColor(), usesPrimaryAddons: Boolean = true): DesktopProfile? {
+    fun add(
+        name: String,
+        colorHex: String = file.nextColor(),
+        usesPrimaryAddons: Boolean = true,
+        avatarId: String? = null,
+        limits: ProfileLimits = ProfileLimits()
+    ): DesktopProfile? {
         if (file.isFull) return null
-        val profile = DesktopProfile(file.nextId(), name.trim().ifEmpty { "Profile ${file.nextId()}" }, colorHex, usesPrimaryAddons)
+        val profile = DesktopProfile(
+            file.nextId(), name.trim().ifEmpty { "Profile ${file.nextId()}" }, colorHex, usesPrimaryAddons,
+            limits = limits, avatarId = avatarId
+        )
         save(file.copy(profiles = file.profiles + profile))
         listener?.onProfilesChanged(null)
+        if (limits.isRestricted) listener?.onLimitsChanged(profile)
         return profile
     }
 
@@ -52,8 +65,9 @@ class ProfilesState(
         val before = file.profiles.firstOrNull { it.id == profile.id }
         save(file.copy(profiles = file.profiles.map { if (it.id == profile.id) profile else it }))
         if (active?.id == profile.id) active = profile
-        // Only what the account keeps (name, colour, addon sharing) needs a push.
-        if (before != null && (before.name != profile.name || before.colorHex != profile.colorHex || before.usesPrimaryAddons != profile.usesPrimaryAddons)) {
+        // Only what the account keeps (name, colour, avatar, addon sharing) needs a push.
+        if (before != null && (before.name != profile.name || before.colorHex != profile.colorHex ||
+                before.usesPrimaryAddons != profile.usesPrimaryAddons || before.avatarId != profile.avatarId)) {
             listener?.onProfilesChanged(null)
         }
     }
@@ -63,6 +77,7 @@ class ProfilesState(
         if (profile.isPrimary) return
         save(file.copy(profiles = file.profiles.filter { it.id != profile.id }, lastProfileId = file.lastProfileId.takeIf { it != profile.id }))
         profileDir(profile, root).deleteRecursively()
+        titleLists.deleteProfile(profile.id)
         if (active?.id == profile.id) active = file.profiles.first()
         listener?.onProfilesChanged(profile)
     }

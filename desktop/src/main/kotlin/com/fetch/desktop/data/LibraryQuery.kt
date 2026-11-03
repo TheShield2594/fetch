@@ -9,7 +9,15 @@ enum class LibrarySort(val label: String) {
     RELEASED_DESC("Newest releases"),
     RELEASED_ASC("Oldest releases"),
     TITLE_ASC("Title A–Z"),
-    TITLE_DESC("Title Z–A")
+    TITLE_DESC("Title Z–A");
+
+    companion object {
+        /** [items] in [order] (content ids, as MDBList gives them); ones it doesn't list go last. */
+        fun <T> byOrder(items: List<T>, order: List<String>, id: (T) -> String): List<T> {
+            val index = order.withIndex().associate { it.value to it.index }
+            return items.sortedBy { index[id(it)] ?: Int.MAX_VALUE }
+        }
+    }
 }
 
 enum class WatchedFilter(val label: String) { ALL("All"), WATCHED("Watched"), UNWATCHED("Unwatched") }
@@ -32,8 +40,13 @@ data class FacetOption(val value: String, val count: Int)
  */
 class LibraryView(items: List<LibraryEntry>, private val watchedIds: Set<String>, val query: LibraryQuery) {
     private val all = items
+    private var ordered: List<LibraryEntry>? = null
 
-    val results: List<LibraryEntry> = sort(all.filter { matches(it, query) })
+    /** This view with its results in an order given from outside (MDBList's release order). */
+    fun withResults(results: List<LibraryEntry>): LibraryView = LibraryView(all, watchedIds, query).also { it.ordered = results }
+
+    val results: List<LibraryEntry> get() = ordered ?: sorted
+    private val sorted: List<LibraryEntry> = sort(all.filter { matches(it, query) })
 
     val types: List<FacetOption> = facet({ listOf(it.type.lowercase()) }, query.copy(type = null))
         .sortedWith(compareBy({ typeOrder(it.value) }, { it.value }))

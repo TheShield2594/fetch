@@ -35,7 +35,8 @@ fun interface TraktListReader {
 /**
  * Loads a folder source a page at a time, as the TV's `FolderDetailViewModel` does: addon
  * catalogs (with their genre, paged by `skip`, read from the source's `addonUrl` when the addon
- * isn't installed), TMDB, Trakt lists and local lists. Fetch website lists aren't on desktop.
+ * isn't installed), TMDB, Trakt lists, local lists and lists on the Fetch website this computer is
+ * signed in to (one page, as on TV: lists are personal-sized).
  */
 class CollectionSourceResolver(
     private val addons: () -> List<Addon>,
@@ -43,7 +44,9 @@ class CollectionSourceResolver(
     private val tmdb: TmdbCollectionSources,
     private val tmdbLanguage: () -> String,
     private val trakt: TraktListReader,
-    private val localLists: () -> List<LocalList>
+    private val localLists: () -> List<LocalList>,
+    /** A website list's titles of the given types (`movie`, `series`); null when the website isn't set up. */
+    private val websiteList: (suspend (listId: String, types: List<String>) -> List<MetaPreview>)? = null
 ) {
     private val remoteAddons = ConcurrentHashMap<String, Addon>()
 
@@ -53,7 +56,7 @@ class CollectionSourceResolver(
         is TmdbCollectionSource -> tmdb.resolve(source, page, tmdbLanguage())
         is TraktCollectionSource -> traktPage(source, page)
         is LocalListCollectionSource -> localPage(source)
-        is FetchListCollectionSource -> error("Lists from a Fetch website aren't available on desktop yet.")
+        is FetchListCollectionSource -> websitePage(source, page)
     }
 
     private suspend fun addonPage(source: AddonCatalogCollectionSource, page: Int): SourcePage {
@@ -95,6 +98,17 @@ class CollectionSourceResolver(
             )
         }.distinctBy { "${it.apiType}:${it.id}" }
         return SourcePage(items, hasMore = page < result.pageCount && items.isNotEmpty())
+    }
+
+    private suspend fun websitePage(source: FetchListCollectionSource, page: Int): SourcePage {
+        if (page > 1) return SourcePage(emptyList(), hasMore = false)
+        val read = websiteList ?: error("Sign in to the Fetch website in Settings › Account to show this list.")
+        val types = when (source.mediaType) {
+            TmdbCollectionMediaType.MOVIE -> listOf("movie")
+            TmdbCollectionMediaType.TV -> listOf("series")
+            null -> listOf("movie", "series")
+        }
+        return SourcePage(read(source.listId, types).distinctBy { "${it.apiType}:${it.id}" }, hasMore = false)
     }
 
     private fun localPage(source: LocalListCollectionSource): SourcePage {

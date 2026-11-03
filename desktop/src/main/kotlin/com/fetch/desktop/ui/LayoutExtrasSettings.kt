@@ -259,7 +259,8 @@ fun HomeCatalogsList(state: AppState) {
         collections.filter { !it.pinToTop && HomeLayout.collectionKey(it.id) !in disabled }.map { it.id },
         l.homeOrder,
         s.pinnedCatalogs,
-        l.followAddonsOrder
+        // Catalogs are already in their (synced) order; the saved Home order places collections.
+        true
     )
     val rowByKey = catalogs.associateBy { it.key }
     val collectionByKey = collections.associateBy { HomeLayout.collectionKey(it.id) }
@@ -283,7 +284,13 @@ fun HomeCatalogsList(state: AppState) {
             val row = rowByKey[key]
             val collection = collectionByKey[key]
             val movable = collection != null || !l.followAddonsOrder
-            val move: (Int) -> Unit = { delta -> state.updateLayout { it.copy(homeOrder = HomeLayout.move(current, key, delta)) } }
+            val move: (Int) -> Unit = { delta ->
+                if (row != null) {
+                    // A catalog moves in the catalog order the TV shares; collections stay after their catalog.
+                    val shown = catalogs.map { it.ordered }
+                    state.updateSettings { com.fetch.desktop.addons.HomeCatalogOrder.move(it, shown, row.ordered, delta) }
+                } else state.updateLayout { it.copy(homeOrder = HomeLayout.move(current, key, delta)) }
+            }
             when {
                 row != null -> {
                     val pinned = key in s.pinnedCatalogs
@@ -317,7 +324,7 @@ fun HomeCatalogsList(state: AppState) {
         }
     }
     // Hidden rows and collections, to bring back.
-    val hiddenRows = state.rows.filter { it.key in disabled }
+    val hiddenRows = state.rows.filter { com.fetch.desktop.addons.HomeCatalogOrder.isDisabled(s, it.ordered) }
     val hiddenCollections = collections.filter { !it.pinToTop && HomeLayout.collectionKey(it.id) in disabled }
     if (hiddenRows.isNotEmpty() || hiddenCollections.isNotEmpty()) {
         SettingsSection("Hidden from Home") {

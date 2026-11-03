@@ -289,8 +289,10 @@ class MdbListAccountClient(private val http: MdbListHttp, private val clientId: 
     }
 
     /** Every item of [list], following MDBList's cursor or offset pages; in the order its owner saved. */
-    suspend fun items(list: MdbListList, auth: MdbListAuth): List<MdbListItem> {
-        val initial = mapOf("limit" to "1000", "unified" to "true", "append_to_response" to "poster,description,genres")
+    suspend fun items(list: MdbListList, auth: MdbListAuth, sort: String? = null, order: String = "asc"): List<MdbListItem> {
+        // Sorted by MDBList ("added", "released"): only the order is wanted, as the TV's sorter asks.
+        val initial = mapOf("limit" to "1000", "unified" to "true") +
+            if (sort == null) mapOf("append_to_response" to "poster,description,genres") else mapOf("sort" to sort, "order" to order)
         var query = initial
         val items = mutableListOf<MdbListItem>()
         val seen = mutableSetOf<Map<String, String>>()

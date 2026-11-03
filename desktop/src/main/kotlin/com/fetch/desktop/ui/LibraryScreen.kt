@@ -60,7 +60,8 @@ fun LibraryScreen(state: AppState) {
     var query by remember { mutableStateOf(LibraryQuery()) }
     // "Local", a connected account's watchlist, or a media server library, as the TV Library's
     // source picker ("Saved" and "Servers").
-    var source by remember { mutableStateOf<LibrarySource>(LibrarySource.Local) }
+    // Opens on Settings › Tracking › Library source, as on TV.
+    var source by remember { mutableStateOf(initialLibrarySource(state)) }
     val serverSources = state.servers.enabled.flatMap { account ->
         account.libraries.filter { it.selected }.map { LibrarySource.Server(account.id, it.id, "${it.name} · ${account.name}") }
     }
@@ -98,7 +99,21 @@ fun LibraryScreen(state: AppState) {
     // Each provider's sort options, its own order first (Library provider order, as on TV).
     val sortOptions = com.fetch.desktop.library.LibraryProviderOrder.sortOptions(provider)
     val effectiveQuery = query.copy(sort = com.fetch.desktop.library.LibraryProviderOrder.sortFor(provider, query.sort))
-    val view = LibraryView(items, watched, effectiveQuery)
+    // MDBList's release orders come from MDBList itself, as on TV.
+    val mdbOrderKey = when (effectiveQuery.sort) {
+        LibrarySort.RELEASED_DESC, LibrarySort.RELEASED_ASC -> "released"
+        else -> null
+    }.takeIf { provider == ListProvider.MDBLIST }
+    val mdbOrder by androidx.compose.runtime.produceState<List<String>?>(null, currentList?.key, mdbOrderKey) {
+        value = null
+        val key = currentList?.key ?: return@produceState
+        if (mdbOrderKey != null) value = runCatching { state.mdbListAccount.order(key, mdbOrderKey) }.getOrNull()
+    }
+    val view = LibraryView(items, watched, effectiveQuery).let { v ->
+        val order = mdbOrder ?: return@let v
+        val oldestFirst = LibrarySort.byOrder(v.results, order) { it.id }
+        v.withResults(if (effectiveQuery.sort == LibrarySort.RELEASED_DESC) oldestFirst.asReversed() else oldestFirst)
+    }
     val gridState = rememberLazyGridState()
 
     if (managing) ListsManagerDialog(state, provider, onDismiss = { managing = false })
@@ -311,4 +326,15 @@ private fun LibraryFilters(view: LibraryView, query: LibraryQuery, onChange: (Li
             onSelect = { onChange(query.copy(watched = it)) }
         )
     }
+}
+
+/** The Library source Settings › Tracking picks, when this profile has it; else Fetch's own. */
+private fun initialLibrarySource(state: AppState): LibrarySource {
+    val wanted = when (state.settings.tracking.library) {
+        com.fetch.desktop.tracking.LibrarySourceOption.LOCAL -> ListProvider.LOCAL
+        com.fetch.desktop.tracking.LibrarySourceOption.TRAKT -> ListProvider.TRAKT
+        com.fetch.desktop.tracking.LibrarySourceOption.SIMKL -> ListProvider.SIMKL
+        com.fetch.desktop.tracking.LibrarySourceOption.MDBLIST -> ListProvider.MDBLIST
+    }
+    return LibrarySource.Lists(wanted).takeIf { wanted in state.lists.providers } ?: LibrarySource.Local
 }

@@ -290,7 +290,7 @@ private fun MiniTile(folder: CollectionFolder) {
 
 private enum class CoverKind(val label: String) { IMAGE("Image"), EMOJI("Emoji"), NONE("None") }
 
-private enum class SourcePicker { CATALOG, TMDB, TRAKT, LOCAL }
+private enum class SourcePicker { CATALOG, TMDB, TRAKT, LOCAL, WEBSITE }
 
 @Composable
 private fun FolderEditor(state: AppState, initial: CollectionFolder, onDone: (CollectionFolder?) -> Unit) {
@@ -379,6 +379,9 @@ private fun FolderEditor(state: AppState, initial: CollectionFolder, onDone: (Co
             SecondaryButton("TMDB", icon = FetchIcons.Add, onClick = { picker = SourcePicker.TMDB })
             if (state.tracking.credentials.traktAvailable) SecondaryButton("Trakt list", icon = FetchIcons.Add, onClick = { picker = SourcePicker.TRAKT })
             SecondaryButton("Local list", icon = FetchIcons.Add, onClick = { picker = SourcePicker.LOCAL })
+            if (com.fetch.desktop.website.FetchWebsiteState.shared.session != null) {
+                SecondaryButton("Website list", icon = FetchIcons.Add, onClick = { picker = SourcePicker.WEBSITE })
+            }
         }
     }
     when (picker) {
@@ -394,6 +397,7 @@ private fun FolderEditor(state: AppState, initial: CollectionFolder, onDone: (Co
             picker = null
         }, onDismiss = { picker = null })
         SourcePicker.LOCAL -> LocalListPickerDialog(state, folder, onChange = { folder = it }, onDismiss = { picker = null })
+        SourcePicker.WEBSITE -> WebsiteListPickerDialog(state, folder, onChange = { folder = it }, onDismiss = { picker = null })
         null -> Unit
     }
 }
@@ -480,6 +484,43 @@ private fun CatalogPickerDialog(catalogs: List<PickableCatalog>, folder: Collect
                     listOfNotNull(com.fetch.desktop.typeLabel(c.catalog.apiType), "genres".takeIf { c.genres.isNotEmpty() }).joinToString(" · "),
                     on
                 ) { onToggle(c) }
+            }
+        }
+    }
+}
+
+/** The profile's lists on the Fetch website, as the TV's "Fetch website list" source picks them. */
+@Composable
+private fun WebsiteListPickerDialog(state: AppState, folder: CollectionFolder, onChange: (CollectionFolder) -> Unit, onDismiss: () -> Unit) {
+    var media by remember { mutableStateOf<TmdbCollectionMediaType?>(null) }
+    val website = com.fetch.desktop.website.FetchWebsiteState.shared
+    val loaded by androidx.compose.runtime.produceState<Result<List<com.fetch.desktop.website.WebsiteList>>?>(null) {
+        value = runCatching {
+            val profile = website.profileFor(state.profile.id) ?: error("This profile has no profile on the Fetch website yet.")
+            website.client.lists(profile.id)
+        }
+    }
+    PickerDialog("Fetch website lists", onDismiss) {
+        val result = loaded
+        when {
+            result == null -> Text("Loading…", color = FetchPalette.TextMuted)
+            result.isFailure -> Text(result.exceptionOrNull()?.message ?: "Couldn’t load the website’s lists.", color = FetchPalette.TextMuted)
+            result.getOrThrow().isEmpty() -> Text("This profile has no lists on the website yet.", color = FetchPalette.TextMuted)
+            else -> {
+                FilterDropdown(
+                    "Show", media,
+                    listOf(DropdownOption<TmdbCollectionMediaType?>(null, "Movies and series"), DropdownOption(TmdbCollectionMediaType.MOVIE, "Movies"), DropdownOption(TmdbCollectionMediaType.TV, "Series")),
+                    onSelect = { media = it }
+                )
+                result.getOrThrow().forEach { list ->
+                    val existing = folder.sources.filterIsInstance<com.fetch.tv.domain.model.FetchListCollectionSource>().firstOrNull { it.listId == list.id }
+                    CheckRow(list.name, list.kind.replaceFirstChar { it.uppercase() }, existing != null) {
+                        onChange(
+                            if (existing != null) folder.copy(sources = folder.sources - existing)
+                            else folder.copy(sources = folder.sources + com.fetch.tv.domain.model.FetchListCollectionSource(list.id, list.name, media))
+                        )
+                    }
+                }
             }
         }
     }

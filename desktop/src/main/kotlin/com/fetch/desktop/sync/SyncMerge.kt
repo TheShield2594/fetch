@@ -205,6 +205,8 @@ object SyncMerge {
                 usesPrimaryAddons = if (r.profileIndex == DesktopProfile.PRIMARY_ID) mine?.usesPrimaryAddons ?: true else r.usesPrimaryAddons,
                 pinHash = mine?.pinHash,
                 limits = mine?.limits ?: ProfileLimits(),
+                avatarId = r.avatarId,
+                avatarUrl = r.avatarUrl?.takeIf { it.isNotBlank() },
             )
         }.toMutableList()
         if (merged.none { it.isPrimary }) {
@@ -229,8 +231,9 @@ object SyncMerge {
                 name = p.name,
                 avatarColorHex = p.colorHex,
                 usesPrimaryAddons = !p.isPrimary && p.usesPrimaryAddons,
-                avatarId = theirs?.avatarId,
-                avatarUrl = theirs?.avatarUrl,
+                // An avatar picked here replaces the account's picture; with none picked here, theirs is kept.
+                avatarId = p.avatarId ?: theirs?.avatarId,
+                avatarUrl = if (p.avatarId != null && p.avatarId != theirs?.avatarId) null else theirs?.avatarUrl,
                 profileBackgroundId = theirs?.profileBackgroundId,
                 profileBackgroundUrl = theirs?.profileBackgroundUrl,
             )

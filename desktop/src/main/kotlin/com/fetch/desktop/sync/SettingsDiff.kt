@@ -31,7 +31,10 @@ fun RemoteSharedSettings.changedFrom(before: RemoteSharedSettings): RemoteShared
         playerExtras = playerExtras?.changedFrom(before.playerExtras),
         autoPlay = autoPlay?.filter { (k, v) -> before.autoPlay?.get(k) != v }?.takeIf { it.isNotEmpty() },
         episodeQueue = pick(episodeQueue, before.episodeQueue),
-        layoutValues = layoutValues?.filter { (k, v) -> before.layoutValues?.get(k) != v }?.takeIf { it.isNotEmpty() }
+        layoutValues = layoutValues?.filter { (k, v) -> before.layoutValues?.get(k) != v }?.takeIf { it.isNotEmpty() },
+        trackingStrings = trackingStrings?.filter { (k, v) -> before.trackingStrings?.get(k) != v }?.takeIf { it.isNotEmpty() },
+        trackingInts = trackingInts?.filter { (k, v) -> before.trackingInts?.get(k) != v }?.takeIf { it.isNotEmpty() },
+        trackingFlags = trackingFlags?.filter { (k, v) -> before.trackingFlags?.get(k) != v }?.takeIf { it.isNotEmpty() }
     )
     return diff.takeUnless { it == RemoteSharedSettings() }
 }

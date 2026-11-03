@@ -244,7 +244,8 @@ private fun HomeContent(state: AppState) {
                     order = layout.homeOrder,
                     pinnedCatalogs = settings.pinnedCatalogs,
                     hidden = settings.disabledCatalogs.toSet(),
-                    followAddonsOrder = layout.followAddonsOrder,
+                    // Catalogs arrive in their order (homeRows); the saved order only places collections.
+                    followAddonsOrder = true,
                     kids = kids
                 )
                 val showAddonNames = settings.showAddonName && !kids

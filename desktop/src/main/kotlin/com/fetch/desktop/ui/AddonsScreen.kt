@@ -86,6 +86,7 @@ fun AddonsScreen(state: AppState) {
                     )
                     PrimaryButton("Install", onClick = install, icon = null, enabled = url.isNotBlank())
                 }
+                AddonToolsRow(state)
             }
         }
         if (state.addons.isEmpty() && state.unreachableAddons.isEmpty() && !state.addonsLoading) {

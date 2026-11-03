@@ -65,6 +65,8 @@ fun AccountPage(state: AppState, header: Boolean = true) {
             SettingsRow("Sign out", "This computer stops syncing; nothing is deleted.", onClick = account::signOut)
         }
         account.error?.let { Text(it, color = FetchPalette.Error) }
+        SyncCodeSection(state)
+        FetchWebsiteSection(state)
         return
     }
 
@@ -105,6 +107,7 @@ fun AccountPage(state: AppState, header: Boolean = true) {
         }
     }
     account.error?.let { Text(it, color = FetchPalette.Error) }
+    FetchWebsiteSection(state)
     account.deviceLogin?.let { login -> DeviceCodeDialog(login.userCode, login.verificationUrlComplete, onCancel = account::cancelDeviceLogin) }
 }
 

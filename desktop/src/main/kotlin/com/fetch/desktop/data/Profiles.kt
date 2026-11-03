@@ -20,7 +20,11 @@ data class DesktopProfile(
     /** Limits, set from the main profile, as on TV. */
     val limits: ProfileLimits = ProfileLimits(),
     /** Locked on the sync server (set on another device) with no PIN here yet; checked online. */
-    val serverLocked: Boolean = false
+    val serverLocked: Boolean = false,
+    /** The TV's avatar id: a bundled one (`fetch:fox`) or the sync server catalog's; null shows the initial. */
+    val avatarId: String? = null,
+    /** A picture of the profile's own on the sync server (the TV's `avatar_url`), shown when set. */
+    val avatarUrl: String? = null
 ) {
     val isPrimary: Boolean get() = id == PRIMARY_ID
     val isLocked: Boolean get() = pinHash != null || serverLocked

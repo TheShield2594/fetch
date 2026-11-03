@@ -86,6 +86,8 @@ data class RemoteListItem(
     val title: String,
     val year: Int?,
     val addedAtEpochMs: Long?,
+    /** The service's own poster, for titles without an IMDb id. */
+    val poster: String? = null,
 )
 
 /** A Trakt personal list. [privacy] is `private`, `link`, `friends` or `public`. */

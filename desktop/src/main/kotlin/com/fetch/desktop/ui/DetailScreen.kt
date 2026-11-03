@@ -102,13 +102,18 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("Not available on ${state.profile.name}", style = MaterialTheme.typography.titleLarge, color = Color.White)
-                Text("This title is rated above the limit set for this profile.", color = FetchPalette.TextSecondary)
+                Text(
+                    if (state.titleLists.isHidden(preview.id, meta?.imdbId ?: preview.imdbId, preview.apiType)) "A parent hid this title from this profile."
+                    else "This title is rated above the limit set for this profile.",
+                    color = FetchPalette.TextSecondary
+                )
                 if (state.canGoBack) SecondaryButton("Back", onClick = state::back, icon = FetchIcons.Back)
             }
         }
         return
     }
 
+    val extras = rememberTitleExtras(state, meta, preview)
     CompositionLocalProvider(LocalStreamBadges provides state.badges, LocalDetailLayout provides state.settings.layout) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         TrailerAutoplay(state, meta?.trailerYtIds?.firstOrNull() ?: preview.trailerYtIds.firstOrNull(), meta?.name ?: preview.name)
@@ -239,26 +244,15 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         )
                     }
                 }
-                tmdbExtras?.moreLikeThis?.filter(state::allowed)?.takeIf { it.isNotEmpty() }?.let { recs ->
-                    item(key = "more-like-this") {
-                        MediaRowView(
-                            title = "More like this",
-                            subtitle = null,
-                            items = recs.withCustomPosterUrls(state.settings.layout.posterPatternFor(com.fetch.desktop.poster.CustomPosterScreen.DETAILS)),
-                            loading = false,
-                            error = null,
-                            onOpen = { state.navigate(Screen.Detail(it)) },
-                            showLabels = state.settings.showPosterLabels
-                        )
-                    }
-                }
+                // More like this from Settings › Tracking's source (TMDB's otherwise).
+                titleExtras(state, extras, tmdbExtras?.moreLikeThis?.withCustomPosterUrls(state.settings.layout.posterPatternFor(com.fetch.desktop.poster.CustomPosterScreen.DETAILS)))
                 val companies = meta?.networks.orEmpty().map { it to TmdbEntityKind.NETWORK } +
                     meta?.productionCompanies.orEmpty().map { it to TmdbEntityKind.COMPANY }
                 if (companies.any { it.first.tmdbId != null }) {
                     item(key = "companies") { Companies(companies.filter { it.first.tmdbId != null }.distinctBy { it.first.tmdbId to it.second }) { c, k -> state.openEntity(c, k) } }
                 }
                 // Trakt comments for the title or the episode picked, as on TV.
-                if (!state.detailLoading) {
+                if (!state.detailLoading && state.settings.tracking.showComments) {
                     item(key = "comments") { TraktCommentsSection(state, preview, meta, isSeries) }
                 }
             }

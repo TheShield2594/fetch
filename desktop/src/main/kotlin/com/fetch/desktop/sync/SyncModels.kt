@@ -170,6 +170,12 @@ data class RemoteSharedSettings(
      * (`{"type":…,"value":…}`) by `feature/key`; only the ones present.
      */
     val layoutValues: Map<String, kotlinx.serialization.json.JsonObject>? = null,
+    /** `trakt_settings` strings by key (`library_source_mode`, `watch_progress_source`, …); only the ones present. */
+    val trackingStrings: Map<String, String>? = null,
+    /** `trakt_settings` ints by key (`continue_watching_days_cap`). */
+    val trackingInts: Map<String, Int>? = null,
+    /** `trakt_settings` booleans by key (`show_meta_comments`). */
+    val trackingFlags: Map<String, Boolean>? = null,
 )
 
 /**

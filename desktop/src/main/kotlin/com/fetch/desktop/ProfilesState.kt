@@ -89,9 +89,10 @@ class ProfilesState(
     /** The TV's "lock unrestricted profiles"; see [ProfilesFile.lockUnrestrictedProfiles]. */
     fun setLockUnrestrictedProfiles(enabled: Boolean) = save(file.copy(lockUnrestrictedProfiles = enabled))
 
-    fun setLimitsPushPending(profileId: Int, pending: Boolean) {
-        val ids = if (pending) file.pendingLimitsPush + profileId else file.pendingLimitsPush - profileId
-        if (ids != file.pendingLimitsPush) save(file.copy(pendingLimitsPush = ids))
+    /** Records [limits] as owed to the account for [profileId], or with null, that they landed. */
+    fun setPendingLimits(profileId: Int, limits: ProfileLimits?) {
+        val pending = if (limits != null) file.pendingLimitsPush + (profileId to limits) else file.pendingLimitsPush - profileId
+        if (pending != file.pendingLimitsPush) save(file.copy(pendingLimitsPush = pending))
     }
 
     /**
@@ -113,6 +114,8 @@ class ProfilesState(
     fun setLimits(profile: DesktopProfile, limits: ProfileLimits) {
         val current = file.profiles.firstOrNull { it.id == profile.id } ?: return
         update(current.copy(limits = limits))
+        // Limits set now replace any still owed from a settings copy; their own push goes out next.
+        setPendingLimits(profile.id, null)
         listener?.onLimitsChanged(current.copy(limits = limits))
     }
 

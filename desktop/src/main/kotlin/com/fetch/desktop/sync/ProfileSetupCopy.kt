@@ -25,12 +25,12 @@ suspend fun SyncClient.copyProfileSetupKeepingLimits(
         copyProfileSetup(source.id, target.id, copyMissingKeys)
         return
     }
-    val targetLimitsBefore = pullParentalLimits(target.id)
-    profiles.setLimitsPushPending(target.id, true)
+    // The limits to restore, saved before the copy so a retry pushes exactly these.
+    val limits = SyncMerge.parentalLimits(target.limits, pullParentalLimits(target.id))
+    profiles.setPendingLimits(target.id, limits)
     copyProfileSetup(source.id, target.id, copyMissingKeys)
-    val limits = SyncMerge.parentalLimits(target.limits, targetLimitsBefore)
     pushParentalLimits(target.id, SyncMerge.parentalLimitsToPush(limits, null))
-    profiles.setLimitsPushPending(target.id, false)
+    profiles.setPendingLimits(target.id, null)
 }
 
 /**

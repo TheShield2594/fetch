@@ -5,6 +5,7 @@ import com.fetch.desktop.data.JsonFile
 import com.fetch.desktop.data.ProfilesFile
 import com.fetch.desktop.data.addonsDir
 import com.fetch.desktop.data.profileDir
+import com.fetch.desktop.data.profilesFile
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -93,5 +94,17 @@ class ProfilesStateTest {
         assertNull(ProfilesState.initialProfile(file))
         assertEquals(3, ProfilesState.initialProfile(file.copy(lockUnrestrictedProfiles = false))?.id)
     }
-}
 
+    @Test
+    fun `limits owed after a settings copy are kept until they land, and replaced by new limits`() {
+        val dir = Files.createTempDirectory("profiles").toFile()
+        val state = ProfilesState(profilesFile(dir), dir)
+        val kid = state.add("Kid")!!
+        val owed = com.fetch.desktop.data.KidsLimits
+        state.setPendingLimits(kid.id, owed)
+        assertEquals(owed, ProfilesState(profilesFile(dir), dir).file.pendingLimitsPush[kid.id])
+
+        state.setLimits(kid, com.fetch.desktop.data.ProfileLimits(dailyMinutes = 60))
+        assertTrue("new limits supersede the owed ones", state.file.pendingLimitsPush.isEmpty())
+    }
+}

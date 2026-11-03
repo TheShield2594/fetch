@@ -62,10 +62,11 @@ data class ProfilesFile(
      */
     val lockUnrestrictedProfiles: Boolean = false,
     /**
-     * Profiles whose limits a server-side settings copy replaced with the source's and that still
-     * owe the account their own; pushed on the next account sync.
+     * Profiles whose limits a server-side settings copy replaced with the source's, with the exact
+     * limits the account still owes them (theirs, tightened by the account's before the copy).
+     * Pushed on the next account sync; until then the account's copy of them isn't merged in.
      */
-    val pendingLimitsPush: Set<Int> = emptySet()
+    val pendingLimitsPush: Map<Int, ProfileLimits> = emptyMap()
 ) {
     /** The lowest free id: the sync server numbers profiles 1 to [MAX_PROFILES], like the TV app. */
     fun nextId(): Int = (2..MAX_PROFILES).firstOrNull { id -> profiles.none { it.id == id } } ?: ((profiles.maxOfOrNull { it.id } ?: 0) + 1)

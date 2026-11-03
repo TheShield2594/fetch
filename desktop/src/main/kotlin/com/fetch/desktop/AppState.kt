@@ -898,19 +898,25 @@ class AppState(
         // Profiles, locks and limits are the main profile's to sync.
         if (!profile.isPrimary) return
         // Limits a server-side settings copy replaced go back first, so they aren't tightened to the source's.
-        for (id in profiles.file.pendingLimitsPush) {
+        for ((id, owed) in profiles.file.pendingLimitsPush) {
             val p = profiles.profiles.firstOrNull { it.id == id }
             if (p == null || p.isPrimary) {
-                profiles.setLimitsPushPending(id, false)
+                profiles.setPendingLimits(id, null)
                 continue
             }
-            runCatching { remote.pushParentalLimits(id, SyncMerge.parentalLimitsToPush(p.limits, null)) }
-                .onSuccess { profiles.setLimitsPushPending(id, false) }
+            runCatching { remote.pushParentalLimits(id, SyncMerge.parentalLimitsToPush(owed, null)) }
+                .onSuccess { profiles.setPendingLimits(id, null) }
         }
+        // Still owed after a failed retry: the account holds the copy's source limits, so keep the saved ones.
+        val stillOwed = profiles.file.pendingLimitsPush
         val profileMerge = SyncMerge.profiles(profiles.profiles, remote.pullProfiles())
         val remoteLocked = SyncMerge.lockedOnlyRemotely(profileMerge.local, remote.pullProfileLocks()).toSet()
         val merged = profileMerge.local.map { p ->
-            val limits = if (p.isPrimary) p.limits else SyncMerge.parentalLimits(p.limits, remote.pullParentalLimits(p.id))
+            val limits = when {
+                p.isPrimary -> p.limits
+                p.id in stillOwed -> stillOwed.getValue(p.id)
+                else -> SyncMerge.parentalLimits(p.limits, remote.pullParentalLimits(p.id))
+            }
             p.copy(serverLocked = p.id in remoteLocked, limits = limits)
         }
         profiles.applyFromServer(merged)

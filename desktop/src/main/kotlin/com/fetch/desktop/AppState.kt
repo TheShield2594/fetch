@@ -413,7 +413,8 @@ class AppState(
     /** Trakt and Simkl for this profile. */
     val tracking = TrackingState(
         scope, TrackingStore(File(profileDir(profile), "tracking.json")), onMessage = { message = it },
-        animeIdPreference = { settings.tracking.animeId }
+        animeIdPreference = { settings.tracking.animeId },
+        mdbList = { mdbListTracker }
     )
 
     /** MDBList: the account's lists (Settings › MDBList) and ratings on title pages and the Home hero. */
@@ -424,6 +425,10 @@ class AppState(
         com.fetch.desktop.mdblist.MdbListAccountClient(mdbListHttp),
         onMessage = { message = it }
     )
+
+    /** MDBList's history, resume points and scrobbling for the connected account (in [tracking]). */
+    val mdbListTracker = com.fetch.desktop.mdblist.MdbListTracker(mdbListAccount, com.fetch.desktop.mdblist.MdbListSyncClient(mdbListHttp))
+
     val mdbListRatings = com.fetch.desktop.mdblist.MdbListRatingsState(
         scope,
         com.fetch.desktop.mdblist.MdbListRatingsClient(mdbListHttp),
@@ -492,6 +497,7 @@ class AppState(
             accountSyncing = true
             try {
                 syncAccountSetup(remote)
+                syncProviderCredentials(remote)
                 val id = profile.id
                 // Library: a three-way merge, so a removal on either side carries over.
                 val merge = SyncMerge.library(library.toList(), remote.pullLibrary(id), syncBaseStore.load())
@@ -535,6 +541,35 @@ class AppState(
                 message = "Couldn't sync with your server: ${e.message}"
             } finally {
                 accountSyncing = false
+            }
+        }
+    }
+
+    private val providerCredentialBase = com.fetch.desktop.sync.providerCredentialBaseFile(profileDir(profile))
+
+    /** MDBList's API key with the account, as the TV's provider credential sync does. */
+    private suspend fun syncProviderCredentials(remote: com.fetch.desktop.sync.SyncClient) {
+        val key = try {
+            com.fetch.desktop.sync.ProviderCredentialSync.sync(
+                rpc = { name, params -> remote.callRpc(name, params) },
+                profileId = profile.id,
+                localMdbListKey = settings.mdblist.apiKey,
+                base = providerCredentialBase,
+                originClientId = account?.state?.originClientId
+            )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: SyncAuthException) {
+            throw e
+        } catch (_: Exception) {
+            return // An older server without provider credentials: keys stay per device.
+        }
+        if (key != settings.mdblist.apiKey) {
+            applyingFromServer = true
+            try {
+                updateSettings { it.copy(mdblist = it.mdblist.copy(apiKey = key)) }
+            } finally {
+                applyingFromServer = false
             }
         }
     }
@@ -699,6 +734,10 @@ class AppState(
             message = "Couldn't save settings: ${e.message}"
         }
         if (after.rankingRules != before.rankingRules) rerankSources()
+        // A new MDBList key goes to the account straight away, as on TV.
+        if (after.mdblist.apiKey != before.mdblist.apiKey && !applyingFromServer) {
+            account?.client()?.let { remote -> scope.launch { runCatching { syncProviderCredentials(remote) } } }
+        }
         if (!applyingFromServer) queueSettingsPush(before)
     }
 
@@ -1157,6 +1196,8 @@ class AppState(
 
     fun removeFromContinueWatching(entry: ProgressEntry) {
         saveProgress(WatchHistory.hide(progress, entry.contentId))
+        // MDBList's resume point goes too, as on TV, so the next sync doesn't bring it back.
+        if (entry.source == "mdblist") scope.launch { mdbListTracker.clear(entry) }
         message = "Removed ${entry.name} from Continue Watching"
     }
 

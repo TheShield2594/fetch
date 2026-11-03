@@ -191,6 +191,7 @@ class MdbListAccountState(
      * and liked lists are extras: if MDBList can't serve them, the copies already here stay.
      */
     suspend fun refresh() {
+        orders.clear()
         if (!connected || refreshing) return
         refreshing = true
         try {
@@ -231,6 +232,23 @@ class MdbListAccountState(
     }
 
     /** The lists shown in the Library and Manage lists. */
+    private val orders = mutableMapOf<String, List<String>>()
+
+    /**
+     * [listKey]'s items in MDBList's own order by `added` or `released` (oldest first), as the TV's
+     * `MdbListLibrarySorter` reads them: content ids, cached until the lists refresh. MDBList
+     * gives the newest first for `order=asc`, so the oldest are asked for with `desc`.
+     */
+    suspend fun order(listKey: String, sort: String): List<String>? {
+        val cacheKey = "$listKey|$sort"
+        orders[cacheKey]?.let { return it }
+        val list = lists.orEmpty().firstOrNull { it.key == listKey } ?: return null
+        val items = withAuth { auth -> items(list, auth, sort, "desc") } ?: return null
+        val dated = items.mapNotNull { it.year?.toString() }
+        val oldestFirst = if (sort == "released" && dated.isNotEmpty() && dated.first() > dated.last()) items.reversed() else items
+        return oldestFirst.mapNotNull { it.contentId }.also { orders[cacheKey] = it }
+    }
+
     fun visibleLists(): List<MdbListList> = lists.orEmpty().filter { it.key !in file.hiddenLists }
 
     /** Every list but the Watchlist, with whether it's shown (Settings › MDBList › Library lists). */

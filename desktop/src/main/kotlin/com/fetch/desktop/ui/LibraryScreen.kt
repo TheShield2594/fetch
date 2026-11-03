@@ -93,7 +93,27 @@ fun LibraryScreen(state: AppState) {
     val currentList = providerLists.firstOrNull { it.key == listKey } ?: providerLists.firstOrNull()
     val items = currentList?.items.orEmpty()
     val watched = state.progress.watched.toSet()
-    val view = LibraryView(items, watched, query)
+    // The TV's sort choices for this source; MDBList's added and release orders come from MDBList.
+    val sorts = when (provider) {
+        ListProvider.LOCAL -> LibrarySort.Local
+        ListProvider.MDBLIST -> LibrarySort.MdbList
+        else -> LibrarySort.Tracking
+    }
+    if (query.sort !in sorts) query = query.copy(sort = sorts.first())
+    val mdbOrderKey = when (query.sort) {
+        LibrarySort.RELEASED_DESC, LibrarySort.RELEASED_ASC -> "released"
+        else -> null
+    }.takeIf { provider == ListProvider.MDBLIST }
+    val mdbOrder by androidx.compose.runtime.produceState<List<String>?>(null, currentList?.key, mdbOrderKey) {
+        value = null
+        val key = currentList?.key ?: return@produceState
+        if (mdbOrderKey != null) value = runCatching { state.mdbListAccount.order(key, mdbOrderKey) }.getOrNull()
+    }
+    val view = LibraryView(items, watched, query).let { v ->
+        val order = mdbOrder ?: return@let v
+        val oldestFirst = LibrarySort.byOrder(v.results, order) { it.id }
+        v.withResults(if (query.sort == LibrarySort.RELEASED_DESC) oldestFirst.asReversed() else oldestFirst)
+    }
     val gridState = rememberLazyGridState()
 
     if (managing) ListsManagerDialog(state, provider, onDismiss = { managing = false })
@@ -151,7 +171,7 @@ fun LibraryScreen(state: AppState) {
                             }
                         }
                     }
-                    LibraryFilters(view, query, onChange = { query = it })
+                    LibraryFilters(view, query, sorts, onChange = { query = it })
                 }
             }
             if (view.results.isEmpty()) {
@@ -264,7 +284,7 @@ private fun ServerLibraryGrid(state: AppState, source: LibrarySource.Server, pic
 }
 
 @Composable
-private fun LibraryFilters(view: LibraryView, query: LibraryQuery, onChange: (LibraryQuery) -> Unit) {
+private fun LibraryFilters(view: LibraryView, query: LibraryQuery, sorts: List<LibrarySort> = LibrarySort.Local, onChange: (LibraryQuery) -> Unit) {
     @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
     androidx.compose.foundation.layout.FlowRow(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -280,7 +300,7 @@ private fun LibraryFilters(view: LibraryView, query: LibraryQuery, onChange: (Li
         FilterDropdown(
             label = "Sort",
             selected = query.sort,
-            options = LibrarySort.entries.map { DropdownOption(it, it.label) },
+            options = sorts.map { DropdownOption(it, it.label) },
             onSelect = { onChange(query.copy(sort = it)) }
         )
         if (view.genres.isNotEmpty()) {

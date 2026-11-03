@@ -58,7 +58,9 @@ class TrackingState(
     /** Settings › Tracking › Simkl anime id. */
     animeIdPreference: () -> com.fetch.desktop.tracking.SimklAnimeIdOption = { com.fetch.desktop.tracking.SimklAnimeIdOption.IMDB },
     private val simkl: SimklClient = SimklClient(http, credentials, animeIdPreference = animeIdPreference),
-    private val onMessage: (String) -> Unit = {}
+    private val onMessage: (String) -> Unit = {},
+    /** MDBList's account, a tracking service too as on TV: scrobbles, history and resume points. */
+    private val mdbList: () -> com.fetch.desktop.mdblist.MdbListTracker? = { null }
 ) {
     var accounts: TrackingAccounts by mutableStateOf(store.load())
         private set
@@ -212,6 +214,7 @@ class TrackingState(
 
     /** Tells every connected service what is playing and how far along it is (0–100). */
     fun scrobble(target: PlaybackTarget, action: ScrobbleAction, percent: Float) {
+        mdbList()?.takeIf { it.connected }?.let { tracker -> scope.launch { tracker.scrobble(target, action, percent) } }
         val item = trackedItem(target) ?: return
         connected.forEach { service ->
             scope.launch {
@@ -231,6 +234,7 @@ class TrackingState(
 
     /** Marks [target] (a movie or one episode) watched or unwatched on every connected service. */
     fun setWatched(target: PlaybackTarget, watched: Boolean) {
+        mdbList()?.takeIf { it.connected }?.let { tracker -> scope.launch { tracker.setWatched(target, watched) } }
         val item = trackedItem(target) ?: return
         connected.forEach { service ->
             scope.launch {
@@ -273,7 +277,8 @@ class TrackingState(
 
     /** Pulls Continue Watching, watched history and watchlists from every connected service. */
     suspend fun sync(): TrackingSnapshot? {
-        if (connected.isEmpty() || syncing) return null
+        val mdb = mdbList()?.takeIf { it.connected }
+        if ((connected.isEmpty() && mdb == null) || syncing) return null
         syncing = true
         try {
             val playback = mutableListOf<ProgressEntry>()
@@ -302,6 +307,18 @@ class TrackingState(
                     throw e
                 } catch (e: Exception) {
                     onMessage("Couldn't sync ${service.label}: ${e.message}")
+                }
+            }
+            if (mdb != null) {
+                try {
+                    mdb.pull()?.let { (remotePlayback, remoteWatched) ->
+                        playback += remotePlayback
+                        watched += remoteWatched
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    onMessage("Couldn't sync MDBList: ${e.message}")
                 }
             }
             lastSyncedAt = System.currentTimeMillis()

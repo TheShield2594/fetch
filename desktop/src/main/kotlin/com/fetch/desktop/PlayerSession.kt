@@ -52,7 +52,7 @@ class PlayerSession(val mpv: EmbeddedMpv) {
     /** The segment to offer a Skip button for at [position]: one that isn't skipped automatically. */
     fun skippable(position: Double): Segment? =
         if (!skipButton) null
-        else segments.firstOrNull { it.type !in autoSkip && position >= it.startSec && position < it.endSec - 1.0 }
+        else segments.firstOrNull { !it.skipsAutomatically(autoSkip) && position >= it.startSec && position < it.endSec - 1.0 }
 
     /**
      * When the Up Next card shows: [promptSeconds] before the end, or from the start of the

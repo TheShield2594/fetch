@@ -197,7 +197,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
         // Skip intro / recap / credits, for segments not skipped automatically.
         session.skippable(mpv.position)?.takeIf { session.upNextCountdown(mpv.position, mpv.duration, state.settings.player.upNextPromptSeconds) == null }?.let { segment ->
             Box(Modifier.align(Alignment.BottomEnd).padding(end = 48.dp, bottom = 150.dp)) {
-                PrimaryButton("Skip ${segment.type.label.lowercase()}", icon = FetchIcons.ChevronRight, onClick = {
+                PrimaryButton("Skip ${segment.displayLabel}", icon = FetchIcons.ChevronRight, onClick = {
                     mpv.seekTo(segment.endSec)
                 })
             }

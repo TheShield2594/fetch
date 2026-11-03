@@ -101,7 +101,23 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Theme extras (high contrast, AMOLED, custom), fonts, UI language | `settings/ThemeSettingsScreen.kt` | ⬜ |
 | Deep links (`fetch://`, `stremio://`) | `core/deeplink/` | ⬜ |
 | Fetch website pairing, show a sign-in code | `screens/account/` | 🟡 desktop claims codes only |
-| YouTube (feeds, SponsorBlock, DeArrow) | `screens/youtube/`, `data/youtube/` | ⬜ |
+| YouTube sign-in (TV device code at youtube.com/activate), brand channel switching | `data/youtube/YouTubeService.kt`, `settings/YouTubeSettingsScreen.kt` | ✅ `youtube/YouTubeClient.kt`, Settings › YouTube |
+| YouTube page in the sidebar while signed in (not on restricted profiles): Home, Subscriptions, History, Library, Search | `screens/youtube/YouTubeScreen.kt`, `MainActivity.kt` | ✅ `ui/YouTubeScreen.kt`, `YouTubeState.kt` |
+| YouTube search suggestions and recent searches | `YouTubeService.searchSuggestions`, `YouTubeSettingsDataStore` | ✅ |
+| YouTube channel, playlist and "View all" pages, Watch later and Liked | `YouTubeViewModel.openBrowse` | ✅ |
+| YouTube tile menu: go to channel, Watch later, save to playlist, new playlist, remove from history, not interested | `YouTubeViewModel`, `YouTubePlaylistPicker.kt` | ✅ right-click a video (plus Open on YouTube) |
+| YouTube playback, quality cap | `YouTubeViewModel.play`, `data/trailer/` extractor | ✅ mpv (built-in or window) through yt-dlp, `--ytdl-format` from the quality setting |
+| YouTube resume (exact, else YouTube's percent) and account watch history | `YouTubeResumeStore.kt`, `YouTubeService.reportWatchTime` | ✅ `youtube.json`; history reported every 30 s and at the end |
+| SponsorBlock with per-category Skip / Ask / Show / Off | `SponsorBlockService.kt`, `YouTubePlayerOverlay.kt` | ✅ through the skip system (Ask: the built-in player's Skip button); 🟡 Show has no seek bar marks, and there's no "undo skip" |
+| DeArrow titles and thumbnails | `DeArrowService.kt` | ✅ |
+| Return YouTube Dislike counts | `ReturnYouTubeDislikeService.kt` | 🟡 in the built-in player's pause screen; not shown with mpv's window |
+| YouTube autoplay (Up Next, playlists continue) | `YouTubeViewModel.playNext` | 🟡 starts the next pick at the end, without the TV's 10-second countdown card |
+| Shorts, live and watched filters | `YouTubeFeedFilter.kt` | ✅ the TV's filter, shared code |
+| Home "YouTube subscriptions" row | `home/HomeYouTubeRow.kt` | ✅ after Continue Watching; off on restricted profiles; 10-minute cache |
+| YouTube captions | `YouTubeCaptions.kt` | 🟡 yt-dlp loads them in your subtitle languages, off until picked in the player (mpv's own rendering, not the TV's caption styles) |
+| YouTube chapters, speed | `YouTubePlayerMenus.kt` | 🟡 mpv reads chapters from yt-dlp; speed in the built-in player's menu; no chapter list |
+| In-player like, dislike, subscribe and save | `YouTubePlayerOverlay.kt` | ⬜ (the client has them; the built-in player has no YouTube actions row yet) |
+| Seek bar thumbnails (storyboards) | `YouTubeStoryboard.kt`, `YouTubeSeekBar.kt` | ⬜ |
 | Watch party | `screens/party/`, `core/party/` | ⬜ |
 | Ambient mode | `screens/ambient/` | ✅ Appearance › Ambient Mode: artwork slideshow (Ken Burns, up to 3 Home rows) or clock with what to resume; never during playback |
 | Phone hub | `screens/phone/` | ➖ a desktop has a keyboard; may return for sending links |

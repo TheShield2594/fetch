@@ -117,6 +117,7 @@ fun SettingsScreen(state: AppState, page: SettingsPage) {
                                 SettingsPage.APPEARANCE -> AppearancePage(state)
                                 SettingsPage.LAYOUT -> LayoutPage(state)
                                 SettingsPage.TRACKING -> TrackingPage(state)
+                                SettingsPage.YOUTUBE -> YouTubeSettingsPage(state)
                                 SettingsPage.TMDB -> TmdbPage(state)
                                 SettingsPage.MDBLIST -> MdbListPage(state)
                                 SettingsPage.ACCOUNT -> AccountPage(state)

@@ -170,6 +170,8 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
                         is Screen.Person -> PersonScreen(state, screen)
                         is Screen.SeeAll -> SeeAllScreen(state, screen)
                         is Screen.Entity -> EntityScreen(state, screen)
+                        Screen.YouTube -> YouTubeScreen(state)
+                        is Screen.YouTubeBrowse -> YouTubeBrowseScreen(state, screen.target)
                     }
                 }
                 // The TV sidebar: Home, Discover (when it has its own entry), Search, Library,
@@ -191,6 +193,12 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
                         add(SidebarItem("Library", FetchIcons.Library, state.screen == Screen.Library) {
                             state.openSection(Screen.Library)
                         })
+                        // YouTube, while this profile is signed in to it and has no limits (as on TV).
+                        if (state.youtube.available) {
+                            add(SidebarItem("YouTube", YouTubeIcon, state.screen == Screen.YouTube || state.screen is Screen.YouTubeBrowse) {
+                                state.openSection(Screen.YouTube)
+                            })
+                        }
                         add(SidebarItem("Settings", FetchIcons.Settings, state.screen is Screen.Settings) {
                             state.openSection(Screen.Settings())
                         })

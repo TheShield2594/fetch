@@ -16,7 +16,20 @@ enum class SegmentType(val label: String) {
     OUTRO("Credits")
 }
 
-data class Segment(val type: SegmentType, val startSec: Double, val endSec: Double)
+data class Segment(
+    val type: SegmentType,
+    val startSec: Double,
+    val endSec: Double,
+    /** What the Skip button and the on-screen note call it, when not [type]'s label (SponsorBlock's "sponsor"). */
+    val label: String? = null,
+    /** Decides auto-skip for this segment alone (SponsorBlock's per-category modes) instead of by [type]. */
+    val autoSkip: Boolean? = null
+) {
+    val displayLabel: String get() = label ?: type.label.lowercase()
+
+    /** Whether it's skipped automatically when [enabled] are the auto-skipped types. */
+    fun skipsAutomatically(enabled: Set<SegmentType>): Boolean = autoSkip ?: (type in enabled)
+}
 
 /**
  * IntroDB (https://introdb.app), the TV app's source of intro, recap and credits times for
@@ -78,7 +91,7 @@ class IntroDbClient(
  * Each segment is skipped once, so seeking back into an intro lets you watch it.
  */
 class SkipPlanner(segments: List<Segment>, enabled: Set<SegmentType>) {
-    private val pending = segments.filter { it.type in enabled }.sortedBy { it.startSec }.toMutableList()
+    private val pending = segments.filter { it.skipsAutomatically(enabled) }.sortedBy { it.startSec }.toMutableList()
 
     val isEmpty: Boolean get() = pending.isEmpty()
 

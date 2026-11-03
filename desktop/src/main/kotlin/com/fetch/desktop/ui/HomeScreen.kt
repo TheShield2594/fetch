@@ -107,6 +107,8 @@ private fun HomeContent(state: AppState) {
     LaunchedEffect(finished.take(2).map { it.contentId }, settings.tmdb, settings.tmdbApiKey) {
         state.tmdb.refreshBecauseYouWatched(finished)
     }
+    // The YouTube row's subscriptions, fetched again when older than ten minutes.
+    LaunchedEffect(settings.youtube.homeRowEnabled, state.youtube.signedIn) { state.youtube.onHomeVisible() }
     val cwActions = remember(state) {
         ContinueWatchingActions(
             onPlay = { state.openContinueWatching(it, play = true) },
@@ -156,6 +158,10 @@ private fun HomeContent(state: AppState) {
                     item(key = "upcoming") {
                         ContinueWatchingRow(upcoming, cwActions, onHover = { hovered = HeroSubject.Resume(it) }, title = "Upcoming")
                     }
+                }
+                // "YouTube subscriptions" (Settings › YouTube), after Continue Watching as on TV.
+                if (state.youtube.homeRowShown) {
+                    item(key = "youtube") { YouTubeHomeRow(state) }
                 }
                 items(state.tmdb.becauseYouWatched, key = { "byw|${it.seed.contentId}" }) { row ->
                     MediaRowView(

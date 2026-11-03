@@ -46,6 +46,8 @@ data class DesktopSettings(
     val tmdb: TmdbSettings = TmdbSettings(),
     /** Settings › MDBList: ratings from MDBList on title pages and the Home hero, as on TV (synced with it, but the key). */
     val mdblist: com.fetch.desktop.mdblist.MdbListSettings = com.fetch.desktop.mdblist.MdbListSettings(),
+    /** Settings › YouTube, as on TV (not synced: the TV keeps them per profile on the device). */
+    val youtube: com.fetch.desktop.youtube.YouTubeSettings = com.fetch.desktop.youtube.YouTubeSettings(),
     /** "Stream selection": what Play does once the sources are in, as on TV. */
     val autoPlayMode: AutoPlayMode = AutoPlayMode.BEST_MATCH,
     /** For [AutoPlayMode.REGEX_MATCH]: the first source whose text matches this plays. */

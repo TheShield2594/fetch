@@ -212,16 +212,16 @@ class PartyStateTest {
         party.join("ABC234")
         channel.connect()
         channel.deliver("media", """{"media":{"type":"series","meta_id":"tt2","meta_type":"series","season":1,"episode":3,"title":"Show"},"playback":{"seq":9,"member_id":"m2","paused":false,"position_ms":0,"rate":1.0,"at":0,"media_key":"series|tt2|1|3"}}""")
-        waitUntil { events.any { it is PartyEvent.MediaChanged } }
+        waitUntil { synchronized(events) { events.any { it is PartyEvent.MediaChanged } } }
         assertEquals("series|tt2|1|3", party.state.value.party!!.media.key)
         assertEquals(9L, party.playback.value!!.seq)
         channel.deliver("control", """{"host_only":true}""")
-        waitUntil { events.any { it is PartyEvent.ControlChanged } }
+        waitUntil { synchronized(events) { events.any { it is PartyEvent.ControlChanged } } }
         assertTrue(party.state.value.party!!.hostOnly)
         channel.deliver("stream", """{"member_id":"m2","stream":{"media_key":"series|tt2|1|3","url":"https://debrid.example.com/a.mkv"}}""")
         waitUntil { party.sharedStream.value != null }
         channel.deliver("member_left", """{"member_id":"m1","reason":"removed"}""")
-        waitUntil { events.any { it == PartyEvent.Removed } }
+        waitUntil { synchronized(events) { events.any { it == PartyEvent.Removed } } }
         assertNull(party.state.value.party)
         assertTrue(channel.closed)
         assertEquals("You were removed from the watch party", PartyEvent.Removed.message)

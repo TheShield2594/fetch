@@ -65,9 +65,11 @@ class ProfilesState(
         val before = file.profiles.firstOrNull { it.id == profile.id }
         save(file.copy(profiles = file.profiles.map { if (it.id == profile.id) profile else it }))
         if (active?.id == profile.id) active = profile
-        // Only what the account keeps (name, colour, avatar, addon sharing) needs a push.
+        // Only what the account keeps (name, colour, avatar, background, addon sharing) needs a push.
         if (before != null && (before.name != profile.name || before.colorHex != profile.colorHex ||
-                before.usesPrimaryAddons != profile.usesPrimaryAddons || before.avatarId != profile.avatarId)) {
+                before.usesPrimaryAddons != profile.usesPrimaryAddons || before.avatarId != profile.avatarId ||
+                before.avatarCleared != profile.avatarCleared || before.profileBackgroundId != profile.profileBackgroundId ||
+                before.profileBackgroundUrl != profile.profileBackgroundUrl)) {
             listener?.onProfilesChanged(null)
         }
     }
@@ -83,6 +85,12 @@ class ProfilesState(
     }
 
     fun setRememberLastProfile(remember: Boolean) = save(file.copy(rememberLastProfile = remember))
+
+    /** The TV's "lock unrestricted profiles"; see [ProfilesFile.lockUnrestrictedProfiles]. */
+    fun setLockUnrestrictedProfiles(enabled: Boolean) = save(file.copy(lockUnrestrictedProfiles = enabled))
+
+    fun needsParentPinToOpen(profile: DesktopProfile): Boolean =
+        file.needsParentPinToOpen(file.profiles.firstOrNull { it.id == profile.id } ?: profile)
 
     /** Sets (or with null, removes) [profile]'s PIN. Callers check the current PIN first. */
     fun setPin(profile: DesktopProfile, pin: String?) {
@@ -152,8 +160,8 @@ class ProfilesState(
                 !file.rememberLastProfile -> return null
                 else -> file.profiles.firstOrNull { it.id == file.lastProfileId } ?: file.profiles.first()
             }
-            // A profile with a PIN always asks, as on TV.
-            return candidate.takeUnless { it.isLocked }
+            // A profile with a PIN always asks, as on TV, and so does one behind the main profile's.
+            return candidate.takeUnless { it.isLocked || file.needsParentPinToOpen(it) }
         }
     }
 }

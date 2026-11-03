@@ -68,6 +68,7 @@ Everything is kept in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`):
 | `youtube.json` | Per profile: YouTube searches and where each video stopped |
 | `parental-titles.json` | Titles hidden from or always allowed on each profile |
 | `avatar-catalog.json` | The sync server's avatar catalog, for profiles that use one of its avatars |
+| `profile-backgrounds.json`, `profile-backgrounds/` | The sync server's profile backgrounds and their pictures |
 | `website.json` | The Fetch website sign-in (owner-readable only), for the whole app |
 | `addon-health.json` | Each addon's recent response times and failures (Addons › Addon health) |
 | `provider-credentials-base.json` | Per profile: the provider credentials (MDBList's key) the last sync agreed on |
@@ -128,10 +129,14 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   and optionally its own addons. "Who's watching?" at start-up when Remember Last Profile is
   off; the avatar at the bottom of the sidebar switches. As on TV, a new profile can be a kids
   profile (PG or lower, unrated hidden) and start with another profile's settings (once, with
-  its API keys where it has none; Copy settings does the same later), the editor picks an avatar
-  from the TV's 40 bundled ones or the sync server's catalog (synced as the account's
-  `avatar_id`) and has a Preferences tab (audio and subtitle language, autoplay next episode),
-  and Activity lists what a profile watched and when.
+  its API keys where it has none; Copy settings does the same later, and while signed in also
+  copies it on the sync server with the TV's `sync_copy_profile_setup`, keeping the target's own
+  limits), the editor picks an avatar from the TV's 40 bundled ones or the sync server's catalog
+  (synced as the account's `avatar_id`; Remove avatar clears the account's too, while a profile
+  that never picked one here keeps the TV's), a Background from the server's catalog (shown
+  behind the profile on "Who's watching?", synced as `profile_background_id`), and a Preferences
+  tab (audio and subtitle language, autoplay next episode), and Activity lists what a profile
+  watched and when.
 - **Hide or allow single titles**: a poster's right-click menu has the TV's parental entry: on
   another profile "Hide from <profile>" (behind the main profile's PIN), on the main profile a
   dialog that sets the title for each profile (rating limit decides, hidden, always allowed).
@@ -165,7 +170,10 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   locked profile always asks at start-up. From the main profile: a maturity rating limit (titles
   rated above it are hidden and can't be played; catalogs that give no rating count as unrated),
   daily screen time, bedtime and how many episodes Up Next plays in a row. "That's all for
-  today" offers more time with the main profile's PIN.
+  today" offers more time with the main profile's PIN. As on TV, giving a profile limits
+  suggests a PIN on the main profile when it has none, and with one offers to lock the profiles
+  that have neither limits nor a PIN (Settings › Profiles › Locks): they then ask for the main
+  profile's PIN to open, so the limits can't be skipped by switching.
 - **Skip Segments**: intros, recaps and credits from introdb.app, and for anime also AniSkip and
   Anime Skip (with your own client id), merged best-of as on TV; movie end credits that never
   skip a post-credits scene. mpv jumps over them through its IPC socket and says so on screen;

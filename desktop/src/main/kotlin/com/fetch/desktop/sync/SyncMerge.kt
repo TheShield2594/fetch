@@ -207,6 +207,10 @@ object SyncMerge {
                 limits = mine?.limits ?: ProfileLimits(),
                 avatarId = r.avatarId,
                 avatarUrl = r.avatarUrl?.takeIf { it.isNotBlank() },
+                // Still cleared while the account has no avatar either; one set elsewhere since shows.
+                avatarCleared = mine?.avatarCleared == true && r.avatarId == null && r.avatarUrl.isNullOrBlank(),
+                profileBackgroundId = r.profileBackgroundId,
+                profileBackgroundUrl = r.profileBackgroundUrl?.takeIf { it.isNotBlank() },
             )
         }.toMutableList()
         if (merged.none { it.isPrimary }) {
@@ -218,9 +222,10 @@ object SyncMerge {
     }
 
     /**
-     * This computer's profiles as [SyncClient.pushProfiles] takes them. Avatars and backgrounds,
-     * which this app doesn't edit, are carried over from the account's copy of each profile, so a
-     * push doesn't clear them. Profile 1 is sent with `uses_primary_addons` false, as on TV.
+     * This computer's profiles as [SyncClient.pushProfiles] takes them. An avatar or background
+     * left alone here is carried over from the account's copy of each profile, so a push doesn't
+     * clear one set on another device; one picked or removed here replaces it. Profile 1 is sent
+     * with `uses_primary_addons` false, as on TV.
      */
     fun profilesToPush(local: List<DesktopProfile>, remote: List<RemoteProfile>): List<RemoteProfile> {
         val remoteById = remote.associateBy { it.profileIndex }
@@ -231,11 +236,16 @@ object SyncMerge {
                 name = p.name,
                 avatarColorHex = p.colorHex,
                 usesPrimaryAddons = !p.isPrimary && p.usesPrimaryAddons,
-                // An avatar picked here replaces the account's picture; with none picked here, theirs is kept.
-                avatarId = p.avatarId ?: theirs?.avatarId,
-                avatarUrl = if (p.avatarId != null && p.avatarId != theirs?.avatarId) null else theirs?.avatarUrl,
-                profileBackgroundId = theirs?.profileBackgroundId,
-                profileBackgroundUrl = theirs?.profileBackgroundUrl,
+                // An avatar picked here replaces the account's picture; one removed here clears it;
+                // with none picked here, theirs is kept.
+                avatarId = if (p.avatarCleared) null else p.avatarId ?: theirs?.avatarId,
+                avatarUrl = when {
+                    p.avatarCleared -> null
+                    p.avatarId != null && p.avatarId != theirs?.avatarId -> null
+                    else -> theirs?.avatarUrl
+                },
+                profileBackgroundId = if (p.backgroundEdited) p.profileBackgroundId else theirs?.profileBackgroundId,
+                profileBackgroundUrl = if (p.backgroundEdited) p.profileBackgroundUrl else theirs?.profileBackgroundUrl,
             )
         }
     }

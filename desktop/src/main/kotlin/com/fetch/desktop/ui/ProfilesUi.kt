@@ -61,6 +61,9 @@ import com.fetch.tv.core.parental.ProfilePinHasher
 import com.fetch.desktop.AppState
 import com.fetch.desktop.ProfilesState
 import com.fetch.desktop.data.DesktopProfile
+import com.fetch.desktop.data.ProfileBackgrounds
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
 import com.fetch.tv.domain.model.PROFILE_AVATAR_COLORS
 
 fun parseHexColor(hex: String): Color =
@@ -70,23 +73,40 @@ fun parseHexColor(hex: String): Color =
 @Composable
 fun ProfileAvatar(profile: DesktopProfile, size: Dp, modifier: Modifier = Modifier) = ProfileAvatarImage(profile, size, modifier)
 
-/** "Who's watching?": pick a profile, or add one. A profile with a PIN asks for it first. */
+/**
+ * "Who's watching?": pick a profile, or add one. A profile with a PIN asks for it first, and so
+ * does one locked behind the main profile's PIN. The profile pointed at shows its background.
+ */
 @Composable
 fun ProfilePicker(profiles: ProfilesState) {
     var creating by remember { mutableStateOf(false) }
     var pin by remember { mutableStateOf<PinStep?>(null) }
+    var nudgeFor by remember { mutableStateOf<DesktopProfile?>(null) }
+    var hovered by remember { mutableStateOf<DesktopProfile?>(null) }
     Box(Modifier.fillMaxSize().background(FetchPalette.Background), contentAlignment = Alignment.Center) {
+        val background = hovered?.let(ProfileBackgrounds::imageFor)
+        if (background != null) {
+            AsyncImage(background, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.55f)))
+        }
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(40.dp)) {
             Text("Who's watching?", style = MaterialTheme.typography.displaySmall, color = Color.White)
             Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
                 profiles.profiles.forEach { profile ->
-                    PickerTile(profile.name, locked = profile.isLocked, onClick = {
-                        if (profile.isLocked) {
-                            pin = PinStep.Unlock(profile, "Enter the PIN for ${profile.name}.", "This profile is locked. Enter its PIN to continue.") {
+                    PickerTile(profile.name, locked = profile.isLocked || profiles.needsParentPinToOpen(profile), onHover = { on ->
+                        if (on) hovered = profile else if (hovered?.id == profile.id) hovered = null
+                    }, onClick = {
+                        val main = profiles.primary
+                        when {
+                            profile.isLocked -> pin = PinStep.Unlock(profile, "Enter the PIN for ${profile.name}.", "This profile is locked. Enter its PIN to continue.") {
                                 profiles.select(profile)
                             }
-                        } else {
-                            profiles.select(profile)
+                            profiles.needsParentPinToOpen(profile) -> pin = PinStep.Unlock(
+                                main,
+                                "Enter ${main.name}’s PIN to open ${profile.name}.",
+                                "Profiles without limits are locked while another profile has them."
+                            ) { profiles.select(profile) }
+                            else -> profiles.select(profile)
                         }
                     }) { ProfileAvatar(profile, 120.dp) }
                 }
@@ -108,15 +128,77 @@ fun ProfilePicker(profiles: ProfilesState) {
         }
     }
     if (creating) {
-        ProfileSetupEditorDialog(profiles, initial = null, state = null, onDismiss = { creating = false })
+        ProfileSetupEditorDialog(profiles, initial = null, state = null, onDismiss = { creating = false }, onCreated = { created ->
+            if (created.limits.isRestricted) nudgeFor = created
+        })
     }
+    nudgeFor?.let { restricted -> ParentalNudge(profiles, restricted, onSetPin = { pin = it }, onDismiss = { nudgeFor = null }) }
     pin?.let { step -> PinFlow(profiles, step, onStep = { pin = it }) }
 }
 
+/**
+ * After [restricted] gets limits, as on TV: suggests a PIN on the main profile when it has none
+ * (without one anyone can change the limits or switch profiles); with one, offers to lock the
+ * profiles that have neither limits nor a PIN, so [restricted] can't open one to skip its limits.
+ * Shows nothing when neither applies.
+ */
 @Composable
-private fun PickerTile(label: String, onClick: () -> Unit, locked: Boolean = false, avatar: @Composable () -> Unit) {
+fun ParentalNudge(profiles: ProfilesState, restricted: DesktopProfile, onSetPin: (PinStep) -> Unit, onDismiss: () -> Unit) {
+    val main = profiles.primary
+    val unlocked = profiles.file.unlockedUnrestricted(except = restricted)
+    when {
+        !main.isLocked -> AlertDialog(
+            onDismissRequest = onDismiss,
+            containerColor = FetchPalette.SurfaceRaised,
+            title = { Text("Protect ${restricted.name}’s limits", color = Color.White) },
+            text = {
+                Text(
+                    "Set a PIN on ${main.name}. Without one, anyone can change ${restricted.name}’s limits or switch to another profile.",
+                    color = FetchPalette.TextSecondary
+                )
+            },
+            confirmButton = {
+                PrimaryButton("Set a PIN on ${main.name}", icon = null, onClick = {
+                    onDismiss()
+                    onSetPin(PinStep.Create(main))
+                })
+            },
+            dismissButton = { SecondaryButton("Not now", onClick = onDismiss) }
+        )
+        !profiles.file.lockUnrestrictedProfiles && unlocked.isNotEmpty() -> AlertDialog(
+            onDismissRequest = onDismiss,
+            containerColor = FetchPalette.SurfaceRaised,
+            title = { Text("Lock the other profiles too?", color = Color.White) },
+            text = {
+                Text(
+                    "${restricted.name} can open ${unlocked.joinToString(", ") { it.name }} and skip every limit, since they have no PIN. " +
+                        "Fetch can ask for ${main.name}’s PIN to open them instead.",
+                    color = FetchPalette.TextSecondary
+                )
+            },
+            confirmButton = {
+                PrimaryButton("Ask for ${main.name}’s PIN", icon = null, onClick = {
+                    profiles.setLockUnrestrictedProfiles(true)
+                    onDismiss()
+                })
+            },
+            dismissButton = { SecondaryButton("Not now", onClick = onDismiss) }
+        )
+        else -> LaunchedEffect(restricted.id) { onDismiss() }
+    }
+}
+
+@Composable
+private fun PickerTile(
+    label: String,
+    onClick: () -> Unit,
+    locked: Boolean = false,
+    onHover: (Boolean) -> Unit = {},
+    avatar: @Composable () -> Unit
+) {
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
+    LaunchedEffect(hovered) { onHover(hovered) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -213,7 +295,13 @@ fun ProfilesSettingsPage(state: AppState) {
     var pin by remember { mutableStateOf<PinStep?>(null) }
     var activity by remember { mutableStateOf<DesktopProfile?>(null) }
     var copyingTo by remember { mutableStateOf<DesktopProfile?>(null) }
-    LaunchedEffect(state.account?.signedIn) { state.account?.let { com.fetch.desktop.data.AvatarCatalog.refresh(it) } }
+    var nudgeFor by remember { mutableStateOf<DesktopProfile?>(null) }
+    LaunchedEffect(state.account?.signedIn) {
+        state.account?.let {
+            com.fetch.desktop.data.AvatarCatalog.refresh(it)
+            ProfileBackgrounds.refresh(it)
+        }
+    }
     PageHeader("Profiles", subtitle = "Each profile has its own Library, Continue Watching, settings and accounts.")
     SettingsSection(null) {
         profiles.profiles.forEach { profile ->
@@ -278,9 +366,20 @@ fun ProfilesSettingsPage(state: AppState) {
             profiles.file.rememberLastProfile
         ) { profiles.setRememberLastProfile(it) }
     }
+    if (onMain && profiles.profiles.size > 1) {
+        SettingsSection("Locks") {
+            SettingsToggle(
+                "Lock profiles without limits",
+                "While a profile has limits, profiles with no PIN and no limits ask for ${profiles.primary.name}’s PIN to open, so limits can’t be skipped by switching. Needs a PIN on ${profiles.primary.name}.",
+                profiles.file.lockUnrestrictedProfiles
+            ) { profiles.setLockUnrestrictedProfiles(it) }
+        }
+    }
 
     if (creating) {
-        ProfileSetupEditorDialog(profiles, initial = null, state = state, onDismiss = { creating = false }, onDone = { state.message = it })
+        ProfileSetupEditorDialog(profiles, initial = null, state = state, onDismiss = { creating = false }, onDone = { state.message = it }, onCreated = { created ->
+            if (created.limits.isRestricted) nudgeFor = created
+        })
     }
     editing?.let { profile ->
         ProfileSetupEditorDialog(profiles, initial = profile, state = state, onDismiss = { editing = null })
@@ -289,8 +388,10 @@ fun ProfilesSettingsPage(state: AppState) {
         LimitsDialog(profile, onDismiss = { limiting = null }, extra = { ProfileTitleListsSection(profiles, profile) }) { limits ->
             limiting = null
             profiles.setLimits(profile, limits)
+            if (limits.isRestricted && !profile.limits.isRestricted) nudgeFor = profile.copy(limits = limits)
         }
     }
+    nudgeFor?.let { restricted -> ParentalNudge(profiles, restricted, onSetPin = { pin = it }, onDismiss = { nudgeFor = null }) }
     pin?.let { step -> PinFlow(profiles, step, onStep = { pin = it }) }
     activity?.let { ViewingActivityDialog(it, state, onDismiss = { activity = null }) }
     copyingTo?.let { CopySettingsDialog(profiles, it, state, onDismiss = { copyingTo = null }, onDone = { m -> state.message = m }) }

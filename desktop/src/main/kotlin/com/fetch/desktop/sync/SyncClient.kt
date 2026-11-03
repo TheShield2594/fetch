@@ -486,6 +486,37 @@ class SyncClient(
         pushSettingsBlob(profileId, SyncSettingsBlob.withParentalLimits(current, limits))
     }
 
+    // --- Collections ---
+
+    /**
+     * A profile's collections (RPC `sync_pull_collections`): the `collections_json` array of its
+     * row, in the TV's format (see `collections.CollectionsCodec`), or null when it has no row.
+     */
+    suspend fun pullCollections(profileId: Int): JsonArray? {
+        val body = rpc("sync_pull_collections", buildJsonObject { put("p_profile_id", profileId) })
+        val element = runCatching { syncJson.parseToJsonElement(body) }.getOrNull()
+        val row = when (element) {
+            is JsonArray -> element.firstOrNull()
+            is JsonObject -> element
+            else -> null
+        } as? JsonObject ?: return null
+        return when (val blob = row["collections_json"]) {
+            is JsonArray -> blob
+            // Some servers hand the json column back as a string.
+            is JsonPrimitive -> runCatching { syncJson.parseToJsonElement(blob.content) as? JsonArray }.getOrNull() ?: JsonArray(emptyList())
+            else -> JsonArray(emptyList())
+        }
+    }
+
+    /** Replaces a profile's collections (RPC `sync_push_collections`), as the TV does after an edit. */
+    suspend fun pushCollections(profileId: Int, collectionsJson: JsonArray) {
+        rpc("sync_push_collections", buildJsonObject {
+            put("p_profile_id", profileId)
+            put("p_collections_json", collectionsJson)
+            putOrigin()
+        })
+    }
+
     // --- Plumbing ---
 
     private fun deltaParams(profileId: Int, since: Long, limit: Int) = buildJsonObject {

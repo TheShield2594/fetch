@@ -56,7 +56,7 @@ import kotlinx.coroutines.delay
 fun HomeScreen(state: AppState) {
     when {
         state.addonsLoading && state.continueWatching.isEmpty() -> CenteredProgress()
-        state.rows.isEmpty() && state.servers.rows.isEmpty() && state.continueWatching.isEmpty() -> EmptyState(
+        state.rows.isEmpty() && state.servers.rows.isEmpty() && state.continueWatching.isEmpty() && state.collections.collections.isEmpty() -> EmptyState(
             title = "Nothing to show yet",
             body = "Install an addon with catalogs in Settings › Content & Discovery › Addons."
         )
@@ -163,6 +163,10 @@ private fun HomeContent(state: AppState) {
                 if (state.youtube.homeRowShown) {
                     item(key = "youtube") { YouTubeHomeRow(state) }
                 }
+                // Pinned collections lead the rows, as on TV.
+                items(state.collections.pinned, key = { "collection|${it.id}" }) { collection ->
+                    CollectionRowView(collection, onOpen = { state.navigate(Screen.Folder(collection.id, it.id)) })
+                }
                 items(state.tmdb.becauseYouWatched, key = { "byw|${it.seed.contentId}" }) { row ->
                     MediaRowView(
                         title = "Because you watched ${row.seed.name}",
@@ -189,6 +193,10 @@ private fun HomeContent(state: AppState) {
                         showLabels = settings.showPosterLabels,
                         onSeeAll = { state.openSeeAll(row, row.title(settings.showCatalogType)) }
                     )
+                }
+                // The other collections follow the catalog rows.
+                items(state.collections.unpinned, key = { "collection|${it.id}" }) { collection ->
+                    CollectionRowView(collection, onOpen = { state.navigate(Screen.Folder(collection.id, it.id)) })
                 }
                 // Filter rows over your server libraries.
                 items(state.serverFilterRows, key = { "server-filter|${it.row.id}" }) { view ->

@@ -217,6 +217,44 @@ class TraktClient(
         post(base + path, body, tokens).requireOk(SERVICE, "list update")
     }
 
+    // --- Public lists (collection folders, as the TV's TraktPublicListSourceResolver) ---
+
+    /**
+     * A page of any list's movies or shows ([type] `movie` or `show`), sorted as asked, with the
+     * page count from `X-Pagination-Page-Count`. [tokens] is optional: public lists answer to the
+     * client id alone, and a private list of yours needs your sign-in.
+     */
+    suspend fun publicListItems(
+        tokens: TrackingTokens?,
+        listId: String,
+        type: String,
+        page: Int,
+        limit: Int,
+        sortBy: String,
+        sortHow: String
+    ): TraktListPage {
+        val url = "${base}lists/$listId/items/$type?extended=full,images&page=$page&limit=$limit&sort_by=$sortBy&sort_how=$sortHow"
+        val result = http.send(request(url, tokens).get().build()).requireOk(SERVICE, "list")
+        val items = result.decode<List<TraktPublicItemDto>>().mapNotNull { it.toItem() }
+        return TraktListPage(items, result.headers["X-Pagination-Page-Count"]?.toIntOrNull() ?: page)
+    }
+
+    /** A list's name, numeric id and cover, by id, slug or address. */
+    suspend fun publicList(tokens: TrackingTokens?, listId: String): TraktPublicList? {
+        val result = http.send(request("${base}lists/$listId?extended=full,images", tokens).get().build())
+        if (result.code == 404) return null
+        return result.requireOk(SERVICE, "list").decode<TraktPublicListDto>().toList()
+    }
+
+    /** Public lists matching [query] (search/list). */
+    suspend fun searchLists(tokens: TrackingTokens?, query: String): List<TraktPublicList> {
+        val q = java.net.URLEncoder.encode(query.trim(), Charsets.UTF_8)
+        return http.send(request("${base}search/list?query=$q&extended=full,images&limit=20", tokens).get().build())
+            .requireOk(SERVICE, "list search")
+            .decode<List<TraktListSearchDto>>()
+            .mapNotNull { it.list?.toList() }
+    }
+
     private fun listBody(name: String, description: String?, privacy: String) = buildJsonObject {
         put("name", name)
         put("description", description.orEmpty())
@@ -380,3 +418,110 @@ private data class TraktListItemDto(
         return RemoteListItem(imdb, type, media.title.orEmpty(), media.year, parseIsoEpochMs(listedAt))
     }
 }
+
+/** A page of a Trakt list's items, for a collection folder. */
+data class TraktListPage(val items: List<TraktPublicItem>, val pageCount: Int)
+
+/** One movie or show on a Trakt list. [id] is the IMDb id, else `tmdb:<id>`, else `trakt:<id>` (as on TV). */
+data class TraktPublicItem(
+    val id: String,
+    val isShow: Boolean,
+    val title: String,
+    val year: Int?,
+    val overview: String?,
+    val rating: Double?,
+    val genres: List<String>,
+    val runtime: Int?,
+    val poster: String?,
+    val fanart: String?,
+    val logo: String?
+)
+
+/** A Trakt list found by id or search. */
+data class TraktPublicList(val id: Long, val name: String, val owner: String?, val itemCount: Int?, val cover: String?)
+
+/** Trakt image paths come without a scheme ("walter-r2.trakt.tv/…"). */
+internal fun List<String>?.traktImageUrl(): String? {
+    val raw = this.orEmpty().firstOrNull { it.isNotBlank() }?.trim() ?: return null
+    return when {
+        raw.startsWith("https://", true) -> raw
+        raw.startsWith("http://", true) -> "https://" + raw.substringAfter("://")
+        raw.startsWith("//") -> "https:$raw"
+        else -> "https://$raw"
+    }
+}
+
+@Serializable
+private data class TraktFullIdsDto(val trakt: Long? = null, val slug: String? = null, val imdb: String? = null, val tmdb: Int? = null)
+
+@Serializable
+private data class TraktImagesDto(
+    val poster: List<String>? = null,
+    val fanart: List<String>? = null,
+    val logo: List<String>? = null,
+    val thumb: List<String>? = null
+)
+
+@Serializable
+private data class TraktFullMediaDto(
+    val title: String? = null,
+    val year: Int? = null,
+    val ids: TraktFullIdsDto? = null,
+    val overview: String? = null,
+    val rating: Double? = null,
+    val genres: List<String>? = null,
+    val runtime: Int? = null,
+    val released: String? = null,
+    @SerialName("first_aired") val firstAired: String? = null,
+    val images: TraktImagesDto? = null
+)
+
+@Serializable
+private data class TraktPublicItemDto(val movie: TraktFullMediaDto? = null, val show: TraktFullMediaDto? = null) {
+    fun toItem(): TraktPublicItem? {
+        val media = movie ?: show ?: return null
+        val title = media.title?.takeIf { it.isNotBlank() } ?: return null
+        val ids = media.ids
+        val id = ids?.imdb.imdbOrNull()
+            ?: ids?.tmdb?.let { "tmdb:$it" }
+            ?: ids?.trakt?.let { "trakt:$it" }
+            ?: return null
+        val images = media.images
+        return TraktPublicItem(
+            id = id,
+            isShow = movie == null,
+            title = title,
+            year = media.year ?: (media.released ?: media.firstAired)?.take(4)?.toIntOrNull(),
+            overview = media.overview?.takeIf { it.isNotBlank() },
+            rating = media.rating,
+            genres = media.genres.orEmpty(),
+            runtime = media.runtime?.takeIf { it > 0 },
+            poster = images?.poster.traktImageUrl() ?: images?.fanart.traktImageUrl(),
+            fanart = images?.fanart.traktImageUrl() ?: images?.thumb.traktImageUrl(),
+            logo = images?.logo.traktImageUrl()
+        )
+    }
+}
+
+@Serializable
+private data class TraktListUserDto(val username: String? = null)
+
+@Serializable
+private data class TraktListImagesDto(val posters: List<String>? = null)
+
+@Serializable
+private data class TraktPublicListDto(
+    val name: String? = null,
+    @SerialName("item_count") val itemCount: Int? = null,
+    val ids: TraktFullIdsDto? = null,
+    val user: TraktListUserDto? = null,
+    val images: TraktListImagesDto? = null
+) {
+    fun toList(): TraktPublicList? {
+        val id = ids?.trakt ?: return null
+        return TraktPublicList(id, name?.takeIf { it.isNotBlank() } ?: "Trakt List $id", user?.username, itemCount, images?.posters.traktImageUrl())
+    }
+}
+
+@Serializable
+private data class TraktListSearchDto(val type: String? = null, val list: TraktPublicListDto? = null)

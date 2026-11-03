@@ -19,9 +19,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.text.font.FontWeight
+import com.fetch.desktop.ListProvider
 import com.fetch.desktop.AppState
 import com.fetch.desktop.Screen
-import com.fetch.desktop.TrackingService
 import com.fetch.desktop.servers.ServerSort
 import com.fetch.tv.domain.model.MetaPreview
 import androidx.compose.material3.CircularProgressIndicator
@@ -51,9 +62,11 @@ fun LibraryScreen(state: AppState) {
     val serverSources = state.servers.enabled.flatMap { account ->
         account.libraries.filter { it.selected }.map { LibrarySource.Server(account.id, it.id, "${it.name} · ${account.name}") }
     }
-    val sources = listOf(LibrarySource.Local) +
-        state.remoteLists.keys.map { LibrarySource.Watchlist(it) } + serverSources
+    val sources = state.lists.providers.map { LibrarySource.Lists(it) } + serverSources
     if (source !in sources) source = LibrarySource.Local
+    // The provider's list tab; the local Library shows tabs only once you've made a list, as on TV.
+    var listKey by remember { mutableStateOf<String?>(null) }
+    var managing by remember { mutableStateOf(false) }
     val picker: @Composable () -> Unit = {
         if (sources.size > 1) {
             FilterDropdown(
@@ -62,6 +75,7 @@ fun LibraryScreen(state: AppState) {
                 options = sources.map { DropdownOption(it, it.label) },
                 onSelect = {
                     source = it
+                    listKey = null
                     query = LibraryQuery(sort = query.sort)
                 }
             )
@@ -73,13 +87,17 @@ fun LibraryScreen(state: AppState) {
         return
     }
 
-    val remote = (source as? LibrarySource.Watchlist)?.let { state.remoteLists[it.service] }
-    val items = remote ?: state.library.toList()
+    val provider = (source as? LibrarySource.Lists)?.provider ?: ListProvider.LOCAL
+    val providerLists = state.lists.lists(provider)
+    val currentList = providerLists.firstOrNull { it.key == listKey } ?: providerLists.firstOrNull()
+    val items = currentList?.items.orEmpty()
     val watched = state.progress.watched.toSet()
     val view = LibraryView(items, watched, query)
     val gridState = rememberLazyGridState()
 
-    if (sources.size == 1 && state.library.isEmpty()) {
+    if (managing) ListsManagerDialog(state, provider, onDismiss = { managing = false })
+
+    if (sources.size == 1 && state.library.isEmpty() && state.lists.local.isEmpty()) {
         Column(Modifier.fillMaxSize().padding(top = 40.dp, start = PageGutter, end = PageGutter)) {
             PageHeader("Library", subtitle = "Local")
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -91,6 +109,7 @@ fun LibraryScreen(state: AppState) {
                         textAlign = TextAlign.Center
                     )
                     SecondaryButton("Search for titles", onClick = { state.openSection(Screen.Search) }, icon = FetchIcons.Search)
+                    SecondaryButton("New list", onClick = { managing = true }, icon = FetchIcons.Add)
                 }
             }
         }
@@ -106,8 +125,31 @@ fun LibraryScreen(state: AppState) {
         header = {
             fullWidthItem("header") {
                 Column(verticalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.padding(bottom = 4.dp)) {
-                    PageHeader("Library", subtitle = "${source.label} · ${items.size} saved")
-                    picker()
+                    PageHeader("Library", subtitle = "${source.label} · ${currentList?.title ?: ""} · ${items.size} titles")
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        picker()
+                        if (provider != ListProvider.SIMKL) SecondaryButton("Manage lists", onClick = { managing = true }, icon = FetchIcons.List)
+                        if (provider != ListProvider.LOCAL && state.lists.refreshing) {
+                            CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
+                        }
+                    }
+                    if (providerLists.size > 1) {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(providerLists, key = { it.key }) { list ->
+                                val selected = list.key == currentList?.key
+                                Text(
+                                    "${list.title} ${list.items.size}",
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (selected) Color.Black else Color.White,
+                                    modifier = Modifier.clip(RoundedCornerShape(50))
+                                        .background(if (selected) Color.White else Color.White.copy(alpha = 0.08f))
+                                        .clickable { listKey = list.key; query = LibraryQuery(sort = query.sort) }
+                                        .pointerHoverIcon(PointerIcon.Hand)
+                                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
+                            }
+                        }
+                    }
                     LibraryFilters(view, query, onChange = { query = it })
                 }
             }
@@ -128,12 +170,13 @@ fun LibraryScreen(state: AppState) {
 sealed interface LibrarySource {
     val label: String
 
-    data object Local : LibrarySource {
-        override val label = "Local"
+    companion object {
+        val Local: LibrarySource = Lists(ListProvider.LOCAL)
     }
 
-    data class Watchlist(val service: TrackingService) : LibrarySource {
-        override val label: String get() = service.watchlistName
+    /** A provider's lists: Local (the library and lists of your own), Trakt or Simkl. */
+    data class Lists(val provider: ListProvider) : LibrarySource {
+        override val label: String get() = provider.label
     }
 
     data class Server(val accountId: String, val libId: String, override val label: String) : LibrarySource

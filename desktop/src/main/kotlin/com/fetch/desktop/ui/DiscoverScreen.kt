@@ -19,6 +19,9 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.Color
 import com.fetch.desktop.AppState
 import com.fetch.desktop.DiscoverState
 import com.fetch.desktop.Screen
@@ -44,9 +47,11 @@ fun DiscoverGrid(
     state: AppState,
     gridState: LazyGridState,
     modifier: Modifier = Modifier,
+    /** Another catalog browser, such as a row's "See all"; it shows only its genre picker. */
+    discover: DiscoverState = state.discover,
     header: LazyGridScope.() -> Unit = {}
 ) {
-    val discover = state.discover
+    val singleCatalog = discover !== state.discover
     val open: (MetaPreview) -> Unit = { state.navigate(Screen.Detail(it)) }
 
     // Infinite scroll: ask for the next page when the last visible card is within 6 of the end.
@@ -68,10 +73,10 @@ fun DiscoverGrid(
         modifier = modifier,
         header = {
             header()
-            fullWidthItem("discover-pickers") { DiscoverPickers(discover, state.settings.showCatalogType) }
+            fullWidthItem("discover-pickers") { DiscoverPickers(discover, state.settings.showCatalogType, catalogPickers = !singleCatalog) }
             when {
-                state.addonsLoading -> Unit
-                discover.catalogs.isEmpty() -> fullWidthItem("no-catalog") {
+                state.addonsLoading && !singleCatalog -> Unit
+                discover.catalogs.isEmpty() && !singleCatalog -> fullWidthItem("no-catalog") {
                     EmptyState(
                         title = "Select a catalog",
                         body = "Install an addon with catalogs to browse them here.",
@@ -109,7 +114,7 @@ fun DiscoverGrid(
 }
 
 @Composable
-private fun DiscoverPickers(discover: DiscoverState, showType: Boolean) {
+private fun DiscoverPickers(discover: DiscoverState, showType: Boolean, catalogPickers: Boolean = true) {
     val selected = discover.selected
     Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(bottom = 8.dp)) {
         @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
@@ -117,13 +122,13 @@ private fun DiscoverPickers(discover: DiscoverState, showType: Boolean) {
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            FilterDropdown(
+            if (catalogPickers) FilterDropdown(
                 label = "Type",
                 selected = discover.type,
                 options = discover.types.map { DropdownOption<String?>(it, typeLabel(it)) },
                 onSelect = { it?.let(discover::selectType) }
             )
-            FilterDropdown(
+            if (catalogPickers) FilterDropdown(
                 label = "Catalog",
                 selected = selected?.key,
                 options = discover.catalogsOfType.map {
@@ -150,6 +155,20 @@ private fun DiscoverPickers(discover: DiscoverState, showType: Boolean) {
                 ).joinToString(" • "),
                 color = FetchPalette.TextMuted
             )
+        }
+    }
+}
+
+/** A Home row's whole catalog as a grid that loads more as you scroll (TV: See all). */
+@Composable
+fun SeeAllScreen(state: AppState, screen: Screen.SeeAll) {
+    val grid = rememberLazyGridState()
+    DiscoverGrid(state, grid, Modifier.fillMaxSize(), discover = state.seeAll) {
+        fullWidthItem("see-all-title") {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (state.canGoBack) CircleIconButton(FetchIcons.Back, "Back", onClick = state::back)
+                Text(screen.title, style = MaterialTheme.typography.headlineSmall, color = Color.White)
+            }
         }
     }
 }

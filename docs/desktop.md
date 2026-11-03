@@ -78,7 +78,12 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   at 90%, one card per show, and a finished episode turns into Next Up for the following one.
   Right-click a card (or the × on hover) for Go to details, Start from beginning and Remove.
 - **Library**: titles saved with Add to library on the title page, with the TV app's Type,
-  Sort, Genre, Year and Watched filters. It is local; Trakt and Simkl lists aren't on desktop.
+  Sort, Genre, Year and Watched filters. Its sources are Local (the library and lists of your
+  own, kept in `lists.json`), Trakt (watchlist and personal lists) and Simkl (Watching, Plan to
+  Watch, On Hold, Completed, Dropped), each list a tab. **Manage lists** (a poster's right-click
+  menu, or Lists on a title page) puts a title on any of them; the Library's Manage lists
+  creates, renames, reorders and deletes your own and Trakt's lists.
+- **See all** on a Home row opens its whole catalog as a grid that loads more as you scroll.
 - **Discover**: pick a type, catalog and genre and browse the catalog as a grid that loads more
   as you scroll. It sits in Search until you type, as on TV, or in the sidebar.
 - **Profiles**: each with its own Library, Continue Watching, settings and Trakt/Simkl accounts,

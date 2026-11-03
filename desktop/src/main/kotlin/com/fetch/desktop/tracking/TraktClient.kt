@@ -4,6 +4,7 @@ import com.fetch.desktop.AppInfo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
@@ -176,6 +177,52 @@ class TraktClient(
         post(base + path, body, tokens).requireOk(SERVICE, "watchlist update")
     }
 
+    // --- Personal lists (users/me/lists) ---
+
+    /** Your lists, in your order. */
+    suspend fun lists(tokens: TrackingTokens): List<RemoteList> =
+        get("users/me/lists", tokens).requireOk(SERVICE, "lists").decode<List<TraktListDto>>().mapNotNull { it.toRemote() }
+
+    /** A list's movies and shows, newest first. */
+    suspend fun listItems(tokens: TrackingTokens, listId: Long): List<RemoteListItem> =
+        get("users/me/lists/$listId/items/movie,show?page=1&limit=1000", tokens).requireOk(SERVICE, "list items")
+            .decode<List<TraktListItemDto>>()
+            .mapNotNull { it.toRemote() }
+            .sortedByDescending { it.addedAtEpochMs ?: 0L }
+
+    suspend fun createList(tokens: TrackingTokens, name: String, description: String?, privacy: String): RemoteList? =
+        post(base + "users/me/lists", listBody(name, description, privacy), tokens).requireOk(SERVICE, "list create")
+            .decode<TraktListDto>().toRemote()
+
+    suspend fun updateList(tokens: TrackingTokens, listId: Long, name: String, description: String?, privacy: String) {
+        http.send(request(base + "users/me/lists/$listId", tokens).put(listBody(name, description, privacy).toJsonBody()).build())
+            .requireOk(SERVICE, "list update")
+    }
+
+    suspend fun deleteList(tokens: TrackingTokens, listId: Long) {
+        http.send(request(base + "users/me/lists/$listId", tokens).delete().build()).requireOk(SERVICE, "list delete")
+    }
+
+    /** Puts your lists in [listIds]' order (POST users/me/lists/reorder). */
+    suspend fun reorderLists(tokens: TrackingTokens, listIds: List<Long>) {
+        val body = buildJsonObject { putJsonArray("rank") { listIds.forEach { add(JsonPrimitive(it)) } } }
+        post(base + "users/me/lists/reorder", body, tokens).requireOk(SERVICE, "list order")
+    }
+
+    /** Adds the movie or series to a list, or takes it off (POST …/items[/remove]). */
+    suspend fun setListed(tokens: TrackingTokens, listId: Long, item: TrackedItem, on: Boolean) {
+        val imdb = item.imdbId.imdbOrNull() ?: return
+        val body = buildJsonObject { putJsonArray(if (item.isMovie) "movies" else "shows") { add(idsObject(imdb)) } }
+        val path = "users/me/lists/$listId/items" + if (on) "" else "/remove"
+        post(base + path, body, tokens).requireOk(SERVICE, "list update")
+    }
+
+    private fun listBody(name: String, description: String?, privacy: String) = buildJsonObject {
+        put("name", name)
+        put("description", description.orEmpty())
+        put("privacy", privacy)
+    }
+
     private suspend fun get(path: String, tokens: TrackingTokens): HttpResult =
         http.send(request(base + path, tokens).get().build())
 
@@ -301,6 +348,23 @@ private data class TraktWatchedShowDto(val show: TraktMediaDto? = null, val seas
 
 @Serializable
 private data class TraktWatchedSeasonDto(val number: Int? = null, val episodes: List<TraktEpisodeDto>? = null)
+
+@Serializable
+private data class TraktListIdsDto(val trakt: Long? = null, val slug: String? = null)
+
+@Serializable
+private data class TraktListDto(
+    val name: String? = null,
+    val description: String? = null,
+    val privacy: String? = null,
+    @SerialName("item_count") val itemCount: Int? = null,
+    val ids: TraktListIdsDto? = null,
+) {
+    fun toRemote(): RemoteList? {
+        val id = ids?.trakt ?: return null
+        return RemoteList(id, ids.slug, name?.takeIf { it.isNotBlank() } ?: return null, description?.takeIf { it.isNotBlank() }, privacy ?: "private", itemCount)
+    }
+}
 
 @Serializable
 private data class TraktListItemDto(

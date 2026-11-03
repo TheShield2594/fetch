@@ -56,7 +56,7 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Episode watched marks, progress and not-aired state | `detail/EpisodesSection.kt` | ✅ |
 | Start over on the title page | `detail/DetailButtons.kt` | ✅ |
 | Recent searches | `search/SearchScreen.kt` | ✅ |
-| Catalog "See all" grid | `screens/CatalogSeeAllScreen.kt` | ⬜ |
+| Catalog "See all" grid | `screens/CatalogSeeAllScreen.kt` | ✅ "See all" on each addon row, paged, with its genres |
 | Continue Watching airing rules, Upcoming row, card style options | `home/ContinueWatching*.kt` | ⬜ |
 | TMDB enrichment: artwork, title and description in your language, details, cast and crew, episodes, trailers | `core/tmdb/TmdbMetadataService.kt`, `detail/MetaDetailsViewModel.kt` | ✅ `tmdb/`, Settings › TMDB, each part switchable, synced with the TV |
 | TMDB rating, director or creator, show status on the title page | `detail/HeroSection.kt` | ✅ |
@@ -70,7 +70,9 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Episode shuffle | `detail/DetailEpisodeShuffle.kt` | ⬜ |
 | Ready tonight row | `home/ReadyTonight.kt` | ⬜ |
 | Collections, folders and filter rows | `screens/collection/`, `screens/filterrows/` | ⬜ |
-| Trakt/Simkl personal lists, list management | `library/LibraryListDialogs.kt` | ⬜ (watchlists only) |
+| Lists: local lists, Trakt watchlist and personal lists, Simkl status lists, as Library tabs | `library/LibraryScreen.kt`, `data/simkl/SimklLibraryProjection.kt` | ✅ |
+| Manage lists for a title; create, edit (privacy on Trakt), reorder and delete lists | `library/LibraryListDialogs.kt`, `posteroptions/` | ✅ poster menu and the title page's Lists button |
+| MDBList lists | `data/mdblist/` | ⬜ |
 | Library provider order | `library/LibraryProviderOrder.kt` | ⬜ |
 | Kids Home layout | `HomeUiState.kidsHome` | ⬜ |
 | Hero carousel, trailer on focus, card size and shape options | `settings/LayoutHomeSettings.kt`, `LayoutCardSettings.kt` | ⬜ |

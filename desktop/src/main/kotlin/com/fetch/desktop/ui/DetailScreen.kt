@@ -137,6 +137,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         onStartOver = state::startOverDetail,
                         inLibrary = state.isInLibrary(preview.id),
                         onToggleLibrary = { state.toggleLibrary(preview, meta) },
+                        onManageLists = { state.manageLists(preview) },
                         watched = state.isTitleWatched(preview, meta?.videos.orEmpty()),
                         tmdbRating = state.tmdb.tmdbRating?.takeIf { state.tmdb.extrasFor == meta?.id },
                         onToggleWatched = { on ->
@@ -286,6 +287,7 @@ private fun Hero(
     onStartOver: () -> Unit,
     inLibrary: Boolean,
     onToggleLibrary: () -> Unit,
+    onManageLists: () -> Unit,
     watched: Boolean,
     onToggleWatched: (Boolean) -> Unit,
     tmdbRating: Float?,
@@ -372,6 +374,7 @@ private fun Hero(
                 onClick = onToggleLibrary,
                 icon = if (inLibrary) FetchIcons.Check else FetchIcons.Add
             )
+            SecondaryButton("Lists", onClick = onManageLists, icon = FetchIcons.List)
             if (!isSeries || meta?.videos?.any { (it.season ?: 0) > 0 } == true) {
                 SecondaryButton(
                     if (watched) "Watched" else if (isSeries) "Mark all watched" else "Mark watched",

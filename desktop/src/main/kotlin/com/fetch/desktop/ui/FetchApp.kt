@@ -145,6 +145,7 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
                         // Read the live screen: a TMDB title's page swaps in its IMDb id once known.
                         is Screen.Detail -> DetailScreen(state, (state.screen as? Screen.Detail)?.preview ?: screen.preview)
                         is Screen.Person -> PersonScreen(state, screen)
+                        is Screen.SeeAll -> SeeAllScreen(state, screen)
                         is Screen.Entity -> EntityScreen(state, screen)
                     }
                 }
@@ -153,7 +154,7 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
                 Sidebar(
                     items = buildList {
                         add(SidebarItem("Home", FetchIcons.Home, state.screen == Screen.Home || state.screen is Screen.Detail ||
-                            state.screen is Screen.Person || state.screen is Screen.Entity) {
+                            state.screen is Screen.Person || state.screen is Screen.Entity || state.screen is Screen.SeeAll) {
                             state.openSection(Screen.Home)
                         })
                         if (state.settings.discoverInSidebar) {
@@ -186,6 +187,7 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
             StillWatchingOverlay(prompt.label, onContinue = { state.answerStillWatching(true) }, onStop = { state.answerStillWatching(false) })
         }
         if (state.playerChoice != null) PlayerChoiceDialog(state)
+        state.manageListsFor?.let { preview -> ManageListsDialog(state, preview, onDismiss = { state.manageListsFor = null }) }
         state.updates.available?.takeIf { !state.updates.dismissed && state.playerSession == null }?.let { update ->
             UpdateBanner(state, update)
         }
@@ -201,6 +203,7 @@ private class AppPosterActions(private val state: AppState) : PosterActions {
         add(androidx.compose.foundation.ContextMenuItem(if (inLibrary) "Remove from library" else "Add to library") {
             state.withImdbId(item) { state.toggleLibrary(it) }
         })
+        add(androidx.compose.foundation.ContextMenuItem("Manage lists…") { state.manageLists(item) })
         val watched = isWatched(item)
         add(androidx.compose.foundation.ContextMenuItem(if (watched) "Mark as unwatched" else "Mark as watched") {
             state.withImdbId(item) { state.setTitleWatched(it, !watched) }

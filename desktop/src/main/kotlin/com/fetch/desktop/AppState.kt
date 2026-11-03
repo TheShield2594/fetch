@@ -136,6 +136,8 @@ sealed interface Screen {
     data class Detail(val preview: MetaPreview, val autoPlay: Boolean = false, val videoId: String? = null) : Screen
     /** A cast or crew member's TMDB page. */
     data class Person(val tmdbId: Int, val name: String) : Screen
+    /** A Home row's whole catalog, a page at a time (TV: See all). */
+    data class SeeAll(val rowKey: String, val title: String) : Screen
     /** A studio's or network's titles, from TMDB. */
     data class Entity(val kind: TmdbEntityKind, val tmdbId: Int, val name: String) : Screen
 }
@@ -244,6 +246,14 @@ class AppState(
     private var searchJob: Job? = null
 
     val discover = DiscoverState(scope, client) { key -> updateSettings { it.copy(discoverCatalog = key) } }
+
+    /** The catalog a row's "See all" is showing. */
+    val seeAll = DiscoverState(scope, client) {}
+
+    fun openSeeAll(row: CatalogRow, title: String) {
+        if (seeAll.selected?.key != row.key) seeAll.select(DiscoverCatalog(row.addon, row.catalog), remember = false)
+        navigate(Screen.SeeAll(row.key, title))
+    }
 
     /** A one-line message for the snackbar, cleared once shown. */
     var message: String? by mutableStateOf(null)
@@ -362,6 +372,22 @@ class AppState(
     /** Trakt and Simkl for this profile. */
     val tracking = TrackingState(scope, TrackingStore(File(profileDir(profile), "tracking.json")), onMessage = { message = it })
 
+    /** Lists of your own here, and Trakt's and Simkl's lists (the Library's sources and Manage lists). */
+    val lists = ListsState(
+        scope,
+        tracking,
+        localListsFile(profileDir(profile)),
+        libraryItems = { library.toList() },
+        setInLibrary = { preview, on -> setInLocalLibrary(preview, on) },
+        onMessage = { message = it }
+    )
+
+    /** The title "Manage lists" is open for. */
+    var manageListsFor: MetaPreview? by mutableStateOf(null)
+
+    /** Opens Manage lists for [preview], by its IMDb id when it has a `tmdb:` one. */
+    fun manageLists(preview: MetaPreview) = withImdbId(preview) { manageListsFor = it }
+
     /** Watchlists from the connected accounts, shown as Library sources. */
     var remoteLists: Map<TrackingService, List<LibraryEntry>> by mutableStateOf(emptyMap())
         private set
@@ -456,6 +482,7 @@ class AppState(
             val snapshot = tracking.sync() ?: return@launch
             saveProgress(WatchHistory.mergeRemote(progress, snapshot.playback, snapshot.watchedIds))
             remoteLists = snapshot.watchlists
+            lists.refresh()
         }
     }
 
@@ -930,6 +957,13 @@ class AppState(
     // --- Library ---
 
     fun isInLibrary(id: String): Boolean = library.any { it.id == id }
+
+    /** Adds to or removes from the local library only (Manage lists); Trakt and Simkl are left alone. */
+    fun setInLocalLibrary(preview: MetaPreview, on: Boolean) {
+        if (on == isInLibrary(preview.id)) return
+        if (on) library.add(LibraryEntry.from(preview, addedAt = System.currentTimeMillis())) else library.removeAll { it.id == preview.id }
+        runCatching { libraryStore.save(LibraryFile(library.toList())) }.onFailure { message = "Couldn't save the library: ${it.message}" }
+    }
 
     fun toggleLibrary(preview: MetaPreview, meta: Meta? = null) {
         if (isInLibrary(preview.id)) {

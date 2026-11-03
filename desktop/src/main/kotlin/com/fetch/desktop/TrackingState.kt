@@ -179,6 +179,12 @@ class TrackingState(
         }
     }
 
+    /** Runs [block] with Trakt and a fresh token; null when Trakt isn't connected (or signed out). */
+    suspend fun <T> withTrakt(block: suspend TraktClient.(TrackingTokens) -> T): T? = withTokens(TrackingService.TRAKT) { trakt.block(it) }
+
+    /** Runs [block] with Simkl and its token; null when Simkl isn't connected. */
+    suspend fun <T> withSimkl(block: suspend SimklClient.(TrackingTokens) -> T): T? = withTokens(TrackingService.SIMKL) { simkl.block(it) }
+
     private suspend fun refreshTrakt(account: TrackingAccount): TrackingTokens? = try {
         trakt.refresh(account.tokens).also { setAccount(TrackingService.TRAKT, account.copy(tokens = it)) }
     } catch (e: CancellationException) {

@@ -88,6 +88,16 @@ data class RemoteListItem(
     val addedAtEpochMs: Long?,
 )
 
+/** A Trakt personal list. [privacy] is `private`, `link`, `friends` or `public`. */
+data class RemoteList(
+    val id: Long,
+    val slug: String?,
+    val name: String,
+    val description: String?,
+    val privacy: String,
+    val itemCount: Int?,
+)
+
 enum class ScrobbleAction { START, PAUSE, STOP }
 
 /** A service answered with an error status. */

@@ -403,8 +403,9 @@ fun CatalogRowView(
     onHover: (MetaPreview) -> Unit = {},
     title: String = row.title,
     subtitle: String? = row.addon.displayName,
-    showLabels: Boolean = true
-) = MediaRowView(title, subtitle, row.items, row.loading, row.error, onOpen, onHover, showLabels)
+    showLabels: Boolean = true,
+    onSeeAll: (() -> Unit)? = null
+) = MediaRowView(title, subtitle, row.items, row.loading, row.error, onOpen, onHover, showLabels, onSeeAll)
 
 /** A titled row of posters from anywhere: an addon catalog, or a media server library. */
 @Composable
@@ -416,7 +417,9 @@ fun MediaRowView(
     error: String?,
     onOpen: (MetaPreview) -> Unit,
     onHover: (MetaPreview) -> Unit = {},
-    showLabels: Boolean = true
+    showLabels: Boolean = true,
+    /** Opens the whole catalog as a grid ("See all", as on TV). */
+    onSeeAll: (() -> Unit)? = null
 ) {
     val rowInteraction = remember { MutableInteractionSource() }
     val rowHovered by rowInteraction.collectIsHoveredAsState()
@@ -433,6 +436,14 @@ fun MediaRowView(
                     style = MaterialTheme.typography.bodyMedium,
                     color = FetchPalette.TextMuted,
                     modifier = Modifier.padding(bottom = 2.dp)
+                )
+            }
+            if (onSeeAll != null && items.isNotEmpty()) {
+                Text(
+                    "See all",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (rowHovered) FetchPalette.TextPrimary else FetchPalette.TextMuted,
+                    modifier = Modifier.padding(bottom = 2.dp).clickable(onClick = onSeeAll).pointerHoverIcon(PointerIcon.Hand)
                 )
             }
         }

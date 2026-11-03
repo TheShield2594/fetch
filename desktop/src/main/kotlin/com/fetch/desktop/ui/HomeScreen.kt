@@ -167,7 +167,8 @@ private fun HomeContent(state: AppState) {
                         onHover = { hovered = HeroSubject.Title(it) },
                         title = row.title(settings.showCatalogType),
                         subtitle = row.addon.displayName.takeIf { settings.showAddonName },
-                        showLabels = settings.showPosterLabels
+                        showLabels = settings.showPosterLabels,
+                        onSeeAll = { state.openSeeAll(row, row.title(settings.showCatalogType)) }
                     )
                 }
                 // Your Jellyfin, Emby and Plex libraries.

@@ -158,6 +158,37 @@ class SimklClient(
         }.sortedByDescending { it.addedAtEpochMs ?: 0L }
 
     /**
+     * Every title on your Simkl lists, by status (`watching`, `plantowatch`, `hold`,
+     * `completed`, `dropped`), newest first, as the TV's Simkl library tabs show them.
+     */
+    suspend fun statusLists(tokens: TrackingTokens): Map<String, List<RemoteListItem>> {
+        val byStatus = mutableMapOf<String, MutableList<RemoteListItem>>()
+        MEDIA_TYPES.forEach { type ->
+            allItems(tokens, type, status = null).forEach { entry ->
+                val status = entry.status ?: return@forEach
+                val media = entry.media ?: return@forEach
+                val imdb = media.imdb() ?: return@forEach
+                byStatus.getOrPut(status) { mutableListOf() } += RemoteListItem(
+                    imdbId = imdb,
+                    type = if (entry.isMovie(type)) TrackedItem.TYPE_MOVIE else TrackedItem.TYPE_SERIES,
+                    title = media.title.orEmpty(),
+                    year = media.year,
+                    addedAtEpochMs = parseIsoEpochMs(entry.addedToWatchlistAt ?: entry.lastWatchedAt),
+                )
+            }
+        }
+        return byStatus.mapValues { (_, items) -> items.distinctBy { it.imdbId }.sortedByDescending { it.addedAtEpochMs ?: 0L } }
+    }
+
+    /** Moves the item to a Simkl list ([status]: `watching`, `plantowatch`, `hold`, `completed`, `dropped`). */
+    suspend fun setStatus(tokens: TrackingTokens, item: TrackedItem, status: String) {
+        val media = mediaObject(item.copy(season = null, episode = null)) ?: return
+        val key = if (item.isMovie) "movies" else "shows"
+        val body = buildJsonObject { putJsonArray(key) { add(JsonObject(mapOf("to" to JsonPrimitive(status)) + media)) } }
+        post("sync/add-to-list", body, tokens).requireOk(SERVICE, "list update")
+    }
+
+    /**
      * Moves the item to "Plan to Watch" (POST sync/add-to-list), or takes it off Simkl's lists
      * (POST sync/history/remove), which is how the TV app removes from a list.
      */

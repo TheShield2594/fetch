@@ -65,6 +65,11 @@ Everything is kept in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`):
 | `screen-time.json`, `stream-badges.json`, `sync-base.json` | Per profile: today's screen time, imported badge URLs, what the last sync saw |
 | `youtube-auth.json` | Per profile: the YouTube sign-in (owner-readable only) |
 | `youtube.json` | Per profile: YouTube searches and where each video stopped |
+| `parental-titles.json` | Titles hidden from or always allowed on each profile |
+| `avatar-catalog.json` | The sync server's avatar catalog, for profiles that use one of its avatars |
+| `website.json` | The Fetch website sign-in (owner-readable only), for the whole app |
+| `addon-health.json` | Each addon's recent response times and failures (Addons › Addon health) |
+| `provider-credentials-base.json` | Per profile: the provider credentials (MDBList's key) the last sync agreed on |
 
 These are the main profile's. Every other profile keeps its own copies in `profiles/<id>/`
 (its `addons.json` too, unless it uses the main profile's addons).
@@ -114,12 +119,28 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   as you scroll. Collections are kept per profile in `collections.json` in the TV's format,
   import and export as the TV's JSON, and sync with the sync server (`sync_pull_collections`,
   `sync_push_collections`): the server's copy wins, as on TV, and ones made here go up when it
-  has none. Lists from a Fetch website can be kept and synced but don't load on desktop.
+  has none. Lists from a Fetch website load once this computer is paired with it (Settings ›
+  Account › Fetch website), and the folder editor adds them from the profile's website lists.
 - **Discover**: pick a type, catalog and genre and browse the catalog as a grid that loads more
   as you scroll. It sits in Search until you type, as on TV, or in the sidebar.
 - **Profiles**: each with its own Library, Continue Watching, settings and Trakt/Simkl accounts,
   and optionally its own addons. "Who's watching?" at start-up when Remember Last Profile is
-  off; the avatar at the bottom of the sidebar switches.
+  off; the avatar at the bottom of the sidebar switches. As on TV, a new profile can be a kids
+  profile (PG or lower, unrated hidden) and start with another profile's settings (once, with
+  its API keys where it has none; Copy settings does the same later), the editor picks an avatar
+  from the TV's 40 bundled ones or the sync server's catalog (synced as the account's
+  `avatar_id`) and has a Preferences tab (audio and subtitle language, autoplay next episode),
+  and Activity lists what a profile watched and when.
+- **Hide or allow single titles**: a poster's right-click menu has the TV's parental entry: on
+  another profile "Hide from <profile>" (behind the main profile's PIN), on the main profile a
+  dialog that sets the title for each profile (rating limit decides, hidden, always allowed).
+  Hidden titles leave rows, search, the Library, collections, Continue Watching and autoplay;
+  Limits lists them to clear. Kept on this computer, as the TV keeps them.
+- **Tracking options** (Settings › Tracking, synced with the TV's `trakt_settings`): where the
+  Library opens, whose resume points join Continue Watching (Trakt, Simkl, MDBList or the sync
+  server), how many days Continue Watching goes back, More like this from Trakt, TMDB or Simkl,
+  Trakt comments on title pages, and which id a Simkl anime opens with (IMDb, MyAnimeList, Kitsu
+  or TVDB).
 - **Trakt and Simkl** (Settings › Tracking): sign in with a code, as on TV. What you play in mpv
   is scrobbled (stopping at 80% or more marks it watched), and Fetch pulls their Continue
   Watching (resumed by percentage), watched history and watchlist (a Library source). Add to
@@ -177,8 +198,11 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   Lookups go by IMDb id, a whole Home row in one request, and are cached for 12 hours, as on TV.
   Ratings use your API key, or the connected MDBList account. The account, connected with a code
   (builds need `MDBLIST_CLIENT_ID`, as for the TV) or an API key, adds its lists to the Library
-  (see Library above); Settings › MDBList › Library lists picks which of them show. Watched
-  history and scrobbling to MDBList aren't there yet.
+  (see Library above); Settings › MDBList › Library lists picks which of them show. The
+  account is a tracking service too: what you play is scrobbled, Mark watched goes to its
+  history, and its resume points and watched history come back with each tracking sync. Its
+  lists sort by provider order, added and release (MDBList's own orders), and the API key syncs
+  between devices through the sync server's provider credentials, as on TV.
 - **Ratings from TMDB**: a profile's rating limit uses the addon's certificate, else TMDB's
   (picked by country as the TV app does), cached for 30 days. Builds read `TMDB_API_KEY`; you
   can enter your own key in Settings › TMDB.
@@ -224,6 +248,15 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   are listed last with the reason. All sources open in a side panel.
 - Playback in mpv, in its own window, including addon `proxyHeaders`. Torrent-only results are
   not playable; Fetch is debrid-only, as on TV.
+- **Addon health and catalog order** (Settings › Content & Discovery › Addons): every addon
+  request is timed, and Addon health shows each addon's median response time, failure rate,
+  last success and last error over its last 50 requests, sortable and kept across restarts.
+  Catalog order (also on Home catalogs) moves Home's catalogs one by one and hides them, synced
+  with the TV through the sync server.
+- **Fetch website** (Settings › Account): pair this computer with your Fetch website by a code
+  (or its QR code) confirmed there; Fetch notices when the website revokes it. While signed in
+  to the sync server, Sync code makes (or shows) a code protected by a PIN for another device to
+  link with.
 - **Watch party** (experimental, as on TV), when you're signed in to a sync server whose
   discovery lists `watch_party`: **Watch together** on a title page, or Watch party in the
   built-in player, starts one; Settings › Watch party joins with the 6-character code (or a
@@ -231,7 +264,8 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   Desktops and TVs share a party: the same RPCs, the same private Realtime channel
   (`watch-party:<id>`, presence and broadcasts) and the same sync rules, with the server's clock,
   speed nudges for small drift and seeks for large, and waiting for a member who is loading.
-  The party panel lists members and what each is doing, has the code and invite link to copy,
+  The party panel lists members (with their avatar pictures) and what each is doing, has the
+  code and invite link to copy, the link as a QR code for a phone to scan,
   and for the host Only I can control playback (then a member's pause or rewind is their own,
   with Catch up), Share my stream, Remove and End for everyone. "Sam paused" and the like show
   in the player. When the host moves on, the next episode follows by itself and anything else
@@ -298,6 +332,6 @@ Roughly in order:
 2. **Move more of the data layer into `shared`.** Media servers, Trakt/Simkl and sync are
    separate, compact desktop clients today; sharing the Android ones needs their Android
    dependencies put behind interfaces first.
-3. **Sync**: home catalog order and realtime updates.
+3. **Sync**: realtime updates, and the Fetch website's profiles, addons and settings.
 4. **More packages**: Flatpak (Flathub) and AppImage, then Windows (`.msi`) and macOS (`.dmg`)
    from the same `nativeDistributions` block.

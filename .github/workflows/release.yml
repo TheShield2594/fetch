@@ -39,7 +39,9 @@ jobs:
       - name: Install rpm
         run: sudo apt-get update && sudo apt-get install -y rpm
 
-      # Trakt, Simkl and TMDB read the same client IDs as the TV app; unset leaves them hidden.
+      # Trakt, Simkl, TMDB and the IMDb episode-ratings services read the same repository
+      # secrets as the TV app. An unset one builds fine but hides that feature (sign-in, Trakt
+      # comments and More like this, the episode ratings grid), so name each missing one.
       - name: Build packages
         env:
           TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
@@ -48,7 +50,15 @@ jobs:
           SIMKL_APP_NAME: ${{ secrets.SIMKL_APP_NAME }}
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           MDBLIST_CLIENT_ID: ${{ secrets.MDBLIST_CLIENT_ID }}
-        run: ./gradlew --no-daemon -Pfetch.desktopOnly=true :desktop:test :desktop:packageDeb :desktop:packageRpm :desktop:createDistributable
+          IMDB_TAPFRAME_API_BASE_URL: ${{ secrets.IMDB_TAPFRAME_API_BASE_URL }}
+          IMDB_RATINGS_API_BASE_URL: ${{ secrets.IMDB_RATINGS_API_BASE_URL }}
+        run: |
+          for key in TRAKT_CLIENT_ID TRAKT_CLIENT_SECRET SIMKL_CLIENT_ID TMDB_API_KEY MDBLIST_CLIENT_ID IMDB_TAPFRAME_API_BASE_URL IMDB_RATINGS_API_BASE_URL; do
+            if [ -z "${!key//[[:space:]]/}" ]; then
+              echo "::warning::Secret $key is not set; that desktop feature will be unavailable in this build."
+            fi
+          done
+          ./gradlew --no-daemon -Pfetch.desktopOnly=true :desktop:test :desktop:packageDeb :desktop:packageRpm :desktop:createDistributable
 
       - name: Name packages after the tag
         run: |
@@ -124,9 +134,11 @@ jobs:
           MDBLIST_CLIENT_ID: ${{ secrets.MDBLIST_CLIENT_ID }}
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
           INTRODB_API_URL: ${{ secrets.INTRODB_API_URL }}
+          IMDB_TAPFRAME_API_BASE_URL: ${{ secrets.IMDB_TAPFRAME_API_BASE_URL }}
+          IMDB_RATINGS_API_BASE_URL: ${{ secrets.IMDB_RATINGS_API_BASE_URL }}
         run: |
-          for key in TRAKT_CLIENT_ID TRAKT_REDIRECT_URI SIMKL_CLIENT_ID MDBLIST_CLIENT_ID TMDB_API_KEY; do
-            if [ -z "${!key}" ]; then
+          for key in TRAKT_CLIENT_ID TRAKT_REDIRECT_URI SIMKL_CLIENT_ID MDBLIST_CLIENT_ID TMDB_API_KEY IMDB_TAPFRAME_API_BASE_URL IMDB_RATINGS_API_BASE_URL; do
+            if [ -z "${!key//[[:space:]]/}" ]; then
               echo "::warning::Secret $key is not set; that integration will be unavailable in this build."
             fi
           done

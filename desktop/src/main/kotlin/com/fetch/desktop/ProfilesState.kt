@@ -65,9 +65,11 @@ class ProfilesState(
         val before = file.profiles.firstOrNull { it.id == profile.id }
         save(file.copy(profiles = file.profiles.map { if (it.id == profile.id) profile else it }))
         if (active?.id == profile.id) active = profile
-        // Only what the account keeps (name, colour, avatar, addon sharing) needs a push.
+        // Only what the account keeps (name, colour, avatar, background, addon sharing) needs a push.
         if (before != null && (before.name != profile.name || before.colorHex != profile.colorHex ||
-                before.usesPrimaryAddons != profile.usesPrimaryAddons || before.avatarId != profile.avatarId)) {
+                before.usesPrimaryAddons != profile.usesPrimaryAddons || before.avatarId != profile.avatarId ||
+                before.avatarCleared != profile.avatarCleared || before.profileBackgroundId != profile.profileBackgroundId ||
+                before.profileBackgroundUrl != profile.profileBackgroundUrl || before.backgroundEdited != profile.backgroundEdited)) {
             listener?.onProfilesChanged(null)
         }
     }
@@ -84,6 +86,24 @@ class ProfilesState(
 
     fun setRememberLastProfile(remember: Boolean) = save(file.copy(rememberLastProfile = remember))
 
+    /** The TV's "lock unrestricted profiles"; see [ProfilesFile.lockUnrestrictedProfiles]. */
+    fun setLockUnrestrictedProfiles(enabled: Boolean) = save(file.copy(lockUnrestrictedProfiles = enabled))
+
+    /** Records [limits] as owed to the account for [profileId], or with null, that they landed. */
+    fun setPendingLimits(profileId: Int, limits: ProfileLimits?) {
+        val pending = if (limits != null) file.pendingLimitsPush + (profileId to limits) else file.pendingLimitsPush - profileId
+        if (pending != file.pendingLimitsPush) save(file.copy(pendingLimitsPush = pending))
+    }
+
+    /**
+     * Checks a PIN with the sync server when no profile is open to do it (the start-up picker);
+     * set by the app while signed in. The open profile's [listener] is asked first.
+     */
+    var remotePinCheck: (suspend (DesktopProfile, String) -> PinGate.Result?)? = null
+
+    fun needsParentPinToOpen(profile: DesktopProfile): Boolean =
+        file.needsParentPinToOpen(file.profiles.firstOrNull { it.id == profile.id } ?: profile)
+
     /** Sets (or with null, removes) [profile]'s PIN. Callers check the current PIN first. */
     fun setPin(profile: DesktopProfile, pin: String?) {
         val current = file.profiles.firstOrNull { it.id == profile.id } ?: return
@@ -94,6 +114,8 @@ class ProfilesState(
     fun setLimits(profile: DesktopProfile, limits: ProfileLimits) {
         val current = file.profiles.firstOrNull { it.id == profile.id } ?: return
         update(current.copy(limits = limits))
+        // Limits set now replace any still owed from a settings copy; their own push goes out next.
+        setPendingLimits(profile.id, null)
         listener?.onLimitsChanged(current.copy(limits = limits))
     }
 
@@ -125,7 +147,7 @@ class ProfilesState(
     suspend fun checkPin(profile: DesktopProfile, pin: String): PinGate.Result {
         val current = file.profiles.firstOrNull { it.id == profile.id } ?: profile
         if (current.pinHash == null && current.serverLocked) {
-            val remote = listener?.verifyRemotePin(current, pin)
+            val remote = (listener?.verifyRemotePin(current, pin) ?: remotePinCheck?.invoke(current, pin))
                 ?: return PinGate.Result.Wrong("Connect to your sync server to check this PIN.")
             // Right PIN: keep it here too, so it works offline next time.
             if (remote == PinGate.Result.Ok) update(current.copy(pinHash = ProfilePinHasher.hash(pin), serverLocked = false))
@@ -152,8 +174,8 @@ class ProfilesState(
                 !file.rememberLastProfile -> return null
                 else -> file.profiles.firstOrNull { it.id == file.lastProfileId } ?: file.profiles.first()
             }
-            // A profile with a PIN always asks, as on TV.
-            return candidate.takeUnless { it.isLocked }
+            // A profile with a PIN always asks, as on TV, and so does one behind the main profile's.
+            return candidate.takeUnless { it.isLocked || file.needsParentPinToOpen(it) }
         }
     }
 }

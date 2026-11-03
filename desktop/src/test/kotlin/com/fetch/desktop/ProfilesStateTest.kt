@@ -5,6 +5,7 @@ import com.fetch.desktop.data.JsonFile
 import com.fetch.desktop.data.ProfilesFile
 import com.fetch.desktop.data.addonsDir
 import com.fetch.desktop.data.profileDir
+import com.fetch.desktop.data.profilesFile
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -60,5 +61,50 @@ class ProfilesStateTest {
         assertNull("a seventh is refused", state.add("Too many"))
         state.delete(added[1])
         assertEquals(3, state.add("Again")!!.id)
+    }
+
+    @Test
+    fun `profiles without limits ask for the main PIN only while the lock is on and it applies`() {
+        val main = DesktopProfile(1, "Parent", "#111111", pinHash = "hash")
+        val kid = DesktopProfile(2, "Kid", "#222222", limits = com.fetch.desktop.data.KidsLimits)
+        val guest = DesktopProfile(3, "Guest", "#333333")
+        val off = ProfilesFile(listOf(main, kid, guest))
+        assertFalse(off.needsParentPinToOpen(guest))
+
+        val on = off.copy(lockUnrestrictedProfiles = true)
+        assertTrue(on.needsParentPinToOpen(guest))
+        assertFalse("restricted profiles open as before", on.needsParentPinToOpen(kid))
+        assertFalse("the main profile never does", on.needsParentPinToOpen(main))
+        assertFalse("not without a main PIN", on.copy(profiles = listOf(main.copy(pinHash = null), kid, guest)).needsParentPinToOpen(guest))
+        assertFalse("not while no profile has limits", on.copy(profiles = listOf(main, guest)).needsParentPinToOpen(guest))
+        assertEquals(listOf(guest), on.unlockedUnrestricted(except = kid))
+    }
+
+    @Test
+    fun `a profile behind the main PIN isn't opened at start-up`() {
+        val file = ProfilesFile(
+            listOf(
+                DesktopProfile(1, "Parent", "#111111", pinHash = "hash"),
+                DesktopProfile(2, "Kid", "#222222", limits = com.fetch.desktop.data.KidsLimits),
+                DesktopProfile(3, "Guest", "#333333")
+            ),
+            lastProfileId = 3,
+            lockUnrestrictedProfiles = true
+        )
+        assertNull(ProfilesState.initialProfile(file))
+        assertEquals(3, ProfilesState.initialProfile(file.copy(lockUnrestrictedProfiles = false))?.id)
+    }
+
+    @Test
+    fun `limits owed after a settings copy are kept until they land, and replaced by new limits`() {
+        val dir = Files.createTempDirectory("profiles").toFile()
+        val state = ProfilesState(profilesFile(dir), dir)
+        val kid = state.add("Kid")!!
+        val owed = com.fetch.desktop.data.KidsLimits
+        state.setPendingLimits(kid.id, owed)
+        assertEquals(owed, ProfilesState(profilesFile(dir), dir).file.pendingLimitsPush[kid.id])
+
+        state.setLimits(kid, com.fetch.desktop.data.ProfileLimits(dailyMinutes = 60))
+        assertTrue("new limits supersede the owed ones", state.file.pendingLimitsPush.isEmpty())
     }
 }

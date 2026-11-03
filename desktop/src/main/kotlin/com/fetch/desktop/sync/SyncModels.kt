@@ -84,6 +84,15 @@ data class RemoteProfile(
     val profileBackgroundUrl: String? = null,
 )
 
+/** One profile background the account can pick (`get_member_profile_background_catalog`). */
+data class RemoteProfileBackground(
+    val id: String,
+    val displayName: String,
+    /** In the private `membership-profile-backgrounds` bucket. */
+    val storagePath: String,
+    val assetVersion: Int,
+)
+
 /** Whether the sync server holds a PIN for a profile (RPC `sync_pull_profile_locks`). */
 data class RemoteProfileLock(
     val profileIndex: Int,

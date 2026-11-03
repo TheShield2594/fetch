@@ -538,6 +538,52 @@ class SyncClient(
     /** The server this account is on (for Realtime's address and apikey). */
     val server: SyncServerConfig get() = config
 
+    /**
+     * Copies [sourceProfileId]'s TV settings blob onto [targetProfileId] on the server (RPC
+     * `sync_copy_profile_setup`), as the TV's "Copy settings" does: the desktop shares the TV's
+     * blob, so only the TV copy is asked for. With [copyProviderCredentials], provider keys the
+     * target has none of are copied too; existing ones are kept. Throws when the server didn't copy.
+     */
+    suspend fun copyProfileSetup(sourceProfileId: Int, targetProfileId: Int, copyProviderCredentials: Boolean) {
+        val body = rpc("sync_copy_profile_setup", buildJsonObject {
+            put("p_source_profile_id", sourceProfileId)
+            put("p_target_profile_id", targetProfileId)
+            put("p_copy_tv", true)
+            put("p_copy_mobile", false)
+            put("p_copy_desktop", false)
+            put("p_copy_provider_credentials", copyProviderCredentials)
+            put("p_replace_provider_credentials", false)
+            putOrigin()
+        })
+        val result = runCatching { syncJson.decodeFromString<List<CopyProfileSetupDto>>(body).firstOrNull() }.getOrNull()
+            ?: throw IllegalStateException("The sync server returned no copy result")
+        check(result.sourceProfileId == sourceProfileId && result.targetProfileId == targetProfileId) { "The sync server copied the wrong profiles" }
+        check(result.tvStatus == "copied" || result.tvStatus == "unchanged") { "The sync server didn't copy the settings (${result.tvStatus})" }
+    }
+
+    /** RPC `get_member_profile_background_catalog`: the profile backgrounds this account can pick. */
+    suspend fun profileBackgroundCatalog(): List<RemoteProfileBackground> =
+        syncJson.decodeFromString<List<ProfileBackgroundDto>>(rpc("get_member_profile_background_catalog", null))
+            .map { RemoteProfileBackground(it.id, it.displayName, it.storagePath, it.assetVersion) }
+
+    /** A file from a private storage bucket, with this session (the TV's `downloadAuthenticated`). */
+    suspend fun downloadAuthenticated(bucket: String, path: String): ByteArray {
+        val url = "${config.baseUrl}/storage/v1/object/authenticated/$bucket/${path.trimStart('/')}"
+        if (session.expiresSoon(nowEpochSec())) refreshFrom(session.accessToken)
+        val request = { token: String -> Request.Builder().url(url).syncHeaders(config, token).header("Accept", "*/*").get().build() }
+        suspend fun fetch(token: String): Pair<Int, ByteArray> = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            http.newCall(request(token)).execute().use { it.code to (it.body?.bytes() ?: ByteArray(0)) }
+        }
+        val used = session.accessToken
+        var (code, bytes) = fetch(used)
+        if (code == 401) {
+            refreshFrom(used)
+            fetch(session.accessToken).let { code = it.first; bytes = it.second }
+        }
+        if (code !in 200..299) throw IllegalStateException("Storage returned HTTP $code for $path")
+        return bytes
+    }
+
     /** Any RPC with this session (the watch party's `watch_party_*`); returns the body. */
     suspend fun callRpc(name: String, params: JsonObject?): String = rpc(name, params)
 
@@ -612,6 +658,22 @@ private data class ProfileDto(
     @SerialName("avatar_url") val avatarUrl: String? = null,
     @SerialName("profile_background_id") val profileBackgroundId: String? = null,
     @SerialName("profile_background_url") val profileBackgroundUrl: String? = null,
+)
+
+@Serializable
+private data class CopyProfileSetupDto(
+    @SerialName("source_profile_id") val sourceProfileId: Int,
+    @SerialName("target_profile_id") val targetProfileId: Int,
+    @SerialName("tv_status") val tvStatus: String,
+    @SerialName("provider_credentials_status") val providerCredentialsStatus: String? = null,
+)
+
+@Serializable
+private data class ProfileBackgroundDto(
+    val id: String,
+    @SerialName("display_name") val displayName: String,
+    @SerialName("storage_path") val storagePath: String,
+    @SerialName("asset_version") val assetVersion: Int = 0,
 )
 
 @Serializable

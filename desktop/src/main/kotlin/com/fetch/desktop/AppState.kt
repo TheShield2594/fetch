@@ -49,6 +49,8 @@ import com.fetch.desktop.sync.RemotePinSetResult
 import com.fetch.desktop.sync.SyncClient
 import com.fetch.desktop.sync.applyTo
 import com.fetch.desktop.sync.changedFrom
+import com.fetch.desktop.sync.copyProfileSetupKeepingLimits
+import com.fetch.desktop.sync.verifyPin
 import com.fetch.desktop.sync.toRemoteSharedSettings
 import com.fetch.desktop.sync.SyncAuthException
 import com.fetch.desktop.sync.SyncBase
@@ -814,6 +816,54 @@ class AppState(
         }
     }
 
+    /**
+     * The sync server's side of "Copy settings" (RPC `sync_copy_profile_setup`), run after the
+     * copy on this computer, as the TV does it: [source]'s pending changes are pushed first, the
+     * server copies the blob, then [target]'s own limits go back (the copy brings the source's).
+     * When [target] is this profile its settings are pulled again. Signed out, nothing reaches the
+     * server: the copy stays on this computer, and the account's settings win on the next sync.
+     */
+    fun copyProfileSetupOnServer(source: DesktopProfile, target: DesktopProfile, copyMissingKeys: Boolean) {
+        val remote = account?.client() ?: return
+        if (source.id == target.id) return
+        // The local copy just queued this profile's settings push; the server copy replaces the
+        // whole blob, so that push must not land after it. Kept to re-queue if the copy fails.
+        val pendingBase = if (target.id == profile.id) {
+            settingsPushJob?.cancel()
+            settingsBeforePush.also { settingsBeforePush = null }
+        } else null
+        scope.launch {
+            try {
+                if (source.id == profile.id && settingsBeforePush != null) {
+                    val from = settingsBeforePush
+                    settingsPushJob?.cancel()
+                    settingsBeforePush = null
+                    from?.let { settings.toRemoteSharedSettings().changedFrom(it.toRemoteSharedSettings()) }
+                        ?.let { remote.pushSharedSettings(source.id, it) }
+                }
+                val current = profiles.profiles.firstOrNull { it.id == target.id } ?: target
+                remote.copyProfileSetupKeepingLimits(profiles, source, current, copyMissingKeys)
+                if (target.id == profile.id) {
+                    settingsPushJob?.cancel()
+                    settingsBeforePush = null
+                    remote.pullSharedSettings(target.id)?.let { shared ->
+                        applyingFromServer = true
+                        try {
+                            updateSettings { shared.applyTo(it) }
+                        } finally {
+                            applyingFromServer = false
+                        }
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                pendingBase?.let(::queueSettingsPush)
+                message = "Settings copied on this computer, but the sync server didn't copy them: ${e.message}"
+            }
+        }
+    }
+
     /** The profile whose addons this one uses on the server (profile 1's when shared). */
     private val addonProfileId: Int get() = if (profile.usesPrimaryAddons) DesktopProfile.PRIMARY_ID else profile.id
 
@@ -847,10 +897,26 @@ class AppState(
 
         // Profiles, locks and limits are the main profile's to sync.
         if (!profile.isPrimary) return
+        // Limits a server-side settings copy replaced go back first, so they aren't tightened to the source's.
+        for ((id, owed) in profiles.file.pendingLimitsPush) {
+            val p = profiles.profiles.firstOrNull { it.id == id }
+            if (p == null || p.isPrimary) {
+                profiles.setPendingLimits(id, null)
+                continue
+            }
+            runCatching { remote.pushParentalLimits(id, SyncMerge.parentalLimitsToPush(owed, null)) }
+                .onSuccess { profiles.setPendingLimits(id, null) }
+        }
+        // Still owed after a failed retry: the account holds the copy's source limits, so keep the saved ones.
+        val stillOwed = profiles.file.pendingLimitsPush
         val profileMerge = SyncMerge.profiles(profiles.profiles, remote.pullProfiles())
         val remoteLocked = SyncMerge.lockedOnlyRemotely(profileMerge.local, remote.pullProfileLocks()).toSet()
         val merged = profileMerge.local.map { p ->
-            val limits = if (p.isPrimary) p.limits else SyncMerge.parentalLimits(p.limits, remote.pullParentalLimits(p.id))
+            val limits = when {
+                p.isPrimary -> p.limits
+                p.id in stillOwed -> stillOwed.getValue(p.id)
+                else -> SyncMerge.parentalLimits(p.limits, remote.pullParentalLimits(p.id))
+            }
             p.copy(serverLocked = p.id in remoteLocked, limits = limits)
         }
         profiles.applyFromServer(merged)
@@ -892,15 +958,8 @@ class AppState(
             }
         }
 
-        override suspend fun verifyRemotePin(profile: DesktopProfile, pin: String): PinGate.Result? {
-            val remote = account?.client() ?: return null
-            val result = runCatching { remote.verifyProfilePin(profile.id, pin) }.getOrNull() ?: return null
-            return when {
-                result.unlocked -> PinGate.Result.Ok
-                result.retryAfterSeconds > 0 -> PinGate.Result.Locked(result.retryAfterSeconds)
-                else -> PinGate.Result.Wrong("Incorrect PIN")
-            }
-        }
+        override suspend fun verifyRemotePin(profile: DesktopProfile, pin: String): PinGate.Result? =
+            account?.client()?.verifyPin(profile, pin)
     }
 
     init {

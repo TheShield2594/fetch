@@ -49,6 +49,7 @@ import com.fetch.desktop.AppState
 import com.fetch.desktop.AvailableUpdate
 import com.fetch.desktop.ProfilesState
 import com.fetch.desktop.SyncAccountState
+import com.fetch.desktop.sync.verifyPin
 import com.fetch.desktop.data.DesktopProfile
 import com.fetch.desktop.Screen
 
@@ -57,11 +58,15 @@ fun FetchApp() {
     val profiles = remember { ProfilesState() }
     val appScope = rememberCoroutineScope()
     val account = remember { SyncAccountState(appScope) }
+    // The start-up picker has no open profile to ask the server about a PIN set on another device.
+    remember(profiles, account) {
+        profiles.remotePinCheck = { profile, pin -> account.client()?.verifyPin(profile, pin) }
+    }
     val active = profiles.active
     if (active == null) {
         // "Who's watching?" at start-up (several profiles, Remember Last Profile off) or after
         // Switch profile.
-        FetchTheme { ProfilePicker(profiles) }
+        FetchTheme { ProfilePicker(profiles, account) }
         return
     }
     // Each profile gets its own state, from its own files.

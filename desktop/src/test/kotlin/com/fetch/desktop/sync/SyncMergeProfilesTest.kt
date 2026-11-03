@@ -268,4 +268,46 @@ class SyncMergeProfilesTest {
         assertEquals(setOf(SegmentType.INTRO, SegmentType.MOVIE_CREDITS), applied.player.autoSkip)
         assertNull(RemoteSharedSettings(audioLanguage = "default").applyTo(desktop).player.audioLanguage)
     }
+
+    // --- Avatars and backgrounds ---
+
+    @Test
+    fun `an avatar removed here clears the account's, while one never set here keeps it`() {
+        val remote = listOf(RemoteProfile(2, "Kid", "#000000", false, avatarId = "fetch:fox", avatarUrl = "https://x/own.png"))
+        val kept = SyncMerge.profilesToPush(listOf(DesktopProfile(2, "Kid", "#000000")), remote).single()
+        assertEquals("fetch:fox", kept.avatarId)
+        assertEquals("https://x/own.png", kept.avatarUrl)
+
+        val cleared = SyncMerge.profilesToPush(listOf(DesktopProfile(2, "Kid", "#000000", avatarCleared = true)), remote).single()
+        assertNull(cleared.avatarId)
+        assertNull(cleared.avatarUrl)
+    }
+
+    @Test
+    fun `a cleared avatar stays cleared until another device sets one`() {
+        val local = listOf(DesktopProfile(1, "Me", "#111111"), DesktopProfile(2, "Kid", "#000000", avatarCleared = true))
+        val stillNone = SyncMerge.profiles(local, listOf(RemoteProfile(1, "Me", "#111111", false), RemoteProfile(2, "Kid", "#000000", false)))
+        assertTrue(stillNone.local.first { it.id == 2 }.avatarCleared)
+
+        val setOnTv = SyncMerge.profiles(local, listOf(RemoteProfile(1, "Me", "#111111", false), RemoteProfile(2, "Kid", "#000000", false, avatarId = "fetch:cat")))
+        val kid = setOnTv.local.first { it.id == 2 }
+        assertFalse(kid.avatarCleared)
+        assertEquals("fetch:cat", kid.avatarId)
+    }
+
+    @Test
+    fun `backgrounds come from the account and are only replaced once picked here`() {
+        val remote = listOf(RemoteProfile(1, "Me", "#111111", false, profileBackgroundId = "space", profileBackgroundUrl = "https://x/custom.png"))
+        val merged = SyncMerge.profiles(listOf(DesktopProfile(1, "Me", "#111111")), remote).local.single()
+        assertEquals("space", merged.profileBackgroundId)
+
+        val untouched = SyncMerge.profilesToPush(listOf(DesktopProfile(1, "Me", "#111111")), remote).single()
+        assertEquals("space", untouched.profileBackgroundId)
+
+        val picked = DesktopProfile(1, "Me", "#111111", profileBackgroundId = null, backgroundEdited = true)
+        assertNull(SyncMerge.profilesToPush(listOf(picked), remote).single().profileBackgroundId)
+        val other = picked.copy(profileBackgroundId = "forest")
+        assertEquals("forest", SyncMerge.profilesToPush(listOf(other), remote).single().profileBackgroundId)
+        assertNull("a catalog pick drops the account's own picture", SyncMerge.profilesToPush(listOf(other), remote).single().profileBackgroundUrl)
+    }
 }

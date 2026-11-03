@@ -24,7 +24,19 @@ data class DesktopProfile(
     /** The TV's avatar id: a bundled one (`fetch:fox`) or the sync server catalog's; null shows the initial. */
     val avatarId: String? = null,
     /** A picture of the profile's own on the sync server (the TV's `avatar_url`), shown when set. */
-    val avatarUrl: String? = null
+    val avatarUrl: String? = null,
+    /**
+     * The avatar was removed here: the next push clears the account's too. Without it a null
+     * [avatarId] keeps the account's picture, so profiles saved before avatars existed here don't
+     * wipe one set on the TV.
+     */
+    val avatarCleared: Boolean = false,
+    /** The TV's profile background: a catalog id (`get_member_profile_background_catalog`). */
+    val profileBackgroundId: String? = null,
+    /** Or a picture of its own; wins over [profileBackgroundId], as on TV. */
+    val profileBackgroundUrl: String? = null,
+    /** The background was picked here; until then a push keeps the account's. */
+    val backgroundEdited: Boolean = false
 ) {
     val isPrimary: Boolean get() = id == PRIMARY_ID
     val isLocked: Boolean get() = pinHash != null || serverLocked
@@ -41,12 +53,41 @@ data class ProfilesFile(
     val profiles: List<DesktopProfile> = listOf(DesktopProfile(DesktopProfile.PRIMARY_ID, "Me", PROFILE_AVATAR_COLORS.first())),
     val lastProfileId: Int? = null,
     /** "Remember Last Profile": skip the picker at start-up. */
-    val rememberLastProfile: Boolean = true
+    val rememberLastProfile: Boolean = true,
+    /**
+     * The TV's "lock unrestricted profiles": while some profile has limits and the main profile
+     * has a PIN, a profile with neither limits nor a PIN of its own asks for the main profile's
+     * PIN to open, so a restricted profile can't skip its limits by switching. Kept on this
+     * computer, as on TV.
+     */
+    val lockUnrestrictedProfiles: Boolean = false,
+    /**
+     * Profiles whose limits a server-side settings copy replaced with the source's, with the exact
+     * limits the account still owes them (theirs, tightened by the account's before the copy).
+     * Pushed on the next account sync; until then the account's copy of them isn't merged in.
+     */
+    val pendingLimitsPush: Map<Int, ProfileLimits> = emptyMap()
 ) {
     /** The lowest free id: the sync server numbers profiles 1 to [MAX_PROFILES], like the TV app. */
     fun nextId(): Int = (2..MAX_PROFILES).firstOrNull { id -> profiles.none { it.id == id } } ?: ((profiles.maxOfOrNull { it.id } ?: 0) + 1)
 
     val isFull: Boolean get() = profiles.size >= MAX_PROFILES
+
+    val primary: DesktopProfile? get() = profiles.firstOrNull { it.isPrimary }
+
+    /** Whether [profile] asks for the main profile's PIN to open (see [lockUnrestrictedProfiles]). */
+    fun needsParentPinToOpen(profile: DesktopProfile): Boolean {
+        if (!lockUnrestrictedProfiles || profile.isPrimary || profile.isLocked || profile.limits.isRestricted) return false
+        if (primary?.isLocked != true) return false
+        return profiles.any { it.limits.isRestricted }
+    }
+
+    /**
+     * The profiles a restricted one could open to skip its limits: not the main one, with no PIN
+     * and no limits. The TV offers to lock these once a profile gets limits.
+     */
+    fun unlockedUnrestricted(except: DesktopProfile? = null): List<DesktopProfile> =
+        profiles.filter { !it.isPrimary && it.id != except?.id && !it.isLocked && !it.limits.isRestricted }
 
     /** The next unused avatar color, cycling once all are taken. */
     fun nextColor(): String =

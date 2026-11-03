@@ -57,7 +57,9 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Start over on the title page | `detail/DetailButtons.kt` | ✅ |
 | Recent searches | `search/SearchScreen.kt` | ✅ |
 | Catalog "See all" grid | `screens/CatalogSeeAllScreen.kt` | ✅ "See all" on each addon row, paged, with its genres |
-| Continue Watching airing rules, Upcoming row, card style options | `home/ContinueWatching*.kt` | ⬜ |
+| Continue Watching airing rules: caught-up shows return when a new episode is listed, unaired Next Up with its air date | `home/ContinueWatchingAiringRules.kt`, `HomeViewModelContinueWatching.kt` | ✅ re-checked at start-up and every 6 hours |
+| Show unaired Next Up, Next Up from furthest episode, sort order with a separate Upcoming row | `settings/LayoutHomeSettings.kt` | ✅ synced with the TV |
+| Continue Watching card style, episode thumbnails, blur Next Up | `settings/LayoutHomeSettings.kt` | ⬜ |
 | TMDB enrichment: artwork, title and description in your language, details, cast and crew, episodes, trailers | `core/tmdb/TmdbMetadataService.kt`, `detail/MetaDetailsViewModel.kt` | ✅ `tmdb/`, Settings › TMDB, each part switchable, synced with the TV |
 | TMDB rating, director or creator, show status on the title page | `detail/HeroSection.kt` | ✅ |
 | More like this, Because you watched | `detail/MoreLikeThisSection.kt`, `home/HomeViewModelBecauseYouWatched.kt` | ✅ (without the TV's "Also directed by" reasons) |

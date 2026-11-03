@@ -77,6 +77,11 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   while you watch, resumes from there, and follows the TV app's rules: started at 2%, finished
   at 90%, one card per show, and a finished episode turns into Next Up for the following one.
   Right-click a card (or the × on hover) for Go to details, Start from beginning and Remove.
+  Finishing a show's last listed episode makes it caught up: Fetch re-reads its episode list at
+  start-up and every six hours, and when a new episode appears the show comes back as Next Up,
+  marked "Airs Fri, Nov 7" until it airs and "New episode" after. Layout › Continue Watching
+  has the TV's Show Unaired Next Up Episodes, Up Next From Furthest Episode (off for rewatches)
+  and Sort Order (Default, Streaming Style, or a separate Upcoming row).
 - **Library**: titles saved with Add to library on the title page, with the TV app's Type,
   Sort, Genre, Year and Watched filters. Its sources are Local (the library and lists of your
   own, kept in `lists.json`), Trakt (watchlist and personal lists) and Simkl (Watching, Plan to

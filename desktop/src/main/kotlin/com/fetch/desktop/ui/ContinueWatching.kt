@@ -64,6 +64,23 @@ fun ProgressEntry.fraction(): Float = when {
     else -> ((remotePercent ?: 0f) / 100f).coerceIn(0f, 1f)
 }
 
+/**
+ * A Next Up card's badge, as on TV: "Airs Fri, Nov 7" (or Today, Tomorrow) before the episode
+ * airs, "New episode" for one that aired in the last week, else "Next Up".
+ */
+fun ProgressEntry.nextUpBadge(today: java.time.LocalDate = java.time.LocalDate.now()): String {
+    val date = com.fetch.desktop.data.WatchHistory.airDateOf(this) ?: return "Next Up"
+    return when {
+        date.isAfter(today.plusDays(1)) -> "Airs " + date.format(
+            java.time.format.DateTimeFormatter.ofPattern(if (date.year == today.year) "EEE, MMM d" else "MMM d, yyyy")
+        )
+        date == today.plusDays(1) -> "Airs tomorrow"
+        date == today -> "New today"
+        !date.isBefore(today.minusDays(7)) -> "New episode"
+        else -> "Next Up"
+    }
+}
+
 /** "Resume S2 E5", "Resume", or "Play S2 E6" for a Next Up card, as on the TV hero. */
 fun ProgressEntry.playLabel(): String {
     val tag = episodeTag(season, episode)
@@ -82,11 +99,12 @@ fun ProgressEntry.playLabel(): String {
 fun ContinueWatchingRow(
     entries: List<ProgressEntry>,
     actions: ContinueWatchingActions,
-    onHover: (ProgressEntry) -> Unit
+    onHover: (ProgressEntry) -> Unit,
+    title: String = "Continue Watching"
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text(
-            "Continue Watching",
+            title,
             style = MaterialTheme.typography.titleLarge,
             color = FetchPalette.TextPrimary,
             modifier = Modifier.padding(horizontal = PageGutter)
@@ -115,7 +133,8 @@ private fun ContinueCard(entry: ProgressEntry, actions: ContinueWatchingActions,
 
     ContextMenuArea(items = {
         buildList {
-            add(ContextMenuItem(entry.playLabel()) { actions.onPlay(entry) })
+            val upcoming = com.fetch.desktop.data.WatchHistory.isUpcoming(entry, java.time.LocalDate.now())
+            if (!upcoming) add(ContextMenuItem(entry.playLabel()) { actions.onPlay(entry) })
             add(ContextMenuItem("Go to details") { actions.onDetails(entry) })
             if (!entry.upNext) add(ContextMenuItem("Start from beginning") { actions.onStartOver(entry) })
             add(ContextMenuItem("Remove") { actions.onRemove(entry) })
@@ -147,7 +166,7 @@ private fun ContinueCard(entry: ProgressEntry, actions: ContinueWatchingActions,
                     Modifier.fillMaxWidth().height(70.dp).align(Alignment.BottomCenter)
                         .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))))
                 )
-                val badge = if (entry.upNext) "Next Up" else remainingLabel(entry)
+                val badge = if (entry.upNext) entry.nextUpBadge() else remainingLabel(entry)
                 if (badge != null) {
                     Text(
                         badge,

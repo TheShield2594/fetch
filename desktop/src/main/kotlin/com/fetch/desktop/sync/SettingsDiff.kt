@@ -19,6 +19,9 @@ fun RemoteSharedSettings.changedFrom(before: RemoteSharedSettings): RemoteShared
         rankingRules = pick(rankingRules, before.rankingRules),
         autoplayNextEpisode = pick(autoplayNextEpisode, before.autoplayNextEpisode),
         autoSkipSegments = pick(autoSkipSegments, before.autoSkipSegments),
+        showUnairedNextUp = pick(showUnairedNextUp, before.showUnairedNextUp),
+        nextUpFromFurthest = pick(nextUpFromFurthest, before.nextUpFromFurthest),
+        continueWatchingSort = pick(continueWatchingSort, before.continueWatchingSort),
         tmdbFlags = tmdbFlags?.filter { (k, v) -> before.tmdbFlags?.get(k) != v }?.takeIf { it.isNotEmpty() },
         tmdbLanguage = pick(tmdbLanguage, before.tmdbLanguage)
     )

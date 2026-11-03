@@ -81,6 +81,9 @@ object SyncSettingsBlob {
             },
             autoplayNextEpisode = boolean(PLAYER, "stream_auto_play_next_episode_enabled"),
             autoSkipSegments = stringSet(PLAYER, "auto_skip_segment_types"),
+            showUnairedNextUp = boolean(LAYOUT, "show_unaired_next_up"),
+            nextUpFromFurthest = boolean(LAYOUT, "next_up_from_furthest_episode"),
+            continueWatchingSort = string(LAYOUT, "continue_watching_sort_mode"),
             tmdbFlags = TMDB_FLAGS.mapNotNull { key -> boolean(TMDB, key)?.let { key to it } }.toMap().takeIf { it.isNotEmpty() },
             tmdbLanguage = string(TMDB, "tmdb_language"),
         )
@@ -105,6 +108,9 @@ object SyncSettingsBlob {
         })
         set(PLAYER, "stream_auto_play_next_episode_enabled", settings.autoplayNextEpisode?.let(::booleanValue))
         set(PLAYER, "auto_skip_segment_types", settings.autoSkipSegments?.let(::stringSetValue))
+        set(LAYOUT, "show_unaired_next_up", settings.showUnairedNextUp?.let(::booleanValue))
+        set(LAYOUT, "next_up_from_furthest_episode", settings.nextUpFromFurthest?.let(::booleanValue))
+        set(LAYOUT, "continue_watching_sort_mode", settings.continueWatchingSort?.let(::stringValue))
         settings.tmdbFlags?.forEach { (key, value) -> if (key in TMDB_FLAGS) set(TMDB, key, booleanValue(value)) }
         set(TMDB, "tmdb_language", settings.tmdbLanguage?.let(::stringValue))
 

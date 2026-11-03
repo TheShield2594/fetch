@@ -148,6 +148,13 @@ private fun HomeContent(state: AppState) {
                         ContinueWatchingRow(continueWatching, cwActions, onHover = { hovered = HeroSubject.Resume(it) })
                     }
                 }
+                // "Separate Upcoming row": Next Up episodes that haven't aired, soonest first.
+                val upcoming = if (settings.showContinueWatching) state.upcoming else emptyList()
+                if (upcoming.isNotEmpty()) {
+                    item(key = "upcoming") {
+                        ContinueWatchingRow(upcoming, cwActions, onHover = { hovered = HeroSubject.Resume(it) }, title = "Upcoming")
+                    }
+                }
                 items(state.tmdb.becauseYouWatched, key = { "byw|${it.seed.contentId}" }) { row ->
                     MediaRowView(
                         title = "Because you watched ${row.seed.name}",
@@ -203,8 +210,13 @@ private fun ResumeHero(entry: ProgressEntry, height: Dp, onPlay: () -> Unit, onD
             val line = listOfNotNull(episodeTag(entry.season, entry.episode), entry.episodeTitle).joinToString(" · ")
             if (line.isNotEmpty()) FactsLine(facts = listOf(line), imdbRating = null)
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 6.dp)) {
-                PrimaryButton(entry.playLabel(), onClick = onPlay, detail = remainingLabel(entry) ?: "Next Up".takeIf { entry.upNext })
-                SecondaryButton("Details", onClick = onDetails, icon = FetchIcons.Info)
+                val upcoming = com.fetch.desktop.data.WatchHistory.isUpcoming(entry, java.time.LocalDate.now())
+                if (upcoming) {
+                    PrimaryButton("Details", onClick = onDetails, icon = FetchIcons.Info, detail = entry.nextUpBadge())
+                } else {
+                    PrimaryButton(entry.playLabel(), onClick = onPlay, detail = remainingLabel(entry) ?: entry.nextUpBadge().takeIf { entry.upNext })
+                }
+                if (!upcoming) SecondaryButton("Details", onClick = onDetails, icon = FetchIcons.Info)
             }
             if (!entry.upNext) ProgressBar(entry.fraction(), Modifier.width(360.dp))
         }

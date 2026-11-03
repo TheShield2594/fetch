@@ -69,6 +69,11 @@ fun RemoteSharedSettings.applyTo(settings: DesktopSettings): DesktopSettings {
     autoSkipSegments?.let { stored ->
         player = player.copy(autoSkip = SEGMENT_STORED.filterValues { it in stored }.keys)
     }
+    showUnairedNextUp?.let { s = s.copy(showUnairedNextUp = it) }
+    nextUpFromFurthest?.let { s = s.copy(nextUpFromFurthest = it) }
+    continueWatchingSort?.let { name ->
+        com.fetch.tv.domain.model.ContinueWatchingSortMode.entries.firstOrNull { it.name == name }?.let { s = s.copy(continueWatchingSort = it) }
+    }
     var tmdb = s.tmdb
     tmdbFlags?.let { f ->
         tmdb = tmdb.copy(
@@ -110,6 +115,9 @@ fun DesktopSettings.toRemoteSharedSettings(remote: RemoteSharedSettings? = null)
         rankingRules = rankingRules.copy(dropUndecodable = tvDropUndecodable),
         autoplayNextEpisode = player.autoplayNextEpisode,
         autoSkipSegments = player.autoSkip.mapNotNull { SEGMENT_STORED[it] }.toSet() + extraSegments,
+        showUnairedNextUp = showUnairedNextUp,
+        nextUpFromFurthest = nextUpFromFurthest,
+        continueWatchingSort = continueWatchingSort.name,
         tmdbFlags = mapOf(
             "tmdb_enabled" to tmdb.enabled,
             "tmdb_use_artwork" to tmdb.useArtwork,

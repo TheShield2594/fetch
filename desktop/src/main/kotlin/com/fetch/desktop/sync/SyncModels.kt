@@ -141,6 +141,12 @@ data class RemoteSharedSettings(
     val autoplayNextEpisode: Boolean? = null,
     /** `player_settings.auto_skip_segment_types`: `intro`, `recap`, `outro`, `movie-credits`. */
     val autoSkipSegments: Set<String>? = null,
+    /** `layout_settings.show_unaired_next_up` (TV default true). */
+    val showUnairedNextUp: Boolean? = null,
+    /** `layout_settings.next_up_from_furthest_episode` (TV default true). */
+    val nextUpFromFurthest: Boolean? = null,
+    /** `layout_settings.continue_watching_sort_mode`: a ContinueWatchingSortMode name. */
+    val continueWatchingSort: String? = null,
     /** `tmdb_settings` booleans by key (`tmdb_enabled`, `tmdb_use_artwork`, …); only the ones present. */
     val tmdbFlags: Map<String, Boolean>? = null,
     /** `tmdb_settings.tmdb_language`. */

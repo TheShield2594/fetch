@@ -17,6 +17,12 @@ data class DesktopSettings(
     /** Accent theme, by [AppTheme] name. */
     val theme: String = AppTheme.FETCH.name,
     val showContinueWatching: Boolean = true,
+    /** Layout › Continue Watching: Next Up for episodes that haven't aired yet (TV default on). */
+    val showUnairedNextUp: Boolean = true,
+    /** Next Up follows the furthest episode watched, not the latest (off for rewatches). */
+    val nextUpFromFurthest: Boolean = true,
+    /** Default (by recency), streaming style (upcoming last) or a separate Upcoming row. */
+    val continueWatchingSort: com.fetch.tv.domain.model.ContinueWatchingSortMode = com.fetch.tv.domain.model.ContinueWatchingSortMode.DEFAULT,
     /** "Show Catalog Type": the " - Movies" suffix on row titles. */
     val showCatalogType: Boolean = true,
     /** "Show Addon Name" beside each row title. */

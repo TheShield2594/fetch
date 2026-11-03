@@ -894,6 +894,30 @@ private fun LayoutPage(state: AppState) {
         SettingsToggle("Show Continue Watching", "The row of titles you started, first on Home.", s.showContinueWatching) { v ->
             state.updateSettings { it.copy(showContinueWatching = v) }
         }
+        if (s.showContinueWatching) {
+            SettingsToggle("Show Unaired Next Up Episodes", "Include upcoming episodes in Continue Watching before they air.", s.showUnairedNextUp) { v ->
+                state.updateSettings { it.copy(showUnairedNextUp = v) }
+            }
+            SettingsToggle(
+                "Up Next From Furthest Episode",
+                "Show the episode after the furthest one watched. Turn off for rewatches, to follow the most recent one instead.",
+                s.nextUpFromFurthest
+            ) { v -> state.updateSettings { it.copy(nextUpFromFurthest = v) } }
+            SettingsChoice(
+                "Sort Order",
+                when (s.continueWatchingSort) {
+                    com.fetch.tv.domain.model.ContinueWatchingSortMode.DEFAULT -> "Sort all items by recency."
+                    com.fetch.tv.domain.model.ContinueWatchingSortMode.STREAMING_STYLE -> "Released items first, upcoming at the end."
+                    com.fetch.tv.domain.model.ContinueWatchingSortMode.SPLIT_UPCOMING -> "Move unaired episodes to a separate Upcoming row."
+                },
+                s.continueWatchingSort,
+                listOf(
+                    DropdownOption(com.fetch.tv.domain.model.ContinueWatchingSortMode.DEFAULT, "Default"),
+                    DropdownOption(com.fetch.tv.domain.model.ContinueWatchingSortMode.STREAMING_STYLE, "Streaming Style"),
+                    DropdownOption(com.fetch.tv.domain.model.ContinueWatchingSortMode.SPLIT_UPCOMING, "Separate Upcoming Row")
+                )
+            ) { v -> state.updateSettings { it.copy(continueWatchingSort = v) } }
+        }
         SettingsToggle("Show Catalog Type", "Add “- Movies” or “- Series” to row titles.", s.showCatalogType) { v ->
             state.updateSettings { it.copy(showCatalogType = v) }
         }

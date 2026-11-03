@@ -44,3 +44,21 @@ class TmdbSettingsSyncTest {
         assertEquals(false, SyncSettingsBlob.sharedSettings(merged).tmdbFlags?.get("tmdb_enabled"))
     }
 }
+
+class ContinueWatchingSettingsSyncTest {
+    @Test
+    fun `Continue Watching layout settings travel with the TV's keys`() {
+        val desktop = com.fetch.desktop.data.DesktopSettings(
+            showUnairedNextUp = false,
+            continueWatchingSort = com.fetch.tv.domain.model.ContinueWatchingSortMode.SPLIT_UPCOMING
+        )
+        val diff = desktop.toRemoteSharedSettings().changedFrom(com.fetch.desktop.data.DesktopSettings().toRemoteSharedSettings())!!
+        val blob = SyncSettingsBlob.withSharedSettings(null, diff)
+        val layout = (blob["features"] as JsonObject)["layout_settings"] as JsonObject
+        assertEquals(setOf("show_unaired_next_up", "continue_watching_sort_mode"), layout.keys)
+        val back = SyncSettingsBlob.sharedSettings(blob).applyTo(com.fetch.desktop.data.DesktopSettings())
+        assertFalse(back.showUnairedNextUp)
+        assertEquals(com.fetch.tv.domain.model.ContinueWatchingSortMode.SPLIT_UPCOMING, back.continueWatchingSort)
+        assertTrue(back.nextUpFromFurthest)
+    }
+}

@@ -468,7 +468,14 @@ class AppState(
     }
 
     fun start() {
-        scope.launch { reloadAddons() }
+        scope.launch {
+            reloadAddons()
+            // Caught-up shows are checked for new episodes now and every few hours.
+            while (true) {
+                refreshAiring()
+                delay(AIRING_RECHECK_MS)
+            }
+        }
         if (settings.checkForUpdates) updates.check(beta = settings.betaUpdates)
         syncAccount()
         scope.launch { syncTracking() }
@@ -837,7 +844,51 @@ class AppState(
 
     // --- Continue Watching ---
 
-    val continueWatching: List<ProgressEntry> get() = WatchHistory.continueWatching(progress)
+    private val continueWatchingRows: Pair<List<ProgressEntry>, List<ProgressEntry>>
+        get() = WatchHistory.continueWatchingRows(progress, LocalDate.now(), settings.showUnairedNextUp, settings.continueWatchingSort)
+
+    /** Continue Watching, by Layout › Continue Watching's settings. */
+    val continueWatching: List<ProgressEntry> get() = continueWatchingRows.first
+
+    /** Unaired Next Up episodes, soonest first, with "Separate Upcoming row". */
+    val upcoming: List<ProgressEntry> get() = continueWatchingRows.second
+
+    fun isUpcoming(entry: ProgressEntry): Boolean = WatchHistory.isUpcoming(entry, LocalDate.now())
+
+    // --- New episodes for caught-up shows ---
+
+    private val airingChecked = mutableMapOf<String, Long>()
+
+    /**
+     * Re-reads the episode lists of caught-up shows and Next Up shows, at most every
+     * [AIRING_RECHECK_MS] each, so a show comes back to Continue Watching when a new episode is
+     * listed and the Upcoming dates stay right, as the TV's Continue Watching refresh does.
+     */
+    private suspend fun refreshAiring() {
+        val now = System.currentTimeMillis()
+        val shows = (progress.caughtUp.map { Triple(it.contentId, it.contentType, it.name) } +
+            progress.entries.filter { it.upNext && it.contentType != "movie" }.map { Triple(it.contentId, it.contentType, it.name) })
+            .distinctBy { it.first }
+            .filter { (id, _, _) -> !ServerItemRef.isServerId(id) && now - (airingChecked[id] ?: 0L) >= AIRING_RECHECK_MS }
+        for ((id, type, name) in shows) {
+            airingChecked[id] = now
+            val meta = runCatching { withContext(Dispatchers.IO) { client.meta(addons.toList(), type, id) } }.getOrNull() ?: continue
+            if (meta.videos.isEmpty()) continue
+            val known = progress.entries.firstOrNull { it.contentId == id }
+            val caught = progress.caughtUp.firstOrNull { it.contentId == id }
+            val target = PlaybackTarget(
+                contentId = id,
+                contentType = type,
+                name = meta.name.ifBlank { name },
+                poster = known?.poster ?: caught?.poster ?: meta.poster,
+                backdrop = known?.backdrop ?: caught?.backdrop ?: meta.background,
+                logo = known?.logo ?: caught?.logo ?: meta.logo,
+                video = null,
+                episodes = meta.videos
+            )
+            saveProgress(WatchHistory.refreshShow(progress, target, System.currentTimeMillis()))
+        }
+    }
 
     /** The saved position for this title, when it is in progress or has a next episode waiting. */
     fun progressFor(contentId: String): ProgressEntry? =
@@ -847,7 +898,8 @@ class AppState(
         progress.entries.firstOrNull { it.videoId == videoId && !it.upNext && WatchHistory.resumeStart(progress, videoId) != null }
 
     fun openContinueWatching(entry: ProgressEntry, play: Boolean) {
-        navigate(Screen.Detail(entry.toPreview(), autoPlay = play, videoId = entry.videoId))
+        // An episode that hasn't aired can't play yet: its show's page opens instead.
+        navigate(Screen.Detail(entry.toPreview(), autoPlay = play && !isUpcoming(entry), videoId = entry.videoId))
     }
 
     fun removeFromContinueWatching(entry: ProgressEntry) {
@@ -1429,7 +1481,7 @@ class AppState(
         session.upNextDismissed = false
         upNextCancelledFor = null
         session.nextEpisode = target.video?.takeIf { settings.player.autoplayNextEpisode }
-            ?.let { WatchHistory.nextEpisode(target.episodes, it, progress.watched.toSet()) }
+            ?.let { WatchHistory.nextEpisode(target.episodes, it, progress.watched.toSet()) }?.takeIf { isAired(it) }
         session.description = (target.video?.overview ?: detailMeta?.takeIf { it.id == target.contentId }?.description)
         val load = ++session.loads
         session.mpv.load(url, label, resume, options, stream.behaviorHints?.proxyHeaders?.request.orEmpty())
@@ -1574,7 +1626,8 @@ class AppState(
                 target,
                 positionMs = (sample.positionSec * 1000).toLong(),
                 durationMs = (sample.durationSec * 1000).toLong(),
-                now = System.currentTimeMillis()
+                now = System.currentTimeMillis(),
+                fromFurthest = settings.nextUpFromFurthest
             )
         )
     }
@@ -1600,7 +1653,8 @@ class AppState(
             screenTimeBlock = it
             return false
         }
-        val next = WatchHistory.nextEpisode(target.episodes, video, progress.watched.toSet()) ?: return false
+        // An episode that hasn't aired yet waits in Continue Watching (or Upcoming) instead.
+        val next = WatchHistory.nextEpisode(target.episodes, video, progress.watched.toSet())?.takeIf { isAired(it) } ?: return false
         val player = settings.player
         if (player.stillWatching && autoplayRun >= player.stillWatchingEpisodes.coerceAtLeast(1)) {
             val tag = episodeTag(next.season, next.episode)
@@ -1616,6 +1670,7 @@ class AppState(
     private companion object {
         const val SEARCH_DEBOUNCE_MS = 350L
         const val MAX_RECENT_SEARCHES = 10
+        const val AIRING_RECHECK_MS = 6 * 60 * 60 * 1000L
     }
 }
 

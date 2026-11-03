@@ -98,6 +98,19 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   own and Trakt's lists, and creates, renames (private or public) and deletes MDBList's static
   lists.
 - **See all** on a Home row opens its whole catalog as a grid that loads more as you scroll.
+- **Collections** (Settings › Content & Discovery › Collections), as on TV: Home rows of
+  folder tiles (poster, landscape or square; a cover image or emoji; the title shown or hidden),
+  pinned ones before the other rows and the rest after the catalog rows. A folder opens a page
+  of its sources in the collection's view mode: a tabbed grid (with an "All" tab that takes
+  turns between them), rows, or rows under a Home-style hero. Sources are addon catalogs (with a
+  genre; read from the addon's address when it isn't installed), TMDB (a list, a movie
+  collection, a studio, a network, a person's or a director's credits, or discover with
+  genres, dates, rating, votes, language, country, keywords and year; needs a TMDB key), Trakt
+  lists (yours, a public one by address, or searched) and your local lists, each loading more
+  as you scroll. Collections are kept per profile in `collections.json` in the TV's format,
+  import and export as the TV's JSON, and sync with the sync server (`sync_pull_collections`,
+  `sync_push_collections`): the server's copy wins, as on TV, and ones made here go up when it
+  has none. Lists from a Fetch website can be kept and synced but don't load on desktop.
 - **Discover**: pick a type, catalog and genre and browse the catalog as a grid that loads more
   as you scroll. It sits in Search until you type, as on TV, or in the sidebar.
 - **Profiles**: each with its own Library, Continue Watching, settings and Trakt/Simkl accounts,

@@ -294,6 +294,12 @@ class TmdbClient(
 
     // --- HTTP ---
 
+    /** Whether a key is set (from Settings › TMDB or the build). */
+    val hasKey: Boolean get() = !apiKey()?.trim().isNullOrEmpty()
+
+    /** Any TMDB GET with the key, for [TmdbCollectionSources]; null on 404 or with no key. */
+    internal suspend fun rawGet(segments: List<String>, query: List<Pair<String, String>>): String? = get(segments, *query.toTypedArray())
+
     private suspend fun get(segments: List<String>, vararg query: Pair<String, String>): String? = withContext(Dispatchers.IO) {
         val key = apiKey()?.trim()?.takeIf { it.isNotEmpty() } ?: return@withContext null
         val url = baseUrl.newBuilder().apply {

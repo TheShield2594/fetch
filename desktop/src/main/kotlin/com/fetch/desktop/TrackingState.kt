@@ -182,6 +182,16 @@ class TrackingState(
     /** Runs [block] with Trakt and a fresh token; null when Trakt isn't connected (or signed out). */
     suspend fun <T> withTrakt(block: suspend TraktClient.(TrackingTokens) -> T): T? = withTokens(TrackingService.TRAKT) { trakt.block(it) }
 
+    /**
+     * Runs [block] with Trakt for public data (collection folders' Trakt lists): with your token
+     * when Trakt is connected, else with the client id alone. Null when this build has no Trakt.
+     */
+    suspend fun <T> withTraktPublic(block: suspend TraktClient.(TrackingTokens?) -> T): T? {
+        if (!credentials.traktAvailable) return null
+        if (account(TrackingService.TRAKT) == null) return trakt.block(null)
+        return withTrakt { trakt.block(it) }
+    }
+
     /** Runs [block] with Simkl and its token; null when Simkl isn't connected. */
     suspend fun <T> withSimkl(block: suspend SimklClient.(TrackingTokens) -> T): T? = withTokens(TrackingService.SIMKL) { simkl.block(it) }
 

@@ -173,6 +173,7 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
                         is Screen.Person -> PersonScreen(state, screen)
                         is Screen.SeeAll -> SeeAllScreen(state, screen)
                         is Screen.Entity -> EntityScreen(state, screen)
+                        is Screen.Folder -> FolderScreen(state, screen)
                         Screen.YouTube -> YouTubeScreen(state)
                         is Screen.YouTubeBrowse -> YouTubeBrowseScreen(state, screen.target)
                     }
@@ -182,7 +183,7 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
                 Sidebar(
                     items = buildList {
                         add(SidebarItem("Home", FetchIcons.Home, state.screen == Screen.Home || state.screen is Screen.Detail ||
-                            state.screen is Screen.Person || state.screen is Screen.Entity || state.screen is Screen.SeeAll) {
+                            state.screen is Screen.Person || state.screen is Screen.Entity || state.screen is Screen.SeeAll || state.screen is Screen.Folder) {
                             state.openSection(Screen.Home)
                         })
                         if (state.settings.discoverInSidebar) {

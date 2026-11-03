@@ -118,6 +118,7 @@ fun SettingsScreen(state: AppState, page: SettingsPage) {
                                 SettingsPage.SKIP_SEGMENTS -> SkipSegmentsPage(state)
                                 SettingsPage.CONTENT_DISCOVERY -> ContentDiscoveryPage(state)
                                 SettingsPage.HOME_CATALOGS -> HomeCatalogsPage(state)
+                                SettingsPage.COLLECTIONS -> CollectionsSettingsPage(state, onBack = state::back)
                                 SettingsPage.APPEARANCE -> AppearancePage(state)
                                 SettingsPage.LAYOUT -> LayoutPage(state)
                                 SettingsPage.TRACKING -> TrackingPage(state)
@@ -799,6 +800,11 @@ private fun ContentDiscoveryPage(state: AppState) {
             "Home catalogs",
             "Reorder home catalogs: pin rows to the top or hide them.",
             onClick = { state.navigate(Screen.Settings(SettingsPage.HOME_CATALOGS)) }
+        ) { Chevron() }
+        SettingsRow(
+            "Collections",
+            "Home rows of folders, each a page of catalogs, TMDB, Trakt and your lists. ${state.collections.collections.size} made.",
+            onClick = { state.navigate(Screen.Settings(SettingsPage.COLLECTIONS)) }
         ) { Chevron() }
     }
 }

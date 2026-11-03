@@ -121,6 +121,7 @@ enum class SettingsPage(val label: String, val group: String, val parent: Settin
     MDBLIST("MDBList", "Sources"),
     ADDONS("Addons", "Sources", parent = CONTENT_DISCOVERY),
     HOME_CATALOGS("Home catalogs", "Sources", parent = CONTENT_DISCOVERY),
+    COLLECTIONS("Collections", "Sources", parent = CONTENT_DISCOVERY),
     APPEARANCE("Appearance", "Home"),
     LAYOUT("Layout", "Home"),
     MEDIA_SERVERS("Media servers", "Sources", parent = CONTENT_DISCOVERY),
@@ -156,6 +157,8 @@ sealed interface Screen {
     data object YouTube : Screen
     /** A YouTube channel, playlist or "View all" page opened from it. */
     data class YouTubeBrowse(val target: com.fetch.desktop.youtube.YouTubeBrowseTarget) : Screen
+    /** A collection folder's page (see [com.fetch.desktop.collections.CollectionsState]). */
+    data class Folder(val collectionId: String, val folderId: String) : Screen
 }
 
 /** A home row: one addon catalog and what it returned. */
@@ -416,6 +419,26 @@ class AppState(
         mdblist = mdbListAccount
     )
 
+    /** Collections: Home rows of folders, each a page of sources, synced with the TV. */
+    val collections = com.fetch.desktop.collections.CollectionsState(
+        scope,
+        com.fetch.desktop.collections.CollectionsStore.inProfile(profileDir(profile)),
+        com.fetch.desktop.collections.CollectionSourceResolver(
+            addons = { addons.toList() },
+            addonClient = client,
+            tmdb = com.fetch.desktop.tmdb.TmdbCollectionSources(tmdb.client),
+            tmdbLanguage = { settings.tmdb.language },
+            trakt = { id, type, page, limit, sortBy, sortHow ->
+                tracking.withTraktPublic { publicListItems(it, id.toString(), type, page, limit, sortBy, sortHow) }
+            },
+            localLists = { lists.local }
+        ),
+        addons = { addons.toList() },
+        remote = { account?.client() },
+        profileId = profile.id,
+        onMessage = { message = it }
+    )
+
     /** The title "Manage lists" is open for. */
     var manageListsFor: MetaPreview? by mutableStateOf(null)
 
@@ -465,6 +488,17 @@ class AppState(
                 if (push.isNotEmpty()) remote.pushWatched(id, push)
                 val watchedIds = remoteWatched.map { with(SyncMerge) { it.videoId() } }
                 saveProgress(progress.copy(watched = (progress.watched + watchedIds).distinct()))
+
+                // Collections: the server's copy wins, as on TV; ours go up when it has none.
+                try {
+                    collections.sync(remote)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: SyncAuthException) {
+                    throw e
+                } catch (e: Exception) {
+                    message = "Couldn't sync collections: ${e.message}"
+                }
 
                 fillProgressNames()
                 sync.lastSyncedAt = System.currentTimeMillis()
@@ -617,6 +651,7 @@ class AppState(
             }
             is Screen.Person -> tmdb.loadPerson(to.tmdbId)
             is Screen.Entity -> tmdb.openEntity(to.kind, to.tmdbId, to.name)
+            is Screen.Folder -> collections.openFolder(to.collectionId, to.folderId)
             else -> Unit
         }
     }

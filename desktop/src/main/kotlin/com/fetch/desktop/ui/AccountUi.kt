@@ -67,6 +67,7 @@ fun AccountPage(state: AppState, header: Boolean = true) {
         }
         account.error?.let { Text(it, color = FetchPalette.Error) }
         SyncCodeSection(state)
+        ClaimSyncCodeSection(state)
         FetchWebsiteSection(state)
         return
     }
@@ -106,6 +107,7 @@ fun AccountPage(state: AppState, header: Boolean = true) {
                 }
             }
         }
+        ClaimSyncCodeSection(state)
     }
     account.error?.let { Text(it, color = FetchPalette.Error) }
     FetchWebsiteSection(state)

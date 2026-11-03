@@ -53,6 +53,7 @@ import com.fetch.desktop.SyncAccountState
 import com.fetch.desktop.sync.verifyPin
 import com.fetch.desktop.data.DesktopProfile
 import com.fetch.desktop.Screen
+import kotlinx.coroutines.launch
 
 @Composable
 fun FetchApp() {
@@ -61,7 +62,9 @@ fun FetchApp() {
     val account = remember { SyncAccountState(appScope) }
     // The start-up picker has no open profile to ask the server about a PIN set on another device.
     remember(profiles, account) {
-        profiles.remotePinCheck = { profile, pin -> account.client()?.verifyPin(profile, pin) }
+        val website = com.fetch.desktop.website.FetchWebsiteState.shared
+        profiles.remotePinCheck = { profile, pin -> website.verifyPin(profile.id, pin) ?: account.client()?.verifyPin(profile, pin) }
+        profiles.onLocalPinVerified = { profile, pin -> appScope.launch { website.onVerifiedLocally(profile.id, pin) } }
     }
     val active = profiles.active
     if (active == null) {
@@ -77,7 +80,7 @@ fun FetchApp() {
 @Composable
 private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account: SyncAccountState) {
     val scope = rememberCoroutineScope()
-    val state = remember { AppState(scope, profiles, profile, account = account).also { FetchPalette.setAppearance(it.settings.appearance); FetchPalette.setTheme(it.settings.appTheme) } }
+    val state = remember { AppState(scope, profiles, profile, account = account, website = com.fetch.desktop.website.FetchWebsiteState.shared).also { FetchPalette.setAppearance(it.settings.appearance); FetchPalette.setTheme(it.settings.appTheme) } }
     LaunchedEffect(Unit) { state.start() }
     // Links from the command line or a later launch (fetch://…, stremio://…), once a profile is open.
     LaunchedEffect(state) {

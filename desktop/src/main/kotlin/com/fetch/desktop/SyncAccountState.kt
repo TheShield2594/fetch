@@ -16,8 +16,36 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.put
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
+
+/** What `claim_sync_code` answers: whether the code was taken, and the server's reason when not. */
+internal data class SyncClaim(val success: Boolean, val message: String?, val ownerId: String?)
+
+internal fun syncClaimParams(code: String, pin: String, deviceName: String?) = buildJsonObject {
+    put("p_code", code.trim().uppercase())
+    put("p_pin", pin)
+    if (!deviceName.isNullOrBlank()) put("p_device_name", deviceName)
+}
+
+/** The first row of `claim_sync_code`'s answer (`[{result_owner_id, success, message}]`). */
+internal fun parseSyncClaim(body: String): SyncClaim? = runCatching {
+    val root = kotlinx.serialization.json.Json.parseToJsonElement(body)
+    val row = ((root as? JsonArray)?.firstOrNull() ?: root) as? JsonObject ?: return null
+    fun text(key: String) = (row[key] as? JsonPrimitive)?.contentOrNull
+    SyncClaim(
+        success = (row["success"] as? JsonPrimitive)?.booleanOrNull ?: false,
+        message = text("message"),
+        ownerId = text("result_owner_id")
+    )
+}.getOrNull()
 
 /**
  * The optional sync server (Settings › Account on TV): your own Supabase-compatible Fetch
@@ -105,6 +133,42 @@ class SyncAccountState(
     fun cancelDeviceLogin() {
         deviceJob?.cancel()
         deviceLogin = null
+    }
+
+    /**
+     * Links this computer to the account behind a sync code and its PIN (RPC `claim_sync_code`),
+     * as the TV's "Enter sync code" does; [onClaimed] runs once it is linked, to pull that
+     * account's data. Signed in, the code is claimed for this sign-in. Signed out, an anonymous
+     * user is signed in first on the server found by [findServer], so the link has a user to hang
+     * on; a code that isn't accepted signs that user out again.
+     */
+    fun claimSyncCode(code: String, pin: String, deviceName: String = "Fetch Desktop", onClaimed: () -> Unit = {}) = work {
+        val existing = client()
+        val remote = existing ?: run {
+            val server = discovered ?: throw IllegalStateException("Find your sync server first.")
+            val session = SyncAuthClient(http, server.config).signInAnonymously()
+            save(state.copy(server = server.config, session = session, watchParty = server.watchParty))
+            client() ?: throw IllegalStateException("Couldn't sign in to the sync server")
+        }
+        val claim = try {
+            parseSyncClaim(remote.callRpc("claim_sync_code", syncClaimParams(code, pin, deviceName)))
+        } catch (e: Exception) {
+            if (existing == null) dropSession()
+            throw e
+        }
+        if (claim?.success != true) {
+            if (existing == null) dropSession()
+            throw IllegalStateException(claim?.message?.takeIf { it.isNotBlank() } ?: "That code and PIN didn't link this computer.")
+        }
+        onClaimed()
+    }
+
+    /** Forgets the session (and tells the server, best effort), keeping the server found. */
+    private fun dropSession() {
+        val server = state.server
+        val session = state.session
+        save(state.copy(session = null))
+        if (server != null && session != null) scope.launch { runCatching { SyncAuthClient(http, server).signOut(session) } }
     }
 
     fun signOut() {

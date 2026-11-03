@@ -28,9 +28,20 @@ data class FolderTab(
     val error: String? = null,
     val hasMore: Boolean = false,
     /** The last page loaded, counting from 1; 0 before the first. */
-    val page: Int = 0
+    val page: Int = 0,
+    /** A website list of a PIN-protected profile: the profile slot whose PIN would show it. */
+    val lockedSlot: Int? = null
 ) {
     val isAll: Boolean get() = source == null
+}
+
+/** Where a profile's collections are pulled from and pushed to: the sync server or the Fetch website. */
+interface CollectionsRemote {
+    /** The profile's collections there, or null when it has none yet. Throws when it can't be read. */
+    suspend fun pull(): JsonArray?
+
+    /** Replaces the profile's collections there. */
+    suspend fun push(collections: JsonArray)
 }
 
 /** A folder's page as it's showing. */
@@ -40,8 +51,8 @@ data class FolderView(val collection: Collection, val folder: CollectionFolder, 
 
 /**
  * The profile's collections (the TV's Collections: rows of folders on Home, each folder a page of
- * sources), saved per profile in the TV's JSON and synced with the sync server as the TV syncs
- * them; and the folder page that's open.
+ * sources), saved per profile in the TV's JSON and synced with the sync server (or, while paired,
+ * the Fetch website) as the TV syncs them; and the folder page that's open.
  */
 class CollectionsState(
     private val scope: CoroutineScope,
@@ -53,7 +64,9 @@ class CollectionsState(
     /** The server's profile number for this profile. */
     private val profileId: Int = 1,
     private val onMessage: (String) -> Unit = {},
-    private val pushDelayMs: Long = 500
+    private val pushDelayMs: Long = 500,
+    /** The Fetch website, while paired; it takes the place of the sync server, as on TV. */
+    private val website: () -> CollectionsRemote? = { null }
 ) {
     var collections: List<Collection> by mutableStateOf(store.load())
         private set
@@ -125,24 +138,43 @@ class CollectionsState(
 
     /** Pushes the whole list shortly after the last change, as the TV's `triggerPush` does. */
     private fun queuePush() {
-        val client = remote() ?: return
+        val target = website() ?: remote()?.let(::serverRemote) ?: return
         pushJob?.cancel()
         pushJob = scope.launch {
             delay(pushDelayMs)
-            runCatching { client.pushCollections(profileId, CollectionsCodec.encodeElement(collections) as JsonArray) }
+            runCatching { target.push(CollectionsCodec.encodeElement(collections) as JsonArray) }
+        }
+    }
+
+    private fun serverRemote(client: SyncClient): CollectionsRemote = object : CollectionsRemote {
+        override suspend fun pull(): JsonArray? = client.pullCollections(profileId)
+        override suspend fun push(collections: JsonArray) {
+            client.pushCollections(profileId, collections)
         }
     }
 
     /** Pulls the server's collections for this profile and merges them (see [CollectionsSyncMerge]). */
     suspend fun sync(client: SyncClient) {
-        val pulled = client.pullCollections(profileId)
+        sync(serverRemote(client))
+    }
+
+    /** Pulls [remote]'s collections for this profile and merges them (see [CollectionsSyncMerge]). */
+    suspend fun sync(remote: CollectionsRemote) {
+        val pulled = remote.pull()
         val merge = CollectionsSyncMerge.merge(collections, pulled?.let { CollectionsCodec.parse(it) })
         if (merge.changed) {
             collections = merge.local
             runCatching { store.save(merge.local) }
             refreshOpenFolder()
         }
-        if (merge.push) client.pushCollections(profileId, CollectionsCodec.encodeElement(merge.local) as JsonArray)
+        if (merge.push) remote.push(CollectionsCodec.encodeElement(merge.local) as JsonArray)
+    }
+
+    /** Loads the open folder again, after its locked website profile was unlocked. */
+    fun reloadFolder() {
+        val view = folder ?: return
+        folder = null
+        openFolder(view.collection.id, view.folder.id)
     }
 
     // --- The folder page ---
@@ -204,7 +236,7 @@ class CollectionsState(
         val tab = folder?.tabs?.getOrNull(index) ?: return
         val source = tab.source ?: return
         val page = tab.page + 1
-        updateTab(token, index) { it.copy(loading = true, error = null) }
+        updateTab(token, index) { it.copy(loading = true, error = null, lockedSlot = null) }
         scope.launch {
             val result = try {
                 Result.success(resolver.load(source, page))
@@ -226,7 +258,14 @@ class CollectionsState(
                             hasMore = loaded.hasMore && (fresh.isNotEmpty() || page == 1)
                         )
                     },
-                    onFailure = { current.copy(loading = false, error = it.message ?: "Couldn't load", hasMore = false) }
+                    onFailure = {
+                        current.copy(
+                            loading = false,
+                            error = it.message ?: "Couldn't load",
+                            hasMore = false,
+                            lockedSlot = (it as? com.fetch.desktop.website.WebsiteProfileLockedException)?.slot
+                        )
+                    }
                 )
             }
         }
@@ -249,6 +288,7 @@ class CollectionsState(
             loading = sources.any { it.loading },
             hasMore = sources.any { it.hasMore },
             error = if (sources.isNotEmpty() && sources.all { it.error != null }) sources.first().error else null,
+            lockedSlot = sources.firstNotNullOfOrNull { it.lockedSlot },
             page = if (loaded.isEmpty()) 0 else 1
         )
     }

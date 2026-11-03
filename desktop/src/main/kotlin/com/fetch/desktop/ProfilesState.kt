@@ -153,8 +153,14 @@ class ProfilesState(
             if (remote == PinGate.Result.Ok) update(current.copy(pinHash = ProfilePinHasher.hash(pin), serverLocked = false))
             return remote
         }
-        return pinGate.check(current.id, current.pinHash, pin)
+        return pinGate.check(current.id, current.pinHash, pin).also { if (it == PinGate.Result.Ok) onLocalPinVerified?.invoke(current, pin) }
     }
+
+    /**
+     * Told when a PIN was right by this computer's own copy, so the Fetch website's profile token
+     * can be fetched in the background, as on TV; set by the app.
+     */
+    var onLocalPinVerified: ((DesktopProfile, String) -> Unit)? = null
 
     val primary: DesktopProfile get() = file.profiles.first { it.isPrimary }
 

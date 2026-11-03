@@ -2,6 +2,7 @@ package com.fetch.desktop.sync
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -51,6 +52,21 @@ class SyncAuthClient(
         val dto = syncJson.decodeFromString<TokenDto>(result.body)
         if (dto.accessToken.isNullOrBlank() || dto.refreshToken.isNullOrBlank()) return null
         return toSession(dto)
+    }
+
+    /**
+     * An anonymous user (GoTrue's anonymous sign-in: POST /auth/v1/signup with no email), so a
+     * sync code can link this computer to its owner's account without signing in to it. The
+     * server must allow anonymous sign-ins; one that doesn't answers with a [SyncAuthException].
+     */
+    suspend fun signInAnonymously(): SyncSession {
+        val body = buildJsonObject { put("data", JsonObject(emptyMap())) }
+        val result = post("/auth/v1/signup", body.toString())
+        if (result.code in 400..499) {
+            throw SyncAuthException(result.errorText() ?: "This server doesn't allow linking with a sync code", result.code)
+        }
+        if (!result.ok) throw result.failure("anonymous sign-in")
+        return toSession(result)
     }
 
     /**

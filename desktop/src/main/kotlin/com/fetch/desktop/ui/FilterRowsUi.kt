@@ -64,7 +64,7 @@ fun filterRowSources(state: AppState): List<FilterRowSourceOption> {
             FilterRowSourceOption(filterRowSourceKey(source), "${lib.name} · ${account.name}", source, addonGenres = null)
         }
     }
-    val addons = state.addons.flatMap { addon ->
+    val addons = state.activeAddons.flatMap { addon ->
         addon.catalogs
             .filter { c ->
                 c.supportsExtra("genre") && c.extra.none { it.isRequired && !it.name.equals("genre", ignoreCase = true) } &&

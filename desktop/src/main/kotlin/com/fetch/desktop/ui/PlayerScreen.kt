@@ -293,6 +293,15 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                                 session.partyPanelOpen = !session.partyPanelOpen
                             })
                         }
+                        // Mark an intro (or a movie's credits) for IntroDB: start, then end (the TV's flag button).
+                        session.extras.markerTarget?.let { marker ->
+                            val marking = session.extras.markerStartSec != null
+                            SecondaryButton(
+                                com.fetch.desktop.skip.SkipMarkerRules.markLabel(marker.isMovie, marking),
+                                onClick = { state.markSkipSegment(session) },
+                                icon = if (marking) FetchIcons.Check else null
+                            )
+                        }
                         CircleIconButton(FetchIcons.Info, "Stream info (I)", onClick = { session.showInfo = !session.showInfo })
                     }
                 }

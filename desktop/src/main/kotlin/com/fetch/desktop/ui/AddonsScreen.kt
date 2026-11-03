@@ -20,6 +20,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -100,6 +103,7 @@ fun AddonsScreen(state: AppState) {
                 canMoveDown = index < state.addons.lastIndex,
                 onMove = if (reorder) { delta -> state.moveAddon(addon, delta) } else null,
                 onRemove = if (readOnly) null else ({ state.removeAddon(addon) }),
+                onEnabledChange = if (readOnly) null else ({ enabled -> state.setAddonEnabled(addon, enabled) }),
                 onConfigure = if (addon.isConfigurable) ({ state.configureAddon(addon) }) else null
             )
         }
@@ -132,8 +136,11 @@ private fun AddonCard(
     canMoveDown: Boolean,
     onMove: ((Int) -> Unit)?,
     onRemove: (() -> Unit)?,
+    onEnabledChange: ((Boolean) -> Unit)?,
     onConfigure: (() -> Unit)?
 ) {
+    // A switched-off addon is dimmed, as on TV, but keeps its controls.
+    val dim = if (addon.enabled) Modifier else Modifier.alpha(0.5f)
     Card(colors = CardDefaults.cardColors(containerColor = FetchPalette.Surface), shape = RoundedCornerShape(14.dp)) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -142,7 +149,7 @@ private fun AddonCard(
         ) {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp))
+                modifier = dim.size(48.dp).clip(RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 if (addon.logo.isNullOrBlank()) {
@@ -151,8 +158,11 @@ private fun AddonCard(
                     AsyncImage(model = addon.logo, contentDescription = null, modifier = Modifier.fillMaxSize())
                 }
             }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(dim.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text("${addon.displayName}  ${addon.version}", style = MaterialTheme.typography.titleMedium)
+                if (!addon.enabled) {
+                    Text("Off: not asked for streams, catalogs, details or subtitles", style = MaterialTheme.typography.labelSmall, color = FetchPalette.TextMuted)
+                }
                 addon.description?.takeIf { it.isNotBlank() }?.let {
                     Text(
                         it,
@@ -172,6 +182,19 @@ private fun AddonCard(
             if (onMove != null) {
                 CircleIconButton(FetchIcons.ArrowUp, "Move up", onClick = { onMove(-1) }, size = 40.dp, enabled = canMoveUp)
                 CircleIconButton(FetchIcons.ArrowDown, "Move down", onClick = { onMove(1) }, size = 40.dp, enabled = canMoveDown)
+            }
+            if (onEnabledChange != null) {
+                Switch(
+                    checked = addon.enabled,
+                    onCheckedChange = onEnabledChange,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = FetchPalette.OnAccent,
+                        checkedTrackColor = FetchPalette.Accent,
+                        uncheckedThumbColor = FetchPalette.TextSecondary,
+                        uncheckedTrackColor = FetchPalette.SurfaceHigh,
+                        uncheckedBorderColor = FetchPalette.Outline
+                    )
+                )
             }
             if (onRemove != null) CircleIconButton(FetchIcons.Delete, "Remove", onClick = onRemove, size = 40.dp)
         }

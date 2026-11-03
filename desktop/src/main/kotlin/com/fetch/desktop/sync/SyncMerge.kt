@@ -21,12 +21,13 @@ data class LibraryMerge(
 
 /**
  * The result of [SyncMerge.addons]: [local] is the ordered list of manifest base URLs to keep on
- * this computer, and [push] the list to send with [SyncClient.pushAddons], or null when nothing
- * needs sending.
+ * this computer, [disabled] the ones of them switched off, and [push] the list to send with
+ * [SyncClient.pushAddons], or null when nothing needs sending.
  */
 data class AddonMerge(
     val local: List<String>,
     val push: List<RemoteAddon>?,
+    val disabled: Set<String> = emptySet(),
 )
 
 /**
@@ -136,38 +137,45 @@ object SyncMerge {
 
     /**
      * Merges this computer's addon list with the account's, the way the TV app does on every pull
-     * (`reconcileWithRemoteAddonUrls(removeMissingLocal = true)`): the account's list, in its order,
-     * replaces the local one; an addon in both keeps this computer's spelling of its URL. An empty
-     * account list never wipes the local one: it is kept and nothing is pushed, as on TV.
+     * (`reconcileWithRemoteAddonUrls(removeMissingLocal = true)`): the account's list, in its order
+     * and with its on/off states, replaces the local one; an addon in both keeps this computer's
+     * spelling of its URL. An empty account list never wipes the local one: it is kept and nothing
+     * is pushed, as on TV.
      *
-     * With [preferLocal] (the TV app's sign-up: this device's data goes up first) the local list is
-     * kept and pushed instead.
-     *
-     * Addons disabled on TV aren't installed here, since this app has no disabled state; pushes
-     * keep them, disabled, in their place (see [addonsToPush]).
+     * With [preferLocal] (the TV app's sign-up: this device's data goes up first) the local list
+     * and [localDisabled] are kept and pushed instead.
      */
-    fun addons(local: List<String>, remote: List<RemoteAddon>, preferLocal: Boolean = false): AddonMerge {
+    fun addons(
+        local: List<String>,
+        remote: List<RemoteAddon>,
+        preferLocal: Boolean = false,
+        localDisabled: Set<String> = emptySet(),
+    ): AddonMerge {
         val localCanonical = local.map(::canonicalAddonUrl).filter { it.isNotBlank() }.distinctBy(::addonKey)
-        if (preferLocal) return AddonMerge(localCanonical, addonsToPush(localCanonical, remote))
+        val localDisabledKeys = localDisabled.map(::addonKey).toSet()
+        val keptDisabled = localCanonical.filter { addonKey(it) in localDisabledKeys }.toSet()
+        if (preferLocal) return AddonMerge(localCanonical, addonsToPush(localCanonical, remote, keptDisabled), keptDisabled)
         val remoteOrdered = remote.sortedBy { it.order }
             .filter { canonicalAddonUrl(it.url).isNotBlank() }
             .distinctBy { addonKey(it.url) }
-        if (remoteOrdered.isEmpty()) return AddonMerge(localCanonical, null)
+        if (remoteOrdered.isEmpty()) return AddonMerge(localCanonical, null, keptDisabled)
         val localByKey = localCanonical.associateBy(::addonKey)
-        val merged = remoteOrdered.filter { it.enabled }.map { localByKey[addonKey(it.url)] ?: canonicalAddonUrl(it.url) }
-        return AddonMerge(merged, null)
+        val merged = remoteOrdered.map { (localByKey[addonKey(it.url)] ?: canonicalAddonUrl(it.url)) to it.enabled }
+        return AddonMerge(merged.map { it.first }, null, merged.filter { !it.second }.map { it.first }.toSet())
     }
 
     /**
-     * This computer's addon list as [SyncClient.pushAddons] takes it, in local order. Names the
-     * user set on TV are kept, and the account's disabled addons that aren't installed here stay
-     * in the list, disabled, after the addon they followed there.
+     * This computer's addon list as [SyncClient.pushAddons] takes it, in local order, with the
+     * ones in [disabled] switched off. Names the user set on TV are kept, and the account's
+     * disabled addons that aren't installed here stay in the list, disabled, after the addon they
+     * followed there.
      */
-    fun addonsToPush(local: List<String>, remote: List<RemoteAddon>): List<RemoteAddon> {
+    fun addonsToPush(local: List<String>, remote: List<RemoteAddon>, disabled: Set<String> = emptySet()): List<RemoteAddon> {
         val remoteOrdered = remote.sortedBy { it.order }.distinctBy { addonKey(it.url) }
         val remoteByKey = remoteOrdered.associateBy { addonKey(it.url) }
+        val disabledKeys = disabled.map(::addonKey).toSet()
         val result = local.map(::canonicalAddonUrl).filter { it.isNotBlank() }.distinctBy(::addonKey)
-            .map { url -> RemoteAddon(url, 0, enabled = true, name = remoteByKey[addonKey(url)]?.name) }
+            .map { url -> RemoteAddon(url, 0, enabled = addonKey(url) !in disabledKeys, name = remoteByKey[addonKey(url)]?.name) }
             .toMutableList()
         var previousKey: String? = null
         remoteOrdered.forEach { addon ->

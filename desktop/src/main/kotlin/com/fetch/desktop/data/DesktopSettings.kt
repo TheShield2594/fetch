@@ -255,5 +255,7 @@ data class PlayerSettings(
     /** The title, episode and synopsis while paused, as on TV. */
     val pauseOverlay: Boolean = true,
     /** Skip Segments › IntroDB server: a server of your own instead of api.introdb.app. */
-    val introDbUrl: String? = null
+    val introDbUrl: String? = null,
+    /** Skip Segments › IntroDB API key: lets the player's Mark button send markers to IntroDB. Kept on this computer, as on TV. */
+    val introDbApiKey: String? = null
 )

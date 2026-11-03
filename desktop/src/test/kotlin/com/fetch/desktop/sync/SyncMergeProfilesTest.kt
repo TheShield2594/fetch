@@ -35,8 +35,26 @@ class SyncMergeProfilesTest {
                 RemoteAddon("https://off", 2, enabled = false),
             ),
         )
-        assertEquals(listOf("https://Cinemeta", "https://b"), merge.local)
+        assertEquals(listOf("https://Cinemeta", "https://b", "https://off"), merge.local)
+        assertEquals(setOf("https://off"), merge.disabled)
         assertNull(merge.push)
+    }
+
+    @Test
+    fun `the account's on and off states replace the local ones`() {
+        val merge = SyncMerge.addons(
+            local = listOf("https://a", "https://b"),
+            remote = listOf(RemoteAddon("https://a", 0, enabled = false), RemoteAddon("https://b", 1)),
+            localDisabled = setOf("https://b"),
+        )
+        assertEquals(listOf("https://a", "https://b"), merge.local)
+        assertEquals(setOf("https://a"), merge.disabled)
+    }
+
+    @Test
+    fun `addons switched off here are pushed disabled`() {
+        val push = SyncMerge.addonsToPush(listOf("https://a", "https://b/manifest.json"), emptyList(), disabled = setOf("https://B"))
+        assertEquals(listOf(RemoteAddon("https://a", 0), RemoteAddon("https://b", 1, enabled = false)), push)
     }
 
     @Test

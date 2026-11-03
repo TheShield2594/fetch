@@ -305,7 +305,7 @@ private fun FolderEditor(state: AppState, initial: CollectionFolder, onDone: (Co
         )
     }
     var picker by remember { mutableStateOf<SourcePicker?>(null) }
-    val catalogs = remember(state.addons.toList()) { CollectionEditing.pickableCatalogs(state.addons.toList()) }
+    val catalogs = remember(state.activeAddons) { CollectionEditing.pickableCatalogs(state.activeAddons) }
     val isNew = folder.sources.isEmpty() && initial.title.isBlank()
 
     SettingsHeader(if (isNew) "New folder" else "Edit folder", onBack = { onDone(null) }) {

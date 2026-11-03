@@ -97,7 +97,7 @@ export function WatchDateModal({
                 value={season}
                 onChange={(e) => setSeason(Math.max(1, parseInt(e.target.value) || 1))}
                 className="w-full rounded-lg border px-3 py-2 text-sm field-control"
-                style={{ borderColor: "var(--border-strong)", background: "var(--surface)", color: "var(--text)" }}
+                style={{ borderColor: "var(--border-field)", background: "var(--surface)", color: "var(--text)" }}
               />
             </div>
             <div className="flex-1">
@@ -109,7 +109,7 @@ export function WatchDateModal({
                 value={episode}
                 onChange={(e) => setEpisode(Math.max(1, parseInt(e.target.value) || 1))}
                 className="w-full rounded-lg border px-3 py-2 text-sm field-control"
-                style={{ borderColor: "var(--border-strong)", background: "var(--surface)", color: "var(--text)" }}
+                style={{ borderColor: "var(--border-field)", background: "var(--surface)", color: "var(--text)" }}
               />
             </div>
           </div>
@@ -168,7 +168,7 @@ export function WatchDateModal({
               max={new Date().toISOString().slice(0, 10)}
               onChange={(e) => setCustomDate(e.target.value)}
               className="w-full rounded-xl border px-4 py-3 text-sm field-control"
-              style={{ borderColor: "var(--border-strong)", background: "var(--surface)", color: "var(--text)" }}
+              style={{ borderColor: "var(--border-field)", background: "var(--surface)", color: "var(--text)" }}
             />
             <div className="flex gap-2">
               <button

@@ -447,7 +447,7 @@ export function SettingsPage() {
           placeholder="Search settings..."
           aria-label="Search settings"
           className="w-full rounded-full py-2.5 pl-11 pr-11 text-sm placeholder:text-[var(--text-mute)] field-control transition-[border-color,box-shadow] duration-base"
-          style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)", background: "var(--bg-0)", color: "var(--text)" }}
+          style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-field)", background: "var(--bg-0)", color: "var(--text)" }}
         />
         {searching && (
           <button

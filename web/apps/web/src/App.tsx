@@ -36,6 +36,10 @@ import {
   loadProfilesPage,
   schedulePrefetchOnIdle,
 } from "./utils/routePrefetch";
+import { paletteShortcutHint } from "./utils/shortcut";
+
+/** Read once: the platform doesn't change under a running page. */
+const SHORTCUT_HINT = paletteShortcutHint();
 
 // ShelfPage stays eager — it is the landing route. The profile switcher and
 // the setup wizard are first-run/occasional surfaces, so they ride in their own
@@ -390,14 +394,17 @@ function AppShell({
               <button
                 type="button"
                 onClick={() => setPaletteOpen(true)}
-                aria-label="Search (⌘K)"
+                // The name is "Search" and the shortcut its own property, so
+                // a screen reader doesn't read the glyph out as "command K".
+                aria-label="Search"
+                aria-keyshortcuts="Meta+K Control+K"
                 className="hidden h-7 w-full max-w-[13.75rem] items-center gap-2 rounded-lg px-2.5 text-[0.8125rem] transition-colors hover:bg-[var(--surface-strong)] sm:flex"
                 style={{ border: "0.5px solid var(--border)", color: "var(--text-mute)", background: "var(--surface)" }}
               >
                 <Search className="h-3.5 w-3.5 flex-none" />
                 <span>Search</span>
-                <kbd className="ml-auto text-2xs font-medium tabular-nums" style={{ color: "var(--text-mute)" }}>
-                  ⌘K
+                <kbd className="ml-auto text-2xs font-medium tabular-nums" style={{ color: "var(--text-mute)" }} aria-hidden="true">
+                  {SHORTCUT_HINT}
                 </kbd>
               </button>
             )}

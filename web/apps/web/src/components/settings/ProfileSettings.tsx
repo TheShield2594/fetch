@@ -36,7 +36,7 @@ function RenameForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved:
         onChange={(e) => setName(e.target.value)}
         aria-label={`Rename ${profile.name}`}
         className="w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm field-control"
-        style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
+        style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
       />
       <button type="submit" disabled={saving} aria-label="Save name" className="flex-none rounded-lg p-1.5 text-success hover:bg-[var(--surface-strong)]">
         {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
@@ -94,7 +94,7 @@ function PinForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved: (p
           placeholder="Current PIN"
           aria-label={`Current PIN for ${profile.name}`}
           className="w-full min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-sm field-control"
-          style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
+          style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
         />
       )}
       <input
@@ -109,7 +109,7 @@ function PinForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved: (p
         placeholder={profile.hasPin ? "New PIN" : "PIN"}
         aria-label={profile.hasPin ? `New PIN for ${profile.name}` : `PIN for ${profile.name}`}
         className="w-full min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-sm field-control"
-        style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
+        style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
       />
       <button
         type="submit"
@@ -163,7 +163,7 @@ function RemovePinForm({ profile, onSaved, onCancel }: { profile: Profile; onSav
         placeholder="Current PIN to confirm removal"
         aria-label={`Current PIN for ${profile.name}, to confirm removal`}
         className="w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm field-control"
-        style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
+        style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
       />
       <button type="submit" disabled={saving || !currentPin.trim()} aria-label="Confirm PIN removal" className="flex-none rounded-lg p-1.5 text-success hover:bg-[var(--surface-strong)] disabled:opacity-50">
         {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
@@ -215,7 +215,7 @@ function DeleteConfirmForm({ profile, onDeleted, onCancel }: { profile: Profile;
         placeholder={`PIN for ${profile.name} to confirm deletion`}
         aria-label={`PIN for ${profile.name}, to confirm deletion`}
         className="w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm field-control"
-        style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
+        style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
       />
       <button
         type="submit"
@@ -521,7 +521,7 @@ function AddProfileForm({ onCreated }: { onCreated: (profile: Profile) => void }
         placeholder="Name"
         aria-label="New profile name"
         className="min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-sm field-control"
-        style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
+        style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
       />
       <button type="submit" disabled={saving || !name.trim()} className="btn-primary btn-sm">
         {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Add

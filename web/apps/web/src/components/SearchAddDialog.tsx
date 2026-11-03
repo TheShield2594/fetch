@@ -88,7 +88,7 @@ export function SearchAddDialog({
               placeholder={placeholder}
               aria-label={inputLabel}
               className="w-full rounded-full border py-2.5 pl-9 pr-3 text-sm field-control"
-              style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
+              style={{ borderColor: "var(--border-field)", background: "var(--surface)", color: "var(--text)" }}
             />
           </div>
           {filters}

@@ -105,7 +105,29 @@ describe("SetupWizard, first run", () => {
 
     await user.click(screen.getByRole("button", { name: /create account/i }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(/don't match/i);
+    const confirm = screen.getByLabelText("Confirm password");
+    expect(confirm).toHaveAccessibleDescription(/don't match/i);
+    expect(confirm).toHaveAttribute("aria-invalid", "true");
+    expect(confirm).toHaveFocus();
+    expect(bootstrapAdmin).not.toHaveBeenCalled();
+  });
+
+  // The button used to stay disabled until every field was filled, without
+  // saying which one it was waiting for.
+  it("names the missing field next to it and focuses it", async () => {
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+    await screen.findByLabelText("API token");
+    await fillNewAccount(user, "a-good-password", "a-good-password");
+
+    const submit = screen.getByRole("button", { name: /create account/i });
+    expect(submit).toBeEnabled();
+    await user.click(submit);
+
+    const token = screen.getByLabelText("API token");
+    expect(token).toHaveAccessibleDescription(/api token/i);
+    expect(token).toHaveAttribute("aria-invalid", "true");
+    expect(token).toHaveFocus();
     expect(bootstrapAdmin).not.toHaveBeenCalled();
   });
 

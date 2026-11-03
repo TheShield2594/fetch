@@ -17,7 +17,7 @@ const isCompleteCode = (code: string) => code.replace("-", "").length === 8;
 
 const INPUT =
   "w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm field-control";
-const INPUT_STYLE = { borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" };
+const INPUT_STYLE = { borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" };
 
 /**
  * The code box: confirms the code a TV is showing, which signs that TV in with

@@ -59,7 +59,7 @@ const kindSpec = (kind: NotificationChannelKind): KindSpec => KINDS.find((k) => 
 
 const inputClass =
   "w-full rounded-xl border px-4 py-2.5 text-sm field-control";
-const inputStyle = { borderColor: "var(--border-strong)", color: "var(--text)", background: "var(--bg-1)" };
+const inputStyle = { borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" };
 const labelClass = "mb-1 block text-xs font-medium";
 const labelStyle = { color: "var(--text-dim)" };
 

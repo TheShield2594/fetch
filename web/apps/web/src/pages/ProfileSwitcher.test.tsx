@@ -106,7 +106,7 @@ describe("ProfileSwitcher", () => {
       const unlock = screen.getByRole("button", { name: /unlock/i });
       expect(unlock).toBeDisabled();
 
-      await userEvent.type(screen.getByPlaceholderText("PIN"), "1234");
+      await userEvent.type(screen.getByLabelText("PIN"), "1234");
 
       expect(unlock).toBeEnabled();
     });
@@ -116,7 +116,7 @@ describe("ProfileSwitcher", () => {
       const { onSelected } = renderSwitcher();
 
       await userEvent.click(await screen.findByRole("button", { name: /kid/i }));
-      await userEvent.type(screen.getByPlaceholderText("PIN"), "1234");
+      await userEvent.type(screen.getByLabelText("PIN"), "1234");
       await userEvent.click(screen.getByRole("button", { name: /unlock/i }));
 
       await waitFor(() => expect(onSelected).toHaveBeenCalledWith(LOCKED));
@@ -129,7 +129,7 @@ describe("ProfileSwitcher", () => {
       const { onSelected } = renderSwitcher();
 
       await userEvent.click(await screen.findByRole("button", { name: /kid/i }));
-      await userEvent.type(screen.getByPlaceholderText("PIN"), "0000{Enter}");
+      await userEvent.type(screen.getByLabelText("PIN"), "0000{Enter}");
 
       expect(await screen.findByText(/incorrect pin/i)).toBeInTheDocument();
       expect(onSelected).not.toHaveBeenCalled();
@@ -141,7 +141,7 @@ describe("ProfileSwitcher", () => {
       renderSwitcher();
 
       await userEvent.click(await screen.findByRole("button", { name: /kid/i }));
-      await userEvent.type(screen.getByPlaceholderText("PIN"), "1234{Enter}");
+      await userEvent.type(screen.getByLabelText("PIN"), "1234{Enter}");
 
       expect(await screen.findByText(/profile store unavailable/i)).toBeInTheDocument();
       expect(screen.queryByText(/incorrect pin/i)).not.toBeInTheDocument();
@@ -165,7 +165,7 @@ describe("ProfileSwitcher", () => {
       const { onSelected } = renderSwitcher();
 
       await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
-      await userEvent.type(screen.getByPlaceholderText("Profile name"), "  Sam  ");
+      await userEvent.type(screen.getByLabelText("Profile name"), "  Sam  ");
       await userEvent.click(screen.getByRole("button", { name: /create/i }));
 
       await waitFor(() => expect(onSelected).toHaveBeenCalledWith(created));
@@ -178,8 +178,8 @@ describe("ProfileSwitcher", () => {
       renderSwitcher();
 
       await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
-      await userEvent.type(screen.getByPlaceholderText("Profile name"), "Sam");
-      await userEvent.type(screen.getByPlaceholderText("PIN (optional)"), "4321");
+      await userEvent.type(screen.getByLabelText("Profile name"), "Sam");
+      await userEvent.type(screen.getByLabelText("PIN (optional)"), "4321");
       await userEvent.click(screen.getByRole("button", { name: /create/i }));
 
       await waitFor(() => expect(createProfile).toHaveBeenCalledWith({ name: "Sam", pin: "4321" }));
@@ -189,7 +189,7 @@ describe("ProfileSwitcher", () => {
       renderSwitcher();
 
       await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
-      await userEvent.type(screen.getByPlaceholderText("Profile name"), "   ");
+      await userEvent.type(screen.getByLabelText("Profile name"), "   ");
 
       expect(screen.getByRole("button", { name: /create/i })).toBeDisabled();
       expect(createProfile).not.toHaveBeenCalled();
@@ -200,12 +200,12 @@ describe("ProfileSwitcher", () => {
       const { onSelected } = renderSwitcher();
 
       await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
-      await userEvent.type(screen.getByPlaceholderText("Profile name"), "Sam");
+      await userEvent.type(screen.getByLabelText("Profile name"), "Sam");
       await userEvent.click(screen.getByRole("button", { name: /create/i }));
 
       expect(await screen.findByText(/already exists/i)).toBeInTheDocument();
       expect(onSelected).not.toHaveBeenCalled();
-      expect(screen.getByPlaceholderText("Profile name")).toHaveValue("Sam");
+      expect(screen.getByLabelText("Profile name")).toHaveValue("Sam");
     });
   });
 
@@ -287,7 +287,7 @@ describe("ProfileSwitcher", () => {
       renderSwitcher();
 
       await userEvent.click(await screen.findByRole("button", { name: /kid/i }));
-      expect(screen.getByLabelText("PIN for Kid")).toBeInTheDocument();
+      expect(screen.getByLabelText("PIN")).toBeInTheDocument();
 
       await userEvent.click(screen.getByRole("button", { name: /back/i }));
       await userEvent.click(screen.getByRole("button", { name: /new profile/i }));

@@ -111,7 +111,7 @@ export const errorMessage = (error: unknown, fallback: string): string =>
 
 export const inputClass =
   "w-full rounded-xl border px-4 py-2.5 text-sm field-control";
-export const inputStyle = { borderColor: "var(--border-strong)", color: "var(--text)", background: "var(--bg-1)" };
+export const inputStyle = { borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" };
 export const labelClass = "mb-1 block text-xs font-medium";
 export const labelStyle = { color: "var(--text-dim)" };
 export const rowClass = "rounded-xl border p-3";

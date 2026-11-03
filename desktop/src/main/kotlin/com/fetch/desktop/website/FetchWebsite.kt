@@ -5,6 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.fetch.desktop.data.AppDirs
 import com.fetch.desktop.parental.PinGate
+import com.fetch.tv.data.website.WebsiteList
+import com.fetch.tv.data.website.WebsiteListItem
+import com.fetch.tv.data.website.WebsitePlayback
+import com.fetch.tv.data.website.WebsiteWatchState
 import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.PosterShape
@@ -97,12 +101,17 @@ data class WebsiteProfile(
 @Serializable
 internal data class WebsiteProfiles(val profiles: List<WebsiteProfile> = emptyList())
 
-/** A list on the website: `watchlist`, `collection` or the profile's own (`custom`). */
-@Serializable
-data class WebsiteList(val id: String, val name: String, val kind: String = "custom")
-
 @Serializable
 internal data class WebsiteListsBody(val lists: List<WebsiteList> = emptyList())
+
+@Serializable
+internal data class WebsiteCreatedListBody(val list: WebsiteList)
+
+@Serializable
+internal data class WebsiteListItemsBody(val items: List<WebsiteListItem> = emptyList(), val nextCursor: String? = null)
+
+@Serializable
+internal data class WebsitePlaybackBody(val playback: List<WebsitePlayback> = emptyList())
 
 /** One title of a website list, in the Stremio meta-preview shape the API answers with. */
 @Serializable
@@ -330,6 +339,104 @@ class FetchWebsiteClient(
         authedText("devices/me/report", "PUT", body)
     }
 
+    // --- Watch state and lists (the website as a tracking provider, as the TV calls it) ---
+    //
+    // Every call names the website profile by `x-profile-id`, as its watch and list routes expect.
+
+    /** The profile's resume points, newest first. */
+    suspend fun playback(profileId: String, profileToken: String?): List<WebsitePlayback> =
+        json.decodeFromString(WebsitePlaybackBody.serializer(), authedText("playback?limit=200", profileId = profileId, profileToken = profileToken)).playback
+
+    /** Saves where playback is now; a resume point, never a watch. */
+    suspend fun putPlayback(profileId: String, profileToken: String?, body: JsonObject) {
+        authedText("playback", "PUT", body.toString(), profileId = profileId, profileToken = profileToken)
+    }
+
+    /** Drops a resume point; one that is already gone (404) counts as dropped. */
+    suspend fun deletePlayback(profileId: String, profileToken: String?, playbackId: String) {
+        try {
+            authedText("playback/${encode(playbackId)}", "DELETE", profileId = profileId, profileToken = profileToken)
+        } catch (e: FetchWebsiteException) {
+            if (e.status != 404) throw e
+        }
+    }
+
+    /** [action] is `start`, `pause` or `stop`; a stop at 80% or more records the watch on the website. */
+    suspend fun scrobble(profileId: String, profileToken: String?, action: String, body: JsonObject) {
+        authedText("scrobble/$action", "POST", body.toString(), profileId = profileId, profileToken = profileToken)
+    }
+
+    suspend fun watchState(profileId: String, profileToken: String?): WebsiteWatchState =
+        json.decodeFromString(WebsiteWatchState.serializer(), authedText("watch/state", profileId = profileId, profileToken = profileToken))
+
+    suspend fun recordWatch(profileId: String, profileToken: String?, body: JsonObject) {
+        authedText("watch", "POST", body.toString(), profileId = profileId, profileToken = profileToken)
+    }
+
+    suspend fun unwatchMovie(profileId: String, profileToken: String?, imdbId: String) {
+        authedText("watch/movie/${encode(imdbId)}", "DELETE", profileId = profileId, profileToken = profileToken)
+    }
+
+    suspend fun unwatchEpisode(profileId: String, profileToken: String?, imdbId: String, season: Int, episode: Int) {
+        authedText("series/${encode(imdbId)}/season/$season/episode/$episode/watch", "DELETE", profileId = profileId, profileToken = profileToken)
+    }
+
+    /** Every item of one list, a page at a time, in the website's own order. */
+    suspend fun listItems(profileId: String, profileToken: String?, listId: String): List<WebsiteListItem> {
+        val items = mutableListOf<WebsiteListItem>()
+        var cursor: String? = null
+        repeat(MAX_LIST_PAGES) {
+            val path = "lists/${encode(listId)}/items?limit=$LIST_PAGE_SIZE" + (cursor?.let { "&cursor=${encode(it)}" } ?: "")
+            val page = json.decodeFromString(WebsiteListItemsBody.serializer(), authedText(path, profileId = profileId, profileToken = profileToken))
+            items += page.items
+            cursor = page.nextCursor ?: return items
+        }
+        return items
+    }
+
+    suspend fun createList(profileId: String, profileToken: String?, name: String): WebsiteList {
+        val body = buildJsonObject {
+            put("name", name)
+            put("kind", "custom")
+        }.toString()
+        return json.decodeFromString(
+            WebsiteCreatedListBody.serializer(),
+            authedText("lists", "POST", body, profileId = profileId, profileToken = profileToken)
+        ).list
+    }
+
+    suspend fun renameList(profileId: String, profileToken: String?, listId: String, name: String) {
+        val body = buildJsonObject { put("name", name) }.toString()
+        authedText("lists/${encode(listId)}", "PATCH", body, profileId = profileId, profileToken = profileToken)
+    }
+
+    suspend fun deleteList(profileId: String, profileToken: String?, listId: String) {
+        authedText("lists/${encode(listId)}", "DELETE", profileId = profileId, profileToken = profileToken)
+    }
+
+    /** Adds a title to a list; one that is already there (409) counts as added. */
+    suspend fun addListItem(profileId: String, profileToken: String?, listId: String, type: String, imdbId: String, title: String?) {
+        val body = buildJsonObject {
+            put("type", type)
+            put("imdbId", imdbId)
+            if (!title.isNullOrBlank()) put("title", title)
+        }.toString()
+        try {
+            authedText("lists/${encode(listId)}/items", "POST", body, profileId = profileId, profileToken = profileToken)
+        } catch (e: FetchWebsiteException) {
+            if (e.status != 409) throw e
+        }
+    }
+
+    /** Removes a title from a list; one that is already gone (404) counts as removed. */
+    suspend fun removeListItem(profileId: String, profileToken: String?, listId: String, type: String, imdbId: String) {
+        try {
+            authedText("lists/${encode(listId)}/items/$type/${encode(imdbId)}", "DELETE", profileId = profileId, profileToken = profileToken)
+        } catch (e: FetchWebsiteException) {
+            if (e.status != 404) throw e
+        }
+    }
+
     private suspend fun authedText(
         path: String,
         method: String = "GET",
@@ -396,6 +503,10 @@ class FetchWebsiteClient(
 
         /** The website keeps 500 characters of a sync error; this only bounds the request. */
         private const val MAX_REPORTED_ERROR_LENGTH = 2_000
+
+        /** The website's largest list page; a list longer than [MAX_LIST_PAGES] of them is cut off, as on TV. */
+        private const val LIST_PAGE_SIZE = 500
+        private const val MAX_LIST_PAGES = 20
 
         /** The API address someone typed, tidied: a scheme added when missing, trailing slashes dropped. */
         fun normalizeServerUrl(raw: String): String? {

@@ -336,6 +336,7 @@ private fun initialLibrarySource(state: AppState): LibrarySource {
         com.fetch.desktop.tracking.LibrarySourceOption.TRAKT -> ListProvider.TRAKT
         com.fetch.desktop.tracking.LibrarySourceOption.SIMKL -> ListProvider.SIMKL
         com.fetch.desktop.tracking.LibrarySourceOption.MDBLIST -> ListProvider.MDBLIST
+        com.fetch.desktop.tracking.LibrarySourceOption.FETCH_WEBSITE -> ListProvider.FETCH_WEBSITE
     }
     return LibrarySource.Lists(wanted).takeIf { wanted in state.lists.providers } ?: LibrarySource.Local
 }

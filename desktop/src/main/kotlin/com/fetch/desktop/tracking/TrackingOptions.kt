@@ -4,12 +4,18 @@ import com.fetch.desktop.data.ProgressEntry
 import com.fetch.desktop.data.ProgressFile
 import kotlinx.serialization.Serializable
 
-/** Where the Library opens (the TV's `LibrarySourceMode`, less the Fetch website). */
-enum class LibrarySourceOption(val label: String) { LOCAL("Fetch (local)"), TRAKT("Trakt"), SIMKL("Simkl"), MDBLIST("MDBList") }
+/** Where the Library opens (the TV's `LibrarySourceMode`, by the same names). */
+enum class LibrarySourceOption(val label: String) {
+    LOCAL("Fetch (local)"), TRAKT("Trakt"), SIMKL("Simkl"), MDBLIST("MDBList"),
+    /** The paired Fetch website's lists. */
+    FETCH_WEBSITE("Fetch website")
+}
 
-/** Whose resume points fill Continue Watching (the TV's `WatchProgressSource`). */
+/** Whose resume points fill Continue Watching (the TV's `WatchProgressSource`, by the same names). */
 enum class WatchProgressSourceOption(val label: String) {
-    TRAKT("Trakt"), SIMKL("Simkl"), MDBLIST("MDBList"), FETCH_SYNC("Fetch sync server")
+    TRAKT("Trakt"), SIMKL("Simkl"), MDBLIST("MDBList"), FETCH_SYNC("Fetch sync server"),
+    /** The paired Fetch website's resume points, watch history and Next Up. */
+    FETCH_WEBSITE("Fetch website")
 }
 
 /** Where "More like this" comes from (the TV's `MoreLikeThisSourcePreference`). */
@@ -66,8 +72,9 @@ fun withinWindow(file: ProgressFile, days: Int, nowMs: Long): ProgressFile {
 }
 
 /**
- * The resume points from Trakt, Simkl or MDBList that Continue Watching takes, by the chosen
- * [source]: only that service's when it's connected, none of theirs for the sync server. When
+ * The resume points from Trakt, Simkl, MDBList or the Fetch website that Continue Watching takes,
+ * by the chosen [source]: only that service's when it's connected (entries whose `source` is its
+ * name in lower case), none of theirs for the sync server. When
  * the chosen service isn't connected, everything connected counts, as before there was a choice.
  */
 fun playbackForSource(playback: List<ProgressEntry>, source: WatchProgressSourceOption, connected: Set<WatchProgressSourceOption>): List<ProgressEntry> {

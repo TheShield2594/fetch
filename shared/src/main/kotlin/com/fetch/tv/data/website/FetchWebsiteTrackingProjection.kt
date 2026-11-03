@@ -1,6 +1,5 @@
 package com.fetch.tv.data.website
 
-import com.fetch.tv.core.tracking.TrackingProviderId
 import com.fetch.tv.core.tracking.selectPreferredTrackingNextUpSeeds
 import com.fetch.tv.domain.model.LibraryEntry
 import com.fetch.tv.domain.model.LibraryListPrivacy
@@ -10,9 +9,12 @@ import com.fetch.tv.domain.model.WatchedItem
 import java.time.Instant
 import java.time.OffsetDateTime
 
-/** What the website holds for one of its profiles, as last read by this TV. */
+/**
+ * What the website holds for one of its profiles, as last read by this device. Shared by the TV
+ * and desktop apps, as is everything in this file.
+ */
 data class FetchWebsiteTrackingSnapshot(
-    /** The TV profile slot this was read for; a snapshot for another slot is never shown. */
+    /** The profile slot this was read for; a snapshot for another slot is never shown. */
     val slot: Int,
     val websiteProfileId: String,
     val playback: List<WebsitePlayback> = emptyList(),
@@ -20,24 +22,25 @@ data class FetchWebsiteTrackingSnapshot(
     val lists: List<WebsiteList> = emptyList(),
     val listItems: Map<String, List<WebsiteListItem>> = emptyMap(),
     val fetchedAtMs: Long = 0L,
-    /** The profile has a PIN nobody has entered on this TV, so the website showed nothing. */
+    /** The profile has a PIN nobody has entered on this device, so the website showed nothing. */
     val locked: Boolean = false
 )
 
-internal val FETCH_WEBSITE_PROVIDER_STORAGE_ID = TrackingProviderId.FETCH_WEBSITE.storageId
+/** The website's tracking provider id, as the TV's `TrackingProviderId.FETCH_WEBSITE` stores it. */
+const val FETCH_WEBSITE_PROVIDER_STORAGE_ID = "fetch_website"
 
 /** Library list keys for website lists: `fetch:list:<list id>`. */
-internal const val FETCH_WEBSITE_LIST_KEY_PREFIX = "fetch:list:"
+const val FETCH_WEBSITE_LIST_KEY_PREFIX = "fetch:list:"
 
-internal fun fetchWebsiteListKey(listId: String): String = FETCH_WEBSITE_LIST_KEY_PREFIX + listId
+fun fetchWebsiteListKey(listId: String): String = FETCH_WEBSITE_LIST_KEY_PREFIX + listId
 
-internal fun fetchWebsiteListId(key: String): String? =
+fun fetchWebsiteListId(key: String): String? =
     key.takeIf { it.startsWith(FETCH_WEBSITE_LIST_KEY_PREFIX) }?.removePrefix(FETCH_WEBSITE_LIST_KEY_PREFIX)?.takeIf(String::isNotBlank)
 
 /** The website's own threshold: a scrobble stop at 80% or more records the watch. */
-internal const val FETCH_WEBSITE_COMPLETION_PERCENT = 80f
+const val FETCH_WEBSITE_COMPLETION_PERCENT = 80f
 
-internal fun fetchWebsiteTimestamp(value: String?): Long {
+fun fetchWebsiteTimestamp(value: String?): Long {
     if (value.isNullOrBlank()) return 0L
     return runCatching { Instant.parse(value).toEpochMilli() }
         .recoverCatching { OffsetDateTime.parse(value).toInstant().toEpochMilli() }
@@ -48,7 +51,7 @@ internal fun fetchWebsiteTimestamp(value: String?): Long {
  * Watch state as the TV's tracking layer wants it: Continue Watching from the website's
  * resume points, watched badges and Next Up from its watch history.
  */
-internal class FetchWebsiteProgressProjection(snapshot: FetchWebsiteTrackingSnapshot?) {
+class FetchWebsiteProgressProjection(snapshot: FetchWebsiteTrackingSnapshot?) {
     private val state = snapshot?.watchState ?: WebsiteWatchState()
     private val dropped = state.dropped.toSet()
 
@@ -165,13 +168,13 @@ internal class FetchWebsiteProgressProjection(snapshot: FetchWebsiteTrackingSnap
 }
 
 /** The website's ids for a title's resume points (every episode's, without [season] and [episode]). */
-internal fun FetchWebsiteTrackingSnapshot.playbackIdsFor(contentId: String, season: Int?, episode: Int?): List<String> =
+fun FetchWebsiteTrackingSnapshot.playbackIdsFor(contentId: String, season: Int?, episode: Int?): List<String> =
     playback.filter { playback ->
         playback.imdbId.equals(contentId, ignoreCase = true) &&
             (season == null || episode == null || playback.season == season && playback.episode == episode)
     }.map(WebsitePlayback::id)
 
-internal fun WebsitePlayback.toWatchProgress(): WatchProgress? {
+fun WebsitePlayback.toWatchProgress(): WatchProgress? {
     val isMovie = type.equals("movie", ignoreCase = true)
     if (!isMovie && (season == null || episode == null)) return null
     val durationMs = (durationSeconds ?: 0L).coerceAtLeast(0L) * 1000L
@@ -201,7 +204,7 @@ internal fun WebsitePlayback.toWatchProgress(): WatchProgress? {
 }
 
 /** The website's lists as Library tabs and entries. */
-internal class FetchWebsiteLibraryProjection(snapshot: FetchWebsiteTrackingSnapshot?) {
+class FetchWebsiteLibraryProjection(snapshot: FetchWebsiteTrackingSnapshot?) {
     val tabs: List<LibraryListTab> = snapshot?.lists.orEmpty()
         // The watchlist first, as on every other source; then the website's own order.
         .sortedBy { if (it.kind == "watchlist") 0 else 1 }
@@ -265,5 +268,5 @@ internal class FetchWebsiteLibraryProjection(snapshot: FetchWebsiteTrackingSnaps
 }
 
 /** The website's two list item types; anything that isn't a film is a series to it. */
-internal fun fetchWebsiteItemType(type: String): String =
+fun fetchWebsiteItemType(type: String): String =
     if (type.equals("movie", ignoreCase = true) || type.equals("film", ignoreCase = true)) "movie" else "series"

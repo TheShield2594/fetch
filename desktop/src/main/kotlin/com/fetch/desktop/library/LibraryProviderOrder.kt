@@ -25,7 +25,8 @@ data class LibraryProviderOrder(val ranks: Map<String, Int>) {
 
         /**
          * The sort options a provider's lists offer, as the TV's: the provider's own order first
-         * for Trakt, Simkl and MDBList (MDBList also by release); local lists by when added or title.
+         * for Trakt, Simkl, MDBList and the Fetch website (MDBList also by release); local lists by
+         * when added or title.
          */
         fun sortOptions(provider: ListProvider): List<LibrarySort> = when (provider) {
             ListProvider.LOCAL -> listOf(LibrarySort.RECENTLY_ADDED, LibrarySort.FIRST_ADDED, LibrarySort.TITLE_ASC, LibrarySort.TITLE_DESC)
@@ -33,7 +34,7 @@ data class LibraryProviderOrder(val ranks: Map<String, Int>) {
                 LibrarySort.PROVIDER, LibrarySort.RECENTLY_ADDED, LibrarySort.FIRST_ADDED,
                 LibrarySort.RELEASED_DESC, LibrarySort.RELEASED_ASC, LibrarySort.TITLE_ASC, LibrarySort.TITLE_DESC
             )
-            ListProvider.TRAKT, ListProvider.SIMKL -> listOf(
+            ListProvider.TRAKT, ListProvider.SIMKL, ListProvider.FETCH_WEBSITE -> listOf(
                 LibrarySort.PROVIDER, LibrarySort.RECENTLY_ADDED, LibrarySort.FIRST_ADDED, LibrarySort.TITLE_ASC, LibrarySort.TITLE_DESC
             )
         }

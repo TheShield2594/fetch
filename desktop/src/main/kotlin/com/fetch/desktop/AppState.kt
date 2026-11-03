@@ -445,11 +445,15 @@ class AppState(
     /** Fusion stream badges (Settings › Stream Selection › Stream badges), per profile. */
     val badges = StreamBadgesState(scope, File(profileDir(profile), "stream-badges.json"))
 
-    /** Trakt and Simkl for this profile. */
+    /** The Fetch website as a tracking provider for this profile, while this computer is paired with one. */
+    val websiteTracking = com.fetch.desktop.website.FetchWebsiteTracker(website, profile.id, scope)
+
+    /** Trakt and Simkl for this profile (and MDBList and the Fetch website for scrobbles and watched marks). */
     val tracking = TrackingState(
         scope, TrackingStore(File(profileDir(profile), "tracking.json")), onMessage = { message = it },
         animeIdPreference = { settings.tracking.animeId },
-        mdbList = { mdbListTracker }
+        mdbList = { mdbListTracker },
+        website = { websiteTracking }
     )
 
     /** MDBList: the account's lists (Settings › MDBList) and ratings on title pages and the Home hero. */
@@ -486,7 +490,8 @@ class AppState(
         setInLibrary = { preview, on -> setInLocalLibrary(preview, on) },
         onMessage = { message = it },
         mdblist = mdbListAccount,
-        onLocalListRenamed = { id, name -> collections.renameLocalList(id, name) }
+        onLocalListRenamed = { id, name -> collections.renameLocalList(id, name) },
+        website = websiteTracking
     )
 
     /** Collections: Home rows of folders, each a page of sources, synced with the TV. */
@@ -766,10 +771,14 @@ class AppState(
         syncServers()
     }
 
-    /** Pulls Continue Watching, watched history and watchlists from Trakt and Simkl. */
+    /** Pulls Continue Watching, watched history and watchlists from Trakt, Simkl, MDBList and the Fetch website. */
     fun syncTracking() {
         scope.launch {
-            // MDBList's lists load even when Trakt and Simkl aren't connected.
+            if (websiteTracking.paired) {
+                websiteTracking.refresh(force = true)
+                applyWebsiteTracking()
+            }
+            // MDBList's and the website's lists load even when Trakt and Simkl aren't connected.
             val snapshot = tracking.sync() ?: return@launch lists.refresh()
             // Settings › Tracking › Watch progress source: whose resume points join Continue Watching.
             val playback = com.fetch.desktop.tracking.playbackForSource(
@@ -779,6 +788,50 @@ class AppState(
             remoteLists = snapshot.watchlists
             lists.refresh()
         }
+    }
+
+    /**
+     * Reads the Fetch website again unless the last read is under a minute old (with [force],
+     * always), and takes in what changed there. Called on start, when the window gets focus, and
+     * every minute while it has it ([followWebsiteTracking]), as the TV polls while it shows it.
+     */
+    suspend fun refreshWebsiteTracking(force: Boolean = false) {
+        if (websiteTracking.paired && websiteTracking.refresh(force)) applyWebsiteTracking()
+    }
+
+    /** [refreshWebsiteTracking] every minute, until cancelled (the window losing focus). */
+    suspend fun followWebsiteTracking() {
+        if (website == null) return
+        while (true) {
+            refreshWebsiteTracking()
+            delay(com.fetch.desktop.website.FetchWebsiteTracker.POLL_INTERVAL_MS)
+        }
+    }
+
+    /** The website keeps this profile's resume points: it is the chosen watch progress source, and paired. */
+    private val websiteKeepsProgress: Boolean
+        get() = websiteTracking.paired && settings.tracking.progress == com.fetch.desktop.tracking.WatchProgressSourceOption.FETCH_WEBSITE
+
+    /**
+     * Takes the website's watch state into Continue Watching and watched marks: its watched titles
+     * always, as Trakt's and Simkl's are; its resume points by the watch progress source rules
+     * ([com.fetch.desktop.tracking.playbackForSource]); its Next Up while it is the source.
+     */
+    private fun applyWebsiteTracking() {
+        if (websiteTracking.snapshot == null) return
+        val projection = websiteTracking.progress
+        val playback = com.fetch.desktop.tracking.playbackForSource(
+            com.fetch.desktop.website.FetchWebsiteProgress.entries(projection),
+            settings.tracking.progress,
+            com.fetch.desktop.ui.availableProgressSources(this)
+        )
+        val nextUp = if (websiteKeepsProgress) com.fetch.desktop.website.FetchWebsiteProgress.nextUp(projection, settings.nextUpFromFurthest) else emptyList()
+        val merged = com.fetch.desktop.website.FetchWebsiteProgress.merge(progress, playback, com.fetch.desktop.website.FetchWebsiteProgress.watchedIds(projection), nextUp)
+        if (merged == progress) return
+        val newShows = merged.caughtUp.any { show -> progress.caughtUp.none { it == show } }
+        saveProgress(merged)
+        // A show the website moved on finds its next episode now, not at the next airing check.
+        if (newShows) scope.launch { refreshAiring() }
     }
 
     /** Jellyfin, Emby and Plex: sources, Home rows and their Continue Watching. */
@@ -1590,6 +1643,8 @@ class AppState(
         saveProgress(WatchHistory.hide(progress, entry.contentId))
         // MDBList's resume point goes too, as on TV, so the next sync doesn't bring it back.
         if (entry.source == "mdblist") scope.launch { mdbListTracker.clear(entry) }
+        // As does the website's, while it keeps them.
+        if (websiteKeepsProgress) tracking.forgetPosition(entry.contentId, null, null)
         message = "Removed ${entry.name} from Continue Watching"
     }
 
@@ -2744,16 +2799,20 @@ class AppState(
         if (durationSec > 0) (positionSec / durationSec * 100).toFloat().coerceIn(0f, 100f) else 0f
 
     private fun recordProgress(target: PlaybackTarget, sample: MpvProgress.Sample) {
+        val positionMs = (sample.positionSec * 1000).toLong()
+        val durationMs = (sample.durationSec * 1000).toLong()
         saveProgress(
             WatchHistory.record(
                 progress,
                 target,
-                positionMs = (sample.positionSec * 1000).toLong(),
-                durationMs = (sample.durationSec * 1000).toLong(),
+                positionMs = positionMs,
+                durationMs = durationMs,
                 now = System.currentTimeMillis(),
                 fromFurthest = settings.nextUpFromFurthest
             )
         )
+        // The website keeps the exact second when it is the watch progress source, as on TV.
+        if (websiteKeepsProgress) tracking.savePosition(target, positionMs, durationMs)
     }
 
     /**

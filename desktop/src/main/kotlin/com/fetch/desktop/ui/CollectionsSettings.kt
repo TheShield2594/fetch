@@ -495,7 +495,7 @@ private fun CatalogPickerDialog(catalogs: List<PickableCatalog>, folder: Collect
 private fun WebsiteListPickerDialog(state: AppState, folder: CollectionFolder, onChange: (CollectionFolder) -> Unit, onDismiss: () -> Unit) {
     var media by remember { mutableStateOf<TmdbCollectionMediaType?>(null) }
     val website = com.fetch.desktop.website.FetchWebsiteState.shared
-    val loaded by androidx.compose.runtime.produceState<Result<List<com.fetch.desktop.website.WebsiteList>>?>(null) {
+    val loaded by androidx.compose.runtime.produceState<Result<List<com.fetch.tv.data.website.WebsiteList>>?>(null) {
         value = runCatching {
             val profile = website.profileFor(state.profile.id) ?: error("This profile has no profile on the Fetch website yet.")
             website.client.lists(profile.id)

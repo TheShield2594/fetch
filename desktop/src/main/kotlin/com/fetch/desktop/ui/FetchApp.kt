@@ -82,6 +82,10 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
     val scope = rememberCoroutineScope()
     val state = remember { AppState(scope, profiles, profile, account = account, website = com.fetch.desktop.website.FetchWebsiteState.shared).also { FetchPalette.setAppearance(it.settings.appearance); FetchPalette.setTheme(it.settings.appTheme) } }
     LaunchedEffect(Unit) { state.start() }
+    // The Fetch website's watch state and lists are read again when the window gets focus, and
+    // every minute while it has it, as the TV reads them while it shows them.
+    val windowFocused = androidx.compose.ui.platform.LocalWindowInfo.current.isWindowFocused
+    LaunchedEffect(state, windowFocused) { if (windowFocused) state.followWebsiteTracking() }
     // Links from the command line or a later launch (fetch://…, stremio://…), once a profile is open.
     LaunchedEffect(state) {
         com.fetch.desktop.deeplink.DeepLinks.pending.collect { links ->

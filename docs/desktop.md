@@ -131,7 +131,7 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   profile (PG or lower, unrated hidden) and start with another profile's settings (once, with
   its API keys where it has none; Copy settings does the same later, and while signed in also
   copies it on the sync server with the TV's `sync_copy_profile_setup`, keeping the target's own
-  limits), the editor picks an avatar from the TV's 40 bundled ones or the sync server's catalog
+  limits, from "Who's watching?" too), the editor picks an avatar from the TV's 40 bundled ones or the sync server's catalog
   (synced as the account's `avatar_id`; Remove avatar clears the account's too, while a profile
   that never picked one here keeps the TV's), a Background from the server's catalog (shown
   behind the profile on "Who's watching?", synced as `profile_background_id`), and a Preferences

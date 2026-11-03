@@ -49,6 +49,7 @@ import com.fetch.desktop.sync.RemotePinSetResult
 import com.fetch.desktop.sync.SyncClient
 import com.fetch.desktop.sync.applyTo
 import com.fetch.desktop.sync.changedFrom
+import com.fetch.desktop.sync.copyProfileSetupKeepingLimits
 import com.fetch.desktop.sync.toRemoteSharedSettings
 import com.fetch.desktop.sync.SyncAuthException
 import com.fetch.desktop.sync.SyncBase
@@ -833,13 +834,8 @@ class AppState(
                     from?.let { settings.toRemoteSharedSettings().changedFrom(it.toRemoteSharedSettings()) }
                         ?.let { remote.pushSharedSettings(source.id, it) }
                 }
-                val targetLimitsBefore = if (target.isPrimary) null else remote.pullParentalLimits(target.id)
-                remote.copyProfileSetup(source.id, target.id, copyMissingKeys)
-                if (!target.isPrimary) {
-                    val current = profiles.profiles.firstOrNull { it.id == target.id } ?: target
-                    val limits = SyncMerge.parentalLimits(current.limits, targetLimitsBefore)
-                    remote.pushParentalLimits(target.id, SyncMerge.parentalLimitsToPush(limits, null))
-                }
+                val current = profiles.profiles.firstOrNull { it.id == target.id } ?: target
+                remote.copyProfileSetupKeepingLimits(source, current, copyMissingKeys)
                 if (target.id == profile.id) {
                     settingsPushJob?.cancel()
                     settingsBeforePush = null

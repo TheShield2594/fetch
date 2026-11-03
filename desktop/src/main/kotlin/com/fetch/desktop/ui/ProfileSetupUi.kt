@@ -211,7 +211,9 @@ fun ProfileSetupEditorDialog(
     state: AppState?,
     onDismiss: () -> Unit,
     onDone: (String) -> Unit = {},
-    onCreated: (DesktopProfile) -> Unit = {}
+    onCreated: (DesktopProfile) -> Unit = {},
+    /** Without [state] (the profile picker): copies on the sync server, after the local copy. */
+    onCopiedLocally: (source: DesktopProfile, target: DesktopProfile, copyMissingKeys: Boolean) -> Unit = { _, _, _ -> }
 ) {
     val creating = initial == null
     var name by remember { mutableStateOf(initial?.name.orEmpty()) }
@@ -364,6 +366,7 @@ fun ProfileSetupEditorDialog(
                         created == null -> onDone("Couldn't create the profile")
                         source != null -> {
                             copyProfileSettings(state, source, created, copyKeys)
+                            if (state == null) onCopiedLocally(source, created, copyKeys)
                             onDone("Profile created with settings from ${source.name}.")
                         }
                         else -> onDone("${created.name} created")

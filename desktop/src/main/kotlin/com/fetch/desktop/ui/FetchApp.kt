@@ -61,7 +61,7 @@ fun FetchApp() {
     if (active == null) {
         // "Who's watching?" at start-up (several profiles, Remember Last Profile off) or after
         // Switch profile.
-        FetchTheme { ProfilePicker(profiles) }
+        FetchTheme { ProfilePicker(profiles, account) }
         return
     }
     // Each profile gets its own state, from its own files.

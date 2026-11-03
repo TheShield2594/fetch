@@ -62,6 +62,9 @@ import com.fetch.desktop.AppState
 import com.fetch.desktop.ProfilesState
 import com.fetch.desktop.data.DesktopProfile
 import com.fetch.desktop.data.ProfileBackgrounds
+import com.fetch.desktop.SyncAccountState
+import com.fetch.desktop.sync.SyncMerge
+import com.fetch.desktop.sync.copyProfileSetupKeepingLimits
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
 import com.fetch.tv.domain.model.PROFILE_AVATAR_COLORS
@@ -78,7 +81,9 @@ fun ProfileAvatar(profile: DesktopProfile, size: Dp, modifier: Modifier = Modifi
  * does one locked behind the main profile's PIN. The profile pointed at shows its background.
  */
 @Composable
-fun ProfilePicker(profiles: ProfilesState) {
+fun ProfilePicker(profiles: ProfilesState, account: SyncAccountState? = null) {
+    val scope = rememberCoroutineScope()
+    var notice by remember { mutableStateOf<String?>(null) }
     var creating by remember { mutableStateOf(false) }
     var pin by remember { mutableStateOf<PinStep?>(null) }
     var nudgeFor by remember { mutableStateOf<DesktopProfile?>(null) }
@@ -91,6 +96,7 @@ fun ProfilePicker(profiles: ProfilesState) {
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(40.dp)) {
             Text("Who's watching?", style = MaterialTheme.typography.displaySmall, color = Color.White)
+            notice?.let { Text(it, color = FetchPalette.TextSecondary, fontSize = 15.sp) }
             Row(horizontalArrangement = Arrangement.spacedBy(32.dp)) {
                 profiles.profiles.forEach { profile ->
                     PickerTile(profile.name, locked = profile.isLocked || profiles.needsParentPinToOpen(profile), onHover = { on ->
@@ -130,6 +136,20 @@ fun ProfilePicker(profiles: ProfilesState) {
     if (creating) {
         ProfileSetupEditorDialog(profiles, initial = null, state = null, onDismiss = { creating = false }, onCreated = { created ->
             if (created.limits.isRestricted) nudgeFor = created
+        }, onCopiedLocally = { source, target, copyKeys ->
+            // No profile is open here, so nothing has told the account about the new profile yet:
+            // push the list first (only the main profile's data is used), then copy on the server.
+            val remote = account?.client() ?: return@ProfileSetupEditorDialog
+            scope.launch {
+                try {
+                    remote.pushProfiles(SyncMerge.profilesToPush(profiles.profiles, remote.pullProfiles()))
+                    remote.copyProfileSetupKeepingLimits(source, target, copyKeys)
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    notice = "Settings copied on this computer, but the sync server didn't copy them: ${e.message}"
+                }
+            }
         })
     }
     nudgeFor?.let { restricted -> ParentalNudge(profiles, restricted, onSetPin = { pin = it }, onDismiss = { nudgeFor = null }) }

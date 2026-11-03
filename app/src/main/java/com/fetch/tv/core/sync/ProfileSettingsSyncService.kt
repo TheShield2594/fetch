@@ -16,8 +16,9 @@ import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.parental.ScreenTimeSharing
 import com.fetch.tv.core.parental.ScreenTimeStore
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.core.sync.backend.SyncBackend
+import com.fetch.tv.core.sync.backend.SyncBackends
 import com.fetch.tv.data.local.ContinueWatchingEnrichmentCache
-import com.fetch.tv.data.website.FetchWebsiteSyncService
 import com.fetch.tv.data.local.ExperienceModeDataStore
 import com.fetch.tv.data.local.ProfileDataStoreFactory
 import com.fetch.tv.data.local.KidsRules
@@ -26,7 +27,6 @@ import com.fetch.tv.data.local.ProfileRestrictionsDataStore
 import com.fetch.tv.data.local.StreamBadgeSettingsDataStore
 import com.fetch.tv.data.local.TmdbSettingsDataStore
 import com.fetch.tv.data.remote.supabase.SupabaseProfileSetupCopyResult
-import com.fetch.tv.data.remote.supabase.SupabaseProfileSettingsBlob
 import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.domain.repository.MetaRepository
 import io.github.jan.supabase.postgrest.Postgrest
@@ -71,7 +71,6 @@ private const val FOREGROUND_PULL_DELAY_MS = 2500L
 private const val FOREGROUND_PULL_MIN_INTERVAL_MS = 60_000L
 private const val SCREEN_TIME_PULL_INTERVAL_MS = 60_000L
 private const val SCREEN_TIME_PUSH_INTERVAL_MS = 60_000L
-private const val SETTINGS_SYNC_PLATFORM = "tv"
 private const val PLAYER_SETTINGS_FEATURE = "player_settings"
 private const val PRIMARY_PROFILE_ID = 1
 
@@ -187,11 +186,18 @@ class ProfileSettingsSyncService @Inject constructor(
     private val metaRepository: MetaRepository,
     private val cwEnrichmentCache: ContinueWatchingEnrichmentCache,
     private val restrictionsDataStore: ProfileRestrictionsDataStore,
-    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>,
+    private val backends: SyncBackends,
     private val screenTimeStore: ScreenTimeStore
 ) : ScreenTimeSharing {
-    /** Somewhere to sync to: the Supabase account, or a Fetch website this TV is paired with. */
-    private val canSync: Boolean get() = websiteSync.get().isPaired || authManager.isAuthenticated
+    /** Somewhere to sync to: the sync backend in use ([SyncBackends]). */
+    private val canSync: Boolean get() = backends.canSync
+
+    /**
+     * The backend in use keeps parental limits, kids rules and screen time in each profile's
+     * settings blob (the Supabase protocol). A Fetch website carries them with the profiles.
+     */
+    private val parentalLimitsInSettings: Boolean
+        get() = backends.active?.features?.parentalLimitsInSettings == true
 
     private val postgrest: Postgrest get() = postgrestLazy.get()
 
@@ -261,7 +267,7 @@ class ProfileSettingsSyncService @Inject constructor(
                     return@withLock Result.success(false)
                 }
 
-                if (!websiteSync.get().isPaired) applyParentalLimits(profileId, blob)
+                if (parentalLimitsInSettings) applyParentalLimits(profileId, blob)
                 val featuresJson = blob["features"]?.jsonObject
                     ?: return@withLock Result.success(false)
                 val remoteSignature = buildSettingsSignature(featuresJson)
@@ -293,7 +299,8 @@ class ProfileSettingsSyncService @Inject constructor(
                     require(profileManager.profiles.value.any { it.id == sourceProfileId })
                     require(profileManager.profiles.value.any { it.id == targetProfileId })
 
-                    val targetFeatures = if (authManager.isAuthenticated) {
+                    // Copying on the account is a Supabase RPC; elsewhere the copy is made here.
+                    val targetFeatures = if (backends.isSupabaseActive) {
                         if (
                             copyProviderCredentials &&
                             profileManager.activeProfileId.value in setOf(sourceProfileId, targetProfileId)
@@ -312,7 +319,7 @@ class ProfileSettingsSyncService @Inject constructor(
                         }
                         require(sourceBlob["features"] is JsonObject)
                         // The copy takes the whole blob, parental limits too; the target keeps its own.
-                        val targetParental = if (websiteSync.get().isPaired) null else parentalLimitsForPush(targetProfileId)
+                        val targetParental = parentalLimitsForPush(targetProfileId)
                         // The target's kids rules too, read now: after the copy the account holds the source's.
                         val targetKidsRules = targetParental?.let { kidsRulesForPush(targetProfileId) }
                         // Pending until the restore below lands, so a failed one is retried on the next pull.
@@ -371,7 +378,7 @@ class ProfileSettingsSyncService @Inject constructor(
                         signature = buildSettingsSignature(targetFeatures)
                     )
                     if (copyProviderCredentials) {
-                        if (authManager.isAuthenticated) {
+                        if (backends.isSupabaseActive) {
                             if (profileManager.activeProfileId.value == targetProfileId) {
                                 providerCredentialSyncService.syncFromRemote(targetProfileId).getOrThrow()
                             }
@@ -408,7 +415,7 @@ class ProfileSettingsSyncService @Inject constructor(
     suspend fun importLocalSettings(profileId: Int, features: JsonObject) = withContext(Dispatchers.IO) {
         syncMutex.withLock {
             importSettingsBlob(profileId, features)
-            if (authManager.isAuthenticated) {
+            if (canSync) {
                 try {
                     pushProfileToRemote(profileId)
                 } catch (e: CancellationException) {
@@ -429,7 +436,7 @@ class ProfileSettingsSyncService @Inject constructor(
      * Returns false when a read or a send failed, so the caller tries again sooner.
      */
     suspend fun pullParentalLimits(profileIds: Collection<Int>): Boolean = withContext(Dispatchers.IO) {
-        if (websiteSync.get().isPaired || !authManager.isAuthenticated) return@withContext true
+        if (!parentalLimitsInSettings) return@withContext true
         var allDone = true
         val ids = profileIds.filter { it != PRIMARY_PROFILE_ID }
         val pending = restrictionsDataStore.pendingAccountPushes.first() + failedScreenTimePushes
@@ -438,7 +445,7 @@ class ProfileSettingsSyncService @Inject constructor(
         }
         ids.forEach { profileId ->
             try {
-                applyParentalLimits(profileId, pullSupabaseBlob(profileId))
+                applyParentalLimits(profileId, pullParentalBlob(profileId))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -451,7 +458,7 @@ class ProfileSettingsSyncService @Inject constructor(
 
     /** After a parent changed a profile's limits on this TV: sends them to the account. */
     fun triggerParentalLimitsPush(profileId: Int) {
-        if (websiteSync.get().isPaired || !authManager.isAuthenticated) return
+        if (!parentalLimitsInSettings) return
         scope.launch { pushProfileSettingsToRemote(profileId) }
     }
 
@@ -474,7 +481,7 @@ class ProfileSettingsSyncService @Inject constructor(
     private suspend fun parentalLimitsForPush(profileId: Int): ProfileRestrictions? {
         if (profileId == PRIMARY_PROFILE_ID) return null
         restrictionsDataStore.accountRestrictions.first()[profileId]?.let { return it }
-        val remoteBlob = pullSupabaseBlob(profileId)
+        val remoteBlob = pullParentalBlob(profileId)
         ParentalLimitsBlob.decode(remoteBlob)?.let { remote ->
             restrictionsDataStore.tightenFromAccount(profileId, remote, ParentalLimitsBlob.decodeKidsRules(remoteBlob))
             return remote
@@ -491,7 +498,7 @@ class ProfileSettingsSyncService @Inject constructor(
         if (profileId == PRIMARY_PROFILE_ID) return null
         restrictionsDataStore.accountKidsRules.first()[profileId]?.let { return it }
         // Never seen the account's rules: read them first, so this push can't wipe another TV's.
-        val remoteBlob = pullSupabaseBlob(profileId)
+        val remoteBlob = pullParentalBlob(profileId)
         val remoteRules = ParentalLimitsBlob.decodeKidsRules(remoteBlob)
         val local = restrictionsDataStore.kidsRules.first()[profileId]?.forAccount()
         if (remoteRules != null) {
@@ -506,7 +513,7 @@ class ProfileSettingsSyncService @Inject constructor(
 
     private suspend fun refreshAccountCopiesBeforePush(profileId: Int) {
         val remote = try {
-            pullSupabaseBlob(profileId)
+            pullParentalBlob(profileId)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -543,11 +550,11 @@ class ProfileSettingsSyncService @Inject constructor(
 
     /** Reads other TVs' screen time for a kids profile, at most every [SCREEN_TIME_PULL_INTERVAL_MS]. */
     override fun requestScreenTimePull(profileId: Int) {
-        if (profileId == PRIMARY_PROFILE_ID || websiteSync.get().isPaired || !authManager.isAuthenticated) return
+        if (profileId == PRIMARY_PROFILE_ID || !parentalLimitsInSettings) return
         if (!claimSlot(screenTimePullAtMs, profileId, SCREEN_TIME_PULL_INTERVAL_MS)) return
         scope.launch {
             try {
-                applyOtherDevicesScreenTime(profileId, pullSupabaseBlob(profileId))
+                applyOtherDevicesScreenTime(profileId, pullParentalBlob(profileId))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -562,7 +569,7 @@ class ProfileSettingsSyncService @Inject constructor(
      * [immediate] (a parent added time), otherwise at most every [SCREEN_TIME_PUSH_INTERVAL_MS].
      */
     override fun requestScreenTimePush(profileId: Int, immediate: Boolean) {
-        if (profileId == PRIMARY_PROFILE_ID || websiteSync.get().isPaired || !authManager.isAuthenticated) return
+        if (profileId == PRIMARY_PROFILE_ID || !parentalLimitsInSettings) return
         if (immediate) {
             screenTimePushAtMs[profileId] = SystemClock.elapsedRealtime()
             launchScreenTimePush(profileId)
@@ -582,9 +589,9 @@ class ProfileSettingsSyncService @Inject constructor(
     }
 
     override suspend fun refreshScreenTime(profileId: Int) {
-        if (profileId == PRIMARY_PROFILE_ID || websiteSync.get().isPaired || !authManager.isAuthenticated) return
+        if (profileId == PRIMARY_PROFILE_ID || !parentalLimitsInSettings) return
         try {
-            applyOtherDevicesScreenTime(profileId, pullSupabaseBlob(profileId))
+            applyOtherDevicesScreenTime(profileId, pullParentalBlob(profileId))
             screenTimePullAtMs[profileId] = SystemClock.elapsedRealtime()
         } catch (e: CancellationException) {
             throw e
@@ -625,7 +632,8 @@ class ProfileSettingsSyncService @Inject constructor(
     fun requestForegroundPull(force: Boolean = false) {
         providerCredentialSyncService.requestForegroundPull(force)
         mediaServerSyncService.requestForegroundPull(force)
-        if (!authManager.isAuthenticated) return
+        // A paired Fetch website runs its own foreground sync (FetchWebsiteSyncService.requestSync).
+        if (!backends.isSupabaseActive) return
 
         val now = SystemClock.elapsedRealtime()
         if (!force && foregroundPullJob?.isActive == true) return
@@ -650,9 +658,10 @@ class ProfileSettingsSyncService @Inject constructor(
         settingsJson: JsonObject? = null,
         parentalSnapshot: ParentalSnapshot? = null
     ) {
+        val backend = backends.active ?: return
         val resolvedSettingsJson = settingsJson ?: exportSettingsBlob(profileId)
-        if (websiteSync.get().isPaired) {
-            pushProfileToWebsite(profileId, resolvedSettingsJson)
+        if (!backend.features.parentalLimitsInSettings) {
+            pushProfileToMergingBackend(backend, profileId, resolvedSettingsJson)
             return
         }
         // The push replaces the whole blob, so first read what other TVs put there since this TV
@@ -671,26 +680,18 @@ class ProfileSettingsSyncService @Inject constructor(
             blob = JsonObject(blob + (ParentalLimitsBlob.KEY to ParentalLimitsBlob.encode(parental, kidsRules)))
         }
         if (screenTime != null) blob = JsonObject(blob + (ScreenTimeBlob.KEY to screenTime))
-        val params = buildJsonObject {
-            put("p_profile_id", profileId)
-            put("p_settings_json", blob)
-            put("p_platform", SETTINGS_SYNC_PLATFORM)
-            putSyncOriginClientId(syncClientIdentity)
-        }
-        withJwtRefreshRetry {
-            postgrest.rpc("sync_push_profile_settings_blob", params)
-        }
+        backend.pushSettings(profileId, blob).getOrThrow()
         if (parental != null) restrictionsDataStore.accountPushSucceeded(profileId, parental, kidsRules)
     }
 
     /**
-     * A TV signed in to a Fetch website keeps its settings there. The website merges rather
-     * than replaces (see [FetchWebsiteSyncService.reconcileSettings]), so what comes back can
-     * hold changes made on the website since the last sync; those are applied here, the same way
-     * a pull applies them.
+     * A backend that merges rather than replaces (the Fetch website, see
+     * FetchWebsiteSyncService.reconcileSettings) hands back what both sides hold afterwards,
+     * which can carry changes made elsewhere since the last sync; those are applied here, the
+     * same way a pull applies them.
      */
-    private suspend fun pushProfileToWebsite(profileId: Int, local: JsonObject) {
-        val merged = websiteSync.get().reconcileSettings(profileId, local) ?: return
+    private suspend fun pushProfileToMergingBackend(backend: SyncBackend, profileId: Int, local: JsonObject) {
+        val merged = backend.pushSettings(profileId, local).getOrThrow() ?: return
         val mergedFeatures = merged["features"]?.jsonObject ?: return
         val localFeatures = local["features"]?.jsonObject ?: JsonObject(emptyMap())
         val signature = buildSettingsSignature(mergedFeatures)
@@ -700,21 +701,17 @@ class ProfileSettingsSyncService @Inject constructor(
     }
 
     private suspend fun pullProfileFromRemote(profileId: Int): JsonObject? {
-        if (websiteSync.get().isPaired) {
-            return websiteSync.get().reconcileSettings(profileId, exportSettingsBlob(profileId))
-        }
-        return pullSupabaseBlob(profileId)
+        val backend = backends.active ?: return null
+        return backend.pullSettings(profileId) { exportSettingsBlob(profileId) }.getOrThrow()
     }
 
-    private suspend fun pullSupabaseBlob(profileId: Int): JsonObject? {
-        val params = buildJsonObject {
-            put("p_profile_id", profileId)
-            put("p_platform", SETTINGS_SYNC_PLATFORM)
-        }
-        val response = withJwtRefreshRetry {
-            postgrest.rpc("sync_pull_profile_settings_blob", params)
-        }
-        return response.decodeList<SupabaseProfileSettingsBlob>().firstOrNull()?.settingsJson
+    /**
+     * [profileId]'s blob on the account, read for the parental limits, kids rules and screen
+     * time in it. Null when the backend in use doesn't keep them there.
+     */
+    private suspend fun pullParentalBlob(profileId: Int): JsonObject? {
+        val backend = backends.active?.takeIf { it.features.parentalLimitsInSettings } ?: return null
+        return backend.pullSettings(profileId) { exportSettingsBlob(profileId) }.getOrThrow()
     }
 
     private suspend fun applySettingsBlob(

@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,22 +55,39 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.fetch.tv.core.sync.backend.SyncBackendKind
 import com.fetch.tv.domain.model.AuthState
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 
+/**
+ * Settings → Account. The first row picks the sync backend ([SyncBackendRow]); what follows is
+ * that backend's own setup: nothing for local only, pairing for a Fetch website, the sign-in
+ * and sync overview for a Supabase-compatible server.
+ */
 @Composable
 fun AccountSettingsContent(
     uiState: AccountUiState,
     viewModel: AccountViewModel,
     onNavigateToAuthQrSignIn: () -> Unit = {},
-    initialFocusRequester: FocusRequester? = null
+    initialFocusRequester: FocusRequester? = null,
+    backendViewModel: SyncBackendViewModel = hiltViewModel()
 ) {
-    if (uiState.authState is AuthState.FullAccount) {
+    val chosen by backendViewModel.chosen.collectAsStateWithLifecycle()
+    val backendRowModifier = if (initialFocusRequester != null) {
+        Modifier.focusRequester(initialFocusRequester)
+    } else {
+        Modifier
+    }
+
+    if (chosen == SyncBackendKind.SUPABASE && uiState.authState is AuthState.FullAccount) {
         SignedInAccountSettingsContent(
             uiState = uiState,
             viewModel = viewModel,
-            initialFocusRequester = initialFocusRequester
+            backendRowModifier = backendRowModifier,
+            backendViewModel = backendViewModel
         )
         return
     }
@@ -79,55 +97,71 @@ fun AccountSettingsContent(
         contentPadding = PaddingValues(bottom = FetchTheme.spacing.sm),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        when (val authState = uiState.authState) {
-            is AuthState.Loading -> {
-                item(key = "account_loading") {
-                    Text(
-                        text = stringResource(R.string.account_loading),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = FetchTheme.colors.TextSecondary
-                    )
-                }
-            }
-
-            is AuthState.SignedOut -> {
-                item(key = "account_signed_out_info") {
-                    Text(
-                        text = stringResource(R.string.account_sync_description),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = FetchTheme.colors.TextSecondary
-                    )
-                }
-                item(key = "account_sync_note_signed_out") {
-                    AccountInlineNote(text = stringResource(R.string.account_sync_restart_note))
-                }
-                if (!viewModel.isSyncServerConfigured) {
-                    item(key = "account_local_only") {
-                        AccountInlineNote(text = stringResource(R.string.account_local_only_note))
-                    }
-                } else item(key = "account_sign_in_qr") {
-                    SettingsActionButton(
-                        icon = Icons.Default.VpnKey,
-                        title = stringResource(
-                            if (viewModel.usesEmailPasswordLogin) R.string.account_signin_email_title else R.string.account_signin_qr_title
-                        ),
-                        subtitle = stringResource(
-                            if (viewModel.usesEmailPasswordLogin) R.string.account_signin_email_subtitle else R.string.account_signin_qr_subtitle
-                        ),
-                        onClick = onNavigateToAuthQrSignIn,
-                        modifier = if (initialFocusRequester != null) {
-                            Modifier.focusRequester(initialFocusRequester)
-                        } else {
-                            Modifier
-                        }
-                    )
-                }
-            }
-
-            is AuthState.FullAccount -> Unit
-
+        item(key = "account_sync_backend") {
+            SyncBackendRow(modifier = backendRowModifier, viewModel = backendViewModel)
         }
-        item(key = "account_fetch_website") { FetchWebsiteSection() }
+        when (chosen) {
+            SyncBackendKind.LOCAL_ONLY -> item(key = "account_local_only") {
+                AccountInlineNote(text = stringResource(R.string.sync_backend_local_note))
+            }
+
+            SyncBackendKind.FETCH_WEBSITE -> item(key = "account_fetch_website") { FetchWebsiteSection() }
+
+            SyncBackendKind.SUPABASE -> supabaseSignedOutItems(
+                uiState = uiState,
+                viewModel = viewModel,
+                onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn
+            )
+        }
+    }
+}
+
+private fun LazyListScope.supabaseSignedOutItems(
+    uiState: AccountUiState,
+    viewModel: AccountViewModel,
+    onNavigateToAuthQrSignIn: () -> Unit
+) {
+    when (uiState.authState) {
+        is AuthState.Loading -> {
+            item(key = "account_loading") {
+                Text(
+                    text = stringResource(R.string.account_loading),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = FetchTheme.colors.TextSecondary
+                )
+            }
+        }
+
+        is AuthState.SignedOut -> {
+            item(key = "account_signed_out_info") {
+                Text(
+                    text = stringResource(R.string.account_sync_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FetchTheme.colors.TextSecondary
+                )
+            }
+            item(key = "account_sync_note_signed_out") {
+                AccountInlineNote(text = stringResource(R.string.account_sync_restart_note))
+            }
+            if (!viewModel.isSyncServerConfigured) {
+                item(key = "account_supabase_not_configured") {
+                    AccountInlineNote(text = stringResource(R.string.account_local_only_note))
+                }
+            } else item(key = "account_sign_in_qr") {
+                SettingsActionButton(
+                    icon = Icons.Default.VpnKey,
+                    title = stringResource(
+                        if (viewModel.usesEmailPasswordLogin) R.string.account_signin_email_title else R.string.account_signin_qr_title
+                    ),
+                    subtitle = stringResource(
+                        if (viewModel.usesEmailPasswordLogin) R.string.account_signin_email_subtitle else R.string.account_signin_qr_subtitle
+                    ),
+                    onClick = onNavigateToAuthQrSignIn
+                )
+            }
+        }
+
+        is AuthState.FullAccount -> Unit
     }
 }
 
@@ -135,7 +169,8 @@ fun AccountSettingsContent(
 private fun SignedInAccountSettingsContent(
     uiState: AccountUiState,
     viewModel: AccountViewModel,
-    initialFocusRequester: FocusRequester?
+    backendRowModifier: Modifier,
+    backendViewModel: SyncBackendViewModel
 ) {
     val listState = rememberLazyListState()
     var showSignOutConfirmation by remember { mutableStateOf(false) }
@@ -152,6 +187,9 @@ private fun SignedInAccountSettingsContent(
             contentPadding = PaddingValues(bottom = FetchTheme.spacing.xs),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
+            item(key = "account_sync_backend") {
+                SyncBackendRow(modifier = backendRowModifier, viewModel = backendViewModel)
+            }
             val authState = uiState.authState as AuthState.FullAccount
             item(key = "account_status") {
                 StatusCard(label = stringResource(R.string.account_signed_in_label), value = authState.email)
@@ -166,17 +204,9 @@ private fun SignedInAccountSettingsContent(
             } else if (uiState.isSyncOverviewLoading) {
                 item(key = "account_sync_overview_loading") { SyncOverviewLoadingCard() }
             }
-            item(key = "account_fetch_website") { FetchWebsiteSection() }
         }
 
-        SignOutSettingsButton(
-            onClick = { showSignOutConfirmation = true },
-            modifier = if (initialFocusRequester != null) {
-                Modifier.focusRequester(initialFocusRequester)
-            } else {
-                Modifier
-            }
-        )
+        SignOutSettingsButton(onClick = { showSignOutConfirmation = true })
     }
 
     if (showSignOutConfirmation) {

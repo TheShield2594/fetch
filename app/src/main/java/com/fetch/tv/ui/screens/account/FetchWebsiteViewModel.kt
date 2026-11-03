@@ -3,6 +3,8 @@ package com.fetch.tv.ui.screens.account
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fetch.tv.core.sync.backend.SyncBackendKind
+import com.fetch.tv.core.sync.backend.SyncBackends
 import com.fetch.tv.data.website.DiscoveredFetchServer
 import com.fetch.tv.data.website.FetchServerDiscovery
 import com.fetch.tv.data.website.FetchWebsiteClient
@@ -49,6 +51,7 @@ class FetchWebsiteViewModel @Inject constructor(
     private val store: FetchWebsiteStore,
     private val client: FetchWebsiteClient,
     private val sync: FetchWebsiteSyncService,
+    private val backends: SyncBackends,
     discovery: FetchServerDiscovery
 ) : ViewModel() {
     val session: StateFlow<FetchWebsiteSession?> = store.session
@@ -101,6 +104,8 @@ class FetchWebsiteViewModel @Inject constructor(
                         is WebsitePairingPoll.Approved -> {
                             val name = poll.deviceName.ifBlank { deviceName() }
                             store.save(FetchWebsiteSession(serverUrl, poll.token, name))
+                            // Pairing (here or in the first-run Server step) is choosing the website.
+                            backends.choose(SyncBackendKind.FETCH_WEBSITE)
                             _pairing.value = WebsitePairingState.Paired(name)
                             sync.requestSync()
                             return@launch

@@ -4,12 +4,12 @@ import android.util.Log
 import com.fetch.tv.BuildConfig
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.sync.AddonSyncService
+import com.fetch.tv.core.sync.CollectionSyncService
 import com.fetch.tv.core.sync.HomeCatalogSettingsSyncService
 import com.fetch.tv.core.sync.ProfileSettingsSyncService
 import com.fetch.tv.core.sync.SyncHomeCatalogPayload
+import com.fetch.tv.core.sync.backend.SyncAddon
 import com.fetch.tv.core.sync.shouldExcludePreferenceFromProfileSettingsSync
-import com.fetch.tv.data.local.AddonPreferences
-import com.fetch.tv.data.local.CollectionsDataStore
 import com.fetch.tv.data.local.ProfileDataStore
 import com.fetch.tv.data.local.ProfileLockStateDataStore
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
@@ -39,7 +39,9 @@ private const val TAG = "FetchWebsiteSync"
 private const val PROFILE_TOKEN_TTL_MS = 11L * 60 * 60 * 1000
 
 /**
- * Profiles and collections against the Fetch website, for a TV signed in to one by pairing.
+ * The Fetch website's side of sync, for a TV signed in to one by pairing. It is reached
+ * through [com.fetch.tv.core.sync.backend.FetchWebsiteSyncBackend], the website's
+ * implementation of the TV's sync backend interface.
  *
  * While paired the website is where the account lives: profiles (with their colour, picture
  * and parental limit) are pulled from it and written back when edited here, and each
@@ -48,9 +50,11 @@ private const val PROFILE_TOKEN_TTL_MS = 11L * 60 * 60 * 1000
  * when the website is out of reach.
  *
  * Each profile's addons, Home row order and settings live there too. The TV's own sync
- * services ([AddonSyncService], [HomeCatalogSettingsSyncService], [ProfileSettingsSyncService])
- * keep deciding when to push and what to apply, and hand the transport to this class while
- * paired. After every sync the TV reports its build and the outcome, which is what the
+ * services ([AddonSyncService], [CollectionSyncService], [HomeCatalogSettingsSyncService],
+ * [ProfileSettingsSyncService]) keep deciding when to push and what to apply, the same way for
+ * every backend; this class is the transport. It also runs the website's own sync pass (on
+ * start, on returning to the foreground, after a profile switch), which goes through those
+ * services. After every pass the TV reports its build and the outcome, which is what the
  * website's overview shows for it.
  */
 @Singleton
@@ -61,9 +65,8 @@ class FetchWebsiteSyncService @Inject constructor(
     private val profileDataStore: ProfileDataStore,
     private val restrictionsDataStore: ProfileRestrictionsDataStore,
     private val lockStateDataStore: ProfileLockStateDataStore,
-    private val collectionsDataStore: CollectionsDataStore,
-    private val addonPreferences: AddonPreferences,
     private val addonSyncService: dagger.Lazy<AddonSyncService>,
+    private val collectionSync: dagger.Lazy<CollectionSyncService>,
     private val addonRepository: dagger.Lazy<AddonRepositoryImpl>,
     private val homeCatalogSync: dagger.Lazy<HomeCatalogSettingsSyncService>,
     private val profileSettingsSync: dagger.Lazy<ProfileSettingsSyncService>
@@ -77,7 +80,6 @@ class FetchWebsiteSyncService @Inject constructor(
     private val profileTokens = ConcurrentHashMap<String, Pair<String, Long>>()
 
     private var watchJob: Job? = null
-    private var collectionsPushJob: Job? = null
     private var profilesPushJob: Job? = null
 
     val isPaired: Boolean get() = store.isPaired
@@ -104,7 +106,6 @@ class FetchWebsiteSyncService @Inject constructor(
             if (!client.checkSession()) return@runCatchingNonCancel
             signedIn = true
             pullProfiles()
-            pullCollections()
             pullActiveProfileState()
         }.onFailure { Log.w(TAG, "Website sync failed", it) }
         if (signedIn) report(result)
@@ -112,11 +113,13 @@ class FetchWebsiteSyncService @Inject constructor(
     }
 
     /**
-     * The active profile's addons, then its Home rows (which name the addons' catalogs), then
-     * its settings. Each goes through the TV's own sync service, so what is applied, and what is
-     * kept back while applying, is decided the same way as for the Supabase backend.
+     * The active profile's collections, addons, then its Home rows (which name the addons'
+     * catalogs and the collections), then its settings. Each goes through the TV's own sync
+     * service, so what is applied, and what is kept back while applying, is decided the same
+     * way as for the Supabase backend.
      */
     private suspend fun pullActiveProfileState() {
+        pullCollections()
         pullAddons()
         homeCatalogSync.get().pullFromRemote().getOrThrow()
         profileSettingsSync.get().pullCurrentProfileFromRemote().getOrThrow()
@@ -137,9 +140,10 @@ class FetchWebsiteSyncService @Inject constructor(
 
     // ─── Profiles ───
 
-    suspend fun pullProfiles() {
+    /** Writes the website's profiles to this TV. False when the website has none yet. */
+    suspend fun pullProfiles(): Boolean {
         val remote = client.profiles()
-        if (remote.isEmpty()) return
+        if (remote.isEmpty()) return false
         remoteProfiles = remote
         val local = profileManager.profiles.value.associateBy { it.id }
         profileDataStore.replaceAllProfiles(remote.map { FetchWebsiteMappings.toUserProfile(it, local[it.slot]) })
@@ -157,6 +161,7 @@ class FetchWebsiteSyncService @Inject constructor(
         lockStateDataStore.replaceAll(remote.associate { it.slot to it.hasPin })
         remote.filter { !it.hasPin }.forEach { lockStateDataStore.setLocalPinHash(it.slot, null) }
         Log.d(TAG, "Pulled ${remote.size} profiles from the website")
+        return true
     }
 
     /** Sends every profile on this TV to the website, creating the ones it doesn't have yet. */
@@ -215,67 +220,47 @@ class FetchWebsiteSyncService @Inject constructor(
 
     // ─── Collections ───
 
-    /**
-     * Reads the active profile's collections. A website that has never had any for this
-     * profile is given this TV's instead, so pairing doesn't empty the Home screen.
-     */
+    /** Applies the active profile's collections from the website, through [CollectionSyncService]. */
     suspend fun pullCollections() {
-        val remote = activeWebsiteProfile() ?: return
+        collectionSync.get().pullFromRemote().getOrThrow()
+    }
+
+    /**
+     * The collections of the website profile in [slot]. Null when there is nothing to apply: the
+     * profile is locked and nobody has unlocked it on this TV, or the website has never had any
+     * for it, in which case it is given [local] instead, so pairing doesn't empty the Home screen.
+     */
+    suspend fun collections(slot: Int, local: JsonArray): JsonArray? {
+        val remote = remoteFor(slot) ?: return null
         val (collections, updatedAt) = try {
             client.collections(remote.id, profileToken(remote.id))
         } catch (error: FetchWebsiteException) {
-            // A PIN-protected profile nobody has unlocked on this TV yet: nothing to read.
-            if (error.code == "profile_verification_required") return
+            if (error.code == "profile_verification_required") return null
             throw error
         }
         if (updatedAt == null) {
-            if (collectionsDataStore.getCurrentCollections().isNotEmpty()) pushCollections()
-            return
+            if (local.isNotEmpty()) putCollections(slot, local)
+            return null
         }
-        val remoteJson = collections.toString()
-        val parsed = collectionsDataStore.importFromJson(remoteJson)
-        if (collectionsDataStore.exportCurrentProfileJson() == collectionsDataStore.exportToJson(parsed)) return
-        collectionsDataStore.setCollections(parsed)
-        Log.d(TAG, "Applied ${parsed.size} collections from the website")
+        return collections
     }
 
-    suspend fun pushCollections(): Result<Unit> = runCatchingNonCancel {
-        val remote = activeWebsiteProfile() ?: return@runCatchingNonCancel
-        val local = collectionsDataStore.exportCurrentProfileJson()
-        val array = if (local.isNullOrBlank()) JsonArray(emptyList()) else json.parseToJsonElement(local) as JsonArray
-        client.putCollections(remote.id, profileToken(remote.id), array)
-        Log.d(TAG, "Pushed ${array.size} collections to the website")
-    }.onFailure { Log.w(TAG, "Failed to push collections to the website", it) }
-
-    /** After a change on this TV: saves the active profile's collections shortly after. */
-    fun triggerCollectionsPush() {
-        if (!store.isPaired) return
-        collectionsPushJob?.cancel()
-        collectionsPushJob = scope.launch {
-            delay(500)
-            pushCollections()
-        }
+    suspend fun putCollections(slot: Int, collections: JsonArray) {
+        val remote = remoteFor(slot) ?: return
+        client.putCollections(remote.id, profileToken(remote.id), collections)
+        Log.d(TAG, "Pushed ${collections.size} collections to the website")
     }
 
     // ─── Addons ───
 
     /**
-     * The website profile whose addons the active profile uses: its own, or the primary's for a
-     * profile set to share them.
-     */
-    private suspend fun addonsProfile(): WebsiteSlottedProfile? {
-        val active = profileManager.activeProfile
-        val slot = if (active != null && !active.isPrimary && active.usesPrimaryAddons) 1 else profileManager.activeProfileId.value
-        return remoteFor(slot)
-    }
-
-    /**
-     * Applies the website's addon list. A website that has never had one for this profile is
-     * given this TV's instead, so pairing doesn't empty the TV's addons.
+     * Applies the active profile's addon list from the account. One that has never had a list
+     * is given this TV's instead, so pairing doesn't empty the TV's addons.
      */
     suspend fun pullAddons() {
-        val urls = websiteAddonUrls() ?: run {
-            addonSyncService.get().pushToRemote().getOrThrow()
+        val addonSync = addonSyncService.get()
+        val urls = addonSync.pullRemoteAddonUrls().getOrThrow() ?: run {
+            addonSync.pushToRemote().getOrThrow()
             return
         }
         val repository = addonRepository.get()
@@ -288,12 +273,12 @@ class FetchWebsiteSyncService @Inject constructor(
     }
 
     /**
-     * The addon base URLs to install, in order, with names and on/off states written into the
-     * TV's addon preferences on the way. Null when the website has no list for this profile yet,
-     * or the profile is locked and nobody has unlocked it on this TV.
+     * The addons of the website profile in [slot], in order, as TV base URLs. Null when the
+     * website has no list for it yet; empty when the profile is locked and nobody has unlocked
+     * it on this TV.
      */
-    suspend fun websiteAddonUrls(): List<String>? {
-        val remote = addonsProfile() ?: return null
+    suspend fun addons(slot: Int): List<SyncAddon>? {
+        val remote = remoteFor(slot) ?: return null
         val body = try {
             client.addons(remote.id, profileToken(remote.id))
         } catch (error: FetchWebsiteException) {
@@ -301,28 +286,27 @@ class FetchWebsiteSyncService @Inject constructor(
             throw error
         }
         if (body.updatedAt == null && body.addons.isEmpty()) return null
-
-        val urls = body.addons.map { FetchWebsiteTvMappings.toTvAddonUrl(it.manifestUrl) }
-        if (body.addons.isNotEmpty()) {
-            addonPreferences.setAddonEnabledStates(urls.zip(body.addons).associate { (url, addon) -> url to addon.enabled })
-            val names = urls.zip(body.addons).mapNotNull { (url, addon) -> addon.name?.takeIf { it.isNotBlank() }?.let { url to it } }
-            addonPreferences.setUserSetNames(names.toMap())
-        }
-        return urls
-    }
-
-    /** Replaces the website's list with this TV's: every addon, in order, with its state and name. */
-    suspend fun pushAddons(urls: List<String>, enabled: Map<String, Boolean>, names: Map<String, String>) {
-        val remote = addonsProfile() ?: return
-        val addons = urls.map { url ->
-            WebsiteAddon(
-                manifestUrl = FetchWebsiteTvMappings.toManifestUrl(url),
-                enabled = enabled[url] ?: true,
-                name = names[url]?.takeIf { it.isNotBlank() }
+        return body.addons.map { addon ->
+            SyncAddon(
+                url = FetchWebsiteTvMappings.toTvAddonUrl(addon.manifestUrl),
+                enabled = addon.enabled,
+                name = addon.name?.takeIf { it.isNotBlank() }
             )
         }
-        client.putAddons(remote.id, profileToken(remote.id), addons)
-        Log.d(TAG, "Pushed ${addons.size} addons to the website")
+    }
+
+    /** Replaces the website's list for [slot] with [addons]: every addon, in order, with its state and name. */
+    suspend fun putAddons(slot: Int, addons: List<SyncAddon>) {
+        val remote = remoteFor(slot) ?: return
+        val body = addons.map { addon ->
+            WebsiteAddon(
+                manifestUrl = FetchWebsiteTvMappings.toManifestUrl(addon.url),
+                enabled = addon.enabled,
+                name = addon.name?.takeIf { it.isNotBlank() }
+            )
+        }
+        client.putAddons(remote.id, profileToken(remote.id), body)
+        Log.d(TAG, "Pushed ${body.size} addons to the website")
     }
 
     // ─── Home layout ───
@@ -331,8 +315,8 @@ class FetchWebsiteSyncService @Inject constructor(
      * The website's Home row order as the TV's payload, built over [local] so rows keep their
      * TV-side titles. Null when the website has never been given a layout for this profile.
      */
-    suspend fun pullHomeLayout(local: SyncHomeCatalogPayload): SyncHomeCatalogPayload? {
-        val remote = activeWebsiteProfile() ?: return null
+    suspend fun pullHomeLayout(slot: Int, local: SyncHomeCatalogPayload): SyncHomeCatalogPayload? {
+        val remote = remoteFor(slot) ?: return null
         val layout = try {
             client.homeLayout(remote.id, profileToken(remote.id))
         } catch (error: FetchWebsiteException) {
@@ -340,7 +324,7 @@ class FetchWebsiteSyncService @Inject constructor(
             throw error
         }
         if (layout.version == 0) {
-            if (local.items.isNotEmpty()) pushHomeLayout(local)
+            if (local.items.isNotEmpty()) pushHomeLayout(slot, local)
             return null
         }
         return FetchWebsiteTvMappings.fromWebsiteRows(layout.rows, local)
@@ -351,8 +335,8 @@ class FetchWebsiteSyncService @Inject constructor(
      * version sent is the current one; a save that still races another is retried once on the
      * newer layout.
      */
-    suspend fun pushHomeLayout(payload: SyncHomeCatalogPayload) {
-        val remote = activeWebsiteProfile() ?: return
+    suspend fun pushHomeLayout(slot: Int, payload: SyncHomeCatalogPayload) {
+        val remote = remoteFor(slot) ?: return
         val token = profileToken(remote.id)
         repeat(2) { attempt ->
             val current = client.homeLayout(remote.id, token)
@@ -418,7 +402,6 @@ class FetchWebsiteSyncService @Inject constructor(
                 if (!store.isPaired) return@collect
                 syncMutex.withLock {
                     runCatchingNonCancel {
-                        pullCollections()
                         pullActiveProfileState()
                     }.onFailure { Log.w(TAG, "Website sync after a profile switch failed", it) }
                 }

@@ -1,23 +1,15 @@
 package com.fetch.tv.core.sync
 
-import android.os.SystemClock
 import android.util.Log
 import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.profile.ProfileManager
-import com.fetch.tv.data.local.ProfileDataStore
-import com.fetch.tv.data.website.FetchWebsiteSyncService
+import com.fetch.tv.core.sync.backend.SyncBackends
 import com.fetch.tv.data.remote.supabase.SupabaseProfileLockState
-import com.fetch.tv.data.remote.supabase.SupabaseProfile
 import com.fetch.tv.data.remote.supabase.SupabaseProfilePinVerifyResult
 import com.fetch.tv.domain.model.UserProfile
-import com.fetch.tv.domain.model.AuthState
 import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.serialization.json.addJsonObject
-import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import javax.inject.Inject
@@ -48,17 +40,10 @@ sealed class SetProfilePinResult {
 class ProfileSyncService @Inject constructor(
     private val authManager: AuthManager,
     private val postgrestLazy: dagger.Lazy<Postgrest>,
-    private val profileDataStore: ProfileDataStore,
     private val profileManager: ProfileManager,
-    private val syncClientIdentity: SyncClientIdentity,
-    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>,
-    private val profileSettingsSync: dagger.Lazy<ProfileSettingsSyncService>
+    private val backends: SyncBackends
 ) {
     private val postgrest: Postgrest get() = postgrestLazy.get()
-
-    private val pullMutex = Mutex()
-    private var pullFreshness = ProfilePullFreshness()
-    private var lastPulledProfiles = emptyList<UserProfile>()
 
     private suspend fun <T> withJwtRefreshRetry(block: suspend () -> T): T {
         return try {
@@ -69,118 +54,26 @@ class ProfileSyncService @Inject constructor(
         }
     }
 
+    /** Sends every profile on this TV to the sync backend in use. */
     suspend fun pushToRemote(): Result<Unit> = withContext(Dispatchers.IO) {
-        // A TV signed in to a Fetch website keeps its profiles there instead.
-        if (websiteSync.get().isPaired) return@withContext websiteSync.get().pushProfiles()
-        try {
-            val profiles = profileManager.profiles.value
-
-            val params = buildJsonObject {
-                put("p_client_max_profiles", ProfileManager.MAX_PROFILES)
-                put("p_profiles", buildJsonArray {
-                    profiles.forEach { profile ->
-                        addJsonObject {
-                            put("profile_index", profile.id)
-                            put("name", profile.name)
-                            put("avatar_color_hex", profile.avatarColorHex)
-                            put("uses_primary_addons", profile.usesPrimaryAddons)
-                            // Fetch no longer has plugins; the sync schema still carries the column.
-                            put("uses_primary_plugins", false)
-                            put("avatar_id", if (profile.avatarUrl.isNullOrBlank()) profile.avatarId else null)
-                            put("avatar_url", profile.avatarUrl?.takeIf { it.isNotBlank() })
-                            put("profile_background_id", profile.profileBackgroundId)
-                            put("profile_background_url", profile.profileBackgroundUrl?.takeIf { it.isNotBlank() })
-                        }
-                    }
-                })
-                putSyncOriginClientId(syncClientIdentity)
-            }
-            withJwtRefreshRetry {
-                postgrest.rpc("sync_push_profiles", params)
-            }
-
-            Log.d(TAG, "Pushed ${profiles.size} profiles to remote")
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to push profiles to remote", e)
-            Result.failure(e)
-        }
+        backends.active?.pushProfiles() ?: Result.success(Unit)
     }
 
+    /**
+     * Reads the account's profiles into this TV, with whatever the backend keeps next to them
+     * (parental limits; which profiles have a PIN). Returns the TV's profiles afterwards.
+     */
     suspend fun pullFromRemote(force: Boolean = false): Result<List<UserProfile>> = withContext(Dispatchers.IO) {
-        if (websiteSync.get().isPaired) {
-            return@withContext runCatching { websiteSync.get().pullProfiles() }.map { profileManager.profiles.value }
-        }
-        pullMutex.withLock {
-            val userId = (authManager.authState.value as? AuthState.FullAccount)?.userId
-            val now = SystemClock.elapsedRealtime()
-            if (!force && userId != null && pullFreshness.isRecent(userId, now)) {
-                return@withLock Result.success(lastPulledProfiles)
-            }
-            try {
-                val response = withJwtRefreshRetry {
-                    postgrest.rpc("sync_pull_profiles")
-                }
-                val remote = response.decodeList<SupabaseProfile>()
-
-                Log.d(TAG, "pullFromRemote: fetched ${remote.size} profiles from Supabase")
-
-                val profiles = remote.map { entry ->
-                    UserProfile(
-                        id = entry.profileIndex,
-                        name = entry.name,
-                        avatarColorHex = entry.avatarColorHex,
-                        usesPrimaryAddons = entry.usesPrimaryAddons,
-                        avatarId = entry.avatarId,
-                        avatarUrl = entry.avatarUrl,
-                        profileBackgroundId = entry.profileBackgroundId,
-                        profileBackgroundUrl = entry.profileBackgroundUrl
-                    )
-                }
-
-                var limitsSynced = true
-                if (profiles.isNotEmpty()) {
-                    profileDataStore.replaceAllProfiles(profiles)
-                    Log.d(TAG, "Merged ${profiles.size} remote profiles into local store")
-                    // Limits travel with each profile's settings; failures are logged inside, and
-                    // the pull isn't marked fresh so the next one tries again.
-                    limitsSynced = profileSettingsSync.get().pullParentalLimits(profiles.map { it.id })
-                }
-
-                val currentUserId = (authManager.authState.value as? AuthState.FullAccount)?.userId
-                if (userId != null && currentUserId == userId && limitsSynced) {
-                    lastPulledProfiles = profiles
-                    pullFreshness = ProfilePullFreshness(
-                        userId = userId,
-                        pulledAtMs = SystemClock.elapsedRealtime()
-                    )
-                }
-                Result.success(profiles)
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to pull profiles from remote", e)
-                Result.failure(e)
-            }
-        }
+        val backend = backends.active ?: return@withContext Result.success(profileManager.profiles.value)
+        backend.pullProfiles(force).map { profileManager.profiles.value }
     }
 
     suspend fun deleteProfileData(profileId: Int): Result<Unit> = withContext(Dispatchers.IO) {
-        if (websiteSync.get().isPaired) return@withContext websiteSync.get().deleteProfile(profileId)
-        try {
-            val params = buildJsonObject {
-                put("p_profile_id", profileId)
-                putSyncOriginClientId(syncClientIdentity)
-            }
-            withJwtRefreshRetry {
-                postgrest.rpc("sync_delete_profile_data", params)
-            }
-
-            Log.d(TAG, "Deleted remote data for profile $profileId")
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to delete remote profile data for profile $profileId", e)
-            Result.failure(e)
-        }
+        backends.active?.deleteProfileData(profileId) ?: Result.success(Unit)
     }
+
+    // PINs checked by a Supabase server. A paired Fetch website checks its own through
+    // FetchWebsiteProfilePins.
 
     suspend fun pullProfileLockStates(): Result<Map<Int, Boolean>> = withContext(Dispatchers.IO) {
         try {

@@ -1,12 +1,9 @@
 package com.fetch.tv.core.sync
 
 import android.util.Log
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.core.sync.backend.SyncBackends
 import com.fetch.tv.data.local.CollectionsDataStore
-import com.fetch.tv.data.website.FetchWebsiteSyncService
-import com.fetch.tv.data.remote.supabase.SupabaseCollectionBlob
-import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -16,24 +13,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val TAG = "CollectionSyncService"
 
+/** The active profile's collections, as one document, through whichever sync backend is in use ([SyncBackends]). */
 @Singleton
 class CollectionSyncService @Inject constructor(
-    private val postgrestLazy: dagger.Lazy<Postgrest>,
-    private val authManager: AuthManager,
     private val collectionsDataStore: CollectionsDataStore,
     private val profileManager: ProfileManager,
-    private val syncClientIdentity: SyncClientIdentity,
-    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>
+    private val backends: SyncBackends
 ) {
-    private val postgrest: Postgrest get() = postgrestLazy.get()
-
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @Volatile
@@ -41,86 +32,38 @@ class CollectionSyncService @Inject constructor(
 
     private var pushJob: Job? = null
 
-    private suspend fun <T> withJwtRefreshRetry(block: suspend () -> T): T {
-        return try {
-            block()
-        } catch (e: Exception) {
-            if (!authManager.refreshSessionIfJwtExpired(e)) throw e
-            block()
-        }
+    private suspend fun localCollectionsJson(): JsonArray {
+        val json = collectionsDataStore.exportCurrentProfileJson()
+        return if (json.isNullOrBlank()) JsonArray(emptyList()) else Json.parseToJsonElement(json) as JsonArray
     }
 
-    /**
-     * Push local collections JSON to Supabase via RPC.
-     * Uses a SECURITY DEFINER function to handle RLS for linked devices.
-     */
     suspend fun pushToRemote(): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            val profileId = profileManager.activeProfileId.value
-            val json = collectionsDataStore.exportCurrentProfileJson()
-
-            val collectionsJsonElement = if (json.isNullOrBlank()) {
-                JsonArray(emptyList())
-            } else {
-                Json.parseToJsonElement(json)
-            }
-
-            val params = buildJsonObject {
-                put("p_profile_id", profileId)
-                put("p_collections_json", collectionsJsonElement)
-                putSyncOriginClientId(syncClientIdentity)
-            }
-
-            withJwtRefreshRetry {
-                postgrest.rpc("sync_push_collections", params)
-            }
-
-            Log.d(TAG, "Pushed collections to remote for profile $profileId")
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to push collections to remote", e)
-            Result.failure(e)
-        }
+        val backend = backends.active ?: return@withContext Result.success(Unit)
+        val profileId = profileManager.activeProfileId.value
+        val collections = runCatching { localCollectionsJson() }.getOrElse { return@withContext Result.failure(it) }
+        backend.pushCollections(profileId, collections)
+            .onSuccess { Log.d(TAG, "Pushed ${collections.size} collections to ${backend.kind} for profile $profileId") }
+            .onFailure { Log.e(TAG, "Failed to push collections to ${backend.kind}", it) }
     }
 
     /**
-     * Pull remote collections JSON and apply locally.
+     * Pulls the active profile's collections and applies them locally.
      * Returns true if local state was updated.
      */
     suspend fun pullFromRemote(): Result<Boolean> = withContext(Dispatchers.IO) {
-        if (websiteSync.get().isPaired) {
-            return@withContext runCatching { websiteSync.get().pullCollections() }.map { true }
-        }
+        val backend = backends.active ?: return@withContext Result.success(false)
         try {
             val profileId = profileManager.activeProfileId.value
-
-            val params = buildJsonObject {
-                put("p_profile_id", profileId)
-            }
-
-            val response = withJwtRefreshRetry {
-                postgrest.rpc("sync_pull_collections", params)
-            }
-            val rows = response.decodeList<SupabaseCollectionBlob>()
-            val blob = rows.firstOrNull()
-            if (blob == null) {
-                Log.d(TAG, "No remote collections for profile $profileId; keeping local")
+            val remote = backend.pullCollections(profileId, localCollectionsJson()).getOrThrow()
+            if (remote == null) {
+                Log.d(TAG, "No remote collections to apply for profile $profileId; keeping local")
                 return@withContext Result.success(false)
             }
+            if (profileManager.activeProfileId.value != profileId) return@withContext Result.success(false)
 
-            val remoteJson = blob.collectionsJson.toString()
-            val remoteCollections = collectionsDataStore.importFromJson(remoteJson)
-
-            // Preserve local if remote is empty but local has data
-            val localCollections = collectionsDataStore.getCurrentCollections()
-            if (remoteCollections.isEmpty() && localCollections.isNotEmpty()) {
-                Log.w(TAG, "Remote collections empty while local has ${localCollections.size}; preserving local")
-                return@withContext Result.success(false)
-            }
-
-            // Check if different
-            val localJson = collectionsDataStore.exportCurrentProfileJson() ?: ""
-            if (remoteJson == localJson) {
+            val remoteCollections = collectionsDataStore.importFromJson(remote.toString())
+            val localJson = collectionsDataStore.exportCurrentProfileJson().orEmpty()
+            if (collectionsDataStore.exportToJson(remoteCollections) == localJson) {
                 Log.d(TAG, "Remote collections already match local for profile $profileId")
                 return@withContext Result.success(false)
             }
@@ -132,10 +75,12 @@ class CollectionSyncService @Inject constructor(
                 isSyncingFromRemote = false
             }
 
-            Log.d(TAG, "Applied ${remoteCollections.size} remote collections for profile $profileId")
+            Log.d(TAG, "Applied ${remoteCollections.size} collections from ${backend.kind} for profile $profileId")
             Result.success(true)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to pull collections from remote", e)
+            Log.e(TAG, "Failed to pull collections from ${backend.kind}", e)
             Result.failure(e)
         }
     }
@@ -145,12 +90,7 @@ class CollectionSyncService @Inject constructor(
      */
     fun triggerPush() {
         if (isSyncingFromRemote) return
-        // A TV signed in to a Fetch website saves its collections there instead.
-        if (websiteSync.get().isPaired) {
-            websiteSync.get().triggerCollectionsPush()
-            return
-        }
-        if (!authManager.isAuthenticated) return
+        if (!backends.canSync) return
         pushJob?.cancel()
         pushJob = scope.launch {
             delay(500)

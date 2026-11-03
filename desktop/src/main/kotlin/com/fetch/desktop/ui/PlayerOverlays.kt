@@ -101,7 +101,7 @@ internal fun PauseOverlay(session: PlayerSession, visible: Boolean) {
 
 /** The playing file's details from mpv, as the TV's stream info overlay shows them. Toggled with I. */
 @Composable
-internal fun StreamInfoOverlay(session: PlayerSession, modifier: Modifier = Modifier) {
+internal fun StreamInfoOverlay(session: PlayerSession, modifier: Modifier = Modifier, footer: @Composable () -> Unit = {}) {
     val mpv = session.mpv
     val lines by produceState(emptyList<Pair<String, String>>(), session) {
         while (true) {
@@ -125,6 +125,7 @@ internal fun StreamInfoOverlay(session: PlayerSession, modifier: Modifier = Modi
             }
         }
         @Suppress("UNUSED_EXPRESSION") mpv.position
+        footer()
     }
 }
 
@@ -234,31 +235,14 @@ internal fun PlayerSidePanel(state: AppState, session: PlayerSession, panel: Pla
                 when (panel) {
                     PlayerPanel.AUDIO -> {
                         item { DelayRow("Audio delay", session.mpv.audioDelay, step = 0.05, onChange = session.mpv::changeAudioDelay) }
+                        audioPanelExtraItems(state, session)
                         item { PanelHeading("Tracks") }
                         items(session.mpv.tracks.filter { it.type == "audio" }) { t ->
                             PanelRow(t.label, detail = trackDetail(t), selected = t.selected) { session.mpv.selectAudio(t.id) }
                         }
                     }
-                    PlayerPanel.SUBTITLES -> {
-                        item { DelayRow("Subtitle delay (Z / X)", session.mpv.subtitleDelay, step = 0.1, onChange = session.mpv::changeSubtitleDelay) }
-                        item { PanelHeading("Tracks") }
-                        val subs = session.mpv.tracks.filter { it.type == "sub" }
-                        item { PanelRow("Off", selected = subs.none { it.selected }) { session.mpv.selectSubtitle(null) } }
-                        items(subs) { t ->
-                            PanelRow(t.label, detail = trackDetail(t), selected = t.selected) { session.mpv.selectSubtitle(t.id) }
-                        }
-                        val addonSubs = session.addonSubtitles
-                        item { PanelHeading("From your addons") }
-                        when {
-                            session.addonSubtitlesLoading -> item { LoadingRow("Asking your addons…") }
-                            addonSubs.isNullOrEmpty() -> item { Text("None found.", color = FetchPalette.TextMuted, modifier = Modifier.padding(8.dp)) }
-                            else -> items(addonSubs) { sub ->
-                                PanelRow(languageName(sub.language), detail = sub.url.substringAfterLast('/').take(60), selected = false) {
-                                    session.mpv.addSubtitle(sub.url, languageName(sub.language), sub.language)
-                                }
-                            }
-                        }
-                    }
+                    // Grouped and filtered as on TV (PlayerExtrasUi.kt).
+                    PlayerPanel.SUBTITLES -> subtitlePanelItems(state, session)
                     PlayerPanel.SOURCES -> {
                         if (session.sourcesLoading) item { LoadingRow("Asking your addons…") }
                         items(session.sources, key = { it.stream.stableKey(it.originalIndex) }) { ranked ->
@@ -316,12 +300,12 @@ private fun PanelTab(label: String, selected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun PanelHeading(text: String) {
+internal fun PanelHeading(text: String) {
     Text(text.uppercase(), style = OverlineStyle, color = FetchPalette.TextMuted, modifier = Modifier.padding(top = 14.dp, bottom = 4.dp, start = 4.dp))
 }
 
 @Composable
-private fun LoadingRow(text: String) {
+internal fun LoadingRow(text: String) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(8.dp)) {
         CircularProgressIndicator(Modifier.size(18.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
         Text(text, color = FetchPalette.TextSecondary)
@@ -329,7 +313,7 @@ private fun LoadingRow(text: String) {
 }
 
 @Composable
-private fun PanelRow(title: String, detail: String? = null, selected: Boolean, onClick: () -> Unit) {
+internal fun PanelRow(title: String, detail: String? = null, selected: Boolean, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
     Row(
@@ -362,7 +346,7 @@ private fun PanelRow(title: String, detail: String? = null, selected: Boolean, o
 
 /** − value + for a delay in seconds, with a reset. */
 @Composable
-private fun DelayRow(label: String, seconds: Double, step: Double, onChange: (Double) -> Unit) {
+internal fun DelayRow(label: String, seconds: Double, step: Double, onChange: (Double) -> Unit) {
     Column(Modifier.padding(horizontal = 4.dp, vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(label, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Medium)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {

@@ -159,6 +159,8 @@ data class RemoteSharedSettings(
     val appearance: RemoteAppearance? = null,
     /** `experience_settings`: Essential or Advanced. */
     val experience: RemoteExperience? = null,
+    /** Subtitle, audio, Anime-Skip and trailer settings the TV syncs ([RemotePlayerExtras]). */
+    val playerExtras: RemotePlayerExtras? = null,
 )
 
 /**

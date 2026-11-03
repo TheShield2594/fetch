@@ -200,6 +200,8 @@ data class PlayerSettings(
     val serverMaxBitrateKbps: Int? = null,
     /** Skip Segments: what mpv jumps over automatically, from introdb.app's times. */
     val autoSkip: Set<SegmentType> = setOf(SegmentType.INTRO, SegmentType.RECAP),
+    /** Anime skip sources, subtitle extras, audio extras, stats overlay and trailers (data/PlayerExtras.kt). */
+    val extras: PlayerExtras = PlayerExtras(),
 
     // --- Added for TV parity ---
     /** "Default Player: Ask every time": choose the built-in player or mpv's window on Play. */

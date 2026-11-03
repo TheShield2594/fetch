@@ -129,7 +129,7 @@ data class YouTubeNowPlaying(
  */
 class YouTubeState(
     private val scope: CoroutineScope,
-    private val host: YouTubeHost,
+    internal val host: YouTubeHost,
     private val authStore: YouTubeAuthStore,
     private val dataStore: JsonFile<YouTubeLocalData>,
     http: OkHttpClient = OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS).build(),

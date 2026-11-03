@@ -310,6 +310,7 @@ private fun PlayerPage(state: AppState) {
             "Added to every playback, for example --volume=80 --sub-font=\"Noto Sans\"",
             p.extraMpvArgs
         ) { v -> state.updatePlayer { it.copy(extraMpvArgs = v) } }
+        StatsHudSetting(state)
     }
 }
 
@@ -379,6 +380,7 @@ private fun AudioPage(state: AppState) {
             listOf(0, 3, 6, 9, 12).map { DropdownOption(it, if (it == 0) "Off" else "+$it dB") }
         ) { v -> state.updatePlayer { it.copy(volumeBoostDb = v) } }
     }
+    AudioExtrasSettings(state)
 }
 
 @Composable
@@ -450,6 +452,7 @@ private fun SubtitlesPage(state: AppState) {
             AssOverride.entries.map { DropdownOption(it, it.label) }
         ) { v -> state.updatePlayer { it.copy(assOverride = v) } }
     }
+    SubtitleExtrasSettings(state)
 }
 
 private val TextColors = listOf(
@@ -547,16 +550,16 @@ private val TmdbLanguages = listOf(
 @Composable
 private fun SkipSegmentsPage(state: AppState) {
     val p = state.settings.player
-    PageHeader("Skip Segments", subtitle = "Intros, recaps and credits, from introdb.app. mpv jumps over them and says so on screen.")
+    PageHeader("Skip Segments", subtitle = "Intros, recaps and credits from introdb.app, and for anime from AniSkip and Anime Skip. mpv jumps over them and says so on screen.")
     SettingsSection("Automatic Skipping") {
-        SegmentType.entries.forEach { type ->
-            SettingsToggle(
-                "Skip ${type.label.lowercase()}",
-                if (type == SegmentType.OUTRO) "Skipping the credits ends the episode, so Up Next starts sooner." else null,
-                type in p.autoSkip
-            ) { on -> state.updatePlayer { it.copy(autoSkip = if (on) it.autoSkip + type else it.autoSkip - type) } }
+        SegmentType.autoSkippable.forEach { type ->
+            val (title, description) = autoSkipTitle(type)
+            SettingsToggle(title, description, type in p.autoSkip) { on ->
+                state.updatePlayer { it.copy(autoSkip = if (on) it.autoSkip + type else it.autoSkip - type) }
+            }
         }
     }
+    AnimeSkipSettings(state)
     SettingsSection("Skip button") {
         SettingsToggle(
             "Show Skip button",
@@ -979,6 +982,7 @@ private fun LayoutPage(state: AppState) {
             state.updateSettings { it.copy(showPosterLabels = v) }
         }
     }
+    TrailerSettings(state)
     SettingsSection("Navigation") {
         SettingsChoice(
             "Discover Location",

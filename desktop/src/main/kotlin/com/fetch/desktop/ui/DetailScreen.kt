@@ -108,6 +108,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
 
     CompositionLocalProvider(LocalStreamBadges provides state.badges) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
+        TrailerAutoplay(state, meta?.trailerYtIds?.firstOrNull() ?: preview.trailerYtIds.firstOrNull(), meta?.name ?: preview.name)
         val heroMinHeight = maxHeight * 0.5f
         Backdrop(meta?.background ?: preview.backdropUrl, height = maxHeight * 0.85f)
         ScrollbarBox(listState, Modifier.fillMaxSize()) {

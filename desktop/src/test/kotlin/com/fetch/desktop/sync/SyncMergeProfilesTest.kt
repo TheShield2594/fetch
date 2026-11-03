@@ -244,7 +244,7 @@ class SyncMergeProfilesTest {
         assertEquals("de", shared.audioLanguage)
         assertNull(shared.subtitleLanguage)
         assertEquals(true, shared.rankingRules!!.dropUndecodable)
-        assertEquals(setOf("outro", "movie-credits"), shared.autoSkipSegments)
+        assertEquals("movie credits are a desktop type too, so off here means off", setOf("outro"), shared.autoSkipSegments)
         assertEquals("FETCH", DesktopSettings().toRemoteSharedSettings(remote).theme)
 
         val applied = RemoteSharedSettings(
@@ -263,7 +263,7 @@ class SyncMergeProfilesTest {
         assertEquals("fr", applied.player.subtitleLanguage)
         assertFalse(applied.rankingRules.dropUndecodable)
         assertFalse(applied.rankingRules.preferOwnLibrary)
-        assertEquals(setOf(SegmentType.INTRO), applied.player.autoSkip)
+        assertEquals(setOf(SegmentType.INTRO, SegmentType.MOVIE_CREDITS), applied.player.autoSkip)
         assertNull(RemoteSharedSettings(audioLanguage = "default").applyTo(desktop).player.audioLanguage)
     }
 }

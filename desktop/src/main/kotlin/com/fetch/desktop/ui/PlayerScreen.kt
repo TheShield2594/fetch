@@ -144,6 +144,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                     Key.M -> mpv.toggleMute()
                     Key.F -> toggleFullscreen()
                     Key.Escape -> when {
+                        closeExtraPanels(session) -> Unit
                         session.partyPanelOpen -> session.partyPanelOpen = false
                         session.panel != null -> session.panel = null
                         window?.placement == WindowPlacement.Fullscreen -> toggleFullscreen()
@@ -189,7 +190,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
 
         // Paused for a few seconds with the controls gone: what's on, as on TV.
         if (state.settings.player.pauseOverlay) PauseOverlay(session, visible = mpv.paused && !controlsVisible)
-        if (session.showInfo) StreamInfoOverlay(session, Modifier.align(Alignment.TopEnd).padding(top = 96.dp, end = 32.dp))
+        if (session.showInfo) StreamInfoOverlay(session, Modifier.align(Alignment.TopEnd).padding(top = 96.dp, end = 32.dp), footer = { StatsHudToggle(state) })
         session.upNextCountdown(mpv.position, mpv.duration, state.settings.player.upNextPromptSeconds)?.let { seconds ->
             UpNextCard(
                 session = session,
@@ -200,14 +201,8 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
             )
         }
 
-        // Skip intro / recap / credits, for segments not skipped automatically.
-        session.skippable(mpv.position)?.takeIf { session.upNextCountdown(mpv.position, mpv.duration, state.settings.player.upNextPromptSeconds) == null }?.let { segment ->
-            Box(Modifier.align(Alignment.BottomEnd).padding(end = 48.dp, bottom = 150.dp)) {
-                PrimaryButton("Skip ${segment.displayLabel}", icon = FetchIcons.ChevronRight, onClick = {
-                    controls.seekTo(segment.endSec)
-                })
-            }
-        }
+        // Skip intro / recap / credits (the TV's wording and timing), stats overlay, live subtitle style and audio extras.
+        PlayerExtrasLayer(state, session, controlsVisible || mpv.paused)
 
         AnimatedVisibility(controlsVisible || mpv.paused, enter = fadeIn(), exit = fadeOut(), modifier = Modifier.fillMaxSize()) {
             Box(Modifier.fillMaxSize()) {
@@ -302,6 +297,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
         session.panel?.let { panel ->
             PlayerSidePanel(state, session, panel, Modifier.align(Alignment.CenterEnd))
         }
+        PlayerExtrasPanels(state, session)
         if (session.partyPanelOpen) PartyPlayerPanel(state, session, Modifier.align(Alignment.CenterEnd))
         state.stillWatching?.let { prompt ->
             StillWatchingOverlay(prompt.label, onContinue = { state.answerStillWatching(true) }, onStop = { state.answerStillWatching(false) })

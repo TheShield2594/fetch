@@ -41,7 +41,9 @@ fun SavedLibraryItem.toRemoteLibraryItem(): RemoteLibraryItem = RemoteLibraryIte
 // --- Shared settings <-> DesktopSettings ---
 
 private val TV_LANGUAGE_CHOICES = setOf("device", "default", "original", "forced")
-private val SEGMENT_STORED = mapOf(SegmentType.INTRO to "intro", SegmentType.RECAP to "recap", SegmentType.OUTRO to "outro")
+private val SEGMENT_STORED = mapOf(
+    SegmentType.INTRO to "intro", SegmentType.RECAP to "recap", SegmentType.OUTRO to "outro", SegmentType.MOVIE_CREDITS to "movie-credits"
+)
 
 /**
  * [settings] with the account's shared settings applied. Fields the blob doesn't have are left
@@ -71,6 +73,7 @@ fun RemoteSharedSettings.applyTo(settings: DesktopSettings): DesktopSettings {
     autoSkipSegments?.let { stored ->
         player = player.copy(autoSkip = SEGMENT_STORED.filterValues { it in stored }.keys)
     }
+    playerExtras?.let { player = player.copy(extras = it.applyTo(player.extras)) }
     showUnairedNextUp?.let { s = s.copy(showUnairedNextUp = it) }
     nextUpFromFurthest?.let { s = s.copy(nextUpFromFurthest = it) }
     continueWatchingSort?.let { name ->
@@ -133,7 +136,7 @@ private fun com.fetch.desktop.mdblist.MdbListSettings.toRemoteFlags(): Map<Strin
 
 /**
  * [settings] as shared settings to push. [remote] is the account's current copy: the TV's own
- * `dropUndecodable` and a `movie-credits` auto-skip are kept from it, and a language left unset
+ * `dropUndecodable` and any auto-skip type this app lacks are kept from it, and a language left unset
  * here isn't sent, so the TV keeps its own.
  */
 fun DesktopSettings.toRemoteSharedSettings(remote: RemoteSharedSettings? = null): RemoteSharedSettings {
@@ -172,6 +175,7 @@ fun DesktopSettings.toRemoteSharedSettings(remote: RemoteSharedSettings? = null)
         tmdbLanguage = tmdb.language,
         mdblistFlags = mdblist.toRemoteFlags(),
         mdblistRatingOrder = mdblist.ratingOrder.joinToString(","),
+        playerExtras = RemotePlayerExtras.from(player.extras),
     )
 }
 

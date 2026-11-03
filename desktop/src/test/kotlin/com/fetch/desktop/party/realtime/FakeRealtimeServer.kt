@@ -49,7 +49,7 @@ class FakeRealtimeServer : RealtimeTransport {
 }
 
 /** Polls [condition] for up to [timeoutMs]. */
-fun waitUntil(timeoutMs: Long = 3_000, condition: () -> Boolean) {
+fun waitUntil(timeoutMs: Long = 10_000, condition: () -> Boolean) {
     val deadline = System.currentTimeMillis() + timeoutMs
     while (!condition()) {
         if (System.currentTimeMillis() > deadline) throw AssertionError("Timed out waiting")

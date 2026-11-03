@@ -40,7 +40,9 @@ data class MpvTrack(
     val forced: Boolean = false,
     val isDefault: Boolean = false,
     /** Audio: "5.1(side)" and the like. */
-    val channels: String? = null
+    val channels: String? = null,
+    /** An added file's path or URL (mpv's external-filename), so an addon subtitle can be found again. */
+    val externalFilename: String? = null
 ) {
     val label: String
         get() = listOfNotNull(
@@ -279,6 +281,12 @@ class EmbeddedMpv private constructor(
         frameReady.release()
     }
 
+    /** Sets an mpv property while playing (the subtitle style panel, audio extras). */
+    fun setProperty(name: String, value: String) = set(name, value)
+
+    /** Runs an mpv command ("af", "add", …). */
+    fun runCommand(vararg args: String) = command(*args)
+
     /** A property as text, for the stream info overlay; null when mpv has none. */
     fun property(name: String): String? = getString(name)?.takeIf { it.isNotBlank() }
     fun stop() = command("stop")
@@ -500,7 +508,8 @@ class EmbeddedMpv private constructor(
                 selected = o["selected"]?.jsonPrimitive?.booleanOrNull == true,
                 forced = o["forced"]?.jsonPrimitive?.booleanOrNull == true,
                 isDefault = o["default"]?.jsonPrimitive?.booleanOrNull == true,
-                channels = str("demux-channels") ?: o["demux-channel-count"]?.jsonPrimitive?.intOrNull?.let { "${it}ch" }
+                channels = str("demux-channels") ?: o["demux-channel-count"]?.jsonPrimitive?.intOrNull?.let { "${it}ch" },
+                externalFilename = str("external-filename")
             )
         }
     }.getOrDefault(emptyList())

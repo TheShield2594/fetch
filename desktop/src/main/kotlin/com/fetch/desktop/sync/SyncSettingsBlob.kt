@@ -101,6 +101,7 @@ object SyncSettingsBlob {
             mdblistRatingOrder = string(MDBLIST, "mdblist_rating_order"),
             appearance = AppearanceExperienceSync.appearance(blob),
             experience = AppearanceExperienceSync.experience(blob),
+            playerExtras = RemotePlayerExtras.read(features),
         )
     }
 
@@ -131,6 +132,7 @@ object SyncSettingsBlob {
         settings.mdblistFlags?.forEach { (key, value) -> if (key in MDBLIST_FLAGS) set(MDBLIST, key, booleanValue(value)) }
         set(MDBLIST, "mdblist_rating_order", settings.mdblistRatingOrder?.let(::stringValue))
         AppearanceExperienceSync.edits(settings).forEach { (feature, key, value) -> set(feature, key, value) }
+        settings.playerExtras?.edits()?.forEach { (feature, key, encoded) -> set(feature, key, encoded) }
 
         val base = blob ?: JsonObject(emptyMap())
         val features = (base[FEATURES] as? JsonObject).orEmpty().toMutableMap()

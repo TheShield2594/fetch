@@ -158,7 +158,7 @@ class PartyStateTest {
         snapshot = snapshot(playback = """{"seq":1,"member_id":"m1","paused":false,"position_ms":1000,"rate":1.0,"at":1000,"media_key":"movie|tt1||"}""")
         val party = state()
         val notices = Collections.synchronizedList(mutableListOf<PartyNotice>())
-        scope.launch { party.notices.collect { notices += it } }
+        scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { party.notices.collect { notices += it } }
         party.join("ABC234")
         assertEquals(1L, party.playback.value!!.seq)
         channel.connect()
@@ -208,7 +208,7 @@ class PartyStateTest {
         snapshot = snapshot(host = "m2", self = "m1")
         val party = state()
         val events = Collections.synchronizedList(mutableListOf<PartyEvent>())
-        scope.launch { party.events.collect { events += it } }
+        scope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) { party.events.collect { events += it } }
         party.join("ABC234")
         channel.connect()
         channel.deliver("media", """{"media":{"type":"series","meta_id":"tt2","meta_type":"series","season":1,"episode":3,"title":"Show"},"playback":{"seq":9,"member_id":"m2","paused":false,"position_ms":0,"rate":1.0,"at":0,"media_key":"series|tt2|1|3"}}""")

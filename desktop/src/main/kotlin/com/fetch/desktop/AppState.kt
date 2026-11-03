@@ -1486,12 +1486,10 @@ class AppState(
         if (pick != null) play(pick) else sourcesPanelOpen = true
     }
 
-    fun playTrailer(ytId: String, title: String) {
-        when (val result = ExternalPlayer.playUrl("https://www.youtube.com/watch?v=$ytId", "$title (trailer)")) {
-            is ExternalPlayer.Result.Started -> message = "Opening the trailer in ${result.player}"
-            is ExternalPlayer.Result.Failed -> message = result.message
-        }
-    }
+    /** Plays a trailer in the built-in player when it's the Default Player, else in mpv's window. */
+    fun playTrailer(ytId: String, title: String) = trailers.play(ytId, title)
+
+    private val trailers by lazy { com.fetch.desktop.trailer.TrailerPlayer(scope, youtube.host) }
 
     /** Plays [ranked] for the title or episode the sources are for, resuming where it was left. */
     fun play(ranked: RankedStream, builtIn: Boolean? = null) {
@@ -1593,16 +1591,15 @@ class AppState(
         }.filter { (lang, _) -> lang in wanted }.map { it.second }.distinct().take(3)
     }
 
-    /** IntroDB's intro, recap and credits times for [target]; empty when unknown. */
+    /** Intro, recap and credits times for [target] from IntroDB, AniSkip and Anime-Skip; empty when unknown. */
     private suspend fun segmentsFor(target: PlaybackTarget): List<Segment> {
-        val imdb = target.contentId.takeIf { it.startsWith("tt") } ?: return emptyList()
         val video = target.video
-        return withTimeoutOrNull(4_000) { introDb.segments(imdb, video?.season, video?.episode) }.orEmpty()
+        return withTimeoutOrNull(6_000) {
+            skipSources.segments(target.contentId, video?.id, video?.season, video?.episode, isMovie = target.contentType == "movie")
+        }.orEmpty()
     }
 
-    private val introDb by lazy {
-        IntroDbClient(okhttp3.OkHttpClient()) { settings.player.introDbUrl?.takeIf { it.isNotBlank() } ?: IntroDbClient.DEFAULT_URL }
-    }
+    private val skipSources by lazy { com.fetch.desktop.skip.defaultSkipSources { settings.player } }
 
     private fun followProgress(
         result: ExternalPlayer.Result.Started,
@@ -1635,7 +1632,7 @@ class AppState(
             var lastPosition: Double? = null
             val ending = withContext(Dispatchers.IO) {
                 run(
-                    { position -> skipper?.at(position)?.let { MpvProgress.Seek(it.endSec, "Skipped ${it.type.label.lowercase()}") } }
+                    { position -> skipper?.at(position)?.let { MpvProgress.Seek(it.targetSec, "Skipped ${it.displayLabel}") } }
                 ) { sample ->
                     scope.launch {
                         // Screen time counts what actually played, not seeks.

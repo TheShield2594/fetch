@@ -186,7 +186,7 @@ fun PartyPlayerPanel(state: AppState, session: PlayerSession, modifier: Modifier
 
 @Composable
 private fun StartPartyContent(state: AppState, busy: Boolean, available: Boolean, canStart: Boolean) {
-    SeatsHero(state.party.currentProfile.name, state.party.currentProfile.color)
+    SeatsHero(state.party.currentProfile.name, state.party.currentProfile.color, state.profiles.active?.avatarId)
     Text("Watch together", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
     Text(
         "Invite your friends. Everyone plays from their own sources and stays in sync.",
@@ -370,13 +370,13 @@ private fun JoinPartySection(state: AppState, available: Boolean, busy: Boolean)
                 MediaHeader(current.media)
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     current.host?.let { host ->
-                        Avatar(host.displayName, host.avatarColor, 28.dp)
+                        Avatar(host.displayName, host.avatarColor, 28.dp, host.avatarUrl)
                         Text("Hosted by ${host.displayName}", color = FetchPalette.TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     Text("${current.members} of ${current.maxMembers} seats", color = FetchPalette.TextMuted, fontSize = 13.sp)
                 }
             } else {
-                SeatsHero(state.party.currentProfile.name, state.party.currentProfile.color)
+                SeatsHero(state.party.currentProfile.name, state.party.currentProfile.color, state.profiles.active?.avatarId)
                 Text("Join a watch party", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
                 Text("Enter the 6-character code your friend shared, or paste their invite link.", color = FetchPalette.TextSecondary)
             }
@@ -552,7 +552,7 @@ private fun MembersSection(state: AppState, party: ActiveParty, selfBehindMs: Lo
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)
                 ) {
                     Box {
-                        Avatar(member.displayName, member.avatarColor, 40.dp)
+                        Avatar(member.displayName, member.avatarColor, 40.dp, member.avatarUrl)
                         PresenceDot(party.presenceState(member), Modifier.align(Alignment.BottomEnd))
                     }
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -656,13 +656,9 @@ private fun ConfirmDialog(title: String, message: String, confirm: String, onCon
 }
 
 @Composable
-private fun Avatar(name: String, colorHex: String?, size: Dp) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.size(size).clip(CircleShape).background(parseColor(colorHex) ?: FetchPalette.SurfaceHigh)
-    ) {
-        Text(name.trim().take(1).uppercase(), color = Color.White, fontSize = (size.value * 0.42f).sp, fontWeight = FontWeight.SemiBold)
-    }
+private fun Avatar(name: String, colorHex: String?, size: Dp, imageUrl: String? = null) {
+    // The member's picture from the server's storage (as on TV), else their initial on their colour.
+    AvatarCircle(name, colorHex?.takeIf { parseColor(it) != null }, avatarId = null, avatarUrl = imageUrl, size = size)
 }
 
 @Composable
@@ -674,7 +670,7 @@ private fun AvatarStack(members: List<PartyMember>, size: Dp) {
     Box(Modifier.width(size + step * (slots - 1).coerceAtLeast(0))) {
         shown.forEachIndexed { index, member ->
             Box(Modifier.offset(x = step * index).zIndex((slots - index).toFloat()).border(2.dp, Color.Black.copy(alpha = 0.6f), CircleShape)) {
-                Avatar(member.displayName, member.avatarColor, size)
+                Avatar(member.displayName, member.avatarColor, size, member.avatarUrl)
             }
         }
         if (extra > 0) {
@@ -688,7 +684,7 @@ private fun AvatarStack(members: List<PartyMember>, size: Dp) {
 
 /** You, and two open seats. */
 @Composable
-private fun SeatsHero(name: String, color: String?) {
+private fun SeatsHero(name: String, color: String?, avatarId: String? = null) {
     val size = 56.dp
     val step = size * 0.72f
     Box(Modifier.width(size + step * 2)) {
@@ -698,7 +694,7 @@ private fun SeatsHero(name: String, color: String?) {
                 modifier = Modifier.offset(x = step * (2 - index)).size(size).clip(CircleShape).border(1.dp, FetchPalette.TextMuted, CircleShape)
             ) { Text("+", color = FetchPalette.TextSecondary, fontSize = 22.sp) }
         }
-        Box(Modifier.zIndex(1f).border(3.dp, FetchPalette.Background, CircleShape)) { Avatar(name, color, size) }
+        Box(Modifier.zIndex(1f).border(3.dp, FetchPalette.Background, CircleShape)) { AvatarCircle(name, color, avatarId, null, size) }
     }
 }
 

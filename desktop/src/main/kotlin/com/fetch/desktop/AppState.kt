@@ -1940,7 +1940,10 @@ class AppState(
             account?.client()?.let { client -> SyncPartyBackend(client, account.httpClient, account.state.originClientId.orEmpty(), scope) }
         },
         signedIn = { account?.signedIn == true },
-        profile = { PartyProfile(name = profile.name, imageUrl = null, color = profile.colorHex) },
+        profile = {
+            val current = profiles.profiles.firstOrNull { it.id == profile.id } ?: profile
+            PartyProfile(name = current.name, imageUrl = com.fetch.desktop.data.AvatarCatalog.shareableUrl(current, account?.state?.server?.baseUrl), color = current.colorHex)
+        },
         capability = { account?.watchPartyCapability() },
         onAuthLost = { scope.launch { account?.sessionExpired() } }
     )

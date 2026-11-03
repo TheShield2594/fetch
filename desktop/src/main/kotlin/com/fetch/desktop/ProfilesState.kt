@@ -43,11 +43,21 @@ class ProfilesState(
         active = null
     }
 
-    fun add(name: String, colorHex: String = file.nextColor(), usesPrimaryAddons: Boolean = true): DesktopProfile? {
+    fun add(
+        name: String,
+        colorHex: String = file.nextColor(),
+        usesPrimaryAddons: Boolean = true,
+        avatarId: String? = null,
+        limits: ProfileLimits = ProfileLimits()
+    ): DesktopProfile? {
         if (file.isFull) return null
-        val profile = DesktopProfile(file.nextId(), name.trim().ifEmpty { "Profile ${file.nextId()}" }, colorHex, usesPrimaryAddons)
+        val profile = DesktopProfile(
+            file.nextId(), name.trim().ifEmpty { "Profile ${file.nextId()}" }, colorHex, usesPrimaryAddons,
+            limits = limits, avatarId = avatarId
+        )
         save(file.copy(profiles = file.profiles + profile))
         listener?.onProfilesChanged(null)
+        if (limits.isRestricted) listener?.onLimitsChanged(profile)
         return profile
     }
 
@@ -55,8 +65,9 @@ class ProfilesState(
         val before = file.profiles.firstOrNull { it.id == profile.id }
         save(file.copy(profiles = file.profiles.map { if (it.id == profile.id) profile else it }))
         if (active?.id == profile.id) active = profile
-        // Only what the account keeps (name, colour, addon sharing) needs a push.
-        if (before != null && (before.name != profile.name || before.colorHex != profile.colorHex || before.usesPrimaryAddons != profile.usesPrimaryAddons)) {
+        // Only what the account keeps (name, colour, avatar, addon sharing) needs a push.
+        if (before != null && (before.name != profile.name || before.colorHex != profile.colorHex ||
+                before.usesPrimaryAddons != profile.usesPrimaryAddons || before.avatarId != profile.avatarId)) {
             listener?.onProfilesChanged(null)
         }
     }

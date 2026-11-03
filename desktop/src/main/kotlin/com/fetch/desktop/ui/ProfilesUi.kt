@@ -68,19 +68,7 @@ fun parseHexColor(hex: String): Color =
 
 /** A round avatar in the profile's color with its initial, as on the TV app. */
 @Composable
-fun ProfileAvatar(profile: DesktopProfile, size: Dp, modifier: Modifier = Modifier) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.size(size).clip(CircleShape).background(parseHexColor(profile.colorHex))
-    ) {
-        Text(
-            profile.name.trim().take(1).uppercase().ifEmpty { "?" },
-            color = Color.White,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = (size.value * 0.42f).sp
-        )
-    }
-}
+fun ProfileAvatar(profile: DesktopProfile, size: Dp, modifier: Modifier = Modifier) = ProfileAvatarImage(profile, size, modifier)
 
 /** "Who's watching?": pick a profile, or add one. A profile with a PIN asks for it first. */
 @Composable
@@ -120,15 +108,7 @@ fun ProfilePicker(profiles: ProfilesState) {
         }
     }
     if (creating) {
-        ProfileEditorDialog(
-            initial = null,
-            suggestedColor = profiles.file.nextColor(),
-            onDismiss = { creating = false },
-            onSave = { name, color, shareAddons ->
-                creating = false
-                profiles.add(name, color, shareAddons)
-            }
-        )
+        ProfileSetupEditorDialog(profiles, initial = null, state = null, onDismiss = { creating = false })
     }
     pin?.let { step -> PinFlow(profiles, step, onStep = { pin = it }) }
 }
@@ -231,6 +211,9 @@ fun ProfilesSettingsPage(state: AppState) {
     var deleting by remember { mutableStateOf<DesktopProfile?>(null) }
     var limiting by remember { mutableStateOf<DesktopProfile?>(null) }
     var pin by remember { mutableStateOf<PinStep?>(null) }
+    var activity by remember { mutableStateOf<DesktopProfile?>(null) }
+    var copyingTo by remember { mutableStateOf<DesktopProfile?>(null) }
+    LaunchedEffect(state.account?.signedIn) { state.account?.let { com.fetch.desktop.data.AvatarCatalog.refresh(it) } }
     PageHeader("Profiles", subtitle = "Each profile has its own Library, Continue Watching, settings and accounts.")
     SettingsSection(null) {
         profiles.profiles.forEach { profile ->
@@ -270,6 +253,8 @@ fun ProfilesSettingsPage(state: AppState) {
                             })
                         }
                     }
+                    if (canManage) SecondaryButton("Activity", onClick = { activity = profile })
+                    if (canManage && profiles.profiles.size > 1) SecondaryButton("Copy settings", onClick = { copyingTo = profile })
                     if (onMain && !profile.isPrimary) {
                         SecondaryButton("Limits", onClick = { limiting = profile })
                         SecondaryButton("Delete", onClick = { deleting = profile })
@@ -295,16 +280,10 @@ fun ProfilesSettingsPage(state: AppState) {
     }
 
     if (creating) {
-        ProfileEditorDialog(null, profiles.file.nextColor(), onDismiss = { creating = false }) { name, color, share ->
-            creating = false
-            profiles.add(name, color, share)
-        }
+        ProfileSetupEditorDialog(profiles, initial = null, state = state, onDismiss = { creating = false }, onDone = { state.message = it })
     }
     editing?.let { profile ->
-        ProfileEditorDialog(profile, profile.colorHex, onDismiss = { editing = null }) { name, color, share ->
-            editing = null
-            profiles.update(profile.copy(name = name.trim(), colorHex = color, usesPrimaryAddons = share))
-        }
+        ProfileSetupEditorDialog(profiles, initial = profile, state = state, onDismiss = { editing = null })
     }
     limiting?.let { profile ->
         LimitsDialog(profile, onDismiss = { limiting = null }, extra = { ProfileTitleListsSection(profiles, profile) }) { limits ->
@@ -313,6 +292,8 @@ fun ProfilesSettingsPage(state: AppState) {
         }
     }
     pin?.let { step -> PinFlow(profiles, step, onStep = { pin = it }) }
+    activity?.let { ViewingActivityDialog(it, state, onDismiss = { activity = null }) }
+    copyingTo?.let { CopySettingsDialog(profiles, it, state, onDismiss = { copyingTo = null }, onDone = { m -> state.message = m }) }
     deleting?.let { profile ->
         AlertDialog(
             onDismissRequest = { deleting = null },

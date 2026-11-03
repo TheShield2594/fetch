@@ -207,12 +207,20 @@ object MatroskaCueIndex {
         if (sorted.size < 2) return emptyList()
         val withDuration = sorted.count { it.second != null }
         if (pgs && withDuration * 4 < sorted.size * 3) {
-            return sorted.chunked(2).mapNotNull { pair ->
-                val (display, clear) = pair.getOrNull(0) to pair.getOrNull(1)
-                if (display == null || clear == null) return@mapNotNull null
-                val end = display.second?.let { minOf(display.first + it, clear.first) } ?: clear.first
-                Cue(display.first, end).takeIf { end - display.first in 100..MAX_PAIRED_MS }
+            // Pair in order, but a gap too long to be a shown line means a display or clear set
+            // is missing: step one frame on, so the pairs that follow line up again.
+            val cues = mutableListOf<Cue>()
+            var i = 0
+            while (i + 1 < sorted.size) {
+                val (start, duration) = sorted[i]
+                val clear = sorted[i + 1].first
+                val end = duration?.let { minOf(start + it, clear) } ?: clear
+                if (end - start in 100..MAX_PAIRED_MS) {
+                    cues += Cue(start, end)
+                    i += 2
+                } else i += 1
             }
+            return cues
         }
         return sorted.mapIndexedNotNull { i, (start, duration) ->
             val next = sorted.getOrNull(i + 1)?.first
@@ -238,8 +246,13 @@ object FfprobeReference {
 
     fun available(): Boolean = runCatching {
         val p = ProcessBuilder("ffprobe", "-version").redirectErrorStream(true).start()
-        p.inputStream.readAllBytes()
-        p.waitFor(5, TimeUnit.SECONDS) && p.exitValue() == 0
+        // Drained on the side, so output that never ends can't hold up the timeout.
+        Thread { runCatching { p.inputStream.readAllBytes() } }.apply { isDaemon = true; start() }
+        if (!p.waitFor(5, TimeUnit.SECONDS)) {
+            p.destroyForcibly()
+            return@runCatching false
+        }
+        p.exitValue() == 0
     }.getOrDefault(false)
 
     /** The stretches to read: [WINDOWS] of [WINDOW_SEC] spread over [durationSec], or everything when unknown or short. */

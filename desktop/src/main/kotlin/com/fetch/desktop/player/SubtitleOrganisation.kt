@@ -117,9 +117,15 @@ object SubtitleOrganisation {
     }
 
     /** How many choices "only preferred languages" hid. */
-    fun hiddenCount(tracks: List<MpvTrack>, addonSubtitles: List<AddonSubtitle>, preferred: List<String>, mode: SubtitleOrganization): Int {
-        val all = organise(tracks, addonSubtitles, mode, preferred, onlyPreferred = false).sumOf { it.choices.size }
-        val shown = organise(tracks, addonSubtitles, mode, preferred, onlyPreferred = true).sumOf { it.choices.size }
+    fun hiddenCount(
+        tracks: List<MpvTrack>,
+        addonSubtitles: List<AddonSubtitle>,
+        preferred: List<String>,
+        mode: SubtitleOrganization,
+        aliases: Map<String, String> = emptyMap()
+    ): Int {
+        val all = organise(tracks, addonSubtitles, mode, preferred, onlyPreferred = false, aliases = aliases).sumOf { it.choices.size }
+        val shown = organise(tracks, addonSubtitles, mode, preferred, onlyPreferred = true, aliases = aliases).sumOf { it.choices.size }
         return all - shown
     }
 }

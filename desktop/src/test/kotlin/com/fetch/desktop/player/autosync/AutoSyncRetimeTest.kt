@@ -131,6 +131,9 @@ class AutoSyncRetimeTest {
         assertEquals(4_000L, map.map(4_000))
         assertEquals(1_000L, TimeMap.shift(1_000).maxShift(0, 10_000))
         assertEquals(0L, TimeMap.IDENTITY.maxDifference(TimeMap(1.0, 0.0), 0, 5_000))
+        // A correction between whole seconds still counts.
+        val blip = TimeMap(1.0, 0.0, listOf(TimeMap.Anchor(1_000, 1_000), TimeMap.Anchor(1_400, 1_900), TimeMap.Anchor(1_800, 1_800)))
+        assertEquals(500L, blip.maxShift(0, 3_000))
         assertEquals(listOf(Cue(1_500, 1_600, "a")), map.apply(listOf(Cue(500, 600, "a"))))
     }
 
@@ -161,6 +164,9 @@ class AutoSyncRetimeTest {
         assertTrue(out.endsWith("Dialogue: 0,0:00:06.60,0:00:08.50,Default,,0,0,0,,{\\i1}Hello, there"))
         assertEquals(listOf(Cue(6_600, 8_500, "Hello, there")), CueParser.parse(out))
         assertNull(SubtitleRetimeWriter.retime("nothing here", map))
+        // A time range inside a line's text isn't a timing line.
+        val quoted = "1\n00:00:01,000 --> 00:00:02,000\nShe said 00:00:05,000 --> 00:00:06,000\n"
+        assertEquals("1\n00:00:02,500 --> 00:00:03,500\nShe said 00:00:05,000 --> 00:00:06,000\n", SubtitleRetimeWriter.retime(quoted, map))
     }
 
     // --- Image subtitles: the Matroska index ---
@@ -225,6 +231,9 @@ class AutoSyncRetimeTest {
     fun `PGS frames without durations pair into lines`() {
         val points = listOf(1_000L to null, 2_500L to null, 4_000L to null, 6_000L to null)
         assertEquals(listOf(Cue(1_000, 2_500), Cue(4_000, 6_000)), MatroskaCueIndex.timeline(points, pgs = true))
+        // A missing clear set: the pairs after it line up again.
+        val missing = listOf(1_000L to null, 2_500L to null, 30_000L to null, 60_000L to null, 61_500L to null)
+        assertEquals(listOf(Cue(1_000, 2_500), Cue(60_000, 61_500)), MatroskaCueIndex.timeline(missing, pgs = true))
         val vobsub = listOf(1_000L to 1_200L, 4_000L to null)
         assertEquals(listOf(Cue(1_000, 2_200), Cue(4_000, 6_000)), MatroskaCueIndex.timeline(vobsub, pgs = false))
     }

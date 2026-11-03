@@ -7,8 +7,9 @@ package com.fetch.desktop.player.autosync
  * result as a file of its own.
  */
 object SubtitleRetimeWriter {
-    private val srtLine = Regex("""(\d{1,2}):(\d{2}):(\d{2})[,.](\d{1,3})(\s*-->\s*)(\d{1,2}):(\d{2}):(\d{2})[,.](\d{1,3})""")
-    private val vttLine = Regex("""((?:\d{1,2}:)?\d{2}:\d{2}\.\d{1,3})(\s+-->\s+)((?:\d{1,2}:)?\d{2}:\d{2}\.\d{1,3})""")
+    // Timing lines only: a time range inside a line's text stays as written.
+    private val srtLine = Regex("""(?m)^([ \t]*)(\d{1,2}):(\d{2}):(\d{2})[,.](\d{1,3})(\s*-->\s*)(\d{1,2}):(\d{2}):(\d{2})[,.](\d{1,3})""")
+    private val vttLine = Regex("""(?m)^([ \t]*)((?:\d{1,2}:)?\d{2}:\d{2}\.\d{1,3})(\s+-->\s+)((?:\d{1,2}:)?\d{2}:\d{2}\.\d{1,3})""")
     private val assTime = Regex("""(\d+):(\d{2}):(\d{2})[.:](\d{1,2})""")
 
     /** [raw] retimed, in its own format; null when it's none Fetch can write. */
@@ -29,13 +30,13 @@ object SubtitleRetimeWriter {
 
     private fun retimeSrt(text: String, map: TimeMap): String = srtLine.replace(text) { m ->
         val g = m.groupValues
-        val (start, end) = times(map, ms(g[1], g[2], g[3], g[4]), ms(g[6], g[7], g[8], g[9]))
-        srt(start) + g[5] + srt(end)
+        val (start, end) = times(map, ms(g[2], g[3], g[4], g[5]), ms(g[7], g[8], g[9], g[10]))
+        g[1] + srt(start) + g[6] + srt(end)
     }
 
     private fun retimeVtt(text: String, map: TimeMap): String = vttLine.replace(text) { m ->
-        val (start, end) = times(map, vttMs(m.groupValues[1]), vttMs(m.groupValues[3]))
-        vtt(start) + m.groupValues[2] + vtt(end)
+        val (start, end) = times(map, vttMs(m.groupValues[2]), vttMs(m.groupValues[4]))
+        m.groupValues[1] + vtt(start) + m.groupValues[3] + vtt(end)
     }
 
     private fun retimeAss(text: String, map: TimeMap): String {

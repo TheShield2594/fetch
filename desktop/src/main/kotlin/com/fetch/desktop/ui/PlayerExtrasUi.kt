@@ -462,7 +462,7 @@ internal fun LazyListScope.subtitlePanelItems(state: AppState, session: PlayerSe
         }
     }
     if (p.extras.subtitleOnlyPreferredLanguages) {
-        val hidden = SubtitleOrganisation.hiddenCount(mpv.tracks, session.addonSubtitles.orEmpty(), preferred, p.extras.subtitleOrganization)
+        val hidden = SubtitleOrganisation.hiddenCount(mpv.tracks, session.addonSubtitles.orEmpty(), preferred, p.extras.subtitleOrganization, extras.syncedFiles.toMap())
         if (hidden > 0) item {
             PanelRow(
                 "Show all languages",

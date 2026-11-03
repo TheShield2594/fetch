@@ -112,8 +112,19 @@ object HomeCatalogSync {
         // Where collections go: the local Home order (desktop or TV keys), else the account's.
         val toTvKey = distinct.associate { it.key to it.tvKey }
         val placement = settings.layout.homeOrder.map { toTvKey[it] ?: it }.ifEmpty { remoteItems.map(::itemKey) }
+        // Catalogs of an addon that didn't load here (unreachable for now) keep their entry and
+        // place from the account, so a push doesn't drop their order, hidden state or title.
+        val localAddons = distinct.map { it.addonId }.toSet()
+        val kept = remoteItems.filter { !it.isCollection && it.addonId !in localAddons }.associateBy(::itemKey)
+        val catalogKeys = ordered.map { it.tvKey }.toMutableList()
+        var previous: String? = null
+        for (item in remoteItems) {
+            val key = itemKey(item)
+            if (key in kept && key !in catalogKeys) catalogKeys.add(previous?.let { catalogKeys.indexOf(it) + 1 } ?: 0, key)
+            if (key in catalogKeys) previous = key
+        }
         val keys = HomeLayout.middle(
-            catalogs = ordered.map { it.tvKey },
+            catalogs = catalogKeys,
             collections = (collectionIds + remoteCollections.keys).distinct(),
             order = placement,
             followAddonsOrder = true
@@ -121,6 +132,7 @@ object HomeCatalogSync {
         val hidden = settings.disabledCatalogs.toSet()
         val items = keys.mapIndexedNotNull { index, key ->
             val catalog = byTvKey[key]
+            kept[key]?.let { return@mapIndexedNotNull it.copy(order = index) }
             if (catalog != null) {
                 SyncCatalogItem(
                     addonId = catalog.addonId, type = catalog.type, catalogId = catalog.catalogId,
@@ -159,17 +171,18 @@ object HomeCatalogSync {
     fun apply(settings: DesktopSettings, remote: SyncHomeCatalogPayload, hasHideUnreleased: Boolean): DesktopSettings {
         val sorted = remote.items.sortedBy { it.order }
         val catalogs = sorted.filter { !it.isCollection }
-        if (catalogs.isEmpty()) return settings
         val collections = sorted.filter { it.isCollection && it.collectionId.isNotBlank() }
-        val order = catalogs.map(::itemKey)
-        val disabled = sorted.filter { !it.enabled && (!it.isCollection || it.collectionId.isNotBlank()) }.map(::itemKey)
+        if (catalogs.isEmpty() && collections.isEmpty()) return settings
         val named = collections.map(::itemKey).toSet()
+        // Without catalogs in the payload, the catalog order and hidden catalogs stay as they are.
+        val hasCatalogs = catalogs.isNotEmpty()
+        val disabled = sorted.filter { !it.enabled && (if (it.isCollection) it.collectionId.isNotBlank() else hasCatalogs) }.map(::itemKey)
         val localOnly = settings.disabledCatalogs.filter {
-            it.startsWith("filter|") || (it.startsWith(COLLECTION_PREFIX) && it !in named)
+            if (it.startsWith(COLLECTION_PREFIX)) it !in named else it.startsWith("filter|") || !hasCatalogs
         }
         return settings.copy(
-            catalogOrder = order,
-            pinnedCatalogs = emptyList(),
+            catalogOrder = if (hasCatalogs) catalogs.map(::itemKey) else settings.catalogOrder,
+            pinnedCatalogs = if (hasCatalogs) emptyList() else settings.pinnedCatalogs,
             disabledCatalogs = localOnly + disabled,
             hideUnreleased = if (hasHideUnreleased) remote.hideUnreleasedContent else settings.hideUnreleased,
             layout = if (collections.isEmpty()) settings.layout else settings.layout.copy(homeOrder = sorted.map(::itemKey).distinct())

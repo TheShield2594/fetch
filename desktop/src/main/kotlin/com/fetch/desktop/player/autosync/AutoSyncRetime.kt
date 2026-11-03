@@ -47,16 +47,13 @@ data class TimeMap(val scale: Double, val offsetMs: Double, val anchors: List<An
         cue.copy(startMs = start, endMs = maxOf(map(cue.endMs), start + 100))
     }
 
-    /** The largest difference between this map and [other] over [fromMs]..[toMs], sampled each second. */
-    fun maxDifference(other: TimeMap, fromMs: Long, toMs: Long): Long {
-        var worst = 0L
-        var t = fromMs
-        while (t <= toMs) {
-            worst = maxOf(worst, abs(map(t) - other.map(t)))
-            t += 1_000
-        }
-        return maxOf(worst, abs(map(toMs) - other.map(toMs)))
-    }
+    /**
+     * The largest difference between this map and [other] over [fromMs]..[toMs]. Both are
+     * straight between their anchors, so the extremes lie at the ends or at an anchor.
+     */
+    fun maxDifference(other: TimeMap, fromMs: Long, toMs: Long): Long =
+        ((anchors + other.anchors).map { it.targetMs }.filter { it in fromMs..toMs } + fromMs + toMs)
+            .maxOf { abs(map(it) - other.map(it)) }
 
     /** The largest shift over [fromMs]..[toMs]: for the tolerance ("leave it alone when this small"). */
     fun maxShift(fromMs: Long, toMs: Long): Long = maxDifference(IDENTITY, fromMs, toMs)
@@ -306,7 +303,6 @@ object AutoSyncRetimer {
     fun localPairs(reference: List<Cue>, target: List<Cue>, map: TimeMap, pairs: List<Pair<Long, Long>>): List<Pair<Long, Long>> {
         val pairedRef = pairs.map { it.second }.toHashSet()
         val usedTarget = pairs.map { it.first }.toHashSet()
-        val starts = target.map { map.map(it.startMs) }
         val runs = mutableListOf<MutableList<Cue>>()
         var current = mutableListOf<Cue>()
         for (r in reference) {
@@ -322,6 +318,9 @@ object AutoSyncRetimer {
         val out = mutableListOf<Pair<Long, Long>>()
         for (run in runs) {
             if (run.size < LOCAL_MIN_HITS) continue
+            // Only lines not paired yet count, for the shift and for the pairs.
+            val free = target.filter { it.startMs !in usedTarget }
+            val starts = free.map { map.map(it.startMs) }
             var bestShift = 0L
             var bestHits = 0
             var shift = -LOCAL_SEARCH_MS
@@ -338,7 +337,7 @@ object AutoSyncRetimer {
             }
             if (abs(bestShift) < LOCAL_SHIFT_MIN_MS || bestHits < maxOf(LOCAL_MIN_HITS, run.size * 6 / 10)) continue
             val shifted = if (map.anchors.isEmpty()) map.copy(offsetMs = map.offsetMs + bestShift) else continue
-            match(run, target, shifted, FINE_MATCH_TOLERANCE_MS).filter { it.first !in usedTarget }.forEach {
+            match(run, free, shifted, FINE_MATCH_TOLERANCE_MS).forEach {
                 usedTarget += it.first
                 out += it
             }

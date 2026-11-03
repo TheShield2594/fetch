@@ -166,7 +166,11 @@ fun LayoutExtrasSections(state: AppState) {
             }
             SettingsChoice(
                 "Trailer Delay",
-                "How long a title stays in the hero before its trailer starts.",
+                when (l.focusedPosterTrailerTarget) {
+                    FocusedPosterTrailerPlaybackTarget.EXPANDED_CARD ->
+                        "How long the pointer rests on a title before its trailer starts; the Backdrop Expand Delay counts toward it."
+                    FocusedPosterTrailerPlaybackTarget.HERO_MEDIA -> "How long a title stays in the hero before its trailer starts."
+                },
                 l.trailerDelaySeconds,
                 (listOf(2, 3, 5, 7, 10, 15) + l.trailerDelaySeconds).distinct().sorted().map { DropdownOption(it, "$it s") }
             ) { v -> update { it.copy(trailerDelaySeconds = v) } }

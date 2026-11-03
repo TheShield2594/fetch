@@ -145,6 +145,8 @@ fun parseJson3(raw: String): List<Cue> = runCatching {
     }.sortedBy { it.startMs }
 }.getOrDefault(emptyList())
 
+private const val MAX_CAPTION_MS = 60_000L
+
 /** The cue showing at [positionMs] (the TV's cueAt), by binary search on the sorted cues. */
 fun cueAt(cues: List<Cue>, positionMs: Long): Cue? {
     var low = 0
@@ -157,9 +159,12 @@ fun cueAt(cues: List<Cue>, positionMs: Long): Cue? {
             low = mid + 1
         } else high = mid - 1
     }
-    // Rolling auto-captions overlap; the latest started one still showing wins.
-    for (i in candidate downTo maxOf(0, candidate - 3)) {
+    // Rolling auto-captions overlap; the latest started one still showing wins. Only cues that
+    // started within the longest a caption lasts can still be showing.
+    var i = candidate
+    while (i >= 0 && positionMs - cues[i].startMs <= MAX_CAPTION_MS) {
         if (positionMs < cues[i].endMs) return cues[i]
+        i--
     }
     return null
 }

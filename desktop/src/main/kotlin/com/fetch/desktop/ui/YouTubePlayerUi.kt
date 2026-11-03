@@ -286,10 +286,12 @@ fun BoxScope.YouTubePlayerLayer(state: AppState, session: PlayerSession, control
     LaunchedEffect(session.panel, session.partyPanelOpen) {
         if (session.panel != null || session.partyPanelOpen) extras.panel = null
     }
-    // Picking another subtitle in the player's own menu turns Fetch's caption off.
+    // Picking another subtitle in the player's own menu turns Fetch's caption off, including one
+    // still downloading (so it can't land over the pick). mpv showing the caption itself (its
+    // fallback) isn't another subtitle.
     val mpvSubtitle = session.mpv.tracks.firstOrNull { it.type == "sub" && it.selected }?.id
     LaunchedEffect(mpvSubtitle) {
-        if (mpvSubtitle != null && extras.captionCues.isNotEmpty()) {
+        if (mpvSubtitle != null && extras.selectedCaption != null && mpvSubtitle !in extras.addedCaptions.values) {
             extras.captionCues = emptyList()
             extras.selectedCaption = null
         }

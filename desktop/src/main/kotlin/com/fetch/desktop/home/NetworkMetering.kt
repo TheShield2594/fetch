@@ -22,7 +22,7 @@ object NetworkMetering {
 
     /** True unless NetworkManager says the connection is metered or mobile. Blocks briefly; call off the UI thread. */
     fun isUnmetered(nowMs: Long = System.currentTimeMillis()): Boolean {
-        cached?.let { (at, value) -> if (nowMs - at < CACHE_MS) return value }
+        cached?.let { (at, value) -> if (nowMs - at in 0 until CACHE_MS) return value }
         val metered = query("Metered")?.let(::parseUint)
         val type = query("PrimaryConnectionType")?.let(::parseString)
         return decide(metered, type).also { cached = nowMs to it }

@@ -276,6 +276,8 @@ private class AutoSyncRun(private val state: AppState, private val session: Play
                 val file = text?.let { writeCopy(candidate.url, it) }
                 if (file == null) {
                     mpv.showText("Sync failed: couldn't write the re-timed subtitle.")
+                    extras.syncResults.remove(candidate.url)
+                    extras.syncedSubtitleUrl = null
                     return
                 }
                 if (abs(mpv.subtitleDelay - (extras.syncedDelaySec ?: 0.0)) < 0.0005) mpv.changeSubtitleDelay(0.0)

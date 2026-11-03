@@ -113,6 +113,17 @@ class AddonToolsTest {
         val kept = HomeCatalogSync.apply(moved.copy(disabledCatalogs = moved.disabledCatalogs + "collection_local"), payload, hasHide)
         assertTrue("collection_local" in kept.disabledCatalogs)
         assertFalse("collection_col1" in kept.disabledCatalogs)
+        // An addon that didn't load here keeps its catalogs' entries and places in a push.
+        val withoutOther = HomeCatalogSync.payload(listOf(a, b), applied, payload, collectionIds = listOf("col1"))
+        assertEquals(listOf("new", "top", "", "top"), withoutOther.items.map { it.catalogId })
+        assertEquals("Fresh", withoutOther.items[0].customTitle)
+        // A payload with only collections places and hides them, and leaves the catalogs be.
+        val onlyCollections = SyncHomeCatalogPayload(items = listOf(SyncCatalogItem("", "", "", enabled = false, order = 0, isCollection = true, collectionId = "col1")))
+        val collectionsApplied = HomeCatalogSync.apply(applied, onlyCollections, hasHideUnreleased = false)
+        assertEquals(applied.catalogOrder, collectionsApplied.catalogOrder)
+        assertTrue("collection_col1" in collectionsApplied.disabledCatalogs)
+        assertTrue("cinemeta_series_top" in collectionsApplied.disabledCatalogs)
+        assertEquals(listOf("collection_col1"), collectionsApplied.layout.homeOrder)
         val merged: JsonObject = HomeCatalogSync.merged(remoteJson, back)
         assertTrue("extra_key" in merged)
         assertEquals(remoteJson, HomeCatalogSync.settingsJsonOf("""[{"profile_id":1,"settings_json":$remoteJson}]"""))

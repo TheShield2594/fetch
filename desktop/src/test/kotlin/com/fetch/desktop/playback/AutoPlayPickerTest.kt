@@ -109,4 +109,39 @@ class AutoPlayPickerTest {
         assertEquals(BingeHint("g", "a.mkv", null), BingeHint.of(stream("x", group = " g ", filename = "a.mkv").let { it.copy(behaviorHints = it.behaviorHints?.copy(bingeGroup = "g")) }))
         assertNull(BingeHint.of(stream("x")))
     }
+
+    @Test
+    fun `allowed addons limit what auto-play picks, never the binge group or other sources`() {
+        val ranked = rank(
+            stream("2160p best", addon = "Torrentio"),
+            stream("1080p allowed", addon = "Comet"),
+            stream("720p not installed", addon = "YouTube")
+        )
+        val installed = setOf("Torrentio", "Comet")
+        assertEquals(3, AutoPlayPicker.allowed(ranked, installed, emptySet()).size)
+        assertEquals(listOf("1080p allowed", "720p not installed"), AutoPlayPicker.allowed(ranked, installed, setOf("Comet")).map { it.stream.name })
+        val decision = AutoPlayPicker.decide(
+            ranked, AutoPlayMode.BEST_MATCH, "", rules, startEarly = false, bingeHint = null, next = null,
+            anyAnswered = true, allAnswered = true, waitOver = false, installedAddonNames = installed, allowedAddons = setOf("Comet")
+        )
+        assertEquals("1080p allowed", (decision as AutoPlayDecision.Play).pick.stream.name)
+        // A remembered binge group still plays from any addon, as on TV.
+        val grouped = rank(stream("2160p grouped", group = "tor|4k", addon = "Torrentio"), stream("1080p allowed", addon = "Comet"))
+        val binge = AutoPlayPicker.decide(
+            grouped, AutoPlayMode.BEST_MATCH, "", rules, startEarly = false, bingeHint = BingeHint("tor|4k"), next = null,
+            anyAnswered = true, allAnswered = true, waitOver = false, installedAddonNames = installed, allowedAddons = setOf("Comet")
+        )
+        assertEquals("2160p grouped", (binge as AutoPlayDecision.Play).pick.stream.name)
+        assertEquals("1080p allowed", AutoPlayPicker.nextEpisodePick(
+            ranked, AutoPlayMode.BEST_MATCH, "", hint = null, playingFilename = null, preferBingeGroup = true, fallback = true,
+            current = null, next = null, installedAddonNames = installed, allowedAddons = setOf("Comet")
+        )?.stream?.name)
+    }
+
+    @Test
+    fun `with allowed addons chosen, auto-play waits only for them`() {
+        assertNull(AutoPlayPicker.addonsNeededForPick(listOf("Torrentio", "Comet"), emptySet()))
+        assertEquals(setOf("Comet"), AutoPlayPicker.addonsNeededForPick(listOf("Torrentio", "Comet"), setOf("Comet", "Gone")))
+        assertNull("none of the chosen ones were asked", AutoPlayPicker.addonsNeededForPick(listOf("Torrentio"), setOf("Comet")))
+    }
 }

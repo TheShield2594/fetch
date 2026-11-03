@@ -172,6 +172,8 @@ data class RemoteSharedSettings(
     val playerExtras: RemotePlayerExtras? = null,
     /** `player_settings` auto-play keys ([AutoPlaySync.KEYS]) with their values; only the ones present. */
     val autoPlay: Map<String, kotlinx.serialization.json.JsonPrimitive>? = null,
+    /** `player_settings.stream_auto_play_selected_addons`: addon names auto-play may pick from (empty: all). */
+    val autoPlayAddons: Set<String>? = null,
     /** `episode_queue.items`: the playback queue as the TV's JSON array. */
     val episodeQueue: String? = null,
     /**

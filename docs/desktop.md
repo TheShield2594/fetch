@@ -62,6 +62,7 @@ Everything is kept in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`):
 | `certifications.json` | Ratings looked up on TMDB, for 30 days |
 | `mdblist-ratings.json` | Ratings from MDBList, for 12 hours, for the whole app |
 | `mdblist.json` | Per profile: the MDBList account (owner-readable only) and the lists hidden from the Library |
+| `mdblist-sync.json` | Per profile: what the last MDBList sync brought back, so the next one fetches only what changed |
 | `screen-time.json`, `stream-badges.json`, `sync-base.json` | Per profile: today's screen time, imported badge URLs, what the last sync saw |
 | `stream-cache.json` | Per profile: the last link per movie or episode (Reuse Last Link) and each show's binge group |
 | `youtube-auth.json` | Per profile: the YouTube sign-in (owner-readable only) |
@@ -212,7 +213,10 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   (builds need `MDBLIST_CLIENT_ID`, as for the TV) or an API key, adds its lists to the Library
   (see Library above); Settings › MDBList › Library lists picks which of them show. The
   account is a tracking service too: what you play is scrobbled, Mark watched goes to its
-  history, and its resume points and watched history come back with each tracking sync. Its
+  history, and its resume points and watched history come back with each tracking sync. As on
+  TV the sync is incremental (MDBList's last activities, then the journal of history changes
+  since the last sync), shows and seasons dropped on MDBList stay out of Continue Watching, and
+  titles without an IMDb id are matched by their TMDB, TVDB, Trakt or MDBList id. Its
   lists sort by provider order, added and release (MDBList's own orders), and the API key syncs
   between devices through the sync server's provider credentials, as on TV.
 - **Ratings from TMDB**: a profile's rating limit uses the addon's certificate, else TMDB's
@@ -263,10 +267,12 @@ These are the main profile's. Every other profile keeps its own copies in `profi
 - **Player settings** passed to mpv: fullscreen, hardware decoding, extra mpv options; preferred
   audio language and passthrough; subtitle language, when to show them, size and background,
   and subtitles from your addons (such as OpenSubtitles) added as subtitle files.
-- **Up Next**: when an episode plays to its end in mpv, the next episode's best match starts.
-  In the built-in player it starts at the TV's next-episode threshold (Settings › Up Next: a
-  percentage or minutes before the end, or the credits when IntroDB knows them): the card says
-  "Finding a source…", counts down three seconds and switches, and Cancel stops it. The next
+- **Up Next**: the next episode's best match starts at the TV's next-episode threshold
+  (Settings › Up Next: a percentage or minutes before the end, or the credits when IntroDB
+  knows them). In the built-in player the card says "Finding a source…", counts down three
+  seconds and switches, and Cancel stops it. In mpv's own window (followed over its IPC socket)
+  the OSD counts down five seconds of playback, then the window closes and the next episode
+  opens; Alt+N keeps watching to the end (mpv 0.37 or later for the key). The next
   episode tries the same binge group (addon and release) first, then the same release by file
   name; with Fallback off, its sources open instead. Preload Next Episode Sources asks the
   addons ahead of the card, and Reuse Binge Group remembers a show's group for later sessions.
@@ -283,7 +289,7 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   a Continue Watching card; the built-in player's Queue panel plays, reorders and removes
   (with Undo); autoplay puts the next episode first; near the end of something with nothing
   next, "Up next in queue" offers the queue's next item, which plays when the title ends. The
-  queue syncs with the TV (`episode_queue`).
+  queue syncs with the TV (`episode_queue`). In mpv's own window, Alt+Q lists the queue on the OSD.
 - **After a movie**: with Settings › TMDB and More like this on, a recommendation from TMDB
   appears near the end (the TV's timing: 96 % or the credits), skipping what you've watched,
   with Play, Details, its trailer and up to four to page through. At the end its trailer plays
@@ -367,6 +373,8 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   (Settings › Layout › Trailers).
 - **Play mode** (Stream Selection › When you press Play): Best match, First source, a pattern,
   or Pick every time; and how long to wait for addons. "Default Player: Ask every time".
+  Limit autoplay to chosen addons (the TV's Allowed addons for autoplay, synced) picks only from
+  those addons and your media servers, and stops waiting once they've answered.
 - **Sources**: grouped as on TV (Best match, by resolution, Not auto-played), filtered by
   addon, and a right-click menu to play in either player, prefer that addon, never auto-play
   that release group, or copy the link.

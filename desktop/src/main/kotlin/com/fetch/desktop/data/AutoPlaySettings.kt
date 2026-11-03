@@ -32,6 +32,11 @@ data class AutoPlaySettings(
     val preferBingeGroup: Boolean = true,
     /** `stream_auto_play_reuse_binge_group`: remember a show's binge group for later sessions too. */
     val reuseBingeGroup: Boolean = false,
+    /**
+     * `stream_auto_play_selected_addons`: the addons (by name) auto-play may pick from; empty
+     * means every addon. Media servers always count.
+     */
+    val allowedAddons: Set<String> = emptySet(),
     /** `stream_auto_play_start_early`: Best match starts once the best so far is good enough. */
     val startEarly: Boolean = false,
     /** `best_match_preview_enabled`: ask the addons while a title page is open, so Play names its pick. */

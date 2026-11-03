@@ -25,6 +25,9 @@ object AutoPlaySync {
     const val QUEUE_FEATURE = "episode_queue"
     const val QUEUE_KEY = "items"
 
+    /** A `string_set` of addon names, so it travels beside [KEYS] rather than among them. */
+    const val ALLOWED_ADDONS_KEY = "stream_auto_play_selected_addons"
+
     /** Each synced `player_settings` key and the type the TV stores it as. */
     val KEYS: Map<String, String> = linkedMapOf(
         "stream_auto_play_mode" to "string",

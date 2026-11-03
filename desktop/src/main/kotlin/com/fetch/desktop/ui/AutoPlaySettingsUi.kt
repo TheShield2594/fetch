@@ -34,6 +34,7 @@ fun StreamAutoPlaySettings(state: AppState) {
             ap.startEarly
         ) { v -> state.updateAutoPlay { it.copy(startEarly = v) } }
     }
+    if (s.autoPlayMode != AutoPlayMode.MANUAL) AllowedAutoPlayAddons(state)
     SettingsToggle(
         "Reuse last link",
         "Play your last working link for the same movie or episode while it's still fresh.",
@@ -57,6 +58,35 @@ fun StreamAutoPlaySettings(state: AppState) {
         "When the built-in player can't open a source, the next one in the ranking plays instead.",
         ap.nextSourceOnFailure
     ) { v -> state.updateAutoPlay { it.copy(nextSourceOnFailure = v) } }
+}
+
+/**
+ * The TV's "Allowed addons for autoplay": off, auto-play picks from every addon; on, only from
+ * the addons left switched on (and your media servers). Picking a source by hand isn't limited.
+ * Saved by addon name and synced under the TV's `stream_auto_play_selected_addons`.
+ */
+@Composable
+private fun AllowedAutoPlayAddons(state: AppState) {
+    val allowed = state.settings.autoPlay.allowedAddons
+    val installed = state.addons.filter { it.enabled }.map { it.displayName }.distinct()
+    // Addons chosen on the TV that aren't installed here stay in the set, so they still sync.
+    val missing = allowed.filter { it !in installed }
+    SettingsToggle(
+        "Limit autoplay to chosen addons",
+        if (allowed.isEmpty()) "Autoplay picks from all addons."
+        else "Autoplay picks only from the ${allowed.size} chosen ${if (allowed.size == 1) "addon" else "addons"} and your media servers. Choosing a source yourself isn't limited.",
+        allowed.isNotEmpty()
+    ) { on -> state.updateAutoPlay { it.copy(allowedAddons = if (on) installed.toSet() else emptySet()) } }
+    if (allowed.isNotEmpty()) {
+        SettingsSection("Allowed addons for autoplay") {
+            (installed + missing).forEach { name ->
+                SettingsToggle(name, if (name in missing) "Not installed on this computer" else null, name in allowed) { on ->
+                    // Switching the last one off goes back to every addon, as on TV (empty means all).
+                    state.updateAutoPlay { it.copy(allowedAddons = if (on) it.allowedAddons + name else it.allowedAddons - name) }
+                }
+            }
+        }
+    }
 }
 
 /** Up Next's TV settings beyond autoplay: the threshold, preloading, binge groups and the movie recommendation. */

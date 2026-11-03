@@ -48,7 +48,7 @@ object StreamTitleParser {
             hdr = hdr,
             dolbyVisionProfile = if (HdrFormat.DOLBY_VISION in hdr) parseDolbyVisionProfile(text) else null,
             audio = parseAudio(text),
-            hasAtmos = ATMOS.containsMatchIn(text),
+            hasAtmos = ATMOS.containsMatchIn(text) || ATMOS_DV.containsMatchIn(text),
             audioChannels = parseChannels(text),
             sizeBytes = parseSize(text),
             source = parseSource(text),
@@ -107,9 +107,12 @@ object StreamTitleParser {
     private val HLG = token("hlg")
     private val SDR = token("sdr")
 
+    // Some file names glue the two Dolby tags together ("EAC3 AtmosDV HDR10").
+    private val ATMOS_DV = token("atmos ?dv")
+
     private fun parseHdr(text: String): Set<HdrFormat> {
         val formats = linkedSetOf<HdrFormat>()
-        if (DOLBY_VISION.containsMatchIn(text)) formats += HdrFormat.DOLBY_VISION
+        if (DOLBY_VISION.containsMatchIn(text) || ATMOS_DV.containsMatchIn(text)) formats += HdrFormat.DOLBY_VISION
         if (HDR10_PLUS.containsMatchIn(text)) formats += HdrFormat.HDR10_PLUS
         if (HDR10.containsMatchIn(text.replace(HDR10_PLUS, " "))) formats += HdrFormat.HDR10
         if (HLG.containsMatchIn(text)) formats += HdrFormat.HLG
@@ -213,7 +216,7 @@ object StreamTitleParser {
     // ── Source ────────────────────────────────────────────────────────────────
 
     private val REMUX = token("remux|bdremux")
-    private val BLURAY = token("blu-?ray|bd-?rip|brrip|bdmv|uhd ?bd")
+    private val BLURAY = token("blu-?ray(?: ?rip)?|bd-?rip|brrip|bdmv|uhd ?bd")
     private val WEB_DL = token("web-?dl|web")
     private val WEBRIP = token("web-?rip")
     private val HDTV = token("hdtv|pdtv|dsr")
@@ -242,10 +245,15 @@ object StreamTitleParser {
         token(language.names.joinToString("|") { name -> name.split(' ').joinToString("[ .\\-]?") { Regex.escape(it) } })
     }
 
-    private fun parseLanguages(text: String): Set<StreamLanguage> =
-        StreamLanguage.entries.filterTo(linkedSetOf()) { language ->
+    // "Multi-Subs" names the subtitles, not a multi-language audio track.
+    private val MULTI_SUBS = token("multi[ .\\-]?subs?")
+
+    private fun parseLanguages(rawText: String): Set<StreamLanguage> {
+        val text = rawText.replace(MULTI_SUBS, " ")
+        return StreamLanguage.entries.filterTo(linkedSetOf()) { language ->
             language.flags.any { it in text } || LANGUAGE_NAMES.getValue(language).containsMatchIn(text)
         }
+    }
 
     // ── Misc ──────────────────────────────────────────────────────────────────
 

@@ -22,7 +22,7 @@ enum class StreamLanguage(
     POLISH("pl", "Polish", listOf("polish", "pol", "lektor"), listOf("🇵🇱")),
     CZECH("cs", "Czech", listOf("czech", "cze", "ces"), listOf("🇨🇿")),
     RUSSIAN("ru", "Russian", listOf("russian", "rus"), listOf("🇷🇺")),
-    JAPANESE("ja", "Japanese", listOf("japanese", "jpn"), listOf("🇯🇵")),
+    JAPANESE("ja", "Japanese", listOf("japanese", "jpn", "jap"), listOf("🇯🇵")),
     KOREAN("ko", "Korean", listOf("korean", "kor"), listOf("🇰🇷")),
     CHINESE("zh", "Chinese", listOf("chinese", "mandarin", "cantonese", "chi", "zho"), listOf("🇨🇳", "🇹🇼", "🇭🇰")),
     HEBREW("he", "Hebrew", listOf("hebrew", "heb"), listOf("🇮🇱")),

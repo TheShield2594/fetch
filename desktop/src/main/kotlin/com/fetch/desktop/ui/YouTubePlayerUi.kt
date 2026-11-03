@@ -286,6 +286,19 @@ fun BoxScope.YouTubePlayerLayer(state: AppState, session: PlayerSession, control
     LaunchedEffect(session.panel, session.partyPanelOpen) {
         if (session.panel != null || session.partyPanelOpen) extras.panel = null
     }
+    // Picking another subtitle in the player's own menu turns Fetch's caption off, including one
+    // still downloading (so it can't land over the pick). mpv showing the caption itself (its
+    // fallback) isn't another subtitle.
+    val mpvSubtitle = session.mpv.tracks.firstOrNull { it.type == "sub" && it.selected }?.id
+    LaunchedEffect(mpvSubtitle) {
+        if (mpvSubtitle != null && extras.selectedCaption != null && mpvSubtitle !in extras.addedCaptions.values) {
+            extras.captionCues = emptyList()
+            extras.selectedCaption = null
+        }
+    }
+    if (extras.captionCues.isNotEmpty()) {
+        YouTubeCaptionText(state, session, extras, controlsVisible)
+    }
     AnimatedVisibility(
         controlsVisible && extras.panel == null,
         enter = fadeIn(),
@@ -319,6 +332,59 @@ fun BoxScope.YouTubePlayerLayer(state: AppState, session: PlayerSession, control
     }
     extras.panel?.takeIf { session.panel == null && !session.partyPanelOpen }?.let { panel ->
         YouTubeSidePanel(state, session, extras, panel, Modifier.align(Alignment.CenterEnd))
+    }
+}
+
+/**
+ * The YouTube caption showing now, drawn by Fetch as the TV's caption renderer draws it: in the
+ * player's subtitle style (size, bold, colour, outline or background box, position, the HDR
+ * colour), lifted above the controls while they show.
+ */
+@Composable
+private fun BoxScope.YouTubeCaptionText(state: AppState, session: PlayerSession, extras: YouTubePlayerExtras, controlsVisible: Boolean) {
+    val cue = com.fetch.desktop.youtube.cueAt(extras.captionCues, (session.mpv.position * 1000).toLong()) ?: return
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    androidx.compose.foundation.layout.BoxWithConstraints(Modifier.matchParentSize()) {
+        val heightPx = with(density) { maxHeight.toPx() }
+        val lift = com.fetch.desktop.player.SubtitleStyle.liftPercent(
+            previewConfiguredPosition = false,
+            viewHeightPx = heightPx,
+            controlsVisible = controlsVisible,
+            controlsClearancePx = with(density) { 170.dp.toPx() },
+            skipVisible = session.extras.skipVisible,
+            skipClearancePx = with(density) { 120.dp.toPx() }
+        )
+        val look = com.fetch.desktop.player.SubtitleStyle.captionLook(state.settings.player, session.extras.hdr, lift)
+        // mpv's sizes are in a 720-line view: its 55 px default font, and the outline in the same units.
+        val unit = maxHeight / 720f
+        val fontSize = with(density) { (unit * 55f * 0.8f * look.scale).toSp() }
+        val text = androidx.compose.ui.text.TextStyle(
+            fontSize = fontSize,
+            lineHeight = fontSize * 1.2f,
+            fontWeight = if (look.bold) FontWeight.Bold else FontWeight.Medium,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+        Box(
+            Modifier
+                .align(Alignment.BottomCenter)
+                .padding(start = 48.dp, end = 48.dp, bottom = maxHeight * (look.bottomPercent / 100f) + unit * 22f)
+                .then(look.backgroundArgb?.let { Modifier.background(Color(it), RoundedCornerShape(4.dp)) } ?: Modifier)
+                .padding(horizontal = 10.dp, vertical = 3.dp)
+        ) {
+            look.outlineArgb?.let { outline ->
+                Text(
+                    cue.text,
+                    style = text.copy(
+                        color = Color(outline),
+                        drawStyle = androidx.compose.ui.graphics.drawscope.Stroke(
+                            width = with(density) { (unit * look.outlineSize * 2f).toPx() },
+                            join = androidx.compose.ui.graphics.StrokeJoin.Round
+                        )
+                    )
+                )
+            }
+            Text(cue.text, style = text.copy(color = Color(look.textArgb)))
+        }
     }
 }
 
@@ -458,11 +524,12 @@ private fun YouTubeSidePanel(state: AppState, session: PlayerSession, extras: Yo
                         val tracks = YouTubeCaptions.menuOrder(extras.captionTracks)
                         val subs = session.mpv.tracks.filter { it.type == "sub" }
                         val selectedMpv = subs.firstOrNull { it.selected }?.id
-                        item { YtRow("Off", selected = selectedMpv == null) { yt.selectCaption(session, null) } }
+                        item { YtRow("Off", selected = selectedMpv == null && extras.selectedCaption == null) { yt.selectCaption(session, null) } }
                         if (tracks.isNotEmpty()) {
                             items(tracks, key = { it.id }) { track ->
+                                // Drawn by Fetch, or by mpv when its cues couldn't be read.
                                 val mpvId = extras.addedCaptions[track.id]
-                                val selected = if (mpvId != null) mpvId == selectedMpv else extras.selectedCaption == track.id
+                                val selected = extras.selectedCaption == track.id && (selectedMpv == null || mpvId == selectedMpv)
                                 YtRow(track.label, selected = selected) { yt.selectCaption(session, track) }
                             }
                         } else {
@@ -472,7 +539,7 @@ private fun YouTubeSidePanel(state: AppState, session: PlayerSession, extras: Yo
                         }
                         item {
                             Text(
-                                "Captions use your subtitle style from Settings › Player (size, colour, outline, background and position). Your choice carries on to the next video.",
+                                "Fetch draws YouTube's captions in your subtitle style from Settings › Player (size, colour, outline, background and position). Your choice carries on to the next video.",
                                 color = FetchPalette.TextMuted,
                                 fontSize = 12.sp,
                                 modifier = Modifier.padding(top = 12.dp, start = 4.dp, end = 4.dp)

@@ -53,17 +53,21 @@ object HomeLayout {
      * Without a saved order, collections follow the catalogs. With one, everything takes its
      * saved place (pinned catalogs still lead); with [followAddonsOrder], catalogs keep their
      * own order and each collection goes after the catalog it was saved after.
+     *
+     * [aliases] maps other names for a catalog to its key in [catalogs]: the order synced from
+     * the TV (`home_catalog_shared`) names catalogs by the TV's keys (`addonId_type_catalogId`).
      */
     fun middle(
         catalogs: List<String>,
         collections: List<String>,
         order: List<String>,
         pinnedCatalogs: List<String> = emptyList(),
-        followAddonsOrder: Boolean = false
+        followAddonsOrder: Boolean = false,
+        aliases: Map<String, String> = emptyMap()
     ): List<String> {
         val collectionKeys = collections.map(::collectionKey)
         val known = (catalogs + collectionKeys).toSet()
-        val saved = order.filter { it in known }.distinct()
+        val saved = order.map { aliases[it] ?: it }.filter { it in known }.distinct()
         if (saved.isEmpty()) return catalogs + collectionKeys
         if (followAddonsOrder) {
             // Each collection goes after the last catalog before it in the saved order.
@@ -116,11 +120,12 @@ object HomeLayout {
         pinnedCatalogs: List<String>,
         hidden: Set<String>,
         followAddonsOrder: Boolean,
-        kids: Boolean
+        kids: Boolean,
+        aliases: Map<String, String> = emptyMap()
     ): List<HomeRowRef> {
         val shown = collections.filter { collectionKey(it.id) !in hidden }
         val pinnedCollections = shown.filter { it.pinToTop }.map { HomeRowRef.Collection(it.id) }
-        val middle = middle(catalogs, shown.filter { !it.pinToTop }.map { it.id }, order, pinnedCatalogs, followAddonsOrder).map { key ->
+        val middle = middle(catalogs, shown.filter { !it.pinToTop }.map { it.id }, order, pinnedCatalogs, followAddonsOrder, aliases).map { key ->
             if (key.startsWith("collection_") && key !in catalogs) HomeRowRef.Collection(key.removePrefix("collection_")) else HomeRowRef.Catalog(key)
         }
         val recommendations = if (kids) emptyList() else becauseYouWatched.mapIndexed { i, id -> HomeRowRef.BecauseYouWatched(i, id) }

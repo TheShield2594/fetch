@@ -42,7 +42,9 @@ data class MpvTrack(
     /** Audio: "5.1(side)" and the like. */
     val channels: String? = null,
     /** An added file's path or URL (mpv's external-filename), so an addon subtitle can be found again. */
-    val externalFilename: String? = null
+    val externalFilename: String? = null,
+    /** The track's number in its file (mpv's src-id: a Matroska TrackNumber). */
+    val srcId: Int? = null
 ) {
     val label: String
         get() = listOfNotNull(
@@ -509,7 +511,8 @@ class EmbeddedMpv private constructor(
                 forced = o["forced"]?.jsonPrimitive?.booleanOrNull == true,
                 isDefault = o["default"]?.jsonPrimitive?.booleanOrNull == true,
                 channels = str("demux-channels") ?: o["demux-channel-count"]?.jsonPrimitive?.intOrNull?.let { "${it}ch" },
-                externalFilename = str("external-filename")
+                externalFilename = str("external-filename"),
+                srcId = o["src-id"]?.jsonPrimitive?.intOrNull
             )
         }
     }.getOrDefault(emptyList())

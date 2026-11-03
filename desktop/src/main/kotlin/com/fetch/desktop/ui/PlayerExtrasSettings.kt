@@ -121,7 +121,7 @@ fun SubtitleExtrasSettings(state: AppState) {
     SettingsSection("Auto Sync") {
         SettingsToggle(
             "Auto Sync Subtitles",
-            "Match the selected addon subtitle to the timing of the subtitles embedded in the video (built-in player; the video needs a text subtitle track).",
+            "Match the selected addon subtitle to the timing of the subtitles embedded in the video: shifted, or re-timed for another frame rate or cut. Tries other subtitles in the language when it won't match (built-in player; image subtitles need a Matroska file or ffmpeg).",
             e.autoSync
         ) { v -> state.updateExtras { it.copy(autoSync = v) } }
         if (e.autoSync) {

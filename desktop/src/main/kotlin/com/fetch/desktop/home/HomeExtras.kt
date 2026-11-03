@@ -76,15 +76,19 @@ class HomeExtras(
     /**
      * Asks the addons about a few Continue Watching titles, then watchlist movies, one at a time,
      * so Ready tonight can show the ones that start at once. As on TV: only with Best match as
-     * the Play mode and "Check what's ready" on; each title at most every 12 hours.
+     * the Play mode and "Check what's ready" on, on Wi-Fi or Ethernet that isn't metered
+     * ([NetworkMetering]); each title at most every 12 hours.
      */
     fun checkReady(entries: List<ProgressEntry>, watchlist: List<LibraryEntry>) {
         if (!settings().layout.readyCheckEnabled || !autoPlayIsBestMatch()) return
         if (checkJob?.isActive == true) return
         checkJob = scope.launch {
             delay(ReadyTonight.CHECK_SETTLE_MS)
+            awaitUnmetered()
             val requests = ReadyTonight.candidates(entries, bestMatches, lastAttemptMs, System.currentTimeMillis(), watchlist)
             for (r in requests) {
+                // As on TV: no lookups while the connection is metered; Home staying open picks up again once it isn't.
+                awaitUnmetered()
                 try {
                     val ranked = withTimeoutOrNull(LOOKUP_TIMEOUT_MS) { rankedSources(r.type, r.videoId, r.name) }
                     saveBestMatch(r.type, r.videoId, ranked?.firstOrNull { it.isEligible })
@@ -96,6 +100,11 @@ class HomeExtras(
                 lastAttemptMs[r.key] = System.currentTimeMillis()
             }
         }
+    }
+
+    /** Returns once the connection isn't metered, checking every [METERED_RECHECK_MS] (leaving Home cancels the wait). */
+    private suspend fun awaitUnmetered() {
+        while (!withContext(Dispatchers.IO) { NetworkMetering.isUnmetered() }) delay(METERED_RECHECK_MS)
     }
 
     /** Leaving Home stops a check; what it finished is kept. */
@@ -188,6 +197,7 @@ class HomeExtras(
 
     private companion object {
         const val LOOKUP_TIMEOUT_MS = 60_000L
+        const val METERED_RECHECK_MS = 60_000L
     }
 }
 

@@ -6,6 +6,7 @@ import androidx.compose.ui.unit.dp
 import com.fetch.desktop.AppState
 import com.fetch.desktop.data.LayoutPrefs
 import com.fetch.desktop.home.HomeLayout
+import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 
@@ -26,7 +27,9 @@ data class CardStyle(
     val expand: Boolean = false,
     val expandDelayMs: Long = 3_000,
     /** A kids Home's bigger cards. */
-    val scale: Float = 1f
+    val scale: Float = 1f,
+    /** Autoplay Trailer with the Expanded card location: the hovered card plays the trailer once expanded. */
+    val trailer: CardTrailer? = null
 ) {
     /** A card's size for [shape]: the desktop's default size, scaled as the TV's settings scale theirs. */
     fun size(shape: PosterShape): CardSize {
@@ -45,7 +48,7 @@ data class CardStyle(
         /** The desktop's card corner (the TV's theme default is 8 dp on its 126 dp cards). */
         private val DefaultCorner = 10.dp
 
-        fun from(prefs: LayoutPrefs, kids: Boolean = false): CardStyle = CardStyle(
+        fun from(prefs: LayoutPrefs, kids: Boolean = false, gpu: Boolean = true, playerOpen: Boolean = false): CardStyle = CardStyle(
             widthScale = prefs.cardWidthScale,
             heightScale = prefs.cardHeightScale,
             corner = if (prefs.posterCardCornerRadiusDp == THEME_CARD_CORNER_RADIUS) DefaultCorner
@@ -54,12 +57,31 @@ data class CardStyle(
             alwaysLogo = prefs.alwaysShowLandscapeLogo,
             expand = prefs.expandFocusedPoster,
             expandDelayMs = prefs.expandFocusedPosterDelaySeconds.coerceIn(0, 30) * 1_000L,
-            scale = if (kids) HomeLayout.KIDS_CARD_SCALE else 1f
+            scale = if (kids) HomeLayout.KIDS_CARD_SCALE else 1f,
+            trailer = CardTrailer.from(prefs, gpu).takeIf { !playerOpen }
         )
+    }
+}
+
+/** How a card plays its title's trailer (the TV's EXPANDED_CARD trailer target). */
+data class CardTrailer(val muted: Boolean, val crop: Boolean, val gpu: Boolean, val delayAfterExpandMs: Long) {
+    companion object {
+        /**
+         * The card trailer [prefs] ask for, or null. The trailer delay counts from the pointer
+         * landing on the card, so what's left of it after the expand delay runs once it's grown.
+         */
+        fun from(prefs: LayoutPrefs, gpu: Boolean): CardTrailer? {
+            if (!prefs.focusedPosterTrailer || !prefs.trailersEnabled) return null
+            if (prefs.focusedPosterTrailerTarget != FocusedPosterTrailerPlaybackTarget.EXPANDED_CARD) return null
+            val delayMs = prefs.trailerDelaySeconds.coerceIn(0, 60) * 1_000L
+            val expandMs = prefs.expandFocusedPosterDelaySeconds.coerceIn(0, 30) * 1_000L
+            return CardTrailer(prefs.focusedPosterTrailerMuted, prefs.trailerCropToFill, gpu, (delayMs - expandMs).coerceAtLeast(0))
+        }
     }
 }
 
 val LocalCardStyle = staticCompositionLocalOf { CardStyle() }
 
 /** The card style for [state]'s settings everywhere but a kids Home, which scales its own. */
-fun cardStyleFor(state: AppState): CardStyle = CardStyle.from(state.settings.layout)
+fun cardStyleFor(state: AppState): CardStyle =
+    CardStyle.from(state.settings.layout, gpu = state.settings.player.builtInGpu, playerOpen = state.playerSession != null)

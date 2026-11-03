@@ -1,19 +1,24 @@
 package com.fetch.desktop.youtube
 
+import com.fetch.desktop.player.autosync.Cue
+import com.fetch.desktop.player.autosync.CueParser
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.longOrNull
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.util.Locale
 
 /**
  * A caption track a YouTube video has, as the TV's `YouTubeCaptions.kt` reads them from the player
- * response. [urls] are YouTube's timedtext links for it; mpv loads them as WebVTT
- * ([webVttUrl]) rather than Fetch drawing the cues itself, so the player's subtitle style applies.
+ * response. [urls] are YouTube's timedtext links for it. Fetch downloads the cues (as json3,
+ * [YouTubeCaptions.cues]) and draws them itself in the player's subtitle style, as the TV's
+ * caption renderer does; [webVttUrl] is for mpv when that download fails.
  */
 data class YouTubeCaptionTrack(
     val languageCode: String,
@@ -114,6 +119,61 @@ object YouTubeCaptions {
     }
 }
 
+/**
+ * A track's cues: from the first of its links that gives any, as YouTube's json3 (the TV's
+ * format: each event's start, duration and text), else as WebVTT. Empty when none do.
+ */
+fun YouTubeCaptions.cues(track: YouTubeCaptionTrack, download: (String) -> String?): List<Cue> {
+    for (url in track.urls) {
+        download(withFormat(url, "json3"))?.let(::parseJson3)?.takeIf { it.isNotEmpty() }?.let { return capped(it) }
+        download(withVttFormat(url))?.let(CueParser::parse)?.takeIf { it.isNotEmpty() }?.let { return capped(it) }
+    }
+    return emptyList()
+}
+
+/** Cues shown at most [MAX_CAPTION_MS] each, which [cueAt] relies on (a caption that long is a broken track). */
+private fun capped(cues: List<Cue>): List<Cue> =
+    cues.map { if (it.endMs - it.startMs > MAX_CAPTION_MS) it.copy(endMs = it.startMs + MAX_CAPTION_MS) else it }
+
+/** json3: `events` with `tStartMs`, `dDurationMs` and text `segs`; events without text only lay out. */
+fun parseJson3(raw: String): List<Cue> = runCatching {
+    val events = (Json.parseToJsonElement(raw) as? JsonObject)?.get("events") as? JsonArray ?: return emptyList()
+    events.mapNotNull { element ->
+        val event = element as? JsonObject ?: return@mapNotNull null
+        val start = (event["tStartMs"] as? JsonPrimitive)?.longOrNull ?: return@mapNotNull null
+        val duration = (event["dDurationMs"] as? JsonPrimitive)?.longOrNull ?: return@mapNotNull null
+        val text = (event["segs"] as? JsonArray).orEmpty()
+            .joinToString("") { ((it as? JsonObject)?.get("utf8") as? JsonPrimitive)?.contentOrNull.orEmpty() }
+            .trim()
+        if (text.isEmpty() || duration <= 0L) null else Cue(start, start + duration, text)
+    }.sortedBy { it.startMs }
+}.getOrDefault(emptyList())
+
+internal const val MAX_CAPTION_MS = 60_000L
+
+/** The cue showing at [positionMs] (the TV's cueAt), by binary search on the sorted cues. */
+fun cueAt(cues: List<Cue>, positionMs: Long): Cue? {
+    var low = 0
+    var high = cues.lastIndex
+    var candidate = -1
+    while (low <= high) {
+        val mid = (low + high) ushr 1
+        if (cues[mid].startMs <= positionMs) {
+            candidate = mid
+            low = mid + 1
+        } else high = mid - 1
+    }
+    // Rolling auto-captions overlap; the latest started one still showing wins. Only cues that
+    // started within the longest a caption lasts can still be showing ([YouTubeCaptions.cues]
+    // caps each at [MAX_CAPTION_MS]).
+    var i = candidate
+    while (i >= 0 && positionMs - cues[i].startMs <= MAX_CAPTION_MS) {
+        if (positionMs < cues[i].endMs) return cues[i]
+        i--
+    }
+    return null
+}
+
 /** "en" matches "en", "en-US" and "en-GB"; a regional preference matches only its region. */
 fun languageMatches(trackLanguage: String, wanted: String): Boolean {
     val track = trackLanguage.lowercase(Locale.ROOT)
@@ -121,8 +181,10 @@ fun languageMatches(trackLanguage: String, wanted: String): Boolean {
     return track == want || (!want.contains('-') && track.substringBefore('-') == want)
 }
 
-internal fun withVttFormat(url: String): String =
-    url.toHttpUrlOrNull()?.newBuilder()?.setQueryParameter("fmt", "vtt")?.build()?.toString() ?: url
+internal fun withVttFormat(url: String): String = withFormat(url, "vtt")
+
+internal fun withFormat(url: String, format: String): String =
+    url.toHttpUrlOrNull()?.newBuilder()?.setQueryParameter("fmt", format)?.build()?.toString() ?: url
 
 private fun absoluteUrl(url: String) = if (url.startsWith("/")) "https://www.youtube.com$url" else url
 

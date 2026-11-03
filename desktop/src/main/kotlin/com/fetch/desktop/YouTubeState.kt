@@ -19,6 +19,7 @@ import com.fetch.desktop.youtube.YouTubeAccount
 import com.fetch.desktop.youtube.YouTubeCaptionPreference
 import com.fetch.desktop.youtube.YouTubeCaptionTrack
 import com.fetch.desktop.youtube.YouTubeCaptions
+import com.fetch.desktop.youtube.cues
 import com.fetch.desktop.youtube.YouTubeLikeStatus
 import com.fetch.desktop.youtube.YouTubePlayerExtras
 import com.fetch.desktop.youtube.YouTubeSkipNotice
@@ -132,7 +133,7 @@ class YouTubeState(
     internal val host: YouTubeHost,
     private val authStore: YouTubeAuthStore,
     private val dataStore: JsonFile<YouTubeLocalData>,
-    http: OkHttpClient = OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS).build(),
+    private val http: OkHttpClient = OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS).build(),
     val client: YouTubeClient = YouTubeClient(http, authStore),
     private val sponsorBlock: SponsorBlockClient = SponsorBlockClient(http),
     private val deArrow: DeArrowClient = DeArrowClient(http),
@@ -973,17 +974,32 @@ class YouTubeState(
     }
 
     /**
-     * Shows [track] (a YouTube caption, loaded into mpv as WebVTT), or turns captions off with null.
+     * Shows [track] (a YouTube caption), or turns captions off with null. Fetch downloads its cues
+     * and draws them itself in the subtitle style ([YouTubePlayerExtras.captionCues]), as the
+     * TV's caption renderer does; if they can't be read, mpv shows the track as WebVTT instead.
      * Remembered for the next video, as on TV.
      */
     fun selectCaption(session: PlayerSession, track: YouTubeCaptionTrack?) {
         val extras = session.youTubeExtras() ?: return
         saveLocal(localData.copy(captions = YouTubeCaptionPreference(enabled = track != null, languageCode = track?.languageCode ?: localData.captions.languageCode)))
         extras.selectedCaption = track?.id
-        if (track == null) {
-            session.mpv.selectSubtitle(null)
-            return
+        extras.captionCues = emptyList()
+        // Whatever mpv showed goes off: Fetch draws the caption, or nothing.
+        session.mpv.selectSubtitle(null)
+        if (track == null) return
+        scope.launch {
+            val cues = withContext(Dispatchers.IO) { YouTubeCaptions.cues(track, ::downloadCaption) }
+            if (extras.selectedCaption != track.id || session.youTubeExtras() !== extras) return@launch
+            if (cues.isNotEmpty()) {
+                extras.captionCues = cues
+                return@launch
+            }
+            showCaptionInMpv(session, extras, track)
         }
+    }
+
+    /** mpv shows [track] as WebVTT: the way back when its cues can't be read. */
+    private fun showCaptionInMpv(session: PlayerSession, extras: YouTubePlayerExtras, track: YouTubeCaptionTrack) {
         val existing = extras.addedCaptions[track.id]?.takeIf { id -> session.mpv.tracks.any { it.type == "sub" && it.id == id } }
         if (existing != null) {
             session.mpv.selectSubtitle(existing)
@@ -1003,6 +1019,12 @@ class YouTubeState(
             }
         }
     }
+
+    private fun downloadCaption(url: String): String? = runCatching {
+        http.newCall(okhttp3.Request.Builder().url(url).build()).execute().use { response ->
+            if (!response.isSuccessful) null else response.body?.string()?.takeIf { it.isNotBlank() }
+        }
+    }.getOrNull()
 
     private suspend fun brandNowPlaying(videoId: String) {
         if (!settings.deArrowEnabled) return

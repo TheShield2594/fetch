@@ -91,13 +91,39 @@ class AddonToolsTest {
         assertEquals(listOf("new/movie", "top/series", "top/movie"), order(applied))
         assertTrue(applied.hideUnreleased)
         assertEquals(listOf("filter|x", "cinemeta_series_top"), applied.disabledCatalogs)
+        // The collection's place among the catalogs comes down as Home's order.
+        assertEquals(listOf("other_movie_new", "cinemeta_series_top", "collection_col1", "cinemeta_movie_top"), applied.layout.homeOrder)
 
-        val back = HomeCatalogSync.payload(all, applied, payload)
-        assertEquals(listOf("new", "top", "top", ""), back.items.map { it.catalogId })
+        // ...and goes back up in the same place, not after the catalogs.
+        val back = HomeCatalogSync.payload(all, applied, payload, collectionIds = listOf("col1"))
+        assertEquals(listOf("new", "top", "", "top"), back.items.map { it.catalogId })
         assertEquals("Fresh", back.items[0].customTitle)
         assertFalse(back.items.first { it.type == "series" }.enabled)
-        assertEquals("col1", back.items.last().collectionId)
+        assertEquals("col1", back.items[2].collectionId)
         assertEquals(listOf(0, 1, 2, 3), back.items.map { it.order })
+        // Moving the collection here (desktop keys) moves it in the payload; hiding it hides it there.
+        val moved = applied.copy(
+            layout = applied.layout.copy(homeOrder = listOf(c.key, "collection_col1", b.key)),
+            disabledCatalogs = applied.disabledCatalogs + "collection_col1"
+        )
+        val movedBack = HomeCatalogSync.payload(all, moved, payload, collectionIds = listOf("col1"))
+        assertEquals(listOf("new", "", "top", "top"), movedBack.items.map { it.catalogId })
+        assertFalse(movedBack.items[1].enabled)
+        // A hidden collection the account doesn't name stays hidden here.
+        val kept = HomeCatalogSync.apply(moved.copy(disabledCatalogs = moved.disabledCatalogs + "collection_local"), payload, hasHide)
+        assertTrue("collection_local" in kept.disabledCatalogs)
+        assertFalse("collection_col1" in kept.disabledCatalogs)
+        // An addon that didn't load here keeps its catalogs' entries and places in a push.
+        val withoutOther = HomeCatalogSync.payload(listOf(a, b), applied, payload, collectionIds = listOf("col1"))
+        assertEquals(listOf("new", "top", "", "top"), withoutOther.items.map { it.catalogId })
+        assertEquals("Fresh", withoutOther.items[0].customTitle)
+        // A payload with only collections places and hides them, and leaves the catalogs be.
+        val onlyCollections = SyncHomeCatalogPayload(items = listOf(SyncCatalogItem("", "", "", enabled = false, order = 0, isCollection = true, collectionId = "col1")))
+        val collectionsApplied = HomeCatalogSync.apply(applied, onlyCollections, hasHideUnreleased = false)
+        assertEquals(applied.catalogOrder, collectionsApplied.catalogOrder)
+        assertTrue("collection_col1" in collectionsApplied.disabledCatalogs)
+        assertTrue("cinemeta_series_top" in collectionsApplied.disabledCatalogs)
+        assertEquals(listOf("collection_col1"), collectionsApplied.layout.homeOrder)
         val merged: JsonObject = HomeCatalogSync.merged(remoteJson, back)
         assertTrue("extra_key" in merged)
         assertEquals(remoteJson, HomeCatalogSync.settingsJsonOf("""[{"profile_id":1,"settings_json":$remoteJson}]"""))

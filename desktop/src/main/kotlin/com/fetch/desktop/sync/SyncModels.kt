@@ -161,6 +161,10 @@ data class RemoteSharedSettings(
     val experience: RemoteExperience? = null,
     /** Subtitle, audio, Anime-Skip and trailer settings the TV syncs ([RemotePlayerExtras]). */
     val playerExtras: RemotePlayerExtras? = null,
+    /** `player_settings` auto-play keys ([AutoPlaySync.KEYS]) with their values; only the ones present. */
+    val autoPlay: Map<String, kotlinx.serialization.json.JsonPrimitive>? = null,
+    /** `episode_queue.items`: the playback queue as the TV's JSON array. */
+    val episodeQueue: String? = null,
 )
 
 /**

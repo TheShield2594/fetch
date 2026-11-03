@@ -151,7 +151,10 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                             else state.setWatched(preview, emptyList(), on)
                         },
                         minHeight = heroMinHeight,
-                        extraActions = { PartyDetailButton(state) }
+                        extraActions = {
+                            PartyDetailButton(state)
+                            QueueDetailButton(state, preview)
+                        }
                     )
                 }
                 item(key = "sources") {
@@ -161,7 +164,8 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                         onPlay = state::play,
                         onAllSources = { state.sourcesPanelOpen = true },
                         menu = { sourceMenu(state, it) },
-                        partyMarks = partyMarks
+                        partyMarks = partyMarks,
+                        onFind = { state.sources?.let { s -> state.loadSources(s.preview, s.video) } }
                     )
                 }
                 if (isSeries && !state.detailLoading) {
@@ -191,6 +195,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                                             state.loadSources(preview, video)
                                             state.sourcesPanelOpen = true
                                         })
+                                        queueMenuItem(state, preview, video)?.let(::add)
                                         add(ContextMenuItem(if (watched) "Mark as unwatched" else "Mark as watched") { state.setWatched(preview, listOf(video), !watched) })
                                         val before = com.fetch.desktop.data.WatchHistory.episodesBefore(videos, video)
                                         if (before.any { !state.isWatched(it.id) }) {
@@ -273,6 +278,19 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                     partyMarks = partyMarks,
                     onPlayShared = { state.party.state.value.party?.media?.let(state::watchWithParty) },
                     modifier = Modifier.width(560.dp).fillMaxHeight()
+                )
+            }
+        }
+        // Play pressed while the addons answer: the TV's fetching panel.
+        val waiting = state.sources?.takeIf { state.extras.autoPlayWaiting && !state.sourcesPanelOpen }
+        if (waiting != null) {
+            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.6f)), contentAlignment = Alignment.Center) {
+                FetchingPanel(
+                    sources = waiting,
+                    deadlineMs = state.extras.autoPlayDeadlineMs,
+                    onPlayNow = state::playBestSoFar,
+                    onShowAllSources = state::showAllSourcesNow,
+                    modifier = Modifier.padding(32.dp)
                 )
             }
         }
@@ -367,6 +385,8 @@ private fun Hero(
             val playLabel = listOfNotNull(verb, sources?.episodeTag).joinToString(" ")
             val specs = when {
                 sources == null -> if (isSeries) "Pick an episode" else "Loading…"
+                sources.idle -> "Best match"
+                sources.loading && best != null -> listOfNotNull("Best so far", best.specText()).joinToString(" · ")
                 sources.loading -> "Finding the best source…"
                 best != null -> best.specText() ?: best.stream.addonName
                 else -> "No playable source"
@@ -376,12 +396,12 @@ private fun Hero(
                 text = playLabel,
                 detail = detail,
                 onClick = onPlay,
-                enabled = sources != null && (sources.loading || sources.ranked.isNotEmpty())
+                enabled = sources != null && (sources.loading || sources.idle || sources.ranked.isNotEmpty())
             )
             if (resume != null && sources != null) {
                 SecondaryButton("Start over", onClick = onStartOver, icon = FetchIcons.Replay10)
             }
-            if (sources != null && !sources.loading && sources.ranked.isNotEmpty()) {
+            if (sources != null && sources.ranked.isNotEmpty()) {
                 SecondaryButton("All sources", onClick = onAllSources, icon = FetchIcons.List)
             }
             SecondaryButton(
@@ -417,14 +437,20 @@ private fun SourcesSummary(
     onPlay: (RankedStream) -> Unit,
     onAllSources: () -> Unit,
     menu: @Composable (RankedStream) -> List<ContextMenuItem>,
-    partyMarks: PartySourceMarks? = null
+    partyMarks: PartySourceMarks? = null,
+    onFind: () -> Unit = {}
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.padding(horizontal = PageGutter)) {
         Text("Sources", style = MaterialTheme.typography.titleLarge)
         when {
             loadingMeta -> LoadingLine("Loading details…")
             sources == null -> Text("Pick an episode below to see its sources.", color = FetchPalette.TextMuted)
-            sources.loading -> LoadingLine("Asking your addons…")
+            sources.idle -> Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("Your addons are asked when you press Play.", color = FetchPalette.TextMuted)
+                SecondaryButton("Find sources", onClick = onFind, icon = FetchIcons.Search)
+            }
+            // Sources arrive as each addon answers, ranked as they come.
+            sources.loading && sources.ranked.isEmpty() -> FetchingProgressLine(sources)
             sources.ranked.isEmpty() -> Text(
                 "No sources found. Install a stream addon on the Addons page.",
                 color = FetchPalette.TextMuted
@@ -449,6 +475,7 @@ private fun SourcesSummary(
                 )
             }
         }
+        if (sources != null && sources.loading && sources.ranked.isNotEmpty()) FetchingProgressLine(sources)
         sources?.failedAddons?.forEach {
             Text(it, style = MaterialTheme.typography.bodySmall, color = FetchPalette.Error)
         }
@@ -604,8 +631,9 @@ private fun SourcesPanel(
             CircleIconButton(FetchIcons.Close, "Close", onClick = onClose, size = 40.dp)
         }
         Box(Modifier.height(16.dp))
+        if (sources.loading) FetchingProgressLine(sources, Modifier.padding(end = 12.dp, bottom = 16.dp))
         when {
-            sources.loading -> LoadingLine("Asking your addons…")
+            sources.loading && sources.ranked.isEmpty() -> Unit
             sources.ranked.isEmpty() -> Text(
                 "No sources found. Install a stream addon on the Addons page.",
                 color = FetchPalette.TextMuted

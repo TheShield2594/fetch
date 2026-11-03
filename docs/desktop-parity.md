@@ -12,7 +12,7 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 |---|---|---|
 | Best match, ranked sources with reasons, badges | `core/streams/ranking/`, `ui/screens/stream/` | ✅ shared `StreamRanker`; `ui/DetailScreen.kt` |
 | Play mode: Best match, First source, Pattern, Manual | `PlaybackAutoPlaySettings.kt` | ✅ Stream Selection › When you press Play (`pickSource`) |
-| Addon timeout | `PlaybackAutoPlaySettings.kt` | ✅ |
+| Addon timeout | `PlaybackAutoPlaySettings.kt` | ✅ now the TV's Stream Selection Timeout, synced with it with the play mode, pattern and Are you still watching? |
 | Source sections (Best match, by resolution, passed over) and addon chips | `stream/SourceGroups.kt`, `StreamScreen.kt` | ✅ All sources panel |
 | Source options: prefer addon, never a release group | `stream/SourceOptionsDialog.kt`, `SourceRules.kt` | ✅ right-click on a source |
 | Player per source (built-in or mpv window) | `StreamScreen.kt` | ✅ right-click on a source; "Ask every time" |
@@ -35,14 +35,17 @@ Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not pl
 | Downmix channels, normalization, volume boost | `PlaybackAudioSettings.kt` | ✅ |
 | Dialogue (centre) boost, skip silence, audio delay per output | `PlaybackAudioSettings.kt`, `PlayerRuntimeControllerAudioDelayRoutes.kt` | ✅ dialogue boost as swresample's centre level when surround is mixed down (Settings › Audio and the Audio panel); skip silence (built-in player: an `astats` level meter, faster playback through silence; off in a party; synced); audio delay remembered per `audio-device` or default PulseAudio/PipeWire sink |
 | Cache size | `PlaybackBufferNetworkSettings.kt` | ✅ (mpv's demuxer cache) |
-| Next-episode threshold by percent | `PlaybackAutoPlaySettings.kt` | 🟡 Up Next starts at the end; the card offers it earlier |
-| Reuse last link, preload next episode, fallback to next source, binge group | `PlaybackAutoPlaySettings.kt` | ⬜ |
-| Post-play recommendation after a movie | `PostPlayRecommendation*.kt` | ⬜ (TMDB recommendations are now available to build it on) |
-| "Prefer this next time" prompt | `PreferNextTimePrompt.kt` | ⬜ (the source menu sets the same rules) |
-| Playback queue | `QueueSidePanel.kt` | ⬜ |
-| Parental guide overlay at start | `ParentalGuideOverlay.kt` | ⬜ |
+| Next-episode threshold by percent or minutes before the end (credits from IntroDB first) | `PlaybackAutoPlaySettings.kt`, `PlayerNextEpisodeRules.kt` | ✅ `playback/NextEpisodeRules.kt`: the built-in player's Up Next card and the next episode start there, after "Finding a source…" and a 3-second countdown; 🟡 mpv's window still moves on at the end of the file |
+| Stream selection timeout (Instant … 30 s, Unlimited), Start without waiting, Show the pick on the Play button | `PlaybackAutoPlaySettings.kt`, `StreamScreenViewModel.kt` | ✅ Stream Selection › When you press Play; `playback/AutoPlayPicker.kt` |
+| Reuse last link (+ cache duration), preload next episode, prefer / reuse binge group, fallback when the binge group fails | `PlaybackAutoPlaySettings.kt`, `StreamAutoPlaySelector.kt`, `FilenameEpisodeMatcher.kt` | ✅ `playback/StreamLinkCache.kt` (`stream-cache.json` per profile), Settings › Up Next; synced with the TV's keys |
+| Try the next source when one fails | — | ✅ desktop only: the built-in player plays the next ranked source when one won't open |
+| Post-play recommendation after a movie | `PostPlayRecommendation*.kt` | ✅ TMDB recommendations (needs TMDB with More like this): the TV's timing and candidate rules, up to four to page through, Play / Details / Trailer; the trailer plays in the built-in player after a 5-second countdown at the end; after mpv's window it shows over the app (trailer in mpv) |
+| "Prefer this next time" prompt | `PreferNextTimePrompt.kt` | ✅ shared `PreferNextTime`, 4 s into playback after picking a source (or switching in the player) over Best match's |
+| Playback queue | `QueueSidePanel.kt`, `PlayerRuntimeControllerQueue.kt`, `EpisodeQueueStore.kt` | ✅ Add to queue on posters, title pages, episodes and Continue Watching; the player's Queue panel (play, reorder, remove, undo); autoplay seeds the next episode; "Up next in queue" and playing through it at the end; synced as `episode_queue` |
+| Parental guide overlay at start | `ParentalGuideOverlay.kt` | ✅ the rating the desktop resolves plus IMDb's parents guide (the TV's API), 5 s as the built-in player starts; Player › Content warnings |
+| Ready check (Home marks what starts instantly) | `PlaybackAutoPlaySettings.kt`, `home/ReadyTonight.kt` | ⬜ (needs the Home marks first) |
 | Debug stats HUD | `PlayerDebugStatsOverlay.kt` | ✅ Settings › Player › Advanced › Playback stats overlay, then a toggle in stream info (I): cpu, paging, memory, buffer, bitrate, network, dropped frames, temperature (instead of Android's thermal headroom) |
-| Fetching panel with live per-addon progress | `stream/FetchingPanel.kt` | ⬜ sources appear when every addon has answered |
+| Fetching panel with live per-addon progress | `stream/FetchingPanel.kt` | ✅ `ui/FetchingPanel.kt`: sources arrive and are re-ranked as each addon answers (`AddonClient.streamsAsAnswered`), per-addon chips, Best so far, Play now / See all sources and the countdown while Play waits |
 | ExoPlayer engine, AFR, DV7 conversion, tunneling, decoder priority, Exo buffers | `player/*` | ➖ mpv does this its own way |
 
 ## Home, title pages, Library, Search

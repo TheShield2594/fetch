@@ -54,7 +54,10 @@ class ContinueWatchingActions(
     val onPlay: (ProgressEntry) -> Unit,
     val onDetails: (ProgressEntry) -> Unit,
     val onStartOver: (ProgressEntry) -> Unit,
-    val onRemove: (ProgressEntry) -> Unit
+    val onRemove: (ProgressEntry) -> Unit,
+    /** "Add to queue" / "Remove from queue", as on TV; null leaves it out. */
+    val onToggleQueue: ((ProgressEntry) -> Unit)? = null,
+    val isQueued: (ProgressEntry) -> Boolean = { false }
 )
 
 /** The 0–1 progress through [entry]; 0 for a Next Up card. */
@@ -137,6 +140,9 @@ private fun ContinueCard(entry: ProgressEntry, actions: ContinueWatchingActions,
             if (!upcoming) add(ContextMenuItem(entry.playLabel()) { actions.onPlay(entry) })
             add(ContextMenuItem("Go to details") { actions.onDetails(entry) })
             if (!entry.upNext) add(ContextMenuItem("Start from beginning") { actions.onStartOver(entry) })
+            actions.onToggleQueue?.takeIf { !upcoming }?.let { toggle ->
+                add(ContextMenuItem(if (actions.isQueued(entry)) "Remove from queue" else "Add to queue") { toggle(entry) })
+            }
             add(ContextMenuItem("Remove") { actions.onRemove(entry) })
         }
     }) {

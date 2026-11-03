@@ -89,8 +89,15 @@ class PlayerSession(val mpv: EmbeddedMpv) {
      * When the Up Next card shows: [promptSeconds] before the end, or from the start of the
      * credits when IntroDB knows them, whichever comes first. Null when there's nothing next.
      */
-    fun upNextCountdown(position: Double, duration: Double, promptSeconds: Int): Int? =
-        if (nextEpisode == null || upNextDismissed) null else upNextCountdown(segments, position, duration, promptSeconds)
+    fun upNextCountdown(position: Double, duration: Double, promptSeconds: Int): Int? = when {
+        nextEpisode == null || upNextDismissed -> null
+        // From the next-episode threshold (Settings › Up Next), as on TV.
+        upNextAt?.invoke(position, duration) == true -> (duration - position).toInt().coerceAtLeast(0)
+        else -> upNextCountdown(segments, position, duration, promptSeconds)
+    }
+
+    /** Whether the next-episode threshold is reached at (position, duration); set by the app. */
+    var upNextAt: ((Double, Double) -> Boolean)? = null
 }
 
 /**

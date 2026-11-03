@@ -66,6 +66,10 @@ data class DesktopSettings(
     val appearance: AppearanceSettings = AppearanceSettings(),
     /** Essential or Advanced (TV `experience_settings`). A file from before it reads as Advanced; a fresh install has none yet. */
     val experience: ExperienceSettings = ExperienceSettings.Advanced,
+    /** Up Next threshold, Reuse Last Link, binge groups, post-play and the rest of the TV's auto-play settings. */
+    val autoPlay: AutoPlaySettings = AutoPlaySettings(),
+    /** The playback queue (the TV's `episode_queue`), synced with it. */
+    val episodeQueue: List<com.fetch.desktop.playback.QueueItem> = emptyList(),
     /** Bumped when a saved default has to change; see [migrated]. */
     val schema: Int = 1
 ) {

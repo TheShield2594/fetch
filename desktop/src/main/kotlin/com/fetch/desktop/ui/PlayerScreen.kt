@@ -146,6 +146,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                     Key.Escape -> when {
                         closeExtraPanels(session) -> Unit
                         session.partyPanelOpen -> session.partyPanelOpen = false
+                        state.extras.queuePanelOpen -> state.extras.queuePanelOpen = false
                         session.panel != null -> session.panel = null
                         window?.placement == WindowPlacement.Fullscreen -> toggleFullscreen()
                         else -> leave()
@@ -195,6 +196,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
             UpNextCard(
                 session = session,
                 seconds = seconds,
+                status = state.extras.upNextStatus,
                 onPlay = state::playNextNow,
                 onCancel = state::cancelUpNext,
                 modifier = Modifier.align(Alignment.BottomEnd).padding(end = 48.dp, bottom = 150.dp)
@@ -280,6 +282,11 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                                 session.panel = if (session.panel == panel) null else panel
                             })
                         }
+                        SecondaryButton("Queue", icon = FetchIcons.List, onClick = {
+                            session.panel = null
+                            session.partyPanelOpen = false
+                            state.extras.queuePanelOpen = !state.extras.queuePanelOpen
+                        })
                         if (partyAvailable || inParty) {
                             SecondaryButton("Watch party", icon = PartyIcon, onClick = {
                                 session.panel = null
@@ -299,6 +306,8 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
         }
         PlayerExtrasPanels(state, session)
         if (session.partyPanelOpen) PartyPlayerPanel(state, session, Modifier.align(Alignment.CenterEnd))
+        // Content warnings, the Queue panel and "Up next in queue", the movie's recommendation.
+        PlayerExtrasLayer(state, session)
         state.stillWatching?.let { prompt ->
             StillWatchingOverlay(prompt.label, onContinue = { state.answerStillWatching(true) }, onStop = { state.answerStillWatching(false) })
         }

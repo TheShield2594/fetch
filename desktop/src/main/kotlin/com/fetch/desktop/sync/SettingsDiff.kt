@@ -28,7 +28,9 @@ fun RemoteSharedSettings.changedFrom(before: RemoteSharedSettings): RemoteShared
         mdblistRatingOrder = pick(mdblistRatingOrder, before.mdblistRatingOrder),
         appearance = appearance.changedFrom(before.appearance),
         experience = experience.changedFrom(before.experience),
-        playerExtras = playerExtras?.changedFrom(before.playerExtras)
+        playerExtras = playerExtras?.changedFrom(before.playerExtras),
+        autoPlay = autoPlay?.filter { (k, v) -> before.autoPlay?.get(k) != v }?.takeIf { it.isNotEmpty() },
+        episodeQueue = pick(episodeQueue, before.episodeQueue)
     )
     return diff.takeUnless { it == RemoteSharedSettings() }
 }

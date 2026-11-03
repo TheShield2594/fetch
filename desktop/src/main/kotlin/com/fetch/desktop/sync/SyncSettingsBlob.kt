@@ -102,6 +102,8 @@ object SyncSettingsBlob {
             appearance = AppearanceExperienceSync.appearance(blob),
             experience = AppearanceExperienceSync.experience(blob),
             playerExtras = RemotePlayerExtras.read(features),
+            autoPlay = AutoPlaySync.read(features?.get(PLAYER) as? JsonObject),
+            episodeQueue = AutoPlaySync.readQueue(features?.get(AutoPlaySync.QUEUE_FEATURE)),
         )
     }
 
@@ -133,6 +135,8 @@ object SyncSettingsBlob {
         set(MDBLIST, "mdblist_rating_order", settings.mdblistRatingOrder?.let(::stringValue))
         AppearanceExperienceSync.edits(settings).forEach { (feature, key, value) -> set(feature, key, value) }
         settings.playerExtras?.edits()?.forEach { (feature, key, encoded) -> set(feature, key, encoded) }
+        settings.autoPlay?.forEach { (key, value) -> set(PLAYER, key, AutoPlaySync.encode(key, value)) }
+        set(AutoPlaySync.QUEUE_FEATURE, AutoPlaySync.QUEUE_KEY, settings.episodeQueue?.let(AutoPlaySync::encodeQueue))
 
         val base = blob ?: JsonObject(emptyMap())
         val features = (base[FEATURES] as? JsonObject).orEmpty().toMutableMap()

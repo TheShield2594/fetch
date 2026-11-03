@@ -238,6 +238,8 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
         state.playerSession?.let { session -> PlayerScreen(state, session) }
         // YouTube's end card, over the built-in player or (after mpv's window) the app.
         YouTubeUpNextOverlay(state)
+        // "Prefer this next time", and a movie's recommendation after mpv's window closed.
+        AppExtrasLayer(state)
         state.screenTimeBlock?.let { block -> ScreenTimeDialog(state, block) }
         // "Are you still watching?" after mpv's own window closed (the built-in player shows its own).
         state.stillWatching?.takeIf { state.playerSession == null }?.let { prompt ->
@@ -269,6 +271,7 @@ private class AppPosterActions(private val state: AppState) : PosterActions {
             state.withImdbId(item) { state.toggleLibrary(it) }
         })
         add(androidx.compose.foundation.ContextMenuItem("Manage lists…") { state.manageLists(item) })
+        queueMenuItem(state, item)?.let(::add)
         val watched = isWatched(item)
         add(androidx.compose.foundation.ContextMenuItem(if (watched) "Mark as unwatched" else "Mark as watched") {
             state.withImdbId(item) { state.setTitleWatched(it, !watched) }

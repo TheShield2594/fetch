@@ -461,7 +461,8 @@ class AppState(
             trakt = { id, type, page, limit, sortBy, sortHow ->
                 tracking.withTraktPublic { publicListItems(it, id.toString(), type, page, limit, sortBy, sortHow) }
             },
-            localLists = { lists.local }
+            localLists = { lists.local },
+            websiteList = { id, types -> com.fetch.desktop.website.FetchWebsiteState.shared.listItems(profile.id, id, types) }
         ),
         addons = { addons.toList() },
         remote = { account?.client() },

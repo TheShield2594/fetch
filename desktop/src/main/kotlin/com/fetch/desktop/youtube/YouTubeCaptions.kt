@@ -125,11 +125,15 @@ object YouTubeCaptions {
  */
 fun YouTubeCaptions.cues(track: YouTubeCaptionTrack, download: (String) -> String?): List<Cue> {
     for (url in track.urls) {
-        download(withFormat(url, "json3"))?.let(::parseJson3)?.takeIf { it.isNotEmpty() }?.let { return it }
-        download(withVttFormat(url))?.let(CueParser::parse)?.takeIf { it.isNotEmpty() }?.let { return it }
+        download(withFormat(url, "json3"))?.let(::parseJson3)?.takeIf { it.isNotEmpty() }?.let { return capped(it) }
+        download(withVttFormat(url))?.let(CueParser::parse)?.takeIf { it.isNotEmpty() }?.let { return capped(it) }
     }
     return emptyList()
 }
+
+/** Cues shown at most [MAX_CAPTION_MS] each, which [cueAt] relies on (a caption that long is a broken track). */
+private fun capped(cues: List<Cue>): List<Cue> =
+    cues.map { if (it.endMs - it.startMs > MAX_CAPTION_MS) it.copy(endMs = it.startMs + MAX_CAPTION_MS) else it }
 
 /** json3: `events` with `tStartMs`, `dDurationMs` and text `segs`; events without text only lay out. */
 fun parseJson3(raw: String): List<Cue> = runCatching {
@@ -145,7 +149,7 @@ fun parseJson3(raw: String): List<Cue> = runCatching {
     }.sortedBy { it.startMs }
 }.getOrDefault(emptyList())
 
-private const val MAX_CAPTION_MS = 60_000L
+internal const val MAX_CAPTION_MS = 60_000L
 
 /** The cue showing at [positionMs] (the TV's cueAt), by binary search on the sorted cues. */
 fun cueAt(cues: List<Cue>, positionMs: Long): Cue? {
@@ -160,7 +164,8 @@ fun cueAt(cues: List<Cue>, positionMs: Long): Cue? {
         } else high = mid - 1
     }
     // Rolling auto-captions overlap; the latest started one still showing wins. Only cues that
-    // started within the longest a caption lasts can still be showing.
+    // started within the longest a caption lasts can still be showing ([YouTubeCaptions.cues]
+    // caps each at [MAX_CAPTION_MS]).
     var i = candidate
     while (i >= 0 && positionMs - cues[i].startMs <= MAX_CAPTION_MS) {
         if (positionMs < cues[i].endMs) return cues[i]

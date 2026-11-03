@@ -44,6 +44,18 @@ class YouTubeCaptionCuesTest {
         assertNull(cueAt(cues, 4_500))
         assertEquals("c", cueAt(cues, 5_000)?.text)
         assertNull(cueAt(emptyList(), 0))
+        // A long cue behind several finished ones is still found.
+        val behind = listOf(Cue(0, 50_000, "long")) + (1..6).map { Cue(it * 1_000L, it * 1_000L + 500, "short $it") }
+        assertEquals("long", cueAt(behind, 30_000)?.text)
+    }
+
+    @Test
+    fun `captions last at most a minute, so the lookup can stop there`() {
+        val json3 = """{"events":[{"tStartMs":0,"dDurationMs":90000,"segs":[{"utf8":"Stuck"}]}]}"""
+        val cues = YouTubeCaptions.cues(track) { url -> if ("fmt=json3" in url) json3 else null }
+        assertEquals(listOf(Cue(0, 60_000, "Stuck")), cues)
+        assertEquals("Stuck", cueAt(cues, 59_000)?.text)
+        assertNull(cueAt(cues, 61_000))
     }
 
     @Test

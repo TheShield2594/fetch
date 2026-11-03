@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.fetch.desktop.AppState
+import com.fetch.tv.core.addon.isConfigurable
 import com.fetch.tv.domain.model.Addon
 
 @Composable
@@ -89,7 +90,8 @@ fun AddonsScreen(state: AppState) {
                 canMoveUp = index > 0,
                 canMoveDown = index < state.addons.lastIndex,
                 onMove = { delta -> state.moveAddon(addon, delta) },
-                onRemove = { state.removeAddon(addon) }
+                onRemove = { state.removeAddon(addon) },
+                onConfigure = if (addon.isConfigurable) ({ state.configureAddon(addon) }) else null
             )
         }
         items(state.unreachableAddons, key = { "unreachable|${it.first}" }) { (addonUrl, error) ->
@@ -120,7 +122,8 @@ private fun AddonCard(
     canMoveUp: Boolean,
     canMoveDown: Boolean,
     onMove: (Int) -> Unit,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    onConfigure: (() -> Unit)?
 ) {
     Card(colors = CardDefaults.cardColors(containerColor = FetchPalette.Surface), shape = RoundedCornerShape(14.dp)) {
         Row(
@@ -156,6 +159,7 @@ private fun AddonCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+            if (onConfigure != null) SecondaryButton("Configure", onClick = onConfigure, icon = FetchIcons.Settings)
             CircleIconButton(FetchIcons.ArrowUp, "Move up", onClick = { onMove(-1) }, size = 40.dp, enabled = canMoveUp)
             CircleIconButton(FetchIcons.ArrowDown, "Move down", onClick = { onMove(1) }, size = 40.dp, enabled = canMoveDown)
             CircleIconButton(FetchIcons.Delete, "Remove", onClick = onRemove, size = 40.dp)

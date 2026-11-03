@@ -5,7 +5,8 @@ Stremio addon protocol, the domain models and stream parsing and ranking with th
 [`shared/`](../shared). Linux is the first target. Windows and macOS use the same code once their
 packaging and players are set up.
 
-It is a preview. It does less than the TV app (see [What works](#what-works)).
+It is a preview. It does less than the TV app: [desktop-parity.md](desktop-parity.md) lists what it has
+and what's left, feature by feature.
 
 ## Install
 
@@ -152,6 +153,25 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   are listed last with the reason. All sources open in a side panel.
 - Playback in mpv, in its own window, including addon `proxyHeaders`. Torrent-only results are
   not playable; Fetch is debrid-only, as on TV.
+- **Built-in player panels**, as on TV: Audio and Subtitles (tracks, delay, any addon subtitle
+  added on demand), Sources (switch mid-playback, keeping the position) and Episodes; playback
+  speed (`[` `]`), picture fit (Fit, Crop, Stretch, Zoom), stream info (I), an Up Next card
+  with Play now and Cancel before the end or at the credits, "Are you still watching?", and a
+  pause overlay. Z/X shift subtitles, N plays the next episode.
+- **Play mode** (Stream Selection › When you press Play): Best match, First source, a pattern,
+  or Pick every time; and how long to wait for addons. "Default Player: Ask every time".
+- **Sources**: grouped as on TV (Best match, by resolution, Not auto-played), filtered by
+  addon, and a right-click menu to play in either player, prefer that addon, never auto-play
+  that release group, or copy the link.
+- **Mark watched**: titles, episodes, earlier episodes and seasons, from the title page, an
+  episode's or any poster's right-click menu; synced to Trakt, Simkl and the sync server.
+  Episodes show watched marks, progress and "Not aired yet". Start over on the title page.
+- **More player settings** passed to mpv: secondary audio and subtitle languages, forced
+  subtitles, removing hearing-impaired text, subtitle bold, color, outline, position and ASS
+  styling, downmix channels, normalization, volume boost, cache size; an IntroDB server of
+  your own and the Skip button toggle.
+- **Recent searches**, hide unreleased titles, a Configure button for configurable addons, and
+  an update check (Settings › About) that links the package for this install.
 - A scrollbar on every long page and list, to grab and drag.
 - Escape goes back (and closes the sources panel first).
 

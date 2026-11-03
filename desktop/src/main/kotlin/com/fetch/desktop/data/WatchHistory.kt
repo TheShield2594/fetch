@@ -76,6 +76,37 @@ object WatchHistory {
         .filter { !it.hidden && (it.upNext || it.positionMs > 0 || (it.remotePercent ?: 0f) > 0f) }
         .sortedByDescending { it.lastWatched }
 
+    /**
+     * Marks [videoIds] of [target]'s title watched or unwatched by hand, as the TV's "Mark as
+     * watched" does. Watching a movie removes it from Continue Watching; when the episode in
+     * Continue Watching is marked watched, the entry moves on to the next unwatched one (Next Up),
+     * or goes when there is none.
+     */
+    fun setWatched(file: ProgressFile, target: PlaybackTarget, videoIds: Collection<String>, watched: Boolean, now: Long): ProgressFile {
+        if (videoIds.isEmpty()) return file
+        val ids = videoIds.toSet()
+        if (!watched) return file.copy(watched = file.watched.filter { it !in ids })
+        val watchedIds = (file.watched + ids).distinct()
+        val existing = file.entries.firstOrNull { it.contentId == target.contentId }
+        val others = file.entries.filter { it.contentId != target.contentId }
+        val entries = when {
+            existing == null || existing.videoId !in ids -> file.entries
+            target.episodes.isEmpty() -> others
+            else -> {
+                val current = target.episodes.firstOrNull { it.id == existing.videoId }
+                val next = current?.let { nextEpisode(target.episodes, it, watchedIds.toSet()) }
+                if (next == null) others else others + entryFor(target, next, 0, 0, now).copy(upNext = true)
+            }
+        }
+        return ProgressFile(entries = entries, watched = watchedIds)
+    }
+
+    /** The aired episodes before [episode] in season and episode order (specials excluded). */
+    fun episodesBefore(episodes: List<Video>, episode: Video): List<Video> =
+        episodes.filter { (it.season ?: 0) > 0 && it.episode != null }
+            .sortedWith(compareBy({ it.season }, { it.episode }))
+            .takeWhile { it.id != episode.id }
+
     fun hide(file: ProgressFile, contentId: String): ProgressFile =
         file.copy(entries = file.entries.map { if (it.contentId == contentId) it.copy(hidden = true) else it })
 

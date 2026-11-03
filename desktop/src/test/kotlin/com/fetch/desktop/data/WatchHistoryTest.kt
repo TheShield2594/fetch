@@ -75,4 +75,35 @@ class WatchHistoryTest {
         val entry = WatchHistory.record(ProgressFile(), movie, 1_200_000, 5_100_000, now = 1).entries.single()
         assertEquals("1h 5m left", remainingLabel(entry))
     }
+
+    @Test
+    fun `marking the Continue Watching episode watched moves it on to Next Up`() {
+        var file = WatchHistory.record(ProgressFile(), show(ep(1, 1)), 600_000, 3_000_000, now = 1)
+        file = WatchHistory.setWatched(file, show(ep(1, 1)).copy(video = null), listOf("tt1:1:1"), watched = true, now = 2)
+        val entry = WatchHistory.continueWatching(file).single()
+        assertTrue(entry.upNext)
+        assertEquals("tt1:1:2", entry.videoId)
+        assertTrue("tt1:1:1" in file.watched)
+    }
+
+    @Test
+    fun `marking a movie watched removes it from Continue Watching, unwatching keeps the rest`() {
+        var file = WatchHistory.record(ProgressFile(), movie, 1_800_000, 6_000_000, now = 1)
+        file = WatchHistory.setWatched(file, movie, listOf("tt9"), watched = true, now = 2)
+        assertTrue(WatchHistory.continueWatching(file).isEmpty())
+        file = WatchHistory.setWatched(file.copy(watched = file.watched + "other"), movie, listOf("tt9"), watched = false, now = 3)
+        assertEquals(listOf("other"), file.watched)
+    }
+
+    @Test
+    fun `marking an episode that isn't in Continue Watching leaves the entry alone`() {
+        var file = WatchHistory.record(ProgressFile(), show(ep(1, 2)), 600_000, 3_000_000, now = 1)
+        file = WatchHistory.setWatched(file, show(ep(1, 1)).copy(video = null), listOf("tt1:1:1"), watched = true, now = 2)
+        assertEquals("tt1:1:2", WatchHistory.continueWatching(file).single().videoId)
+    }
+
+    @Test
+    fun `episodes before skip specials and keep order`() {
+        assertEquals(listOf("tt1:1:1", "tt1:1:2"), WatchHistory.episodesBefore(episodes, ep(2, 1)).map { it.id })
+    }
 }

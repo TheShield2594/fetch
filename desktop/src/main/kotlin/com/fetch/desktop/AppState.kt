@@ -25,6 +25,11 @@ import com.fetch.desktop.data.settingsFile
 import com.fetch.desktop.data.toPreview
 import com.fetch.desktop.player.ExternalPlayer
 import com.fetch.desktop.data.SubtitleMode
+import com.fetch.desktop.data.AutoPlayMode
+import com.fetch.desktop.data.VideoFit
+import com.fetch.desktop.sync.RemoteWatchedKey
+import com.fetch.tv.core.streams.ranking.StreamTitleParser
+import com.fetch.tv.core.streams.ranking.StreamRankingRules
 import com.fetch.desktop.player.MpvArgs
 import com.fetch.desktop.player.MpvProgress
 import com.fetch.desktop.badges.StreamBadgesState
@@ -234,6 +239,17 @@ class AppState(
     /** A one-line message for the snackbar, cleared once shown. */
     var message: String? by mutableStateOf(null)
 
+    /** "Are you still watching?", shown in the player or over the app. */
+    var stillWatching: StillWatchingPrompt? by mutableStateOf(null)
+        private set
+
+    /** "Default Player: Ask every time": the choice waiting for an answer. */
+    var playerChoice: ((builtIn: Boolean?) -> Unit)? by mutableStateOf(null)
+        private set
+
+    /** A newer Fetch on GitHub, when About › Updates found one. */
+    val updates = UpdateChecker(scope)
+
     // --- Limits (profile PIN and parental limits live in ProfilesState) ---
 
     private val screenTimeStore = screenTimeFile(profileDir(profile))
@@ -390,6 +406,7 @@ class AppState(
 
     fun start() {
         scope.launch { reloadAddons() }
+        if (settings.checkForUpdates) updates.check(beta = settings.betaUpdates)
         syncAccount()
         scope.launch { syncTracking() }
         servers.refreshRows()
@@ -631,7 +648,8 @@ class AppState(
                 return@launch
             }
             if (addon.needsConfiguration) {
-                message = "${addon.displayName} must be configured on its own page first, then install the link it gives you."
+                openInBrowser(configureUrl(addon))
+                message = "${addon.displayName} must be configured first: its page is open in your browser. Install the link it gives you."
                 return@launch
             }
             val key = AddonUrls.split(addon.baseUrl).let { (p, q) -> p + q }
@@ -653,6 +671,20 @@ class AppState(
         pushAddonsToServer()
         rows.removeAll { it.addon.baseUrl == addon.baseUrl }
         discover.setAddons(addons.toList(), settings.discoverCatalog)
+    }
+
+    /** The addon's own settings page, for addons that say they're configurable. */
+    fun configureUrl(addon: Addon): String = com.fetch.tv.core.addon.addonConfigureUrl(addon.baseUrl)
+
+    fun configureAddon(addon: Addon) {
+        openInBrowser(configureUrl(addon))
+        message = "Opened ${addon.displayName}'s settings in your browser. Install the new link it gives you here."
+    }
+
+    fun openInBrowser(url: String) {
+        val opened = runCatching { ProcessBuilder("xdg-open", url).start(); true }.getOrDefault(false) ||
+            runCatching { java.awt.Desktop.getDesktop().browse(java.net.URI(url)); true }.getOrDefault(false)
+        if (!opened) message = "Couldn't open a browser. The link is $url"
     }
 
     fun forgetUnreachable(url: String) {
@@ -696,8 +728,10 @@ class AppState(
             val visible = rows.filter { it.key !in disabled }
             val ordered = visible.filter { it.key in pinned }.sortedBy { pinned.indexOf(it.key) } +
                 visible.filter { it.key !in pinned }
-            // A rating limit hides what it rules out, as on TV.
-            return if (limits.maxRating == null) ordered else ordered.map { row -> row.copy(items = row.items.filter(::allowed)) }
+            // A rating limit hides what it rules out, as on TV, and so does "Hide unreleased".
+            val hideUnreleased = settings.hideUnreleased
+            if (limits.maxRating == null && !hideUnreleased) return ordered
+            return ordered.map { row -> row.copy(items = row.items.filter { allowed(it) && !(hideUnreleased && isUnreleased(it)) }) }
         }
 
     fun setCatalogPinned(key: String, pinned: Boolean) = updateSettings { s ->
@@ -755,6 +789,91 @@ class AppState(
     fun startFromBeginning(entry: ProgressEntry) {
         saveProgress(WatchHistory.clearPosition(progress, entry.contentId))
         navigate(Screen.Detail(entry.toPreview(), autoPlay = true, videoId = entry.videoId))
+    }
+
+    /** Detail's "Start over": forget where this title was stopped and play it from the top. */
+    fun startOverDetail() {
+        val current = sources ?: return
+        saveProgress(WatchHistory.clearPosition(progress, current.preview.id))
+        playBest()
+    }
+
+    // --- Watched state ---
+
+    fun isWatched(videoId: String): Boolean = videoId in watchedSet
+
+    private var watchedCache: Pair<List<String>, Set<String>> = emptyList<String>() to emptySet()
+    private val watchedSet: Set<String>
+        get() {
+            val list = progress.watched
+            if (watchedCache.first !== list) watchedCache = list to list.toSet()
+            return watchedCache.second
+        }
+
+    /**
+     * Marks [videos] of [preview] (or the movie itself when empty) watched or unwatched here, on
+     * Trakt and Simkl, and on the sync server, as the TV's "Mark as watched" does.
+     */
+    fun setWatched(preview: MetaPreview, videos: List<Video>, watched: Boolean, episodes: List<Video> = detailMeta?.takeIf { it.id == preview.id }?.videos.orEmpty()) {
+        val base = PlaybackTarget(
+            contentId = preview.id,
+            contentType = preview.apiType,
+            name = preview.name,
+            poster = preview.poster,
+            backdrop = preview.backdropUrl,
+            logo = preview.logo,
+            video = null,
+            episodes = episodes
+        )
+        val targets = if (videos.isEmpty()) listOf(base) else videos.map { base.copy(video = it) }
+        val ids = targets.map { it.videoId }
+        val changed = ids.filter { (it in watchedSet) != watched }
+        if (changed.isEmpty()) return
+        saveProgress(WatchHistory.setWatched(progress, base, ids, watched, System.currentTimeMillis()))
+        targets.filter { it.videoId in changed }.forEach { tracking.setWatched(it, watched) }
+        val remote = account?.client()
+        if (remote != null) {
+            scope.launch {
+                runCatching {
+                    if (watched) {
+                        remote.pushWatched(profile.id, changed.mapNotNull { SyncMerge.watchedItem(it, System.currentTimeMillis()) })
+                    } else {
+                        remote.deleteWatched(profile.id, changed.mapNotNull { id ->
+                            SyncMerge.watchedItem(id, 0L)?.let { RemoteWatchedKey(it.contentId, it.season, it.episode) }
+                        })
+                    }
+                }
+            }
+        }
+        message = when {
+            videos.size > 1 -> "Marked ${videos.size} episodes ${if (watched) "watched" else "unwatched"}"
+            videos.size == 1 -> "Marked ${episodeTag(videos[0].season, videos[0].episode) ?: "episode"} ${if (watched) "watched" else "unwatched"}"
+            else -> "Marked ${preview.name} ${if (watched) "watched" else "unwatched"}"
+        }
+    }
+
+    /** Whether a whole title counts as watched: the movie, or every aired episode of a series. */
+    fun isTitleWatched(preview: MetaPreview, episodes: List<Video>): Boolean {
+        if (preview.type != ContentType.SERIES) return isWatched(preview.id)
+        val real = episodes.filter { (it.season ?: 0) > 0 }
+        return real.isNotEmpty() && real.all { isWatched(it.id) }
+    }
+
+    /** From a poster's menu: a movie directly, a series by every episode (fetched first). */
+    fun setTitleWatched(preview: MetaPreview, watched: Boolean) {
+        if (preview.type != ContentType.SERIES) {
+            setWatched(preview, emptyList(), watched)
+            return
+        }
+        scope.launch {
+            val meta = runCatching { withContext(Dispatchers.IO) { client.meta(addons.toList(), preview.rawType, preview.id) } }.getOrNull()
+            val episodes = meta?.videos.orEmpty().filter { (it.season ?: 0) > 0 && isAired(it) }
+            if (episodes.isEmpty()) {
+                message = "Couldn't load ${preview.name}'s episodes"
+                return@launch
+            }
+            setWatched(preview, episodes, watched, meta?.videos.orEmpty())
+        }
     }
 
     private fun saveProgress(file: ProgressFile) {
@@ -851,6 +970,17 @@ class AppState(
 
     val hasSearchableCatalogs: Boolean get() = searchableRows().isNotEmpty()
 
+    /** Saves the current query in Recent searches (on Enter, or opening a result), newest first. */
+    fun rememberSearch(query: String = searchQuery) {
+        val q = query.trim()
+        if (q.length < 2) return
+        updateSettings { s -> s.copy(recentSearches = (listOf(q) + s.recentSearches.filterNot { it.equals(q, ignoreCase = true) }).take(MAX_RECENT_SEARCHES)) }
+    }
+
+    fun removeRecentSearch(query: String) = updateSettings { s -> s.copy(recentSearches = s.recentSearches - query) }
+
+    fun clearRecentSearches() = updateSettings { it.copy(recentSearches = emptyList()) }
+
     // --- Detail and sources ---
 
     private fun loadDetail(preview: MetaPreview, videoId: String?) {
@@ -898,7 +1028,7 @@ class AppState(
             val (results, own) = if (ServerItemRef.isServerId(videoId)) {
                 emptyList<com.fetch.desktop.data.AddonStreamResult>() to servers.streamsForItem(videoId)
             } else coroutineScope {
-                val fromAddons = async(Dispatchers.IO) { client.streams(addons.toList(), preview.rawType, videoId) }
+                val fromAddons = async(Dispatchers.IO) { client.streams(addons.toList(), preview.rawType, videoId, timeoutMs = addonTimeoutMs) }
                 val fromServers = async { servers.streams(preview.rawType, videoId, preview.name, yearOf(preview.releaseInfo)) }
                 fromAddons.await() to fromServers.await()
             }
@@ -917,11 +1047,34 @@ class AppState(
             sources = loaded
             if (autoPlayPending) {
                 autoPlayPending = false
-                val best = loaded.best
-                if (best != null) play(best) else message = "No source to play automatically. Pick one below."
+                if (settings.autoPlayMode == AutoPlayMode.MANUAL) {
+                    sourcesPanelOpen = true
+                } else {
+                    val pick = pickAuto(loaded.ranked)
+                    if (pick != null) play(pick) else message = "No source to play automatically. Pick one below."
+                }
             }
         }
     }
+
+    private val addonTimeoutMs: Long get() = settings.addonTimeoutSeconds.coerceIn(3, 120) * 1000L
+
+    /**
+     * The source Play starts, by Settings › Stream Selection › Play: the best match, the first
+     * playable source in addon order, or the first matching a pattern. Null for "Pick every time"
+     * or when nothing qualifies.
+     */
+    fun pickAuto(ranked: List<RankedStream>, mode: AutoPlayMode = settings.autoPlayMode): RankedStream? =
+        pickSource(ranked, mode, settings.autoPlayRegex)
+
+    /** A rule from a source's menu ("Prefer addon", "Never this release group"), saved to Stream Selection. */
+    fun applyRankingRule(change: (StreamRankingRules) -> StreamRankingRules, confirmation: String) {
+        updateSettings { it.copy(rankingRules = change(it.rankingRules)) }
+        message = confirmation
+    }
+
+    fun releaseGroupOf(stream: Stream): String? =
+        if (stream.serverTarget == null) StreamTitleParser.parse(stream).releaseGroup else null
 
     private suspend fun rank(streams: List<Stream>): List<RankedStream> = withContext(Dispatchers.Default) {
         StreamRanker.rank(streams, rules = settings.rankingRules, isPlayable = ExternalPlayer::canPlay)
@@ -941,11 +1094,12 @@ class AppState(
         val current = sources ?: return
         if (current.loading) {
             autoPlayPending = true
-            message = "Starting the best match as soon as your addons answer…"
+            message = if (settings.autoPlayMode == AutoPlayMode.MANUAL) "Your sources open as soon as your addons answer…"
+            else "Starting the best match as soon as your addons answer…"
             return
         }
-        val best = current.best
-        if (best != null) play(best) else sourcesPanelOpen = true
+        val pick = pickAuto(current.ranked)
+        if (pick != null) play(pick) else sourcesPanelOpen = true
     }
 
     fun playTrailer(ytId: String, title: String) {
@@ -956,7 +1110,7 @@ class AppState(
     }
 
     /** Plays [ranked] for the title or episode the sources are for, resuming where it was left. */
-    fun play(ranked: RankedStream) {
+    fun play(ranked: RankedStream, builtIn: Boolean? = null) {
         autoPlayPending = false
         autoplayRun = 0
         val context = sources ?: return
@@ -975,23 +1129,38 @@ class AppState(
             video = context.video,
             episodes = meta?.videos.orEmpty()
         )
-        launchPlayback(ranked.stream, context.label, target)
+        launchPlayback(ranked.stream, context.label, target, builtIn = builtIn, alternatives = context.ranked)
     }
 
     /**
      * Starts mpv with the player settings and any addon subtitles, resuming from the saved
      * position, then follows it for Continue Watching and Up Next.
      */
-    private fun launchPlayback(stream: Stream, label: String, target: PlaybackTarget) {
+    private fun launchPlayback(
+        stream: Stream,
+        label: String,
+        target: PlaybackTarget,
+        start: String? = null,
+        builtIn: Boolean? = null,
+        alternatives: List<RankedStream> = emptyList()
+    ) {
         currentBlock()?.let {
             screenTimeBlock = it
+            return
+        }
+        // "Ask every time": the built-in player or mpv's window, unless one is already open.
+        if (builtIn == null && settings.player.askPlayer && playerSession == null && LibMpv.available) {
+            playerChoice = { choice ->
+                playerChoice = null
+                if (choice != null) launchPlayback(stream, label, target, start, choice, alternatives)
+            }
             return
         }
         scope.launch {
             val player = settings.player
             val serverStream = servers.serverStream(stream)
             // Fetch's own position first; otherwise where the server says you stopped.
-            val resume = WatchHistory.resumeStart(progress, target.videoId)
+            val resume = start ?: WatchHistory.resumeStart(progress, target.videoId)
                 ?: serverStream?.resumePositionMs?.takeIf { it > 60_000 }?.let { (it / 1000).toString() }
             val subtitles = if (player.subtitleMode == SubtitleMode.OFF) {
                 emptyList()
@@ -1010,10 +1179,12 @@ class AppState(
             val options = MpvArgs.build(player, subtitles)
             // The built-in player also offers a Skip button for segments that aren't automatic.
             val segments = if (player.builtInPlayer || player.autoSkip.isNotEmpty()) segmentsFor(target) else emptyList()
-            if (player.builtInPlayer && LibMpv.available &&
-                playEmbedded(played, label, target, resume, options, serverStream, segments)
+            val useBuiltIn = builtIn ?: (player.builtInPlayer || playerSession != null)
+            if (useBuiltIn && LibMpv.available &&
+                playEmbedded(stream, played, label, target, resume, options, serverStream, segments, alternatives)
             ) return@launch
             val skipper = SkipPlanner(segments, player.autoSkip).takeUnless { it.isEmpty }
+            closePlayer()
             when (val result = ExternalPlayer.play(played, label, start = resume, options = options)) {
                 is ExternalPlayer.Result.Started -> {
                     message = if (resume != null) "Resuming in ${result.player}" else "Opening in ${result.player}"
@@ -1032,7 +1203,6 @@ class AppState(
         }.filter { (lang, _) -> lang in wanted }.map { it.second }.distinct().take(3)
     }
 
-    /** Saves mpv's position as it plays, for Continue Watching and resume, then handles Up Next. */
     /** IntroDB's intro, recap and credits times for [target]; empty when unknown. */
     private suspend fun segmentsFor(target: PlaybackTarget): List<Segment> {
         val imdb = target.contentId.takeIf { it.startsWith("tt") } ?: return emptyList()
@@ -1040,7 +1210,9 @@ class AppState(
         return withTimeoutOrNull(4_000) { introDb.segments(imdb, video?.season, video?.episode) }.orEmpty()
     }
 
-    private val introDb by lazy { IntroDbClient(okhttp3.OkHttpClient()) }
+    private val introDb by lazy {
+        IntroDbClient(okhttp3.OkHttpClient()) { settings.player.introDbUrl?.takeIf { it.isNotBlank() } ?: IntroDbClient.DEFAULT_URL }
+    }
 
     private fun followProgress(
         result: ExternalPlayer.Result.Started,
@@ -1064,7 +1236,7 @@ class AppState(
         target: PlaybackTarget,
         serverStream: ServerStream?,
         skipper: SkipPlanner?,
-        afterEnd: suspend (MpvProgress.Ending) -> Unit = {},
+        afterEnd: suspend (ending: MpvProgress.Ending, continued: Boolean) -> Unit = { _, _ -> },
         run: suspend (onPosition: (Double) -> MpvProgress.Seek?, onSample: (MpvProgress.Sample) -> Unit) -> MpvProgress.Ending
     ) {
         scope.launch {
@@ -1101,8 +1273,8 @@ class AppState(
                     finished = last.percent() >= WatchProgress.COMPLETED_THRESHOLD * 100
                 )
             }
-            playbackEnded(target, ending)
-            afterEnd(ending)
+            val continued = playbackEnded(target, ending)
+            afterEnd(ending, continued)
             syncAccount()
         }
     }
@@ -1126,13 +1298,15 @@ class AppState(
     }
 
     private suspend fun playEmbedded(
+        original: Stream,
         stream: Stream,
         label: String,
         target: PlaybackTarget,
         resume: String?,
         options: List<String>,
         serverStream: ServerStream?,
-        segments: List<Segment>
+        segments: List<Segment>,
+        alternatives: List<RankedStream>
     ): Boolean {
         val url = ExternalPlayer.playableUrl(stream) ?: run {
             message = "This source has no playable link. Fetch plays direct and debrid links only."
@@ -1145,20 +1319,150 @@ class AppState(
             return false
         }
         playerSession = session
+        val sameTitle = session.target?.videoId == target.videoId
         session.title = label
         session.segments = segments
         session.autoSkip = settings.player.autoSkip
+        session.skipButton = settings.player.skipButton
+        session.target = target
+        session.stream = original
+        if (alternatives.isNotEmpty() || !sameTitle) session.sources = alternatives
+        if (!sameTitle) session.addonSubtitles = null
+        session.upNextDismissed = false
+        upNextCancelledFor = null
+        session.nextEpisode = target.video?.takeIf { settings.player.autoplayNextEpisode }
+            ?.let { WatchHistory.nextEpisode(target.episodes, it, progress.watched.toSet()) }
+        session.description = (target.video?.overview ?: detailMeta?.takeIf { it.id == target.contentId }?.description)
         val load = ++session.loads
         session.mpv.load(url, label, resume, options, stream.behaviorHints?.proxyHeaders?.request.orEmpty())
+        if (session.loads == 1 && settings.player.videoFit != VideoFit.FIT) setFit(settings.player.videoFit)
         follow(
             target,
             serverStream,
             SkipPlanner(segments, settings.player.autoSkip).takeUnless { it.isEmpty },
-            afterEnd = { ending ->
+            afterEnd = { ending, continued ->
                 // Played to the end and nothing came next: close, as the mpv window would.
-                if (ending.reachedEnd && playerSession === session && session.loads == load) closePlayer()
+                if (ending.reachedEnd && !continued && stillWatching == null && playerSession === session && session.loads == load) closePlayer()
             }
         ) { onPosition, onSample -> session.mpv.follow(onPosition = onPosition, onSample = onSample) }
+        return true
+    }
+
+    // --- Built-in player: switching and panels ---
+
+    /** Plays another source for what's on screen, from where it is now. */
+    fun switchSource(ranked: RankedStream) {
+        val session = playerSession ?: return
+        val target = session.target ?: return
+        val at = session.mpv.position.takeIf { it > 5 }?.let { it.toLong().toString() }
+        session.panel = null
+        launchPlayback(ranked.stream, session.title, target, start = at, builtIn = true, alternatives = session.sources)
+    }
+
+    /** Loads the sources for what's playing, for the player's Sources panel. */
+    fun loadPlayerSources() {
+        val session = playerSession ?: return
+        val target = session.target ?: return
+        if (session.sources.isNotEmpty() || session.sourcesLoading) return
+        session.sourcesLoading = true
+        scope.launch {
+            try {
+                session.sources = rank(streamsFor(target.contentType, target.videoId, target.name))
+            } finally {
+                session.sourcesLoading = false
+            }
+        }
+    }
+
+    /** Every addon subtitle for what's playing, for the player's Subtitles panel. */
+    fun loadAddonSubtitles() {
+        val session = playerSession ?: return
+        val target = session.target ?: return
+        if (session.addonSubtitles != null || ServerItemRef.isServerId(target.contentId)) return
+        if (session.addonSubtitlesLoading) return
+        session.addonSubtitlesLoading = true
+        scope.launch {
+            val subs = runCatching {
+                withContext(Dispatchers.IO) { client.subtitles(addons.toList(), target.contentType, target.videoId, timeoutMs = 8_000) }
+            }.getOrDefault(emptyList())
+            session.addonSubtitles = subs.distinctBy { it.second }.map { (lang, url) -> AddonSubtitle(lang, url, "") }
+                .sortedWith(compareBy({ !preferredSubtitle(it.language) }, { it.language }))
+            session.addonSubtitlesLoading = false
+        }
+    }
+
+    private fun preferredSubtitle(language: String): Boolean {
+        val wanted = listOfNotNull(settings.player.subtitleLanguage ?: Locale.getDefault().language, settings.player.secondarySubtitleLanguage)
+        return wanted.any { language in MpvArgs.languageCodes(it).split(',') }
+    }
+
+    /** Plays [video] of what's on screen (the player's Episodes panel), its best match first. */
+    fun playEpisodeInPlayer(video: Video) {
+        val session = playerSession ?: return
+        val target = session.target ?: return
+        session.panel = null
+        scope.launch { startEpisode(target, video, viaUpNext = false) }
+    }
+
+    /** The Up Next card's "Play now". */
+    fun playNextNow() {
+        val session = playerSession ?: return
+        val target = session.target ?: return
+        val next = session.nextEpisode ?: return
+        session.upNextDismissed = true
+        autoplayRun++
+        scope.launch { startEpisode(target, next, viaUpNext = true) }
+    }
+
+    /** The Up Next card's "Cancel": this episode ends without starting the next. */
+    fun cancelUpNext() {
+        val session = playerSession ?: return
+        session.upNextDismissed = true
+        upNextCancelledFor = session.target?.videoId
+    }
+
+    private var upNextCancelledFor: String? = null
+
+    fun setFit(fit: VideoFit) {
+        val session = playerSession ?: return
+        session.fit = fit
+        session.mpv.setFit(MpvArgs.fitProperties(fit), fill = fit != VideoFit.FIT)
+    }
+
+    fun answerStillWatching(keepWatching: Boolean) {
+        val prompt = stillWatching ?: return
+        stillWatching = null
+        if (keepWatching) {
+            autoplayRun = 0
+            prompt.onContinue()
+        } else {
+            closePlayer()
+        }
+    }
+
+    fun answerPlayerChoice(builtIn: Boolean?) {
+        playerChoice?.invoke(builtIn)
+    }
+
+    private suspend fun streamsFor(type: String, videoId: String, name: String): List<Stream> =
+        servers.streams(type, videoId, name, null) +
+            withContext(Dispatchers.IO) { client.streams(addons.toList(), type, videoId, timeoutMs = addonTimeoutMs) }.flatMap { it.streams }
+
+    /** Finds and plays [next]'s source for [target]'s show; false when there's none. */
+    private suspend fun startEpisode(target: PlaybackTarget, next: Video, viaUpNext: Boolean): Boolean {
+        val tag = episodeTag(next.season, next.episode)
+        val title = listOfNotNull(tag, next.title.takeIf { it.isNotBlank() }).joinToString(" · ")
+        message = if (viaUpNext) "Up Next: $title" else "Loading $title…"
+        val ranked = rank(streamsFor(target.contentType, next.id, target.name))
+        // "Pick every time" still needs a source for Up Next: it takes the best match.
+        val pick = pickAuto(ranked) ?: ranked.firstOrNull { it.isEligible }
+        if (pick == null) {
+            message = "No source to play ${tag ?: "the next episode"} automatically"
+            return false
+        }
+        val label = listOfNotNull(target.name, tag, next.title.takeIf { it.isNotBlank() }).joinToString(" · ")
+        // Stays in the player that's playing: no "Ask every time" between episodes.
+        launchPlayback(pick.stream, label, target.copy(video = next), builtIn = playerSession != null, alternatives = ranked)
         return true
     }
 
@@ -1177,39 +1481,74 @@ class AppState(
         )
     }
 
-    /** Up Next: an episode that played to its end starts the next one's best match. */
-    private suspend fun playbackEnded(target: PlaybackTarget, ending: MpvProgress.Ending) {
-        val video = target.video ?: return
-        if (!ending.reachedEnd || !settings.player.autoplayNextEpisode) return
+    /**
+     * Up Next: an episode that played to its end starts the next one's best match. Returns true
+     * when something else is starting (or waiting on "Are you still watching?").
+     */
+    private suspend fun playbackEnded(target: PlaybackTarget, ending: MpvProgress.Ending): Boolean {
+        val video = target.video ?: return false
+        if (!ending.reachedEnd || !settings.player.autoplayNextEpisode) return false
+        if (upNextCancelledFor == target.videoId) {
+            upNextCancelledFor = null
+            return false
+        }
         limits.autoplayCap?.let { cap ->
             if (autoplayRun >= cap) {
                 message = "Up Next stopped after $cap ${if (cap == 1) "episode" else "episodes"} in a row"
-                return
+                return false
             }
         }
         currentBlock()?.let {
             screenTimeBlock = it
-            return
+            return false
+        }
+        val next = WatchHistory.nextEpisode(target.episodes, video, progress.watched.toSet()) ?: return false
+        val player = settings.player
+        if (player.stillWatching && autoplayRun >= player.stillWatchingEpisodes.coerceAtLeast(1)) {
+            val tag = episodeTag(next.season, next.episode)
+            stillWatching = StillWatchingPrompt(
+                label = listOfNotNull(target.name, tag).joinToString(" · ")
+            ) { scope.launch { startEpisode(target, next, viaUpNext = true) } }
+            return true
         }
         autoplayRun++
-        val next = WatchHistory.nextEpisode(target.episodes, video, progress.watched.toSet()) ?: return
-        val tag = episodeTag(next.season, next.episode)
-        message = "Up Next: ${listOfNotNull(tag, next.title.takeIf { it.isNotBlank() }).joinToString(" · ")}"
-        val streams = servers.streams(target.contentType, next.id, target.name, null) +
-            withContext(Dispatchers.IO) { client.streams(addons.toList(), target.contentType, next.id) }.flatMap { it.streams }
-        val best = rank(streams).firstOrNull { it.isEligible }
-        if (best == null) {
-            message = "No source to play ${tag ?: "the next episode"} automatically"
-            return
-        }
-        val label = listOfNotNull(target.name, tag, next.title.takeIf { it.isNotBlank() }).joinToString(" · ")
-        launchPlayback(best.stream, label, target.copy(video = next))
+        return startEpisode(target, next, viaUpNext = true)
     }
 
     private companion object {
         const val SEARCH_DEBOUNCE_MS = 350L
+        const val MAX_RECENT_SEARCHES = 10
     }
 }
+
+/**
+ * The source Play starts in [mode]: the best match, the first playable source in addon order, or
+ * the first whose name or release matches [regex] (any case). Null for manual or no match.
+ */
+fun pickSource(ranked: List<RankedStream>, mode: AutoPlayMode, regex: String): RankedStream? = when (mode) {
+    AutoPlayMode.BEST_MATCH -> ranked.firstOrNull { it.isEligible }
+    AutoPlayMode.FIRST_STREAM -> ranked.filter { ExternalPlayer.canPlay(it.stream) }.minByOrNull { it.originalIndex }
+    AutoPlayMode.REGEX_MATCH -> {
+        val pattern = regex.takeIf { it.isNotBlank() }?.let { runCatching { Regex(it, RegexOption.IGNORE_CASE) }.getOrNull() }
+        if (pattern == null) null
+        else ranked.filter { ExternalPlayer.canPlay(it.stream) }.sortedBy { it.originalIndex }.firstOrNull { r ->
+            listOfNotNull(r.stream.name, r.stream.title, r.stream.description, r.stream.behaviorHints?.filename, r.stream.addonName)
+                .any { pattern.containsMatchIn(it) }
+        }
+    }
+    AutoPlayMode.MANUAL -> null
+}
+
+/** Whether [preview] comes out later: a release date after today, or a year after this one. */
+fun isUnreleased(preview: MetaPreview, today: LocalDate = LocalDate.now()): Boolean {
+    preview.released?.take(10)?.let { runCatching { LocalDate.parse(it) }.getOrNull() }?.let { return it.isAfter(today) }
+    val year = yearOf(preview.releaseInfo) ?: return false
+    return year > today.year
+}
+
+/** Whether an episode has aired: no date counts as aired. */
+fun isAired(video: Video, today: LocalDate = LocalDate.now()): Boolean =
+    video.released?.take(10)?.let { runCatching { LocalDate.parse(it) }.getOrNull() }?.let { !it.isAfter(today) } ?: true
 
 /** The first year in a release line such as "2008–2013". */
 fun yearOf(releaseInfo: String?): Int? = releaseInfo?.let { Regex("(19|20)\\d{2}").find(it)?.value?.toIntOrNull() }

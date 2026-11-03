@@ -28,7 +28,21 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.runtime.key
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.fetch.desktop.AppState
+import com.fetch.desktop.AvailableUpdate
 import com.fetch.desktop.ProfilesState
 import com.fetch.desktop.SyncAccountState
 import com.fetch.desktop.data.DesktopProfile
@@ -69,7 +83,9 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
     val theme = state.settings.appTheme
     SideEffect { FetchPalette.setTheme(theme) }
 
+    val posterActions = remember(state) { AppPosterActions(state) }
     FetchTheme {
+        androidx.compose.runtime.CompositionLocalProvider(LocalPosterActions provides posterActions) {
         Scaffold(
             snackbarHost = {
                 SnackbarHost(snackbar) { data ->
@@ -157,8 +173,70 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
                 )
             }
         }
+        }
         // The built-in player covers the whole window while it's open.
         state.playerSession?.let { session -> PlayerScreen(state, session) }
         state.screenTimeBlock?.let { block -> ScreenTimeDialog(state, block) }
+        // "Are you still watching?" after mpv's own window closed (the built-in player shows its own).
+        state.stillWatching?.takeIf { state.playerSession == null }?.let { prompt ->
+            StillWatchingOverlay(prompt.label, onContinue = { state.answerStillWatching(true) }, onStop = { state.answerStillWatching(false) })
+        }
+        if (state.playerChoice != null) PlayerChoiceDialog(state)
+        state.updates.available?.takeIf { !state.updates.dismissed && state.playerSession == null }?.let { update ->
+            UpdateBanner(state, update)
+        }
+    }
+}
+
+/** The TV's poster long-press options, as a right-click menu. */
+private class AppPosterActions(private val state: AppState) : PosterActions {
+    override fun menu(item: com.fetch.tv.domain.model.MetaPreview) = buildList {
+        add(androidx.compose.foundation.ContextMenuItem("Play") { state.navigate(Screen.Detail(item, autoPlay = true)) })
+        add(androidx.compose.foundation.ContextMenuItem("Go to details") { state.navigate(Screen.Detail(item)) })
+        val inLibrary = state.isInLibrary(item.id)
+        add(androidx.compose.foundation.ContextMenuItem(if (inLibrary) "Remove from library" else "Add to library") { state.toggleLibrary(item) })
+        val watched = isWatched(item)
+        add(androidx.compose.foundation.ContextMenuItem(if (watched) "Mark as unwatched" else "Mark as watched") { state.setTitleWatched(item, !watched) })
+    }
+
+    override fun isWatched(item: com.fetch.tv.domain.model.MetaPreview): Boolean =
+        item.type != com.fetch.tv.domain.model.ContentType.SERIES && state.isWatched(item.id)
+}
+
+/** "Default Player: Ask every time": where to play this one. */
+@Composable
+private fun PlayerChoiceDialog(state: AppState) {
+    AlertDialog(
+        onDismissRequest = { state.answerPlayerChoice(null) },
+        containerColor = FetchPalette.SurfaceRaised,
+        title = { Text("Play with", color = Color.White) },
+        text = { Text("Built-in plays inside Fetch's window with Fetch's controls; mpv opens its own window.", color = FetchPalette.TextSecondary) },
+        confirmButton = { PrimaryButton("Built-in player", onClick = { state.answerPlayerChoice(true) }) },
+        dismissButton = { SecondaryButton("mpv window", onClick = { state.answerPlayerChoice(false) }) }
+    )
+}
+
+/** A newer Fetch is out: where to get it, as the TV's update banner says. */
+@Composable
+private fun UpdateBanner(state: AppState, update: AvailableUpdate) {
+    Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.BottomEnd) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier
+                .widthIn(max = 420.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(FetchPalette.SurfaceRaised)
+                .padding(20.dp)
+        ) {
+            Text("Fetch ${update.version} is available", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+            update.notes?.let { Text(it, color = FetchPalette.TextSecondary, fontSize = 14.sp, maxLines = 3, overflow = TextOverflow.Ellipsis) }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                PrimaryButton("Download", icon = null, onClick = {
+                    state.openInBrowser(update.packageUrl ?: update.pageUrl)
+                    state.updates.dismissed = true
+                })
+                SecondaryButton("Later", onClick = { state.updates.dismissed = true })
+            }
+        }
     }
 }

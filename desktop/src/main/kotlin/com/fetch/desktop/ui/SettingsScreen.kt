@@ -50,6 +50,11 @@ import com.fetch.desktop.SettingsPage
 import com.fetch.desktop.data.AppDirs
 import com.fetch.desktop.data.DesktopDefaults
 import com.fetch.desktop.data.HwDec
+import com.fetch.desktop.data.AssOverride
+import com.fetch.desktop.data.AudioChannels
+import com.fetch.desktop.data.AutoPlayMode
+import com.fetch.desktop.data.VideoFit
+import com.fetch.desktop.skip.IntroDbClient
 import com.fetch.desktop.data.PlayerSettings
 import com.fetch.desktop.data.SubtitleMode
 import com.fetch.desktop.player.ExternalPlayer
@@ -216,14 +221,15 @@ private fun PlayerPage(state: AppState) {
         SettingsChoice(
             "Default Player",
             when {
+                p.askPlayer -> "Fetch asks each time you press Play."
                 p.builtInPlayer && !libmpv -> "libmpv isn't installed (sudo apt install libmpv2), so mpv's window is used."
                 p.builtInPlayer -> "Inside Fetch's window, with Fetch's controls."
                 else -> mpv?.let { "mpv ($it), in its own window." }
                     ?: "mpv isn't installed, so streams open in your default video player. Install mpv for resume, Continue Watching, subtitles and Up Next."
             },
-            p.builtInPlayer,
-            listOf(DropdownOption(false, "mpv window"), DropdownOption(true, "Built-in (beta)"))
-        ) { v -> state.updatePlayer { it.copy(builtInPlayer = v) } }
+            if (p.askPlayer) null else p.builtInPlayer,
+            listOf(DropdownOption<Boolean?>(false, "mpv window"), DropdownOption<Boolean?>(true, "Built-in (beta)"), DropdownOption<Boolean?>(null, "Ask every time"))
+        ) { v -> state.updatePlayer { it.copy(builtInPlayer = v ?: it.builtInPlayer, askPlayer = v == null) } }
         if (p.builtInPlayer && libmpv) {
             SettingsToggle(
                 "Draw with the graphics card",
@@ -239,6 +245,25 @@ private fun PlayerPage(state: AppState) {
             p.hwdec,
             HwDec.entries.map { DropdownOption(it, it.label) }
         ) { v -> state.updatePlayer { it.copy(hwdec = v) } }
+        SettingsChoice(
+            "Picture",
+            "How the video fills the screen. The built-in player can change it while playing.",
+            p.videoFit,
+            VideoFit.entries.map { DropdownOption(it, it.label) }
+        ) { v -> state.updatePlayer { it.copy(videoFit = v) } }
+    }
+    SettingsSection("Player interface") {
+        SettingsToggle("Pause overlay", "The title, episode and synopsis after a few seconds paused (built-in player).", p.pauseOverlay) { v ->
+            state.updatePlayer { it.copy(pauseOverlay = v) }
+        }
+    }
+    SettingsSection("Buffer") {
+        SettingsChoice(
+            "Cache size",
+            "How much of the stream mpv reads ahead. More smooths out slow servers; it uses memory.",
+            p.cacheMb,
+            listOf<Int?>(null, 150, 300, 600, 1200).map { DropdownOption(it, it?.let { mb -> "$mb MB" } ?: "Default") }
+        ) { v -> state.updatePlayer { it.copy(cacheMb = v) } }
     }
     SettingsSection("Advanced") {
         TextRow(
@@ -259,6 +284,22 @@ private fun UpNextPage(state: AppState) {
             "When an episode plays to its end, start the next one's best match. Closing mpv early never does.",
             p.autoplayNextEpisode
         ) { v -> state.updatePlayer { it.copy(autoplayNextEpisode = v) } }
+        if (p.autoplayNextEpisode) {
+            SettingsChoice(
+                "Up Next prompt",
+                "When the built-in player shows the next episode with Play now, before the end (or at the credits).",
+                p.upNextPromptSeconds,
+                listOf(10, 20, 30, 45, 60, 90, 120).map { DropdownOption(it, "$it s before the end") }
+            ) { v -> state.updatePlayer { it.copy(upNextPromptSeconds = v) } }
+            SettingsToggle("Are you still watching?", "Ask before starting another episode after several in a row.", p.stillWatching) { v ->
+                state.updatePlayer { it.copy(stillWatching = v) }
+            }
+            if (p.stillWatching) {
+                SettingsChoice("Ask after", null, p.stillWatchingEpisodes, (1..6).map { DropdownOption(it, if (it == 1) "1 episode" else "$it episodes") }) { v ->
+                    state.updatePlayer { it.copy(stillWatchingEpisodes = v) }
+                }
+            }
+        }
     }
 }
 
@@ -273,11 +314,31 @@ private fun AudioPage(state: AppState) {
             p.audioLanguage,
             listOf(DropdownOption<String?>(null, "Default (media file)")) + LanguageOptions
         ) { v -> state.updatePlayer { it.copy(audioLanguage = v) } }
+        SettingsChoice(
+            "Secondary Audio Language",
+            "Used when the first isn't in the file.",
+            p.secondaryAudioLanguage,
+            listOf(DropdownOption<String?>(null, "None")) + LanguageOptions
+        ) { v -> state.updatePlayer { it.copy(secondaryAudioLanguage = v) } }
         SettingsToggle(
             "Audio passthrough",
             "Send Dolby Digital, DD+, DTS and TrueHD to your receiver undecoded. Only with a receiver that supports them.",
             p.audioPassthrough
         ) { v -> state.updatePlayer { it.copy(audioPassthrough = v) } }
+    }
+    SettingsSection("Mixing") {
+        SettingsChoice("Channels", "Mix surround down to fewer speakers, or keep what the file has.", p.audioChannels, AudioChannels.entries.map { DropdownOption(it, it.label) }) { v ->
+            state.updatePlayer { it.copy(audioChannels = v) }
+        }
+        SettingsToggle("Normalize downmix", "Keep a downmixed track as loud as the original, so dialogue doesn't get quiet.", p.normalizeDownmix) { v ->
+            state.updatePlayer { it.copy(normalizeDownmix = v) }
+        }
+        SettingsChoice(
+            "Volume boost",
+            "Amplify quiet files. Not applied to passthrough audio.",
+            p.volumeBoostDb,
+            listOf(0, 3, 6, 9, 12).map { DropdownOption(it, if (it == 0) "Off" else "+$it dB") }
+        ) { v -> state.updatePlayer { it.copy(volumeBoostDb = v) } }
     }
 }
 
@@ -292,6 +353,12 @@ private fun SubtitlesPage(state: AppState) {
             p.subtitleLanguage,
             listOf(DropdownOption<String?>(null, "Device language")) + LanguageOptions
         ) { v -> state.updatePlayer { it.copy(subtitleLanguage = v) } }
+        SettingsChoice(
+            "Secondary subtitle language",
+            "Used when there's no subtitle in the first.",
+            p.secondarySubtitleLanguage,
+            listOf(DropdownOption<String?>(null, "None")) + LanguageOptions
+        ) { v -> state.updatePlayer { it.copy(secondarySubtitleLanguage = v) } }
         SettingsChoice("Show subtitles", null, p.subtitleMode, SubtitleMode.entries.map { DropdownOption(it, it.label) }) { v ->
             state.updatePlayer { it.copy(subtitleMode = v) }
         }
@@ -300,6 +367,12 @@ private fun SubtitlesPage(state: AppState) {
             "Fetch subtitles in your language from addons (such as OpenSubtitles) and pass them to mpv.",
             p.forwardAddonSubtitles
         ) { v -> state.updatePlayer { it.copy(forwardAddonSubtitles = v) } }
+        SettingsToggle("Use forced subtitles", "Show the forced track (signs, lines in another language) when no other subtitle is picked.", p.useForcedSubtitles) { v ->
+            state.updatePlayer { it.copy(useForcedSubtitles = v) }
+        }
+        SettingsToggle("Remove hearing-impaired text", "Drop [MUSIC], (laughs) and speaker names.", p.stripSdh) { v ->
+            state.updatePlayer { it.copy(stripSdh = v) }
+        }
     }
     SettingsSection("Style") {
         SettingsChoice(
@@ -308,11 +381,44 @@ private fun SubtitlesPage(state: AppState) {
             p.subtitleScale,
             listOf(0.75, 1.0, 1.25, 1.5, 2.0).map { DropdownOption(it, "${(it * 100).toInt()}%") }
         ) { v -> state.updatePlayer { it.copy(subtitleScale = v) } }
+        SettingsToggle("Bold", null, p.subtitleBold) { v -> state.updatePlayer { it.copy(subtitleBold = v) } }
+        SettingsChoice("Text color", null, p.subtitleColor.uppercase(), TextColors) { v -> state.updatePlayer { it.copy(subtitleColor = v) } }
         SettingsToggle("Background box", "A dark box behind the text instead of an outline.", p.subtitleBackground) { v ->
             state.updatePlayer { it.copy(subtitleBackground = v) }
         }
+        if (!p.subtitleBackground) {
+            SettingsToggle("Outline", null, p.subtitleOutline) { v -> state.updatePlayer { it.copy(subtitleOutline = v) } }
+            if (p.subtitleOutline) {
+                SettingsChoice("Outline color", null, p.subtitleOutlineColor.uppercase(), OutlineColors) { v -> state.updatePlayer { it.copy(subtitleOutlineColor = v) } }
+                SettingsChoice(
+                    "Outline width",
+                    null,
+                    p.subtitleOutlineSize,
+                    listOf(1.0, 2.0, 3.0, 4.0, 5.0).map { DropdownOption(it, if (it == 3.0) "Normal" else it.toInt().toString()) }
+                ) { v -> state.updatePlayer { it.copy(subtitleOutlineSize = v) } }
+            }
+        }
+        SettingsChoice(
+            "Vertical position",
+            "Move subtitles up from the bottom of the picture.",
+            p.subtitlePosition,
+            listOf(100, 95, 90, 85, 80, 70).map { DropdownOption(it, if (it == 100) "Bottom" else "${100 - it}% up") }
+        ) { v -> state.updatePlayer { it.copy(subtitlePosition = v) } }
+        SettingsChoice(
+            "Styled subtitles (ASS/SSA)",
+            "Anime and fansubs often carry their own fonts and colors.",
+            p.assOverride,
+            AssOverride.entries.map { DropdownOption(it, it.label) }
+        ) { v -> state.updatePlayer { it.copy(assOverride = v) } }
     }
 }
+
+private val TextColors = listOf(
+    "#FFFFFF" to "White", "#FFFF00" to "Yellow", "#00FFFF" to "Cyan", "#00FF00" to "Green", "#FF00FF" to "Magenta", "#C0C0C0" to "Light gray"
+).map { DropdownOption(it.first, it.second) }
+
+private val OutlineColors = listOf("#000000" to "Black", "#404040" to "Dark gray", "#FFFFFF" to "White", "#000080" to "Navy")
+    .map { DropdownOption(it.first, it.second) }
 
 @Composable
 private fun SkipSegmentsPage(state: AppState) {
@@ -326,6 +432,20 @@ private fun SkipSegmentsPage(state: AppState) {
                 type in p.autoSkip
             ) { on -> state.updatePlayer { it.copy(autoSkip = if (on) it.autoSkip + type else it.autoSkip - type) } }
         }
+    }
+    SettingsSection("Skip button") {
+        SettingsToggle(
+            "Show Skip button",
+            "The built-in player offers Skip for intros, recaps and credits that aren't skipped automatically.",
+            p.skipButton
+        ) { v -> state.updatePlayer { it.copy(skipButton = v) } }
+    }
+    SettingsSection("Advanced") {
+        TextRow(
+            "IntroDB server",
+            "Leave empty for ${IntroDbClient.DEFAULT_URL}",
+            p.introDbUrl.orEmpty()
+        ) { v -> state.updatePlayer { it.copy(introDbUrl = v.ifBlank { null }) } }
     }
 }
 
@@ -376,6 +496,24 @@ private fun StreamSelectionPage(state: AppState) {
     val update: (StreamRankingRules) -> Unit = { new -> state.updateSettings { it.copy(rankingRules = new) } }
 
     PageHeader("Stream Selection", subtitle = "How Fetch picks the best match when you press Play. Every source stays in All sources.")
+
+    SettingsSection("When you press Play") {
+        val s = state.settings
+        SettingsChoice("Play", "What Play starts once the sources are in.", s.autoPlayMode, AutoPlayMode.entries.map { DropdownOption(it, it.label) }) { v ->
+            state.updateSettings { it.copy(autoPlayMode = v) }
+        }
+        if (s.autoPlayMode == AutoPlayMode.REGEX_MATCH) {
+            TextRow("Pattern", "A regular expression matched against each source's name and release, any case. Example: 2160p.*REMUX", s.autoPlayRegex) { v ->
+                state.updateSettings { it.copy(autoPlayRegex = v) }
+            }
+        }
+        SettingsChoice(
+            "Addon timeout",
+            "How long to wait for each addon's sources. Slow addons are left out after this.",
+            s.addonTimeoutSeconds,
+            listOf(5, 10, 15, 20, 30, 60).map { DropdownOption(it, "$it s") }
+        ) { v -> state.updateSettings { it.copy(addonTimeoutSeconds = v) } }
+    }
 
     SettingsSection(null) {
         SettingsRow(
@@ -444,6 +582,10 @@ private fun StreamSelectionPage(state: AppState) {
         SettingsToggle("Skip Dolby Vision profile 5", "Profile 5 shows purple and green colours on many screens.", 5 in rules.excludedDolbyVisionProfiles) {
             update(rules.copy(excludedDolbyVisionProfiles = if (it) rules.excludedDolbyVisionProfiles + 5 else rules.excludedDolbyVisionProfiles - 5))
         }
+    }
+
+    SettingsSection("Addons") {
+        TextListRow("Preferred addons", rules.preferredAddons) { update(rules.copy(preferredAddons = it)) }
     }
 
     SettingsSection("Release groups") {
@@ -645,6 +787,9 @@ private fun LayoutPage(state: AppState) {
         SettingsToggle("Show Addon Name", "Name the addon beside each row title.", s.showAddonName) { v ->
             state.updateSettings { it.copy(showAddonName = v) }
         }
+        SettingsToggle("Hide unreleased content", "Leave titles that aren't out yet off Home's rows.", s.hideUnreleased) { v ->
+            state.updateSettings { it.copy(hideUnreleased = v) }
+        }
     }
     SettingsSection("Posters") {
         SettingsToggle("Show Poster Labels", "Title and year under each poster.", s.showPosterLabels) { v ->
@@ -675,6 +820,24 @@ private fun AboutPage(state: AppState) {
             mpv?.let { "mpv at $it" } ?: "mpv isn't installed, so streams open in your default video player and Continue Watching can't follow them. Install mpv (sudo apt install mpv, sudo dnf install mpv)."
         )
         SettingsRow("Settings folder", AppDirs.config.absolutePath)
+    }
+    SettingsSection("Updates") {
+        val s = state.settings
+        val updates = state.updates
+        SettingsToggle("Check for updates", "Look for a newer Fetch on GitHub at start-up. Installing stays with apt, dnf or the tarball.", s.checkForUpdates) { v ->
+            state.updateSettings { it.copy(checkForUpdates = v) }
+        }
+        SettingsToggle("Include beta releases", null, s.betaUpdates) { v -> state.updateSettings { it.copy(betaUpdates = v) } }
+        SettingsRow(
+            if (updates.checking) "Checking…" else "Check now",
+            updates.status,
+            onClick = { updates.dismissed = false; updates.check(beta = s.betaUpdates) }
+        ) { Chevron() }
+        updates.available?.let { update ->
+            SettingsRow("Download Fetch ${update.version}", update.packageUrl ?: update.pageUrl, onClick = { state.openInBrowser(update.packageUrl ?: update.pageUrl) }) { Chevron() }
+        }
+    }
+    SettingsSection("Legal") {
         SettingsRow("Privacy Policy", "No telemetry, no required account.", onClick = { uri.openUri(AppInfo.PRIVACY_URL) }) { Chevron() }
         SettingsRow("Licenses & Attribution", null, onClick = { uri.openUri(AppInfo.LICENSE_URL) }) { Chevron() }
         SettingsRow("Source code", AppInfo.REPO_URL, onClick = { uri.openUri(AppInfo.REPO_URL) }) { Chevron() }

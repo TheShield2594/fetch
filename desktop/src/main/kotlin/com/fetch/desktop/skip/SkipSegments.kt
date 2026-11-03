@@ -24,8 +24,10 @@ data class Segment(val type: SegmentType, val startSec: Double, val endSec: Doub
  */
 class IntroDbClient(
     private val http: OkHttpClient,
-    private val baseUrl: String = DEFAULT_URL
+    private val baseUrl: () -> String = { DEFAULT_URL }
 ) {
+    constructor(http: OkHttpClient, baseUrl: String) : this(http, { baseUrl })
+
     @Serializable
     private data class Times(val start_sec: Double? = null, val end_sec: Double? = null)
 
@@ -36,7 +38,7 @@ class IntroDbClient(
 
     /** The known segments; empty when IntroDB has none or can't be reached. */
     suspend fun segments(imdbId: String, season: Int?, episode: Int?): List<Segment> = withContext(Dispatchers.IO) {
-        val url = (baseUrl.trimEnd('/') + "/segments").toHttpUrl().newBuilder()
+        val url = (baseUrl().trimEnd('/') + "/segments").toHttpUrl().newBuilder()
             .addQueryParameter("imdb_id", imdbId)
             .apply {
                 if (season != null && episode != null) {

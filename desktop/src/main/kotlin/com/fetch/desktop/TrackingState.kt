@@ -206,6 +206,25 @@ class TrackingState(
         }
     }
 
+    // --- Watched history ---
+
+    /** Marks [target] (a movie or one episode) watched or unwatched on every connected service. */
+    fun setWatched(target: PlaybackTarget, watched: Boolean) {
+        val item = trackedItem(target) ?: return
+        connected.forEach { service ->
+            scope.launch {
+                runCatching {
+                    withTokens(service) { tokens ->
+                        when (service) {
+                            TrackingService.TRAKT -> if (watched) trakt.addToHistory(tokens, item) else trakt.removeFromHistory(tokens, item)
+                            TrackingService.SIMKL -> if (watched) simkl.addToHistory(tokens, item) else simkl.removeFromHistory(tokens, item)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // --- Watchlist ---
 
     /**

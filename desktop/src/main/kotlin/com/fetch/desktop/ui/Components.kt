@@ -271,6 +271,14 @@ fun cardSize(shape: PosterShape): CardSize = when (shape) {
     PosterShape.SQUARE -> CardSize(200.dp, 200.dp)
 }
 
+/** What a poster's right-click menu offers and whether it's watched; provided by the app. */
+interface PosterActions {
+    fun menu(item: MetaPreview): List<androidx.compose.foundation.ContextMenuItem>
+    fun isWatched(item: MetaPreview): Boolean
+}
+
+val LocalPosterActions = androidx.compose.runtime.staticCompositionLocalOf<PosterActions?> { null }
+
 /**
  * A poster with its title and year. Hovering lifts it and draws the white focus ring the TV app
  * uses; [onHover] lets the page show the hovered title in its hero.
@@ -291,6 +299,8 @@ fun PosterCard(
     if (hovered) LaunchedEffect(item.id) { onHover(item) }
     val scale by animateFloatAsState(if (hovered) 1.05f else 1f, tween(160))
     val corner = RoundedCornerShape(10.dp)
+    val actions = LocalPosterActions.current
+    androidx.compose.foundation.ContextMenuArea(items = { actions?.menu(item).orEmpty() }) {
     Column(
         verticalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier
@@ -324,6 +334,15 @@ fun PosterCard(
                     modifier = Modifier.fillMaxSize()
                 )
             }
+            if (actions?.isWatched(item) == true) {
+                Box(
+                    Modifier.align(Alignment.TopEnd).padding(8.dp).size(26.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(Color.Black.copy(alpha = 0.7f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    androidx.compose.material3.Icon(FetchIcons.Check, contentDescription = "Watched", tint = Color.White, modifier = Modifier.size(16.dp))
+                }
+            }
         }
         if (showLabels) {
             Text(
@@ -342,6 +361,7 @@ fun PosterCard(
                 maxLines = 1
             )
         }
+    }
     }
 }
 

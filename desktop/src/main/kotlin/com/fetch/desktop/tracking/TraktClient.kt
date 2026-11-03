@@ -131,7 +131,12 @@ class TraktClient(
     }
 
     /** Marks a movie or one episode watched now (POST sync/history). A series without an episode is ignored. */
-    suspend fun addToHistory(tokens: TrackingTokens, item: TrackedItem) {
+    suspend fun addToHistory(tokens: TrackingTokens, item: TrackedItem) = changeHistory(tokens, item, remove = false)
+
+    /** Takes a movie or one episode out of the watched history (POST sync/history/remove). */
+    suspend fun removeFromHistory(tokens: TrackingTokens, item: TrackedItem) = changeHistory(tokens, item, remove = true)
+
+    private suspend fun changeHistory(tokens: TrackingTokens, item: TrackedItem, remove: Boolean) {
         val imdb = item.imdbId.imdbOrNull() ?: return
         val body = when {
             item.isMovie -> buildJsonObject { putJsonArray("movies") { add(idsObject(imdb)) } }
@@ -150,7 +155,7 @@ class TraktClient(
             }
             else -> return
         }
-        post(base + "sync/history", body, tokens).requireOk(SERVICE, "history update")
+        post(base + if (remove) "sync/history/remove" else "sync/history", body, tokens).requireOk(SERVICE, "history update")
     }
 
     /** The watchlist's movies and shows (GET sync/watchlist/movies and sync/watchlist/shows). */

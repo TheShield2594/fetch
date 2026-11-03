@@ -34,6 +34,20 @@ data class DesktopSettings(
     val player: PlayerSettings = PlayerSettings(),
     /** Your own TMDB key (Settings › Sources › TMDB), used before the build's. */
     val tmdbApiKey: String? = null,
+    /** "Stream selection": what Play does once the sources are in, as on TV. */
+    val autoPlayMode: AutoPlayMode = AutoPlayMode.BEST_MATCH,
+    /** For [AutoPlayMode.REGEX_MATCH]: the first source whose text matches this plays. */
+    val autoPlayRegex: String = "",
+    /** How long to wait for each addon's sources, in seconds (TV: autoplay timeout). */
+    val addonTimeoutSeconds: Int = 10,
+    /** Search terms, newest first, as on the TV's Search page. */
+    val recentSearches: List<String> = emptyList(),
+    /** Hide catalog titles that haven't come out yet (Layout › Home). */
+    val hideUnreleased: Boolean = false,
+    /** About › Updates: look for a newer Fetch on GitHub at start-up. */
+    val checkForUpdates: Boolean = true,
+    /** Include beta releases in the update check. */
+    val betaUpdates: Boolean = false,
     /** Bumped when a saved default has to change; see [migrated]. */
     val schema: Int = 1
 ) {
@@ -61,12 +75,44 @@ object DesktopDefaults {
 fun settingsFile(dir: File = AppDirs.config) =
     JsonFile(File(dir, "settings.json"), DesktopSettings.serializer()) { DesktopSettings() }
 
+/** What Play does with the ranked sources (the TV's StreamAutoPlayMode). */
+enum class AutoPlayMode(val label: String) {
+    BEST_MATCH("Best match"),
+    FIRST_STREAM("First source"),
+    REGEX_MATCH("First match for a pattern"),
+    /** Play opens the source list instead of starting anything. */
+    MANUAL("Pick every time")
+}
+
 enum class SubtitleMode(val label: String) {
     /** mpv picks a track in the preferred language, or none. */
     AUTO("When available"),
     /** Only when the audio isn't in the subtitle language (foreign films, anime). */
     FOREIGN_AUDIO("Only for other languages"),
     OFF("Off")
+}
+
+/** How the picture fills the player (the TV's resize modes). */
+enum class VideoFit(val label: String) {
+    FIT("Fit"),
+    CROP("Crop to fill"),
+    STRETCH("Stretch"),
+    ZOOM("Slight zoom")
+}
+
+/** mpv's --audio-channels: what the sound is mixed down to. */
+enum class AudioChannels(val mpvValue: String, val label: String) {
+    AUTO("auto-safe", "Automatic"),
+    STEREO("stereo", "Stereo"),
+    SURROUND_51("5.1", "5.1"),
+    SURROUND_71("7.1", "7.1")
+}
+
+/** Whether the subtitle style also applies to ASS/SSA subtitles, which carry their own. */
+enum class AssOverride(val mpvValue: String, val label: String) {
+    SCALE("scale", "Keep their style (size only)"),
+    FORCE("force", "Use my style"),
+    NO("no", "Leave them as they are")
 }
 
 enum class HwDec(val mpvValue: String, val label: String) {
@@ -105,5 +151,45 @@ data class PlayerSettings(
     /** Media server quality: null plays the file as it is; a cap transcodes on the server. */
     val serverMaxBitrateKbps: Int? = null,
     /** Skip Segments: what mpv jumps over automatically, from introdb.app's times. */
-    val autoSkip: Set<SegmentType> = setOf(SegmentType.INTRO, SegmentType.RECAP)
+    val autoSkip: Set<SegmentType> = setOf(SegmentType.INTRO, SegmentType.RECAP),
+
+    // --- Added for TV parity ---
+    /** "Default Player: Ask every time": choose the built-in player or mpv's window on Play. */
+    val askPlayer: Boolean = false,
+    /** A second audio language, used when the first isn't in the file. */
+    val secondaryAudioLanguage: String? = null,
+    val secondarySubtitleLanguage: String? = null,
+    /** Pick a forced subtitle track (signs, foreign lines) when the audio is in your language. */
+    val useForcedSubtitles: Boolean = true,
+    /** Remove [MUSIC], (laughs) and speaker names from hearing-impaired subtitles. */
+    val stripSdh: Boolean = true,
+    val subtitleBold: Boolean = false,
+    /** "#RRGGBB". */
+    val subtitleColor: String = "#FFFFFF",
+    val subtitleOutline: Boolean = true,
+    val subtitleOutlineColor: String = "#000000",
+    /** mpv's --sub-border-size; its default is 3. */
+    val subtitleOutlineSize: Double = 3.0,
+    /** mpv's --sub-pos: 100 is the bottom of the picture, lower moves subtitles up. */
+    val subtitlePosition: Int = 100,
+    val assOverride: AssOverride = AssOverride.SCALE,
+    val audioChannels: AudioChannels = AudioChannels.AUTO,
+    /** Keep the volume of a downmix level with the original. */
+    val normalizeDownmix: Boolean = false,
+    /** Amplify the sound by this many dB (0 to 12), for quiet files. */
+    val volumeBoostDb: Int = 0,
+    val videoFit: VideoFit = VideoFit.FIT,
+    /** Forward cache, in MiB; null keeps mpv's default. */
+    val cacheMb: Int? = null,
+    /** Show the Skip button for intros and credits that aren't skipped automatically. */
+    val skipButton: Boolean = true,
+    /** "Up next" prompt: how many seconds before the end of an episode it appears. */
+    val upNextPromptSeconds: Int = 30,
+    /** "Are you still watching?" after this many episodes in a row ([stillWatchingEpisodes]). */
+    val stillWatching: Boolean = false,
+    val stillWatchingEpisodes: Int = 3,
+    /** The title, episode and synopsis while paused, as on TV. */
+    val pauseOverlay: Boolean = true,
+    /** Skip Segments › IntroDB server: a server of your own instead of api.introdb.app. */
+    val introDbUrl: String? = null
 )

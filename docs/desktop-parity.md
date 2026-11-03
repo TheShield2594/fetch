@@ -1,0 +1,94 @@
+# Desktop parity with the TV app
+
+What the Linux app has of the Android TV app, and what's left. The TV paths are relative to
+`app/src/main/java/com/fetch/tv/`, the desktop ones to `desktop/src/main/kotlin/com/fetch/desktop/`.
+Update this list when either app changes.
+
+Legend: ✅ on desktop · 🟡 partly · ⬜ not yet · ➖ Android-only, not planned
+
+## Playback
+
+| Feature | TV | Desktop |
+|---|---|---|
+| Best match, ranked sources with reasons, badges | `core/streams/ranking/`, `ui/screens/stream/` | ✅ shared `StreamRanker`; `ui/DetailScreen.kt` |
+| Play mode: Best match, First source, Pattern, Manual | `PlaybackAutoPlaySettings.kt` | ✅ Stream Selection › When you press Play (`pickSource`) |
+| Addon timeout | `PlaybackAutoPlaySettings.kt` | ✅ |
+| Source sections (Best match, by resolution, passed over) and addon chips | `stream/SourceGroups.kt`, `StreamScreen.kt` | ✅ All sources panel |
+| Source options: prefer addon, never a release group | `stream/SourceOptionsDialog.kt`, `SourceRules.kt` | ✅ right-click on a source |
+| Player per source (built-in or mpv window) | `StreamScreen.kt` | ✅ right-click on a source; "Ask every time" |
+| Sources, Audio, Subtitles, Episodes side panels in the player | `player/PlayerSidePanel.kt` and panels | ✅ built-in player; switching source keeps the position |
+| Audio and subtitle delay | `AudioSelectionOverlay.kt`, `SubtitleSelectionOverlay.kt` | ✅ panels, Z/X keys |
+| Addon subtitles picked in the player | `SubtitleSelectionOverlay.kt` | ✅ every language, added on demand |
+| Playback speed | `PlayerUiState.kt` | ✅ menu and `[` `]` keys |
+| Aspect / zoom | `PlayerAspectScaleUtils.kt` | ✅ Fit, Crop, Stretch, Zoom (setting and live) |
+| Stream info overlay | `StreamInfoOverlay.kt` | ✅ I key |
+| Up Next card with Play now / Cancel | `NextEpisodeEndPromptOverlay.kt` | ✅ before the end or at the credits |
+| Are you still watching? | `PlayerRuntimeControllerStillWatching.kt` | ✅ setting and episode count |
+| Pause overlay | `PauseOverlay.kt` | ✅ |
+| Skip intro/recap/credits, auto-skip, button toggle, IntroDB server | `SkipIntroButton.kt`, `SkipMarkerSettings.kt` | ✅ (IntroDB only) |
+| AniSkip and Anime-Skip | `data/repository/SkipIntroRepository.kt` | ⬜ |
+| Subtitle style: size, bold, color, outline, background, position, ASS override | `PlaybackSubtitleSettings.kt` | ✅ Settings (mpv options); ⬜ live style panel in the player |
+| Forced subtitles, strip SDH, secondary languages | `PlaybackSubtitleSettings.kt`, `PlaybackAudioSettings.kt` | ✅ |
+| Subtitle organisation, only preferred languages | `PlaybackSubtitleSettings.kt` | ⬜ |
+| HDR subtitle color and brightness | `PlaybackSubtitleSettings.kt` | ⬜ |
+| Automatic subtitle sync | `player/autosync/` | ⬜ |
+| Downmix channels, normalization, volume boost | `PlaybackAudioSettings.kt` | ✅ |
+| Dialogue (centre) boost, skip silence, audio delay per output | `PlaybackAudioSettings.kt` | ⬜ |
+| Cache size | `PlaybackBufferNetworkSettings.kt` | ✅ (mpv's demuxer cache) |
+| Next-episode threshold by percent | `PlaybackAutoPlaySettings.kt` | 🟡 Up Next starts at the end; the card offers it earlier |
+| Reuse last link, preload next episode, fallback to next source, binge group | `PlaybackAutoPlaySettings.kt` | ⬜ |
+| Post-play recommendation after a movie | `PostPlayRecommendation*.kt` | ⬜ needs TMDB recommendations |
+| "Prefer this next time" prompt | `PreferNextTimePrompt.kt` | ⬜ (the source menu sets the same rules) |
+| Playback queue | `QueueSidePanel.kt` | ⬜ |
+| Parental guide overlay at start | `ParentalGuideOverlay.kt` | ⬜ |
+| Debug stats HUD | `PlayerDebugStatsOverlay.kt` | 🟡 stream info shows drops and buffer |
+| Fetching panel with live per-addon progress | `stream/FetchingPanel.kt` | ⬜ sources appear when every addon has answered |
+| ExoPlayer engine, AFR, DV7 conversion, tunneling, decoder priority, Exo buffers | `player/*` | ➖ mpv does this its own way |
+
+## Home, title pages, Library, Search
+
+| Feature | TV | Desktop |
+|---|---|---|
+| Hero, Continue Watching, addon rows, pin and hide rows | `screens/home/` | ✅ |
+| Hide unreleased content | `HomeUiState.hideUnreleasedContent` | ✅ |
+| Poster options (play, details, library, watched) | `components/posteroptions/` | ✅ right-click on any poster |
+| Mark watched/unwatched: title, episode, previous episodes, season | `detail/DetailButtons.kt`, `EpisodeOptionsOverlay.kt` | ✅ synced to Trakt, Simkl and the sync server |
+| Episode watched marks, progress and not-aired state | `detail/EpisodesSection.kt` | ✅ |
+| Start over on the title page | `detail/DetailButtons.kt` | ✅ |
+| Recent searches | `search/SearchScreen.kt` | ✅ |
+| Catalog "See all" grid | `screens/CatalogSeeAllScreen.kt` | ⬜ |
+| Continue Watching airing rules, Upcoming row, card style options | `home/ContinueWatching*.kt` | ⬜ |
+| More like this, Because you watched, cast pages, TMDB collections, company logos, TMDB browse | `detail/`, `cast/`, `tmdb/`, `home/HomeViewModelBecauseYouWatched.kt` | ⬜ needs a TMDB metadata client on desktop |
+| Episode ratings, Trakt comments | `detail/EpisodeRatingsSection.kt`, `CommentsSection.kt` | ⬜ |
+| Episode shuffle | `detail/DetailEpisodeShuffle.kt` | ⬜ |
+| Ready tonight row | `home/ReadyTonight.kt` | ⬜ |
+| Collections, folders and filter rows | `screens/collection/`, `screens/filterrows/` | ⬜ |
+| Trakt/Simkl personal lists, list management | `library/LibraryListDialogs.kt` | ⬜ (watchlists only) |
+| Library provider order | `library/LibraryProviderOrder.kt` | ⬜ |
+| Kids Home layout | `HomeUiState.kidsHome` | ⬜ |
+| Hero carousel, trailer on focus, card size and shape options | `settings/LayoutHomeSettings.kt`, `LayoutCardSettings.kt` | ⬜ |
+| In-app trailer playback | `data/trailer/` | 🟡 trailers open in mpv with yt-dlp |
+
+## Accounts, profiles and system
+
+| Feature | TV | Desktop |
+|---|---|---|
+| Profiles, PINs, rating limits, screen time, bedtime, autoplay cap | `core/profile/`, `core/parental/` | ✅ |
+| Hide or allow single titles | `profile/ParentalTitleOptions.kt` | ⬜ |
+| Profile setup with copied settings, preferences tab, viewing activity, avatar images | `screens/profile/` | ⬜ |
+| Trakt, Simkl, Jellyfin, Emby, Plex, sync server | `core/tracking/`, `data/mediaserver/`, `core/sync/` | ✅ |
+| Tracking options (sources for library, progress, More like this) | `TrackingSettingsScreen.kt` | ⬜ |
+| MDBList ratings and lists | `data/mdblist/` | ⬜ |
+| Addon configure page | `screens/addon/AddonManagerScreen.kt` | ✅ opens in the browser; install the link it gives |
+| Addon health panel, catalog order | `screens/addon/` | ⬜ |
+| Update check (stable/beta) | `updater/` | ✅ banner and Settings › About; installing stays with apt, dnf or the tarball |
+| First-run wizard | `screens/setup/` | ⬜ |
+| Settings search, Essential/Advanced mode | `settings/SettingsSearch*.kt`, `ExperienceMode*` | ⬜ |
+| Theme extras (high contrast, AMOLED, custom), fonts, UI language | `settings/ThemeSettingsScreen.kt` | ⬜ |
+| Deep links (`fetch://`, `stremio://`) | `core/deeplink/` | ⬜ |
+| Fetch website pairing, show a sign-in code | `screens/account/` | 🟡 desktop claims codes only |
+| YouTube (feeds, SponsorBlock, DeArrow) | `screens/youtube/`, `data/youtube/` | ⬜ |
+| Watch party | `screens/party/`, `core/party/` | ⬜ |
+| Ambient mode | `screens/ambient/` | ⬜ |
+| Phone hub | `screens/phone/` | ➖ a desktop has a keyboard; may return for sending links |
+| Watch Next row, launcher channels, app icon picker | `core/recommendations/`, `AppIconPicker.kt` | ➖ |

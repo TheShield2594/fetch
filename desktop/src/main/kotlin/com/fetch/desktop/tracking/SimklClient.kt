@@ -119,7 +119,12 @@ class SimklClient(
     }
 
     /** Marks a movie or one episode watched now (POST sync/history). A series without an episode is ignored. */
-    suspend fun addToHistory(tokens: TrackingTokens, item: TrackedItem) {
+    suspend fun addToHistory(tokens: TrackingTokens, item: TrackedItem) = changeHistory(tokens, item, remove = false)
+
+    /** Takes a movie or one episode out of the watched history (POST sync/history/remove). */
+    suspend fun removeFromHistory(tokens: TrackingTokens, item: TrackedItem) = changeHistory(tokens, item, remove = true)
+
+    private suspend fun changeHistory(tokens: TrackingTokens, item: TrackedItem, remove: Boolean) {
         val media = mediaObject(item) ?: return
         val body = when {
             item.isMovie -> buildJsonObject { putJsonArray("movies") { add(media) } }
@@ -133,7 +138,7 @@ class SimklClient(
             }
             else -> return
         }
-        post("sync/history", body, tokens).requireOk(SERVICE, "history update")
+        post(if (remove) "sync/history/remove" else "sync/history", body, tokens).requireOk(SERVICE, "history update")
     }
 
     /** The "Plan to Watch" list (GET sync/all-items/{type}/plantowatch). */

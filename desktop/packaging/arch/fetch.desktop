@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Fetch
+Comment=A Stremio-addon media player
+Exec=/opt/fetch/bin/fetch
+Icon=fetch
+Terminal=false
+Categories=AudioVideo;Video;Player;
+StartupWMClass=com-fetch-desktop-MainKt

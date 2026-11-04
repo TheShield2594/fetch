@@ -1,0 +1,42 @@
+# Maintainer: TheShield2594 <82059300+TheShield2594@users.noreply.github.com>
+#
+# Fetch for desktop as a native Arch Linux package. It repackages the app image Gradle builds
+# (`:desktop:createDistributable`, the same one in fetch-<tag>-linux-x64.tar.gz), which bundles
+# its own Java runtime, so nothing here compiles. scripts/build-arch-package.sh puts that tarball
+# next to this file, sets FETCH_PKGVER from versionName and runs makepkg; see docs/desktop.md.
+
+pkgname=fetch
+pkgver=${FETCH_PKGVER:-0.0.0}
+pkgrel=1
+pkgdesc="A Stremio-addon media player"
+arch=('x86_64')
+url="https://github.com/TheShield2594/fetch"
+license=('GPL-3.0-or-later')
+# What the bundled Java runtime and Compose's Skia renderer load from the system. Skia draws no
+# text without at least one system font, hence ttf-font (any provider: ttf-dejavu, noto-fonts…).
+depends=('glibc' 'gcc-libs' 'zlib' 'alsa-lib' 'fontconfig' 'freetype2' 'libglvnd'
+         'libx11' 'libxext' 'libxi' 'libxrender' 'libxtst' 'hicolor-icon-theme' 'ttf-font')
+optdepends=('mpv: play streams (the built-in player loads its libmpv)'
+            'yt-dlp: YouTube page and trailers in mpv')
+# The bundled runtime is already stripped where it should be; stripping it again can break it.
+options=('!strip' '!debug')
+source=("fetch-linux-x64.tar.gz"
+        "fetch.desktop"
+        "LICENSE"
+        "fetch.png")
+sha256sums=('SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP')
+
+package() {
+    install -d "$pkgdir/opt"
+    cp -a "$srcdir/fetch" "$pkgdir/opt/fetch"
+
+    install -d "$pkgdir/usr/bin"
+    ln -s /opt/fetch/bin/fetch "$pkgdir/usr/bin/fetch"
+
+    install -Dm644 "$srcdir/fetch.desktop" "$pkgdir/usr/share/applications/fetch.desktop"
+    install -Dm644 "$srcdir/fetch.png" "$pkgdir/usr/share/icons/hicolor/512x512/apps/fetch.png"
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

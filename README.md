@@ -114,7 +114,7 @@ in [mpv](https://mpv.io). It builds without the Android SDK:
 ./gradlew -Pfetch.desktopOnly=true :desktop:run
 ```
 
-The Desktop workflow builds `.deb`, `.rpm` and portable packages. See
+The Desktop workflow builds `.deb`, `.rpm`, Arch Linux (`.pkg.tar.zst`) and portable packages. See
 [docs/desktop.md](docs/desktop.md) for what works and what comes next.
 
 ### Optional native pieces

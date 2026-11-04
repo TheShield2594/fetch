@@ -68,6 +68,13 @@ jobs:
           tar -czf "dist/fetch-${{ inputs.tag }}-linux-x64.tar.gz" -C desktop/build/compose/binaries/main/app fetch
           ls -l dist
 
+      # The native Arch Linux package: the same app image, packaged by makepkg in an Arch container.
+      - name: Arch Linux package
+        run: |
+          scripts/build-arch-package.sh "dist/fetch-${{ inputs.tag }}-linux-x64.tar.gz" "$RUNNER_TEMP/arch"
+          cp "$RUNNER_TEMP"/arch/*.pkg.tar.zst "dist/fetch-${{ inputs.tag }}-linux-x86_64.pkg.tar.zst"
+          ls -l dist
+
       - uses: actions/upload-artifact@v7
         with:
           name: linux-packages
@@ -170,4 +177,5 @@ jobs:
             dist/*.deb
             dist/*.rpm
             dist/*.tar.gz
+            dist/*.pkg.tar.zst
           fail_on_unmatched_files: true

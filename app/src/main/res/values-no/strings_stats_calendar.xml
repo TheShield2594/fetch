@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Statistikk</string>
+    <string name="library_open_calendar">Kalender</string>
+
+    <string name="insights_source_eyebrow">Fra Fetch-nettsiden</string>
+    <string name="insights_loading">Laster inn…</string>
+    <string name="insights_not_paired_subtitle">Logg på denne TV-en på Fetch-nettsiden under Innstillinger › Konto for å se det her. Nettsiden tar vare på seehistorikken din og regner det ut fra den.</string>
+    <string name="insights_no_profile_title">Denne profilen finnes ikke på Fetch-nettsiden</string>
+    <string name="insights_no_profile_subtitle">Bare profiler som kommer fra nettsiden, har seehistorikk der. Bytt til en av dem, eller legg til denne profilen på nettsiden.</string>
+    <string name="insights_locked_title">Denne profilen er låst</string>
+    <string name="insights_locked_subtitle">Den har en PIN på nettsiden som ikke er tastet inn på denne TV-en i det siste. Bytt til profilen igjen og skriv inn PIN-en for å se det her.</string>
+    <string name="insights_open_settings">Åpne Innstillinger</string>
+    <string name="insights_find_something">Finn noe å se</string>
+
+    <string name="stats_title">Seerstatistikk</string>
+    <string name="stats_not_paired_title">Statistikken din ligger på Fetch-nettsiden</string>
+    <string name="stats_failed">Kunne ikke laste inn statistikken din fra Fetch-nettsiden.</string>
+    <string name="stats_empty_title">Ingenting sett ennå, så det er ingenting å telle</string>
+    <string name="stats_empty_subtitle">Alle tallene her — rekker, sjangre, merker, året ditt oppsummert — bygger på seehistorikken din.</string>
+    <string name="stats_watch_history_note">Bygger på seehistorikken din. Hver film og episode telles én gang, på dagen du sist så den.</string>
+    <string name="stats_watch_history_partial">Sjangre og vurderinger gjelder de 300 titlene du så sist.</string>
+    <string name="stats_failed_watch_history">Kunne ikke lese seehistorikken din.</string>
+    <string name="stats_movies">Filmer</string>
+    <string name="stats_episodes">Episoder</string>
+    <string name="stats_current_streak">Nåværende rekke</string>
+    <string name="stats_longest_streak">Lengste rekke</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dager</item>
+    </plurals>
+    <string name="stats_achievements">Prestasjoner</string>
+    <string name="stats_no_badges">Ingen merker ennå — fortsett å se!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d film</item>
+        <item quantity="other">%d filmer</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d episode</item>
+        <item quantity="other">%d episoder</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">Rekke på %d dag</item>
+        <item quantity="other">Rekke på %d dager</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Opptjent: %s</string>
+    <string name="stats_next_badges_label">Neste: %s</string>
+    <string name="stats_monthly_activity">Aktivitet per måned</string>
+    <string name="stats_vs_last_month">%s sammenlignet med forrige måned</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) sammenlignet med forrige måned</string>
+    <string name="stats_top_genres">Toppsjangre</string>
+    <string name="stats_genre_description">%1$s: %2$d sett</string>
+    <string name="stats_top_rated">Best vurdert av det du har sett</string>
+    <string name="stats_rated_out_of_ten">Vurdert til %s av 10</string>
+    <string name="stats_rated_out_of_five">Vurdert til %s av 5</string>
+    <string name="stats_type_movie">Film</string>
+    <string name="stats_type_series">Serie</string>
+    <string name="stats_year_in_review">Året som gikk</string>
+    <string name="stats_year_failed">Kunne ikke laste inn årets oppsummering.</string>
+    <string name="stats_movies_watched">Filmer sett</string>
+    <string name="stats_episodes_watched">Episoder sett</string>
+    <string name="stats_hours_watched">Sette timer</string>
+    <string name="stats_busiest_month">Travleste måned</string>
+    <string name="stats_top_rated_picks">Best vurdert</string>
+
+    <string name="calendar_title">Kalender</string>
+    <string name="calendar_not_paired_title">Kalenderen din ligger på Fetch-nettsiden</string>
+    <string name="calendar_failed">Kunne ikke laste inn kalenderen din fra Fetch-nettsiden.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dager</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Ingen nye episoder det neste %d døgnet</item>
+        <item quantity="other">Ingen nye episoder de neste %d dagene</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Kalenderen viser bare serier du allerede har begynt å se.</string>
+    <string name="calendar_source_watch_history">Fra seehistorikken din</string>
+    <string name="calendar_empty_subtitle_watch_history">Kalenderen følger de 30 seriene du så sist, basert på seehistorikken fra synkroniseringsmetoden eller sporingstjenesten din.</string>
+    <string name="calendar_failed_watch_history">Kunne ikke slå opp kommende episoder på TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB svarte ikke for %d serie, så noen episoder kan mangle.</item>
+        <item quantity="other">TMDB svarte ikke for %d serier, så noen episoder kan mangle.</item>
+    </plurals>
+    <string name="calendar_find_series">Finn en serie å følge</string>
+    <string name="calendar_today">I dag</string>
+    <string name="calendar_tomorrow">I morgen</string>
+    <string name="calendar_unknown_date">Dato ikke kunngjort</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d episode</item>
+        <item quantity="other">%d episoder</item>
+    </plurals>
+</resources>

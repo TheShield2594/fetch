@@ -89,9 +89,9 @@
     <string name="calendar_empty_subtitle_watch_history">לוח השידורים עוקב אחרי 30 הסדרות האחרונות שצפית בהן, לפי היסטוריית הצפייה משיטת הסנכרון או משירות המעקב שלך.</string>
     <string name="calendar_failed_watch_history">לא ניתן לחפש פרקים קרובים ב־TMDB.</string>
     <plurals name="calendar_failed_series">
-        <item quantity="one">‏TMDB לא הגיב עבור סדרה אחת, ולכן ייתכן שחסרים כמה פרקים.</item>
-        <item quantity="two">‏TMDB לא הגיב עבור שתי סדרות, ולכן ייתכן שחסרים כמה פרקים.</item>
-        <item quantity="other">‏TMDB לא הגיב עבור %d סדרות, ולכן ייתכן שחסרים כמה פרקים.</item>
+        <item quantity="one">TMDB לא הגיב עבור סדרה אחת, ולכן ייתכן שחסרים כמה פרקים.</item>
+        <item quantity="two">TMDB לא הגיב עבור שתי סדרות, ולכן ייתכן שחסרים כמה פרקים.</item>
+        <item quantity="other">TMDB לא הגיב עבור %d סדרות, ולכן ייתכן שחסרים כמה פרקים.</item>
     </plurals>
     <string name="calendar_find_series">חיפוש סדרה למעקב</string>
     <string name="calendar_today">היום</string>

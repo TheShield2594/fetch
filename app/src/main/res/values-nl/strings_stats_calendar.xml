@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Statistieken</string>
+    <string name="library_open_calendar">Kalender</string>
+
+    <string name="insights_source_eyebrow">Van de Fetch-website</string>
+    <string name="insights_loading">Laden…</string>
+    <string name="insights_not_paired_subtitle">Meld deze tv aan bij de Fetch-website via Instellingen › Account om dit hier te zien. De website houdt je kijkgeschiedenis bij en berekent het op basis daarvan.</string>
+    <string name="insights_no_profile_title">Dit profiel staat niet op de Fetch-website</string>
+    <string name="insights_no_profile_subtitle">Alleen profielen van de website hebben daar een kijkgeschiedenis. Schakel over naar een van die profielen of voeg dit profiel toe op de website.</string>
+    <string name="insights_locked_title">Dit profiel is vergrendeld</string>
+    <string name="insights_locked_subtitle">Het heeft een PIN op de website die de laatste tijd niet op deze tv is ingevoerd. Schakel opnieuw over naar het profiel en voer de PIN in om dit hier te zien.</string>
+    <string name="insights_open_settings">Instellingen openen</string>
+    <string name="insights_find_something">Zoek iets om te kijken</string>
+
+    <string name="stats_title">Kijkstatistieken</string>
+    <string name="stats_not_paired_title">Je statistieken staan op de Fetch-website</string>
+    <string name="stats_failed">Kan je statistieken niet laden van de Fetch-website.</string>
+    <string name="stats_empty_title">Nog niets bekeken, dus er valt niets te tellen</string>
+    <string name="stats_empty_subtitle">Alle cijfers hier — reeksen, genres, badges, je jaaroverzicht — komen uit je kijkgeschiedenis.</string>
+    <string name="stats_watch_history_note">Gebaseerd op je kijkgeschiedenis. Elke film en aflevering telt één keer mee, op de dag dat je hem het laatst hebt gezien.</string>
+    <string name="stats_watch_history_partial">Genres en beoordelingen gaan over je 300 laatst bekeken titels.</string>
+    <string name="stats_failed_watch_history">Kan je kijkgeschiedenis niet lezen.</string>
+    <string name="stats_movies">Films</string>
+    <string name="stats_episodes">Afleveringen</string>
+    <string name="stats_current_streak">Huidige reeks</string>
+    <string name="stats_longest_streak">Langste reeks</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dagen</item>
+    </plurals>
+    <string name="stats_achievements">Prestaties</string>
+    <string name="stats_no_badges">Nog geen badges verdiend — blijf kijken!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d film</item>
+        <item quantity="other">%d films</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d aflevering</item>
+        <item quantity="other">%d afleveringen</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">Reeks van %d dag</item>
+        <item quantity="other">Reeks van %d dagen</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Verdiend: %s</string>
+    <string name="stats_next_badges_label">Volgende: %s</string>
+    <string name="stats_monthly_activity">Activiteit per maand</string>
+    <string name="stats_vs_last_month">%s t.o.v. vorige maand</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) t.o.v. vorige maand</string>
+    <string name="stats_top_genres">Topgenres</string>
+    <string name="stats_genre_description">%1$s: %2$d bekeken</string>
+    <string name="stats_top_rated">Best beoordeeld van wat je zag</string>
+    <string name="stats_rated_out_of_ten">Beoordeling: %s van 10</string>
+    <string name="stats_rated_out_of_five">Beoordeling: %s van 5</string>
+    <string name="stats_type_movie">Film</string>
+    <string name="stats_type_series">Serie</string>
+    <string name="stats_year_in_review">Jaaroverzicht</string>
+    <string name="stats_year_failed">Kan het jaaroverzicht niet laden.</string>
+    <string name="stats_movies_watched">Films bekeken</string>
+    <string name="stats_episodes_watched">Afleveringen bekeken</string>
+    <string name="stats_hours_watched">Gekeken uren</string>
+    <string name="stats_busiest_month">Drukste maand</string>
+    <string name="stats_top_rated_picks">Best beoordeelde titels</string>
+
+    <string name="calendar_title">Kalender</string>
+    <string name="calendar_not_paired_title">Je kalender staat op de Fetch-website</string>
+    <string name="calendar_failed">Kan je kalender niet laden van de Fetch-website.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dagen</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Geen nieuwe afleveringen in de komende %d dag</item>
+        <item quantity="other">Geen nieuwe afleveringen in de komende %d dagen</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">De kalender volgt alleen series waar je al mee bent begonnen.</string>
+    <string name="calendar_source_watch_history">Uit je kijkgeschiedenis</string>
+    <string name="calendar_empty_subtitle_watch_history">De kalender volgt de 30 series die je het laatst hebt bekeken, op basis van de kijkgeschiedenis van je synchronisatiemethode of trackingdienst.</string>
+    <string name="calendar_failed_watch_history">Kan komende afleveringen niet opzoeken bij TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB gaf geen antwoord voor %d serie, dus er kunnen afleveringen ontbreken.</item>
+        <item quantity="other">TMDB gaf geen antwoord voor %d series, dus er kunnen afleveringen ontbreken.</item>
+    </plurals>
+    <string name="calendar_find_series">Zoek een serie om te volgen</string>
+    <string name="calendar_today">Vandaag</string>
+    <string name="calendar_tomorrow">Morgen</string>
+    <string name="calendar_unknown_date">Datum nog niet bekend</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d aflevering</item>
+        <item quantity="other">%d afleveringen</item>
+    </plurals>
+</resources>

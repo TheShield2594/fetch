@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library header -->
+    <string name="library_open_stats">आँकड़े</string>
+    <string name="library_open_calendar">कैलेंडर</string>
+
+    <!-- Shared by Stats and Calendar -->
+    <string name="insights_source_eyebrow">Fetch वेबसाइट से</string>
+    <string name="insights_loading">लोड हो रहा है…</string>
+    <string name="insights_not_paired_subtitle">इसे यहाँ देखने के लिए सेटिंग्स › अकाउंट में जाकर इस टीवी को Fetch वेबसाइट में साइन इन करें। वेबसाइट आपकी वॉच हिस्ट्री रखती है और उसी से यह सब निकालती है।</string>
+    <string name="insights_no_profile_title">यह प्रोफाइल Fetch वेबसाइट पर नहीं है</string>
+    <string name="insights_no_profile_subtitle">वहाँ वॉच हिस्ट्री सिर्फ़ उन्हीं प्रोफाइल की होती है जो वेबसाइट से आए हैं। उनमें से किसी एक पर स्विच करें, या इस प्रोफाइल को वेबसाइट पर जोड़ें।</string>
+    <string name="insights_locked_title">यह प्रोफाइल लॉक है</string>
+    <string name="insights_locked_subtitle">वेबसाइट पर इस प्रोफाइल का PIN है, जो हाल में इस टीवी पर नहीं डाला गया। इसे यहाँ देखने के लिए फिर से इस प्रोफाइल पर स्विच करें और उसका PIN डालें।</string>
+    <string name="insights_open_settings">सेटिंग्स खोलें</string>
+    <string name="insights_find_something">देखने के लिए कुछ ढूँढें</string>
+
+    <!-- Stats -->
+    <string name="stats_title">देखने के आँकड़े</string>
+    <string name="stats_not_paired_title">आपके आँकड़े Fetch वेबसाइट पर हैं</string>
+    <string name="stats_failed">Fetch वेबसाइट से आपके आँकड़े लोड नहीं हो सके।</string>
+    <string name="stats_empty_title">अभी तक कुछ नहीं देखा, इसलिए गिनने को कुछ नहीं है</string>
+    <string name="stats_empty_subtitle">यहाँ का हर आँकड़ा — स्ट्रीक, जॉनर, बैज, आपका साल भर का सार — आपकी वॉच हिस्ट्री से बनता है।</string>
+    <string name="stats_watch_history_note">आपकी वॉच हिस्ट्री से बना है। हर फ़िल्म और एपिसोड एक बार गिना जाता है, उस दिन जब आपने उसे आख़िरी बार देखा।</string>
+    <string name="stats_watch_history_partial">जॉनर और रेटिंग आपके हाल में देखे गए 300 टाइटल पर आधारित हैं।</string>
+    <string name="stats_failed_watch_history">आपकी वॉच हिस्ट्री पढ़ी नहीं जा सकी।</string>
+    <string name="stats_movies">फ़िल्में</string>
+    <string name="stats_episodes">एपिसोड</string>
+    <string name="stats_current_streak">मौजूदा स्ट्रीक</string>
+    <string name="stats_longest_streak">सबसे लंबी स्ट्रीक</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d दिन</item>
+        <item quantity="other">%d दिन</item>
+    </plurals>
+    <string name="stats_achievements">उपलब्धियाँ</string>
+    <string name="stats_no_badges">अभी तक कोई बैज नहीं मिला — देखते रहें!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d फ़िल्म</item>
+        <item quantity="other">%d फ़िल्में</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d एपिसोड</item>
+        <item quantity="other">%d एपिसोड</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d दिन की स्ट्रीक</item>
+        <item quantity="other">%d दिन की स्ट्रीक</item>
+    </plurals>
+    <string name="stats_earned_badges_label">मिले: %s</string>
+    <string name="stats_next_badges_label">अगले: %s</string>
+    <string name="stats_monthly_activity">मासिक गतिविधि</string>
+    <string name="stats_vs_last_month">पिछले महीने की तुलना में %s</string>
+    <string name="stats_vs_last_month_percent">पिछले महीने की तुलना में %1$s (%2$s%%)</string>
+    <string name="stats_top_genres">टॉप जॉनर</string>
+    <string name="stats_genre_description">%1$s: %2$d देखे गए</string>
+    <string name="stats_top_rated">देखे गए में टॉप रेटेड</string>
+    <string name="stats_rated_out_of_ten">10 में से %s रेटिंग</string>
+    <string name="stats_rated_out_of_five">5 में से %s रेटिंग</string>
+    <string name="stats_type_movie">फ़िल्म</string>
+    <string name="stats_type_series">सीरीज़</string>
+    <string name="stats_year_in_review">साल भर का सार</string>
+    <string name="stats_year_failed">इस साल का सार लोड नहीं हो सका।</string>
+    <string name="stats_movies_watched">देखी गई फ़िल्में</string>
+    <string name="stats_episodes_watched">देखे गए एपिसोड</string>
+    <string name="stats_hours_watched">देखे गए घंटे</string>
+    <string name="stats_busiest_month">सबसे व्यस्त महीना</string>
+    <string name="stats_top_rated_picks">टॉप रेटेड पसंद</string>
+
+    <!-- Calendar -->
+    <string name="calendar_title">कैलेंडर</string>
+    <string name="calendar_not_paired_title">आपका कैलेंडर Fetch वेबसाइट पर है</string>
+    <string name="calendar_failed">Fetch वेबसाइट से आपका कैलेंडर लोड नहीं हो सका।</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d दिन</item>
+        <item quantity="other">%d दिन</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">अगले %d दिन में कोई नया एपिसोड नहीं</item>
+        <item quantity="other">अगले %d दिनों में कोई नया एपिसोड नहीं</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">कैलेंडर सिर्फ़ उन्हीं सीरीज़ को ट्रैक करता है जिन्हें आप देखना शुरू कर चुके हैं।</string>
+    <string name="calendar_source_watch_history">आपकी वॉच हिस्ट्री से</string>
+    <string name="calendar_empty_subtitle_watch_history">कैलेंडर आपकी हाल में देखी गई 30 सीरीज़ को फ़ॉलो करता है, आपके सिंक तरीके या ट्रैकिंग सेवा की वॉच हिस्ट्री के आधार पर।</string>
+    <string name="calendar_failed_watch_history">TMDB पर आने वाले एपिसोड नहीं ढूँढे जा सके।</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB ने %d सीरीज़ के लिए जवाब नहीं दिया, इसलिए कुछ एपिसोड छूट सकते हैं।</item>
+        <item quantity="other">TMDB ने %d सीरीज़ के लिए जवाब नहीं दिया, इसलिए कुछ एपिसोड छूट सकते हैं।</item>
+    </plurals>
+    <string name="calendar_find_series">फ़ॉलो करने के लिए कोई सीरीज़ ढूँढें</string>
+    <string name="calendar_today">आज</string>
+    <string name="calendar_tomorrow">कल</string>
+    <string name="calendar_unknown_date">तारीख़ घोषित नहीं हुई</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d एपिसोड</item>
+        <item quantity="other">%d एपिसोड</item>
+    </plurals>
+</resources>

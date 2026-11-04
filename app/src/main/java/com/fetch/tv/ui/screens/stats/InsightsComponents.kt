@@ -346,7 +346,7 @@ internal fun InsightPoster(
                         modifier = Modifier
                             .padding(FetchTheme.spacing.xs)
                             .clip(RoundedCornerShape(50))
-                            .background(Color.Black.copy(alpha = 0.72f))
+                            .background(FetchTheme.colors.Overlay)
                             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
                     )
                 }

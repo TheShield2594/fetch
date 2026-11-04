@@ -347,7 +347,7 @@ private fun MonthlyActivityPanel(monthly: List<WebsiteMonthlyCount>) {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(ChartHeight * barFraction(m.episodes, max))
-                                        .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                        .clip(RoundedCornerShape(topStart = FetchTheme.radii.xs, topEnd = FetchTheme.radii.xs))
                                         .background(episodeColor)
                                 )
                             }
@@ -357,8 +357,8 @@ private fun MonthlyActivityPanel(monthly: List<WebsiteMonthlyCount>) {
                                         .fillMaxWidth()
                                         .height(ChartHeight * barFraction(m.movies, max))
                                         .clip(
-                                            if (m.episodes > 0) RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp)
-                                            else RoundedCornerShape(4.dp)
+                                            if (m.episodes > 0) RoundedCornerShape(bottomStart = FetchTheme.radii.xs, bottomEnd = FetchTheme.radii.xs)
+                                            else RoundedCornerShape(FetchTheme.radii.xs)
                                         )
                                         .background(movieColor)
                                 )
@@ -368,7 +368,7 @@ private fun MonthlyActivityPanel(monthly: List<WebsiteMonthlyCount>) {
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(4.dp)
-                                    .clip(RoundedCornerShape(2.dp))
+                                    .clip(RoundedCornerShape(FetchTheme.radii.xxs))
                                     .background(FetchTheme.colors.Divider)
                             )
                         }
@@ -399,7 +399,7 @@ private fun monthName(month: String, formatter: DateTimeFormatter): String? {
 @Composable
 private fun LegendItem(color: Color, label: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(modifier = Modifier.size(12.dp).clip(RoundedCornerShape(3.dp)).background(color))
+        Box(modifier = Modifier.size(12.dp).clip(RoundedCornerShape(FetchTheme.radii.xxs)).background(color))
         Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
         Text(text = label, style = FetchTheme.textStyles.metadata, color = FetchTheme.colors.TextSecondary)
     }

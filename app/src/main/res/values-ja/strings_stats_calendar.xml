@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">統計</string>
+    <string name="library_open_calendar">カレンダー</string>
+    <string name="insights_source_eyebrow">Fetch ウェブサイトから</string>
+    <string name="insights_loading">読み込み中…</string>
+    <string name="insights_not_paired_subtitle">「設定 › アカウント」でこのテレビを Fetch ウェブサイトにサインインすると、ここに表示されます。ウェブサイトに保存された視聴履歴をもとに集計されます。</string>
+    <string name="insights_no_profile_title">このプロフィールは Fetch ウェブサイトにありません</string>
+    <string name="insights_no_profile_subtitle">ウェブサイトに視聴履歴があるのは、ウェブサイトから取り込んだプロフィールだけです。そのいずれかに切り替えるか、このプロフィールをウェブサイトで追加してください。</string>
+    <string name="insights_locked_title">このプロフィールはロックされています</string>
+    <string name="insights_locked_subtitle">ウェブサイトで PIN が設定されていますが、最近このテレビで入力されていません。もう一度このプロフィールに切り替えて PIN を入力すると、ここに表示されます。</string>
+    <string name="insights_open_settings">設定を開く</string>
+    <string name="insights_find_something">観るものを探す</string>
+    <string name="stats_title">視聴統計</string>
+    <string name="stats_not_paired_title">統計は Fetch ウェブサイトにあります</string>
+    <string name="stats_failed">Fetch ウェブサイトから統計を読み込めませんでした。</string>
+    <string name="stats_empty_title">まだ視聴履歴がないため、集計できるものがありません</string>
+    <string name="stats_empty_subtitle">連続記録、ジャンル、バッジ、年間まとめなど、ここの数字はすべて視聴履歴から作られます。</string>
+    <string name="stats_watch_history_note">視聴履歴から集計しています。映画とエピソードはそれぞれ1回だけ、最後に視聴した日にカウントされます。</string>
+    <string name="stats_watch_history_partial">ジャンルと評価は、最近視聴した300作品が対象です。</string>
+    <string name="stats_failed_watch_history">視聴履歴を読み込めませんでした。</string>
+    <string name="stats_movies">映画</string>
+    <string name="stats_episodes">エピソード</string>
+    <string name="stats_current_streak">現在の連続記録</string>
+    <string name="stats_longest_streak">最長連続記録</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d日</item>
+        <item quantity="other">%d日</item>
+    </plurals>
+    <string name="stats_achievements">実績</string>
+    <string name="stats_no_badges">まだバッジはありません。どんどん観ましょう！</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">映画%d本</item>
+        <item quantity="other">映画%d本</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%dエピソード</item>
+        <item quantity="other">%dエピソード</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d日連続</item>
+        <item quantity="other">%d日連続</item>
+    </plurals>
+    <string name="stats_earned_badges_label">獲得済み：%s</string>
+    <string name="stats_next_badges_label">次の目標：%s</string>
+    <string name="stats_monthly_activity">月別アクティビティ</string>
+    <string name="stats_vs_last_month">先月比 %s</string>
+    <string name="stats_vs_last_month_percent">先月比 %1$s（%2$s%%）</string>
+    <string name="stats_top_genres">よく観るジャンル</string>
+    <string name="stats_genre_description">%1$s：%2$d件視聴</string>
+    <string name="stats_top_rated">視聴した高評価作品</string>
+    <string name="stats_rated_out_of_ten">評価 %s/10</string>
+    <string name="stats_rated_out_of_five">評価 %s/5</string>
+    <string name="stats_type_movie">映画</string>
+    <string name="stats_type_series">シリーズ</string>
+    <string name="stats_year_in_review">年間まとめ</string>
+    <string name="stats_year_failed">今年のまとめを読み込めませんでした。</string>
+    <string name="stats_movies_watched">視聴した映画</string>
+    <string name="stats_episodes_watched">視聴したエピソード</string>
+    <string name="stats_hours_watched">視聴時間</string>
+    <string name="stats_busiest_month">最も観た月</string>
+    <string name="stats_top_rated_picks">高評価の作品</string>
+    <string name="calendar_title">カレンダー</string>
+    <string name="calendar_not_paired_title">カレンダーは Fetch ウェブサイトにあります</string>
+    <string name="calendar_failed">Fetch ウェブサイトからカレンダーを読み込めませんでした。</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d日間</item>
+        <item quantity="other">%d日間</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">今後%d日間に配信予定のエピソードはありません</item>
+        <item quantity="other">今後%d日間に配信予定のエピソードはありません</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">カレンダーには、視聴を始めたシリーズだけが表示されます。</string>
+    <string name="calendar_source_watch_history">視聴履歴から</string>
+    <string name="calendar_empty_subtitle_watch_history">カレンダーには、同期方法またはトラッキングサービスの視聴履歴をもとに、最近視聴した30シリーズが表示されます。</string>
+    <string name="calendar_failed_watch_history">TMDB で今後のエピソードを取得できませんでした。</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">%dシリーズについて TMDB から応答がなかったため、一部のエピソードが表示されていない可能性があります。</item>
+        <item quantity="other">%dシリーズについて TMDB から応答がなかったため、一部のエピソードが表示されていない可能性があります。</item>
+    </plurals>
+    <string name="calendar_find_series">フォローするシリーズを探す</string>
+    <string name="calendar_today">今日</string>
+    <string name="calendar_tomorrow">明日</string>
+    <string name="calendar_unknown_date">日付未定</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%dエピソード</item>
+        <item quantity="other">%dエピソード</item>
+    </plurals>
+</resources>

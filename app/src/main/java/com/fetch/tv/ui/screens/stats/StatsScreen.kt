@@ -63,6 +63,8 @@ import java.time.format.TextStyle
 /**
  * Watch statistics for the active profile, as the Fetch website's stats page shows them: totals
  * and streaks, badges, the last twelve months, top genres, top-rated titles and a year in review.
+ * They're the website's own figures when it's the sync method, otherwise worked out on the TV
+ * from the profile's watch history.
  */
 @Composable
 fun StatsScreen(
@@ -73,6 +75,7 @@ fun StatsScreen(
 ) {
     val overview by viewModel.overview.collectAsStateWithLifecycle()
     val yearReview by viewModel.yearReview.collectAsStateWithLifecycle()
+    val source by viewModel.source.collectAsStateWithLifecycle()
     val firstPanelFocus = remember { FocusRequester() }
 
     LazyColumn(
@@ -87,7 +90,15 @@ fun StatsScreen(
         ),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
     ) {
-        item(key = "header") { InsightsHeader(stringResource(R.string.stats_title)) }
+        item(key = "header") {
+            InsightsHeader(
+                title = stringResource(R.string.stats_title),
+                eyebrow = when (source) {
+                    StatsSource.WEBSITE -> stringResource(R.string.insights_source_eyebrow)
+                    StatsSource.WATCH_HISTORY -> stringResource(R.string.calendar_source_watch_history)
+                }
+            )
+        }
 
         when (val state = overview) {
             WebsiteReadState.Loading -> item(key = "loading") { InsightsLoading() }
@@ -102,6 +113,18 @@ fun StatsScreen(
                         )
                     }
                 } else {
+                    if (stats.source == StatsSource.WATCH_HISTORY) {
+                        item(key = "history_note") {
+                            Text(
+                                text = listOfNotNull(
+                                    stringResource(R.string.stats_watch_history_note),
+                                    if (stats.detailsPartial) stringResource(R.string.stats_watch_history_partial) else null
+                                ).joinToString(" "),
+                                style = FetchTheme.textStyles.metadata,
+                                color = FetchTheme.colors.TextTertiary
+                            )
+                        }
+                    }
                     item(key = "summary") {
                         LaunchedEffect(Unit) { runCatching { firstPanelFocus.requestFocus() } }
                         SummaryPanel(stats.totals, stats.detailed, firstPanelFocus)
@@ -137,7 +160,12 @@ fun StatsScreen(
                 WebsiteUnavailable(
                     state = state,
                     notPairedTitle = stringResource(R.string.stats_not_paired_title),
-                    failedMessage = stringResource(R.string.stats_failed),
+                    failedMessage = stringResource(
+                        when (source) {
+                            StatsSource.WEBSITE -> R.string.stats_failed
+                            StatsSource.WATCH_HISTORY -> R.string.stats_failed_watch_history
+                        }
+                    ),
                     onOpenSettings = onNavigateToSettings,
                     onRetry = viewModel::retry
                 )

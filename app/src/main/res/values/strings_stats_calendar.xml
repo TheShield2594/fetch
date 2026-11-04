@@ -21,6 +21,10 @@
     <string name="stats_failed">Couldn’t load your stats from the Fetch website.</string>
     <string name="stats_empty_title">Nothing watched yet, so there is nothing to count</string>
     <string name="stats_empty_subtitle">Every figure here — streaks, genres, badges, your year in review — is built from your watch history.</string>
+    <!-- Stats for every sync method but the website, built on the TV -->
+    <string name="stats_watch_history_note">Built from your watch history. Each movie and episode counts once, on the day you last watched it.</string>
+    <string name="stats_watch_history_partial">Genres and ratings cover your 300 most recently watched titles.</string>
+    <string name="stats_failed_watch_history">Couldn’t read your watch history.</string>
     <string name="stats_movies">Movies</string>
     <string name="stats_episodes">Episodes</string>
     <string name="stats_current_streak">Current streak</string>

@@ -1221,7 +1221,29 @@ private fun PlaybackNavHost(
                 },
                 onNavigateToSearch = { navController.navigate(Screen.Search.route) { launchSingleTop = true } },
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } },
-                onNavigateToTrackingSettings = { navController.navigate(Screen.Tracking.route) { launchSingleTop = true } }
+                onNavigateToTrackingSettings = { navController.navigate(Screen.Tracking.route) { launchSingleTop = true } },
+                onNavigateToStats = { navController.navigate(Screen.Stats.route) { launchSingleTop = true } },
+                onNavigateToCalendar = { navController.navigate(Screen.Calendar.route) { launchSingleTop = true } }
+            )
+        }
+
+        composable(Screen.Stats.route) {
+            com.fetch.tv.ui.screens.stats.StatsScreen(
+                onNavigateToDetail = { itemId, itemType ->
+                    navController.navigate(Screen.Detail.createRoute(itemId, itemType))
+                },
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } },
+                onNavigateToSearch = { navController.navigate(Screen.Search.route) { launchSingleTop = true } }
+            )
+        }
+
+        composable(Screen.Calendar.route) {
+            com.fetch.tv.ui.screens.calendar.CalendarScreen(
+                onNavigateToDetail = { itemId, itemType ->
+                    navController.navigate(Screen.Detail.createRoute(itemId, itemType))
+                },
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } },
+                onNavigateToSearch = { navController.navigate(Screen.Search.route) { launchSingleTop = true } }
             )
         }
 

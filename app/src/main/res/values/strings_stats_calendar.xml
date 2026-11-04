@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library header: the two pages the website also has -->
+    <string name="library_open_stats">Stats</string>
+    <string name="library_open_calendar">Calendar</string>
+
+    <!-- Shared by Stats and Calendar: both are read from the Fetch website -->
+    <string name="insights_source_eyebrow">From the Fetch website</string>
+    <string name="insights_loading">Loading…</string>
+    <string name="insights_not_paired_subtitle">Sign this TV in to the Fetch website under Settings › Account to see it here. The website keeps your watch history and works this out from it.</string>
+    <string name="insights_no_profile_title">This profile isn’t on the Fetch website</string>
+    <string name="insights_no_profile_subtitle">Only profiles that come from the website have a watch history there. Switch to one of them, or add this profile on the website.</string>
+    <string name="insights_locked_title">This profile is locked</string>
+    <string name="insights_locked_subtitle">It has a PIN on the website that hasn’t been entered on this TV lately. Switch to the profile again and enter its PIN to see it here.</string>
+    <string name="insights_open_settings">Open Settings</string>
+    <string name="insights_find_something">Find something to watch</string>
+
+    <!-- Stats -->
+    <string name="stats_title">Watch statistics</string>
+    <string name="stats_not_paired_title">Your stats live on the Fetch website</string>
+    <string name="stats_failed">Couldn’t load your stats from the Fetch website.</string>
+    <string name="stats_empty_title">Nothing watched yet, so there is nothing to count</string>
+    <string name="stats_empty_subtitle">Every figure here — streaks, genres, badges, your year in review — is built from your watch history.</string>
+    <string name="stats_movies">Movies</string>
+    <string name="stats_episodes">Episodes</string>
+    <string name="stats_current_streak">Current streak</string>
+    <string name="stats_longest_streak">Longest streak</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <string name="stats_achievements">Achievements</string>
+    <string name="stats_no_badges">No badges earned yet — keep watching!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d movie</item>
+        <item quantity="other">%d movies</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d episode</item>
+        <item quantity="other">%d episodes</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d-day streak</item>
+        <item quantity="other">%d-day streak</item>
+    </plurals>
+    <!-- An unearned badge and how far along it is: "50 movies (12/50)" -->
+    <string name="stats_badge_progress">%1$s (%2$d/%3$d)</string>
+    <string name="stats_earned_badges_label">Earned: %s</string>
+    <string name="stats_next_badges_label">Next: %s</string>
+    <string name="stats_monthly_activity">Monthly activity</string>
+    <string name="stats_vs_last_month">%s vs last month</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) vs last month</string>
+    <!-- One month of the chart, read aloud: "March 2026: 4 movies, 12 episodes" -->
+    <string name="stats_month_description">%1$s: %2$s, %3$s</string>
+    <string name="stats_top_genres">Top genres</string>
+    <string name="stats_genre_description">%1$s: %2$d watched</string>
+    <string name="stats_top_rated">Top rated watched</string>
+    <string name="stats_rated_out_of_ten">Rated %s out of 10</string>
+    <string name="stats_rated_out_of_five">Rated %s out of 5</string>
+    <string name="stats_type_movie">Movie</string>
+    <string name="stats_type_series">Series</string>
+    <string name="stats_year_in_review">Year in review</string>
+    <string name="stats_year_failed">Couldn’t load this year’s review.</string>
+    <string name="stats_movies_watched">Movies watched</string>
+    <string name="stats_episodes_watched">Episodes watched</string>
+    <string name="stats_hours_watched">Hours watched</string>
+    <string name="stats_busiest_month">Busiest month</string>
+    <string name="stats_top_rated_picks">Top rated picks</string>
+    <string name="stats_tile_description">%1$s: %2$s</string>
+
+    <!-- Calendar -->
+    <string name="calendar_title">Calendar</string>
+    <string name="calendar_not_paired_title">Your calendar lives on the Fetch website</string>
+    <string name="calendar_failed">Couldn’t load your calendar from the Fetch website.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">No upcoming episodes in the next %d day</item>
+        <item quantity="other">No upcoming episodes in the next %d days</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">The calendar only tracks series you have already started watching.</string>
+    <string name="calendar_find_series">Find a series to follow</string>
+    <string name="calendar_today">Today</string>
+    <string name="calendar_tomorrow">Tomorrow</string>
+    <string name="calendar_unknown_date">Date not announced</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d episode</item>
+        <item quantity="other">%d episodes</item>
+    </plurals>
+    <!-- "S1:E4 — Episode name" -->
+    <string name="calendar_episode_with_name">%1$s — %2$s</string>
+</resources>

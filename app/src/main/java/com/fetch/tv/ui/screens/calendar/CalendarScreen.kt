@@ -54,9 +54,9 @@ import com.fetch.tv.ui.theme.FetchTheme
 import java.time.format.DateTimeFormatter
 
 /**
- * Upcoming episodes of the series the active profile has started, from the Fetch website's
- * calendar: an agenda of the next 14 to 90 days, one heading per day. Choosing an episode opens
- * its series.
+ * Upcoming episodes of the series the active profile has started: the Fetch website's calendar
+ * when that's the sync method, otherwise worked out from the profile's watch history and TMDB.
+ * An agenda of the next 14 to 90 days, one heading per day. Choosing an episode opens its series.
  */
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -82,7 +82,15 @@ fun CalendarScreen(
         ),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
     ) {
-        item(key = "header") { InsightsHeader(stringResource(R.string.calendar_title)) }
+        item(key = "header") {
+            InsightsHeader(
+                title = stringResource(R.string.calendar_title),
+                eyebrow = when (uiState.source) {
+                    CalendarSource.WEBSITE -> stringResource(R.string.insights_source_eyebrow)
+                    CalendarSource.WATCH_HISTORY -> stringResource(R.string.calendar_source_watch_history)
+                }
+            )
+        }
 
         if (showRanges) {
             item(key = "ranges") {
@@ -122,7 +130,12 @@ fun CalendarScreen(
                     item(key = "empty") {
                         InsightsMessage(
                             title = pluralStringResource(R.plurals.calendar_empty_title, uiState.rangeDays, uiState.rangeDays),
-                            subtitle = stringResource(R.string.calendar_empty_subtitle),
+                            subtitle = stringResource(
+                                when (uiState.source) {
+                                    CalendarSource.WEBSITE -> R.string.calendar_empty_subtitle
+                                    CalendarSource.WATCH_HISTORY -> R.string.calendar_empty_subtitle_watch_history
+                                }
+                            ),
                             action = StateAction(stringResource(R.string.calendar_find_series), onNavigateToSearch)
                         )
                     }
@@ -140,7 +153,12 @@ fun CalendarScreen(
                 WebsiteUnavailable(
                     state = state,
                     notPairedTitle = stringResource(R.string.calendar_not_paired_title),
-                    failedMessage = stringResource(R.string.calendar_failed),
+                    failedMessage = stringResource(
+                        when (uiState.source) {
+                            CalendarSource.WEBSITE -> R.string.calendar_failed
+                            CalendarSource.WATCH_HISTORY -> R.string.calendar_failed_watch_history
+                        }
+                    ),
                     onOpenSettings = onNavigateToSettings,
                     onRetry = viewModel::retry
                 )

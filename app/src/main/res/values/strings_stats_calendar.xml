@@ -81,6 +81,10 @@
         <item quantity="other">No upcoming episodes in the next %d days</item>
     </plurals>
     <string name="calendar_empty_subtitle">The calendar only tracks series you have already started watching.</string>
+    <!-- The calendar for every sync method but the website, built on the TV -->
+    <string name="calendar_source_watch_history">From your watch history</string>
+    <string name="calendar_empty_subtitle_watch_history">The calendar follows the 30 series you watched most recently, using the watch history from your sync method or tracking service.</string>
+    <string name="calendar_failed_watch_history">Couldn’t look up upcoming episodes on TMDB.</string>
     <string name="calendar_find_series">Find a series to follow</string>
     <string name="calendar_today">Today</string>
     <string name="calendar_tomorrow">Tomorrow</string>

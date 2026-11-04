@@ -56,3 +56,91 @@ internal fun groupCalendarByDay(entries: List<WebsiteCalendarEntry>, today: Loca
 
 /** `S2:E5`, as the website labels an episode. */
 internal fun episodeCode(season: Int, episode: Int): String = "S$season:E$episode"
+
+// ─── The calendar from the TV's own watch history ───
+//
+// Used when the website isn't the sync method: the series come from whichever tracking source
+// the profile uses (Trakt, Simkl, MDBList, a media server or this TV's own history) and each
+// one's next episode from TMDB, the way the website builds its own calendar.
+
+/** A series the profile has started, as the calendar needs it. */
+data class StartedSeries(
+    val id: String,
+    val name: String,
+    val poster: String?,
+    val lastWatchedMs: Long
+)
+
+/** How many series to look up, most recently watched first: the same limit as the website. */
+internal const val CalendarSeriesLimit = 30
+
+/** TMDB statuses that rule out another episode. Everything else is looked up. */
+private val NoFurtherEpisodes = setOf("ended", "canceled", "cancelled")
+
+internal fun isFinishedSeriesStatus(status: String?): Boolean = status?.trim()?.lowercase() in NoFurtherEpisodes
+
+private fun isSeriesEntry(type: String, season: Int?): Boolean =
+    season != null || type.lowercase() in setOf("series", "tv", "show", "anime")
+
+/** `tt123:1:2` and `tt123` are the same series, as are `tmdb:42:1:2` and `tmdb:42`. */
+internal fun seriesBaseId(id: String): String {
+    val parts = id.trim().substringBefore('/').split(':')
+    val prefixed = parts.size >= 2 && parts[0].isNotEmpty() && !parts[0].startsWith("tt") && parts[0].none(Char::isDigit)
+    return if (prefixed) "${parts[0]}:${parts[1]}" else parts[0]
+}
+
+/**
+ * The series in [progress] and [watched], once each, most recently watched first. A series
+ * keeps the name and poster of its most recent entry that has them.
+ */
+internal fun startedSeries(
+    progress: List<com.fetch.tv.domain.model.WatchProgress>,
+    watched: List<com.fetch.tv.domain.model.WatchedItem>,
+    limit: Int = CalendarSeriesLimit
+): List<StartedSeries> {
+    val all = progress.filter { isSeriesEntry(it.contentType, it.season) }
+        .map { StartedSeries(seriesBaseId(it.contentId), it.name, it.poster, it.lastWatched) } +
+        watched.filter { isSeriesEntry(it.contentType, it.season) }
+            .map { StartedSeries(seriesBaseId(it.contentId), it.title, it.poster, it.watchedAt) }
+    return all
+        .filter { it.id.isNotBlank() }
+        .groupBy { it.id }
+        .map { (_, entries) ->
+            val byRecency = entries.sortedByDescending { it.lastWatchedMs }
+            byRecency.first().copy(
+                name = byRecency.firstOrNull { it.name.isNotBlank() }?.name ?: byRecency.first().id,
+                poster = byRecency.firstNotNullOfOrNull { it.poster?.takeIf(String::isNotBlank) }
+            )
+        }
+        .sortedByDescending { it.lastWatchedMs }
+        .take(limit)
+}
+
+/**
+ * [series]' next episode as a calendar entry when it airs between [today] and [days] days
+ * after it; null when there's none, it has aired, it's further out, or the show has ended.
+ */
+internal fun upcomingEntry(
+    series: StartedSeries,
+    next: com.fetch.tv.data.remote.api.TmdbNextEpisode?,
+    status: String?,
+    fallbackPoster: String?,
+    today: LocalDate,
+    days: Int
+): WebsiteCalendarEntry? {
+    if (next == null || isFinishedSeriesStatus(status)) return null
+    val airDate = next.airDate?.let(::parseAirDate) ?: return null
+    if (airDate.isBefore(today) || airDate.isAfter(today.plusDays(days.toLong()))) return null
+    val season = next.seasonNumber ?: return null
+    val episode = next.episodeNumber ?: return null
+    return WebsiteCalendarEntry(
+        seriesImdbId = series.id,
+        seriesName = series.name,
+        poster = series.poster ?: fallbackPoster,
+        season = season,
+        episode = episode,
+        episodeName = next.name?.takeIf { it.isNotBlank() },
+        airDate = airDate.toString(),
+        overview = next.overview?.takeIf { it.isNotBlank() }
+    )
+}

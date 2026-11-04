@@ -57,7 +57,7 @@ import com.fetch.tv.ui.theme.FetchTheme
 
 /** The title row of Stats and Calendar, with where the figures come from beside it. */
 @Composable
-internal fun InsightsHeader(title: String) {
+internal fun InsightsHeader(title: String, eyebrow: String = stringResource(R.string.insights_source_eyebrow)) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -69,7 +69,7 @@ internal fun InsightsHeader(title: String) {
             color = FetchTheme.colors.TextPrimary
         )
         Text(
-            text = stringResource(R.string.insights_source_eyebrow).uppercase(LocalConfiguration.current.locales[0]),
+            text = eyebrow.uppercase(LocalConfiguration.current.locales[0]),
             style = FetchTheme.textStyles.eyebrow,
             color = FetchTheme.colors.TextTertiary
         )

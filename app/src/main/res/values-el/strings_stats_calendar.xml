@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Στατιστικά</string>
+    <string name="library_open_calendar">Ημερολόγιο</string>
+    <string name="insights_source_eyebrow">Από τον ιστότοπο του Fetch</string>
+    <string name="insights_loading">Φόρτωση…</string>
+    <string name="insights_not_paired_subtitle">Συνδέστε αυτή την TV στον ιστότοπο του Fetch από τις Ρυθμίσεις › Λογαριασμός για να εμφανίζεται εδώ. Ο ιστότοπος κρατά το ιστορικό παρακολούθησής σας και υπολογίζει τα πάντα από αυτό.</string>
+    <string name="insights_no_profile_title">Αυτό το προφίλ δεν υπάρχει στον ιστότοπο του Fetch</string>
+    <string name="insights_no_profile_subtitle">Ιστορικό παρακολούθησης εκεί έχουν μόνο τα προφίλ που προέρχονται από τον ιστότοπο. Μεταβείτε σε ένα από αυτά ή προσθέστε αυτό το προφίλ στον ιστότοπο.</string>
+    <string name="insights_locked_title">Αυτό το προφίλ είναι κλειδωμένο</string>
+    <string name="insights_locked_subtitle">Έχει PIN στον ιστότοπο, το οποίο δεν έχει εισαχθεί πρόσφατα σε αυτή την TV. Μεταβείτε ξανά στο προφίλ και εισαγάγετε το PIN του για να εμφανίζεται εδώ.</string>
+    <string name="insights_open_settings">Άνοιγμα ρυθμίσεων</string>
+    <string name="insights_find_something">Βρείτε κάτι να δείτε</string>
+    <string name="stats_title">Στατιστικά παρακολούθησης</string>
+    <string name="stats_not_paired_title">Τα στατιστικά σας βρίσκονται στον ιστότοπο του Fetch</string>
+    <string name="stats_failed">Δεν ήταν δυνατή η φόρτωση των στατιστικών σας από τον ιστότοπο του Fetch.</string>
+    <string name="stats_empty_title">Δεν έχετε δει τίποτα ακόμα, οπότε δεν υπάρχει κάτι να μετρηθεί</string>
+    <string name="stats_empty_subtitle">Κάθε στοιχείο εδώ — σερί, είδη, εμβλήματα, η ανασκόπηση της χρονιάς σας — προκύπτει από το ιστορικό παρακολούθησής σας.</string>
+    <string name="stats_watch_history_note">Βασίζεται στο ιστορικό παρακολούθησής σας. Κάθε ταινία και επεισόδιο μετράει μία φορά, την ημέρα που το είδατε τελευταία.</string>
+    <string name="stats_watch_history_partial">Τα είδη και οι βαθμολογίες καλύπτουν τους 300 τίτλους που είδατε πιο πρόσφατα.</string>
+    <string name="stats_failed_watch_history">Δεν ήταν δυνατή η ανάγνωση του ιστορικού παρακολούθησής σας.</string>
+    <string name="stats_movies">Ταινίες</string>
+    <string name="stats_episodes">Επεισόδια</string>
+    <string name="stats_current_streak">Τρέχον σερί</string>
+    <string name="stats_longest_streak">Μεγαλύτερο σερί</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d ημέρα</item>
+        <item quantity="other">%d ημέρες</item>
+    </plurals>
+    <string name="stats_achievements">Επιτεύγματα</string>
+    <string name="stats_no_badges">Δεν έχετε κερδίσει εμβλήματα ακόμα — συνεχίστε να βλέπετε!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d ταινία</item>
+        <item quantity="other">%d ταινίες</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d επεισόδιο</item>
+        <item quantity="other">%d επεισόδια</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">Σερί %d ημέρας</item>
+        <item quantity="other">Σερί %d ημερών</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Κερδισμένα: %s</string>
+    <string name="stats_next_badges_label">Επόμενα: %s</string>
+    <string name="stats_monthly_activity">Μηνιαία δραστηριότητα</string>
+    <string name="stats_vs_last_month">%s σε σχέση με τον προηγούμενο μήνα</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) σε σχέση με τον προηγούμενο μήνα</string>
+    <string name="stats_top_genres">Κορυφαία είδη</string>
+    <string name="stats_genre_description">%1$s: %2$d προβολές</string>
+    <string name="stats_top_rated">Υψηλότερες βαθμολογίες όσων είδατε</string>
+    <string name="stats_rated_out_of_ten">Βαθμολογία %s στα 10</string>
+    <string name="stats_rated_out_of_five">Βαθμολογία %s στα 5</string>
+    <string name="stats_type_movie">Ταινία</string>
+    <string name="stats_type_series">Σειρά</string>
+    <string name="stats_year_in_review">Η χρονιά σας</string>
+    <string name="stats_year_failed">Δεν ήταν δυνατή η φόρτωση της φετινής ανασκόπησης.</string>
+    <string name="stats_movies_watched">Ταινίες που είδατε</string>
+    <string name="stats_episodes_watched">Επεισόδια που είδατε</string>
+    <string name="stats_hours_watched">Ώρες παρακολούθησης</string>
+    <string name="stats_busiest_month">Πιο ενεργός μήνας</string>
+    <string name="stats_top_rated_picks">Κορυφαίες επιλογές</string>
+    <string name="calendar_title">Ημερολόγιο</string>
+    <string name="calendar_not_paired_title">Το ημερολόγιό σας βρίσκεται στον ιστότοπο του Fetch</string>
+    <string name="calendar_failed">Δεν ήταν δυνατή η φόρτωση του ημερολογίου σας από τον ιστότοπο του Fetch.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d ημέρα</item>
+        <item quantity="other">%d ημέρες</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Κανένα νέο επεισόδιο την επόμενη %d ημέρα</item>
+        <item quantity="other">Κανένα νέο επεισόδιο τις επόμενες %d ημέρες</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Το ημερολόγιο παρακολουθεί μόνο σειρές που έχετε ήδη αρχίσει να βλέπετε.</string>
+    <string name="calendar_source_watch_history">Από το ιστορικό παρακολούθησής σας</string>
+    <string name="calendar_empty_subtitle_watch_history">Το ημερολόγιο παρακολουθεί τις 30 σειρές που είδατε πιο πρόσφατα, με βάση το ιστορικό παρακολούθησης από τη μέθοδο συγχρονισμού ή την υπηρεσία παρακολούθησης που χρησιμοποιείτε.</string>
+    <string name="calendar_failed_watch_history">Δεν ήταν δυνατή η αναζήτηση επερχόμενων επεισοδίων στο TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">Το TMDB δεν απάντησε για %d σειρά, οπότε ίσως λείπουν ορισμένα επεισόδια.</item>
+        <item quantity="other">Το TMDB δεν απάντησε για %d σειρές, οπότε ίσως λείπουν ορισμένα επεισόδια.</item>
+    </plurals>
+    <string name="calendar_find_series">Βρείτε μια σειρά να παρακολουθείτε</string>
+    <string name="calendar_today">Σήμερα</string>
+    <string name="calendar_tomorrow">Αύριο</string>
+    <string name="calendar_unknown_date">Η ημερομηνία δεν έχει ανακοινωθεί</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d επεισόδιο</item>
+        <item quantity="other">%d επεισόδια</item>
+    </plurals>
+</resources>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Statistika</string>
+    <string name="library_open_calendar">Koledar</string>
+    <string name="insights_source_eyebrow">S spletnega mesta Fetch</string>
+    <string name="insights_loading">Nalaganje…</string>
+    <string name="insights_not_paired_subtitle">Ta televizor prijavite v spletno mesto Fetch v razdelku Nastavitve › Račun, da bo to prikazano tukaj. Spletno mesto hrani vašo zgodovino ogledov in iz nje vse izračuna.</string>
+    <string name="insights_no_profile_title">Tega profila ni na spletnem mestu Fetch</string>
+    <string name="insights_no_profile_subtitle">Zgodovino ogledov tam imajo samo profili s spletnega mesta. Preklopite na enega od njih ali dodajte ta profil na spletnem mestu.</string>
+    <string name="insights_locked_title">Ta profil je zaklenjen</string>
+    <string name="insights_locked_subtitle">Na spletnem mestu ima kodo PIN, ki je na tem televizorju že nekaj časa niste vnesli. Znova preklopite na profil in vnesite njegovo kodo PIN, da bo to prikazano tukaj.</string>
+    <string name="insights_open_settings">Odpri nastavitve</string>
+    <string name="insights_find_something">Poiščite kaj za ogled</string>
+    <string name="stats_title">Statistika ogledov</string>
+    <string name="stats_not_paired_title">Vaša statistika je na spletnem mestu Fetch</string>
+    <string name="stats_failed">Statistike s spletnega mesta Fetch ni bilo mogoče naložiti.</string>
+    <string name="stats_empty_title">Ogledali si še niste ničesar, zato ni kaj šteti</string>
+    <string name="stats_empty_subtitle">Vsak podatek tukaj — nizi, žanri, značke, vaš pregled leta — temelji na vaši zgodovini ogledov.</string>
+    <string name="stats_watch_history_note">Izračunano iz vaše zgodovine ogledov. Vsak film in epizoda se štejeta enkrat, na dan zadnjega ogleda.</string>
+    <string name="stats_watch_history_partial">Žanri in ocene zajemajo 300 nazadnje ogledanih naslovov.</string>
+    <string name="stats_failed_watch_history">Zgodovine ogledov ni bilo mogoče prebrati.</string>
+    <string name="stats_movies">Filmi</string>
+    <string name="stats_episodes">Epizode</string>
+    <string name="stats_current_streak">Trenutni niz</string>
+    <string name="stats_longest_streak">Najdaljši niz</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d dan</item>
+        <item quantity="two">%d dneva</item>
+        <item quantity="few">%d dni</item>
+        <item quantity="other">%d dni</item>
+    </plurals>
+    <string name="stats_achievements">Dosežki</string>
+    <string name="stats_no_badges">Značk še niste prejeli — kar glejte naprej!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d film</item>
+        <item quantity="two">%d filma</item>
+        <item quantity="few">%d filmi</item>
+        <item quantity="other">%d filmov</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d epizoda</item>
+        <item quantity="two">%d epizodi</item>
+        <item quantity="few">%d epizode</item>
+        <item quantity="other">%d epizod</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d dan zapored</item>
+        <item quantity="two">%d dneva zapored</item>
+        <item quantity="few">%d dni zapored</item>
+        <item quantity="other">%d dni zapored</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Prejete: %s</string>
+    <string name="stats_next_badges_label">Naslednje: %s</string>
+    <string name="stats_monthly_activity">Mesečna dejavnost</string>
+    <string name="stats_vs_last_month">%s v primerjavi s prejšnjim mesecem</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) v primerjavi s prejšnjim mesecem</string>
+    <string name="stats_top_genres">Najpogostejši žanri</string>
+    <string name="stats_genre_description">%1$s: ogledano %2$d</string>
+    <string name="stats_top_rated">Najbolje ocenjeno med ogledanim</string>
+    <string name="stats_rated_out_of_ten">Ocena %s od 10</string>
+    <string name="stats_rated_out_of_five">Ocena %s od 5</string>
+    <string name="stats_type_movie">Film</string>
+    <string name="stats_type_series">Serija</string>
+    <string name="stats_year_in_review">Pregled leta</string>
+    <string name="stats_year_failed">Pregleda letošnjega leta ni bilo mogoče naložiti.</string>
+    <string name="stats_movies_watched">Ogledani filmi</string>
+    <string name="stats_episodes_watched">Ogledane epizode</string>
+    <string name="stats_hours_watched">Ure gledanja</string>
+    <string name="stats_busiest_month">Najbolj dejaven mesec</string>
+    <string name="stats_top_rated_picks">Najbolje ocenjeni naslovi</string>
+    <string name="calendar_title">Koledar</string>
+    <string name="calendar_not_paired_title">Vaš koledar je na spletnem mestu Fetch</string>
+    <string name="calendar_failed">Koledarja s spletnega mesta Fetch ni bilo mogoče naložiti.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d dan</item>
+        <item quantity="two">%d dneva</item>
+        <item quantity="few">%d dni</item>
+        <item quantity="other">%d dni</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">V naslednjem %d dnevu ni novih epizod</item>
+        <item quantity="two">V naslednjih %d dneh ni novih epizod</item>
+        <item quantity="few">V naslednjih %d dneh ni novih epizod</item>
+        <item quantity="other">V naslednjih %d dneh ni novih epizod</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Koledar spremlja samo serije, ki ste jih že začeli gledati.</string>
+    <string name="calendar_source_watch_history">Iz vaše zgodovine ogledov</string>
+    <string name="calendar_empty_subtitle_watch_history">Koledar spremlja 30 nazadnje gledanih serij na podlagi zgodovine ogledov iz vašega načina sinhronizacije ali storitve za sledenje.</string>
+    <string name="calendar_failed_watch_history">Prihajajočih epizod ni bilo mogoče poiskati v TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB se ni odzval za %d serijo, zato nekatere epizode morda manjkajo.</item>
+        <item quantity="two">TMDB se ni odzval za %d seriji, zato nekatere epizode morda manjkajo.</item>
+        <item quantity="few">TMDB se ni odzval za %d serije, zato nekatere epizode morda manjkajo.</item>
+        <item quantity="other">TMDB se ni odzval za %d serij, zato nekatere epizode morda manjkajo.</item>
+    </plurals>
+    <string name="calendar_find_series">Poiščite serijo za spremljanje</string>
+    <string name="calendar_today">Danes</string>
+    <string name="calendar_tomorrow">Jutri</string>
+    <string name="calendar_unknown_date">Datum še ni objavljen</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d epizoda</item>
+        <item quantity="two">%d epizodi</item>
+        <item quantity="few">%d epizode</item>
+        <item quantity="other">%d epizod</item>
+    </plurals>
+</resources>

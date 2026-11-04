@@ -26,23 +26,38 @@ cp "$root/desktop/packaging/arch/PKGBUILD" "$root/desktop/packaging/arch/fetch.d
 cp "$root/LICENSE" "$root/desktop/icons/fetch.png" "$work/"
 cp "$tarball" "$work/fetch-linux-x64.tar.gz"
 
+# The app image must be this checkout's build: a stale tarball would be packaged under the new
+# version. Its version is in fetch-desktop.properties inside the desktop jar.
+mkdir "$work/check"
+tar -xzf "$tarball" -C "$work/check" --wildcards 'fetch/lib/app/desktop-[0-9]*.jar'
+image_version="$(unzip -p "$work"/check/fetch/lib/app/desktop-[0-9]*.jar fetch-desktop.properties \
+    | sed -nE 's/^version=(.*)$/\1/p')"
+rm -rf "$work/check"
+if [[ "$image_version" != "$version_name" ]]; then
+    echo "The app image is version '${image_version}', but versionName is '${version_name}'. Rebuild it with :desktop:createDistributable." >&2
+    exit 1
+fi
+
 if [[ "${FETCH_ARCH_NATIVE:-}" == "1" ]]; then
     (cd "$work" && FETCH_PKGVER="$pkgver" PKGDEST="$out" makepkg --nodeps --force --noconfirm)
 else
     # makepkg refuses to run as root, so build as a user with the caller's uid (1000 when the
-    # caller is root), which leaves the package owned by the caller. --nodeps: the runtime
-    # dependencies aren't needed to package.
+    # caller is root). Only the work directory is mounted, so nothing in the output directory
+    # changes owner. --nodeps: the runtime dependencies aren't needed to package.
     docker run --rm \
-        -v "$work:/build" -v "$out:/out" \
+        -v "$work:/build" \
         -e FETCH_PKGVER="$pkgver" -e HOST_UID="$(( $(id -u) == 0 ? 1000 : $(id -u) ))" \
         archlinux:base-devel \
         bash -euc '
             useradd -m -u "$HOST_UID" -o builder
-            chown -R builder /build /out
+            mkdir /build/out
+            chown -R builder /build
             cd /build
-            runuser -u builder -- env FETCH_PKGVER="$FETCH_PKGVER" PKGDEST=/out \
+            runuser -u builder -- env FETCH_PKGVER="$FETCH_PKGVER" PKGDEST=/build/out \
                 makepkg --nodeps --force --noconfirm
         '
+    cp "$work"/out/*.pkg.tar.zst "$out/"
 fi
 
-ls -l "$out"/*.pkg.tar.zst
+# The native build takes PKGEXT from your makepkg.conf, which needn't be zstd.
+ls -l "$out/fetch-${pkgver}-1-x86_64".pkg.tar.*

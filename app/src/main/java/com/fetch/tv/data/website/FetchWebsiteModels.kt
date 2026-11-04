@@ -144,3 +144,85 @@ internal data class WebsiteListItemsBody(
     val items: List<WebsiteListItem> = emptyList(),
     val nextCursor: String? = null
 )
+
+// ─── Stats and calendar ───
+//
+// The website's own stats page and calendar, read as they are: the TV shows the same numbers the
+// website does rather than working its own out from a different history.
+
+/** `/watch/stats`: totals over the profile's whole history. */
+@Serializable
+data class WebsiteWatchStats(
+    val totalMovies: Int = 0,
+    val totalEpisodes: Int = 0,
+    val totalPlays: Int = 0,
+    val playsThisWeek: Int = 0
+)
+
+/** One calendar month of plays; [month] is `YYYY-MM`. */
+@Serializable
+data class WebsiteMonthlyCount(
+    val month: String,
+    val movies: Int = 0,
+    val episodes: Int = 0
+) {
+    val total: Int get() = movies + episodes
+}
+
+@Serializable
+data class WebsiteGenreCount(
+    val genre: String,
+    val count: Int = 0
+)
+
+/**
+ * A watched or rated title. [rating] is out of ten: the community score in the detailed stats,
+ * the profile's own rating (shown as stars, `rating / 2`) in a year in review.
+ */
+@Serializable
+data class WebsiteRatedTitle(
+    val imdbId: String,
+    val name: String? = null,
+    val type: String = "movie",
+    val rating: Double? = null,
+    val poster: String? = null
+)
+
+/** `/watch/stats/detailed`: the last twelve months, streaks, genres and top-rated titles. */
+@Serializable
+data class WebsiteDetailedStats(
+    val monthly: List<WebsiteMonthlyCount> = emptyList(),
+    val genreDistribution: List<WebsiteGenreCount> = emptyList(),
+    val currentStreak: Int = 0,
+    val longestStreak: Int = 0,
+    val topRated: List<WebsiteRatedTitle> = emptyList()
+)
+
+/** `/watch/stats/year/:year`. [busiestMonth] is 0-based, January being 0. */
+@Serializable
+data class WebsiteYearInReview(
+    val year: Int,
+    val totalMovies: Int = 0,
+    val totalEpisodes: Int = 0,
+    val totalRuntimeMinutes: Int = 0,
+    val topGenres: List<WebsiteGenreCount> = emptyList(),
+    val topRated: List<WebsiteRatedTitle> = emptyList(),
+    val busiestMonth: Int? = null,
+    val busiestMonthCount: Int = 0
+)
+
+/** An episode that hasn't aired yet, of a series the profile has started. [airDate] is `YYYY-MM-DD`. */
+@Serializable
+data class WebsiteCalendarEntry(
+    val seriesImdbId: String,
+    val seriesName: String,
+    val poster: String? = null,
+    val season: Int,
+    val episode: Int,
+    val episodeName: String? = null,
+    val airDate: String,
+    val overview: String? = null
+)
+
+@Serializable
+internal data class WebsiteCalendarBody(val calendar: List<WebsiteCalendarEntry> = emptyList())

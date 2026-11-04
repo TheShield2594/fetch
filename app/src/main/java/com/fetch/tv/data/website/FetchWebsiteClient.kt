@@ -366,6 +366,30 @@ class FetchWebsiteClient internal constructor(
         json.decodeFromString(WebsiteMetasBody.serializer(), response.body?.string().orEmpty()).metas
     }
 
+    // ─── Stats and calendar ───
+
+    suspend fun watchStats(profileId: String, profileToken: String?): WebsiteWatchStats =
+        json.decodeFromString(WebsiteWatchStats.serializer(), authedText("watch/stats", profileId = profileId, profileToken = profileToken))
+
+    suspend fun detailedStats(profileId: String, profileToken: String?): WebsiteDetailedStats =
+        json.decodeFromString(
+            WebsiteDetailedStats.serializer(),
+            authedText("watch/stats/detailed", profileId = profileId, profileToken = profileToken)
+        )
+
+    suspend fun yearInReview(profileId: String, profileToken: String?, year: Int): WebsiteYearInReview =
+        json.decodeFromString(
+            WebsiteYearInReview.serializer(),
+            authedText("watch/stats/year/$year", profileId = profileId, profileToken = profileToken)
+        )
+
+    /** Episodes airing in the next [days] days (the website allows 1 to 90). */
+    suspend fun calendar(profileId: String, profileToken: String?, days: Int): List<WebsiteCalendarEntry> =
+        json.decodeFromString(
+            WebsiteCalendarBody.serializer(),
+            authedText("calendar?days=${days.coerceIn(1, MAX_CALENDAR_DAYS)}", profileId = profileId, profileToken = profileToken)
+        ).calendar
+
     // ─── Plumbing ───
 
     private suspend fun authed(
@@ -437,6 +461,9 @@ class FetchWebsiteClient internal constructor(
         /** The website's largest list page; a list longer than [MAX_LIST_PAGES] of them is cut off. */
         private const val LIST_PAGE_SIZE = 500
         private const val MAX_LIST_PAGES = 20
+
+        /** The furthest ahead the website's calendar looks. */
+        const val MAX_CALENDAR_DAYS = 90
 
         private fun encode(value: String): String = java.net.URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 

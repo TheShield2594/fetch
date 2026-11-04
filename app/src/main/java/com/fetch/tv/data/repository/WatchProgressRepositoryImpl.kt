@@ -379,6 +379,8 @@ class WatchProgressRepositoryImpl @Inject constructor(
 
     private fun activeProgressProviderFlow(): Flow<TrackingProgressProvider?> = activeProgressProviderState
 
+    override suspend fun activeTrackingProviderName(): String? = activeProgressProviderState.value?.providerId?.name
+
     private fun profileProgressProviderFlow(profileId: Int): Flow<TrackingProgressProvider?> =
         profileManager.activeProfileId.flatMapLatest { activeProfileId ->
             if (activeProfileId == profileId) activeProgressProviderFlow() else flowOf(null)

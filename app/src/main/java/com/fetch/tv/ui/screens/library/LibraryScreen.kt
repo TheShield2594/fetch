@@ -33,7 +33,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.focusable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -136,7 +138,10 @@ fun LibraryScreen(
     onNavigateToSearch: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
     // Where "Connect Trakt" / "Connect Simkl" lands: the account page, not the Settings root.
-    onNavigateToTrackingSettings: () -> Unit = onNavigateToSettings
+    onNavigateToTrackingSettings: () -> Unit = onNavigateToSettings,
+    // The website's stats page and calendar, which the TV reads from it.
+    onNavigateToStats: () -> Unit = {},
+    onNavigateToCalendar: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val watchedMovieIds by viewModel.watchedMovieIds.collectAsState()
@@ -347,7 +352,9 @@ fun LibraryScreen(
                 onSelected = { mode ->
                     selectedViewMode = mode
                     expandedPicker = null
-                }
+                },
+                onOpenStats = onNavigateToStats,
+                onOpenCalendar = onNavigateToCalendar
             )
         }
 
@@ -594,7 +601,9 @@ private fun LibraryViewModeRow(
     modes: List<LibraryViewMode>,
     selectedMode: LibraryViewMode,
     primaryFocusRequester: FocusRequester,
-    onSelected: (LibraryViewMode) -> Unit
+    onSelected: (LibraryViewMode) -> Unit,
+    onOpenStats: () -> Unit,
+    onOpenCalendar: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -620,6 +629,19 @@ private fun LibraryViewModeRow(
                         }
                     )
                 }
+            }
+        }
+        // Pages rather than views of the library, so they sit apart from the choices on the left.
+        Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
+            Button(onClick = onOpenStats, shape = libraryButtonShape(), colors = libraryButtonColors()) {
+                Icon(imageVector = Icons.Default.BarChart, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
+                Text(stringResource(R.string.library_open_stats))
+            }
+            Button(onClick = onOpenCalendar, shape = libraryButtonShape(), colors = libraryButtonColors()) {
+                Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
+                Text(stringResource(R.string.library_open_calendar))
             }
         }
     }

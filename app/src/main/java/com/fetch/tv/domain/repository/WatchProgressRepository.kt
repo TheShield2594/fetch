@@ -175,6 +175,12 @@ interface WatchProgressRepository {
     fun isDroppedShow(contentId: String): Boolean
 
     fun hasActiveTrackingProgressProvider(): Boolean
+
+    /**
+     * The tracking service progress currently comes from, by its provider id name (such as
+     * `TRAKT`), or null for this TV's own history.
+     */
+    suspend fun activeTrackingProviderName(): String? = null
     fun activeProviderOwnsCompletedHistoryProjection(): Boolean
     fun activeProviderContinueWatchingCutoffEpochMs(daysCap: Int, nowEpochMs: Long): Long?
     fun shouldUseAsNextUpSeed(progress: WatchProgress, nowEpochMs: Long): Boolean

@@ -82,7 +82,7 @@ fun AccountPage(state: AppState, header: Boolean = true) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                 SecondaryButton("Find server", onClick = { account.findServer(address) }, enabled = address.isNotBlank() && !account.busy)
                 if (account.busy) CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                if (found != null) Text(tr("Found %1$s", found.config.url), color = FetchPalette.TextSecondary)
+                if (found != null) Text(tr("Found %1\$s", found.config.url), color = FetchPalette.TextSecondary)
             }
         }
     }

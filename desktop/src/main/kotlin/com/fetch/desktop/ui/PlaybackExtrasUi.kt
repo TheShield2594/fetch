@@ -225,7 +225,7 @@ private fun QueueUpNextCard(item: QueueItem, seconds: Int, onPlay: () -> Unit, o
     ) {
         QueueThumb(item)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(tr("UP NEXT IN QUEUE · %1$s S", seconds), style = OverlineStyle, color = FetchPalette.Accent)
+            Text(tr("UP NEXT IN QUEUE · %1\$s S", seconds), style = OverlineStyle, color = FetchPalette.Accent)
             Text(item.name, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
             item.subtitle?.let { Text(it, color = FetchPalette.TextSecondary, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 4.dp)) {

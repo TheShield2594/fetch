@@ -86,7 +86,7 @@ private fun SignInDialog(service: TrackingService, code: String, url: String, on
         title = { Text(tr("Connect %1\$s", service.label), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(tr("Open %1$s and enter this code:", url), color = FetchPalette.TextSecondary)
+                Text(tr("Open %1\$s and enter this code:", url), color = FetchPalette.TextSecondary)
                 Text(
                     code,
                     color = Color.White,

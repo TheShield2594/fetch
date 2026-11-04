@@ -970,7 +970,7 @@ class YouTubeState(
                 return@launch
             }
             extras.playlists = extras.playlists.orEmpty() + YouTubePlaylistOption(id, name, containsVideo = true)
-            host.currentPlayer?.mpv?.showText(tr("Saved to %1$s", name))
+            host.currentPlayer?.mpv?.showText(tr("Saved to %1\$s", name))
         }
     }
 

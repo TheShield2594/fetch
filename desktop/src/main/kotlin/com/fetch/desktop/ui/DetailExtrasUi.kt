@@ -190,7 +190,7 @@ fun TraktCommentsSection(state: AppState, preview: MetaPreview, meta: Meta?, isS
             modifier = Modifier.padding(horizontal = PageGutter)
         ) {
             Text(tr("Comments"), style = MaterialTheme.typography.titleLarge)
-            if (view.total > 0) Text(tr("%1$s on Trakt", view.total), color = FetchPalette.TextMuted)
+            if (view.total > 0) Text(tr("%1\$s on Trakt", view.total), color = FetchPalette.TextMuted)
             if (episode != null) {
                 Pill(if (isSeries) tr("This show") else tr("This title"), selected = !useEpisode) { forEpisode = false }
                 Pill(episodeTag(episode.season, episode.episode) ?: tr("Episode"), selected = useEpisode) { forEpisode = true }

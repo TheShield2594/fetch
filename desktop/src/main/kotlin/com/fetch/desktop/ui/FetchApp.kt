@@ -323,7 +323,7 @@ private fun UpdateBanner(state: AppState, update: AvailableUpdate) {
                 .background(FetchPalette.SurfaceRaised)
                 .padding(20.dp)
         ) {
-            Text(tr("Fetch %1$s is available", update.version), color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+            Text(tr("Fetch %1\$s is available", update.version), color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
             update.notes?.let { Text(it, color = FetchPalette.TextSecondary, fontSize = 14.sp, maxLines = 3, overflow = TextOverflow.Ellipsis) }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 PrimaryButton("Download", icon = null, onClick = {

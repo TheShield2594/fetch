@@ -211,7 +211,7 @@ private fun PlayerPartyContent(state: AppState, session: PlayerSession, party: A
     CodeSection(party)
     if (sync?.behind == true) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(tr("You’re %1$s behind the party", clock((sync.behindMs ?: 0L) / 1000.0)), color = Color.White, fontSize = 16.sp)
+            Text(tr("You’re %1\$s behind the party", clock((sync.behindMs ?: 0L) / 1000.0)), color = Color.White, fontSize = 16.sp)
             PrimaryButton("Catch up", icon = null, onClick = {
                 sync.catchUp()
                 session.partyPanelOpen = false
@@ -220,7 +220,7 @@ private fun PlayerPartyContent(state: AppState, session: PlayerSession, party: A
     }
     if (playerMedia?.key != party.media.key) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(tr("The party is watching %1$s", party.media.displayTitle), color = Color.White, fontSize = 16.sp)
+            Text(tr("The party is watching %1\$s", party.media.displayTitle), color = Color.White, fontSize = 16.sp)
             PrimaryButton("Watch with the party", icon = null, onClick = {
                 session.partyPanelOpen = false
                 state.watchWithParty(party.media)
@@ -372,9 +372,9 @@ private fun JoinPartySection(state: AppState, available: Boolean, busy: Boolean)
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     current.host?.let { host ->
                         Avatar(host.displayName, host.avatarColor, 28.dp, host.avatarUrl)
-                        Text(tr("Hosted by %1$s", host.displayName), color = FetchPalette.TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(tr("Hosted by %1\$s", host.displayName), color = FetchPalette.TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
-                    Text(tr("%1$s of %2$s seats", current.members, current.maxMembers), color = FetchPalette.TextMuted, fontSize = 13.sp)
+                    Text(tr("%1\$s of %2\$s seats", current.members, current.maxMembers), color = FetchPalette.TextMuted, fontSize = 13.sp)
                 }
             } else {
                 SeatsHero(state.party.currentProfile.name, state.party.currentProfile.color, state.profiles.active?.avatarId)
@@ -457,7 +457,7 @@ fun PartyDetailButton(state: AppState) {
             title = { Text(tr("Watch party"), color = Color.White) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.width(480.dp).verticalScroll(rememberScrollState())) {
-                    Text(tr("The party is watching %1$s", party.media.displayTitle), color = FetchPalette.TextSecondary)
+                    Text(tr("The party is watching %1\$s", party.media.displayTitle), color = FetchPalette.TextSecondary)
                     CodeSection(party)
                     MembersSection(state, party)
                     if (party.isHost) HostSettings(state, party, sharingNote = null)
@@ -545,7 +545,7 @@ private fun MembersSection(state: AppState, party: ActiveParty, selfBehindMs: Lo
     var removing by remember { mutableStateOf<PartyMember?>(null) }
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)) {
-            Text(tr("%1$s of %2$s seats", party.members.size, party.maxMembers), color = FetchPalette.TextMuted, fontSize = 13.sp, modifier = Modifier.weight(1f))
+            Text(tr("%1\$s of %2\$s seats", party.members.size, party.maxMembers), color = FetchPalette.TextMuted, fontSize = 13.sp, modifier = Modifier.weight(1f))
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 repeat(party.maxMembers) { index ->
                     Box(Modifier.size(width = 14.dp, height = 4.dp).clip(CircleShape).background(if (index < party.members.size) FetchPalette.Accent else FetchPalette.Outline))

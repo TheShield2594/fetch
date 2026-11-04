@@ -110,7 +110,7 @@ fun FetchWebsiteSection(state: AppState) {
                 }
             }
             if (session != null) {
-                Text(tr("Signed in as %1$s", session.deviceName) + " · " + session.serverUrl, color = Color.White)
+                Text(tr("Signed in as %1\$s", session.deviceName) + " · " + session.serverUrl, color = Color.White)
                 Text(
                     "Profiles, addons, settings, Home rows and collections sync with the website, as on TV. " +
                         "Lists made on the website can be added to collections (Content & Discovery › Collections › Website list).",
@@ -143,7 +143,7 @@ fun FetchWebsiteSection(state: AppState) {
                         }
                     })
                     if (pairing is WebsitePairing.Failed) {
-                        Text(tr("Couldn’t reach the website: %1$s", pairing.message ?: tr("check the address")), color = FetchPalette.Error)
+                        Text(tr("Couldn’t reach the website: %1\$s", pairing.message ?: tr("check the address")), color = FetchPalette.Error)
                     }
                 }
                 WebsitePairing.Starting -> Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -158,7 +158,7 @@ fun FetchWebsiteSection(state: AppState) {
                     Text(tr("The code expired before it was confirmed."), color = FetchPalette.TextSecondary)
                     SecondaryButton("Get a new code", onClick = website::resetPairing)
                 }
-                is WebsitePairing.Paired -> Text(tr("Signed in as %1$s.", pairing.deviceName), color = Color.White)
+                is WebsitePairing.Paired -> Text(tr("Signed in as %1\$s.", pairing.deviceName), color = Color.White)
             }
         }
     }
@@ -187,7 +187,7 @@ private fun PairingCode(pairing: WebsitePairing.ShowingCode, onCancel: () -> Uni
             BigCode(pairing.code)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                 CircularProgressIndicator(Modifier.size(16.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                Text(tr("Waiting for the code to be confirmed… Expires in %1$s", "%d:%02d".format(left / 60, left % 60)), color = FetchPalette.TextMuted)
+                Text(tr("Waiting for the code to be confirmed… Expires in %1\$s", "%d:%02d".format(left / 60, left % 60)), color = FetchPalette.TextMuted)
             }
             SecondaryButton("Cancel", onClick = onCancel)
         }
@@ -285,7 +285,7 @@ fun WebsiteProfileUnlock(slot: Int, onUnlocked: () -> Unit) {
                 error = when (result) {
                     PinGate.Result.Ok -> null
                     is PinGate.Result.Wrong -> result.message
-                    is PinGate.Result.Locked -> tr("Too many wrong PINs. Try again in %1$s seconds.", result.seconds)
+                    is PinGate.Result.Locked -> tr("Too many wrong PINs. Try again in %1\$s seconds.", result.seconds)
                     null -> tr("Couldn't reach the Fetch website.")
                 }
                 if (result == PinGate.Result.Ok) onUnlocked()

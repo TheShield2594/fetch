@@ -57,7 +57,7 @@ fun ManageListsDialog(state: AppState, preview: MetaPreview, onDismiss: () -> Un
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text(tr("Lists for %1$s", preview.name), color = Color.White) },
+        title = { Text(tr("Lists for %1\$s", preview.name), color = Color.White) },
         text = {
             Column(Modifier.heightIn(max = 520.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 lists.groupBy { it.provider }.forEach { (provider, group) ->
@@ -140,7 +140,7 @@ fun ListsManagerDialog(state: AppState, provider: ListProvider, onDismiss: () ->
             AlertDialog(
                 onDismissRequest = { deleting = null },
                 containerColor = FetchPalette.SurfaceRaised,
-                title = { Text(tr("Delete %1$s?", list.title), color = Color.White) },
+                title = { Text(tr("Delete %1\$s?", list.title), color = Color.White) },
                 text = {
                     Text(
                         if (provider == ListProvider.TRAKT || provider == ListProvider.MDBLIST || provider == ListProvider.FETCH_WEBSITE) "The list is deleted on ${provider.label} too. Titles stay in your library."
@@ -157,7 +157,7 @@ fun ListsManagerDialog(state: AppState, provider: ListProvider, onDismiss: () ->
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text(tr("%1$s lists", provider.label), color = Color.White) },
+        title = { Text(tr("%1\$s lists", provider.label), color = Color.White) },
         text = {
             Column(Modifier.width(520.dp).heightIn(max = 480.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (personal.isEmpty()) Text(tr("No lists yet."), color = FetchPalette.TextMuted)

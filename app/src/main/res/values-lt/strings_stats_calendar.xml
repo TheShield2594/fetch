@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Statistika</string>
+    <string name="library_open_calendar">Kalendorius</string>
+    <string name="insights_source_eyebrow">Iš „Fetch“ svetainės</string>
+    <string name="insights_loading">Įkeliama…</string>
+    <string name="insights_not_paired_subtitle">Prijunkite šį televizorių prie „Fetch“ svetainės skiltyje Nustatymai › Paskyra, kad tai matytumėte čia. Svetainė saugo jūsų žiūrėjimo istoriją ir pagal ją viską apskaičiuoja.</string>
+    <string name="insights_no_profile_title">Šio profilio nėra „Fetch“ svetainėje</string>
+    <string name="insights_no_profile_subtitle">Žiūrėjimo istoriją ten turi tik iš svetainės gauti profiliai. Perjunkite į vieną iš jų arba pridėkite šį profilį svetainėje.</string>
+    <string name="insights_locked_title">Šis profilis užrakintas</string>
+    <string name="insights_locked_subtitle">Svetainėje jam nustatytas PIN, kuris šiame televizoriuje seniai nebuvo įvestas. Vėl perjunkite į šį profilį ir įveskite jo PIN, kad tai matytumėte čia.</string>
+    <string name="insights_open_settings">Atidaryti nustatymus</string>
+    <string name="insights_find_something">Rasti, ką žiūrėti</string>
+    <string name="stats_title">Žiūrėjimo statistika</string>
+    <string name="stats_not_paired_title">Jūsų statistika yra „Fetch“ svetainėje</string>
+    <string name="stats_failed">Nepavyko įkelti statistikos iš „Fetch“ svetainės.</string>
+    <string name="stats_empty_title">Dar nieko nežiūrėjote, tad nėra ką skaičiuoti</string>
+    <string name="stats_empty_subtitle">Visi čia rodomi duomenys — dienos iš eilės, žanrai, ženkleliai, metų apžvalga — skaičiuojami pagal jūsų žiūrėjimo istoriją.</string>
+    <string name="stats_watch_history_note">Sudaryta pagal jūsų žiūrėjimo istoriją. Kiekvienas filmas ir serija skaičiuojami vieną kartą — tą dieną, kai juos žiūrėjote paskutinį kartą.</string>
+    <string name="stats_watch_history_partial">Žanrai ir įvertinimai apima 300 paskutinių jūsų žiūrėtų pavadinimų.</string>
+    <string name="stats_failed_watch_history">Nepavyko nuskaityti jūsų žiūrėjimo istorijos.</string>
+    <string name="stats_movies">Filmai</string>
+    <string name="stats_episodes">Serijos</string>
+    <string name="stats_current_streak">Dabar iš eilės</string>
+    <string name="stats_longest_streak">Ilgiausiai iš eilės</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d diena</item>
+        <item quantity="few">%d dienos</item>
+        <item quantity="many">%d dienos</item>
+        <item quantity="other">%d dienų</item>
+    </plurals>
+    <string name="stats_achievements">Pasiekimai</string>
+    <string name="stats_no_badges">Ženklelių dar neuždirbote — žiūrėkite toliau!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d filmas</item>
+        <item quantity="few">%d filmai</item>
+        <item quantity="many">%d filmo</item>
+        <item quantity="other">%d filmų</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d serija</item>
+        <item quantity="few">%d serijos</item>
+        <item quantity="many">%d serijos</item>
+        <item quantity="other">%d serijų</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d diena iš eilės</item>
+        <item quantity="few">%d dienos iš eilės</item>
+        <item quantity="many">%d dienos iš eilės</item>
+        <item quantity="other">%d dienų iš eilės</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Uždirbta: %s</string>
+    <string name="stats_next_badges_label">Toliau: %s</string>
+    <string name="stats_monthly_activity">Mėnesio aktyvumas</string>
+    <string name="stats_vs_last_month">%s, palyginti su praėjusiu mėnesiu</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%), palyginti su praėjusiu mėnesiu</string>
+    <string name="stats_top_genres">Populiariausi žanrai</string>
+    <string name="stats_genre_description">%1$s: žiūrėta %2$d</string>
+    <string name="stats_top_rated">Geriausiai įvertinti iš žiūrėtų</string>
+    <string name="stats_rated_out_of_ten">Įvertinta %s iš 10</string>
+    <string name="stats_rated_out_of_five">Įvertinta %s iš 5</string>
+    <string name="stats_type_movie">Filmas</string>
+    <string name="stats_type_series">Serialas</string>
+    <string name="stats_year_in_review">Metų apžvalga</string>
+    <string name="stats_year_failed">Nepavyko įkelti šių metų apžvalgos.</string>
+    <string name="stats_movies_watched">Pažiūrėta filmų</string>
+    <string name="stats_episodes_watched">Pažiūrėta serijų</string>
+    <string name="stats_hours_watched">Žiūrėta valandų</string>
+    <string name="stats_busiest_month">Aktyviausias mėnuo</string>
+    <string name="stats_top_rated_picks">Geriausiai įvertinti</string>
+    <string name="calendar_title">Kalendorius</string>
+    <string name="calendar_not_paired_title">Jūsų kalendorius yra „Fetch“ svetainėje</string>
+    <string name="calendar_failed">Nepavyko įkelti kalendoriaus iš „Fetch“ svetainės.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d diena</item>
+        <item quantity="few">%d dienos</item>
+        <item quantity="many">%d dienos</item>
+        <item quantity="other">%d dienų</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Per artimiausią %d dieną naujų serijų nėra</item>
+        <item quantity="few">Per artimiausias %d dienas naujų serijų nėra</item>
+        <item quantity="many">Per artimiausias %d dienos naujų serijų nėra</item>
+        <item quantity="other">Per artimiausias %d dienų naujų serijų nėra</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Kalendorius rodo tik serialus, kuriuos jau pradėjote žiūrėti.</string>
+    <string name="calendar_source_watch_history">Iš jūsų žiūrėjimo istorijos</string>
+    <string name="calendar_empty_subtitle_watch_history">Kalendorius seka 30 paskutinių jūsų žiūrėtų serialų pagal žiūrėjimo istoriją iš jūsų sinchronizavimo būdo arba stebėjimo paslaugos.</string>
+    <string name="calendar_failed_watch_history">Nepavyko rasti artėjančių serijų TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB neatsakė dėl %d serialo, todėl kai kurių serijų gali trūkti.</item>
+        <item quantity="few">TMDB neatsakė dėl %d serialų, todėl kai kurių serijų gali trūkti.</item>
+        <item quantity="many">TMDB neatsakė dėl %d serialo, todėl kai kurių serijų gali trūkti.</item>
+        <item quantity="other">TMDB neatsakė dėl %d serialų, todėl kai kurių serijų gali trūkti.</item>
+    </plurals>
+    <string name="calendar_find_series">Rasti serialą, kurį sekti</string>
+    <string name="calendar_today">Šiandien</string>
+    <string name="calendar_tomorrow">Rytoj</string>
+    <string name="calendar_unknown_date">Data nepaskelbta</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d serija</item>
+        <item quantity="few">%d serijos</item>
+        <item quantity="many">%d serijos</item>
+        <item quantity="other">%d serijų</item>
+    </plurals>
+</resources>

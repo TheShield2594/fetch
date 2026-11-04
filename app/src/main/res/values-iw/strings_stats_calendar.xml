@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library header -->
+    <string name="library_open_stats">סטטיסטיקה</string>
+    <string name="library_open_calendar">לוח שידורים</string>
+
+    <!-- Shared by Stats and Calendar -->
+    <string name="insights_source_eyebrow">מאתר Fetch</string>
+    <string name="insights_loading">טוען…</string>
+    <string name="insights_not_paired_subtitle">כדי לראות את זה כאן, יש לחבר את הטלוויזיה לאתר Fetch דרך הגדרות › חשבון. האתר שומר את היסטוריית הצפייה ומחשב את הנתונים לפיה.</string>
+    <string name="insights_no_profile_title">הפרופיל הזה לא קיים באתר Fetch</string>
+    <string name="insights_no_profile_subtitle">רק לפרופילים שמגיעים מהאתר יש שם היסטוריית צפייה. אפשר לעבור לאחד מהם או להוסיף את הפרופיל הזה באתר.</string>
+    <string name="insights_locked_title">הפרופיל הזה נעול</string>
+    <string name="insights_locked_subtitle">לפרופיל יש PIN באתר שלא הוזן בטלוויזיה הזו לאחרונה. כדי לראות את זה כאן, יש לעבור שוב לפרופיל ולהזין את ה־PIN שלו.</string>
+    <string name="insights_open_settings">פתיחת ההגדרות</string>
+    <string name="insights_find_something">חיפוש משהו לצפייה</string>
+
+    <!-- Stats -->
+    <string name="stats_title">סטטיסטיקת צפייה</string>
+    <string name="stats_not_paired_title">הסטטיסטיקה שלך נמצאת באתר Fetch</string>
+    <string name="stats_failed">לא ניתן לטעון את הסטטיסטיקה שלך מאתר Fetch.</string>
+    <string name="stats_empty_title">עוד לא נצפה כלום, אז אין מה לספור</string>
+    <string name="stats_empty_subtitle">כל נתון כאן — רצפים, ז׳אנרים, תגים וסיכום השנה — מבוסס על היסטוריית הצפייה שלך.</string>
+    <string name="stats_watch_history_note">מבוסס על היסטוריית הצפייה שלך. כל סרט וכל פרק נספרים פעם אחת, ביום האחרון שבו צפית בהם.</string>
+    <string name="stats_watch_history_partial">הז׳אנרים והדירוגים מתייחסים ל־300 הכותרים האחרונים שצפית בהם.</string>
+    <string name="stats_failed_watch_history">לא ניתן לקרוא את היסטוריית הצפייה שלך.</string>
+    <string name="stats_movies">סרטים</string>
+    <string name="stats_episodes">פרקים</string>
+    <string name="stats_current_streak">רצף נוכחי</string>
+    <string name="stats_longest_streak">הרצף הארוך ביותר</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">יום אחד</item>
+        <item quantity="two">יומיים</item>
+        <item quantity="other">%d ימים</item>
+    </plurals>
+    <string name="stats_achievements">הישגים</string>
+    <string name="stats_no_badges">עוד אין תגים — ממשיכים לצפות!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">סרט אחד</item>
+        <item quantity="two">שני סרטים</item>
+        <item quantity="other">%d סרטים</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">פרק אחד</item>
+        <item quantity="two">שני פרקים</item>
+        <item quantity="other">%d פרקים</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">רצף של יום אחד</item>
+        <item quantity="two">רצף של יומיים</item>
+        <item quantity="other">רצף של %d ימים</item>
+    </plurals>
+    <string name="stats_earned_badges_label">הושגו: %s</string>
+    <string name="stats_next_badges_label">הבאים בתור: %s</string>
+    <string name="stats_monthly_activity">פעילות חודשית</string>
+    <string name="stats_vs_last_month">%s לעומת החודש שעבר</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) לעומת החודש שעבר</string>
+    <string name="stats_top_genres">ז׳אנרים מובילים</string>
+    <string name="stats_genre_description">%1$s: %2$d נצפו</string>
+    <string name="stats_top_rated">הכי מדורגים מבין מה שנצפה</string>
+    <string name="stats_rated_out_of_ten">דירוג %s מתוך 10</string>
+    <string name="stats_rated_out_of_five">דירוג %s מתוך 5</string>
+    <string name="stats_type_movie">סרט</string>
+    <string name="stats_type_series">סדרה</string>
+    <string name="stats_year_in_review">סיכום השנה</string>
+    <string name="stats_year_failed">לא ניתן לטעון את סיכום השנה.</string>
+    <string name="stats_movies_watched">סרטים שנצפו</string>
+    <string name="stats_episodes_watched">פרקים שנצפו</string>
+    <string name="stats_hours_watched">שעות צפייה</string>
+    <string name="stats_busiest_month">החודש העמוס ביותר</string>
+    <string name="stats_top_rated_picks">הבחירות המדורגות ביותר</string>
+
+    <!-- Calendar -->
+    <string name="calendar_title">לוח שידורים</string>
+    <string name="calendar_not_paired_title">לוח השידורים שלך נמצא באתר Fetch</string>
+    <string name="calendar_failed">לא ניתן לטעון את לוח השידורים שלך מאתר Fetch.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">יום אחד</item>
+        <item quantity="two">יומיים</item>
+        <item quantity="other">%d ימים</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">אין פרקים חדשים ביום הקרוב</item>
+        <item quantity="two">אין פרקים חדשים ביומיים הקרובים</item>
+        <item quantity="other">אין פרקים חדשים ב־%d הימים הקרובים</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">לוח השידורים עוקב רק אחרי סדרות שכבר התחלת לצפות בהן.</string>
+    <string name="calendar_source_watch_history">מהיסטוריית הצפייה שלך</string>
+    <string name="calendar_empty_subtitle_watch_history">לוח השידורים עוקב אחרי 30 הסדרות האחרונות שצפית בהן, לפי היסטוריית הצפייה משיטת הסנכרון או משירות המעקב שלך.</string>
+    <string name="calendar_failed_watch_history">לא ניתן לחפש פרקים קרובים ב־TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB לא הגיב עבור סדרה אחת, ולכן ייתכן שחסרים כמה פרקים.</item>
+        <item quantity="two">TMDB לא הגיב עבור שתי סדרות, ולכן ייתכן שחסרים כמה פרקים.</item>
+        <item quantity="other">TMDB לא הגיב עבור %d סדרות, ולכן ייתכן שחסרים כמה פרקים.</item>
+    </plurals>
+    <string name="calendar_find_series">חיפוש סדרה למעקב</string>
+    <string name="calendar_today">היום</string>
+    <string name="calendar_tomorrow">מחר</string>
+    <string name="calendar_unknown_date">התאריך טרם פורסם</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">פרק אחד</item>
+        <item quantity="two">שני פרקים</item>
+        <item quantity="other">%d פרקים</item>
+    </plurals>
+</resources>

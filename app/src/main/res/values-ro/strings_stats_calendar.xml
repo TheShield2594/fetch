@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Statistici</string>
+    <string name="library_open_calendar">Calendar</string>
+
+    <string name="insights_source_eyebrow">De pe site-ul Fetch</string>
+    <string name="insights_loading">Se încarcă…</string>
+    <string name="insights_not_paired_subtitle">Conectează acest televizor la site-ul Fetch din Setări › Cont ca să vezi asta aici. Site-ul îți păstrează istoricul de vizionare și calculează totul pe baza lui.</string>
+    <string name="insights_no_profile_title">Acest profil nu există pe site-ul Fetch</string>
+    <string name="insights_no_profile_subtitle">Doar profilurile care vin de pe site au acolo un istoric de vizionare. Comută la unul dintre ele sau adaugă acest profil pe site.</string>
+    <string name="insights_locked_title">Acest profil este blocat</string>
+    <string name="insights_locked_subtitle">Are pe site un PIN care nu a mai fost introdus de ceva vreme pe acest televizor. Comută din nou la profil și introdu PIN-ul ca să vezi asta aici.</string>
+    <string name="insights_open_settings">Deschide Setări</string>
+    <string name="insights_find_something">Găsește ceva de vizionat</string>
+
+    <string name="stats_title">Statistici de vizionare</string>
+    <string name="stats_not_paired_title">Statisticile tale sunt pe site-ul Fetch</string>
+    <string name="stats_failed">Nu am putut încărca statisticile de pe site-ul Fetch.</string>
+    <string name="stats_empty_title">Nimic vizionat încă, deci nu e nimic de numărat</string>
+    <string name="stats_empty_subtitle">Toate cifrele de aici — zile la rând, genuri, insigne, retrospectiva anului — se bazează pe istoricul tău de vizionare.</string>
+    <string name="stats_watch_history_note">Pe baza istoricului tău de vizionare. Fiecare film și episod contează o singură dată, în ziua în care l-ai vizionat ultima oară.</string>
+    <string name="stats_watch_history_partial">Genurile și notele acoperă ultimele 300 de titluri vizionate.</string>
+    <string name="stats_failed_watch_history">Nu am putut citi istoricul de vizionare.</string>
+    <string name="stats_movies">Filme</string>
+    <string name="stats_episodes">Episoade</string>
+    <string name="stats_current_streak">Zile la rând acum</string>
+    <string name="stats_longest_streak">Cele mai multe zile la rând</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d zi</item>
+        <item quantity="few">%d zile</item>
+        <item quantity="other">%d de zile</item>
+    </plurals>
+    <string name="stats_achievements">Realizări</string>
+    <string name="stats_no_badges">Nicio insignă câștigată încă — continuă să vizionezi!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d film</item>
+        <item quantity="few">%d filme</item>
+        <item quantity="other">%d de filme</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d episod</item>
+        <item quantity="few">%d episoade</item>
+        <item quantity="other">%d de episoade</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d zi la rând</item>
+        <item quantity="few">%d zile la rând</item>
+        <item quantity="other">%d de zile la rând</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Obținute: %s</string>
+    <string name="stats_next_badges_label">Urmează: %s</string>
+    <string name="stats_monthly_activity">Activitate lunară</string>
+    <string name="stats_vs_last_month">%s față de luna trecută</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) față de luna trecută</string>
+    <string name="stats_top_genres">Genuri de top</string>
+    <string name="stats_genre_description">%1$s: %2$d vizionate</string>
+    <string name="stats_top_rated">Cele mai bine notate dintre cele vizionate</string>
+    <string name="stats_rated_out_of_ten">Notat cu %s din 10</string>
+    <string name="stats_rated_out_of_five">Notat cu %s din 5</string>
+    <string name="stats_type_movie">Film</string>
+    <string name="stats_type_series">Serial</string>
+    <string name="stats_year_in_review">Retrospectiva anului</string>
+    <string name="stats_year_failed">Nu am putut încărca retrospectiva acestui an.</string>
+    <string name="stats_movies_watched">Filme vizionate</string>
+    <string name="stats_episodes_watched">Episoade vizionate</string>
+    <string name="stats_hours_watched">Ore vizionate</string>
+    <string name="stats_busiest_month">Cea mai activă lună</string>
+    <string name="stats_top_rated_picks">Cele mai bine notate</string>
+
+    <string name="calendar_title">Calendar</string>
+    <string name="calendar_not_paired_title">Calendarul tău este pe site-ul Fetch</string>
+    <string name="calendar_failed">Nu am putut încărca calendarul de pe site-ul Fetch.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d zi</item>
+        <item quantity="few">%d zile</item>
+        <item quantity="other">%d de zile</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Niciun episod nou în următoarea %d zi</item>
+        <item quantity="few">Niciun episod nou în următoarele %d zile</item>
+        <item quantity="other">Niciun episod nou în următoarele %d de zile</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Calendarul urmărește doar serialele pe care ai început deja să le vizionezi.</string>
+    <string name="calendar_source_watch_history">Din istoricul tău de vizionare</string>
+    <string name="calendar_empty_subtitle_watch_history">Calendarul urmărește ultimele 30 de seriale vizionate, pe baza istoricului de vizionare din metoda de sincronizare sau serviciul de urmărire.</string>
+    <string name="calendar_failed_watch_history">Nu am putut căuta episoadele viitoare pe TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB nu a răspuns pentru %d serial, deci unele episoade pot lipsi.</item>
+        <item quantity="few">TMDB nu a răspuns pentru %d seriale, deci unele episoade pot lipsi.</item>
+        <item quantity="other">TMDB nu a răspuns pentru %d de seriale, deci unele episoade pot lipsi.</item>
+    </plurals>
+    <string name="calendar_find_series">Găsește un serial de urmărit</string>
+    <string name="calendar_today">Astăzi</string>
+    <string name="calendar_tomorrow">Mâine</string>
+    <string name="calendar_unknown_date">Dată neanunțată</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d episod</item>
+        <item quantity="few">%d episoade</item>
+        <item quantity="other">%d de episoade</item>
+    </plurals>
+</resources>

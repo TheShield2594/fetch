@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Statistiky</string>
+    <string name="library_open_calendar">Kalendář</string>
+    <string name="insights_source_eyebrow">Z webu Fetch</string>
+    <string name="insights_loading">Načítání…</string>
+    <string name="insights_not_paired_subtitle">Přihlaste tuto televizi k webu Fetch v části Nastavení › Účet a uvidíte to tady. Web uchovává vaši historii sledování a počítá to z ní.</string>
+    <string name="insights_no_profile_title">Tento profil na webu Fetch není</string>
+    <string name="insights_no_profile_subtitle">Historii sledování na webu mají jen profily, které odtamtud pocházejí. Přepněte na některý z nich, nebo tento profil přidejte na webu.</string>
+    <string name="insights_locked_title">Tento profil je zamčený</string>
+    <string name="insights_locked_subtitle">Na webu má PIN, který na této televizi delší dobu nikdo nezadal. Znovu přepněte na profil a zadejte jeho PIN, abyste to viděli tady.</string>
+    <string name="insights_open_settings">Otevřít nastavení</string>
+    <string name="insights_find_something">Najít něco ke sledování</string>
+    <string name="stats_title">Statistiky sledování</string>
+    <string name="stats_not_paired_title">Vaše statistiky jsou na webu Fetch</string>
+    <string name="stats_failed">Statistiky se z webu Fetch nepodařilo načíst.</string>
+    <string name="stats_empty_title">Zatím jste nic neviděli, takže není co počítat</string>
+    <string name="stats_empty_subtitle">Všechny údaje tady — série, žánry, odznaky, shrnutí roku — vycházejí z vaší historie sledování.</string>
+    <string name="stats_watch_history_note">Vychází z vaší historie sledování. Každý film a díl se počítá jednou, v den, kdy jste ho naposledy sledovali.</string>
+    <string name="stats_watch_history_partial">Žánry a hodnocení zahrnují 300 naposledy zhlédnutých titulů.</string>
+    <string name="stats_failed_watch_history">Historii sledování se nepodařilo načíst.</string>
+    <string name="stats_movies">Filmy</string>
+    <string name="stats_episodes">Díly</string>
+    <string name="stats_current_streak">Aktuální série</string>
+    <string name="stats_longest_streak">Nejdelší série</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d den</item>
+        <item quantity="few">%d dny</item>
+        <item quantity="many">%d dní</item>
+        <item quantity="other">%d dní</item>
+    </plurals>
+    <string name="stats_achievements">Úspěchy</string>
+    <string name="stats_no_badges">Zatím žádné odznaky — sledujte dál!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d film</item>
+        <item quantity="few">%d filmy</item>
+        <item quantity="many">%d filmů</item>
+        <item quantity="other">%d filmů</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d díl</item>
+        <item quantity="few">%d díly</item>
+        <item quantity="many">%d dílů</item>
+        <item quantity="other">%d dílů</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d den v řadě</item>
+        <item quantity="few">%d dny v řadě</item>
+        <item quantity="many">%d dní v řadě</item>
+        <item quantity="other">%d dní v řadě</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Získané: %s</string>
+    <string name="stats_next_badges_label">Další: %s</string>
+    <string name="stats_monthly_activity">Měsíční aktivita</string>
+    <string name="stats_vs_last_month">%s oproti minulému měsíci</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) oproti minulému měsíci</string>
+    <string name="stats_top_genres">Oblíbené žánry</string>
+    <string name="stats_genre_description">%1$s: zhlédnuto %2$d</string>
+    <string name="stats_top_rated">Nejlépe hodnocené zhlédnuté</string>
+    <string name="stats_rated_out_of_ten">Hodnocení %s z 10</string>
+    <string name="stats_rated_out_of_five">Hodnocení %s z 5</string>
+    <string name="stats_type_movie">Film</string>
+    <string name="stats_type_series">Seriál</string>
+    <string name="stats_year_in_review">Shrnutí roku</string>
+    <string name="stats_year_failed">Shrnutí roku se nepodařilo načíst.</string>
+    <string name="stats_movies_watched">Zhlédnuté filmy</string>
+    <string name="stats_episodes_watched">Zhlédnuté díly</string>
+    <string name="stats_hours_watched">Hodiny sledování</string>
+    <string name="stats_busiest_month">Nejrušnější měsíc</string>
+    <string name="stats_top_rated_picks">Nejlépe hodnocené</string>
+    <string name="calendar_title">Kalendář</string>
+    <string name="calendar_not_paired_title">Váš kalendář je na webu Fetch</string>
+    <string name="calendar_failed">Kalendář se z webu Fetch nepodařilo načíst.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d den</item>
+        <item quantity="few">%d dny</item>
+        <item quantity="many">%d dní</item>
+        <item quantity="other">%d dní</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Během příštího %d dne nevyjde žádný díl</item>
+        <item quantity="few">Během příštích %d dní nevyjde žádný díl</item>
+        <item quantity="many">Během příštích %d dní nevyjde žádný díl</item>
+        <item quantity="other">Během příštích %d dní nevyjde žádný díl</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Kalendář sleduje jen seriály, které už jste začali sledovat.</string>
+    <string name="calendar_source_watch_history">Z vaší historie sledování</string>
+    <string name="calendar_empty_subtitle_watch_history">Kalendář sleduje 30 seriálů, které jste sledovali naposledy, podle historie sledování z vaší metody synchronizace nebo sledovací služby.</string>
+    <string name="calendar_failed_watch_history">Nadcházející díly se na TMDB nepodařilo vyhledat.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB neodpověděl u %d seriálu, takže některé díly mohou chybět.</item>
+        <item quantity="few">TMDB neodpověděl u %d seriálů, takže některé díly mohou chybět.</item>
+        <item quantity="many">TMDB neodpověděl u %d seriálů, takže některé díly mohou chybět.</item>
+        <item quantity="other">TMDB neodpověděl u %d seriálů, takže některé díly mohou chybět.</item>
+    </plurals>
+    <string name="calendar_find_series">Najít seriál ke sledování</string>
+    <string name="calendar_today">Dnes</string>
+    <string name="calendar_tomorrow">Zítra</string>
+    <string name="calendar_unknown_date">Datum zatím neoznámeno</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d díl</item>
+        <item quantity="few">%d díly</item>
+        <item quantity="many">%d dílů</item>
+        <item quantity="other">%d dílů</item>
+    </plurals>
+</resources>

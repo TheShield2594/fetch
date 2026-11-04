@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Statistik</string>
+    <string name="library_open_calendar">Kalender</string>
+
+    <string name="insights_source_eyebrow">Fra Fetch-hjemmesiden</string>
+    <string name="insights_loading">Indlæser…</string>
+    <string name="insights_not_paired_subtitle">Log dette TV ind på Fetch-hjemmesiden under Indstillinger › Konto for at se det her. Hjemmesiden gemmer din se-historik og regner det ud derfra.</string>
+    <string name="insights_no_profile_title">Denne profil findes ikke på Fetch-hjemmesiden</string>
+    <string name="insights_no_profile_subtitle">Kun profiler fra hjemmesiden har en se-historik der. Skift til en af dem, eller tilføj denne profil på hjemmesiden.</string>
+    <string name="insights_locked_title">Denne profil er låst</string>
+    <string name="insights_locked_subtitle">Den har en PIN på hjemmesiden, som ikke er blevet indtastet på dette TV for nylig. Skift til profilen igen, og indtast dens PIN for at se det her.</string>
+    <string name="insights_open_settings">Åbn Indstillinger</string>
+    <string name="insights_find_something">Find noget at se</string>
+
+    <string name="stats_title">Visningsstatistik</string>
+    <string name="stats_not_paired_title">Din statistik ligger på Fetch-hjemmesiden</string>
+    <string name="stats_failed">Kunne ikke hente din statistik fra Fetch-hjemmesiden.</string>
+    <string name="stats_empty_title">Intet set endnu, så der er intet at tælle</string>
+    <string name="stats_empty_subtitle">Alle tal her — streaks, genrer, badges, dit år i tal — bygger på din se-historik.</string>
+    <string name="stats_watch_history_note">Bygger på din se-historik. Hver film og episode tæller én gang, på den dag du sidst så den.</string>
+    <string name="stats_watch_history_partial">Genrer og vurderinger dækker dine 300 senest sete titler.</string>
+    <string name="stats_failed_watch_history">Kunne ikke læse din se-historik.</string>
+    <string name="stats_movies">Film</string>
+    <string name="stats_episodes">Episoder</string>
+    <string name="stats_current_streak">Nuværende streak</string>
+    <string name="stats_longest_streak">Længste streak</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dage</item>
+    </plurals>
+    <string name="stats_achievements">Præstationer</string>
+    <string name="stats_no_badges">Ingen badges endnu — bliv ved med at se!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d film</item>
+        <item quantity="other">%d film</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d episode</item>
+        <item quantity="other">%d episoder</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">Streak på %d dag</item>
+        <item quantity="other">Streak på %d dage</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Optjent: %s</string>
+    <string name="stats_next_badges_label">Næste: %s</string>
+    <string name="stats_monthly_activity">Aktivitet pr. måned</string>
+    <string name="stats_vs_last_month">%s i forhold til sidste måned</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) i forhold til sidste måned</string>
+    <string name="stats_top_genres">Topgenrer</string>
+    <string name="stats_genre_description">%1$s: %2$d set</string>
+    <string name="stats_top_rated">Bedst vurderede, du har set</string>
+    <string name="stats_rated_out_of_ten">Vurderet %s ud af 10</string>
+    <string name="stats_rated_out_of_five">Vurderet %s ud af 5</string>
+    <string name="stats_type_movie">Film</string>
+    <string name="stats_type_series">Serie</string>
+    <string name="stats_year_in_review">Året der gik</string>
+    <string name="stats_year_failed">Kunne ikke hente årets oversigt.</string>
+    <string name="stats_movies_watched">Sete film</string>
+    <string name="stats_episodes_watched">Sete episoder</string>
+    <string name="stats_hours_watched">Timer set</string>
+    <string name="stats_busiest_month">Travleste måned</string>
+    <string name="stats_top_rated_picks">Bedst vurderede</string>
+
+    <string name="calendar_title">Kalender</string>
+    <string name="calendar_not_paired_title">Din kalender ligger på Fetch-hjemmesiden</string>
+    <string name="calendar_failed">Kunne ikke hente din kalender fra Fetch-hjemmesiden.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dage</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Ingen nye episoder den næste %d dag</item>
+        <item quantity="other">Ingen nye episoder de næste %d dage</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Kalenderen viser kun serier, du allerede er begyndt at se.</string>
+    <string name="calendar_source_watch_history">Fra din se-historik</string>
+    <string name="calendar_empty_subtitle_watch_history">Kalenderen følger de 30 serier, du senest har set, ud fra se-historikken fra din synkroniseringsmetode eller tracking-tjeneste.</string>
+    <string name="calendar_failed_watch_history">Kunne ikke slå kommende episoder op på TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB svarede ikke for %d serie, så nogle episoder mangler måske.</item>
+        <item quantity="other">TMDB svarede ikke for %d serier, så nogle episoder mangler måske.</item>
+    </plurals>
+    <string name="calendar_find_series">Find en serie at følge</string>
+    <string name="calendar_today">I dag</string>
+    <string name="calendar_tomorrow">I morgen</string>
+    <string name="calendar_unknown_date">Dato ikke annonceret</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d episode</item>
+        <item quantity="other">%d episoder</item>
+    </plurals>
+</resources>

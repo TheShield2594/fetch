@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library header -->
+    <string name="library_open_stats">الإحصاءات</string>
+    <string name="library_open_calendar">التقويم</string>
+
+    <!-- Shared by Stats and Calendar -->
+    <string name="insights_source_eyebrow">من موقع Fetch</string>
+    <string name="insights_loading">جارٍ التحميل…</string>
+    <string name="insights_not_paired_subtitle">سجّل دخول هذا التلفاز إلى موقع Fetch من الإعدادات › الحساب لتظهر هنا. يحتفظ الموقع بسجل المشاهدة ويحسب هذه البيانات منه.</string>
+    <string name="insights_no_profile_title">هذا الملف الشخصي غير موجود على موقع Fetch</string>
+    <string name="insights_no_profile_subtitle">سجل المشاهدة موجود على الموقع فقط للملفات الشخصية القادمة منه. انتقل إلى أحدها، أو أضف هذا الملف الشخصي على الموقع.</string>
+    <string name="insights_locked_title">هذا الملف الشخصي مقفل</string>
+    <string name="insights_locked_subtitle">لهذا الملف الشخصي رمز PIN على الموقع لم يُدخَل على هذا التلفاز مؤخرًا. انتقل إلى الملف الشخصي مجددًا وأدخل رمز PIN لتظهر هنا.</string>
+    <string name="insights_open_settings">فتح الإعدادات</string>
+    <string name="insights_find_something">ابحث عن شيء لمشاهدته</string>
+
+    <!-- Stats -->
+    <string name="stats_title">إحصاءات المشاهدة</string>
+    <string name="stats_not_paired_title">إحصاءاتك موجودة على موقع Fetch</string>
+    <string name="stats_failed">تعذّر تحميل إحصاءاتك من موقع Fetch.</string>
+    <string name="stats_empty_title">لم تشاهد شيئًا بعد، فلا يوجد ما يُحسب</string>
+    <string name="stats_empty_subtitle">كل رقم هنا — السلاسل والأنواع والشارات وملخص عامك — مبني على سجل المشاهدة.</string>
+    <string name="stats_watch_history_note">مبنية على سجل المشاهدة. يُحسب كل فيلم وكل حلقة مرة واحدة، في آخر يوم شاهدته فيه.</string>
+    <string name="stats_watch_history_partial">تشمل الأنواع والتقييمات آخر 300 عنوان شاهدته.</string>
+    <string name="stats_failed_watch_history">تعذّرت قراءة سجل المشاهدة.</string>
+    <string name="stats_movies">أفلام</string>
+    <string name="stats_episodes">حلقات</string>
+    <string name="stats_current_streak">السلسلة الحالية</string>
+    <string name="stats_longest_streak">أطول سلسلة</string>
+    <plurals name="stats_days_value">
+        <item quantity="zero">%d يوم</item>
+        <item quantity="one">يوم واحد</item>
+        <item quantity="two">يومان</item>
+        <item quantity="few">%d أيام</item>
+        <item quantity="many">%d يومًا</item>
+        <item quantity="other">%d يوم</item>
+    </plurals>
+    <string name="stats_achievements">الإنجازات</string>
+    <string name="stats_no_badges">لم تحصل على أي شارة بعد — واصل المشاهدة!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="zero">%d فيلم</item>
+        <item quantity="one">فيلم واحد</item>
+        <item quantity="two">فيلمان</item>
+        <item quantity="few">%d أفلام</item>
+        <item quantity="many">%d فيلمًا</item>
+        <item quantity="other">%d فيلم</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="zero">%d حلقة</item>
+        <item quantity="one">حلقة واحدة</item>
+        <item quantity="two">حلقتان</item>
+        <item quantity="few">%d حلقات</item>
+        <item quantity="many">%d حلقة</item>
+        <item quantity="other">%d حلقة</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="zero">سلسلة %d يوم</item>
+        <item quantity="one">سلسلة يوم واحد</item>
+        <item quantity="two">سلسلة يومين</item>
+        <item quantity="few">سلسلة %d أيام</item>
+        <item quantity="many">سلسلة %d يومًا</item>
+        <item quantity="other">سلسلة %d يوم</item>
+    </plurals>
+    <string name="stats_earned_badges_label">المكتسبة: %s</string>
+    <string name="stats_next_badges_label">التالية: %s</string>
+    <string name="stats_monthly_activity">النشاط الشهري</string>
+    <string name="stats_vs_last_month">%s مقارنة بالشهر الماضي</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) مقارنة بالشهر الماضي</string>
+    <string name="stats_top_genres">الأنواع الأكثر مشاهدة</string>
+    <string name="stats_genre_description">%1$s: تمت مشاهدة %2$d</string>
+    <string name="stats_top_rated">الأعلى تقييمًا مما شاهدته</string>
+    <string name="stats_rated_out_of_ten">التقييم %s من 10</string>
+    <string name="stats_rated_out_of_five">التقييم %s من 5</string>
+    <string name="stats_type_movie">فيلم</string>
+    <string name="stats_type_series">مسلسل</string>
+    <string name="stats_year_in_review">حصاد العام</string>
+    <string name="stats_year_failed">تعذّر تحميل حصاد هذا العام.</string>
+    <string name="stats_movies_watched">الأفلام المشاهدة</string>
+    <string name="stats_episodes_watched">الحلقات المشاهدة</string>
+    <string name="stats_hours_watched">ساعات المشاهدة</string>
+    <string name="stats_busiest_month">الشهر الأكثر نشاطًا</string>
+    <string name="stats_top_rated_picks">الأعلى تقييمًا</string>
+
+    <!-- Calendar -->
+    <string name="calendar_title">التقويم</string>
+    <string name="calendar_not_paired_title">تقويمك موجود على موقع Fetch</string>
+    <string name="calendar_failed">تعذّر تحميل تقويمك من موقع Fetch.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="zero">%d يوم</item>
+        <item quantity="one">يوم واحد</item>
+        <item quantity="two">يومان</item>
+        <item quantity="few">%d أيام</item>
+        <item quantity="many">%d يومًا</item>
+        <item quantity="other">%d يوم</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="zero">لا حلقات قادمة خلال الـ%d يوم القادمة</item>
+        <item quantity="one">لا حلقات قادمة خلال اليوم القادم</item>
+        <item quantity="two">لا حلقات قادمة خلال اليومين القادمين</item>
+        <item quantity="few">لا حلقات قادمة خلال الأيام الـ%d القادمة</item>
+        <item quantity="many">لا حلقات قادمة خلال الـ%d يومًا القادمة</item>
+        <item quantity="other">لا حلقات قادمة خلال الـ%d يوم القادمة</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">يتابع التقويم فقط المسلسلات التي بدأت مشاهدتها.</string>
+    <string name="calendar_source_watch_history">من سجل المشاهدة</string>
+    <string name="calendar_empty_subtitle_watch_history">يتابع التقويم آخر 30 مسلسلًا شاهدتها، اعتمادًا على سجل المشاهدة من طريقة المزامنة أو خدمة التتبع.</string>
+    <string name="calendar_failed_watch_history">تعذّر البحث عن الحلقات القادمة على TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="zero">لم يستجب TMDB لـ%d مسلسل، لذا قد تنقص بعض الحلقات.</item>
+        <item quantity="one">لم يستجب TMDB لمسلسل واحد، لذا قد تنقص بعض الحلقات.</item>
+        <item quantity="two">لم يستجب TMDB لمسلسلين، لذا قد تنقص بعض الحلقات.</item>
+        <item quantity="few">لم يستجب TMDB لـ%d مسلسلات، لذا قد تنقص بعض الحلقات.</item>
+        <item quantity="many">لم يستجب TMDB لـ%d مسلسلًا، لذا قد تنقص بعض الحلقات.</item>
+        <item quantity="other">لم يستجب TMDB لـ%d مسلسل، لذا قد تنقص بعض الحلقات.</item>
+    </plurals>
+    <string name="calendar_find_series">ابحث عن مسلسل لمتابعته</string>
+    <string name="calendar_today">اليوم</string>
+    <string name="calendar_tomorrow">غدًا</string>
+    <string name="calendar_unknown_date">لم يُعلن الموعد</string>
+    <plurals name="calendar_day_count">
+        <item quantity="zero">%d حلقة</item>
+        <item quantity="one">حلقة واحدة</item>
+        <item quantity="two">حلقتان</item>
+        <item quantity="few">%d حلقات</item>
+        <item quantity="many">%d حلقة</item>
+        <item quantity="other">%d حلقة</item>
+    </plurals>
+</resources>

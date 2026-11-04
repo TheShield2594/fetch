@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Stats</string>
+    <string name="library_open_calendar">Calendrier</string>
+
+    <string name="insights_source_eyebrow">Depuis le site Fetch</string>
+    <string name="insights_loading">Chargement…</string>
+    <string name="insights_not_paired_subtitle">Connectez cette TV au site Fetch dans Paramètres › Compte pour voir ces informations ici. Le site conserve votre historique de visionnage et les calcule à partir de celui-ci.</string>
+    <string name="insights_no_profile_title">Ce profil n’existe pas sur le site Fetch</string>
+    <string name="insights_no_profile_subtitle">Seuls les profils issus du site y ont un historique de visionnage. Passez à l’un d’eux, ou ajoutez ce profil sur le site.</string>
+    <string name="insights_locked_title">Ce profil est verrouillé</string>
+    <string name="insights_locked_subtitle">Il est protégé sur le site par un PIN qui n’a pas été saisi récemment sur cette TV. Sélectionnez à nouveau le profil et saisissez son PIN pour voir ces informations ici.</string>
+    <string name="insights_open_settings">Ouvrir les paramètres</string>
+    <string name="insights_find_something">Trouver quelque chose à regarder</string>
+
+    <string name="stats_title">Statistiques de visionnage</string>
+    <string name="stats_not_paired_title">Vos statistiques se trouvent sur le site Fetch</string>
+    <string name="stats_failed">Impossible de charger vos statistiques depuis le site Fetch.</string>
+    <string name="stats_empty_title">Rien de regardé pour l’instant, donc rien à compter</string>
+    <string name="stats_empty_subtitle">Chaque chiffre ici — séries de jours, genres, badges, votre bilan de l’année — provient de votre historique de visionnage.</string>
+    <string name="stats_watch_history_note">Calculé à partir de votre historique de visionnage. Chaque film et chaque épisode compte une fois, le jour où vous l’avez regardé pour la dernière fois.</string>
+    <string name="stats_watch_history_partial">Les genres et les notes portent sur vos 300 derniers titres regardés.</string>
+    <string name="stats_failed_watch_history">Impossible de lire votre historique de visionnage.</string>
+    <string name="stats_movies">Films</string>
+    <string name="stats_episodes">Épisodes</string>
+    <string name="stats_current_streak">Série en cours</string>
+    <string name="stats_longest_streak">Plus longue série</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d jour</item>
+        <item quantity="many">%d jours</item>
+        <item quantity="other">%d jours</item>
+    </plurals>
+    <string name="stats_achievements">Succès</string>
+    <string name="stats_no_badges">Aucun badge pour l’instant — continuez à regarder !</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d film</item>
+        <item quantity="many">%d films</item>
+        <item quantity="other">%d films</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d épisode</item>
+        <item quantity="many">%d épisodes</item>
+        <item quantity="other">%d épisodes</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d jour d’affilée</item>
+        <item quantity="many">%d jours d’affilée</item>
+        <item quantity="other">%d jours d’affilée</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Obtenus : %s</string>
+    <string name="stats_next_badges_label">Prochains : %s</string>
+    <string name="stats_monthly_activity">Activité mensuelle</string>
+    <string name="stats_vs_last_month">%s par rapport au mois dernier</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s %%) par rapport au mois dernier</string>
+    <string name="stats_top_genres">Genres préférés</string>
+    <string name="stats_genre_description">%1$s : %2$d vus</string>
+    <string name="stats_top_rated">Vos titres les mieux notés</string>
+    <string name="stats_rated_out_of_ten">Noté %s sur 10</string>
+    <string name="stats_rated_out_of_five">Noté %s sur 5</string>
+    <string name="stats_type_movie">Film</string>
+    <string name="stats_type_series">Série</string>
+    <string name="stats_year_in_review">Bilan de l’année</string>
+    <string name="stats_year_failed">Impossible de charger le bilan de cette année.</string>
+    <string name="stats_movies_watched">Films vus</string>
+    <string name="stats_episodes_watched">Épisodes vus</string>
+    <string name="stats_hours_watched">Heures de visionnage</string>
+    <string name="stats_busiest_month">Mois le plus actif</string>
+    <string name="stats_top_rated_picks">Les mieux notés</string>
+
+    <string name="calendar_title">Calendrier</string>
+    <string name="calendar_not_paired_title">Votre calendrier se trouve sur le site Fetch</string>
+    <string name="calendar_failed">Impossible de charger votre calendrier depuis le site Fetch.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d jour</item>
+        <item quantity="many">%d jours</item>
+        <item quantity="other">%d jours</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Aucun épisode à venir dans le prochain %d jour</item>
+        <item quantity="many">Aucun épisode à venir dans les %d prochains jours</item>
+        <item quantity="other">Aucun épisode à venir dans les %d prochains jours</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Le calendrier ne suit que les séries que vous avez déjà commencées.</string>
+    <string name="calendar_source_watch_history">D’après votre historique de visionnage</string>
+    <string name="calendar_empty_subtitle_watch_history">Le calendrier suit les 30 séries que vous avez regardées le plus récemment, d’après l’historique de visionnage de votre méthode de synchronisation ou de votre service de suivi.</string>
+    <string name="calendar_failed_watch_history">Impossible de récupérer les épisodes à venir sur TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB n’a pas répondu pour %d série, certains épisodes peuvent donc manquer.</item>
+        <item quantity="many">TMDB n’a pas répondu pour %d séries, certains épisodes peuvent donc manquer.</item>
+        <item quantity="other">TMDB n’a pas répondu pour %d séries, certains épisodes peuvent donc manquer.</item>
+    </plurals>
+    <string name="calendar_find_series">Trouver une série à suivre</string>
+    <string name="calendar_today">Aujourd’hui</string>
+    <string name="calendar_tomorrow">Demain</string>
+    <string name="calendar_unknown_date">Date non annoncée</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d épisode</item>
+        <item quantity="many">%d épisodes</item>
+        <item quantity="other">%d épisodes</item>
+    </plurals>
+</resources>

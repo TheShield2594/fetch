@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Statisztika</string>
+    <string name="library_open_calendar">Naptár</string>
+    <string name="insights_source_eyebrow">A Fetch weboldaláról</string>
+    <string name="insights_loading">Betöltés…</string>
+    <string name="insights_not_paired_subtitle">Jelentkeztesd be ezt a TV-t a Fetch weboldalán a Beállítások › Fiók menüben, hogy itt is lásd. A weboldal tárolja a megtekintési előzményeidet, és ebből számol.</string>
+    <string name="insights_no_profile_title">Ez a profil nincs a Fetch weboldalán</string>
+    <string name="insights_no_profile_subtitle">Csak a weboldalról származó profiloknak vannak ott megtekintési előzményei. Válts az egyikre, vagy add hozzá ezt a profilt a weboldalon.</string>
+    <string name="insights_locked_title">Ez a profil zárolva van</string>
+    <string name="insights_locked_subtitle">A weboldalon PIN védi, amelyet mostanában nem adtak meg ezen a TV-n. Válts újra a profilra, és add meg a PIN-jét, hogy itt is lásd.</string>
+    <string name="insights_open_settings">Beállítások megnyitása</string>
+    <string name="insights_find_something">Keress valamit, amit megnézhetsz</string>
+    <string name="stats_title">Megtekintési statisztika</string>
+    <string name="stats_not_paired_title">A statisztikáid a Fetch weboldalán vannak</string>
+    <string name="stats_failed">Nem sikerült betölteni a statisztikáidat a Fetch weboldaláról.</string>
+    <string name="stats_empty_title">Még nem néztél meg semmit, így nincs mit számolni</string>
+    <string name="stats_empty_subtitle">Minden itt látható adat — szériák, műfajok, jelvények, az éved összefoglalója — a megtekintési előzményeidből készül.</string>
+    <string name="stats_watch_history_note">A megtekintési előzményeid alapján. Minden film és epizód egyszer számít, azon a napon, amikor utoljára megnézted.</string>
+    <string name="stats_watch_history_partial">A műfajok és értékelések a 300 legutóbb megnézett címedre vonatkoznak.</string>
+    <string name="stats_failed_watch_history">Nem sikerült beolvasni a megtekintési előzményeidet.</string>
+    <string name="stats_movies">Filmek</string>
+    <string name="stats_episodes">Epizódok</string>
+    <string name="stats_current_streak">Jelenlegi széria</string>
+    <string name="stats_longest_streak">Leghosszabb széria</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d nap</item>
+        <item quantity="other">%d nap</item>
+    </plurals>
+    <string name="stats_achievements">Eredmények</string>
+    <string name="stats_no_badges">Még nincs jelvényed — nézz tovább!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d film</item>
+        <item quantity="other">%d film</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d epizód</item>
+        <item quantity="other">%d epizód</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d napos széria</item>
+        <item quantity="other">%d napos széria</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Megszerezve: %s</string>
+    <string name="stats_next_badges_label">Következő: %s</string>
+    <string name="stats_monthly_activity">Havi aktivitás</string>
+    <string name="stats_vs_last_month">%s az előző hónaphoz képest</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) az előző hónaphoz képest</string>
+    <string name="stats_top_genres">Kedvenc műfajok</string>
+    <string name="stats_genre_description">%1$s: %2$d megnézve</string>
+    <string name="stats_top_rated">Legjobbra értékelt megnézett címek</string>
+    <string name="stats_rated_out_of_ten">Értékelés: %s/10</string>
+    <string name="stats_rated_out_of_five">Értékelés: %s/5</string>
+    <string name="stats_type_movie">Film</string>
+    <string name="stats_type_series">Sorozat</string>
+    <string name="stats_year_in_review">Az év összefoglalója</string>
+    <string name="stats_year_failed">Nem sikerült betölteni az idei összefoglalót.</string>
+    <string name="stats_movies_watched">Megnézett filmek</string>
+    <string name="stats_episodes_watched">Megnézett epizódok</string>
+    <string name="stats_hours_watched">Nézéssel töltött órák</string>
+    <string name="stats_busiest_month">Legaktívabb hónap</string>
+    <string name="stats_top_rated_picks">Legjobbra értékelt kedvencek</string>
+    <string name="calendar_title">Naptár</string>
+    <string name="calendar_not_paired_title">A naptárad a Fetch weboldalán van</string>
+    <string name="calendar_failed">Nem sikerült betölteni a naptáradat a Fetch weboldaláról.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d nap</item>
+        <item quantity="other">%d nap</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">A következő %d napban nincs új epizód</item>
+        <item quantity="other">A következő %d napban nincs új epizód</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">A naptár csak a már elkezdett sorozataidat követi.</string>
+    <string name="calendar_source_watch_history">A megtekintési előzményeidből</string>
+    <string name="calendar_empty_subtitle_watch_history">A naptár a 30 legutóbb nézett sorozatodat követi a szinkronizálási módod vagy követési szolgáltatásod megtekintési előzményei alapján.</string>
+    <string name="calendar_failed_watch_history">Nem sikerült lekérni a közelgő epizódokat a TMDB-ről.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">A TMDB %d sorozatnál nem válaszolt, ezért néhány epizód hiányozhat.</item>
+        <item quantity="other">A TMDB %d sorozatnál nem válaszolt, ezért néhány epizód hiányozhat.</item>
+    </plurals>
+    <string name="calendar_find_series">Keress követendő sorozatot</string>
+    <string name="calendar_today">Ma</string>
+    <string name="calendar_tomorrow">Holnap</string>
+    <string name="calendar_unknown_date">A dátum még nincs bejelentve</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d epizód</item>
+        <item quantity="other">%d epizód</item>
+    </plurals>
+</resources>

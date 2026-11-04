@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Thống kê</string>
+    <string name="library_open_calendar">Lịch</string>
+    <string name="insights_source_eyebrow">Từ trang web Fetch</string>
+    <string name="insights_loading">Đang tải…</string>
+    <string name="insights_not_paired_subtitle">Đăng nhập TV này vào trang web Fetch trong Cài đặt › Tài khoản để xem tại đây. Trang web lưu lịch sử xem của bạn và tính toán dựa trên đó.</string>
+    <string name="insights_no_profile_title">Hồ sơ này không có trên trang web Fetch</string>
+    <string name="insights_no_profile_subtitle">Chỉ những hồ sơ lấy từ trang web mới có lịch sử xem ở đó. Hãy chuyển sang một trong các hồ sơ đó, hoặc thêm hồ sơ này trên trang web.</string>
+    <string name="insights_locked_title">Hồ sơ này đang bị khóa</string>
+    <string name="insights_locked_subtitle">Hồ sơ này có mã PIN trên trang web và gần đây chưa được nhập trên TV này. Hãy chuyển sang hồ sơ này lần nữa và nhập mã PIN để xem tại đây.</string>
+    <string name="insights_open_settings">Mở Cài đặt</string>
+    <string name="insights_find_something">Tìm nội dung để xem</string>
+    <string name="stats_title">Thống kê xem</string>
+    <string name="stats_not_paired_title">Thống kê của bạn nằm trên trang web Fetch</string>
+    <string name="stats_failed">Không thể tải thống kê từ trang web Fetch.</string>
+    <string name="stats_empty_title">Bạn chưa xem gì nên chưa có gì để thống kê</string>
+    <string name="stats_empty_subtitle">Mọi số liệu ở đây — chuỗi ngày xem, thể loại, huy hiệu, tổng kết năm — đều dựa trên lịch sử xem của bạn.</string>
+    <string name="stats_watch_history_note">Dựa trên lịch sử xem của bạn. Mỗi phim và mỗi tập chỉ được tính một lần, vào ngày bạn xem gần nhất.</string>
+    <string name="stats_watch_history_partial">Thể loại và điểm đánh giá chỉ tính 300 nội dung bạn xem gần đây nhất.</string>
+    <string name="stats_failed_watch_history">Không thể đọc lịch sử xem của bạn.</string>
+    <string name="stats_movies">Phim</string>
+    <string name="stats_episodes">Tập phim</string>
+    <string name="stats_current_streak">Chuỗi hiện tại</string>
+    <string name="stats_longest_streak">Chuỗi dài nhất</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d ngày</item>
+        <item quantity="other">%d ngày</item>
+    </plurals>
+    <string name="stats_achievements">Thành tích</string>
+    <string name="stats_no_badges">Chưa có huy hiệu nào — hãy tiếp tục xem nhé!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d phim</item>
+        <item quantity="other">%d phim</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d tập</item>
+        <item quantity="other">%d tập</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">Chuỗi %d ngày</item>
+        <item quantity="other">Chuỗi %d ngày</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Đã đạt: %s</string>
+    <string name="stats_next_badges_label">Tiếp theo: %s</string>
+    <string name="stats_monthly_activity">Hoạt động hằng tháng</string>
+    <string name="stats_vs_last_month">%s so với tháng trước</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) so với tháng trước</string>
+    <string name="stats_top_genres">Thể loại xem nhiều</string>
+    <string name="stats_genre_description">%1$s: đã xem %2$d</string>
+    <string name="stats_top_rated">Đã xem, đánh giá cao nhất</string>
+    <string name="stats_rated_out_of_ten">Đánh giá %s/10</string>
+    <string name="stats_rated_out_of_five">Đánh giá %s/5</string>
+    <string name="stats_type_movie">Phim</string>
+    <string name="stats_type_series">Loạt phim</string>
+    <string name="stats_year_in_review">Tổng kết năm</string>
+    <string name="stats_year_failed">Không thể tải tổng kết năm nay.</string>
+    <string name="stats_movies_watched">Phim đã xem</string>
+    <string name="stats_episodes_watched">Tập đã xem</string>
+    <string name="stats_hours_watched">Số giờ đã xem</string>
+    <string name="stats_busiest_month">Tháng xem nhiều nhất</string>
+    <string name="stats_top_rated_picks">Đánh giá cao nhất</string>
+    <string name="calendar_title">Lịch</string>
+    <string name="calendar_not_paired_title">Lịch của bạn nằm trên trang web Fetch</string>
+    <string name="calendar_failed">Không thể tải lịch từ trang web Fetch.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d ngày</item>
+        <item quantity="other">%d ngày</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Không có tập nào sắp phát trong %d ngày tới</item>
+        <item quantity="other">Không có tập nào sắp phát trong %d ngày tới</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Lịch chỉ theo dõi các loạt phim bạn đã bắt đầu xem.</string>
+    <string name="calendar_source_watch_history">Từ lịch sử xem của bạn</string>
+    <string name="calendar_empty_subtitle_watch_history">Lịch theo dõi 30 loạt phim bạn xem gần đây nhất, dựa trên lịch sử xem từ phương thức đồng bộ hoặc dịch vụ theo dõi của bạn.</string>
+    <string name="calendar_failed_watch_history">Không thể tra cứu các tập sắp phát trên TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB không phản hồi cho %d loạt phim nên có thể thiếu một số tập.</item>
+        <item quantity="other">TMDB không phản hồi cho %d loạt phim nên có thể thiếu một số tập.</item>
+    </plurals>
+    <string name="calendar_find_series">Tìm loạt phim để theo dõi</string>
+    <string name="calendar_today">Hôm nay</string>
+    <string name="calendar_tomorrow">Ngày mai</string>
+    <string name="calendar_unknown_date">Chưa công bố ngày</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d tập</item>
+        <item quantity="other">%d tập</item>
+    </plurals>
+</resources>

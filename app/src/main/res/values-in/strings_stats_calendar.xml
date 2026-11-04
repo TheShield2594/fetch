@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Statistik</string>
+    <string name="library_open_calendar">Kalender</string>
+    <string name="insights_source_eyebrow">Dari situs web Fetch</string>
+    <string name="insights_loading">Memuat…</string>
+    <string name="insights_not_paired_subtitle">Hubungkan TV ini ke situs web Fetch di Pengaturan › Akun untuk melihatnya di sini. Situs web menyimpan riwayat tontonan Anda dan menghitungnya dari situ.</string>
+    <string name="insights_no_profile_title">Profil ini tidak ada di situs web Fetch</string>
+    <string name="insights_no_profile_subtitle">Hanya profil dari situs web yang memiliki riwayat tontonan di sana. Beralihlah ke salah satunya, atau tambahkan profil ini di situs web.</string>
+    <string name="insights_locked_title">Profil ini terkunci</string>
+    <string name="insights_locked_subtitle">Profil ini memiliki PIN di situs web yang belum dimasukkan di TV ini akhir-akhir ini. Beralih lagi ke profil ini dan masukkan PIN-nya untuk melihatnya di sini.</string>
+    <string name="insights_open_settings">Buka Pengaturan</string>
+    <string name="insights_find_something">Cari tontonan</string>
+    <string name="stats_title">Statistik tontonan</string>
+    <string name="stats_not_paired_title">Statistik Anda ada di situs web Fetch</string>
+    <string name="stats_failed">Tidak dapat memuat statistik dari situs web Fetch.</string>
+    <string name="stats_empty_title">Belum ada yang ditonton, jadi belum ada yang bisa dihitung</string>
+    <string name="stats_empty_subtitle">Semua angka di sini — hari beruntun, genre, lencana, rangkuman tahunan — dihitung dari riwayat tontonan Anda.</string>
+    <string name="stats_watch_history_note">Dihitung dari riwayat tontonan Anda. Setiap film dan episode dihitung sekali, pada hari terakhir Anda menontonnya.</string>
+    <string name="stats_watch_history_partial">Genre dan rating mencakup 300 judul yang terakhir Anda tonton.</string>
+    <string name="stats_failed_watch_history">Tidak dapat membaca riwayat tontonan Anda.</string>
+    <string name="stats_movies">Film</string>
+    <string name="stats_episodes">Episode</string>
+    <string name="stats_current_streak">Hari beruntun saat ini</string>
+    <string name="stats_longest_streak">Hari beruntun terlama</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d hari</item>
+        <item quantity="other">%d hari</item>
+    </plurals>
+    <string name="stats_achievements">Pencapaian</string>
+    <string name="stats_no_badges">Belum ada lencana — terus menonton!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d film</item>
+        <item quantity="other">%d film</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d episode</item>
+        <item quantity="other">%d episode</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d hari beruntun</item>
+        <item quantity="other">%d hari beruntun</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Diraih: %s</string>
+    <string name="stats_next_badges_label">Berikutnya: %s</string>
+    <string name="stats_monthly_activity">Aktivitas bulanan</string>
+    <string name="stats_vs_last_month">%s dibanding bulan lalu</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) dibanding bulan lalu</string>
+    <string name="stats_top_genres">Genre teratas</string>
+    <string name="stats_genre_description">%1$s: %2$d ditonton</string>
+    <string name="stats_top_rated">Tontonan dengan rating tertinggi</string>
+    <string name="stats_rated_out_of_ten">Rating %s dari 10</string>
+    <string name="stats_rated_out_of_five">Rating %s dari 5</string>
+    <string name="stats_type_movie">Film</string>
+    <string name="stats_type_series">Serial</string>
+    <string name="stats_year_in_review">Rangkuman tahunan</string>
+    <string name="stats_year_failed">Tidak dapat memuat rangkuman tahun ini.</string>
+    <string name="stats_movies_watched">Film ditonton</string>
+    <string name="stats_episodes_watched">Episode ditonton</string>
+    <string name="stats_hours_watched">Jam menonton</string>
+    <string name="stats_busiest_month">Bulan tersibuk</string>
+    <string name="stats_top_rated_picks">Pilihan rating tertinggi</string>
+    <string name="calendar_title">Kalender</string>
+    <string name="calendar_not_paired_title">Kalender Anda ada di situs web Fetch</string>
+    <string name="calendar_failed">Tidak dapat memuat kalender dari situs web Fetch.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d hari</item>
+        <item quantity="other">%d hari</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Tidak ada episode baru dalam %d hari ke depan</item>
+        <item quantity="other">Tidak ada episode baru dalam %d hari ke depan</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Kalender hanya melacak serial yang sudah mulai Anda tonton.</string>
+    <string name="calendar_source_watch_history">Dari riwayat tontonan Anda</string>
+    <string name="calendar_empty_subtitle_watch_history">Kalender mengikuti 30 serial yang terakhir Anda tonton, berdasarkan riwayat tontonan dari metode sinkronisasi atau layanan pelacakan Anda.</string>
+    <string name="calendar_failed_watch_history">Tidak dapat mencari episode mendatang di TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB tidak merespons untuk %d serial, jadi beberapa episode mungkin tidak muncul.</item>
+        <item quantity="other">TMDB tidak merespons untuk %d serial, jadi beberapa episode mungkin tidak muncul.</item>
+    </plurals>
+    <string name="calendar_find_series">Cari serial untuk diikuti</string>
+    <string name="calendar_today">Hari ini</string>
+    <string name="calendar_tomorrow">Besok</string>
+    <string name="calendar_unknown_date">Tanggal belum diumumkan</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d episode</item>
+        <item quantity="other">%d episode</item>
+    </plurals>
+</resources>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">統計</string>
+    <string name="library_open_calendar">行事曆</string>
+    <string name="insights_source_eyebrow">來自 Fetch 網站</string>
+    <string name="insights_loading">載入中…</string>
+    <string name="insights_not_paired_subtitle">在「設定 › 帳戶」中讓這台電視登入 Fetch 網站，即可在這裡查看。網站會保存你的觀看紀錄，並據此計算這些內容。</string>
+    <string name="insights_no_profile_title">這個個人資料不在 Fetch 網站上</string>
+    <string name="insights_no_profile_subtitle">只有來自網站的個人資料才會在網站上保存觀看紀錄。請切換到其中一個，或在網站上新增這個個人資料。</string>
+    <string name="insights_locked_title">這個個人資料已鎖定</string>
+    <string name="insights_locked_subtitle">這個個人資料在網站上設有 PIN，最近沒有在這台電視上輸入過。請再次切換到這個個人資料並輸入 PIN，即可在這裡查看。</string>
+    <string name="insights_open_settings">開啟設定</string>
+    <string name="insights_find_something">找點東西來看</string>
+    <string name="stats_title">觀看統計</string>
+    <string name="stats_not_paired_title">你的統計資料存放在 Fetch 網站上</string>
+    <string name="stats_failed">無法從 Fetch 網站載入統計資料。</string>
+    <string name="stats_empty_title">還沒有觀看任何內容，目前沒有資料可統計</string>
+    <string name="stats_empty_subtitle">這裡的所有數據，包括連續觀看、類型、徽章和年度回顧，都來自你的觀看紀錄。</string>
+    <string name="stats_watch_history_note">根據你的觀看紀錄計算。每部電影和每一集只計算一次，算在你最後一次觀看的那天。</string>
+    <string name="stats_watch_history_partial">類型和評分只涵蓋你最近觀看的 300 部作品。</string>
+    <string name="stats_failed_watch_history">無法讀取你的觀看紀錄。</string>
+    <string name="stats_movies">電影</string>
+    <string name="stats_episodes">集數</string>
+    <string name="stats_current_streak">目前連續觀看</string>
+    <string name="stats_longest_streak">最長連續觀看</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d 天</item>
+        <item quantity="other">%d 天</item>
+    </plurals>
+    <string name="stats_achievements">成就</string>
+    <string name="stats_no_badges">還沒有獲得徽章，繼續看下去吧！</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d 部電影</item>
+        <item quantity="other">%d 部電影</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d 集</item>
+        <item quantity="other">%d 集</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">連續 %d 天</item>
+        <item quantity="other">連續 %d 天</item>
+    </plurals>
+    <string name="stats_earned_badges_label">已獲得：%s</string>
+    <string name="stats_next_badges_label">下一個：%s</string>
+    <string name="stats_monthly_activity">每月動態</string>
+    <string name="stats_vs_last_month">較上個月 %s</string>
+    <string name="stats_vs_last_month_percent">較上個月 %1$s（%2$s%%）</string>
+    <string name="stats_top_genres">常看類型</string>
+    <string name="stats_genre_description">%1$s：已看 %2$d 部</string>
+    <string name="stats_top_rated">已看作品中的高分之作</string>
+    <string name="stats_rated_out_of_ten">評分 %s/10</string>
+    <string name="stats_rated_out_of_five">評分 %s/5</string>
+    <string name="stats_type_movie">電影</string>
+    <string name="stats_type_series">影集</string>
+    <string name="stats_year_in_review">年度回顧</string>
+    <string name="stats_year_failed">無法載入今年的回顧。</string>
+    <string name="stats_movies_watched">已看電影</string>
+    <string name="stats_episodes_watched">已看集數</string>
+    <string name="stats_hours_watched">觀看時數</string>
+    <string name="stats_busiest_month">觀看最多的月份</string>
+    <string name="stats_top_rated_picks">高分精選</string>
+    <string name="calendar_title">行事曆</string>
+    <string name="calendar_not_paired_title">你的行事曆存放在 Fetch 網站上</string>
+    <string name="calendar_failed">無法從 Fetch 網站載入行事曆。</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d 天</item>
+        <item quantity="other">%d 天</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">未來 %d 天內沒有即將播出的集數</item>
+        <item quantity="other">未來 %d 天內沒有即將播出的集數</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">行事曆只會追蹤你已經開始觀看的影集。</string>
+    <string name="calendar_source_watch_history">來自你的觀看紀錄</string>
+    <string name="calendar_empty_subtitle_watch_history">行事曆會根據你的同步方式或追蹤服務中的觀看紀錄，追蹤你最近觀看的 30 部影集。</string>
+    <string name="calendar_failed_watch_history">無法在 TMDB 上查詢即將播出的集數。</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB 有 %d 部影集沒有回應，部分集數可能沒有顯示。</item>
+        <item quantity="other">TMDB 有 %d 部影集沒有回應，部分集數可能沒有顯示。</item>
+    </plurals>
+    <string name="calendar_find_series">找一部影集來追</string>
+    <string name="calendar_today">今天</string>
+    <string name="calendar_tomorrow">明天</string>
+    <string name="calendar_unknown_date">日期未公布</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d 集</item>
+        <item quantity="other">%d 集</item>
+    </plurals>
+</resources>

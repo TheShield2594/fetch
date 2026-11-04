@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library header -->
+    <string name="library_open_stats">পরিসংখ্যান</string>
+    <string name="library_open_calendar">ক্যালেন্ডার</string>
+
+    <!-- Shared by Stats and Calendar -->
+    <string name="insights_source_eyebrow">Fetch ওয়েবসাইট থেকে</string>
+    <string name="insights_loading">লোড হচ্ছে…</string>
+    <string name="insights_not_paired_subtitle">এখানে দেখতে সেটিংস › অ্যাকাউন্ট থেকে এই টিভিটি Fetch ওয়েবসাইটে সাইন ইন করুন। ওয়েবসাইটে আপনার দেখার হিস্ট্রি থাকে, আর সেখান থেকেই এগুলো হিসাব করা হয়।</string>
+    <string name="insights_no_profile_title">এই প্রোফাইলটি Fetch ওয়েবসাইটে নেই</string>
+    <string name="insights_no_profile_subtitle">শুধু ওয়েবসাইট থেকে আসা প্রোফাইলগুলোরই সেখানে দেখার হিস্ট্রি থাকে। সেগুলোর একটিতে সুইচ করুন, অথবা এই প্রোফাইলটি ওয়েবসাইটে যোগ করুন।</string>
+    <string name="insights_locked_title">এই প্রোফাইলটি লক করা</string>
+    <string name="insights_locked_subtitle">ওয়েবসাইটে এই প্রোফাইলের একটি PIN আছে, যা সম্প্রতি এই টিভিতে দেওয়া হয়নি। এখানে দেখতে আবার প্রোফাইলটিতে সুইচ করুন এবং এর PIN দিন।</string>
+    <string name="insights_open_settings">সেটিংস খুলুন</string>
+    <string name="insights_find_something">দেখার মতো কিছু খুঁজুন</string>
+
+    <!-- Stats -->
+    <string name="stats_title">দেখার পরিসংখ্যান</string>
+    <string name="stats_not_paired_title">আপনার পরিসংখ্যান Fetch ওয়েবসাইটে আছে</string>
+    <string name="stats_failed">Fetch ওয়েবসাইট থেকে আপনার পরিসংখ্যান লোড করা যায়নি।</string>
+    <string name="stats_empty_title">এখনো কিছু দেখা হয়নি, তাই গোনার মতো কিছু নেই</string>
+    <string name="stats_empty_subtitle">এখানকার প্রতিটি হিসাব — স্ট্রিক, জনরা, ব্যাজ, আপনার বছরের সারসংক্ষেপ — আপনার দেখার হিস্ট্রি থেকে তৈরি।</string>
+    <string name="stats_watch_history_note">আপনার দেখার হিস্ট্রি থেকে তৈরি। প্রতিটি মুভি ও এপিসোড একবারই গোনা হয়, যেদিন আপনি সেটি শেষবার দেখেছেন সেদিন।</string>
+    <string name="stats_watch_history_partial">জনরা ও রেটিং আপনার সাম্প্রতিক দেখা ৩০০টি টাইটেলের ওপর ভিত্তি করে।</string>
+    <string name="stats_failed_watch_history">আপনার দেখার হিস্ট্রি পড়া যায়নি।</string>
+    <string name="stats_movies">মুভি</string>
+    <string name="stats_episodes">এপিসোড</string>
+    <string name="stats_current_streak">বর্তমান স্ট্রিক</string>
+    <string name="stats_longest_streak">দীর্ঘতম স্ট্রিক</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d দিন</item>
+        <item quantity="other">%d দিন</item>
+    </plurals>
+    <string name="stats_achievements">অর্জন</string>
+    <string name="stats_no_badges">এখনো কোনো ব্যাজ পাওয়া হয়নি — দেখতে থাকুন!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%dটি মুভি</item>
+        <item quantity="other">%dটি মুভি</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%dটি এপিসোড</item>
+        <item quantity="other">%dটি এপিসোড</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d দিনের স্ট্রিক</item>
+        <item quantity="other">%d দিনের স্ট্রিক</item>
+    </plurals>
+    <string name="stats_earned_badges_label">অর্জিত: %s</string>
+    <string name="stats_next_badges_label">পরবর্তী: %s</string>
+    <string name="stats_monthly_activity">মাসিক অ্যাক্টিভিটি</string>
+    <string name="stats_vs_last_month">গত মাসের তুলনায় %s</string>
+    <string name="stats_vs_last_month_percent">গত মাসের তুলনায় %1$s (%2$s%%)</string>
+    <string name="stats_top_genres">শীর্ষ জনরা</string>
+    <string name="stats_genre_description">%1$s: %2$dটি দেখা হয়েছে</string>
+    <string name="stats_top_rated">দেখা কনটেন্টের মধ্যে সর্বোচ্চ রেটিং</string>
+    <string name="stats_rated_out_of_ten">10-এর মধ্যে %s রেটিং</string>
+    <string name="stats_rated_out_of_five">5-এর মধ্যে %s রেটিং</string>
+    <string name="stats_type_movie">মুভি</string>
+    <string name="stats_type_series">সিরিজ</string>
+    <string name="stats_year_in_review">বছরের সারসংক্ষেপ</string>
+    <string name="stats_year_failed">এই বছরের সারসংক্ষেপ লোড করা যায়নি।</string>
+    <string name="stats_movies_watched">দেখা মুভি</string>
+    <string name="stats_episodes_watched">দেখা এপিসোড</string>
+    <string name="stats_hours_watched">দেখার ঘণ্টা</string>
+    <string name="stats_busiest_month">সবচেয়ে ব্যস্ত মাস</string>
+    <string name="stats_top_rated_picks">সর্বোচ্চ রেটিংয়ের বাছাই</string>
+
+    <!-- Calendar -->
+    <string name="calendar_title">ক্যালেন্ডার</string>
+    <string name="calendar_not_paired_title">আপনার ক্যালেন্ডার Fetch ওয়েবসাইটে আছে</string>
+    <string name="calendar_failed">Fetch ওয়েবসাইট থেকে আপনার ক্যালেন্ডার লোড করা যায়নি।</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d দিন</item>
+        <item quantity="other">%d দিন</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">আগামী %d দিনে কোনো নতুন এপিসোড নেই</item>
+        <item quantity="other">আগামী %d দিনে কোনো নতুন এপিসোড নেই</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">ক্যালেন্ডার শুধু সেই সিরিজগুলো ট্র্যাক করে যেগুলো আপনি দেখা শুরু করেছেন।</string>
+    <string name="calendar_source_watch_history">আপনার দেখার হিস্ট্রি থেকে</string>
+    <string name="calendar_empty_subtitle_watch_history">ক্যালেন্ডার আপনার সাম্প্রতিক দেখা ৩০টি সিরিজ ফলো করে, আপনার সিঙ্ক পদ্ধতি বা ট্র্যাকিং সার্ভিসের দেখার হিস্ট্রি অনুযায়ী।</string>
+    <string name="calendar_failed_watch_history">TMDB-তে আসন্ন এপিসোড খোঁজা যায়নি।</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB %dটি সিরিজের জন্য সাড়া দেয়নি, তাই কিছু এপিসোড বাদ পড়তে পারে।</item>
+        <item quantity="other">TMDB %dটি সিরিজের জন্য সাড়া দেয়নি, তাই কিছু এপিসোড বাদ পড়তে পারে।</item>
+    </plurals>
+    <string name="calendar_find_series">ফলো করার জন্য একটি সিরিজ খুঁজুন</string>
+    <string name="calendar_today">আজ</string>
+    <string name="calendar_tomorrow">আগামীকাল</string>
+    <string name="calendar_unknown_date">তারিখ ঘোষণা হয়নি</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%dটি এপিসোড</item>
+        <item quantity="other">%dটি এপিসোড</item>
+    </plurals>
+</resources>

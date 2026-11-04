@@ -68,6 +68,20 @@ class PhoneHubServerTest {
             return PhoneHubResult(true, "Added Kids.")
         }
 
+        var restoredBackup: JsonObject? = null
+
+        var backupIncludedAddons: Boolean? = null
+
+        override suspend fun exportBackup(includeAddons: Boolean): Result<JsonObject> {
+            backupIncludedAddons = includeAddons
+            return Result.success(buildJsonObject { put("format", "fetch-backup") })
+        }
+
+        override suspend fun restoreBackup(document: JsonObject): PhoneHubResult {
+            restoredBackup = document
+            return PhoneHubResult(true, "Restored Sam.")
+        }
+
         val proposedUrls = mutableListOf<String>()
 
         var installed = listOf(PhoneHubAddon("Cinemeta", streams = false))
@@ -221,6 +235,26 @@ class PhoneHubServerTest {
     }
 
     @Test
+    fun `the whole TV is saved as a dated file and restored`() {
+        assertTrue(body(server.serve(FakeHttpSession("/"))).contains("href=\"/backup\""))
+        assertTrue(body(server.serve(FakeHttpSession("/backup"))).contains("href=\"/api/backup\""))
+
+        val export = server.serve(FakeHttpSession("/api/backup"))
+        assertEquals(NanoHTTPD.Response.Status.OK, export.status)
+        val disposition = export.getHeader("Content-Disposition").orEmpty()
+        assertTrue(disposition, disposition.matches(Regex("attachment; filename=\"fetch-backup-\\d{4}-\\d{2}-\\d{2}\\.json\"")))
+        assertTrue(body(export).contains("fetch-backup"))
+        assertEquals(false, actions.backupIncludedAddons)
+        server.serve(FakeHttpSession("/api/backup", parameters = mapOf("addons" to listOf("1"))))
+        assertEquals(true, actions.backupIncludedAddons)
+
+        val restored = post("/api/backup/restore", """{"format":"fetch-backup","version":1,"profiles":[]}""")
+        assertEquals(NanoHTTPD.Response.Status.OK, restored.status)
+        assertTrue(body(restored).contains("Restored Sam."))
+        assertEquals(JsonPrimitive("fetch-backup"), actions.restoredBackup?.get("format"))
+    }
+
+    @Test
     fun `addons page lists what is installed and the suggestions`() {
         assertTrue(body(server.serve(FakeHttpSession("/addons"))).contains("Send to TV"))
         val json = body(server.serve(FakeHttpSession("/api/addons")))
@@ -241,7 +275,7 @@ class PhoneHubServerTest {
 
     @Test
     fun `pages come from string resources`() {
-        listOf("/", "/remote", "/accounts", "/ranking", "/profiles", "/addons").forEach { uri ->
+        listOf("/", "/remote", "/accounts", "/ranking", "/profiles", "/backup", "/addons").forEach { uri ->
             val page = body(server.serve(FakeHttpSession(uri)))
             assertTrue(uri, page.contains("<html lang=\"en"))
             // Status text uses the ellipsis character, like the TV's own strings.

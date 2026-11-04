@@ -407,6 +407,8 @@ internal fun PlayerRuntimeController.evaluatePostPlayOverlayVisibility(positionM
     if (_uiState.value.postPlayDismissedForCurrentEpisode) return
     // Out of screen time or past bedtime: the title plays to its end, nothing follows it.
     if (isScreenTimeBlocked()) return
+    // The sleep timer stops at the end of this title, so there is no next one to offer.
+    if (sleepTimer.stopsAtEndOfTitle) return
 
     val shouldEnterStillWatching = shouldPromptStillWatching(state.nextEpisode.hasAired)
 

@@ -64,6 +64,13 @@
             </intent-filter>
         </receiver>
 
+        <!-- Fetch's results in the TV's system search (res/xml/searchable.xml). -->
+        <provider
+            android:name=".core.search.GlobalSearchProvider"
+            android:authorities="${applicationId}.search"
+            android:exported="true"
+            android:readPermission="android.permission.GLOBAL_SEARCH" />
+
         <service
             android:name=".core.sync.androidtv.TvChannelRefreshJobService"
             android:exported="false"
@@ -96,6 +103,14 @@
 
                 <data android:scheme="stremio" />
             </intent-filter>
+            <!-- "Search for … in Fetch" from the Assistant or the system search. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
 
         <activity

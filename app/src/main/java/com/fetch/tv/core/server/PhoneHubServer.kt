@@ -75,6 +75,12 @@ interface PhoneHubActions {
     /** The profile as a file for [importProfile] on another TV; fails with a message to show. */
     suspend fun exportProfile(profileId: Int): Result<JsonObject>
     suspend fun importProfile(document: JsonObject): PhoneHubResult
+    /**
+     * Every profile that can be moved, as one file for [restoreBackup], with their addon links when
+     * [includeAddons]; fails with a message to show.
+     */
+    suspend fun exportBackup(includeAddons: Boolean): Result<JsonObject>
+    suspend fun restoreBackup(document: JsonObject): PhoneHubResult
     suspend fun installedAddons(): List<PhoneHubAddon>
     fun addonSuggestions(): List<PhoneHubAddonSuggestion>
     /** Reads the manifest at [url] and asks the TV to confirm installing it. */
@@ -132,6 +138,7 @@ class PhoneHubServer(
         session.method == Method.GET && uri == "/accounts" -> html(pages().accounts())
         session.method == Method.GET && uri == "/ranking" -> html(pages().ranking())
         session.method == Method.GET && uri == "/profiles" -> html(pages().profiles())
+        session.method == Method.GET && uri == "/backup" -> html(pages().backup())
         session.method == Method.GET && uri == "/addons" -> html(pages().addons())
         session.method == Method.POST && uri == "/api/remote" -> handleRemote(readJson(session))
         session.method == Method.GET && uri == "/api/accounts" -> jsonResponse(accountsJson())
@@ -147,6 +154,10 @@ class PhoneHubServer(
         session.method == Method.GET && uri == "/api/profiles/export" -> handleProfileExport(session)
         session.method == Method.POST && uri == "/api/profiles/import" ->
             result(runBlocking { actions.importProfile(readJson(session, MAX_PROFILE_BYTES)) })
+        session.method == Method.GET && uri == "/api/backup" ->
+            handleBackupExport(includeAddons = session.parameters["addons"]?.firstOrNull() == "1")
+        session.method == Method.POST && uri == "/api/backup/restore" ->
+            result(runBlocking { actions.restoreBackup(readJson(session, MAX_BACKUP_BYTES)) })
         else -> newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found")
     }
 
@@ -291,6 +302,22 @@ class PhoneHubServer(
         }
     }
 
+    private fun handleBackupExport(includeAddons: Boolean): Response {
+        val document = runBlocking { actions.exportBackup(includeAddons) }
+            .getOrElse { return errorResponse(it.message ?: text(R.string.phone_web_error_backup)) }
+        val bytes = document.toString().toByteArray(StandardCharsets.UTF_8)
+        val date = java.time.LocalDate.now().toString()
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "application/json; charset=utf-8",
+            ByteArrayInputStream(bytes),
+            bytes.size.toLong()
+        ).apply {
+            addHeader("Cache-Control", "no-store")
+            addHeader("Content-Disposition", "attachment; filename=\"fetch-backup-$date.json\"")
+        }
+    }
+
     private fun accountsJson(): JsonElement {
         val status = runBlocking { actions.accountStatus() }
         fun tracker(value: PhoneHubTrackerStatus) = buildJsonObject {
@@ -400,6 +427,8 @@ class PhoneHubServer(
         private const val MAX_ADDON_URL_LENGTH = 8 * 1024
         // A profile file carries the whole watch history.
         private const val MAX_PROFILE_BYTES = 16 * 1024 * 1024
+        // A backup is every profile's file in one.
+        private const val MAX_BACKUP_BYTES = 48 * 1024 * 1024
 
         internal fun rewriteSectionPage(page: String, prefix: String, backLabel: String): String =
             page

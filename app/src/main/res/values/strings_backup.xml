@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Phone hub: back up the whole TV to a file, and restore it after a reset or on a new TV. -->
+    <string name="phone_web_card_backup">Back up this TV</string>
+    <string name="phone_web_card_backup_sub">Save every profile to one file, or restore one</string>
+    <string name="phone_web_backup_title">Back up this TV</string>
+    <string name="phone_web_backup_intro">A backup holds every profile’s name and avatar, settings, library and watch history. Sign-ins, API keys, PINs and parental limits stay on this TV, and profiles with a PIN are left out.</string>
+    <string name="phone_web_backup_include_addons">Include each profile’s addons</string>
+    <string name="phone_web_backup_include_addons_hint">A configured addon’s link can hold your debrid or other account key, so keep a backup with addons somewhere private.</string>
+    <string name="phone_web_backup_save_heading">Save a backup</string>
+    <string name="phone_web_backup_save">Save backup as a file</string>
+    <string name="phone_web_backup_save_sub">Keep it somewhere safe, like your phone’s files or a cloud drive</string>
+    <string name="phone_web_backup_restore_heading">Restore a backup</string>
+    <string name="phone_web_backup_restore_hint">The main profile restores into this TV’s main profile, and the others into the profile of the same name. Their settings are replaced and their history is added to what’s here. Profiles this TV doesn’t have are added.</string>
+    <string name="phone_web_backup_file_label">A backup saved from this or another TV</string>
+    <string name="phone_web_backup_restore">Restore</string>
+    <string name="phone_web_backup_choose_file">Choose a backup file first.</string>
+    <string name="phone_web_backup_restoring">Restoring…</string>
+    <string name="phone_web_backup_not_a_backup">That file isn’t a Fetch backup. A single profile file goes under Move a profile.</string>
+    <string name="phone_web_backup_restored_merged">Restored %1$s.</string>
+    <string name="phone_web_backup_restored_added">Added %1$s.</string>
+    <string name="phone_web_backup_restored_skipped">Left out %1$s: this TV’s profile of that name has a PIN, or there was no room for another profile.</string>
+    <string name="phone_web_backup_restore_failed">Couldn’t restore the backup.</string>
+    <string name="phone_web_error_backup">Couldn’t save the backup to a file.</string>
+</resources>

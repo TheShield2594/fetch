@@ -198,7 +198,7 @@ internal fun PlayerRuntimeController.resetPostPlayStateAfterPlaybackEnded() {
     val autoPlayEligible = streamAutoPlayNextEpisodeEnabledSetting &&
         state.nextEpisode?.hasAired == true &&
         nextEpisodeVideo != null
-    if (autoPlayEligible && !isScreenTimeBlocked() &&
+    if (autoPlayEligible && !isScreenTimeBlocked() && !sleepTimer.stopsAtEndOfTitle &&
         (state.postPlayDismissedForCurrentEpisode || state.postPlayMode == null)
     ) {
         // Past the still-watching threshold (or a kids profile's autoplay cap), ask first.
@@ -715,6 +715,9 @@ internal fun PlayerRuntimeController.handleNaturalPlaybackEnded() {
 
     emitCompletionScrobbleStop(progressPercent = 99.5f)
     saveWatchProgress()
+    // "End of this title": nothing follows it, the player closes. Set before the screen sees
+    // playbackEnded, so it takes this exit rather than the next episode.
+    if (stopForSleepTimerAtEnd()) return
     resetPostPlayStateAfterPlaybackEnded()
 }
 
@@ -1926,6 +1929,10 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 }
             }
         }
+        PlayerEvent.OnCycleSleepTimer -> onCycleSleepTimer()
+        PlayerEvent.OnSleepTimerKeepWatching -> onSleepTimerKeepWatching()
+        PlayerEvent.OnSleepTimerExtend -> onSleepTimerExtend()
+        PlayerEvent.OnSleepTimerStop -> onSleepTimerStop()
     }
 }
 

@@ -318,6 +318,14 @@ androidComponents {
         val isPlaystore = variant.productFlavors.any { it.second == "playstore" }
         variant.applicationId.set(if (isPlaystore) "com.fetch.app.debug" else "com.fetch.tv.debug")
     }
+    // res/xml/searchable.xml can't use manifest placeholders, so the system search provider's
+    // authority (the manifest's applicationId + ".search") comes in as a string per variant.
+    onVariants { variant ->
+        variant.resValues.put(
+            variant.makeResValueKey("string", "global_search_authority"),
+            variant.applicationId.map { com.android.build.api.variant.ResValue("$it.search", null) }
+        )
+    }
 }
 
 afterEvaluate {

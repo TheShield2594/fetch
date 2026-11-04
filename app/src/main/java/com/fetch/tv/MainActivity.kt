@@ -1025,6 +1025,14 @@ open class MainActivity : ComponentActivity() {
                                     launchSingleTop = true
                                 }
                             }
+                            is AppDeepLink.Search -> {
+                                pendingDeepLinkUrl.value = null
+                                // The search screen picks the query up from the bus, as from the phone.
+                                remoteCommandBus.send(RemoteCommand.Search(deepLink.query))
+                                navController.navigate(Screen.Search.route) {
+                                    launchSingleTop = true
+                                }
+                            }
                             is AppDeepLink.AddonInstall -> if (parentalControls.activeRestrictions.value.isRestricted) {
                                 // Restricted profiles can't install addons, even from a link.
                                 pendingDeepLinkUrl.value = null
@@ -1365,6 +1373,12 @@ open class MainActivity : ComponentActivity() {
     }
 
     private fun captureDeepLinkIntent(intent: Intent?) {
+        // The system search and the Assistant send ACTION_SEARCH with the words as an extra.
+        if (intent?.action == Intent.ACTION_SEARCH) {
+            val query = intent.getStringExtra(android.app.SearchManager.QUERY)?.trim()?.takeIf(String::isNotBlank) ?: return
+            pendingDeepLinkUrl.value = DeepLinkParser.searchUrl(query)
+            return
+        }
         val url = intent?.dataString?.trim()?.takeIf(String::isNotBlank) ?: return
         pendingDeepLinkUrl.value = url
     }

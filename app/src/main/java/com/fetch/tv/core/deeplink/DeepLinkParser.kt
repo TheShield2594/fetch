@@ -7,6 +7,12 @@ import java.net.URI
 import java.net.URLDecoder
 
 object DeepLinkParser {
+    private const val MAX_SEARCH_QUERY_LENGTH = 200
+
+    /** The link [parse] reads as a search for [query]. */
+    fun searchUrl(query: String): String =
+        "fetch://search?q=" + java.net.URLEncoder.encode(query, "UTF-8").replace("+", "%20")
+
     fun parse(url: String): AppDeepLink? {
         val parsedUrl = runCatching { URI(url.trim()) }.getOrNull() ?: return null
         val scheme = parsedUrl.scheme?.lowercase().orEmpty()
@@ -39,6 +45,9 @@ object DeepLinkParser {
                 ?.let(::normalizePartyCode)
                 ?.takeIf { it.length == PARTY_CODE_LENGTH }
                 ?.let(AppDeepLink::Party)
+            "search" -> firstParameter(queryParameters(parsedUrl), "q", "query")
+                ?.take(MAX_SEARCH_QUERY_LENGTH)
+                ?.let(AppDeepLink::Search)
             "auth" -> null
             else -> {
                 if (looksLikeAddonHost(host)) {

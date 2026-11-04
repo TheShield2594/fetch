@@ -67,6 +67,14 @@ class DeepLinkParserTest {
     }
 
     @Test
+    fun parsesSearchDeepLinkAndRoundTripsSearchUrl() {
+        assertEquals(AppDeepLink.Search("the bear"), DeepLinkParser.parse("fetch://search?q=the%20bear"))
+        assertEquals(AppDeepLink.Search("Amélie & co"), DeepLinkParser.parse(DeepLinkParser.searchUrl("Amélie & co")))
+        assertNull(DeepLinkParser.parse("fetch://search"))
+        assertNull(DeepLinkParser.parse("fetch://search?q="))
+    }
+
+    @Test
     fun doesNotTreatNonHostStremioLinkAsAddonInstall() {
         assertNull(DeepLinkParser.parse("stremio://detail/series/tt0944947"))
     }

@@ -91,6 +91,7 @@ class PlayerViewModel @Inject constructor(
     partyRepository: com.fetch.tv.core.party.PartyRepository,
     parentalControls: com.fetch.tv.core.parental.ParentalControls,
     screenTime: com.fetch.tv.core.parental.ScreenTimeManager,
+    sleepTimer: com.fetch.tv.core.player.SleepTimer,
     profileManager: com.fetch.tv.core.profile.ProfileManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -136,6 +137,7 @@ class PlayerViewModel @Inject constructor(
         party = partyRepository,
         parentalControls = parentalControls,
         screenTime = screenTime,
+        sleepTimer = sleepTimer,
         profileId = savedStateHandle.get<String>("profileId")?.toIntOrNull()
             ?: profileManager.activeProfileId.value,
         savedStateHandle = savedStateHandle,

@@ -131,6 +131,7 @@ class PhoneHubWebPage(private val resources: Resources) {
                 ${card("/accounts", R.string.phone_web_card_accounts, R.string.phone_web_card_accounts_sub)}
                 ${card("/ranking", R.string.phone_web_card_ranking, R.string.phone_web_card_ranking_sub)}
                 ${card("/profiles", R.string.phone_web_card_profiles, R.string.phone_web_card_profiles_sub)}
+                ${card("/backup", R.string.phone_web_card_backup, R.string.phone_web_card_backup_sub)}
                 $extra
                 <h2>${h(R.string.phone_web_on_tv_heading)}</h2>
                 <p class="hint">${h(R.string.phone_web_on_tv_body)}</p>
@@ -446,6 +447,40 @@ class PhoneHubWebPage(private val resources: Resources) {
                 .catch(function (e) { show('importStatus', e.message, true); });
             });
             refresh();
+        """
+    )
+
+    fun backup(): String = page(
+        title = h(R.string.phone_web_backup_title),
+        body = """
+            <p class="hint">${h(R.string.phone_web_backup_intro)}</p>
+            <h2>${h(R.string.phone_web_backup_save_heading)}</h2>
+            ${checkRow("addons", R.string.phone_web_backup_include_addons)}
+            <p class="hint">${h(R.string.phone_web_backup_include_addons_hint)}</p>
+            <a id="save" class="card" download href="/api/backup">${h(R.string.phone_web_backup_save)}<span>${h(R.string.phone_web_backup_save_sub)}</span></a>
+            <h2>${h(R.string.phone_web_backup_restore_heading)}</h2>
+            <p class="hint">${h(R.string.phone_web_backup_restore_hint)}</p>
+            <label for="file">${h(R.string.phone_web_backup_file_label)}</label>
+            <input id="file" type="file" accept=".json,application/json">
+            <div class="row"><button id="restore">${h(R.string.phone_web_backup_restore)}</button></div>
+            <div id="restoreStatus" class="status" role="status"></div>
+        """,
+        script = """
+            document.getElementById('addons').addEventListener('change', function (e) {
+              document.getElementById('save').setAttribute('href', e.target.checked ? '/api/backup?addons=1' : '/api/backup');
+            });
+            document.getElementById('restore').addEventListener('click', function () {
+              const file = document.getElementById('file').files[0];
+              if (!file) { show('restoreStatus', ${j(R.string.phone_web_backup_choose_file)}, true); return; }
+              show('restoreStatus', ${j(R.string.phone_web_backup_restoring)});
+              file.text().then(function (text) {
+                let backup;
+                try { backup = JSON.parse(text); } catch (e) { throw new Error(${j(R.string.phone_web_backup_not_a_backup)}); }
+                if (!backup || backup.format !== 'fetch-backup') throw new Error(${j(R.string.phone_web_backup_not_a_backup)});
+                return post('/api/backup/restore', backup);
+              }).then(function (d) { show('restoreStatus', d.message || ''); })
+                .catch(function (e) { show('restoreStatus', e.message, true); });
+            });
         """
     )
 

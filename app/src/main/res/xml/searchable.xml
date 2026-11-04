@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Fetch in the TV's system search. The authority comes from a per-variant resource
+    (app/build.gradle.kts), since debug and Play Store builds have their own application IDs.
+    The launcher passes the typed text as the last path segment of the query URI.
+-->
+<searchable xmlns:android="http://schemas.android.com/apk/res/android"
+    android:label="@string/app_name"
+    android:hint="@string/global_search_hint"
+    android:searchSettingsDescription="@string/global_search_settings_description"
+    android:includeInGlobalSearch="true"
+    android:queryAfterZeroResults="true"
+    android:searchSuggestAuthority="@string/global_search_authority"
+    android:searchSuggestIntentAction="android.intent.action.VIEW" />

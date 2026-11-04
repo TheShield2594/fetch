@@ -19,13 +19,15 @@ class StreamNextSourceAfterFailureTest {
         mode: StreamAutoPlayMode,
         failed: Set<Stream>,
         streams: List<Stream> = all,
-        selectedAddons: Set<String> = emptySet()
+        selectedAddons: Set<String> = emptySet(),
+        regex: String = ""
     ): Stream? = StreamAutoPlaySelector.nextAfterFailure(
         streams = streams,
         mode = mode,
         installedAddonNames = setOf("AddonA", "AddonB"),
         selectedAddons = selectedAddons,
         failed = { it in failed },
+        regexPattern = regex,
         device = DeviceDecodeCapabilities.Permissive
     )
 
@@ -59,6 +61,13 @@ class StreamNextSourceAfterFailureTest {
             next(StreamAutoPlayMode.FIRST_STREAM, failed = setOf(uhd), selectedAddons = setOf("AddonB"))
         )
         assertNull(next(StreamAutoPlayMode.FIRST_STREAM, failed = setOf(uhd, hd), selectedAddons = setOf("AddonB")))
+    }
+
+    @Test
+    fun `regex match keeps to streams its pattern allows`() {
+        assertEquals(hd, next(StreamAutoPlayMode.REGEX_MATCH, failed = setOf(uhd), regex = "2160p|1080p"))
+        assertNull(next(StreamAutoPlayMode.REGEX_MATCH, failed = setOf(uhd, hd), regex = "2160p|1080p"))
+        assertEquals(sd, next(StreamAutoPlayMode.REGEX_MATCH, failed = setOf(uhd), regex = "^(?!.*(1080p)).*$"))
     }
 
     private fun stream(addonName: String, url: String?, name: String, externalUrl: String? = null): Stream = Stream(

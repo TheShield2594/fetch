@@ -742,6 +742,9 @@ internal fun PlayerRuntimeController.switchToSourceStream(
 
     nextEpisodeAutoPlayJob?.cancel()
     nextEpisodeAutoPlayJob = null
+    // A source chosen now replaces any next-source lookup still running for the last one.
+    nextSourceJob?.cancel()
+    nextSourceJob = null
 
     flushPlaybackSnapshotForSwitchOrExit()
 

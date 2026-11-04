@@ -122,6 +122,7 @@ object StreamAutoPlaySelector {
         installedAddonNames: Set<String>,
         selectedAddons: Set<String>,
         failed: (Stream) -> Boolean,
+        regexPattern: String = "",
         rankingRules: StreamRankingRules = StreamRankingRules(),
         device: DeviceDecodeCapabilities = DeviceDecodeCapabilities.current
     ): Stream? {
@@ -129,7 +130,34 @@ object StreamAutoPlaySelector {
         // Ranked before the failed ones are dropped, so result limits stay where they were.
         val eligible = StreamRanker.rank(candidateStreams, rankingRules, device, ::isPlayable).filter { it.isEligible }
         val ordered = if (mode == StreamAutoPlayMode.BEST_MATCH) eligible else eligible.sortedBy { it.originalIndex }
-        return ordered.firstOrNull { !failed(it.stream) }?.stream
+        // Regex match keeps to the streams its pattern allows, as when it picked the first one.
+        val matches = if (mode == StreamAutoPlayMode.REGEX_MATCH) regexFilter(regexPattern) ?: return null else null
+        return ordered.firstOrNull { !failed(it.stream) && (matches == null || matches(it.stream)) }?.stream
+    }
+
+    /** The Regex match test for one stream: the pattern, minus its negative-lookahead words. Null when it won't compile. */
+    private fun regexFilter(regexPattern: String): ((Stream) -> Boolean)? {
+        val pattern = regexPattern.trim()
+        val userRegex = runCatching { Regex(pattern, RegexOption.IGNORE_CASE) }.getOrNull() ?: return null
+        val exclusionWords = Regex("\\(\\?![^)]*?\\(([^)]+)\\)").findAll(pattern)
+            .flatMap { match -> match.groupValues[1].split("|") }
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .toList()
+        val excludeRegex = if (exclusionWords.isNotEmpty()) {
+            Regex("\\b(${exclusionWords.joinToString("|")})\\b", RegexOption.IGNORE_CASE)
+        } else null
+        return { stream ->
+            val searchableText = buildString {
+                append(stream.addonName).append(' ')
+                append(stream.name.orEmpty()).append(' ')
+                append(stream.title.orEmpty()).append(' ')
+                append(stream.description.orEmpty()).append(' ')
+                append(stream.getStreamUrl().orEmpty())
+            }
+            userRegex.containsMatchIn(searchableText) &&
+                (excludeRegex == null || !excludeRegex.containsMatchIn(searchableText))
+        }
     }
 
     fun selectAutoPlayStream(

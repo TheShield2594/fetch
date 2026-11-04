@@ -110,6 +110,28 @@ object StreamAutoPlaySelector {
         return StreamRanker.skippedBetterLooking(ranked, picked)
     }
 
+    /**
+     * The stream to try after the one playing failed to open: the next one in the order the
+     * sources panel lists them (best first under Best match, otherwise the addons' order),
+     * among those the rules allow and auto-play may pick from. [failed] are the streams already
+     * tried for this title. Null when nothing is left.
+     */
+    fun nextAfterFailure(
+        streams: List<Stream>,
+        mode: StreamAutoPlayMode,
+        installedAddonNames: Set<String>,
+        selectedAddons: Set<String>,
+        failed: (Stream) -> Boolean,
+        rankingRules: StreamRankingRules = StreamRankingRules(),
+        device: DeviceDecodeCapabilities = DeviceDecodeCapabilities.current
+    ): Stream? {
+        val candidateStreams = candidates(streams, installedAddonNames, selectedAddons)
+        // Ranked before the failed ones are dropped, so result limits stay where they were.
+        val eligible = StreamRanker.rank(candidateStreams, rankingRules, device, ::isPlayable).filter { it.isEligible }
+        val ordered = if (mode == StreamAutoPlayMode.BEST_MATCH) eligible else eligible.sortedBy { it.originalIndex }
+        return ordered.firstOrNull { !failed(it.stream) }?.stream
+    }
+
     fun selectAutoPlayStream(
         streams: List<Stream>,
         mode: StreamAutoPlayMode,

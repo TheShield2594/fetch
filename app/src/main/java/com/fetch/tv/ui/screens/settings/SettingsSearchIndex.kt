@@ -50,6 +50,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.ready_check_title,
         R.string.autoplay_regex_title,
         R.string.autoplay_allowed_addons,
+        R.string.autoplay_next_source_on_failure_title,
         R.string.autoplay_timeout_title,
         R.string.autoplay_preload_next_episode,
         R.string.autoplay_reuse_last_link,

@@ -60,6 +60,7 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     add(rule(streams, R.string.ready_check_title) { it.readyCheckEnabled })
     add(rule(streams, R.string.autoplay_regex_title) { it.streamAutoPlayRegex })
     add(rule(streams, R.string.autoplay_allowed_addons) { it.streamAutoPlaySelectedAddons })
+    add(rule(streams, R.string.autoplay_next_source_on_failure_title) { it.streamAutoPlayNextSourceOnFailure })
     add(rule(streams, R.string.autoplay_timeout_title) { it.streamAutoPlayTimeoutSeconds })
     add(rule(streams, R.string.autoplay_preload_next_episode) { it.preloadNextEpisodeSources })
     add(rule(streams, R.string.autoplay_reuse_last_link) { it.streamReuseLastLinkEnabled })

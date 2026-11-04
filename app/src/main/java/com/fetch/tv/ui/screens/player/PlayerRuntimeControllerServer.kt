@@ -109,14 +109,17 @@ internal fun PlayerRuntimeController.tryServerFallback(): Boolean {
         showRecoveryOverlay()
         val session = serverPlayback.fallback(failedUrl)
         if (session == null) {
-            _uiState.update {
-                it.copy(
-                    error = context.getString(R.string.player_error_play_stream_failed),
-                    isBuffering = false,
-                    showLoadingOverlay = false,
-                    showPauseOverlay = false
-                )
+            val showFatalError = {
+                _uiState.update {
+                    it.copy(
+                        error = context.getString(R.string.player_error_play_stream_failed),
+                        isBuffering = false,
+                        showLoadingOverlay = false,
+                        showPauseOverlay = false
+                    )
+                }
             }
+            if (!tryNextSourceAfterFailure(showFatalError)) showFatalError()
             return@launch
         }
         restartServerSession(session, positionMs)

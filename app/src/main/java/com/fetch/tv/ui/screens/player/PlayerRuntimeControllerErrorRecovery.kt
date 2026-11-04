@@ -539,14 +539,17 @@ internal fun PlayerRuntimeController.tryParsingErrorProbeFallback(
                 return@launch
             }
             val userFacingError = error.toDisplayMessage(context)
-            _uiState.update {
-                it.copy(
-                    error = userFacingError,
-                    isBuffering = false,
-                    showLoadingOverlay = false,
-                    showPauseOverlay = false
-                )
+            val showFatalError = {
+                _uiState.update {
+                    it.copy(
+                        error = userFacingError,
+                        isBuffering = false,
+                        showLoadingOverlay = false,
+                        showPauseOverlay = false
+                    )
+                }
             }
+            if (!tryNextSourceAfterFailure(showFatalError)) showFatalError()
         }
     }
     return true

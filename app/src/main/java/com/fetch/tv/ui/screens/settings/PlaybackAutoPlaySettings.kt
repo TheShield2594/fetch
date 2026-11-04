@@ -126,6 +126,13 @@ internal fun PlaybackStreamSelectionSection(
         )
     }
 
+    SettingsToggleRow(
+        title = stringResource(R.string.autoplay_next_source_on_failure_title),
+        subtitle = stringResource(R.string.autoplay_next_source_on_failure_sub),
+        checked = settings.streamAutoPlayNextSourceOnFailure,
+        onToggle = { onUpdate { setStreamAutoPlayNextSourceOnFailure(!settings.streamAutoPlayNextSourceOnFailure) } }
+    )
+
     val timeoutSeconds = settings.streamAutoPlayTimeoutSeconds
     SliderSettingsItem(
         title = stringResource(R.string.autoplay_timeout_title),

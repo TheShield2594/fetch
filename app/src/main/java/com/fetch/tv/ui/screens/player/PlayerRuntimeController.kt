@@ -548,6 +548,12 @@ class PlayerRuntimeController(
     internal var streamReuseLastLinkEnabled: Boolean = false
     internal var autoSwitchInternalPlayerOnErrorEnabled: Boolean = false
     internal var startupEngineFailoverTriggered: Boolean = false
+    internal var nextSourceOnFailureEnabled: Boolean = true
+    /** Streams that failed to open for [failedSourcesRequestKey], so the next-source fallback moves on. */
+    internal val failedSourceKeys: MutableSet<String> = mutableSetOf()
+    internal val failedSourceUrls: MutableSet<String> = mutableSetOf()
+    internal var failedSourcesRequestKey: String? = null
+    internal var nextSourceJob: Job? = null
     internal var runtimeInternalPlayerEngineOverride: InternalPlayerEngine? = null
     internal var resolvedAutoPlayerEngine: InternalPlayerEngine? = null
     internal var currentInternalPlayerEngine: InternalPlayerEngine = InternalPlayerEngine.EXOPLAYER

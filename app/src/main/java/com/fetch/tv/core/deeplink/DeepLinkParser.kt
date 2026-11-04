@@ -69,7 +69,9 @@ object DeepLinkParser {
             ?: firstParameter(parameters, "tmdb", "tmdbId", "tmdb_id")
                 ?.let { "tmdb:${it.removePrefix("tmdb:").trim()}" }
             ?: ""
-        return if (type.isBlank() || id.isBlank()) null else AppDeepLink.Meta(type = type, id = id)
+        val addon = firstParameter(parameters, "addon")
+            ?.takeIf { it.startsWith("https://", ignoreCase = true) || it.startsWith("http://", ignoreCase = true) }
+        return if (type.isBlank() || id.isBlank()) null else AppDeepLink.Meta(type = type, id = id, addonBaseUrl = addon)
     }
 
     private fun parseMetaFromPath(pathSegments: List<String>): AppDeepLink.Meta? {

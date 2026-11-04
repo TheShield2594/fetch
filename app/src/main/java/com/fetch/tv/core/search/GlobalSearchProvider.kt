@@ -7,6 +7,7 @@ import android.content.Intent
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
+import android.os.CancellationSignal
 import android.provider.BaseColumns
 import android.util.Log
 import dagger.hilt.EntryPoint
@@ -14,6 +15,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -38,6 +40,17 @@ class GlobalSearchProvider : ContentProvider() {
         selection: String?,
         selectionArgs: Array<out String>?,
         sortOrder: String?
+    ): Cursor = query(uri, projection, selection, selectionArgs, sortOrder, null)
+
+    // The launcher cancels the query for each letter typed after it, so a superseded one stops
+    // its addon requests instead of holding a binder thread until they time out.
+    override fun query(
+        uri: Uri,
+        projection: Array<out String>?,
+        selection: String?,
+        selectionArgs: Array<out String>?,
+        sortOrder: String?,
+        cancellationSignal: CancellationSignal?
     ): Cursor {
         val cursor = MatrixCursor(COLUMNS)
         val query = globalSearchQuery(uri.pathSegments, selectionArgs?.firstOrNull()) ?: return cursor
@@ -46,7 +59,11 @@ class GlobalSearchProvider : ContentProvider() {
         val context = context?.applicationContext ?: return cursor
         val results = try {
             val search = EntryPointAccessors.fromApplication(context, GlobalSearchEntryPoint::class.java).globalSearch()
-            runBlocking { search.search(query, limit) }
+            runBlocking {
+                val running = async { search.search(query, limit) }
+                cancellationSignal?.setOnCancelListener { running.cancel() }
+                running.await()
+            }
         } catch (error: CancellationException) {
             emptyList()
         } catch (error: Exception) {

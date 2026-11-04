@@ -511,6 +511,8 @@ class PlayerRuntimeController(
     internal var nextEpisodePreloadJob: Job? = null
     internal var nextEpisodePreloadTriggered: Boolean = false
     internal var userPausedManually = false
+    /** When the sleep timer's prompt closes the player, on [sleepTimer]'s clock. */
+    internal var sleepTimerPromptEndsAtMs: Long = 0L
 
     internal var isInBackground: Boolean = false
     internal var pendingBackgroundCrashRecovery: Boolean = false

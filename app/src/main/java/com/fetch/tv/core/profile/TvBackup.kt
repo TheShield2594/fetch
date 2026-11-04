@@ -3,6 +3,8 @@ package com.fetch.tv.core.profile
 import com.fetch.tv.core.parental.ProfilePinManager
 import com.fetch.tv.data.local.AddonPreferences
 import com.fetch.tv.domain.model.UserProfile
+import android.util.Log
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -23,8 +25,10 @@ data class TvBackupRestoreResult(
     val merged: List<String>,
     /** Profiles the backup added. */
     val added: List<String>,
-    /** Profiles left out: the TV's one of that name has a PIN, there was no room, or it couldn't be read. */
-    val skipped: List<String>
+    /** Profiles left out: the TV's one of that name has a PIN, or there was no room for another. */
+    val skipped: List<String>,
+    /** Entries in the backup that couldn't be read at all, so have no name to show. */
+    val unreadable: Int = 0
 )
 
 /**
@@ -55,6 +59,7 @@ class TvBackup @Inject constructor(
         val documents = exportable.map { profile ->
             val extra = buildMap<String, JsonElement> {
                 put(PRIMARY_KEY, JsonPrimitive(profile.isPrimary))
+                if (!profile.isPrimary) put(USES_PRIMARY_ADDONS_KEY, JsonPrimitive(profile.usesPrimaryAddons))
                 // A profile on the main profile's addons has none of its own.
                 if (includeAddons && (profile.isPrimary || !profile.usesPrimaryAddons)) {
                     put(ADDONS_KEY, encodeAddons(addonPreferences.backupFor(profile.id)))
@@ -82,13 +87,14 @@ class TvBackup @Inject constructor(
         val merged = mutableListOf<String>()
         val added = mutableListOf<String>()
         val skipped = mutableListOf<String>()
+        var unreadable = 0
         val locked = profilePinManager.pinEnabled.first()
         // Each of this TV's profiles takes at most one backed-up profile.
         val used = mutableSetOf<Int>()
         for (profileDocument in profiles) {
             val name = runCatching { profileTransfer.profileName(profileDocument) }.getOrNull()
             if (name == null) {
-                skipped += "?"
+                unreadable++
                 continue
             }
             val isPrimary = (profileDocument[PRIMARY_KEY] as? JsonPrimitive)?.booleanOrNull == true
@@ -114,14 +120,30 @@ class TvBackup @Inject constructor(
                 skipped += name
             }
         }
-        return TvBackupRestoreResult(merged = merged, added = added, skipped = skipped)
+        return TvBackupRestoreResult(merged = merged, added = added, skipped = skipped, unreadable = unreadable)
     }
 
+    /**
+     * Whether the profile shares the main profile's addons, then its own addon links if the backup
+     * has them. A failure here leaves the profile's other restored data, and the rest of the
+     * backup, in place.
+     */
     private suspend fun restoreAddons(profileId: Int, profileDocument: JsonObject) {
-        val addons = decodeAddons(profileDocument[ADDONS_KEY] as? JsonObject ?: return) ?: return
-        val profile = profileManager.profiles.value.firstOrNull { it.id == profileId } ?: return
-        if (!profile.isPrimary && profile.usesPrimaryAddons) return
-        addonPreferences.restoreFor(profileId, addons)
+        try {
+            var profile = profileManager.profiles.value.firstOrNull { it.id == profileId } ?: return
+            val sharesPrimary = (profileDocument[USES_PRIMARY_ADDONS_KEY] as? JsonPrimitive)?.booleanOrNull
+            if (!profile.isPrimary && sharesPrimary != null && sharesPrimary != profile.usesPrimaryAddons) {
+                profile = profile.copy(usesPrimaryAddons = sharesPrimary)
+                profileManager.updateProfile(profile)
+            }
+            val addons = decodeAddons(profileDocument[ADDONS_KEY] as? JsonObject ?: return) ?: return
+            if (!profile.isPrimary && profile.usesPrimaryAddons) return
+            addonPreferences.restoreFor(profileId, addons)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            Log.w(TAG, "Couldn't restore the addons of profile $profileId", error)
+        }
     }
 
     companion object {
@@ -130,6 +152,8 @@ class TvBackup @Inject constructor(
         // Marks the TV's main profile in a backup; the main profile restores into this TV's main one.
         private const val PRIMARY_KEY = "primary"
         private const val ADDONS_KEY = "addons"
+        private const val USES_PRIMARY_ADDONS_KEY = "usesPrimaryAddons"
+        private const val TAG = "TvBackup"
 
         internal fun encodeAddons(backup: AddonPreferences.Backup): JsonObject = buildJsonObject {
             put("urls", buildJsonArray { backup.urls.forEach { add(JsonPrimitive(it)) } })

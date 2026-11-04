@@ -22,8 +22,12 @@ internal fun sleepTimerLabel(setting: SleepTimerSetting?, remainingMs: Long?): S
     is SleepTimerSetting.Minutes -> SleepTimerLabel.MinutesLeft(SleepTimer.minutesLeft(remainingMs ?: 0L))
 }
 
-/** The prompt's next countdown value, or null when it has run out and the player should close. */
-internal fun nextSleepTimerPromptSec(current: Int): Int? = (current - 1).takeIf { it > 0 }
+/**
+ * Seconds left on the prompt, rounded up, from its deadline rather than counted ticks, so a busy
+ * main thread or a sleeping TV can't stretch it; null once it has run out and the player closes.
+ */
+internal fun sleepTimerPromptSecondsLeft(endsAtMs: Long, nowMs: Long): Int? =
+    ((endsAtMs - nowMs + 999L) / 1_000L).toInt().takeIf { it > 0 }
 
 /**
  * Watches the app's [SleepTimer] while this player is open: keeps the button's label current,
@@ -38,24 +42,31 @@ internal fun PlayerRuntimeController.startSleepTimerTracking() {
             val promptSec = state.sleepTimerPromptSec
             when {
                 promptSec != null -> {
-                    val next = nextSleepTimerPromptSec(promptSec)
+                    val next = sleepTimerPromptSecondsLeft(sleepTimerPromptEndsAtMs, sleepTimer.now())
                     if (next == null) {
                         sleepTimer.cancel()
                         _uiState.update {
                             it.copy(sleepTimerPromptSec = null, sleepTimer = null, pendingExitReason = PlayerExitReason.SleepTimer)
                         }
-                    } else {
+                    } else if (next != promptSec) {
                         _uiState.update { it.copy(sleepTimerPromptSec = next) }
                     }
                 }
                 sleepTimer.hasExpired() && state.screenTimeBlock == null && state.pendingExitReason == null -> {
+                    // An Up next or still-watching countdown would start the next episode behind the prompt.
+                    nextEpisodeAutoPlayJob?.cancel()
+                    nextEpisodeAutoPlayJob = null
+                    stillWatchingPromptJob?.cancel()
+                    stillWatchingPromptJob = null
                     pauseForStillWatchingPrompt()
+                    sleepTimerPromptEndsAtMs = sleepTimer.now() + SLEEP_TIMER_PROMPT_SECONDS * 1_000L
                     _uiState.update {
                         it.copy(
                             sleepTimerPromptSec = SLEEP_TIMER_PROMPT_SECONDS,
                             sleepTimer = null,
                             showControls = false,
-                            showMoreDialog = false
+                            showMoreDialog = false,
+                            postPlayMode = null
                         )
                     }
                 }

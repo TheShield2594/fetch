@@ -20,6 +20,10 @@
     <string name="phone_web_backup_restored_merged">Restored %1$s.</string>
     <string name="phone_web_backup_restored_added">Added %1$s.</string>
     <string name="phone_web_backup_restored_skipped">Left out %1$s: this TV’s profile of that name has a PIN, or there was no room for another profile.</string>
+    <plurals name="phone_web_backup_restored_unreadable">
+        <item quantity="one">%d profile in the backup couldn’t be read, so it was left out.</item>
+        <item quantity="other">%d profiles in the backup couldn’t be read, so they were left out.</item>
+    </plurals>
     <string name="phone_web_backup_restore_failed">Couldn’t restore the backup.</string>
     <string name="phone_web_error_backup">Couldn’t save the backup to a file.</string>
 </resources>

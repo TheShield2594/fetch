@@ -1,7 +1,7 @@
 package com.fetch.tv.core.player
 
 import com.fetch.tv.ui.screens.player.SleepTimerLabel
-import com.fetch.tv.ui.screens.player.nextSleepTimerPromptSec
+import com.fetch.tv.ui.screens.player.sleepTimerPromptSecondsLeft
 import com.fetch.tv.ui.screens.player.sleepTimerLabel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -86,9 +86,12 @@ class SleepTimerTest {
     }
 
     @Test
-    fun `the prompt counts down to null`() {
-        assertEquals(59, nextSleepTimerPromptSec(60))
-        assertEquals(1, nextSleepTimerPromptSec(2))
-        assertNull(nextSleepTimerPromptSec(1))
+    fun `the prompt counts down from its deadline to null`() {
+        val endsAt = 100_000L
+        assertEquals(60, sleepTimerPromptSecondsLeft(endsAt, endsAt - 60_000L))
+        assertEquals(1, sleepTimerPromptSecondsLeft(endsAt, endsAt - 1L))
+        assertNull(sleepTimerPromptSecondsLeft(endsAt, endsAt))
+        // A TV that slept through the prompt closes the player on the next tick.
+        assertNull(sleepTimerPromptSecondsLeft(endsAt, endsAt + 600_000L))
     }
 }

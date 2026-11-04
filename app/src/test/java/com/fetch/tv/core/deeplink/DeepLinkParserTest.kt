@@ -15,6 +15,18 @@ class DeepLinkParserTest {
     }
 
     @Test
+    fun keepsOnlyAWebAddressAsTheMetaLinksAddon() {
+        assertEquals(
+            AppDeepLink.Meta(type = "movie", id = "tt1", addonBaseUrl = "https://addon.example/x"),
+            DeepLinkParser.parse("fetch://meta?type=movie&id=tt1&addon=https%3A%2F%2Faddon.example%2Fx")
+        )
+        assertEquals(
+            AppDeepLink.Meta(type = "movie", id = "tt1"),
+            DeepLinkParser.parse("fetch://meta?type=movie&id=tt1&addon=javascript%3Aalert(1)")
+        )
+    }
+
+    @Test
     fun parsesPartyInviteDeepLink() {
         assertEquals(AppDeepLink.Party("ABC234"), DeepLinkParser.parse("fetch://party/abc234"))
         assertEquals(AppDeepLink.Party("ABC234"), DeepLinkParser.parse("fetch://party?code=ABC-234"))

@@ -568,6 +568,9 @@ class PhoneHubController @Inject constructor(
                 if (result.merged.isNotEmpty()) add(text(R.string.phone_web_backup_restored_merged, result.merged.joinToString(separator)))
                 if (result.added.isNotEmpty()) add(text(R.string.phone_web_backup_restored_added, result.added.joinToString(separator)))
                 if (result.skipped.isNotEmpty()) add(text(R.string.phone_web_backup_restored_skipped, result.skipped.joinToString(separator)))
+                if (result.unreadable > 0) {
+                    add(context.withAppLocale().resources.getQuantityString(R.plurals.phone_web_backup_restored_unreadable, result.unreadable, result.unreadable))
+                }
             }.joinToString(" ")
             val restoredAny = result.merged.isNotEmpty() || result.added.isNotEmpty()
             PhoneHubResult(restoredAny, message.ifBlank { text(R.string.phone_web_backup_restore_failed) })

@@ -1013,7 +1013,8 @@ open class MainActivity : ComponentActivity() {
                                 navController.navigate(
                                     Screen.Detail.createRoute(
                                         itemId = deepLink.id,
-                                        itemType = deepLink.type
+                                        itemType = deepLink.type,
+                                        addonBaseUrl = deepLink.addonBaseUrl
                                     )
                                 ) {
                                     launchSingleTop = true

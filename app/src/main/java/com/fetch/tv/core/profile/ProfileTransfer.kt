@@ -120,10 +120,11 @@ class ProfileTransfer @Inject constructor(
         val restored = existing.copy(
             name = profileName(document).ifBlank { existing.name },
             avatarColorHex = details.text("avatarColorHex")?.takeIf { COLOR_HEX.matches(it) } ?: existing.avatarColorHex,
-            avatarId = details.text("avatarId") ?: existing.avatarId,
-            avatarUrl = details.text("avatarUrl")?.takeIf { it.isHttpUrl() } ?: existing.avatarUrl,
-            profileBackgroundId = details.text("profileBackgroundId") ?: existing.profileBackgroundId,
-            profileBackgroundUrl = details.text("profileBackgroundUrl")?.takeIf { it.isHttpUrl() } ?: existing.profileBackgroundUrl
+            // Export leaves out what the profile didn't have, so a missing one is cleared, not kept.
+            avatarId = details.text("avatarId"),
+            avatarUrl = details.text("avatarUrl")?.takeIf { it.isHttpUrl() },
+            profileBackgroundId = details.text("profileBackgroundId"),
+            profileBackgroundUrl = details.text("profileBackgroundUrl")?.takeIf { it.isHttpUrl() }
         )
         if (restored != existing) {
             profileManager.updateProfile(restored)

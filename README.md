@@ -50,7 +50,8 @@ Highlights:
   controls, a sleep timer, and a one-press hand-off to an external player (mpv, Just Player, …).
 - **Built for a remote.** Compose for TV, focus that returns to the row and item you came from,
   long-press context actions, and every flow works with D-pad, OK and Back. Your addons' movies
-  and shows also turn up in the TV's own search, and "search for … in Fetch" opens Fetch's search.
+  and shows also turn up in the TV's own search (unless a profile has parental limits or the
+  current one has a PIN), and "search for … in Fetch" opens Fetch's search.
 - **Watch state.** Continue Watching, next-episode autoplay, skip intro/recap from community
   markers (IntroDB, AniSkip, Anime-Skip), Trakt and Simkl sync, and the Android TV "Watch Next" row.
 - **Debrid through addons.** Like Stremio, debrid accounts are set up in the addons that support them.

@@ -9,6 +9,7 @@ import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.PosterShape
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
@@ -79,6 +80,34 @@ class GlobalSearchTest {
         assertEquals(2019, result.year)
         assertEquals(false, result.isMovie)
         assertEquals(AppDeepLink.Meta(type = "series", id = "tmdb:42 x"), DeepLinkParser.parse(result.deepLink))
+    }
+
+    @Test
+    fun `titles with a blank imdb id are told apart by their own id`() {
+        val rows = listOf(listOf(meta("kitsu:1").copy(imdbId = ""), meta("kitsu:2").copy(imdbId = "")))
+        assertEquals(listOf("kitsu:1", "kitsu:2"), mergeGlobalSearchResults(rows, limit = 10).map { it.id })
+    }
+
+    @Test
+    fun `a result's link opens it from the addon that found it`() {
+        val result = meta("tt1").copy(sourceAddonBaseUrl = "https://addon.example/abc").toGlobalSearchResult()!!
+        assertEquals(
+            AppDeepLink.Meta(type = "movie", id = "tt1", addonBaseUrl = "https://addon.example/abc"),
+            DeepLinkParser.parse(result.deepLink)
+        )
+    }
+
+    @Test
+    fun `the cache key changes when the catalogs searched change`() {
+        val search = CatalogDescriptor(
+            type = ContentType.MOVIE, id = "search", name = "Search",
+            extra = listOf(CatalogExtra("search", isRequired = true))
+        )
+        val one = globalSearchTargets(listOf(addon(search)))
+        val other = globalSearchTargets(listOf(addon(search).copy(baseUrl = "https://other.example")))
+        assertEquals(globalSearchCacheKey(1, "Dune", one), globalSearchCacheKey(1, "dune", one))
+        assertNotEquals(globalSearchCacheKey(1, "dune", one), globalSearchCacheKey(1, "dune", other))
+        assertNotEquals(globalSearchCacheKey(1, "dune", one), globalSearchCacheKey(1, "dune", emptyList()))
     }
 
     @Test

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library header -->
+    <string name="library_open_stats">İstatistik</string>
+    <string name="library_open_calendar">Takvim</string>
+
+    <!-- Shared by Stats and Calendar -->
+    <string name="insights_source_eyebrow">Fetch web sitesinden</string>
+    <string name="insights_loading">Yükleniyor…</string>
+    <string name="insights_not_paired_subtitle">Burada görmek için bu TV\'de Ayarlar › Hesap bölümünden Fetch web sitesinde oturum açın. İzleme geçmişiniz web sitesinde tutulur ve bu bilgiler oradan hesaplanır.</string>
+    <string name="insights_no_profile_title">Bu profil Fetch web sitesinde yok</string>
+    <string name="insights_no_profile_subtitle">Yalnızca web sitesinden gelen profillerin orada izleme geçmişi vardır. Bu profillerden birine geçin veya bu profili web sitesine ekleyin.</string>
+    <string name="insights_locked_title">Bu profil kilitli</string>
+    <string name="insights_locked_subtitle">Bu profilin web sitesinde bir PIN kodu var ve bu TV\'de bir süredir girilmedi. Burada görmek için profile yeniden geçin ve PIN kodunu girin.</string>
+    <string name="insights_open_settings">Ayarları Aç</string>
+    <string name="insights_find_something">İzleyecek bir şey bul</string>
+
+    <!-- Stats -->
+    <string name="stats_title">İzleme istatistikleri</string>
+    <string name="stats_not_paired_title">İstatistikleriniz Fetch web sitesinde</string>
+    <string name="stats_failed">İstatistikleriniz Fetch web sitesinden yüklenemedi.</string>
+    <string name="stats_empty_title">Henüz bir şey izlenmedi, sayılacak bir şey yok</string>
+    <string name="stats_empty_subtitle">Buradaki her veri — seriler, türler, rozetler, yıllık özetiniz — izleme geçmişinizden oluşturulur.</string>
+    <string name="stats_watch_history_note">İzleme geçmişinizden oluşturuldu. Her film ve bölüm, en son izlediğiniz gün bir kez sayılır.</string>
+    <string name="stats_watch_history_partial">Türler ve puanlar en son izlediğiniz 300 yapımı kapsar.</string>
+    <string name="stats_failed_watch_history">İzleme geçmişiniz okunamadı.</string>
+    <string name="stats_movies">Filmler</string>
+    <string name="stats_episodes">Bölümler</string>
+    <string name="stats_current_streak">Mevcut seri</string>
+    <string name="stats_longest_streak">En uzun seri</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d gün</item>
+        <item quantity="other">%d gün</item>
+    </plurals>
+    <string name="stats_achievements">Başarımlar</string>
+    <string name="stats_no_badges">Henüz rozet kazanılmadı — izlemeye devam!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d film</item>
+        <item quantity="other">%d film</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d bölüm</item>
+        <item quantity="other">%d bölüm</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d günlük seri</item>
+        <item quantity="other">%d günlük seri</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Kazanılan: %s</string>
+    <string name="stats_next_badges_label">Sıradaki: %s</string>
+    <string name="stats_monthly_activity">Aylık etkinlik</string>
+    <string name="stats_vs_last_month">Geçen aya göre %s</string>
+    <string name="stats_vs_last_month_percent">Geçen aya göre %1$s (%%%2$s)</string>
+    <string name="stats_top_genres">En çok izlenen türler</string>
+    <string name="stats_genre_description">%1$s: %2$d izlendi</string>
+    <string name="stats_top_rated">En yüksek puanlı izlenenler</string>
+    <string name="stats_rated_out_of_ten">10 üzerinden %s puan</string>
+    <string name="stats_rated_out_of_five">5 üzerinden %s puan</string>
+    <string name="stats_type_movie">Film</string>
+    <string name="stats_type_series">Dizi</string>
+    <string name="stats_year_in_review">Yılın özeti</string>
+    <string name="stats_year_failed">Bu yılın özeti yüklenemedi.</string>
+    <string name="stats_movies_watched">İzlenen film</string>
+    <string name="stats_episodes_watched">İzlenen bölüm</string>
+    <string name="stats_hours_watched">İzleme saati</string>
+    <string name="stats_busiest_month">En yoğun ay</string>
+    <string name="stats_top_rated_picks">En yüksek puanlılar</string>
+
+    <!-- Calendar -->
+    <string name="calendar_title">Takvim</string>
+    <string name="calendar_not_paired_title">Takviminiz Fetch web sitesinde</string>
+    <string name="calendar_failed">Takviminiz Fetch web sitesinden yüklenemedi.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d gün</item>
+        <item quantity="other">%d gün</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Önümüzdeki %d gün içinde yeni bölüm yok</item>
+        <item quantity="other">Önümüzdeki %d gün içinde yeni bölüm yok</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Takvim yalnızca izlemeye başladığınız dizileri takip eder.</string>
+    <string name="calendar_source_watch_history">İzleme geçmişinizden</string>
+    <string name="calendar_empty_subtitle_watch_history">Takvim, senkronizasyon yönteminizden veya takip hizmetinizden gelen izleme geçmişine göre en son izlediğiniz 30 diziyi takip eder.</string>
+    <string name="calendar_failed_watch_history">Yaklaşan bölümler TMDB\'de aranamadı.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB %d dizi için yanıt vermedi, bu yüzden bazı bölümler eksik olabilir.</item>
+        <item quantity="other">TMDB %d dizi için yanıt vermedi, bu yüzden bazı bölümler eksik olabilir.</item>
+    </plurals>
+    <string name="calendar_find_series">Takip edecek bir dizi bul</string>
+    <string name="calendar_today">Bugün</string>
+    <string name="calendar_tomorrow">Yarın</string>
+    <string name="calendar_unknown_date">Tarih açıklanmadı</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d bölüm</item>
+        <item quantity="other">%d bölüm</item>
+    </plurals>
+</resources>

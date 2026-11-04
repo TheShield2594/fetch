@@ -64,6 +64,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.AspectRatio
+import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ClosedCaption
@@ -229,6 +230,14 @@ fun PlayerScreen(
             status = status,
             onExit = viewModel::onScreenTimeExit,
             onGranted = viewModel::onScreenTimeGranted
+        )
+    }
+    uiState.sleepTimerPromptSec?.let { seconds ->
+        SleepTimerPrompt(
+            secondsLeft = seconds,
+            onKeepWatching = { viewModel.onEvent(PlayerEvent.OnSleepTimerKeepWatching) },
+            onExtend = { viewModel.onEvent(PlayerEvent.OnSleepTimerExtend) },
+            onStop = { viewModel.onEvent(PlayerEvent.OnSleepTimerStop) }
         )
     }
     val partyState by viewModel.party.state.collectAsState()
@@ -1660,6 +1669,7 @@ fun PlayerScreen(
                 onSwitchPlayerEngine = { viewModel.onEvent(PlayerEvent.OnSwitchInternalPlayerEngine) },
                 onReportPlaybackIssue = { viewModel.onEvent(PlayerEvent.OnReportPlaybackIssue) },
                 onMarkSkipSegment = { viewModel.onEvent(PlayerEvent.OnMarkSkipSegment) },
+                onCycleSleepTimer = { viewModel.onEvent(PlayerEvent.OnCycleSleepTimer) },
                 onToggleMoreActions = {
                     if (uiState.showMoreDialog) {
                         viewModel.onEvent(PlayerEvent.OnDismissMoreDialog)
@@ -2644,6 +2654,7 @@ internal fun PlayerControlsOverlay(
     onReportPlaybackIssue: () -> Unit,
     onToggleMoreActions: () -> Unit,
     onMarkSkipSegment: () -> Unit,
+    onCycleSleepTimer: () -> Unit,
     onOpenInExternalPlayer: (() -> Unit)?,
     onShowStreamInfo: () -> Unit,
     onResetHideTimer: () -> Unit,
@@ -2927,6 +2938,17 @@ internal fun PlayerControlsOverlay(
                                 contentColor = if (marking) FetchTheme.colors.Secondary else FetchTheme.colors.Player.TextPrimary
                             )
                         }
+                        // Each press moves to the next duration; the label says what it is now.
+                        ControlButton(
+                            icon = Icons.Default.Bedtime,
+                            contentDescription = sleepTimerButtonLabel(uiState.sleepTimer, isMovie = uiState.contentType == "movie"),
+                            onClick = onCycleSleepTimer,
+                            upFocusRequester = progressUpTarget,
+                            onDownKey = backToMore,
+                            onFocused = onResetHideTimer,
+                            labelAbove = true,
+                            contentColor = if (uiState.sleepTimer != null) FetchTheme.colors.Secondary else FetchTheme.colors.Player.TextPrimary
+                        )
                         if (onShowPartyPanel != null && !partyActive) {
                             ControlButton(
                                 icon = Icons.Rounded.Groups,

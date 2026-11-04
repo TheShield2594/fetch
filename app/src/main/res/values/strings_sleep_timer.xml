@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Player: the sleep timer button in the More row. Each press moves to the next duration. -->
+    <string name="player_sleep_timer">Sleep timer</string>
+    <plurals name="player_sleep_timer_minutes_left">
+        <item quantity="one">Sleep timer: %d min left</item>
+        <item quantity="other">Sleep timer: %d min left</item>
+    </plurals>
+    <string name="player_sleep_timer_end_of_episode">Sleep timer: end of this episode</string>
+    <string name="player_sleep_timer_end_of_movie">Sleep timer: end of this movie</string>
+
+    <!-- Player: the prompt when the sleep timer runs out. The title is still_watching_title. -->
+    <plurals name="player_sleep_timer_prompt">
+        <item quantity="one">The sleep timer paused playback. The player closes in %d second.</item>
+        <item quantity="other">The sleep timer paused playback. The player closes in %d seconds.</item>
+    </plurals>
+    <string name="player_sleep_timer_keep_watching">Keep watching</string>
+    <plurals name="player_sleep_timer_extend">
+        <item quantity="one">%d more minute</item>
+        <item quantity="other">%d more minutes</item>
+    </plurals>
+    <string name="player_sleep_timer_stop">Stop</string>
+</resources>

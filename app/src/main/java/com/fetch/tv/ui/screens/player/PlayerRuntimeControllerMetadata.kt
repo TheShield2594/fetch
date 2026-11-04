@@ -375,7 +375,10 @@ internal fun PlayerRuntimeController.evaluatePostPlayOverlayVisibility(positionM
     val effectiveDuration = effectiveDurationEarly
 
     // Preload: start fetching sources for next episode before the button appears.
-    if (preloadNextEpisodeSourcesSetting && !nextEpisodePreloadTriggered && state.nextEpisode != null) {
+    // Nothing follows a title the sleep timer stops at, so its next episode isn't fetched either.
+    if (preloadNextEpisodeSourcesSetting && !nextEpisodePreloadTriggered && state.nextEpisode != null &&
+        !sleepTimer.stopsAtEndOfTitle
+    ) {
         val preloadLeadMs = maxOf(streamAutoPlayTimeoutSecondsSetting.toLong() * 1_000L, 10_000L)
             .coerceAtMost(30_000L)
         val shouldPreloadByCard = PlayerNextEpisodeRules.shouldShowNextEpisodeCard(
@@ -407,6 +410,8 @@ internal fun PlayerRuntimeController.evaluatePostPlayOverlayVisibility(positionM
     if (_uiState.value.postPlayDismissedForCurrentEpisode) return
     // Out of screen time or past bedtime: the title plays to its end, nothing follows it.
     if (isScreenTimeBlocked()) return
+    // The sleep timer stops at the end of this title, so there is no next one to offer.
+    if (sleepTimer.stopsAtEndOfTitle) return
 
     val shouldEnterStillWatching = shouldPromptStillWatching(state.nextEpisode.hasAired)
 

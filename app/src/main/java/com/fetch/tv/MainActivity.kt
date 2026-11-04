@@ -1013,7 +1013,8 @@ open class MainActivity : ComponentActivity() {
                                 navController.navigate(
                                     Screen.Detail.createRoute(
                                         itemId = deepLink.id,
-                                        itemType = deepLink.type
+                                        itemType = deepLink.type,
+                                        addonBaseUrl = deepLink.addonBaseUrl
                                     )
                                 ) {
                                     launchSingleTop = true
@@ -1022,6 +1023,14 @@ open class MainActivity : ComponentActivity() {
                             is AppDeepLink.Party -> {
                                 pendingDeepLinkUrl.value = null
                                 navController.navigate(Screen.WatchParty.createRoute(deepLink.code)) {
+                                    launchSingleTop = true
+                                }
+                            }
+                            is AppDeepLink.Search -> {
+                                pendingDeepLinkUrl.value = null
+                                // The search screen picks the query up from the bus, as from the phone.
+                                remoteCommandBus.send(RemoteCommand.Search(deepLink.query))
+                                navController.navigate(Screen.Search.route) {
                                     launchSingleTop = true
                                 }
                             }
@@ -1365,6 +1374,12 @@ open class MainActivity : ComponentActivity() {
     }
 
     private fun captureDeepLinkIntent(intent: Intent?) {
+        // The system search and the Assistant send ACTION_SEARCH with the words as an extra.
+        if (intent?.action == Intent.ACTION_SEARCH) {
+            val query = intent.getStringExtra(android.app.SearchManager.QUERY)?.trim()?.takeIf(String::isNotBlank) ?: return
+            pendingDeepLinkUrl.value = DeepLinkParser.searchUrl(query)
+            return
+        }
         val url = intent?.dataString?.trim()?.takeIf(String::isNotBlank) ?: return
         pendingDeepLinkUrl.value = url
     }

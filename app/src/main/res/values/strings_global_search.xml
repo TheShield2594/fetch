@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The TV's system search: the hint in Fetch's search box there, and how Settings describes it. -->
+    <string name="global_search_hint">Search movies and shows</string>
+    <string name="global_search_settings_description">Movies and shows from your addons and media servers</string>
+</resources>

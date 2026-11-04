@@ -94,6 +94,7 @@ class PlayerRuntimeController(
     internal val party: com.fetch.tv.core.party.PartyRepository,
     internal val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     internal val screenTime: com.fetch.tv.core.parental.ScreenTimeManager,
+    internal val sleepTimer: com.fetch.tv.core.player.SleepTimer,
     internal val profileId: Int,
     internal val savedStateHandle: SavedStateHandle,
     internal val scope: CoroutineScope
@@ -312,6 +313,7 @@ class PlayerRuntimeController(
 
     init {
         startScreenTimeTracking()
+        startSleepTimerTracking()
     }
 
     val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
@@ -509,6 +511,8 @@ class PlayerRuntimeController(
     internal var nextEpisodePreloadJob: Job? = null
     internal var nextEpisodePreloadTriggered: Boolean = false
     internal var userPausedManually = false
+    /** When the sleep timer's prompt closes the player, on [sleepTimer]'s clock. */
+    internal var sleepTimerPromptEndsAtMs: Long = 0L
 
     internal var isInBackground: Boolean = false
     internal var pendingBackgroundCrashRecovery: Boolean = false
@@ -769,6 +773,8 @@ class PlayerRuntimeController(
     fun onCleared() {
         playerSession.close()
         screenTime.save()
+        // "End of this title" belongs to the title it was set on, not whatever plays next time.
+        if (sleepTimer.stopsAtEndOfTitle) sleepTimer.cancel()
         stopServerPlayback()
         releasePlayer()
         startupLoadingReportJob?.cancel()

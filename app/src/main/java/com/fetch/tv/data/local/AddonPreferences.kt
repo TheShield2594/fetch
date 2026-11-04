@@ -179,6 +179,33 @@ class AddonPreferences @Inject constructor(
         }
     }
 
+    /** [profileId]'s addons as a backup holds them: the links in order, which are off, and names given to them. */
+    data class Backup(val urls: List<String>, val enabled: Map<String, Boolean>, val names: Map<String, String>)
+
+    suspend fun backupFor(profileId: Int): Backup {
+        val preferences = factory.get(profileId, FEATURE).data.first()
+        return Backup(
+            urls = getCurrentList(preferences),
+            enabled = getCurrentEnabledStates(preferences),
+            names = preferences[userSetNamesKey]?.let(::parseNameMap).orEmpty()
+        )
+    }
+
+    /** Replaces [profileId]'s addons with [backup], as [backupFor] read them on this or another TV. */
+    suspend fun restoreFor(profileId: Int, backup: Backup) {
+        val urls = backup.urls.map(::canonicalizeUrl).filter { it.startsWith("https://") || it.startsWith("http://") }.distinct()
+        factory.get(profileId, FEATURE).edit { preferences ->
+            preferences[orderedUrlsKey] = gson.toJson(urls)
+            preferences.remove(legacyUrlsKey)
+            preferences[addonEnabledStatesKey] = gson.toJson(
+                backup.enabled.mapKeys { (url, _) -> canonicalizeUrl(url) }.filterKeys { it in urls }
+            )
+            preferences[userSetNamesKey] = gson.toJson(
+                backup.names.mapKeys { (url, _) -> canonicalizeUrl(url) }.filterKeys { it in urls }
+            )
+        }
+    }
+
     private fun getCurrentList(preferences: Preferences): List<String> {
         val json = preferences[orderedUrlsKey]
         return if (json != null) {

@@ -78,13 +78,20 @@ class ProfileTransfer @Inject constructor(
         }
     }
 
-    /** Adds [document], as [export] wrote it, as a new profile on this TV. */
-    suspend fun import(document: JsonObject): UserProfile {
+    /** The profile's name as [import] would give it, after checking [document] is one it can read. */
+    fun profileName(document: JsonObject): String = profileDetails(document).text("name")?.trim()?.take(MAX_NAME_LENGTH).orEmpty()
+
+    private fun profileDetails(document: JsonObject): JsonObject {
         require(document.text("format") == FORMAT) { "That isn't a Fetch profile file." }
         val version = (document["version"] as? JsonPrimitive)?.intOrNull ?: 0
         require(version in 1..VERSION) { "That profile file is from a newer version of Fetch. Update this TV first." }
-        val details = document["profile"] as? JsonObject ?: throw IllegalArgumentException("The profile is missing.")
-        val name = details.text("name")?.trim()?.take(MAX_NAME_LENGTH).orEmpty()
+        return document["profile"] as? JsonObject ?: throw IllegalArgumentException("The profile is missing.")
+    }
+
+    /** Adds [document], as [export] wrote it, as a new profile on this TV. */
+    suspend fun import(document: JsonObject): UserProfile {
+        val details = profileDetails(document)
+        val name = profileName(document)
         val colorHex = details.text("avatarColorHex")?.takeIf { COLOR_HEX.matches(it) } ?: DEFAULT_COLOR
         val avatarId = details.text("avatarId")
 
@@ -97,10 +104,39 @@ class ProfileTransfer @Inject constructor(
         )
         if (profile != created) profileManager.updateProfile(profile)
         runCatchingNonCancellation("profiles push") { profileSyncService.pushToRemote() }
+        applyData(profile.id, document)
+        return profile
+    }
 
+    /**
+     * Restores [document] into [profileId], a profile this TV already has: its name and avatar
+     * become the file's, its settings are replaced, and its library, watch history and progress
+     * are merged with what's there, so nothing watched since the file was saved is lost.
+     */
+    suspend fun importInto(profileId: Int, document: JsonObject) {
+        val details = profileDetails(document)
+        val existing = profileManager.profiles.value.firstOrNull { it.id == profileId }
+            ?: throw IllegalArgumentException("That profile is gone.")
+        val restored = existing.copy(
+            name = profileName(document).ifBlank { existing.name },
+            avatarColorHex = details.text("avatarColorHex")?.takeIf { COLOR_HEX.matches(it) } ?: existing.avatarColorHex,
+            // Export leaves out what the profile didn't have, so a missing one is cleared, not kept.
+            avatarId = details.text("avatarId"),
+            avatarUrl = details.text("avatarUrl")?.takeIf { it.isHttpUrl() },
+            profileBackgroundId = details.text("profileBackgroundId"),
+            profileBackgroundUrl = details.text("profileBackgroundUrl")?.takeIf { it.isHttpUrl() }
+        )
+        if (restored != existing) {
+            profileManager.updateProfile(restored)
+            runCatchingNonCancellation("profiles push") { profileSyncService.pushToRemote() }
+        }
+        applyData(profileId, document)
+    }
+
+    private suspend fun applyData(profileId: Int, document: JsonObject) {
         (document["settings"] as? JsonObject)?.let { settings ->
             runCatchingNonCancellation("settings") {
-                profileSettingsSyncService.importLocalSettings(profile.id, settings)
+                profileSettingsSyncService.importLocalSettings(profileId, settings)
             }
         }
         (document["library"] as? JsonArray)?.let { items ->
@@ -111,25 +147,24 @@ class ProfileTransfer @Inject constructor(
                     required = listOf("id", "type", "name", "posterShape"),
                     defaults = mapOf("genres" to JsonArray(emptyList()))
                 )
-                    .forEach { libraryPreferences.addItem(it, profile.id) }
+                    .forEach { libraryPreferences.addItem(it, profileId) }
             }
         }
         (document["watched"] as? JsonArray)?.let { items ->
             runCatchingNonCancellation("watched") {
                 val watched = decodeEach(items, WatchedItem::class.java, required = listOf("contentId", "contentType", "title"))
-                watchedItemsPreferences.mergeRemoteItems(watched, profile.id)
+                watchedItemsPreferences.mergeRemoteItems(watched, profileId)
             }
         }
         (document["progress"] as? JsonObject)?.let { entries ->
             runCatchingNonCancellation("progress") {
                 watchProgressPreferences.mergeRemoteEntries(
                     remoteEntries = watchProgressPreferences.decodeEntries(entries.toString()),
-                    profileId = profile.id,
+                    profileId = profileId,
                     removeMissingRemoteEntries = false
                 )
             }
         }
-        return profile
     }
 
     // Gson leaves a missing field null even where Kotlin says it can't be, so an item missing one

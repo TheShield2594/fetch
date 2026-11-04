@@ -21,7 +21,9 @@ import com.fetch.tv.ui.components.SourceChipItem
 enum class PlayerExitReason {
     StillWatchingPrompt,
     /** A kids profile's screen time ran out, or bedtime started. */
-    ScreenTimeLimit
+    ScreenTimeLimit,
+    /** The sleep timer ran out, or stopped playback at the end of the title. */
+    SleepTimer
 }
 
 enum class PlaybackIssueReportStatus {
@@ -72,6 +74,10 @@ data class PlayerUiState(
     val pendingExitReason: PlayerExitReason? = null,
     /** Set while the "That's all for today" dialog is up. */
     val screenTimeBlock: com.fetch.tv.core.parental.ScreenTimeStatus? = null,
+    /** The sleep timer as the More row's button shows it; null while it is off. */
+    val sleepTimer: SleepTimerLabel? = null,
+    /** Seconds until the player closes, while the sleep timer's "Still watching?" prompt is up. */
+    val sleepTimerPromptSec: Int? = null,
     val title: String = "",
     val contentName: String? = null, // Series/show name (for series content)
     val releaseYear: String? = null, // Release year for movies
@@ -399,6 +405,16 @@ sealed class PlayerEvent {
     data object OnShowStreamInfo : PlayerEvent()
     data object OnDismissStreamInfo : PlayerEvent()
     data object OnTogglePlayerStatsHud : PlayerEvent()
+    data object OnCycleSleepTimer : PlayerEvent()
+    data object OnSleepTimerKeepWatching : PlayerEvent()
+    data object OnSleepTimerExtend : PlayerEvent()
+    data object OnSleepTimerStop : PlayerEvent()
+}
+
+/** What the sleep timer button says: minutes left (rounded up), or that it stops at the end. */
+sealed interface SleepTimerLabel {
+    data class MinutesLeft(val minutes: Int) : SleepTimerLabel
+    data object EndOfTitle : SleepTimerLabel
 }
 
 data class ParentalWarning(

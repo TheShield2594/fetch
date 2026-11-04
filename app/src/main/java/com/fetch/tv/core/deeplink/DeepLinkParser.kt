@@ -7,6 +7,12 @@ import java.net.URI
 import java.net.URLDecoder
 
 object DeepLinkParser {
+    private const val MAX_SEARCH_QUERY_LENGTH = 200
+
+    /** The link [parse] reads as a search for [query]. */
+    fun searchUrl(query: String): String =
+        "fetch://search?q=" + java.net.URLEncoder.encode(query, "UTF-8").replace("+", "%20")
+
     fun parse(url: String): AppDeepLink? {
         val parsedUrl = runCatching { URI(url.trim()) }.getOrNull() ?: return null
         val scheme = parsedUrl.scheme?.lowercase().orEmpty()
@@ -39,6 +45,9 @@ object DeepLinkParser {
                 ?.let(::normalizePartyCode)
                 ?.takeIf { it.length == PARTY_CODE_LENGTH }
                 ?.let(AppDeepLink::Party)
+            "search" -> firstParameter(queryParameters(parsedUrl), "q", "query")
+                ?.take(MAX_SEARCH_QUERY_LENGTH)
+                ?.let(AppDeepLink::Search)
             "auth" -> null
             else -> {
                 if (looksLikeAddonHost(host)) {
@@ -60,7 +69,9 @@ object DeepLinkParser {
             ?: firstParameter(parameters, "tmdb", "tmdbId", "tmdb_id")
                 ?.let { "tmdb:${it.removePrefix("tmdb:").trim()}" }
             ?: ""
-        return if (type.isBlank() || id.isBlank()) null else AppDeepLink.Meta(type = type, id = id)
+        val addon = firstParameter(parameters, "addon")
+            ?.takeIf { it.startsWith("https://", ignoreCase = true) || it.startsWith("http://", ignoreCase = true) }
+        return if (type.isBlank() || id.isBlank()) null else AppDeepLink.Meta(type = type, id = id, addonBaseUrl = addon)
     }
 
     private fun parseMetaFromPath(pathSegments: List<String>): AppDeepLink.Meta? {

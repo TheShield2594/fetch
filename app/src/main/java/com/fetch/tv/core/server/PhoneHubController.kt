@@ -13,6 +13,7 @@ import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.parental.ParentalControls
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.profile.ProfileTransfer
+import com.fetch.tv.core.profile.TvBackup
 import com.fetch.tv.core.remote.RemoteCommand
 import com.fetch.tv.core.remote.RemoteCommandBus
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
@@ -118,6 +119,7 @@ class PhoneHubController @Inject constructor(
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
     private val parentalControls: ParentalControls,
     private val profileTransfer: ProfileTransfer,
+    private val tvBackup: TvBackup,
     private val addonRepository: AddonRepository,
     private val profileManager: ProfileManager
 ) : PhoneHubActions {
@@ -540,6 +542,45 @@ class PhoneHubController @Inject constructor(
         } catch (error: Exception) {
             Log.w(TAG, "Profile import from phone failed", error)
             PhoneHubResult(false, text(R.string.phone_web_profile_add_failed))
+        }
+    }
+
+    // A backup holds every profile's history and settings, so it's behind the same lock as settings.
+    override suspend fun exportBackup(includeAddons: Boolean): Result<JsonObject> {
+        settingsBlocked()?.let { return Result.failure(IllegalStateException(it.message)) }
+        return try {
+            Result.success(tvBackup.export(includeAddons))
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            Log.w(TAG, "Backup from phone failed", error)
+            Result.failure(IllegalStateException(text(R.string.phone_web_error_backup)))
+        }
+    }
+
+    override suspend fun restoreBackup(document: JsonObject): PhoneHubResult {
+        settingsBlocked()?.let { return it }
+        if (!TvBackup.isBackup(document)) return PhoneHubResult(false, text(R.string.phone_web_backup_not_a_backup))
+        return try {
+            val result = tvBackup.restore(document)
+            val separator = text(R.string.phone_web_list_separator)
+            val message = buildList {
+                if (result.merged.isNotEmpty()) add(text(R.string.phone_web_backup_restored_merged, result.merged.joinToString(separator)))
+                if (result.added.isNotEmpty()) add(text(R.string.phone_web_backup_restored_added, result.added.joinToString(separator)))
+                if (result.skipped.isNotEmpty()) add(text(R.string.phone_web_backup_restored_skipped, result.skipped.joinToString(separator)))
+                if (result.unreadable > 0) {
+                    add(context.withAppLocale().resources.getQuantityString(R.plurals.phone_web_backup_restored_unreadable, result.unreadable, result.unreadable))
+                }
+            }.joinToString(" ")
+            val restoredAny = result.merged.isNotEmpty() || result.added.isNotEmpty()
+            PhoneHubResult(restoredAny, message.ifBlank { text(R.string.phone_web_backup_restore_failed) })
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: IllegalArgumentException) {
+            PhoneHubResult(false, error.message)
+        } catch (error: Exception) {
+            Log.w(TAG, "Backup restore from phone failed", error)
+            PhoneHubResult(false, text(R.string.phone_web_backup_restore_failed))
         }
     }
 }

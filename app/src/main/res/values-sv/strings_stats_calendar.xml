@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Statistik</string>
+    <string name="library_open_calendar">Kalender</string>
+
+    <string name="insights_source_eyebrow">Från Fetch-webbplatsen</string>
+    <string name="insights_loading">Laddar…</string>
+    <string name="insights_not_paired_subtitle">Logga in den här tv:n på Fetch-webbplatsen under Inställningar › Konto för att se det här. Webbplatsen sparar din tittarhistorik och räknar fram det utifrån den.</string>
+    <string name="insights_no_profile_title">Den här profilen finns inte på Fetch-webbplatsen</string>
+    <string name="insights_no_profile_subtitle">Bara profiler som kommer från webbplatsen har en tittarhistorik där. Byt till en av dem eller lägg till den här profilen på webbplatsen.</string>
+    <string name="insights_locked_title">Den här profilen är låst</string>
+    <string name="insights_locked_subtitle">Den har en PIN på webbplatsen som inte har angetts på den här tv:n på sistone. Byt till profilen igen och ange dess PIN för att se det här.</string>
+    <string name="insights_open_settings">Öppna Inställningar</string>
+    <string name="insights_find_something">Hitta något att titta på</string>
+
+    <string name="stats_title">Tittarstatistik</string>
+    <string name="stats_not_paired_title">Din statistik finns på Fetch-webbplatsen</string>
+    <string name="stats_failed">Kunde inte läsa in din statistik från Fetch-webbplatsen.</string>
+    <string name="stats_empty_title">Inget sett än, så det finns inget att räkna</string>
+    <string name="stats_empty_subtitle">Alla siffror här — sviter, genrer, märken, ditt år i sammandrag — bygger på din tittarhistorik.</string>
+    <string name="stats_watch_history_note">Bygger på din tittarhistorik. Varje film och avsnitt räknas en gång, den dag du senast såg det.</string>
+    <string name="stats_watch_history_partial">Genrer och betyg gäller dina 300 senast sedda titlar.</string>
+    <string name="stats_failed_watch_history">Kunde inte läsa din tittarhistorik.</string>
+    <string name="stats_movies">Filmer</string>
+    <string name="stats_episodes">Avsnitt</string>
+    <string name="stats_current_streak">Nuvarande svit</string>
+    <string name="stats_longest_streak">Längsta svit</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dagar</item>
+    </plurals>
+    <string name="stats_achievements">Prestationer</string>
+    <string name="stats_no_badges">Inga märken än — fortsätt titta!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d film</item>
+        <item quantity="other">%d filmer</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d avsnitt</item>
+        <item quantity="other">%d avsnitt</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">Svit på %d dag</item>
+        <item quantity="other">Svit på %d dagar</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Intjänade: %s</string>
+    <string name="stats_next_badges_label">Nästa: %s</string>
+    <string name="stats_monthly_activity">Aktivitet per månad</string>
+    <string name="stats_vs_last_month">%s jämfört med förra månaden</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) jämfört med förra månaden</string>
+    <string name="stats_top_genres">Toppgenrer</string>
+    <string name="stats_genre_description">%1$s: %2$d sedda</string>
+    <string name="stats_top_rated">Högst betyg av det du sett</string>
+    <string name="stats_rated_out_of_ten">Betyg %s av 10</string>
+    <string name="stats_rated_out_of_five">Betyg %s av 5</string>
+    <string name="stats_type_movie">Film</string>
+    <string name="stats_type_series">Serie</string>
+    <string name="stats_year_in_review">Året som gått</string>
+    <string name="stats_year_failed">Kunde inte läsa in årets sammanfattning.</string>
+    <string name="stats_movies_watched">Sedda filmer</string>
+    <string name="stats_episodes_watched">Sedda avsnitt</string>
+    <string name="stats_hours_watched">Tittade timmar</string>
+    <string name="stats_busiest_month">Mest aktiva månad</string>
+    <string name="stats_top_rated_picks">Högst betyg</string>
+
+    <string name="calendar_title">Kalender</string>
+    <string name="calendar_not_paired_title">Din kalender finns på Fetch-webbplatsen</string>
+    <string name="calendar_failed">Kunde inte läsa in din kalender från Fetch-webbplatsen.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dagar</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Inga nya avsnitt det närmaste %d dygnet</item>
+        <item quantity="other">Inga nya avsnitt de närmaste %d dagarna</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Kalendern visar bara serier som du redan har börjat titta på.</string>
+    <string name="calendar_source_watch_history">Från din tittarhistorik</string>
+    <string name="calendar_empty_subtitle_watch_history">Kalendern följer de 30 serier du tittade på senast, utifrån tittarhistoriken från din synkmetod eller spårningstjänst.</string>
+    <string name="calendar_failed_watch_history">Kunde inte slå upp kommande avsnitt på TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB svarade inte för %d serie, så vissa avsnitt kan saknas.</item>
+        <item quantity="other">TMDB svarade inte för %d serier, så vissa avsnitt kan saknas.</item>
+    </plurals>
+    <string name="calendar_find_series">Hitta en serie att följa</string>
+    <string name="calendar_today">I dag</string>
+    <string name="calendar_tomorrow">I morgon</string>
+    <string name="calendar_unknown_date">Datum inte klart</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d avsnitt</item>
+        <item quantity="other">%d avsnitt</item>
+    </plurals>
+</resources>

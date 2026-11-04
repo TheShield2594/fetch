@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Statistikat</string>
+    <string name="library_open_calendar">Kalendari</string>
+
+    <string name="insights_source_eyebrow">Nga uebfaqja e Fetch</string>
+    <string name="insights_loading">Po ngarkohet…</string>
+    <string name="insights_not_paired_subtitle">Lidhe këtë televizor me uebfaqen e Fetch te Cilësimet › Llogaria që ta shohësh këtu. Uebfaqja ruan historikun e shikimit dhe i nxjerr këto të dhëna prej tij.</string>
+    <string name="insights_no_profile_title">Ky profil nuk është në uebfaqen e Fetch</string>
+    <string name="insights_no_profile_subtitle">Vetëm profilet që vijnë nga uebfaqja kanë historik shikimi atje. Kalo te njëri prej tyre ose shto këtë profil në uebfaqe.</string>
+    <string name="insights_locked_title">Ky profil është i kyçur</string>
+    <string name="insights_locked_subtitle">Ka një PIN në uebfaqe që nuk është futur së fundi në këtë televizor. Kalo sërish te profili dhe fut PIN-in e tij që ta shohësh këtu.</string>
+    <string name="insights_open_settings">Hap Cilësimet</string>
+    <string name="insights_find_something">Gjej diçka për të parë</string>
+
+    <string name="stats_title">Statistikat e shikimit</string>
+    <string name="stats_not_paired_title">Statistikat e tua janë në uebfaqen e Fetch</string>
+    <string name="stats_failed">Statistikat nuk u ngarkuan nga uebfaqja e Fetch.</string>
+    <string name="stats_empty_title">Ende s’ke parë asgjë, ndaj s’ka ç’të numërohet</string>
+    <string name="stats_empty_subtitle">Çdo shifër këtu — seritë, zhanret, distinktivët, përmbledhja e vitit — del nga historiku i shikimit.</string>
+    <string name="stats_watch_history_note">Bazuar në historikun e shikimit. Çdo film dhe episod numërohet një herë, në ditën kur e pe për herë të fundit.</string>
+    <string name="stats_watch_history_partial">Zhanret dhe vlerësimet përfshijnë 300 titujt që ke parë së fundi.</string>
+    <string name="stats_failed_watch_history">Historiku i shikimit nuk u lexua.</string>
+    <string name="stats_movies">Filma</string>
+    <string name="stats_episodes">Episode</string>
+    <string name="stats_current_streak">Seria aktuale</string>
+    <string name="stats_longest_streak">Seria më e gjatë</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d ditë</item>
+        <item quantity="other">%d ditë</item>
+    </plurals>
+    <string name="stats_achievements">Arritjet</string>
+    <string name="stats_no_badges">Ende asnjë distinktiv — vazhdo të shikosh!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d film</item>
+        <item quantity="other">%d filma</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d episod</item>
+        <item quantity="other">%d episode</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">Seri prej %d dite</item>
+        <item quantity="other">Seri prej %d ditësh</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Të fituara: %s</string>
+    <string name="stats_next_badges_label">Në vijim: %s</string>
+    <string name="stats_monthly_activity">Aktiviteti mujor</string>
+    <string name="stats_vs_last_month">%s krahasuar me muajin e kaluar</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) krahasuar me muajin e kaluar</string>
+    <string name="stats_top_genres">Zhanret kryesore</string>
+    <string name="stats_genre_description">%1$s: %2$d të shikuara</string>
+    <string name="stats_top_rated">Më të vlerësuarat nga ato që ke parë</string>
+    <string name="stats_rated_out_of_ten">Vlerësuar %s nga 10</string>
+    <string name="stats_rated_out_of_five">Vlerësuar %s nga 5</string>
+    <string name="stats_type_movie">Film</string>
+    <string name="stats_type_series">Serial</string>
+    <string name="stats_year_in_review">Përmbledhja e vitit</string>
+    <string name="stats_year_failed">Përmbledhja e këtij viti nuk u ngarkua.</string>
+    <string name="stats_movies_watched">Filma të shikuar</string>
+    <string name="stats_episodes_watched">Episode të shikuara</string>
+    <string name="stats_hours_watched">Orë shikimi</string>
+    <string name="stats_busiest_month">Muaji më aktiv</string>
+    <string name="stats_top_rated_picks">Më të vlerësuarat</string>
+
+    <string name="calendar_title">Kalendari</string>
+    <string name="calendar_not_paired_title">Kalendari yt është në uebfaqen e Fetch</string>
+    <string name="calendar_failed">Kalendari nuk u ngarkua nga uebfaqja e Fetch.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d ditë</item>
+        <item quantity="other">%d ditë</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Asnjë episod i ri në %d ditën e ardhshme</item>
+        <item quantity="other">Asnjë episod i ri në %d ditët e ardhshme</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Kalendari ndjek vetëm serialet që ke nisur t’i shikosh.</string>
+    <string name="calendar_source_watch_history">Nga historiku i shikimit</string>
+    <string name="calendar_empty_subtitle_watch_history">Kalendari ndjek 30 serialet që ke parë së fundi, sipas historikut të shikimit nga metoda e sinkronizimit ose shërbimi i gjurmimit.</string>
+    <string name="calendar_failed_watch_history">Episodet e ardhshme nuk u gjetën dot në TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB nuk u përgjigj për %d serial, ndaj mund të mungojnë disa episode.</item>
+        <item quantity="other">TMDB nuk u përgjigj për %d seriale, ndaj mund të mungojnë disa episode.</item>
+    </plurals>
+    <string name="calendar_find_series">Gjej një serial për të ndjekur</string>
+    <string name="calendar_today">Sot</string>
+    <string name="calendar_tomorrow">Nesër</string>
+    <string name="calendar_unknown_date">Data nuk është njoftuar</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d episod</item>
+        <item quantity="other">%d episode</item>
+    </plurals>
+</resources>

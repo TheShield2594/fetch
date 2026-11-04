@@ -50,7 +50,7 @@
     <string name="stats_next_badges_label">Sıradaki: %s</string>
     <string name="stats_monthly_activity">Aylık etkinlik</string>
     <string name="stats_vs_last_month">Geçen aya göre %s</string>
-    <string name="stats_vs_last_month_percent">Geçen aya göre %1$s (%%%2$s)</string>
+    <string name="stats_vs_last_month_percent">Geçen aya göre %1$s (%2$s%%)</string>
     <string name="stats_top_genres">En çok izlenen türler</string>
     <string name="stats_genre_description">%1$s: %2$d izlendi</string>
     <string name="stats_top_rated">En yüksek puanlı izlenenler</string>

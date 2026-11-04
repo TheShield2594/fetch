@@ -22,7 +22,7 @@
     <string name="stats_empty_title">এখনো কিছু দেখা হয়নি, তাই গোনার মতো কিছু নেই</string>
     <string name="stats_empty_subtitle">এখানকার প্রতিটি হিসাব — স্ট্রিক, জনরা, ব্যাজ, আপনার বছরের সারসংক্ষেপ — আপনার দেখার হিস্ট্রি থেকে তৈরি।</string>
     <string name="stats_watch_history_note">আপনার দেখার হিস্ট্রি থেকে তৈরি। প্রতিটি মুভি ও এপিসোড একবারই গোনা হয়, যেদিন আপনি সেটি শেষবার দেখেছেন সেদিন।</string>
-    <string name="stats_watch_history_partial">জনরা ও রেটিং আপনার সাম্প্রতিক দেখা ৩০০টি টাইটেলের ওপর ভিত্তি করে।</string>
+    <string name="stats_watch_history_partial">জনরা ও রেটিং আপনার সাম্প্রতিক দেখা 300টি টাইটেলের ওপর ভিত্তি করে।</string>
     <string name="stats_failed_watch_history">আপনার দেখার হিস্ট্রি পড়া যায়নি।</string>
     <string name="stats_movies">মুভি</string>
     <string name="stats_episodes">এপিসোড</string>
@@ -80,7 +80,7 @@
     </plurals>
     <string name="calendar_empty_subtitle">ক্যালেন্ডার শুধু সেই সিরিজগুলো ট্র্যাক করে যেগুলো আপনি দেখা শুরু করেছেন।</string>
     <string name="calendar_source_watch_history">আপনার দেখার হিস্ট্রি থেকে</string>
-    <string name="calendar_empty_subtitle_watch_history">ক্যালেন্ডার আপনার সাম্প্রতিক দেখা ৩০টি সিরিজ ফলো করে, আপনার সিঙ্ক পদ্ধতি বা ট্র্যাকিং সার্ভিসের দেখার হিস্ট্রি অনুযায়ী।</string>
+    <string name="calendar_empty_subtitle_watch_history">ক্যালেন্ডার আপনার সাম্প্রতিক দেখা 30টি সিরিজ ফলো করে, আপনার সিঙ্ক পদ্ধতি বা ট্র্যাকিং সার্ভিসের দেখার হিস্ট্রি অনুযায়ী।</string>
     <string name="calendar_failed_watch_history">TMDB-তে আসন্ন এপিসোড খোঁজা যায়নি।</string>
     <plurals name="calendar_failed_series">
         <item quantity="one">TMDB %dটি সিরিজের জন্য সাড়া দেয়নি, তাই কিছু এপিসোড বাদ পড়তে পারে।</item>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Статистика</string>
+    <string name="library_open_calendar">Календарь</string>
+    <string name="insights_source_eyebrow">С сайта Fetch</string>
+    <string name="insights_loading">Загрузка…</string>
+    <string name="insights_not_paired_subtitle">Чтобы увидеть это здесь, подключите этот телевизор к сайту Fetch в разделе Настройки › Аккаунт. Сайт хранит вашу историю просмотров и рассчитывает всё по ней.</string>
+    <string name="insights_no_profile_title">Этого профиля нет на сайте Fetch</string>
+    <string name="insights_no_profile_subtitle">История просмотров на сайте есть только у профилей, созданных там. Переключитесь на один из них или добавьте этот профиль на сайте.</string>
+    <string name="insights_locked_title">Профиль заблокирован</string>
+    <string name="insights_locked_subtitle">На сайте у него есть PIN-код, который давно не вводили на этом телевизоре. Снова переключитесь на профиль и введите PIN-код, чтобы увидеть данные здесь.</string>
+    <string name="insights_open_settings">Открыть настройки</string>
+    <string name="insights_find_something">Найти, что посмотреть</string>
+    <string name="stats_title">Статистика просмотров</string>
+    <string name="stats_not_paired_title">Ваша статистика хранится на сайте Fetch</string>
+    <string name="stats_failed">Не удалось загрузить статистику с сайта Fetch.</string>
+    <string name="stats_empty_title">Вы ещё ничего не посмотрели — считать пока нечего</string>
+    <string name="stats_empty_subtitle">Все показатели здесь — серии дней подряд, жанры, значки, итоги года — рассчитываются по вашей истории просмотров.</string>
+    <string name="stats_watch_history_note">Рассчитано по вашей истории просмотров. Каждый фильм и эпизод учитывается один раз — в день последнего просмотра.</string>
+    <string name="stats_watch_history_partial">Жанры и оценки учитывают 300 последних просмотренных фильмов и сериалов.</string>
+    <string name="stats_failed_watch_history">Не удалось прочитать историю просмотров.</string>
+    <string name="stats_movies">Фильмы</string>
+    <string name="stats_episodes">Эпизоды</string>
+    <string name="stats_current_streak">Текущая серия</string>
+    <string name="stats_longest_streak">Рекордная серия</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d день</item>
+        <item quantity="few">%d дня</item>
+        <item quantity="many">%d дней</item>
+        <item quantity="other">%d дней</item>
+    </plurals>
+    <string name="stats_achievements">Достижения</string>
+    <string name="stats_no_badges">Значков пока нет — смотрите дальше!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d фильм</item>
+        <item quantity="few">%d фильма</item>
+        <item quantity="many">%d фильмов</item>
+        <item quantity="other">%d фильмов</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d эпизод</item>
+        <item quantity="few">%d эпизода</item>
+        <item quantity="many">%d эпизодов</item>
+        <item quantity="other">%d эпизодов</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d день подряд</item>
+        <item quantity="few">%d дня подряд</item>
+        <item quantity="many">%d дней подряд</item>
+        <item quantity="other">%d дней подряд</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Получено: %s</string>
+    <string name="stats_next_badges_label">Далее: %s</string>
+    <string name="stats_monthly_activity">Активность по месяцам</string>
+    <string name="stats_vs_last_month">%s по сравнению с прошлым месяцем</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) по сравнению с прошлым месяцем</string>
+    <string name="stats_top_genres">Любимые жанры</string>
+    <string name="stats_genre_description">%1$s: просмотрено %2$d</string>
+    <string name="stats_top_rated">Лучшее из просмотренного</string>
+    <string name="stats_rated_out_of_ten">Оценка %s из 10</string>
+    <string name="stats_rated_out_of_five">Оценка %s из 5</string>
+    <string name="stats_type_movie">Фильм</string>
+    <string name="stats_type_series">Сериал</string>
+    <string name="stats_year_in_review">Итоги года</string>
+    <string name="stats_year_failed">Не удалось загрузить итоги года.</string>
+    <string name="stats_movies_watched">Просмотрено фильмов</string>
+    <string name="stats_episodes_watched">Просмотрено эпизодов</string>
+    <string name="stats_hours_watched">Часов просмотра</string>
+    <string name="stats_busiest_month">Самый активный месяц</string>
+    <string name="stats_top_rated_picks">Лучшее по оценкам</string>
+    <string name="calendar_title">Календарь</string>
+    <string name="calendar_not_paired_title">Ваш календарь хранится на сайте Fetch</string>
+    <string name="calendar_failed">Не удалось загрузить календарь с сайта Fetch.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d день</item>
+        <item quantity="few">%d дня</item>
+        <item quantity="many">%d дней</item>
+        <item quantity="other">%d дней</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Нет новых эпизодов на ближайший %d день</item>
+        <item quantity="few">Нет новых эпизодов на ближайшие %d дня</item>
+        <item quantity="many">Нет новых эпизодов на ближайшие %d дней</item>
+        <item quantity="other">Нет новых эпизодов на ближайшие %d дней</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Календарь показывает только сериалы, которые вы уже начали смотреть.</string>
+    <string name="calendar_source_watch_history">Из вашей истории просмотров</string>
+    <string name="calendar_empty_subtitle_watch_history">Календарь следит за 30 сериалами, которые вы смотрели последними, по истории просмотров из вашего способа синхронизации или сервиса отслеживания.</string>
+    <string name="calendar_failed_watch_history">Не удалось найти предстоящие эпизоды в TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB не ответил по %d сериалу, поэтому некоторых эпизодов может не быть.</item>
+        <item quantity="few">TMDB не ответил по %d сериалам, поэтому некоторых эпизодов может не быть.</item>
+        <item quantity="many">TMDB не ответил по %d сериалам, поэтому некоторых эпизодов может не быть.</item>
+        <item quantity="other">TMDB не ответил по %d сериалам, поэтому некоторых эпизодов может не быть.</item>
+    </plurals>
+    <string name="calendar_find_series">Найти сериал</string>
+    <string name="calendar_today">Сегодня</string>
+    <string name="calendar_tomorrow">Завтра</string>
+    <string name="calendar_unknown_date">Дата не объявлена</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d эпизод</item>
+        <item quantity="few">%d эпизода</item>
+        <item quantity="many">%d эпизодов</item>
+        <item quantity="other">%d эпизодов</item>
+    </plurals>
+</resources>

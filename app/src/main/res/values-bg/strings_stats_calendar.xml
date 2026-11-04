@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_open_stats">Статистика</string>
+    <string name="library_open_calendar">Календар</string>
+    <string name="insights_source_eyebrow">От сайта на Fetch</string>
+    <string name="insights_loading">Зареждане…</string>
+    <string name="insights_not_paired_subtitle">Свържи този телевизор със сайта на Fetch от Настройки › Акаунт, за да видиш това тук. Сайтът пази историята ти на гледане и изчислява всичко от нея.</string>
+    <string name="insights_no_profile_title">Този профил не е в сайта на Fetch</string>
+    <string name="insights_no_profile_subtitle">История на гледане в сайта имат само профилите, създадени там. Превключи към някой от тях или добави този профил в сайта.</string>
+    <string name="insights_locked_title">Този профил е заключен</string>
+    <string name="insights_locked_subtitle">В сайта има PIN, който отдавна не е въвеждан на този телевизор. Превключи отново към профила и въведи неговия PIN, за да видиш това тук.</string>
+    <string name="insights_open_settings">Отвори настройките</string>
+    <string name="insights_find_something">Намери нещо за гледане</string>
+    <string name="stats_title">Статистика на гледането</string>
+    <string name="stats_not_paired_title">Статистиката ти е в сайта на Fetch</string>
+    <string name="stats_failed">Статистиката не можа да се зареди от сайта на Fetch.</string>
+    <string name="stats_empty_title">Още няма гледани заглавия, така че няма какво да се брои</string>
+    <string name="stats_empty_subtitle">Всички данни тук — серии, жанрове, значки, равносметка на годината — се изчисляват от историята ти на гледане.</string>
+    <string name="stats_watch_history_note">Изчислено от историята ти на гледане. Всеки филм и епизод се брои веднъж — в деня на последното гледане.</string>
+    <string name="stats_watch_history_partial">Жанровете и оценките обхващат последните 300 гледани заглавия.</string>
+    <string name="stats_failed_watch_history">Историята на гледане не можа да се прочете.</string>
+    <string name="stats_movies">Филми</string>
+    <string name="stats_episodes">Епизоди</string>
+    <string name="stats_current_streak">Текуща серия</string>
+    <string name="stats_longest_streak">Най-дълга серия</string>
+    <plurals name="stats_days_value">
+        <item quantity="one">%d ден</item>
+        <item quantity="other">%d дни</item>
+    </plurals>
+    <string name="stats_achievements">Постижения</string>
+    <string name="stats_no_badges">Още нямаш значки — продължавай да гледаш!</string>
+    <plurals name="stats_badge_movies">
+        <item quantity="one">%d филм</item>
+        <item quantity="other">%d филма</item>
+    </plurals>
+    <plurals name="stats_badge_episodes">
+        <item quantity="one">%d епизод</item>
+        <item quantity="other">%d епизода</item>
+    </plurals>
+    <plurals name="stats_badge_streak">
+        <item quantity="one">%d ден подред</item>
+        <item quantity="other">%d дни подред</item>
+    </plurals>
+    <string name="stats_earned_badges_label">Получени: %s</string>
+    <string name="stats_next_badges_label">Следващи: %s</string>
+    <string name="stats_monthly_activity">Месечна активност</string>
+    <string name="stats_vs_last_month">%s спрямо миналия месец</string>
+    <string name="stats_vs_last_month_percent">%1$s (%2$s%%) спрямо миналия месец</string>
+    <string name="stats_top_genres">Любими жанрове</string>
+    <string name="stats_genre_description">%1$s: %2$d гледани</string>
+    <string name="stats_top_rated">Най-високо оценени от гледаните</string>
+    <string name="stats_rated_out_of_ten">Оценка %s от 10</string>
+    <string name="stats_rated_out_of_five">Оценка %s от 5</string>
+    <string name="stats_type_movie">Филм</string>
+    <string name="stats_type_series">Сериал</string>
+    <string name="stats_year_in_review">Равносметка на годината</string>
+    <string name="stats_year_failed">Равносметката на годината не можа да се зареди.</string>
+    <string name="stats_movies_watched">Гледани филми</string>
+    <string name="stats_episodes_watched">Гледани епизоди</string>
+    <string name="stats_hours_watched">Часове гледане</string>
+    <string name="stats_busiest_month">Най-активен месец</string>
+    <string name="stats_top_rated_picks">Най-високо оценени</string>
+    <string name="calendar_title">Календар</string>
+    <string name="calendar_not_paired_title">Календарът ти е в сайта на Fetch</string>
+    <string name="calendar_failed">Календарът не можа да се зареди от сайта на Fetch.</string>
+    <plurals name="calendar_range_days">
+        <item quantity="one">%d ден</item>
+        <item quantity="other">%d дни</item>
+    </plurals>
+    <plurals name="calendar_empty_title">
+        <item quantity="one">Няма нови епизоди през следващия %d ден</item>
+        <item quantity="other">Няма нови епизоди през следващите %d дни</item>
+    </plurals>
+    <string name="calendar_empty_subtitle">Календарът следи само сериали, които вече гледаш.</string>
+    <string name="calendar_source_watch_history">От историята ти на гледане</string>
+    <string name="calendar_empty_subtitle_watch_history">Календарът следи последните 30 гледани сериала според историята на гледане от метода ти за синхронизация или услугата за проследяване.</string>
+    <string name="calendar_failed_watch_history">Предстоящите епизоди не можаха да се проверят в TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB не отговори за %d сериал, така че може да липсват някои епизоди.</item>
+        <item quantity="other">TMDB не отговори за %d сериала, така че може да липсват някои епизоди.</item>
+    </plurals>
+    <string name="calendar_find_series">Намери сериал за следене</string>
+    <string name="calendar_today">Днес</string>
+    <string name="calendar_tomorrow">Утре</string>
+    <string name="calendar_unknown_date">Датата не е обявена</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%d епизод</item>
+        <item quantity="other">%d епизода</item>
+    </plurals>
+</resources>

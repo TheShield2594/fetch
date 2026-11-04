@@ -12,6 +12,7 @@ on:
       - "gradle/**"
       - "*.gradle.kts"
       - "gradle.properties"
+      - "scripts/build-arch-package.sh"
       - ".github/workflows/desktop.yml"
   pull_request:
     paths:
@@ -20,6 +21,7 @@ on:
       - "gradle/**"
       - "*.gradle.kts"
       - "gradle.properties"
+      - "scripts/build-arch-package.sh"
       - ".github/workflows/desktop.yml"
   workflow_dispatch:
 
@@ -61,6 +63,12 @@ jobs:
           cd desktop/build/compose/binaries/main/app
           tar -czf "$GITHUB_WORKSPACE/fetch-linux-x64.tar.gz" fetch
 
+      # The native Arch Linux package, built by makepkg in an Arch container.
+      - name: Arch Linux package
+        run: |
+          scripts/build-arch-package.sh fetch-linux-x64.tar.gz "$RUNNER_TEMP/arch"
+          cp "$RUNNER_TEMP"/arch/*.pkg.tar.zst fetch-linux-x86_64.pkg.tar.zst
+
       - uses: actions/upload-artifact@v7
         with:
           name: fetch-linux-x64
@@ -68,4 +76,5 @@ jobs:
             desktop/build/compose/binaries/main/deb/*.deb
             desktop/build/compose/binaries/main/rpm/*.rpm
             fetch-linux-x64.tar.gz
+            fetch-linux-x86_64.pkg.tar.zst
           if-no-files-found: error

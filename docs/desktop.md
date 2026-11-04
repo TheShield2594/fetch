@@ -14,20 +14,22 @@ Each GitHub release carries the Linux packages beside the APKs:
 
 - `fetch-<tag>-linux-amd64.deb` for Debian, Ubuntu and Mint: `sudo apt install ./fetch-*.deb`
 - `fetch-<tag>-linux-x86_64.rpm` for Fedora and openSUSE: `sudo dnf install ./fetch-*.rpm`
+- `fetch-<tag>-linux-x86_64.pkg.tar.zst` for Arch Linux, EndeavourOS and Manjaro: `sudo pacman -U ./fetch-*.pkg.tar.zst`
 - `fetch-<tag>-linux-x64.tar.gz`, a portable build for any distribution: unpack it and run `fetch/bin/fetch`
 
-Every CI run of the **Desktop** workflow also uploads the same three as a `fetch-linux-x64`
+Every CI run of the **Desktop** workflow also uploads the same four as a `fetch-linux-x64`
 artifact.
 
 The desktop app has the same version as the TV app, read from `versionName` in
 `app/build.gradle.kts`. Packages need a plain `MAJOR.MINOR.PATCH`, so a beta such as
 `1.3.0-beta.2` is packaged as `1.3.0` with package release `0.beta.2`. That sorts before the
-stable `1.3.0-1`, so installing the stable build upgrades the beta.
+stable `1.3.0-1`, so installing the stable build upgrades the beta. The Arch package drops the
+dash instead (`1.3.0beta.2-1`), which pacman also sorts before `1.3.0-1`.
 
 Each package bundles its own Java runtime. To play streams, install
-[mpv](https://mpv.io) (`sudo apt install mpv`, `sudo dnf install mpv`). The built-in player
+[mpv](https://mpv.io) (`sudo apt install mpv`, `sudo dnf install mpv`, `sudo pacman -S mpv`). The built-in player
 (Settings › Player › Default Player › Built-in) also needs libmpv: `sudo apt install libmpv2`
-(Fedora: `mpv-libs`). Without mpv, Fetch opens
+(Fedora: `mpv-libs`; on Arch the `mpv` package already has it). Without mpv, Fetch opens
 the link in your default video player. For YouTube (trailers and the YouTube page), mpv also needs
 `yt-dlp` (`sudo apt install yt-dlp`; distribution packages can lag behind YouTube, so `pipx install yt-dlp`
 is the safer choice).
@@ -41,6 +43,12 @@ You don't need the Android SDK for the desktop app:
 ./gradlew -Pfetch.desktopOnly=true :shared:test :desktop:test # tests
 ./gradlew -Pfetch.desktopOnly=true :desktop:packageDeb        # or packageRpm, createDistributable
 ```
+
+The Arch package is made from the `createDistributable` app image rather than by Gradle:
+tar up `desktop/build/compose/binaries/main/app/fetch` and run
+`scripts/build-arch-package.sh <that.tar.gz> <out-dir>`. It runs makepkg in the
+`archlinux:base-devel` Docker image; on Arch itself, `FETCH_ARCH_NATIVE=1` runs your own
+makepkg instead. The PKGBUILD is in [`desktop/packaging/arch/`](../desktop/packaging/arch).
 
 `-Pfetch.desktopOnly=true` leaves the Android modules out of the build. Without it, Gradle also
 configures `:app` and needs the Android SDK, as before. A JDK 17 or newer is required, and

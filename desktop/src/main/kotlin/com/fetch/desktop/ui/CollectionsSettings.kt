@@ -145,7 +145,7 @@ fun CollectionsSettingsPage(state: AppState, onBack: () -> Unit) {
         AlertDialog(
             onDismissRequest = { deleting = null },
             containerColor = FetchPalette.SurfaceRaised,
-            title = { Text("Delete ${c.title.ifBlank { "this collection" }}?", color = Color.White) },
+            title = { Text(tr("Delete %1$s?", c.title.ifBlank { tr("this collection") }), color = Color.White) },
             text = { Text(tr("Its folders go too, here and on your other devices."), color = FetchPalette.TextSecondary) },
             confirmButton = { PrimaryButton("Delete", icon = null, onClick = { collections.delete(c.id); deleting = null }) },
             dismissButton = { SecondaryButton("Keep", onClick = { deleting = null }) }
@@ -743,7 +743,7 @@ private fun DiscoverFilters(tmdb: TmdbCollectionSources, language: String, media
     }
     Text(tr("Keywords"), color = FetchPalette.TextSecondary)
     val chosen = ids(filters.withKeywords)
-    if (chosen.isNotEmpty()) Text("Keyword ids: ${chosen.joinToString(", ")}", color = FetchPalette.TextMuted, fontSize = 13.sp)
+    if (chosen.isNotEmpty()) Text(tr("Keyword ids: %1$s", chosen.joinToString(", ")), color = FetchPalette.TextMuted, fontSize = 13.sp)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.weight(1f)) { CollectionField(keywordQuery, tr("Search keywords (\"time travel\")"), onChange = { keywordQuery = it }) }
         SecondaryButton("Search", enabled = keywordQuery.isNotBlank(), onClick = {

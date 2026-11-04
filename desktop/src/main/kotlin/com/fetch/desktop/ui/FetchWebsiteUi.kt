@@ -1,6 +1,7 @@
 package com.fetch.desktop.ui
 
 import androidx.compose.foundation.background
+import com.fetch.desktop.i18n.tr
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -61,7 +62,7 @@ private fun Field(value: String, onChange: (String) -> Unit, placeholder: String
         visualTransformation = if (secret) PasswordVisualTransformation() else VisualTransformation.None,
         decorationBox = { field ->
             Box {
-                if (value.isEmpty()) Text(placeholder, color = FetchPalette.TextMuted, fontSize = 16.sp)
+                if (value.isEmpty()) Text(tr(placeholder), color = FetchPalette.TextMuted, fontSize = 16.sp)
                 field()
             }
         },
@@ -101,7 +102,7 @@ fun FetchWebsiteSection(state: AppState) {
             if (website.file.signedOutByWebsite && session == null) {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        "This computer was signed out from the Fetch website. Sign in again to show its lists here.",
+                        tr("This computer was signed out from the Fetch website. Sign in again to show its lists here."),
                         color = FetchPalette.Error,
                         modifier = Modifier.weight(1f)
                     )
@@ -109,7 +110,7 @@ fun FetchWebsiteSection(state: AppState) {
                 }
             }
             if (session != null) {
-                Text("Signed in as ${session.deviceName} · ${session.serverUrl}", color = Color.White)
+                Text(tr("Signed in as %1$s", session.deviceName) + " · " + session.serverUrl, color = Color.White)
                 Text(
                     "Profiles, addons, settings, Home rows and collections sync with the website, as on TV. " +
                         "Lists made on the website can be added to collections (Content & Discovery › Collections › Website list).",
@@ -142,22 +143,22 @@ fun FetchWebsiteSection(state: AppState) {
                         }
                     })
                     if (pairing is WebsitePairing.Failed) {
-                        Text("Couldn’t reach the website: ${pairing.message ?: "check the address"}", color = FetchPalette.Error)
+                        Text(tr("Couldn’t reach the website: %1$s", pairing.message ?: tr("check the address")), color = FetchPalette.Error)
                     }
                 }
                 WebsitePairing.Starting -> Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                    Text("Asking the website for a code…", color = FetchPalette.TextSecondary)
+                    Text(tr("Asking the website for a code…"), color = FetchPalette.TextSecondary)
                 }
                 is WebsitePairing.ShowingCode -> PairingCode(pairing, onCancel = {
                     job?.cancel()
                     website.resetPairing()
                 })
                 WebsitePairing.Expired -> {
-                    Text("The code expired before it was confirmed.", color = FetchPalette.TextSecondary)
+                    Text(tr("The code expired before it was confirmed."), color = FetchPalette.TextSecondary)
                     SecondaryButton("Get a new code", onClick = website::resetPairing)
                 }
-                is WebsitePairing.Paired -> Text("Signed in as ${pairing.deviceName}.", color = Color.White)
+                is WebsitePairing.Paired -> Text(tr("Signed in as %1$s.", pairing.deviceName), color = Color.White)
             }
         }
     }
@@ -174,17 +175,19 @@ private fun PairingCode(pairing: WebsitePairing.ShowingCode, onCancel: () -> Uni
     }
     val left = ((pairing.expiresAtMs - now) / 1000).coerceAtLeast(0)
     Row(horizontalArrangement = Arrangement.spacedBy(20.dp), verticalAlignment = Alignment.CenterVertically) {
-        pairing.confirmUrl?.let { url -> QrImage(url, 150.dp, description = "QR code that opens the Fetch website to confirm this computer") }
+        pairing.confirmUrl?.let { url -> QrImage(url, 150.dp, description = tr("QR code that opens the Fetch website to confirm this computer")) }
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(
-                if (pairing.confirmUrl != null) "Scan the code with your phone, or open the website and enter the code under Settings → TVs & Devices."
-                else "Open the website and enter this code under Settings → TVs & Devices.",
+                tr(
+                    if (pairing.confirmUrl != null) "Scan the code with your phone, or open the website and enter the code under Settings → TVs & Devices."
+                    else "Open the website and enter this code under Settings → TVs & Devices."
+                ),
                 color = FetchPalette.TextSecondary
             )
             BigCode(pairing.code)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                 CircularProgressIndicator(Modifier.size(16.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                Text("Waiting for the code to be confirmed… Expires in %d:%02d".format(left / 60, left % 60), color = FetchPalette.TextMuted)
+                Text(tr("Waiting for the code to be confirmed… Expires in %1$s", "%d:%02d".format(left / 60, left % 60)), color = FetchPalette.TextMuted)
             }
             SecondaryButton("Cancel", onClick = onCancel)
         }
@@ -221,15 +224,15 @@ fun SyncCodeSection(state: AppState) {
                 // What the other device will pull should be up to date, as on TV.
                 if (rpc == "generate_sync_code") state.syncAccount()
                 code = syncCodeOf(client.callRpc(rpc, buildJsonObject { put("p_pin", pin) }))
-                    ?: error(if (rpc == "get_sync_code") "There's no sync code yet. Generate one." else "The server gave no code.")
+                    ?: error(tr(if (rpc == "get_sync_code") "There's no sync code yet. Generate one." else "The server gave no code."))
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (e: Exception) {
                 val message = e.message.orEmpty().lowercase()
                 error = when {
-                    "pin" in message && ("invalid" in message || "incorrect" in message) -> "That PIN doesn't match your sync code."
-                    "not found" in message || "no sync code" in message -> "There's no sync code yet. Generate one."
-                    else -> e.message ?: "Couldn't reach the server"
+                    "pin" in message && ("invalid" in message || "incorrect" in message) -> tr("That PIN doesn't match your sync code.")
+                    "not found" in message || "no sync code" in message -> tr("There's no sync code yet. Generate one.")
+                    else -> e.message ?: tr("Couldn't reach the server")
                 }
             } finally {
                 busy = false
@@ -240,15 +243,15 @@ fun SyncCodeSection(state: AppState) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(20.dp)) {
             val shown = code
             if (shown != null) {
-                Text("Your sync code", color = FetchPalette.TextSecondary)
+                Text(tr("Your sync code"), color = FetchPalette.TextSecondary)
                 BigCode(shown)
-                Text("Enter this code and your PIN on your other device to link it.", color = FetchPalette.TextMuted)
+                Text(tr("Enter this code and your PIN on your other device to link it."), color = FetchPalette.TextMuted)
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     SecondaryButton("Copy code", onClick = { clipboard.setText(AnnotatedString(shown)) })
                     SecondaryButton("Done", onClick = { code = null; pin = "" })
                 }
             } else {
-                Text("Link another device to this account without signing in there: choose a PIN (4 to 8 characters) to protect the code.", color = FetchPalette.TextSecondary)
+                Text(tr("Link another device to this account without signing in there: choose a PIN (4 to 8 characters) to protect the code."), color = FetchPalette.TextSecondary)
                 Field(pin, { pin = it.take(8) }, "PIN", secret = true, width = 220)
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     PrimaryButton("Generate code", icon = null, enabled = pin.length in 4..8 && !busy, onClick = { run("generate_sync_code") })
@@ -282,8 +285,8 @@ fun WebsiteProfileUnlock(slot: Int, onUnlocked: () -> Unit) {
                 error = when (result) {
                     PinGate.Result.Ok -> null
                     is PinGate.Result.Wrong -> result.message
-                    is PinGate.Result.Locked -> "Too many wrong PINs. Try again in ${result.seconds} seconds."
-                    null -> "Couldn't reach the Fetch website."
+                    is PinGate.Result.Locked -> tr("Too many wrong PINs. Try again in %1$s seconds.", result.seconds)
+                    null -> tr("Couldn't reach the Fetch website.")
                 }
                 if (result == PinGate.Result.Ok) onUnlocked()
             } finally {
@@ -316,7 +319,7 @@ fun ClaimSyncCodeSection(state: AppState) {
     SettingsSection("Enter a sync code") {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(20.dp)) {
             if (linked) {
-                Text("This computer is linked. The account's data is syncing now.", color = Color.White)
+                Text(tr("This computer is linked. The account's data is syncing now."), color = Color.White)
                 return@Column
             }
             Text(

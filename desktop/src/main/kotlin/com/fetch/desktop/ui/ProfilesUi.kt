@@ -419,7 +419,7 @@ fun ProfilesSettingsPage(state: AppState) {
         AlertDialog(
             onDismissRequest = { deleting = null },
             containerColor = FetchPalette.SurfaceRaised,
-            title = { Text("Delete ${profile.name}?", color = Color.White) },
+            title = { Text(tr("Delete %1$s?", profile.name), color = Color.White) },
             text = { Text(tr("Its Library, Continue Watching and settings are deleted too."), color = FetchPalette.TextSecondary) },
             confirmButton = {
                 PrimaryButton("Delete", icon = FetchIcons.Delete, onClick = {
@@ -545,7 +545,7 @@ fun LimitsDialog(profile: DesktopProfile, onDismiss: () -> Unit, extra: @Composa
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Limits for ${profile.name}", color = Color.White) },
+        title = { Text(tr("Limits for %1$s", profile.name), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.width(560.dp)) {
                 SettingsToggle(

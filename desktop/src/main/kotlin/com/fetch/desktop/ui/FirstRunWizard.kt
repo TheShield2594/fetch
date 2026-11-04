@@ -255,7 +255,7 @@ private fun SourcesStep(state: AppState, status: FirstRunStatus) {
             StepIntro(tr("Add something to watch"), tr("Streams come from Stremio addons. Paste a stream addon's link; it usually ends in manifest.json."))
             AddonLinkField(state)
             if (state.addons.isNotEmpty()) {
-                Text("Installed: " + state.addons.joinToString(", ") { it.displayName }, color = FetchPalette.TextSecondary, fontSize = 14.sp)
+                Text(tr("Installed:") + " " + state.addons.joinToString(", ") { it.displayName }, color = FetchPalette.TextSecondary, fontSize = 14.sp)
             }
             if (showServers) {
                 MediaServersPage(state, header = false)
@@ -428,7 +428,7 @@ fun EssentialAddonSetup(state: AppState, onSkip: () -> Unit) {
                 AddonLinkField(state)
                 Hint(tr("Paste a stream addon's link; it usually ends in manifest.json. Debrid services sign in on the addon's own setup page."))
                 if (state.addons.isNotEmpty()) {
-                    Text("Installed: " + state.addons.joinToString(", ") { it.displayName }, color = FetchPalette.TextSecondary, fontSize = 14.sp)
+                    Text(tr("Installed:") + " " + state.addons.joinToString(", ") { it.displayName }, color = FetchPalette.TextSecondary, fontSize = 14.sp)
                 }
             }
             state.message?.let { Text(it, color = FetchPalette.TextSecondary) }

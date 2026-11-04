@@ -1,6 +1,7 @@
 package com.fetch.desktop
 
 import androidx.compose.foundation.lazy.LazyListState
+import com.fetch.desktop.i18n.tr
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -2310,7 +2311,7 @@ class AppState(
         when (val press = com.fetch.desktop.skip.SkipMarkerRules.press(session.extras.markerStartSec, mpv.position)) {
             is com.fetch.desktop.skip.SkipMarkerRules.Press.Start -> {
                 session.extras.markerStartSec = press.atSec
-                mpv.showText("Start marked. Press again where it ends.")
+                mpv.showText(tr("Start marked. Press again where it ends."))
             }
             is com.fetch.desktop.skip.SkipMarkerRules.Press.Submit -> {
                 val type = com.fetch.desktop.skip.SkipMarkerRules.markedType(marker.isMovie)

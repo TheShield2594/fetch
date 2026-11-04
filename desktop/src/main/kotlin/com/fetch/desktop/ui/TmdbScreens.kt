@@ -153,7 +153,7 @@ fun EntityScreen(state: AppState, screen: Screen.Entity) {
                     when {
                         browse == null || browse.loading -> CircularProgressIndicator(Modifier.size(28.dp), color = FetchPalette.Accent)
                         browse.error != null -> Text(browse.error, color = FetchPalette.TextMuted)
-                        browse.items.isEmpty() -> Text("Nothing from ${browse.name} on TMDB.", color = FetchPalette.TextMuted)
+                        browse.items.isEmpty() -> Text(tr("Nothing from %1$s on TMDB.", browse.name), color = FetchPalette.TextMuted)
                     }
                 }
             }

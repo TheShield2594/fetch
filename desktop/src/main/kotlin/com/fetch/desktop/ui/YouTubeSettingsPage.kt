@@ -178,7 +178,7 @@ private fun YouTubeSignInDialog(code: YouTubeDeviceCode, onCancel: () -> Unit) {
         title = { Text(tr("Sign in to YouTube"), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("On your phone or computer, go to ${code.verificationUrl.removePrefix("https://")}, then enter this code:", color = FetchPalette.TextSecondary)
+                Text(tr("On your phone or computer, go to %1$s, then enter this code:", code.verificationUrl.removePrefix("https://")), color = FetchPalette.TextSecondary)
                 Text(
                     code.userCode,
                     color = Color.White,

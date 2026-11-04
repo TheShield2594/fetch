@@ -1,6 +1,7 @@
 package com.fetch.desktop
 
 import androidx.compose.runtime.getValue
+import com.fetch.desktop.i18n.tr
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -965,11 +966,11 @@ class YouTubeState(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                host.currentPlayer?.mpv?.showText("YouTube didn't accept that. Try again.")
+                host.currentPlayer?.mpv?.showText(tr("YouTube didn't accept that. Try again."))
                 return@launch
             }
             extras.playlists = extras.playlists.orEmpty() + YouTubePlaylistOption(id, name, containsVideo = true)
-            host.currentPlayer?.mpv?.showText("Saved to $name")
+            host.currentPlayer?.mpv?.showText(tr("Saved to %1$s", name))
         }
     }
 

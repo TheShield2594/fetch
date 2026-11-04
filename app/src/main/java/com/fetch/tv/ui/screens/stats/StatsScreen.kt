@@ -49,6 +49,7 @@ import com.fetch.tv.data.website.WebsiteRatedTitle
 import com.fetch.tv.data.website.WebsiteWatchStats
 import com.fetch.tv.data.website.WebsiteYearInReview
 import com.fetch.tv.ui.components.StateAction
+import com.fetch.tv.ui.components.StateActionButton
 import com.fetch.tv.ui.screens.library.SelectedCheckmark
 import com.fetch.tv.ui.screens.library.libraryButtonShape
 import com.fetch.tv.ui.screens.library.selectableButtonColors
@@ -151,6 +152,7 @@ fun StatsScreen(
                             years = viewModel.yearOptions,
                             review = yearReview,
                             onSelectYear = viewModel::selectYear,
+                            onRetryYear = viewModel::retryYear,
                             onOpen = onNavigateToDetail
                         )
                     }
@@ -508,6 +510,7 @@ private fun YearInReviewSection(
     years: List<Int>,
     review: YearReviewUiState,
     onSelectYear: (Int) -> Unit,
+    onRetryYear: () -> Unit,
     onOpen: (String, String) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
@@ -534,11 +537,17 @@ private fun YearInReviewSection(
                 color = FetchTheme.colors.TextSecondary
             )
             is WebsiteReadState.Loaded -> YearInReviewContent(state.value, onOpen)
-            else -> Text(
-                text = stringResource(R.string.stats_year_failed),
-                style = FetchTheme.textStyles.body,
-                color = FetchTheme.colors.Error
-            )
+            else -> Row(
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.stats_year_failed),
+                    style = FetchTheme.textStyles.body,
+                    color = FetchTheme.colors.Error
+                )
+                StateActionButton(StateAction(stringResource(R.string.action_retry), onRetryYear))
+            }
         }
     }
 }

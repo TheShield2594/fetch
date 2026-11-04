@@ -3,6 +3,8 @@ package com.fetch.tv.ui.screens.stats
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.core.sync.backend.SyncBackends
+import com.fetch.tv.domain.repository.WatchProgressRepository
 import com.fetch.tv.core.stats.LocalStatsSource
 import com.fetch.tv.core.stats.LocalWatchHistory
 import com.fetch.tv.core.stats.localDetailedStats
@@ -63,6 +65,8 @@ class StatsViewModel @Inject constructor(
     private val website: FetchWebsiteTrackingRepository,
     private val client: FetchWebsiteClient,
     private val localStats: LocalStatsSource,
+    private val syncBackends: SyncBackends,
+    progress: WatchProgressRepository,
     profileManager: ProfileManager
 ) : ViewModel() {
     private val zone: ZoneId get() = ZoneId.systemDefault()
@@ -85,23 +89,32 @@ class StatsViewModel @Inject constructor(
     val source: StateFlow<StatsSource> = _source.asStateFlow()
 
     private val retries = MutableStateFlow(0)
+    private val yearRetries = MutableStateFlow(0)
 
     /** The source read last, and the history when it was the TV's own: a year change needs no new read. */
     private val loaded = MutableStateFlow<Pair<StatsSource, LocalWatchHistory?>?>(null)
 
     init {
-        val account = combine(profileManager.activeProfileId, website.isAuthenticated) { slot, signedIn -> slot to signedIn }
+        // The sync method, and not only the website sign-in: a TV can stay signed in to the website
+        // while Supabase is the method chosen. The history's first full load counts too, since a
+        // read before it would find the history still empty.
+        val account = combine(
+            profileManager.activeProfileId,
+            website.isAuthenticated,
+            syncBackends.storedChoice,
+            progress.observeRemoteProgressLoaded()
+        ) { slot, signedIn, _, historyLoaded -> Triple(slot, signedIn && syncBackends.isWebsiteActive, historyLoaded) }
             .distinctUntilChanged()
         viewModelScope.launch {
-            combine(account, retries) { (_, signedIn), _ -> signedIn }.collectLatest { signedIn ->
+            combine(account, retries) { (_, useWebsite, _), _ -> useWebsite }.collectLatest { useWebsite ->
                 loaded.value = null
-                _source.value = if (signedIn) StatsSource.WEBSITE else StatsSource.WATCH_HISTORY
+                _source.value = if (useWebsite) StatsSource.WEBSITE else StatsSource.WATCH_HISTORY
                 _overview.value = WebsiteReadState.Loading
-                _overview.value = loadOverview(signedIn)
+                _overview.value = loadOverview(useWebsite)
             }
         }
         viewModelScope.launch {
-            combine(loaded, selectedYear) { source, year -> source to year }.collectLatest { (source, year) ->
+            combine(loaded, selectedYear, yearRetries) { source, year, _ -> source to year }.collectLatest { (source, year) ->
                 _yearReview.value = YearReviewUiState(year)
                 val state = when (source?.first) {
                     null -> return@collectLatest
@@ -115,8 +128,8 @@ class StatsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadOverview(signedIn: Boolean): WebsiteReadState<StatsOverview> {
-        if (signedIn) {
+    private suspend fun loadOverview(useWebsite: Boolean): WebsiteReadState<StatsOverview> {
+        if (useWebsite) {
             val fromWebsite = website.readForActiveProfile { profileId, token ->
                 coroutineScope {
                     val totals = async { client.watchStats(profileId, token) }
@@ -151,6 +164,11 @@ class StatsViewModel @Inject constructor(
 
     fun selectYear(year: Int) {
         if (year in yearOptions) selectedYear.value = year
+    }
+
+    /** Reads the chosen year again, leaving the rest of the screen as it is. */
+    fun retryYear() {
+        yearRetries.update { it + 1 }
     }
 
     fun retry() {

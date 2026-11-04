@@ -22,6 +22,12 @@ import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
+/**
+ * The upcoming episodes, and how many series couldn't be looked up (TMDB failed for them), so a
+ * calendar missing some can say so. A series TMDB doesn't have isn't a failure.
+ */
+data class CalendarLookup(val entries: List<WebsiteCalendarEntry>, val failedSeries: Int)
+
 /** TMDB couldn't be reached for any of the series, so an empty calendar would be a guess. */
 class CalendarLookupException(message: String) : Exception(message)
 
@@ -53,13 +59,15 @@ class WatchHistoryCalendarSource internal constructor(
     // Changing the range or reopening the screen shouldn't look every show up again.
     private val detailsCache = ConcurrentHashMap<String, CachedDetails>()
 
-    suspend fun upcoming(days: Int, today: LocalDate): List<WebsiteCalendarEntry> = withContext(Dispatchers.IO) {
-        if (apiKey.isBlank()) throw CalendarLookupException("This build has no TMDB key, so episode dates can't be looked up")
-        // A remote source that hasn't answered yet counts as no history rather than holding the screen.
+    suspend fun upcoming(days: Int, today: LocalDate): CalendarLookup = withContext(Dispatchers.IO) {
+        // Trakt and the other services fill the history some seconds after start-up; read it once
+        // they have, or after the timeout, when what's there counts as the history.
+        withTimeoutOrNull(HISTORY_TIMEOUT_MS) { progress.observeRemoteProgressLoaded().first { it } }
         val inProgress = withTimeoutOrNull(HISTORY_TIMEOUT_MS) { progress.allProgress.first() }.orEmpty()
         val watched = withTimeoutOrNull(HISTORY_TIMEOUT_MS) { progress.watchedItems.first() }.orEmpty()
         val series = startedSeries(inProgress, watched)
-        if (series.isEmpty()) return@withContext emptyList()
+        if (series.isEmpty()) return@withContext CalendarLookup(emptyList(), failedSeries = 0)
+        if (apiKey.isBlank()) throw CalendarLookupException("This build has no TMDB key, so episode dates can't be looked up")
 
         val language = tmdbSettings.settings.value.language.ifBlank { "en" }
         val permits = Semaphore(MAX_CONCURRENT_LOOKUPS)
@@ -71,7 +79,7 @@ class WatchHistoryCalendarSource internal constructor(
         if (lookups.none { it.second.isSuccess }) {
             throw CalendarLookupException(lookups.firstNotNullOfOrNull { it.second.exceptionOrNull()?.message } ?: "TMDB didn't answer")
         }
-        lookups.mapNotNull { (show, result) ->
+        val entries = lookups.mapNotNull { (show, result) ->
             val details = result.getOrNull() ?: return@mapNotNull null
             upcomingEntry(
                 series = show,
@@ -82,6 +90,7 @@ class WatchHistoryCalendarSource internal constructor(
                 days = days
             )
         }
+        CalendarLookup(entries, failedSeries = lookups.count { it.second.isFailure })
     }
 
     /** The series' TMDB details; success with null when TMDB has no such series. */
@@ -97,7 +106,9 @@ class WatchHistoryCalendarSource internal constructor(
                 }
                 response.body()
             }
-            detailsCache[cacheKey] = CachedDetails(details, nowMs())
+            // Only an answer is kept: a null can be a lookup that failed for now, and the next
+            // open should try it again rather than leave the series off for an hour.
+            if (details != null) detailsCache[cacheKey] = CachedDetails(details, nowMs())
             Result.success(details)
         } catch (error: CancellationException) {
             throw error

@@ -89,6 +89,10 @@
     <string name="calendar_source_watch_history">From your watch history</string>
     <string name="calendar_empty_subtitle_watch_history">The calendar follows the 30 series you watched most recently, using the watch history from your sync method or tracking service.</string>
     <string name="calendar_failed_watch_history">Couldn’t look up upcoming episodes on TMDB.</string>
+    <plurals name="calendar_failed_series">
+        <item quantity="one">TMDB didn’t answer for %d series, so some episodes may be missing.</item>
+        <item quantity="other">TMDB didn’t answer for %d series, so some episodes may be missing.</item>
+    </plurals>
     <string name="calendar_find_series">Find a series to follow</string>
     <string name="calendar_today">Today</string>
     <string name="calendar_tomorrow">Tomorrow</string>

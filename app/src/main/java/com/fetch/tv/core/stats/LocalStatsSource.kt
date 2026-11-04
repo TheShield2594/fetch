@@ -57,7 +57,9 @@ class LocalStatsSource internal constructor(
         if (progress.activeTrackingProviderName() == TrackingProviderId.TRAKT.name) {
             return@withContext trakt.read() ?: throw StatsHistoryException("Couldn't read your watch history from Trakt")
         }
-        // A remote source that hasn't answered yet counts as no history rather than holding the screen.
+        // The services fill the history some seconds after start-up; read it once they have, or
+        // after the timeout, when what's there counts as the history.
+        withTimeoutOrNull(HISTORY_TIMEOUT_MS) { progress.observeRemoteProgressLoaded().first { it } }
         val watched = withTimeoutOrNull(HISTORY_TIMEOUT_MS) { progress.watchedItems.first() }.orEmpty()
         withDetails(watchedItemsHistory(watched))
     }

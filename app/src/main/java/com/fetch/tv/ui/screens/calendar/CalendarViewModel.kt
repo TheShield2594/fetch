@@ -3,6 +3,8 @@ package com.fetch.tv.ui.screens.calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.core.sync.backend.SyncBackends
+import com.fetch.tv.domain.repository.WatchProgressRepository
 import com.fetch.tv.data.website.FetchWebsiteClient
 import com.fetch.tv.data.website.FetchWebsiteTrackingRepository
 import com.fetch.tv.ui.screens.stats.WebsiteReadState
@@ -26,7 +28,9 @@ enum class CalendarSource { WEBSITE, WATCH_HISTORY }
 data class CalendarUiState(
     val rangeDays: Int = DefaultCalendarRange,
     val source: CalendarSource = CalendarSource.WATCH_HISTORY,
-    val state: WebsiteReadState<List<CalendarDay>> = WebsiteReadState.Loading
+    val state: WebsiteReadState<List<CalendarDay>> = WebsiteReadState.Loading,
+    /** Watch history only: series TMDB couldn't be asked about, so the calendar may be missing some. */
+    val failedSeries: Int = 0
 )
 
 /**
@@ -42,6 +46,8 @@ class CalendarViewModel @Inject constructor(
     private val website: FetchWebsiteTrackingRepository,
     private val client: FetchWebsiteClient,
     private val watchHistory: WatchHistoryCalendarSource,
+    private val syncBackends: SyncBackends,
+    progress: WatchProgressRepository,
     profileManager: ProfileManager
 ) : ViewModel() {
     private val range = MutableStateFlow(DefaultCalendarRange)
@@ -51,37 +57,50 @@ class CalendarViewModel @Inject constructor(
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
     init {
-        val account = combine(profileManager.activeProfileId, website.isAuthenticated) { slot, signedIn -> slot to signedIn }
+        // The sync method, and not only the website sign-in: a TV can stay signed in to the website
+        // while Supabase is the method chosen. The history's first full load counts too, since a
+        // read before it would find Trakt's history still empty.
+        val account = combine(
+            profileManager.activeProfileId,
+            website.isAuthenticated,
+            syncBackends.storedChoice,
+            progress.observeRemoteProgressLoaded()
+        ) { slot, signedIn, _, historyLoaded -> listOf(slot, signedIn && syncBackends.isWebsiteActive, historyLoaded) }
             .distinctUntilChanged()
         viewModelScope.launch {
-            combine(account, retries, range) { (_, signedIn), _, days -> signedIn to days }.collectLatest { (signedIn, days) ->
-                val initialSource = if (signedIn) CalendarSource.WEBSITE else CalendarSource.WATCH_HISTORY
+            combine(account, retries, range) { key, _, days -> (key[1] as Boolean) to days }.collectLatest { (useWebsite, days) ->
+                val initialSource = if (useWebsite) CalendarSource.WEBSITE else CalendarSource.WATCH_HISTORY
                 _uiState.value = CalendarUiState(days, initialSource)
-                val (source, state) = load(signedIn, days)
-                _uiState.update { if (it.rangeDays == days) it.copy(source = source, state = state) else it }
+                val loaded = load(useWebsite, days)
+                _uiState.update { if (it.rangeDays == days) loaded.copy(rangeDays = days) else it }
             }
         }
     }
 
-    private suspend fun load(signedIn: Boolean, days: Int): Pair<CalendarSource, WebsiteReadState<List<CalendarDay>>> {
-        if (signedIn) {
+    private suspend fun load(useWebsite: Boolean, days: Int): CalendarUiState {
+        if (useWebsite) {
             val fromWebsite = website.readForActiveProfile { profileId, token ->
                 groupCalendarByDay(client.calendar(profileId, token, days), LocalDate.now())
             }
             // A profile only on this TV, or a TV the website just signed out, still has a history here.
             if (fromWebsite != WebsiteReadState.NoProfile && fromWebsite != WebsiteReadState.NotPaired) {
-                return CalendarSource.WEBSITE to fromWebsite
+                return CalendarUiState(days, CalendarSource.WEBSITE, fromWebsite)
             }
         }
-        val state = try {
+        return try {
             val today = LocalDate.now()
-            WebsiteReadState.Loaded(groupCalendarByDay(watchHistory.upcoming(days, today), today))
+            val lookup = watchHistory.upcoming(days, today)
+            CalendarUiState(
+                days,
+                CalendarSource.WATCH_HISTORY,
+                WebsiteReadState.Loaded(groupCalendarByDay(lookup.entries, today)),
+                failedSeries = lookup.failedSeries
+            )
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {
-            WebsiteReadState.Failed(error.message)
+            CalendarUiState(days, CalendarSource.WATCH_HISTORY, WebsiteReadState.Failed(error.message))
         }
-        return CalendarSource.WATCH_HISTORY to state
     }
 
     fun selectRange(days: Int) {

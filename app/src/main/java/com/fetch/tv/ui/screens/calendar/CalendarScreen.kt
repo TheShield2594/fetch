@@ -115,6 +115,16 @@ fun CalendarScreen(
             }
         }
 
+        if (uiState.failedSeries > 0 && uiState.state is WebsiteReadState.Loaded) {
+            item(key = "failed_series") {
+                Text(
+                    text = pluralStringResource(R.plurals.calendar_failed_series, uiState.failedSeries, uiState.failedSeries),
+                    style = FetchTheme.textStyles.metadata,
+                    color = FetchTheme.colors.Warning
+                )
+            }
+        }
+
         when (val state = uiState.state) {
             WebsiteReadState.Loading -> item(key = "loading") {
                 Text(

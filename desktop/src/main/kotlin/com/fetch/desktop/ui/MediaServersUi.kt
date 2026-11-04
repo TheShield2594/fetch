@@ -115,7 +115,7 @@ private fun PasswordSignInDialog(state: AppState, kind: ServerKind, onDone: () -
     AlertDialog(
         onDismissRequest = { if (!busy) onDone() },
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text("Add ${kind.label}", color = Color.White) },
+        title = { Text(tr("Add %1\$s", kind.label), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.width(420.dp)) {
                 DialogField(tr("Server address"), address, { address = it }, placeholder = "http://192.168.1.10:8096", modifier = Modifier.focusRequester(focus))
@@ -180,7 +180,7 @@ private fun PlexLinkDialog(code: String, url: String, onCancel: () -> Unit) {
         title = { Text(tr("Add Plex"), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("Open $url, sign in to Plex and enter this code:", color = FetchPalette.TextSecondary)
+                Text(tr("Open %1\$s, sign in to Plex and enter this code:", url), color = FetchPalette.TextSecondary)
                 Text(
                     code,
                     color = Color.White,

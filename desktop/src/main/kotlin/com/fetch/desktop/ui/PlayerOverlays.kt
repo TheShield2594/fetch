@@ -191,7 +191,7 @@ internal fun StillWatchingOverlay(label: String, onContinue: () -> Unit, onStop:
     Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.8f)), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text(tr("Are you still watching?"), color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
-            Text("Up next: $label", color = FetchPalette.TextSecondary, fontSize = 17.sp)
+            Text(tr("Up next: %1\$s", label), color = FetchPalette.TextSecondary, fontSize = 17.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 PrimaryButton("Keep watching", onClick = onContinue)
                 SecondaryButton("Stop", onClick = onStop)

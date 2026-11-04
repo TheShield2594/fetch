@@ -399,7 +399,7 @@ internal fun SkipNoticeCard(label: String, onWatch: () -> Unit, modifier: Modifi
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         modifier = modifier.clip(RoundedCornerShape(50)).background(Color.Black.copy(alpha = 0.75f)).padding(start = 20.dp, end = 6.dp, top = 6.dp, bottom = 6.dp)
     ) {
-        Text("Skipped $label", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+        Text(tr("Skipped %1\$s", label), color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Medium)
         SecondaryButton("Watch it", onClick = onWatch, icon = FetchIcons.Replay10)
     }
 }

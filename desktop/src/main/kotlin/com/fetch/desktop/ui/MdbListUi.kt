@@ -286,7 +286,7 @@ private fun MdbListSignInDialog(code: String, url: String, completeUrl: String, 
         title = { Text(tr("Connect MDBList"), color = Color.White) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("Open $url and enter this code, then approve the connection:", color = FetchPalette.TextSecondary)
+                Text(tr("Open %1\$s and enter this code, then approve the connection:", url), color = FetchPalette.TextSecondary)
                 Text(
                     code,
                     color = Color.White,

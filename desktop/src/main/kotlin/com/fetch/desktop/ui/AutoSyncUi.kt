@@ -104,7 +104,7 @@ private class AutoSyncRun(private val state: AppState, private val session: Play
         val previousVisibility = mpv.property("secondary-sub-visibility")
         // Only keep watching after a match while the second subtitle slot is free.
         val canMonitor = previousSecondary == null || previousSecondary == "no"
-        extras.autoSyncStatus = "Auto Sync: comparing with the video's subtitles…"
+        extras.autoSyncStatus = tr("Auto Sync: comparing with the video's subtitles…")
         mpv.setProperty("secondary-sub-visibility", "no")
         mpv.setProperty("secondary-sid", reference.track.id)
         val live = LiveReference()
@@ -182,14 +182,14 @@ private class AutoSyncRun(private val state: AppState, private val session: Play
     // --- Against an image track, by its timings in the file ---
 
     private suspend fun syncWithFile(candidate: SyncCandidate, reference: ReferenceTrack) {
-        extras.autoSyncStatus = "Auto Sync: reading the video's subtitle timings…"
+        extras.autoSyncStatus = tr("Auto Sync: reading the video's subtitle timings…")
         val file = withContext(Dispatchers.IO) { readFileReference(reference) }
         if (file == null) {
-            val hint = if (withContext(Dispatchers.IO) { FfprobeReference.available() }) "" else " Installing ffmpeg lets Fetch read more videos."
-            mpv.showText("Sync failed: couldn't read the timings of this video's image subtitles.$hint")
+            val hint = if (withContext(Dispatchers.IO) { FfprobeReference.available() }) "" else " " + tr("Installing ffmpeg lets Fetch read more videos.")
+            mpv.showText(tr("Sync failed: couldn't read the timings of this video's image subtitles.") + hint)
             return
         }
-        extras.autoSyncStatus = "Auto Sync: comparing with the video's subtitles…"
+        extras.autoSyncStatus = tr("Auto Sync: comparing with the video's subtitles…")
         val result = withContext(Dispatchers.Default) { AutoSyncRetimer.retime(file.cues, file.spans, candidate.cues) }
         if (result != null && result.confident) {
             apply(candidate, result.map, switched = false, announce = true)
@@ -258,12 +258,12 @@ private class AutoSyncRun(private val state: AppState, private val session: Play
         // Set first: selecting the subtitle restarts the effect, which then sees it's done.
         extras.syncedSubtitleUrl = candidate.url
         val label = SubtitleOrganisation.languageLabel(SubtitleOrganisation.languageKey(candidate.language))
-        val prefix = if (switched) "Sync applied with another subtitle${candidate.addon?.let { " ($it)" } ?: ""}" else "Sync applied"
+        val prefix = if (switched) tr("Sync applied with another subtitle") + (candidate.addon?.let { " ($it)" } ?: "") else tr("Sync applied")
         when {
             small || (map.isConstantShift && map.offsetMs.toLong() == 0L) -> {
                 showOriginal(candidate, label, switched)
                 extras.syncedDelaySec = 0.0
-                if (announce) mpv.showText(if (switched) "$prefix: timing already matches" else tr("Subtitle timing already matches"))
+                if (announce) mpv.showText(if (switched) "$prefix: " + tr("timing already matches") else tr("Subtitle timing already matches"))
             }
             map.isConstantShift -> {
                 val offset = map.offsetMs.toLong()

@@ -279,19 +279,23 @@ internal fun PlayerRuntimeController.handleMpvPlaybackError(
 
         finishLoadingDiagnostics("mpv_error")
         cancelNextEpisodeAutoPlayOnFatalError()
-        _uiState.update {
-            it.copy(
-                error = detailedError,
-                showSwitchToMpvErrorAction = false,
-                showLoadingOverlay = false,
-                showPauseOverlay = false,
-                isBuffering = false,
-                loadingIssueReportVisible = false,
-                loadingIssueElapsedMs = 0L,
-                playbackEnded = false,
-                postPlayMode = null
-            )
+        val showFatalError = {
+            _uiState.update {
+                it.copy(
+                    error = detailedError,
+                    showSwitchToMpvErrorAction = false,
+                    showLoadingOverlay = false,
+                    showPauseOverlay = false,
+                    isBuffering = false,
+                    loadingIssueReportVisible = false,
+                    loadingIssueElapsedMs = 0L,
+                    playbackEnded = false,
+                    postPlayMode = null
+                )
+            }
         }
+        // The stream never played: the next one in the ranking, when that's on.
+        if (!startupFailed || !tryNextSourceAfterFailure(showFatalError)) showFatalError()
     } finally {
         mpvErrorHandlingInProgress.set(false)
     }

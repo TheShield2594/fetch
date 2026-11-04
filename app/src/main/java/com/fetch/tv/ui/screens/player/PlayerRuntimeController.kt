@@ -477,6 +477,12 @@ class PlayerRuntimeController(
 
     internal var playbackStartedForParentalGuide = false
     internal var hasRenderedFirstFrame = false
+        set(value) {
+            field = value
+            if (value) firstFramePlayedUrl = currentStreamUrl
+        }
+    /** The stream that last showed a frame, kept across retries that re-create the player. */
+    internal var firstFramePlayedUrl: String? = null
     // Prevent the previous stream's end from completing the new stream.
     internal var endDetectionArmed = false
     // Ignore EOF until MPV has reported a non-EOF state for this stream.
@@ -548,6 +554,12 @@ class PlayerRuntimeController(
     internal var streamReuseLastLinkEnabled: Boolean = false
     internal var autoSwitchInternalPlayerOnErrorEnabled: Boolean = false
     internal var startupEngineFailoverTriggered: Boolean = false
+    internal var nextSourceOnFailureEnabled: Boolean = true
+    /** Streams that failed to open for [failedSourcesRequestKey], so the next-source fallback moves on. */
+    internal val failedSourceKeys: MutableSet<String> = mutableSetOf()
+    internal val failedSourceUrls: MutableSet<String> = mutableSetOf()
+    internal var failedSourcesRequestKey: String? = null
+    internal var nextSourceJob: Job? = null
     internal var runtimeInternalPlayerEngineOverride: InternalPlayerEngine? = null
     internal var resolvedAutoPlayerEngine: InternalPlayerEngine? = null
     internal var currentInternalPlayerEngine: InternalPlayerEngine = InternalPlayerEngine.EXOPLAYER

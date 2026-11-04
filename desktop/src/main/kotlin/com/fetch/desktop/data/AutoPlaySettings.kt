@@ -48,8 +48,8 @@ data class AutoPlaySettings(
     /** `parental_guide_enabled`: the content warnings overlay when playback starts. */
     val parentalGuide: Boolean = true,
     /**
-     * Desktop only: when the built-in player can't open a source, try the next one in the
-     * ranking instead of stopping.
+     * `stream_auto_play_next_source_on_failure`: when the built-in player can't open a source,
+     * try the next one in the ranking instead of stopping.
      */
     val nextSourceOnFailure: Boolean = true
 ) {

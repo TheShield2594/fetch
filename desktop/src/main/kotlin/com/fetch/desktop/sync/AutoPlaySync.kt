@@ -45,6 +45,7 @@ object AutoPlaySync {
         "stream_auto_play_prefer_bingegroup_next_episode" to "boolean",
         "stream_auto_play_reuse_binge_group" to "boolean",
         "stream_auto_play_start_early" to "boolean",
+        "stream_auto_play_next_source_on_failure" to "boolean",
         "best_match_preview_enabled" to "boolean",
         "post_play_recommendations_enabled" to "boolean",
         "post_play_movie_threshold_percent" to "int",
@@ -106,6 +107,7 @@ object AutoPlaySync {
             "stream_auto_play_prefer_bingegroup_next_episode" to JsonPrimitive(ap.preferBingeGroup),
             "stream_auto_play_reuse_binge_group" to JsonPrimitive(ap.reuseBingeGroup),
             "stream_auto_play_start_early" to JsonPrimitive(ap.startEarly),
+            "stream_auto_play_next_source_on_failure" to JsonPrimitive(ap.nextSourceOnFailure),
             "best_match_preview_enabled" to JsonPrimitive(ap.bestMatchPreview),
             "post_play_recommendations_enabled" to JsonPrimitive(ap.postPlayRecommendations),
             "post_play_movie_threshold_percent" to JsonPrimitive(ap.postPlayMovieThresholdPercent),
@@ -140,6 +142,7 @@ object AutoPlaySync {
         bool("stream_auto_play_prefer_bingegroup_next_episode")?.let { ap = ap.copy(preferBingeGroup = it) }
         bool("stream_auto_play_reuse_binge_group")?.let { ap = ap.copy(reuseBingeGroup = it) }
         bool("stream_auto_play_start_early")?.let { ap = ap.copy(startEarly = it) }
+        bool("stream_auto_play_next_source_on_failure")?.let { ap = ap.copy(nextSourceOnFailure = it) }
         bool("best_match_preview_enabled")?.let { ap = ap.copy(bestMatchPreview = it) }
         bool("post_play_recommendations_enabled")?.let { ap = ap.copy(postPlayRecommendations = it) }
         int("post_play_movie_threshold_percent")?.let {

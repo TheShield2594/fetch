@@ -334,6 +334,11 @@ data class PlayerSettings(
      */
     val streamAutoPlayStartEarly: Boolean = false,
     /**
+     * When a source won't open in the built-in player (after the other player has been tried),
+     * play the next one in the ranking instead of stopping on the error.
+     */
+    val streamAutoPlayNextSourceOnFailure: Boolean = true,
+    /**
      * Ask addons in the background about a few Continue Watching titles, on unmetered networks,
      * so Home can mark the ones that will start instantly.
      */
@@ -642,6 +647,7 @@ class PlayerSettingsDataStore @Inject constructor(
     private val bestMatchPreviewEnabledKey = booleanPreferencesKey("best_match_preview_enabled")
     private val readyCheckEnabledKey = booleanPreferencesKey("ready_check_enabled")
     private val streamAutoPlayStartEarlyKey = booleanPreferencesKey("stream_auto_play_start_early")
+    private val streamAutoPlayNextSourceOnFailureKey = booleanPreferencesKey("stream_auto_play_next_source_on_failure")
     private val streamReuseLastLinkCacheHoursKey = intPreferencesKey("stream_reuse_last_link_cache_hours")
     private val externalPlayerForwardSubtitlesKey = booleanPreferencesKey("external_player_forward_subtitles")
     private val externalPlayerSendSkipSegmentsKey = booleanPreferencesKey("external_player_send_skip_segments")
@@ -1076,6 +1082,7 @@ class PlayerSettingsDataStore @Inject constructor(
                 bestMatchPreviewEnabled = prefs[bestMatchPreviewEnabledKey] ?: true,
                 readyCheckEnabled = prefs[readyCheckEnabledKey] ?: true,
                 streamAutoPlayStartEarly = prefs[streamAutoPlayStartEarlyKey] ?: false,
+                streamAutoPlayNextSourceOnFailure = prefs[streamAutoPlayNextSourceOnFailureKey] ?: true,
                 streamReuseLastLinkCacheHours = (prefs[streamReuseLastLinkCacheHoursKey] ?: 24).coerceIn(1, 168),
                 externalPlayerForwardSubtitles = prefs[externalPlayerForwardSubtitlesKey] ?: false,
                 externalPlayerSendSkipSegments = prefs[externalPlayerSendSkipSegmentsKey] ?: false,
@@ -1524,6 +1531,12 @@ class PlayerSettingsDataStore @Inject constructor(
     suspend fun setStreamAutoPlayStartEarly(enabled: Boolean) {
         store().edit { prefs ->
             prefs[streamAutoPlayStartEarlyKey] = enabled
+        }
+    }
+
+    suspend fun setStreamAutoPlayNextSourceOnFailure(enabled: Boolean) {
+        store().edit { prefs ->
+            prefs[streamAutoPlayNextSourceOnFailureKey] = enabled
         }
     }
 

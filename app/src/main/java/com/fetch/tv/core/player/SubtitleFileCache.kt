@@ -6,12 +6,13 @@ import android.util.Log
 import androidx.core.content.FileProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.fetch.tv.ui.screens.player.PlayerSubtitleUtils
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -60,22 +61,12 @@ class SubtitleFileCache @Inject constructor(
         clearCache()
 
         val cached = coroutineScope {
+            // Bounds peak memory: at most this many bodies (each <= MAX_SUBTITLE_BYTES) are
+            // held and decoded at once.
+            val permits = Semaphore(MAX_CONCURRENT_DOWNLOADS)
             val downloads = selected.mapIndexed { index, input ->
                 async(Dispatchers.IO) {
-                    try {
-                        val localUri = downloadToCache(index, input)
-                        if (localUri != null) {
-                            input.copy(url = localUri.toString())
-                        } else {
-                            Log.w(TAG, "Failed to download subtitle: ${input.name}")
-                            null
-                        }
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        Log.w(TAG, "Error caching subtitle: ${input.name}", e)
-                        null
-                    }
+                    permits.withPermit { cacheOne(index, input) }
                 }
             }
             val finished = withTimeoutOrNull(OVERALL_TIMEOUT_MS) { downloads.awaitAll() }
@@ -89,6 +80,19 @@ class SubtitleFileCache @Inject constructor(
         }.filterNotNull()
 
         return cached.ifEmpty { null }
+    }
+
+    private fun cacheOne(index: Int, input: SubtitleInput): SubtitleInput? = try {
+        val localUri = downloadToCache(index, input)
+        if (localUri != null) {
+            input.copy(url = localUri.toString())
+        } else {
+            Log.w(TAG, "Failed to download subtitle: ${input.name}")
+            null
+        }
+    } catch (e: Exception) {
+        Log.w(TAG, "Error caching subtitle: ${input.name}", e)
+        null
     }
 
     /**
@@ -115,7 +119,19 @@ class SubtitleFileCache @Inject constructor(
                     return null
                 }
 
-                val bodyBytes = response.body?.bytes() ?: return null
+                val body = response.body ?: return null
+                // Reject oversized bodies before buffering them: subtitles are small, and an
+                // unbounded read across parallel downloads could exhaust the heap.
+                if (body.contentLength() > MAX_SUBTITLE_BYTES) {
+                    Log.w(TAG, "Skipping oversized subtitle (${body.contentLength()} bytes): ${input.url}")
+                    return null
+                }
+                val source = body.source()
+                if (source.request(MAX_SUBTITLE_BYTES + 1)) {
+                    Log.w(TAG, "Skipping oversized subtitle (> $MAX_SUBTITLE_BYTES bytes): ${input.url}")
+                    return null
+                }
+                val bodyBytes = source.buffer.readByteArray()
                 val normalizedText = SubtitleCharsetDetector.decode(bodyBytes, languageHint = input.lang)
                 val sanitizedText = com.fetch.tv.ui.screens.player.SubtitleMojibakeSanitizer.sanitize(normalizedText).toString()
                 file.writeText(sanitizedText, Charsets.UTF_8)
@@ -162,6 +178,8 @@ class SubtitleFileCache @Inject constructor(
         private const val SUBTITLE_CACHE_DIR = "subtitles"
         internal const val MAX_FORWARDED_SUBTITLES = 20
         private const val PER_FILE_TIMEOUT_MS = 8_000L
+        private const val MAX_SUBTITLE_BYTES = 4L * 1024 * 1024
+        private const val MAX_CONCURRENT_DOWNLOADS = 8
         private const val OVERALL_TIMEOUT_MS = 10_000L
 
         /**

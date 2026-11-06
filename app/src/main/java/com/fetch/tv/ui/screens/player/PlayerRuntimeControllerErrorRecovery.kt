@@ -409,11 +409,20 @@ internal fun PlayerRuntimeController.tryDv7HevcFallback(
     return true
 }
 
+/**
+ * True for a Dolby Vision profile 7 track, or profile 8 (which is what a DV7 source looks like
+ * once converted to 8.1). Profile 5 is excluded: it has no HEVC-compatible base layer, so the
+ * HEVC mapping cannot help and would only disarm its conversion for this stream.
+ */
 private fun androidx.media3.common.Format.isDolbyVisionVideoFormat(): Boolean {
-    if (sampleMimeType == androidx.media3.common.MimeTypes.VIDEO_DOLBY_VISION) return true
     val codecString = codecs?.lowercase() ?: return false
-    return codecString.split(',').any { it.trim().startsWith("dvhe") || it.trim().startsWith("dvh1") }
+    return codecString.split(',').map { it.trim() }.any { codec ->
+        (codec.startsWith("dvhe.") || codec.startsWith("dvh1.")) &&
+            codec.substringAfter('.').substringBefore('.') in DV_HEVC_BASE_LAYER_PROFILES
+    }
 }
+
+private val DV_HEVC_BASE_LAYER_PROFILES = setOf("07", "08")
 
 internal fun PlayerRuntimeController.tryParsingErrorProbeFallback(
     error: PlaybackException,

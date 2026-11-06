@@ -83,11 +83,19 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         private val mutex = Mutex()
 
         /**
+         * Bumped (under [mutex]) by every profile deletion. A save captures it when it starts and
+         * gives up if it changed, so a save that began before a deletion can't write afterwards,
+         * not even into a profile that reuses the deleted id.
+         */
+        private val deletionGeneration = java.util.concurrent.atomic.AtomicLong(0)
+
+        /**
          * Deletes the Continue Watching snapshots (and any half-written `.tmp`
          * files) of [profileId]. Profile ids are reused, so this must run when
          * a profile is deleted.
          */
         suspend fun deleteProfileFiles(filesDir: File, profileId: Int) = mutex.withLock {
+            deletionGeneration.incrementAndGet()
             val dir = File(filesDir, CACHE_DIR_NAME)
             if (!dir.exists()) return@withLock
             listOf("inprogress_${profileId}.json", "nextup_${profileId}.json").forEach { name ->
@@ -113,8 +121,7 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
 
     // --- Next Up snapshot cache ---
 
-    private fun nextUpFile(): File {
-        val profileId = profileManager.activeProfileId.value
+    private fun nextUpFile(profileId: Int = profileManager.activeProfileId.value): File {
         val dir = File(context.filesDir, CACHE_DIR_NAME)
         dir.mkdirs()
         return File(dir, "nextup_${profileId}.json")
@@ -137,7 +144,17 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
     /**
      * @param force bypass throttle and content-change check (use at end of pipeline or for clears)
      */
-    suspend fun saveNextUpSnapshot(items: List<CachedNextUpItem>, force: Boolean = false) = withContext(Dispatchers.IO) {
+    suspend fun saveNextUpSnapshot(items: List<CachedNextUpItem>, force: Boolean = false) {
+        // Bind the save to the profile it was made for, before any suspension.
+        val origin = SaveOrigin(profileManager.activeProfileId.value, deletionGeneration.get())
+        saveNextUpSnapshotFor(origin, items, force)
+    }
+
+    private suspend fun saveNextUpSnapshotFor(
+        origin: SaveOrigin,
+        items: List<CachedNextUpItem>,
+        force: Boolean
+    ) = withContext(Dispatchers.IO) {
         val contentHash = items.hashCode()
         if (!force) {
             if (contentHash == lastNextUpHash) return@withContext
@@ -147,9 +164,9 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         mutex.withLock {
             // A deleted profile's snapshot must not be recreated by a save that was
             // already running; its id can be reused by a new profile.
-            if (!isActiveProfileStillPresent()) return@withLock
+            if (!isStillValid(origin)) return@withLock
             try {
-                val file = nextUpFile()
+                val file = nextUpFile(origin.profileId)
                 atomicWrite(file, gson.toJson(items))
                 lastNextUpWriteMs = System.currentTimeMillis()
                 lastNextUpHash = contentHash
@@ -162,8 +179,7 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
 
     // --- In-progress snapshot cache ---
 
-    private fun inProgressFile(): File {
-        val profileId = profileManager.activeProfileId.value
+    private fun inProgressFile(profileId: Int = profileManager.activeProfileId.value): File {
         val dir = File(context.filesDir, CACHE_DIR_NAME)
         dir.mkdirs()
         return File(dir, "inprogress_${profileId}.json")
@@ -186,7 +202,17 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
     /**
      * @param force bypass throttle and content-change check (use at end of pipeline or for clears)
      */
-    suspend fun saveInProgressSnapshot(items: List<CachedInProgressItem>, force: Boolean = false) = withContext(Dispatchers.IO) {
+    suspend fun saveInProgressSnapshot(items: List<CachedInProgressItem>, force: Boolean = false) {
+        // Bind the save to the profile it was made for, before any suspension.
+        val origin = SaveOrigin(profileManager.activeProfileId.value, deletionGeneration.get())
+        saveInProgressSnapshotFor(origin, items, force)
+    }
+
+    private suspend fun saveInProgressSnapshotFor(
+        origin: SaveOrigin,
+        items: List<CachedInProgressItem>,
+        force: Boolean
+    ) = withContext(Dispatchers.IO) {
         val contentHash = items.hashCode()
         if (!force) {
             if (contentHash == lastInProgressHash) return@withContext
@@ -196,9 +222,9 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         mutex.withLock {
             // A deleted profile's snapshot must not be recreated by a save that was
             // already running; its id can be reused by a new profile.
-            if (!isActiveProfileStillPresent()) return@withLock
+            if (!isStillValid(origin)) return@withLock
             try {
-                val file = inProgressFile()
+                val file = inProgressFile(origin.profileId)
                 atomicWrite(file, gson.toJson(items))
                 lastInProgressWriteMs = System.currentTimeMillis()
                 lastInProgressHash = contentHash
@@ -227,10 +253,20 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         _cacheCleared.value++
     }
 
-    private fun isActiveProfileStillPresent(): Boolean {
-        val activeId = profileManager.activeProfileId.value
-        return profileManager.profiles.value.any { it.id == activeId }
-    }
+    /** The profile a save was made for, and the deletion generation when it started. */
+    private data class SaveOrigin(val profileId: Int, val generation: Long)
+
+    /**
+     * Under [mutex]: the save's profile is still the active one and still exists, and no profile
+     * was deleted since the save started (its data may belong to a profile that is gone).
+     */
+    private fun isStillValid(origin: SaveOrigin): Boolean = snapshotSaveStillValid(
+        originProfileId = origin.profileId,
+        originGeneration = origin.generation,
+        currentGeneration = deletionGeneration.get(),
+        activeProfileId = profileManager.activeProfileId.value,
+        profileIds = profileManager.profiles.value.map { it.id }
+    )
 
     private fun atomicWrite(target: File, content: String) {
         val tmp = File(target.parentFile, "${target.name}.tmp")
@@ -243,3 +279,17 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
     }
 
 }
+
+/**
+ * Whether a Continue Watching snapshot save may still write: no profile was deleted since it
+ * started, and the profile it was made for is still the active one and still exists.
+ */
+internal fun snapshotSaveStillValid(
+    originProfileId: Int,
+    originGeneration: Long,
+    currentGeneration: Long,
+    activeProfileId: Int,
+    profileIds: List<Int>
+): Boolean = originGeneration == currentGeneration &&
+    activeProfileId == originProfileId &&
+    originProfileId in profileIds

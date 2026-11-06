@@ -119,4 +119,16 @@ class ProfileDataFileCleanupTest {
         deleted.forEach { assertFalse(it.name, it.exists()) }
         kept.forEach { assertTrue(it.name, it.exists()) }
     }
+
+    @Test
+    fun `a snapshot save that started before a deletion never writes`() {
+        // Started for profile 3 at generation 0.
+        assertTrue(snapshotSaveStillValid(3, 0, currentGeneration = 0, activeProfileId = 3, profileIds = listOf(1, 3)))
+        // Profile 3 deleted (generation bumped), active profile fell back to 1: must not write into 1.
+        assertFalse(snapshotSaveStillValid(3, 0, currentGeneration = 1, activeProfileId = 1, profileIds = listOf(1)))
+        // Id 3 reused by a new profile before the save resumed: still refused.
+        assertFalse(snapshotSaveStillValid(3, 0, currentGeneration = 1, activeProfileId = 3, profileIds = listOf(1, 3)))
+        // Active profile switched to another one without a deletion: refused too.
+        assertFalse(snapshotSaveStillValid(3, 0, currentGeneration = 0, activeProfileId = 2, profileIds = listOf(1, 2, 3)))
+    }
 }

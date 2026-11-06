@@ -33,7 +33,7 @@ export const registerSubtitlesRoute = (routes: AddonRouter): void => {
 
     // A subtitles request means a player actually loaded, which is a stronger
     // play signal than the stream request that preceded it.
-    forwardPlaySignal("subtitles", type, id, scope.profileId, request.headers["user-agent"], request.log);
+    forwardPlaySignal("subtitles", type, id, scope, request.headers["user-agent"], request.log);
 
     const addonBase = addonBaseUrl();
     // Pin the resolved profile into the mark-watched URL rather than leaving it
@@ -41,9 +41,12 @@ export const registerSubtitlesRoute = (routes: AddonRouter): void => {
     // the user is actually looking at. A request that arrived without a profile
     // prefix has already resolved to the default profile by this point, so the
     // URL handed to Stremio names it explicitly either way. The signed form,
-    // so the link still works once ADDON_REQUIRE_SIGNED_URLS turns /p/ off.
+    // Only a request that arrived on a signed URL is handed the signed form back:
+    // the signed key unlocks PIN-protected profiles, so minting it for an unsigned
+    // /p/ or bare request would let anyone who knows a profile id skip its PIN.
+    // When ADDON_REQUIRE_SIGNED_URLS is on, every request here is signed anyway.
     const profileSegment = scope.profileId
-      ? (signedProfilePath(scope.profileId) ?? `/p/${scope.profileId}`)
+      ? (scope.profileKey ? signedProfilePath(scope.profileId) : null) ?? `/p/${scope.profileId}`
       : "";
 
     // Minted against the same profile the URL above names, which is the value

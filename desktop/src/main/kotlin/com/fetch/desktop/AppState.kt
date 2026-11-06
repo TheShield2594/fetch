@@ -56,6 +56,12 @@ import com.fetch.desktop.sync.toRemoteSharedSettings
 import com.fetch.desktop.sync.SyncAuthException
 import com.fetch.desktop.sync.SyncBase
 import com.fetch.desktop.sync.SyncMerge
+import com.fetch.desktop.sync.PendingWatchOps
+import com.fetch.desktop.sync.WatchStateSync
+import com.fetch.desktop.sync.WatchSync
+import com.fetch.desktop.sync.WatchSyncState
+import com.fetch.desktop.sync.watchRemote
+import com.fetch.desktop.sync.watchSyncFile
 import com.fetch.desktop.servers.ServerStream
 import com.fetch.tv.data.mediaserver.ServerItemRef
 import com.fetch.desktop.servers.ServersStore
@@ -576,17 +582,9 @@ class AppState(
                 runCatching { libraryStore.save(LibraryFile(library.toList())) }
                 runCatching { syncBaseStore.save(merge.base) }
 
-                // Continue Watching: the newest position wins, then ours go up.
-                val known = progress.entries.associateBy { it.contentId }
-                saveProgress(WatchHistory.mergeRemote(progress, SyncMerge.progressEntries(remote.pullProgress(id), known), emptySet()))
-                SyncMerge.progressToPush(progress.entries).takeIf { it.isNotEmpty() }?.let { remote.pushProgress(id, it) }
-
-                // Watched history: both ways.
-                val remoteWatched = remote.pullWatched(id)
-                val push = SyncMerge.watchedToPush(progress.watched, remoteWatched, System.currentTimeMillis())
-                if (push.isNotEmpty()) remote.pushWatched(id, push)
-                val watchedIds = remoteWatched.map { with(SyncMerge) { it.videoId() } }
-                saveProgress(progress.copy(watched = (progress.watched + watchedIds).distinct()))
+                // Watched history and Continue Watching: the server's changes since the last pull
+                // (deletes included), then only what changed here, as on TV.
+                watchState.sync(remote.watchRemote(), id)
 
                 // Collections: the server's copy wins, as on TV; ours go up when it has none.
                 if (paired == null) try {
@@ -609,6 +607,42 @@ class AppState(
                 message = "Couldn't sync with your server: ${e.message}"
             } finally {
                 accountSyncing = false
+            }
+        }
+    }
+
+    // --- Sync server: watched history and Continue Watching ---
+
+    /** Watched history and Continue Watching against the sync server, as the TV syncs them. */
+    private val watchState = WatchStateSync(watchSyncFile(profileDir(profile)), progress = { progress }, write = ::storeProgress, currentAccount = { signedInWatchAccount })
+
+    /** The account signed in now, as [WatchStateSync] keys it; null when signed out. */
+    private val signedInWatchAccount: String?
+        get() {
+            val state = account?.state ?: return null
+            val server = state.server ?: return null
+            val session = state.session ?: return null
+            return WatchStateSync.accountKey(server.baseUrl, session.userId)
+        }
+
+    /** Queues a watch-state change [WatchSync.recordLocal] can't see in the file, for the account signed in now. */
+    private fun queueWatchChange(change: (com.fetch.desktop.sync.PendingWatchOps, WatchSyncState) -> com.fetch.desktop.sync.PendingWatchOps) =
+        watchState.queueLocal(signedInWatchAccount, change)
+
+    /** Sends pending watch-state changes now (a mark or a removal by hand); the next sync retries a failure. */
+    private fun flushWatchState() {
+        val sync = account ?: return
+        val remote = sync.client()?.watchRemote() ?: return
+        if (!watchState.hasPendingFor(remote)) return
+        scope.launch {
+            try {
+                watchState.push(remote, profile.id)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: SyncAuthException) {
+                sync.sessionExpired()
+            } catch (_: Exception) {
+                // Still queued: the next sync sends it.
             }
         }
     }
@@ -785,7 +819,7 @@ class AppState(
             val playback = com.fetch.desktop.tracking.playbackForSource(
                 snapshot.playback, settings.tracking.progress, com.fetch.desktop.ui.availableProgressSources(this@AppState)
             )
-            saveProgress(WatchHistory.mergeRemote(progress, playback, snapshot.watchedIds))
+            saveImportedProgress(WatchHistory.mergeRemote(progress, playback, snapshot.watchedIds))
             remoteLists = snapshot.watchlists
             lists.refresh()
         }
@@ -830,7 +864,7 @@ class AppState(
         val merged = com.fetch.desktop.website.FetchWebsiteProgress.merge(progress, playback, com.fetch.desktop.website.FetchWebsiteProgress.watchedIds(projection), nextUp)
         if (merged == progress) return
         val newShows = merged.caughtUp.any { show -> progress.caughtUp.none { it == show } }
-        saveProgress(merged)
+        saveImportedProgress(merged)
         // A show the website moved on finds its next episode now, not at the next airing check.
         if (newShows) scope.launch { refreshAiring() }
     }
@@ -843,7 +877,7 @@ class AppState(
         if (servers.enabled.isEmpty()) return
         scope.launch {
             val resume = servers.resume()
-            if (resume.isNotEmpty()) saveProgress(WatchHistory.mergeRemote(progress, resume, emptySet()))
+            if (resume.isNotEmpty()) saveImportedProgress(WatchHistory.mergeRemote(progress, resume, emptySet()))
         }
     }
 
@@ -1641,7 +1675,10 @@ class AppState(
     }
 
     fun removeFromContinueWatching(entry: ProgressEntry) {
-        saveProgress(WatchHistory.hide(progress, entry.contentId))
+        saveProgress(WatchHistory.hide(progress, entry.contentId, System.currentTimeMillis()))
+        // The account's positions for it go too (retried until sent), as the TV's removeProgress does.
+        queueWatchChange { pending, state -> WatchSync.queueRemoval(pending, entry, state.remoteProgressKeys) }
+        flushWatchState()
         // MDBList's resume point goes too, as on TV, so the next sync doesn't bring it back.
         if (entry.source == "mdblist") scope.launch { mdbListTracker.clear(entry) }
         // As does the website's, while it keeps them.
@@ -1650,15 +1687,22 @@ class AppState(
     }
 
     fun startFromBeginning(entry: ProgressEntry) {
-        saveProgress(WatchHistory.clearPosition(progress, entry.contentId))
+        startOver(entry.contentId)
         navigate(Screen.Detail(entry.toPreview(), autoPlay = true, videoId = entry.videoId))
     }
 
     /** Detail's "Start over": forget where this title was stopped and play it from the top. */
     fun startOverDetail() {
         val current = sources ?: return
-        saveProgress(WatchHistory.clearPosition(progress, current.preview.id))
+        startOver(current.preview.id)
         playBest()
+    }
+
+    /** Clears [contentId]'s position here and, so a later pull doesn't bring it back, on the sync server. */
+    private fun startOver(contentId: String) {
+        val cleared = progress.entries.firstOrNull { it.contentId == contentId }
+        saveProgress(WatchHistory.clearPosition(progress, contentId))
+        if (cleared != null) queueWatchChange { pending, _ -> WatchSync.queueStartOver(pending, cleared) }
     }
 
     // --- Watched state ---
@@ -1694,20 +1738,8 @@ class AppState(
         if (changed.isEmpty()) return
         saveProgress(WatchHistory.setWatched(progress, base, ids, watched, System.currentTimeMillis()))
         targets.filter { it.videoId in changed }.forEach { tracking.setWatched(it, watched) }
-        val remote = account?.client()
-        if (remote != null) {
-            scope.launch {
-                runCatching {
-                    if (watched) {
-                        remote.pushWatched(profile.id, changed.mapNotNull { SyncMerge.watchedItem(it, System.currentTimeMillis()) })
-                    } else {
-                        remote.deleteWatched(profile.id, changed.mapNotNull { id ->
-                            SyncMerge.watchedItem(id, 0L)?.let { RemoteWatchedKey(it.contentId, it.season, it.episode) }
-                        })
-                    }
-                }
-            }
-        }
+        // saveProgress queued the change; it goes now, or with the next sync if this fails.
+        flushWatchState()
         message = when {
             videos.size > 1 -> "Marked ${videos.size} episodes ${if (watched) "watched" else "unwatched"}"
             videos.size == 1 -> "Marked ${episodeTag(videos[0].season, videos[0].episode) ?: "episode"} ${if (watched) "watched" else "unwatched"}"
@@ -1739,12 +1771,30 @@ class AppState(
         }
     }
 
-    private fun saveProgress(file: ProgressFile) {
+    /**
+     * Saves a change made on this computer, and queues what the sync server should hear of it
+     * ([WatchSync.recordLocal]) once this profile has synced with an account.
+     */
+    private fun saveProgress(file: ProgressFile) = watchState.saveLocal(file, signedInWatchAccount, System.currentTimeMillis())
+
+    /**
+     * Saves what Trakt, Simkl, the Fetch website or a media server reported, as [saveProgress]
+     * does, except marks the sync server dropped since ([WatchStateSync.saveImported]).
+     */
+    private fun saveImportedProgress(file: ProgressFile) = watchState.saveImported(file, signedInWatchAccount, System.currentTimeMillis())
+
+    /**
+     * Saves [file] as is (the sync server's changes, which aren't sent back, go only through
+     * here). Returns whether it reached the disk.
+     */
+    private fun storeProgress(file: ProgressFile): Boolean {
         progress = file
-        try {
+        return try {
             progressStore.save(file)
+            true
         } catch (_: Exception) {
             // Losing one position update isn't worth interrupting playback for.
+            false
         }
     }
 
@@ -2812,6 +2862,14 @@ class AppState(
                 fromFurthest = settings.nextUpFromFurthest
             )
         )
+        // Played to its end: sent at 100% under its own key, as the TV's markAsCompleted does.
+        if (durationMs > 0 && positionMs.toFloat() / durationMs >= WatchProgress.COMPLETED_THRESHOLD) {
+            val video = target.video
+            val completed = com.fetch.desktop.sync.PendingProgress(
+                target.contentId, target.contentType, target.videoId, video?.season, video?.episode, durationMs, durationMs, System.currentTimeMillis(),
+            )
+            queueWatchChange { pending, _ -> WatchSync.queueCompleted(pending, completed) }
+        }
         // The website keeps the exact second when it is the watch progress source, as on TV.
         if (websiteKeepsProgress) tracking.savePosition(target, positionMs, durationMs)
     }

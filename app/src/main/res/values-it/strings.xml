@@ -1128,15 +1128,15 @@
 <string name="profile_pin_overlay_unlock_heading">Inserisci il PIN per accedere a %1$s.</string>
 <string name="profile_pin_overlay_set_heading">Crea un PIN a 4 cifre per %1$s.</string>
 <string name="profile_pin_overlay_confirm_heading">Conferma il nuovo PIN.</string>
-<string name="profile_pin_overlay_unlock_support">Usa il telecomando o la tastiera per inserire 4 cifre.</string>
+<string name="profile_pin_overlay_unlock_support">Usa il telecomando o la tastiera per inserire il PIN, poi premi OK.</string>
 <string name="profile_pin_overlay_change_verify_heading">Inserisci il PIN attuale per cambiare il PIN di %1$s.</string>
 <string name="profile_pin_overlay_change_verify_support">Inserisci il PIN a 4 cifre attuale prima di impostarne uno nuovo.</string>
 <string name="profile_pin_overlay_remove_verify_heading">Inserisci il PIN attuale per rimuovere il blocco di %1$s.</string>
 <string name="profile_pin_overlay_remove_verify_support">Inserisci il PIN a 4 cifre attuale per rimuovere questo blocco.</string>
 <string name="profile_pin_overlay_delete_verify_heading">Inserisci il PIN attuale per eliminare %1$s.</string>
 <string name="profile_pin_overlay_delete_verify_support">Inserisci l\'attuale PIN a 4 cifre prima di eliminare questo profilo.</string>
-<string name="profile_pin_overlay_set_support">Questo PIN sarà richiesto prima di aprire questo profilo.</string>
-<string name="profile_pin_overlay_confirm_support">Reinserisci le stesse 4 cifre per completare l\'impostazione.</string>
+<string name="profile_pin_overlay_set_support">Usa da 4 a 8 cifre, poi premi OK. Questo PIN sarà richiesto prima di aprire questo profilo.</string>
+<string name="profile_pin_overlay_confirm_support">Reinserisci le stesse cifre per completare l\'impostazione.</string>
 <string name="profile_pin_overlay_mismatch">I PIN non coincidono. Inserisci di nuovo un nuovo PIN.</string>
 <string name="profile_pin_overlay_back_hint">Premi indietro per annullare</string>
 

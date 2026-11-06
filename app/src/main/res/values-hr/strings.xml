@@ -1248,15 +1248,15 @@
     <string name="profile_pin_overlay_unlock_heading">Unesi PIN za pristup profilu %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Stvori 4-znamenkasti PIN za %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Potvrdi novi PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Koristi daljinski upravljač ili tipkovnicu za unos 4 znamenke.</string>
+    <string name="profile_pin_overlay_unlock_support">Unesi PIN daljinskim upravljačem ili tipkovnicom, a zatim pritisni OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Unesi trenutni PIN za promjenu PIN-a za %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Unesi trenutni 4-znamenkasti PIN prije postavljanja novog.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Unesi trenutni PIN za uklanjanje zaključavanja za %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Unesi trenutni 4-znamenkasti PIN za uklanjanje ovog zaključavanja.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Unesi trenutni PIN za brisanje profila %1$s.</string>
     <string name="profile_pin_overlay_delete_verify_support">Unesi trenutni 4-znamenkasti PIN prije brisanja ovog profila.</string>
-    <string name="profile_pin_overlay_set_support">Ovaj PIN bit će potreban prije otvaranja ovog profila.</string>
-    <string name="profile_pin_overlay_confirm_support">Ponovno unesi iste 4 znamenke za dovršetak postavljanja.</string>
+    <string name="profile_pin_overlay_set_support">Koristi 4 do 8 znamenki, a zatim pritisni OK. Ovaj PIN bit će potreban prije otvaranja ovog profila.</string>
+    <string name="profile_pin_overlay_confirm_support">Ponovno unesi iste znamenke za dovršetak postavljanja.</string>
     <string name="profile_pin_overlay_mismatch">PIN-ovi se nisu podudarali. Ponovno unesi novi PIN.</string>
     <string name="profile_pin_overlay_back_hint">Pritisni natrag za odustajanje</string>
 

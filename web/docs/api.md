@@ -383,7 +383,7 @@ Needs `TWITCH_CLIENT_ID` / `TWITCH_CLIENT_SECRET` for search, and
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/profiles` | Every profile with its appearance, sharing and parental settings (see below). |
-| `POST` | `/profiles` | `{ name, pin?, …settings }`. A PIN is 4–128 characters. |
+| `POST` | `/profiles` | `{ name, pin?, …settings }`. A PIN is 4–8 digits (`PATCH /profiles/:id` too); unlocking still accepts a PIN set before that rule. |
 | `PATCH` | `/profiles/:id` | `{ name?, pin?, …settings }`. Changing or clearing an existing PIN also needs `currentPin`; `pin: null` removes it. A *first* PIN has nothing to prove, so it is instead only accepted for the profile the caller is acting as (`x-profile-id`, or the only profile on a single-profile install) — `403 profile_not_active` otherwise. Without that, one PIN could lock a household member out of their own profile. |
 | `GET` | `/profiles/:id/summary` | Counts of what deleting the profile takes with it: `watchEvents`, `lists`, `listItems`, `playbackProgress`, `ratings`, `collections`. |
 | `DELETE` | `/profiles/:id` | Deletes the profile and everything it owns — history, lists, resume points, ratings, collections — and its slot on every paired TV. A PIN-protected profile needs `currentPin` unless the caller's profile token is for it. |

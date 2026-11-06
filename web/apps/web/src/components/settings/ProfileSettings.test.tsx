@@ -186,6 +186,52 @@ describe("ProfileSettings PINs", () => {
     );
   });
 
+  it("explains the 4–8 digit rule instead of sending a PIN that breaks it", async () => {
+    const user = userEvent.setup();
+    await renderSettings();
+
+    await user.click(screen.getByRole("button", { name: "Set PIN for Alex" }));
+    const field = screen.getByLabelText("PIN for Alex");
+    // No maxLength: a pasted 9-digit PIN must be rejected, not silently truncated.
+    expect(field).not.toHaveAttribute("maxLength");
+    await user.type(field, "12ab");
+    await user.click(screen.getByRole("button", { name: "Save PIN" }));
+
+    expect(await screen.findByText("PIN must be 4 to 8 digits.")).toHaveAttribute("role", "alert");
+    expect(updateProfile).not.toHaveBeenCalled();
+  });
+
+  it("rejects a PIN longer than 8 digits instead of truncating it", async () => {
+    const user = userEvent.setup();
+    await renderSettings();
+
+    await user.click(screen.getByRole("button", { name: "Set PIN for Alex" }));
+    await user.click(screen.getByLabelText("PIN for Alex"));
+    await user.paste("123456789");
+    await user.click(screen.getByRole("button", { name: "Save PIN" }));
+
+    expect(await screen.findByText("PIN must be 4 to 8 digits.")).toHaveAttribute("role", "alert");
+    expect(updateProfile).not.toHaveBeenCalled();
+  });
+
+  // A PIN set before the digits-only rule still has to unlock, so the field
+  // that asks for the current one is not held to it.
+  it("takes any existing PIN as the current one", async () => {
+    const user = userEvent.setup();
+    await renderSettings();
+
+    await user.click(screen.getByRole("button", { name: "Change PIN for Kid" }));
+    const current = screen.getByLabelText("Current PIN for Kid");
+    expect(current).not.toHaveAttribute("maxLength");
+    await user.type(current, "an old passphrase");
+    await user.type(screen.getByLabelText("New PIN for Kid"), "246810");
+    await user.click(screen.getByRole("button", { name: "Save PIN" }));
+
+    await waitFor(() =>
+      expect(updateProfile).toHaveBeenCalledWith(KID.id, { pin: "246810", currentPin: "an old passphrase" })
+    );
+  });
+
   it("names a wrong current PIN as such, not as a generic failure", async () => {
     const user = userEvent.setup();
     updateProfile.mockRejectedValue(new ApiError("Unauthorized", 401));

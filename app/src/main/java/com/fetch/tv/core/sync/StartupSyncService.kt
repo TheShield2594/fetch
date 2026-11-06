@@ -736,6 +736,9 @@ class StartupSyncService @Inject constructor(
         useSnapshot: Boolean
     ): Result<Unit> {
         watchProgressRepository.isSyncingFromRemote = true
+        // Captured before the remote work suspends: if this profile is deleted or switched away
+        // meanwhile, the cache cleanup below must not filter another profile's snapshots.
+        val snapshotOrigin = cwEnrichmentCache.captureOrigin()
         try {
             val syncResult = if (useSnapshot) {
                 watchProgressSyncService.syncSnapshotFromRemote(profileId).getOrElse { throw it }
@@ -749,7 +752,7 @@ class StartupSyncService @Inject constructor(
             )
             // Evict deleted entries from CW enrichment cache so stale items
             // don't persist on screen via loadContinueWatching() cache restore.
-            if (syncResult.deletedEntries > 0) {
+            if (syncResult.deletedEntries > 0 && snapshotOrigin.profileId == profileId) {
                 val currentContentIds = watchProgressPreferences.getAllRawEntries(profileId)
                     .values.mapTo(mutableSetOf()) { it.contentId }
                 val cachedInProgress = cwEnrichmentCache.getInProgressSnapshot()
@@ -757,10 +760,10 @@ class StartupSyncService @Inject constructor(
                 val filteredInProgress = cachedInProgress.filter { it.contentId in currentContentIds }
                 val filteredNextUp = cachedNextUp.filter { it.contentId in currentContentIds }
                 if (filteredInProgress.size != cachedInProgress.size) {
-                    cwEnrichmentCache.saveInProgressSnapshot(filteredInProgress, force = true)
+                    cwEnrichmentCache.saveInProgressSnapshot(filteredInProgress, force = true, origin = snapshotOrigin)
                 }
                 if (filteredNextUp.size != cachedNextUp.size) {
-                    cwEnrichmentCache.saveNextUpSnapshot(filteredNextUp, force = true)
+                    cwEnrichmentCache.saveNextUpSnapshot(filteredNextUp, force = true, origin = snapshotOrigin)
                 }
             }
             if (pushUnsynced && syncResult.preservedLocalItems) {

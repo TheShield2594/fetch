@@ -185,6 +185,28 @@ describe("ProfileSwitcher", () => {
       await waitFor(() => expect(createProfile).toHaveBeenCalledWith({ name: "Sam", pin: "4321" }));
     });
 
+    it.each(["123", "12ab"])("explains the PIN rule instead of creating a profile with PIN %j", async (pin) => {
+      renderSwitcher();
+
+      await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
+      await userEvent.type(screen.getByLabelText("Profile name"), "Sam");
+      await userEvent.type(screen.getByLabelText("PIN (optional)"), pin);
+      await userEvent.click(screen.getByRole("button", { name: /create/i }));
+
+      expect(await screen.findByRole("alert")).toHaveTextContent("PIN must be 4 to 8 digits.");
+      expect(createProfile).not.toHaveBeenCalled();
+    });
+
+    it("describes the 4–8 digit rule without truncating input", async () => {
+      renderSwitcher();
+
+      await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
+      const field = screen.getByLabelText("PIN (optional)");
+      expect(field).not.toHaveAttribute("maxLength");
+      expect(field).toHaveAttribute("inputMode", "numeric");
+      expect(field).toHaveAccessibleDescription("4–8 digits");
+    });
+
     it("cannot be submitted with a blank name", async () => {
       renderSwitcher();
 

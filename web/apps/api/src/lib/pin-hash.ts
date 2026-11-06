@@ -28,18 +28,16 @@ const SCRYPT_PREFIX = "scrypt";
 const LEGACY_SHA256_PATTERN = /^[0-9a-f]{64}$/;
 
 /**
- * Shortest PIN accepted. Four digits is what the UI's keypad asks for and what
- * a lock screen conditions people to expect; the point of the floor is to stop
- * a one- or two-character PIN, which the 5-attempt lockout alone barely slows.
+ * The rule for *choosing* a PIN — 4 to 8 digits, shared with the website and
+ * matching the TV and desktop keypads — lives in `@fetch/shared` so the browser
+ * validates with the same pattern. Re-exported here beside the hashing it
+ * guards.
+ *
+ * Verification (`pinMatches`) deliberately does not apply it: PINs set before
+ * the rule (the API used to take 4 to 128 characters of anything) must keep
+ * unlocking their profiles.
  */
-export const MIN_PIN_LENGTH = 4;
-/** Guard against a "PIN" long enough to make scrypt itself the attack. */
-export const MAX_PIN_LENGTH = 128;
-
-export const pinLengthError = `PIN must be between ${MIN_PIN_LENGTH} and ${MAX_PIN_LENGTH} characters`;
-
-export const isValidPinFormat = (pin: string): boolean =>
-  pin.length >= MIN_PIN_LENGTH && pin.length <= MAX_PIN_LENGTH;
+export { isValidPinFormat, MAX_PIN_LENGTH, MIN_PIN_LENGTH, PIN_FORMAT_ERROR } from "@fetch/shared";
 
 /**
  * Encoded as `scrypt$N$r$p$<salt-hex>$<key-hex>` so the cost parameters travel

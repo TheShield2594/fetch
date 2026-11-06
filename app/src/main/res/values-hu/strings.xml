@@ -1285,15 +1285,15 @@
     <string name="profile_pin_overlay_unlock_heading">Add meg a PIN-kódot a belépéshez (%1$s).</string>
     <string name="profile_pin_overlay_set_heading">Hozz létre egy 4 jegyű PIN-kódot a következőhöz: %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Erősítsd meg az új PIN-kódot.</string>
-    <string name="profile_pin_overlay_unlock_support">Használd a távirányítót vagy a billentyűzetet a 4 számjegy megadásához.</string>
+    <string name="profile_pin_overlay_unlock_support">Add meg a PIN-kódot a távirányítóval vagy a billentyűzettel, majd nyomd meg az OK gombot.</string>
     <string name="profile_pin_overlay_change_verify_heading">Add meg a jelenlegi PIN-kódot a módosításhoz (%1$s).</string>
     <string name="profile_pin_overlay_change_verify_support">Az új PIN beállítása előtt add meg a jelenlegi 4 jegyű kódot.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Add meg a jelenlegi PIN-kódot a zár eltávolításához (%1$s).</string>
     <string name="profile_pin_overlay_remove_verify_support">A zár eltávolításához add meg a jelenlegi 4 jegyű PIN-kódot.</string>
     <string name="profile_pin_overlay_delete_verify_heading">A profil (%1$s) törléséhez add meg a jelenlegi PIN-kódot.</string>
     <string name="profile_pin_overlay_delete_verify_support">Add meg a jelenlegi 4 számjegyű PIN-t a profil törlése előtt.</string>
-    <string name="profile_pin_overlay_set_support">Ez a PIN szükséges lesz a profil megnyitása előtt.</string>
-    <string name="profile_pin_overlay_confirm_support">Írd be újra ugyanazt a 4 számjegyet a beállítás befejezéséhez.</string>
+    <string name="profile_pin_overlay_set_support">Használj 4–8 számjegyet, majd nyomd meg az OK gombot. Ez a PIN szükséges lesz a profil megnyitása előtt.</string>
+    <string name="profile_pin_overlay_confirm_support">Írd be újra ugyanazokat a számjegyeket a beállítás befejezéséhez.</string>
     <string name="profile_pin_overlay_mismatch">A PIN-kódok nem egyeznek. Add meg újra az új PIN-t.</string>
     <string name="profile_pin_overlay_back_hint">A megszakításhoz nyomd meg a Vissza gombot</string>
 

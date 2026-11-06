@@ -9,6 +9,7 @@
     ".": "./dist/index.js",
     "./contracts": "./dist/api-contracts.js",
     "./api-cache-routes": "./dist/api-cache-routes.js",
+    "./pin": "./dist/pin.js",
     "./tv-settings": "./dist/tv-settings.js"
   },
   "scripts": {

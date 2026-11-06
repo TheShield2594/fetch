@@ -94,6 +94,8 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import com.fetch.tv.core.parental.shouldShowStartupPicker
+import com.fetch.tv.core.parental.startupNeedsParentPin
 import com.fetch.tv.ui.screens.ambient.AmbientIdleController
 import com.fetch.tv.ui.screens.ambient.AmbientModeHost
 import com.fetch.tv.ui.screens.ambient.LocalAmbientIdleController
@@ -445,6 +447,8 @@ open class MainActivity : ComponentActivity() {
             val startupSplashEnabled by profileManager.startupSplashEnabled.collectAsState()
             val startupLoadingState = remember(activeProfileId, startupSession) { StartupLoadingState() }
             val profiles by profileManager.profiles.collectAsState()
+            val loadedProfiles by profileManager.loadedProfiles.collectAsState()
+            val loadedActiveProfileId by profileManager.loadedActiveProfileId.collectAsState()
             val hasEverSelectedProfile by profileManager.hasEverSelectedProfile.collectAsState()
             val rememberLastProfileEnabled by profileManager.rememberLastProfileEnabled.collectAsState()
             val activeProfile = remember(activeProfileId, profiles) {
@@ -460,13 +464,26 @@ open class MainActivity : ComponentActivity() {
                 }
             }
 
-            val activeProfileHasPin = remember(activeProfileId, profilePinStates) {
-                profilePinStates?.get(activeProfileId) == true
+            // Judged on the loaded active id, not the placeholder default (see loadedActiveProfileId).
+            val activeProfileHasPin = remember(loadedActiveProfileId, profilePinStates) {
+                loadedActiveProfileId?.let { profilePinStates?.get(it) } == true
+            }
+
+            // "Lock unrestricted profiles" can also lock the remembered profile behind the parent
+            // PIN. Null until read from disk, so that profile is never auto-entered early either.
+            val profileOpenLock by remember { parentalControls.profileOpenLock }.collectAsState(initial = null)
+            // Also null until the real profile list and active profile are read: judged against
+            // the primary-only placeholder list, a restricted sibling would be missed and the
+            // remembered profile auto-entered without the parent PIN.
+            val activeProfileNeedsParentPin = remember(profileOpenLock, loadedProfiles, loadedActiveProfileId) {
+                startupNeedsParentPin(profileOpenLock, loadedActiveProfileId, loadedProfiles?.map { it.id })
             }
 
             var profileSwitchedManually by remember { mutableStateOf(false) }
+            // A locked profile is opened from the picker, which asks for its PIN or the parent's.
             val shouldAutoSelectProfile = rememberLastProfileEnabled &&
                 hasEverSelectedProfile && profilePinStates != null && !activeProfileHasPin &&
+                activeProfileNeedsParentPin == false &&
                 !hasSelectedProfileThisSession && !profileSwitchedManually
             if (shouldAutoSelectProfile && !splashTriggered) {
                 splashTriggered = true
@@ -739,7 +756,8 @@ open class MainActivity : ComponentActivity() {
                     var startupDestination = StartupDestination.Loading
                     val surfaceContentReady = hasSeenAuthQrOnFirstLaunch != null &&
                         authState !is AuthState.Loading &&
-                        profilePinStates != null
+                        profilePinStates != null &&
+                        activeProfileNeedsParentPin != null
 
                     if (!surfaceContentReady) {
                         // Still loading auth state; nothing to show yet.
@@ -790,7 +808,14 @@ open class MainActivity : ComponentActivity() {
                     } else {
 
                     val shouldShowProfileSelection =
-                        !hasSelectedProfileThisSession && (profiles.size > 1 || activeProfileHasPin)
+                        // Loaded values only: the placeholder list holds just the primary profile.
+                        // A profile that needs the parent PIN always goes through the PIN-gated picker.
+                        shouldShowStartupPicker(
+                            selectedThisSession = hasSelectedProfileThisSession,
+                            loadedProfileCount = loadedProfiles?.size,
+                            activeProfileHasPin = activeProfileHasPin,
+                            needsParentPin = activeProfileNeedsParentPin
+                        )
 
                     if (shouldShowProfileSelection) {
                         startupDestination = if (splashTriggered) StartupDestination.Loading else StartupDestination.ProfileSelection

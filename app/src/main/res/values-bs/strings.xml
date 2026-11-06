@@ -670,13 +670,13 @@
     <string name="profile_pin_overlay_unlock_heading">Unesi svoj PIN za pristup profilu %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Kreiraj 4-cifreni PIN za profil %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Potvrdi svoj novi PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Koristi daljinski ili tastaturu da uneseš 4 cifre.</string>
+    <string name="profile_pin_overlay_unlock_support">Unesi PIN daljinskim ili tastaturom, a zatim pritisni OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Unesi trenutni PIN da promijeniš PIN za profil %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Unesi trenutni 4-cifreni PIN prije postavljanja novog.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Unesi trenutni PIN da ukloniš zaključavanje za profil %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Unesi trenutni 4-cifreni PIN da ukloniš ovo zaključavanje.</string>
-    <string name="profile_pin_overlay_set_support">Ovaj PIN će biti potreban prije otvaranja ovog profila.</string>
-    <string name="profile_pin_overlay_confirm_support">Ponovo unesi iste 4 cifre da završiš podešavanje.</string>
+    <string name="profile_pin_overlay_set_support">Koristi 4 do 8 cifara, a zatim pritisni OK. Ovaj PIN će biti potreban prije otvaranja ovog profila.</string>
+    <string name="profile_pin_overlay_confirm_support">Ponovo unesi iste cifre da završiš podešavanje.</string>
     <string name="profile_pin_overlay_mismatch">PIN-ovi se ne poklapaju. Ponovo unesi novi PIN.</string>
     <string name="profile_pin_overlay_back_hint">Pritisni nazad za otkazivanje</string>
 

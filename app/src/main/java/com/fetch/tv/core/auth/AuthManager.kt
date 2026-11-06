@@ -139,6 +139,7 @@ class AuthManager @Inject constructor(
                             } else if (!validateAuthenticatedSession(force = false)) {
                                 finishStartupAuthDiagnostics("signed_out", "authenticated_session_invalid")
                             } else {
+                                resetLocalDataIfAccountChanged(user.id)
                                 _authState.value = AuthState.FullAccount(userId = user.id, email = user.email!!)
                                 authSessionNoticeDataStore.markFetchAuthenticated()
                                 finishStartupAuthDiagnostics("success", "authenticated_session_validated")
@@ -393,7 +394,7 @@ class AuthManager @Inject constructor(
         cachedEffectiveUserId = null
         cachedEffectiveUserSourceUserId = null
         _authState.value = AuthState.SignedOut
-        accountLocalDataResetService.clearAfterSignOut()
+        clearLocalDataAfterSignOut()
     }
 
     suspend fun prepareForServerSwitch(): Result<Unit> {
@@ -405,7 +406,9 @@ class AuthManager @Inject constructor(
         cachedEffectiveUserSourceUserId = null
         _authState.value = AuthState.SignedOut
         authSessionNoticeDataStore.markFetchExplicitLogout()
-        if (hadSession) accountLocalDataResetService.clearAfterSignOut()
+        if (hadSession) {
+            clearLocalDataAfterSignOut()
+        }
         return Result.success(Unit)
     }
 
@@ -414,14 +417,63 @@ class AuthManager @Inject constructor(
         cachedEffectiveUserSourceUserId = null
     }
 
+    /**
+     * The server ended the session (refresh token expired or revoked) without the
+     * person asking. Local account data is wiped, as before: the server can't tell a
+     * revoked session (a lost or sold TV) from an expired one, and a revoked device
+     * must not keep addons, debrid keys or tracking tokens. The local data owner is
+     * cleared with it, so the next sign-in starts clean.
+     */
     private suspend fun handleUnexpectedSignedOut() {
         sessionValidator.reset()
         cachedEffectiveUserId = null
         cachedEffectiveUserSourceUserId = null
         _authState.value = AuthState.SignedOut
         if (authSessionNoticeDataStore.markUnexpectedFetchLogoutIfNeeded()) {
-            accountLocalDataResetService.clearAfterSignOut()
+            clearLocalDataAfterSignOut()
         }
+    }
+
+    /**
+     * Clears the previous account's local data before [userId] is reported as
+     * signed in, if that data belongs to a different account. Runs before the
+     * state becomes [AuthState.FullAccount] so no sync starts on the old data.
+     */
+    private suspend fun resetLocalDataIfAccountChanged(userId: String) {
+        val previousOwner = runCatching { authSessionNoticeDataStore.localDataOwnerUserId() }
+            .onFailure { Log.w(TAG, "Failed to read local data owner", it) }
+            .getOrElse { return }
+        if (shouldResetLocalDataForSignIn(previousOwner, userId)) {
+            Log.i(TAG, "A different account signed in; clearing the previous account's local data")
+            if (!accountLocalDataResetService.clearAfterSignOut()) {
+                // Keep the previous owner recorded so the next sign-in retries the
+                // cleanup instead of treating the leftover data as this account's.
+                Log.w(TAG, "Local data cleanup incomplete; not recording the new account as its owner")
+                return
+            }
+        }
+        if (previousOwner != userId) {
+            runCatching { authSessionNoticeDataStore.setLocalDataOwnerUserId(userId) }
+                .onFailure { Log.w(TAG, "Failed to record local data owner", it) }
+        }
+    }
+
+    /**
+     * Wipes the signed-out account's local data. The recorded owner is cleared only
+     * when every store was cleared: if anything was left behind, the owner stays
+     * recorded so a different account signing in next retries the cleanup.
+     */
+    private suspend fun clearLocalDataAfterSignOut() {
+        if (accountLocalDataResetService.clearAfterSignOut()) {
+            clearLocalDataOwner()
+        } else {
+            Log.w(TAG, "Local data cleanup incomplete; keeping the recorded local data owner")
+        }
+    }
+
+    private suspend fun clearLocalDataOwner() {
+        runCatching { authSessionNoticeDataStore.setLocalDataOwnerUserId(null) }
+            .onFailure { Log.w(TAG, "Failed to clear local data owner", it) }
     }
 
     suspend fun refreshSessionIfJwtExpired(error: Throwable): Boolean {

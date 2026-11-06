@@ -8,6 +8,7 @@ import com.fetch.tv.ui.screens.home.approvedTitleRows
 import com.fetch.tv.ui.screens.player.effectiveStillWatching
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDateTime
@@ -104,6 +105,35 @@ class KidsRulesTest {
     }
 
     @Test
+    fun `the stored lock answers like the live check, for the remembered profile too`() {
+        val lock = ProfileOpenLock(
+            lockOn = true,
+            restrictions = mapOf(3 to ProfileRestrictions.KidsPreset),
+            pinEnabled = mapOf(1 to true, 4 to true)
+        )
+        val ids = listOf(1, 2, 3, 4)
+
+        assertTrue(lock.needsParentPinToOpen(2, ids))
+        assertFalse(lock.needsParentPinToOpen(1, ids))
+        assertFalse(lock.needsParentPinToOpen(3, ids))
+        assertFalse(lock.needsParentPinToOpen(4, ids))
+        assertFalse(lock.copy(lockOn = false).needsParentPinToOpen(2, ids))
+        // A deleted profile's leftover limits don't lock the others.
+        assertFalse(lock.needsParentPinToOpen(2, listOf(1, 2, 4)))
+    }
+
+    @Test
+    fun `deleting a profile needs the parent PIN while any profile has limits`() {
+        val restrictions = mapOf(3 to ProfileRestrictions.KidsPreset)
+        val ids = listOf(1, 2, 3)
+
+        assertTrue(needsParentPinToDelete(ids, restrictions, parentHasPin = true))
+        assertFalse(needsParentPinToDelete(ids, restrictions, parentHasPin = false))
+        assertFalse(needsParentPinToDelete(ids, emptyMap(), parentHasPin = true))
+        assertFalse(needsParentPinToDelete(listOf(1, 2), restrictions, parentHasPin = true))
+    }
+
+    @Test
     fun `approved rows split movies and shows, newest first`() {
         val lists = ProfileTitleLists(
             allowed = listOf(
@@ -120,5 +150,33 @@ class KidsRulesTest {
         assertEquals("p1", rows[0].items[1].poster)
         assertEquals(listOf("tt2"), rows[1].items.map { it.id })
         assertTrue(approvedTitleRows(approvedOnly = false, lists = lists, moviesTitle = "M", showsTitle = "S").isEmpty())
+    }
+
+    @Test
+    fun `startup makes no lock decision until every input is loaded`() {
+        val lock = ProfileOpenLock(
+            lockOn = true,
+            restrictions = mapOf(3 to ProfileRestrictions.KidsPreset),
+            pinEnabled = mapOf(1 to true)
+        )
+        // Lock settings arrive first; the profile list and active id are still unread.
+        assertNull(startupNeedsParentPin(lock, activeProfileId = null, profileIds = null))
+        assertNull(startupNeedsParentPin(lock, activeProfileId = 2, profileIds = null))
+        assertNull(startupNeedsParentPin(lock, activeProfileId = null, profileIds = listOf(1, 2, 3)))
+        assertNull(startupNeedsParentPin(null, activeProfileId = 2, profileIds = listOf(1, 2, 3)))
+        // Once the real list (with the restricted sibling) is in, the remembered profile is locked.
+        assertTrue(startupNeedsParentPin(lock, activeProfileId = 2, profileIds = listOf(1, 2, 3)) == true)
+    }
+
+    @Test
+    fun `startup picker follows loaded values and always gates a parent-PIN profile`() {
+        // Placeholder phase: nothing loaded yet, so no picker decision is based on one profile.
+        assertFalse(shouldShowStartupPicker(false, loadedProfileCount = null, activeProfileHasPin = false, needsParentPin = null))
+        // Several profiles loaded: picker.
+        assertTrue(shouldShowStartupPicker(false, loadedProfileCount = 3, activeProfileHasPin = false, needsParentPin = false))
+        // A single profile that still needs the parent PIN goes through the picker.
+        assertTrue(shouldShowStartupPicker(false, loadedProfileCount = 1, activeProfileHasPin = false, needsParentPin = true))
+        // Already chosen this session: no picker.
+        assertFalse(shouldShowStartupPicker(true, loadedProfileCount = 3, activeProfileHasPin = true, needsParentPin = true))
     }
 }

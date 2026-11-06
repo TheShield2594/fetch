@@ -1454,21 +1454,22 @@
     <string name="profile_pin_remove">Remove PIN</string>
     <string name="profile_pin_verifying">Verifying…</string>
     <string name="profile_pin_overlay_unlock_heading">Enter your PIN to access %1$s.</string>
-    <string name="profile_pin_overlay_set_heading">Create a 4-digit PIN for %1$s.</string>
+    <string name="profile_pin_overlay_set_heading">Create a PIN for %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Confirm your new PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Use your remote or keyboard to enter 4 digits.</string>
+    <string name="profile_pin_overlay_unlock_support">Use your remote or keyboard to enter the PIN, then press OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Enter current PIN to change PIN for %1$s.</string>
-    <string name="profile_pin_overlay_change_verify_support">Enter the current 4-digit PIN before setting a new one.</string>
+    <string name="profile_pin_overlay_change_verify_support">Enter the current PIN before setting a new one.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Enter current PIN to remove lock for %1$s.</string>
-    <string name="profile_pin_overlay_remove_verify_support">Enter the current 4-digit PIN to remove this lock.</string>
+    <string name="profile_pin_overlay_remove_verify_support">Enter the current PIN to remove this lock.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Enter current PIN to delete %1$s.</string>
-    <string name="profile_pin_overlay_delete_verify_support">Enter the current 4-digit PIN before deleting this profile.</string>
-    <string name="profile_pin_overlay_set_support">This PIN will be required before opening this profile.</string>
-    <string name="profile_pin_overlay_confirm_support">Re-enter the same 4 digits to finish setup.</string>
+    <string name="profile_pin_overlay_delete_verify_support">Enter the current PIN before deleting this profile.</string>
+    <string name="profile_pin_overlay_set_support">Use 4 to 8 digits, then press OK. This PIN will be required before opening this profile.</string>
+    <string name="profile_pin_overlay_confirm_support">Re-enter the same digits to finish setup.</string>
     <string name="profile_pin_overlay_mismatch">PINs did not match. Enter a new PIN again.</string>
     <string name="profile_pin_overlay_back_hint">Press back to cancel</string>
+    <string name="profile_pin_overlay_submit">OK</string>
     <string name="profile_pin_overlay_access_heading">Enter the PIN for %1$s.</string>
-    <string name="profile_pin_overlay_access_support">This profile is locked. Enter its 4-digit PIN to continue.</string>
+    <string name="profile_pin_overlay_access_support">This profile is locked. Enter its PIN to continue.</string>
     <string name="profile_pin_overlay_reset_heading">Enter %1$s’s PIN to reset this PIN.</string>
     <string name="profile_pin_overlay_reset_support">Then choose a new PIN for %1$s.</string>
     <string name="profile_pin_forgot_reset">Forgot PIN? Reset it with %1$s’s PIN</string>
@@ -1605,6 +1606,18 @@
     <string name="stream_no_streams">No streams found</string>
     <string name="stream_no_streams_hint">Try installing more addons to find streams</string>
     <string name="stream_no_streams_from_addon">No streams from %1$s.</string>
+    <string name="stream_torrent_only_title">Only torrent results found</string>
+    <!-- %1$s = addon name, %2$d = number of torrent results it returned. -->
+    <plurals name="stream_torrent_only_hint_addon">
+        <item quantity="one">%1$s returned %2$d torrent result, but Fetch only plays direct or debrid links. Add your debrid API key in that addon’s configuration.</item>
+        <item quantity="other">%1$s returned %2$d torrent results, but Fetch only plays direct or debrid links. Add your debrid API key in that addon’s configuration.</item>
+    </plurals>
+    <!-- %1$d = number of torrent results, from more than one addon. -->
+    <plurals name="stream_torrent_only_hint_addons">
+        <item quantity="one">Your addons returned %1$d torrent result, but Fetch only plays direct or debrid links. Add your debrid API key in each addon’s configuration.</item>
+        <item quantity="other">Your addons returned %1$d torrent results, but Fetch only plays direct or debrid links. Add your debrid API key in each addon’s configuration.</item>
+    </plurals>
+    <string name="stream_torrent_only_manage_addons">Manage addons</string>
     <string name="stream_show_all_sources">Show all sources</string>
     <string name="stream_choose_another_source">Choose another source.</string>
     <string name="stream_finding_source">Finding stream source</string>
@@ -2088,6 +2101,7 @@
     <string name="profile_manage_done">Done</string>
     <string name="cd_profile_locked">Locked with a PIN</string>
     <string name="cd_profile_pin_progress">%1$d of %2$d digits entered</string>
+    <string name="cd_profile_pin_entered">%1$d digits entered. A PIN is %2$d to %3$d digits.</string>
     <string name="cd_profile_color_crimson">Crimson</string>
     <string name="cd_profile_color_ocean">Ocean</string>
     <string name="cd_profile_color_violet">Violet</string>
@@ -2860,6 +2874,8 @@
     <string name="source_chip_timed_out">timed out</string>
     <string name="source_chip_failed">failed</string>
     <string name="source_chip_loading">loading</string>
+    <!-- The addon answered with torrent results only, which Fetch hides (no debrid link). -->
+    <string name="source_chip_torrents_only">torrents only</string>
     <!-- An addon chip with its state: "Torrentio · loading". %1$s = addon name, %2$s = state. -->
     <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="advanced_section_addons">Addons</string>

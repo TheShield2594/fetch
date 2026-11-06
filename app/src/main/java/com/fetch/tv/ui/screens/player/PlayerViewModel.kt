@@ -400,12 +400,15 @@ class PlayerViewModel @Inject constructor(
                 }
             }
 
-            // Stop the internal player only after preparation has completed and immediately
-            // before sending the external intent.
+            // Free the internal player's codecs only after preparation has completed and
+            // immediately before sending the external intent. Use the lifecycle stop (keeps the
+            // media item and position) rather than a full release, so a failed launch can put the
+            // user back on a working, paused player instead of a dead black screen.
             val nextEpisodeSnapshot = controller.metaVideos.takeIf { it.isNotEmpty() }?.let {
                 externalPlaybackTracker.resolveNextEpisodeSnapshot(metadata, it)
             }
-            controller.stopAndRelease()
+            controller.pauseForLifecycle()
+            controller.stopForLifecycle()
             val launched = try {
                 externalPlaybackTracker.launchPlayer(
                     metadata = metadata,
@@ -419,6 +422,14 @@ class PlayerViewModel @Inject constructor(
                 )
             } catch (_: Exception) {
                 false
+            }
+            if (launched) {
+                controller.stopAndRelease()
+            } else {
+                // The launcher has already told the user why; bring the internal player back,
+                // paused at the same position.
+                controller.startForLifecycle()
+                controller.resumeForLifecycle()
             }
             onResult(launched)
         }

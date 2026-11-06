@@ -2,6 +2,7 @@ package com.fetch.tv.core.profile
 
 import android.content.Context
 import com.fetch.tv.R
+import com.fetch.tv.data.local.ContinueWatchingEnrichmentCache
 import com.fetch.tv.data.local.ProfileDataStore
 import com.fetch.tv.data.local.ProfileDataStoreFactory
 import com.fetch.tv.data.local.ProfileLockStateDataStore
@@ -12,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -33,6 +35,7 @@ class ProfileManager @Inject constructor(
 ) {
     companion object {
         const val MAX_PROFILES = 6
+        private const val PROFILE_LIST_UPDATE_TIMEOUT_MS = 5_000L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -60,6 +63,19 @@ class ProfileManager @Inject constructor(
         .stateIn(scope, SharingStarted.Eagerly, listOf(
             UserProfile(id = 1, name = context.getString(R.string.profile_default_name, 1), avatarColorHex = "#1E88E5")
         ))
+
+    /**
+     * The profile list read from disk, or null before it has been read. Unlike [profiles] there is
+     * no placeholder, and readiness and value arrive together as one state, so a decision that
+     * depends on every profile (such as whether a sibling is restricted) can't see "loaded" paired
+     * with the primary-only placeholder.
+     */
+    val loadedProfiles: StateFlow<List<UserProfile>?> = profileDataStore.profilesList
+        .stateIn(scope, SharingStarted.Eagerly, null)
+
+    /** The active profile id read from disk, or null before it has been read (see [loadedProfiles]). */
+    val loadedActiveProfileId: StateFlow<Int?> = profileDataStore.activeProfileId
+        .stateIn(scope, SharingStarted.Eagerly, null)
 
     val activeProfile: UserProfile?
         get() = profiles.value.find { it.id == activeProfileId.value }
@@ -124,6 +140,15 @@ class ProfileManager @Inject constructor(
         screenTimeStore.deleteProfile(id)
         deleteProfileDataAsync(id)
         profileDataStore.deleteProfile(id)
+        // A Continue Watching save that started before the cleanup above (while this
+        // was still the active profile) can recreate its snapshot. Once the profile is
+        // gone from the list, saves for it are skipped, so delete the snapshots again.
+        withTimeoutOrNull(PROFILE_LIST_UPDATE_TIMEOUT_MS) {
+            profiles.first { entries -> entries.none { it.id == id } }
+        }
+        withContext(Dispatchers.IO) {
+            ContinueWatchingEnrichmentCache.deleteProfileFiles(context.filesDir, id)
+        }
         return true
     }
 
@@ -137,16 +162,12 @@ class ProfileManager @Inject constructor(
         if (profileId == 1) return@withContext
 
         factory.clearProfile(profileId)
+        factory.deleteProfileFiles(profileId)
 
-        val suffixWithExtension = "_p${profileId}.preferences_pb"
-        val dataStoreDir = File(context.filesDir, "datastore")
-        if (dataStoreDir.exists()) {
-            dataStoreDir.listFiles()?.forEach { file ->
-                if (file.name.endsWith(suffixWithExtension)) {
-                    file.delete()
-                }
-            }
-        }
+        // Continue Watching snapshots are keyed by profile id too. A new profile
+        // that reuses this id must not show the deleted profile's titles on Home
+        // or in the launcher's Play Next row.
+        ContinueWatchingEnrichmentCache.deleteProfileFiles(context.filesDir, profileId)
 
         // Left behind by versions that still ran plugins.
         val pluginCodeDir = File(context.filesDir, "plugin_code_p${profileId}")

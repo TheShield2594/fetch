@@ -10,7 +10,12 @@
 
 export type CacheEntry<T> = { data: T; expiry: number };
 
-export const cacheKeyFor = (profileId: string | null) => profileId ?? "-";
+// A signed request's answers are cached apart from an unsigned one's for the
+// same profile. Only a signed request can read a PIN-protected profile (the API
+// refuses the unsigned one), so sharing a key would let `/p/<uuid>` be served,
+// from cache, what only `/u/<uuid>/<key>` was allowed to see.
+export const cacheKeyFor = (profile: { profileId: string | null; profileKey: string | null }) =>
+  `${profile.profileId ?? "-"}${profile.profileKey ? ":signed" : ""}`;
 
 // Profile ids reaching these maps are UUID-shaped but not verified to exist, so
 // bound the maps rather than let unknown ids accumulate entries indefinitely.

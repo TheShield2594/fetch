@@ -514,7 +514,7 @@ describe("profile scoping", () => {
     const { subtitles } = response.json() as { subtitles: { url: string }[] };
     const { url: subtitleUrl } = first(subtitles, "mark-watched subtitle row");
     expect(subtitleUrl).toContain(
-      `${ADDON_BASE}${signedPrefix(OTHER_PROFILE_ID)}/mark-watched/episode/tt0903747/2/5.srt?token=`
+      `${ADDON_BASE}/p/${OTHER_PROFILE_ID}/mark-watched/episode/tt0903747/2/5.srt?token=`
     );
     expect(
       capabilityMatches(subtitleUrl, { type: "episode", imdbId: "tt0903747", season: 2, episode: 5 }, OTHER_PROFILE_ID)
@@ -527,7 +527,7 @@ describe("profile scoping", () => {
     const { subtitles } = response.json() as { subtitles: { url: string }[] };
     const { url: subtitleUrl } = first(subtitles, "mark-watched subtitle row");
     expect(subtitleUrl).toContain(
-      `${ADDON_BASE}${signedPrefix(DEFAULT_PROFILE_ID)}/mark-watched/movie/tt0111161.srt?token=`
+      `${ADDON_BASE}/p/${DEFAULT_PROFILE_ID}/mark-watched/movie/tt0111161.srt?token=`
     );
     expect(capabilityMatches(subtitleUrl, { type: "movie", imdbId: "tt0111161" }, DEFAULT_PROFILE_ID)).toBe(true);
   });
@@ -850,6 +850,87 @@ describe("signed addon URLs", () => {
 
     expect(wrong.statusCode).toBe(404);
     expect(borrowed.statusCode).toBe(404);
+  });
+
+  describe("on a PIN-protected profile", () => {
+    const KEY_HEADER = "x-fetch-stremio-profile-key";
+
+    // What the API does for a profile with a PIN: anything that acts as it
+    // answers 401 unless the request carries a profile token, or — from this
+    // service — the profile's signed-URL key.
+    beforeEach(() => {
+      lists = [{ id: CUSTOM_LIST_ID, name: "Weekend", kind: "custom" }];
+      addonConfig = { enabledCatalogs: [`list:${CUSTOM_LIST_ID}`], aiConfigured: false };
+      const stubbedFetch = fetchMock.getMockImplementation()!;
+      fetchMock.mockImplementation(async (input: string | URL, init?: RequestInit) => {
+        const headers = (init?.headers ?? {}) as Record<string, string>;
+        if (headers["x-profile-id"] === OTHER_PROFILE_ID && headers[KEY_HEADER] !== profileKey(OTHER_PROFILE_ID)) {
+          calls.push({ url: String(input), method: init?.method ?? "GET", headers, body: undefined });
+          return jsonResponse({ error: "Profile PIN verification required", code: "profile_verification_required" }, 401);
+        }
+        return stubbedFetch(input, init);
+      });
+    });
+
+    it("forwards the signed URL's key, so the install works", async () => {
+      const manifest = await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json` });
+      expect(manifest.statusCode).toBe(200);
+      expect(first(callsTo("/lists"), "request to /lists").headers[KEY_HEADER]).toBe(profileKey(OTHER_PROFILE_ID));
+
+      const catalog = await app.inject({
+        method: "GET",
+        url: `${signedPrefix(OTHER_PROFILE_ID)}/catalog/movie/fetch-${CUSTOM_LIST_ID}-movie.json`,
+      });
+      expect(catalog.json<{ metas: unknown[] }>().metas).not.toHaveLength(0);
+
+      const subtitles = await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/subtitles/movie/tt0111161.json` });
+      const { url } = first(subtitles.json<{ subtitles: { url: string }[] }>().subtitles, "mark-watched subtitle row");
+      const link = new URL(url);
+      const marked = await app.inject({ method: "GET", url: `${link.pathname}${link.search}` });
+      expect(marked.body).toContain("Marked as watched");
+      expect(first(callsTo("/watch"), "request to /watch").headers[KEY_HEADER]).toBe(profileKey(OTHER_PROFILE_ID));
+    });
+
+    it("sends no key for the unsigned /p/ URL, which stays locked out", async () => {
+      const manifest = await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/manifest.json` });
+      expect(manifest.statusCode).toBe(502);
+      expect(calls.every((call) => call.headers[KEY_HEADER] === undefined)).toBe(true);
+      const listsCall = first(callsTo("/lists"), "request to /lists");
+      expect(listsCall.headers["x-profile-id"]).toBe(OTHER_PROFILE_ID);
+      expect(listsCall.headers[KEY_HEADER]).toBeUndefined();
+
+      const marked = await app.inject({
+        method: "GET",
+        url: `/p/${OTHER_PROFILE_ID}/mark-watched/movie/tt0111161.srt?token=${capability({ type: "movie", imdbId: "tt0111161" }, OTHER_PROFILE_ID)}`,
+      });
+      expect(marked.body).not.toContain("Marked as watched");
+      const watchCall = first(callsTo("/watch"), "request to /watch");
+      expect(watchCall.headers["x-profile-id"]).toBe(OTHER_PROFILE_ID);
+      expect(watchCall.headers[KEY_HEADER]).toBeUndefined();
+    });
+
+    it("never hands an unsigned request the signed profile path", async () => {
+      const subtitles = await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/subtitles/movie/tt0111161.json` });
+      const body = subtitles.body;
+      expect(body).not.toContain(profileKey(OTHER_PROFILE_ID));
+      expect(body).not.toContain("/u/");
+    });
+
+    it("never serves the unsigned URL what a signed request cached", async () => {
+      expect((await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json` })).statusCode).toBe(200);
+      const signedCatalog = await app.inject({
+        method: "GET",
+        url: `${signedPrefix(OTHER_PROFILE_ID)}/catalog/movie/fetch-${CUSTOM_LIST_ID}-movie.json`,
+      });
+      expect(signedCatalog.json<{ metas: unknown[] }>().metas).not.toHaveLength(0);
+
+      expect((await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/manifest.json` })).statusCode).toBe(502);
+      const unsignedCatalog = await app.inject({
+        method: "GET",
+        url: `/p/${OTHER_PROFILE_ID}/catalog/movie/fetch-${CUSTOM_LIST_ID}-movie.json`,
+      });
+      expect(unsignedCatalog.json()).toEqual({ metas: [] });
+    });
   });
 
   describe("with ADDON_REQUIRE_SIGNED_URLS", () => {

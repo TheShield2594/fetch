@@ -39,6 +39,8 @@ import com.fetch.tv.data.mediaserver.ServerPlaybackTarget
 import com.fetch.tv.data.mediaserver.ServerStreams
 import com.fetch.tv.data.mediaserver.serverPlaybackMessageRes
 import com.fetch.tv.domain.model.AddonStreams
+import com.fetch.tv.core.streams.hiddenUnplayableCounts
+import com.fetch.tv.core.streams.unplayableOnlyAddonNames
 import com.fetch.tv.domain.model.Meta
 import com.fetch.tv.domain.model.Stream
 import com.fetch.tv.domain.model.Video
@@ -757,9 +759,11 @@ class StreamScreenViewModel @Inject constructor(
                         streamExclusions = tab.exclusions,
                         bestMatchFirst = rankBestFirst && rankingRules != null,
                         availableAddons = availableAddons,
+                        hiddenUnplayableCounts = mergedAddonStreams.hiddenUnplayableCounts(),
                         sourceChips = mergeSourceChipStatuses(
                             existing = _uiState.value.sourceChips,
-                            succeededNames = mergedAddonStreams.map { it.addonName }
+                            succeededNames = mergedAddonStreams.map { it.addonName },
+                            unplayableOnlyNames = mergedAddonStreams.unplayableOnlyAddonNames()
                         ),
                         // Preserve an already-resolved stream: the post-collect
                         // "isAllLoaded=true" pass re-runs the selector with
@@ -1116,24 +1120,29 @@ class StreamScreenViewModel @Inject constructor(
 
     private fun mergeSourceChipStatuses(
         existing: List<SourceChipItem>,
-        succeededNames: List<String>
+        succeededNames: List<String>,
+        unplayableOnlyNames: Set<String> = emptySet()
     ): List<SourceChipItem> {
         if (succeededNames.isEmpty()) return existing
+        // An addon whose every stream was hidden (torrents without a debrid key) answered, but
+        // gave nothing playable: don't show it as a plain success.
+        fun statusFor(name: String) =
+            if (name in unplayableOnlyNames) SourceChipStatus.UNPLAYABLE_ONLY else SourceChipStatus.SUCCESS
         if (existing.isEmpty()) {
             return succeededNames.distinct().map { name ->
-                SourceChipItem(name = name, status = SourceChipStatus.SUCCESS)
+                SourceChipItem(name = name, status = statusFor(name))
             }
         }
 
         val successSet = succeededNames.toSet()
         val updated = existing.map { chip ->
-            if (chip.name in successSet) chip.copy(status = SourceChipStatus.SUCCESS) else chip
+            if (chip.name in successSet) chip.copy(status = statusFor(chip.name)) else chip
         }.toMutableList()
 
         val knownNames = updated.map { it.name }.toSet()
         succeededNames.forEach { name ->
             if (name !in knownNames) {
-                updated += SourceChipItem(name = name, status = SourceChipStatus.SUCCESS)
+                updated += SourceChipItem(name = name, status = statusFor(name))
             }
         }
         return updated

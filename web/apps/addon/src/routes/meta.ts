@@ -31,10 +31,10 @@ export const registerMetaRoute = (routes: AddonRouter): void => {
 
     const [upstreamResponse, rpdb, spoilerEnabled] = await Promise.all([
       fetchWithTimeout(apiUrl(`/meta/${type}/${encodeURIComponent(imdbId)}`), {
-        headers: apiHeaders(scope.profileId),
+        headers: apiHeaders(scope),
       }),
-      fetchRpdbConfig(scope.profileId, request.log),
-      isSpoilerProtectionEnabled(scope.profileId, request.log),
+      fetchRpdbConfig(scope, request.log),
+      isSpoilerProtectionEnabled(scope, request.log),
     ]);
     const payload = await upstreamResponse.json().catch(() => ({}));
 
@@ -59,7 +59,7 @@ export const registerMetaRoute = (routes: AddonRouter): void => {
       try {
         const progressRes = await apiGet(
           `/series/progress/${encodeURIComponent(imdbId)}`,
-          scope.profileId,
+          scope,
           parseSeriesProgressResponse
         );
         if (progressRes.progress) {

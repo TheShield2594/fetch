@@ -780,13 +780,13 @@
     <string name="profile_pin_overlay_unlock_heading">Введите ваш PIN для доступа к %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Создайте 4-значный PIN для %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Подтвердите ваш новый PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Используйте пульт или клавиатуру для ввода 4 цифр.</string>
+    <string name="profile_pin_overlay_unlock_support">Введите PIN-код с помощью пульта или клавиатуры, затем нажмите OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Введите текущий PIN для изменения PIN-кода %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Введите текущий 4-значный PIN-код перед установкой нового.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Введите текущий PIN для удаления блокировки %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Введите текущий 4-значный PIN-код, чтобы снять эту блокировку.</string>
-    <string name="profile_pin_overlay_set_support">Этот PIN-код будет запрашиваться перед открытием этого профиля.</string>
-    <string name="profile_pin_overlay_confirm_support">Введите те же 4 цифры еще раз для завершения настройки.</string>
+    <string name="profile_pin_overlay_set_support">Используйте от 4 до 8 цифр, затем нажмите OK. Этот PIN-код будет запрашиваться перед открытием этого профиля.</string>
+    <string name="profile_pin_overlay_confirm_support">Введите те же цифры еще раз для завершения настройки.</string>
     <string name="profile_pin_overlay_mismatch">PIN-коды не совпали. Введите новый PIN-код еще раз.</string>
     <string name="profile_pin_overlay_back_hint">Нажмите \"Назад\" для отмены</string>
 

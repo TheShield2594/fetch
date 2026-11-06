@@ -74,10 +74,38 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
     companion object {
         private const val TAG = "CwEnrichCache"
         private const val THROTTLE_MS = 1_000L
+        private const val CACHE_DIR_NAME = "cw_enrichment"
+
+        /**
+         * Guards every snapshot file. Shared with [deleteProfileFiles] so a deletion
+         * cannot interleave with a write that is already in progress.
+         */
+        private val mutex = Mutex()
+
+        /**
+         * Bumped (under [mutex]) by every profile deletion. A save captures it when it starts and
+         * gives up if it changed, so a save that began before a deletion can't write afterwards,
+         * not even into a profile that reuses the deleted id.
+         */
+        private val deletionGeneration = java.util.concurrent.atomic.AtomicLong(0)
+
+        /**
+         * Deletes the Continue Watching snapshots (and any half-written `.tmp`
+         * files) of [profileId]. Profile ids are reused, so this must run when
+         * a profile is deleted.
+         */
+        suspend fun deleteProfileFiles(filesDir: File, profileId: Int) = mutex.withLock {
+            deletionGeneration.incrementAndGet()
+            val dir = File(filesDir, CACHE_DIR_NAME)
+            if (!dir.exists()) return@withLock
+            listOf("inprogress_${profileId}.json", "nextup_${profileId}.json").forEach { name ->
+                File(dir, name).delete()
+                File(dir, "$name.tmp").delete()
+            }
+        }
     }
 
     private val gson = Gson()
-    private val mutex = Mutex()
     @Volatile private var lastNextUpWriteMs = 0L
     @Volatile private var lastInProgressWriteMs = 0L
     @Volatile private var lastNextUpHash = 0
@@ -93,9 +121,8 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
 
     // --- Next Up snapshot cache ---
 
-    private fun nextUpFile(): File {
-        val profileId = profileManager.activeProfileId.value
-        val dir = File(context.filesDir, "cw_enrichment")
+    private fun nextUpFile(profileId: Int = profileManager.activeProfileId.value): File {
+        val dir = File(context.filesDir, CACHE_DIR_NAME)
         dir.mkdirs()
         return File(dir, "nextup_${profileId}.json")
     }
@@ -117,7 +144,21 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
     /**
      * @param force bypass throttle and content-change check (use at end of pipeline or for clears)
      */
-    suspend fun saveNextUpSnapshot(items: List<CachedNextUpItem>, force: Boolean = false) = withContext(Dispatchers.IO) {
+    suspend fun saveNextUpSnapshot(
+        items: List<CachedNextUpItem>,
+        force: Boolean = false,
+        // Bound to the profile the data was made for. Callers that save several snapshots of
+        // the same data pass one origin captured before the first save.
+        origin: SaveOrigin = captureOrigin()
+    ) {
+        saveNextUpSnapshotFor(origin, items, force)
+    }
+
+    private suspend fun saveNextUpSnapshotFor(
+        origin: SaveOrigin,
+        items: List<CachedNextUpItem>,
+        force: Boolean
+    ) = withContext(Dispatchers.IO) {
         val contentHash = items.hashCode()
         if (!force) {
             if (contentHash == lastNextUpHash) return@withContext
@@ -125,8 +166,11 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
             if (now - lastNextUpWriteMs < THROTTLE_MS) return@withContext
         }
         mutex.withLock {
+            // A deleted profile's snapshot must not be recreated by a save that was
+            // already running; its id can be reused by a new profile.
+            if (!isStillValid(origin)) return@withLock
             try {
-                val file = nextUpFile()
+                val file = nextUpFile(origin.profileId)
                 atomicWrite(file, gson.toJson(items))
                 lastNextUpWriteMs = System.currentTimeMillis()
                 lastNextUpHash = contentHash
@@ -139,9 +183,8 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
 
     // --- In-progress snapshot cache ---
 
-    private fun inProgressFile(): File {
-        val profileId = profileManager.activeProfileId.value
-        val dir = File(context.filesDir, "cw_enrichment")
+    private fun inProgressFile(profileId: Int = profileManager.activeProfileId.value): File {
+        val dir = File(context.filesDir, CACHE_DIR_NAME)
         dir.mkdirs()
         return File(dir, "inprogress_${profileId}.json")
     }
@@ -163,7 +206,21 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
     /**
      * @param force bypass throttle and content-change check (use at end of pipeline or for clears)
      */
-    suspend fun saveInProgressSnapshot(items: List<CachedInProgressItem>, force: Boolean = false) = withContext(Dispatchers.IO) {
+    suspend fun saveInProgressSnapshot(
+        items: List<CachedInProgressItem>,
+        force: Boolean = false,
+        // Bound to the profile the data was made for. Callers that save several snapshots of
+        // the same data pass one origin captured before the first save.
+        origin: SaveOrigin = captureOrigin()
+    ) {
+        saveInProgressSnapshotFor(origin, items, force)
+    }
+
+    private suspend fun saveInProgressSnapshotFor(
+        origin: SaveOrigin,
+        items: List<CachedInProgressItem>,
+        force: Boolean
+    ) = withContext(Dispatchers.IO) {
         val contentHash = items.hashCode()
         if (!force) {
             if (contentHash == lastInProgressHash) return@withContext
@@ -171,8 +228,11 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
             if (now - lastInProgressWriteMs < THROTTLE_MS) return@withContext
         }
         mutex.withLock {
+            // A deleted profile's snapshot must not be recreated by a save that was
+            // already running; its id can be reused by a new profile.
+            if (!isStillValid(origin)) return@withLock
             try {
-                val file = inProgressFile()
+                val file = inProgressFile(origin.profileId)
                 atomicWrite(file, gson.toJson(items))
                 lastInProgressWriteMs = System.currentTimeMillis()
                 lastInProgressHash = contentHash
@@ -201,6 +261,27 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         _cacheCleared.value++
     }
 
+    /**
+     * The profile a snapshot was made for, and the deletion generation when it was captured.
+     * Capture it once with [captureOrigin] when the snapshot's data is produced, and pass the same
+     * origin to every save of that data, so a later save can't re-capture a newer profile.
+     */
+    data class SaveOrigin internal constructor(val profileId: Int, val generation: Long)
+
+    fun captureOrigin(): SaveOrigin = SaveOrigin(profileManager.activeProfileId.value, deletionGeneration.get())
+
+    /**
+     * Under [mutex]: the save's profile is still the active one and still exists, and no profile
+     * was deleted since the save started (its data may belong to a profile that is gone).
+     */
+    private fun isStillValid(origin: SaveOrigin): Boolean = snapshotSaveStillValid(
+        originProfileId = origin.profileId,
+        originGeneration = origin.generation,
+        currentGeneration = deletionGeneration.get(),
+        activeProfileId = profileManager.activeProfileId.value,
+        profileIds = profileManager.profiles.value.map { it.id }
+    )
+
     private fun atomicWrite(target: File, content: String) {
         val tmp = File(target.parentFile, "${target.name}.tmp")
         tmp.writeText(content)
@@ -212,3 +293,17 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
     }
 
 }
+
+/**
+ * Whether a Continue Watching snapshot save may still write: no profile was deleted since it
+ * started, and the profile it was made for is still the active one and still exists.
+ */
+internal fun snapshotSaveStillValid(
+    originProfileId: Int,
+    originGeneration: Long,
+    currentGeneration: Long,
+    activeProfileId: Int,
+    profileIds: List<Int>
+): Boolean = originGeneration == currentGeneration &&
+    activeProfileId == originProfileId &&
+    originProfileId in profileIds

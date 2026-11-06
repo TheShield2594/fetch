@@ -1,9 +1,11 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
+import { matchesStremioProfileKey, STREMIO_PROFILE_KEY_HEADER } from "@fetch/shared";
 import { accountScope } from "./request-auth.js";
 import { findAdminAccountId } from "./sessions.js";
 import { prisma } from "./prisma.js";
 import { type CachedProfile, profileCache, profileCacheClear, profileLookups } from "./cache.js";
 import { verifyProfileToken } from "./profile-token.js";
+import { isServiceRequest } from "./service-request.js";
 import { UUID_V4_PATTERN } from "./types.js";
 
 declare module "fastify" {
@@ -136,6 +138,29 @@ export const hasValidProfileToken = (request: FastifyRequest, profileId: string)
   return verifyProfileToken(token, profileId);
 };
 
+/**
+ * Whether this is the addon service acting for `profileId` on behalf of a
+ * *signed* Stremio install URL (`/u/<profileId>/<key>/…`).
+ *
+ * Stremio cannot unlock a PIN, so a PIN-protected profile's install had no way
+ * to reach its own lists: every catalog came back empty and the manifest 502'd.
+ * But the signed URL is already a full credential for that profile — the key
+ * is an HMAC of the profile id under `API_TOKEN`, and the only place to get it
+ * is Settings while signed in as the profile, past its PIN. The API's own
+ * `/addon/stremio/<key>` routes already treat it that way.
+ *
+ * Both halves are required: the service token proves the request is the addon
+ * service (not merely an `API_TOKEN` holder), and the key proves the request it
+ * is serving came in on that profile's signed URL. An unsigned `/p/<uuid>` URL
+ * carries no key, so it still stops at the PIN.
+ */
+export const isSignedAddonRequestFor = (request: FastifyRequest, profileId: string): boolean => {
+  if (!isServiceRequest(request)) return false;
+  const headerValue = request.headers[STREMIO_PROFILE_KEY_HEADER];
+  const key = Array.isArray(headerValue) ? headerValue[0] : headerValue;
+  return matchesStremioProfileKey(key, process.env.API_TOKEN, profileId);
+};
+
 export const PROFILE_LOCKED_RESPONSE = {
   error: "Profile PIN verification required",
   code: "profile_verification_required",
@@ -197,7 +222,11 @@ export const resolveProfile = async (request: FastifyRequest, reply: FastifyRepl
     if (!profile) {
       return reply.code(404).send({ error: "Profile not found" });
     }
-    if (profile.pinHash && !hasValidProfileToken(request, profile.id)) {
+    if (
+      profile.pinHash &&
+      !hasValidProfileToken(request, profile.id) &&
+      !isSignedAddonRequestFor(request, profile.id)
+    ) {
       return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
     }
     request.profileId = rawProfileId;

@@ -273,7 +273,12 @@ data class ProxyHeaders(
 data class AddonStreams(
     val addonName: String,
     val addonLogo: String?,
-    val streams: List<Stream>
+    val streams: List<Stream>,
+    /**
+     * Streams this addon returned that Fetch hid because they have no playable link: bare
+     * torrents and client-resolved debrid streams (Fetch plays direct and debrid links only).
+     */
+    val hiddenUnplayableCount: Int = 0
 )
 
 private fun String?.isMagnetLink(): Boolean =

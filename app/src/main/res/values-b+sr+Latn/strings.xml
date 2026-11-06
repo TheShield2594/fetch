@@ -1156,15 +1156,15 @@
     <string name="profile_pin_overlay_unlock_heading">Unesite vaš PIN da pristupite %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Kreirajte 4-cifreni PIN za %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Potvrdite vaš novi PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Koristite vaš daljinski upravljač ili tastaturu da unesete 4 cifre.</string>
+    <string name="profile_pin_overlay_unlock_support">Unesite PIN daljinskim upravljačem ili tastaturom, a zatim pritisnite OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Unesite trenutni PIN da promenite PIN za %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Unesite trenutni 4-cifreni PIN pre postavljanja novog.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Unesite trenutni PIN da uklonite zaključavanje za %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Unesite trenutni 4-cifreni PIN da uklonite ovo zaključavanje.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Unesite trenutni PIN da izbrišete %1$s.</string>
     <string name="profile_pin_overlay_delete_verify_support">Unesite trenutni 4-cifreni PIN pre brisanja ovog profila.</string>
-    <string name="profile_pin_overlay_set_support">Ovaj PIN će biti potreban pre otvaranja ovog profila.</string>
-    <string name="profile_pin_overlay_confirm_support">Ponovo unesite iste 4 cifre da završite podešavanje.</string>
+    <string name="profile_pin_overlay_set_support">Koristite 4 do 8 cifara, a zatim pritisnite OK. Ovaj PIN će biti potreban pre otvaranja ovog profila.</string>
+    <string name="profile_pin_overlay_confirm_support">Ponovo unesite iste cifre da završite podešavanje.</string>
     <string name="profile_pin_overlay_mismatch">PIN kodovi se ne poklapaju. Unesite novi PIN ponovo.</string>
     <string name="profile_pin_overlay_back_hint">Pritisnite nazad za otkazivanje</string>
 

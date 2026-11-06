@@ -5,9 +5,11 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,6 +31,11 @@ class AuthSessionNoticeDataStore @Inject constructor(
     private val hadFetchAuthKey = booleanPreferencesKey("had_fetch_auth")
     private val fetchExplicitLogoutKey = booleanPreferencesKey("fetch_explicit_logout")
     private val pendingFetchNoticeKey = booleanPreferencesKey("pending_fetch_notice")
+
+    // The Fetch account whose data is on this TV. Kept through an unexpected
+    // sign-out so the same account can pick its data back up, and so a different
+    // account signing in later is detected and the old data cleared first.
+    private val localDataOwnerUserIdKey = stringPreferencesKey("local_data_owner_user_id")
 
     private val hadTraktAuthKey = booleanPreferencesKey("had_trakt_auth")
     private val traktExplicitLogoutKey = booleanPreferencesKey("trakt_explicit_logout")
@@ -71,6 +78,19 @@ class AuthSessionNoticeDataStore @Inject constructor(
             preferences[fetchExplicitLogoutKey] = false
         }
         return marked
+    }
+
+    suspend fun localDataOwnerUserId(): String? =
+        context.authSessionNoticeDataStore.data.first()[localDataOwnerUserIdKey]?.takeIf { it.isNotBlank() }
+
+    suspend fun setLocalDataOwnerUserId(userId: String?) {
+        context.authSessionNoticeDataStore.edit { preferences ->
+            if (userId.isNullOrBlank()) {
+                preferences.remove(localDataOwnerUserIdKey)
+            } else {
+                preferences[localDataOwnerUserIdKey] = userId
+            }
+        }
     }
 
     suspend fun markTraktAuthenticated() {

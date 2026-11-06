@@ -509,6 +509,7 @@ fun StreamScreen(
                     streamExclusions = uiState.streamExclusions,
                     bestMatchFirst = uiState.bestMatchFirst,
                     availableAddons = uiState.availableAddons,
+                    hiddenUnplayableCounts = uiState.hiddenUnplayableCounts,
                     sourceChips = uiState.sourceChips,
                     selectedAddonFilter = uiState.selectedAddonFilter,
                     showFileSizeBadges = streamBadgeSettings.showFileSizeBadges,
@@ -799,6 +800,8 @@ private fun RightStreamSection(
     playbackError: String? = null,
     streams: List<Stream>,
     availableAddons: List<String>,
+    /** Addon name to streams hidden for having no playable link; see [StreamScreenUiState.hiddenUnplayableCounts]. */
+    hiddenUnplayableCounts: Map<String, Int> = emptyMap(),
     sourceChips: List<SourceChipItem>,
     selectedAddonFilter: String?,
     showFileSizeBadges: Boolean,
@@ -969,13 +972,42 @@ private fun RightStreamSection(
                             onRetry = onRetry
                         )
                     }
-                    sharedStream == null && streams.isEmpty() -> {
+                    // Every result was a torrent (or client-resolved debrid) stream: say so, and
+                    // where to fix it, instead of suggesting more addons.
+                    sharedStream == null && streams.isEmpty() && selectedAddonFilter == null &&
+                        hiddenUnplayableCounts.isNotEmpty() -> {
+                        val hiddenTotal = hiddenUnplayableCounts.values.sum()
+                        val onlyAddon = hiddenUnplayableCounts.keys.singleOrNull()
                         EmptyScreenState(
-                            title = stringResource(R.string.stream_no_streams),
-                            subtitle = if (selectedAddonFilter == null) {
-                                stringResource(R.string.stream_no_streams_hint)
+                            title = stringResource(R.string.stream_torrent_only_title),
+                            subtitle = if (onlyAddon != null) {
+                                pluralStringResource(R.plurals.stream_torrent_only_hint_addon, hiddenTotal, onlyAddon, hiddenTotal)
                             } else {
-                                stringResource(R.string.stream_no_streams_from_addon, selectedAddonFilter)
+                                pluralStringResource(R.plurals.stream_torrent_only_hint_addons, hiddenTotal, hiddenTotal)
+                            },
+                            icon = Icons.Default.Extension,
+                            action = StateAction(stringResource(R.string.stream_torrent_only_manage_addons), onNavigateToAddons)
+                        )
+                    }
+                    sharedStream == null && streams.isEmpty() -> {
+                        // D-pad focus can select an addon whose results were all hidden as
+                        // torrents; explain that for this addon rather than "No streams from".
+                        val hiddenForAddon = selectedAddonFilter?.let { hiddenUnplayableCounts[it] } ?: 0
+                        EmptyScreenState(
+                            title = if (hiddenForAddon > 0) {
+                                stringResource(R.string.stream_torrent_only_title)
+                            } else {
+                                stringResource(R.string.stream_no_streams)
+                            },
+                            subtitle = when {
+                                selectedAddonFilter == null -> stringResource(R.string.stream_no_streams_hint)
+                                hiddenForAddon > 0 -> pluralStringResource(
+                                    R.plurals.stream_torrent_only_hint_addon,
+                                    hiddenForAddon,
+                                    selectedAddonFilter,
+                                    hiddenForAddon
+                                )
+                                else -> stringResource(R.string.stream_no_streams_from_addon, selectedAddonFilter)
                             },
                             icon = Icons.Default.Extension,
                             // With an addon filter on, other addons may still have streams.

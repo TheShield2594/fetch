@@ -1210,15 +1210,12 @@
     <string name="profile_pin_overlay_unlock_heading">%1$s অ্যাক্সেস করতে আপনার পিন লিখুন।</string>
     <string name="profile_pin_overlay_set_heading">%1$s-এর জন্য একটি ৪-ডিজিটের পিন তৈরি করুন।</string>
     <string name="profile_pin_overlay_confirm_heading">আপনার নতুন পিন নিশ্চিত করুন।</string>
-    <string name="profile_pin_overlay_unlock_support">৪-ডিজিট লিখতে আপনার রিমোট বা কীবোর্ড ব্যবহার করুন।</string>
     <string name="profile_pin_overlay_change_verify_heading">%1$s-এর পিন পরিবর্তন করতে বর্তমান পিনটি লিখুন।</string>
     <string name="profile_pin_overlay_change_verify_support">নতুন পিন সেট করার আগে বর্তমান ৪-ডিজিটের পিনটি লিখুন।</string>
     <string name="profile_pin_overlay_remove_verify_heading">%1$s-এর লক সরাতে বর্তমান পিনটি লিখুন।</string>
     <string name="profile_pin_overlay_remove_verify_support">এই লকটি সরাতে বর্তমান ৪-ডিজিটের পিনটি লিখুন।</string>
     <string name="profile_pin_overlay_delete_verify_heading">%1$s ডিলিট করতে বর্তমান পিনটি লিখুন।</string>
     <string name="profile_pin_overlay_delete_verify_support">এই প্রোফাইলটি ডিলিট করার আগে বর্তমান ৪-ডিজিটের পিনটি লিখুন।</string>
-    <string name="profile_pin_overlay_set_support">এই প্রোফাইল খোলার আগে এই পিনটি প্রয়োজন হবে।</string>
-    <string name="profile_pin_overlay_confirm_support">সেটআপ শেষ করতে একই ৪-ডিজিট পুনরায় লিখুন।</string>
     <string name="profile_pin_overlay_mismatch">পিন মেলেনি। আবার নতুন পিন লিখুন।</string>
     <string name="profile_pin_overlay_back_hint">বাতিল করতে back-এ চাপ দিন</string>
     <string name="essential_addon_setup_title">অ্যাডন সেটআপ করুন</string>

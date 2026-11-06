@@ -1211,15 +1211,15 @@
     <string name="profile_pin_overlay_unlock_heading">輸入您的 PIN 以存取 %1$s。</string>
     <string name="profile_pin_overlay_set_heading">為 %1$s 建立 4 位數 PIN。</string>
     <string name="profile_pin_overlay_confirm_heading">確認您的新 PIN。</string>
-    <string name="profile_pin_overlay_unlock_support">使用遙控器或鍵盤輸入 4 位數字。</string>
+    <string name="profile_pin_overlay_unlock_support">使用遙控器或鍵盤輸入 PIN，然後按 OK。</string>
     <string name="profile_pin_overlay_change_verify_heading">輸入目前的 PIN 以變更 %1$s 的 PIN。</string>
     <string name="profile_pin_overlay_change_verify_support">在設定新 PIN 之前輸入目前的 4 位數 PIN。</string>
     <string name="profile_pin_overlay_remove_verify_heading">輸入目前的 PIN 以移除 %1$s 的鎖定。</string>
     <string name="profile_pin_overlay_remove_verify_support">輸入目前的 4 位數 PIN 以移除此鎖定。</string>
     <string name="profile_pin_overlay_delete_verify_heading">輸入目前的 PIN 以刪除 %1$s。</string>
     <string name="profile_pin_overlay_delete_verify_support">輸入目前的 4 位數 PIN 以刪除此個人資料。</string>
-    <string name="profile_pin_overlay_set_support">開啟此個人資料前將需要此 PIN。</string>
-    <string name="profile_pin_overlay_confirm_support">重新輸入相同的 4 位數字以完成設定。</string>
+    <string name="profile_pin_overlay_set_support">請使用 4 到 8 位數字，然後按 OK。開啟此個人資料前將需要此 PIN。</string>
+    <string name="profile_pin_overlay_confirm_support">重新輸入相同的數字以完成設定。</string>
     <string name="profile_pin_overlay_mismatch">PIN 碼不相符。請重新輸入新的 PIN。</string>
     <string name="profile_pin_overlay_back_hint">按返回鍵取消</string>
 

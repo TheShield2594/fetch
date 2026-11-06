@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useId, useState } from "react";
 import { AlertCircle, ArrowRight, Loader2, Lock, Plus, X } from "lucide-react";
+import { isValidPinFormat, MAX_PIN_LENGTH, MIN_PIN_LENGTH, PIN_FORMAT_ERROR } from "@fetch/shared/pin";
 import { api, ApiError, type Profile, runtimeConfig } from "../api";
 import { BrandLockup, BrandMark, BrandWordmark } from "../components/BrandMark";
 import { useEscapeKey } from "../hooks/useEscapeKey";
@@ -99,18 +100,24 @@ function CreateProfileForm({
   const [error, setError] = useState<string | null>(null);
   const nameId = useId();
   const pinId = useId();
+  const pinHintId = useId();
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     const trimmedName = name.trim();
     if (!trimmedName) return;
+    const trimmedPin = pin.trim();
+    if (trimmedPin && !isValidPinFormat(trimmedPin)) {
+      setError(`${PIN_FORMAT_ERROR}.`);
+      return;
+    }
 
     setCreating(true);
     setError(null);
     try {
       const { profile } = await api.createProfile({
         name: trimmedName,
-        pin: pin.trim() || undefined,
+        pin: trimmedPin || undefined,
       });
       onCreated(profile);
     } catch (err) {
@@ -148,13 +155,19 @@ function CreateProfileForm({
           id={pinId}
           type="password"
           inputMode="numeric"
-          // Matches MIN_PIN_LENGTH on the server.
-          minLength={4}
+          autoComplete="new-password"
+          // The same 4–8 digit rule the API enforces and the TV keypad asks for.
+          // Checked on submit rather than with minLength/pattern, so the message
+          // says "digits" instead of the browser's generic one.
+          aria-describedby={pinHintId}
           value={pin}
           onChange={(e) => setPin(e.target.value)}
           className={`mt-1.5 ${INPUT_CLASS}`}
           style={INPUT_STYLE}
         />
+        <p id={pinHintId} className="mt-1 text-xs" style={{ color: "var(--text-mute)" }}>
+          {MIN_PIN_LENGTH}–{MAX_PIN_LENGTH} digits
+        </p>
       </div>
       {error && (
         <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>

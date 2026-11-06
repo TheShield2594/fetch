@@ -1000,15 +1000,15 @@
     <string name="profile_pin_overlay_unlock_heading">Zadejte svůj PIN pro přístup k %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Vytvořte 4místný PIN pro %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Potvrďte svůj nový PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Použijte dálkový ovladač nebo klávesnici k zadání 4 číslic.</string>
+    <string name="profile_pin_overlay_unlock_support">Zadejte PIN pomocí dálkového ovladače nebo klávesnice a poté stiskněte OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Zadejte aktuální PIN pro změnu PIN pro %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Před nastavením nového zadejte aktuální 4místný PIN.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Zadejte aktuální PIN pro odstranění zámku pro %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Pro odstranění tohoto zámku zadejte aktuální 4místný PIN.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Zadejte aktuální PIN pro smazání %1$s.</string>
     <string name="profile_pin_overlay_delete_verify_support">Před smazáním tohoto profilu zadejte aktuální 4místný PIN.</string>
-    <string name="profile_pin_overlay_set_support">Tento PIN bude vyžadován před otevřením tohoto profilu.</string>
-    <string name="profile_pin_overlay_confirm_support">Zadejte znovu stejné 4 číslice pro dokončení nastavení.</string>
+    <string name="profile_pin_overlay_set_support">Použijte 4 až 8 číslic a poté stiskněte OK. Tento PIN bude vyžadován před otevřením tohoto profilu.</string>
+    <string name="profile_pin_overlay_confirm_support">Zadejte znovu stejné číslice pro dokončení nastavení.</string>
     <string name="profile_pin_overlay_mismatch">PINy se neshodovaly. Zadejte nový PIN znovu.</string>
     <string name="profile_pin_overlay_back_hint">Stiskněte zpět pro zrušení</string>
 

@@ -5,7 +5,7 @@ import { prisma } from "../lib/prisma.js";
 import { clearAttempts, getLockout, recordFailure } from "../lib/attempt-lockout.js";
 import { mintProfileToken } from "../lib/profile-token.js";
 import { hasValidProfileToken, invalidateProfileCache, isActingAsProfile, ownsProfile } from "../lib/profile.js";
-import { hashPin, isValidPinFormat, needsRehash, pinLengthError, pinMatches } from "../lib/pin-hash.js";
+import { hashPin, isValidPinFormat, needsRehash, PIN_FORMAT_ERROR, pinMatches } from "../lib/pin-hash.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 import { parseProfileAttributes, PROFILE_VIEW_SELECT, toProfileView } from "../lib/profile-view.js";
 import { deleteProfileConnectionState } from "../lib/profile-connections.js";
@@ -75,7 +75,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     const name = body.name.trim();
     const pin = typeof body.pin === "string" ? body.pin.trim() : undefined;
     if (pin !== undefined && !isValidPinFormat(pin)) {
-      return reply.code(400).send({ error: pinLengthError });
+      return reply.code(400).send({ error: PIN_FORMAT_ERROR });
     }
     const attributes = parseProfileAttributes(body);
     if (!attributes.ok) return reply.code(400).send({ error: attributes.error });
@@ -159,7 +159,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       } else if (typeof body.pin === "string" && body.pin.trim()) {
         nextPin = body.pin.trim();
         if (!isValidPinFormat(nextPin)) {
-          return reply.code(400).send({ error: pinLengthError });
+          return reply.code(400).send({ error: PIN_FORMAT_ERROR });
         }
       } else {
         return reply.code(400).send({ error: "pin must be a non-empty string or null when provided" });

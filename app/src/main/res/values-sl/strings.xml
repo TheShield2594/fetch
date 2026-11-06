@@ -878,13 +878,13 @@
        <string name="profile_pin_overlay_unlock_heading">Vnesite kodo PIN za dostop do profila %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Ustvarite 4-mestno kodo PIN za profil %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Potrdite svojo novo kodo PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Uporabite daljinski upravljalnik ali tipkovnico, da vnesete 4 števke.</string>
+    <string name="profile_pin_overlay_unlock_support">Vnesite PIN z daljinskim upravljalnikom ali tipkovnico in nato pritisnite OK.</string>
        <string name="profile_pin_overlay_change_verify_heading">Vnesite trenutno kodo PIN, da jo spremenite za profil %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Preden nastavite novo kodo, vnesite trenutno 4-mestno kodo PIN.</string>
        <string name="profile_pin_overlay_remove_verify_heading">Vnesite trenutno kodo PIN, da odstranite zaklepanje za profil %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Za odstranitev zaklepanja vnesite trenutno 4-mestno kodo PIN.</string>
 	<string name="profile_pin_overlay_delete_verify_heading">Vnesite trenutno kodo PIN za izbris profila %1$s.</string>																								   
-    <string name="profile_pin_overlay_set_support">Ta koda PIN bo zahtevana pred odpiranjem tega profila.</string>
+    <string name="profile_pin_overlay_set_support">Uporabite 4 do 8 števk in nato pritisnite OK. Ta koda PIN bo zahtevana pred odpiranjem tega profila.</string>
     <string name="profile_pin_overlay_mismatch">Kodi PIN se nista ujemali. Ponovno vnesite novo kodo PIN.</string>
        <string name="profile_pin_overlay_back_hint">Pritisnite nazaj za preklic</string>															
 	<!-- Essential addon setup wizard -->									 

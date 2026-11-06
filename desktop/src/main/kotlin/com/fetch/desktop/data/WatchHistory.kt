@@ -202,8 +202,13 @@ object WatchHistory {
             .sortedWith(compareBy({ it.season }, { it.episode }))
             .takeWhile { it.id != episode.id }
 
-    fun hide(file: ProgressFile, contentId: String): ProgressFile =
-        file.copy(entries = file.entries.map { if (it.contentId == contentId) it.copy(hidden = true) else it })
+    /**
+     * "Remove from Continue Watching": the title's entry stays, hidden and stamped with the
+     * removal time [now], so only activity after the removal (here, on Trakt or Simkl, or on the
+     * sync server) brings it back.
+     */
+    fun hide(file: ProgressFile, contentId: String, now: Long): ProgressFile =
+        file.copy(entries = file.entries.map { if (it.contentId == contentId) it.copy(hidden = true, lastWatched = maxOf(it.lastWatched, now)) else it })
 
     /** Forgets where a title was stopped, so it plays from the start. */
     fun clearPosition(file: ProgressFile, contentId: String): ProgressFile =

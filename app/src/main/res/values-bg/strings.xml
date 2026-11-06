@@ -976,15 +976,15 @@
     <string name="profile_pin_overlay_unlock_heading">Въведи своя PIN за достъп до %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Създай 4-цифрен PIN за %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Потвърди новия си PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Използвай дистанционното или клавиатурата, за да въведеш 4 цифри.</string>
+    <string name="profile_pin_overlay_unlock_support">Въведи PIN кода с дистанционното или клавиатурата и натисни OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Въведи текущия PIN за промяна на PIN за %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Въведи текущия 4-цифрен PIN преди да зададеш нов.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Въведи текущия PIN за премахване на заключването за %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Въведи текущия 4-цифрен PIN, за да премахнеш това заключване.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Въведи текущия PIN за изтриване на %1$s.</string>
     <string name="profile_pin_overlay_delete_verify_support">Въведи текущия 4-цифрен PIN преди да изтриеш този профил.</string>
-    <string name="profile_pin_overlay_set_support">Този PIN ще се изисква преди отваряне на профила.</string>
-    <string name="profile_pin_overlay_confirm_support">Въведи същите 4 цифри отново, за да завършиш настройката.</string>
+    <string name="profile_pin_overlay_set_support">Използвай от 4 до 8 цифри и натисни OK. Този PIN ще се изисква преди отваряне на профила.</string>
+    <string name="profile_pin_overlay_confirm_support">Въведи същите цифри отново, за да завършиш настройката.</string>
     <string name="profile_pin_overlay_mismatch">PIN-овете не съвпаднаха. Въведи нов PIN отново.</string>
     <string name="profile_pin_overlay_back_hint">Натисни назад за отказ</string>
 

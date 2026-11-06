@@ -16,6 +16,7 @@ import com.fetch.tv.domain.model.MetaPreview
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -144,6 +145,17 @@ class ParentalControls @Inject constructor(
         restrictions = allRestrictions.value,
         pinEnabled = pinStates.value
     )
+
+    /**
+     * What [needsParentPinToOpen] reads, straight from disk. Unlike the StateFlows here it has no
+     * not-yet-loaded default, so startup can wait for it before resuming the last profile.
+     */
+    val profileOpenLock: Flow<ProfileOpenLock> = combine(
+        restrictionsDataStore.lockUnrestrictedProfiles,
+        restrictionsDataStore.restrictions,
+        pinManager.pinEnabled
+    ) { lockOn, restrictions, pinEnabled -> ProfileOpenLock(lockOn, restrictions, pinEnabled) }
+        .distinctUntilChanged()
 
     /** Episodes that may autoplay in a row on the active profile; null for no cap. */
     fun autoplayEpisodeCap(): Int? = activeKidsRules.value?.autoplayEpisodeCap
@@ -366,6 +378,55 @@ fun MetaPreview.certificationQuery(): CertificationQuery = CertificationQuery(
     imdbId = imdbId,
     knownCertification = ageRating
 )
+
+/**
+ * Whether the profile remembered at startup needs the parent PIN, or null while any input is
+ * still unread. Each input is a value that is null until loaded, so readiness and value can't
+ * arrive separately: a lock decision is never made against a placeholder profile list or id.
+ */
+fun startupNeedsParentPin(lock: ProfileOpenLock?, activeProfileId: Int?, profileIds: List<Int>?): Boolean? {
+    if (lock == null || activeProfileId == null || profileIds == null) return null
+    return lock.needsParentPinToOpen(activeProfileId, profileIds)
+}
+
+/**
+ * Whether startup shows the profile picker. Uses the loaded profile count only (null until read),
+ * never the primary-only placeholder, and always routes a profile that needs its own PIN or the
+ * parent PIN through the PIN-gated picker.
+ */
+fun shouldShowStartupPicker(
+    selectedThisSession: Boolean,
+    loadedProfileCount: Int?,
+    activeProfileHasPin: Boolean,
+    needsParentPin: Boolean?
+): Boolean = !selectedThisSession &&
+    ((loadedProfileCount ?: 0) > 1 || activeProfileHasPin || needsParentPin == true)
+
+/** The lock setting, limits and PIN states that decide [needsParentPinToOpen]. */
+data class ProfileOpenLock(
+    val lockOn: Boolean,
+    val restrictions: Map<Int, ProfileRestrictions>,
+    val pinEnabled: Map<Int, Boolean>
+) {
+    fun needsParentPinToOpen(profileId: Int, profileIds: List<Int>): Boolean = needsParentPinToOpen(
+        profileId = profileId,
+        profileIds = profileIds,
+        lockOn = lockOn,
+        restrictions = restrictions,
+        pinEnabled = pinEnabled
+    )
+}
+
+/**
+ * True when deleting a profile needs the main profile's PIN: the main profile has one and some
+ * profile has limits. Otherwise a kid could delete their own limited profile (and its limits),
+ * or a sibling's.
+ */
+internal fun needsParentPinToDelete(
+    profileIds: List<Int>,
+    restrictions: Map<Int, ProfileRestrictions>,
+    parentHasPin: Boolean
+): Boolean = parentHasPin && profileIds.any { restrictions[it]?.isRestricted == true }
 
 /** See [ParentalControls.needsParentPinToOpen]. */
 internal fun needsParentPinToOpen(

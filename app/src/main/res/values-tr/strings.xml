@@ -1294,15 +1294,15 @@
     <string name="profile_pin_overlay_unlock_heading">%1$s profiline girmek için PIN girin.</string>
     <string name="profile_pin_overlay_set_heading">%1$s için 4 haneli PIN oluşturun.</string>
     <string name="profile_pin_overlay_confirm_heading">Yeni PIN onaylayın.</string>
-    <string name="profile_pin_overlay_unlock_support">4 haneli şifreyi girmek için uzaktan kumandanızı veya klavyenizi kullanın.</string>
+    <string name="profile_pin_overlay_unlock_support">PIN\'i uzaktan kumandanız veya klavyenizle girin, ardından OK\'e basın.</string>
     <string name="profile_pin_overlay_change_verify_heading">%1$s profilinin PINini değiştirmek için mevcut PIN girin.</string>
     <string name="profile_pin_overlay_change_verify_support">Yeni PIN belirlemeden önce mevcut 4 haneli PIN girin.</string>
     <string name="profile_pin_overlay_remove_verify_heading">%1$s profilinin kilidini kaldırmak için mevcut PIN girin.</string>
     <string name="profile_pin_overlay_remove_verify_support">Kilidi kaldırmak için mevcut 4 haneli PIN girin.</string>
     <string name="profile_pin_overlay_delete_verify_heading">%1$s profilini silmek için mevcut PIN girin.</string>
     <string name="profile_pin_overlay_delete_verify_support">Bu profili silmeden önce mevcut 4 haneli PIN girin.</string>
-    <string name="profile_pin_overlay_set_support">Bu PIN, profil açılmadan önce her seferinde istenecek.</string>
-    <string name="profile_pin_overlay_confirm_support">Kurulumu tamamlamak için aynı 4 rakamı tekrar girin.</string>
+    <string name="profile_pin_overlay_set_support">4 ila 8 rakam kullanın, ardından OK\'e basın. Bu PIN, profil açılmadan önce her seferinde istenecek.</string>
+    <string name="profile_pin_overlay_confirm_support">Kurulumu tamamlamak için aynı rakamları tekrar girin.</string>
     <string name="profile_pin_overlay_mismatch">PINler eşleşmedi. Tekrar deneyin.</string>
     <string name="profile_pin_overlay_back_hint">İptal etmek için geri tuşuna basın</string>
 

@@ -18,7 +18,7 @@ export const registerCatalogRoutes = (routes: AddonRouter): void => {
     if (!scope.ok) return reply.send({ metas: [] });
 
     try {
-      return reply.send(await handleCatalog(request.params.type, request.params.id, scope.profileId, request.log));
+      return reply.send(await handleCatalog(request.params.type, request.params.id, scope, request.log));
     } catch (error) {
       request.log.error(error, "Failed to fetch catalog items");
       return reply.send({ metas: [] });
@@ -39,7 +39,7 @@ export const registerCatalogRoutes = (routes: AddonRouter): void => {
           await handleCatalog(
             request.params.type,
             request.params.id,
-            scope.profileId,
+            scope,
             request.log,
             request.params.extra
           )

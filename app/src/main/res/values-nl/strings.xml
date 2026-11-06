@@ -1132,15 +1132,15 @@
     <string name="profile_pin_overlay_unlock_heading">Voer je pincode in om toegang te krijgen tot %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Maak een 4-cijferige pincode voor %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Bevestig je nieuwe pincode.</string>
-    <string name="profile_pin_overlay_unlock_support">Gebruik je afstandsbediening of toetsenbord om 4 cijfers in te voeren.</string>
+    <string name="profile_pin_overlay_unlock_support">Voer de pincode in met je afstandsbediening of toetsenbord en druk daarna op OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Voer de huidige pincode in om de pincode van %1$s te wijzigen.</string>
     <string name="profile_pin_overlay_change_verify_support">Voer de huidige 4-cijferige pincode in voordat je een nieuwe instelt.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Voer de huidige pincode in om de vergrendeling van %1$s te verwijderen.</string>
     <string name="profile_pin_overlay_remove_verify_support">Voer de huidige 4-cijferige pincode in om deze vergrendeling te verwijderen.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Voer de huidige pincode in om %1$s te verwijderen.</string>
     <string name="profile_pin_overlay_delete_verify_support">Voer de huidige 4-cijferige pincode in voordat je dit profiel verwijdert.</string>
-    <string name="profile_pin_overlay_set_support">Deze pincode is vereist voordat dit profiel wordt geopend.</string>
-    <string name="profile_pin_overlay_confirm_support">Voer dezelfde 4 cijfers nogmaals in om het instellen te voltooien.</string>
+    <string name="profile_pin_overlay_set_support">Gebruik 4 tot 8 cijfers en druk daarna op OK. Deze pincode is vereist voordat dit profiel wordt geopend.</string>
+    <string name="profile_pin_overlay_confirm_support">Voer dezelfde cijfers nogmaals in om het instellen te voltooien.</string>
     <string name="profile_pin_overlay_mismatch">De pincodes kwamen niet overeen. Voer opnieuw een nieuwe pincode in.</string>
     <string name="profile_pin_overlay_back_hint">Druk op terug om te annuleren</string>
 

@@ -1,5 +1,6 @@
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 import { AlertCircle, Check, Loader2, Lock, Pencil, Plus, SlidersHorizontal, Trash2, Unlock, Users, X } from "lucide-react";
+import { isValidPinFormat, MAX_PIN_LENGTH, MIN_PIN_LENGTH, PIN_FORMAT_ERROR } from "@fetch/shared/pin";
 import { api, ApiError, type Profile, type ProfileSummary } from "../../api";
 import { useProfile } from "../../hooks/useProfile";
 import { useToast } from "../../hooks/useToast";
@@ -57,12 +58,17 @@ function PinForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved: (p
   const [currentPin, setCurrentPin] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const pinHintId = useId();
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     const trimmed = pin.trim();
     if (!trimmed) return;
     if (profile.hasPin && !currentPin.trim()) return;
+    if (!isValidPinFormat(trimmed)) {
+      setError(`${PIN_FORMAT_ERROR}.`);
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -101,9 +107,12 @@ function PinForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved: (p
         autoFocus={!profile.hasPin}
         type="password"
         inputMode="numeric"
-        // Matches MIN_PIN_LENGTH on the server. Only on the set/change field —
-        // a PIN chosen before the floor existed still has to unlock.
-        minLength={4}
+        // The 4–8 digit rule the API enforces, only on the set/change field —
+        // a PIN chosen before the rule existed still has to unlock, so the
+        // current-PIN field above takes anything. Checked on submit, so the
+        // message names the rule rather than the browser's generic one.
+        autoComplete="new-password"
+        aria-describedby={pinHintId}
         value={pin}
         onChange={(e) => setPin(e.target.value)}
         placeholder={profile.hasPin ? "New PIN" : "PIN"}
@@ -122,6 +131,9 @@ function PinForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved: (p
       <button type="button" onClick={onCancel} aria-label="Cancel" className="flex-none rounded-lg p-1.5 hover:bg-[var(--surface-strong)]" style={{ color: "var(--text-mute)" }}>
         <X size={16} />
       </button>
+      <p id={pinHintId} className="w-full text-xs" style={{ color: "var(--text-mute)" }}>
+        {profile.hasPin ? "New PIN" : "PIN"}: {MIN_PIN_LENGTH}–{MAX_PIN_LENGTH} digits
+      </p>
       {error && <p role="alert" className="w-full text-xs text-danger">{error}</p>}
     </form>
   );

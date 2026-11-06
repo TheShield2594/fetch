@@ -591,13 +591,13 @@
     <string name="profile_pin_overlay_unlock_heading">Skriv inn PIN-en din for å få tilgang til %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Opprett en 4-sifret PIN for %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Bekreft din nye PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Bruk fjernkontroll eller tastatur for å angi 4 siffer.</string>
+    <string name="profile_pin_overlay_unlock_support">Bruk fjernkontroll eller tastatur for å angi PIN-koden, og trykk deretter OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Skriv inn gjeldende PIN for å endre PIN for %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Skriv inn gjeldende 4-sifret PIN før du angir en ny.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Skriv inn gjeldende PIN for å fjerne låsen for %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Skriv inn gjeldende 4-sifret PIN for å fjerne denne låsen.</string>
-    <string name="profile_pin_overlay_set_support">Denne PIN-en blir nødvendig før åpning av denne profilen.</string>
-    <string name="profile_pin_overlay_confirm_support">Angi samme 4 siffer på nytt for å avslutte oppsettet.</string>
+    <string name="profile_pin_overlay_set_support">Bruk 4 til 8 siffer, og trykk deretter OK. Denne PIN-en blir nødvendig før åpning av denne profilen.</string>
+    <string name="profile_pin_overlay_confirm_support">Angi de samme sifrene på nytt for å avslutte oppsettet.</string>
     <string name="profile_pin_overlay_mismatch">PIN-ene matchet ikke. Skriv inn en ny PIN på nytt.</string>
     <string name="profile_pin_overlay_back_hint">Trykk tilbake for å avbryte</string>
 

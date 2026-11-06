@@ -1209,15 +1209,15 @@
   <string name="profile_pin_overlay_unlock_heading">Εισάγετε το PIN σας για πρόσβαση στο %1$s.</string>
   <string name="profile_pin_overlay_set_heading">Δημιουργήστε 4-ψήφιο PIN για το %1$s.</string>
   <string name="profile_pin_overlay_confirm_heading">Επιβεβαιώστε το νέο σας PIN.</string>
-  <string name="profile_pin_overlay_unlock_support">Χρησιμοποιήστε το τηλεχειριστήριο ή το πληκτρολόγιο για να εισάγετε 4 ψηφία.</string>
+  <string name="profile_pin_overlay_unlock_support">Εισαγάγετε το PIN με το τηλεχειριστήριο ή το πληκτρολόγιο και πατήστε OK.</string>
   <string name="profile_pin_overlay_change_verify_heading">Εισάγετε το τρέχον PIN για αλλαγή PIN του %1$s.</string>
   <string name="profile_pin_overlay_change_verify_support">Εισάγετε το τρέχον 4-ψήφιο PIN πριν ορίσετε νέο.</string>
   <string name="profile_pin_overlay_remove_verify_heading">Εισάγετε το τρέχον PIN για αφαίρεση κλειδώματος του %1$s.</string>
   <string name="profile_pin_overlay_remove_verify_support">Εισάγετε το τρέχον 4-ψήφιο PIN για αφαίρεση του κλειδώματος.</string>
   <string name="profile_pin_overlay_delete_verify_heading">Εισάγετε το τρέχον PIN για διαγραφή του %1$s.</string>
   <string name="profile_pin_overlay_delete_verify_support">Εισάγετε το τρέχον 4-ψήφιο PIN πριν τη διαγραφή αυτού του προφίλ.</string>
-  <string name="profile_pin_overlay_set_support">Αυτό το PIN θα απαιτείται πριν το άνοιγμα του προφίλ.</string>
-  <string name="profile_pin_overlay_confirm_support">Εισάγετε ξανά τα ίδια 4 ψηφία για ολοκλήρωση.</string>
+  <string name="profile_pin_overlay_set_support">Χρησιμοποιήστε 4 έως 8 ψηφία και πατήστε OK. Αυτό το PIN θα απαιτείται πριν το άνοιγμα του προφίλ.</string>
+  <string name="profile_pin_overlay_confirm_support">Εισάγετε ξανά τα ίδια ψηφία για ολοκλήρωση.</string>
   <string name="profile_pin_overlay_mismatch">Τα PIN δεν ταιριάζουν. Εισάγετε νέο PIN ξανά.</string>
   <string name="profile_pin_overlay_back_hint">Πατήστε πίσω για ακύρωση</string>
   <!-- Essential addon setup wizard -->

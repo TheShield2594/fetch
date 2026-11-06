@@ -1132,13 +1132,13 @@
     <string name="profile_pin_overlay_unlock_heading">Wprowadź PIN, aby uzyskać dostęp do %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Utwórz 4-cyfrowy PIN dla %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Potwierdź nowy PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Użyj pilota lub klawiatury, aby wprowadzić 4 cyfry.</string>
+    <string name="profile_pin_overlay_unlock_support">Użyj pilota lub klawiatury, aby wprowadzić PIN, a następnie naciśnij OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Wprowadź aktualny PIN, aby zmienić PIN dla %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Wprowadź aktualny 4-cyfrowy PIN przed ustawieniem nowego.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Wprowadź aktualny PIN, aby usunąć blokadę dla %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Wprowadź aktualny 4-cyfrowy PIN, aby usunąć tę blokadę.</string>
-    <string name="profile_pin_overlay_set_support">Ten PIN będzie wymagany przed otwarciem tego profilu.</string>
-    <string name="profile_pin_overlay_confirm_support">Wprowadź ponownie te same 4 cyfry, aby zakończyć konfigurację.</string>
+    <string name="profile_pin_overlay_set_support">Użyj od 4 do 8 cyfr, a następnie naciśnij OK. Ten PIN będzie wymagany przed otwarciem tego profilu.</string>
+    <string name="profile_pin_overlay_confirm_support">Wprowadź ponownie te same cyfry, aby zakończyć konfigurację.</string>
     <string name="profile_pin_overlay_mismatch">PINy nie są zgodne. Wprowadź nowy PIN ponownie.</string>
     <string name="profile_pin_overlay_back_hint">Naciśnij wstecz, aby anulować</string>
 

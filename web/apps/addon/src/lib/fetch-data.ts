@@ -16,7 +16,7 @@ import type {
   FetchListItem,
   RpdbConfigResponse,
 } from "@fetch/shared";
-import { apiGet } from "./api-client.js";
+import { type ApiProfile, apiGet } from "./api-client.js";
 import { cacheKeyFor, cacheSet, type CacheEntry } from "./cache.js";
 import type { StremioMetaPreview } from "./stremio-types.js";
 
@@ -37,13 +37,13 @@ import type { StremioMetaPreview } from "./stremio-types.js";
 const listsCache = new Map<string, CacheEntry<FetchList[]>>();
 const LISTS_CACHE_TTL_MS = 60_000;
 
-export const fetchAllLists = async (profileId: string | null): Promise<FetchList[]> => {
+export const fetchAllLists = async (profile: ApiProfile): Promise<FetchList[]> => {
   const now = Date.now();
-  const cacheKey = cacheKeyFor(profileId);
+  const cacheKey = cacheKeyFor(profile);
   const cached = listsCache.get(cacheKey);
   if (cached && now < cached.expiry) return cached.data;
 
-  const payload = await apiGet("/lists", profileId, parseListsResponse);
+  const payload = await apiGet("/lists", profile, parseListsResponse);
   cacheSet(listsCache, cacheKey, { data: payload.lists, expiry: now + LISTS_CACHE_TTL_MS });
   return payload.lists;
 };
@@ -51,12 +51,12 @@ export const fetchAllLists = async (profileId: string | null): Promise<FetchList
 let cachedGenres: CacheEntry<string[]> | null = null;
 const GENRES_CACHE_TTL_MS = 300_000;
 
-export const fetchGenres = async (profileId: string | null, logger: FastifyBaseLogger): Promise<string[]> => {
+export const fetchGenres = async (profile: ApiProfile, logger: FastifyBaseLogger): Promise<string[]> => {
   const now = Date.now();
   if (cachedGenres && now < cachedGenres.expiry) return cachedGenres.data;
 
   try {
-    const payload = await apiGet("/genres", profileId, parseGenresResponse);
+    const payload = await apiGet("/genres", profile, parseGenresResponse);
     cachedGenres = { data: payload.genres, expiry: now + GENRES_CACHE_TTL_MS };
     return payload.genres;
   } catch (error) {
@@ -70,14 +70,14 @@ const RPDB_CACHE_TTL_MS = 120_000;
 const RPDB_BASE_URL = "https://api.ratingposterdb.com";
 
 export const fetchRpdbConfig = async (
-  profileId: string | null,
+  profile: ApiProfile,
   logger: FastifyBaseLogger
 ): Promise<RpdbConfigResponse> => {
   const now = Date.now();
   if (cachedRpdb && now < cachedRpdb.expiry) return cachedRpdb.data;
 
   try {
-    const payload = await apiGet("/rpdb/config", profileId, parseRpdbConfigResponse);
+    const payload = await apiGet("/rpdb/config", profile, parseRpdbConfigResponse);
     cachedRpdb = { data: payload, expiry: now + RPDB_CACHE_TTL_MS };
     return payload;
   } catch (error) {
@@ -107,11 +107,11 @@ const TRENDING_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
 export const fetchDiscoveryMetas = async (
   catalogId: string,
-  profileId: string | null,
+  profile: ApiProfile,
   logger: FastifyBaseLogger
 ): Promise<StremioMetaPreview[]> => {
   const now = Date.now();
-  const cacheKey = `${cacheKeyFor(profileId)}:${catalogId}`;
+  const cacheKey = `${cacheKeyFor(profile)}:${catalogId}`;
   const cached = trendingPopularCache.get(cacheKey);
   if (cached && now < cached.expiry) return cached.data;
 
@@ -119,7 +119,7 @@ export const fetchDiscoveryMetas = async (
   if (!catalog) return [];
 
   try {
-    const payload = await apiGet(discoveryApiPath(catalog), profileId, parseMetasResponse);
+    const payload = await apiGet(discoveryApiPath(catalog), profile, parseMetasResponse);
     const metas: StremioMetaPreview[] = payload.metas.map((m) => ({
       id: m.id,
       type: m.type,
@@ -143,16 +143,16 @@ const enabledCatalogsCache = new Map<string, CacheEntry<AddonManifestConfig>>();
 const ENABLED_CATALOGS_CACHE_TTL_MS = 60_000;
 
 export const fetchAddonConfig = async (
-  profileId: string | null,
+  profile: ApiProfile,
   logger: FastifyBaseLogger
 ): Promise<AddonManifestConfig | null> => {
   const now = Date.now();
-  const cacheKey = cacheKeyFor(profileId);
+  const cacheKey = cacheKeyFor(profile);
   const cached = enabledCatalogsCache.get(cacheKey);
   if (cached && now < cached.expiry) return cached.data;
 
   try {
-    const config = await apiGet("/addon/config", profileId, parseAddonConfigResponse);
+    const config = await apiGet("/addon/config", profile, parseAddonConfigResponse);
     cacheSet(enabledCatalogsCache, cacheKey, { data: config, expiry: now + ENABLED_CATALOGS_CACHE_TTL_MS });
     return config;
   } catch (error) {
@@ -175,19 +175,19 @@ const LIST_ITEMS_CACHE_TTL_MS = 30_000;
 
 export const fetchListItems = async (
   listId: string,
-  profileId: string | null,
+  profile: ApiProfile,
   type: string
 ): Promise<FetchListItem[]> => {
   const now = Date.now();
   // Two keys per list rather than one, so this map fills toward MAX_CACHE_ENTRIES
   // twice as fast as the others — the bound in cacheSet is what keeps that in check.
-  const cacheKey = `${cacheKeyFor(profileId)}:${listId}:${type}`;
+  const cacheKey = `${cacheKeyFor(profile)}:${listId}:${type}`;
   const cached = listItemsCache.get(cacheKey);
   if (cached && now < cached.expiry) return cached.data;
 
   const payload = await apiGet(
     `/lists/${encodeURIComponent(listId)}/items?type=${encodeURIComponent(type)}`,
-    profileId,
+    profile,
     parseListItemsResponse
   );
   // Dated from when the answer arrived, not from when it was asked for. The API
@@ -205,7 +205,7 @@ let cachedSpoilerProtection: CacheEntry<boolean> | null = null;
 const SPOILER_CACHE_TTL_MS = 60_000;
 
 export const isSpoilerProtectionEnabled = async (
-  profileId: string | null,
+  profile: ApiProfile,
   logger: FastifyBaseLogger
 ): Promise<boolean> => {
   const now = Date.now();
@@ -213,7 +213,7 @@ export const isSpoilerProtectionEnabled = async (
     return cachedSpoilerProtection.data;
   }
   try {
-    const prefs = await apiGet("/settings/preferences", profileId, parsePreferencesResponse);
+    const prefs = await apiGet("/settings/preferences", profile, parsePreferencesResponse);
     const enabled = prefs.spoilerProtection === true;
     cachedSpoilerProtection = { data: enabled, expiry: now + SPOILER_CACHE_TTL_MS };
     return enabled;

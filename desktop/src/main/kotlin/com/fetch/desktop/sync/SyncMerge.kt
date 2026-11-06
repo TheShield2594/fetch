@@ -65,12 +65,7 @@ object SyncMerge {
         )
     }
 
-    /** Watched videos both ways: Cinemeta ids, "tt1" for a movie, "tt1:2:5" for an episode. */
-    fun watchedToPush(localIds: Collection<String>, remote: List<RemoteWatchedItem>, now: Long): List<RemoteWatchedItem> {
-        val remoteIds = remote.mapTo(HashSet()) { it.videoId() }
-        return localIds.filter { it !in remoteIds }.mapNotNull { watchedItem(it, now) }
-    }
-
+    /** A watched item's Cinemeta video id: "tt1" for a movie, "tt1:2:5" for an episode. */
     fun RemoteWatchedItem.videoId(): String =
         if (season != null && episode != null) "$contentId:$season:$episode" else contentId
 
@@ -82,11 +77,6 @@ object SyncMerge {
         val isEpisode = season != null && episode != null
         return RemoteWatchedItem(id, if (isEpisode) "series" else "movie", season = season, episode = episode, watchedAtEpochMs = now)
     }
-
-    /** Local positions worth sharing: real positions from this app, not other services' guesses. */
-    fun progressToPush(local: List<ProgressEntry>): List<RemoteProgress> = local
-        .filter { it.source == null && !it.upNext && it.positionMs > 0 && it.durationMs > 0 }
-        .map { RemoteProgress(it.contentId, it.contentType, it.videoId, it.season, it.episode, it.positionMs, it.durationMs, it.lastWatched) }
 
     /** Remote positions as Continue Watching entries; names come from [known] or are filled in later. */
     fun progressEntries(remote: List<RemoteProgress>, known: Map<String, ProgressEntry>): List<ProgressEntry> =

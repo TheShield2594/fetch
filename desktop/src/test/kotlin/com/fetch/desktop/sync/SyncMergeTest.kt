@@ -37,18 +37,12 @@ class SyncMergeTest {
         val item = SyncMerge.watchedItem("tt9:2:5", now = 7)!!
         assertEquals(RemoteWatchedItem("tt9", "series", season = 2, episode = 5, watchedAtEpochMs = 7), item)
         assertEquals("tt9:2:5", item.videoId())
-        val push = SyncMerge.watchedToPush(listOf("tt1", "tt9:2:5"), listOf(item), now = 7)
-        assertEquals(listOf("tt1"), push.map { it.videoId() })
-        assertEquals("movie", push.single().contentType)
+        assertEquals("movie", SyncMerge.watchedItem("tt1", now = 7)!!.contentType)
     }
 
     @Test
-    fun `only this app's real positions are pushed, and pulled ones keep known names`() {
+    fun `pulled positions keep known names`() {
         val mine = ProgressEntry(contentId = "tt1", contentType = "movie", name = "One", videoId = "tt1", positionMs = 10, durationMs = 100, lastWatched = 5)
-        val trakt = mine.copy(contentId = "tt2", videoId = "tt2", source = "trakt")
-        val upNext = mine.copy(contentId = "tt3", videoId = "tt3", upNext = true)
-        assertEquals(listOf("tt1"), SyncMerge.progressToPush(listOf(mine, trakt, upNext)).map { it.contentId })
-
         val pulled = SyncMerge.progressEntries(
             listOf(
                 RemoteProgress("tt1", "movie", "tt1", positionMs = 50, durationMs = 100, lastWatchedEpochMs = 9),

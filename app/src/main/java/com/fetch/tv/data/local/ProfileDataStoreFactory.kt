@@ -76,6 +76,12 @@ class ProfileDataStoreFactory @Inject constructor(
         const val SHADOW_COPY_SUFFIX = ".bak"
     }
 
+    /**
+     * Device-wide stores that live outside this factory and must survive sign-out. Every other
+     * `.preferences_pb` in the datastore directory is treated as profile-scoped and deleted by
+     * [clearProfileScopedData], so a new standalone store has to be added here or it will be
+     * wiped from under its live DataStore.
+     */
     private val retainedStandaloneDataStoreNames = setOf(
         "app_onboarding",
         "auth_session_notice_store",
@@ -84,8 +90,8 @@ class ProfileDataStoreFactory @Inject constructor(
         "profile_lock_state",
         "profile_restrictions",
         "profile_settings",
-        "sentry_settings",
-        "torrent_settings",
+        "screen_time",
+        "skip_marker_settings",
         "tv_channel_prefs"
     )
 

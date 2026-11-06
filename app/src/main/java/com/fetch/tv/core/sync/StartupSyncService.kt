@@ -752,15 +752,17 @@ class StartupSyncService @Inject constructor(
             if (syncResult.deletedEntries > 0) {
                 val currentContentIds = watchProgressPreferences.getAllRawEntries(profileId)
                     .values.mapTo(mutableSetOf()) { it.contentId }
+                // Captured before reading: the filtered snapshots belong to this profile only.
+                val snapshotOrigin = cwEnrichmentCache.captureOrigin()
                 val cachedInProgress = cwEnrichmentCache.getInProgressSnapshot()
                 val cachedNextUp = cwEnrichmentCache.getNextUpSnapshot()
                 val filteredInProgress = cachedInProgress.filter { it.contentId in currentContentIds }
                 val filteredNextUp = cachedNextUp.filter { it.contentId in currentContentIds }
                 if (filteredInProgress.size != cachedInProgress.size) {
-                    cwEnrichmentCache.saveInProgressSnapshot(filteredInProgress, force = true)
+                    cwEnrichmentCache.saveInProgressSnapshot(filteredInProgress, force = true, origin = snapshotOrigin)
                 }
                 if (filteredNextUp.size != cachedNextUp.size) {
-                    cwEnrichmentCache.saveNextUpSnapshot(filteredNextUp, force = true)
+                    cwEnrichmentCache.saveNextUpSnapshot(filteredNextUp, force = true, origin = snapshotOrigin)
                 }
             }
             if (pushUnsynced && syncResult.preservedLocalItems) {

@@ -1202,8 +1202,10 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                         )
                     }
                     if (profileManager.activeProfileId.value == pipelineProfileId) {
-                        runCatching { cwEnrichmentCache.saveNextUpSnapshot(nextUpSnap, force = true) }
-                        runCatching { cwEnrichmentCache.saveInProgressSnapshot(ipSnap, force = true) }
+                        // One origin for both saves: the second must not re-capture a newer profile.
+                        val origin = cwEnrichmentCache.captureOrigin()
+                        runCatching { cwEnrichmentCache.saveNextUpSnapshot(nextUpSnap, force = true, origin = origin) }
+                        runCatching { cwEnrichmentCache.saveInProgressSnapshot(ipSnap, force = true, origin = origin) }
                     }
                 }
 
@@ -2832,11 +2834,13 @@ private fun HomeViewModel.persistLocalContinueWatchingMetadata(
 
     viewModelScope.launch(Dispatchers.IO) {
         if (profileManager.activeProfileId.value != pipelineProfileId) return@launch
+        // One origin for both saves: the second must not re-capture a newer profile.
+        val origin = cwEnrichmentCache.captureOrigin()
         if (nextUpSnapshot.isNotEmpty()) {
-            runCatching { cwEnrichmentCache.saveNextUpSnapshot(nextUpSnapshot, force = true) }
+            runCatching { cwEnrichmentCache.saveNextUpSnapshot(nextUpSnapshot, force = true, origin = origin) }
         }
         if (inProgressSnapshot.isNotEmpty()) {
-            runCatching { cwEnrichmentCache.saveInProgressSnapshot(inProgressSnapshot, force = true) }
+            runCatching { cwEnrichmentCache.saveInProgressSnapshot(inProgressSnapshot, force = true, origin = origin) }
         }
         val persistable = localItems.filter { it.hasRenderableMetadata() }
         if (persistable.isEmpty()) return@launch

@@ -144,9 +144,13 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
     /**
      * @param force bypass throttle and content-change check (use at end of pipeline or for clears)
      */
-    suspend fun saveNextUpSnapshot(items: List<CachedNextUpItem>, force: Boolean = false) {
-        // Bind the save to the profile it was made for, before any suspension.
-        val origin = SaveOrigin(profileManager.activeProfileId.value, deletionGeneration.get())
+    suspend fun saveNextUpSnapshot(
+        items: List<CachedNextUpItem>,
+        force: Boolean = false,
+        // Bound to the profile the data was made for. Callers that save several snapshots of
+        // the same data pass one origin captured before the first save.
+        origin: SaveOrigin = captureOrigin()
+    ) {
         saveNextUpSnapshotFor(origin, items, force)
     }
 
@@ -202,9 +206,13 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
     /**
      * @param force bypass throttle and content-change check (use at end of pipeline or for clears)
      */
-    suspend fun saveInProgressSnapshot(items: List<CachedInProgressItem>, force: Boolean = false) {
-        // Bind the save to the profile it was made for, before any suspension.
-        val origin = SaveOrigin(profileManager.activeProfileId.value, deletionGeneration.get())
+    suspend fun saveInProgressSnapshot(
+        items: List<CachedInProgressItem>,
+        force: Boolean = false,
+        // Bound to the profile the data was made for. Callers that save several snapshots of
+        // the same data pass one origin captured before the first save.
+        origin: SaveOrigin = captureOrigin()
+    ) {
         saveInProgressSnapshotFor(origin, items, force)
     }
 
@@ -253,8 +261,14 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         _cacheCleared.value++
     }
 
-    /** The profile a save was made for, and the deletion generation when it started. */
-    private data class SaveOrigin(val profileId: Int, val generation: Long)
+    /**
+     * The profile a snapshot was made for, and the deletion generation when it was captured.
+     * Capture it once with [captureOrigin] when the snapshot's data is produced, and pass the same
+     * origin to every save of that data, so a later save can't re-capture a newer profile.
+     */
+    data class SaveOrigin internal constructor(val profileId: Int, val generation: Long)
+
+    fun captureOrigin(): SaveOrigin = SaveOrigin(profileManager.activeProfileId.value, deletionGeneration.get())
 
     /**
      * Under [mutex]: the save's profile is still the active one and still exists, and no profile

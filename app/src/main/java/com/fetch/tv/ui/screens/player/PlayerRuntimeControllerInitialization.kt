@@ -1369,6 +1369,16 @@ internal fun PlayerRuntimeController.initializePlayer(
                         refreshStableProgressResetGate()
                     }
 
+                    override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                        if (!playWhenReady &&
+                            reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY
+                        ) {
+                            // Headphones / HDMI unplugged: treat like a user pause so no
+                            // autoplay path resumes playback behind the user's back.
+                            userPausedManually = true
+                        }
+                    }
+
                     override fun onIsPlayingChanged(isPlaying: Boolean) {
                         logScrobbleDiagnostic(
                             "exo_is_playing_changed",
@@ -1437,8 +1447,11 @@ internal fun PlayerRuntimeController.initializePlayer(
                         }
                         updateAudioControlAvailability()
                         // Start playback now that the first video frame is
-                        // visible: audio and video begin in sync.
-                        if (!startPaused && !userPausedManually) {
+                        // visible: audio and video begin in sync. Media3 fires this again
+                        // after every seek, so only autostart on the stream's first frame;
+                        // later calls must not override a pause from headphones, the
+                        // MediaSession or the still-watching prompt.
+                        if (isFirstFrame && !startPaused && !userPausedManually) {
                             playWhenReady = true
                             play()
                         }

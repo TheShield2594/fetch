@@ -696,6 +696,7 @@ internal fun PlayerRuntimeController.setPlaybackPaused(paused: Boolean) {
 }
 
 internal fun PlayerRuntimeController.pauseForStillWatchingPrompt() {
+    userPausedManually = true
     setPlaybackPaused(true)
     if (isUsingMpvEngine()) {
         stopProgressUpdates()

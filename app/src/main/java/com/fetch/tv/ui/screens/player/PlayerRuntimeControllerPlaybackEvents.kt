@@ -1232,7 +1232,8 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 publishPartyPlayback(paused = playing)
             } else {
                 _exoPlayer?.let { player ->
-                    if (player.isPlaying) {
+                    // isPlaying is false while buffering; playWhenReady is the user's intent.
+                    if (player.playWhenReady) {
                         userPausedManually = true
                         player.pause()
                         schedulePauseOverlay()
@@ -1247,6 +1248,12 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             }
             showControlsTemporarily()
         }
+        PlayerEvent.OnPlay -> {
+            if (!hasActivePlayIntent()) onEvent(PlayerEvent.OnPlayPause)
+        }
+        PlayerEvent.OnPause -> {
+            if (hasActivePlayIntent()) onEvent(PlayerEvent.OnPlayPause)
+        }
         PlayerEvent.OnSeekForward -> {
             if (isLiveSeekBlocked()) return
             onEvent(PlayerEvent.OnSeekBy(deltaMs = PlayerScrubRates.STEP_SHORT_MS))
@@ -1259,7 +1266,8 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             if (isLiveSeekBlocked()) return
             pendingPreviewSeekPosition = null
             val current = currentPlaybackPositionMs() ?: 0L
-            val maxDuration = currentPlaybackDurationMs().takeIf { it >= 0 } ?: Long.MAX_VALUE
+            // mpv reports 0 until the duration is known; treat that as unknown, not as a 0 ms cap.
+            val maxDuration = currentPlaybackDurationMs().takeIf { it > 0 } ?: Long.MAX_VALUE
             val requested = (current + event.deltaMs)
                 .coerceAtLeast(0L)
                 .coerceAtMost(maxDuration)
@@ -1281,7 +1289,8 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
         }
         is PlayerEvent.OnPreviewSeekBy -> {
             if (isLiveSeekBlocked()) return
-            val maxDuration = currentPlaybackDurationMs().takeIf { it >= 0 } ?: Long.MAX_VALUE
+            // mpv reports 0 until the duration is known; treat that as unknown, not as a 0 ms cap.
+            val maxDuration = currentPlaybackDurationMs().takeIf { it > 0 } ?: Long.MAX_VALUE
             val basePosition = pendingPreviewSeekPosition ?: currentPlaybackPositionMs()?.coerceAtLeast(0L) ?: 0L
             val target = (basePosition + event.deltaMs)
                 .coerceAtLeast(0L)

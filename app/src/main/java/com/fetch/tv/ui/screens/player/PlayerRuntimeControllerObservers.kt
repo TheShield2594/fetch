@@ -169,36 +169,6 @@ private fun PlayerRuntimeController.publishStreamSidecarSubtitlesWithoutAddonFet
     tryAutoSelectPreferredSubtitleFromAvailableTracks()
 }
 
-internal fun PlayerRuntimeController.refreshSubtitlesForCurrentEpisode() {
-    val keepDisabled = subtitleDisabledByPersistedPreference ||
-        (rememberedTrackPreference?.subtitle == PlayerRuntimeController.RememberedSubtitleSelection.Disabled)
-    if (!isUserExplicitSubtitleSelection && !keepDisabled) {
-        rememberedTrackPreference = rememberedTrackPreference?.copy(subtitle = null)
-    }
-    autoSubtitleSelected = keepDisabled
-    isUserExplicitSubtitleSelection = false
-    subtitleDisabledByPersistedPreference = keepDisabled
-    subtitleAddonRestoredByPersistedPreference = false
-    pendingRestoredAddonSubtitle = null
-    hasScannedTextTracksOnce = false
-    pendingAddonSubtitleLanguage = null
-    pendingAddonSubtitleTrackId = null
-    pendingAudioSelectionAfterSubtitleRefresh = null
-    resetSubtitleAutoSyncState()
-    attachedAddonSubtitleKeys = emptySet()
-    stopSidecarAddonSubtitle(clearView = true)
-    _uiState.update {
-        it.copy(
-            addonSubtitles = emptyList(),
-            selectedAddonSubtitle = null,
-            selectedSubtitleTrackIndex = if (keepDisabled) -1 else -1,
-            isLoadingAddonSubtitles = true,
-            addonSubtitlesError = null
-        )
-    }
-    fetchAddonSubtitles()
-}
-
 internal fun PlayerRuntimeController.withStreamSidecarSubtitles(addonSubtitles: List<Subtitle>): List<Subtitle> {
     if (streamSubtitles.isEmpty()) return filterToVisibleAddonSubtitles(addonSubtitles)
     return filterToVisibleAddonSubtitles(

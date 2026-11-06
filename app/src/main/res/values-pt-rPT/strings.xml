@@ -1082,10 +1082,6 @@
     <string name="player_error_title">Erro de reprodução</string>
     <string name="player_error_choose_source">Escolhe outra fonte</string>
     <string name="player_speed_title">Velocidade de Reprodução</string>
-    <string name="player_more_actions_title">Mais Ações</string>
-    <string name="player_more_speed">Velocidade de Reprodução</string>
-    <string name="player_more_aspect_ratio">Proporção do ecrã</string>
-    <string name="player_more_open_external">Abrir em Leitor Externo</string>
     <string name="player_error_no_stream_url">Esta fonte não tem link de stream. Escolhe outra fonte.</string>
     <string name="stream_info_section_source">FONTE</string>
     <string name="stream_info_section_file">FICHEIRO</string>

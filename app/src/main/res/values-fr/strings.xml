@@ -1445,10 +1445,6 @@
         <item quantity="other">Toujours en cours de chargement après %1$d secondes</item>
     </plurals>
     <string name="player_speed_title">Vitesse de lecture</string>
-    <string name="player_more_actions_title">Plus d’actions</string>
-    <string name="player_more_speed">Vitesse de lecture</string>
-    <string name="player_more_aspect_ratio">Format d’image</string>
-    <string name="player_more_open_external">Ouvrir dans un lecteur externe</string>
     <string name="player_error_no_stream_url">Cette source n’a pas de lien de flux. Choisissez une autre source.</string>
 
 

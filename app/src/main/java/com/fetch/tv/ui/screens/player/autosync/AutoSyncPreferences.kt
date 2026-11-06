@@ -1,8 +1,6 @@
 package com.fetch.tv.ui.screens.player.autosync
 
 import android.content.Context
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,10 +25,6 @@ internal object AutoSyncPreferences {
     private val _enabled = MutableStateFlow(false)
     val enabled: StateFlow<Boolean> = _enabled.asStateFlow()
 
-    /** [enabled] as Compose state, so the settings list can show the dependent rows only when on. */
-    private val _enabledState = mutableStateOf(false)
-    val enabledState: State<Boolean> get() = _enabledState
-
     /** Thorough search: stop only on a stronger match; the applied match is gated the same. */
     private val _aggressiveMode = MutableStateFlow(true)
     val aggressiveMode: StateFlow<Boolean> = _aggressiveMode.asStateFlow()
@@ -46,7 +40,6 @@ internal object AutoSyncPreferences {
             if (initialized) return
             val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             _enabled.value = prefs.getBoolean(KEY_ENABLED, false)
-            _enabledState.value = _enabled.value
             _aggressiveMode.value = prefs.getBoolean(KEY_AGGRESSIVE_MODE, true)
             _syncToleranceMs.value = prefs.getInt(KEY_SYNC_TOLERANCE_MS, 0)
                 .takeIf { it in syncToleranceOptionsMs } ?: 0
@@ -74,7 +67,6 @@ internal object AutoSyncPreferences {
         ensureLoaded(context)
         if (_enabled.value == enabled) return
         _enabled.value = enabled
-        _enabledState.value = enabled
         context.applicationContext
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()

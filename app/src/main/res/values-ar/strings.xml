@@ -1121,10 +1121,6 @@
     <string name="player_error_title">خطأ في التشغيل</string>
     <string name="player_error_choose_source">اختر مصدراً آخر</string>
     <string name="player_speed_title">سرعة التشغيل</string>
-    <string name="player_more_actions_title">إجراءات إضافية</string>
-    <string name="player_more_speed">سرعة التشغيل</string>
-    <string name="player_more_aspect_ratio">نسبة العرض إلى الارتفاع</string>
-    <string name="player_more_open_external">فتح في مشغل خارجي</string>
     <string name="player_error_no_stream_url">لا يحتوي هذا المصدر على رابط بث. يرجى اختيار مصدر آخر.</string>
 
     <!-- StreamInfoOverlay -->

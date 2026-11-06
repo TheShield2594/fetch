@@ -451,14 +451,6 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             }
         }
 
-        private fun cacheProbeInfo(url: String, headers: Map<String, String>, contentLength: Long, acceptsRanges: Boolean) {
-            val sanitizedHeaders = sanitizeHeaders(headers)
-            val cacheKey = buildMimeProbeCacheKey(url, sanitizedHeaders)
-            synchronized(probeInfoCache) {
-                probeInfoCache[cacheKey] = StreamProbeInfo(contentLength, acceptsRanges)
-            }
-        }
-
         private fun buildMimeProbeCacheKey(url: String, headers: Map<String, String>): String {
             if (headers.isEmpty()) return url
             return buildString {

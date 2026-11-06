@@ -1277,10 +1277,6 @@
         <item quantity="other">Ancora in caricamento da %1$d secondi</item>
     </plurals>
 <string name="player_speed_title">Velocità di riproduzione</string>
-<string name="player_more_actions_title">Altre azioni</string>
-<string name="player_more_speed">Velocità di riproduzione</string>
-<string name="player_more_aspect_ratio">Proporzioni</string>
-<string name="player_more_open_external">Apri in un player esterno</string>
 <string name="player_error_no_stream_url">Questa sorgente non ha un link allo stream. Scegli un’altra sorgente.</string>
 
 

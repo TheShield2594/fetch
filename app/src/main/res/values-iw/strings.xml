@@ -1447,10 +1447,6 @@
         <item quantity="other">עדיין בטעינה אחרי %1$d שניות</item>
     </plurals>
     <string name="player_speed_title">מהירות הפעלה</string>
-    <string name="player_more_actions_title">פעולות נוספות</string>
-    <string name="player_more_speed">מהירות הפעלה</string>
-    <string name="player_more_aspect_ratio">יחס גובה-רוחב</string>
-    <string name="player_more_open_external">פתיחה בנגן חיצוני</string>
     <string name="player_error_no_stream_url">למקור הזה אין קישור לסטרים. יש לבחור מקור אחר.</string>
 
 

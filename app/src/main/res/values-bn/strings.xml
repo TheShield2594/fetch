@@ -1343,10 +1343,6 @@
     <string name="player_report_issue_failed">রিপোর্ট পাঠানো যায়নি</string>
     <string name="player_report_loading_issue">লোডিংয়ের সমস্যা রিপোর্ট করুন</string>
     <string name="player_speed_title">প্লেব্যাক স্পিড</string>
-    <string name="player_more_actions_title">আরও অপশন</string>
-    <string name="player_more_speed">প্লেব্যাক স্পিড</string>
-    <string name="player_more_aspect_ratio">অ্যাসপেক্ট রেশিও</string>
-    <string name="player_more_open_external">এক্সটার্নাল প্লেয়ারে খুলুন</string>
     <string name="player_error_no_stream_url">এই সোর্সে কোনো স্ট্রিম লিংক নেই। অন্য একটি সোর্স বেছে নিন।</string>
     <string name="stream_info_section_source">সোর্স</string>
     <string name="stream_info_section_file">ফাইল</string>

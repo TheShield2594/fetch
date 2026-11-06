@@ -1437,10 +1437,6 @@
         <item quantity="other">A betöltés %1$d másodperc után is tart</item>
     </plurals>
     <string name="player_speed_title">Lejátszási sebesség</string>
-    <string name="player_more_actions_title">További műveletek</string>
-    <string name="player_more_speed">Lejátszási sebesség</string>
-    <string name="player_more_aspect_ratio">Képarány</string>
-    <string name="player_more_open_external">Megnyitás külső lejátszóban</string>
     <string name="player_error_no_stream_url">Ennek a forrásnak nincs stream linkje. Válassz másik forrást.</string>
 
 

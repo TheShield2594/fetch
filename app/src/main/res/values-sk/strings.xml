@@ -1070,10 +1070,6 @@
     <string name="player_error_title">Chyba prehrávania</string>
     <string name="player_error_choose_source">Vyberte iný zdroj</string>
     <string name="player_speed_title">Rýchlosť prehrávania</string>
-    <string name="player_more_actions_title">Ďalšie akcie</string>
-    <string name="player_more_speed">Rýchlosť prehrávania</string>
-    <string name="player_more_aspect_ratio">Pomer strán</string>
-    <string name="player_more_open_external">Otvoriť v externom prehrávači</string>
 
     
     <string name="stream_info_section_source">ZDROJ</string>

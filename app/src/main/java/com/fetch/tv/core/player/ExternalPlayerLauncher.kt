@@ -103,28 +103,4 @@ object ExternalPlayerLauncher {
             ).show()
             false
         }
-    }
-
-    /**
-     * Create an [ExternalPlayerInput] for use with [ExternalPlayerResultContract].
-     * Prefer this over [launch] when you have an Activity context and want to receive
-     * playback progress back from the external player.
-     */
-    fun createInput(
-        url: String,
-        title: String? = null,
-        headers: Map<String, String>? = null,
-        resumePositionMs: Long = 0L,
-        startFromBeginning: Boolean = false,
-        subtitles: List<SubtitleInput>? = null,
-        skipSegmentsJson: String? = null
-    ): ExternalPlayerInput = ExternalPlayerInput(
-        url = url,
-        title = title,
-        headers = headers,
-        resumePositionMs = resumePositionMs,
-        startFromBeginning = startFromBeginning,
-        subtitles = subtitles,
-        skipSegmentsJson = skipSegmentsJson
-    )
 }

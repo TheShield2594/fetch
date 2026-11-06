@@ -24,23 +24,4 @@ internal object PlayerStartupLoadingPolicy {
     ): Boolean {
         return error == null && showLoadingOverlay && !hasRenderedFirstFrame
     }
-
-    fun shouldReopenLoadingOverlayOnStartupBuffering(
-        loadingOverlayEnabled: Boolean,
-        showLoadingOverlay: Boolean,
-        hasRenderedFirstFrame: Boolean,
-        isBuffering: Boolean,
-    ): Boolean {
-        return isBuffering &&
-            !hasRenderedFirstFrame &&
-            loadingOverlayEnabled &&
-            !showLoadingOverlay
-    }
-
-    fun shouldUpdateBufferingMessageBeforeFirstFrame(
-        hasRenderedFirstFrame: Boolean,
-        isBuffering: Boolean,
-    ): Boolean {
-        return isBuffering && !hasRenderedFirstFrame
-    }
 }

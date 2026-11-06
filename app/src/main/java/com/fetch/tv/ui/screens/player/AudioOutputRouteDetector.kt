@@ -5,7 +5,6 @@ import android.content.Context
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.Build
-import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import java.util.Locale
 
@@ -159,13 +158,5 @@ internal object AudioOutputRouteDetector {
             intArrayOf(C.ENCODING_PCM_16BIT),
             /* maxChannelCount= */ 8
         )
-    }
-
-    /** Playback attributes used by ExoPlayer for media (matches Media3 probes). */
-    fun mediaMovieAudioAttributes(): AudioAttributes {
-        return AudioAttributes.Builder()
-            .setUsage(C.USAGE_MEDIA)
-            .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
-            .build()
     }
 }

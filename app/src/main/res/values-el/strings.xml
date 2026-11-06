@@ -1341,10 +1341,6 @@
   <string name="player_error_choose_source">Επιλέξτε άλλη πηγή</string>
   <string name="player_switch_to_mpv">Εναλλαγή σε MPV</string>
   <string name="player_speed_title">Ταχύτητα αναπαραγωγής</string>
-  <string name="player_more_actions_title">Περισσότερες ενέργειες</string>
-  <string name="player_more_speed">Ταχύτητα αναπαραγωγής</string>
-  <string name="player_more_aspect_ratio">Αναλογία εικόνας</string>
-  <string name="player_more_open_external">Άνοιγμα σε εξωτερικό πρόγραμμα</string>
   <!-- StreamInfoOverlay -->
   <string name="stream_info_section_source">ΠΗΓΗ</string>
   <string name="stream_info_section_file">ΑΡΧΕΙΟ</string>

@@ -893,10 +893,6 @@
         <item quantity="other">Всё ещё загружается спустя %1$d секунд</item>
     </plurals>
     <string name="player_speed_title">Скорость воспроизведения</string>
-    <string name="player_more_actions_title">Дополнительные действия</string>
-    <string name="player_more_speed">Скорость воспроизведения</string>
-    <string name="player_more_aspect_ratio">Соотношение сторон</string>
-    <string name="player_more_open_external">Открыть во внешнем плеере</string>
 
     <!-- StreamInfoOverlay -->
     <string name="stream_info_section_source">ИСТОЧНИК</string>

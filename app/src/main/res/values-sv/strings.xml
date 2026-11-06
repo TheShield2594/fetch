@@ -602,10 +602,6 @@
     <string name="player_error_title">Uppspelningsfel</string>
     <string name="player_error_choose_source">Välj en annan källa</string>
     <string name="player_speed_title">Uppspelningshastighet</string>
-    <string name="player_more_actions_title">Fler åtgärder</string>
-    <string name="player_more_speed">Uppspelningshastighet</string>
-    <string name="player_more_aspect_ratio">Bildförhållande</string>
-    <string name="player_more_open_external">Öppna i extern spelare</string>
 
     <!-- StreamSourcesSidePanel -->
     <string name="sources_title">Källor</string>

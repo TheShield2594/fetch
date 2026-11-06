@@ -596,10 +596,6 @@
     <string name="player_error_title">प्लेबैक त्रुटि</string>
     <string name="player_error_choose_source">कोई दूसरा सोर्स चुनें</string>
     <string name="player_speed_title">प्लेबैक गति</string>
-    <string name="player_more_actions_title">अधिक विकल्प</string>
-    <string name="player_more_speed">प्लेबैक गति</string>
-    <string name="player_more_aspect_ratio">आस्पेक्ट रेशियो</string>
-    <string name="player_more_open_external">एक्सटर्नल प्लेयर में खोलें</string>
 
     <!-- StreamSourcesSidePanel -->
     <string name="sources_title">सोर्स</string>

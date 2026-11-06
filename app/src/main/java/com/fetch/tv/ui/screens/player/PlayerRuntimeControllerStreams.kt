@@ -968,7 +968,6 @@ internal fun PlayerRuntimeController.loadStreamsForEpisode(video: Video, forceRe
     episodeStreamsScope = newScope
     episodeStreamsJob = newScope.launch {
         episodeStreamsCacheRequestKey = requestKey
-        val previousAddonFilter = _uiState.value.episodeSelectedAddonFilter
         _uiState.update {
             it.copy(
                 showEpisodeStreams = true,

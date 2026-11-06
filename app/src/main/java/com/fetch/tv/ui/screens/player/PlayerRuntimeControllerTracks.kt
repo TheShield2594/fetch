@@ -444,10 +444,6 @@ private fun Tracks.hasAssSsaTextTrack(): Boolean {
     return false
 }
 
-// Profile 7 only: it's the profile AUTO conversion rewrites. DV5/DV8 don't convert, so they
-// shouldn't trigger a libass-drop reload.
-private val DV_PROFILE_7_CODEC = Regex("^(dvhe|dvh1|dvav|dva1)\\.0?7\\.")
-
 private val DV_CODEC_PREFIX = Regex("^(dvhe|dvh1|dvav|dva1|dav1)\\.")
 
 /** PQ (HDR10/HDR10+), HLG or Dolby Vision video, whose bright output calls for the HDR subtitle style. */
@@ -456,17 +452,6 @@ private fun Format.isHdrVideoFormat(): Boolean {
     if (transfer == C.COLOR_TRANSFER_ST2084 || transfer == C.COLOR_TRANSFER_HLG) return true
     if (sampleMimeType == MimeTypes.VIDEO_DOLBY_VISION) return true
     return DV_CODEC_PREFIX.containsMatchIn(codecs?.lowercase(Locale.US).orEmpty())
-}
-
-private fun Tracks.hasDolbyVisionProfile7VideoTrack(): Boolean {
-    groups.forEach { trackGroup ->
-        if (trackGroup.type != C.TRACK_TYPE_VIDEO) return@forEach
-        for (index in 0 until trackGroup.length) {
-            val codec = trackGroup.getTrackFormat(index).codecs?.lowercase(Locale.US).orEmpty()
-            if (DV_PROFILE_7_CODEC.containsMatchIn(codec)) return true
-        }
-    }
-    return false
 }
 
 // Profiles that the DolbyVisionExtractorsFactory actually converts (7 always, 5 when enabled).

@@ -1705,10 +1705,6 @@
         <item quantity="other">Still loading after %1$d seconds</item>
     </plurals>
     <string name="player_speed_title">Playback Speed</string>
-    <string name="player_more_actions_title">More Actions</string>
-    <string name="player_more_speed">Playback Speed</string>
-    <string name="player_more_aspect_ratio">Aspect Ratio</string>
-    <string name="player_more_open_external">Open in External Player</string>
     <string name="player_error_no_stream_url">This source has no stream link. Choose another source.</string>
 
 

@@ -49,7 +49,6 @@ object FetchExoPlayerPerformanceHelper {
     const val DEFAULT_FETCH_ALLOCATOR_SEGMENT_SIZE = 64 * 1024        // 64 KB
 
     const val DEFAULT_FETCH_TARGET_BUFFER_MB = 175
-    const val DEFAULT_FETCH_TARGET_BUFFER_BYTES = DEFAULT_FETCH_TARGET_BUFFER_MB * 1024 * 1024
     const val DEFAULT_FETCH_MIN_BUFFER_MS = 15_000
     const val DEFAULT_FETCH_MAX_BUFFER_MS = 45_000
     // A short back buffer keeps a small seek back off the network.
@@ -195,14 +194,6 @@ object FetchExoPlayerPerformanceHelper {
             cachedDevicePhysicalRamBytes = ram
         }
         return ram
-    }
-
-    /**
-     * Gets the total physical memory of the device in GB.
-     */
-    fun getDevicePhysicalRamGb(context: Context): Double {
-        val totalBytes = getDevicePhysicalRamBytes(context)
-        return totalBytes.toDouble() / (1024.0 * 1024.0 * 1024.0)
     }
 
     /**
@@ -407,15 +398,6 @@ object FetchExoPlayerPerformanceHelper {
             .protocols(listOf(okhttp3.Protocol.HTTP_1_1))
 
     // ─── Audio Renderer ───────────────────────────────────────────────────────
-
-    /**
-     * Returns `true` when the audio renderer should bypass the codec for a
-     * non-PCM format that the sink supports directly. Only active when
-     * performance mode is enabled.
-     */
-    fun shouldBypassForNonPcmFormat(): Boolean {
-        return enabled
-    }
 
     // ─── Memory Logging ───────────────────────────────────────────────────────
 

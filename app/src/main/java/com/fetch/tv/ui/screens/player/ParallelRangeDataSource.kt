@@ -146,11 +146,6 @@ internal class ParallelRangeDataSource(
 
         private val obsAnnounced = AtomicBoolean(false)
 
-        fun hudClampCooldownRemainingMs(nowUptimeMs: Long): Long {
-            if (!hudClampLatched) return 0L
-            return (hudNextStepAtMs - nowUptimeMs).coerceAtLeast(0L)
-        }
-
         private class ChunkSession(
             val requestUri: Uri,
 
@@ -764,7 +759,6 @@ internal class ParallelRangeDataSource(
         Log.d(TAG, "Parallel mode: ${parallelConnections} connections, ${chunkSize / 1024 / 1024}MB chunks, " +
                 "file=${totalFileLength / 1024 / 1024}MB, resolved=${resolvedUri?.host}")
 
-        val firstChunkIndex = position / chunkSize
         if (openLength > 0L) {
             val bootstrapBytes = minOf(minOf(chunkSize, BOOTSTRAP_READ_BYTES), openLength).toInt()
             val diagReadStartMs = SystemClock.uptimeMillis()

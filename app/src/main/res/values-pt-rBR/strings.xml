@@ -1309,10 +1309,6 @@
         <item quantity="other">Ainda carregando após %1$d segundos</item>
     </plurals>
     <string name="player_speed_title">Velocidade de reprodução</string>
-    <string name="player_more_actions_title">Mais opções</string>
-    <string name="player_more_speed">Velocidade de reprodução</string>
-    <string name="player_more_aspect_ratio">Proporção</string>
-    <string name="player_more_open_external">Abrir em Player Externo</string>    
     <string name="player_error_no_stream_url">Esta fonte não tem link de vídeo. Escolha outra fonte.</string>
     
  

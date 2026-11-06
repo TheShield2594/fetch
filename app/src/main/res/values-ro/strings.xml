@@ -477,10 +477,6 @@
     <string name="player_error_title">Eroare de redare</string>
     <string name="player_error_choose_source">Alege altă sursă</string>
     <string name="player_speed_title">Viteză redare</string>
-    <string name="player_more_actions_title">Mai multe acțiuni</string>
-    <string name="player_more_speed">Viteză redare</string>
-    <string name="player_more_aspect_ratio">Raport de aspect</string>
-    <string name="player_more_open_external">Deschide în player extern</string>
 
     <!-- StreamSourcesSidePanel -->
     <string name="sources_title">Surse</string>

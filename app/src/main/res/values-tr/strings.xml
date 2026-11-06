@@ -1446,10 +1446,6 @@
             <item quantity="other">%1$d saniye geçmesine rağmen hala yükleniyor</item>
         </plurals>
     <string name="player_speed_title">Oynatma Hızı</string>
-    <string name="player_more_actions_title">Daha Fazla</string>
-    <string name="player_more_speed">Oynatma Hızı</string>
-    <string name="player_more_aspect_ratio">Görüntü Oranı</string>
-    <string name="player_more_open_external">Harici Oynatıcıda Aç</string>
 
     <!-- StreamInfoOverlay -->
     <string name="stream_info_section_source">KAYNAK</string>

@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import com.fetch.tv.R
-import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
 @HiltViewModel
@@ -359,7 +358,12 @@ class PlayerViewModel @Inject constructor(
         val headers = controller.getCurrentHeaders()
         // Capture already-loaded addon subtitles before handing off. Preparation stays in the
         // ViewModel scope because the player screen remains alive until the intent is sent.
-        val subtitleInputs = if (controller.uiState.value.subtitleStyle.preferredLanguage.trim().lowercase() != "none") {
+        val subtitleStyle = controller.uiState.value.subtitleStyle
+        val preferredSubtitleLanguages = listOfNotNull(
+            subtitleStyle.preferredLanguage,
+            subtitleStyle.secondaryPreferredLanguage
+        )
+        val subtitleInputs = if (subtitleStyle.preferredLanguage.trim().lowercase() != "none") {
             val addonSubtitles = controller.uiState.value.addonSubtitles
             if (addonSubtitles.isNotEmpty()) {
                 addonSubtitles.map {
@@ -375,9 +379,11 @@ class PlayerViewModel @Inject constructor(
         viewModelScope.launch {
             val cachedSubtitles = subtitleInputs?.let { inputs ->
                 try {
-                    withTimeoutOrNull(10_000L) {
-                        subtitleFileCache.cacheSubtitles(inputs)
-                    }
+                    // Bounded internally (parallel downloads, per-file and overall timeouts) and
+                    // keeps partial results, so no outer timeout that would discard them all.
+                    subtitleFileCache.cacheSubtitles(inputs, preferredSubtitleLanguages)
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
                 } catch (_: Exception) {
                     // Subtitle forwarding is best-effort; the external launch must still proceed.
                     null

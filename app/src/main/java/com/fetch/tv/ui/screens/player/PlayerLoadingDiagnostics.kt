@@ -157,7 +157,6 @@ internal fun PlayerRuntimeController.buildPlaybackIssueLoadingInput(reportReason
         exoIsLoading = player?.isLoading,
         exoPlayWhenReady = player?.playWhenReady,
         mpvAttached = mpvView != null,
-        startupRetryCount = startupRetryCount,
         errorRetryCount = errorRetryCount,
         timeoutRecoveryAttempts = timeoutRecoveryAttempts,
         isLoadingAddonSubtitles = state.isLoadingAddonSubtitles,

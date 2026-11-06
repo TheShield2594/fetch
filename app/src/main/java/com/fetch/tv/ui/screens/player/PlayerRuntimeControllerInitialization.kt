@@ -197,12 +197,9 @@ internal fun PlayerRuntimeController.initializePlayer(
                 shouldEnforceAutoplayOnFirstReady = false
             }
             val applyPcmFallbackOnStartup = pendingAudioPcmFallbackRebuild
-            val applyDv7FallbackOnStartup = forceDv7ToHevc
             if (!applyPcmFallbackOnStartup) {
                 hasTriedAudioPcmFallback = false
             }
-            hasTriedDv7HevcFallback = false
-            forceDv7ToHevc = false
             mpvDelayStartAfterAfrSwitch = false
             playerInitializationStartedAtMs = System.currentTimeMillis()
             // Reset per playback; only the ExoPlayer custom-buffer path sets a real value.
@@ -1533,6 +1530,12 @@ internal fun PlayerRuntimeController.initializePlayer(
                             }
                             dv7ToHevcForcedStreamUrls.add(currentStreamUrl)
                             retryCurrentStreamWithDolbyVisionFallback(currentPosition)
+                            return
+                        }
+
+                        // Decoder init (4003) failed on a Dolby Vision track: retry once with
+                        // the DV7-to-HEVC mapping so the HEVC decoder plays the base layer.
+                        if (tryDv7HevcFallback(error, currentPosition)) {
                             return
                         }
 

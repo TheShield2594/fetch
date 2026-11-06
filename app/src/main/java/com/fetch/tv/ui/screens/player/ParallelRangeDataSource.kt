@@ -651,20 +651,8 @@ internal class ParallelRangeDataSource(
                 remaining
             }
             bootstrapPrefetchDeferred = true
-
-            val cachedTail = PrefetchWindowStore.peekTail(dataSpec.uri, position)
-            if (cachedTail != null) {
-                bootstrapChunk = DownloadedChunk(
-                    PooledBuffer(ByteBuffer.wrap(cachedTail.bootstrapData), fromAllocator = false),
-                    cachedTail.bootstrapSize
-                )
-                bootstrapStartPosition = cachedTail.startPosition
-                pendingContinuationOpen = false
-            } else {
-
-                pendingContinuationOpen = allowContinuationReopen &&
-                    attachedSession.futures[position / chunkSize] == null
-            }
+            pendingContinuationOpen = allowContinuationReopen &&
+                attachedSession.futures[position / chunkSize] == null
             Log.d(
                 TAG,
                 "Attached to warm session for reopen at $position, " +
@@ -673,7 +661,7 @@ internal class ParallelRangeDataSource(
             return bytesRemaining
         }
 
-        (consumeBootstrapCache(dataSpec) ?: PrefetchWindowStore.consumeHead(dataSpec))?.let { cached ->
+        consumeBootstrapCache(dataSpec)?.let { cached ->
             resolvedUri = cached.resolvedUri
             onResolvedUri(resolvedUri)
             totalFileLength = cached.totalFileLength
@@ -1618,99 +1606,6 @@ internal class ParallelRangeDataSource(
                     startupBootstrapCache = entry
                 }
             )
-        }
-    }
-}
-
-internal object PrefetchWindowStore {
-    private const val TAG = "ParallelRangeDS"
-    private const val TTL_MS = 300_000L
-    const val TAIL_WINDOW_BYTES = 4_194_304L
-
-    private const val STORE_CAP = 8
-
-    private val headEntries = object : LinkedHashMap<Uri, ParallelRangeDataSource.BootstrapCacheEntry>(STORE_CAP, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Uri, ParallelRangeDataSource.BootstrapCacheEntry>?): Boolean {
-            return size > STORE_CAP
-        }
-    }
-
-    private val tailEntries = object : LinkedHashMap<Uri, ParallelRangeDataSource.BootstrapCacheEntry>(STORE_CAP, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Uri, ParallelRangeDataSource.BootstrapCacheEntry>?): Boolean {
-            return size > STORE_CAP
-        }
-    }
-
-    fun putHead(entry: ParallelRangeDataSource.BootstrapCacheEntry) {
-        synchronized(headEntries) {
-            headEntries[entry.requestUri] = entry
-        }
-        Log.i(
-            TAG,
-            "PREFETCH_WINDOW put head bytes=${entry.bootstrapSize} " +
-                "total=${entry.totalFileLength} host=${entry.resolvedUri?.host}"
-        )
-    }
-
-    fun putTail(entry: ParallelRangeDataSource.BootstrapCacheEntry) {
-        synchronized(tailEntries) {
-            tailEntries[entry.requestUri] = entry
-        }
-        Log.i(TAG, "PREFETCH_WINDOW put tail start=${entry.startPosition} bytes=${entry.bootstrapSize}")
-    }
-
-    fun consumeHead(dataSpec: DataSpec): ParallelRangeDataSource.BootstrapCacheEntry? {
-        if (dataSpec.position != 0L) return null
-        if (dataSpec.length != C.LENGTH_UNSET.toLong()) return null
-        val cached = synchronized(headEntries) {
-            val entry = headEntries[dataSpec.uri] ?: return null
-            if (SystemClock.uptimeMillis() - entry.createdAtUptimeMs > TTL_MS) {
-                headEntries.remove(dataSpec.uri)
-                return null
-            }
-            if (entry.startPosition != 0L) return null
-
-            headEntries.remove(dataSpec.uri)
-            entry
-        }
-        Log.i(TAG, "PREFETCH_WINDOW head hit bytes=${cached.bootstrapSize} total=${cached.totalFileLength}")
-        return cached
-    }
-
-    fun peekTail(uri: Uri, position: Long): ParallelRangeDataSource.BootstrapCacheEntry? {
-        val cached = synchronized(tailEntries) {
-            val entry = tailEntries[uri] ?: return null
-            if (SystemClock.uptimeMillis() - entry.createdAtUptimeMs > TTL_MS) {
-                tailEntries.remove(uri)
-                return null
-            }
-            if (position < entry.startPosition || position >= entry.startPosition + entry.bootstrapSize) return null
-
-            entry
-        }
-        Log.i(TAG, "PREFETCH_WINDOW tail hit pos=$position start=${cached.startPosition}")
-        return cached
-    }
-
-    fun hasFreshTail(uri: Uri): Boolean {
-        return synchronized(tailEntries) {
-            val entry = tailEntries[uri] ?: return false
-            if (SystemClock.uptimeMillis() - entry.createdAtUptimeMs > TTL_MS) {
-                tailEntries.remove(uri)
-                return false
-            }
-            true
-        }
-    }
-
-    fun peekHead(uri: Uri): ByteArray? {
-        return synchronized(headEntries) {
-            val entry = headEntries[uri] ?: return null
-            if (SystemClock.uptimeMillis() - entry.createdAtUptimeMs > TTL_MS) {
-                headEntries.remove(uri)
-                return null
-            }
-            entry.bootstrapData
         }
     }
 }

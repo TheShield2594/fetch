@@ -107,7 +107,6 @@ class PlayerRuntimeController(
         internal const val TAG = "PlayerViewModel"
         internal const val SWITCH_TRACE_TAG = "SwitchTrace"
         internal const val SWITCH_TRACE_ENABLED = false
-        internal const val TRACK_FRAME_RATE_GRACE_MS = 1500L
         internal const val FIRST_FRAME_TIMEOUT_MS = 12_000L
         // Stall watchdog: re-seeks past the buffered edge if bufferedPosition stops
         // advancing during STATE_BUFFERING. Fires before OkHttp's readTimeout.
@@ -416,8 +415,6 @@ class PlayerRuntimeController(
     internal var hideSeekOverlayJob: Job? = null
     internal var watchProgressSaveJob: Job? = null
     internal var seekProgressSyncJob: Job? = null
-    internal var frameRateProbeJob: Job? = null
-    internal var frameRateProbeToken: Long = 0L
     internal val afrPreflightGate = AfrPreflightGate()
     internal var hideAspectRatioIndicatorJob: Job? = null
     internal var hideStreamSourceIndicatorJob: Job? = null
@@ -649,9 +646,6 @@ class PlayerRuntimeController(
     internal var cachedDecoderPriority: Int = 1
     internal var hasTriedAudioPcmFallback: Boolean = false
     internal var pendingAudioPcmFallbackRebuild: Boolean = false
-    internal var hasTriedDv7HevcFallback: Boolean = false
-    internal var forceDv7ToHevc: Boolean = false
-    internal var startupRetryCount: Int = 0
     internal var parsingErrorProbeAttempted: Boolean = false
     internal var hasRetriedCurrentStreamAfterUnexpectedNpe: Boolean = false
     internal var hasRetriedCurrentStreamAfterMediaPeriodHolderCrash: Boolean = false

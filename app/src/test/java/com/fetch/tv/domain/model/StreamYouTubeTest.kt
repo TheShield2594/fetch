@@ -89,19 +89,7 @@ class StreamYouTubeTest {
         type = "debrid",
         infoHash = "abcdef",
         fileIdx = null,
-        magnetUri = "magnet:?xt=urn:btih:abcdef",
-        sources = null,
         torrentName = "Torrent",
-        filename = "video.mkv",
-        mediaType = "movie",
-        mediaId = "tt1",
-        mediaOnlyId = "tt1",
-        title = "Title",
-        season = null,
-        episode = null,
-        service = "torbox",
-        serviceIndex = 0,
-        serviceExtension = null,
-        isCached = true
+        filename = "video.mkv"
     )
 }

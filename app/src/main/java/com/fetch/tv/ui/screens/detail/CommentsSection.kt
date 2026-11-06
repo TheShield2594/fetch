@@ -1074,15 +1074,6 @@ private fun formatCommentTimestamp(createdAt: String?, updatedAt: String?): Stri
     return formatter.format(instant.atZone(ZoneId.systemDefault()))
 }
 
-private fun commentMaxLines(length: Int): Int = when {
-    length <= 160 -> 7
-    length <= 280 -> 10
-    length <= 420 -> 13
-    length <= 650 -> 17
-    length <= 900 -> 22
-    else -> 28
-}
-
 private fun selectedEpisodeLabel(video: Video): String {
     val season = video.season ?: 0
     val episode = video.episode ?: 0

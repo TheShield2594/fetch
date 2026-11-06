@@ -386,10 +386,8 @@ class MetaDetailsViewModel @Inject constructor(
     fun onEvent(event: MetaDetailsEvent) {
         when (event) {
             is MetaDetailsEvent.OnSeasonSelected -> selectSeason(event.season)
-            is MetaDetailsEvent.OnEpisodeClick -> { /* Navigate to stream */ }
             is MetaDetailsEvent.OnCommentsModeSelected -> selectCommentsMode(event.mode)
             is MetaDetailsEvent.OnCommentsEpisodeSelected -> selectCommentsEpisode(event.video)
-            MetaDetailsEvent.OnPlayClick -> { /* Start playback */ }
             MetaDetailsEvent.OnToggleLibrary -> toggleLibrary()
             MetaDetailsEvent.OnRetry -> loadMeta()
             MetaDetailsEvent.OnRetryComments -> _uiState.value.meta?.let { loadComments(it, forceRefresh = true) }
@@ -397,7 +395,6 @@ class MetaDetailsViewModel @Inject constructor(
             is MetaDetailsEvent.OnCommentSelected -> openCommentOverlay(event.review)
             is MetaDetailsEvent.OnAdvanceCommentOverlay -> advanceCommentOverlay(event.direction)
             MetaDetailsEvent.OnDismissCommentOverlay -> dismissCommentOverlay()
-            MetaDetailsEvent.OnBackPress -> { /* Handle in screen */ }
             MetaDetailsEvent.OnUserInteraction -> handleUserInteraction()
             MetaDetailsEvent.OnPlayButtonFocused -> handlePlayButtonFocused()
             MetaDetailsEvent.OnTrailerButtonClick -> handleTrailerButtonClick()
@@ -2914,11 +2911,6 @@ class MetaDetailsViewModel @Inject constructor(
             genres = genres,
             addonBaseUrl = preferredAddonBaseUrl
         )
-    }
-
-    fun getNextEpisodeInfo(): String? {
-        val nextToWatch = _uiState.value.nextToWatch
-        return nextToWatch?.displayText
     }
 
     // --- Trailer ---

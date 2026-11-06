@@ -158,7 +158,6 @@ internal fun HomeViewModel.clearCatalogData() {
     synchronized(catalogStateLock) {
         catalogsMap.clear()
         catalogItemKeyIndex.clear()
-        truncatedRowCache.clear()
         pendingLazyCatalogs.clear()
         placeholderDescriptors.clear()
     }
@@ -201,27 +200,10 @@ internal inline fun HomeViewModel.updateIndexedCatalogItem(
             val mutableItems = row.items.toMutableList()
             mutableItems[itemIndex] = updatedItem
             catalogsMap[key] = row.copy(items = mutableItems)
-            truncatedRowCache.remove(key)
             changed = true
         }
 
         changed
-    }
-}
-
-internal fun HomeViewModel.getTruncatedRowCacheEntry(key: String): HomeViewModel.TruncatedRowCacheEntry? = synchronized(catalogStateLock) {
-    truncatedRowCache[key]
-}
-
-internal fun HomeViewModel.putTruncatedRowCacheEntry(key: String, entry: HomeViewModel.TruncatedRowCacheEntry) {
-    synchronized(catalogStateLock) {
-        truncatedRowCache[key] = entry
-    }
-}
-
-internal fun HomeViewModel.removeTruncatedRowCacheEntry(key: String) {
-    synchronized(catalogStateLock) {
-        truncatedRowCache.remove(key)
     }
 }
 

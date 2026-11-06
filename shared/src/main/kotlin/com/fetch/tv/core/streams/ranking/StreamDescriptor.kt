@@ -71,8 +71,6 @@ data class StreamDescriptor(
     val dolbyVisionProfile: Int? = null,
     val audio: Set<AudioFormat> = emptySet(),
     val hasAtmos: Boolean = false,
-    /** Highest channel layout mentioned, e.g. 2, 6 (5.1), 8 (7.1). */
-    val audioChannels: Int? = null,
     val sizeBytes: Long? = null,
     val source: ReleaseSource = ReleaseSource.UNKNOWN,
     val is3d: Boolean = false,

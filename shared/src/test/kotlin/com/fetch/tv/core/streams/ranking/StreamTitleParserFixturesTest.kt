@@ -109,8 +109,6 @@ class StreamTitleParserFixturesTest {
                 if ("atmos" in audio && !parsed.hasAtmos) add("no Atmos, Comet says Atmos")
                 if ("truehd" in audio && AudioFormat.TRUEHD !in parsed.audio) add("no TrueHD, Comet says TrueHD")
                 if ("dts lossless" in audio && parsed.audio.none { it.hasDtsCore }) add("audio ${parsed.audio}, Comet says DTS Lossless")
-                if ("7.1" in audio && parsed.audioChannels != 8) add("channels ${parsed.audioChannels}, Comet says 7.1")
-                if ("5.1" in audio && parsed.audioChannels != 6) add("channels ${parsed.audioChannels}, Comet says 5.1")
                 if (group != null && parsed.releaseGroup != group) add("group ${parsed.releaseGroup}, Comet says $group")
                 if (seeders != null && parsed.seeders != seeders) add("seeders ${parsed.seeders}, Comet says $seeders")
             }.takeIf { it.isNotEmpty() }?.let { "${fixture.key}: ${it.joinToString("; ")}" }
@@ -202,7 +200,6 @@ class StreamTitleParserFixturesTest {
             d.hdr.joinToString(",") { it.name },
             d.dolbyVisionProfile?.toString().orEmpty(),
             d.audio.joinToString(",") { it.name } + if (d.hasAtmos) "+ATMOS" else "",
-            d.audioChannels?.toString().orEmpty(),
             d.sizeBytes?.let { StreamDescriptor.formatSize(it) }.orEmpty(),
             d.source.name,
             d.bitDepth?.toString().orEmpty(),
@@ -233,7 +230,7 @@ class StreamTitleParserFixturesTest {
 
     private companion object {
         val HEADER = listOf(
-            "stream", "resolution", "codec", "hdr", "dv", "audio", "channels", "size", "source", "bits",
+            "stream", "resolution", "codec", "hdr", "dv", "audio", "size", "source", "bits",
             "cached", "seeders", "group", "languages"
         )
     }

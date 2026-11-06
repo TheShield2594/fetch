@@ -102,10 +102,8 @@ data class MetaDetailsUiState(
 
 sealed class MetaDetailsEvent {
     data class OnSeasonSelected(val season: Int) : MetaDetailsEvent()
-    data class OnEpisodeClick(val video: Video) : MetaDetailsEvent()
     data class OnCommentsModeSelected(val mode: CommentsMode) : MetaDetailsEvent()
     data class OnCommentsEpisodeSelected(val video: Video) : MetaDetailsEvent()
-    data object OnPlayClick : MetaDetailsEvent()
     data object OnToggleLibrary : MetaDetailsEvent()
     data object OnRetry : MetaDetailsEvent()
     data object OnRetryComments : MetaDetailsEvent()
@@ -113,7 +111,6 @@ sealed class MetaDetailsEvent {
     data class OnCommentSelected(val review: TraktCommentReview) : MetaDetailsEvent()
     data class OnAdvanceCommentOverlay(val direction: Int) : MetaDetailsEvent()
     data object OnDismissCommentOverlay : MetaDetailsEvent()
-    data object OnBackPress : MetaDetailsEvent()
     data object OnUserInteraction : MetaDetailsEvent()
     data object OnPlayButtonFocused : MetaDetailsEvent()
     data object OnTrailerButtonClick : MetaDetailsEvent()

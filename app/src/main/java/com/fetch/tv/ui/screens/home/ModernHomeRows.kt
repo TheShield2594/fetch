@@ -587,8 +587,6 @@ internal fun ModernRowSection(
             )
         }
 
-        val firstItemKey = row.items.list.firstOrNull()?.key
-
         // When placeholder items are replaced by real data and this row
         // is the active row, re-request focus on the first real item.
         val firstItemImageUrl = row.items.list.firstOrNull()?.imageUrl

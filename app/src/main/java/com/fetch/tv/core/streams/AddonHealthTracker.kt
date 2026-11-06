@@ -55,7 +55,6 @@ data class AddonHealth(
     val timeouts: Int get() = samples.count { it.outcome == AddonRequestOutcome.TIMEOUT }
     val lastOutcome: AddonRequestOutcome? get() = samples.lastOrNull()?.outcome
     val lastLatencyMs: Long? get() = samples.lastOrNull()?.latencyMs
-    val lastUpdatedAtMs: Long get() = samples.lastOrNull()?.atMs ?: 0L
 
     /** Median response time of requests that answered; timeouts only say "slower than the budget". */
     val p50LatencyMs: Long?

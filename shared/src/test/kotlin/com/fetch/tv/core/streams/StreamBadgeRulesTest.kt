@@ -178,36 +178,16 @@ class StreamBadgeRulesTest {
                 type = "debrid",
                 infoHash = "abc123",
                 fileIdx = 0,
-                magnetUri = null,
-                sources = null,
                 torrentName = "Movie.2026.DV.Atmos",
                 filename = "Movie.2026.DV.Atmos.mkv",
-                mediaType = "movie",
-                mediaId = "tt123",
-                mediaOnlyId = "tt123",
-                title = "Movie",
-                season = null,
-                episode = null,
-                service = "torbox",
-                serviceIndex = 0,
-                serviceExtension = "TB",
-                isCached = true,
                 stream = StreamClientResolveStream(
                     raw = StreamClientResolveRaw(
                         torrentName = "Movie.2026.DV.Atmos",
                         filename = "Movie.2026.DV.Atmos.mkv",
-                        size = 1_000L,
-                        folderSize = 1_000L,
-                        tracker = null,
-                        indexer = null,
-                        network = null,
                         parsed = StreamClientResolveParsed(
                             rawTitle = "Movie",
                             parsedTitle = "Movie",
-                            year = 2026,
                             resolution = "2160p",
-                            seasons = emptyList(),
-                            episodes = emptyList(),
                             quality = "WEB-DL",
                             hdr = listOf("DV"),
                             codec = "HEVC",
@@ -215,14 +195,7 @@ class StreamBadgeRulesTest {
                             channels = listOf("5.1"),
                             languages = listOf("en"),
                             group = "Fetch",
-                            network = null,
-                            edition = null,
-                            duration = null,
-                            bitDepth = null,
-                            extended = null,
-                            theatrical = null,
-                            remastered = null,
-                            unrated = null
+                            edition = null
                         )
                     )
                 )

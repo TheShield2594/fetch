@@ -83,18 +83,6 @@ class AddonPreferences @Inject constructor(
         }
     }
 
-    suspend fun ensureMigrated() {
-        val ds = store()
-        val prefs = ds.data.first()
-        if (prefs[orderedUrlsKey] == null) {
-            val legacySet = prefs[legacyUrlsKey] ?: getDefaultAddons()
-            ds.edit { preferences ->
-                preferences[orderedUrlsKey] = gson.toJson(legacySet.toList())
-                preferences.remove(legacyUrlsKey)
-            }
-        }
-    }
-
     suspend fun addAddon(url: String): Boolean {
            val active = profileManager.activeProfile
            if (active != null && !active.isPrimary && active.usesPrimaryAddons) return false

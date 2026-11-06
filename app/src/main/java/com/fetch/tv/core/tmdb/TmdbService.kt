@@ -268,15 +268,6 @@ class TmdbService @Inject constructor(
         Log.d(TAG, "Cache cleared")
     }
     
-    /**
-     * Pre-populate cache with known mappings
-     */
-    fun preCacheMapping(imdbId: String, tmdbId: Int, mediaType: String = "movie") {
-        val normalizedType = normalizeMediaType(mediaType)
-        imdbToTmdbCache["$imdbId:$normalizedType"] = tmdbId
-        tmdbToImdbCache["$tmdbId:$normalizedType"] = imdbId
-    }
-
     /** Returns the cached TMDB ID for an IMDB ID without making any network call. */
     fun cachedTmdbId(imdbId: String): Int? =
         imdbToTmdbCache["$imdbId:movie"] ?: imdbToTmdbCache["$imdbId:tv"]

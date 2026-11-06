@@ -215,7 +215,6 @@ class HomeViewModel @Inject constructor(
     }
 
     internal val _loadingCatalogs = MutableStateFlow<Set<String>>(emptySet())
-    val loadingCatalogs: StateFlow<Set<String>> = _loadingCatalogs.asStateFlow()
 
     internal val _enrichingItemId = MutableStateFlow<String?>(null)
     val enrichingItemId: StateFlow<String?> = _enrichingItemId.asStateFlow()
@@ -290,11 +289,6 @@ class HomeViewModel @Inject constructor(
     internal var activeCatalogLoadSignature: String? = null
     internal var catalogLoadGeneration: Long = 0L
     internal var catalogsLoadInProgress: Boolean = false
-    internal data class TruncatedRowCacheEntry(
-        val sourceRow: CatalogRow,
-        val truncatedRow: CatalogRow
-    )
-    internal val truncatedRowCache = mutableMapOf<String, TruncatedRowCacheEntry>()
     internal val trailerPreviewLoadingIds = mutableSetOf<String>()
     internal val trailerPreviewNegativeCache = mutableSetOf<String>()
     internal val trailerPreviewUrlsState = mutableStateMapOf<String, String>()
@@ -363,7 +357,6 @@ class HomeViewModel @Inject constructor(
     internal var movieWatchedBatchJob: Job? = null
     internal var lastMovieWatchedItemKeys: Set<String> = emptySet()
     internal var seriesWatchedObserverJob: Job? = null
-    internal var libraryTabsObserverJob: Job? = null
     @Volatile
     internal var externalMetaPrefetchEnabled: Boolean = false
     @Volatile
@@ -525,11 +518,6 @@ class HomeViewModel @Inject constructor(
         _uiState.update { it.copy(continueWatchingItems = emptyList(), upcomingItems = emptyList()) }
         // Bump trigger so the pipeline's collectLatest restarts with fresh state.
         cwPipelineRefreshTrigger.value++
-    }
-
-    internal fun remainingStartupGraceMs(nowMs: Long = SystemClock.elapsedRealtime()): Long {
-        if (!startupGracePeriodActive) return 0L
-        return (STARTUP_GRACE_PERIOD_MS - (nowMs - startupStartedAtMs)).coerceAtLeast(0L)
     }
 
     internal fun remainingContinueWatchingEnrichmentGraceMs(
@@ -764,7 +752,6 @@ class HomeViewModel @Inject constructor(
 
     fun onEvent(event: HomeEvent) {
         when (event) {
-            is HomeEvent.OnItemClick -> navigateToDetail(event.itemId, event.itemType)
             is HomeEvent.OnLoadMoreCatalog -> loadMoreCatalogItems(event.catalogId, event.addonId, event.type)
             is HomeEvent.OnRemoveContinueWatching -> removeContinueWatching(
                 contentId = event.contentId,
@@ -989,24 +976,6 @@ class HomeViewModel @Inject constructor(
 
     internal var posterStatusReconcileJob: Job? = null
 
-    private fun schedulePosterStatusReconcile(rows: List<CatalogRow>) =
-        schedulePosterStatusReconcilePipeline(rows)
-
-    private fun reconcilePosterStatusObservers(rows: List<CatalogRow>) =
-        reconcilePosterStatusObserversPipeline(rows)
-
-    private fun navigateToDetail(itemId: String, itemType: String) {
-        _uiState.update { it.copy(selectedItemId = itemId) }
-    }
-
-    private suspend fun enrichHeroItems(
-        items: List<MetaPreview>,
-        settings: TmdbSettings
-    ): List<MetaPreview> = enrichHeroItemsPipeline(items, settings)
-
-    private fun heroEnrichmentSignature(items: List<MetaPreview>, settings: TmdbSettings): String =
-        heroEnrichmentSignaturePipeline(items, settings)
-
     /**
      * Saves the current focus and scroll state for restoration when returning to this screen.
      */
@@ -1042,27 +1011,6 @@ class HomeViewModel @Inject constructor(
         )
         if (_focusState.value == nextState) return
         _focusState.value = nextState
-    }
-
-    /**
-     * Updates the stable focus target for a specific row.
-     */
-    fun updateFocusedItemKey(rowKey: String, itemKey: String) {
-        _focusState.update { state ->
-            val nextMap = state.focusedItemKeyByRow.toMutableMap()
-            if (nextMap[rowKey] == itemKey) return@update state
-            nextMap[rowKey] = itemKey
-            state.copy(focusedItemKeyByRow = nextMap)
-        }
-    }
-
-    /**
-     * Updates the currently focused row key.
-     */
-    fun updateFocusedRowKey(rowKey: String?) {
-        _focusState.update { state ->
-            if (state.focusedRowKey == rowKey) state else state.copy(focusedRowKey = rowKey)
-        }
     }
 
     /**

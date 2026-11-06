@@ -148,23 +148,6 @@ class TrailerService(
         }
     }
 
-    /**
-     * Search for a trailer and return its primary video URL for existing call sites.
-     */
-    suspend fun getTrailerUrl(
-        title: String,
-        year: String? = null,
-        tmdbId: String? = null,
-        type: String? = null
-    ): String? {
-        return getTrailerPlaybackSource(
-            title = title,
-            year = year,
-            tmdbId = tmdbId,
-            type = type
-        )?.videoUrl
-    }
-
     suspend fun getExternalTrailerUrl(
         tmdbId: String?,
         type: String?
@@ -365,21 +348,6 @@ class TrailerService(
         }
         Log.d(TAG, "Using backend fallback source for ${summarizeUrl(youtubeUrl)}")
         return fallbackSource
-    }
-
-    /**
-     * Compatibility method for existing callers expecting a single URL.
-     */
-    suspend fun getTrailerFromYouTubeUrl(
-        youtubeUrl: String,
-        title: String? = null,
-        year: String? = null
-    ): String? {
-        return getTrailerPlaybackSourceFromYouTubeUrl(
-            youtubeUrl = youtubeUrl,
-            title = title,
-            year = year
-        )?.videoUrl
     }
 
     private suspend fun fetchTmdbMovieVideos(tmdbId: Int, preferredLanguage: String): List<TmdbVideoResult> {

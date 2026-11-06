@@ -214,7 +214,6 @@ fun CatalogRowSection(
     }
 
     val latestOnItemClick by rememberUpdatedState(onItemClick)
-    val latestOnSeeAll by rememberUpdatedState(onSeeAll)
     val latestOnItemFocus by rememberUpdatedState(onItemFocus)
     val latestIsItemWatched by rememberUpdatedState(isItemWatched)
     val latestOnItemLongPress by rememberUpdatedState(onItemLongPress)

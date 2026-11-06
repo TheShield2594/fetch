@@ -151,8 +151,6 @@ internal fun ModernHomeRowsList(
 ) {
     // Unwrap StableRef wrappers for internal use (not passed to child composables)
     val focusedItemByRowMap = focusedItemByRow.value
-    val rowListStatesMap = rowListStates.value
-    val loadMoreRequestedTotalsMap = loadMoreRequestedTotals.value
 
     val latestOnActiveRowKeyChange = rememberUpdatedState(onActiveRowKeyChange)
     val latestOnActiveItemIndexChange = rememberUpdatedState(onActiveItemIndexChange)

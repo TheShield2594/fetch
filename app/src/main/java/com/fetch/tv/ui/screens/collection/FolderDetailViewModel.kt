@@ -176,9 +176,6 @@ class FolderDetailViewModel @Inject constructor(
     private val _failedEnrichmentIds = MutableStateFlow<Set<String>>(emptySet())
     val failedEnrichmentIds: StateFlow<Set<String>> = _failedEnrichmentIds.asStateFlow()
 
-    private val _scrollToTopTrigger = MutableStateFlow(0)
-    val scrollToTopTrigger: StateFlow<Int> = _scrollToTopTrigger.asStateFlow()
-
     private var adjacentItemPrefetchJob: Job? = null
     private var pendingAdjacentPrefetchItemId: String? = null
     private val prefetchedTmdbIds = java.util.Collections.synchronizedSet(mutableSetOf<String>())
@@ -1095,22 +1092,6 @@ class FolderDetailViewModel @Inject constructor(
         }
     }
 
-    fun saveFollowLayoutGridFocusState(
-        verticalScrollIndex: Int,
-        verticalScrollOffset: Int,
-        focusedItemKey: String?
-    ) {
-        val nextState = com.fetch.tv.ui.screens.home.HomeScreenFocusState(
-            verticalScrollIndex = verticalScrollIndex,
-            verticalScrollOffset = verticalScrollOffset,
-            focusedItemKey = focusedItemKey,
-            hasSavedFocus = true
-        )
-        if (_followLayoutFocusState.value != nextState) {
-            _followLayoutFocusState.value = nextState
-        }
-    }
-
     private fun loadTmdbSourceForTab(tabIndex: Int, source: TmdbCollectionSource, page: Int, append: Boolean) {
         if (append) {
             _uiState.update { s ->
@@ -1636,10 +1617,6 @@ class FolderDetailViewModel @Inject constructor(
             }
             if (changed) state.copy(tabs = updatedTabs) else state
         }
-    }
-
-    fun scrollToTop() {
-        _scrollToTopTrigger.value++
     }
 
     /**

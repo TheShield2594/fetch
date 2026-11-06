@@ -197,8 +197,6 @@ object StreamAutoPlaySelector {
 
         if (bingeGroupOnly) return null
 
-        if (mode == StreamAutoPlayMode.MANUAL) return null
-
         // Stream rules hold in every mode: First stream and Regex pick among what they allow.
         val allowedStreams by lazy { StreamRanker.eligible(candidateStreams, rankingRules, device, ::isPlayable) }
         return when (mode) {
@@ -207,52 +205,9 @@ object StreamAutoPlaySelector {
             StreamAutoPlayMode.BEST_MATCH ->
                 StreamRanker.best(candidateStreams, rankingRules, device, ::isPlayable)?.stream
             StreamAutoPlayMode.REGEX_MATCH -> {
-                val pattern = regexPattern.trim()
- 
-                // Try to compile the user regex
-                val userRegex = runCatching { Regex(pattern, RegexOption.IGNORE_CASE) }.getOrNull()
-                if (userRegex == null) return null
-
-                // Auto-extract exclusion patterns from negative lookaheads
-                val exclusionMatches = Regex("\\(\\?![^)]*?\\(([^)]+)\\)").findAll(pattern)
-
-                val exclusionWords = exclusionMatches
-                    .flatMap { match -> match.groupValues[1].split("|") }
-                    .map { it.trim() }
-                    .filter { it.isNotBlank() }
-                    .toList()
-
-                val excludeRegex = if (exclusionWords.isNotEmpty()) {
-                    Regex("\\b(${exclusionWords.joinToString("|")})\\b", RegexOption.IGNORE_CASE)
-                } else null
-
-                // 1. Build list of ALL regex‑matching streams
-                val matchingStreams = allowedStreams.filter { stream ->
-                    if (!isPlayable(stream)) return@filter false
-
-                    val searchableText = buildString {
-                        append(stream.addonName).append(' ')
-                        append(stream.name.orEmpty()).append(' ')
-                        append(stream.title.orEmpty()).append(' ')
-                        append(stream.description.orEmpty()).append(' ')
-                        append(stream.getStreamUrl().orEmpty())
-                    }
-
-                    // Must match include pattern
-                    if (!userRegex.containsMatchIn(searchableText)) return@filter false
-
-                    // Must NOT match exclusion pattern
-                    if (excludeRegex != null && excludeRegex.containsMatchIn(searchableText)) {
-                        return@filter false
-                    }
-
-                    true
-                }
-
-                if (matchingStreams.isEmpty()) return null
-                matchingStreams.firstOrNull { isPlayable(it) }
+                val matches = regexFilter(regexPattern) ?: return null
+                allowedStreams.firstOrNull(matches)
             }
-
         }
     }
 }

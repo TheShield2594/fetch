@@ -328,6 +328,9 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
         }.debounce(CW_PROGRESS_DEBOUNCE_MS).holdWhilePlayerOpen().collectLatest { snapshot ->
             val debug = CwDebugSession()
             val pipelineProfileId = profileManager.activeProfileId.value
+            // Bound now, with the profile id: every snapshot this run saves carries this origin,
+            // so its data can't land in a profile that was deleted, switched or reused meanwhile.
+            val pipelineSnapshotOrigin = cwEnrichmentCache.captureOrigin()
             try {
                 debug.markPhase("filter-snapshot")
                 val cycleStartMs = SystemClock.elapsedRealtime()
@@ -613,7 +616,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                             }
                             runCatching {
                                 if (profileManager.activeProfileId.value == pipelineProfileId) {
-                                    cwEnrichmentCache.saveInProgressSnapshot(ipSnap)
+                                    cwEnrichmentCache.saveInProgressSnapshot(ipSnap, origin = pipelineSnapshotOrigin)
                                 }
                             }
                         }
@@ -930,6 +933,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                                     dismissedNextUpKeys = dismissedNextUp,
                                                     sortMode = continueWatchingSortMode,
                                                     pipelineProfileId = pipelineProfileId,
+                                                    snapshotOrigin = pipelineSnapshotOrigin,
                                                     persistSnapshot = false
                                                 )
                                             }
@@ -965,6 +969,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                                 dismissedNextUpKeys = dismissedNextUp,
                                                 sortMode = continueWatchingSortMode,
                                                 pipelineProfileId = pipelineProfileId,
+                                                snapshotOrigin = pipelineSnapshotOrigin,
                                                 persistSnapshot = false
                                             )
                                             val nextContentMs = cwBadgeNextSeasonMs[seed.contentId]
@@ -1004,6 +1009,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                         dismissedNextUpKeys = dismissedNextUp,
                                         sortMode = continueWatchingSortMode,
                                         pipelineProfileId = pipelineProfileId,
+                                        snapshotOrigin = pipelineSnapshotOrigin,
                                         persistSnapshot = true
                                     )
                                 }
@@ -1202,10 +1208,8 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                         )
                     }
                     if (profileManager.activeProfileId.value == pipelineProfileId) {
-                        // One origin for both saves: the second must not re-capture a newer profile.
-                        val origin = cwEnrichmentCache.captureOrigin()
-                        runCatching { cwEnrichmentCache.saveNextUpSnapshot(nextUpSnap, force = true, origin = origin) }
-                        runCatching { cwEnrichmentCache.saveInProgressSnapshot(ipSnap, force = true, origin = origin) }
+                        runCatching { cwEnrichmentCache.saveNextUpSnapshot(nextUpSnap, force = true, origin = pipelineSnapshotOrigin) }
+                        runCatching { cwEnrichmentCache.saveInProgressSnapshot(ipSnap, force = true, origin = pipelineSnapshotOrigin) }
                     }
                 }
 
@@ -1225,7 +1229,8 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                 val changed = enrichVisibleContinueWatchingItems(
                     finalItems = normalItems,
                     debug = debug,
-                    pipelineProfileId = pipelineProfileId
+                    pipelineProfileId = pipelineProfileId,
+                    snapshotOrigin = pipelineSnapshotOrigin
                 )
                 debug.recordEnrichmentComplete(
                     elapsedMs = SystemClock.elapsedRealtime() - enrichStartMs,
@@ -1652,7 +1657,8 @@ private suspend fun HomeViewModel.buildLightweightNextUpItems(
 private suspend fun HomeViewModel.enrichVisibleContinueWatchingItems(
     finalItems: List<ContinueWatchingItem>,
     debug: CwDebugSession? = null,
-    pipelineProfileId: Int
+    pipelineProfileId: Int,
+    snapshotOrigin: com.fetch.tv.data.local.ContinueWatchingEnrichmentCache.SaveOrigin
 ): Boolean = coroutineScope {
     if (finalItems.isEmpty()) return@coroutineScope false
 
@@ -1784,7 +1790,8 @@ private suspend fun HomeViewModel.enrichVisibleContinueWatchingItems(
     persistLocalContinueWatchingMetadata(
         originalItems = finalItems,
         enrichedItems = sortedEnrichedItems,
-        pipelineProfileId = pipelineProfileId
+        pipelineProfileId = pipelineProfileId,
+        snapshotOrigin = snapshotOrigin
     )
     true
 }
@@ -2758,7 +2765,8 @@ internal fun buildNextUpSeedCacheKey(
 private fun HomeViewModel.persistLocalContinueWatchingMetadata(
     originalItems: List<ContinueWatchingItem>,
     enrichedItems: List<ContinueWatchingItem>,
-    pipelineProfileId: Int
+    pipelineProfileId: Int,
+    snapshotOrigin: com.fetch.tv.data.local.ContinueWatchingEnrichmentCache.SaveOrigin
 ) {
     val localItems = enrichedItems.indices.mapNotNull { index ->
         val original = originalItems.getOrNull(index) as? ContinueWatchingItem.InProgress ?: return@mapNotNull null
@@ -2834,13 +2842,12 @@ private fun HomeViewModel.persistLocalContinueWatchingMetadata(
 
     viewModelScope.launch(Dispatchers.IO) {
         if (profileManager.activeProfileId.value != pipelineProfileId) return@launch
-        // One origin for both saves: the second must not re-capture a newer profile.
-        val origin = cwEnrichmentCache.captureOrigin()
+        // The pipeline's origin, captured with its profile id before any of this data was built.
         if (nextUpSnapshot.isNotEmpty()) {
-            runCatching { cwEnrichmentCache.saveNextUpSnapshot(nextUpSnapshot, force = true, origin = origin) }
+            runCatching { cwEnrichmentCache.saveNextUpSnapshot(nextUpSnapshot, force = true, origin = snapshotOrigin) }
         }
         if (inProgressSnapshot.isNotEmpty()) {
-            runCatching { cwEnrichmentCache.saveInProgressSnapshot(inProgressSnapshot, force = true, origin = origin) }
+            runCatching { cwEnrichmentCache.saveInProgressSnapshot(inProgressSnapshot, force = true, origin = snapshotOrigin) }
         }
         val persistable = localItems.filter { it.hasRenderableMetadata() }
         if (persistable.isEmpty()) return@launch

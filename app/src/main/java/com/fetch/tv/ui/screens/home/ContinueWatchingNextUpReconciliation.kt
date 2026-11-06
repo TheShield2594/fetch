@@ -53,6 +53,7 @@ internal suspend fun HomeViewModel.applyConclusiveOlderNextUpResults(
     dismissedNextUpKeys: Set<String>,
     sortMode: ContinueWatchingSortMode,
     pipelineProfileId: Int,
+    snapshotOrigin: com.fetch.tv.data.local.ContinueWatchingEnrichmentCache.SaveOrigin,
     persistSnapshot: Boolean
 ) {
     if (resolvedItems.isEmpty() && conclusivelyProcessedContentIds.isEmpty()) return
@@ -99,7 +100,7 @@ internal suspend fun HomeViewModel.applyConclusiveOlderNextUpResults(
         val snapshot = (_uiState.value.continueWatchingItems + _uiState.value.upcomingItems)
             .toCachedNextUpSnapshot(com.fetch.tv.ui.components.brokenImageUrls)
         runCatching {
-            cwEnrichmentCache.saveNextUpSnapshot(snapshot, force = true)
+            cwEnrichmentCache.saveNextUpSnapshot(snapshot, force = true, origin = snapshotOrigin)
         }
     }
 }

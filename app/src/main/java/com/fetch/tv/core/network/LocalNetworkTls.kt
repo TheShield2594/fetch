@@ -7,6 +7,7 @@ import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLException
+import javax.net.ssl.SSLPeerUnverifiedException
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
@@ -49,11 +50,31 @@ object LocalNetworkTls {
         }
     }
 
-    /** [base] with certificate and hostname checks disabled. Only use for [isLocalNetworkHost] hosts. */
+    /**
+     * [base] with certificate and hostname checks disabled, for [isLocalNetworkHost] hosts only.
+     *
+     * A network interceptor runs on every hop, redirects included, after the connection is made
+     * but before the request is written. It refuses to send anything unless both the host name
+     * and the address actually connected to are local, so a local server redirecting to a public
+     * URL, or a local-looking name that DNS resolves to a public address, never gets an
+     * unverified request (and the URL's query, which can hold debrid keys).
+     */
     fun unverifiedClient(base: OkHttpClient): OkHttpClient =
         base.newBuilder()
             .sslSocketFactory(trustAllSslContext.socketFactory, trustAllManager)
             .hostnameVerifier { _, _ -> true }
+            .addNetworkInterceptor { chain ->
+                val url = chain.request().url
+                if (url.isHttps) {
+                    val address = chain.connection()?.route()?.socketAddress?.address?.hostAddress
+                    if (!isLocalNetworkHost(url.host) || !PairingGuard.isLocalNetworkAddress(address)) {
+                        throw SSLPeerUnverifiedException(
+                            "Refusing an unverified TLS connection to a non-local host: ${url.host}"
+                        )
+                    }
+                }
+                chain.proceed(chain.request())
+            }
             .build()
 
     /**

@@ -112,7 +112,6 @@ function PinForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved: (p
         // current-PIN field above takes anything. Checked on submit, so the
         // message names the rule rather than the browser's generic one.
         autoComplete="new-password"
-        maxLength={MAX_PIN_LENGTH}
         aria-describedby={pinHintId}
         value={pin}
         onChange={(e) => setPin(e.target.value)}

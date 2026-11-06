@@ -514,7 +514,7 @@ describe("profile scoping", () => {
     const { subtitles } = response.json() as { subtitles: { url: string }[] };
     const { url: subtitleUrl } = first(subtitles, "mark-watched subtitle row");
     expect(subtitleUrl).toContain(
-      `${ADDON_BASE}${signedPrefix(OTHER_PROFILE_ID)}/mark-watched/episode/tt0903747/2/5.srt?token=`
+      `${ADDON_BASE}/p/${OTHER_PROFILE_ID}/mark-watched/episode/tt0903747/2/5.srt?token=`
     );
     expect(
       capabilityMatches(subtitleUrl, { type: "episode", imdbId: "tt0903747", season: 2, episode: 5 }, OTHER_PROFILE_ID)
@@ -527,7 +527,7 @@ describe("profile scoping", () => {
     const { subtitles } = response.json() as { subtitles: { url: string }[] };
     const { url: subtitleUrl } = first(subtitles, "mark-watched subtitle row");
     expect(subtitleUrl).toContain(
-      `${ADDON_BASE}${signedPrefix(DEFAULT_PROFILE_ID)}/mark-watched/movie/tt0111161.srt?token=`
+      `${ADDON_BASE}/p/${DEFAULT_PROFILE_ID}/mark-watched/movie/tt0111161.srt?token=`
     );
     expect(capabilityMatches(subtitleUrl, { type: "movie", imdbId: "tt0111161" }, DEFAULT_PROFILE_ID)).toBe(true);
   });
@@ -901,6 +901,13 @@ describe("signed addon URLs", () => {
         url: `/p/${OTHER_PROFILE_ID}/mark-watched/movie/tt0111161.srt?token=${capability({ type: "movie", imdbId: "tt0111161" }, OTHER_PROFILE_ID)}`,
       });
       expect(marked.body).not.toContain("Marked as watched");
+    });
+
+    it("never hands an unsigned request the signed profile path", async () => {
+      const subtitles = await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/subtitles/movie/tt0111161.json` });
+      const body = subtitles.body;
+      expect(body).not.toContain(profileKey(OTHER_PROFILE_ID));
+      expect(body).not.toContain("/u/");
     });
 
     it("never serves the unsigned URL what a signed request cached", async () => {

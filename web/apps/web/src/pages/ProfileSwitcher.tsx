@@ -159,7 +159,6 @@ function CreateProfileForm({
           // The same 4–8 digit rule the API enforces and the TV keypad asks for.
           // Checked on submit rather than with minLength/pattern, so the message
           // says "digits" instead of the browser's generic one.
-          maxLength={MAX_PIN_LENGTH}
           aria-describedby={pinHintId}
           value={pin}
           onChange={(e) => setPin(e.target.value)}

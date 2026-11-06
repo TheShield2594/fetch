@@ -41,9 +41,12 @@ export const registerSubtitlesRoute = (routes: AddonRouter): void => {
     // the user is actually looking at. A request that arrived without a profile
     // prefix has already resolved to the default profile by this point, so the
     // URL handed to Stremio names it explicitly either way. The signed form,
-    // so the link still works once ADDON_REQUIRE_SIGNED_URLS turns /p/ off.
+    // Only a request that arrived on a signed URL is handed the signed form back:
+    // the signed key unlocks PIN-protected profiles, so minting it for an unsigned
+    // /p/ or bare request would let anyone who knows a profile id skip its PIN.
+    // When ADDON_REQUIRE_SIGNED_URLS is on, every request here is signed anyway.
     const profileSegment = scope.profileId
-      ? (signedProfilePath(scope.profileId) ?? `/p/${scope.profileId}`)
+      ? (scope.profileKey ? signedProfilePath(scope.profileId) : null) ?? `/p/${scope.profileId}`
       : "";
 
     // Minted against the same profile the URL above names, which is the value

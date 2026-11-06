@@ -192,8 +192,22 @@ describe("ProfileSettings PINs", () => {
 
     await user.click(screen.getByRole("button", { name: "Set PIN for Alex" }));
     const field = screen.getByLabelText("PIN for Alex");
-    expect(field).toHaveAttribute("maxLength", "8");
+    // No maxLength: a pasted 9-digit PIN must be rejected, not silently truncated.
+    expect(field).not.toHaveAttribute("maxLength");
     await user.type(field, "12ab");
+    await user.click(screen.getByRole("button", { name: "Save PIN" }));
+
+    expect(await screen.findByText("PIN must be 4 to 8 digits.")).toHaveAttribute("role", "alert");
+    expect(updateProfile).not.toHaveBeenCalled();
+  });
+
+  it("rejects a PIN longer than 8 digits instead of truncating it", async () => {
+    const user = userEvent.setup();
+    await renderSettings();
+
+    await user.click(screen.getByRole("button", { name: "Set PIN for Alex" }));
+    await user.click(screen.getByLabelText("PIN for Alex"));
+    await user.paste("123456789");
     await user.click(screen.getByRole("button", { name: "Save PIN" }));
 
     expect(await screen.findByText("PIN must be 4 to 8 digits.")).toHaveAttribute("role", "alert");

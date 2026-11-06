@@ -197,12 +197,12 @@ describe("ProfileSwitcher", () => {
       expect(createProfile).not.toHaveBeenCalled();
     });
 
-    it("caps the PIN field at 8 characters", async () => {
+    it("describes the 4–8 digit rule without truncating input", async () => {
       renderSwitcher();
 
       await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
       const field = screen.getByLabelText("PIN (optional)");
-      expect(field).toHaveAttribute("maxLength", "8");
+      expect(field).not.toHaveAttribute("maxLength");
       expect(field).toHaveAttribute("inputMode", "numeric");
       expect(field).toHaveAccessibleDescription("4–8 digits");
     });

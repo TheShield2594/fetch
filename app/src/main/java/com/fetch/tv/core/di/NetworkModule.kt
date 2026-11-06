@@ -139,8 +139,11 @@ object NetworkModule {
         // Certificates are validated normally. Only hosts on the local network (self-hosted
         // addons with self-signed certificates) are retried without verification; addon URLs
         // carry debrid keys, so public hosts must never fall back.
+        // A new cache directory: responses cached by the old trust-all client must not be
+        // served as if they had come over a verified connection.
+        File(context.cacheDir, "addon_http_cache").deleteRecursively()
         val cached = okHttpClient.newBuilder()
-            .cache(Cache(File(context.cacheDir, "addon_http_cache"), 50L * 1024 * 1024))
+            .cache(Cache(File(context.cacheDir, "addon_http_cache_v2"), 50L * 1024 * 1024))
             .build()
         val unverifiedLocal by lazy { LocalNetworkTls.unverifiedClient(cached) }
         return cached.newBuilder()

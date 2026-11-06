@@ -8,6 +8,7 @@ import com.fetch.tv.domain.model.CatalogDescriptor
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.stableKey
+import com.fetch.tv.domain.model.requiredBrowseExtraArgs
 import kotlinx.coroutines.Job
 
 internal fun HomeViewModel.catalogKey(addonId: String, type: String, catalogId: String): String {
@@ -361,9 +362,16 @@ internal fun HomeViewModel.disableCatalogKey(
 }
 
 internal fun CatalogDescriptor.shouldShowOnHome(): Boolean {
-    if (isSearchOnlyCatalog()) return false
+    if (!isBrowsableOnHome()) return false
     return !hasExplicitShowInHome || showInHome
 }
+
+/**
+ * Whether Home can load the catalog unprompted: it doesn't need a search, and every other
+ * required extra (e.g. Cinemeta "year" requiring a genre) has a default or option to send.
+ */
+internal fun CatalogDescriptor.isBrowsableOnHome(): Boolean =
+    !isSearchOnlyCatalog() && requiredBrowseExtraArgs() != null
 
 internal fun MetaPreview.hasHeroArtwork(): Boolean {
     return !background.isNullOrBlank()

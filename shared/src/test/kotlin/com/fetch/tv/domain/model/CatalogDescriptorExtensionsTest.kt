@@ -54,6 +54,42 @@ class CatalogDescriptorExtensionsTest {
         assertEquals(100, catalog.skipStep())
     }
 
+    @Test
+    fun `requiredBrowseExtraArgs is empty when nothing is required`() {
+        val catalog = descriptor(extra = listOf(CatalogExtra(name = "genre", options = listOf("Action"))))
+        assertEquals(emptyMap<String, String>(), catalog.requiredBrowseExtraArgs())
+    }
+
+    @Test
+    fun `requiredBrowseExtraArgs uses the default, else the first option`() {
+        val withDefault = descriptor(
+            extra = listOf(CatalogExtra(name = "genre", isRequired = true, options = listOf("2024", "2023"), defaultValue = "2023"))
+        )
+        assertEquals(mapOf("genre" to "2023"), withDefault.requiredBrowseExtraArgs())
+
+        val firstOption = descriptor(
+            extra = listOf(CatalogExtra(name = "genre", isRequired = true, options = listOf("2024", "2023")))
+        )
+        assertEquals(mapOf("genre" to "2024"), firstOption.requiredBrowseExtraArgs())
+    }
+
+    @Test
+    fun `requiredBrowseExtraArgs ignores search and skip`() {
+        val catalog = descriptor(
+            extra = listOf(CatalogExtra(name = "search", isRequired = true), CatalogExtra(name = "skip", isRequired = true))
+        )
+        assertEquals(emptyMap<String, String>(), catalog.requiredBrowseExtraArgs())
+    }
+
+    @Test
+    fun `requiredBrowseExtraArgs is null when a required extra has no value to use`() {
+        assertEquals(null, descriptor(extraRequired = listOf("genre")).requiredBrowseExtraArgs())
+        assertEquals(
+            null,
+            descriptor(extra = listOf(CatalogExtra(name = "genre", isRequired = true))).requiredBrowseExtraArgs()
+        )
+    }
+
     private fun descriptor(
         extra: List<CatalogExtra> = emptyList(),
         pageSize: Int? = null,

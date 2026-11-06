@@ -20,6 +20,8 @@ import com.fetch.tv.domain.model.nextCatalogSkip
 import com.fetch.tv.domain.model.skipStep
 import com.fetch.tv.domain.model.stableKey
 import com.fetch.tv.domain.model.supportsExtra
+import com.fetch.tv.domain.model.requiredBrowseExtraArgs
+import com.fetch.tv.domain.model.requiresExtra
 import com.fetch.tv.core.util.filterReleasedItems
 import com.fetch.tv.core.util.isUnreleased
 import com.fetch.tv.domain.repository.AddonRepository
@@ -951,11 +953,14 @@ class SearchViewModel @Inject constructor(
                     !(catalog.supportsExtra("search") &&
                         catalog.extra.any { it.name.equals("search", ignoreCase = true) && it.isRequired })
                 }
-                .map { catalog ->
+                // A catalog with a required extra Discover has no value for can't be browsed.
+                .mapNotNull { catalog -> catalog.requiredBrowseExtraArgs()?.let { catalog to it } }
+                .map { (catalog, requiredArgs) ->
                     val genres = catalog.extra
                         .firstOrNull { it.name.equals("genre", ignoreCase = true) }
                         ?.options
                         .orEmpty()
+                    val genreRequired = catalog.requiresExtra("genre")
                     DiscoverCatalog(
                         key = catalogRowLegacyKey(addon.id, catalog.apiType, catalog.id),
                         addonId = addon.id,
@@ -966,7 +971,12 @@ class SearchViewModel @Inject constructor(
                         type = catalog.apiType,
                         genres = genres,
                         supportsSkip = catalog.supportsExtra("skip"),
-                        skipStep = catalog.skipStep()
+                        skipStep = catalog.skipStep(),
+                        genreRequired = genreRequired,
+                        defaultGenre = requiredArgs.entries
+                            .firstOrNull { it.key.equals("genre", ignoreCase = true) }
+                            ?.value,
+                        requiredExtraArgs = requiredArgs.filterKeys { !it.equals("genre", ignoreCase = true) }
                     )
                 }
         }
@@ -977,7 +987,7 @@ class SearchViewModel @Inject constructor(
             currentKey = _uiState.value.selectedDiscoverCatalogKey
         )
         val selectedType = selectedCatalog?.type ?: "movie"
-        val selectedGenre: String? = null
+        val selectedGenre: String? = selectedCatalog.initialGenre()
 
         _uiState.update {
             it.copy(
@@ -1009,7 +1019,7 @@ class SearchViewModel @Inject constructor(
             selectedType = type,
             preferredKey = _uiState.value.selectedDiscoverCatalogKey
         )
-        val selectedGenre: String? = null
+        val selectedGenre: String? = selectedCatalog.initialGenre()
         _uiState.update {
             it.copy(
                 selectedDiscoverType = type,
@@ -1035,7 +1045,7 @@ class SearchViewModel @Inject constructor(
             it.copy(
                 selectedDiscoverCatalogKey = catalog.key,
                 selectedDiscoverType = catalog.type,
-                selectedDiscoverGenre = null,
+                selectedDiscoverGenre = catalog.initialGenre(),
                 discoverResults = emptyList(),
                 pendingDiscoverResults = emptyList(),
                 discoverPage = 1,
@@ -1049,6 +1059,10 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun selectDiscoverGenre(genre: String?) {
+        val catalog = _uiState.value.discoverCatalogs
+            .firstOrNull { it.key == _uiState.value.selectedDiscoverCatalogKey }
+        // A catalog that requires a genre has no "All"; keep its current genre.
+        if (genre == null && catalog?.genreRequired == true) return
         _uiState.update {
             it.copy(
                 selectedDiscoverGenre = genre,
@@ -1117,7 +1131,10 @@ class SearchViewModel @Inject constructor(
             val skip = if (currentPage <= 1) 0 else (currentPage - 1) * selectedCatalog.skipStep
             val visibleCountBeforeRequest = state.discoverResults.size
             val extraArgs = buildMap<String, String> {
-                state.selectedDiscoverGenre?.takeIf { it.isNotBlank() }?.let { put("genre", it) }
+                putAll(selectedCatalog.requiredExtraArgs)
+                (state.selectedDiscoverGenre?.takeIf { it.isNotBlank() }
+                    ?: selectedCatalog.defaultGenre.takeIf { selectedCatalog.genreRequired })
+                    ?.let { put("genre", it) }
             }
 
             catalogRepository.getCatalog(

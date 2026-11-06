@@ -191,7 +191,10 @@ internal fun DiscoverSection(
                 selectedValue = uiState.selectedDiscoverGenre ?: "__default__",
                 expanded = expandedPicker == "genre",
                 options = buildList {
-                    add(DiscoverOption(stringResource(R.string.discover_genre_default), "__default__"))
+                    // A catalog that requires a genre can't be listed without one.
+                    if (selectedCatalog?.genreRequired != true) {
+                        add(DiscoverOption(stringResource(R.string.discover_genre_default), "__default__"))
+                    }
                     addAll(genres.map { DiscoverOption(localizedGenreLabel(it), it) })
                 },
                 onExpandedChange = { shouldExpand ->

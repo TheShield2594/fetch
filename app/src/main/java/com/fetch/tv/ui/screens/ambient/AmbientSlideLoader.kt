@@ -15,6 +15,7 @@ import com.fetch.tv.domain.model.supportsExtra
 import com.fetch.tv.domain.repository.AddonRepository
 import com.fetch.tv.domain.repository.CatalogRepository
 import com.fetch.tv.ui.screens.home.shouldShowOnHome
+import com.fetch.tv.domain.model.requiredBrowseExtraArgs
 import com.fetch.tv.ui.util.localizedGenreLabel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.async
@@ -71,6 +72,7 @@ class AmbientSlideLoader @Inject constructor(
             type = entry.catalog.apiType,
             skip = 0,
             skipStep = entry.catalog.skipStep(),
+            extraArgs = entry.catalog.requiredBrowseExtraArgs() ?: return emptyList(),
             supportsSkip = entry.catalog.supportsExtra("skip")
         ).first { it !is NetworkResult.Loading }
         val row = (result as? NetworkResult.Success)?.data ?: return emptyList()

@@ -38,3 +38,32 @@ fun CatalogDescriptor.skipStep(defaultStep: Int = DEFAULT_SKIP_STEP): Int {
     }
     return defaultStep
 }
+
+/**
+ * Values for the catalog's required extras, other than `search` and `skip` (which the caller
+ * supplies), so it can be browsed without the user picking anything: each one's `default`, else
+ * its first option. Null when a required extra has neither, since the addon would answer such a
+ * request with an error or nothing. Cinemeta's "year" catalog, for instance, requires a genre.
+ */
+fun CatalogDescriptor.requiredBrowseExtraArgs(): Map<String, String>? {
+    val requiredNames = linkedSetOf<String>()
+    extra.filter { it.isRequired }.forEach { requiredNames += it.name }
+    extraRequired.forEach { name ->
+        if (requiredNames.none { it.equals(name, ignoreCase = true) }) requiredNames += name
+    }
+    val args = linkedMapOf<String, String>()
+    for (name in requiredNames) {
+        if (name.equals("search", ignoreCase = true) || name.equals("skip", ignoreCase = true)) continue
+        val property = extra.firstOrNull { it.name.equals(name, ignoreCase = true) }
+        val value = property?.defaultValue?.takeIf { it.isNotBlank() }
+            ?: property?.options?.firstOrNull { it.isNotBlank() }
+            ?: return null
+        args[name] = value
+    }
+    return args
+}
+
+/** Whether the catalog requires the given extra (in either manifest form). */
+fun CatalogDescriptor.requiresExtra(name: String): Boolean =
+    extra.any { it.name.equals(name, ignoreCase = true) && it.isRequired } ||
+        extraRequired.any { it.equals(name, ignoreCase = true) }

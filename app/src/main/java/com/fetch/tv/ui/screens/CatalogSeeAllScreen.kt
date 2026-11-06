@@ -128,6 +128,20 @@ fun CatalogSeeAllScreen(
         }
     }
 
+    // A Home or Search catalog that never arrives (it failed, or Retry / an addon change dropped
+    // it) mustn't leave the skeleton up forever: once nothing is loading, wait briefly, then show
+    // the empty state with Retry.
+    var missingCatalogWaitExpired by remember(catalogKey) { mutableStateOf(false) }
+    var missingCatalogRetries by remember(catalogKey) { mutableStateOf(0) }
+    val sourceStillLoading = if (isSearchMode) searchUiState?.value?.isSearching == true else uiState.isLoading
+    LaunchedEffect(catalogKey, catalogRow == null, sourceStillLoading, missingCatalogRetries) {
+        missingCatalogWaitExpired = false
+        if (serverCatalog == null && catalogRow == null && !sourceStillLoading) {
+            kotlinx.coroutines.delay(MISSING_CATALOG_WAIT_MS)
+            missingCatalogWaitExpired = true
+        }
+    }
+
     val gridState = rememberLazyGridState()
     val restoreFocusRequester = remember { FocusRequester() }
     // Persist the focused catalog item by stable id (not grid index) so return-from-Details
@@ -233,7 +247,11 @@ fun CatalogSeeAllScreen(
 
         val hasItems = catalogRow?.items?.isNotEmpty() == true
         val failure = serverFailure?.value
-        val isCatalogLoading = if (catalogRow == null) failure == null else catalogRow.isLoading
+        val isCatalogLoading = when {
+            catalogRow != null -> catalogRow.isLoading
+            serverCatalog != null -> failure == null
+            else -> !missingCatalogWaitExpired
+        }
 
         if (hasItems) {
             val seeAllItemKeys = remember(catalogRow?.items) {
@@ -365,7 +383,16 @@ fun CatalogSeeAllScreen(
             EmptyScreenState(
                 title = stringResource(R.string.catalog_see_all_empty_title),
                 subtitle = stringResource(R.string.catalog_see_all_empty_subtitle),
-                icon = Icons.Default.GridView
+                icon = Icons.Default.GridView,
+                // A Home catalog that is missing altogether can be loaded again from here.
+                action = if (catalogRow == null && !isSearchMode && serverCatalog == null) {
+                    com.fetch.tv.ui.components.StateAction(stringResource(R.string.action_retry)) {
+                        viewModel.onEvent(HomeEvent.OnRetry)
+                        missingCatalogRetries++
+                    }
+                } else {
+                    null
+                }
             )
         }
 
@@ -379,3 +406,6 @@ fun CatalogSeeAllScreen(
         )
     }
 }
+
+/** How long See-all waits for a missing catalog once nothing is loading it any more. */
+private const val MISSING_CATALOG_WAIT_MS = 4_000L

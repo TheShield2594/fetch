@@ -836,7 +836,7 @@ class MetaDetailsViewModel @Inject constructor(
                             } else if (tryApplyTmdbFallbackMeta()) {
                                 Unit
                             } else {
-                                val errorMsg = buildMetaLoadErrorMessage(result.message, metaLookupId)
+                                val errorMsg = buildMetaLoadErrorMessage(result, metaLookupId)
                                 _uiState.update { it.copy(isLoading = false, error = errorMsg) }
                             }
                         }
@@ -866,7 +866,7 @@ class MetaDetailsViewModel @Inject constructor(
                             }
                             is NetworkResult.Error -> {
                                 if (!tryApplyTmdbFallbackMeta()) {
-                                    val errorMsg = buildMetaLoadErrorMessage(result.message, metaLookupId)
+                                    val errorMsg = buildMetaLoadErrorMessage(result, metaLookupId)
                                     _uiState.update { it.copy(isLoading = false, error = errorMsg) }
                                 }
                             }
@@ -951,8 +951,20 @@ class MetaDetailsViewModel @Inject constructor(
             ?: raw
     }
 
-    private fun buildMetaLoadErrorMessage(originalMessage: String?, lookupId: String): String {
-        val base = originalMessage ?: "Failed to load metadata"
+    /**
+     * The screen's message for a failed metadata load. The addon or HTTP text is often English
+     * and technical, so it is only logged; the user gets a translated message for the kind of
+     * failure, plus the id that was looked up.
+     */
+    private fun buildMetaLoadErrorMessage(error: NetworkResult.Error, lookupId: String): String {
+        Log.w(TAG, "Metadata load failed for $lookupId (code=${error.code}): ${error.message}")
+        val base = localizedContext.getString(
+            when {
+                error.code == 404 -> R.string.detail_error_meta_not_found
+                error.code != null -> R.string.detail_error_meta_server
+                else -> R.string.detail_error_meta_network
+            }
+        )
         return "$base\n\nID: $lookupId"
     }
 

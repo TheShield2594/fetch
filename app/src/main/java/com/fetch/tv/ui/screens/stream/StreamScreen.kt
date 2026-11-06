@@ -509,6 +509,7 @@ fun StreamScreen(
                     streamExclusions = uiState.streamExclusions,
                     bestMatchFirst = uiState.bestMatchFirst,
                     availableAddons = uiState.availableAddons,
+                    hiddenUnplayableCounts = uiState.hiddenUnplayableCounts,
                     sourceChips = uiState.sourceChips,
                     selectedAddonFilter = uiState.selectedAddonFilter,
                     showFileSizeBadges = streamBadgeSettings.showFileSizeBadges,
@@ -799,6 +800,8 @@ private fun RightStreamSection(
     playbackError: String? = null,
     streams: List<Stream>,
     availableAddons: List<String>,
+    /** Addon name to streams hidden for having no playable link; see [StreamScreenUiState.hiddenUnplayableCounts]. */
+    hiddenUnplayableCounts: Map<String, Int> = emptyMap(),
     sourceChips: List<SourceChipItem>,
     selectedAddonFilter: String?,
     showFileSizeBadges: Boolean,
@@ -967,6 +970,23 @@ private fun RightStreamSection(
                         ErrorState(
                             message = error,
                             onRetry = onRetry
+                        )
+                    }
+                    // Every result was a torrent (or client-resolved debrid) stream: say so, and
+                    // where to fix it, instead of suggesting more addons.
+                    sharedStream == null && streams.isEmpty() && selectedAddonFilter == null &&
+                        hiddenUnplayableCounts.isNotEmpty() -> {
+                        val hiddenTotal = hiddenUnplayableCounts.values.sum()
+                        val onlyAddon = hiddenUnplayableCounts.keys.singleOrNull()
+                        EmptyScreenState(
+                            title = stringResource(R.string.stream_torrent_only_title),
+                            subtitle = if (onlyAddon != null) {
+                                pluralStringResource(R.plurals.stream_torrent_only_hint_addon, hiddenTotal, onlyAddon, hiddenTotal)
+                            } else {
+                                pluralStringResource(R.plurals.stream_torrent_only_hint_addons, hiddenTotal, hiddenTotal)
+                            },
+                            icon = Icons.Default.Extension,
+                            action = StateAction(stringResource(R.string.stream_torrent_only_manage_addons), onNavigateToAddons)
                         )
                     }
                     sharedStream == null && streams.isEmpty() -> {

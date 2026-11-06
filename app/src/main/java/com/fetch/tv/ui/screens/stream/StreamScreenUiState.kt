@@ -38,6 +38,11 @@ data class StreamScreenUiState(
     /** True when the All tab is ordered by Best match, so its first stream is the pick. */
     val bestMatchFirst: Boolean = false,
     val availableAddons: List<String> = emptyList(),
+    /**
+     * Addon name to how many of its streams were hidden for having no playable link (torrents,
+     * client-resolved debrid). Lets an empty list say "only torrent results" instead of "no streams".
+     */
+    val hiddenUnplayableCounts: Map<String, Int> = emptyMap(),
     val sourceChips: List<SourceChipItem> = emptyList(),
     val autoPlayStream: Stream? = null,
     /** Best match among the streams that have arrived so far, while auto-play still waits. */

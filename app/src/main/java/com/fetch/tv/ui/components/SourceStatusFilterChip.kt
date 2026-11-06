@@ -32,7 +32,9 @@ enum class SourceChipStatus {
     LOADING,
     SUCCESS,
     ERROR,
-    TIMED_OUT;
+    TIMED_OUT,
+    /** Answered, but only with streams Fetch can't play (torrents without a debrid key). */
+    UNPLAYABLE_ONLY;
 
     val isFailed: Boolean get() = this == ERROR || this == TIMED_OUT
 }
@@ -54,6 +56,7 @@ fun sourceChipLabel(name: String, status: SourceChipStatus): String {
         SourceChipStatus.LOADING -> stringResource(R.string.source_chip_loading)
         SourceChipStatus.ERROR -> stringResource(R.string.source_chip_failed)
         SourceChipStatus.TIMED_OUT -> stringResource(R.string.source_chip_timed_out)
+        SourceChipStatus.UNPLAYABLE_ONLY -> stringResource(R.string.source_chip_torrents_only)
     }
     return stringResource(R.string.source_chip_with_status, name, statusLabel)
 }

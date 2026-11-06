@@ -5,6 +5,7 @@ import com.fetch.tv.core.streams.AddonCallResult
 import com.fetch.tv.core.streams.AddonRequestGuard
 import com.fetch.tv.core.streams.AddonRequestKind
 import com.fetch.tv.core.streams.AddonRequestOutcome
+import com.fetch.tv.core.streams.withoutUnplayableStreams
 import android.content.Context
 import android.util.Log
 import com.fetch.tv.R
@@ -336,7 +337,10 @@ class StreamRepositoryImpl @Inject constructor(
         if (existingIndex >= 0) {
             val existing = accumulatedResults[existingIndex]
             val merged = existing.copy(
-                streams = mergeStreams(existing.streams, result.streams)
+                streams = mergeStreams(existing.streams, result.streams),
+                // The same addon can answer more than once with overlapping results (cache, then
+                // network); mergeStreams dedupes the streams, so don't double count the hidden ones.
+                hiddenUnplayableCount = maxOf(existing.hiddenUnplayableCount, result.hiddenUnplayableCount)
             )
             accumulatedResults[existingIndex] = presentStreams(merged)
         } else {
@@ -345,11 +349,9 @@ class StreamRepositoryImpl @Inject constructor(
     }
 
     // Fetch plays debrid and direct links only. It has no built-in debrid service and no torrent
-    // engine, so drop streams an addon left for the client to resolve and bare torrents.
-    private fun presentStreams(result: AddonStreams): AddonStreams =
-        result.copy(
-            streams = result.streams.filterNot { stream -> stream.needsClientDebridResolve() || stream.isTorrent() }
-        )
+    // engine, so drop streams an addon left for the client to resolve and bare torrents. The
+    // group keeps a count of what was dropped, so the UI can say why an addon came back empty.
+    private fun presentStreams(result: AddonStreams): AddonStreams = result.withoutUnplayableStreams()
 
     private fun mergeStreams(existing: List<Stream>, incoming: List<Stream>): List<Stream> {
         val streamsByKey = LinkedHashMap<String, Stream>()

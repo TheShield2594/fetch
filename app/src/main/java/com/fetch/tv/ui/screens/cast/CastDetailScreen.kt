@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.cast
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import com.fetch.tv.ui.theme.FetchMotion
@@ -42,7 +43,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -114,9 +114,9 @@ fun CastDetailScreen(
     onBackPress: () -> Unit,
     onNavigateToDetail: (itemId: String, itemType: String, addonBaseUrl: String?) -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val watchedMovieIds by viewModel.watchedMovieIds.collectAsState()
-    val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val watchedMovieIds by viewModel.watchedMovieIds.collectAsStateWithLifecycle()
+    val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()
     var isBiographyExpanded by rememberSaveable(viewModel.personId) { mutableStateOf(false) }
 
     BackHandler {
@@ -153,7 +153,7 @@ fun CastDetailScreen(
                         onBiographyExpandedChange = { isBiographyExpanded = it },
                         onNavigateToDetail = onNavigateToDetail,
                         posterOptions = viewModel.posterOptions,
-                        posterCardCornerRadiusDp = viewModel.posterCardCornerRadiusDp.collectAsState().value,
+                        posterCardCornerRadiusDp = viewModel.posterCardCornerRadiusDp.collectAsStateWithLifecycle().value,
                         isItemWatched = { item ->
                             if (item.apiType == "movie") item.id in watchedMovieIds
                             else item.id in watchedSeriesIds
@@ -163,7 +163,7 @@ fun CastDetailScreen(
             }
         }
 
-        val posterOptionsState by viewModel.posterOptions.state.collectAsState()
+        val posterOptionsState by viewModel.posterOptions.state.collectAsStateWithLifecycle()
         com.fetch.tv.ui.components.posteroptions.PosterOptionsHost(
             state = posterOptionsState,
             controller = viewModel.posterOptions,

@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchStatusTones
@@ -59,7 +60,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
@@ -146,9 +146,9 @@ fun SearchScreen(
     onOpenDiscover: () -> Unit = {},
     onNavigateToAddons: () -> Unit = {}
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val watchedMovieIds by viewModel.watchedMovieIds.collectAsState()
-    val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val watchedMovieIds by viewModel.watchedMovieIds.collectAsStateWithLifecycle()
+    val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val view = LocalView.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -959,7 +959,7 @@ fun SearchScreen(
         }
     }
 
-    val posterOptionsState by viewModel.posterOptions.state.collectAsState()
+    val posterOptionsState by viewModel.posterOptions.state.collectAsStateWithLifecycle()
     com.fetch.tv.ui.components.posteroptions.PosterOptionsHost(
         state = posterOptionsState,
         controller = viewModel.posterOptions,

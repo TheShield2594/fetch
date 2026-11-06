@@ -22,7 +22,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -125,7 +124,7 @@ fun HomeScreen(
     // The long-press menu is the shared one (Search, Library, Discover, See-all, Cast), so Home
     // gets the same TMDB→IMDb canonicalisation and failure reporting.
     val posterOptionsController = posterOptionsViewModel.controller
-    val posterOptionsState by posterOptionsController.state.collectAsState()
+    val posterOptionsState by posterOptionsController.state.collectAsStateWithLifecycle()
     /** Order key of the row the open menu's poster was long-pressed in, for pinning that row. */
     var posterOptionsRowKey by remember { mutableStateOf<String?>(null) }
 
@@ -389,7 +388,7 @@ fun HomeScreen(
         }
     }
 
-    val pinnedRowKeys by viewModel.pinnedRowKeys.collectAsState()
+    val pinnedRowKeys by viewModel.pinnedRowKeys.collectAsStateWithLifecycle()
     com.fetch.tv.ui.components.posteroptions.PosterOptionsHost(
         state = posterOptionsState,
         controller = posterOptionsController,

@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.components.PosterGridSkeleton
 import com.fetch.tv.domain.model.catalogRowLegacyKey
@@ -29,7 +30,6 @@ import androidx.compose.material.icons.filled.GridView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -87,8 +87,8 @@ fun CatalogSeeAllScreen(
     onBackPress: () -> Unit
 ) {
     val posterOptionsController = searchViewModel?.posterOptions ?: posterOptionsViewModel.controller
-    val uiState by viewModel.uiState.collectAsState()
-    val fullCatalogRows by viewModel.fullCatalogRows.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val fullCatalogRows by viewModel.fullCatalogRows.collectAsStateWithLifecycle()
     val computedHeightDp = (uiState.posterCardWidthDp * 1.5f).roundToInt()
     val posterCardStyle = PosterCardStyle(
         width = uiState.posterCardWidthDp.dp,
@@ -105,17 +105,17 @@ fun CatalogSeeAllScreen(
 
     // In search mode, get the catalog row from SearchViewModel's existing results.
     // Otherwise fall back to HomeViewModel's fullCatalogRows (home screen catalogs).
-    val searchUiState = searchViewModel?.uiState?.collectAsState()
-    val searchWatchedMovieIds = searchViewModel?.watchedMovieIds?.collectAsState()
-    val searchWatchedSeriesIds = searchViewModel?.watchedSeriesIds?.collectAsState()
+    val searchUiState = searchViewModel?.uiState?.collectAsStateWithLifecycle()
+    val searchWatchedMovieIds = searchViewModel?.watchedMovieIds?.collectAsStateWithLifecycle()
+    val searchWatchedSeriesIds = searchViewModel?.watchedSeriesIds?.collectAsStateWithLifecycle()
     val searchCatalogRow = searchUiState?.value?.catalogRows?.find {
         it.legacyKey() == catalogKey
     }
     val homeCatalogRow = fullCatalogRows.find {
         it.legacyKey() == catalogKey
     }
-    val serverRow = serverCatalog?.row?.collectAsState()
-    val serverFailure = serverCatalog?.failure?.collectAsState()
+    val serverRow = serverCatalog?.row?.collectAsStateWithLifecycle()
+    val serverFailure = serverCatalog?.failure?.collectAsStateWithLifecycle()
     val catalogRow = when {
         serverCatalog != null -> serverRow?.value
         isSearchMode -> searchCatalogRow
@@ -396,7 +396,7 @@ fun CatalogSeeAllScreen(
             )
         }
 
-        val posterOptionsState by posterOptionsController.state.collectAsState()
+        val posterOptionsState by posterOptionsController.state.collectAsStateWithLifecycle()
         com.fetch.tv.ui.components.posteroptions.PosterOptionsHost(
             state = posterOptionsState,
             controller = posterOptionsController,

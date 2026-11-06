@@ -178,13 +178,19 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
   app.post<{ Querystring: { limit?: string } }>("/metadata/refresh-all", { preHandler: requireAdmin }, async (request, reply) => {
     const rawLimit = parseInt(request.query.limit ?? "50", 10);
     const limit = isNaN(rawLimit) || rawLimit < 1 ? 50 : Math.min(rawLimit, 500);
-    const allMetadata = await prisma.metadata.findMany({
-      select: { imdbId: true, type: true },
-      take: limit,
-    });
+    // Stalest first: a successful refresh bumps `updatedAt`, so repeated runs walk through
+    // the whole library instead of refreshing the same heap-order rows every time.
+    const [allMetadata, total] = await Promise.all([
+      prisma.metadata.findMany({
+        select: { imdbId: true, type: true },
+        orderBy: [{ updatedAt: "asc" }, { imdbId: "asc" }, { type: "asc" }],
+        take: limit,
+      }),
+      prisma.metadata.count(),
+    ]);
 
     if (allMetadata.length === 0) {
-      return reply.send({ refreshed: 0, total: 0, limit });
+      return reply.send({ refreshed: 0, processed: 0, total, limit });
     }
 
     const BATCH_SIZE = 5;
@@ -199,6 +205,7 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
 
     const omdbKey = await getOmdbApiKey();
     let refreshed = 0;
+    const notRefreshed: typeof allMetadata = [];
 
     for (let i = 0; i < allMetadata.length; i += BATCH_SIZE) {
       const batch = allMetadata.slice(i, i + BATCH_SIZE);
@@ -224,7 +231,10 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
         if (!result) continue;
         if (result.status === "fulfilled" && result.value) {
           refreshed++;
-        } else if (result.status === "rejected") {
+          continue;
+        }
+        notRefreshed.push(item);
+        if (result.status === "rejected") {
           request.log.warn(
             { imdbId: item.imdbId, type: item.type, error: result.reason },
             "Failed to refresh metadata"
@@ -237,7 +247,20 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
       }
     }
 
-    return reply.send({ refreshed, total: allMetadata.length, limit });
+    // Titles TMDB no longer knows (or that failed this time) would otherwise stay the
+    // stalest rows forever and take every slot of the next run. Move them to the back.
+    if (notRefreshed.length > 0) {
+      try {
+        await prisma.metadata.updateMany({
+          where: { OR: notRefreshed.map(({ imdbId, type }) => ({ imdbId, type })) },
+          data: { updatedAt: new Date() },
+        });
+      } catch (error) {
+        request.log.warn(error, "Failed to rotate unrefreshed metadata rows");
+      }
+    }
+
+    return reply.send({ refreshed, processed: allMetadata.length, total, limit });
   });
 
   app.get<{ Querystring: { q?: string } }>("/metadata/anime-search", async (request, reply) => {

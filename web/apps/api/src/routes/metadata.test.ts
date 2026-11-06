@@ -6,7 +6,7 @@ const PROFILE_ID = "11111111-1111-4111-8111-111111111111";
 
 const prismaMock = {
   kV: { findUnique: vi.fn() },
-  metadata: { findMany: vi.fn() },
+  metadata: { findMany: vi.fn(), count: vi.fn(), updateMany: vi.fn() },
 };
 
 const loadMeta = vi.fn();
@@ -74,6 +74,8 @@ describe("metadata routes", () => {
     loadRecommendations.mockResolvedValue({ metas: [{ id: "tt2" }] });
     prismaMock.kV.findUnique.mockResolvedValue(null);
     prismaMock.metadata.findMany.mockResolvedValue([]);
+    prismaMock.metadata.count.mockResolvedValue(0);
+    prismaMock.metadata.updateMany.mockResolvedValue({ count: 0 });
     getTmdb.mockResolvedValue({ findByImdbId });
     getOmdbApiKey.mockResolvedValue(null);
   });
@@ -265,7 +267,7 @@ describe("metadata routes", () => {
       const res = await app.inject({ method: "POST", url: "/metadata/refresh-all" });
 
       expect(res.statusCode).toBe(200);
-      expect(res.json()).toEqual({ refreshed: 0, total: 0, limit: 50 });
+      expect(res.json()).toEqual({ refreshed: 0, processed: 0, total: 0, limit: 50 });
       expect(getTmdb).not.toHaveBeenCalled();
     });
 
@@ -296,7 +298,44 @@ describe("metadata routes", () => {
 
       const res = await app.inject({ method: "POST", url: "/metadata/refresh-all" });
 
-      expect(res.json()).toMatchObject({ refreshed: 1, total: 2 });
+      expect(res.json()).toMatchObject({ refreshed: 1, processed: 2 });
+    });
+
+    it("takes the stalest rows first and reports the library size", async () => {
+      prismaMock.metadata.findMany.mockResolvedValue([{ imdbId: "tt1", type: "movie" }]);
+      prismaMock.metadata.count.mockResolvedValue(1234);
+      findByImdbId.mockResolvedValue({ imdbId: "tt1" });
+      upsertMetadata.mockResolvedValue(undefined);
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "POST", url: "/metadata/refresh-all" });
+
+      expect(prismaMock.metadata.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ orderBy: [{ updatedAt: "asc" }, { imdbId: "asc" }, { type: "asc" }] })
+      );
+      expect(res.json()).toMatchObject({ refreshed: 1, processed: 1, total: 1234 });
+      expect(prismaMock.metadata.updateMany).not.toHaveBeenCalled();
+    });
+
+    it("moves titles TMDB didn't return to the back of the queue", async () => {
+      prismaMock.metadata.findMany.mockResolvedValue([
+        { imdbId: "tt1", type: "movie" },
+        { imdbId: "tt2", type: "series" },
+        { imdbId: "tt3", type: "movie" },
+      ]);
+      findByImdbId
+        .mockResolvedValueOnce({ imdbId: "tt1" })
+        .mockResolvedValueOnce(null)
+        .mockRejectedValueOnce(new Error("429"));
+      upsertMetadata.mockResolvedValue(undefined);
+      const app = await buildApp();
+
+      await app.inject({ method: "POST", url: "/metadata/refresh-all" });
+
+      expect(prismaMock.metadata.updateMany).toHaveBeenCalledWith({
+        where: { OR: [{ imdbId: "tt2", type: "series" }, { imdbId: "tt3", type: "movie" }] },
+        data: { updatedAt: expect.any(Date) },
+      });
     });
 
     it("keeps going when one title's refresh throws", async () => {

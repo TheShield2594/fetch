@@ -65,7 +65,8 @@ class SearchViewModel @Inject constructor(
     private val serverCatalog: ServerCatalog,
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     private val remoteCommandBus: com.fetch.tv.core.remote.RemoteCommandBus,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val peopleSearch: com.fetch.tv.core.tmdb.TmdbPeopleSearch
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
@@ -512,6 +513,36 @@ class SearchViewModel @Inject constructor(
         pendingCatalogResponses = 0
     }
 
+    private var peopleJob: Job? = null
+    /** The query [peopleJob] is answering or has answered; a repeat of it isn't re-requested. */
+    private var peopleQuery: String? = null
+
+    /**
+     * Looks the query up as a person name on TMDB, alongside the addon search. Like the title
+     * rows, the previous query's people stay up until this query's answer replaces them.
+     */
+    private fun searchPeople(query: String) {
+        if (query == peopleQuery) return
+        peopleQuery = query
+        peopleJob?.cancel()
+        peopleJob = viewModelScope.launch {
+            val people = try {
+                peopleSearch.search(query)
+            } catch (e: CancellationException) {
+                if (peopleQuery == query) peopleQuery = null
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.w("SearchViewModel", "People search failed: ${e.message}")
+                // Forget the query so a retry asks again.
+                if (peopleQuery == query) peopleQuery = null
+                emptyList()
+            }
+            if (_uiState.value.submittedQuery.trim() == query) {
+                _uiState.update { it.copy(peopleResults = people) }
+            }
+        }
+    }
+
     private fun cancelSearchRun() {
         searchGeneration++
         searchRunJob?.cancel()
@@ -583,16 +614,21 @@ class SearchViewModel @Inject constructor(
             resetCatalogAccumulator()
             lastRequestKey = null
             lastCompletedRequestKey = null
+            peopleJob?.cancel()
+            peopleQuery = null
             _uiState.update {
                 it.copy(
                     isSearching = false,
                     error = null,
-                    catalogRows = emptyList()
+                    catalogRows = emptyList(),
+                    peopleResults = emptyList()
                 )
             }
             ensureDiscoverLoaded()
             return
         }
+
+        searchPeople(query)
 
         // Submit can immediately follow the debounced live-search launch. Reuse an active run for
         // the same query, but cancel a different query's entire scope before starting this one.

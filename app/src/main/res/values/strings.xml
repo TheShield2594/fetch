@@ -1846,6 +1846,7 @@
 
 
     <string name="search_placeholder">Search movies &amp; series</string>
+    <string name="search_people_title">People</string>
     <string name="search_start_title">Start searching</string>
     <string name="search_start_subtitle">Enter at least 2 characters</string>
     <string name="search_recent_title">Recent searches</string>

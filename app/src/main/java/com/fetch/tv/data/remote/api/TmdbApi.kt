@@ -238,6 +238,15 @@ interface TmdbApi {
         @Query("include_adult") includeAdult: Boolean = false
     ): Response<TmdbCollectionSearchResponse>
 
+    @GET("search/person")
+    suspend fun searchPeople(
+        @Query("api_key") apiKey: String,
+        @Query("query") query: String,
+        @Query("language") language: String? = null,
+        @Query("page") page: Int = 1,
+        @Query("include_adult") includeAdult: Boolean = false
+    ): Response<TmdbPersonSearchResponse>
+
     @GET("genre/movie/list")
     suspend fun getMovieGenres(
         @Query("api_key") apiKey: String,
@@ -590,6 +599,31 @@ data class TmdbCollectionSearchResult(
     @Json(name = "poster_path") val posterPath: String? = null,
     @Json(name = "backdrop_path") val backdropPath: String? = null,
     @Json(name = "overview") val overview: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class TmdbPersonSearchResponse(
+    @Json(name = "page") val page: Int? = null,
+    @Json(name = "results") val results: List<TmdbPersonSearchResult>? = null,
+    @Json(name = "total_pages") val totalPages: Int? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class TmdbPersonSearchResult(
+    @Json(name = "id") val id: Int,
+    @Json(name = "name") val name: String? = null,
+    @Json(name = "profile_path") val profilePath: String? = null,
+    @Json(name = "known_for_department") val knownForDepartment: String? = null,
+    @Json(name = "popularity") val popularity: Double? = null,
+    @Json(name = "adult") val adult: Boolean? = null,
+    @Json(name = "known_for") val knownFor: List<TmdbPersonKnownFor>? = null
+)
+
+/** A title a search result is known for: movies carry [title], shows carry [name]. */
+@JsonClass(generateAdapter = true)
+data class TmdbPersonKnownFor(
+    @Json(name = "title") val title: String? = null,
+    @Json(name = "name") val name: String? = null
 )
 
 @JsonClass(generateAdapter = true)

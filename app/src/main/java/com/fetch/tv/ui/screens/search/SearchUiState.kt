@@ -48,7 +48,9 @@ data class SearchUiState(
     val posterCardHeightDp: Int = 189,
     val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
     val recentSearches: List<String> = emptyList(),
-    val suggestions: List<String> = emptyList()
+    val suggestions: List<String> = emptyList(),
+    /** People matching the query on TMDB (when TMDB is on), each opening the cast screen. */
+    val peopleResults: List<com.fetch.tv.core.tmdb.PersonSearchResult> = emptyList()
 )
 
 @Immutable

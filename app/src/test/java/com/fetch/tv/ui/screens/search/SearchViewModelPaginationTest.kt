@@ -231,7 +231,8 @@ class SearchViewModelPaginationTest {
             serverCatalog = mockk { every { searchAddons } returns flowOf(emptyList()) },
             parentalControls = com.fetch.tv.unrestrictedParentalControls(),
             remoteCommandBus = com.fetch.tv.core.remote.RemoteCommandBus(),
-            context = mockk<Context>(relaxed = true)
+            context = mockk<Context>(relaxed = true),
+            peopleSearch = mockk { io.mockk.coEvery { search(any()) } returns emptyList() }
         )
     }
 }

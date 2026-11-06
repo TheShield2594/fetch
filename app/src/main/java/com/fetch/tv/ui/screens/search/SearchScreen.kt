@@ -144,7 +144,9 @@ fun SearchScreen(
     onNavigateToDetail: (String, String, String) -> Unit,
     onNavigateToSeeAll: (catalogId: String, addonId: String, type: String) -> Unit = { _, _, _ -> },
     onOpenDiscover: () -> Unit = {},
-    onNavigateToAddons: () -> Unit = {}
+    onNavigateToAddons: () -> Unit = {},
+    /** Opens the cast screen for a person from the people row (TMDB person id and name). */
+    onNavigateToPerson: (personId: Int, personName: String, preferCrew: Boolean) -> Unit = { _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val watchedMovieIds by viewModel.watchedMovieIds.collectAsStateWithLifecycle()
@@ -158,6 +160,7 @@ fun SearchScreen(
     val strVoiceUnavailable = stringResource(R.string.search_voice_unavailable)
     val noSearchCatalogsError = stringResource(R.string.search_error_no_catalogs)
     val voiceFocusRequester = remember { FocusRequester() }
+    val peopleRowState = remember { LazyListState() }
     val searchFocusRequester = remember { FocusRequester() }
     val discoverFirstItemFocusRequester = remember { FocusRequester() }
     val recentClearHistoryFocusRequester = remember { FocusRequester() }
@@ -798,7 +801,8 @@ fun SearchScreen(
                         }
                     }
 
-                    !uiState.isSearching && !hasPendingUnsubmittedQuery && visibleCatalogRows.isEmpty() -> {
+                    !uiState.isSearching && !hasPendingUnsubmittedQuery && visibleCatalogRows.isEmpty() &&
+                        uiState.peopleResults.isEmpty() -> {
                         item {
                             EmptyScreenState(
                                 title = stringResource(R.string.search_no_results_query_title, trimmedSubmittedQuery),
@@ -913,6 +917,33 @@ fun SearchScreen(
                                     )
                                 }
                             )
+                        }
+
+                        // People whose name matches, after the titles. Opening one shows their
+                        // filmography, the only other way to reach which is a title's cast row.
+                        if (uiState.peopleResults.isNotEmpty()) {
+                            item(key = "search_people", contentType = "people_row") {
+                                val people = remember(uiState.peopleResults) {
+                                    uiState.peopleResults.map { it.person }
+                                }
+                                com.fetch.tv.ui.screens.detail.CastSection(
+                                    cast = people,
+                                    listState = peopleRowState,
+                                    title = stringResource(R.string.search_people_title),
+                                    upFocusRequester = if (visibleCatalogRows.isEmpty()) searchFocusRequester else null,
+                                    windowResetKey = trimmedSubmittedQuery,
+                                    onCastMemberClick = { person ->
+                                        val id = person.tmdbId
+                                        if (id != null) {
+                                            val preferCrew = uiState.peopleResults
+                                                .firstOrNull { it.person.tmdbId == id }
+                                                ?.preferCrew == true
+                                            onNavigateToPerson(id, person.name, preferCrew)
+                                        }
+                                    },
+                                    modifier = Modifier.padding(bottom = FetchTheme.spacing.xl)
+                                )
+                            }
                         }
 
                         // Results are up but more catalogs are still answering, as on mobile.

@@ -11,30 +11,45 @@ private const val DefaultRetryDelayMs = 1_000L
 private const val MaximumFallbackDelayMs = 30_000L
 private const val MaximumJitterMs = 1_000L
 
+/**
+ * Upper bound for any server-supplied Retry-After. A proxy or CDN in front of a self-hosted
+ * backend can answer `Retry-After: 3600` (or a far-future date); honouring that would block
+ * every sync, auth refresh and PIN check for an hour with no error. Two minutes is long enough
+ * to back off from a real rate limit and short enough that the app recovers on its own.
+ */
+internal const val MaximumRetryAfterMs = 120_000L
+
 internal class BackendRateLimitCoordinator(
+    /** Wall clock, only used to turn an HTTP-date Retry-After into a delay. */
     private val currentTimeMillis: () -> Long = System::currentTimeMillis,
+    /**
+     * Monotonic clock for the cooldown deadline, so a backwards NTP correction or a manual
+     * clock change can't lengthen (or shorten) the wait.
+     */
+    private val monotonicMillis: () -> Long = { System.nanoTime() / 1_000_000L },
     private val pause: suspend (Long) -> Unit = { delay(it) }
 ) {
-    private val cooldownUntilEpochMs = AtomicLong(0L)
+    private val cooldownUntilMonotonicMs = AtomicLong(Long.MIN_VALUE)
 
     fun record(retryAfterHeader: String?) {
-        val now = currentTimeMillis()
         val delayMs = retryAfterDelayMillis(
             retryAfterHeader = retryAfterHeader,
-            nowEpochMs = now
+            nowEpochMs = currentTimeMillis()
         )
-        val candidate = saturatedAdd(now, delayMs)
+        val candidate = saturatedAdd(monotonicMillis(), delayMs)
         while (true) {
-            val current = cooldownUntilEpochMs.get()
-            if (candidate <= current || cooldownUntilEpochMs.compareAndSet(current, candidate)) return
+            val current = cooldownUntilMonotonicMs.get()
+            if (candidate <= current || cooldownUntilMonotonicMs.compareAndSet(current, candidate)) return
         }
     }
 
     suspend fun awaitPermission() {
         while (true) {
-            val waitMs = cooldownUntilEpochMs.get() - currentTimeMillis()
+            val until = cooldownUntilMonotonicMs.get()
+            if (until == Long.MIN_VALUE) return
+            val waitMs = until - monotonicMillis()
             if (waitMs <= 0L) return
-            pause(waitMs)
+            pause(waitMs.coerceAtMost(MaximumRetryAfterMs))
         }
     }
 }
@@ -94,7 +109,8 @@ internal fun retryAfterDelayMillis(
     } else {
         null
     }
-    return secondsDelay ?: dateDelay ?: fallbackDelayMs.coerceAtLeast(0L)
+    return (secondsDelay ?: dateDelay ?: fallbackDelayMs.coerceAtLeast(0L))
+        .coerceAtMost(MaximumRetryAfterMs)
 }
 
 internal fun backendRetryDelayMillis(

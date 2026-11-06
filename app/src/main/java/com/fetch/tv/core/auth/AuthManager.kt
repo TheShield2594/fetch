@@ -421,18 +421,20 @@ class AuthManager @Inject constructor(
 
     /**
      * The server ended the session (refresh token expired or revoked) without the
-     * person asking. Local data is kept: it may hold watch progress that was never
-     * pushed, plus profiles, PINs and parental limits. The local data owner stays
-     * recorded, so the same account picks it all back up (and pushes the pending
-     * changes) when it signs in again, while a different account triggers a reset
-     * first in [resetLocalDataIfAccountChanged].
+     * person asking. Local account data is wiped, as before: the server can't tell a
+     * revoked session (a lost or sold TV) from an expired one, and a revoked device
+     * must not keep addons, debrid keys or tracking tokens. The local data owner is
+     * cleared with it, so the next sign-in starts clean.
      */
     private suspend fun handleUnexpectedSignedOut() {
         sessionValidator.reset()
         cachedEffectiveUserId = null
         cachedEffectiveUserSourceUserId = null
         _authState.value = AuthState.SignedOut
-        authSessionNoticeDataStore.markUnexpectedFetchLogoutIfNeeded()
+        if (authSessionNoticeDataStore.markUnexpectedFetchLogoutIfNeeded()) {
+            accountLocalDataResetService.clearAfterSignOut()
+            clearLocalDataOwner()
+        }
     }
 
     /**

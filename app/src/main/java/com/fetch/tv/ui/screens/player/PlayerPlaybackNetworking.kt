@@ -5,38 +5,16 @@ import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import com.fetch.tv.core.network.IPv4FirstDns
+import com.fetch.tv.core.network.LocalNetworkTls
 import com.fetch.tv.core.network.PlaybackSocketFactory
 import okhttp3.OkHttpClient
 import java.net.HttpURLConnection
 import java.net.URL
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.HttpsURLConnection
-import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLException
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
 
 internal object PlayerPlaybackNetworking {
     private const val LOOPBACK_READ_TIMEOUT_SECONDS = 65L
-
-    private val trustAllManager = object : X509TrustManager {
-        override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) = Unit
-
-        override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) = Unit
-
-        override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
-    }
-
-    private val playbackHostnameVerifier = HostnameVerifier { _, _ -> true }
-
-    private val sslContext: SSLContext by lazy {
-        SSLContext.getInstance("TLS").apply {
-            init(null, arrayOf<TrustManager>(trustAllManager), SecureRandom())
-        }
-    }
 
     /**
      * Settings both playback clients share, including one connection pool and dispatcher
@@ -63,32 +41,21 @@ internal object PlayerPlaybackNetworking {
     }
 
     /**
-     * Fallback OkHttpClient equipped with trust-all SSL configuration for self-signed
-     * or untrusted local media servers (e.g. self-signed WebDAV / Plex / Jellyfin).
+     * Fallback OkHttpClient without certificate checks, for self-signed local media servers
+     * (e.g. WebDAV / Plex / Jellyfin on the LAN). Only reached for local-network hosts.
      */
     internal val trustAllPlaybackHttpClient: OkHttpClient by lazy {
-        playbackBaseClient.newBuilder()
-            .sslSocketFactory(sslContext.socketFactory, trustAllManager)
-            .hostnameVerifier(playbackHostnameVerifier)
-            .build()
+        LocalNetworkTls.unverifiedClient(playbackBaseClient)
     }
 
     /**
      * Primary OkHttpClient using standard system SSL certificates and full SNI support.
-     * Includes an automatic fallback to [trustAllPlaybackHttpClient] if an [SSLException]
-     * occurs on self-signed local media servers.
+     * Falls back to [trustAllPlaybackHttpClient] after a TLS failure only for local-network
+     * hosts; a public host with a bad certificate fails instead of streaming unverified.
      */
     internal val playbackHttpClient: OkHttpClient by lazy {
         playbackBaseClient.newBuilder()
-            .addInterceptor { chain ->
-                val request = chain.request()
-                try {
-                    chain.proceed(request)
-                } catch (e: SSLException) {
-                    // Fallback to trust-all client if standard system SSL fails (e.g. self-signed local server)
-                    trustAllPlaybackHttpClient.newCall(request).execute()
-                }
-            }
+            .addInterceptor(LocalNetworkTls.localFallbackInterceptor { trustAllPlaybackHttpClient })
             .build()
     }
 

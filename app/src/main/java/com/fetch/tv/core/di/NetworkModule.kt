@@ -38,16 +38,12 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import com.fetch.tv.core.network.IPv4FirstDns
+import com.fetch.tv.core.network.LocalNetworkTls
 import java.io.File
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Named
 import javax.inject.Singleton
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
 
 private object TraktHttpTrace {
     private val requestCounter = AtomicLong(0L)
@@ -128,8 +124,8 @@ object NetworkModule {
     }
 
     /**
-     * Permissive client for addon-provided URLs, including self-hosted servers with self-signed
-     * certificates. Uses a separate cache from first-party traffic.
+     * Client for addon-provided URLs. Validates certificates, but allows self-signed ones on
+     * local-network hosts (see [LocalNetworkTls]). Uses a separate cache from first-party traffic.
      *
      * Do not use for first-party endpoints.
      */
@@ -140,18 +136,15 @@ object NetworkModule {
         @ApplicationContext context: Context,
         okHttpClient: OkHttpClient
     ): OkHttpClient {
-        val trustAllManager = object : X509TrustManager {
-            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) = Unit
-            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) = Unit
-            override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
-        }
-        val sslContext = SSLContext.getInstance("TLS").apply {
-            init(null, arrayOf<TrustManager>(trustAllManager), SecureRandom())
-        }
-        return okHttpClient.newBuilder()
+        // Certificates are validated normally. Only hosts on the local network (self-hosted
+        // addons with self-signed certificates) are retried without verification; addon URLs
+        // carry debrid keys, so public hosts must never fall back.
+        val cached = okHttpClient.newBuilder()
             .cache(Cache(File(context.cacheDir, "addon_http_cache"), 50L * 1024 * 1024))
-            .sslSocketFactory(sslContext.socketFactory, trustAllManager)
-            .hostnameVerifier { _, _ -> true }
+            .build()
+        val unverifiedLocal by lazy { LocalNetworkTls.unverifiedClient(cached) }
+        return cached.newBuilder()
+            .addInterceptor(LocalNetworkTls.localFallbackInterceptor { unverifiedLocal })
             .build()
     }
 

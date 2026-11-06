@@ -464,9 +464,18 @@ open class MainActivity : ComponentActivity() {
                 profilePinStates?.get(activeProfileId) == true
             }
 
+            // "Lock unrestricted profiles" can also lock the remembered profile behind the parent
+            // PIN. Null until read from disk, so that profile is never auto-entered early either.
+            val profileOpenLock by remember { parentalControls.profileOpenLock }.collectAsState(initial = null)
+            val activeProfileNeedsParentPin = remember(activeProfileId, profiles, profileOpenLock) {
+                profileOpenLock?.needsParentPinToOpen(activeProfileId, profiles.map { it.id })
+            }
+
             var profileSwitchedManually by remember { mutableStateOf(false) }
+            // A locked profile is opened from the picker, which asks for its PIN or the parent's.
             val shouldAutoSelectProfile = rememberLastProfileEnabled &&
                 hasEverSelectedProfile && profilePinStates != null && !activeProfileHasPin &&
+                activeProfileNeedsParentPin == false &&
                 !hasSelectedProfileThisSession && !profileSwitchedManually
             if (shouldAutoSelectProfile && !splashTriggered) {
                 splashTriggered = true
@@ -739,7 +748,8 @@ open class MainActivity : ComponentActivity() {
                     var startupDestination = StartupDestination.Loading
                     val surfaceContentReady = hasSeenAuthQrOnFirstLaunch != null &&
                         authState !is AuthState.Loading &&
-                        profilePinStates != null
+                        profilePinStates != null &&
+                        profileOpenLock != null
 
                     if (!surfaceContentReady) {
                         // Still loading auth state; nothing to show yet.

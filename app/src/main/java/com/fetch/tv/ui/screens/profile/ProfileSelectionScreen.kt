@@ -66,6 +66,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -122,6 +123,7 @@ import com.fetch.tv.R
 import com.fetch.tv.core.sync.SetProfilePinResult
 import com.fetch.tv.core.parental.PinVerifyResult
 import com.fetch.tv.core.parental.ResetPinResult
+import com.fetch.tv.core.parental.needsParentPinToDelete
 import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
 import com.fetch.tv.data.remote.supabase.ProfileBackgroundCatalogItem
 import com.fetch.tv.data.local.ProfileRestrictions
@@ -141,6 +143,7 @@ import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import com.fetch.tv.domain.model.ProfileBackgroundSelection
 import com.fetch.tv.domain.model.resolveProfileBackgroundSelection
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import com.fetch.tv.ui.theme.FetchContentColors
 import com.fetch.tv.ui.theme.FetchStatusTones
 
@@ -179,6 +182,8 @@ private object ProfileSelectionSpacing {
     val PinBoxesToSupport = 26.dp
     val PinBoxSize = 118.dp
     val PinBoxGap = 14.dp
+    val PinBoxSizeLong = 84.dp
+    val PinBoxGapLong = 12.dp
     val PinSupportMaxWidth = 720.dp
 }
 
@@ -188,7 +193,27 @@ private sealed interface ProfileBackgroundArtwork {
 }
 
 private val ProfileCardFocusEasing = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)
-private const val ProfilePinLength = 4
+
+/** PINs are 4 to 8 digits, as on the website and the desktop app. */
+internal object ProfilePinEntry {
+    const val MinLength = 4
+    const val MaxLength = 8
+
+    fun canSubmit(length: Int): Boolean = length in MinLength..MaxLength
+
+    /**
+     * Length at which entry goes ahead without OK: the maximum, or while a new PIN is being
+     * confirmed, the length of the first entry ([confirmingLength]).
+     */
+    fun autoSubmitLength(confirmingLength: Int?): Int = confirmingLength ?: MaxLength
+
+    /**
+     * Boxes to draw for [length] digits: the minimum, then one more for the next digit, up to the
+     * maximum. While confirming a new PIN, exactly as many as it has ([confirmingLength]).
+     */
+    fun boxCount(length: Int, confirmingLength: Int? = null): Int =
+        confirmingLength ?: (length + 1).coerceIn(MinLength, MaxLength)
+}
 
 enum class ProfileSelectionMode {
     Selection,
@@ -956,7 +981,11 @@ fun ProfileSelectionScreen(
                     Button(
                         onClick = {
                             longPressedProfile = null
-                            runWithProfilePin(profile) {
+                            // Copying into a restricted profile brings addons (and maybe API keys),
+                            // which are the parent's call, like its limits.
+                            val restricted = profileRestrictions[profile.id]?.isRestricted == true
+                            val guard = if (restricted && parentHasPin && parentProfile != null) parentProfile else profile
+                            runWithProfilePin(guard) {
                                 settingsCopyError = null
                                 settingsCopyTarget = profile
                             }
@@ -1106,7 +1135,16 @@ fun ProfileSelectionScreen(
                     Button(
                         onClick = {
                             longPressedProfile = null
-                            if (profilePinEnabled[profile.id] == true) {
+                            // While a profile has limits, deleting one is the parent's call, like
+                            // its limits; otherwise a kid could delete their limits away.
+                            val parentDecides = needsParentPinToDelete(
+                                profileIds = profiles.map { it.id },
+                                restrictions = profileRestrictions,
+                                parentHasPin = parentHasPin
+                            )
+                            if (parentDecides && parentProfile != null) {
+                                runWithProfilePin(parentProfile) { profileToDelete = profile }
+                            } else if (profilePinEnabled[profile.id] == true) {
                                 pinOverlayError = null
                                 pinOverlayState = ProfilePinOverlayState.VerifyCurrentForDelete(profile)
                             } else {
@@ -2715,13 +2753,18 @@ internal fun ProfilePinOverlay(
     val focusManager = LocalFocusManager.current
     val focusRequester = remember(state) { FocusRequester() }
     val forgotPinFocusRequester = remember(state) { FocusRequester() }
+    val submitFocusRequester = remember(state) { FocusRequester() }
     val canFocusForgotPin = forgotPin?.onReset != null
+    val coroutineScope = rememberCoroutineScope()
     val isSingleEntryMode = state !is ProfilePinOverlayState.Set
     var pin by remember(state) { mutableStateOf("") }
     var draftPin by remember(state) { mutableStateOf<String?>(null) }
     var entryStage by remember(state) { mutableStateOf(ProfilePinEntryStage.Create) }
     var internalErrorMessage by remember(state) { mutableStateOf<String?>(null) }
     var isInputFocused by remember(state) { mutableStateOf(false) }
+    var isSubmitFocused by remember(state) { mutableStateOf(false) }
+    // OK submits on key down; its key up must not then reach the PIN field and open the keyboard.
+    var swallowSelectKeyUp by remember(state) { mutableStateOf(false) }
     var keyboardWasVisible by remember(state) { mutableStateOf(false) }
     val shakeOffset = remember(state) { androidx.compose.animation.core.Animatable(0f) }
     val fullMotion = FetchTheme.fullMotion
@@ -2816,9 +2859,19 @@ internal fun ProfilePinOverlay(
         }
     }
 
-    LaunchedEffect(pin, entryStage, isWorking) {
-        if (pin.length != ProfilePinLength || isWorking) return@LaunchedEffect
-        // Clear pin before dispatching so the effect can't re-trigger with the
+    // While a new PIN is confirmed, the second entry must be as long as the first.
+    val confirmingLength = if (!isSingleEntryMode && entryStage == ProfilePinEntryStage.Confirm) {
+        draftPin?.length
+    } else {
+        null
+    }
+    val maxPinLength = confirmingLength ?: ProfilePinEntry.MaxLength
+    val canSubmitPin = ProfilePinEntry.canSubmit(pin.length) && !isWorking
+
+    // Runs on OK, on the keyboard's Done, and by itself once the PIN can't get any longer.
+    fun submitPin() {
+        if (!ProfilePinEntry.canSubmit(pin.length) || isWorking) return
+        // Clear pin before dispatching so the auto-submit can't re-trigger with the
         // same input after isWorking flips back to false at the end of the RPC.
         if (isSingleEntryMode) {
             val submitted = pin
@@ -2839,9 +2892,14 @@ internal fun ProfilePinOverlay(
                 draftPin = null
                 entryStage = ProfilePinEntryStage.Create
                 internalErrorMessage = mismatchMessage
-                playErrorAnimation()
+                coroutineScope.launch { playErrorAnimation() }
             }
         }
+    }
+
+    LaunchedEffect(pin, entryStage, isWorking) {
+        if (pin.length != ProfilePinEntry.autoSubmitLength(confirmingLength) || isWorking) return@LaunchedEffect
+        submitPin()
     }
 
     Box(
@@ -2855,6 +2913,10 @@ internal fun ProfilePinOverlay(
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent
                 if (native.action != AndroidKeyEvent.ACTION_DOWN) {
+                    if (swallowSelectKeyUp && isProfileSelectKey(native.keyCode)) {
+                        swallowSelectKeyUp = false
+                        return@onPreviewKeyEvent true
+                    }
                     return@onPreviewKeyEvent false
                 }
                 when (native.keyCode) {
@@ -2868,22 +2930,47 @@ internal fun ProfilePinOverlay(
                         true
                     }
 
-                    // The PIN field is invisible, so move between it and "Forgot PIN?" directly.
-                    AndroidKeyEvent.KEYCODE_DPAD_DOWN -> {
-                        if (canFocusForgotPin && isInputFocused) {
-                            runCatching { forgotPinFocusRequester.requestFocus() }
+                    // OK on the PIN field submits once it holds enough digits. With fewer, the
+                    // key goes through to the field, which opens the keyboard.
+                    AndroidKeyEvent.KEYCODE_DPAD_CENTER,
+                    AndroidKeyEvent.KEYCODE_ENTER,
+                    AndroidKeyEvent.KEYCODE_NUMPAD_ENTER -> {
+                        if (isInputFocused && canSubmitPin) {
+                            if (native.repeatCount == 0) submitPin()
+                            swallowSelectKeyUp = true
                             true
                         } else {
                             false
                         }
                     }
 
+                    // The PIN field is invisible, so move between it, OK and "Forgot PIN?" directly.
+                    AndroidKeyEvent.KEYCODE_DPAD_DOWN -> {
+                        when {
+                            isInputFocused && canSubmitPin -> {
+                                runCatching { submitFocusRequester.requestFocus() }
+                                true
+                            }
+                            canFocusForgotPin && (isInputFocused || isSubmitFocused) -> {
+                                runCatching { forgotPinFocusRequester.requestFocus() }
+                                true
+                            }
+                            else -> false
+                        }
+                    }
+
                     AndroidKeyEvent.KEYCODE_DPAD_UP -> {
-                        if (canFocusForgotPin && !isInputFocused) {
-                            runCatching { focusRequester.requestFocus() }
-                            true
-                        } else {
-                            false
+                        when {
+                            isInputFocused -> false
+                            !isSubmitFocused && canSubmitPin -> {
+                                runCatching { submitFocusRequester.requestFocus() }
+                                true
+                            }
+                            isSubmitFocused || canFocusForgotPin -> {
+                                runCatching { focusRequester.requestFocus() }
+                                true
+                            }
+                            else -> false
                         }
                     }
 
@@ -2899,7 +2986,7 @@ internal fun ProfilePinOverlay(
 
                     else -> {
                         val digit = keyCodeToDigit(native.keyCode)
-                        if (digit != null && !isWorking && pin.length < ProfilePinLength) {
+                        if (digit != null && !isWorking && pin.length < maxPinLength) {
                             pin += digit
                             if (!errorMessage.isNullOrEmpty()) onClearError()
                             if (!isSingleEntryMode) internalErrorMessage = null
@@ -2974,12 +3061,31 @@ internal fun ProfilePinOverlay(
 
                 ProfilePinBoxes(
                     value = pin,
+                    boxCount = ProfilePinEntry.boxCount(pin.length, confirmingLength),
                     isWorking = isWorking,
                     isErrorState = isErrorState,
                     isInputFocused = isInputFocused,
                     compactMode = shouldUseCompactLayout,
                     modifier = Modifier.graphicsLayer {
                         translationX = shakeOffset.value
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(supportGap))
+
+                // A PIN is 4 to 8 digits, so it only goes ahead by itself at 8. OK on the remote
+                // does the same as this button.
+                OverlayButton(
+                    text = stringResource(R.string.profile_pin_overlay_submit),
+                    isPrimary = true,
+                    enabled = canSubmitPin,
+                    modifier = Modifier
+                        .focusRequester(submitFocusRequester)
+                        .onFocusChanged { isSubmitFocused = it.isFocused },
+                    onClick = {
+                        submitPin()
+                        // The button turns off with the PIN cleared, so the next try starts in the field.
+                        runCatching { focusRequester.requestFocus() }
                     }
                 )
 
@@ -3031,12 +3137,21 @@ internal fun ProfilePinOverlay(
             }
         }
 
-        val pinProgressDescription = stringResource(R.string.cd_profile_pin_progress, pin.length, ProfilePinLength)
+        val pinProgressDescription = if (confirmingLength != null) {
+            stringResource(R.string.cd_profile_pin_progress, pin.length, confirmingLength)
+        } else {
+            stringResource(
+                R.string.cd_profile_pin_entered,
+                pin.length,
+                ProfilePinEntry.MinLength,
+                ProfilePinEntry.MaxLength
+            )
+        }
         BasicTextField(
             value = pin,
             onValueChange = { value ->
                 if (!isWorking) {
-                    pin = value.filter(Char::isDigit).take(ProfilePinLength)
+                    pin = value.filter(Char::isDigit).take(maxPinLength)
                     if (!errorMessage.isNullOrEmpty()) onClearError()
                     if (!isSingleEntryMode) internalErrorMessage = null
                 }
@@ -3059,6 +3174,11 @@ internal fun ProfilePinOverlay(
                 keyboardType = KeyboardType.NumberPassword,
                 imeAction = ImeAction.Done
             ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    if (canSubmitPin) submitPin() else defaultKeyboardAction(ImeAction.Done)
+                }
+            ),
             cursorBrush = SolidColor(Color.Transparent)
         )
     }
@@ -3067,19 +3187,32 @@ internal fun ProfilePinOverlay(
 @Composable
 private fun ProfilePinBoxes(
     value: String,
+    boxCount: Int,
     isWorking: Boolean,
     isErrorState: Boolean,
     isInputFocused: Boolean,
     compactMode: Boolean,
     modifier: Modifier = Modifier
 ) {
+    // More than four boxes get smaller, so eight still fit across the screen.
+    val manyBoxes = boxCount > ProfilePinEntry.MinLength
     val boxSize by animateDpAsState(
-        targetValue = if (compactMode) 90.dp else ProfileSelectionSpacing.PinBoxSize,
+        targetValue = when {
+            compactMode && manyBoxes -> 64.dp
+            compactMode -> 90.dp
+            manyBoxes -> ProfileSelectionSpacing.PinBoxSizeLong
+            else -> ProfileSelectionSpacing.PinBoxSize
+        },
         animationSpec = tween(FetchMotion.tokens.durations.fast),
         label = "pinBoxSize"
     )
     val boxGap by animateDpAsState(
-        targetValue = if (compactMode) 10.dp else ProfileSelectionSpacing.PinBoxGap,
+        targetValue = when {
+            compactMode && manyBoxes -> 8.dp
+            compactMode -> 10.dp
+            manyBoxes -> ProfileSelectionSpacing.PinBoxGapLong
+            else -> ProfileSelectionSpacing.PinBoxGap
+        },
         animationSpec = tween(FetchMotion.tokens.durations.fast),
         label = "pinBoxGap"
     )
@@ -3100,10 +3233,10 @@ private fun ProfilePinBoxes(
         horizontalArrangement = Arrangement.spacedBy(boxGap),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        repeat(ProfilePinLength) { index ->
+        repeat(boxCount) { index ->
             val isFilled = index < value.length
-            val isActive = index == value.length.coerceAtMost(ProfilePinLength - 1) &&
-                value.length < ProfilePinLength &&
+            val isActive = index == value.length.coerceAtMost(boxCount - 1) &&
+                value.length < boxCount &&
                 isInputFocused &&
                 !isWorking
             val borderColor by animateColorAsState(

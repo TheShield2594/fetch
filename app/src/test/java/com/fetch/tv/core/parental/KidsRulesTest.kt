@@ -104,6 +104,35 @@ class KidsRulesTest {
     }
 
     @Test
+    fun `the stored lock answers like the live check, for the remembered profile too`() {
+        val lock = ProfileOpenLock(
+            lockOn = true,
+            restrictions = mapOf(3 to ProfileRestrictions.KidsPreset),
+            pinEnabled = mapOf(1 to true, 4 to true)
+        )
+        val ids = listOf(1, 2, 3, 4)
+
+        assertTrue(lock.needsParentPinToOpen(2, ids))
+        assertFalse(lock.needsParentPinToOpen(1, ids))
+        assertFalse(lock.needsParentPinToOpen(3, ids))
+        assertFalse(lock.needsParentPinToOpen(4, ids))
+        assertFalse(lock.copy(lockOn = false).needsParentPinToOpen(2, ids))
+        // A deleted profile's leftover limits don't lock the others.
+        assertFalse(lock.needsParentPinToOpen(2, listOf(1, 2, 4)))
+    }
+
+    @Test
+    fun `deleting a profile needs the parent PIN while any profile has limits`() {
+        val restrictions = mapOf(3 to ProfileRestrictions.KidsPreset)
+        val ids = listOf(1, 2, 3)
+
+        assertTrue(needsParentPinToDelete(ids, restrictions, parentHasPin = true))
+        assertFalse(needsParentPinToDelete(ids, restrictions, parentHasPin = false))
+        assertFalse(needsParentPinToDelete(ids, emptyMap(), parentHasPin = true))
+        assertFalse(needsParentPinToDelete(listOf(1, 2), restrictions, parentHasPin = true))
+    }
+
+    @Test
     fun `approved rows split movies and shows, newest first`() {
         val lists = ProfileTitleLists(
             allowed = listOf(

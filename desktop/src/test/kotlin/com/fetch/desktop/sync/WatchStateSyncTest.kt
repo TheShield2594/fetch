@@ -143,4 +143,57 @@ class WatchStateSyncTest {
         assertEquals(listOf("tt1:1:6", "tt4"), profile.progress.watched)
         assertEquals(setOf("tt4"), profile.sync.state.pending.watchedUpserts.keys)
     }
+
+    @Test
+    fun `a failed write retried in the same run saves before the cursor moves on`() = runBlocking {
+        val profile = Profile(ProgressFile(watched = listOf("tt1", "tt2")), syncedState())
+        val remote = FakeRemote(accountA).apply {
+            watchedEvents += watchedEvent(7, "tt1", deleted = true)
+            progressEvents += RemoteProgressEvent(8, false, RemoteProgress("tt3", "movie", "tt3", positionMs = 300, durationMs = 1000, lastWatchedEpochMs = 8))
+        }
+        profile.writes = false
+        profile.sync.sync(remote, profileId = 1)
+        // Memory has the events; the disk doesn't.
+        assertEquals(listOf("tt2"), profile.progress.watched)
+        assertEquals(listOf("tt1", "tt2"), profile.disk.watched)
+
+        // Retried in the same run while the disk still fails: memory already matches the
+        // replayed events, but nothing reached the disk, so the cursors stay.
+        profile.sync.sync(remote, profileId = 1)
+        assertEquals(1L, profile.sync.state.watchedCursor)
+        assertEquals(1L, profile.sync.state.progressCursor)
+
+        // The disk works again: the retry saves what memory holds before moving on.
+        profile.writes = true
+        profile.sync.sync(remote, profileId = 1)
+        assertEquals(listOf("tt2"), profile.disk.watched)
+        assertEquals(listOf("tt3"), profile.disk.entries.map { it.contentId })
+        assertEquals(7L, profile.sync.state.watchedCursor)
+        assertEquals(8L, profile.sync.state.progressCursor)
+
+        // A restart from the disk's copies has the events, and nothing past them is skipped.
+        val restarted = WatchStateSync(profile.file, progress = { profile.disk }, write = { true })
+        assertEquals(7L, restarted.state.watchedCursor)
+        assertEquals(listOf("tt2"), profile.disk.watched)
+    }
+
+    @Test
+    fun `an upsert then a delete in one batch leaves the mark tombstoned`() = runBlocking {
+        val profile = Profile(ProgressFile(watched = listOf("tt1:1:5", "tt1:1:6")), syncedState())
+        val remote = FakeRemote(accountA).apply { watchedEvents += watchedEvent(7, "tt1:1:5", deleted = true) }
+        profile.sync.sync(remote, profileId = 1)
+        assertEquals(setOf("tt1:1:5"), profile.sync.state.watchedTombstones)
+
+        // Marked and un-marked again elsewhere, both in the next batch: the delete is what stands.
+        remote.watchedEvents += watchedEvent(8, "tt1:1:5")
+        remote.watchedEvents += watchedEvent(9, "tt1:1:5", deleted = true)
+        profile.sync.sync(remote, profileId = 1)
+        assertEquals(listOf("tt1:1:6"), profile.progress.watched)
+        assertEquals(setOf("tt1:1:5"), profile.sync.state.watchedTombstones)
+
+        // So Trakt still listing it doesn't mark it again or send it back.
+        profile.sync.saveImported(profile.progress.copy(watched = listOf("tt1:1:6", "tt1:1:5")), accountA, now = 10)
+        assertEquals(listOf("tt1:1:6"), profile.progress.watched)
+        assertTrue(profile.sync.state.pending.isEmpty)
+    }
 }

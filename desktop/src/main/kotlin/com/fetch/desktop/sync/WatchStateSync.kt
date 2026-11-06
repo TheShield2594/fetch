@@ -54,6 +54,20 @@ class WatchStateSync(
     /** Held while pulling, applying and pushing, so a push can't race a pull. */
     private val mutex = Mutex()
 
+    /**
+     * Whether the last write of the watch state failed, so what is in memory may not be on disk.
+     * A cursor can't move on until a write succeeds again: a retried pull that finds memory
+     * already up to date must still save it, or a restart would lose what the cursor skipped.
+     */
+    private var unsaved = false
+
+    /** Writes [file] when it [changed] or an earlier write failed; true once it is on disk. */
+    private fun persist(file: ProgressFile, changed: Boolean): Boolean {
+        if (!changed && !unsaved) return true
+        unsaved = !write(file)
+        return !unsaved
+    }
+
     private fun save(updated: WatchSyncState) {
         if (updated == state) return
         state = updated
@@ -77,7 +91,7 @@ class WatchStateSync(
     /** Saves a change made on this computer and queues what the server should hear of it. */
     fun saveLocal(file: ProgressFile, signedInAs: String?, now: Long) {
         val before = progress()
-        write(file)
+        persist(file, changed = true)
         if (file === before) return
         adopt(signedInAs)
         if (queues(signedInAs)) queue { WatchSync.recordLocal(it, before, file, now) }
@@ -121,15 +135,20 @@ class WatchStateSync(
             val (events, cursor) = watchedDelta
             val before = progress()
             val watched = WatchSync.applyWatchedDelta(before.watched, events, state.pending)
-            val saved = watched === before.watched || write(before.copy(watched = watched))
-            val tombstones = WatchSync.watchedTombstones(state.watchedTombstones, before.watched, watched, events.filter { !it.deleted }.map { it.item.videoId() })
+            val saved = persist(if (watched === before.watched) before else before.copy(watched = watched), changed = watched !== before.watched)
+            // The server has an id when its last event in the batch is an upsert: an upsert and
+            // then a delete of a tombstoned id leaves it tombstoned.
+            val lastPerId = events.sortedBy { it.eventId }.associateBy { it.item.videoId() }
+            val serverHas = lastPerId.filterValues { !it.deleted }.keys
+            val tombstones = WatchSync.watchedTombstones(state.watchedTombstones, before.watched, watched, serverHas)
             save(if (saved) state.copy(watchedCursor = cursor, watchedTombstones = tombstones) else state)
         } else {
             val cursor = deltaOrNull { remote.watchedDeltaCursor(profileId) }
             val items = remote.pullWatched(profileId)
             val before = progress()
             val pull = WatchSync.applyWatchedSnapshot(before.watched, items, state.pending, !state.watchedInitialized, System.currentTimeMillis())
-            val saved = pull.watched == before.watched || write(before.copy(watched = pull.watched))
+            val changed = pull.watched != before.watched
+            val saved = persist(if (changed) before.copy(watched = pull.watched) else before, changed)
             val tombstones = WatchSync.watchedTombstones(state.watchedTombstones, before.watched, pull.watched, items.map { it.videoId() })
             save(
                 if (saved) state.copy(watchedCursor = cursor, watchedInitialized = true, pending = pull.pending, watchedTombstones = tombstones)
@@ -143,7 +162,7 @@ class WatchStateSync(
             val (events, cursor) = progressDelta
             val before = progress()
             val pull = WatchSync.applyProgressDelta(before, events, state.pending, state.remoteProgressKeys)
-            val saved = pull.file === before || write(pull.file)
+            val saved = persist(pull.file, changed = pull.file !== before)
             save(
                 if (saved) state.copy(progressCursor = cursor, pending = pull.pending, remoteProgressKeys = pull.remoteKeys)
                 else state.copy(pending = pull.pending)
@@ -153,7 +172,7 @@ class WatchStateSync(
             val entries = remote.pullProgress(profileId)
             val before = progress()
             val pull = WatchSync.applyProgressSnapshot(before, entries, state.pending, state.remoteProgressKeys, !state.progressInitialized)
-            val saved = pull.file === before || write(pull.file)
+            val saved = persist(pull.file, changed = pull.file !== before)
             save(
                 if (saved) state.copy(progressCursor = cursor, progressInitialized = true, pending = pull.pending, remoteProgressKeys = pull.remoteKeys)
                 else state.copy(pending = pull.pending)

@@ -121,6 +121,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import com.fetch.tv.core.sync.SetProfilePinResult
+import com.fetch.tv.core.parental.PickerOpenGate
 import com.fetch.tv.core.parental.PinVerifyResult
 import com.fetch.tv.core.parental.ResetPinResult
 import com.fetch.tv.core.parental.needsParentPinToDelete
@@ -611,15 +612,20 @@ fun ProfileSelectionScreen(
                             longPressedProfile = profile
                         } else {
                             val parent = profiles.firstOrNull { it.isPrimary }
-                            if (profilePinEnabled[profile.id] == true) {
-                                pinOverlayError = null
-                                pinOverlayState = ProfilePinOverlayState.Unlock(profile)
-                            } else if (parent != null && viewModel.needsParentPinToOpen(profile.id)) {
+                            // Null until the PIN states and lock settings are read from disk:
+                            // ignore the press rather than open a locked profile unchecked.
+                            when (viewModel.pickerOpenGate(profile.id)) {
+                                null -> Unit
+                                PickerOpenGate.OWN_PIN -> {
+                                    pinOverlayError = null
+                                    pinOverlayState = ProfilePinOverlayState.Unlock(profile)
+                                }
                                 // Otherwise a kid could open a profile with no limits and no PIN.
-                                pinOverlayError = null
-                                pinOverlayState = ProfilePinOverlayState.ParentGate(parent, openProfile = profile)
-                            } else {
-                                selectProfile(profile.id)
+                                PickerOpenGate.PARENT_PIN -> if (parent != null) {
+                                    pinOverlayError = null
+                                    pinOverlayState = ProfilePinOverlayState.ParentGate(parent, openProfile = profile)
+                                }
+                                PickerOpenGate.OPEN -> selectProfile(profile.id)
                             }
                         }
                     },

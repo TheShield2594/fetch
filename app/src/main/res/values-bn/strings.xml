@@ -1202,14 +1202,14 @@
     <string name="profile_pin_remove">পিন মুছে ফেলুন</string>
     <string name="profile_pin_verifying">যাচাই করা হচ্ছে…</string>
     <string name="profile_pin_overlay_unlock_heading">%1$s অ্যাক্সেস করতে আপনার পিন লিখুন।</string>
-    <string name="profile_pin_overlay_set_heading">%1$s-এর জন্য একটি ৪-ডিজিটের পিন তৈরি করুন।</string>
+    <string name="profile_pin_overlay_set_heading">%1$s-এর জন্য একটি পিন তৈরি করুন।</string>
     <string name="profile_pin_overlay_confirm_heading">আপনার নতুন পিন নিশ্চিত করুন।</string>
     <string name="profile_pin_overlay_change_verify_heading">%1$s-এর পিন পরিবর্তন করতে বর্তমান পিনটি লিখুন।</string>
-    <string name="profile_pin_overlay_change_verify_support">নতুন পিন সেট করার আগে বর্তমান ৪-ডিজিটের পিনটি লিখুন।</string>
+    <string name="profile_pin_overlay_change_verify_support">নতুন পিন সেট করার আগে বর্তমান পিনটি লিখুন।</string>
     <string name="profile_pin_overlay_remove_verify_heading">%1$s-এর লক সরাতে বর্তমান পিনটি লিখুন।</string>
-    <string name="profile_pin_overlay_remove_verify_support">এই লকটি সরাতে বর্তমান ৪-ডিজিটের পিনটি লিখুন।</string>
+    <string name="profile_pin_overlay_remove_verify_support">এই লকটি সরাতে বর্তমান পিনটি লিখুন।</string>
     <string name="profile_pin_overlay_delete_verify_heading">%1$s ডিলিট করতে বর্তমান পিনটি লিখুন।</string>
-    <string name="profile_pin_overlay_delete_verify_support">এই প্রোফাইলটি ডিলিট করার আগে বর্তমান ৪-ডিজিটের পিনটি লিখুন।</string>
+    <string name="profile_pin_overlay_delete_verify_support">এই প্রোফাইলটি ডিলিট করার আগে বর্তমান পিনটি লিখুন।</string>
     <string name="profile_pin_overlay_mismatch">পিন মেলেনি। আবার নতুন পিন লিখুন।</string>
     <string name="profile_pin_overlay_back_hint">বাতিল করতে back-এ চাপ দিন</string>
     <string name="essential_addon_setup_title">অ্যাডন সেটআপ করুন</string>
@@ -2789,7 +2789,7 @@
     <string name="profile_addons_shared_saved">%1$s এখন %2$s-এর অ্যাডন ব্যবহার করছে।</string>
     <string name="profile_addons_own_saved">%1$s-এর এখন আলাদা অ্যাডন আছে।</string>
     <string name="profile_pin_overlay_access_heading">%1$s-এর পিন লিখুন।</string>
-    <string name="profile_pin_overlay_access_support">এই প্রোফাইলটি লক করা আছে। চালিয়ে যেতে এর ৪-ডিজিটের পিন লিখুন।</string>
+    <string name="profile_pin_overlay_access_support">এই প্রোফাইলটি লক করা আছে। চালিয়ে যেতে এর পিন লিখুন।</string>
     <string name="profile_pin_overlay_reset_heading">এই পিন রিসেট করতে %1$s-এর পিন লিখুন।</string>
     <string name="profile_pin_overlay_reset_support">তারপর %1$s-এর জন্য নতুন পিন বেছে নিন।</string>
     <string name="profile_pin_forgot_reset">পিন ভুলে গেছেন? %1$s-এর পিন দিয়ে রিসেট করুন</string>

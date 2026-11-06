@@ -1111,7 +1111,7 @@
     <string name="profile_addons_shared_saved">%1$s folosește acum suplimentele profilului %2$s.</string>
     <string name="profile_addons_own_saved">%1$s are acum suplimente separate.</string>
     <string name="profile_pin_overlay_access_heading">Introdu PIN-ul pentru %1$s.</string>
-    <string name="profile_pin_overlay_access_support">Acest profil este blocat. Introdu PIN-ul de 4 cifre pentru a continua.</string>
+    <string name="profile_pin_overlay_access_support">Acest profil este blocat. Introdu PIN-ul pentru a continua.</string>
     <string name="profile_pin_overlay_reset_heading">Introdu PIN-ul profilului %1$s pentru a reseta acest PIN.</string>
     <string name="profile_pin_overlay_reset_support">Apoi alege un PIN nou pentru %1$s.</string>
     <string name="profile_pin_forgot_reset">Ai uitat PIN-ul? Resetează-l cu PIN-ul profilului %1$s</string>

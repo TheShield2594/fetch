@@ -1238,7 +1238,7 @@
     <string name="profile_addons_shared_saved">%1$s अब %2$s के ऐडऑन इस्तेमाल करता है।</string>
     <string name="profile_addons_own_saved">%1$s के ऐडऑन अब अलग हैं।</string>
     <string name="profile_pin_overlay_access_heading">%1$s का PIN डालें।</string>
-    <string name="profile_pin_overlay_access_support">यह प्रोफाइल लॉक है। जारी रखने के लिए इसका 4 अंकों का PIN डालें।</string>
+    <string name="profile_pin_overlay_access_support">यह प्रोफाइल लॉक है। जारी रखने के लिए इसका PIN डालें।</string>
     <string name="profile_pin_overlay_reset_heading">यह PIN रीसेट करने के लिए %1$s का PIN डालें।</string>
     <string name="profile_pin_overlay_reset_support">फिर %1$s के लिए नया PIN चुनें।</string>
     <string name="profile_pin_forgot_reset">PIN भूल गए? %1$s के PIN से रीसेट करें</string>

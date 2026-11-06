@@ -1289,14 +1289,14 @@
     <string name="profile_pin_remove">הסרת סיסמה</string>
     <string name="profile_pin_verifying">מאמת…</string>
     <string name="profile_pin_overlay_unlock_heading">יש להזין את הסיסמה כדי לגשת אל %1$s.</string>
-    <string name="profile_pin_overlay_set_heading">יצירת סיסמה בת 4 ספרות עבור %1$s.</string>
+    <string name="profile_pin_overlay_set_heading">יצירת סיסמה עבור %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">יש לאשר את הסיסמה החדשה.</string>
     <string name="profile_pin_overlay_change_verify_heading">יש להזין סיסמה נוכחית כדי לשנות סיסמה עבור %1$s.</string>
-    <string name="profile_pin_overlay_change_verify_support">יש להזין את הסיסמה הנוכחית בת 4 הספרות לפני הגדרת סיסמה חדשה.</string>
+    <string name="profile_pin_overlay_change_verify_support">יש להזין את הסיסמה הנוכחית לפני הגדרת סיסמה חדשה.</string>
     <string name="profile_pin_overlay_remove_verify_heading">יש להזין סיסמה נוכחית כדי להסיר נעילה עבור %1$s.</string>
-    <string name="profile_pin_overlay_remove_verify_support">יש להזין את הסיסמה הנוכחית בת 4 הספרות כדי להסיר נעילה זו.</string>
+    <string name="profile_pin_overlay_remove_verify_support">יש להזין את הסיסמה הנוכחית כדי להסיר נעילה זו.</string>
     <string name="profile_pin_overlay_delete_verify_heading">יש להזין סיסמה כדי למחוק את %1$s.</string>
-    <string name="profile_pin_overlay_delete_verify_support">יש להזין את הסיסמה הנוכחית בת 4 הספרות לפני מחיקת פרופיל זה.</string>
+    <string name="profile_pin_overlay_delete_verify_support">יש להזין את הסיסמה הנוכחית לפני מחיקת פרופיל זה.</string>
     <string name="profile_pin_overlay_mismatch">הסיסמות אינן תואמות. יש להזין סיסמה חדשה שוב.</string>
     <string name="profile_pin_overlay_back_hint">יש ללחוץ חזרה כדי לבטל</string>
 
@@ -3053,7 +3053,7 @@
     <string name="profile_addons_shared_saved">הפרופיל %1$s משתמש כעת בתוספים של %2$s.</string>
     <string name="profile_addons_own_saved">לפרופיל %1$s יש כעת תוספים נפרדים.</string>
     <string name="profile_pin_overlay_access_heading">יש להזין את הסיסמה של %1$s.</string>
-    <string name="profile_pin_overlay_access_support">הפרופיל הזה נעול. יש להזין את הסיסמה בת 4 הספרות כדי להמשיך.</string>
+    <string name="profile_pin_overlay_access_support">הפרופיל הזה נעול. יש להזין את הסיסמה כדי להמשיך.</string>
     <string name="profile_pin_overlay_reset_heading">יש להזין את הסיסמה של %1$s כדי לאפס סיסמה זו.</string>
     <string name="profile_pin_overlay_reset_support">לאחר מכן יש לבחור סיסמה חדשה עבור %1$s.</string>
     <string name="profile_pin_forgot_reset">שכחת את הסיסמה? אפשר לאפס אותה עם הסיסמה של %1$s</string>

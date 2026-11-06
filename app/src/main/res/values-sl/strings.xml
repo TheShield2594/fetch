@@ -870,13 +870,13 @@
     <string name="profile_pin_remove">Odstrani kodo PIN</string>
                             <string name="profile_pin_verifying">Preverjanje…</string>
        <string name="profile_pin_overlay_unlock_heading">Vnesite kodo PIN za dostop do profila %1$s.</string>
-    <string name="profile_pin_overlay_set_heading">Ustvarite 4-mestno kodo PIN za profil %1$s.</string>
+    <string name="profile_pin_overlay_set_heading">Ustvarite kodo PIN za profil %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Potrdite svojo novo kodo PIN.</string>
     <string name="profile_pin_overlay_unlock_support">Vnesite PIN z daljinskim upravljalnikom ali tipkovnico in nato pritisnite OK.</string>
        <string name="profile_pin_overlay_change_verify_heading">Vnesite trenutno kodo PIN, da jo spremenite za profil %1$s.</string>
-    <string name="profile_pin_overlay_change_verify_support">Preden nastavite novo kodo, vnesite trenutno 4-mestno kodo PIN.</string>
+    <string name="profile_pin_overlay_change_verify_support">Preden nastavite novo kodo, vnesite trenutno kodo PIN.</string>
        <string name="profile_pin_overlay_remove_verify_heading">Vnesite trenutno kodo PIN, da odstranite zaklepanje za profil %1$s.</string>
-    <string name="profile_pin_overlay_remove_verify_support">Za odstranitev zaklepanja vnesite trenutno 4-mestno kodo PIN.</string>
+    <string name="profile_pin_overlay_remove_verify_support">Za odstranitev zaklepanja vnesite trenutno kodo PIN.</string>
 	<string name="profile_pin_overlay_delete_verify_heading">Vnesite trenutno kodo PIN za izbris profila %1$s.</string>																								   
     <string name="profile_pin_overlay_set_support">Uporabite 4 do 8 števk in nato pritisnite OK. Ta koda PIN bo zahtevana pred odpiranjem tega profila.</string>
     <string name="profile_pin_overlay_mismatch">Kodi PIN se nista ujemali. Ponovno vnesite novo kodo PIN.</string>
@@ -2250,7 +2250,7 @@
     <string name="profile_addons_shared_saved">Profil %1$s zdaj uporablja dodatke profila %2$s.</string>
     <string name="profile_addons_own_saved">Profil %1$s ima zdaj ločene dodatke.</string>
     <string name="profile_pin_overlay_access_heading">Vnesite kodo PIN za profil %1$s.</string>
-    <string name="profile_pin_overlay_access_support">Ta profil je zaklenjen. Za nadaljevanje vnesite njegovo 4-mestno kodo PIN.</string>
+    <string name="profile_pin_overlay_access_support">Ta profil je zaklenjen. Za nadaljevanje vnesite njegovo kodo PIN.</string>
     <string name="profile_pin_overlay_reset_heading">Za ponastavitev te kode PIN vnesite kodo PIN profila %1$s.</string>
     <string name="profile_pin_overlay_reset_support">Nato izberite novo kodo PIN za profil %1$s.</string>
     <string name="profile_pin_forgot_reset">Ste pozabili kodo PIN? Ponastavite jo s kodo PIN profila %1$s</string>

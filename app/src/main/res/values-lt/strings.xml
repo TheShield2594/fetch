@@ -1243,7 +1243,7 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="profile_addons_shared_saved">%1$s dabar naudoja profilio %2$s priedus.</string>
     <string name="profile_addons_own_saved">%1$s dabar turi atskirus priedus.</string>
     <string name="profile_pin_overlay_access_heading">Įveskite profilio %1$s PIN.</string>
-    <string name="profile_pin_overlay_access_support">Šis profilis užrakintas. Norėdami tęsti, įveskite jo 4 skaitmenų PIN.</string>
+    <string name="profile_pin_overlay_access_support">Šis profilis užrakintas. Norėdami tęsti, įveskite jo PIN.</string>
     <string name="profile_pin_overlay_reset_heading">Įveskite profilio %1$s PIN, kad iš naujo nustatytumėte šį PIN.</string>
     <string name="profile_pin_overlay_reset_support">Tada pasirinkite naują PIN profiliui %1$s.</string>
     <string name="profile_pin_forgot_reset">Pamiršote PIN? Nustatykite jį iš naujo profilio %1$s PIN kodu</string>

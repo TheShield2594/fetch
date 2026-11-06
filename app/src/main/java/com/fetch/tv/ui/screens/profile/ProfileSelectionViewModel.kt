@@ -110,8 +110,21 @@ class ProfileSelectionViewModel @Inject constructor(
         viewModelScope.launch { parentalControls.setRestrictions(profileId, restrictions) }
     }
 
-    fun needsParentPinToOpen(profileId: Int): Boolean =
-        parentalControls.needsParentPinToOpen(profileId, profileManager.profiles.value.map { it.id })
+    /**
+     * The PIN states, lock setting and limits read from disk, or null until all are loaded.
+     * Selection in the picker waits for this (see [pickerOpenGate]).
+     */
+    private val profileOpenLock: StateFlow<com.fetch.tv.core.parental.ProfileOpenLock?> =
+        parentalControls.profileOpenLock
+            .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /** How opening [profileId] from the picker is gated, or null while that is still unknown. */
+    fun pickerOpenGate(profileId: Int): com.fetch.tv.core.parental.PickerOpenGate? =
+        com.fetch.tv.core.parental.pickerOpenGate(
+            profileOpenLock.value,
+            profileId,
+            profileManager.loadedProfiles.value?.map { it.id }
+        )
 
     val lockUnrestrictedProfiles: StateFlow<Boolean> = parentalControls.lockUnrestrictedProfiles
 

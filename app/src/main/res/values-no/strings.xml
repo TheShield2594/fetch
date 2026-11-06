@@ -583,13 +583,13 @@
     <string name="profile_pin_remove">Fjern PIN</string>
     <string name="profile_pin_verifying">Verifiserer…</string>
     <string name="profile_pin_overlay_unlock_heading">Skriv inn PIN-en din for å få tilgang til %1$s.</string>
-    <string name="profile_pin_overlay_set_heading">Opprett en 4-sifret PIN for %1$s.</string>
+    <string name="profile_pin_overlay_set_heading">Opprett en PIN for %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Bekreft din nye PIN.</string>
     <string name="profile_pin_overlay_unlock_support">Bruk fjernkontroll eller tastatur for å angi PIN-koden, og trykk deretter OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Skriv inn gjeldende PIN for å endre PIN for %1$s.</string>
-    <string name="profile_pin_overlay_change_verify_support">Skriv inn gjeldende 4-sifret PIN før du angir en ny.</string>
+    <string name="profile_pin_overlay_change_verify_support">Skriv inn gjeldende PIN før du angir en ny.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Skriv inn gjeldende PIN for å fjerne låsen for %1$s.</string>
-    <string name="profile_pin_overlay_remove_verify_support">Skriv inn gjeldende 4-sifret PIN for å fjerne denne låsen.</string>
+    <string name="profile_pin_overlay_remove_verify_support">Skriv inn gjeldende PIN for å fjerne denne låsen.</string>
     <string name="profile_pin_overlay_set_support">Bruk 4 til 8 siffer, og trykk deretter OK. Denne PIN-en blir nødvendig før åpning av denne profilen.</string>
     <string name="profile_pin_overlay_confirm_support">Angi de samme sifrene på nytt for å avslutte oppsettet.</string>
     <string name="profile_pin_overlay_mismatch">PIN-ene matchet ikke. Skriv inn en ny PIN på nytt.</string>
@@ -1330,7 +1330,7 @@
     <string name="profile_addons_shared_saved">%1$s bruker nå tilleggene til %2$s.</string>
     <string name="profile_addons_own_saved">%1$s har nå egne tillegg.</string>
     <string name="profile_pin_overlay_access_heading">Skriv inn PIN-en for %1$s.</string>
-    <string name="profile_pin_overlay_access_support">Denne profilen er låst. Skriv inn den 4-sifrede PIN-en for å fortsette.</string>
+    <string name="profile_pin_overlay_access_support">Denne profilen er låst. Skriv inn PIN-en for å fortsette.</string>
     <string name="profile_pin_overlay_reset_heading">Skriv inn PIN-en til %1$s for å tilbakestille denne PIN-en.</string>
     <string name="profile_pin_overlay_reset_support">Velg deretter en ny PIN for %1$s.</string>
     <string name="profile_pin_forgot_reset">Glemt PIN? Tilbakestill med PIN-en til %1$s</string>

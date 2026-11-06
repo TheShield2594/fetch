@@ -179,4 +179,21 @@ class KidsRulesTest {
         // Already chosen this session: no picker.
         assertFalse(shouldShowStartupPicker(true, loadedProfileCount = 3, activeProfileHasPin = true, needsParentPin = true))
     }
+    @Test
+    fun `picker refuses a selection until PIN and lock states have loaded`() {
+        val lock = ProfileOpenLock(
+            lockOn = true,
+            restrictions = mapOf(3 to ProfileRestrictions.KidsPreset),
+            pinEnabled = mapOf(1 to true, 4 to true)
+        )
+        // Nothing read yet, or only part of it: the press is ignored, never an unchecked open.
+        assertNull(pickerOpenGate(null, profileId = 4, profileIds = null))
+        assertNull(pickerOpenGate(null, profileId = 4, profileIds = listOf(1, 2, 3, 4)))
+        assertNull(pickerOpenGate(lock, profileId = 4, profileIds = null))
+        // Once loaded: own PIN, parent PIN for the unrestricted sibling, open for the kid.
+        assertEquals(PickerOpenGate.OWN_PIN, pickerOpenGate(lock, profileId = 4, profileIds = listOf(1, 2, 3, 4)))
+        assertEquals(PickerOpenGate.PARENT_PIN, pickerOpenGate(lock, profileId = 2, profileIds = listOf(1, 2, 3, 4)))
+        assertEquals(PickerOpenGate.OPEN, pickerOpenGate(lock, profileId = 3, profileIds = listOf(1, 2, 3, 4)))
+        assertEquals(PickerOpenGate.OWN_PIN, pickerOpenGate(lock, profileId = 1, profileIds = listOf(1, 2, 3, 4)))
+    }
 }

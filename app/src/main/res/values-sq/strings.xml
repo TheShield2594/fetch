@@ -1026,14 +1026,14 @@
     <string name="profile_pin_remove">Hiq PIN-in</string>
     <string name="profile_pin_verifying">Duke verifikuar…</string>
     <string name="profile_pin_overlay_unlock_heading">Shkruaj PIN-in për të hyrë te %1$s.</string>
-    <string name="profile_pin_overlay_set_heading">Krijo një PIN 4-shifror për %1$s.</string>
+    <string name="profile_pin_overlay_set_heading">Krijo një PIN për %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Konfirmo PIN-in e ri.</string>
     <string name="profile_pin_overlay_change_verify_heading">Shkruaj PIN-in aktual për të ndryshuar PIN-in e %1$s.</string>
-    <string name="profile_pin_overlay_change_verify_support">Shkruaj PIN-in aktual 4-shifror para se të caktosh një të ri.</string>
+    <string name="profile_pin_overlay_change_verify_support">Shkruaj PIN-in aktual para se të caktosh një të ri.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Shkruaj PIN-in aktual për të hequr bllokimin e %1$s.</string>
-    <string name="profile_pin_overlay_remove_verify_support">Shkruaj PIN-in aktual 4-shifror për ta hequr këtë bllokim.</string>
+    <string name="profile_pin_overlay_remove_verify_support">Shkruaj PIN-in aktual për ta hequr këtë bllokim.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Shkruaj PIN-in aktual për të fshirë %1$s.</string>
-    <string name="profile_pin_overlay_delete_verify_support">Shkruaj PIN-in aktual 4-shifror para se ta fshish këtë profil.</string>
+    <string name="profile_pin_overlay_delete_verify_support">Shkruaj PIN-in aktual para se ta fshish këtë profil.</string>
     <string name="profile_pin_overlay_mismatch">PIN-et nuk përputhen. Shkruaj përsëri një PIN të ri.</string>
     <string name="profile_pin_overlay_back_hint">Shtyp Kthehu për të anuluar</string>
     <!-- Essential addon setup wizard -->
@@ -2617,7 +2617,7 @@
     <string name="profile_addons_shared_saved">%1$s tani përdor shtesat e %2$s.</string>
     <string name="profile_addons_own_saved">%1$s tani ka shtesa të veçanta.</string>
     <string name="profile_pin_overlay_access_heading">Shkruaj PIN-in për %1$s.</string>
-    <string name="profile_pin_overlay_access_support">Ky profil është i bllokuar. Shkruaj PIN-in e tij 4-shifror për të vazhduar.</string>
+    <string name="profile_pin_overlay_access_support">Ky profil është i bllokuar. Shkruaj PIN-in e tij për të vazhduar.</string>
     <string name="profile_pin_overlay_reset_heading">Shkruaj PIN-in e %1$s për ta rivendosur këtë PIN.</string>
     <string name="profile_pin_overlay_reset_support">Pastaj zgjidh një PIN të ri për %1$s.</string>
     <string name="profile_pin_forgot_reset">Harrove PIN-in? Rivendose me PIN-in e %1$s</string>

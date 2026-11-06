@@ -2005,8 +2005,6 @@
     <string name="trakt_library_error_paginated_fetch_failed">Не вдалося завантажити список Trakt (%1$d)</string>
 
     <!-- Home: poster long-press list picker errors -->
-    <string name="home_poster_lists_error_load_failed">Не вдалося завантажити списки</string>
-    <string name="home_poster_lists_error_update_failed">Не вдалося оновити списки</string>
 
     <!-- Profile selection: PIN overlay messages -->
     <string name="profile_pin_saved_for_profile">PIN збережено для профілю \"%1$s\"</string>

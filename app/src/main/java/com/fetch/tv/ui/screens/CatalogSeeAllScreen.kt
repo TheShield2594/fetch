@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.components.PosterGridSkeleton
 import com.fetch.tv.domain.model.catalogRowLegacyKey
@@ -29,7 +30,6 @@ import androidx.compose.material.icons.filled.GridView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -87,8 +87,8 @@ fun CatalogSeeAllScreen(
     onBackPress: () -> Unit
 ) {
     val posterOptionsController = searchViewModel?.posterOptions ?: posterOptionsViewModel.controller
-    val uiState by viewModel.uiState.collectAsState()
-    val fullCatalogRows by viewModel.fullCatalogRows.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val fullCatalogRows by viewModel.fullCatalogRows.collectAsStateWithLifecycle()
     val computedHeightDp = (uiState.posterCardWidthDp * 1.5f).roundToInt()
     val posterCardStyle = PosterCardStyle(
         width = uiState.posterCardWidthDp.dp,
@@ -105,17 +105,17 @@ fun CatalogSeeAllScreen(
 
     // In search mode, get the catalog row from SearchViewModel's existing results.
     // Otherwise fall back to HomeViewModel's fullCatalogRows (home screen catalogs).
-    val searchUiState = searchViewModel?.uiState?.collectAsState()
-    val searchWatchedMovieIds = searchViewModel?.watchedMovieIds?.collectAsState()
-    val searchWatchedSeriesIds = searchViewModel?.watchedSeriesIds?.collectAsState()
+    val searchUiState = searchViewModel?.uiState?.collectAsStateWithLifecycle()
+    val searchWatchedMovieIds = searchViewModel?.watchedMovieIds?.collectAsStateWithLifecycle()
+    val searchWatchedSeriesIds = searchViewModel?.watchedSeriesIds?.collectAsStateWithLifecycle()
     val searchCatalogRow = searchUiState?.value?.catalogRows?.find {
         it.legacyKey() == catalogKey
     }
     val homeCatalogRow = fullCatalogRows.find {
         it.legacyKey() == catalogKey
     }
-    val serverRow = serverCatalog?.row?.collectAsState()
-    val serverFailure = serverCatalog?.failure?.collectAsState()
+    val serverRow = serverCatalog?.row?.collectAsStateWithLifecycle()
+    val serverFailure = serverCatalog?.failure?.collectAsStateWithLifecycle()
     val catalogRow = when {
         serverCatalog != null -> serverRow?.value
         isSearchMode -> searchCatalogRow
@@ -125,6 +125,20 @@ fun CatalogSeeAllScreen(
     LaunchedEffect(catalogKey, isSearchMode, catalogRow != null) {
         if (!isSearchMode && serverCatalog == null && catalogRow == null) {
             viewModel.requestLazyCatalogLoad(catalogKey)
+        }
+    }
+
+    // A Home or Search catalog that never arrives (it failed, or Retry / an addon change dropped
+    // it) mustn't leave the skeleton up forever: once nothing is loading, wait briefly, then show
+    // the empty state with Retry.
+    var missingCatalogWaitExpired by remember(catalogKey) { mutableStateOf(false) }
+    var missingCatalogRetries by remember(catalogKey) { mutableStateOf(0) }
+    val sourceStillLoading = if (isSearchMode) searchUiState?.value?.isSearching == true else uiState.isLoading
+    LaunchedEffect(catalogKey, catalogRow == null, sourceStillLoading, missingCatalogRetries) {
+        missingCatalogWaitExpired = false
+        if (serverCatalog == null && catalogRow == null && !sourceStillLoading) {
+            kotlinx.coroutines.delay(MISSING_CATALOG_WAIT_MS)
+            missingCatalogWaitExpired = true
         }
     }
 
@@ -233,7 +247,11 @@ fun CatalogSeeAllScreen(
 
         val hasItems = catalogRow?.items?.isNotEmpty() == true
         val failure = serverFailure?.value
-        val isCatalogLoading = if (catalogRow == null) failure == null else catalogRow.isLoading
+        val isCatalogLoading = when {
+            catalogRow != null -> catalogRow.isLoading
+            serverCatalog != null -> failure == null
+            else -> !missingCatalogWaitExpired
+        }
 
         if (hasItems) {
             val seeAllItemKeys = remember(catalogRow?.items) {
@@ -365,11 +383,20 @@ fun CatalogSeeAllScreen(
             EmptyScreenState(
                 title = stringResource(R.string.catalog_see_all_empty_title),
                 subtitle = stringResource(R.string.catalog_see_all_empty_subtitle),
-                icon = Icons.Default.GridView
+                icon = Icons.Default.GridView,
+                // A Home catalog that is missing altogether can be loaded again from here.
+                action = if (catalogRow == null && !isSearchMode && serverCatalog == null) {
+                    com.fetch.tv.ui.components.StateAction(stringResource(R.string.action_retry)) {
+                        viewModel.onEvent(HomeEvent.OnRetry)
+                        missingCatalogRetries++
+                    }
+                } else {
+                    null
+                }
             )
         }
 
-        val posterOptionsState by posterOptionsController.state.collectAsState()
+        val posterOptionsState by posterOptionsController.state.collectAsStateWithLifecycle()
         com.fetch.tv.ui.components.posteroptions.PosterOptionsHost(
             state = posterOptionsState,
             controller = posterOptionsController,
@@ -379,3 +406,6 @@ fun CatalogSeeAllScreen(
         )
     }
 }
+
+/** How long See-all waits for a missing catalog once nothing is loading it any more. */
+private const val MISSING_CATALOG_WAIT_MS = 4_000L

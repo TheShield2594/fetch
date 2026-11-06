@@ -2473,8 +2473,6 @@
     <string name="trakt_library_error_paginated_fetch_failed">A Trakt többoldalas lekérés sikertelen (%1$d)</string>
 
     <!-- Home: poster long-press list picker errors -->
-    <string name="home_poster_lists_error_load_failed">A listák betöltése sikertelen</string>
-    <string name="home_poster_lists_error_update_failed">A listák frissítése sikertelen</string>
 
     <!-- Profile selection: PIN overlay messages -->
     <string name="profile_pin_saved_for_profile">PIN mentve ehhez: %1$s.</string>

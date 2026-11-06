@@ -2425,8 +2425,6 @@
     <string name="trakt_library_error_paginated_fetch_failed">Trakt dohvaćanje po stranicama nije uspjelo (%1$d)</string>
 
     <!-- Početna: pogreške odabira popisa pri dugom pritisku postera -->
-    <string name="home_poster_lists_error_load_failed">Učitavanje popisa nije uspjelo</string>
-    <string name="home_poster_lists_error_update_failed">Ažuriranje popisa nije uspjelo</string>
 
     <!-- Odabir profila: poruke PIN sloja -->
     <string name="profile_pin_saved_for_profile">PIN spremljen za %1$s.</string>

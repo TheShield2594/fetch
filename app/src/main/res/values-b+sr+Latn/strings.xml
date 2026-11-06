@@ -2339,8 +2339,6 @@
     <string name="trakt_library_error_paginated_fetch_failed">Preuzimanje stranica sa Trakt-a nije uspelo (%1$d)</string>
 
     <!-- Home: poster long-press list picker errors -->
-    <string name="home_poster_lists_error_load_failed">Učitavanje lista nije uspelo</string>
-    <string name="home_poster_lists_error_update_failed">Ažuriranje lista nije uspelo</string>
 
     <!-- Profile selection: PIN overlay messages -->
     <string name="profile_pin_saved_for_profile">PIN je sačuvan za %1$s.</string>

@@ -1189,7 +1189,10 @@ private fun PlaybackNavHost(
                     )
                 },
                 onOpenDiscover = { navController.navigate(Screen.Discover.route) },
-                onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) }
+                onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
+                onNavigateToPerson = { personId, personName, preferCrew ->
+                    navController.navigate(Screen.CastDetail.createRoute(personId, personName, preferCrew))
+                }
             )
         }
 

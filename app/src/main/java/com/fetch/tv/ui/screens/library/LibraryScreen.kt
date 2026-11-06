@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.library
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.ui.theme.cardCornerRadius
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.BorderStroke
@@ -46,7 +47,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -143,14 +143,14 @@ fun LibraryScreen(
     onNavigateToStats: () -> Unit = {},
     onNavigateToCalendar: () -> Unit = {}
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val watchedMovieIds by viewModel.watchedMovieIds.collectAsState()
-    val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val watchedMovieIds by viewModel.watchedMovieIds.collectAsStateWithLifecycle()
+    val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()
     var showDeleteConfirm by remember(uiState.showManageDialog) { mutableStateOf(false) }
     var expandedPicker by remember { mutableStateOf<String?>(null) }
     var selectedViewMode by rememberSaveable { mutableStateOf(LibraryViewMode.Saved) }
-    val servers by serversViewModel.servers.collectAsState()
-    val serverShelves by serversViewModel.shelves.collectAsState()
+    val servers by serversViewModel.servers.collectAsStateWithLifecycle()
+    val serverShelves by serversViewModel.shelves.collectAsStateWithLifecycle()
     val hasServers = servers.enabledConnections.isNotEmpty()
     val viewModes = LibraryViewMode.entries.filter { it != LibraryViewMode.Servers || hasServers }
     val viewMode = selectedViewMode.takeIf { it in viewModes } ?: LibraryViewMode.Saved
@@ -226,6 +226,25 @@ fun LibraryScreen(
                 runCatching { primaryFocusRequester.requestFocus() }
             }
             pendingPrimaryFocus = false
+        }
+    }
+
+    // Back from deep in the grid returns to the top and the selectors row first, as on Home and
+    // Search; a second Back (or Back from the top) leaves the screen.
+    val backScope = rememberCoroutineScope()
+    val gridScrolledAway by remember {
+        androidx.compose.runtime.derivedStateOf { gridState.firstVisibleItemIndex > 0 }
+    }
+    androidx.activity.compose.BackHandler(
+        enabled = viewMode == LibraryViewMode.Saved && expandedPicker == null && gridScrolledAway
+    ) {
+        backScope.launch {
+            runCatching { gridState.scrollToItem(0) }
+            // Give the selectors row a frame to compose before focusing it.
+            repeat(3) {
+                if (runCatching { selectorFocusRequester.requestFocus() }.isSuccess) return@launch
+                delay(16)
+            }
         }
     }
 
@@ -585,7 +604,7 @@ fun LibraryScreen(
         }
     }
 
-    val posterOptionsState by viewModel.posterOptions.state.collectAsState()
+    val posterOptionsState by viewModel.posterOptions.state.collectAsStateWithLifecycle()
     com.fetch.tv.ui.components.posteroptions.PosterOptionsHost(
         state = posterOptionsState,
         controller = viewModel.posterOptions,

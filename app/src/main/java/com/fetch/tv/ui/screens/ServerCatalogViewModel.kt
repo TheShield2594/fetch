@@ -36,6 +36,9 @@ class ServerCatalogViewModel @Inject constructor(
     val row: StateFlow<CatalogRow?> = _row.asStateFlow()
     val failure: StateFlow<ServerFailure?> = _failure.asStateFlow()
     private var loadJob: Job? = null
+    private var loadMoreJob: Job? = null
+    /** When the last page request failed; further requests wait [LOAD_MORE_RETRY_DELAY_MS]. */
+    private var loadMoreFailedAtMs: Long = 0L
 
     init {
         reload()
@@ -44,6 +47,10 @@ class ServerCatalogViewModel @Inject constructor(
     /** Runs the first-page load again, for Retry after a failure. */
     fun reload() {
         loadJob?.cancel()
+        // A page request from before the reload would merge into the new first page.
+        loadMoreJob?.cancel()
+        loadMoreJob = null
+        loadMoreFailedAtMs = 0L
         _failure.value = null
         loadJob = viewModelScope.launch {
             try {
@@ -63,22 +70,26 @@ class ServerCatalogViewModel @Inject constructor(
     fun loadMore() {
         val current = _row.value ?: return
         if (current.isLoading || !current.hasMore) return
+        // After a failed page, the grid's end keeps asking; space the retries out.
+        if (android.os.SystemClock.elapsedRealtime() - loadMoreFailedAtMs < LOAD_MORE_RETRY_DELAY_MS) return
         _row.value = current.copy(isLoading = true)
-        viewModelScope.launch {
-            val page = loadOrNull { serverCatalog.page(current, current.nextCatalogSkip()) }
-            _row.update { row ->
-                row ?: return@update null
-                page?.let(row::mergeCatalogPage)?.copy(isLoading = false) ?: row.copy(isLoading = false, hasMore = false)
+        loadMoreJob = viewModelScope.launch {
+            try {
+                val page = serverCatalog.page(current, current.nextCatalogSkip())
+                _row.update { row -> row?.mergeCatalogPage(page)?.copy(isLoading = false) }
+            } catch (error: CancellationException) {
+                _row.update { row -> row?.copy(isLoading = false) }
+                throw error
+            } catch (_: Exception) {
+                // One failed page (a timeout, say) shouldn't end pagination for good: keep
+                // hasMore so the next scroll to the end tries again.
+                loadMoreFailedAtMs = android.os.SystemClock.elapsedRealtime()
+                _row.update { row -> row?.copy(isLoading = false) }
             }
         }
     }
 
-    private suspend fun loadOrNull(block: suspend () -> CatalogRow?): CatalogRow? =
-        try {
-            block()
-        } catch (error: CancellationException) {
-            throw error
-        } catch (_: Exception) {
-            null
-        }
+    private companion object {
+        const val LOAD_MORE_RETRY_DELAY_MS = 3_000L
+    }
 }

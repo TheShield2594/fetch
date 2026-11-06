@@ -1903,8 +1903,6 @@
     <!-- Trakt: paginated fetch + comments -->
     <string name="trakt_library_error_paginated_fetch_failed">A obtenção paginada do Trakt falhou (%1$d)</string>
     <!-- Home: poster long-press list picker errors -->
-    <string name="home_poster_lists_error_load_failed">Falha ao carregar as listas</string>
-    <string name="home_poster_lists_error_update_failed">Falha ao atualizar as listas</string>
     <!-- Profile selection: PIN overlay messages -->
     <string name="profile_pin_saved_for_profile">PIN guardado para %1$s.</string>
     <string name="profile_pin_lock_removed_for_profile">Bloqueio por PIN removido para %1$s.</string>

@@ -11,15 +11,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Divider
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -27,7 +22,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,11 +29,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -51,8 +42,6 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.fetch.tv.domain.model.LibraryListTab
-import com.fetch.tv.domain.model.localizedMembershipTitle
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.CatalogRowsSkeleton
@@ -64,22 +53,11 @@ import androidx.compose.ui.unit.Dp
 import com.fetch.tv.ui.components.LocalStartupLoadingState
 import com.fetch.tv.ui.components.LocalStartupSplashEnabled
 import com.fetch.tv.ui.components.shouldShowHomeStartupLoader
-import com.fetch.tv.ui.components.FetchDialog
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
-import com.fetch.tv.core.tracking.LOCAL_LIBRARY_LIST_KEY
-import com.fetch.tv.core.tracking.supportsMembershipFor
 import com.fetch.tv.data.local.StartupAuthNotice
-import com.fetch.tv.ui.components.posteroptions.TrackingRemovalConfirmationDialog
 import kotlinx.coroutines.delay
 import com.fetch.tv.ui.theme.FetchStatusTones
-
-private data class HomePosterOptionsTarget(
-    val item: MetaPreview,
-    val addonBaseUrl: String,
-    /** Order key of the row the poster was long-pressed in, for pinning that row. */
-    val rowKey: String? = null
-)
 
 private const val HOME_STABLE_GATE_TIMEOUT_MS = 5_000L
 
@@ -87,6 +65,7 @@ private const val HOME_STABLE_GATE_TIMEOUT_MS = 5_000L
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
+    posterOptionsViewModel: com.fetch.tv.ui.components.posteroptions.PosterOptionsViewModel = hiltViewModel(),
     onNavigateToDetail: (String, String, String) -> Unit,
     onContinueWatchingClick: (ContinueWatchingItem) -> Unit = { item ->
         onNavigateToDetail(
@@ -142,7 +121,12 @@ fun HomeScreen(
     var homeStableGateReleased by rememberSaveable { mutableStateOf(false) }
     // Track that catalog loading has started at least once (isLoading went true→false).
     var catalogLoadingStarted by rememberSaveable { mutableStateOf(false) }
-    var posterOptionsTarget by remember { mutableStateOf<HomePosterOptionsTarget?>(null) }
+    // The long-press menu is the shared one (Search, Library, Discover, See-all, Cast), so Home
+    // gets the same TMDB→IMDb canonicalisation and failure reporting.
+    val posterOptionsController = posterOptionsViewModel.controller
+    val posterOptionsState by posterOptionsController.state.collectAsStateWithLifecycle()
+    /** Order key of the row the open menu's poster was long-pressed in, for pinning that row. */
+    var posterOptionsRowKey by remember { mutableStateOf<String?>(null) }
 
     // Notify ViewModel of locale changes after activity recreation
     LaunchedEffect(Unit) {
@@ -159,8 +143,8 @@ fun HomeScreen(
     }
     val onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit = remember {
         { item, addonBaseUrl, rowKey ->
-            posterOptionsTarget = HomePosterOptionsTarget(item, addonBaseUrl, rowKey)
-            viewModel.refreshPosterLibraryStatus(item)
+            posterOptionsRowKey = rowKey
+            posterOptionsController.show(item, addonBaseUrl)
         }
     }
 
@@ -404,91 +388,24 @@ fun HomeScreen(
         }
     }
 
-    val pinnedRowKeys by viewModel.pinnedRowKeys.collectAsState()
-    val selectedPoster = posterOptionsTarget
-    if (selectedPoster != null) {
-        val item = selectedPoster.item
-        val statusKey = homeItemStatusKey(item.id, item.apiType)
-        val isMovie = item.apiType.equals("movie", ignoreCase = true)
-        val isSeries = item.apiType.equals("series", ignoreCase = true) ||
-            item.apiType.equals("tv", ignoreCase = true) ||
-            item.apiType.equals("anime", ignoreCase = true)
-        HomePosterOptionsDialog(
-            title = item.name,
-            isInLibrary = uiState.posterLibraryMembership[statusKey] == true,
-            isLibraryPending = statusKey in uiState.posterLibraryPending,
-            showManageLists = uiState.usesPosterListPicker,
-            isMovie = isMovie,
-            isSeries = isSeries,
-            isWatched = movieWatchedStatus[statusKey] == true,
-            isWatchedPending = statusKey in uiState.movieWatchedPending,
-            isRowPinned = selectedPoster.rowKey?.let { it in pinnedRowKeys },
-            onDismiss = { posterOptionsTarget = null },
-            onDetails = {
-                onNavigateToDetail(item.id, item.apiType, selectedPoster.addonBaseUrl)
-                posterOptionsTarget = null
-            },
-            onToggleLibrary = {
-                if (uiState.usesPosterListPicker) {
-                    viewModel.openPosterListPicker(item, selectedPoster.addonBaseUrl)
-                } else {
-                    viewModel.togglePosterLibrary(item, selectedPoster.addonBaseUrl)
-                }
-                posterOptionsTarget = null
-            },
-            onToggleWatched = {
-                if (isMovie) {
-                    viewModel.togglePosterMovieWatched(item)
-                } else {
-                    viewModel.togglePosterSeriesWatched(item)
-                }
-                posterOptionsTarget = null
-            },
-            onToggleRowPinned = {
-                selectedPoster.rowKey?.let(viewModel::toggleRowPinned)
-                posterOptionsTarget = null
-            },
-            extraActions = {
-                com.fetch.tv.ui.screens.profile.ParentalTitleMenuButton(
-                    title = com.fetch.tv.ui.screens.profile.parentalTitleOf(item),
-                    onDone = { posterOptionsTarget = null }
+    val pinnedRowKeys by viewModel.pinnedRowKeys.collectAsStateWithLifecycle()
+    com.fetch.tv.ui.components.posteroptions.PosterOptionsHost(
+        state = posterOptionsState,
+        controller = posterOptionsController,
+        onNavigateToDetail = onNavigateToDetail,
+        extraActions = {
+            val rowKey = posterOptionsRowKey
+            if (rowKey != null) {
+                HomePinRowButton(
+                    isRowPinned = rowKey in pinnedRowKeys,
+                    onClick = {
+                        viewModel.toggleRowPinned(rowKey)
+                        posterOptionsController.dismiss()
+                    }
                 )
             }
-        )
-    }
-    com.fetch.tv.ui.screens.profile.ParentalTitleDialogHost()
-
-    if (uiState.showPosterListPicker) {
-        val localTab = LibraryListTab(
-            key = LOCAL_LIBRARY_LIST_KEY,
-            title = stringResource(R.string.trakt_library_source_fetch),
-            type = LibraryListTab.Type.WATCHLIST
-        )
-        val contentType = uiState.posterListPickerContentType.orEmpty()
-        val destinationTabs = uiState.libraryListTabs.filter { tab ->
-            tab.supportsMembershipFor(contentType)
         }
-        HomeLibraryListPickerDialog(
-            title = uiState.posterListPickerTitle ?: stringResource(R.string.detail_lists_fallback),
-            tabs = listOf(localTab) + destinationTabs,
-            membership = uiState.posterListPickerMembership,
-            isPending = uiState.posterListPickerPending,
-            error = uiState.posterListPickerError,
-            onToggle = { key -> viewModel.togglePosterListPickerMembership(key) },
-            onSave = { viewModel.savePosterListPickerMembership() },
-            onDismiss = { viewModel.dismissPosterListPicker() }
-        )
-    }
-
-    if (uiState.posterListPickerRemovalConfirmations.isNotEmpty()) {
-        TrackingRemovalConfirmationDialog(
-            itemTitle = uiState.posterListPickerTitle.orEmpty(),
-            confirmations = uiState.posterListPickerRemovalConfirmations,
-            isPending = uiState.posterListPickerPending,
-            onConfirm = viewModel::confirmPosterListPickerRemoval,
-            onDismiss = viewModel::cancelPosterListPickerRemoval
-        )
-    }
+    )
 }
 
 @Composable
@@ -606,193 +523,24 @@ private fun ModernHomeRoute(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun HomePosterOptionsDialog(
-    title: String,
-    isInLibrary: Boolean,
-    isLibraryPending: Boolean,
-    showManageLists: Boolean,
-    isMovie: Boolean,
-    isSeries: Boolean = false,
-    isWatched: Boolean,
-    isWatchedPending: Boolean,
-    /** Null when the poster is not in a catalog row that can be pinned. */
-    isRowPinned: Boolean?,
-    onDismiss: () -> Unit,
-    onDetails: () -> Unit,
-    onToggleLibrary: () -> Unit,
-    onToggleWatched: () -> Unit,
-    onToggleRowPinned: () -> Unit,
-    extraActions: @Composable () -> Unit = {}
+private fun HomePinRowButton(
+    isRowPinned: Boolean,
+    onClick: () -> Unit
 ) {
-    val primaryFocusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(Unit) {
-        primaryFocusRequester.requestFocus()
-    }
-
-    FetchDialog(
-        onDismiss = onDismiss,
-        title = title,
-        subtitle = stringResource(R.string.home_poster_dialog_subtitle),
-        scrollable = true
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.colors(
+            containerColor = FetchTheme.colors.BackgroundCard,
+            contentColor = FetchTheme.colors.TextPrimary
+        )
     ) {
-        Button(
-            onClick = onDetails,
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(primaryFocusRequester),
-            colors = ButtonDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                contentColor = FetchTheme.colors.TextPrimary
-            )
-        ) {
-            Text(stringResource(R.string.cw_action_go_to_details))
-        }
-
-        Button(
-            onClick = onToggleLibrary,
-            enabled = !isLibraryPending,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                contentColor = FetchTheme.colors.TextPrimary
-            )
-        ) {
-            Text(
-                if (showManageLists) {
-                    stringResource(R.string.library_manage_lists)
-                } else {
-                    if (isInLibrary) {
-                        stringResource(R.string.hero_remove_from_library)
-                    } else {
-                        stringResource(R.string.hero_add_to_library)
-                    }
-                }
-            )
-        }
-
-        if (isMovie || isSeries) {
-            Button(
-                onClick = onToggleWatched,
-                enabled = !isWatchedPending,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.colors(
-                    containerColor = FetchTheme.colors.BackgroundCard,
-                    contentColor = FetchTheme.colors.TextPrimary
-                )
-            ) {
-                Text(
-                    if (isWatched) {
-                        stringResource(R.string.hero_mark_unwatched)
-                    } else {
-                        stringResource(R.string.hero_mark_watched)
-                    }
-                )
+        Text(
+            if (isRowPinned) {
+                stringResource(R.string.home_poster_unpin_row)
+            } else {
+                stringResource(R.string.home_poster_pin_row)
             }
-        }
-
-        if (isRowPinned != null) {
-            Button(
-                onClick = onToggleRowPinned,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.colors(
-                    containerColor = FetchTheme.colors.BackgroundCard,
-                    contentColor = FetchTheme.colors.TextPrimary
-                )
-            ) {
-                Text(
-                    if (isRowPinned) {
-                        stringResource(R.string.home_poster_unpin_row)
-                    } else {
-                        stringResource(R.string.home_poster_pin_row)
-                    }
-                )
-            }
-        }
-
-        extraActions()
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun HomeLibraryListPickerDialog(
-    title: String,
-    tabs: List<LibraryListTab>,
-    membership: Map<String, Boolean>,
-    isPending: Boolean,
-    error: String?,
-    onToggle: (String) -> Unit,
-    onSave: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    val primaryFocusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(Unit) {
-        primaryFocusRequester.requestFocus()
-    }
-
-    FetchDialog(
-        onDismiss = onDismiss,
-        title = title,
-        subtitle = stringResource(R.string.detail_lists_subtitle),
-        width = 500.dp,
-        scrollable = true
-    ) {
-        if (!error.isNullOrBlank()) {
-            Text(
-                text = error,
-                style = MaterialTheme.typography.bodyMedium,
-                color = FetchStatusTones.errorText
-            )
-        }
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = 300.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            items(tabs, key = { it.key }) { tab ->
-                val selected = membership[tab.key] == true
-                val titleText = if (selected) "\u2713 ${tab.localizedMembershipTitle()}" else tab.localizedMembershipTitle()
-                Button(
-                    onClick = { onToggle(tab.key) },
-                    enabled = !isPending,
-                    modifier = if (tab.key == tabs.firstOrNull()?.key) {
-                        Modifier
-                            .fillMaxWidth()
-                            .focusRequester(primaryFocusRequester)
-                    } else {
-                        Modifier.fillMaxWidth()
-                    },
-                    colors = ButtonDefaults.colors(
-                        containerColor = if (selected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
-                        contentColor = FetchTheme.colors.TextPrimary
-                    )
-                ) {
-                    Text(
-                        text = titleText,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        }
-
-        Divider(color = FetchTheme.colors.Border, thickness = FetchTheme.spacing.hairline)
-
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-            Button(
-                onClick = onSave,
-                enabled = !isPending,
-                colors = ButtonDefaults.colors(
-                    containerColor = FetchTheme.colors.BackgroundCard,
-                    contentColor = FetchTheme.colors.TextPrimary
-                )
-            ) {
-                Text(if (isPending) stringResource(R.string.action_saving) else stringResource(R.string.action_save))
-            }
-        }
+        )
     }
 }

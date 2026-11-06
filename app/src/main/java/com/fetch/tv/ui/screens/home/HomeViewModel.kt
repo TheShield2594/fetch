@@ -27,8 +27,6 @@ import com.fetch.tv.domain.model.CatalogDescriptor
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.Collection
 import com.fetch.tv.domain.model.ContinueWatchingSortMode
-import com.fetch.tv.domain.model.LibraryEntryInput
-import com.fetch.tv.domain.model.ListMembershipChanges
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.data.repository.MDBListRepository
 import com.fetch.tv.domain.model.MDBListSettings
@@ -366,8 +364,6 @@ class HomeViewModel @Inject constructor(
     internal var lastMovieWatchedItemKeys: Set<String> = emptySet()
     internal var seriesWatchedObserverJob: Job? = null
     internal var libraryTabsObserverJob: Job? = null
-    internal var activePosterListPickerInput: LibraryEntryInput? = null
-    internal var pendingPosterListPickerChanges: ListMembershipChanges? = null
     @Volatile
     internal var externalMetaPrefetchEnabled: Boolean = false
     @Volatile
@@ -429,7 +425,6 @@ class HomeViewModel @Inject constructor(
             loadDisabledHomeCatalogPreference()
             loadPinnedHomeCatalogPreference()
             loadCustomCatalogTitles()
-            observeLibraryState()
             observeTmdbSettings()
             observeBecauseYouWatchedPipeline()
             observeMdbListSettings()

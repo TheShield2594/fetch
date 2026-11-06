@@ -2254,8 +2254,6 @@
     <string name="stream_error_detail_addon_request_failed">অ্যাডন রিকোয়েস্ট ব্যর্থ হয়েছে</string>
     <string name="stream_error_fetch_failed">স্ট্রীম ফেচ করতে ব্যর্থ</string>
     <string name="trakt_library_error_paginated_fetch_failed">Trakt প্যাগিনেটেড ফেচ ব্যর্থ হয়েছে (%1$d)</string>
-    <string name="home_poster_lists_error_load_failed">লিস্ট লোড করতে ব্যর্থ</string>
-    <string name="home_poster_lists_error_update_failed">লিস্ট আপডেট করতে ব্যর্থ</string>
     <string name="profile_pin_saved_for_profile">%1$s-এর জন্য PIN সেভ হয়েছে।</string>
     <string name="profile_pin_lock_removed_for_profile">%1$s-এর জন্য PIN লক রিমুভ করা হয়েছে।</string>
     <string name="trakt_related_error_request_failed">Trakt রিলেটেড রিকোয়েস্ট ব্যর্থ হয়েছে</string>

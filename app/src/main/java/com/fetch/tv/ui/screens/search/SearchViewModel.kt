@@ -20,6 +20,8 @@ import com.fetch.tv.domain.model.nextCatalogSkip
 import com.fetch.tv.domain.model.skipStep
 import com.fetch.tv.domain.model.stableKey
 import com.fetch.tv.domain.model.supportsExtra
+import com.fetch.tv.domain.model.requiredBrowseExtraArgs
+import com.fetch.tv.domain.model.requiresExtra
 import com.fetch.tv.core.util.filterReleasedItems
 import com.fetch.tv.core.util.isUnreleased
 import com.fetch.tv.domain.repository.AddonRepository
@@ -63,7 +65,8 @@ class SearchViewModel @Inject constructor(
     private val serverCatalog: ServerCatalog,
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     private val remoteCommandBus: com.fetch.tv.core.remote.RemoteCommandBus,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val peopleSearch: com.fetch.tv.core.tmdb.TmdbPeopleSearch
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
@@ -95,6 +98,8 @@ class SearchViewModel @Inject constructor(
      */
     private val activeLoadMoreJobs: MutableSet<Job> =
         java.util.concurrent.ConcurrentHashMap.newKeySet()
+    /** Rows with a load-more page in flight, so cancelling the run can clear their spinners. */
+    private val loadMoreRowKeys: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
     private var searchRunJob: Job? = null
     private var activeSearchQuery: String? = null
     private var searchGeneration = 0L
@@ -235,10 +240,11 @@ class SearchViewModel @Inject constructor(
         metaPrefetchJob = viewModelScope.launch {
             delay(150)
             if (id in metaPrefetchedIds) return@launch
-            metaPrefetchedIds.add(id)
             metaRepository.getMetaFromAllAddons(type = type, id = id)
                 .first { it !is com.fetch.tv.core.network.NetworkResult.Loading }
             watchProgressRepository.getAllEpisodeProgress(id.substringBefore(":")).first()
+            // Marked only once done, so a prefetch cancelled by the next focus is retried.
+            metaPrefetchedIds.add(id)
         }
     }
 
@@ -417,7 +423,10 @@ class SearchViewModel @Inject constructor(
                             posterScreen = com.fetch.tv.core.poster.CustomPosterScreen.SEARCH
                         ).collect { result ->
                             if (result is NetworkResult.Success && _uiState.value.query.trim() == query) {
-                                val names = result.data.items.map { it.name }
+                                // Restricted profiles must not see blocked titles as keyboard
+                                // completions any more than as result cards.
+                                val names = parentalControls.filterPreviews(result.data.items)
+                                    .map { it.name }
                                 val previous = namesByCatalog.put(catalogIndex, names)
                                 // Catalog results arrive independently and are merged, so a batch
                                 // whose titles all fail the filter ranks to nothing while the batch
@@ -504,14 +513,55 @@ class SearchViewModel @Inject constructor(
         pendingCatalogResponses = 0
     }
 
+    private var peopleJob: Job? = null
+    /** The query [peopleJob] is answering or has answered; a repeat of it isn't re-requested. */
+    private var peopleQuery: String? = null
+
+    /**
+     * Looks the query up as a person name on TMDB, alongside the addon search. Like the title
+     * rows, the previous query's people stay up until this query's answer replaces them.
+     */
+    private fun searchPeople(query: String) {
+        if (query == peopleQuery) return
+        peopleQuery = query
+        peopleJob?.cancel()
+        peopleJob = viewModelScope.launch {
+            val people = try {
+                peopleSearch.search(query)
+            } catch (e: CancellationException) {
+                if (peopleQuery == query) peopleQuery = null
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.w("SearchViewModel", "People search failed: ${e.message}")
+                // Forget the query so a retry asks again.
+                if (peopleQuery == query) peopleQuery = null
+                emptyList()
+            }
+            if (_uiState.value.submittedQuery.trim() == query) {
+                _uiState.update { it.copy(peopleResults = people) }
+            }
+        }
+    }
+
     private fun cancelSearchRun() {
         searchGeneration++
         searchRunJob?.cancel()
         searchRunJob = null
         activeSearchJobs.forEach { it.cancel() }
         activeSearchJobs = emptyList()
+        // Snapshot first: a cancelled job's completion handler removes its key.
+        val interruptedRowKeys = loadMoreRowKeys.toList()
         activeLoadMoreJobs.forEach { it.cancel() }
         activeLoadMoreJobs.clear()
+        // A cancelled page load never reaches clearRowLoading, and a run that is then found
+        // already satisfied keeps these rows, so drop their spinners here.
+        if (interruptedRowKeys.isNotEmpty()) {
+            interruptedRowKeys.forEach { key ->
+                catalogsMap[key]?.takeIf { it.isLoading }?.let { catalogsMap[key] = it.copy(isLoading = false) }
+            }
+            loadMoreRowKeys.clear()
+            scheduleCatalogRowsUpdate()
+        }
         activeSearchQuery = null
     }
 
@@ -564,16 +614,21 @@ class SearchViewModel @Inject constructor(
             resetCatalogAccumulator()
             lastRequestKey = null
             lastCompletedRequestKey = null
+            peopleJob?.cancel()
+            peopleQuery = null
             _uiState.update {
                 it.copy(
                     isSearching = false,
                     error = null,
-                    catalogRows = emptyList()
+                    catalogRows = emptyList(),
+                    peopleResults = emptyList()
                 )
             }
             ensureDiscoverLoaded()
             return
         }
+
+        searchPeople(query)
 
         // Submit can immediately follow the debounced live-search launch. Reuse an active run for
         // the same query, but cancel a different query's entire scope before starting this one.
@@ -859,7 +914,11 @@ class SearchViewModel @Inject constructor(
             }
         }
         activeLoadMoreJobs.add(job)
-        job.invokeOnCompletion { activeLoadMoreJobs.remove(job) }
+        loadMoreRowKeys.add(key)
+        job.invokeOnCompletion {
+            activeLoadMoreJobs.remove(job)
+            loadMoreRowKeys.remove(key)
+        }
     }
 
     /** Drops the loading flag for a row, but only while its search run is still current. */
@@ -948,11 +1007,14 @@ class SearchViewModel @Inject constructor(
                     !(catalog.supportsExtra("search") &&
                         catalog.extra.any { it.name.equals("search", ignoreCase = true) && it.isRequired })
                 }
-                .map { catalog ->
+                // A catalog with a required extra Discover has no value for can't be browsed.
+                .mapNotNull { catalog -> catalog.requiredBrowseExtraArgs()?.let { catalog to it } }
+                .map { (catalog, requiredArgs) ->
                     val genres = catalog.extra
                         .firstOrNull { it.name.equals("genre", ignoreCase = true) }
                         ?.options
                         .orEmpty()
+                    val genreRequired = catalog.requiresExtra("genre")
                     DiscoverCatalog(
                         key = catalogRowLegacyKey(addon.id, catalog.apiType, catalog.id),
                         addonId = addon.id,
@@ -963,7 +1025,12 @@ class SearchViewModel @Inject constructor(
                         type = catalog.apiType,
                         genres = genres,
                         supportsSkip = catalog.supportsExtra("skip"),
-                        skipStep = catalog.skipStep()
+                        skipStep = catalog.skipStep(),
+                        genreRequired = genreRequired,
+                        defaultGenre = requiredArgs.entries
+                            .firstOrNull { it.key.equals("genre", ignoreCase = true) }
+                            ?.value,
+                        requiredExtraArgs = requiredArgs.filterKeys { !it.equals("genre", ignoreCase = true) }
                     )
                 }
         }
@@ -974,7 +1041,7 @@ class SearchViewModel @Inject constructor(
             currentKey = _uiState.value.selectedDiscoverCatalogKey
         )
         val selectedType = selectedCatalog?.type ?: "movie"
-        val selectedGenre: String? = null
+        val selectedGenre: String? = selectedCatalog.initialGenre()
 
         _uiState.update {
             it.copy(
@@ -1006,7 +1073,7 @@ class SearchViewModel @Inject constructor(
             selectedType = type,
             preferredKey = _uiState.value.selectedDiscoverCatalogKey
         )
-        val selectedGenre: String? = null
+        val selectedGenre: String? = selectedCatalog.initialGenre()
         _uiState.update {
             it.copy(
                 selectedDiscoverType = type,
@@ -1032,7 +1099,7 @@ class SearchViewModel @Inject constructor(
             it.copy(
                 selectedDiscoverCatalogKey = catalog.key,
                 selectedDiscoverType = catalog.type,
-                selectedDiscoverGenre = null,
+                selectedDiscoverGenre = catalog.initialGenre(),
                 discoverResults = emptyList(),
                 pendingDiscoverResults = emptyList(),
                 discoverPage = 1,
@@ -1046,6 +1113,10 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun selectDiscoverGenre(genre: String?) {
+        val catalog = _uiState.value.discoverCatalogs
+            .firstOrNull { it.key == _uiState.value.selectedDiscoverCatalogKey }
+        // A catalog that requires a genre has no "All"; keep its current genre.
+        if (genre == null && catalog?.genreRequired == true) return
         _uiState.update {
             it.copy(
                 selectedDiscoverGenre = genre,
@@ -1114,7 +1185,10 @@ class SearchViewModel @Inject constructor(
             val skip = if (currentPage <= 1) 0 else (currentPage - 1) * selectedCatalog.skipStep
             val visibleCountBeforeRequest = state.discoverResults.size
             val extraArgs = buildMap<String, String> {
-                state.selectedDiscoverGenre?.takeIf { it.isNotBlank() }?.let { put("genre", it) }
+                putAll(selectedCatalog.requiredExtraArgs)
+                (state.selectedDiscoverGenre?.takeIf { it.isNotBlank() }
+                    ?: selectedCatalog.defaultGenre.takeIf { selectedCatalog.genreRequired })
+                    ?.let { put("genre", it) }
             }
 
             catalogRepository.getCatalog(

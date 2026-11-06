@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchStatusTones
@@ -59,7 +60,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
@@ -144,11 +144,13 @@ fun SearchScreen(
     onNavigateToDetail: (String, String, String) -> Unit,
     onNavigateToSeeAll: (catalogId: String, addonId: String, type: String) -> Unit = { _, _, _ -> },
     onOpenDiscover: () -> Unit = {},
-    onNavigateToAddons: () -> Unit = {}
+    onNavigateToAddons: () -> Unit = {},
+    /** Opens the cast screen for a person from the people row (TMDB person id and name). */
+    onNavigateToPerson: (personId: Int, personName: String, preferCrew: Boolean) -> Unit = { _, _, _ -> }
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val watchedMovieIds by viewModel.watchedMovieIds.collectAsState()
-    val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val watchedMovieIds by viewModel.watchedMovieIds.collectAsStateWithLifecycle()
+    val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val view = LocalView.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -158,6 +160,7 @@ fun SearchScreen(
     val strVoiceUnavailable = stringResource(R.string.search_voice_unavailable)
     val noSearchCatalogsError = stringResource(R.string.search_error_no_catalogs)
     val voiceFocusRequester = remember { FocusRequester() }
+    val peopleRowState = remember { LazyListState() }
     val searchFocusRequester = remember { FocusRequester() }
     val discoverFirstItemFocusRequester = remember { FocusRequester() }
     val recentClearHistoryFocusRequester = remember { FocusRequester() }
@@ -798,7 +801,8 @@ fun SearchScreen(
                         }
                     }
 
-                    !uiState.isSearching && !hasPendingUnsubmittedQuery && visibleCatalogRows.isEmpty() -> {
+                    !uiState.isSearching && !hasPendingUnsubmittedQuery && visibleCatalogRows.isEmpty() &&
+                        uiState.peopleResults.isEmpty() -> {
                         item {
                             EmptyScreenState(
                                 title = stringResource(R.string.search_no_results_query_title, trimmedSubmittedQuery),
@@ -915,6 +919,33 @@ fun SearchScreen(
                             )
                         }
 
+                        // People whose name matches, after the titles. Opening one shows their
+                        // filmography, the only other way to reach which is a title's cast row.
+                        if (uiState.peopleResults.isNotEmpty()) {
+                            item(key = "search_people", contentType = "people_row") {
+                                val people = remember(uiState.peopleResults) {
+                                    uiState.peopleResults.map { it.person }
+                                }
+                                com.fetch.tv.ui.screens.detail.CastSection(
+                                    cast = people,
+                                    listState = peopleRowState,
+                                    title = stringResource(R.string.search_people_title),
+                                    upFocusRequester = if (visibleCatalogRows.isEmpty()) searchFocusRequester else null,
+                                    windowResetKey = trimmedSubmittedQuery,
+                                    onCastMemberClick = { person ->
+                                        val id = person.tmdbId
+                                        if (id != null) {
+                                            val preferCrew = uiState.peopleResults
+                                                .firstOrNull { it.person.tmdbId == id }
+                                                ?.preferCrew == true
+                                            onNavigateToPerson(id, person.name, preferCrew)
+                                        }
+                                    },
+                                    modifier = Modifier.padding(bottom = FetchTheme.spacing.xl)
+                                )
+                            }
+                        }
+
                         // Results are up but more catalogs are still answering, as on mobile.
                         if (uiState.isSearching || hasPendingUnsubmittedQuery) {
                             item(key = "search_loading_more") {
@@ -959,7 +990,7 @@ fun SearchScreen(
         }
     }
 
-    val posterOptionsState by viewModel.posterOptions.state.collectAsState()
+    val posterOptionsState by viewModel.posterOptions.state.collectAsStateWithLifecycle()
     com.fetch.tv.ui.components.posteroptions.PosterOptionsHost(
         state = posterOptionsState,
         controller = viewModel.posterOptions,

@@ -96,9 +96,14 @@ class CastDetailViewModel @Inject constructor(
                         context.getString(R.string.cast_error_load_details_for, personName)
                     )
                 }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
+                // Exception text is technical and untranslated; log it and show the person-level
+                // message the not-found path uses.
+                android.util.Log.w("CastDetailViewModel", "Failed to load person details", e)
                 _uiState.value = CastDetailUiState.Error(
-                    e.message ?: context.getString(R.string.error_unknown)
+                    context.getString(R.string.cast_error_load_details_for, personName)
                 )
             }
         }

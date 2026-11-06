@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -42,6 +43,7 @@ import javax.inject.Inject
 private val YEAR_REGEX = Regex("""\b(19|20)\d{2}\b""")
 private const val INFO_MESSAGE_MILLIS = 2200L
 private const val ERROR_MESSAGE_MIN_MILLIS = 8000L
+private const val MAX_FILTER_PASSES = 3
 
 data class LibraryTypeTab(
     val key: String,
@@ -209,6 +211,12 @@ class LibraryViewModel @Inject constructor(
                 }
         }
         viewModelScope.launch {
+            // A profile switch or a newly resolved rating changes what counts toward the facets.
+            parentalControls.filterRevision
+                .drop(1)
+                .collect { _uiState.update { current -> current.withVisibleItems() } }
+        }
+        viewModelScope.launch {
             watchedSeriesStateHolder.fullyWatchedSeriesIds
                 .collect { ids ->
                     _uiState.update { current ->
@@ -232,10 +240,11 @@ class LibraryViewModel @Inject constructor(
         metaPrefetchJob = viewModelScope.launch {
             delay(150)
             if (id in metaPrefetchedIds) return@launch
-            metaPrefetchedIds.add(id)
             metaRepository.getMetaFromAllAddons(type = type, id = id)
                 .first { it !is com.fetch.tv.core.network.NetworkResult.Loading }
             watchProgressRepository.getAllEpisodeProgress(id.substringBefore(":")).first()
+            // Marked only once done, so a prefetch cancelled by the next focus is retried.
+            metaPrefetchedIds.add(id)
         }
     }
 
@@ -751,12 +760,34 @@ class LibraryViewModel @Inject constructor(
     private fun LibraryEntry.extractYear(): String? =
         releaseInfo?.let { YEAR_REGEX.find(it)?.value }
 
+    /**
+     * Recomputes the grid and its facets. A type, genre or year that the new facets no longer
+     * offer is reset, and the grid is then recomputed with the reset selection, so it never shows
+     * the empty result of a filter the chips already display as cleared.
+     */
     private fun LibraryUiState.withVisibleItems(): LibraryUiState {
+        var state = this
+        // Each pass can only clear selections, so this settles within a few passes.
+        repeat(MAX_FILTER_PASSES) {
+            val next = state.computeVisibleItems()
+            val selectionsChanged = next.selectedGenre != state.selectedGenre ||
+                next.selectedYear != state.selectedYear ||
+                next.selectedTypeTab?.key != state.selectedTypeTab?.key
+            if (!selectionsChanged) return next
+            state = next
+        }
+        return state.computeVisibleItems()
+    }
+
+    private fun LibraryUiState.computeVisibleItems(): LibraryUiState {
+        // Facets and counts come from what the profile may see, so a kids profile isn't offered
+        // "Horror (4)" that opens an empty grid.
+        val profileItems = parentalControls.filterAllowed(allItems) { it.certificationQuery() }
         val listFiltered = if (sourceMode.providerId != null || selectedListKey != null) {
             val listKey = selectedListKey ?: ""
-            allItems.filter { entry -> entry.listKeys.contains(listKey) }
+            profileItems.filter { entry -> entry.listKeys.contains(listKey) }
         } else {
-            allItems
+            profileItems
         }
 
         // Step 2: Type filter
@@ -893,6 +924,18 @@ class LibraryViewModel @Inject constructor(
         // Validate selections — clear if no longer valid
         val validGenre = selectedGenre?.takeIf { g -> genreOptions.any { it.key.equals(g, ignoreCase = true) } }
         val validYear = selectedYear?.takeIf { y -> yearOptions.any { it.key == y } }
+        // A type the list doesn't hold (e.g. a persisted "anime" on a list with no anime) falls
+        // back to All. While the list is still empty (loading) the selection is kept.
+        val validTypeTab = if (
+            selectedTypeKey == null ||
+            selectedTypeKey == LibraryTypeTab.ALL_KEY ||
+            listFiltered.isEmpty() ||
+            typeTabsWithCounts.any { it.key == selectedTypeKey }
+        ) {
+            selectedTypeTab
+        } else {
+            typeTabsWithCounts.first()
+        }
 
         return copy(
             visibleItems = sorted.withCustomPosterUrls(
@@ -901,6 +944,7 @@ class LibraryViewModel @Inject constructor(
             availableTypeTabs = typeTabsWithCounts,
             availableGenres = genreOptions,
             availableYears = yearOptions,
+            selectedTypeTab = validTypeTab,
             selectedGenre = validGenre,
             selectedYear = validYear
         )

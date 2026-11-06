@@ -2094,8 +2094,6 @@
 
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Kurulu katalog eklentisi yok</string>
-    <string name="home_poster_lists_error_load_failed">Listeler yüklenemedi</string>
-    <string name="home_poster_lists_error_update_failed">Listeler güncellenemedi</string>
 
     <!-- Player errors -->
     <string name="player_error_no_stream_url">Bu kaynağın yayın bağlantısı yok. Başka bir kaynak seçin.</string>

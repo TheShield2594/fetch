@@ -2481,8 +2481,6 @@
     <string name="trakt_library_error_paginated_fetch_failed">Échec de la récupération paginée Trakt (%1$d)</string>
 
     <!-- Home: poster long-press list picker errors -->
-    <string name="home_poster_lists_error_load_failed">Échec du chargement des listes</string>
-    <string name="home_poster_lists_error_update_failed">Échec de la mise à jour des listes</string>
 
     <!-- Profile selection: PIN overlay messages -->
     <string name="profile_pin_saved_for_profile">Code PIN enregistré pour %1$s.</string>

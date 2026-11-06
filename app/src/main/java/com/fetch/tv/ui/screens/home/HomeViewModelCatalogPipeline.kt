@@ -14,6 +14,7 @@ import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.domain.model.legacyKey
 import com.fetch.tv.domain.model.mergeCatalogPage
 import com.fetch.tv.domain.model.nextCatalogSkip
+import com.fetch.tv.domain.model.requiredBrowseExtraArgs
 import com.fetch.tv.domain.model.skipStep
 import com.fetch.tv.domain.model.stableKey
 import com.fetch.tv.domain.model.WatchedItem
@@ -259,7 +260,7 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
                 addon.catalogs
                     .filter { catalog ->
                         val key = catalogKey(addonId = addon.id, type = catalog.apiType, catalogId = catalog.id)
-                        key in heroCatalogSet && key !in alreadyLoadingKeys && !catalog.isSearchOnlyCatalog()
+                        key in heroCatalogSet && key !in alreadyLoadingKeys && catalog.isBrowsableOnHome()
                     }
                     .map { catalog -> addon to catalog }
             }
@@ -397,7 +398,7 @@ internal fun HomeViewModel.loadHeroCatalogsPipeline() {
         addon.catalogs
             .filter { catalog ->
                 val key = catalogKey(addonId = addon.id, type = catalog.apiType, catalogId = catalog.id)
-                key in missingHeroKeys && !catalog.isSearchOnlyCatalog()
+                key in missingHeroKeys && catalog.isBrowsableOnHome()
             }
             .map { catalog -> addon to catalog }
     }
@@ -442,6 +443,7 @@ internal fun HomeViewModel.loadCatalogPipeline(
                 type = catalog.apiType,
                 skip = 0,
                 skipStep = skipStep,
+                extraArgs = catalog.requiredBrowseExtraArgs().orEmpty(),
                 supportsSkip = supportsSkip,
                 // A refresh merges into rows already on screen, so only a fresh load needs the cache.
                 cachedFirst = !isRefresh
@@ -543,10 +545,17 @@ internal fun HomeViewModel.loadMoreCatalogItemsPipeline(catalogId: String, addon
     _loadingCatalogs.update { it + key }
 
     viewModelScope.launch {
-        val addon = addonsCache.find { it.id == addonId }
+        // Two installs of one addon share an id, so the row's base URL picks the right one.
+        val addon = addonsCache.find { it.id == addonId && it.baseUrl == currentRow.addonBaseUrl }
+            ?: addonsCache.find { it.id == addonId }
         if (addon == null) {
+            // The addon was removed since the row loaded: stop the row's spinner.
+            updateCatalogRow(key) { it.copy(isLoading = false, hasMore = false) }
+            _loadingCatalogs.update { it - key }
+            scheduleUpdateCatalogRows()
             return@launch
         }
+        val descriptor = addon.catalogs.firstOrNull { it.id == catalogId && it.apiType == currentRow.apiType }
 
         val nextSkip = currentRow.nextCatalogSkip()
         catalogRepository.getCatalog(
@@ -558,6 +567,7 @@ internal fun HomeViewModel.loadMoreCatalogItemsPipeline(catalogId: String, addon
             type = currentRow.apiType,
             skip = nextSkip,
             skipStep = currentRow.skipStep,
+            extraArgs = descriptor?.requiredBrowseExtraArgs().orEmpty(),
             supportsSkip = currentRow.supportsSkip
         ).collect { result ->
             when (result) {
@@ -926,17 +936,6 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
         seriesWatchedObserverJob?.cancel()
         seriesWatchedObserverJob = null
     }
-
-    _uiState.update { state ->
-        val trimmedMovieWatchedPending =
-            state.movieWatchedPending.filterTo(linkedSetOf()) { it in desiredMovieKeys }
-
-        if (trimmedMovieWatchedPending == state.movieWatchedPending) {
-            state
-        } else {
-            state.copy(movieWatchedPending = trimmedMovieWatchedPending)
-        }
-    }
 }
 
 private fun HomeViewModel.reconcileFullyWatchedFromLocalItems(
@@ -1053,7 +1052,7 @@ internal fun HomeViewModel.refreshVisibleCatalogsPipeline(requestedByUser: Boole
     val toRefresh = addonsCache.flatMap { addon ->
         addon.catalogs
             .filter { catalog ->
-                !catalog.isSearchOnlyCatalog() && catalogKey(
+                catalog.isBrowsableOnHome() && catalogKey(
                     addonId = addon.id,
                     type = catalog.apiType,
                     catalogId = catalog.id

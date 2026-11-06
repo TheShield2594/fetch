@@ -1943,8 +1943,6 @@
     <string name="trakt_library_error_paginated_fetch_failed">ட்ராக்ட் பக்கமிடப்பட்ட பெறுதல் தோல்வியடைந்தது (%1$d)</string>
 
     <!-- Home: poster long-press list picker errors -->
-    <string name="home_poster_lists_error_load_failed">பட்டியல்களை ஏற்ற முடியவில்லை</string>
-    <string name="home_poster_lists_error_update_failed">பட்டியல்களைப் புதுப்பிக்க முடியவில்லை</string>
 
     <!-- Profile selection: PIN overlay messages -->
     <string name="profile_pin_saved_for_profile">%1$s க்காக பின் சேமிக்கப்பட்டது.</string>

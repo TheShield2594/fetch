@@ -2396,8 +2396,6 @@
     <string name="trakt_library_error_paginated_fetch_failed">Trakt 分頁擷取失敗 (%1$d)</string>
 
     <!-- 首頁：海報長按清單選擇器錯誤 -->
-    <string name="home_poster_lists_error_load_failed">載入清單失敗</string>
-    <string name="home_poster_lists_error_update_failed">更新清單失敗</string>
 
     <!-- 個人資料選擇：PIN 覆蓋層訊息 -->
     <string name="profile_pin_saved_for_profile">已為 %1$s 儲存 PIN。</string>

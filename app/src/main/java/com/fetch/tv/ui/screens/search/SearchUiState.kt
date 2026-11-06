@@ -48,7 +48,9 @@ data class SearchUiState(
     val posterCardHeightDp: Int = 189,
     val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
     val recentSearches: List<String> = emptyList(),
-    val suggestions: List<String> = emptyList()
+    val suggestions: List<String> = emptyList(),
+    /** People matching the query on TMDB (when TMDB is on), each opening the cast screen. */
+    val peopleResults: List<com.fetch.tv.core.tmdb.PersonSearchResult> = emptyList()
 )
 
 @Immutable
@@ -62,5 +64,15 @@ data class DiscoverCatalog(
     val type: String,
     val genres: List<String>,
     val supportsSkip: Boolean,
-    val skipStep: Int
+    val skipStep: Int,
+    /** The catalog can't be browsed without a genre, so Discover offers no "All" for it. */
+    val genreRequired: Boolean = false,
+    /** Genre to start on when [genreRequired]: the manifest default, else the first option. */
+    val defaultGenre: String? = null,
+    /** Values for any other required extras, sent with every request. */
+    val requiredExtraArgs: Map<String, String> = emptyMap()
 )
+
+/** The genre to select when switching to this catalog: none, unless it requires one. */
+internal fun DiscoverCatalog?.initialGenre(): String? =
+    if (this?.genreRequired == true) defaultGenre else null

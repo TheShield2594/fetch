@@ -229,6 +229,25 @@ fun LibraryScreen(
         }
     }
 
+    // Back from deep in the grid returns to the top and the selectors row first, as on Home and
+    // Search; a second Back (or Back from the top) leaves the screen.
+    val backScope = rememberCoroutineScope()
+    val gridScrolledAway by remember {
+        androidx.compose.runtime.derivedStateOf { gridState.firstVisibleItemIndex > 0 }
+    }
+    androidx.activity.compose.BackHandler(
+        enabled = viewMode == LibraryViewMode.Saved && expandedPicker == null && gridScrolledAway
+    ) {
+        backScope.launch {
+            runCatching { gridState.scrollToItem(0) }
+            // Give the selectors row a frame to compose before focusing it.
+            repeat(3) {
+                if (runCatching { selectorFocusRequester.requestFocus() }.isSuccess) return@launch
+                delay(16)
+            }
+        }
+    }
+
     LaunchedEffect(uiState.sortSelectionVersion, firstVisiblePosterKey) {
         if (uiState.sortSelectionVersion <= 0L) return@LaunchedEffect
         val targetKey = firstVisiblePosterKey ?: return@LaunchedEffect

@@ -2,6 +2,8 @@ package com.fetch.desktop.sync
 
 import com.fetch.desktop.data.ProgressFile
 import com.fetch.desktop.sync.SyncMerge.videoId
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -195,5 +197,32 @@ class WatchStateSyncTest {
         profile.sync.saveImported(profile.progress.copy(watched = listOf("tt1:1:6", "tt1:1:5")), accountA, now = 10)
         assertEquals(listOf("tt1:1:6"), profile.progress.watched)
         assertTrue(profile.sync.state.pending.isEmpty)
+    }
+
+    @Test
+    fun `a sync of the old account that resumes after another signs in sends and drops nothing of the new one`() = runBlocking {
+        val profile = Profile(ProgressFile(watched = listOf("tt1", "tt2")), syncedState(pending = PendingWatchOps().watchedUpsert("tt9", 1)))
+        val pulling = CompletableDeferred<Unit>()
+        val resume = CompletableDeferred<Unit>()
+        val serverA = FakeRemote(accountA)
+        // A's server answers its delta pull only once B has signed in and queued a change.
+        val slowA = object : WatchRemote by serverA {
+            override suspend fun pullWatchedDelta(profileId: Int, sinceEventId: Long, limit: Int): List<RemoteWatchedEvent> {
+                pulling.complete(Unit)
+                resume.await()
+                return serverA.pullWatchedDelta(profileId, sinceEventId, limit)
+            }
+        }
+        val syncA = launch { profile.sync.sync(slowA, profileId = 1) }
+        pulling.await()
+        profile.sync.saveLocal(profile.progress.copy(watched = listOf("tt2")), accountB, now = 5)
+        resume.complete(Unit)
+        syncA.join()
+
+        // Nothing went to A's server, and B's un-mark is still queued, for B.
+        assertTrue(serverA.deletedWatched.isEmpty() && serverA.pushedWatched.isEmpty())
+        assertEquals(accountB, profile.sync.state.account)
+        assertEquals(PendingWatchOps().watchedDelete("tt1"), profile.sync.state.pending)
+        assertNull(profile.sync.state.watchedCursor)
     }
 }

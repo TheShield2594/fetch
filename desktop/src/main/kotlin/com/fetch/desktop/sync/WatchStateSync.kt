@@ -127,10 +127,30 @@ class WatchStateSync(
      * moves on only once what it covers is saved, so a failed write is pulled again next time.
      */
     suspend fun sync(remote: WatchRemote, profileId: Int) = mutex.withLock {
+        try {
+            syncLocked(remote, profileId)
+        } catch (_: AccountChanged) {
+            // Another account was signed in while this one's sync waited on the server.
+        }
+    }
+
+    /**
+     * Local changes are queued outside [mutex], so while a sync waits on the server another
+     * account can be adopted ([adopt]). Called after every server call: from then on nothing of
+     * this sync is applied, pushed or acknowledged, so the other account's queue stays intact.
+     */
+    private fun stillFor(remote: WatchRemote) {
+        if (state.account != remote.account) throw AccountChanged()
+    }
+
+    private class AccountChanged : Exception()
+
+    private suspend fun syncLocked(remote: WatchRemote, profileId: Int) {
         adopt(remote.account)
 
         // Watched history.
         val watchedDelta = state.watchedCursor?.let { from -> deltaOrNull { pullWatchedEvents(remote, profileId, from) } }
+        stillFor(remote)
         if (watchedDelta != null) {
             val (events, cursor) = watchedDelta
             val before = progress()
@@ -145,6 +165,7 @@ class WatchStateSync(
         } else {
             val cursor = deltaOrNull { remote.watchedDeltaCursor(profileId) }
             val items = remote.pullWatched(profileId)
+            stillFor(remote)
             val before = progress()
             val pull = WatchSync.applyWatchedSnapshot(before.watched, items, state.pending, !state.watchedInitialized, System.currentTimeMillis())
             val changed = pull.watched != before.watched
@@ -158,6 +179,7 @@ class WatchStateSync(
 
         // Continue Watching.
         val progressDelta = state.progressCursor?.let { from -> deltaOrNull { pullProgressEvents(remote, profileId, from) } }
+        stillFor(remote)
         if (progressDelta != null) {
             val (events, cursor) = progressDelta
             val before = progress()
@@ -170,6 +192,7 @@ class WatchStateSync(
         } else {
             val cursor = deltaOrNull { remote.progressDeltaCursor(profileId) }
             val entries = remote.pullProgress(profileId)
+            stillFor(remote)
             val before = progress()
             val pull = WatchSync.applyProgressSnapshot(before, entries, state.pending, state.remoteProgressKeys, !state.progressInitialized)
             val saved = persist(pull.file, changed = pull.file !== before)
@@ -184,7 +207,12 @@ class WatchStateSync(
 
     /** Sends the pending changes now (a mark or a removal by hand), when they are [remote]'s account's. */
     suspend fun push(remote: WatchRemote, profileId: Int) = mutex.withLock {
-        if (state.account == remote.account) pushPending(remote, profileId)
+        try {
+            stillFor(remote)
+            pushPending(remote, profileId)
+        } catch (_: AccountChanged) {
+            // Signed in to another account meanwhile: its queue isn't this account's to send.
+        }
     }
 
     /**
@@ -198,14 +226,17 @@ class WatchStateSync(
             remote.deleteWatched(id, batch.mapNotNull { videoId ->
                 SyncMerge.watchedItem(videoId, 0L)?.let { RemoteWatchedKey(it.contentId, it.season, it.episode) }
             })
+            stillFor(remote)
             save(state.copy(pending = state.pending.acknowledged(watchedDeletes = batch.toSet())))
         }
         pending.watchedUpserts.entries.chunked(PUSH_BATCH).forEach { batch ->
             remote.pushWatched(id, batch.mapNotNull { (videoId, at) -> SyncMerge.watchedItem(videoId, at) })
+            stillFor(remote)
             save(state.copy(pending = state.pending.acknowledged(watchedUpserts = batch.associate { it.key to it.value })))
         }
         pending.progressDeletes.chunked(PUSH_BATCH).forEach { batch ->
             remote.deleteProgress(id, batch)
+            stillFor(remote)
             save(state.copy(
                 pending = state.pending.acknowledged(progressDeletes = batch.toSet()),
                 remoteProgressKeys = state.remoteProgressKeys - batch.toSet(),
@@ -213,6 +244,7 @@ class WatchStateSync(
         }
         pending.progressUpserts.entries.chunked(PUSH_BATCH).forEach { batch ->
             remote.pushProgress(id, batch.map { (key, p) -> p.toRemote(key) })
+            stillFor(remote)
             save(state.copy(
                 pending = state.pending.acknowledged(progressUpserts = batch.associate { it.key to it.value }),
                 remoteProgressKeys = state.remoteProgressKeys + batch.map { it.key },

@@ -16,7 +16,7 @@ import {
 import { connectionKvKey } from "./profile-connections.js";
 import { PLEX_PIN_KEY } from "./owner-keys.js";
 import { outboundScopeForProfile } from "./integration-owner.js";
-import { type OutboundScope, resolveServerUrl } from "./ssrf.js";
+import { BlockedAddressError, type OutboundScope, guardedFetch } from "./ssrf.js";
 import { importTrackerItems, type ImportedWatch } from "./tracker-import.js";
 import { importPlaybackProgress, type PlaybackImportRow } from "./playback.js";
 
@@ -108,32 +108,37 @@ const readJson = async (response: Response): Promise<unknown> => {
   }
 };
 
-/** Every request to a server goes through the address check first, under the profile's scope. */
+const blocked = (scope: OutboundScope) =>
+  new MediaServerError(
+    scope.allowPrivateNetwork
+      ? "That address isn't one this server may connect to"
+      : "That server is on a private network; only the admin's profiles can use one. Use its public address.",
+    "blocked"
+  );
+
+/**
+ * Every request to a server goes through guardedFetch, under the profile's
+ * scope: the address is checked before the request and again on the addresses
+ * the connection actually uses, and redirects are refused.
+ */
 const serverFetch = async (
   scope: OutboundScope,
   url: string,
   init: { method?: string; headers?: Record<string, string>; body?: string } = {}
 ): Promise<Response> => {
-  if (!(await resolveServerUrl(url, scope))) {
-    throw new MediaServerError(
-      scope.allowPrivateNetwork
-        ? "That address isn't one this server may connect to"
-        : "That server is on a private network; only the admin's profiles can use one. Use its public address.",
-      "blocked"
-    );
-  }
-  let response: Response;
+  let response: Response | null;
   try {
-    response = await fetch(url, {
+    response = await guardedFetch(url, scope, {
       method: init.method ?? "GET",
       headers: { Accept: "application/json", ...init.headers },
       ...(init.body !== undefined ? { body: init.body } : {}),
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      redirect: "error",
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.cause instanceof BlockedAddressError) throw blocked(scope);
     throw new MediaServerError("Couldn't reach the server", "unreachable");
   }
+  if (!response) throw blocked(scope);
   if (response.status === 401 || response.status === 403) throw new MediaServerError("The server refused the sign-in", "auth");
   if (!response.ok) throw new MediaServerError(`The server answered ${response.status}`, response.status >= 500 ? "unreachable" : "failed");
   return response;

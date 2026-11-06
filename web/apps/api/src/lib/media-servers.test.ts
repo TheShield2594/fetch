@@ -42,6 +42,17 @@ const connections = {
 };
 vi.mock("./connections.js", () => connections);
 
+// guardedFetch's connection pinning goes through undici's own fetch; here it
+// keeps the real address check and sends what passes to the stubbed global fetch.
+vi.mock("./ssrf.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./ssrf.js")>();
+  return {
+    ...actual,
+    guardedFetch: async (url: string, scope: { allowPrivateNetwork: boolean }, init: RequestInit) =>
+      (await actual.resolveServerUrl(url, scope)) ? fetch(url, { ...init, redirect: "error" }) : null,
+  };
+});
+
 const scope = { allowPrivateNetwork: true };
 vi.mock("./integration-owner.js", () => ({ outboundScopeForProfile: async () => scope }));
 

@@ -471,6 +471,9 @@ Java_com_fetch_tv_core_player_DoviBridge_nativeProcessVideoSample(
     jboolean stripHdr10Plus
 ) {
     if (sample == nullptr || outBuffer == nullptr || sampleLen <= 0) return 0;
+    // Never trust the caller's length: copying past the Java array is a heap over-read.
+    if (sampleLen > env->GetArrayLength(sample)) return 0;
+    if (nalFormat == 1 && (nalLengthFieldLength < 1 || nalLengthFieldLength > 4)) return 0;
 
     thread_local std::vector<uint8_t> sampleBuffer;
     thread_local std::vector<uint8_t> outputBuffer;
@@ -488,15 +491,18 @@ Java_com_fetch_tv_core_player_DoviBridge_nativeProcessVideoSample(
 
     if (nalFormat == 1) { // Length-Delimited
         int pos = 0;
-        while (pos + nalLengthFieldLength <= sampleLen) {
-            int nalSize = 0;
+        while (nalLengthFieldLength <= sampleLen - pos) {
+            // Unsigned 32-bit: a 4-byte length can exceed INT_MAX, and `nalStart + nalSize`
+            // in int would overflow and slip past the bounds check below.
+            uint32_t rawNalSize = 0;
             for (int i = 0; i < nalLengthFieldLength; ++i) {
-                nalSize = (nalSize << 8) | (sampleBuffer[pos + i] & 0xFF);
+                rawNalSize = (rawNalSize << 8) | (sampleBuffer[pos + i] & 0xFF);
             }
             int nalStart = pos + nalLengthFieldLength;
-            if (nalSize <= 0 || nalStart + nalSize > sampleLen) {
+            if (rawNalSize == 0 || rawNalSize > static_cast<uint32_t>(sampleLen - nalStart)) {
                 return 0; // abort processing, format malformed
             }
+            int nalSize = static_cast<int>(rawNalSize);
 
             uint8_t nalHeader = sampleBuffer[nalStart];
             int nalType = (nalHeader >> 1) & 0x3F;

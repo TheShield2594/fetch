@@ -1023,16 +1023,14 @@ fun PlayerScreen(
                             viewModel.onEvent(PlayerEvent.OnPlayPause)
                             true
                         }
+                        // Guard on play intent, not uiState.isPlaying: ExoPlayer reports
+                        // isPlaying=false while buffering even though it will resume.
                         KeyEvent.KEYCODE_MEDIA_PLAY -> {
-                            if (!uiState.isPlaying) {
-                                viewModel.onEvent(PlayerEvent.OnPlayPause)
-                            }
+                            viewModel.onEvent(PlayerEvent.OnPlay)
                             true
                         }
                         KeyEvent.KEYCODE_MEDIA_PAUSE -> {
-                            if (uiState.isPlaying) {
-                                viewModel.onEvent(PlayerEvent.OnPlayPause)
-                            }
+                            viewModel.onEvent(PlayerEvent.OnPause)
                             true
                         }
                         KeyEvent.KEYCODE_MEDIA_STOP -> {

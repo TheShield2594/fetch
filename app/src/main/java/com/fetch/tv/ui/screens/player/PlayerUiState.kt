@@ -320,6 +320,10 @@ data class SubtitleSyncCue(
 
 sealed class PlayerEvent {
     data object OnPlayPause : PlayerEvent()
+    /** Resume only if not already set to play (MEDIA_PLAY); a no-op while buffering with play intent. */
+    data object OnPlay : PlayerEvent()
+    /** Pause only if set to play (MEDIA_PAUSE); also pauses while ExoPlayer is buffering. */
+    data object OnPause : PlayerEvent()
     data object OnSeekForward : PlayerEvent()
     data object OnSeekBackward : PlayerEvent()
     data class OnSeekBy(val deltaMs: Long) : PlayerEvent()

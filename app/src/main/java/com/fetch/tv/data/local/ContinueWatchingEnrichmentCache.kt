@@ -74,6 +74,21 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
     companion object {
         private const val TAG = "CwEnrichCache"
         private const val THROTTLE_MS = 1_000L
+        private const val CACHE_DIR_NAME = "cw_enrichment"
+
+        /**
+         * Deletes the Continue Watching snapshots (and any half-written `.tmp`
+         * files) of [profileId]. Profile ids are reused, so this must run when
+         * a profile is deleted.
+         */
+        fun deleteProfileFiles(filesDir: File, profileId: Int) {
+            val dir = File(filesDir, CACHE_DIR_NAME)
+            if (!dir.exists()) return
+            listOf("inprogress_${profileId}.json", "nextup_${profileId}.json").forEach { name ->
+                File(dir, name).delete()
+                File(dir, "$name.tmp").delete()
+            }
+        }
     }
 
     private val gson = Gson()
@@ -95,7 +110,7 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
 
     private fun nextUpFile(): File {
         val profileId = profileManager.activeProfileId.value
-        val dir = File(context.filesDir, "cw_enrichment")
+        val dir = File(context.filesDir, CACHE_DIR_NAME)
         dir.mkdirs()
         return File(dir, "nextup_${profileId}.json")
     }
@@ -141,7 +156,7 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
 
     private fun inProgressFile(): File {
         val profileId = profileManager.activeProfileId.value
-        val dir = File(context.filesDir, "cw_enrichment")
+        val dir = File(context.filesDir, CACHE_DIR_NAME)
         dir.mkdirs()
         return File(dir, "inprogress_${profileId}.json")
     }

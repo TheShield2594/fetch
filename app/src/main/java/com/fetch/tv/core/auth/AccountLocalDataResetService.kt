@@ -17,6 +17,14 @@ import kotlinx.coroutines.withContext
 
 private const val ACCOUNT_RESET_TAG = "AccountDataReset"
 
+/**
+ * Local data is only cleared at sign-in when it is known to belong to another
+ * account. With no recorded owner (fresh install, data made while signed out, or
+ * data already cleared by an explicit sign-out) it is kept.
+ */
+internal fun shouldResetLocalDataForSignIn(previousOwnerUserId: String?, signedInUserId: String): Boolean =
+    !previousOwnerUserId.isNullOrBlank() && previousOwnerUserId != signedInUserId
+
 @Singleton
 class AccountLocalDataResetService @Inject constructor(
     @param:ApplicationContext private val context: Context,

@@ -139,6 +139,7 @@ class AuthManager @Inject constructor(
                             } else if (!validateAuthenticatedSession(force = false)) {
                                 finishStartupAuthDiagnostics("signed_out", "authenticated_session_invalid")
                             } else {
+                                resetLocalDataIfAccountChanged(user.id)
                                 _authState.value = AuthState.FullAccount(userId = user.id, email = user.email!!)
                                 authSessionNoticeDataStore.markFetchAuthenticated()
                                 finishStartupAuthDiagnostics("success", "authenticated_session_validated")
@@ -394,6 +395,7 @@ class AuthManager @Inject constructor(
         cachedEffectiveUserSourceUserId = null
         _authState.value = AuthState.SignedOut
         accountLocalDataResetService.clearAfterSignOut()
+        clearLocalDataOwner()
     }
 
     suspend fun prepareForServerSwitch(): Result<Unit> {
@@ -405,7 +407,10 @@ class AuthManager @Inject constructor(
         cachedEffectiveUserSourceUserId = null
         _authState.value = AuthState.SignedOut
         authSessionNoticeDataStore.markFetchExplicitLogout()
-        if (hadSession) accountLocalDataResetService.clearAfterSignOut()
+        if (hadSession) {
+            accountLocalDataResetService.clearAfterSignOut()
+            clearLocalDataOwner()
+        }
         return Result.success(Unit)
     }
 
@@ -414,14 +419,44 @@ class AuthManager @Inject constructor(
         cachedEffectiveUserSourceUserId = null
     }
 
+    /**
+     * The server ended the session (refresh token expired or revoked) without the
+     * person asking. Local data is kept: it may hold watch progress that was never
+     * pushed, plus profiles, PINs and parental limits. The local data owner stays
+     * recorded, so the same account picks it all back up (and pushes the pending
+     * changes) when it signs in again, while a different account triggers a reset
+     * first in [resetLocalDataIfAccountChanged].
+     */
     private suspend fun handleUnexpectedSignedOut() {
         sessionValidator.reset()
         cachedEffectiveUserId = null
         cachedEffectiveUserSourceUserId = null
         _authState.value = AuthState.SignedOut
-        if (authSessionNoticeDataStore.markUnexpectedFetchLogoutIfNeeded()) {
+        authSessionNoticeDataStore.markUnexpectedFetchLogoutIfNeeded()
+    }
+
+    /**
+     * Clears the previous account's local data before [userId] is reported as
+     * signed in, if that data belongs to a different account. Runs before the
+     * state becomes [AuthState.FullAccount] so no sync starts on the old data.
+     */
+    private suspend fun resetLocalDataIfAccountChanged(userId: String) {
+        val previousOwner = runCatching { authSessionNoticeDataStore.localDataOwnerUserId() }
+            .onFailure { Log.w(TAG, "Failed to read local data owner", it) }
+            .getOrElse { return }
+        if (shouldResetLocalDataForSignIn(previousOwner, userId)) {
+            Log.i(TAG, "A different account signed in; clearing the previous account's local data")
             accountLocalDataResetService.clearAfterSignOut()
         }
+        if (previousOwner != userId) {
+            runCatching { authSessionNoticeDataStore.setLocalDataOwnerUserId(userId) }
+                .onFailure { Log.w(TAG, "Failed to record local data owner", it) }
+        }
+    }
+
+    private suspend fun clearLocalDataOwner() {
+        runCatching { authSessionNoticeDataStore.setLocalDataOwnerUserId(null) }
+            .onFailure { Log.w(TAG, "Failed to clear local data owner", it) }
     }
 
     suspend fun refreshSessionIfJwtExpired(error: Throwable): Boolean {

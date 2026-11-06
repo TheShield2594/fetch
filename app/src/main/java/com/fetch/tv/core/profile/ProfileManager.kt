@@ -2,6 +2,7 @@ package com.fetch.tv.core.profile
 
 import android.content.Context
 import com.fetch.tv.R
+import com.fetch.tv.data.local.ContinueWatchingEnrichmentCache
 import com.fetch.tv.data.local.ProfileDataStore
 import com.fetch.tv.data.local.ProfileDataStoreFactory
 import com.fetch.tv.data.local.ProfileLockStateDataStore
@@ -137,16 +138,12 @@ class ProfileManager @Inject constructor(
         if (profileId == 1) return@withContext
 
         factory.clearProfile(profileId)
+        factory.deleteProfileFiles(profileId)
 
-        val suffixWithExtension = "_p${profileId}.preferences_pb"
-        val dataStoreDir = File(context.filesDir, "datastore")
-        if (dataStoreDir.exists()) {
-            dataStoreDir.listFiles()?.forEach { file ->
-                if (file.name.endsWith(suffixWithExtension)) {
-                    file.delete()
-                }
-            }
-        }
+        // Continue Watching snapshots are keyed by profile id too. A new profile
+        // that reuses this id must not show the deleted profile's titles on Home
+        // or in the launcher's Play Next row.
+        ContinueWatchingEnrichmentCache.deleteProfileFiles(context.filesDir, profileId)
 
         // Left behind by versions that still ran plugins.
         val pluginCodeDir = File(context.filesDir, "plugin_code_p${profileId}")

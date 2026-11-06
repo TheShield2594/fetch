@@ -144,8 +144,10 @@ class WatchStateSync(
      * account can be adopted ([adopt]). Called after every server call: from then on nothing of
      * this sync is applied, pushed or acknowledged, so the other account's queue stays intact.
      */
+    // Both the saved state and the signed-in account must still be this run's account: another
+    // account may have signed in without queuing anything yet, so state.account alone can't tell.
     private fun stillFor(remote: WatchRemote) {
-        if (state.account != remote.account) throw AccountChanged()
+        if (currentAccount() != remote.account || state.account != remote.account) throw AccountChanged()
     }
 
     private class AccountChanged : Exception()

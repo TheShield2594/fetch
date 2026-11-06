@@ -231,6 +231,34 @@ class WatchStateSyncTest {
     }
 
     @Test
+    fun `a sync of the old account stops when another signs in without changing anything`() = runBlocking {
+        val profile = Profile(ProgressFile(watched = listOf("tt1", "tt2")), syncedState(pending = PendingWatchOps().watchedUpsert("tt9", 1)))
+        val pulling = CompletableDeferred<Unit>()
+        val resume = CompletableDeferred<Unit>()
+        val serverA = FakeRemote(accountA).apply { watchedEvents += watchedEvent(7, "tt2", deleted = true) }
+        val slowA = object : WatchRemote by serverA {
+            override suspend fun pullWatchedDelta(profileId: Int, sinceEventId: Long, limit: Int): List<RemoteWatchedEvent> {
+                pulling.complete(Unit)
+                resume.await()
+                return serverA.pullWatchedDelta(profileId, sinceEventId, limit)
+            }
+        }
+        val before = profile.sync.state
+        val syncA = launch { profile.sync.sync(slowA, profileId = 1) }
+        pulling.await()
+        // B signs in but makes no local change, so the saved state still names A.
+        profile.signedIn = accountB
+        resume.complete(Unit)
+        syncA.join()
+
+        // A's resumed sync applied nothing, moved no cursor and sent nothing.
+        assertEquals(listOf("tt1", "tt2"), profile.progress.watched)
+        assertEquals(before.watchedCursor, profile.sync.state.watchedCursor)
+        assertEquals(before.pending, profile.sync.state.pending)
+        assertTrue(serverA.deletedWatched.isEmpty() && serverA.pushedWatched.isEmpty())
+    }
+
+    @Test
     fun `a sync with a client taken before another account signed in changes nothing`() = runBlocking {
         val profile = Profile(ProgressFile(watched = listOf("tt1", "tt2")), syncedState(pending = PendingWatchOps().watchedUpsert("tt9", 1)))
         // A's outer sync took its client, then waited on the server (its Library pull)...

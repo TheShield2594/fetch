@@ -417,7 +417,10 @@ class SearchViewModel @Inject constructor(
                             posterScreen = com.fetch.tv.core.poster.CustomPosterScreen.SEARCH
                         ).collect { result ->
                             if (result is NetworkResult.Success && _uiState.value.query.trim() == query) {
-                                val names = result.data.items.map { it.name }
+                                // Restricted profiles must not see blocked titles as keyboard
+                                // completions any more than as result cards.
+                                val names = parentalControls.filterPreviews(result.data.items)
+                                    .map { it.name }
                                 val previous = namesByCatalog.put(catalogIndex, names)
                                 // Catalog results arrive independently and are merged, so a batch
                                 // whose titles all fail the filter ranks to nothing while the batch

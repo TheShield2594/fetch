@@ -1988,8 +1988,6 @@
     <string name="trakt_library_error_paginated_fetch_failed">Stránkované načítanie Trakt zlyhalo (%1$d)</string>
 
     
-    <string name="home_poster_lists_error_load_failed">Nepodarilo sa načítať zoznamy</string>
-    <string name="home_poster_lists_error_update_failed">Nepodarilo sa aktualizovať zoznamy</string>
 
     
     <string name="profile_pin_saved_for_profile">PIN uložený pre %1$s.</string>

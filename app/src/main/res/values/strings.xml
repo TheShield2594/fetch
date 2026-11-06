@@ -2906,8 +2906,6 @@
     <string name="trakt_library_error_paginated_fetch_failed">Trakt paginated fetch failed (%1$d)</string>
 
     <!-- Home: poster long-press list picker errors -->
-    <string name="home_poster_lists_error_load_failed">Failed to load lists</string>
-    <string name="home_poster_lists_error_update_failed">Failed to update lists</string>
 
     <!-- Profile selection: PIN overlay messages -->
     <string name="profile_pin_saved_for_profile">PIN saved for %1$s.</string>

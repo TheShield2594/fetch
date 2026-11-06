@@ -14,6 +14,7 @@ import com.fetch.tv.domain.model.ListMembershipChanges
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.Video
 import com.fetch.tv.domain.model.WatchProgress
+import com.fetch.tv.domain.model.watchableEpisodes
 import com.fetch.tv.domain.repository.LibraryRepository
 import com.fetch.tv.domain.repository.MetaRepository
 import com.fetch.tv.domain.repository.WatchProgressRepository
@@ -210,6 +211,7 @@ class PosterOptionsController @Inject constructor(
                 )
             }.onFailure { error ->
                 Log.w(TAG, "Failed to toggle library for ${canonical.id}: ${error.message}")
+                reportActionError(error, com.fetch.tv.R.string.detail_error_update_library_failed)
             }
             _state.update { it.copy(isLibraryPending = false) }
         }
@@ -430,6 +432,7 @@ class PosterOptionsController @Inject constructor(
                 Log.w(TAG, "Failed to toggle watched for ${canonical.id}: ${error.message}")
                 // Revert optimistic update on failure
                 watchProgressRepository.revertOptimisticWatchedMovie(optimisticIds, add = !currentlyWatched)
+                reportActionError(error, com.fetch.tv.R.string.detail_error_update_watched_failed)
             }
             _state.update { it.copy(isWatchedPending = false) }
         }
@@ -447,9 +450,11 @@ class PosterOptionsController @Inject constructor(
 
         val currentlyWatched = state.isWatched
 
-        // Optimistic UI update — badge changes immediately
+        // Optimistic UI update — badge changes immediately. Both the canonical id and the one the
+        // screen shows (e.g. "tmdb:603") are updated, since badges look up the latter.
         val currentIds = watchedSeriesStateHolder.fullyWatchedSeriesIds.value
-        val optimisticIds = if (currentlyWatched) currentIds - item.id else currentIds + item.id
+        val badgeIds = setOfNotNull(item.id, state.originalItemId)
+        val optimisticIds = if (currentlyWatched) currentIds - badgeIds else currentIds + badgeIds
         watchedSeriesStateHolder.update(optimisticIds)
 
         _state.update { it.copy(isWatchedPending = true) }
@@ -465,13 +470,16 @@ class PosterOptionsController @Inject constructor(
                 Log.w(TAG, "Failed to toggle series watched for ${canonical.id}: ${error.message}")
                 // Revert optimistic update on failure
                 watchedSeriesStateHolder.update(currentIds)
+                reportActionError(error, com.fetch.tv.R.string.detail_error_update_watched_failed)
             }
             _state.update { it.copy(isWatchedPending = false) }
         }
     }
 
     private suspend fun markSeriesWatched(item: MetaPreview) {
-        val episodes = fetchSeriesEpisodes(item).filter { it.season != null && it.episode != null && it.season != 0 }
+        // Only aired, available episodes: marking an unaired one would make the show read as
+        // watched-through before it is.
+        val episodes = fetchSeriesEpisodes(item).watchableEpisodes()
         // Without episodes the only mark left is a show-level one, which trackers answer by marking
         // every episode watched. Fail instead so the optimistic badge is reverted.
         check(episodes.isNotEmpty()) { "No episodes found for ${item.id}" }
@@ -526,6 +534,23 @@ class PosterOptionsController @Inject constructor(
     }
 
     private var activeListPickerInput: LibraryEntryInput? = null
+
+    /** Clears [PosterOptionsState.actionError] once the screen has shown it. */
+    fun consumeActionError() {
+        _state.update { if (it.actionError == null) it else it.copy(actionError = null) }
+    }
+
+    /**
+     * Surfaces a failed library or watched write. Exception text is often technical, so it is only
+     * logged; the one message the library raises for the user (a media-server title it can't hold)
+     * is kept, since it says what to change.
+     */
+    private fun reportActionError(error: Throwable, @androidx.annotation.StringRes fallback: Int) {
+        if (error is kotlinx.coroutines.CancellationException) return
+        val unsupported = appContext.getString(com.fetch.tv.R.string.library_server_title_unsupported)
+        val message = if (error.message == unsupported) unsupported else appContext.getString(fallback)
+        _state.update { it.copy(actionError = message) }
+    }
 
     companion object {
         private const val TAG = "PosterOptionsCtrl"

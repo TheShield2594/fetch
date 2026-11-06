@@ -1978,8 +1978,6 @@
     <string name="trakt_library_error_paginated_fetch_failed">Pengambilan halaman Trakt gagal (%1$d)</string>
 
     <!-- Home: poster long-press list picker errors -->
-    <string name="home_poster_lists_error_load_failed">Gagal memuat daftar</string>
-    <string name="home_poster_lists_error_update_failed">Gagal memperbarui daftar</string>
 
     <!-- Profile selection: PIN overlay messages -->
     <string name="profile_pin_saved_for_profile">PIN disimpan untuk %1$s.</string>

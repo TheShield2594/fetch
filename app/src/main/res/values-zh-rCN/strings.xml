@@ -2396,8 +2396,6 @@
     <string name="trakt_library_error_paginated_fetch_failed">Trakt 分页获取失败 (%1$d)</string>
 
     <!-- 首页：海报长按列表选择器错误 -->
-    <string name="home_poster_lists_error_load_failed">加载列表失败</string>
-    <string name="home_poster_lists_error_update_failed">更新列表失败</string>
 
     <!-- 个人资料选择：PIN 覆盖层信息 -->
     <string name="profile_pin_saved_for_profile">已为 %1$s 保存 PIN。</string>

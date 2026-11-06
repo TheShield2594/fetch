@@ -2,8 +2,6 @@ package com.fetch.tv.ui.screens.home
 
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import androidx.compose.runtime.Immutable
-import com.fetch.tv.core.tracking.TrackingMembershipRemovalConfirmation
-import com.fetch.tv.core.tracking.usesLibraryListPicker
 import com.fetch.tv.data.local.StartupAuthNotice
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.ContinueWatchingCardStyle
@@ -11,8 +9,6 @@ import com.fetch.tv.domain.model.Collection
 import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.fetch.tv.domain.model.HomeImdbRatingsVisibility
 import com.fetch.tv.domain.model.DetailImdbRatingsVisibility
-import com.fetch.tv.domain.model.LibraryListTab
-import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.WatchProgress
 
@@ -52,19 +48,7 @@ data class HomeUiState(
     val posterCardWidthDp: Int = 126,
     val posterCardHeightDp: Int = 189,
     val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
-    val librarySourceMode: LibrarySourceMode = LibrarySourceMode.LOCAL,
-    val libraryListTabs: List<LibraryListTab> = emptyList(),
-    val posterLibraryMembership: Map<String, Boolean> = emptyMap(),
     val movieWatchedStatus: Map<String, Boolean> = emptyMap(),
-    val posterLibraryPending: Set<String> = emptySet(),
-    val movieWatchedPending: Set<String> = emptySet(),
-    val showPosterListPicker: Boolean = false,
-    val posterListPickerTitle: String? = null,
-    val posterListPickerContentType: String? = null,
-    val posterListPickerMembership: Map<String, Boolean> = emptyMap(),
-    val posterListPickerPending: Boolean = false,
-    val posterListPickerError: String? = null,
-    val posterListPickerRemovalConfirmations: List<TrackingMembershipRemovalConfirmation> = emptyList(),
     val hideUnreleasedContent: Boolean = false,
     val showFullReleaseDate: Boolean = true,
     val blurUnwatchedEpisodes: Boolean = false,
@@ -82,10 +66,6 @@ data class HomeUiState(
     val mdbListShowOnHero: Boolean = false,
     val mdbListRatingOrder: List<String> = com.fetch.tv.domain.model.MDBListSettings.DEFAULT_RATING_ORDER
 )
-
-/** Long-press "Add to list" opens the list picker rather than toggling the saved library. */
-val HomeUiState.usesPosterListPicker: Boolean
-    get() = usesLibraryListPicker(librarySourceMode == LibrarySourceMode.LOCAL, libraryListTabs)
 
 @Immutable
 sealed class ContinueWatchingItem {

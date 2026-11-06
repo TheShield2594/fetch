@@ -2483,8 +2483,6 @@
     <string name="trakt_library_error_paginated_fetch_failed">משיכת הנתונים המפוצלת מ-Trakt נכשלה (%1$d)</string>
 
     <!-- Home: poster long-press list picker errors -->
-    <string name="home_poster_lists_error_load_failed">טעינת הרשימות נכשלה</string>
-    <string name="home_poster_lists_error_update_failed">עדכון הרשימות נכשל</string>
 
     <!-- Profile selection: PIN overlay messages -->
     <string name="profile_pin_saved_for_profile">הסיסמה נשמרה עבור %1$s.</string>

@@ -2481,8 +2481,6 @@
     <string name="trakt_library_error_paginated_fetch_failed">Tải dữ liệu phân trang từ Trakt đã thất bại (%1$d)</string>
 
     <!-- Home: poster long-press list picker errors -->
-    <string name="home_poster_lists_error_load_failed">Không thể tải danh sách</string>
-    <string name="home_poster_lists_error_update_failed">Không thể cập nhật danh sách</string>
 
     <!-- Profile selection: PIN overlay messages -->
     <string name="profile_pin_saved_for_profile">Đã lưu mã PIN cho %1$s.</string>

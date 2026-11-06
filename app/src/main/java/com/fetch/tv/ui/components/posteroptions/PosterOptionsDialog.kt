@@ -65,7 +65,8 @@ fun PosterOptionsDialog(
     FetchDialog(
         onDismiss = onDismiss,
         title = title,
-        subtitle = stringResource(R.string.home_poster_dialog_subtitle)
+        subtitle = stringResource(R.string.home_poster_dialog_subtitle),
+        scrollable = true
     ) {
         Button(
             onClick = onDetails,
@@ -213,8 +214,20 @@ fun PosterListPickerDialog(
 fun PosterOptionsHost(
     state: PosterOptionsState,
     controller: PosterOptionsController,
-    onNavigateToDetail: (id: String, type: String, addonBaseUrl: String) -> Unit
+    onNavigateToDetail: (id: String, type: String, addonBaseUrl: String) -> Unit,
+    /** Screen-specific entries (e.g. Home's pin row), shown before the parental one. */
+    extraActions: @Composable (target: com.fetch.tv.domain.model.MetaPreview) -> Unit = {}
 ) {
+    // A write that fails after the menu has closed would otherwise go unnoticed.
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val actionError = state.actionError
+    LaunchedEffect(actionError) {
+        if (actionError != null) {
+            android.widget.Toast.makeText(context, actionError, android.widget.Toast.LENGTH_LONG).show()
+            controller.consumeActionError()
+        }
+    }
+
     val target = state.target
     if (target != null) {
         val isMovie = target.apiType.equals("movie", ignoreCase = true)
@@ -252,6 +265,7 @@ fun PosterOptionsHost(
                 controller.dismiss()
             },
             extraActions = {
+                extraActions(target)
                 ParentalTitleMenuButton(
                     title = parentalTitleOf(target, state.originalItemId),
                     onDone = controller::dismiss

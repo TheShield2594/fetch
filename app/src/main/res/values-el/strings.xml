@@ -2279,8 +2279,6 @@
   <!-- Trakt: paginated fetch + comments -->
   <string name="trakt_library_error_paginated_fetch_failed">Αποτυχία σελιδοποιημένης ανάκτησης Trakt (%1$d)</string>
   <!-- Home: poster long-press list picker errors -->
-  <string name="home_poster_lists_error_load_failed">Αποτυχία φόρτωσης λιστών</string>
-  <string name="home_poster_lists_error_update_failed">Αποτυχία ενημέρωσης λιστών</string>
   <!-- Profile selection: PIN overlay messages -->
   <string name="profile_pin_saved_for_profile">Το PIN αποθηκεύτηκε για %1$s.</string>
   <string name="profile_pin_lock_removed_for_profile">Το κλείδωμα PIN αφαιρέθηκε για %1$s.</string>

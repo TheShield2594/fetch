@@ -2103,8 +2103,6 @@
     <!-- Trakt: paginated fetch + comments -->
     <string name="trakt_library_error_paginated_fetch_failed">Marrja e faqezuar nga Trakt dështoi (%1$d)</string>
     <!-- Home: poster long-press list picker errors -->
-    <string name="home_poster_lists_error_load_failed">Ngarkimi i listave dështoi</string>
-    <string name="home_poster_lists_error_update_failed">Përditësimi i listave dështoi</string>
     <!-- Profile selection: PIN overlay messages -->
     <string name="profile_pin_saved_for_profile">PIN-i u ruajt për %1$s.</string>
     <string name="profile_pin_lock_removed_for_profile">Bllokimi me PIN u hoq për %1$s.</string>

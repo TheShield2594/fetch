@@ -926,17 +926,6 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
         seriesWatchedObserverJob?.cancel()
         seriesWatchedObserverJob = null
     }
-
-    _uiState.update { state ->
-        val trimmedMovieWatchedPending =
-            state.movieWatchedPending.filterTo(linkedSetOf()) { it in desiredMovieKeys }
-
-        if (trimmedMovieWatchedPending == state.movieWatchedPending) {
-            state
-        } else {
-            state.copy(movieWatchedPending = trimmedMovieWatchedPending)
-        }
-    }
 }
 
 private fun HomeViewModel.reconcileFullyWatchedFromLocalItems(

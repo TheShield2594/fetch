@@ -2131,8 +2131,6 @@
     <string name="trakt_related_error_request_failed">Żądanie powiązanych z Trakt nie powiodło się</string>
     <string name="trakt_comments_error_request_failed">Żądanie komentarzy Trakt nie powiodło się</string>
 
-    <string name="home_poster_lists_error_load_failed">Nie udało się załadować list</string>
-    <string name="home_poster_lists_error_update_failed">Nie udało się zaktualizować list</string>
 
     <string name="profile_pin_saved_for_profile">PIN zapisany dla %1$s.</string>
     <string name="profile_pin_lock_removed_for_profile">Blokada PIN usunięta dla %1$s.</string>

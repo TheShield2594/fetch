@@ -2323,8 +2323,6 @@
     <string name="stream_error_detail_addon_timeout">запрос к аддону превысил время ожидания</string>
     <string name="stream_error_detail_addon_cleartext_blocked">аддон использует незащищённое HTTP-соединение, заблокированное Android</string>
     <string name="stream_error_detail_addon_request_failed">запрос к аддону не выполнен</string>
-    <string name="home_poster_lists_error_load_failed">Не удалось загрузить списки</string>
-    <string name="home_poster_lists_error_update_failed">Не удалось обновить списки</string>
     <string name="subtitle_language_unknown">Неизвестный</string>
     <string name="external_playback_notification_text">Воспроизведение во внешнем плеере</string>
     <string name="external_playback_channel_description">Поддерживает работу приложения во время воспроизведения во внешнем плеере</string>

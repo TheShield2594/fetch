@@ -2592,18 +2592,18 @@ class MetaDetailsViewModel @Inject constructor(
                 it.copy(episodeWatchedPendingKeys = it.episodeWatchedPendingKeys + pendingKeys)
             }
 
-            runCatching {
+            val result = runCatching {
                 val progressList = unwatched.map { buildCompletedEpisodeProgress(meta, it) }
                 watchProgressRepository.markAsCompletedBatch(progressList)
-            }.onFailure { error ->
-                Log.w(TAG, "Failed to batch mark season $season as watched: ${error.message}")
             }
 
-            _uiState.update {
-                it.copy(episodeWatchedPendingKeys = it.episodeWatchedPendingKeys - pendingKeys)
-            }
-            reevaluateSeriesWatchedBadge()
-            showMessage(localizedContext.getString(R.string.detail_marked_episodes_watched, unwatched.size))
+            finishBatchWatchedWrite(
+                result = result,
+                optimisticKeys = optimisticKeys,
+                markedWatched = true,
+                pendingKeys = pendingKeys,
+                successMessage = localizedContext.getString(R.string.detail_marked_episodes_watched, unwatched.size)
+            )
         }
     }
 
@@ -2636,22 +2636,22 @@ class MetaDetailsViewModel @Inject constructor(
                 it.copy(episodeWatchedPendingKeys = it.episodeWatchedPendingKeys + pendingKeys)
             }
 
-            runCatching {
+            val result = runCatching {
                 val episodeTriples = watched.map { Triple(it.season!!, it.episode!!, it.id) }
                 watchProgressRepository.removeFromHistoryBatch(
                     contentId = _effectiveContentId.value,
                     videoId = resolveFallbackVideoId(),
                     episodes = episodeTriples
                 )
-            }.onFailure { error ->
-                Log.w(TAG, "Failed to batch unmark season $season: ${error.message}")
             }
 
-            _uiState.update {
-                it.copy(episodeWatchedPendingKeys = it.episodeWatchedPendingKeys - pendingKeys)
-            }
-            reevaluateSeriesWatchedBadge()
-            showMessage(localizedContext.getString(R.string.detail_marked_episodes_unwatched, watched.size))
+            finishBatchWatchedWrite(
+                result = result,
+                optimisticKeys = optimisticKeys,
+                markedWatched = false,
+                pendingKeys = pendingKeys,
+                successMessage = localizedContext.getString(R.string.detail_marked_episodes_unwatched, watched.size)
+            )
         }
     }
 
@@ -2691,18 +2691,18 @@ class MetaDetailsViewModel @Inject constructor(
                 it.copy(episodeWatchedPendingKeys = it.episodeWatchedPendingKeys + pendingKeys)
             }
 
-            runCatching {
+            val result = runCatching {
                 val progressList = unwatched.map { buildCompletedEpisodeProgress(meta, it) }
                 watchProgressRepository.markAsCompletedBatch(progressList)
-            }.onFailure { error ->
-                Log.w(TAG, "Failed to batch mark previous episodes as watched: ${error.message}")
             }
 
-            _uiState.update {
-                it.copy(episodeWatchedPendingKeys = it.episodeWatchedPendingKeys - pendingKeys)
-            }
-            reevaluateSeriesWatchedBadge()
-            showMessage(localizedContext.getString(R.string.detail_marked_previous_watched, unwatched.size))
+            finishBatchWatchedWrite(
+                result = result,
+                optimisticKeys = optimisticKeys,
+                markedWatched = true,
+                pendingKeys = pendingKeys,
+                successMessage = localizedContext.getString(R.string.detail_marked_previous_watched, unwatched.size)
+            )
         }
     }
 
@@ -2736,18 +2736,49 @@ class MetaDetailsViewModel @Inject constructor(
                 it.copy(episodeWatchedPendingKeys = it.episodeWatchedPendingKeys + pendingKeys)
             }
 
-            runCatching {
+            val result = runCatching {
                 val progressList = unwatched.map { buildCompletedEpisodeProgress(meta, it) }
                 watchProgressRepository.markAsCompletedBatch(progressList)
-            }.onFailure { error ->
-                Log.w(TAG, "Failed to batch mark previous seasons as watched: ${error.message}")
             }
 
-            _uiState.update {
-                it.copy(episodeWatchedPendingKeys = it.episodeWatchedPendingKeys - pendingKeys)
-            }
-            reevaluateSeriesWatchedBadge()
-            showMessage(localizedContext.getString(R.string.detail_marked_episodes_watched, unwatched.size))
+            finishBatchWatchedWrite(
+                result = result,
+                optimisticKeys = optimisticKeys,
+                markedWatched = true,
+                pendingKeys = pendingKeys,
+                successMessage = localizedContext.getString(R.string.detail_marked_episodes_watched, unwatched.size)
+            )
+        }
+    }
+
+    /**
+     * Ends a batch watched/unwatched write. On success shows [successMessage]; on failure drops the
+     * optimistic keys the write had set (so the episode list falls back to stored state) and shows
+     * an error instead of a success toast. Cancellation is rethrown, not reported as a failure.
+     */
+    private fun finishBatchWatchedWrite(
+        result: Result<Unit>,
+        optimisticKeys: Set<Pair<Int, Int>>,
+        markedWatched: Boolean,
+        pendingKeys: Set<String>,
+        successMessage: String,
+    ) {
+        val error = result.exceptionOrNull()
+        if (error is CancellationException) throw error
+        if (error != null) {
+            if (markedWatched) _optimisticMarks -= optimisticKeys else _optimisticUnmarks -= optimisticKeys
+        }
+        _uiState.update {
+            it.copy(episodeWatchedPendingKeys = it.episodeWatchedPendingKeys - pendingKeys)
+        }
+        reevaluateSeriesWatchedBadge()
+        if (error == null) {
+            showMessage(successMessage)
+        } else {
+            showMessage(
+                message = failureMessage(error, R.string.detail_error_update_episode_watched_failed),
+                isError = true
+            )
         }
     }
 

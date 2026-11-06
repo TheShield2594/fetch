@@ -20,6 +20,7 @@ fun unrestrictedParentalControls(): ParentalControls = mockk(relaxed = true) {
     every { filtersContent() } returns false
     every { filterRow(any()) } answers { firstArg<CatalogRow>() }
     every { filterAllowed(any<List<Any>>(), any()) } answers { firstArg() }
+    every { filterPreviews(any()) } answers { firstArg() }
     every { isAllowed(any<com.fetch.tv.domain.model.MetaPreview>()) } returns true
     every { guardPinProfileId() } returns null
     every { needsGate() } returns false

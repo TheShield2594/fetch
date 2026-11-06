@@ -327,7 +327,6 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
 
             bufferLogsEnabled = settings.enableBufferLogs
             if (settings.frameRateMatchingMode == FrameRateMatchingMode.OFF) {
-                frameRateProbeJob?.cancel()
                 _uiState.update {
                     it.clearFrameRateDetection().copy(afrProbeRunning = false)
                 }

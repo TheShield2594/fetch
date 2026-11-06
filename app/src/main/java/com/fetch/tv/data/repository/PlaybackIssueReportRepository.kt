@@ -73,7 +73,6 @@ data class PlaybackIssueLoadingInput(
     val exoIsLoading: Boolean?,
     val exoPlayWhenReady: Boolean?,
     val mpvAttached: Boolean,
-    val startupRetryCount: Int,
     val errorRetryCount: Int,
     val timeoutRecoveryAttempts: Int,
     val isLoadingAddonSubtitles: Boolean,
@@ -291,7 +290,9 @@ class PlaybackIssueReportRepository @Inject constructor(
             exoIsLoading = exoIsLoading,
             exoPlayWhenReady = exoPlayWhenReady,
             mpvAttached = mpvAttached,
-            startupRetryCount = startupRetryCount.coerceAtLeast(0),
+            // Retired: startup recovery folded into the generic auto-retry (errorRetryCount).
+            // Still sent as 0 so the report schema stays compatible.
+            startupRetryCount = 0,
             errorRetryCount = errorRetryCount.coerceAtLeast(0),
             timeoutRecoveryAttempts = timeoutRecoveryAttempts.coerceAtLeast(0),
             isLoadingAddonSubtitles = isLoadingAddonSubtitles,

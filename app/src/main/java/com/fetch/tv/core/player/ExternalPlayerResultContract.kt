@@ -3,7 +3,6 @@ package com.fetch.tv.core.player
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContract
 
 /**
@@ -56,85 +55,8 @@ data class ExternalPlayerResult(
 class ExternalPlayerResultContract : ActivityResultContract<ExternalPlayerInput, ExternalPlayerResult?>() {
 
     override fun createIntent(context: Context, input: ExternalPlayerInput): Intent {
-        return Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(Uri.parse(input.url), "video/*")
-
-            input.title?.let {
-                putExtra("title", it)
-                putExtra(Intent.EXTRA_TITLE, it)
-                putExtra("forcename", it) // Vimu Player
-            }
-
-            input.headers?.let { hdrs ->
-                if (hdrs.isNotEmpty()) {
-                    val headerArray = hdrs.entries.map { "${it.key}: ${it.value}" }.toTypedArray()
-                    putExtra("headers", headerArray)
-                }
-            }
-
-            // Resume position — supported by MX Player, VLC, Just Player, mpv-android, Vimu
-            if (input.startFromBeginning) {
-                putExtra("position", 0)
-                putExtra("extra_position", 0L)
-                putExtra("startfrom", 0)
-                putExtra("forceresume", false)
-                putExtra("from_start", true)
-            } else if (input.resumePositionMs > 0L) {
-                putExtra("position", input.resumePositionMs.toInt())  // MX Player / Just Player / mpv (Int ms)
-                putExtra("extra_position", input.resumePositionMs)    // VLC (Long ms)
-                putExtra("startfrom", input.resumePositionMs.toInt()) // Vimu Player (Int ms)
-                putExtra("forceresume", true)                         // Vimu: enable resume for network streams
-                putExtra("from_start", false)                         // VLC: don't force start from beginning
-            }
-
-            // Request that the player returns result with position/duration.
-            // Required by MX Player; harmless for other players.
-            putExtra("return_result", true)
-
-            // Pre-resolved intro/outro skip segments (mpvNova reads this; other players ignore it).
-            input.skipSegmentsJson?.let { putExtra("skip_segments", it) }
-
-            // Subtitle extras for external players
-            val subs = input.subtitles
-            if (!subs.isNullOrEmpty()) {
-                val subtitleUris = subs.map { Uri.parse(it.url) }.toTypedArray()
-                val subtitleNames = subs.map { it.name }.toTypedArray()
-                val subtitleFilenames = subs.map { "${it.lang}_${it.name}.srt" }.toTypedArray()
-
-                // Grant read permission for content:// URIs via ClipData.
-                // FLAG_GRANT_READ_URI_PERMISSION only covers intent.data, not extras.
-                // Adding all subtitle URIs to ClipData ensures the receiving player
-                // gets read access to all of them.
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                val clipData = android.content.ClipData(
-                    "subtitles",
-                    arrayOf("application/x-subrip", "text/vtt"),
-                    android.content.ClipData.Item(subtitleUris.first())
-                )
-                subtitleUris.drop(1).forEach { uri ->
-                    clipData.addItem(android.content.ClipData.Item(uri))
-                }
-                setClipData(clipData)
-
-                // MX Player / mpv-android / Nova
-                putExtra("subs", subtitleUris)
-                putExtra("subs.name", subtitleNames)
-                putExtra("subs.filename", subtitleFilenames)
-                putExtra("subs.enable", arrayOf(subtitleUris.first()))
-
-                // Just Player
-                putExtra("subtitle_uri", subtitleUris)
-                putExtra("subtitle_name", subtitleNames)
-
-                // VLC (single subtitle — use first one)
-                putExtra("subtitles_location", subtitleUris.first())
-
-                // Vimu Player
-                putExtra("forcedsrt", subs.first().url)
-            }
-
-            // Do NOT add FLAG_ACTIVITY_NEW_TASK — it prevents receiving the result.
-        }
+        // Do NOT add FLAG_ACTIVITY_NEW_TASK — it prevents receiving the result.
+        return ExternalPlayerIntents.build(input)
     }
 
     override fun parseResult(resultCode: Int, intent: Intent?): ExternalPlayerResult? {

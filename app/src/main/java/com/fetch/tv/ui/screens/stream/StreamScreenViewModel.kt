@@ -1852,7 +1852,7 @@ class StreamScreenViewModel @Inject constructor(
                     )
                 }
                 // Download subtitle files to local cache and convert to content:// URIs
-                subtitleFileCache.cacheSubtitles(inputs)
+                subtitleFileCache.cacheSubtitles(inputs, preferredLanguages)
             }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to fetch subtitles for external player", e)

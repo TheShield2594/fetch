@@ -39,7 +39,6 @@ internal fun PlayerRuntimeController.releasePlayer(
     seekProgressSyncJob?.cancel()
     seekSourceLogJob?.cancel()
     seekSourceLogJob = null
-    frameRateProbeJob?.cancel()
     cancelAfrPreflight()
     hideStreamSourceIndicatorJob?.cancel()
     hideStreamSourceIndicatorJob = null

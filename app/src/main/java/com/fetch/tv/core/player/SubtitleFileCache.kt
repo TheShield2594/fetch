@@ -5,11 +5,18 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
+import com.fetch.tv.ui.screens.player.PlayerSubtitleUtils
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -32,29 +39,54 @@ class SubtitleFileCache @Inject constructor(
      * Downloads subtitle files and returns updated [SubtitleInput] list with
      * content:// URIs instead of HTTP URLs.
      *
+     * The list is first ordered and capped by [prioritize] (preferred language first, at most
+     * [MAX_FORWARDED_SUBTITLES]). Downloads run in parallel, each bounded by
+     * [PER_FILE_TIMEOUT_MS]; whatever finished within [OVERALL_TIMEOUT_MS] is returned, so one
+     * slow host no longer drops every subtitle. Order is preserved, so the first entry is the
+     * one external players enable by default.
+     *
      * Subtitles that fail to download are silently skipped (not included in result).
      * Returns null if no subtitles could be downloaded.
      */
-    suspend fun cacheSubtitles(subtitles: List<SubtitleInput>): List<SubtitleInput>? {
-        if (subtitles.isEmpty()) return null
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun cacheSubtitles(
+        subtitles: List<SubtitleInput>,
+        preferredLanguages: List<String> = emptyList()
+    ): List<SubtitleInput>? {
+        val selected = prioritize(subtitles, preferredLanguages)
+        if (selected.isEmpty()) return null
 
         // Clean old cached subtitles before downloading new ones
         clearCache()
 
-        val cached = subtitles.mapNotNull { input ->
-            try {
-                val localUri = downloadToCache(input)
-                if (localUri != null) {
-                    input.copy(url = localUri.toString())
-                } else {
-                    Log.w(TAG, "Failed to download subtitle: ${input.name}")
-                    null
+        val cached = coroutineScope {
+            val downloads = selected.mapIndexed { index, input ->
+                async(Dispatchers.IO) {
+                    try {
+                        val localUri = downloadToCache(index, input)
+                        if (localUri != null) {
+                            input.copy(url = localUri.toString())
+                        } else {
+                            Log.w(TAG, "Failed to download subtitle: ${input.name}")
+                            null
+                        }
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Error caching subtitle: ${input.name}", e)
+                        null
+                    }
                 }
-            } catch (e: Exception) {
-                Log.w(TAG, "Error caching subtitle: ${input.name}", e)
-                null
             }
-        }
+            val finished = withTimeoutOrNull(OVERALL_TIMEOUT_MS) { downloads.awaitAll() }
+            finished ?: run {
+                // Keep the subtitles that made it; drop the stragglers.
+                val partial = downloads.map { if (it.isCompleted && !it.isCancelled) it.getCompleted() else null }
+                downloads.forEach { it.cancel() }
+                Log.w(TAG, "Subtitle caching timed out; keeping ${partial.count { it != null }}/${downloads.size}")
+                partial
+            }
+        }.filterNotNull()
 
         return cached.ifEmpty { null }
     }
@@ -62,23 +94,28 @@ class SubtitleFileCache @Inject constructor(
     /**
      * Downloads a single subtitle file and returns a content:// URI.
      */
-    private suspend fun downloadToCache(input: SubtitleInput): Uri? = withContext(Dispatchers.IO) {
+    private fun downloadToCache(index: Int, input: SubtitleInput): Uri? {
         val extension = guessExtension(input.url)
-        val filename = sanitizeFilename("${input.lang}_${input.name}.$extension")
+        // Index keeps names unique: same-language subtitles from one addon share lang + name.
+        val filename = cacheFilename(index, input.lang, input.url, extension)
         val file = File(cacheDir, filename)
 
         val request = Request.Builder()
             .url(input.url)
             .build()
 
-        try {
-            okHttpClient.newCall(request).execute().use { response ->
+        return try {
+            val call = okHttpClient.newCall(request)
+            // Bounds the whole call, including the body read, so a stalled host cannot hold up
+            // the batch.
+            call.timeout().timeout(PER_FILE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+            call.execute().use { response ->
                 if (!response.isSuccessful) {
                     Log.w(TAG, "HTTP ${response.code} downloading subtitle: ${input.url}")
-                    return@withContext null
+                    return null
                 }
 
-                val bodyBytes = response.body?.bytes() ?: return@withContext null
+                val bodyBytes = response.body?.bytes() ?: return null
                 val normalizedText = SubtitleCharsetDetector.decode(bodyBytes, languageHint = input.lang)
                 val sanitizedText = com.fetch.tv.ui.screens.player.SubtitleMojibakeSanitizer.sanitize(normalizedText).toString()
                 file.writeText(sanitizedText, Charsets.UTF_8)
@@ -120,13 +157,45 @@ class SubtitleFileCache @Inject constructor(
         }
     }
 
-    private fun sanitizeFilename(name: String): String {
-        return name.replace(Regex("[^a-zA-Z0-9._\\-]"), "_")
-            .take(100) // Limit filename length
-    }
-
     companion object {
         private const val TAG = "SubtitleFileCache"
         private const val SUBTITLE_CACHE_DIR = "subtitles"
+        internal const val MAX_FORWARDED_SUBTITLES = 20
+        private const val PER_FILE_TIMEOUT_MS = 8_000L
+        private const val OVERALL_TIMEOUT_MS = 10_000L
+
+        /**
+         * Orders [subtitles] for an external player and caps the list at [max]:
+         * - With preferred languages, only subtitles matching one of them are kept (all of
+         *   them if none match), ranked by preference order so the preferred one comes first.
+         * - The sort is stable, so addon order is kept within a language.
+         */
+        internal fun prioritize(
+            subtitles: List<SubtitleInput>,
+            preferredLanguages: List<String>,
+            max: Int = MAX_FORWARDED_SUBTITLES
+        ): List<SubtitleInput> {
+            val prefs = preferredLanguages
+                .map { it.trim().lowercase() }
+                .filter { it.isNotBlank() && it != "none" }
+                .distinct()
+            if (prefs.isEmpty()) return subtitles.take(max)
+
+            fun rank(sub: SubtitleInput): Int =
+                prefs.indexOfFirst { PlayerSubtitleUtils.matchesLanguageCode(sub.lang, it) }
+                    .let { if (it < 0) prefs.size else it }
+
+            val matching = subtitles.filter { rank(it) < prefs.size }
+            return matching.ifEmpty { subtitles }
+                .sortedBy { rank(it) }
+                .take(max)
+        }
+
+        /** Unique, filesystem-safe cache name: index + language + a hash of the URL. */
+        internal fun cacheFilename(index: Int, lang: String, url: String, extension: String): String {
+            val safeLang = lang.replace(Regex("[^a-zA-Z0-9\\-]"), "_").take(16).ifEmpty { "und" }
+            val urlHash = Integer.toHexString(url.hashCode())
+            return "%03d_%s_%s.%s".format(index, safeLang, urlHash, extension)
+        }
     }
 }

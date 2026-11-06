@@ -179,3 +179,58 @@ jobs:
             dist/*.tar.gz
             dist/*.pkg.tar.zst
           fail_on_unmatched_files: true
+
+  # Publishes the .deb as a signed APT repository on GitHub Pages (the gh-pages branch) so that
+  # `apt upgrade` picks up new stable releases. Pre-releases are skipped. One-time setup:
+  #   1. Create a signing key:  gpg --quick-generate-key "Fetch APT <you@example.com>" rsa4096 sign never
+  #   2. Add repository secrets APT_GPG_PRIVATE_KEY (gpg --armor --export-secret-keys <id>) and,
+  #      if the key has one, APT_GPG_PASSPHRASE.
+  #   3. Settings -> Pages -> deploy from branch gh-pages, folder / (root).
+  apt-repo:
+    name: Publish APT repository
+    needs: release
+    if: ${{ !inputs.prerelease }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-packages
+          path: dist
+
+      - name: Check signing key
+        id: key
+        env:
+          APT_GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+        run: |
+          if [ -z "$APT_GPG_PRIVATE_KEY" ]; then
+            echo "::notice::APT_GPG_PRIVATE_KEY is not set; skipping the APT repository."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build signed repository
+        if: steps.key.outputs.configured == 'true'
+        env:
+          APT_GPG_PRIVATE_KEY: ${{ secrets.APT_GPG_PRIVATE_KEY }}
+          APT_GPG_PASSPHRASE: ${{ secrets.APT_GPG_PASSPHRASE }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y apt-utils
+          echo "$APT_GPG_PRIVATE_KEY" | gpg --batch --import
+          export APT_GPG_KEY_ID=$(gpg --batch --list-secret-keys --with-colons | awk -F: '/^fpr/ {print $10; exit}')
+          scripts/build-apt-repo.sh dist/fetch-${{ inputs.tag }}-linux-amd64.deb "$RUNNER_TEMP/apt"
+
+      # Orphan force-push: the branch holds only the current package, so it never grows.
+      - name: Publish to gh-pages
+        if: steps.key.outputs.configured == 'true'
+        run: |
+          cd "$RUNNER_TEMP/apt"
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "APT repository for ${{ inputs.tag }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" gh-pages

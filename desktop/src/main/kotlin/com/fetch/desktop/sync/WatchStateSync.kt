@@ -63,6 +63,23 @@ class WatchStateSync(
      */
     private var unsaved = false
 
+    /**
+     * Tombstones a pull computed whose watch-state write then failed, so they never reached
+     * [state]. The pull is retried from the same cursor, but memory has already dropped the
+     * deleted ids, so the retry can't compute them again: they are carried here until a pull's
+     * write succeeds and they are saved with it, and imports honour them meanwhile.
+     */
+    private var unsavedTombstones: Set<String> = emptySet()
+
+    /** The saved tombstones plus those still waiting on a successful write ([unsavedTombstones]). */
+    private val tombstones: Set<String>
+        get() = state.watchedTombstones + unsavedTombstones
+
+    /** Saves [computed] with the cursor once a pull's write succeeded, or carries them until one does. */
+    private fun keepTombstones(saved: Boolean, computed: Set<String>) {
+        unsavedTombstones = if (saved) emptySet() else computed - state.watchedTombstones
+    }
+
     /** Writes [file] when it [changed] or an earlier write failed; true once it is on disk. */
     private fun persist(file: ProgressFile, changed: Boolean): Boolean {
         if (!changed && !unsaved) return true
@@ -84,6 +101,7 @@ class WatchStateSync(
      */
     fun adopt(signedInAs: String?) {
         if (signedInAs == null || state.account == signedInAs) return
+        unsavedTombstones = emptySet()
         save(WatchSyncState(account = signedInAs, pending = if (state.account == null) state.pending else PendingWatchOps()))
     }
 
@@ -105,7 +123,7 @@ class WatchStateSync(
      */
     fun saveImported(file: ProgressFile, signedInAs: String?, now: Long) {
         adopt(signedInAs)
-        saveLocal(WatchSync.dropTombstoned(progress(), file, state.watchedTombstones), signedInAs, now)
+        saveLocal(WatchSync.dropTombstoned(progress(), file, tombstones), signedInAs, now)
     }
 
     /** Queues a change made here that [WatchSync.recordLocal] can't see from the file alone. */
@@ -167,8 +185,9 @@ class WatchStateSync(
             // then a delete of a tombstoned id leaves it tombstoned.
             val lastPerId = events.sortedBy { it.eventId }.associateBy { it.item.videoId() }
             val serverHas = lastPerId.filterValues { !it.deleted }.keys
-            val tombstones = WatchSync.watchedTombstones(state.watchedTombstones, before.watched, watched, serverHas)
-            save(if (saved) state.copy(watchedCursor = cursor, watchedTombstones = tombstones) else state)
+            val updated = WatchSync.watchedTombstones(tombstones, before.watched, watched, serverHas)
+            keepTombstones(saved, updated)
+            save(if (saved) state.copy(watchedCursor = cursor, watchedTombstones = updated) else state)
         } else {
             val cursor = deltaOrNull { remote.watchedDeltaCursor(profileId) }
             val items = remote.pullWatched(profileId)
@@ -177,9 +196,10 @@ class WatchStateSync(
             val pull = WatchSync.applyWatchedSnapshot(before.watched, items, state.pending, !state.watchedInitialized, System.currentTimeMillis())
             val changed = pull.watched != before.watched
             val saved = persist(if (changed) before.copy(watched = pull.watched) else before, changed)
-            val tombstones = WatchSync.watchedTombstones(state.watchedTombstones, before.watched, pull.watched, items.map { it.videoId() })
+            val updated = WatchSync.watchedTombstones(tombstones, before.watched, pull.watched, items.map { it.videoId() })
+            keepTombstones(saved, updated)
             save(
-                if (saved) state.copy(watchedCursor = cursor, watchedInitialized = true, pending = pull.pending, watchedTombstones = tombstones)
+                if (saved) state.copy(watchedCursor = cursor, watchedInitialized = true, pending = pull.pending, watchedTombstones = updated)
                 else state.copy(pending = pull.pending)
             )
         }

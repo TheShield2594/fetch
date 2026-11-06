@@ -183,6 +183,35 @@ class WatchStateSyncTest {
     }
 
     @Test
+    fun `a tombstone survives a failed write and its retry`() = runBlocking {
+        val profile = Profile(ProgressFile(watched = listOf("tt1:1:5", "tt1:1:6")), syncedState())
+        val remote = FakeRemote(accountA).apply { watchedEvents += watchedEvent(7, "tt1:1:5", deleted = true) }
+
+        // The delete is pulled, but the disk write fails: nothing is saved, the cursor stays.
+        profile.writes = false
+        profile.sync.sync(remote, profileId = 1)
+        assertEquals(listOf("tt1:1:6"), profile.progress.watched)
+        assertEquals(1L, profile.sync.state.watchedCursor)
+        assertEquals(emptySet<String>(), profile.sync.state.watchedTombstones)
+
+        // An import before the retry already honours the tombstone.
+        profile.sync.saveImported(profile.progress.copy(watched = listOf("tt1:1:6", "tt1:1:5")), accountA, now = 9)
+        assertEquals(listOf("tt1:1:6"), profile.progress.watched)
+
+        // The retry succeeds; memory no longer has the id, but the tombstone is saved anyway.
+        profile.writes = true
+        profile.sync.sync(remote, profileId = 1)
+        assertEquals(7L, profile.sync.state.watchedCursor)
+        assertEquals(setOf("tt1:1:5"), profile.sync.state.watchedTombstones)
+
+        // So a later Trakt import doesn't mark it again or queue it for upload.
+        profile.sync.saveImported(profile.progress.copy(watched = listOf("tt1:1:6", "tt1:1:5")), accountA, now = 10)
+        assertEquals(listOf("tt1:1:6"), profile.progress.watched)
+        assertTrue(profile.sync.state.pending.isEmpty)
+        assertTrue(remote.pushedWatched.isEmpty())
+    }
+
+    @Test
     fun `an upsert then a delete in one batch leaves the mark tombstoned`() = runBlocking {
         val profile = Profile(ProgressFile(watched = listOf("tt1:1:5", "tt1:1:6")), syncedState())
         val remote = FakeRemote(accountA).apply { watchedEvents += watchedEvent(7, "tt1:1:5", deleted = true) }

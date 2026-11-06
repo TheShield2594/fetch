@@ -135,19 +135,9 @@ class ParentalControls @Inject constructor(
     suspend fun setLockUnrestrictedProfiles(enabled: Boolean) = restrictionsDataStore.setLockUnrestrictedProfiles(enabled)
 
     /**
-     * True when opening [profileId] from the profile picker needs the main profile's PIN: the
-     * lock is on, some profile has limits, and this one has neither limits nor a PIN of its own.
-     */
-    fun needsParentPinToOpen(profileId: Int, profileIds: List<Int>): Boolean = needsParentPinToOpen(
-        profileId = profileId,
-        profileIds = profileIds,
-        lockOn = lockUnrestrictedProfiles.value,
-        restrictions = allRestrictions.value,
-        pinEnabled = pinStates.value
-    )
-
-    /**
-     * What [needsParentPinToOpen] reads, straight from disk. Unlike the StateFlows here it has no
+     * What decides whether opening a profile from the picker needs the main profile's PIN (the
+     * lock is on, some profile has limits, and this one has neither limits nor a PIN of its
+     * own; see [ProfileOpenLock.needsParentPinToOpen]), straight from disk. Unlike the StateFlows here it has no
      * not-yet-loaded default, so startup can wait for it before resuming the last profile.
      */
     val profileOpenLock: Flow<ProfileOpenLock> = combine(
@@ -402,6 +392,23 @@ fun shouldShowStartupPicker(
 ): Boolean = !selectedThisSession &&
     ((loadedProfileCount ?: 0) > 1 || activeProfileHasPin || needsParentPin == true)
 
+/** What the profile picker does when a profile is chosen. */
+enum class PickerOpenGate { OWN_PIN, PARENT_PIN, OPEN }
+
+/**
+ * How the profile picker opens [profileId], or null while the PIN states, lock setting, limits
+ * or profile list are still unread. The picker ignores a selection until this is non-null, so a
+ * PIN-locked profile can't be opened against the empty not-yet-loaded defaults.
+ */
+fun pickerOpenGate(lock: ProfileOpenLock?, profileId: Int, profileIds: List<Int>?): PickerOpenGate? {
+    if (lock == null || profileIds == null) return null
+    return when {
+        lock.pinEnabled[profileId] == true -> PickerOpenGate.OWN_PIN
+        lock.needsParentPinToOpen(profileId, profileIds) -> PickerOpenGate.PARENT_PIN
+        else -> PickerOpenGate.OPEN
+    }
+}
+
 /** The lock setting, limits and PIN states that decide [needsParentPinToOpen]. */
 data class ProfileOpenLock(
     val lockOn: Boolean,
@@ -428,7 +435,7 @@ internal fun needsParentPinToDelete(
     parentHasPin: Boolean
 ): Boolean = parentHasPin && profileIds.any { restrictions[it]?.isRestricted == true }
 
-/** See [ParentalControls.needsParentPinToOpen]. */
+/** See [ProfileOpenLock.needsParentPinToOpen]. */
 internal fun needsParentPinToOpen(
     profileId: Int,
     profileIds: List<Int>,

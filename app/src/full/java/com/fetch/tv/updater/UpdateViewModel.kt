@@ -47,8 +47,14 @@ class UpdateViewModel @Inject constructor(
     val uiState: StateFlow<UpdateUiState> = _uiState.asStateFlow()
     private var updateCheckJob: Job? = null
 
+    private val updatesDir: File
+        get() = File(context.cacheDir, UpdateCacheCleaner.DIRECTORY)
+
     init {
         viewModelScope.launch {
+            // APKs from earlier sessions: either installed already or orphaned when the process
+            // died before install. Nothing points at them any more.
+            withContext(Dispatchers.IO) { UpdateCacheCleaner.clean(updatesDir) }
             val enabled = updatePreferences.updateBannerEnabled.first()
             val channel = updatePreferences.getOrInitializeUpdateChannel()
             _uiState.update {
@@ -221,6 +227,8 @@ class UpdateViewModel @Inject constructor(
 
     fun downloadUpdate() {
         val update = _uiState.value.update ?: return
+        // A second download would clean the first one's file out from under it.
+        if (_uiState.value.isDownloading) return
 
         viewModelScope.launch {
             _uiState.update {
@@ -232,8 +240,10 @@ class UpdateViewModel @Inject constructor(
             }
 
             val safeName = update.assetName.replace(Regex("[^a-zA-Z0-9._-]"), "_")
-            val destination = File(File(context.cacheDir, "updates"), safeName)
+            val destination = File(updatesDir, safeName)
             val result = withContext(Dispatchers.IO) {
+                // Only one update APK is ever kept: drop earlier downloads before this one.
+                UpdateCacheCleaner.clean(updatesDir)
                 apkDownloader.download(update.assetUrl, destination) { downloaded, total ->
                     val progress = if (total != null && total > 0) {
                         (downloaded.toFloat() / total.toFloat()).coerceIn(0f, 1f)

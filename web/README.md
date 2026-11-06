@@ -56,7 +56,7 @@ web/
 
 ### Requirements
 
-- Node.js 22.12+ (the Docker images and CI run Node 26)
+- Node.js 22.19+ (the Docker images and CI run Node 26)
 - pnpm 11+ (`corepack enable` picks up the pinned version automatically)
 - Docker + Docker Compose
 

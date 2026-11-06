@@ -30,8 +30,10 @@
 // async validators below also resolve the hostname and apply the same rules to
 // every address the request could actually connect to.
 
+import { type LookupAddress, lookup as dnsLookup } from "node:dns";
 import { lookup } from "node:dns/promises";
-import { isIP } from "node:net";
+import { isIP, type LookupFunction } from "node:net";
+import { Agent, fetch as undiciFetch } from "undici";
 
 // Canonicalize an IPv4-mapped IPv6 literal (e.g. "::ffff:a9fe:a9fe", the form
 // Node normalizes "[::ffff:169.254.169.254]" into, or the dotted-quad form
@@ -106,11 +108,11 @@ const dnsResolver: HostResolver = async (hostname) => {
 // request could not have succeeded anyway, so failing closed costs nothing and
 // keeps a resolver that errors out from becoming a way past the check.
 //
-// This closes the static-DNS bypass, not DNS rebinding: fetch resolves the name
-// again when it connects, so a resolver that answers differently on the second
-// lookup can still slip through. Pinning the connection to a validated address
-// would need a custom dispatcher; until then the redirect:"error" at the call
-// sites keeps the far cheaper redirect-based pivot closed.
+// This alone closes the static-DNS bypass, not DNS rebinding: fetch resolves
+// the name again when it connects, so a resolver that answers differently on
+// the second lookup can still slip through. `guardedFetch` below pins the
+// connection to checked addresses; call sites that still use plain fetch rely
+// on redirect:"error" to keep the cheaper redirect-based pivot closed.
 const hostnameResolvesSafely = async (
   hostname: string,
   isBlocked: (host: string) => boolean,
@@ -220,3 +222,111 @@ export const resolvePushEndpoint = async (
  */
 export const resolveServerUrl = (raw: string, scope: OutboundScope, resolveHost: HostResolver = dnsResolver) =>
   resolveAiProviderUrl(raw, resolveHost, scope);
+
+// ─── Connection pinning ───
+//
+// The resolve* checks above look a hostname up once, and fetch looks it up
+// again when it connects, so a name whose records change between the two
+// (DNS rebinding) could still land on a blocked address. `guardedFetch` closes
+// that: it connects through an agent whose DNS lookup applies the scope's
+// blocklist to the very addresses the socket is about to use, so there is no
+// second, unchecked resolution. IP literals never reach a lookup, which is why
+// the URL still goes through the resolve* check first.
+
+export class BlockedAddressError extends Error {
+  constructor(hostname: string) {
+    super(`${hostname} resolves to an address this server may not connect to`);
+  }
+}
+
+const pinnedLookup =
+  (isBlocked: (host: string) => boolean): LookupFunction =>
+  (hostname, options, callback) => {
+    dnsLookup(hostname, { ...options, all: true, verbatim: true }, (error, addresses) => {
+      if (error) return callback(error, "", 0);
+      if (addresses.length === 0 || addresses.some((entry) => isBlocked(entry.address))) {
+        return callback(Object.assign(new BlockedAddressError(hostname), { code: "EBLOCKED" }), "", 0);
+      }
+      if (options.all) return (callback as unknown as (e: null, a: LookupAddress[]) => void)(null, addresses);
+      const [first] = addresses as [LookupAddress];
+      callback(null, first.address, first.family);
+    });
+  };
+
+/**
+ * The most a guarded response body may hold. A server the user points us at
+ * could otherwise stream without end into memory; undici aborts the read once
+ * the body passes this, and the fetch rejects as if the server were unreachable.
+ */
+export const MAX_GUARDED_RESPONSE_BYTES = 32 * 1024 * 1024;
+
+export class ResponseTooLargeError extends Error {
+  constructor(limit: number) {
+    super(`The response body is larger than ${limit} bytes`);
+  }
+}
+
+/**
+ * Reads a response body as text, counting the bytes as they arrive *after*
+ * decoding. The agent's maxResponseSize counts the bytes on the wire, so a
+ * small gzip or brotli body could still inflate past it here; this cancels the
+ * read as soon as the decoded total passes `limit`.
+ */
+export const readBodyText = async (response: Response, limit = MAX_GUARDED_RESPONSE_BYTES): Promise<string> => {
+  if (!response.body) return "";
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let total = 0;
+  let text = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > limit) {
+      await reader.cancel().catch(() => undefined);
+      throw new ResponseTooLargeError(limit);
+    }
+    text += decoder.decode(value, { stream: true });
+  }
+  return text + decoder.decode();
+};
+
+const agents = new Map<boolean, Agent>();
+const agentFor = (scope: OutboundScope): Agent => {
+  let agent = agents.get(scope.allowPrivateNetwork);
+  if (!agent) {
+    agent = new Agent({
+      connect: { lookup: pinnedLookup(blockerFor(scope)) },
+      maxResponseSize: MAX_GUARDED_RESPONSE_BYTES,
+    });
+    agents.set(scope.allowPrivateNetwork, agent);
+  }
+  return agent;
+};
+
+export type GuardedRequest = { method?: string; headers?: Record<string, string>; body?: string; signal?: AbortSignal };
+
+/**
+ * Fetches a user-configured URL under `scope`: the URL is checked with
+ * `resolveAiProviderUrl` (scheme, literal host, DNS), redirects are refused, and
+ * the connection is pinned to addresses that pass the same check. Returns null
+ * when the URL is refused before any request is made; a lookup refused at
+ * connect time rejects with the fetch error, like any unreachable host.
+ */
+export const guardedFetch = async (
+  raw: string,
+  scope: OutboundScope,
+  init: GuardedRequest = {}
+): Promise<Response | null> => {
+  const target = await resolveAiProviderUrl(raw, dnsResolver, scope);
+  if (!target) return null;
+  const response = await undiciFetch(target.href, {
+    method: init.method ?? "GET",
+    ...(init.headers !== undefined ? { headers: init.headers } : {}),
+    ...(init.body !== undefined ? { body: init.body } : {}),
+    ...(init.signal !== undefined ? { signal: init.signal } : {}),
+    redirect: "error",
+    dispatcher: agentFor(scope),
+  });
+  return response as unknown as Response;
+};

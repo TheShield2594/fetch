@@ -42,6 +42,17 @@ const connections = {
 };
 vi.mock("./connections.js", () => connections);
 
+// guardedFetch's connection pinning goes through undici's own fetch; here it
+// keeps the real address check and sends what passes to the stubbed global fetch.
+vi.mock("./ssrf.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./ssrf.js")>();
+  return {
+    ...actual,
+    guardedFetch: async (url: string, scope: { allowPrivateNetwork: boolean }, init: RequestInit) =>
+      (await actual.resolveServerUrl(url, scope)) ? fetch(url, { ...init, redirect: "error" }) : null,
+  };
+});
+
 const scope = { allowPrivateNetwork: true };
 vi.mock("./integration-owner.js", () => ({ outboundScopeForProfile: async () => scope }));
 
@@ -259,6 +270,28 @@ describe("Jellyfin and Emby sign-in", () => {
       servers.signInMediaBrowser(PROFILE, "jellyfin", { address: "http://192.168.1.20:8096", username: "a", password: "b" })
     ).rejects.toMatchObject({ kind: "blocked" });
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("reports a server blocked at connect time (DNS rebinding) as blocked, not unreachable", async () => {
+    const { BlockedAddressError } = await import("./ssrf.js");
+    fetchMock.mockRejectedValueOnce(new TypeError("fetch failed", { cause: new BlockedAddressError("jf.example.com") }));
+
+    await expect(
+      servers.signInMediaBrowser(PROFILE, "jellyfin", { address: PUBLIC, username: "a", password: "b" })
+    ).rejects.toMatchObject({ kind: "blocked" });
+  });
+
+  it("reports an answer it can't read in full (such as one past the size limit) as unreachable", async () => {
+    const cutOff = new Response(
+      new ReadableStream({
+        start: (controller) => controller.error(new Error("Response body too large")),
+      })
+    );
+    fetchMock.mockResolvedValueOnce(cutOff);
+
+    await expect(
+      servers.signInMediaBrowser(PROFILE, "jellyfin", { address: PUBLIC, username: "a", password: "b" })
+    ).rejects.toMatchObject({ kind: "unreachable" });
   });
 });
 

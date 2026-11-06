@@ -299,6 +299,9 @@ private class NativeOptimizedVideoTrackOutput(
     override fun format(format: Format) {
         profile = parseDvProfile(format.codecs)
         converting = config.active && config.shouldConvert(profile)
+        // Record the pre-conversion profile (as the Matroska path does) so a rewritten
+        // dvhe.08 codec string can still be traced back to its DV5/DV7 source.
+        if (converting) DolbyVisionConversionStats.recordSourceProfile(profile)
         nalLengthFieldLength = parseNalLengthFieldLength(format)
 
         val strippedCodecs = if (stripDvRpu) stripDvCodecString(format.codecs) else null

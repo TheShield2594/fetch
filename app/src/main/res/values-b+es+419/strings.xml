@@ -1445,10 +1445,6 @@
     <item quantity="other">Sigue cargando después de %1$d segundos</item>
 </plurals>
     <string name="player_speed_title">Velocidad de Reproducción</string>
-    <string name="player_more_actions_title">Más Acciones</string>
-    <string name="player_more_speed">Velocidad de Reproducción</string>
-    <string name="player_more_aspect_ratio">Relación de Aspecto</string>
-    <string name="player_more_open_external">Abrir en reproductor externo</string>
     <string name="player_error_no_stream_url">Esta fuente no tiene enlace de stream. Elige otra fuente.</string>
     
 

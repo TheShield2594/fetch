@@ -1150,10 +1150,6 @@
         <item quantity="other">Stále se načítá po %1$d sekundách</item>
     </plurals>
     <string name="player_speed_title">Rychlost přehrávání</string>
-    <string name="player_more_actions_title">Další akce</string>
-    <string name="player_more_speed">Rychlost přehrávání</string>
-    <string name="player_more_aspect_ratio">Poměr stran</string>
-    <string name="player_more_open_external">Otevřít v externím přehrávači</string>
     <string name="player_error_no_stream_url">Tento zdroj nemá odkaz na stream. Vyberte jiný zdroj.</string>
 
 

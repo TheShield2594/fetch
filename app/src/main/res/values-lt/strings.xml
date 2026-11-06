@@ -593,10 +593,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="player_error_title">Atkūrimo klaida</string>
     <string name="player_error_choose_source">Pasirinkite kitą šaltinį</string>
     <string name="player_speed_title">Atkūrimo greitis</string>
-    <string name="player_more_actions_title">Daugiau veiksmų</string>
-    <string name="player_more_speed">Atkūrimo greitis</string>
-    <string name="player_more_aspect_ratio">Vaizdo santykis</string>
-    <string name="player_more_open_external">Atidaryti išoriniame grotuve</string>
 
     <!-- StreamSourcesSidePanel -->
     <string name="sources_title">Šaltiniai</string>

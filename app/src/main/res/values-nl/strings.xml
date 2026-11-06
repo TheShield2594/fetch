@@ -1281,10 +1281,6 @@
         <item quantity="other">Nog steeds aan het laden na %1$d seconden</item>
     </plurals>
     <string name="player_speed_title">Afspeelsnelheid</string>
-    <string name="player_more_actions_title">Meer acties</string>
-    <string name="player_more_speed">Afspeelsnelheid</string>
-    <string name="player_more_aspect_ratio">Beeldverhouding</string>
-    <string name="player_more_open_external">Openen in externe speler</string>
     <string name="player_error_no_stream_url">Deze bron heeft geen streamlink. Kies een andere bron.</string>
 
 

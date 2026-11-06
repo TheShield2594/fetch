@@ -1401,10 +1401,6 @@
         <item quantity="other">Još se učitava nakon %1$d sekundi</item>
     </plurals>
     <string name="player_speed_title">Brzina reprodukcije</string>
-    <string name="player_more_actions_title">Više radnji</string>
-    <string name="player_more_speed">Brzina reprodukcije</string>
-    <string name="player_more_aspect_ratio">Omjer slike</string>
-    <string name="player_more_open_external">Otvori u vanjskom playeru</string>
     <string name="player_error_no_stream_url">Ovaj izvor nema poveznicu streama. Odaberi drugi izvor.</string>
 
 

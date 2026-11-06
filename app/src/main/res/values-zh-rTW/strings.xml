@@ -1361,10 +1361,6 @@
         <item quantity="other">已載入 %1$d 秒</item>
     </plurals>
     <string name="player_speed_title">播放速度</string>
-    <string name="player_more_actions_title">更多操作</string>
-    <string name="player_more_speed">播放速度</string>
-    <string name="player_more_aspect_ratio">畫面比例</string>
-    <string name="player_more_open_external">在外部播放器中開啟</string>
     <string name="player_error_no_stream_url">此來源沒有串流連結。請選擇其他來源。</string>
 
 

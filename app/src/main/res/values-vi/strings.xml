@@ -1445,10 +1445,6 @@
         <item quantity="other">Vẫn đang tải sau %1$d giây</item>
     </plurals>
     <string name="player_speed_title">Tốc độ phát lại</string>
-    <string name="player_more_actions_title">Thêm thao tác</string>
-    <string name="player_more_speed">Tốc độ phát lại</string>
-    <string name="player_more_aspect_ratio">Tỉ lệ khung hình</string>
-    <string name="player_more_open_external">Mở bằng trình phát bên ngoài</string>
     <string name="player_error_no_stream_url">Nguồn này không có liên kết luồng phát. Vui lòng chọn nguồn khác.</string>
 
 

@@ -725,10 +725,6 @@
     <string name="player_error_title">Błąd odtwarzania</string>
     <string name="player_error_choose_source">Wybierz inne źródło</string>
     <string name="player_speed_title">Prędkość odtwarzania</string>
-    <string name="player_more_actions_title">Więcej opcji</string>
-    <string name="player_more_speed">Prędkość odtwarzania</string>
-    <string name="player_more_aspect_ratio">Proporcje obrazu</string>
-    <string name="player_more_open_external">Otwórz w zewnętrznym odtwarzaczu</string>
 
     <!-- StreamInfoOverlay -->
     <string name="stream_info_section_source">ŹRÓDŁO</string>

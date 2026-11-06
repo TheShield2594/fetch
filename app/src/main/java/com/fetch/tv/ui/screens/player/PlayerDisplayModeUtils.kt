@@ -3,16 +3,6 @@ import androidx.media3.ui.AspectRatioFrameLayout
 import com.fetch.tv.R
 
 internal object PlayerDisplayModeUtils {
-    fun nextResizeMode(currentMode: Int): Int {
-        return when (currentMode) {
-            AspectRatioFrameLayout.RESIZE_MODE_FIT -> AspectRatioFrameLayout.RESIZE_MODE_FILL
-            AspectRatioFrameLayout.RESIZE_MODE_FILL -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-            AspectRatioFrameLayout.RESIZE_MODE_ZOOM -> AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH
-            AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH -> AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT
-            AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT -> AspectRatioFrameLayout.RESIZE_MODE_FIT
-            else -> AspectRatioFrameLayout.RESIZE_MODE_FIT
-        }
-    }
 
     /**
      * Tunneled video ignores view scale, so the surface size is the only aspect control.

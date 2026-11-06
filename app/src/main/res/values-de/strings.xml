@@ -1057,10 +1057,6 @@
     <string name="player_error_title">Wiedergabefehler</string>
     <string name="player_error_choose_source">Andere Quelle wählen</string>
     <string name="player_speed_title">Wiedergabegeschwindigkeit</string>
-    <string name="player_more_actions_title">Weitere Aktionen</string>
-    <string name="player_more_speed">Wiedergabegeschwindigkeit</string>
-    <string name="player_more_aspect_ratio">Seitenverhältnis</string>
-    <string name="player_more_open_external">In externem Player öffnen</string>
 
     <!-- StreamInfoOverlay -->
     <string name="stream_info_section_source">QUELLE</string>

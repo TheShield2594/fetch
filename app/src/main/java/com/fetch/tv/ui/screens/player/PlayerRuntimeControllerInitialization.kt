@@ -2626,15 +2626,6 @@ private fun createDolbyVisionFallbackCodecSelector(
     return MediaCodecSelector.DEFAULT
 }
 
-private fun describeExtensionRendererMode(mode: Int): String {
-    return when (mode) {
-        DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF -> "off"
-        DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON -> "on"
-        DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER -> "prefer"
-        else -> mode.toString()
-    }
-}
-
 private fun buildStableAudioCapabilities(context: Context, forceOpticalPassthrough: Boolean = false): AudioCapabilities {
     val detected = AudioCapabilities.getCapabilities(context, AudioAttributes.DEFAULT, null)
     val supportedEncodings = mutableListOf<Int>()
@@ -2709,7 +2700,6 @@ private fun PlayerRuntimeController.recordFirstFrameDiagnostics(
     val sourceProfile = DolbyVisionConversionStats.getLastSourceProfile()
         ?: parseDvProfileFromCodecString(currentVideoTrackCodecs)
     val conversionMode = DolbyVisionConversionStats.getLastSelectedConversionMode()
-    val conversionAttempted = hasAttemptedDv7ToDv81ForCurrentPlayback || conversionCalls > 0 || signalingRewrites > 0
     if (pendingSeekTelemetryAwaitingFirstFrame && pendingSeekTelemetryRequestedAtMs > 0L) {
         pendingSeekTelemetryRequestedAtMs = 0L
         pendingSeekTelemetryTargetMs = -1L

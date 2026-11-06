@@ -3,7 +3,6 @@ package com.fetch.tv.ui.screens.player
 import android.app.Activity
 import android.content.Context
 import android.media.AudioDeviceCallback
-import android.media.audiofx.LoudnessEnhancer
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.media3.common.C
@@ -586,7 +585,6 @@ class PlayerRuntimeController(
     internal var currentStreamBingeGroup: String? = navigationArgs.bingeGroup
     // Per-device delay + current stream's behaviorHints.audioDelayMs + the user's tweak on that stream.
     internal var audioDelayParts: AudioDelayParts = AudioDelayParts().withStream(navigationArgs.audioDelayMs ?: 0)
-    internal var hasAppliedRememberedAudioSelection: Boolean = false
     internal var hasInitializedAudioAmplificationForSession: Boolean = false
     internal var hasInitializedCenterMixForSession: Boolean = false
     internal var rememberAudioDelayPerDeviceEnabled: Boolean = false
@@ -602,15 +600,8 @@ class PlayerRuntimeController(
     internal var seekBufferingUiDeferred: Boolean = false
     internal val seekBufferingUiDelayMs = 1000L
 
-    internal var lastVodTelemetryRefreshTimeMs: Long = 0L
-    internal var cachedVodCacheLogState: String = "vod=warming"
     internal var bufferLogsEnabled: Boolean = false
-    internal var lastProgressUiUpdateUptimeMs: Long = 0L
-    internal var lastSkipIntervalEvaluationUptimeMs: Long = 0L
-    internal var lastNextEpisodeEvaluationUptimeMs: Long = 0L
-    internal var bufferLogJob: Job? = null
     internal val gainAudioProcessor = GainAudioProcessor()
-    internal var loudnessEnhancer: LoudnessEnhancer? = null
     internal var trackSelector: DefaultTrackSelector? = null
     internal var currentMediaSession: MediaSession? = null
     internal var ffmpegAudioRenderer: FfmpegAudioRenderer? = null

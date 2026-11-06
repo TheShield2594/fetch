@@ -240,11 +240,6 @@ internal fun SubtitleSelectionOverlay(
     val styleRequesters = rememberStyleFocusRequesters()
     val optionRailVisible = selectedLanguageKey != SubtitleOffLanguageKey
     val styleRailVisible = optionRailVisible && (revealStyleRail || selectedOptionId != null)
-    val languageTargetKey: String? = remember(languageItems, lastFocusedLanguageKey, selectedLanguageKey) {
-        lastFocusedLanguageKey?.takeIf { key -> languageItems.any { it.key == key } }
-            ?: selectedLanguageKey.takeIf { key -> languageItems.any { it.key == key } }
-            ?: languageItems.firstOrNull()?.key
-    }
     val optionTargetId: String? = remember(subtitleOptions, optionFocusMemory, selectedLanguageKey, selectedOptionId) {
         selectedOptionId?.takeIf { id -> subtitleOptions.any { it.id == id } }
             ?: optionFocusMemory[selectedLanguageKey]?.takeIf { id -> subtitleOptions.any { it.id == id } }

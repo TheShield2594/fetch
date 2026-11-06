@@ -1119,10 +1119,6 @@
     <string name="player_error_title">再生エラー</string>
     <string name="player_error_choose_source">別のソースを選択</string>
     <string name="player_speed_title">再生速度</string>
-    <string name="player_more_actions_title">その他の操作</string>
-    <string name="player_more_speed">再生速度</string>
-    <string name="player_more_aspect_ratio">アスペクト比</string>
-    <string name="player_more_open_external">外部プレーヤーで開く</string>
     <string name="player_error_no_stream_url">このソースにはストリームリンクがありません。別のソースを選択してください。</string>
 
     

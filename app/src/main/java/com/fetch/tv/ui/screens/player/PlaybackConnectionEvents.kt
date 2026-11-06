@@ -167,7 +167,6 @@ internal object PlaybackConnectionEvents : EventListener.Factory {
     @Volatile private var resolvedServingHost: String? = null
     fun setResolvedHost(host: String?) { resolvedServingHost = host?.takeIf { it.isNotBlank() } }
     fun resolvedHost(): String? = resolvedServingHost
-    fun clearResolvedHost() { resolvedServingHost = null }
 
     fun recordEvent(msg: String) {
         recentLogs.addLast(msg)

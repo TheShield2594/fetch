@@ -769,10 +769,6 @@
     <string name="player_error_title">Greška reprodukcije</string>
     <string name="player_error_choose_source">Izaberi drugi izvor</string>
     <string name="player_speed_title">Brzina Reprodukcije</string>
-    <string name="player_more_actions_title">Više Opcija</string>
-    <string name="player_more_speed">Brzina Reprodukcije</string>
-    <string name="player_more_aspect_ratio">Omjer Slike (Aspect Ratio)</string>
-    <string name="player_more_open_external">Otvori u Vanjskom Playeru</string>
 
     <!-- StreamInfoOverlay -->
     <string name="stream_info_section_source">IZVOR</string>

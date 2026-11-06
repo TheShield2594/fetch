@@ -1119,10 +1119,6 @@
     <string name="player_error_title">Afspilningsfejl</string>
     <string name="player_error_choose_source">Vælg en anden kilde</string>
     <string name="player_speed_title">Afspilningshastighed</string>
-    <string name="player_more_actions_title">Flere handlinger</string>
-    <string name="player_more_speed">Afspilningshastighed</string>
-    <string name="player_more_aspect_ratio">Billedformat</string>
-    <string name="player_more_open_external">Åbn i ekstern afspiller</string>
     <string name="player_error_no_stream_url">Denne kilde har intet stream-link. Vælg en anden kilde.</string>
 
 

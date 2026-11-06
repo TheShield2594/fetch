@@ -66,20 +66,6 @@ object ZidooPlayerMonitor {
     }
 
     /**
-     * Probes whether the Zidoo player API is available on localhost.
-     * This is a quick connectivity check (not a full playback status check).
-     */
-    suspend fun isApiAvailable(): Boolean {
-        return try {
-            val status = fetchPlayStatus()
-            status != null
-        } catch (e: Exception) {
-            if (e is CancellationException) throw e
-            false
-        }
-    }
-
-    /**
      * Polls the Zidoo player API until playback stops, then returns the last known
      * position and duration. Returns null if the API is unreachable or playback
      * was never detected.

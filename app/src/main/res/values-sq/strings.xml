@@ -1172,10 +1172,6 @@
         <item quantity="other">Ende duke u ngarkuar pas %1$d sekondash</item>
     </plurals>
     <string name="player_speed_title">Shpejtësia e riprodhimit</string>
-    <string name="player_more_actions_title">Më shumë veprime</string>
-    <string name="player_more_speed">Shpejtësia e riprodhimit</string>
-    <string name="player_more_aspect_ratio">Raporti i pamjes</string>
-    <string name="player_more_open_external">Hap në luajtës të jashtëm</string>
     <string name="player_error_no_stream_url">Ky burim nuk ka lidhje transmetimi. Zgjidh një burim tjetër.</string>
     <string name="stream_info_section_source">BURIMI</string>
     <string name="stream_info_section_file">SKEDARI</string>

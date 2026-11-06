@@ -42,6 +42,7 @@ import javax.inject.Inject
 private val YEAR_REGEX = Regex("""\b(19|20)\d{2}\b""")
 private const val INFO_MESSAGE_MILLIS = 2200L
 private const val ERROR_MESSAGE_MIN_MILLIS = 8000L
+private const val MAX_FILTER_PASSES = 3
 
 data class LibraryTypeTab(
     val key: String,
@@ -751,7 +752,26 @@ class LibraryViewModel @Inject constructor(
     private fun LibraryEntry.extractYear(): String? =
         releaseInfo?.let { YEAR_REGEX.find(it)?.value }
 
+    /**
+     * Recomputes the grid and its facets. A type, genre or year that the new facets no longer
+     * offer is reset, and the grid is then recomputed with the reset selection, so it never shows
+     * the empty result of a filter the chips already display as cleared.
+     */
     private fun LibraryUiState.withVisibleItems(): LibraryUiState {
+        var state = this
+        // Each pass can only clear selections, so this settles within a few passes.
+        repeat(MAX_FILTER_PASSES) {
+            val next = state.computeVisibleItems()
+            val selectionsChanged = next.selectedGenre != state.selectedGenre ||
+                next.selectedYear != state.selectedYear ||
+                next.selectedTypeTab?.key != state.selectedTypeTab?.key
+            if (!selectionsChanged) return next
+            state = next
+        }
+        return state.computeVisibleItems()
+    }
+
+    private fun LibraryUiState.computeVisibleItems(): LibraryUiState {
         val listFiltered = if (sourceMode.providerId != null || selectedListKey != null) {
             val listKey = selectedListKey ?: ""
             allItems.filter { entry -> entry.listKeys.contains(listKey) }
@@ -893,6 +913,18 @@ class LibraryViewModel @Inject constructor(
         // Validate selections — clear if no longer valid
         val validGenre = selectedGenre?.takeIf { g -> genreOptions.any { it.key.equals(g, ignoreCase = true) } }
         val validYear = selectedYear?.takeIf { y -> yearOptions.any { it.key == y } }
+        // A type the list doesn't hold (e.g. a persisted "anime" on a list with no anime) falls
+        // back to All. While the list is still empty (loading) the selection is kept.
+        val validTypeTab = if (
+            selectedTypeKey == null ||
+            selectedTypeKey == LibraryTypeTab.ALL_KEY ||
+            listFiltered.isEmpty() ||
+            typeTabsWithCounts.any { it.key == selectedTypeKey }
+        ) {
+            selectedTypeTab
+        } else {
+            typeTabsWithCounts.first()
+        }
 
         return copy(
             visibleItems = sorted.withCustomPosterUrls(
@@ -901,6 +933,7 @@ class LibraryViewModel @Inject constructor(
             availableTypeTabs = typeTabsWithCounts,
             availableGenres = genreOptions,
             availableYears = yearOptions,
+            selectedTypeTab = validTypeTab,
             selectedGenre = validGenre,
             selectedYear = validYear
         )

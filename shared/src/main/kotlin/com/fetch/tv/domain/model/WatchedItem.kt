@@ -9,13 +9,10 @@ data class WatchedItem(
     val watchedAt: Long,
     val poster: String? = null,
     val releaseInfo: String? = null,
-    override val trackingProviderId: String? = null,
-    override val trackingProviderItemId: String? = null,
-    override val trackingSourceUrl: String? = null
-) : TrackingAttributedItem {
-    override val trackingContentId: String
-        get() = contentId
-}
+    val trackingProviderId: String? = null,
+    val trackingProviderItemId: String? = null,
+    val trackingSourceUrl: String? = null
+)
 
 data class WatchedMutationKey(
     val contentId: String,

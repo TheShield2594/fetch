@@ -457,7 +457,6 @@
     <string name="settings_content_discovery">תוכן וגילוי</string>
     <string name="settings_content_discovery_subtitle">תוספים, קטלוגים ומקורות גילוי</string>
     <string name="settings_content_discovery_addons_subtitle">ניהול תוספים, סדר קטלוג ואוספים</string>
-    <string name="settings_integration">אינטגרציות</string>
     <string name="settings_playback">הפעלה</string>
     <string name="settings_tracking_title">מעקב</string>
     <string name="settings_tracking_description">יש לחבר ספקי מעקב ולבחור איזה מהם מפעיל את הספרייה והמשך הצפייה שלך.</string>
@@ -596,11 +595,6 @@
     <string name="account_stat_library">נשמרו בספרייה</string>
     <string name="account_stat_progress">התקדמות צפייה</string>
     <string name="account_stat_watched">נצפה</string>
-    <string name="settings_integrations_section">אינטגרציות</string>
-    <string name="settings_integrations_section_subtitle">ניהול אינטגרציות זמינות</string>
-    <string name="settings_tmdb_subtitle">בקרות העשרת מטא-דאטה</string>
-    <string name="settings_mdblist_subtitle">ספקי דירוג חיצוניים</string>
-    <string name="settings_animeskip_subtitle">חותמות זמן לדילוג על פתיחים וסיומים באנימה</string>
 
     <string name="playback_title">הגדרות הפעלה</string>
     <string name="playback_subtitle">הגדרת אפשרויות הפעלת וידאו וכתוביות</string>
@@ -1371,7 +1365,6 @@
     <string name="catalog_order_disable">השבתה</string>
 
 
-    <string name="stream_retry">ניסיון נוסף</string>
     <string name="stream_no_streams">לא נמצאו מקורות. לכו לקולנוע.</string>
     <string name="stream_no_streams_hint">ניתן להתקין תוספים נוספים למציאת מקורות</string>
     <string name="stream_finding_source">מחפש מקור</string>
@@ -1706,18 +1699,7 @@
     <string name="account_sign_out">התנתקות</string>
     <string name="account_sign_out_confirm_title">להתנתק?</string>
     <string name="account_sign_out_confirm_subtitle">יהיה צורך להתחבר מחדש כדי לסנכרן את הספרייה, התקדמות הצפייה והתוספים במכשיר זה.</string>
-    <string name="account_error_signin_required">יש להתחבר עם חשבון תחילה.</string>
-    <string name="account_signin_create_title">התחברות / יצירת חשבון</string>
-    <string name="account_signin_create_desc">יש להשתמש באימייל וסיסמה כדי ליצור חשבון או להתחבר אליו.</string>
-    <string name="account_generate_sync_desc">יש ליצור קוד במכשיר זה כדי שמכשירים אחרים יוכלו להתחבר אליו.</string>
-    <string name="account_enter_sync_desc">יש לחבר מכשיר זה למכשיר אחר באמצעות קוד סנכרון.</string>
-    <string name="account_signed_in_as">מחוברים בתור</string>
-    <string name="account_generate_sync_signed_in_desc">יצירת קוד כדי שמכשירים אחרים יוכלו להסתנכרן עם החשבון הזה.</string>
-    <string name="account_unknown_device">מכשיר לא ידוע</string>
 
-    <string name="auth_signin_title">התחברות</string>
-    <string name="auth_signin_tv_disabled">הזנת אימייל/סיסמה בטלוויזיה מושבתת. יש להמשיך עם כניסת קוד QR.</string>
-    <string name="auth_signin_qr_btn">המשך עם קוד QR</string>
     <string name="auth_email_hint">יש להתחבר ישירות עם החשבון בשרת שלך.</string>
     <string name="auth_email_instruction">יש להזין את האימייל והסיסמה שלך כדי להמשיך.</string>
     <string name="auth_email_placeholder">כתובת אימייל</string>
@@ -1776,25 +1758,7 @@
     <string name="auth_qr_terms_prefix">בהרשמה / התחברות, ניתנת הסכמה ל</string>
     <string name="auth_qr_terms_link">תנאי השימוש</string>
 
-    <string name="sync_generate_title">יצירת קוד סנכרון</string>
-    <string name="sync_generate_subtitle">יש ליצור סיסמה להגנה על קוד הסנכרון. ניתן לשתף את הקוד עם המכשירים האחרים.</string>
-    <string name="sync_generate_code_label">קוד הסנכרון שלך</string>
-    <string name="sync_generate_instruction">יש להזין קוד זה ואת הסיסמה שלך במכשיר האחר כדי לקשר אותם.</string>
-    <string name="sync_generate_done">סיום</string>
-    <string name="sync_generate_pin_label">בחירת סיסמה (4-8 תווים)</string>
-    <string name="sync_generate_pin_placeholder">סיסמה</string>
-    <string name="sync_generate_generating">יוצר…</string>
-    <string name="sync_generate_code_btn">יצירת קוד</string>
 
-    <string name="sync_claim_title">קישור מכשיר</string>
-    <string name="sync_claim_subtitle">הזנת קוד הסנכרון והסיסמה מהמכשיר האחר שלך, לקישור מכשיר זה.</string>
-    <string name="sync_claim_success">המכשיר קושר בהצלחה! התוספים שלך יסונכרנו עכשיו.</string>
-    <string name="sync_claim_done">סיום</string>
-    <string name="sync_claim_code_label">קוד סנכרון</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">סיסמה</string>
-    <string name="sync_claim_pin_placeholder">סיסמה</string>
-    <string name="sync_claim_linking">מקשר…</string>
 
 
     <string name="profile_selection_title">מי צופה?</string>
@@ -1832,13 +1796,6 @@
     <string name="update_latest_version">הגרסה המותקנת אצלך היא העדכנית ביותר.</string>
     <string name="update_unknown_sources">יש לאפשר התקנות ממקורות לא ידועים כדי להמשיך.</string>
     <!-- AccountScreen -->
-    <string name="account_title">חשבון</string>
-    <string name="account_sign_in_description">התחברות לסנכרון הספרייה, התקדמות הצפייה והתוספים בין מכשירים. סנכרון הספרייה משתמש ב-Fetch Sync כאשר Trakt לא מחובר, והתקדמות הצפייה יכולה להשתמש ב-Trakt או ב-Fetch Sync.</string>
-    <string name="account_sync_code_title">קוד סנכרון</string>
-    <string name="account_sync_code_description">סנכרון בין מכשירים ללא יצירת חשבון.</string>
-    <string name="account_linked_devices">מכשירים מקושרים (%1$d)</string>
-    <string name="account_no_linked_devices">אין מכשירים מקושרים</string>
-    <string name="account_unlink">ביטול קישור</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">טוען דירוגי פרקים…</string>
@@ -1933,7 +1890,6 @@
 
     <!-- General errors -->
     <string name="error_unknown">שגיאה לא ידועה</string>
-    <string name="addon_error_not_found">התוסף לא נמצא</string>
 
     <!-- Account errors -->
 
@@ -1952,11 +1908,7 @@
 
     <string name="cd_play">הפעלה</string>
     <string name="cd_pause">השהיה</string>
-    <string name="cd_subtitles">כתוביות</string>
-    <string name="cd_audio_tracks">רצועות שמע</string>
-    <string name="cd_sources">מקורות</string>
     <string name="cd_switch_player_engine">החלפת מנוע נגן</string>
-    <string name="cd_episodes">פרקים</string>
     <string name="cd_playback_speed">מהירות הפעלה</string>
     <string name="cd_aspect_ratio">יחס גובה-רוחב</string>
     <string name="cd_open_external_player">פתיחה בנגן חיצוני</string>
@@ -1981,7 +1933,6 @@
     <string name="cd_refresh">ריענון</string>
     <string name="cd_remove">הסרה</string>
     <string name="cd_preview">תצוגה מקדימה</string>
-    <string name="cd_unlink">ביטול קישור</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">לוגו Trakt</string>
     <string name="cd_trakt_qr">קוד QR להפעלת Trakt</string>

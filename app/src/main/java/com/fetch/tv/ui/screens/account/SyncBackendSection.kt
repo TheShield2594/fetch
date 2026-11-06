@@ -153,14 +153,3 @@ fun SyncBackendRow(
         }
     }
 }
-
-/** What Settings → Account shows under the picker while sync is off. */
-@Composable
-fun LocalOnlyNote(modifier: Modifier = Modifier) {
-    Text(
-        text = stringResource(R.string.sync_backend_local_note),
-        style = MaterialTheme.typography.bodySmall,
-        color = FetchTheme.colors.TextSecondary,
-        modifier = modifier
-    )
-}

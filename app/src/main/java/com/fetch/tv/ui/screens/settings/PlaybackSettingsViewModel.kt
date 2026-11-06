@@ -18,8 +18,6 @@ import com.fetch.tv.data.local.AudioOutputChannels
 import com.fetch.tv.data.local.AutoSkipSegmentType
 import com.fetch.tv.data.local.MpvHardwareDecodeMode
 import com.fetch.tv.data.local.SubtitleOrganizationMode
-import com.fetch.tv.data.local.TrailerSettings
-import com.fetch.tv.data.local.TrailerSettingsDataStore
 import com.fetch.tv.data.local.VodCacheSizeMode
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.domain.repository.AddonRepository
@@ -34,13 +32,11 @@ import javax.inject.Inject
 class PlaybackSettingsViewModel @Inject constructor(
     private val playerSettingsDataStore: PlayerSettingsDataStore,
     private val deviceLocalPlayerPreferences: DeviceLocalPlayerPreferences,
-    private val trailerSettingsDataStore: TrailerSettingsDataStore,
     private val addonRepository: AddonRepository
 ) : ViewModel() {
 
     val playerSettings: Flow<PlayerSettings> = playerSettingsDataStore.playerSettings
     val transparentLetterbox: Flow<Boolean> = deviceLocalPlayerPreferences.transparentLetterbox
-    val trailerSettings: Flow<TrailerSettings> = trailerSettingsDataStore.settings
     val lastPlaybackDiagnostics: Flow<LastPlaybackDiagnostics> = playerSettingsDataStore.lastPlaybackDiagnostics
     val installedAddonNames: Flow<List<String>> = addonRepository.getInstalledAddons().map { addons ->
         addons
@@ -72,14 +68,6 @@ class PlaybackSettingsViewModel @Inject constructor(
 
     suspend fun setExternalPlayerSendSkipSegments(enabled: Boolean) {
         playerSettingsDataStore.setExternalPlayerSendSkipSegments(enabled)
-    }
-
-    suspend fun setTrailerEnabled(enabled: Boolean) {
-        trailerSettingsDataStore.setEnabled(enabled)
-    }
-
-    suspend fun setTrailerDelaySeconds(seconds: Int) {
-        trailerSettingsDataStore.setDelaySeconds(seconds)
     }
 
     // Audio settings

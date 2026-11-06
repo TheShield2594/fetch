@@ -370,7 +370,6 @@
     <string name="settings_content_discovery">Përmbajtja dhe zbulimi</string>
     <string name="settings_content_discovery_subtitle">Shtesa, katalogë dhe burime zbulimi</string>
     <string name="settings_content_discovery_addons_subtitle">Menaxho shtesat, renditjen e katalogëve dhe koleksionet</string>
-    <string name="settings_integration">Integrimet</string>
     <string name="settings_playback">Riprodhimi</string>
     <string name="settings_tracking_title">Gjurmimi</string>
     <string name="settings_tracking_description">Lidh ofruesit e gjurmimit dhe zgjidh cili prej tyre furnizon Bibliotekën dhe Vazhdo shikimin.</string>
@@ -499,11 +498,6 @@
     <string name="account_stat_library">biblioteka</string>
     <string name="account_stat_progress">progresi</string>
     <string name="account_stat_watched">shikuar</string>
-    <string name="settings_integrations_section">Integrimet</string>
-    <string name="settings_integrations_section_subtitle">Menaxho integrimet e disponueshme</string>
-    <string name="settings_tmdb_subtitle">Kontrollet e pasurimit të metadata-ve</string>
-    <string name="settings_mdblist_subtitle">Ofrues të jashtëm vlerësimesh</string>
-    <string name="settings_animeskip_subtitle">Kohëshënues për kapërcimin e hyrjes/daljes së animeve</string>
     <string name="playback_title">Cilësimet e riprodhimit</string>
     <string name="playback_subtitle">Konfiguro riprodhimin e videos dhe opsionet e titrave</string>
     <string name="cd_decrease_setting">Zvogëlo %1$s</string>
@@ -1103,7 +1097,6 @@
     <string name="catalog_order_disabled_on_home">Çaktivizuar në Faqen kryesore</string>
     <string name="catalog_order_enable">Aktivizo</string>
     <string name="catalog_order_disable">Çaktivizo</string>
-    <string name="stream_retry">Provo përsëri</string>
     <string name="stream_no_streams">Nuk u gjetën transmetime</string>
     <string name="stream_no_streams_hint">Provo të instalosh më shumë shtesa për të gjetur transmetime</string>
     <string name="stream_finding_source">Duke kërkuar burimin e transmetimit</string>
@@ -1388,17 +1381,6 @@
     <string name="account_sign_out">Dil nga llogaria</string>
     <string name="account_sign_out_confirm_title">Të dalësh nga llogaria?</string>
     <string name="account_sign_out_confirm_subtitle">Do të duhet të hysh përsëri për të sinkronizuar bibliotekën, progresin e shikimit dhe shtesat në këtë pajisje.</string>
-    <string name="account_error_signin_required">Hyr fillimisht me një llogari.</string>
-    <string name="account_signin_create_title">Hyr / Krijo llogari</string>
-    <string name="account_signin_create_desc">Përdor emailin dhe fjalëkalimin për të krijuar ose për t’u kyçur në llogari.</string>
-    <string name="account_generate_sync_desc">Krijo një kod në këtë pajisje që pajisjet e tjera të mund të lidhen me të.</string>
-    <string name="account_enter_sync_desc">Lidh këtë pajisje me një pajisje tjetër duke përdorur një kod sinkronizimi.</string>
-    <string name="account_signed_in_as">I kyçur si</string>
-    <string name="account_generate_sync_signed_in_desc">Krijo një kod që pajisjet e tjera të mund të sinkronizohen me këtë llogari.</string>
-    <string name="account_unknown_device">Pajisje e panjohur</string>
-    <string name="auth_signin_title">Hyr</string>
-    <string name="auth_signin_tv_disabled">Futja e emailit/fjalëkalimit në TV është çaktivizuar. Vazhdo me hyrjen QR.</string>
-    <string name="auth_signin_qr_btn">Vazhdo me QR</string>
     <string name="auth_email_hint">Hyr drejtpërdrejt me llogarinë në serverin tënd të vetë-hostuar.</string>
     <string name="auth_email_instruction">Shkruaj emailin dhe fjalëkalimin për të vazhduar.</string>
     <string name="auth_email_placeholder">Adresa e emailit</string>
@@ -1454,24 +1436,6 @@
     <string name="auth_qr_back">Kthehu</string>
     <string name="auth_qr_terms_prefix">Duke u regjistruar / kyçur, pajtohem me</string>
     <string name="auth_qr_terms_link">Kushtet</string>
-    <string name="sync_generate_title">Gjenero kod sinkronizimi</string>
-    <string name="sync_generate_subtitle">Krijo një PIN për të mbrojtur kodin e sinkronizimit. Ndaje kodin me pajisjet e tjera.</string>
-    <string name="sync_generate_code_label">Kodi yt i sinkronizimit</string>
-    <string name="sync_generate_instruction">Shkruaj këtë kod dhe PIN-in në pajisjen tjetër për t’i lidhur.</string>
-    <string name="sync_generate_done">U krye</string>
-    <string name="sync_generate_pin_label">Zgjidh një PIN (4-8 karaktere)</string>
-    <string name="sync_generate_pin_placeholder">Shkruaj PIN-in</string>
-    <string name="sync_generate_generating">Duke gjeneruar\u2026</string>
-    <string name="sync_generate_code_btn">Gjenero kodin</string>
-    <string name="sync_claim_title">Lidh pajisjen</string>
-    <string name="sync_claim_subtitle">Shkruaj kodin e sinkronizimit dhe PIN-in nga pajisja tjetër për ta lidhur këtë pajisje.</string>
-    <string name="sync_claim_success">Pajisja u lidh me sukses! Shtesat tani do të sinkronizohen.</string>
-    <string name="sync_claim_done">U krye</string>
-    <string name="sync_claim_code_label">Kodi i sinkronizimit</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">Shkruaj PIN-in</string>
-    <string name="sync_claim_linking">Duke lidhur\u2026</string>
     <string name="profile_selection_title">Kush po shikon?</string>
     <string name="profile_selection_subtitle">Zgjidh një profil për të vazhduar</string>
     <string name="profile_selection_hint">Mbaj shtypur për të menaxhuar profilin</string>
@@ -1503,13 +1467,6 @@
     <string name="update_latest_version">Po përdor versionin më të fundit.</string>
     <string name="update_unknown_sources">Lejo instalimet nga burime të panjohura për të vazhduar.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Llogaria</string>
-    <string name="account_sign_in_description">Hyr për të sinkronizuar bibliotekën, progresin e shikimit dhe shtesat në të gjitha pajisjet. Sinkronizimi i bibliotekës përdor Fetch Sync kur Trakt nuk është i lidhur, ndërsa progresi i shikimit mund të përdorë Trakt ose Fetch Sync.</string>
-    <string name="account_sync_code_title">Kodi i sinkronizimit</string>
-    <string name="account_sync_code_description">Sinkronizo ndërmjet pajisjeve pa krijuar llogari.</string>
-    <string name="account_linked_devices">Pajisjet e lidhura (%1$d)</string>
-    <string name="account_no_linked_devices">Nuk ka pajisje të lidhura</string>
-    <string name="account_unlink">Shkëput</string>
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Duke ngarkuar vlerësimet e episodeve...</string>
     <string name="ratings_unavailable">Vlerësimet e episodeve nuk janë të disponueshme.</string>
@@ -1586,7 +1543,6 @@
     <string name="trakt_error_failed_start">Nisja e autentifikimit Trakt dështoi</string>
     <!-- General errors -->
     <string name="error_unknown">Gabim i panjohur</string>
-    <string name="addon_error_not_found">Shtesa nuk u gjet</string>
     <!-- Account errors -->
     <!-- Search errors -->
     <!-- Home errors -->
@@ -1598,11 +1554,7 @@
     <string name="ratings_episode_label">E%1$d</string>
     <string name="cd_play">Luaj</string>
     <string name="cd_pause">Pauzë</string>
-    <string name="cd_subtitles">Titrat</string>
-    <string name="cd_audio_tracks">Pistat audio</string>
-    <string name="cd_sources">Burimet</string>
     <string name="cd_switch_player_engine">Ndërro motorin e luajtësit</string>
-    <string name="cd_episodes">Episodet</string>
     <string name="cd_playback_speed">Shpejtësia e riprodhimit</string>
     <string name="cd_aspect_ratio">Raporti i pamjes</string>
     <string name="cd_open_external_player">Hap në luajtës të jashtëm</string>
@@ -1627,7 +1579,6 @@
     <string name="cd_refresh">Rifresko</string>
     <string name="cd_remove">Hiq</string>
     <string name="cd_preview">Pamje paraprake</string>
-    <string name="cd_unlink">Shkëput</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logoja e Trakt</string>
     <string name="cd_trakt_qr">QR-ja e aktivizimit Trakt</string>

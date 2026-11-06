@@ -381,7 +381,6 @@
     <string name="settings_tracking_title">Pelacakan</string>
     <string name="settings_profiles">Profil</string>
     <string name="settings_layout">Tata Letak</string>
-    <string name="settings_integration">Integrasi</string>
     <string name="settings_playback">Pemutaran</string>
     <string name="settings_advanced">Lanjutan</string>
     <string name="settings_advanced_subtitle">Performa, navigasi, cache, dan diagnostik</string>
@@ -480,11 +479,6 @@
     <string name="account_stat_library">pustaka</string>
     <string name="account_stat_progress">progres</string>
     <string name="account_stat_watched">ditonton</string>
-    <string name="settings_integrations_section">Integrasi</string>
-    <string name="settings_integrations_section_subtitle">Kelola integrasi yang tersedia</string>
-    <string name="settings_tmdb_subtitle">Kontrol pengayaan metadata</string>
-    <string name="settings_mdblist_subtitle">Penyedia rating eksternal</string>
-    <string name="settings_animeskip_subtitle">Cap waktu lewati intro/outro anime</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Pengaturan Pemutaran</string>
@@ -1007,7 +1001,6 @@
 
 
     <!-- StreamScreen -->
-    <string name="stream_retry">Coba Lagi</string>
     <string name="stream_no_streams">Tidak ada stream ditemukan</string>
     <string name="stream_no_streams_hint">Coba pasang lebih banyak addon untuk menemukan stream</string>
     <string name="stream_finding_source">Mencari sumber stream</string>
@@ -1276,9 +1269,6 @@
     <string name="account_sign_out">Keluar</string>
 
     <!-- AuthSignInScreen -->
-    <string name="auth_signin_title">Masuk</string>
-    <string name="auth_signin_tv_disabled">Entri email/kata sandi di TV dinonaktifkan. Lanjutkan dengan masuk QR.</string>
-    <string name="auth_signin_qr_btn">Lanjutkan dengan QR</string>
 
     <!-- AuthQrSignInScreen -->
     <string name="auth_qr_finishing">Menyelesaikan masuk\u2026</string>
@@ -1295,23 +1285,8 @@
     <string name="auth_qr_back">Kembali</string>
 
     <!-- SyncCodeGenerateScreen -->
-    <string name="sync_generate_title">Buat Kode Sinkronisasi</string>
-    <string name="sync_generate_subtitle">Buat PIN untuk melindungi kode sinkronisasi Anda. Bagikan kode tersebut ke perangkat lain Anda.</string>
-    <string name="sync_generate_code_label">Kode Sinkronisasi Anda</string>
-    <string name="sync_generate_instruction">Masukkan kode ini dan PIN Anda di perangkat lain untuk menautkannya.</string>
-    <string name="sync_generate_done">Selesai</string>
-    <string name="sync_generate_pin_label">Pilih PIN (4-8 karakter)</string>
-    <string name="sync_generate_pin_placeholder">Masukkan PIN</string>
 
     <!-- SyncCodeClaimScreen -->
-    <string name="sync_claim_title">Tautkan Perangkat</string>
-    <string name="sync_claim_subtitle">Masukkan kode sinkronisasi dan PIN dari perangkat lain Anda untuk menautkan perangkat ini.</string>
-    <string name="sync_claim_success">Perangkat berhasil ditautkan! Addon Anda akan disinkronkan sekarang.</string>
-    <string name="sync_claim_done">Selesai</string>
-    <string name="sync_claim_code_label">Kode Sinkronisasi</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">Masukkan PIN</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Siapa yang menonton?</string>
@@ -1347,13 +1322,6 @@
     <string name="update_downloading_ellipsis">Mengunduh…</string>
     <string name="update_unknown_sources">Izinkan pemasangan dari sumber tidak dikenal untuk melanjutkan.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Akun</string>
-    <string name="account_sign_in_description">Masuk untuk menyinkronkan pustaka, progres tonton, dan addon di semua perangkat. Sinkronisasi pustaka menggunakan Fetch Sync saat Trakt tidak terhubung, dan progres tonton dapat menggunakan Trakt atau Fetch Sync.</string>
-    <string name="account_sync_code_title">Kode Sinkronisasi</string>
-    <string name="account_sync_code_description">Sinkronkan di semua perangkat tanpa membuat akun.</string>
-    <string name="account_linked_devices">Perangkat Tertaut (%1$d)</string>
-    <string name="account_no_linked_devices">Tidak ada perangkat tertaut</string>
-    <string name="account_unlink">Putuskan Tautan</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Memuat rating episode...</string>
@@ -1405,18 +1373,8 @@
     <string name="profile_pin_current_required">Profil ini sudah memiliki PIN. Masukkan PIN saat ini untuk mengubahnya.</string>
 
     <!-- Account Screen -->
-    <string name="account_signin_create_title">Masuk / Buat Akun</string>
-    <string name="account_signin_create_desc">Gunakan email dan kata sandi untuk membuat atau masuk ke akun Anda.</string>
-    <string name="account_generate_sync_desc">Buat kode di perangkat ini agar perangkat lain dapat ditautkan.</string>
-    <string name="account_enter_sync_desc">Tautkan perangkat ini ke perangkat lain menggunakan kode sinkronisasi.</string>
-    <string name="account_signed_in_as">Masuk sebagai</string>
-    <string name="account_generate_sync_signed_in_desc">Buat kode agar perangkat lain dapat disinkronkan dengan akun ini.</string>
-    <string name="account_unknown_device">Perangkat Tidak Dikenal</string>
 
     <!-- Sync screens -->
-    <string name="sync_claim_linking">Menautkan\u2026</string>
-    <string name="sync_generate_generating">Membuat\u2026</string>
-    <string name="sync_generate_code_btn">Buat Kode</string>
 
     <!-- Search -->
     <string name="search_no_results_subtitle">Coba cari dengan kata kunci yang berbeda</string>
@@ -1459,10 +1417,8 @@
 
     <!-- General errors -->
     <string name="error_unknown">Error tidak diketahui</string>
-    <string name="addon_error_not_found">Addon tidak ditemukan</string>
 
     <!-- Account errors -->
-    <string name="account_error_signin_required">Masuk dengan akun terlebih dahulu.</string>
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Tidak ada katalog yang bisa dicari ditemukan di addon terpasang</string>
@@ -1491,11 +1447,7 @@
     <!-- Content descriptions -->
     <string name="cd_play">Putar</string>
     <string name="cd_pause">Jeda</string>
-    <string name="cd_subtitles">Subtitle</string>
-    <string name="cd_audio_tracks">Trek audio</string>
-    <string name="cd_sources">Sumber</string>
     <string name="cd_switch_player_engine">Ganti mesin pemutar</string>
-    <string name="cd_episodes">Episode</string>
     <string name="cd_playback_speed">Kecepatan pemutaran</string>
     <string name="cd_aspect_ratio">Rasio aspek</string>
     <string name="cd_open_external_player">Buka di pemutar eksternal</string>
@@ -1520,7 +1472,6 @@
     <string name="cd_refresh">Perbarui</string>
     <string name="cd_remove">Hapus</string>
     <string name="cd_preview">Pratinjau</string>
-    <string name="cd_unlink">Putuskan Tautan</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">QR aktivasi Trakt</string>

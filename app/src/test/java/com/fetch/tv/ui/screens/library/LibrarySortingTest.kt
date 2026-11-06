@@ -242,4 +242,26 @@ class LibrarySortingTest {
         assertEquals(listOf("Zulu", "Alpha", "Bravo"), f.viewModel.uiState.value.visibleItems.map { it.name })
     }
 
+    @Test
+    fun `a watched filter that hides every item is flagged and clearing it restores the grid`() = runTest {
+        val f = LibraryViewModelTestFixture()
+        val items = decodeMdbListLibraryPage("""[
+            {"id":1,"mediatype":"movie","title":"Zulu","rank":0},
+            {"id":2,"mediatype":"movie","title":"Bravo","rank":1}
+        ]""").items
+        f.items.value = MdbListLibraryProjection(MdbListLibrarySnapshot(itemsByList = mapOf(f.tab.key to items))).entries
+        runCurrent()
+        assertEquals(false, f.viewModel.uiState.value.filtersHideAllItems)
+
+        f.viewModel.onSelectWatchedFilter(LibraryWatchedFilter.WATCHED)
+        runCurrent()
+        assertTrue(f.viewModel.uiState.value.visibleItems.isEmpty())
+        assertTrue(f.viewModel.uiState.value.filtersHideAllItems)
+
+        f.viewModel.onClearFilters()
+        runCurrent()
+        assertEquals(LibraryWatchedFilter.ALL, f.viewModel.uiState.value.selectedWatchedFilter)
+        assertEquals(listOf("Zulu", "Bravo"), f.viewModel.uiState.value.visibleItems.map { it.name })
+        assertEquals(false, f.viewModel.uiState.value.filtersHideAllItems)
+    }
 }

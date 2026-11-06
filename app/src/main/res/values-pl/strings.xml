@@ -146,7 +146,6 @@
     <string name="settings_account">Konto</string>
     <string name="settings_profiles">Profile</string>
     <string name="settings_layout">Układ</string>
-    <string name="settings_integration">Integracje</string>
     <string name="settings_playback">Odtwarzanie</string>
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Status konta i synchronizacji</string>
@@ -154,10 +153,6 @@
     <string name="account_stat_library">biblioteka</string>
     <string name="account_stat_progress">postęp</string>
     <string name="account_stat_watched">obejrzane</string>
-    <string name="settings_integrations_section">Integracje</string>
-    <string name="settings_integrations_section_subtitle">Zarządzaj dostępnymi integracjami</string>
-    <string name="settings_tmdb_subtitle">Kontrolki wzbogacania metadanych</string>
-    <string name="settings_mdblist_subtitle">Zewnętrzni dostawcy ocen</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Ustawienia odtwarzania</string>
@@ -533,7 +528,6 @@
     <string name="animeskip_dialog_subtitle">Utwórz własny Client ID na anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Wprowadź Client ID</string>
     <string name="animeskip_invalid_client_id">Nie udało się zweryfikować tego Client ID. Sprawdź, czy zgadza się z identyfikatorem na Twoim koncie Anime Skip i czy masz połączenie z internetem, a potem spróbuj ponownie.</string>
-    <string name="settings_animeskip_subtitle">Znaczniki czasu czołówek i napisów końcowych anime</string>
 
     <!-- TmdbSettingsScreen -->
     <string name="tmdb_title">Wzbogacanie TMDB</string>
@@ -685,7 +679,6 @@
 
 
     <!-- StreamScreen -->
-    <string name="stream_retry">Ponów</string>
     <string name="stream_no_streams">Nie znaleziono źródeł</string>
     <string name="stream_no_streams_hint">Spróbuj zainstalować więcej dodatków, aby znaleźć źródła</string>
     <string name="stream_finding_source">Wyszukiwanie źródła strumienia</string>
@@ -875,9 +868,6 @@
     <string name="account_sign_out">Wyloguj się</string>
 
     <!-- AuthSignInScreen -->
-    <string name="auth_signin_title">Zaloguj się</string>
-    <string name="auth_signin_tv_disabled">Wprowadzanie e-maila i hasła na TV jest wyłączone. Kontynuuj logowanie przez QR.</string>
-    <string name="auth_signin_qr_btn">Kontynuuj przez QR</string>
 
     <!-- AuthQrSignInScreen -->
     <string name="auth_qr_finishing">Kończenie logowania\u2026</string>
@@ -895,23 +885,8 @@
     <string name="auth_qr_back">Wstecz</string>
 
     <!-- SyncCodeGenerateScreen -->
-    <string name="sync_generate_title">Generuj kod synchronizacji</string>
-    <string name="sync_generate_subtitle">Utwórz PIN, aby zabezpieczyć kod synchronizacji. Udostępnij kod innym urządzeniom.</string>
-    <string name="sync_generate_code_label">Twój kod synchronizacji</string>
-    <string name="sync_generate_instruction">Wprowadź ten kod i PIN na innym urządzeniu, aby je połączyć.</string>
-    <string name="sync_generate_done">Gotowe</string>
-    <string name="sync_generate_pin_label">Wybierz PIN (4-8 znaków)</string>
-    <string name="sync_generate_pin_placeholder">Wprowadź PIN</string>
 
     <!-- SyncCodeClaimScreen -->
-    <string name="sync_claim_title">Połącz urządzenie</string>
-    <string name="sync_claim_subtitle">Wprowadź kod synchronizacji i PIN z innego urządzenia, aby je połączyć.</string>
-    <string name="sync_claim_success">Urządzenie połączone! Twoje dodatki będą teraz synchronizowane.</string>
-    <string name="sync_claim_done">Gotowe</string>
-    <string name="sync_claim_code_label">Kod synchronizacji</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">Wprowadź PIN</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Kto ogląda?</string>
@@ -942,13 +917,6 @@
     <string name="update_downloading_ellipsis">Pobieranie…</string>
     <string name="update_unknown_sources">Zezwól na instalację z nieznanych źródeł, aby kontynuować.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Konto</string>
-    <string name="account_sign_in_description">Zaloguj sie, aby synchronizowac biblioteke, postep ogladania i dodatki miedzy urzadzeniami. Synchronizacja biblioteki i postepu dziala tylko gdy Trakt nie jest podlaczony.</string>
-    <string name="account_sync_code_title">Kod synchronizacji</string>
-    <string name="account_sync_code_description">Synchronizuj miedzy urzadzeniami bez tworzenia konta.</string>
-    <string name="account_linked_devices">Polaczone urzadzenia (%1$d)</string>
-    <string name="account_no_linked_devices">Brak polaczonych urzadzen</string>
-    <string name="account_unlink">Odlacz</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Ladowanie ocen odcinkow...</string>
@@ -1197,11 +1165,7 @@
 
     <string name="cd_play">Odtwórz</string>
     <string name="cd_pause">Pauza</string>
-    <string name="cd_subtitles">Napisy</string>
-    <string name="cd_audio_tracks">Ścieżki audio</string>
-    <string name="cd_sources">Źródła</string>
     <string name="cd_switch_player_engine">Przełącz silnik odtwarzacza</string>
-    <string name="cd_episodes">Odcinki</string>
     <string name="cd_playback_speed">Prędkość odtwarzania</string>
     <string name="cd_aspect_ratio">Proporcje obrazu</string>
     <string name="cd_open_external_player">Otwórz w zewnętrznym odtwarzaczu</string>
@@ -1227,7 +1191,6 @@
     <string name="cd_remove">Usuń</string>
     <string name="cd_remove_recent_search">Usuń %1$s z ostatnich wyszukiwań</string>
     <string name="cd_preview">Podgląd</string>
-    <string name="cd_unlink">Odłącz</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">Kod QR aktywacji Trakt</string>
@@ -1239,14 +1202,6 @@
     <string name="cd_qr_login">Kod QR logowania</string>
     <string name="cd_fetch">Fetch</string>
 
-    <string name="account_signin_create_title">Zaloguj się / Utwórz konto</string>
-    <string name="account_signin_create_desc">Użyj adresu e-mail i hasła, aby utworzyć lub zalogować się na konto.</string>
-    <string name="account_generate_sync_desc">Utwórz kod na tym urządzeniu, aby inne urządzenia mogły się z nim połączyć.</string>
-    <string name="account_enter_sync_desc">Połącz to urządzenie z innym urządzeniem za pomocą kodu synchronizacji.</string>
-    <string name="account_signed_in_as">Zalogowano jako</string>
-    <string name="account_generate_sync_signed_in_desc">Utwórz kod, aby inne urządzenia mogły synchronizować się z tym kontem.</string>
-    <string name="account_unknown_device">Nieznane urządzenie</string>
-    <string name="account_error_signin_required">Najpierw zaloguj się na konto.</string>
 
     <string name="debug_signin_success">Zalogowano pomyślnie</string>
     <string name="debug_generate_description">Element wygenerowany przez debug %1$s nr %2$d</string>
@@ -1290,9 +1245,6 @@
     <string name="sub_mode_overlay_canvas_sub">Obsługa HDR z renderowaniem Canvas. Może blokować wątek UI.</string>
     <string name="subtitle_style_weight">Grubość</string>
 
-    <string name="sync_claim_linking">Łączenie\u2026</string>
-    <string name="sync_generate_generating">Generowanie\u2026</string>
-    <string name="sync_generate_code_btn">Generuj kod</string>
 
     <string name="trakt_error_code_expired">Kod urządzenia wygasł. Zacznij od nowa.</string>
     <string name="trakt_error_code_used">Kod urządzenia już użyty. Zacznij od nowa.</string>
@@ -1616,7 +1568,6 @@
 
     <!-- Missing translations -->
     <string name="action_select">Wybierz</string>
-    <string name="addon_error_not_found">Nie znaleziono dodatku</string>
     <string name="addon_manage_addons_only_from_phone_subtitle">Zeskanuj kod QR, aby zainstalować lub usunąć dodatki z telefonu</string>
     <string name="addon_pending_collections_replace">%1$d kolekcji zastąpi obecne kolekcje</string>
     <string name="addon_pending_collections_updated">Kolekcje zaktualizowane</string>

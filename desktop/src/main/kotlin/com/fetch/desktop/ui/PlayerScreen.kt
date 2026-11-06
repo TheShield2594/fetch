@@ -8,7 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -85,7 +85,7 @@ private val HiddenCursor: PointerIcon by lazy {
  * fullscreen at the bottom, and a Skip button for intros and credits.
  *
  * Keys: Space or K play/pause, ←/→ (J/L) 10 s, ↑/↓ volume, M mute, F fullscreen, Esc leaves
- * fullscreen, then the player.
+ * fullscreen, then the player. Mouse: click play/pause, double-click fullscreen, wheel volume.
  */
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -159,14 +159,32 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                 true
             }
     ) {
-        // The picture, letterboxed. A click toggles pause, a double-click fullscreen.
+        // The picture, letterboxed. A click toggles pause, a double-click fullscreen (the single
+        // click waits out the double-click window, so a double-click doesn't pause and resume),
+        // and the wheel changes the volume.
         Canvas(
             Modifier
                 .fillMaxSize()
                 .onSizeChanged { mpv.setViewSize(it.width, it.height) }
-                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                .combinedClickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onDoubleClick = {
+                        poke()
+                        toggleFullscreen()
+                    },
+                    onClick = {
+                        poke()
+                        controls.togglePause()
+                    }
+                )
+                .onPointerEvent(PointerEventType.Scroll) { event ->
+                    val dy = event.changes.firstOrNull()?.scrollDelta?.y ?: return@onPointerEvent
+                    if (dy == 0f) return@onPointerEvent
                     poke()
-                    controls.togglePause()
+                    // Wheel up is a negative delta: louder.
+                    mpv.changeVolume(mpv.volume + if (dy < 0f) 5 else -5)
+                    event.changes.forEach { it.consume() }
                 }
         ) {
             @Suppress("UNUSED_EXPRESSION") mpv.frameVersion // redraw on every new frame

@@ -368,7 +368,6 @@
     <string name="settings_tracking_title">Проследяване</string>
     <string name="settings_profiles">Профили</string>
     <string name="settings_layout">Оформление</string>
-    <string name="settings_integration">Интеграции</string>
     <string name="settings_playback">Възпроизвеждане</string>
     <string name="settings_advanced">Разширени</string>
     <string name="settings_advanced_subtitle">Производителност, навигация, кеш и диагностика</string>
@@ -469,11 +468,6 @@
     <string name="account_stat_library">библиотека</string>
     <string name="account_stat_progress">прогрес</string>
     <string name="account_stat_watched">гледани</string>
-    <string name="settings_integrations_section">Интеграции</string>
-    <string name="settings_integrations_section_subtitle">Управление на наличните интеграции</string>
-    <string name="settings_tmdb_subtitle">Контроли за обогатяване на метаданни</string>
-    <string name="settings_mdblist_subtitle">Външни доставчици на рейтинги</string>
-    <string name="settings_animeskip_subtitle">Времеви маркери за аниме интро/аутро</string>
 
     <string name="playback_title">Настройки на възпроизвеждането</string>
     <string name="playback_subtitle">Конфигурирай опциите за видео възпроизвеждане и субтитри</string>
@@ -1053,7 +1047,6 @@
     <string name="catalog_order_disable">Деактивирай</string>
 
 
-    <string name="stream_retry">Опитай отново</string>
     <string name="stream_no_streams">Не са намерени потоци</string>
     <string name="stream_no_streams_hint">Опитай да инсталираш повече добавки, за да намериш потоци</string>
     <string name="stream_finding_source">Търсене на източник на поток</string>
@@ -1322,18 +1315,7 @@
     <string name="account_total_label">Общо</string>
     <string name="account_loading_sync">Зареждане на данни за синхронизация…</string>
     <string name="account_sign_out">Отпиши се</string>
-    <string name="account_error_signin_required">Първо се впиши с акаунт.</string>
-    <string name="account_signin_create_title">Впиши се / Създай акаунт</string>
-    <string name="account_signin_create_desc">Използвай имейл и парола, за да създадеш или влезеш в акаунта си.</string>
-    <string name="account_generate_sync_desc">Създай код на това устройство, за да могат други устройства да се свържат към него.</string>
-    <string name="account_enter_sync_desc">Свържи това устройство с друго, използвайки sync код.</string>
-    <string name="account_signed_in_as">Вписан като</string>
-    <string name="account_generate_sync_signed_in_desc">Създай код, за да могат други устройства да се синхронизират с този акаунт.</string>
-    <string name="account_unknown_device">Неизвестно устройство</string>
 
-    <string name="auth_signin_title">Вписване</string>
-    <string name="auth_signin_tv_disabled">Въвеждането на имейл/парола на TV е деактивирано. Продължи с QR вписване.</string>
-    <string name="auth_signin_qr_btn">Продължи с QR</string>
 
     <string name="auth_qr_finishing">Завършване на вписването…</string>
     <string name="auth_qr_expires">Изтича след %1$s</string>
@@ -1348,25 +1330,7 @@
     <string name="auth_qr_continue">Продължи</string>
     <string name="auth_qr_back">Назад</string>
 
-    <string name="sync_generate_title">Генерирай Sync код</string>
-    <string name="sync_generate_subtitle">Създай PIN за защита на sync кода. Сподели кода с другите си устройства.</string>
-    <string name="sync_generate_code_label">Твоят Sync код</string>
-    <string name="sync_generate_instruction">Въведи този код и PIN на другото си устройство, за да ги свържеш.</string>
-    <string name="sync_generate_done">Готово</string>
-    <string name="sync_generate_pin_label">Избери PIN (4-8 символа)</string>
-    <string name="sync_generate_pin_placeholder">Въведи PIN</string>
-    <string name="sync_generate_generating">Генериране…</string>
-    <string name="sync_generate_code_btn">Генерирай код</string>
 
-    <string name="sync_claim_title">Свържи устройство</string>
-    <string name="sync_claim_subtitle">Въведи sync кода и PIN от другото си устройство, за да свържеш това.</string>
-    <string name="sync_claim_success">Устройството е успешно свързано! Добавките ти сега ще се синхронизират.</string>
-    <string name="sync_claim_done">Готово</string>
-    <string name="sync_claim_code_label">Sync код</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">Въведи PIN</string>
-    <string name="sync_claim_linking">Свързване…</string>
 
 
     <string name="profile_selection_title">Кой гледа?</string>
@@ -1398,13 +1362,6 @@
     <string name="update_downloading_ellipsis">Изтегляне…</string>
     <string name="update_unknown_sources">Разреши инсталации от неизвестни източници, за да продължиш.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Акаунт</string>
-    <string name="account_sign_in_description">Впиши се, за да синхронизираш библиотеката, прогреса на гледане и добавките между устройства. Синхронизацията на библиотеката използва Fetch Sync, когато Trakt не е свързан, а прогресът на гледане може да използва Trakt или Fetch Sync.</string>
-    <string name="account_sync_code_title">Sync код</string>
-    <string name="account_sync_code_description">Синхронизирай между устройства без създаване на акаунт.</string>
-    <string name="account_linked_devices">Свързани устройства (%1$d)</string>
-    <string name="account_no_linked_devices">Няма свързани устройства</string>
-    <string name="account_unlink">Прекъсни връзката</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Зареждане на рейтинги за епизода...</string>
@@ -1498,7 +1455,6 @@
 
     <!-- General errors -->
     <string name="error_unknown">Неизвестна грешка</string>
-    <string name="addon_error_not_found">Добавката не е намерена</string>
 
     <!-- Account errors -->
 
@@ -1517,11 +1473,7 @@
 
     <string name="cd_play">Пусни</string>
     <string name="cd_pause">Пауза</string>
-    <string name="cd_subtitles">Субтитри</string>
-    <string name="cd_audio_tracks">Аудио писти</string>
-    <string name="cd_sources">Източници</string>
     <string name="cd_switch_player_engine">Превключи двигател на плейъра</string>
-    <string name="cd_episodes">Епизоди</string>
     <string name="cd_playback_speed">Скорост на възпроизвеждане</string>
     <string name="cd_aspect_ratio">Съотношение на страните</string>
     <string name="cd_open_external_player">Отвори във външен плейър</string>
@@ -1546,7 +1498,6 @@
     <string name="cd_refresh">Обнови</string>
     <string name="cd_remove">Премахни</string>
     <string name="cd_preview">Преглед</string>
-    <string name="cd_unlink">Прекъсни връзката</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt лого</string>
     <string name="cd_trakt_qr">Trakt activation QR</string>

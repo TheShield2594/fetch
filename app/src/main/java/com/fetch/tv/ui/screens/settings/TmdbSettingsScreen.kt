@@ -4,7 +4,6 @@ package com.fetch.tv.ui.screens.settings
 
 import com.fetch.tv.ui.theme.FetchTheme
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,18 +30,6 @@ import com.fetch.tv.R
 import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.data.local.AVAILABLE_TMDB_LANGUAGES
 import com.fetch.tv.data.local.displayName
-
-@Composable
-fun TmdbSettingsScreen(
-    viewModel: TmdbSettingsViewModel = hiltViewModel(),
-    onBackPress: () -> Unit
-) {
-    BackHandler { onBackPress() }
-
-    SettingsStandaloneScaffold {
-        TmdbSettingsContent(viewModel = viewModel)
-    }
-}
 
 @Composable
 fun TmdbSettingsContent(

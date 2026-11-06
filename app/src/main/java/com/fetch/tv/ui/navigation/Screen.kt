@@ -147,21 +147,12 @@ sealed class Screen(val route: String) {
     data object WatchParty : Screen("watch_party?code={code}") {
         fun createRoute(code: String = ""): String = "watch_party?code=$code"
     }
-    data object TmdbSettings : Screen("tmdb_settings")
-    data object ThemeSettings : Screen("theme_settings")
-    data object PlaybackSettings : Screen("playback_settings")
-    data object About : Screen("about")
     data object LicensesAttributions : Screen("licenses_attributions")
     data object AddonManager : Screen("addon_manager")
     data object CatalogOrder : Screen("catalog_order")
     data object ExperienceModeSelection : Screen("experience_mode_selection")
-    data object LayoutSettings : Screen("layout_settings")
-    data object Account : Screen("account")
     data object ManageProfiles : Screen("manage_profiles")
-    data object AuthSignIn : Screen("auth_sign_in")
     data object AuthQrSignIn : Screen("auth_qr_sign_in")
-    data object SyncCodeGenerate : Screen("sync_code_generate")
-    data object SyncCodeClaim : Screen("sync_code_claim")
     data object CatalogSeeAll : Screen("catalog_see_all/{catalogId}/{addonId}/{type}?fromSearch={fromSearch}") {
         private fun encode(value: String): String =
             URLEncoder.encode(value, "UTF-8").replace("+", "%20")
@@ -193,8 +184,6 @@ sealed class Screen(val route: String) {
             return "folder_detail/${encode(collectionId)}/${encode(folderId)}"
         }
     }
-
-    data object ProfileSelection : Screen("profile_selection")
 
     data object CastDetail : Screen("cast_detail/{personId}/{personName}?preferCrew={preferCrew}") {
         private fun encode(value: String): String =

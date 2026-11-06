@@ -165,9 +165,6 @@ object FetchTheme {
     val strokes: FetchStrokeTokens
         get() = FetchStrokes.tokens
 
-    val elevations: FetchElevationTokens
-        get() = FetchElevations.tokens
-
     val effects: FetchEffectTokens
         get() = FetchEffects.tokens
 

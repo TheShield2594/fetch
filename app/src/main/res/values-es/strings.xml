@@ -442,7 +442,6 @@
     <string name="settings_content_discovery">Contenido &amp; descubrimiento</string>
     <string name="settings_content_discovery_subtitle">Complementos, catálogos y fuentes de descubrimiento</string>
     <string name="settings_content_discovery_addons_subtitle">Administra complementos, orden de catálogos y colecciones</string>
-    <string name="settings_integration">Integraciones</string>
     <string name="settings_playback">Reproducción</string>
     <string name="settings_tracking_title">Seguimiento</string>
     <string name="settings_tracking_description">Conecta proveedores de seguimiento y elige cuál impulsa tu Biblioteca y Continuar viendo.</string>
@@ -578,11 +577,6 @@
     <string name="account_stat_library">biblioteca</string>
     <string name="account_stat_progress">progreso</string>
     <string name="account_stat_watched">visto</string>
-    <string name="settings_integrations_section">Integraciones</string>
-    <string name="settings_integrations_section_subtitle">Gestionar integraciones disponibles</string>
-    <string name="settings_tmdb_subtitle">Controles de enriquecimiento de metadatos</string>
-    <string name="settings_mdblist_subtitle">Proveedores de calificaciones externas</string>
-    <string name="settings_animeskip_subtitle">Marcas de tiempo de salto de intro/outro de anime</string>
 
     <string name="playback_title">Configuración de reproducción</string>
     <string name="playback_subtitle">Configura opciones de reproducción de vídeo y subtítulos</string>
@@ -1292,7 +1286,6 @@
     <string name="catalog_order_disable">Deshabilitar</string>
 
 
-    <string name="stream_retry">Reintentar</string>
     <string name="stream_no_streams">No se encontraron transmisiones</string>
     <string name="stream_no_streams_hint">Intenta instalar más complementos para encontrar transmisiones</string>
     <string name="stream_finding_source">Buscando fuente de transmisión</string>
@@ -1622,18 +1615,7 @@
     <string name="account_sign_out">Cerrar sesión</string>
     <string name="account_sign_out_confirm_title">¿Cerrar sesión?</string>
     <string name="account_sign_out_confirm_subtitle">Necesitarás iniciar sesión de nuevo para sincronizar biblioteca, progreso de visualización y complementos en este dispositivo.</string>
-    <string name="account_error_signin_required">Inicia sesión con una cuenta primero.</string>
-    <string name="account_signin_create_title">Iniciar sesión / Crear cuenta</string>
-    <string name="account_signin_create_desc">Usa correo electrónico y contraseña para crear tu cuenta o iniciar sesión en ella.</string>
-    <string name="account_generate_sync_desc">Crea un código en este dispositivo para que otros dispositivos puedan vincularse a él.</string>
-    <string name="account_enter_sync_desc">Vincula este dispositivo a otro dispositivo usando un código de sincronización.</string>
-    <string name="account_signed_in_as">Conectado como</string>
-    <string name="account_generate_sync_signed_in_desc">Crea un código para que otros dispositivos se sincronicen con esta cuenta.</string>
-    <string name="account_unknown_device">Dispositivo desconocido</string>
 
-    <string name="auth_signin_title">Iniciar sesión</string>
-    <string name="auth_signin_tv_disabled">La entrada de correo electrónico/contraseña en TV está deshabilitada. Continúa con el inicio de sesión QR.</string>
-    <string name="auth_signin_qr_btn">Continuar con QR</string>
     <string name="auth_email_hint">Inicia sesión directamente con la cuenta de tu servidor autoalojado.</string>
     <string name="auth_email_instruction">Introduce tu correo electrónico y contraseña para continuar.</string>
     <string name="auth_email_placeholder">Correo electrónico</string>
@@ -1692,25 +1674,7 @@
     <string name="auth_qr_terms_prefix">Al registrarme / iniciar sesión, acepto los</string>
     <string name="auth_qr_terms_link">Términos</string>
 
-    <string name="sync_generate_title">Generar código de sincronización</string>
-    <string name="sync_generate_subtitle">Crea un PIN para proteger tu código de sincronización. Comparte el código con tus otros dispositivos.</string>
-    <string name="sync_generate_code_label">Tu código de sincronización</string>
-    <string name="sync_generate_instruction">Introduce este código y tu PIN en tu otro dispositivo para vincularlos.</string>
-    <string name="sync_generate_done">Hecho</string>
-    <string name="sync_generate_pin_label">Elige un PIN (4-8 caracteres)</string>
-    <string name="sync_generate_pin_placeholder">Introduce PIN</string>
-    <string name="sync_generate_generating">Generando\u2026</string>
-    <string name="sync_generate_code_btn">Generar código</string>
 
-    <string name="sync_claim_title">Vincular dispositivo</string>
-    <string name="sync_claim_subtitle">Introduce el código de sincronización y PIN de tu otro dispositivo para vincular este dispositivo.</string>
-    <string name="sync_claim_success">¡Dispositivo vinculado con éxito! Tus complementos ahora se sincronizarán.</string>
-    <string name="sync_claim_done">Hecho</string>
-    <string name="sync_claim_code_label">Código de sincronización</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">Introduce PIN</string>
-    <string name="sync_claim_linking">Vinculando\u2026</string>
 
 
     <string name="profile_selection_title">¿Quién está viendo?</string>
@@ -1748,13 +1712,6 @@
     <string name="update_latest_version">Estás usando la última versión.</string>
     <string name="update_unknown_sources">Permite instalaciones de fuentes desconocidas para continuar.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Cuenta</string>
-    <string name="account_sign_in_description">Inicia sesión para sincronizar tu biblioteca, progreso de visualización y complementos en dispositivos. La sincronización de biblioteca y progreso de visualización solo ocurre cuando Trakt no está conectado.</string>
-    <string name="account_sync_code_title">Código de sincronización</string>
-    <string name="account_sync_code_description">Sincroniza entre dispositivos sin crear una cuenta.</string>
-    <string name="account_linked_devices">Dispositivos vinculados (%1$d)</string>
-    <string name="account_no_linked_devices">Sin dispositivos vinculados</string>
-    <string name="account_unlink">Desvincular</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Cargando calificaciones de episodios...</string>
@@ -1849,7 +1806,6 @@
 
     <!-- General errors -->
     <string name="error_unknown">Error desconocido</string>
-    <string name="addon_error_not_found">Complemento no encontrado</string>
 
     <!-- Account errors -->
 
@@ -1868,11 +1824,7 @@
 
     <string name="cd_play">Reproducir</string>
     <string name="cd_pause">Pausar</string>
-    <string name="cd_subtitles">Subtítulos</string>
-    <string name="cd_audio_tracks">Pistas de audio</string>
-    <string name="cd_sources">Fuentes</string>
     <string name="cd_switch_player_engine">Cambiar motor de reproductor</string>
-    <string name="cd_episodes">Episodios</string>
     <string name="cd_playback_speed">Velocidad de reproducción</string>
     <string name="cd_aspect_ratio">Relación de aspecto</string>
     <string name="cd_open_external_player">Abrir en reproductor externo</string>
@@ -1897,7 +1849,6 @@
     <string name="cd_refresh">Actualizar</string>
     <string name="cd_remove">Eliminar</string>
     <string name="cd_preview">Vista previa</string>
-    <string name="cd_unlink">Desvincular</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logotipo de Trakt</string>
     <string name="cd_trakt_qr">Código QR de activación de Trakt</string>

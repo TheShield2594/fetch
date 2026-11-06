@@ -365,7 +365,6 @@
     <string name="settings_tracking_title">டிராக்கிங்</string>
     <string name="settings_profiles">புரொஃபைல்கள்</string>
     <string name="settings_layout">அமைப்பு வடிவம்</string>
-    <string name="settings_integration">ஒருங்கிணைப்புகள்</string>
     <string name="settings_playback">இயக்கம்</string>
     <string name="settings_advanced">மேம்பட்டது</string>
     <string name="settings_advanced_subtitle">செயல்திறன், வழிசெலுத்தல், கேச் மற்றும் ஆய்வு</string>
@@ -464,11 +463,6 @@
     <string name="account_stat_library">நூலகம்</string>
     <string name="account_stat_progress">முன்னேற்றம்</string>
     <string name="account_stat_watched">பார்த்தவை</string>
-    <string name="settings_integrations_section">ஒருங்கிணைப்புகள்</string>
-    <string name="settings_integrations_section_subtitle">கிடைக்கும் ஒருங்கிணைப்புகளை நிர்வகி</string>
-    <string name="settings_tmdb_subtitle">மெட்டாடேட்டா மேம்பாட்டு கட்டுப்பாடுகள்</string>
-    <string name="settings_mdblist_subtitle">வெளிப்புற மதிப்பீட்டு வழங்குநர்கள்</string>
-    <string name="settings_animeskip_subtitle">அனிமே தொடக்கம்/முடிவு தவிர்ப்பு நேரங்கள்</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">இயக்க அமைப்புகள்</string>
@@ -979,7 +973,6 @@
 
 
     <!-- StreamScreen -->
-    <string name="stream_retry">மீண்டும் முயற்சி</string>
     <string name="stream_no_streams">ஸ்ட்ரீம்கள் எதுவும் கிடைக்கவில்லை</string>
     <string name="stream_no_streams_hint">ஸ்ட்ரீம்களை கண்டுபிடிக்க மேலும் ஆடான்களை நிறுவ முயற்சிக்கவும்</string>
     <string name="stream_finding_source">ஸ்ட்ரீம் மூலத்தை கண்டுபிடிக்கிறது</string>
@@ -1241,9 +1234,6 @@
     <string name="account_sign_out">வெளியேறு</string>
 
     <!-- AuthSignInScreen -->
-    <string name="auth_signin_title">உள்நுழை</string>
-    <string name="auth_signin_tv_disabled">தொலைக்காட்சியில் மின்னஞ்சல்/கடவுச்சொல் உள்ளீடு முடக்கப்பட்டுள்ளது. க்யூஆர் உள்நுழைவை தொடரவும்.</string>
-    <string name="auth_signin_qr_btn">க்யூஆர் மூலம் தொடர்க</string>
 
     <!-- AuthQrSignInScreen -->
     <string name="auth_qr_finishing">உள்நுழைவு முடிக்கப்படுகிறது\u2026</string>
@@ -1260,23 +1250,8 @@
     <string name="auth_qr_back">பின்செல்</string>
 
     <!-- SyncCodeGenerateScreen -->
-    <string name="sync_generate_title">ஒத்திசைவு குறியீடு உருவாக்கு</string>
-    <string name="sync_generate_subtitle">உங்கள் ஒத்திசைவு குறியீட்டை பாதுகாக்க ஒரு பின் உருவாக்கவும். இந்த குறியீட்டை உங்கள் பிற சாதனங்களுடன் பகிரவும்.</string>
-    <string name="sync_generate_code_label">உங்கள் ஒத்திசைவு குறியீடு</string>
-    <string name="sync_generate_instruction">சாதனங்களை இணைக்க, இந்த குறியீடும் உங்கள் பின்னும் மற்ற சாதனத்தில் உள்ளிடவும்.</string>
-    <string name="sync_generate_done">முடிந்தது</string>
-    <string name="sync_generate_pin_label">ஒரு பின் தேர்ந்தெடுக்கவும் (4-8 எழுத்துகள்)</string>
-    <string name="sync_generate_pin_placeholder">பின் உள்ளிடவும்</string>
 
     <!-- SyncCodeClaimScreen -->
-    <string name="sync_claim_title">சாதனம் இணை</string>
-    <string name="sync_claim_subtitle">இந்த சாதனத்தை இணைக்க, உங்கள் மற்ற சாதனத்திலிருந்து ஒத்திசைவு குறியீடும் பின்னும் உள்ளிடவும்.</string>
-    <string name="sync_claim_success">சாதனம் வெற்றிகரமாக இணைக்கப்பட்டது! உங்கள் அடான்கள் இப்போது ஒத்திசையும்.</string>
-    <string name="sync_claim_done">முடிந்தது</string>
-    <string name="sync_claim_code_label">ஒத்திசைவு குறியீடு</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">பின்</string>
-    <string name="sync_claim_pin_placeholder">பின் உள்ளிடவும்</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">யார் பார்க்கிறார்கள்?</string>
@@ -1312,13 +1287,6 @@
     <string name="update_downloading_ellipsis">பதிவிறக்கப்படுகிறது…</string>
     <string name="update_unknown_sources">தொடர தெரியாத மூலங்களிலிருந்து நிறுவலை அனுமதிக்கவும்.</string>
     <!-- AccountScreen -->
-    <string name="account_title">கணக்கு</string>
-    <string name="account_sign_in_description">சாதனங்கள் முழுவதும் உங்கள் நூலகம், பார்வை முன்னேற்றம் மற்றும் அடான்களை ஒத்திசைக்க உள்நுழைக. டிராக்ட் இணைக்கப்படாதபோது நூலக ஒத்திசைவு நூவியோ ஒத்திசைவை பயன்படுத்தும், மேலும் பார்வை முன்னேற்றம் டிராக்ட் அல்லது நூவியோ ஒத்திசைவு இரண்டிலும் இயங்கலாம்.</string>
-    <string name="account_sync_code_title">ஒத்திசைவு குறியீடு</string>
-    <string name="account_sync_code_description">கணக்கு உருவாக்காமல் சாதனங்களுக்கு இடையில் ஒத்திசைக்கவும்.</string>
-    <string name="account_linked_devices">இணைக்கப்பட்ட சாதனங்கள் (%1$d)</string>
-    <string name="account_no_linked_devices">இணைக்கப்பட்ட சாதனங்கள் இல்லை</string>
-    <string name="account_unlink">இணைப்பு நீக்கு</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">எபிசோட் மதிப்பீடுகள் ஏற்றப்படுகின்றன...</string>
@@ -1370,18 +1338,8 @@
     <string name="profile_pin_current_required">இந்த சுயவிவரத்தில் ஏற்கனவே பின் உள்ளது. மாற்ற தற்போதைய பின்னை உள்ளிடவும்.</string>
 
     <!-- Account Screen -->
-    <string name="account_signin_create_title">உள்நுழை / கணக்கு உருவாக்கு</string>
-    <string name="account_signin_create_desc">உங்கள் கணக்கை உருவாக்க அல்லது உள்நுழைய மின்னஞ்சல் மற்றும் கடவுச்சொல்லைப் பயன்படுத்தவும்.</string>
-    <string name="account_generate_sync_desc">மற்ற சாதனங்கள் இதனுடன் இணைக்க இந்த சாதனத்தில் ஒரு குறியீடு உருவாக்கவும்.</string>
-    <string name="account_enter_sync_desc">ஒத்திசைவு குறியீட்டை பயன்படுத்தி இந்த சாதனத்தை மற்றொரு சாதனத்துடன் இணைக்கவும்.</string>
-    <string name="account_signed_in_as">உள்நுழைந்தவர்</string>
-    <string name="account_generate_sync_signed_in_desc">மற்ற சாதனங்கள் இந்த கணக்குடன் ஒத்திசைக்க ஒரு குறியீடு உருவாக்கவும்.</string>
-    <string name="account_unknown_device">அறியாத சாதனம்</string>
 
     <!-- Sync screens -->
-    <string name="sync_claim_linking">இணைக்கப்படுகிறது\u2026</string>
-    <string name="sync_generate_generating">உருவாக்கப்படுகிறது\u2026</string>
-    <string name="sync_generate_code_btn">குறியீடு உருவாக்கு</string>
 
     <!-- Search -->
     <string name="search_no_results_subtitle">வேறு முக்கிய சொற்களுடன் தேட முயற்சிக்கவும்</string>
@@ -1424,10 +1382,8 @@
 
         <!-- General errors -->
     <string name="error_unknown">அறியப்படாத பிழை</string>
-    <string name="addon_error_not_found">ஆட்ஒன் கிடைக்கவில்லை</string>
 
     <!-- Account errors -->
-    <string name="account_error_signin_required">முதலில் கணக்கில் உள்நுழையவும்.</string>
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">நிறுவப்பட்ட ஆட்ஒன்களில் தேடக்கூடிய கேட்டலாக்குகள் எதுவும் இல்லை</string>
@@ -1456,11 +1412,7 @@
     <!-- Content descriptions -->
     <string name="cd_play">இயக்கு</string>
     <string name="cd_pause">இடைநிறுத்து</string>
-    <string name="cd_subtitles">உபதலைப்புகள்</string>
-    <string name="cd_audio_tracks">ஒலி தடங்கள்</string>
-    <string name="cd_sources">ஆதாரங்கள்</string>
     <string name="cd_switch_player_engine">பிளேயர் என்ஜினை மாற்று</string>
-    <string name="cd_episodes">எபிசோடுகள்</string>
     <string name="cd_playback_speed">இயக்க வேகம்</string>
     <string name="cd_aspect_ratio">காட்சி விகிதம்</string>
     <string name="cd_open_external_player">வெளிப்புற பிளேயரில் திற</string>
@@ -1485,7 +1437,6 @@
     <string name="cd_refresh">புதுப்பிப்பு</string>
     <string name="cd_remove">அகற்று</string>
     <string name="cd_preview">முன்னோட்டம்</string>
-    <string name="cd_unlink">இணைப்பை நீக்கு</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">ட்ராக்ட் லோகோ</string>
     <string name="cd_trakt_qr">ட்ராக்ட் செயல்படுத்தும் க்யூஆர்</string>

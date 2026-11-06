@@ -6,7 +6,6 @@ import com.fetch.tv.ui.theme.FetchTheme
 
 import android.content.Intent
 import android.net.Uri
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
@@ -44,20 +43,6 @@ import com.fetch.tv.BuildConfig
 import com.fetch.tv.R
 import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.ui.components.MemberBrandWordmark
-
-@Composable
-fun AboutScreen(
-    onNavigateToLicensesAttributions: () -> Unit = {},
-    onBackPress: () -> Unit = {}
-) {
-    BackHandler { onBackPress() }
-
-    SettingsStandaloneScaffold {
-        AboutSettingsContent(
-            onNavigateToLicensesAttributions = onNavigateToLicensesAttributions
-        )
-    }
-}
 
 @Composable
 fun AboutSettingsContent(

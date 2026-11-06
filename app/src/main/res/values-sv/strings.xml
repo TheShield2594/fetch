@@ -193,7 +193,6 @@
     <string name="settings_tracking_title">Spårning</string>
     <string name="settings_profiles">Profiler</string>
     <string name="settings_layout">Layout</string>
-    <string name="settings_integration">Integrationer</string>
     <string name="settings_playback">Uppspelning</string>
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Konto och synkroniseringsstatus</string>
@@ -201,11 +200,6 @@
     <string name="account_stat_library">bibliotek</string>
     <string name="account_stat_progress">pågående</string>
     <string name="account_stat_watched">sedd</string>
-    <string name="settings_integrations_section">Integrationer</string>
-    <string name="settings_integrations_section_subtitle">Hantera tillgängliga integrationer</string>
-    <string name="settings_tmdb_subtitle">Metadataberikning</string>
-    <string name="settings_mdblist_subtitle">Externa betygsläggare</string>
-    <string name="settings_animeskip_subtitle">Tidsstämplar för att hoppa över anime-intro/outro</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Uppspelningsinställningar</string>
@@ -570,7 +564,6 @@
 
 
     <!-- StreamScreen -->
-    <string name="stream_retry">Försök igen</string>
     <string name="stream_no_streams">Inga strömmar hittades</string>
     <string name="stream_no_streams_hint">Försök installera fler tillägg för att hitta strömmar</string>
     <string name="stream_finding_source">Söker strömkälla</string>
@@ -757,9 +750,6 @@
     <string name="account_sign_out">Logga ut</string>
 
     <!-- AuthSignInScreen -->
-    <string name="auth_signin_title">Logga in</string>
-    <string name="auth_signin_tv_disabled">E-post-/lösenordsinmatning på TV är inaktiverad. Fortsätt med QR-inloggning.</string>
-    <string name="auth_signin_qr_btn">Fortsätt med QR</string>
 
     <!-- AuthQrSignInScreen -->
     <string name="auth_qr_finishing">Slutför inloggning\u2026</string>
@@ -776,23 +766,8 @@
     <string name="auth_qr_back">Tillbaka</string>
 
     <!-- SyncCodeGenerateScreen -->
-    <string name="sync_generate_title">Generera synkkod</string>
-    <string name="sync_generate_subtitle">Skapa en PIN-kod för att skydda din synkkod. Dela koden med dina andra enheter.</string>
-    <string name="sync_generate_code_label">Din synkkod</string>
-    <string name="sync_generate_instruction">Ange denna kod och din PIN-kod på din andra enhet för att länka dem.</string>
-    <string name="sync_generate_done">Klar</string>
-    <string name="sync_generate_pin_label">Välj en PIN-kod (4–8 tecken)</string>
-    <string name="sync_generate_pin_placeholder">Ange PIN-kod</string>
 
     <!-- SyncCodeClaimScreen -->
-    <string name="sync_claim_title">Länka enhet</string>
-    <string name="sync_claim_subtitle">Ange synkkoden och PIN-koden från din andra enhet för att länka denna enhet.</string>
-    <string name="sync_claim_success">Enheten länkad! Dina tillägg synkroniseras nu.</string>
-    <string name="sync_claim_done">Klar</string>
-    <string name="sync_claim_code_label">Synkkod</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN-kod</string>
-    <string name="sync_claim_pin_placeholder">Ange PIN-kod</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Vem tittar?</string>
@@ -825,13 +800,6 @@
     <string name="update_downloading_ellipsis">Laddar ner…</string>
     <string name="update_unknown_sources">Tillåt installation från okända källor för att fortsätta.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Konto</string>
-    <string name="account_sign_in_description">Logga in för att synkronisera ditt bibliotek, tittarframsteg och tillägg mellan enheter. Bibliotekssynk använder Fetch Sync när Trakt inte är anslutet, och tittarframsteg kan använda antingen Trakt eller Fetch Sync.</string>
-    <string name="account_sync_code_title">Synkkod</string>
-    <string name="account_sync_code_description">Synkronisera mellan enheter utan att skapa ett konto.</string>
-    <string name="account_linked_devices">Länkade enheter (%1$d)</string>
-    <string name="account_no_linked_devices">Inga länkade enheter</string>
-    <string name="account_unlink">Avlänka</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Laddar avsnittsbetyg...</string>
@@ -1179,18 +1147,8 @@
     <string name="library_empty_trakt_not_auth_subtitle">Anslut ditt Trakt-konto i Inställningar för att se ditt Trakt-bibliotek</string>
 
     <!-- AccountScreen -->
-    <string name="account_signin_create_title">Logga in / Skapa konto</string>
-    <string name="account_signin_create_desc">Använd e-post och lösenord för att skapa eller logga in på ditt konto.</string>
-    <string name="account_generate_sync_desc">Skapa en kod på denna enhet så att andra enheter kan länka till den.</string>
-    <string name="account_enter_sync_desc">Länka denna enhet till en annan enhet med en synkkod.</string>
-    <string name="account_signed_in_as">Inloggad som</string>
-    <string name="account_generate_sync_signed_in_desc">Skapa en kod så att andra enheter kan synkronisera med detta konto.</string>
-    <string name="account_unknown_device">Okänd enhet</string>
 
     <!-- Sync screens -->
-    <string name="sync_claim_linking">Länkar…</string>
-    <string name="sync_generate_generating">Genererar…</string>
-    <string name="sync_generate_code_btn">Generera kod</string>
 
     <!-- Search -->
     <string name="search_no_results_subtitle">Försök söka med andra nyckelord</string>
@@ -1213,7 +1171,6 @@
     <string name="trakt_error_denied">Auktorisering nekad på Trakt.</string>
 
     <!-- Account errors -->
-    <string name="account_error_signin_required">Logga in med ett konto först.</string>
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Inga sökbara kataloger hittades i installerade tillägg</string>
@@ -1248,11 +1205,7 @@
     <!-- Content descriptions -->
     <string name="cd_play">Spela</string>
     <string name="cd_pause">Paus</string>
-    <string name="cd_subtitles">Undertexter</string>
-    <string name="cd_audio_tracks">Ljudspår</string>
-    <string name="cd_sources">Källor</string>
     <string name="cd_switch_player_engine">Byt spelarmotor</string>
-    <string name="cd_episodes">Avsnitt</string>
     <string name="cd_playback_speed">Uppspelningshastighet</string>
     <string name="cd_aspect_ratio">Bildförhållande</string>
     <string name="cd_open_external_player">Öppna i extern spelare</string>
@@ -1277,7 +1230,6 @@
     <string name="cd_refresh">Uppdatera</string>
     <string name="cd_remove">Ta bort</string>
     <string name="cd_preview">Förhandsvisning</string>
-    <string name="cd_unlink">Avlänka</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt-logotyp</string>
     <string name="cd_trakt_qr">Trakt-aktiverings-QR</string>

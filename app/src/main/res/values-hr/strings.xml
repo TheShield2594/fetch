@@ -442,7 +442,6 @@
     <string name="settings_content_discovery">Sadržaj i otkrivanje</string>
     <string name="settings_content_discovery_subtitle">Dodaci, katalozi i izvori za otkrivanje</string>
     <string name="settings_content_discovery_addons_subtitle">Upravljaj dodacima, redoslijedom kataloga i kolekcijama</string>
-    <string name="settings_integration">Integracije</string>
     <string name="settings_playback">Reprodukcija</string>
     <string name="settings_tracking_title">Praćenje</string>
     <string name="settings_tracking_description">Poveži usluge praćenja i odaberi koja pokreće tvoju biblioteku i Nastavi gledati.</string>
@@ -580,11 +579,6 @@
     <string name="account_stat_library">biblioteka</string>
     <string name="account_stat_progress">napredak</string>
     <string name="account_stat_watched">pogledano</string>
-    <string name="settings_integrations_section">Integracije</string>
-    <string name="settings_integrations_section_subtitle">Upravljaj dostupnim integracijama</string>
-    <string name="settings_tmdb_subtitle">Kontrole obogaćivanja metapodataka</string>
-    <string name="settings_mdblist_subtitle">Vanjski pružatelji ocjena</string>
-    <string name="settings_animeskip_subtitle">Vremenske oznake za preskakanje uvoda/odjave animea</string>
 
     <string name="playback_title">Postavke reprodukcije</string>
     <string name="playback_subtitle">Konfiguriraj opcije reprodukcije videa i titlova</string>
@@ -1325,7 +1319,6 @@
     <string name="catalog_order_disable">Onemogući</string>
 
 
-    <string name="stream_retry">Pokušaj ponovno</string>
     <string name="stream_no_streams">Nisu pronađeni streamovi</string>
     <string name="stream_no_streams_hint">Pokušaj instalirati više dodataka za pronalazak streamova</string>
     <string name="stream_finding_source">Traženje izvora streama</string>
@@ -1659,18 +1652,7 @@
     <string name="account_sign_out">Odjava</string>
     <string name="account_sign_out_confirm_title">Odjaviti se?</string>
     <string name="account_sign_out_confirm_subtitle">Morat ćeš se ponovno prijaviti za sinkronizaciju biblioteke, napretka gledanja i dodataka na ovom uređaju.</string>
-    <string name="account_error_signin_required">Najprije se prijavi računom.</string>
-    <string name="account_signin_create_title">Prijava / stvaranje računa</string>
-    <string name="account_signin_create_desc">Koristi e-mail i lozinku za stvaranje računa ili prijavu.</string>
-    <string name="account_generate_sync_desc">Stvori kôd na ovom uređaju kako bi se drugi uređaji mogli povezati s njim.</string>
-    <string name="account_enter_sync_desc">Poveži ovaj uređaj s drugim uređajem pomoću koda za sinkronizaciju.</string>
-    <string name="account_signed_in_as">Prijava kao</string>
-    <string name="account_generate_sync_signed_in_desc">Stvori kôd kako bi se drugi uređaji mogli sinkronizirati s ovim računom.</string>
-    <string name="account_unknown_device">Nepoznati uređaj</string>
 
-    <string name="auth_signin_title">Prijava</string>
-    <string name="auth_signin_tv_disabled">Unos e-maila/lozinke na TV-u je onemogućen. Nastavi s QR prijavom.</string>
-    <string name="auth_signin_qr_btn">Nastavi s QR-om</string>
     <string name="auth_email_hint">Prijavi se izravno računom na svom vlastitom poslužitelju.</string>
     <string name="auth_email_instruction">Unesi e-mail i lozinku za nastavak.</string>
     <string name="auth_email_placeholder">E-mail adresa</string>
@@ -1729,25 +1711,7 @@
     <string name="auth_qr_terms_prefix">Registracijom / prijavom prihvaćam</string>
     <string name="auth_qr_terms_link">Uvjete</string>
 
-    <string name="sync_generate_title">Generiraj kôd za sinkronizaciju</string>
-    <string name="sync_generate_subtitle">Stvori PIN za zaštitu koda za sinkronizaciju. Podijeli kôd sa svojim drugim uređajima.</string>
-    <string name="sync_generate_code_label">Tvoj kôd za sinkronizaciju</string>
-    <string name="sync_generate_instruction">Za povezivanje unesi ovaj kôd i svoj PIN na drugom uređaju.</string>
-    <string name="sync_generate_done">Gotovo</string>
-    <string name="sync_generate_pin_label">Odaberi PIN (4-8 znakova)</string>
-    <string name="sync_generate_pin_placeholder">Unesi PIN</string>
-    <string name="sync_generate_generating">Generiranje\u2026</string>
-    <string name="sync_generate_code_btn">Generiraj kôd</string>
 
-    <string name="sync_claim_title">Poveži uređaj</string>
-    <string name="sync_claim_subtitle">Za povezivanje ovog uređaja unesi kôd za sinkronizaciju i PIN s drugog uređaja.</string>
-    <string name="sync_claim_success">Uređaj je uspješno povezan! Tvoji dodaci sada će se sinkronizirati.</string>
-    <string name="sync_claim_done">Gotovo</string>
-    <string name="sync_claim_code_label">Kôd za sinkronizaciju</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">Unesi PIN</string>
-    <string name="sync_claim_linking">Povezivanje\u2026</string>
 
 
     <string name="profile_selection_title">Tko gleda?</string>
@@ -1785,13 +1749,6 @@
     <string name="update_latest_version">Koristiš najnoviju verziju.</string>
     <string name="update_unknown_sources">Dopusti instalacije iz nepoznatih izvora za nastavak.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Račun</string>
-    <string name="account_sign_in_description">Prijavi se za sinkronizaciju biblioteke, napretka gledanja i dodataka na svim uređajima. Sinkronizacija biblioteke koristi Fetch Sync kada Trakt nije povezan, a napredak gledanja može koristiti Trakt ili Fetch Sync.</string>
-    <string name="account_sync_code_title">Kôd za sinkronizaciju</string>
-    <string name="account_sync_code_description">Sinkroniziraj uređaje bez stvaranja računa.</string>
-    <string name="account_linked_devices">Povezani uređaji (%1$d)</string>
-    <string name="account_no_linked_devices">Nema povezanih uređaja</string>
-    <string name="account_unlink">Odspoji</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Učitavanje ocjena epizoda...</string>
@@ -1879,7 +1836,6 @@
 
     <!-- Opće pogreške -->
     <string name="error_unknown">Nepoznata pogreška</string>
-    <string name="addon_error_not_found">Dodatak nije pronađen</string>
 
     <!-- Pogreške početnog zaslona -->
     <string name="home_error_no_catalog_addons">Nema instaliranih dodataka s katalozima</string>
@@ -1894,11 +1850,7 @@
 
     <string name="cd_play">Reproduciraj</string>
     <string name="cd_pause">Pauziraj</string>
-    <string name="cd_subtitles">Titlovi</string>
-    <string name="cd_audio_tracks">Audio zapisi</string>
-    <string name="cd_sources">Izvori</string>
     <string name="cd_switch_player_engine">Promijeni pogon playera</string>
-    <string name="cd_episodes">Epizode</string>
     <string name="cd_playback_speed">Brzina reprodukcije</string>
     <string name="cd_aspect_ratio">Omjer slike</string>
     <string name="cd_open_external_player">Otvori u vanjskom playeru</string>
@@ -1923,7 +1875,6 @@
     <string name="cd_refresh">Osvježi</string>
     <string name="cd_remove">Ukloni</string>
     <string name="cd_preview">Pretpregled</string>
-    <string name="cd_unlink">Odspoji</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt logo</string>
     <string name="cd_trakt_qr">QR za aktivaciju Trakta</string>

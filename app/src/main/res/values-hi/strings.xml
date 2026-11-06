@@ -191,7 +191,6 @@
     <string name="settings_tracking_title">ट्रैकिंग</string>
     <string name="settings_profiles">प्रोफाइल</string>
     <string name="settings_layout">लेआउट</string>
-    <string name="settings_integration">इंटीग्रेशन</string>
     <string name="settings_playback">प्लेबैक</string>
     <string name="settings_debug">डीबग</string>
     <string name="settings_account_section_subtitle">अकाउंट और सिंक स्थिति।</string>
@@ -199,11 +198,6 @@
     <string name="account_stat_library">लाइब्रेरी</string>
     <string name="account_stat_progress">प्रोग्रेस</string>
     <string name="account_stat_watched">देखा गया</string>
-    <string name="settings_integrations_section">इंटीग्रेशन</string>
-    <string name="settings_integrations_section_subtitle">उपलब्ध एकीकरण प्रबंधित करें</string>
-    <string name="settings_tmdb_subtitle">मेटाडेटा एनरिचमेंट कंट्रोल</string>
-    <string name="settings_mdblist_subtitle">बाहरी रेटिंग प्रोवाइडर्स</string>
-    <string name="settings_animeskip_subtitle">एनीमे इंट्रो/आउट्रो स्किप टाइमस्टैम्प</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">प्लेबैक सेटिंग्स</string>
@@ -564,7 +558,6 @@
 
 
     <!-- StreamScreen -->
-    <string name="stream_retry">फिर से कोशिश करें</string>
     <string name="stream_no_streams">कोई स्ट्रीम नहीं मिली</string>
     <string name="stream_no_streams_hint">स्ट्रीम खोजने के लिए और ऐडऑन इंस्टॉल करने की कोशिश करें</string>
     <string name="stream_finding_source">स्ट्रीम सोर्स खोजा जा रहा है</string>
@@ -716,9 +709,6 @@
     <string name="account_sign_out">साइन आउट</string>
 
     <!-- AuthSignInScreen -->
-    <string name="auth_signin_title">साइन इन</string>
-    <string name="auth_signin_tv_disabled">टीवी पर ईमेल/पासवर्ड एंट्री बंद है। QR साइन इन जारी रखें।</string>
-    <string name="auth_signin_qr_btn">QR से जारी रखें</string>
 
     <!-- AuthQrSignInScreen -->
     <string name="auth_qr_finishing">साइन इन पूरा किया जा रहा है\u2026</string>
@@ -735,23 +725,8 @@
     <string name="auth_qr_back">वापस</string>
 
     <!-- SyncCodeGenerateScreen -->
-    <string name="sync_generate_title">सिंक कोड बनाएँ</string>
-    <string name="sync_generate_subtitle">अपने सिंक कोड की सुरक्षा के लिए एक PIN बनाएँ। यह कोड अपने अन्य डिवाइसों के साथ साझा करें।</string>
-    <string name="sync_generate_code_label">आपका सिंक कोड</string>
-    <string name="sync_generate_instruction">डिवाइस लिंक करने के लिए अपने दूसरे डिवाइस पर यह कोड और PIN दर्ज करें।</string>
-    <string name="sync_generate_done">पूरा</string>
-    <string name="sync_generate_pin_label">PIN चुनें (4-8 अक्षर)</string>
-    <string name="sync_generate_pin_placeholder">PIN दर्ज करें</string>
 
     <!-- SyncCodeClaimScreen -->
-    <string name="sync_claim_title">डिवाइस लिंक करें</string>
-    <string name="sync_claim_subtitle">इस डिवाइस को लिंक करने के लिए दूसरे डिवाइस का सिंक कोड और PIN दर्ज करें।</string>
-    <string name="sync_claim_success">डिवाइस सफलतापूर्वक लिंक हो गया! आपके ऐडऑन अब सिंक होंगे।</string>
-    <string name="sync_claim_done">पूरा</string>
-    <string name="sync_claim_code_label">सिंक कोड</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">PIN दर्ज करें</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">कौन देख रहा है?</string>
@@ -784,13 +759,6 @@
     <string name="update_downloading_ellipsis">डाउनलोड हो रहा है…</string>
     <string name="update_unknown_sources">जारी रखने के लिए अज्ञात स्रोत से इंस्टॉल की अनुमति दें।</string>
     <!-- AccountScreen -->
-    <string name="account_title">अकाउंट</string>
-    <string name="account_sign_in_description">डिवाइसों के बीच अपनी लाइब्रेरी, वॉच प्रोग्रेस और ऐडऑन सिंक करने के लिए साइन इन करें। लाइब्रेरी और वॉच प्रोग्रेस केवल तब सिंक होते हैं जब Trakt कनेक्ट नहीं होता।</string>
-    <string name="account_sync_code_title">सिंक कोड</string>
-    <string name="account_sync_code_description">अकाउंट बनाए बिना डिवाइसों के बीच सिंक करें।</string>
-    <string name="account_linked_devices">लिंक किए गए डिवाइस (%1$d)</string>
-    <string name="account_no_linked_devices">कोई लिंक्ड डिवाइस नहीं</string>
-    <string name="account_unlink">अनलिंक</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">एपिसोड रेटिंग लोड हो रही हैं...</string>

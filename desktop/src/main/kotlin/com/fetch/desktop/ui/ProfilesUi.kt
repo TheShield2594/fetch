@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,7 +40,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -67,7 +65,6 @@ import com.fetch.desktop.SyncAccountState
 import com.fetch.desktop.sync.copyProfileSetupKeepingLimits
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
-import com.fetch.tv.domain.model.PROFILE_AVATAR_COLORS
 
 fun parseHexColor(hex: String): Color =
     runCatching { Color(0xFF000000 or hex.removePrefix("#").toLong(16)) }.getOrDefault(Color(0xFF555555))
@@ -240,67 +237,6 @@ private fun PickerTile(
             overflow = TextOverflow.Ellipsis
         )
     }
-}
-
-/** Create or edit a profile: name, color, and whether it shares the main profile's addons. */
-@Composable
-fun ProfileEditorDialog(
-    initial: DesktopProfile?,
-    suggestedColor: String,
-    onDismiss: () -> Unit,
-    onSave: (name: String, colorHex: String, usesPrimaryAddons: Boolean) -> Unit
-) {
-    var name by remember { mutableStateOf(initial?.name.orEmpty()) }
-    var color by remember { mutableStateOf(initial?.colorHex ?: suggestedColor) }
-    var share by remember { mutableStateOf(initial?.usesPrimaryAddons ?: true) }
-    val focus = remember { FocusRequester() }
-    LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = FetchPalette.SurfaceRaised,
-        title = { Text(if (initial == null) tr("Create profile") else tr("Edit profile"), color = Color.White) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                BasicTextField(
-                    value = name,
-                    onValueChange = { name = it.take(30) },
-                    singleLine = true,
-                    textStyle = TextStyle(color = Color.White, fontSize = 17.sp),
-                    cursorBrush = SolidColor(FetchPalette.Accent),
-                    decorationBox = { field ->
-                        Box {
-                            if (name.isEmpty()) Text(tr("Profile name"), color = FetchPalette.TextMuted, fontSize = 17.sp)
-                            field()
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth().focusRequester(focus).clip(RoundedCornerShape(8.dp)).background(FetchPalette.Background)
-                        .border(1.dp, FetchPalette.Outline, RoundedCornerShape(8.dp)).padding(12.dp)
-                )
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    PROFILE_AVATAR_COLORS.forEach { hex ->
-                        val selected = hex.equals(color, ignoreCase = true)
-                        Box(
-                            Modifier.size(32.dp).clip(CircleShape).background(parseHexColor(hex))
-                                .border(if (selected) 3.dp else 0.dp, Color.White, CircleShape)
-                                .clickable { color = hex }
-                                .pointerHoverIcon(PointerIcon.Hand)
-                        )
-                    }
-                }
-                if (initial?.isPrimary != true) {
-                    SettingsToggle(
-                        "Use the main profile's addons",
-                        "Off gives this profile its own addon list.",
-                        share
-                    ) { share = it }
-                }
-            }
-        },
-        confirmButton = {
-            PrimaryButton(if (initial == null) "Create" else "Save", onClick = { onSave(name, color, share) }, icon = null, enabled = name.isNotBlank())
-        },
-        dismissButton = { SecondaryButton("Cancel", onClick = onDismiss) }
-    )
 }
 
 /** Settings › Profiles. The main profile manages everyone; other profiles only themselves. */

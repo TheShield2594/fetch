@@ -216,7 +216,6 @@
     <string name="settings_tracking_title">Sporing</string>
     <string name="settings_profiles">Profiler</string>
     <string name="settings_layout">Oppsett</string>
-    <string name="settings_integration">Integrasjoner</string>
     <string name="settings_playback">Avspilling</string>
     <string name="settings_advanced">Avansert</string>
     <string name="settings_advanced_subtitle">Kjør nettverkshastighetsdiagnostikk</string>
@@ -239,11 +238,6 @@
     <string name="account_stat_library">bibliotek</string>
     <string name="account_stat_progress">progresjon</string>
     <string name="account_stat_watched">sett</string>
-    <string name="settings_integrations_section">Integrasjoner</string>
-    <string name="settings_integrations_section_subtitle">Administrer tilgjengelige integrasjoner</string>
-    <string name="settings_tmdb_subtitle">Kontroller for metadataberikelse</string>
-    <string name="settings_mdblist_subtitle">Eksterne vurderingsleverandører</string>
-    <string name="settings_animeskip_subtitle">Tidsmerker for anime intro/outro</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Avspillingsinnstillinger</string>
@@ -645,7 +639,6 @@
 
 
     <!-- StreamScreen -->
-    <string name="stream_retry">Prøv igjen</string>
     <string name="stream_no_streams">Ingen strømmer funnet</string>
     <string name="stream_no_streams_hint">Prøv å installer flere tillegg for å finne strømmer</string>
     <string name="stream_finding_source">Finner strømkilde</string>
@@ -804,9 +797,6 @@
     <string name="account_sign_out">Logg ut</string>
 
     <!-- AuthSignInScreen -->
-    <string name="auth_signin_title">Logg inn</string>
-    <string name="auth_signin_tv_disabled">E-post/passordoppføring på TV er deaktivert. Fortsett med QR-innlogging.</string>
-    <string name="auth_signin_qr_btn">Fortsett med QR</string>
 
     <!-- AuthQrSignInScreen -->
     <string name="auth_qr_finishing">Avslutter pålogging\u2026</string>
@@ -823,23 +813,8 @@
     <string name="auth_qr_back">Tilbake</string>
 
     <!-- SyncCodeGenerateScreen -->
-    <string name="sync_generate_title">Generer synkkode</string>
-    <string name="sync_generate_subtitle">Opprett en PIN for å beskytte synkkoden. Del koden med de andre enhetene dine.</string>
-    <string name="sync_generate_code_label">Din synkkode</string>
-    <string name="sync_generate_instruction">Skriv inn denne koden og PIN-en din på den andre enheten for å koble dem.</string>
-    <string name="sync_generate_done">Ferdig</string>
-    <string name="sync_generate_pin_label">Velg en PIN (4-8 tegn)</string>
-    <string name="sync_generate_pin_placeholder">Skriv inn PIN</string>
 
     <!-- SyncCodeClaimScreen -->
-    <string name="sync_claim_title">Kobling av enhet</string>
-    <string name="sync_claim_subtitle">Skriv inn synkkoden og PIN-en fra den andre enheten din for å koble denne enheten.</string>
-    <string name="sync_claim_success">Enhet koblet sammen! Tillegg vil nå synkroniseres.</string>
-    <string name="sync_claim_done">Ferdig</string>
-    <string name="sync_claim_code_label">Synkkode</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">Skriv inn PIN</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Hvem er det som ser?</string>
@@ -875,13 +850,6 @@
     <string name="update_downloading_ellipsis">Laster ned…</string>
     <string name="update_unknown_sources">Tillat installasjon fra ukjente kilder for å fortsette.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Konto</string>
-    <string name="account_sign_in_description">Logg inn for å synkronisere biblioteket, seeframgang og tillegg på tvers av enheter. Biblioteksynk bruker Fetch Sync når Trakt ikke er tilkoblet, og seeframgang kan bruke enten Trakt eller Fetch Sync.</string>
-    <string name="account_sync_code_title">Synkkode</string>
-    <string name="account_sync_code_description">Synkroniser på tvers av enheter uten å opprette en konto.</string>
-    <string name="account_linked_devices">Koblede enheter (%1$d)</string>
-    <string name="account_no_linked_devices">Ingen koblede enheter</string>
-    <string name="account_unlink">Koble fra</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Laster episodevurderinger...</string>

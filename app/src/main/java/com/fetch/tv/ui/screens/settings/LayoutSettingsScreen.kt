@@ -3,7 +3,6 @@ package com.fetch.tv.ui.screens.settings
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +14,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,25 +29,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.R
 import com.fetch.tv.ui.screens.addon.QrCodeOverlay
-
-@Composable
-fun LayoutSettingsScreen(
-    viewModel: LayoutSettingsViewModel = hiltViewModel(),
-    onBackPress: () -> Unit
-) {
-    BackHandler { onBackPress() }
-    // Phone pages are only served while this screen is open.
-    DisposableEffect(viewModel) {
-        onDispose {
-            viewModel.stopStreamBadgeQrMode()
-            viewModel.stopCustomPosterQrMode()
-        }
-    }
-
-    SettingsStandaloneScaffold {
-        LayoutSettingsContent(viewModel = viewModel)
-    }
-}
 
 @Composable
 fun LayoutSettingsContent(

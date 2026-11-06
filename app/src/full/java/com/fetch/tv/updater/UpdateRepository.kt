@@ -53,7 +53,6 @@ class UpdateRepository @Inject constructor(
                 tag = tag,
                 title = dto.name?.takeIf { it.isNotBlank() } ?: tag,
                 notes = dto.body.orEmpty(),
-                releaseUrl = dto.htmlUrl,
                 assetName = asset.name,
                 assetUrl = asset.browserDownloadUrl,
                 assetSizeBytes = asset.size

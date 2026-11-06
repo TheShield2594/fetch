@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -208,6 +209,12 @@ class LibraryViewModel @Inject constructor(
                         current.copy(watchedMovieIds = ids).withVisibleItems()
                     }
                 }
+        }
+        viewModelScope.launch {
+            // A profile switch or a newly resolved rating changes what counts toward the facets.
+            parentalControls.filterRevision
+                .drop(1)
+                .collect { _uiState.update { current -> current.withVisibleItems() } }
         }
         viewModelScope.launch {
             watchedSeriesStateHolder.fullyWatchedSeriesIds
@@ -773,11 +780,14 @@ class LibraryViewModel @Inject constructor(
     }
 
     private fun LibraryUiState.computeVisibleItems(): LibraryUiState {
+        // Facets and counts come from what the profile may see, so a kids profile isn't offered
+        // "Horror (4)" that opens an empty grid.
+        val profileItems = parentalControls.filterAllowed(allItems) { it.certificationQuery() }
         val listFiltered = if (sourceMode.providerId != null || selectedListKey != null) {
             val listKey = selectedListKey ?: ""
-            allItems.filter { entry -> entry.listKeys.contains(listKey) }
+            profileItems.filter { entry -> entry.listKeys.contains(listKey) }
         } else {
-            allItems
+            profileItems
         }
 
         // Step 2: Type filter

@@ -1,4 +1,5 @@
 import { createServer, type Server } from "node:http";
+import { gzipSync } from "node:zlib";
 import type { AddressInfo } from "node:net";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -18,14 +19,28 @@ vi.mock("node:dns", async (importOriginal) => ({
     callback(null, [{ address: "127.0.0.1", family: 4 }]),
 }));
 
-const { BlockedAddressError, MAX_GUARDED_RESPONSE_BYTES, PRIVATE_NETWORK_ALLOWED, PUBLIC_ONLY, guardedFetch } =
-  await import("./ssrf.js");
+const {
+  BlockedAddressError,
+  MAX_GUARDED_RESPONSE_BYTES,
+  PRIVATE_NETWORK_ALLOWED,
+  PUBLIC_ONLY,
+  ResponseTooLargeError,
+  guardedFetch,
+  readBodyText,
+} = await import("./ssrf.js");
+
+// Well past the limit once inflated, a few dozen KiB on the wire.
+const GZIP_BOMB = gzipSync(Buffer.alloc(MAX_GUARDED_RESPONSE_BYTES + 1024 * 1024, 0x20));
 
 let server: Server;
 let port: number;
 
 beforeAll(async () => {
   server = createServer((request, response) => {
+    if (request.url === "/bomb") {
+      response.writeHead(200, { "content-type": "application/json", "content-encoding": "gzip" }).end(GZIP_BOMB);
+      return;
+    }
     if (request.url === "/huge") {
       // Chunked, so no content-length announces the size up front.
       response.writeHead(200, { "content-type": "application/json" });
@@ -83,5 +98,20 @@ describe("guardedFetch", () => {
     const read = guardedFetch(`http://${HOST}:${port}/huge`, PRIVATE_NETWORK_ALLOWED).then((response) => response?.text());
     const error = await read.catch((e: unknown) => e);
     expect(String((error as Error).cause ?? error)).toMatch(/size/i);
+  });
+
+  it("stops a compressed body that inflates past the limit while it is read", async () => {
+    expect(GZIP_BOMB.length).toBeLessThan(MAX_GUARDED_RESPONSE_BYTES);
+    preCheckLookup.mockResolvedValue([{ address: "127.0.0.1", family: 4 }]);
+    const response = await guardedFetch(`http://${HOST}:${port}/bomb`, PRIVATE_NETWORK_ALLOWED);
+    await expect(readBodyText(response!)).rejects.toBeInstanceOf(ResponseTooLargeError);
+  });
+
+  it("reads a body within the limit in full", async () => {
+    preCheckLookup.mockResolvedValue([{ address: "127.0.0.1", family: 4 }]);
+    const response = await guardedFetch(`http://${HOST}:${port}/`, PRIVATE_NETWORK_ALLOWED);
+    expect(await readBodyText(response!)).toBe(JSON.stringify({ ok: true }));
+    expect(await readBodyText(new Response("é".repeat(4)), 8)).toBe("éééé");
+    await expect(readBodyText(new Response("é".repeat(5)), 8)).rejects.toBeInstanceOf(ResponseTooLargeError);
   });
 });

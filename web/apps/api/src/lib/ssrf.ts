@@ -260,6 +260,37 @@ const pinnedLookup =
  */
 export const MAX_GUARDED_RESPONSE_BYTES = 32 * 1024 * 1024;
 
+export class ResponseTooLargeError extends Error {
+  constructor(limit: number) {
+    super(`The response body is larger than ${limit} bytes`);
+  }
+}
+
+/**
+ * Reads a response body as text, counting the bytes as they arrive *after*
+ * decoding. The agent's maxResponseSize counts the bytes on the wire, so a
+ * small gzip or brotli body could still inflate past it here; this cancels the
+ * read as soon as the decoded total passes `limit`.
+ */
+export const readBodyText = async (response: Response, limit = MAX_GUARDED_RESPONSE_BYTES): Promise<string> => {
+  if (!response.body) return "";
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let total = 0;
+  let text = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > limit) {
+      await reader.cancel().catch(() => undefined);
+      throw new ResponseTooLargeError(limit);
+    }
+    text += decoder.decode(value, { stream: true });
+  }
+  return text + decoder.decode();
+};
+
 const agents = new Map<boolean, Agent>();
 const agentFor = (scope: OutboundScope): Agent => {
   let agent = agents.get(scope.allowPrivateNetwork);

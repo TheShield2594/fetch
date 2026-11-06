@@ -16,7 +16,7 @@ import {
 import { connectionKvKey } from "./profile-connections.js";
 import { PLEX_PIN_KEY } from "./owner-keys.js";
 import { outboundScopeForProfile } from "./integration-owner.js";
-import { BlockedAddressError, type OutboundScope, guardedFetch } from "./ssrf.js";
+import { BlockedAddressError, type OutboundScope, guardedFetch, readBodyText } from "./ssrf.js";
 import { importTrackerItems, type ImportedWatch } from "./tracker-import.js";
 import { importPlaybackProgress, type PlaybackImportRow } from "./playback.js";
 
@@ -101,9 +101,9 @@ const deviceId = (profileId: string) =>
 const readJson = async (response: Response): Promise<unknown> => {
   let text: string;
   try {
-    text = await response.text();
+    text = await readBodyText(response);
   } catch {
-    // Includes a body cut off at guardedFetch's size limit.
+    // Includes a body past the size limit, on the wire or once decompressed.
     throw new MediaServerError("Couldn't read the server's answer", "unreachable");
   }
   if (!text) return null;

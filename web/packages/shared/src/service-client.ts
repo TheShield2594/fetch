@@ -48,6 +48,18 @@ const STREMIO_PROFILE_SECRET_LABEL = "fetch-stremio-addon";
 export const deriveStremioProfileKey = (apiToken: string, profileId: string): string =>
   createHmac("sha256", apiToken).update(`${STREMIO_PROFILE_SECRET_LABEL}:${profileId}`).digest("hex");
 
+/**
+ * Header the addon service uses to pass the API the profile key from a signed
+ * `/u/<profileId>/<key>/…` URL it is serving.
+ *
+ * The key is the credential a Stremio installation holds for that profile, and
+ * only someone signed in as the profile (past its PIN) could have copied it out
+ * of Settings. So the API accepts it, together with the service token, in place
+ * of an `x-profile-token` for that one profile. The addon sends it only for
+ * signed URLs; an unsigned `/p/<uuid>` URL proves nothing and carries no key.
+ */
+export const STREMIO_PROFILE_KEY_HEADER = "x-fetch-stremio-profile-key";
+
 const STREMIO_PROFILE_KEY_PATTERN = /^[0-9a-f]{64}$/;
 
 /**

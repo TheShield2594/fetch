@@ -131,6 +131,10 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Fixed
 
+- **The Stremio addon works for PIN-protected profiles.** Stremio cannot unlock a PIN, so every API call the addon made for such a profile was refused: the manifest failed to install, catalogs came back empty and Mark Watched failed. A signed `/u/<id>/<key>` install URL already proves its holder got past the PIN, so the addon now forwards that key and the API accepts it from the addon service in place of a profile token. Unsigned `/p/<id>` URLs carry no key and still stop at the PIN.
+
+- **A profile PIN is 4 to 8 digits, as on the TV and desktop apps.** The API took 4 to 128 characters of anything when a PIN was set, so a PIN chosen on the website could not be typed on a TV keypad. Setting or changing a PIN now enforces the shared rule (`@fetch/shared/pin`), and the website explains it on the field; unlocking still accepts any PIN stored before.
+
 - **CI applies the database migrations it claims to.** The "Generate Prisma client" and "Run database migrations" steps still filtered on the old `@cataloggy/api` package name. They matched nothing and passed silently, so a broken migration could reach a release. They now target `@fetch/api`.
 
 - **The `web` image builds again.** Its Dockerfile never copied `packages/shared`, so once the web app began importing the API's types from `@fetch/shared/contracts` the image build failed and `latest` stopped updating, while the `api`, `migrate` and `addon` images kept publishing. It now copies and builds the shared package first, as the other two Dockerfiles do.

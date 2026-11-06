@@ -1,6 +1,7 @@
 import type { FastifyBaseLogger } from "fastify";
 import { getDiscoveryCatalog } from "@fetch/shared";
 import type { FetchListItem } from "@fetch/shared";
+import type { ApiProfile } from "./api-client.js";
 import {
   applyRpdbToMetas,
   fetchAddonConfig,
@@ -83,7 +84,7 @@ export const applyExtraFilters = (
 export const handleCatalog = async (
   type: string,
   id: string,
-  profileId: string | null,
+  profile: ApiProfile,
   logger: FastifyBaseLogger,
   extra?: string
 ) => {
@@ -93,14 +94,14 @@ export const handleCatalog = async (
     if (discovery.type !== type) return { metas: [] };
 
     const [rpdb, config] = await Promise.all([
-      fetchRpdbConfig(profileId, logger),
-      fetchAddonConfig(profileId, logger),
+      fetchRpdbConfig(profile, logger),
+      fetchAddonConfig(profile, logger),
     ]);
     // A catalog the manifest doesn't advertise is a URL no client should hold,
     // and serving it anyway is how a disabled row keeps appearing.
     if (config && !isDiscoveryEnabled(discovery, config)) return { metas: [] };
 
-    let metas = await fetchDiscoveryMetas(id, profileId, logger);
+    let metas = await fetchDiscoveryMetas(id, profile, logger);
     if (extra) {
       metas = applyExtraFilters(metas, parseExtra(extra));
     }
@@ -113,13 +114,13 @@ export const handleCatalog = async (
 
   // Same rule the manifest applied: a custom list the profile unticked is not a
   // list this URL is entitled to serve.
-  const [lists, config] = await Promise.all([fetchAllLists(profileId), fetchAddonConfig(profileId, logger)]);
+  const [lists, config] = await Promise.all([fetchAllLists(profile), fetchAddonConfig(profile, logger)]);
   const list = lists.find((l) => l.id === parsed.listId);
   if (!list || !isListEnabled(list, config)) return { metas: [] };
 
   const [items, rpdb] = await Promise.all([
-    fetchListItems(parsed.listId, profileId, type),
-    fetchRpdbConfig(profileId, logger),
+    fetchListItems(parsed.listId, profile, type),
+    fetchRpdbConfig(profile, logger),
   ]);
   // Default to alphabetical order; Z-A/genre extras (if selected) override below.
   let metas = itemsToMetas(items, type).sort(compareNames);

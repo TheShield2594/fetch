@@ -64,4 +64,17 @@ describe("isValidPinFormat", () => {
     expect(isValidPinFormat("1".repeat(MAX_PIN_LENGTH))).toBe(true);
     expect(isValidPinFormat("1".repeat(MAX_PIN_LENGTH + 1))).toBe(false);
   });
+
+  it("is 4 to 8 digits, like the TV and desktop keypads", () => {
+    expect(MIN_PIN_LENGTH).toBe(4);
+    expect(MAX_PIN_LENGTH).toBe(8);
+    expect(isValidPinFormat("abcd")).toBe(false);
+    expect(isValidPinFormat("12a4")).toBe(false);
+  });
+
+  it("does not stop an existing non-digit PIN from verifying", async () => {
+    const legacy = "a long passphrase PIN";
+    expect(isValidPinFormat(legacy)).toBe(false);
+    expect(await pinMatches(legacy, await hashPin(legacy))).toBe(true);
+  });
 });

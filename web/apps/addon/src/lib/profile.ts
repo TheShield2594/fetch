@@ -1,6 +1,6 @@
 import type { FastifyBaseLogger, FastifyRequest } from "fastify";
 import { deriveStremioProfileKey, matchesStremioProfileKey, parseProfilesResponse, UUID_V4_PATTERN } from "@fetch/shared";
-import { apiGet } from "./api-client.js";
+import { type ApiProfile, apiGet } from "./api-client.js";
 import { FETCH_API_TOKEN, REQUIRE_SIGNED_URLS } from "./config.js";
 
 /**
@@ -42,9 +42,11 @@ export const signedProfilePath = (profileId: string): string | null =>
 
 /**
  * `profileId: null` means "no profile bound" — the header is omitted and the
- * API applies its single-profile fallback.
+ * API applies its single-profile fallback. A successful scope is itself the
+ * `ApiProfile` to call the API with; `profileKey` is non-null only for a signed
+ * URL whose key checked out.
  */
-export type ProfileScope = { ok: true; profileId: string | null } | { ok: false };
+export type ProfileScope = ({ ok: true } & ApiProfile) | { ok: false };
 
 export const profilePathParam = (request: FastifyRequest): string | undefined => {
   const params = request.params as Record<string, unknown> | null;
@@ -80,8 +82,10 @@ export const resolveProfileScope = async (request: FastifyRequest): Promise<Prof
   if (key !== undefined) {
     // A wrong key answers exactly as an unknown profile does.
     if (raw === undefined || !UUID_V4_PATTERN.test(raw)) return { ok: false };
-    if (!matchesStremioProfileKey(key, FETCH_API_TOKEN, raw)) return { ok: false };
-    return { ok: true, profileId: raw };
+    if (typeof key !== "string" || !matchesStremioProfileKey(key, FETCH_API_TOKEN, raw)) return { ok: false };
+    // The verified key travels on to the API, which accepts it (from this
+    // service) in place of the profile's PIN token.
+    return { ok: true, profileId: raw, profileKey: key };
   }
   if (REQUIRE_SIGNED_URLS) return { ok: false };
   if (raw !== undefined) {
@@ -89,7 +93,8 @@ export const resolveProfileScope = async (request: FastifyRequest): Promise<Prof
     // serving one profile's data under another's URL is exactly the kind of
     // quiet wrong answer this scoping exists to prevent.
     if (!UUID_V4_PATTERN.test(raw)) return { ok: false };
-    return { ok: true, profileId: raw };
+    // No key: an unsigned URL proves nothing, so the API's PIN gate still applies.
+    return { ok: true, profileId: raw, profileKey: null };
   }
-  return { ok: true, profileId: await fetchDefaultProfileId(request.log) };
+  return { ok: true, profileId: await fetchDefaultProfileId(request.log), profileKey: null };
 };

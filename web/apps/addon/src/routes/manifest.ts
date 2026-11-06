@@ -17,7 +17,7 @@ export const registerManifestRoute = (routes: AddonRouter): void => {
     if (!scope.ok) return reply.code(404).send({ error: "Unknown profile in addon URL" });
 
     const now = Date.now();
-    const cacheKey = cacheKeyFor(scope.profileId);
+    const cacheKey = cacheKeyFor(scope);
     const cached = manifestCache.get(cacheKey);
     if (cached && now < cached.expiry) {
       return reply.send(cached.data);
@@ -25,9 +25,9 @@ export const registerManifestRoute = (routes: AddonRouter): void => {
 
     try {
       const [lists, genres, config] = await Promise.all([
-        fetchAllLists(scope.profileId),
-        fetchGenres(scope.profileId, request.log),
-        fetchAddonConfig(scope.profileId, request.log),
+        fetchAllLists(scope),
+        fetchGenres(scope, request.log),
+        fetchAddonConfig(scope, request.log),
       ]);
       const data = buildManifest(lists, genres, config);
       cacheSet(manifestCache, cacheKey, { data, expiry: now + MANIFEST_CACHE_TTL_MS });

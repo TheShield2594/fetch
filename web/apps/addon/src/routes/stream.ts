@@ -15,7 +15,7 @@ export const registerStreamRoute = (routes: AddonRouter): void => {
     if (type === "movie" || type === "series") {
       const scope = await resolveProfileScope(request);
       if (scope.ok) {
-        forwardPlaySignal("stream", type, id, scope.profileId, request.headers["user-agent"], request.log);
+        forwardPlaySignal("stream", type, id, scope, request.headers["user-agent"], request.log);
       }
     }
 

@@ -69,7 +69,7 @@ export const registerScrobbleRoute = (routes: AddonRouter): void => {
         progress: body.progress ?? null,
         positionSeconds: body.positionSeconds ?? null,
         durationSeconds: body.durationSeconds ?? null
-      }, scope.profileId);
+      }, scope);
       return reply.send(result);
     } catch (error) {
       request.log.error(error, `Failed to forward scrobble/${action} to API`);

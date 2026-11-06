@@ -852,6 +852,74 @@ describe("signed addon URLs", () => {
     expect(borrowed.statusCode).toBe(404);
   });
 
+  describe("on a PIN-protected profile", () => {
+    const KEY_HEADER = "x-fetch-stremio-profile-key";
+
+    // What the API does for a profile with a PIN: anything that acts as it
+    // answers 401 unless the request carries a profile token, or — from this
+    // service — the profile's signed-URL key.
+    beforeEach(() => {
+      lists = [{ id: CUSTOM_LIST_ID, name: "Weekend", kind: "custom" }];
+      addonConfig = { enabledCatalogs: [`list:${CUSTOM_LIST_ID}`], aiConfigured: false };
+      const stubbedFetch = fetchMock.getMockImplementation()!;
+      fetchMock.mockImplementation(async (input: string | URL, init?: RequestInit) => {
+        const headers = (init?.headers ?? {}) as Record<string, string>;
+        if (headers["x-profile-id"] === OTHER_PROFILE_ID && headers[KEY_HEADER] !== profileKey(OTHER_PROFILE_ID)) {
+          calls.push({ url: String(input), method: init?.method ?? "GET", headers, body: undefined });
+          return jsonResponse({ error: "Profile PIN verification required", code: "profile_verification_required" }, 401);
+        }
+        return stubbedFetch(input, init);
+      });
+    });
+
+    it("forwards the signed URL's key, so the install works", async () => {
+      const manifest = await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json` });
+      expect(manifest.statusCode).toBe(200);
+      expect(first(callsTo("/lists"), "request to /lists").headers[KEY_HEADER]).toBe(profileKey(OTHER_PROFILE_ID));
+
+      const catalog = await app.inject({
+        method: "GET",
+        url: `${signedPrefix(OTHER_PROFILE_ID)}/catalog/movie/fetch-${CUSTOM_LIST_ID}-movie.json`,
+      });
+      expect(catalog.json<{ metas: unknown[] }>().metas).not.toHaveLength(0);
+
+      const subtitles = await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/subtitles/movie/tt0111161.json` });
+      const { url } = first(subtitles.json<{ subtitles: { url: string }[] }>().subtitles, "mark-watched subtitle row");
+      const link = new URL(url);
+      const marked = await app.inject({ method: "GET", url: `${link.pathname}${link.search}` });
+      expect(marked.body).toContain("Marked as watched");
+      expect(first(callsTo("/watch"), "request to /watch").headers[KEY_HEADER]).toBe(profileKey(OTHER_PROFILE_ID));
+    });
+
+    it("sends no key for the unsigned /p/ URL, which stays locked out", async () => {
+      const manifest = await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/manifest.json` });
+      expect(manifest.statusCode).toBe(502);
+      expect(calls.every((call) => call.headers[KEY_HEADER] === undefined)).toBe(true);
+
+      const marked = await app.inject({
+        method: "GET",
+        url: `/p/${OTHER_PROFILE_ID}/mark-watched/movie/tt0111161.srt?token=${capability({ type: "movie", imdbId: "tt0111161" }, OTHER_PROFILE_ID)}`,
+      });
+      expect(marked.body).not.toContain("Marked as watched");
+    });
+
+    it("never serves the unsigned URL what a signed request cached", async () => {
+      expect((await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json` })).statusCode).toBe(200);
+      const signedCatalog = await app.inject({
+        method: "GET",
+        url: `${signedPrefix(OTHER_PROFILE_ID)}/catalog/movie/fetch-${CUSTOM_LIST_ID}-movie.json`,
+      });
+      expect(signedCatalog.json<{ metas: unknown[] }>().metas).not.toHaveLength(0);
+
+      expect((await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/manifest.json` })).statusCode).toBe(502);
+      const unsignedCatalog = await app.inject({
+        method: "GET",
+        url: `/p/${OTHER_PROFILE_ID}/catalog/movie/fetch-${CUSTOM_LIST_ID}-movie.json`,
+      });
+      expect(unsignedCatalog.json()).toEqual({ metas: [] });
+    });
+  });
+
   describe("with ADDON_REQUIRE_SIGNED_URLS", () => {
     beforeEach(async () => {
       vi.stubEnv("ADDON_REQUIRE_SIGNED_URLS", "true");

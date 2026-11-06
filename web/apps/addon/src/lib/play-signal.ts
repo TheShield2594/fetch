@@ -1,5 +1,5 @@
 import type { FastifyBaseLogger } from "fastify";
-import { apiPost } from "./api-client.js";
+import { type ApiProfile, apiPost } from "./api-client.js";
 import { PLAY_DETECTION } from "./config.js";
 
 /**
@@ -25,7 +25,7 @@ export const forwardPlaySignal = (
   resource: "stream" | "subtitles",
   type: "movie" | "series",
   id: string,
-  profileId: string | null,
+  profile: ApiProfile,
   client: string | undefined,
   logger: FastifyBaseLogger
 ): void => {
@@ -64,7 +64,7 @@ export const forwardPlaySignal = (
       // is actually watching — the one thing this field is for.
       ...(client?.trim() ? { client: client.trim().slice(0, MAX_CLIENT_LENGTH) } : {}),
     },
-    profileId
+    profile
   ).catch((error: unknown) => {
     logger.warn({ error, resource, id }, "Failed to forward play signal");
   });

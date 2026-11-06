@@ -1,4 +1,9 @@
-import { ApiContractError, deriveServiceToken, SERVICE_TOKEN_HEADER } from "@fetch/shared";
+import {
+  ApiContractError,
+  deriveServiceToken,
+  SERVICE_TOKEN_HEADER,
+  STREMIO_PROFILE_KEY_HEADER,
+} from "@fetch/shared";
 import { FETCH_API_BASE, FETCH_API_TOKEN } from "./config.js";
 
 /**
@@ -15,11 +20,30 @@ import { FETCH_API_BASE, FETCH_API_TOKEN } from "./config.js";
 // client's requests reach the API from this one container's IP.
 const SERVICE_TOKEN = FETCH_API_TOKEN ? deriveServiceToken(FETCH_API_TOKEN) : null;
 
-export const apiHeaders = (profileId?: string | null): Record<string, string> => {
+/**
+ * Who an API call acts as. `profileId: null` means no profile is bound and the
+ * API applies its single-profile fallback.
+ *
+ * `profileKey` is set only when the request this service is answering came in
+ * on a signed `/u/<profileId>/<key>/…` URL, and was verified there. Forwarded to
+ * the API, it stands in for the profile-PIN token Stremio has no way to obtain:
+ * holding the signed URL already proves the PIN was passed (see
+ * `STREMIO_PROFILE_KEY_HEADER`). An unsigned `/p/<uuid>` URL never has one, so a
+ * PIN-protected profile stays shut to it.
+ */
+export type ApiProfile = { profileId: string | null; profileKey: string | null };
+
+/** For the few calls that act as no profile in particular. */
+export const NO_PROFILE: ApiProfile = { profileId: null, profileKey: null };
+
+export const apiHeaders = (profile?: ApiProfile | null): Record<string, string> => {
   const headers: Record<string, string> = {};
   if (SERVICE_TOKEN) headers[SERVICE_TOKEN_HEADER] = SERVICE_TOKEN;
   if (FETCH_API_TOKEN) headers.Authorization = `Bearer ${FETCH_API_TOKEN}`;
-  if (profileId) headers["x-profile-id"] = profileId;
+  if (profile?.profileId) {
+    headers["x-profile-id"] = profile.profileId;
+    if (profile.profileKey) headers[STREMIO_PROFILE_KEY_HEADER] = profile.profileKey;
+  }
   return headers;
 };
 
@@ -49,10 +73,10 @@ export const apiUrl = (path: string): URL => new URL(path, FETCH_API_BASE);
 // error at the boundary, which every caller here already degrades gracefully on.
 export const apiGet = async <T>(
   path: string,
-  profileId: string | null | undefined,
+  profile: ApiProfile | null | undefined,
   parse: (value: unknown) => T
 ): Promise<T> => {
-  const response = await fetchWithTimeout(apiUrl(path), { headers: apiHeaders(profileId) });
+  const response = await fetchWithTimeout(apiUrl(path), { headers: apiHeaders(profile) });
   if (!response.ok) throw new Error(`API ${path} returned ${response.status}`);
   const payload: unknown = await response.json();
   try {
@@ -67,11 +91,11 @@ export const apiGet = async <T>(
 
 // Unlike apiGet there is no contract to check: every caller either ignores the
 // response or hands it straight back to the client without reading a field.
-export const apiPost = async (path: string, body?: unknown, profileId?: string | null): Promise<unknown> => {
+export const apiPost = async (path: string, body?: unknown, profile?: ApiProfile | null): Promise<unknown> => {
   const response = await fetchWithTimeout(apiUrl(path), {
     method: "POST",
     headers: {
-      ...apiHeaders(profileId),
+      ...apiHeaders(profile),
       ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
     },
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),

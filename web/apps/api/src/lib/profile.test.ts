@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
 const PROFILE_ID = "11111111-1111-4111-8111-111111111111";
@@ -244,5 +244,81 @@ describe("resolveProfileParam", () => {
     await resolveProfileParam(request, reply as unknown as FastifyReply);
     expect(reply.statusCode).toBe(401);
     expect(request.profileId).toBeUndefined();
+  });
+});
+
+describe("resolveProfile for the addon service on a signed install URL", () => {
+  const API_TOKEN = "test-api-token";
+  let previousToken: string | undefined;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.clearAllMocks();
+    const { profileCacheClear } = await import("./cache.js");
+    profileCacheClear();
+    previousToken = process.env.API_TOKEN;
+    process.env.API_TOKEN = API_TOKEN;
+    prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, pinHash: "hashed", accountId: null });
+  });
+
+  afterEach(() => {
+    if (previousToken === undefined) delete process.env.API_TOKEN;
+    else process.env.API_TOKEN = previousToken;
+  });
+
+  const addonRequest = async (
+    profileId: string,
+    { serviceToken = true, keyFor }: { serviceToken?: boolean; keyFor?: string | null }
+  ): Promise<FastifyRequest> => {
+    const { deriveServiceToken, deriveStremioProfileKey, SERVICE_TOKEN_HEADER, STREMIO_PROFILE_KEY_HEADER } =
+      await import("@fetch/shared");
+    const headers: Record<string, string> = { "x-profile-id": profileId };
+    if (serviceToken) headers[SERVICE_TOKEN_HEADER] = deriveServiceToken(API_TOKEN);
+    if (keyFor) headers[STREMIO_PROFILE_KEY_HEADER] = deriveStremioProfileKey(API_TOKEN, keyFor);
+    return { headers } as unknown as FastifyRequest;
+  };
+
+  const resolve = async (request: FastifyRequest) => {
+    const { resolveProfile } = await loadProfileLib();
+    const reply = new FakeReply();
+    await resolveProfile(request, reply as unknown as FastifyReply);
+    return reply;
+  };
+
+  it("lets the addon act as a PIN-protected profile when it presents that profile's signed key", async () => {
+    const request = await addonRequest(PROFILE_ID, { keyFor: PROFILE_ID });
+    const reply = await resolve(request);
+    expect(reply.statusCode).toBeUndefined();
+    expect(request.profileId).toBe(PROFILE_ID);
+  });
+
+  it("keeps the PIN for an unsigned addon URL, which carries no key", async () => {
+    const request = await addonRequest(PROFILE_ID, { keyFor: null });
+    const reply = await resolve(request);
+    expect(reply.statusCode).toBe(401);
+    expect(request.profileId).toBeUndefined();
+  });
+
+  it("refuses the key without the service token, so a key alone is not a profile token", async () => {
+    const request = await addonRequest(PROFILE_ID, { serviceToken: false, keyFor: PROFILE_ID });
+    const reply = await resolve(request);
+    expect(reply.statusCode).toBe(401);
+  });
+
+  it("refuses another profile's key", async () => {
+    const request = await addonRequest(PROFILE_ID, { keyFor: OTHER_PROFILE_ID });
+    const reply = await resolve(request);
+    expect(reply.statusCode).toBe(401);
+  });
+
+  it("refuses a key derived under a different API token", async () => {
+    const { deriveStremioProfileKey, STREMIO_PROFILE_KEY_HEADER } = await import("@fetch/shared");
+    const request = await addonRequest(PROFILE_ID, { keyFor: null });
+    (request.headers as Record<string, string>)[STREMIO_PROFILE_KEY_HEADER] = deriveStremioProfileKey(
+      "some-other-token",
+      PROFILE_ID
+    );
+    const reply = await resolve(request);
+    expect(reply.statusCode).toBe(401);
   });
 });

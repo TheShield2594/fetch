@@ -107,8 +107,28 @@ describe("profiles routes", () => {
       const response = await app.inject({ method: "POST", url: "/profiles", payload: { name: "Alice", pin: "12" } });
 
       expect(response.statusCode).toBe(400);
-      expect(response.json().error).toMatch(/at least|between/i);
+      expect(response.json().error).toBe("PIN must be 4 to 8 digits");
       expect(prismaMock.profile.create).not.toHaveBeenCalled();
+    });
+
+    it.each(["abcd", "12a4", "123456789", "１２３４"])("rejects %j, which isn't 4 to 8 digits", async (pin) => {
+      const app = await buildApp();
+      const response = await app.inject({ method: "POST", url: "/profiles", payload: { name: "Alice", pin } });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.json().error).toBe("PIN must be 4 to 8 digits");
+      expect(prismaMock.profile.create).not.toHaveBeenCalled();
+    });
+
+    it("accepts an 8-digit PIN", async () => {
+      prismaMock.profile.create.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alice", pinHash: null }));
+      const app = await buildApp();
+      const response = await app.inject({ method: "POST", url: "/profiles", payload: { name: "Alice", pin: "12345678" } });
+
+      expect(response.statusCode).toBe(201);
+      expect(prismaMock.profile.create).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ pinHash: SCRYPT_HASH }) })
+      );
     });
 
     it("creates a profile with a hashed pin", async () => {
@@ -409,6 +429,38 @@ describe("profiles routes", () => {
 
       expect(response.statusCode).toBe(400);
       expect(prismaMock.profile.update).not.toHaveBeenCalled();
+    });
+
+    it.each(["abcd", "12 34", "123456789"])("rejects a new PIN of %j, which isn't 4 to 8 digits", async (pin) => {
+      prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: null });
+      const app = await buildApp();
+      const response = await app.inject({
+        method: "PATCH",
+        url: `/profiles/${PROFILE_ID}`,
+        headers: ownProfile,
+        payload: { pin },
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.json().error).toBe("PIN must be 4 to 8 digits");
+      expect(prismaMock.profile.update).not.toHaveBeenCalled();
+    });
+
+    it("still accepts an existing PIN set before the digits-only rule as the current PIN", async () => {
+      const legacy = "correct horse battery staple";
+      prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin(legacy) });
+      prismaMock.profile.update.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alice", pinHash: null }));
+      const app = await buildApp();
+      const response = await app.inject({
+        method: "PATCH",
+        url: `/profiles/${PROFILE_ID}`,
+        payload: { pin: "24680", currentPin: legacy },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(prismaMock.profile.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ pinHash: SCRYPT_HASH }) })
+      );
     });
 
     it("rejects a blank pin string (use null to remove)", async () => {

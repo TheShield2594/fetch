@@ -33,7 +33,7 @@ export const registerSubtitlesRoute = (routes: AddonRouter): void => {
 
     // A subtitles request means a player actually loaded, which is a stronger
     // play signal than the stream request that preceded it.
-    forwardPlaySignal("subtitles", type, id, scope.profileId, request.headers["user-agent"], request.log);
+    forwardPlaySignal("subtitles", type, id, scope, request.headers["user-agent"], request.log);
 
     const addonBase = addonBaseUrl();
     // Pin the resolved profile into the mark-watched URL rather than leaving it

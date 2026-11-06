@@ -39,7 +39,7 @@ export const registerMarkWatchedRoutes = (routes: AddonRouter): void => {
       if (rejection) return reply.send(rejection);
 
       try {
-        await apiPost("/watch", { type: "movie", imdbId }, scope.profileId);
+        await apiPost("/watch", { type: "movie", imdbId }, scope);
       } catch (error) {
         request.log.error(error, "Failed to mark as watched");
         return reply.send(WATCH_FAILED_SRT);
@@ -82,7 +82,7 @@ export const registerMarkWatchedRoutes = (routes: AddonRouter): void => {
         seriesImdbId: imdbId,
         season,
         episode,
-      }, scope.profileId);
+      }, scope);
     } catch (error) {
       request.log.error(error, "Failed to mark episode as watched");
       return reply.send(WATCH_FAILED_SRT);

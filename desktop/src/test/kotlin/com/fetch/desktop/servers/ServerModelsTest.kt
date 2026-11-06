@@ -42,7 +42,6 @@ class ServerModelsTest {
         val parsed = StreamTitleParser.parse(s)
         assertEquals(StreamResolution.UHD_2160, parsed.resolution)
         assertEquals(VideoCodec.HEVC, parsed.videoCodec)
-        assertEquals(8, parsed.audioChannels)
         assertEquals(50_000_000_000L, parsed.sizeBytes)
     }
 

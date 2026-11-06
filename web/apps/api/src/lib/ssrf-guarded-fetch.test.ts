@@ -18,13 +18,22 @@ vi.mock("node:dns", async (importOriginal) => ({
     callback(null, [{ address: "127.0.0.1", family: 4 }]),
 }));
 
-const { BlockedAddressError, PRIVATE_NETWORK_ALLOWED, PUBLIC_ONLY, guardedFetch } = await import("./ssrf.js");
+const { BlockedAddressError, MAX_GUARDED_RESPONSE_BYTES, PRIVATE_NETWORK_ALLOWED, PUBLIC_ONLY, guardedFetch } =
+  await import("./ssrf.js");
 
 let server: Server;
 let port: number;
 
 beforeAll(async () => {
   server = createServer((request, response) => {
+    if (request.url === "/huge") {
+      // Chunked, so no content-length announces the size up front.
+      response.writeHead(200, { "content-type": "application/json" });
+      const chunk = Buffer.alloc(1024 * 1024, 0x20);
+      for (let sent = 0; sent <= MAX_GUARDED_RESPONSE_BYTES; sent += chunk.length) response.write(chunk);
+      response.end();
+      return;
+    }
     if (request.url === "/redirect") {
       response.writeHead(302, { location: "http://169.254.169.254/" }).end();
       return;
@@ -67,5 +76,12 @@ describe("guardedFetch", () => {
   it("refuses to follow a redirect", async () => {
     preCheckLookup.mockResolvedValue([{ address: "127.0.0.1", family: 4 }]);
     await expect(guardedFetch(`http://${HOST}:${port}/redirect`, PRIVATE_NETWORK_ALLOWED)).rejects.toThrow();
+  });
+
+  it("stops reading a body past the size limit", async () => {
+    preCheckLookup.mockResolvedValue([{ address: "127.0.0.1", family: 4 }]);
+    const read = guardedFetch(`http://${HOST}:${port}/huge`, PRIVATE_NETWORK_ALLOWED).then((response) => response?.text());
+    const error = await read.catch((e: unknown) => e);
+    expect(String((error as Error).cause ?? error)).toMatch(/size/i);
   });
 });

@@ -253,11 +253,21 @@ const pinnedLookup =
     });
   };
 
+/**
+ * The most a guarded response body may hold. A server the user points us at
+ * could otherwise stream without end into memory; undici aborts the read once
+ * the body passes this, and the fetch rejects as if the server were unreachable.
+ */
+export const MAX_GUARDED_RESPONSE_BYTES = 32 * 1024 * 1024;
+
 const agents = new Map<boolean, Agent>();
 const agentFor = (scope: OutboundScope): Agent => {
   let agent = agents.get(scope.allowPrivateNetwork);
   if (!agent) {
-    agent = new Agent({ connect: { lookup: pinnedLookup(blockerFor(scope)) } });
+    agent = new Agent({
+      connect: { lookup: pinnedLookup(blockerFor(scope)) },
+      maxResponseSize: MAX_GUARDED_RESPONSE_BYTES,
+    });
     agents.set(scope.allowPrivateNetwork, agent);
   }
   return agent;

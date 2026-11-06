@@ -271,6 +271,28 @@ describe("Jellyfin and Emby sign-in", () => {
     ).rejects.toMatchObject({ kind: "blocked" });
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it("reports a server blocked at connect time (DNS rebinding) as blocked, not unreachable", async () => {
+    const { BlockedAddressError } = await import("./ssrf.js");
+    fetchMock.mockRejectedValueOnce(new TypeError("fetch failed", { cause: new BlockedAddressError("jf.example.com") }));
+
+    await expect(
+      servers.signInMediaBrowser(PROFILE, "jellyfin", { address: PUBLIC, username: "a", password: "b" })
+    ).rejects.toMatchObject({ kind: "blocked" });
+  });
+
+  it("reports an answer it can't read in full (such as one past the size limit) as unreachable", async () => {
+    const cutOff = new Response(
+      new ReadableStream({
+        start: (controller) => controller.error(new Error("Response body too large")),
+      })
+    );
+    fetchMock.mockResolvedValueOnce(cutOff);
+
+    await expect(
+      servers.signInMediaBrowser(PROFILE, "jellyfin", { address: PUBLIC, username: "a", password: "b" })
+    ).rejects.toMatchObject({ kind: "unreachable" });
+  });
 });
 
 describe("projectServerTitles", () => {

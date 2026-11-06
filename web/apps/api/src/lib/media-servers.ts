@@ -99,7 +99,13 @@ const deviceId = (profileId: string) =>
     .slice(0, 32);
 
 const readJson = async (response: Response): Promise<unknown> => {
-  const text = await response.text();
+  let text: string;
+  try {
+    text = await response.text();
+  } catch {
+    // Includes a body cut off at guardedFetch's size limit.
+    throw new MediaServerError("Couldn't read the server's answer", "unreachable");
+  }
   if (!text) return null;
   try {
     return JSON.parse(text);

@@ -281,11 +281,6 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
             return
         }
 
-        // ── Lazy loading: split into eager and deferred ──
-        val heroOnlyKeys = heroOnlyCatalogs.map { (addon, catalog) ->
-            catalogKey(addonId = addon.id, type = catalog.apiType, catalogId = catalog.id)
-        }.toSet()
-
         // Build display title helper (respects custom titles)
         val titlesSnapshot = customCatalogTitles
         val showTypeSuffix = _uiState.value.catalogTypeSuffixEnabled
@@ -705,9 +700,6 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
             fallbackHeroItemsWithArtwork.isNotEmpty() -> fallbackHeroItemsWithArtwork
             else -> emptyList()
         }
-
-        // Rows are kept whole so a card that holds focus is never cut off the end.
-        orderedRows.forEach { row -> removeTruncatedRowCacheEntry(row.legacyKey()) }
 
         CatalogUpdateResult(orderedRows, computedHeroItems, orderedRows)
     }

@@ -386,25 +386,6 @@ private fun formatDetailYearRange(releaseInfo: String?): String? {
     return releaseInfo.trim()
 }
 
-private fun applyDither(bmp: android.graphics.Bitmap) {
-    val pixels = IntArray(bmp.width * bmp.height)
-    bmp.getPixels(pixels, 0, bmp.width, 0, 0, bmp.width, bmp.height)
-    val rng = java.util.Random(0)
-    for (i in pixels.indices) {
-        val p = pixels[i]
-        val a = (p ushr 24) and 0xFF
-        val r = (p ushr 16) and 0xFF
-        val g = (p ushr 8) and 0xFF
-        val b = p and 0xFF
-        val noise = rng.nextInt(3) - 1
-        pixels[i] = ((a shl 24) or
-            ((r + noise).coerceIn(0, 255) shl 16) or
-            ((g + noise).coerceIn(0, 255) shl 8) or
-            (b + noise).coerceIn(0, 255))
-    }
-    bmp.setPixels(pixels, 0, bmp.width, 0, 0, bmp.width, bmp.height)
-}
-
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun MetaDetailsScreen(

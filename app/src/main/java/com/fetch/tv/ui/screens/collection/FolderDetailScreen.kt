@@ -139,7 +139,6 @@ fun FolderDetailScreen(
     val failedEnrichmentIds = viewModel.failedEnrichmentIds.collectAsStateWithLifecycle()
     val trailerPreviewUrls by viewModel.trailerPreviewUrls.collectAsStateWithLifecycle()
     val trailerPreviewAudioUrls by viewModel.trailerPreviewAudioUrls.collectAsStateWithLifecycle()
-    val scrollToTopTrigger by viewModel.scrollToTopTrigger.collectAsStateWithLifecycle()
 
     if (uiState.viewMode == FolderViewMode.FOLLOW_LAYOUT) {
         FollowLayoutContent(
@@ -163,8 +162,7 @@ fun FolderDetailScreen(
             trailerPreviewUrls = trailerPreviewUrls,
             trailerPreviewAudioUrls = trailerPreviewAudioUrls,
             onRequestTrailerPreview = viewModel::requestTrailerPreview,
-            onFocusedRowKeyChanged = viewModel::onFocusedRowChanged,
-            scrollToTopTrigger = scrollToTopTrigger
+            onFocusedRowKeyChanged = viewModel::onFocusedRowChanged
         )
     } else {
         Column(
@@ -949,8 +947,7 @@ private fun FollowLayoutContent(
     trailerPreviewUrls: Map<String, String> = emptyMap(),
     trailerPreviewAudioUrls: Map<String, String> = emptyMap(),
     onRequestTrailerPreview: (String, String, String?, String) -> Unit = { _, _, _, _ -> },
-    onFocusedRowKeyChanged: (String?) -> Unit = {},
-    scrollToTopTrigger: Int = 0
+    onFocusedRowKeyChanged: (String?) -> Unit = {}
 ) {
     val homeState = uiState.followLayoutHomeState
 
@@ -987,7 +984,6 @@ private fun FollowLayoutContent(
         onPreloadAdjacentItem = onPreloadAdjacentItem,
         onSaveFocusState = onSaveFocusState,
         onFocusedRowKeyChanged = onFocusedRowKeyChanged,
-        scrollToTopTrigger = scrollToTopTrigger,
         blockLeftOnFirstExpandedItem = true
     )
 }

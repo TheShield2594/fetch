@@ -20,7 +20,6 @@ data class HomeUiState(
     val isLoading: Boolean = true,
     val layoutPreferencesReady: Boolean = false,
     val error: String? = null,
-    val selectedItemId: String? = null,
     val installedAddonsCount: Int = 0,
     val modernLandscapePostersEnabled: Boolean = true,
     val alwaysShowLandscapeClearlogo: Boolean = false,
@@ -159,7 +158,6 @@ sealed class HomeRow {
 }
 
 sealed class HomeEvent {
-    data class OnItemClick(val itemId: String, val itemType: String) : HomeEvent()
     data class OnLoadMoreCatalog(val catalogId: String, val addonId: String, val type: String) : HomeEvent()
     data class OnRemoveContinueWatching(
         val contentId: String,

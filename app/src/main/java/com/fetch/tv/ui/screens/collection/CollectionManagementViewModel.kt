@@ -28,7 +28,6 @@ data class CollectionManagementUiState(
     val showImportDialog: Boolean = false,
     val importText: String = "",
     val importError: String? = null,
-    val exportedJson: String? = null,
     val importMode: ImportMode = ImportMode.FILE,
     val importUrl: String = "",
     val validationResult: ValidationResult? = null,
@@ -86,16 +85,6 @@ class CollectionManagementViewModel @Inject constructor(
             collectionsDataStore.setCollections(mutableList)
             collectionSyncService.triggerPush()
         }
-    }
-
-    fun exportCollections(): String {
-        val json = collectionsDataStore.exportToJson(_uiState.value.collections)
-        _uiState.update { it.copy(exportedJson = json) }
-        return json
-    }
-
-    fun clearExported() {
-        _uiState.update { it.copy(exportedJson = null) }
     }
 
     fun showImportDialog() {
@@ -175,11 +164,6 @@ class CollectionManagementViewModel @Inject constructor(
 
     fun validateCurrentText() {
         validateJson(_uiState.value.importText.trim())
-    }
-
-    fun handleFileContent(content: String) {
-        _uiState.update { it.copy(importText = content) }
-        validateJson(content)
     }
 
     fun fetchUrl() {

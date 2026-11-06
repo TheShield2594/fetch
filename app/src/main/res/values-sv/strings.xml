@@ -937,13 +937,13 @@
     <string name="profile_pin_remove">Ta bort PIN</string>
     <string name="profile_pin_verifying">Verifierar…</string>
     <string name="profile_pin_overlay_unlock_heading">Ange din PIN för att komma åt %1$s.</string>
-    <string name="profile_pin_overlay_set_heading">Skapa en 4-siffrig PIN för %1$s.</string>
+    <string name="profile_pin_overlay_set_heading">Skapa en PIN för %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Bekräfta din nya PIN.</string>
     <string name="profile_pin_overlay_unlock_support">Ange PIN-koden med fjärrkontrollen eller tangentbordet och tryck sedan på OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Ange nuvarande PIN för att ändra PIN för %1$s.</string>
-    <string name="profile_pin_overlay_change_verify_support">Ange den nuvarande 4-siffriga PIN-koden innan du anger en ny.</string>
+    <string name="profile_pin_overlay_change_verify_support">Ange den nuvarande PIN-koden innan du anger en ny.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Ange nuvarande PIN för att ta bort låset för %1$s.</string>
-    <string name="profile_pin_overlay_remove_verify_support">Ange den nuvarande 4-siffriga PIN-koden för att ta bort detta lås.</string>
+    <string name="profile_pin_overlay_remove_verify_support">Ange den nuvarande PIN-koden för att ta bort detta lås.</string>
     <string name="profile_pin_overlay_set_support">Använd 4 till 8 siffror och tryck sedan på OK. Denna PIN krävs innan denna profil öppnas.</string>
     <string name="profile_pin_overlay_confirm_support">Ange samma siffror igen för att slutföra.</string>
     <string name="profile_pin_overlay_mismatch">PIN-koderna matchade inte. Ange en ny PIN igen.</string>
@@ -1200,7 +1200,7 @@
     <string name="profile_pin_incorrect">Fel PIN. Försök igen.</string>
     <string name="profile_pin_current_required">Denna profil har redan en PIN. Ange den nuvarande PIN-koden för att ändra den.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Ange nuvarande PIN för att radera %1$s.</string>
-    <string name="profile_pin_overlay_delete_verify_support">Ange den nuvarande 4-siffriga PIN-koden innan du raderar denna profil.</string>
+    <string name="profile_pin_overlay_delete_verify_support">Ange den nuvarande PIN-koden innan du raderar denna profil.</string>
 
     <!-- Content descriptions -->
     <string name="cd_play">Spela</string>
@@ -1757,7 +1757,7 @@
     <string name="profile_addons_shared_saved">%1$s använder nu tillägg från %2$s.</string>
     <string name="profile_addons_own_saved">%1$s har nu egna tillägg.</string>
     <string name="profile_pin_overlay_access_heading">Ange PIN för %1$s.</string>
-    <string name="profile_pin_overlay_access_support">Den här profilen är låst. Ange dess 4-siffriga PIN för att fortsätta.</string>
+    <string name="profile_pin_overlay_access_support">Den här profilen är låst. Ange dess PIN för att fortsätta.</string>
     <string name="profile_pin_overlay_reset_heading">Ange PIN för %1$s för att återställa den här PIN-koden.</string>
     <string name="profile_pin_overlay_reset_support">Välj sedan en ny PIN för %1$s.</string>
     <string name="profile_pin_forgot_reset">Glömt PIN? Återställ med PIN för %1$s</string>

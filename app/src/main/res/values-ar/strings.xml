@@ -975,14 +975,14 @@
     <string name="profile_pin_remove">إزالة رمز PIN</string>
     <string name="profile_pin_verifying">جاري التحقق…</string>
     <string name="profile_pin_overlay_unlock_heading">أدخل رمز PIN للوصول إلى %1$s.</string>
-    <string name="profile_pin_overlay_set_heading">أنشئ رمز PIN من 4 أرقام لـ %1$s.</string>
+    <string name="profile_pin_overlay_set_heading">أنشئ رمز PIN لـ %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">قم بتأكيد رمز PIN الجديد.</string>
     <string name="profile_pin_overlay_change_verify_heading">أدخل رمز PIN الحالي لتغيير الرمز لـ %1$s.</string>
-    <string name="profile_pin_overlay_change_verify_support">أدخل رمز PIN الحالي المكون من 4 أرقام قبل تعيين واحد جديد.</string>
+    <string name="profile_pin_overlay_change_verify_support">أدخل رمز PIN الحالي قبل تعيين واحد جديد.</string>
     <string name="profile_pin_overlay_remove_verify_heading">أدخل رمز PIN الحالي لإزالة القفل عن %1$s.</string>
-    <string name="profile_pin_overlay_remove_verify_support">أدخل رمز PIN الحالي المكون من 4 أرقام لإزالة هذا القفل.</string>
+    <string name="profile_pin_overlay_remove_verify_support">أدخل رمز PIN الحالي لإزالة هذا القفل.</string>
     <string name="profile_pin_overlay_delete_verify_heading">أدخل رمز PIN الحالي لحذف %1$s.</string>
-    <string name="profile_pin_overlay_delete_verify_support">أدخل الرمز المكون من 4 ارقام قبل حذف هذا الملف الشخصي.</string>
+    <string name="profile_pin_overlay_delete_verify_support">أدخل الرمز قبل حذف هذا الملف الشخصي.</string>
     <string name="profile_pin_overlay_mismatch">رموز PIN غير متطابقة. أدخل رمزاً جديداً مرة أخرى.</string>
     <string name="profile_pin_overlay_back_hint">اضغط رجوع للإلغاء</string>
 
@@ -2774,7 +2774,7 @@
     <string name="profile_addons_shared_saved">يستخدم %1$s الآن إضافات %2$s.</string>
     <string name="profile_addons_own_saved">أصبحت لـ %1$s إضافات منفصلة.</string>
     <string name="profile_pin_overlay_access_heading">أدخل رمز PIN لـ %1$s.</string>
-    <string name="profile_pin_overlay_access_support">هذا الملف الشخصي مقفل. أدخل رمز PIN المكون من 4 أرقام للمتابعة.</string>
+    <string name="profile_pin_overlay_access_support">هذا الملف الشخصي مقفل. أدخل رمز PIN للمتابعة.</string>
     <string name="profile_pin_overlay_reset_heading">أدخل رمز PIN لـ %1$s لإعادة تعيين هذا الرمز.</string>
     <string name="profile_pin_overlay_reset_support">ثم اختر رمز PIN جديداً لـ %1$s.</string>
     <string name="profile_pin_forgot_reset">نسيت رمز PIN؟ أعد تعيينه باستخدام رمز PIN لـ %1$s</string>

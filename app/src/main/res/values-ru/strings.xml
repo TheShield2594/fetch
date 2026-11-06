@@ -772,13 +772,13 @@
     <string name="profile_pin_remove">Удалить PIN</string>
     <string name="profile_pin_verifying">Проверка…</string>
     <string name="profile_pin_overlay_unlock_heading">Введите ваш PIN для доступа к %1$s.</string>
-    <string name="profile_pin_overlay_set_heading">Создайте 4-значный PIN для %1$s.</string>
+    <string name="profile_pin_overlay_set_heading">Создайте PIN для %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Подтвердите ваш новый PIN.</string>
     <string name="profile_pin_overlay_unlock_support">Введите PIN-код с помощью пульта или клавиатуры, затем нажмите OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Введите текущий PIN для изменения PIN-кода %1$s.</string>
-    <string name="profile_pin_overlay_change_verify_support">Введите текущий 4-значный PIN-код перед установкой нового.</string>
+    <string name="profile_pin_overlay_change_verify_support">Введите текущий PIN-код перед установкой нового.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Введите текущий PIN для удаления блокировки %1$s.</string>
-    <string name="profile_pin_overlay_remove_verify_support">Введите текущий 4-значный PIN-код, чтобы снять эту блокировку.</string>
+    <string name="profile_pin_overlay_remove_verify_support">Введите текущий PIN-код, чтобы снять эту блокировку.</string>
     <string name="profile_pin_overlay_set_support">Используйте от 4 до 8 цифр, затем нажмите OK. Этот PIN-код будет запрашиваться перед открытием этого профиля.</string>
     <string name="profile_pin_overlay_confirm_support">Введите те же цифры еще раз для завершения настройки.</string>
     <string name="profile_pin_overlay_mismatch">PIN-коды не совпали. Введите новый PIN-код еще раз.</string>
@@ -1776,7 +1776,7 @@
     <string name="profile_background_normal">Обычный</string>
     <string name="profile_background_custom">Свой</string>
     <string name="profile_pin_overlay_delete_verify_heading">Введите PIN для удаления %1$s.</string>
-    <string name="profile_pin_overlay_delete_verify_support">Введите текущий 4-значный PIN перед удалением профиля.</string>
+    <string name="profile_pin_overlay_delete_verify_support">Введите текущий PIN перед удалением профиля.</string>
     <string name="essential_addon_setup_title">Настройте аддоны</string>
     <string name="essential_addon_setup_subtitle">Установите один аддон для начала стриминга. Позже можно добавить ещё из раздела Аддоны.</string>
     <string name="essential_addon_show_qr">Показать QR</string>
@@ -2828,7 +2828,7 @@
     <string name="profile_addons_shared_saved">Профиль %1$s теперь использует аддоны профиля %2$s.</string>
     <string name="profile_addons_own_saved">У профиля %1$s теперь отдельные аддоны.</string>
     <string name="profile_pin_overlay_access_heading">Введите PIN профиля %1$s.</string>
-    <string name="profile_pin_overlay_access_support">Этот профиль заблокирован. Введите его 4-значный PIN, чтобы продолжить.</string>
+    <string name="profile_pin_overlay_access_support">Этот профиль заблокирован. Введите его PIN, чтобы продолжить.</string>
     <string name="profile_pin_overlay_reset_heading">Введите PIN профиля %1$s, чтобы сбросить этот PIN.</string>
     <string name="profile_pin_overlay_reset_support">Затем выберите новый PIN для профиля %1$s.</string>
     <string name="profile_pin_forgot_reset">Забыли PIN? Сбросьте его с помощью PIN профиля %1$s</string>

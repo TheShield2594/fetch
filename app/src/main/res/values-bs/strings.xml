@@ -662,13 +662,13 @@
     <string name="profile_pin_remove">Ukloni PIN</string>
     <string name="profile_pin_verifying">Provjera…</string>
     <string name="profile_pin_overlay_unlock_heading">Unesi svoj PIN za pristup profilu %1$s.</string>
-    <string name="profile_pin_overlay_set_heading">Kreiraj 4-cifreni PIN za profil %1$s.</string>
+    <string name="profile_pin_overlay_set_heading">Kreiraj PIN za profil %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Potvrdi svoj novi PIN.</string>
     <string name="profile_pin_overlay_unlock_support">Unesi PIN daljinskim ili tastaturom, a zatim pritisni OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Unesi trenutni PIN da promijeniš PIN za profil %1$s.</string>
-    <string name="profile_pin_overlay_change_verify_support">Unesi trenutni 4-cifreni PIN prije postavljanja novog.</string>
+    <string name="profile_pin_overlay_change_verify_support">Unesi trenutni PIN prije postavljanja novog.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Unesi trenutni PIN da ukloniš zaključavanje za profil %1$s.</string>
-    <string name="profile_pin_overlay_remove_verify_support">Unesi trenutni 4-cifreni PIN da ukloniš ovo zaključavanje.</string>
+    <string name="profile_pin_overlay_remove_verify_support">Unesi trenutni PIN da ukloniš ovo zaključavanje.</string>
     <string name="profile_pin_overlay_set_support">Koristi 4 do 8 cifara, a zatim pritisni OK. Ovaj PIN će biti potreban prije otvaranja ovog profila.</string>
     <string name="profile_pin_overlay_confirm_support">Ponovo unesi iste cifre da završiš podešavanje.</string>
     <string name="profile_pin_overlay_mismatch">PIN-ovi se ne poklapaju. Ponovo unesi novi PIN.</string>
@@ -1645,7 +1645,7 @@
     <string name="profile_addons_shared_saved">%1$s sada koristi addone profila %2$s.</string>
     <string name="profile_addons_own_saved">%1$s sada ima zasebne addone.</string>
     <string name="profile_pin_overlay_access_heading">Unesi PIN za %1$s.</string>
-    <string name="profile_pin_overlay_access_support">Ovaj profil je zaključan. Unesi njegov 4-cifreni PIN za nastavak.</string>
+    <string name="profile_pin_overlay_access_support">Ovaj profil je zaključan. Unesi njegov PIN za nastavak.</string>
     <string name="profile_pin_overlay_reset_heading">Unesi PIN profila %1$s da resetuješ ovaj PIN.</string>
     <string name="profile_pin_overlay_reset_support">Zatim odaberi novi PIN za %1$s.</string>
     <string name="profile_pin_forgot_reset">Zaboravljen PIN? Resetuj ga PIN-om profila %1$s</string>

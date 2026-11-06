@@ -1094,13 +1094,13 @@
     <string name="profile_pin_remove">Usuń PIN</string>
     <string name="profile_pin_verifying">Weryfikowanie…</string>
     <string name="profile_pin_overlay_unlock_heading">Wprowadź PIN, aby uzyskać dostęp do %1$s.</string>
-    <string name="profile_pin_overlay_set_heading">Utwórz 4-cyfrowy PIN dla %1$s.</string>
+    <string name="profile_pin_overlay_set_heading">Utwórz PIN dla %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Potwierdź nowy PIN.</string>
     <string name="profile_pin_overlay_unlock_support">Użyj pilota lub klawiatury, aby wprowadzić PIN, a następnie naciśnij OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Wprowadź aktualny PIN, aby zmienić PIN dla %1$s.</string>
-    <string name="profile_pin_overlay_change_verify_support">Wprowadź aktualny 4-cyfrowy PIN przed ustawieniem nowego.</string>
+    <string name="profile_pin_overlay_change_verify_support">Wprowadź aktualny PIN przed ustawieniem nowego.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Wprowadź aktualny PIN, aby usunąć blokadę dla %1$s.</string>
-    <string name="profile_pin_overlay_remove_verify_support">Wprowadź aktualny 4-cyfrowy PIN, aby usunąć tę blokadę.</string>
+    <string name="profile_pin_overlay_remove_verify_support">Wprowadź aktualny PIN, aby usunąć tę blokadę.</string>
     <string name="profile_pin_overlay_set_support">Użyj od 4 do 8 cyfr, a następnie naciśnij OK. Ten PIN będzie wymagany przed otwarciem tego profilu.</string>
     <string name="profile_pin_overlay_confirm_support">Wprowadź ponownie te same cyfry, aby zakończyć konfigurację.</string>
     <string name="profile_pin_overlay_mismatch">PINy nie są zgodne. Wprowadź nowy PIN ponownie.</string>
@@ -1440,7 +1440,7 @@
     <string name="library_empty_trakt_not_auth_title">Trakt nie jest połączony</string>
     <string name="profile_pin_current_required">Ten profil ma już PIN. Wprowadź aktualny PIN, aby go zmienić.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Wprowadź aktualny PIN, aby usunąć %1$s.</string>
-    <string name="profile_pin_overlay_delete_verify_support">Wprowadź aktualny 4-cyfrowy PIN przed usunięciem tego profilu.</string>
+    <string name="profile_pin_overlay_delete_verify_support">Wprowadź aktualny PIN przed usunięciem tego profilu.</string>
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="stream_info_player_engine">Silnik odtwarzacza</string>
     <string name="tmdb_trailers_subtitle">Kandydaci na zwiastuny z filmów TMDB dla sekcji zwiastunów</string>
@@ -3132,7 +3132,7 @@
     <string name="profile_addons_shared_saved">Profil %1$s używa teraz dodatków profilu %2$s.</string>
     <string name="profile_addons_own_saved">Profil %1$s ma teraz osobne dodatki.</string>
     <string name="profile_pin_overlay_access_heading">Wprowadź PIN profilu %1$s.</string>
-    <string name="profile_pin_overlay_access_support">Ten profil jest zablokowany. Wprowadź jego 4-cyfrowy PIN, aby kontynuować.</string>
+    <string name="profile_pin_overlay_access_support">Ten profil jest zablokowany. Wprowadź jego PIN, aby kontynuować.</string>
     <string name="profile_pin_overlay_reset_heading">Wprowadź PIN profilu %1$s, aby zresetować ten PIN.</string>
     <string name="profile_pin_overlay_reset_support">Następnie wybierz nowy PIN dla profilu %1$s.</string>
     <string name="profile_pin_forgot_reset">Nie pamiętasz PIN-u? Zresetuj go PIN-em profilu %1$s</string>

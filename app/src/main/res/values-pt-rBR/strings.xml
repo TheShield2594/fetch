@@ -1151,7 +1151,7 @@
     <string name="profile_pin_remove">Remover PIN</string>
     <string name="profile_pin_verifying">Verificando…</string>
     <string name="profile_pin_overlay_unlock_heading">Insira seu PIN para acessar %1$s.</string>
-    <string name="profile_pin_overlay_set_heading">Crie um PIN de 4 dígitos para %1$s.</string>
+    <string name="profile_pin_overlay_set_heading">Crie um PIN para %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Confirme seu novo PIN.</string>
     <string name="profile_pin_overlay_unlock_support">Use o controle remoto ou teclado para digitar o PIN e depois pressione OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Insira o PIN atual para alterar o de %1$s.</string>
@@ -1159,7 +1159,7 @@
     <string name="profile_pin_overlay_remove_verify_heading">Insira o PIN atual para remover o bloqueio de %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Digite o PIN atual para desativar esta proteção.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Digite o PIN atual para excluir %1$s.</string>
-    <string name="profile_pin_overlay_delete_verify_support">Digite o PIN de 4 dígitos antes de excluir este perfil.</string>
+    <string name="profile_pin_overlay_delete_verify_support">Digite o PIN antes de excluir este perfil.</string>
     <string name="profile_pin_overlay_set_support">Use de 4 a 8 dígitos e depois pressione OK. Este PIN será solicitado sempre que abrir este perfil.</string>
     <string name="profile_pin_overlay_confirm_support">Digite os mesmos dígitos novamente para finalizar.</string>
     <string name="profile_pin_overlay_mismatch">Os PINs não coincidem. Tente novamente.</string>
@@ -2873,7 +2873,7 @@
     <string name="profile_addons_shared_saved">%1$s agora usa os addons de %2$s.</string>
     <string name="profile_addons_own_saved">%1$s agora tem addons separados.</string>
     <string name="profile_pin_overlay_access_heading">Digite o PIN de %1$s.</string>
-    <string name="profile_pin_overlay_access_support">Este perfil está bloqueado. Digite o PIN de 4 dígitos para continuar.</string>
+    <string name="profile_pin_overlay_access_support">Este perfil está bloqueado. Digite o PIN para continuar.</string>
     <string name="profile_pin_overlay_reset_heading">Digite o PIN de %1$s para redefinir este PIN.</string>
     <string name="profile_pin_overlay_reset_support">Depois, escolha um novo PIN para %1$s.</string>
     <string name="profile_pin_forgot_reset">Esqueceu o PIN? Redefina com o PIN de %1$s</string>

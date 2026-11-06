@@ -397,7 +397,8 @@ internal fun PlayerRuntimeController.tryDv7HevcFallback(
     if (isMapDv7ToHevcActiveForCurrentPlayback) return false
     if (dv7ToHevcForcedStreamUrls.contains(currentStreamUrl)) return false
     val format = (error as? androidx.media3.exoplayer.ExoPlaybackException)?.rendererFormat ?: return false
-    if (!format.isDolbyVisionVideoFormat()) return false
+    val sourceProfile = com.fetch.tv.core.player.DolbyVisionConversionStats.getLastSourceProfile()
+    if (!isDv7HevcFallbackCandidate(format.codecs, sourceProfile)) return false
 
     Log.i(
         PlayerRuntimeController.TAG,
@@ -410,11 +411,15 @@ internal fun PlayerRuntimeController.tryDv7HevcFallback(
 }
 
 /**
- * True for a Dolby Vision profile 7 track, or profile 8 (which is what a DV7 source looks like
- * once converted to 8.1). Profile 5 is excluded: it has no HEVC-compatible base layer, so the
- * HEVC mapping cannot help and would only disarm its conversion for this stream.
+ * Whether a decoder-init failure on a track with [codecs] should take the DV7-to-HEVC fallback.
+ *
+ * Accepts Dolby Vision profile 7, or profile 8 (what a DV7 source looks like once converted to
+ * 8.1). Profile 5 is excluded, including a profile-5 source whose codec string the extractor
+ * rewrote to 8.1 ([sourceProfile] is the pre-conversion profile): it has no HEVC-compatible base
+ * layer, so the mapping cannot help and would only disarm its conversion for this stream.
  */
-private fun androidx.media3.common.Format.isDolbyVisionVideoFormat(): Boolean {
+internal fun isDv7HevcFallbackCandidate(codecs: String?, sourceProfile: Int?): Boolean {
+    if (sourceProfile == 5) return false
     val codecString = codecs?.lowercase() ?: return false
     return codecString.split(',').map { it.trim() }.any { codec ->
         (codec.startsWith("dvhe.") || codec.startsWith("dvh1.")) &&

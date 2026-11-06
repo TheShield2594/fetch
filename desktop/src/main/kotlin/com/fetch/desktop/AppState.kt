@@ -614,7 +614,7 @@ class AppState(
     // --- Sync server: watched history and Continue Watching ---
 
     /** Watched history and Continue Watching against the sync server, as the TV syncs them. */
-    private val watchState = WatchStateSync(watchSyncFile(profileDir(profile)), progress = { progress }, write = ::storeProgress)
+    private val watchState = WatchStateSync(watchSyncFile(profileDir(profile)), progress = { progress }, write = ::storeProgress, currentAccount = { signedInWatchAccount })
 
     /** The account signed in now, as [WatchStateSync] keys it; null when signed out. */
     private val signedInWatchAccount: String?

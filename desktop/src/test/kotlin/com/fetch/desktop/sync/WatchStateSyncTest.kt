@@ -49,12 +49,14 @@ class WatchStateSyncTest {
         var progress = start
         var disk = start
         var writes = true
+        /** The account signed in now. */
+        var signedIn: String? = WatchStateSync.accountKey("https://a.example.com", "user-a")
         val file = watchSyncFile(Files.createTempDirectory("watch-sync").toFile()).also { it.save(state) }
         val sync = WatchStateSync(file, progress = { progress }, write = { f ->
             progress = f
             if (writes) disk = f
             writes
-        })
+        }, currentAccount = { signedIn })
     }
 
     private val accountA = WatchStateSync.accountKey("https://a.example.com", "user-a")
@@ -90,6 +92,7 @@ class WatchStateSyncTest {
         // Account A's change is still pending when account B signs in.
         val profile = Profile(ProgressFile(watched = listOf("tt1", "tt2")), syncedState(pending = PendingWatchOps().watchedUpsert("tt9", 1)))
         // An un-mark made under B before B's first sync.
+        profile.signedIn = accountB
         profile.sync.saveLocal(profile.progress.copy(watched = listOf("tt2")), accountB, now = 5)
         assertEquals(accountB, profile.sync.state.account)
         assertEquals(PendingWatchOps().watchedDelete("tt1"), profile.sync.state.pending)
@@ -125,7 +128,7 @@ class WatchStateSyncTest {
         // After a restart (the disk's copy), the same events are pulled again and saved.
         profile.progress = profile.disk
         profile.writes = true
-        val restarted = WatchStateSync(profile.file, progress = { profile.progress }, write = { f -> profile.progress = f; profile.disk = f; true })
+        val restarted = WatchStateSync(profile.file, progress = { profile.progress }, write = { f -> profile.progress = f; profile.disk = f; true }, currentAccount = { accountA })
         restarted.sync(remote, profileId = 1)
         assertEquals(listOf(1L, 1L), remote.watchedDeltaReads)
         assertEquals(listOf("tt2"), profile.disk.watched)
@@ -174,7 +177,7 @@ class WatchStateSyncTest {
         assertEquals(8L, profile.sync.state.progressCursor)
 
         // A restart from the disk's copies has the events, and nothing past them is skipped.
-        val restarted = WatchStateSync(profile.file, progress = { profile.disk }, write = { true })
+        val restarted = WatchStateSync(profile.file, progress = { profile.disk }, write = { true }, currentAccount = { accountA })
         assertEquals(7L, restarted.state.watchedCursor)
         assertEquals(listOf("tt2"), profile.disk.watched)
     }
@@ -215,6 +218,7 @@ class WatchStateSyncTest {
         }
         val syncA = launch { profile.sync.sync(slowA, profileId = 1) }
         pulling.await()
+        profile.signedIn = accountB
         profile.sync.saveLocal(profile.progress.copy(watched = listOf("tt2")), accountB, now = 5)
         resume.complete(Unit)
         syncA.join()
@@ -224,5 +228,28 @@ class WatchStateSyncTest {
         assertEquals(accountB, profile.sync.state.account)
         assertEquals(PendingWatchOps().watchedDelete("tt1"), profile.sync.state.pending)
         assertNull(profile.sync.state.watchedCursor)
+    }
+
+    @Test
+    fun `a sync with a client taken before another account signed in changes nothing`() = runBlocking {
+        val profile = Profile(ProgressFile(watched = listOf("tt1", "tt2")), syncedState(pending = PendingWatchOps().watchedUpsert("tt9", 1)))
+        // A's outer sync took its client, then waited on the server (its Library pull)...
+        val serverA = FakeRemote(accountA).apply { watchedEvents += watchedEvent(7, "tt2", deleted = true) }
+        // ...while B signed in and un-marked tt1.
+        profile.signedIn = accountB
+        profile.sync.saveLocal(profile.progress.copy(watched = listOf("tt2")), accountB, now = 5)
+
+        // A's sync reaches the watch state now: it neither takes the state back nor sends anything.
+        profile.sync.sync(serverA, profileId = 1)
+        profile.sync.push(serverA, profileId = 1)
+        assertEquals(accountB, profile.sync.state.account)
+        assertEquals(PendingWatchOps().watchedDelete("tt1"), profile.sync.state.pending)
+        assertEquals(listOf("tt2"), profile.progress.watched)
+        assertTrue(serverA.watchedDeltaReads.isEmpty() && serverA.deletedWatched.isEmpty() && serverA.pushedWatched.isEmpty())
+
+        // B's own sync goes ahead.
+        val serverB = FakeRemote(accountB)
+        profile.sync.sync(serverB, profileId = 1)
+        assertEquals(listOf(RemoteWatchedKey("tt1")), serverB.deletedWatched)
     }
 }

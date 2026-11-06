@@ -41,12 +41,14 @@ fun SyncClient.watchRemote(): WatchRemote = object : WatchRemote {
 /**
  * One profile's watched history and Continue Watching against the sync server ([WatchSync] has
  * the rules): the saved [WatchSyncState] and the pull, apply and push. [progress] reads the
- * profile's watch state; [write] replaces it and says whether it reached the disk.
+ * profile's watch state; [write] replaces it and says whether it reached the disk;
+ * [currentAccount] is the account signed in now ([accountKey]), null when signed out.
  */
 class WatchStateSync(
     private val stateFile: JsonFile<WatchSyncState>,
     private val progress: () -> ProgressFile,
     private val write: (ProgressFile) -> Boolean,
+    private val currentAccount: () -> String?,
 ) {
     var state: WatchSyncState = stateFile.load()
         private set
@@ -127,6 +129,9 @@ class WatchStateSync(
      * moves on only once what it covers is saved, so a failed write is pulled again next time.
      */
     suspend fun sync(remote: WatchRemote, profileId: Int) = mutex.withLock {
+        // A client taken before another account signed in (the outer sync waited on the server
+        // meanwhile) mustn't make its account current again and drop the new one's queue.
+        if (currentAccount() != remote.account) return@withLock
         try {
             syncLocked(remote, profileId)
         } catch (_: AccountChanged) {
@@ -207,6 +212,7 @@ class WatchStateSync(
 
     /** Sends the pending changes now (a mark or a removal by hand), when they are [remote]'s account's. */
     suspend fun push(remote: WatchRemote, profileId: Int) = mutex.withLock {
+        if (currentAccount() != remote.account) return@withLock
         try {
             stillFor(remote)
             pushPending(remote, profileId)

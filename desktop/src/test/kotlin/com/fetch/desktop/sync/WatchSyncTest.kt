@@ -27,9 +27,7 @@ class WatchSyncTest {
         val local = listOf("tt1:1:5", "tt1:1:6")
         val watched = WatchSync.applyWatchedDelta(local, listOf(watchedEvent(7, "tt1:1:5", deleted = true)), PendingWatchOps())
         assertEquals(listOf("tt1:1:6"), watched)
-        // Applying the server's change queues nothing: only local writes go through recordLocal.
-        val pending = WatchSync.recordLocal(PendingWatchOps(), ProgressFile(watched = local), ProgressFile(watched = local), now = 1)
-        assertTrue(pending.isEmpty)
+        // That it isn't queued to go back up is WatchStateSyncTest's, through the sync itself.
     }
 
     @Test
@@ -196,5 +194,99 @@ class WatchSyncTest {
         assertEquals(setOf("tt1_s1e2"), pull.pending.progressUpserts.keys)
         assertEquals(setOf("tt2_s1e1"), pull.remoteKeys)
         assertEquals(2, pull.file.entries.size)
+    }
+
+    @Test
+    fun `starting over deletes the cleared position on the server and drops its pending upsert`() {
+        val entry = episode("tt1", 1, 2)
+        val before = ProgressFile(entries = listOf(entry), watched = listOf("tt1:1:2"))
+        val after = before.copy(entries = emptyList())
+        // An episode watched before and started over isn't a completion.
+        val recorded = WatchSync.recordLocal(PendingWatchOps(), before, after, now = 5)
+        assertTrue(recorded.isEmpty)
+
+        val pending = WatchSync.queueStartOver(PendingWatchOps().progressUpsert("tt1_s1e2", PendingProgress.of(remoteProgress("tt1", 1, 2))), entry)
+        assertEquals(setOf("tt1_s1e2"), pending.progressDeletes)
+        assertTrue(pending.progressUpserts.isEmpty())
+        // Trakt's or an Up Next entry has no position of ours on the server.
+        assertTrue(WatchSync.queueStartOver(PendingWatchOps(), entry.copy(source = "trakt")).isEmpty)
+    }
+
+    @Test
+    fun `a video played to its end is sent at 100 percent even with no position saved before`() {
+        val pending = WatchSync.queueCompleted(
+            PendingWatchOps(), PendingProgress("tt1", "series", "tt1:1:3", 1, 3, positionMs = 0, durationMs = 1000, lastWatched = 7),
+        )
+        assertEquals(PendingProgress("tt1", "series", "tt1:1:3", 1, 3, 1000, 1000, 7), pending.progressUpserts["tt1_s1e3"])
+        val movie = WatchSync.queueCompleted(PendingWatchOps(), PendingProgress("tt9", "movie", "tt9", positionMs = 0, durationMs = 500, lastWatched = 7))
+        assertEquals(setOf("tt9"), movie.progressUpserts.keys)
+    }
+
+    @Test
+    fun `a removed title stays removed when a later pull finds a key of it not known at the removal`() {
+        // Removed here at 50; the server also had tt1_s1e3 from another device, not pulled yet.
+        val hidden = ProgressFile(entries = listOf(episode("tt1", 1, 2, lastWatched = 50).copy(hidden = true)))
+        val pull = WatchSync.applyProgressDelta(
+            hidden, listOf(RemoteProgressEvent(9, false, remoteProgress("tt1", 1, 3, lastWatched = 20))), PendingWatchOps(), emptySet(),
+        )
+        assertTrue(pull.file.entries.single().hidden)
+        assertEquals(setOf("tt1_s1e3"), pull.pending.progressDeletes)
+
+        // Watching it elsewhere after the removal brings it back.
+        val later = WatchSync.applyProgressDelta(
+            hidden, listOf(RemoteProgressEvent(10, false, remoteProgress("tt1", 1, 3, lastWatched = 60))), PendingWatchOps(), emptySet(),
+        )
+        assertEquals("tt1:1:3", later.file.entries.single { !it.hidden }.videoId)
+        assertTrue(later.pending.isEmpty)
+
+        // The server echoing our own delete doesn't drop the record of the removal.
+        val echo = WatchSync.applyProgressDelta(hidden, listOf(RemoteProgressEvent(11, true, remoteProgress("tt1", 1, 2))), PendingWatchOps(), emptySet())
+        assertEquals(hidden, echo.file)
+    }
+
+    @Test
+    fun `a title removed elsewhere takes the Up Next made here with it, unless something of it is pending`() {
+        val upNext = episode("tt1", 1, 3).copy(upNext = true, positionMs = 0, durationMs = 0)
+        val local = ProgressFile(entries = listOf(upNext, episode("tt2", 1, 1)), watched = listOf("tt1:1:2"))
+        val deleted = listOf(RemoteProgressEvent(4, true, remoteProgress("tt1", 1, 2)))
+        val pull = WatchSync.applyProgressDelta(local, deleted, PendingWatchOps(), setOf("tt1_s1e2"))
+        assertEquals(listOf("tt2"), pull.file.entries.map { it.contentId })
+
+        // Through a snapshot too, where only the key is known.
+        val snapshot = WatchSync.applyProgressSnapshot(local, listOf(remoteProgress("tt2", 1, 1)), PendingWatchOps(), setOf("tt1_s1e2", "tt2_s1e1"), initial = false)
+        assertEquals(listOf("tt2"), snapshot.file.entries.map { it.contentId })
+
+        // Episode 2 finished here and not sent yet: newer than the removal, the Up Next stays.
+        val pending = PendingWatchOps().progressUpsert("tt1_s1e2", PendingProgress.of(remoteProgress("tt1", 1, 2, position = 1000)))
+        val otherKey = listOf(RemoteProgressEvent(5, true, remoteProgress("tt1", 1, 1)))
+        assertEquals(local, WatchSync.applyProgressDelta(local, otherKey, pending, setOf("tt1_s1e1", "tt1_s1e2")).file)
+    }
+
+    @Test
+    fun `a newer finished episode keeps an older unfinished one from becoming the entry`() {
+        val pull = WatchSync.applyProgressSnapshot(
+            ProgressFile(),
+            listOf(remoteProgress("tt1", 1, 2, position = 500, lastWatched = 10), remoteProgress("tt1", 1, 3, position = 990, lastWatched = 20)),
+            PendingWatchOps(), emptySet(), initial = false,
+        )
+        assertTrue(pull.file.entries.isEmpty())
+        // The older finished one doesn't hide a newer position.
+        val newer = WatchSync.applyProgressSnapshot(
+            ProgressFile(),
+            listOf(remoteProgress("tt1", 1, 2, position = 990, lastWatched = 10), remoteProgress("tt1", 1, 3, position = 500, lastWatched = 20)),
+            PendingWatchOps(), emptySet(), initial = false,
+        )
+        assertEquals("tt1:1:3", newer.file.entries.single().videoId)
+    }
+
+    @Test
+    fun `an import doesn't mark again what the server un-marked`() {
+        val tombstones = WatchSync.watchedTombstones(emptySet(), before = listOf("tt1:1:5", "tt2"), after = listOf("tt2"), serverHas = emptyList())
+        assertEquals(setOf("tt1:1:5"), tombstones)
+        val current = ProgressFile(watched = listOf("tt2"))
+        val imported = WatchSync.dropTombstoned(current, current.copy(watched = listOf("tt2", "tt1:1:5", "tt3")), tombstones)
+        assertEquals(listOf("tt2", "tt3"), imported.watched)
+        // Once the server has it again, it imports as before.
+        assertTrue(WatchSync.watchedTombstones(tombstones, listOf("tt2"), listOf("tt2", "tt1:1:5"), serverHas = listOf("tt1:1:5")).isEmpty())
     }
 }

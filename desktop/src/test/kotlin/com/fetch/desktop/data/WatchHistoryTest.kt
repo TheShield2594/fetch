@@ -59,9 +59,9 @@ class WatchHistoryTest {
     @Test
     fun `removing hides the title until it is watched again`() {
         var file = WatchHistory.record(ProgressFile(), movie, 1_800_000, 6_000_000, now = 1)
-        file = WatchHistory.hide(file, "tt9")
+        file = WatchHistory.hide(file, "tt9", now = 2)
         assertTrue(WatchHistory.continueWatching(file).isEmpty())
-        file = WatchHistory.record(file, movie, 1_900_000, 6_000_000, now = 2)
+        file = WatchHistory.record(file, movie, 1_900_000, 6_000_000, now = 3)
         assertEquals(1, WatchHistory.continueWatching(file).size)
     }
 

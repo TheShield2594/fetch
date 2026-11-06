@@ -84,6 +84,12 @@ data class WatchSyncState(
      * from Continue Watching deletes all of its keys, as the TV's `resolveRemoteDeleteKeys` does.
      */
     val remoteProgressKeys: Set<String> = emptySet(),
+    /**
+     * Watched ids the server dropped (un-marked on another device) that were marked here, so an
+     * import from Trakt, Simkl or the website that still lists one doesn't mark it again and send
+     * it back ([WatchSync.dropTombstoned]). An id leaves when the server has it again.
+     */
+    val watchedTombstones: Set<String> = emptySet(),
 )
 
 fun watchSyncFile(dir: File) = JsonFile(File(dir, "watch-sync.json"), WatchSyncState.serializer()) { WatchSyncState() }
@@ -117,11 +123,17 @@ object WatchSync {
     fun syncableWatchedId(videoId: String): Boolean =
         !ServerItemRef.isServerId(videoId) && SyncMerge.watchedItem(videoId, 0L)?.videoId() == videoId
 
+    /** The title a progress key belongs to: `tt1` for `tt1_s2e5` and for `tt1`. */
+    fun contentIdOfKey(key: String): String = EPISODE_KEY.matchEntire(key)?.groupValues?.get(1) ?: key
+
+    private val EPISODE_KEY = Regex("^(.+)_s\\d+e\\d+$")
+
     /**
      * Queues what changed between [before] and [after], a write made on this computer: watched
      * marks added or removed, positions saved, and a title that left Continue Watching because
-     * its video was finished (sent at 100%, as the TV's `markAsCompleted` does). Removing a title
-     * by hand is [queueRemoval]'s.
+     * its video was just marked watched (sent at 100%, as the TV's `markAsCompleted` does).
+     * Removing a title by hand is [queueRemoval]'s, starting over [queueStartOver]'s and a
+     * playback that reached its end [queueCompleted]'s.
      */
     fun recordLocal(pending: PendingWatchOps, before: ProgressFile, after: ProgressFile, now: Long): PendingWatchOps {
         var result = pending
@@ -135,9 +147,11 @@ object WatchSync {
             val was = progressView(before)
             val isNow = progressView(after)
             isNow.forEach { (key, p) -> if (was[key] != p) result = result.progressUpsert(key, p) }
-            val watched = after.watched.toSet()
+            // Only a video that became watched in this write: an entry cleared for any other reason
+            // (starting over an episode watched before) isn't a completion.
+            val newlyWatched = after.watched.toSet() - before.watched.toSet()
             was.forEach { (key, p) ->
-                if (key !in isNow && p.videoId in watched) {
+                if (key !in isNow && p.videoId in newlyWatched) {
                     result = result.progressUpsert(key, p.copy(positionMs = p.durationMs, lastWatched = now))
                 }
             }
@@ -154,6 +168,47 @@ object WatchSync {
         val id = entry.contentId
         val keys = remoteKeys.filter { it == id || it.startsWith("${id}_") } + keyOf(entry) + id
         return pending.progressDelete(keys.distinct())
+    }
+
+    /**
+     * A video played to its end here: its key at 100%, as the TV's `markAsCompleted` sends it,
+     * whether or not a position of it had been saved before (one that ended in a single jump
+     * past 90% never had one).
+     */
+    fun queueCompleted(pending: PendingWatchOps, p: PendingProgress): PendingWatchOps {
+        if (ServerItemRef.isServerId(p.contentId) || p.durationMs <= 0) return pending
+        val key = if (p.season != null && p.episode != null) "${p.contentId}_s${p.season}e${p.episode}" else p.contentId
+        return pending.progressUpsert(key, p.copy(positionMs = p.durationMs))
+    }
+
+    /**
+     * "Start over": the cleared position goes from the server too (and a pending upsert of it is
+     * dropped), so a later snapshot doesn't bring it back to Continue Watching.
+     */
+    fun queueStartOver(pending: PendingWatchOps, entry: ProgressEntry): PendingWatchOps {
+        if (entry.source != null || entry.upNext || ServerItemRef.isServerId(entry.contentId)) return pending
+        return pending.progressDelete(listOf(keyOf(entry)))
+    }
+
+    /**
+     * [imported], a merge of Trakt, Simkl or website watch state into [current], without the
+     * marks it adds back that the sync server dropped ([WatchSyncState.watchedTombstones]): the
+     * server's deletion stands instead of being undone and pushed back as a local mark.
+     */
+    fun dropTombstoned(current: ProgressFile, imported: ProgressFile, tombstones: Set<String>): ProgressFile {
+        if (tombstones.isEmpty() || imported.watched == current.watched) return imported
+        val had = current.watched.toSet()
+        val blocked = imported.watched.filter { it !in had && it in tombstones }.toSet()
+        return if (blocked.isEmpty()) imported else imported.copy(watched = imported.watched.filter { it !in blocked })
+    }
+
+    /**
+     * [tombstones] after a pull took [before] to [after]: local marks the server dropped join,
+     * and ids the server has ([serverHas]) or that are marked here again leave.
+     */
+    fun watchedTombstones(tombstones: Set<String>, before: List<String>, after: List<String>, serverHas: Collection<String>): Set<String> {
+        val now = after.toSet()
+        return tombstones - serverHas.toSet() - now + (before.toSet() - now).filter(::syncableWatchedId)
     }
 
     // --- Watched history from the server ---
@@ -209,9 +264,10 @@ object WatchSync {
         events.sortedBy { it.eventId }.forEach { last[it.progress.key] = it }
         val deletes = last.filterValues { it.deleted }.keys
         val upserts = last.values.filter { !it.deleted }.map { it.progress }
+        val (merged, queued) = applyProgress(file, upserts, deletes, pending)
         return ProgressPull(
-            file = applyProgress(file, upserts, deletes, pending),
-            pending = pending,
+            file = merged,
+            pending = queued,
             remoteKeys = remoteKeys - deletes + upserts.map { it.key },
         )
     }
@@ -230,12 +286,12 @@ object WatchSync {
     ): ProgressPull {
         val byKey = remote.groupBy { it.key }.mapValues { (_, list) -> list.maxBy { it.lastWatchedEpochMs } }
         val deletes = remoteKeys - byKey.keys
-        val merged = applyProgress(file, byKey.values.toList(), deletes, pending)
-        var queued = pending
+        val (merged, applied) = applyProgress(file, byKey.values.toList(), deletes, pending)
+        var queued = applied
         if (initial) {
             progressView(merged).forEach { (key, p) ->
                 val theirs = byKey[key]
-                if (key !in pending.progressDeletes && (theirs == null || theirs.lastWatchedEpochMs < p.lastWatched)) {
+                if (key !in queued.progressDeletes && (theirs == null || theirs.lastWatchedEpochMs < p.lastWatched)) {
                     queued = queued.progressUpsert(key, p)
                 }
             }
@@ -245,34 +301,58 @@ object WatchSync {
 
     /**
      * Applies the server's progress changes to Continue Watching (one entry per title here):
-     * - a delete removes this app's entry with that key, unless it has a pending upsert;
+     * - a delete removes this app's entry with that key, unless it has a pending upsert, and the
+     *   title's generated Up Next, unless something of the title is pending here (the title was
+     *   removed elsewhere after an episode finished here was sent);
+     * - a title removed here (its hidden entry, stamped with the removal time) keeps positions
+     *   from before the removal out, and they are queued for deletion: the server deletes exact
+     *   keys, and one not known when the title was removed would otherwise bring it back;
      * - a finished position (90% or more) newer than the entry with that key removes it;
-     * - another position becomes the title's entry when it is newer than the one here (a removed
-     *   title comes back on newer activity elsewhere), unless that one has a pending upsert or the
-     *   key has a pending delete.
+     * - the title's newest position becomes its entry when it is in progress and newer than the
+     *   one here (a removed title comes back on newer activity elsewhere), unless that one has a
+     *   pending upsert or the key has a pending delete. A newer finished one keeps an older
+     *   unfinished episode from becoming the entry.
      */
-    private fun applyProgress(file: ProgressFile, upserts: List<RemoteProgress>, deletes: Set<String>, pending: PendingWatchOps): ProgressFile {
+    private fun applyProgress(
+        file: ProgressFile,
+        upserts: List<RemoteProgress>,
+        deletes: Set<String>,
+        pending: PendingWatchOps,
+    ): Pair<ProgressFile, PendingWatchOps> {
         fun ownKey(entry: ProgressEntry) = entry.source == null && !entry.upNext
+        fun finished(p: RemoteProgress) = p.positionMs.toFloat() / p.durationMs >= WatchProgress.COMPLETED_THRESHOLD
         var entries = file.entries
-        deletes.filter { it !in pending.progressUpserts }.toSet().takeIf { it.isNotEmpty() }?.let { gone ->
-            entries = entries.filterNot { ownKey(it) && keyOf(it) in gone }
+        var queued = pending
+        val gone = deletes.filter { it !in pending.progressUpserts }.toSet()
+        if (gone.isNotEmpty()) {
+            val titles = gone.map(::contentIdOfKey).toSet()
+            val pendingTitles = pending.progressUpserts.keys.map(::contentIdOfKey).toSet()
+            entries = entries.filterNot {
+                // A hidden entry is the record of a removal here; it stays.
+                (ownKey(it) && !it.hidden && keyOf(it) in gone) ||
+                    (it.source == null && it.upNext && it.contentId in titles && it.contentId !in pendingTitles)
+            }
         }
         val usable = upserts.filter { it.key !in pending.progressDeletes && it.positionMs > 0 && it.durationMs > 0 && !ServerItemRef.isServerId(it.contentId) }
-        val (finished, inProgress) = usable.partition { it.positionMs.toFloat() / it.durationMs >= WatchProgress.COMPLETED_THRESHOLD }
-        finished.forEach { p ->
+        usable.forEach { p ->
+            val removed = entries.firstOrNull { it.contentId == p.contentId && it.hidden }
+            if (removed != null && p.lastWatchedEpochMs <= removed.lastWatched) queued = queued.progressDelete(listOf(p.key))
+        }
+        usable.filter(::finished).forEach { p ->
             entries = entries.filterNot {
                 it.contentId == p.contentId && ownKey(it) && keyOf(it) == p.key &&
                     it.lastWatched < p.lastWatchedEpochMs && keyOf(it) !in pending.progressUpserts
             }
         }
+        val newest = usable.groupBy { it.contentId }.values.map { list -> list.maxBy { it.lastWatchedEpochMs } }.filterNot(::finished)
         val known = entries.associateBy { it.contentId }
-        SyncMerge.progressEntries(inProgress, known).forEach { incoming ->
+        SyncMerge.progressEntries(newest, known).forEach { incoming ->
             val local = entries.firstOrNull { it.contentId == incoming.contentId }
             if (local != null && ownKey(local) && !local.hidden && keyOf(local) in pending.progressUpserts) return@forEach
             if (local == null || incoming.lastWatched > local.lastWatched) {
                 entries = entries.filter { it.contentId != incoming.contentId } + incoming
             }
         }
-        return if (entries == file.entries) file else file.copy(entries = entries)
+        return (if (entries == file.entries) file else file.copy(entries = entries)) to queued
     }
 }

@@ -49,7 +49,6 @@ object StreamTitleParser {
             dolbyVisionProfile = if (HdrFormat.DOLBY_VISION in hdr) parseDolbyVisionProfile(text) else null,
             audio = parseAudio(text),
             hasAtmos = ATMOS.containsMatchIn(text) || ATMOS_DV.containsMatchIn(text),
-            audioChannels = parseChannels(text),
             sizeBytes = parseSize(text),
             source = parseSource(text),
             is3d = THREE_D.containsMatchIn(text),
@@ -188,20 +187,6 @@ object StreamTitleParser {
         if (AAC.containsMatchIn(text)) formats += AudioFormat.AAC
         if (MP3.containsMatchIn(text)) formats += AudioFormat.MP3
         return formats
-    }
-
-    private val CHANNELS = Regex("(?<!\\d)(?<!\\d\\.)([1-9])[ .]([01])(?:ch)?(?![\\d])|\\b([2-8])ch\\b", RegexOption.IGNORE_CASE)
-
-    private fun parseChannels(text: String): Int? {
-        return CHANNELS.findAll(text).mapNotNull { match ->
-            val main = match.groupValues[1].toIntOrNull()
-            val lfe = match.groupValues[2].toIntOrNull()
-            when {
-                main != null && lfe != null && main in setOf(1, 2, 5, 6, 7) -> main + lfe
-                match.groupValues[3].isNotEmpty() -> match.groupValues[3].toInt()
-                else -> null
-            }
-        }.maxOrNull()
     }
 
     // ── Size ──────────────────────────────────────────────────────────────────

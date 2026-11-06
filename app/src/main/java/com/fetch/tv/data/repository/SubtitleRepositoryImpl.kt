@@ -243,6 +243,4 @@ class SubtitleRepositoryImpl @Inject constructor(
     private fun encodePathSegment(value: String): String {
         return java.net.URLEncoder.encode(value, "UTF-8").replace("+", "%20")
     }
-
-    private fun String?.isNullOfBlank(): Boolean = this == null || this.isBlank()
 }

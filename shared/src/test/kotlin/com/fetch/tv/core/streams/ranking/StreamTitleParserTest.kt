@@ -21,7 +21,6 @@ class StreamTitleParserTest {
         assertTrue(HdrFormat.HDR10 in d.hdr)
         assertTrue(AudioFormat.TRUEHD in d.audio)
         assertTrue(d.hasAtmos)
-        assertEquals(8, d.audioChannels)
         assertEquals(ReleaseSource.REMUX, d.source)
         assertEquals(312, d.seeders)
         assertEquals((58.2 * 1_073_741_824).toLong(), d.sizeBytes)
@@ -50,7 +49,6 @@ class StreamTitleParserTest {
     fun `separates dd plus from dd and dts flavours`() {
         val ddp = StreamTitleParser.parse("Show.1080p.WEB-DL.DDP5.1.H.264-NTb")
         assertEquals(setOf(AudioFormat.EAC3), ddp.audio)
-        assertEquals(6, ddp.audioChannels)
         assertEquals(VideoCodec.AVC, ddp.videoCodec)
         assertEquals(ReleaseSource.WEB_DL, ddp.source)
 

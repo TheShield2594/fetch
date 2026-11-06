@@ -383,7 +383,6 @@ class AddonRepositoryImpl(
         val remoteSet = normalizedRemote.map { normalizeUrl(it) }.toSet()
 
         val initialLocalUrls = preferences.installedAddonUrls.first()
-        val initialLocalSet = initialLocalUrls.map { normalizeUrl(it) }.toSet()
         val shouldRemoveMissingLocal = if (removeMissingLocal && normalizedRemote.isEmpty() && initialLocalUrls.isNotEmpty()) {
             Log.w(
                 TAG,

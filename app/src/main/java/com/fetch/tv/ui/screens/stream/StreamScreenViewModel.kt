@@ -18,12 +18,6 @@ import com.fetch.tv.R
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.player.StreamAutoPlayPolicy
 import com.fetch.tv.core.player.StreamAutoPlaySelector
-import com.fetch.tv.core.tracking.TrackingMediaKind
-import com.fetch.tv.core.tracking.TrackingMediaReference
-import com.fetch.tv.core.tracking.TrackingScrobbleAction
-import com.fetch.tv.core.tracking.TrackingScrobbleCoordinator
-import com.fetch.tv.core.tracking.TrackingScrobbleEvent
-import com.fetch.tv.core.tracking.buildTrackingMediaReference
 import com.fetch.tv.core.util.parseRuntimeMinutes
 import com.fetch.tv.core.streams.StreamBadgePresentation
 import com.fetch.tv.core.streams.YouTubeStreamResolver
@@ -44,12 +38,10 @@ import com.fetch.tv.core.streams.unplayableOnlyAddonNames
 import com.fetch.tv.domain.model.Meta
 import com.fetch.tv.domain.model.Stream
 import com.fetch.tv.domain.model.Video
-import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.domain.repository.AddonRepository
 import com.fetch.tv.domain.repository.MetaRepository
 import com.fetch.tv.domain.repository.StreamRepository
-import com.fetch.tv.domain.repository.WatchProgressRepository
 import com.fetch.tv.ui.components.SourceChipItem
 import com.fetch.tv.ui.components.SourceChipStatus
 import com.fetch.tv.ui.screens.player.StreamSidecarSubtitles
@@ -93,8 +85,6 @@ class StreamScreenViewModel @Inject constructor(
     private val streamBadgePresentation: StreamBadgePresentation,
     streamBadgeSettingsDataStore: StreamBadgeSettingsDataStore,
     private val bingeGroupCacheDataStore: BingeGroupCacheDataStore,
-    private val watchProgressRepository: WatchProgressRepository,
-    private val trackingScrobbleCoordinator: TrackingScrobbleCoordinator,
     private val youTubeStreamResolver: YouTubeStreamResolver,
     private val externalPlaybackTracker: com.fetch.tv.core.player.ExternalPlaybackTracker,
     private val subtitleRepository: com.fetch.tv.domain.repository.SubtitleRepository,
@@ -394,7 +384,6 @@ class StreamScreenViewModel @Inject constructor(
     }
 
     private fun shouldUseDirectAutoPlayFlow(
-        playerPreference: PlayerPreference,
         streamAutoPlayMode: StreamAutoPlayMode
     ): Boolean {
         return streamAutoPlayMode != StreamAutoPlayMode.MANUAL
@@ -466,7 +455,6 @@ class StreamScreenViewModel @Inject constructor(
                 autoPlayHandledForSession = true
             } else if (!directAutoPlayModeInitializedForSession) {
                 directAutoPlayFlowEnabledForSession = shouldUseDirectAutoPlayFlow(
-                    playerPreference = playerSettings.playerPreference,
                     streamAutoPlayMode = playerSettings.streamAutoPlayMode
                 )
                 // In MANUAL mode, still enable direct auto-play if a persisted
@@ -1481,14 +1469,6 @@ class StreamScreenViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Returns true if an external player is currently active (launched but not yet returned).
-     * Used to keep the overlay visible while external player is on screen.
-     */
-    fun isExternalPlayerActive(): Boolean = externalPlaybackTracker.isTracking
-
-    fun isExternalPlayerAutoLaunch(): Boolean = externalPlaybackTracker.isAutoLaunch
-
     /** True when this screen was reached by an auto-next that the user has since aborted, so its
      *  pending auto-launch should be skipped (fall back to the source list). */
     fun isAutoNextContinuationAborted(): Boolean = externalPlaybackTracker.isAutoNextContinuationAborted()
@@ -1648,28 +1628,6 @@ class StreamScreenViewModel @Inject constructor(
         streamLoadScope = null
         streamLoadJob = null
         sourceChipErrorDismissJob?.cancel()
-    }
-
-    /**
-     * Get the resume position (in ms) for the given playback info.
-     * Returns 0 if no progress is saved.
-     */
-    suspend fun getResumePositionMs(playbackInfo: StreamPlaybackInfo): Long {
-        val contentId = playbackInfo.contentId ?: return 0L
-        val progress = if (playbackInfo.season != null && playbackInfo.episode != null) {
-            watchProgressRepository.getEpisodeProgress(
-                contentId,
-                playbackInfo.season,
-                playbackInfo.episode,
-                playbackInfo.profileId
-            )
-        } else {
-            watchProgressRepository.getProgress(contentId, playbackInfo.profileId)
-        }
-        val wp = progress.first() ?: return 0L
-        // Don't resume if completed
-        if (wp.isCompleted()) return 0L
-        return wp.position
     }
 
     /**
@@ -1857,83 +1815,6 @@ class StreamScreenViewModel @Inject constructor(
         } catch (e: Exception) {
             Log.w(TAG, "Failed to fetch subtitles for external player", e)
             null
-        }
-    }
-
-    /**
-     * Save watch progress returned by an external player.
-     * Called when the external player returns position/duration data via ActivityResult.
-     *
-     * Sends both scrobbleStart + scrobbleStop to Trakt so the playback session is properly
-     * recorded (Trakt requires an active session before stop will persist progress).
-     */
-    fun saveExternalPlayerProgress(
-        playbackInfo: StreamPlaybackInfo,
-        positionMs: Long,
-        durationMs: Long?
-    ) {
-        val contentId = playbackInfo.contentId ?: return
-        val videoId = playbackInfo.videoId ?: contentId
-        val effectiveDuration = durationMs ?: 0L
-
-        viewModelScope.launch {
-            val progress = WatchProgress(
-                contentId = contentId,
-                contentType = playbackInfo.contentType ?: "movie",
-                name = playbackInfo.contentName ?: playbackInfo.title,
-                poster = playbackInfo.poster,
-                backdrop = playbackInfo.backdrop,
-                logo = playbackInfo.logo,
-                videoId = videoId,
-                season = playbackInfo.season,
-                episode = playbackInfo.episode,
-                episodeTitle = playbackInfo.episodeTitle,
-                position = positionMs,
-                duration = effectiveDuration,
-                lastWatched = System.currentTimeMillis()
-            )
-            Log.d(TAG, "Saving external player progress: pos=${positionMs}ms, dur=${effectiveDuration}ms, " +
-                "content=$contentId, video=$videoId")
-            watchProgressRepository.saveProgress(progress, playbackInfo.profileId)
-
-            val progressPercent = if (effectiveDuration > 0L) {
-                (positionMs.toFloat() / effectiveDuration.toFloat() * 100f).coerceIn(0f, 100f)
-            } else {
-                0f
-            }
-            if (progressPercent > 0f) {
-                val scrobbleItem = buildScrobbleItem(playbackInfo)
-                if (scrobbleItem != null) {
-                    trackingScrobbleCoordinator.scrobble(
-                        TrackingScrobbleAction.START,
-                        TrackingScrobbleEvent(scrobbleItem, 0.0)
-                    )
-                    trackingScrobbleCoordinator.scrobble(
-                        TrackingScrobbleAction.STOP,
-                        TrackingScrobbleEvent(scrobbleItem, progressPercent.toDouble())
-                    )
-                }
-            }
-        }
-    }
-
-    private fun buildScrobbleItem(playbackInfo: StreamPlaybackInfo): TrackingMediaReference? {
-        val rawContentId = playbackInfo.contentId ?: return null
-        val reference = buildTrackingMediaReference(
-            contentType = playbackInfo.contentType ?: "movie",
-            parentMetaId = rawContentId,
-            videoId = playbackInfo.videoId,
-            title = playbackInfo.contentName ?: playbackInfo.title,
-            releaseInfo = playbackInfo.year,
-            seasonNumber = playbackInfo.season,
-            episodeNumber = playbackInfo.episode,
-            episodeTitle = playbackInfo.episodeTitle
-        )
-        return reference.takeIf { media ->
-            media.hasResolvableIdentity &&
-                (media.kind == TrackingMediaKind.MOVIE ||
-                    media.kind == TrackingMediaKind.ANIME ||
-                    media.episode != null)
         }
     }
 

@@ -23,7 +23,6 @@ data class Stream(
     val addonLogo: String?,
     val sources: List<String>? = null,
     val quality: String? = null,
-    val qualityValue: Int = -1,
     val clientResolve: StreamClientResolve? = null,
     val badges: List<StreamBadge> = emptyList(),
     val subtitles: List<Subtitle> = emptyList(),
@@ -99,11 +98,6 @@ data class Stream(
         val idxStr = clean.substringAfter('/', "").substringBefore('/')
         return idxStr.toIntOrNull()
     }
-
-    /**
-     * Returns true if this is a YouTube stream
-     */
-    fun isYouTube(): Boolean = ytId != null
 
     /**
      * Returns the YouTube video id when [ytId] is the only way to play this stream,
@@ -201,20 +195,8 @@ data class StreamClientResolve(
     val type: String?,
     val infoHash: String?,
     val fileIdx: Int?,
-    val magnetUri: String?,
-    val sources: List<String>?,
     val torrentName: String?,
     val filename: String?,
-    val mediaType: String?,
-    val mediaId: String?,
-    val mediaOnlyId: String?,
-    val title: String?,
-    val season: Int?,
-    val episode: Int?,
-    val service: String?,
-    val serviceIndex: Int?,
-    val serviceExtension: String?,
-    val isCached: Boolean?,
     val stream: StreamClientResolveStream? = null
 )
 
@@ -227,11 +209,6 @@ data class StreamClientResolveStream(
 data class StreamClientResolveRaw(
     val torrentName: String?,
     val filename: String?,
-    val size: Long?,
-    val folderSize: Long?,
-    val tracker: String?,
-    val indexer: String?,
-    val network: String?,
     val parsed: StreamClientResolveParsed?
 )
 
@@ -239,10 +216,7 @@ data class StreamClientResolveRaw(
 data class StreamClientResolveParsed(
     val rawTitle: String?,
     val parsedTitle: String?,
-    val year: Int?,
     val resolution: String?,
-    val seasons: List<Int>?,
-    val episodes: List<Int>?,
     val quality: String?,
     val hdr: List<String>?,
     val codec: String?,
@@ -250,14 +224,7 @@ data class StreamClientResolveParsed(
     val channels: List<String>?,
     val languages: List<String>?,
     val group: String?,
-    val network: String?,
-    val edition: String?,
-    val duration: Long?,
-    val bitDepth: String?,
-    val extended: Boolean?,
-    val theatrical: Boolean?,
-    val remastered: Boolean?,
-    val unrated: Boolean?
+    val edition: String?
 )
 
 @Immutable

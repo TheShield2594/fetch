@@ -103,4 +103,5 @@ object ExternalPlayerLauncher {
             ).show()
             false
         }
+    }
 }

@@ -33,7 +33,7 @@ export const metadataApi = {
     );
   },
   refreshAllMetadata() {
-    return request<{ refreshed: number; processed: number; total: number }>("/metadata/refresh-all", { method: "POST", timeoutMs: 120000 });
+    return request<{ refreshed: number; processed?: number; total: number }>("/metadata/refresh-all", { method: "POST", timeoutMs: 120000 });
   },
   // Tags
   getItemTags(type: "movie" | "series" | "episode", imdbId: string) {

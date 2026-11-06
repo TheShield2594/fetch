@@ -92,7 +92,9 @@ class ProfileDataStoreFactory @Inject constructor(
         "profile_settings",
         "screen_time",
         "skip_marker_settings",
-        "tv_channel_prefs"
+        "tv_channel_prefs",
+        // Updater channel/banner prefs (full flavor only).
+        "update_settings"
     )
 
     /** Set of DataStore file names that were reset due to corruption during this session. */

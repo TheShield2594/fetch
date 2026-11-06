@@ -2,7 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 import { requireAdmin } from "../lib/request-auth.js";
 import { prisma } from "../lib/prisma.js";
 import { getTmdb } from "../lib/tmdb-client.js";
-import { upsertMetadata, syncMetadata } from "../lib/metadata.js";
+import { upsertMetadata, syncMetadata, METADATA_FRESHNESS_MS } from "../lib/metadata.js";
 import { getOmdbApiKey, fetchOmdbRatings, upsertOmdbRatings } from "../lib/omdb.js";
 import { getMetadataType } from "../lib/types.js";
 import {
@@ -248,12 +248,14 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
     }
 
     // Titles TMDB no longer knows (or that failed this time) would otherwise stay the
-    // stalest rows forever and take every slot of the next run. Move them to the back.
+    // stalest rows forever and take every slot of the next run. Move them behind every row
+    // that is already past the freshness window, but keep them just outside that window so
+    // syncMetadata still treats them as stale and retries TMDB.
     if (notRefreshed.length > 0) {
       try {
         await prisma.metadata.updateMany({
           where: { OR: notRefreshed.map(({ imdbId, type }) => ({ imdbId, type })) },
-          data: { updatedAt: new Date() },
+          data: { updatedAt: new Date(Date.now() - METADATA_FRESHNESS_MS - 1000) },
         });
       } catch (error) {
         request.log.warn(error, "Failed to rotate unrefreshed metadata rows");

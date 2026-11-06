@@ -89,16 +89,18 @@ class ProfileDataFileCleanupTest {
     }
 
     @Test
-    fun `account reset keeps device-wide IntroDB and screen time stores`() = runBlocking {
+    fun `account reset keeps device-wide IntroDB, screen time and updater stores`() = runBlocking {
         val factory = ProfileDataStoreFactory(context)
         val skipMarkers = file("skip_marker_settings.preferences_pb")
         val screenTime = file("screen_time.preferences_pb")
+        val updater = file("update_settings.preferences_pb")
         val profileScoped = file("library_p2.preferences_pb")
 
         factory.clearProfileScopedData()
 
         assertTrue(skipMarkers.exists())
         assertTrue(screenTime.exists())
+        assertTrue(updater.exists())
         assertFalse(profileScoped.exists())
     }
 

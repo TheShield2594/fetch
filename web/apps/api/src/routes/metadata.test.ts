@@ -41,6 +41,7 @@ vi.mock("../lib/recommendations.js", () => ({
   loadRecommendations: (...a: unknown[]) => loadRecommendations(...a),
 }));
 vi.mock("../lib/metadata.js", () => ({
+  METADATA_FRESHNESS_MS: 7 * 24 * 60 * 60 * 1000,
   syncMetadata: (...a: unknown[]) => syncMetadata(...a),
   upsertMetadata: (...a: unknown[]) => upsertMetadata(...a),
 }));
@@ -317,7 +318,7 @@ describe("metadata routes", () => {
       expect(prismaMock.metadata.updateMany).not.toHaveBeenCalled();
     });
 
-    it("moves titles TMDB didn't return to the back of the queue", async () => {
+    it("moves titles TMDB didn't return back in the queue but keeps them stale for sync", async () => {
       prismaMock.metadata.findMany.mockResolvedValue([
         { imdbId: "tt1", type: "movie" },
         { imdbId: "tt2", type: "series" },
@@ -336,6 +337,9 @@ describe("metadata routes", () => {
         where: { OR: [{ imdbId: "tt2", type: "series" }, { imdbId: "tt3", type: "movie" }] },
         data: { updatedAt: expect.any(Date) },
       });
+      const rotatedTo = prismaMock.metadata.updateMany.mock.calls[0]?.[0].data.updatedAt as Date;
+      // Still outside syncMetadata's 7-day freshness window, so a sync retries TMDB.
+      expect(Date.now() - rotatedTo.getTime()).toBeGreaterThan(7 * 24 * 60 * 60 * 1000);
     });
 
     it("keeps going when one title's refresh throws", async () => {

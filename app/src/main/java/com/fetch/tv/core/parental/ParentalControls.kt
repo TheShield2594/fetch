@@ -389,6 +389,19 @@ fun startupNeedsParentPin(lock: ProfileOpenLock?, activeProfileId: Int?, profile
     return lock.needsParentPinToOpen(activeProfileId, profileIds)
 }
 
+/**
+ * Whether startup shows the profile picker. Uses the loaded profile count only (null until read),
+ * never the primary-only placeholder, and always routes a profile that needs its own PIN or the
+ * parent PIN through the PIN-gated picker.
+ */
+fun shouldShowStartupPicker(
+    selectedThisSession: Boolean,
+    loadedProfileCount: Int?,
+    activeProfileHasPin: Boolean,
+    needsParentPin: Boolean?
+): Boolean = !selectedThisSession &&
+    ((loadedProfileCount ?: 0) > 1 || activeProfileHasPin || needsParentPin == true)
+
 /** The lock setting, limits and PIN states that decide [needsParentPinToOpen]. */
 data class ProfileOpenLock(
     val lockOn: Boolean,

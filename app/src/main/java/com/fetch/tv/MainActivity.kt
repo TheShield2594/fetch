@@ -94,6 +94,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import com.fetch.tv.core.parental.shouldShowStartupPicker
 import com.fetch.tv.core.parental.startupNeedsParentPin
 import com.fetch.tv.ui.screens.ambient.AmbientIdleController
 import com.fetch.tv.ui.screens.ambient.AmbientModeHost
@@ -463,8 +464,9 @@ open class MainActivity : ComponentActivity() {
                 }
             }
 
-            val activeProfileHasPin = remember(activeProfileId, profilePinStates) {
-                profilePinStates?.get(activeProfileId) == true
+            // Judged on the loaded active id, not the placeholder default (see loadedActiveProfileId).
+            val activeProfileHasPin = remember(loadedActiveProfileId, profilePinStates) {
+                loadedActiveProfileId?.let { profilePinStates?.get(it) } == true
             }
 
             // "Lock unrestricted profiles" can also lock the remembered profile behind the parent
@@ -806,7 +808,14 @@ open class MainActivity : ComponentActivity() {
                     } else {
 
                     val shouldShowProfileSelection =
-                        !hasSelectedProfileThisSession && (profiles.size > 1 || activeProfileHasPin)
+                        // Loaded values only: the placeholder list holds just the primary profile.
+                        // A profile that needs the parent PIN always goes through the PIN-gated picker.
+                        shouldShowStartupPicker(
+                            selectedThisSession = hasSelectedProfileThisSession,
+                            loadedProfileCount = loadedProfiles?.size,
+                            activeProfileHasPin = activeProfileHasPin,
+                            needsParentPin = activeProfileNeedsParentPin
+                        )
 
                     if (shouldShowProfileSelection) {
                         startupDestination = if (splashTriggered) StartupDestination.Loading else StartupDestination.ProfileSelection

@@ -167,4 +167,16 @@ class KidsRulesTest {
         // Once the real list (with the restricted sibling) is in, the remembered profile is locked.
         assertTrue(startupNeedsParentPin(lock, activeProfileId = 2, profileIds = listOf(1, 2, 3)) == true)
     }
+
+    @Test
+    fun `startup picker follows loaded values and always gates a parent-PIN profile`() {
+        // Placeholder phase: nothing loaded yet, so no picker decision is based on one profile.
+        assertFalse(shouldShowStartupPicker(false, loadedProfileCount = null, activeProfileHasPin = false, needsParentPin = null))
+        // Several profiles loaded: picker.
+        assertTrue(shouldShowStartupPicker(false, loadedProfileCount = 3, activeProfileHasPin = false, needsParentPin = false))
+        // A single profile that still needs the parent PIN goes through the picker.
+        assertTrue(shouldShowStartupPicker(false, loadedProfileCount = 1, activeProfileHasPin = false, needsParentPin = true))
+        // Already chosen this session: no picker.
+        assertFalse(shouldShowStartupPicker(true, loadedProfileCount = 3, activeProfileHasPin = true, needsParentPin = true))
+    }
 }

@@ -895,12 +895,18 @@ describe("signed addon URLs", () => {
       const manifest = await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/manifest.json` });
       expect(manifest.statusCode).toBe(502);
       expect(calls.every((call) => call.headers[KEY_HEADER] === undefined)).toBe(true);
+      const listsCall = first(callsTo("/lists"), "request to /lists");
+      expect(listsCall.headers["x-profile-id"]).toBe(OTHER_PROFILE_ID);
+      expect(listsCall.headers[KEY_HEADER]).toBeUndefined();
 
       const marked = await app.inject({
         method: "GET",
         url: `/p/${OTHER_PROFILE_ID}/mark-watched/movie/tt0111161.srt?token=${capability({ type: "movie", imdbId: "tt0111161" }, OTHER_PROFILE_ID)}`,
       });
       expect(marked.body).not.toContain("Marked as watched");
+      const watchCall = first(callsTo("/watch"), "request to /watch");
+      expect(watchCall.headers["x-profile-id"]).toBe(OTHER_PROFILE_ID);
+      expect(watchCall.headers[KEY_HEADER]).toBeUndefined();
     });
 
     it("never hands an unsigned request the signed profile path", async () => {

@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.io.File
+import java.io.IOException
 
 private class ScopedDataStore(
     val store: DataStore<Preferences>,
@@ -139,28 +140,39 @@ class ProfileDataStoreFactory @Inject constructor(
         }
     }
 
+    /**
+     * Clears every profile-scoped store. Every step runs even if an earlier one fails, but a
+     * failed store edit or file deletion is reported by throwing at the end, so the caller
+     * doesn't treat the old account's data as gone when some of it is still on disk.
+     */
     suspend fun clearProfileScopedData() = withContext(Dispatchers.IO) {
+        val failures = mutableListOf<String>()
         val cachedStores = synchronized(lock) { cache.toMap() }
-        cachedStores.values.forEach { scoped ->
+        cachedStores.forEach { (name, scoped) ->
             runCatching { scoped.store.edit { it.clear() } }
+                .onFailure { failures += "clear $name: ${it.message}" }
         }
         deletedProfileIds.clear()
         corruptedFileNames.clear()
 
         val cachedFileNames = cachedStores.keys.mapTo(mutableSetOf()) { "$it$DATASTORE_FILE_SUFFIX" }
         val dataStoreDir = File(context.filesDir, "datastore")
-        if (!dataStoreDir.exists()) return@withContext
-        synchronized(shadowCopyLock) {
-            dataStoreDir.listFiles()?.forEach { file ->
-                val isShadowCopy = file.name.endsWith(SHADOW_COPY_SUFFIX)
-                val primaryName = file.name.removeSuffix(SHADOW_COPY_SUFFIX)
-                if (!isProfileScopedDataStoreFile(primaryName)) return@forEach
-                // Live stores were cleared above and keep their (now empty) file, but
-                // their shadow copies still hold the old data and must go too.
-                if (isShadowCopy || primaryName !in cachedFileNames) {
-                    file.delete()
+        if (dataStoreDir.exists()) {
+            synchronized(shadowCopyLock) {
+                dataStoreDir.listFiles()?.forEach { file ->
+                    val isShadowCopy = file.name.endsWith(SHADOW_COPY_SUFFIX)
+                    val primaryName = file.name.removeSuffix(SHADOW_COPY_SUFFIX)
+                    if (!isProfileScopedDataStoreFile(primaryName)) return@forEach
+                    // Live stores were cleared above and keep their (now empty) file, but
+                    // their shadow copies still hold the old data and must go too.
+                    if (isShadowCopy || primaryName !in cachedFileNames) {
+                        if (!file.delete() && file.exists()) failures += "delete ${file.name}"
+                    }
                 }
             }
+        }
+        if (failures.isNotEmpty()) {
+            throw IOException("Profile-scoped data not fully cleared: ${failures.joinToString()}")
         }
     }
 

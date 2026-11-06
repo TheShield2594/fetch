@@ -89,6 +89,24 @@ class ProfileDataFileCleanupTest {
     }
 
     @Test
+    fun `account reset reports a file it could not delete instead of claiming success`() = runBlocking {
+        val factory = ProfileDataStoreFactory(context)
+        val deletable = file("watch_progress_p2.preferences_pb")
+        // A non-empty directory under a store's name can't be removed with File.delete().
+        val stuck = File(dataStoreDir, "library_p2.preferences_pb").apply {
+            mkdirs()
+            File(this, "child").writeText("x")
+        }
+
+        val failure = runCatching { factory.clearProfileScopedData() }.exceptionOrNull()
+
+        assertTrue("expected the reset to report failure", failure is java.io.IOException)
+        assertTrue(failure!!.message!!.contains("library_p2.preferences_pb"))
+        assertFalse(deletable.exists())
+        assertTrue(stuck.exists())
+    }
+
+    @Test
     fun `deleting a profile's continue watching snapshots leaves other profiles alone`() = runBlocking {
         val dir = File(context.filesDir, "cw_enrichment").apply { mkdirs() }
         val deleted = listOf("inprogress_3.json", "nextup_3.json", "nextup_3.json.tmp")

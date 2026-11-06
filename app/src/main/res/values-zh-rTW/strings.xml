@@ -432,7 +432,6 @@
     <string name="settings_content_discovery">內容與探索</string>
     <string name="settings_content_discovery_subtitle">擴充套件、目錄與探索來源</string>
     <string name="settings_content_discovery_addons_subtitle">管理擴充套件、目錄順序和收藏</string>
-    <string name="settings_integration">整合</string>
     <string name="settings_playback">播放</string>
     <string name="settings_tracking_title">追蹤</string>
     <string name="settings_tracking_description">連接追蹤提供者，並選擇由哪一個為您提供媒體庫和繼續觀看資料。</string>
@@ -569,11 +568,6 @@
     <string name="account_stat_library">媒體庫</string>
     <string name="account_stat_progress">進度</string>
     <string name="account_stat_watched">已觀看</string>
-    <string name="settings_integrations_section">整合</string>
-    <string name="settings_integrations_section_subtitle">管理可用的整合服務</string>
-    <string name="settings_tmdb_subtitle">中繼資料增強控制</string>
-    <string name="settings_mdblist_subtitle">外部評分提供者</string>
-    <string name="settings_animeskip_subtitle">動畫片頭/片尾跳過時間戳</string>
 
     <string name="playback_title">播放設定</string>
     <string name="playback_subtitle">配置影片播放和字幕選項</string>
@@ -1288,7 +1282,6 @@
     <string name="catalog_order_disable">停用</string>
 
 
-    <string name="stream_retry">重試</string>
     <string name="stream_no_streams">找不到串流</string>
     <string name="stream_no_streams_hint">嘗試安裝更多擴充套件以尋找串流</string>
     <string name="stream_finding_source">正在尋找串流來源</string>
@@ -1618,18 +1611,7 @@
     <string name="account_sign_out">登出</string>
     <string name="account_sign_out_confirm_title">登出？</string>
     <string name="account_sign_out_confirm_subtitle">您需要重新登入才能在此裝置上同步媒體庫、觀看進度和擴充套件。</string>
-    <string name="account_error_signin_required">請先登入帳戶。</string>
-    <string name="account_signin_create_title">登入／建立帳戶</string>
-    <string name="account_signin_create_desc">使用電子郵件和密碼建立或登入您的帳戶。</string>
-    <string name="account_generate_sync_desc">在此裝置上建立代碼，讓其他裝置可以連結到此裝置。</string>
-    <string name="account_enter_sync_desc">使用同步碼將此裝置連結至其他裝置。</string>
-    <string name="account_signed_in_as">已登入為</string>
-    <string name="account_generate_sync_signed_in_desc">建立代碼，讓其他裝置可以與此帳戶同步。</string>
-    <string name="account_unknown_device">未知裝置</string>
 
-    <string name="auth_signin_title">登入</string>
-    <string name="auth_signin_tv_disabled">電視上的電子郵件/密碼輸入已停用。請繼續使用 QR 碼登入。</string>
-    <string name="auth_signin_qr_btn">繼續使用 QR</string>
     <string name="auth_email_hint">直接使用您自託管伺服器上的帳戶登入。</string>
     <string name="auth_email_instruction">輸入您的電子郵件和密碼以繼續。</string>
     <string name="auth_email_placeholder">電子郵件地址</string>
@@ -1688,25 +1670,7 @@
     <string name="auth_qr_terms_prefix">註冊/登入即表示我同意</string>
     <string name="auth_qr_terms_link">服務條款</string>
 
-    <string name="sync_generate_title">產生同步碼</string>
-    <string name="sync_generate_subtitle">建立 PIN 以保護您的同步碼。與其他裝置分享此代碼。</string>
-    <string name="sync_generate_code_label">您的同步碼</string>
-    <string name="sync_generate_instruction">在其他裝置上輸入此代碼和您的 PIN 以連結它們。</string>
-    <string name="sync_generate_done">完成</string>
-    <string name="sync_generate_pin_label">選擇 PIN (4-8 個字元)</string>
-    <string name="sync_generate_pin_placeholder">輸入 PIN</string>
-    <string name="sync_generate_generating">產生中…</string>
-    <string name="sync_generate_code_btn">產生代碼</string>
 
-    <string name="sync_claim_title">連結裝置</string>
-    <string name="sync_claim_subtitle">輸入其他裝置的同步碼和 PIN 以連結此裝置。</string>
-    <string name="sync_claim_success">裝置連結成功！您的擴充套件現在將同步。</string>
-    <string name="sync_claim_done">完成</string>
-    <string name="sync_claim_code_label">同步碼</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">輸入 PIN</string>
-    <string name="sync_claim_linking">連結中…</string>
 
 
     <string name="profile_selection_title">誰在觀看？</string>
@@ -1744,13 +1708,6 @@
     <string name="update_latest_version">您正在使用最新版本。</string>
     <string name="update_unknown_sources">允許從未知來源安裝以繼續。</string>
     <!-- AccountScreen -->
-    <string name="account_title">帳戶</string>
-    <string name="account_sign_in_description">登入以在裝置間同步您的媒體庫、觀看進度和擴充套件。當 Trakt 未連線時，媒體庫同步使用 Fetch Sync，觀看進度可使用 Trakt 或 Fetch Sync。</string>
-    <string name="account_sync_code_title">同步碼</string>
-    <string name="account_sync_code_description">無需建立帳戶即可跨裝置同步。</string>
-    <string name="account_linked_devices">已連結的裝置 (%1$d)</string>
-    <string name="account_no_linked_devices">沒有已連結的裝置</string>
-    <string name="account_unlink">取消連結</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">正在載入集數評分…</string>
@@ -1847,7 +1804,6 @@
 
     <!-- 一般錯誤 -->
     <string name="error_unknown">未知錯誤</string>
-    <string name="addon_error_not_found">找不到擴充套件</string>
 
     <!-- 帳戶錯誤 -->
 
@@ -1866,11 +1822,7 @@
 
     <string name="cd_play">播放</string>
     <string name="cd_pause">暫停</string>
-    <string name="cd_subtitles">字幕</string>
-    <string name="cd_audio_tracks">音軌</string>
-    <string name="cd_sources">來源</string>
     <string name="cd_switch_player_engine">切換播放引擎</string>
-    <string name="cd_episodes">集數</string>
     <string name="cd_playback_speed">播放速度</string>
     <string name="cd_aspect_ratio">畫面比例</string>
     <string name="cd_open_external_player">在外部播放器中開啟</string>
@@ -1895,7 +1847,6 @@
     <string name="cd_refresh">重新整理</string>
     <string name="cd_remove">移除</string>
     <string name="cd_preview">預覽</string>
-    <string name="cd_unlink">取消連結</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt 標誌</string>
     <string name="cd_trakt_qr">Trakt 啟用 QR</string>

@@ -371,7 +371,6 @@
     <string name="settings_content_discovery">コンテンツ &amp; ディスカバー</string>
     <string name="settings_content_discovery_subtitle">アドオン、カタログ、発見ソース</string>
     <string name="settings_content_discovery_addons_subtitle">アドオン、カタログ順序、コレクションを管理</string>
-    <string name="settings_integration">連携</string>
     <string name="settings_playback">再生</string>
     <string name="settings_advanced">詳細設定</string>
     <string name="settings_advanced_subtitle">パフォーマンス、ナビゲーション、キャッシュ、診断</string>
@@ -472,11 +471,6 @@
     <string name="account_stat_library">ライブラリ</string>
     <string name="account_stat_progress">進行状況</string>
     <string name="account_stat_watched">視聴済み</string>
-    <string name="settings_integrations_section">連携</string>
-    <string name="settings_integrations_section_subtitle">利用可能な統合を管理する</string>
-    <string name="settings_tmdb_subtitle">メタデータ補完の設定</string>
-    <string name="settings_mdblist_subtitle">外部評価プロバイダー</string>
-    <string name="settings_animeskip_subtitle">アニメのイントロ/アウトロスキップのタイムスタンプ</string>
 
     <string name="playback_title">再生設定</string>
     <string name="playback_subtitle">動画再生と字幕オプションを設定</string>
@@ -1060,7 +1054,6 @@
     <string name="catalog_order_disable">無効にする</string>
 
     
-    <string name="stream_retry">再試行</string>
     <string name="stream_no_streams">ストリームが見つかりません</string>
     <string name="stream_no_streams_hint">より多くのアドオンをインストールしてストリームを見つけてみてください</string>
     <string name="stream_finding_source">ストリームソースを検索中</string>
@@ -1329,18 +1322,7 @@
     <string name="account_total_label">合計</string>
     <string name="account_loading_sync">同期データを読み込み中\u2026</string>
     <string name="account_sign_out">サインアウト</string>
-    <string name="account_error_signin_required">最初にアカウントでサインインしてください。</string>
-    <string name="account_signin_create_title">サインイン / アカウント作成</string>
-    <string name="account_signin_create_desc">メールとパスワードを使用してアカウントを作成またはサインインします。</string>
-    <string name="account_generate_sync_desc">このデバイスでコードを生成し、他のデバイスがリンクできるようにします。</string>
-    <string name="account_enter_sync_desc">同期コードを使用してこのデバイスを別のデバイスにリンクします。</string>
-    <string name="account_signed_in_as">サインイン中のユーザー</string>
-    <string name="account_generate_sync_signed_in_desc">他のデバイスがこのアカウントと同期できるようにコードを作成します。</string>
-    <string name="account_unknown_device">不明なデバイス</string>
 
-    <string name="auth_signin_title">サインイン</string>
-    <string name="auth_signin_tv_disabled">TVでのメール/パスワード入力は無効です。QRサインインで続けてください</string>
-    <string name="auth_signin_qr_btn">QRで続ける</string>
 
     <string name="auth_qr_finishing">サインインを完了中\u2026</string>
     <string name="auth_qr_expires">有効期限: %1$s</string>
@@ -1355,25 +1337,7 @@
     <string name="auth_qr_continue">続ける</string>
     <string name="auth_qr_back">戻る</string>
 
-    <string name="sync_generate_title">同期コードを生成</string>
-    <string name="sync_generate_subtitle">同期コードを保護するPINを作成してください。他のデバイスとコードを共有します</string>
-    <string name="sync_generate_code_label">同期コード</string>
-    <string name="sync_generate_instruction">このコードとPINを他のデバイスで入力してリンクしてください</string>
-    <string name="sync_generate_done">完了</string>
-    <string name="sync_generate_pin_label">PINを選択（4〜8文字）</string>
-    <string name="sync_generate_pin_placeholder">PINを入力</string>
-    <string name="sync_generate_generating">生成中\u2026</string>
-    <string name="sync_generate_code_btn">コードを生成</string>
 
-    <string name="sync_claim_title">デバイスをリンク</string>
-    <string name="sync_claim_subtitle">他のデバイスの同期コードとPINを入力してこのデバイスをリンクしてください</string>
-    <string name="sync_claim_success">デバイスのリンクに成功しました！アドオンが同期されます</string>
-    <string name="sync_claim_done">完了</string>
-    <string name="sync_claim_code_label">同期コード</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">PINを入力</string>
-    <string name="sync_claim_linking">リンク中\u2026</string>
 
 
     <string name="profile_selection_title">誰が視聴しますか？</string>
@@ -1405,13 +1369,6 @@
     <string name="update_downloading_ellipsis">ダウンロード中…</string>
     <string name="update_unknown_sources">続けるには不明なソースからのインストールを許可してください</string>
     <!-- AccountScreen -->
-    <string name="account_title">アカウント</string>
-    <string name="account_sign_in_description">サインインしてデバイス間でライブラリ、視聴進行状況、アドオンを同期。ライブラリ同期はTraktが接続されていない場合はFetch Syncを使用し、視聴進行状況はTraktまたはFetch Syncのどちらかを使用できます</string>
-    <string name="account_sync_code_title">同期コード</string>
-    <string name="account_sync_code_description">アカウントを作成せずにデバイス間で同期</string>
-    <string name="account_linked_devices">リンク済みデバイス (%1$d)</string>
-    <string name="account_no_linked_devices">リンク済みデバイスなし</string>
-    <string name="account_unlink">リンク解除</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">エピソード評価を読み込み中...</string>
@@ -1505,7 +1462,6 @@
 
     <!-- General errors -->
     <string name="error_unknown">不明なエラー</string>
-    <string name="addon_error_not_found">アドオンが見つかりません</string>
 
     <!-- Account errors -->
 
@@ -1521,11 +1477,7 @@
 
     <string name="cd_play">再生</string>
     <string name="cd_pause">一時停止</string>
-    <string name="cd_subtitles">字幕</string>
-    <string name="cd_audio_tracks">音声トラック</string>
-    <string name="cd_sources">ソース</string>
     <string name="cd_switch_player_engine">プレーヤーエンジンを切り替え</string>
-    <string name="cd_episodes">エピソード</string>
     <string name="cd_playback_speed">再生速度</string>
     <string name="cd_aspect_ratio">アスペクト比</string>
     <string name="cd_open_external_player">外部プレーヤーで開く</string>
@@ -1550,7 +1502,6 @@
     <string name="cd_refresh">更新</string>
     <string name="cd_remove">削除</string>
     <string name="cd_preview">プレビュー</string>
-    <string name="cd_unlink">リンク解除</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Traktロゴ</string>
     <string name="cd_trakt_qr">Trakt認証QR</string>

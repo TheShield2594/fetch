@@ -357,7 +357,6 @@
     <string name="settings_content_discovery">Conteúdo e descoberta</string>
     <string name="settings_content_discovery_subtitle">Addons, catálogos e fontes de descoberta</string>
     <string name="settings_content_discovery_addons_subtitle">Gerir addons, ordem dos catálogos e coleções</string>
-    <string name="settings_integration">Integrações</string>
     <string name="settings_playback">Reprodução</string>
     <string name="settings_advanced">Avançadas</string>
     <string name="settings_advanced_subtitle">Desempenho, navegação, cache e diagnósticos</string>
@@ -458,11 +457,6 @@
     <string name="account_stat_library">biblioteca</string>
     <string name="account_stat_progress">progresso</string>
     <string name="account_stat_watched">visto</string>
-    <string name="settings_integrations_section">Integrações</string>
-    <string name="settings_integrations_section_subtitle">Gerir integrações disponíveis</string>
-    <string name="settings_tmdb_subtitle">Controlos de enriquecimento de metadados</string>
-    <string name="settings_mdblist_subtitle">Fornecedores externos de classificações</string>
-    <string name="settings_animeskip_subtitle">Marcas de tempo para saltar intro/outro de anime</string>
     <string name="playback_title">Definições de reprodução</string>
     <string name="playback_subtitle">Configura as opções de reprodução de vídeo e legendas</string>
     <string name="cd_decrease_setting">Diminuir %1$s</string>
@@ -1025,7 +1019,6 @@
     <string name="catalog_order_disabled_on_home">Desativado na página inicial</string>
     <string name="catalog_order_enable">Ativar</string>
     <string name="catalog_order_disable">Desativar</string>
-    <string name="stream_retry">Tentar novamente</string>
     <string name="stream_no_streams">Nenhum stream encontrado</string>
     <string name="stream_no_streams_hint">Tenta instalar mais addons para encontrar streams</string>
     <string name="stream_finding_source">A procurar fonte do stream</string>
@@ -1281,17 +1274,6 @@
     <string name="account_total_label">Total</string>
     <string name="account_loading_sync">A carregar dados de sincronização\u2026</string>
     <string name="account_sign_out">Terminar Sessão</string>
-    <string name="account_error_signin_required">Inicia sessão com uma conta primeiro.</string>
-    <string name="account_signin_create_title">Iniciar Sessão / Criar Conta</string>
-    <string name="account_signin_create_desc">Utiliza o e-mail e palavra-passe para criar ou iniciar sessão na tua conta.</string>
-    <string name="account_generate_sync_desc">Cria um código neste dispositivo para que outros dispositivos se possam interligar a ele.</string>
-    <string name="account_enter_sync_desc">Associa este dispositivo a outro dispositivo utilizando um código de sincronização.</string>
-    <string name="account_signed_in_as">Sessão iniciada como</string>
-    <string name="account_generate_sync_signed_in_desc">Cria um código para que outros dispositivos se possam sincronizar com esta conta.</string>
-    <string name="account_unknown_device">Dispositivo Desconhecido</string>
-    <string name="auth_signin_title">Iniciar Sessão</string>
-    <string name="auth_signin_tv_disabled">A introdução de e-mail/palavra-passe na TV está desativada. Continua com o início de sessão por QR.</string>
-    <string name="auth_signin_qr_btn">Continuar com QR</string>
     <string name="auth_qr_finishing">A concluir o início de sessão\u2026</string>
     <string name="auth_qr_expires">Expira em %1$s</string>
     <string name="auth_qr_scan_instruction">Lê o código QR, aprova no navegador e depois regressa aqui.</string>
@@ -1304,24 +1286,6 @@
     <string name="auth_qr_please_wait">Aguarda…</string>
     <string name="auth_qr_continue">Continuar</string>
     <string name="auth_qr_back">Voltar</string>
-    <string name="sync_generate_title">Gerar Código de Sincronização</string>
-    <string name="sync_generate_subtitle">Cria um PIN para proteger o teu código de sincronização. Partilha o código com os teus outros dispositivos.</string>
-    <string name="sync_generate_code_label">O teu Código de Sincronização</string>
-    <string name="sync_generate_instruction">Introduz este código e o teu PIN no outro dispositivo para os interligar.</string>
-    <string name="sync_generate_done">Concluído</string>
-    <string name="sync_generate_pin_label">Escolhe um PIN (4 a 8 caracteres)</string>
-    <string name="sync_generate_pin_placeholder">Introduzir PIN</string>
-    <string name="sync_generate_generating">A gerar\u2026</string>
-    <string name="sync_generate_code_btn">Gerar Código</string>
-    <string name="sync_claim_title">Interligar Dispositivo</string>
-    <string name="sync_claim_subtitle">Introduz o código de sincronização e o PIN do teu outro dispositivo para interligar este dispositivo.</string>
-    <string name="sync_claim_success">Dispositivo interligado com sucesso! Os teus addons vão agora sincronizar.</string>
-    <string name="sync_claim_done">Concluído</string>
-    <string name="sync_claim_code_label">Código de Sincronização</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">Introduzir PIN</string>
-    <string name="sync_claim_linking">A associar…</string>
     <string name="profile_selection_title">Quem está a ver?</string>
     <string name="profile_selection_subtitle">Seleciona um perfil para continuar</string>
     <string name="profile_selection_hint">Mantém premido para gerir o perfil</string>
@@ -1347,13 +1311,6 @@
     <string name="update_downloading_ellipsis">A transferir…</string>
     <string name="update_unknown_sources">Permite as instalações de fontes desconhecidas para continuar.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Conta</string>
-    <string name="account_sign_in_description">Inicia sessão para sincronizar a tua biblioteca, progresso de visualização e addons entre dispositivos. A sincronização da biblioteca utiliza o Fetch Sync quando o Trakt não está ligado, e o progresso de visualização pode utilizar tanto o Trakt como o Fetch Sync.</string>
-    <string name="account_sync_code_title">Código de Sincronização</string>
-    <string name="account_sync_code_description">Sincroniza entre dispositivos sem criar uma conta.</string>
-    <string name="account_linked_devices">Dispositivos associados (%1$d)</string>
-    <string name="account_no_linked_devices">Nenhum dispositivo associado</string>
-    <string name="account_unlink">Desassociar</string>
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">A carregar classificações dos episódios...</string>
     <string name="ratings_unavailable">As classificações dos episódios estão indisponíveis.</string>
@@ -1430,7 +1387,6 @@
     <string name="trakt_error_failed_start">Falha ao iniciar a autenticação do Trakt</string>
     <!-- General errors -->
     <string name="error_unknown">Erro desconhecido</string>
-    <string name="addon_error_not_found">Addon não encontrado</string>
     <!-- Account errors -->
     <!-- Search errors -->
     <!-- Home errors -->
@@ -1442,11 +1398,7 @@
     <string name="ratings_episode_label">E%1$d</string>
     <string name="cd_play">Reproduzir</string>
     <string name="cd_pause">Pausar</string>
-    <string name="cd_subtitles">Legendas</string>
-    <string name="cd_audio_tracks">Faixas de áudio</string>
-    <string name="cd_sources">Fontes</string>
     <string name="cd_switch_player_engine">Alterar motor do leitor</string>
-    <string name="cd_episodes">Episódios</string>
     <string name="cd_playback_speed">Velocidade de reprodução</string>
     <string name="cd_aspect_ratio">Proporção do ecrã</string>
     <string name="cd_open_external_player">Abrir em leitor externo</string>
@@ -1471,7 +1423,6 @@
     <string name="cd_refresh">Atualizar</string>
     <string name="cd_remove">Remover</string>
     <string name="cd_preview">Visualização</string>
-    <string name="cd_unlink">Desassociar</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logótipo do Trakt</string>
     <string name="cd_trakt_qr">QR de ativação do Trakt</string>

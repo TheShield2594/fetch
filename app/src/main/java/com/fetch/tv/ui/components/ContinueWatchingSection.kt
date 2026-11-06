@@ -1,16 +1,13 @@
 package com.fetch.tv.ui.components
 
-import com.fetch.tv.ui.screens.home.shuffleFocusKey
 
 import android.view.KeyEvent as AndroidKeyEvent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,21 +20,14 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -47,22 +37,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.fetch.tv.R
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.gestures.BringIntoViewSpec
-import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.tv.material3.Border
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
@@ -76,8 +54,6 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.transformations
 import coil3.request.crossfade
-import kotlin.math.roundToInt
-import java.util.concurrent.TimeUnit
 import com.fetch.tv.ui.util.recompositionHighlighter
 import com.fetch.tv.ui.util.localizeEpisodeTitle
 import com.fetch.tv.ui.util.isPlaceholderEpisodeTitle
@@ -122,226 +98,6 @@ internal fun continueWatchingArtworkWidth(
     cardWidth: Dp,
     cardHeight: Dp
 ): Dp = if (cardStyle == ContinueWatchingCardStyle.WIDE) cardHeight * WIDE_POSTER_ASPECT else cardWidth
-
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
-@Composable
-fun ContinueWatchingSection(
-    items: List<ContinueWatchingItem>,
-    onItemClick: (ContinueWatchingItem) -> Unit,
-    onDetailsClick: (ContinueWatchingItem) -> Unit = onItemClick,
-    onRemoveItem: (ContinueWatchingItem) -> Unit,
-    onStartFromBeginning: (ContinueWatchingItem) -> Unit = {},
-    showManualPlayOption: Boolean = false,
-    onPlayManually: (ContinueWatchingItem) -> Unit = {},
-    modifier: Modifier = Modifier,
-    title: String? = null,
-    focusedItemIndex: Int = -1,
-    onItemFocused: (itemIndex: Int) -> Unit = {},
-    blurUnwatchedEpisodes: Boolean = false,
-    useEpisodeThumbnails: Boolean = true,
-    downFocusRequester: FocusRequester? = null,
-    entryFocusRequester: FocusRequester? = null,
-    focusRequesters: MutableMap<Int, FocusRequester> = remember { mutableMapOf() },
-    rowFocusRequester: FocusRequester = remember { FocusRequester() },
-    listState: LazyListState = rememberLazyListState(),
-    lastFocusedIndexState: MutableIntState = remember { mutableIntStateOf(-1) },
-    cardWidth: Dp = 288.dp,
-    imageHeight: Dp = 162.dp,
-    cardStyle: ContinueWatchingCardStyle = ContinueWatchingCardStyle.CARD,
-    cornerRadius: Dp = FetchTheme.radii.md,
-    posterTitleOverride: TextStyle? = null
-) {
-    if (items.isEmpty()) return
-
-    var lastFocusedIndex by lastFocusedIndexState
-    var lastRequestedFocusIndex by remember { mutableIntStateOf(-1) }
-    var pendingFocusIndex by remember { mutableStateOf<Int?>(null) }
-    var optionsItem by remember { mutableStateOf<ContinueWatchingItem?>(null) }
-
-    // Restore focus to specific item if requested
-    LaunchedEffect(focusedItemIndex) {
-        if (focusedItemIndex >= 0 && focusedItemIndex < items.size) {
-            if (lastRequestedFocusIndex == focusedItemIndex) return@LaunchedEffect
-            var focused = false
-            for (attempt in 0 until 3) {
-                withFrameNanos { }
-                val requester = focusRequesters[focusedItemIndex] ?: continue
-                focused = runCatching { requester.requestFocus() }.isSuccess
-                if (focused) break
-            }
-            if (focused) {
-                lastRequestedFocusIndex = focusedItemIndex
-            }
-        } else {
-            lastRequestedFocusIndex = -1
-        }
-    }
-
-    Column(modifier = modifier.then(
-        if (entryFocusRequester != null) Modifier.focusRequester(entryFocusRequester) else Modifier
-    )) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl, bottom = FetchTheme.spacing.lg),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = title ?: stringResource(R.string.continue_watching),
-                style = MaterialTheme.typography.headlineMedium,
-                color = FetchTheme.colors.TextPrimary
-            )
-        }
-
-        val density = LocalDensity.current
-        val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
-        val layoutDirection = LocalLayoutDirection.current
-        val isRtl = layoutDirection == LayoutDirection.Rtl
-        val horizontalBringIntoViewSpec = remember(density, defaultBringIntoViewSpec, isRtl) {
-            val startPx = with(density) { FetchTheme.spacing.xxxl.roundToPx() }
-            @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
-            object : BringIntoViewSpec {
-                override val scrollAnimationSpec: AnimationSpec<Float> =
-                    defaultBringIntoViewSpec.scrollAnimationSpec
-                override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
-                    val childSize = kotlin.math.abs(size)
-                    if (isRtl) {
-                        val childSmallerThanParent = childSize <= containerSize
-                        val initialTarget = containerSize - startPx.toFloat()
-                        val targetForTrailingEdge =
-                            if (childSmallerThanParent && initialTarget < childSize) {
-                                childSize
-                            } else {
-                                initialTarget
-                            }
-                        return (offset + size) - targetForTrailingEdge
-                    } else {
-                        val target = startPx.toFloat()
-                        val space = containerSize - target
-                        val leading = if (childSize <= containerSize && space < childSize) containerSize - childSize else target
-                        return offset - leading
-                    }
-                }
-            }
-        }
-
-        CompositionLocalProvider(LocalBringIntoViewSpec provides horizontalBringIntoViewSpec) {
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(rowFocusRequester)
-                .focusRestorer {
-                    val visibleIndices = listState.layoutInfo.visibleItemsInfo
-                        .map { it.index }
-                        .filter { it in items.indices }
-                    val idx = lastFocusedIndex.takeIf { it in visibleIndices }
-                        ?: visibleIndices.firstOrNull()
-                    idx?.let { focusRequesters[it] }
-                        ?: FocusRequester.Default
-                }
-                .focusGroup(),
-            contentPadding = PaddingValues(horizontal = FetchTheme.spacing.xxxl),
-            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
-            state = listState
-        ) {
-            itemsIndexed(
-                items = items,
-                key = { _, progress ->
-                    progress.shuffleFocusKey ?: when (progress) {
-                        is ContinueWatchingItem.InProgress ->
-                            "cw_${progress.progress.contentId}_${progress.progress.videoId}_${progress.progress.season ?: -1}_${progress.progress.episode ?: -1}"
-                        is ContinueWatchingItem.NextUp ->
-                            "nextup_${progress.info.contentId}_${progress.info.videoId}_${progress.info.season}_${progress.info.episode}"
-                    }
-                }
-            ) { index, progress ->
-                val requester = focusRequesters.getOrPut(index) { FocusRequester() }
-                val focusModifier = Modifier.focusRequester(requester)
-                val stableOnClick = remember(progress) { { onItemClick(progress) } }
-                val stableOnLongPress = remember(progress) { { optionsItem = progress } }
-                var isCardFocused by remember { mutableStateOf(false) }
-
-                    ContinueWatchingCard(
-                    item = progress,
-                    onClick = stableOnClick,
-                    onLongPress = stableOnLongPress,
-                    blurUnwatchedEpisodes = blurUnwatchedEpisodes,
-                    useEpisodeThumbnails = useEpisodeThumbnails,
-                    cardWidth = cardWidth,
-                    imageHeight = imageHeight,
-                    cardStyle = cardStyle,
-                    cornerRadius = cornerRadius,
-                    isFocused = isCardFocused,
-                    posterTitleOverride = posterTitleOverride,
-                    modifier = Modifier
-                        .onFocusChanged { focusState ->
-                            isCardFocused = focusState.isFocused
-                            if (focusState.isFocused) {
-                                if (lastFocusedIndex != index) {
-                                    lastFocusedIndex = index
-                                }
-                                onItemFocused(index)
-                            }
-                        }
-                        .then(
-                            if (downFocusRequester != null) {
-                                Modifier.focusProperties { down = downFocusRequester }
-                            } else Modifier
-                        )
-                        .then(focusModifier)
-                )
-            }
-        }
-        } // CompositionLocalProvider
-    }
-
-    val menuItem = optionsItem
-    if (menuItem != null) {
-        ContinueWatchingOptionsDialog(
-            item = menuItem,
-            onDismiss = { optionsItem = null },
-            onRemove = {
-                val targetIndex = if (items.size <= 1) null else minOf(lastFocusedIndex, items.size - 2)
-                pendingFocusIndex = targetIndex
-                onRemoveItem(menuItem)
-                optionsItem = null
-            },
-            onDetails = {
-                onDetailsClick(menuItem)
-                optionsItem = null
-            },
-            onStartFromBeginning = {
-                onStartFromBeginning(menuItem)
-                optionsItem = null
-            },
-            showPlayManually = showManualPlayOption,
-            onPlayManually = {
-                onPlayManually(menuItem)
-                optionsItem = null
-            }
-        )
-    }
-
-    LaunchedEffect(items.size, pendingFocusIndex) {
-        val target = pendingFocusIndex
-        if (target != null && target >= 0) {
-            val requester = focusRequesters[target]
-            if (requester != null) {
-                var focused = false
-                for (attempt in 0 until 3) {
-                    withFrameNanos { }
-                    focused = runCatching { requester.requestFocus() }.isSuccess
-                    if (focused) break
-                }
-                if (focused) {
-                    lastRequestedFocusIndex = target
-                }
-            }
-            pendingFocusIndex = null
-        }
-    }
-}
 
 // Poster cards always show poster art, so the episode thumbnail setting does not apply to them.
 internal fun continueWatchingUsesEpisodeThumbnails(
@@ -1167,21 +923,4 @@ private fun isSelectKey(keyCode: Int): Boolean {
 
 private fun firstNonBlank(vararg candidates: String?): String? {
     return candidates.firstOrNull { !it.isNullOrBlank() }?.trim()
-}
-
-internal fun formatRemainingTime(
-    remainingMs: Long,
-    strHoursMinLeft: String,
-    strMinLeft: String,
-    strAlmostDone: String
-): String {
-    val totalMinutes = TimeUnit.MILLISECONDS.toMinutes(remainingMs)
-    val hours = totalMinutes / 60
-    val minutes = totalMinutes % 60
-
-    return when {
-        hours > 0 -> strHoursMinLeft.format(hours, minutes)
-        minutes > 0 -> strMinLeft.format(minutes)
-        else -> strAlmostDone
-    }
 }

@@ -373,7 +373,6 @@
     <string name="settings_tracking_title">Відстеження</string>
     <string name="settings_profiles">Профілі</string>
     <string name="settings_layout">Інтерфейс</string>
-    <string name="settings_integration">Інтеграції</string>
     <string name="settings_playback">Відтворення</string>
     <string name="settings_advanced">Додатково</string>
     <string name="settings_advanced_subtitle">Запуск діагностики швидкості мережі</string>
@@ -474,11 +473,6 @@
     <string name="account_stat_library">бібліотека</string>
     <string name="account_stat_progress">прогрес</string>
     <string name="account_stat_watched">переглянуто</string>
-    <string name="settings_integrations_section">Інтеграції</string>
-    <string name="settings_integrations_section_subtitle">Керування доступними інтеграціями</string>
-    <string name="settings_tmdb_subtitle">Налаштування збагачення метаданими</string>
-    <string name="settings_mdblist_subtitle">Провайдери зовнішніх рейтингів</string>
-    <string name="settings_animeskip_subtitle">Таймкоди пропуску інтро/аутро для аніме</string>
 
     <string name="playback_title">Налаштування відтворення</string>
     <string name="playback_subtitle">Налаштування параметрів відео та субтитрів</string>
@@ -1055,7 +1049,6 @@
     <string name="catalog_order_disable">Вимкнути</string>
 
 
-    <string name="stream_retry">Повторити</string>
     <string name="stream_no_streams">Потоки не знайдено</string>
     <string name="stream_no_streams_hint">Спробуйте встановити більше адонів для пошуку потоків</string>
     <string name="stream_finding_source">Пошук джерела потоку</string>
@@ -1324,18 +1317,7 @@
     <string name="account_total_label">Всього</string>
     <string name="account_loading_sync">Завантаження даних синхронізації\u2026</string>
     <string name="account_sign_out">Вийти</string>
-    <string name="account_error_signin_required">Спочатку увійдіть до акаунту.</string>
-    <string name="account_signin_create_title">Вхід / Створити акаунт</string>
-    <string name="account_signin_create_desc">Використайте email та пароль для створення акаунту або входу.</string>
-    <string name="account_generate_sync_desc">Створіть код на цьому пристрої, щоб інші пристрої могли прив\'язатися до нього.</string>
-    <string name="account_enter_sync_desc">Прив\'яжіть цей пристрій до іншого пристрою за допомогою коду синхронізації.</string>
-    <string name="account_signed_in_as">Ви увійшли як</string>
-    <string name="account_generate_sync_signed_in_desc">Створіть код, щоб інші пристрої могли синхронізуватися з цим акаунтом.</string>
-    <string name="account_unknown_device">Невідомий пристрій</string>
 
-    <string name="auth_signin_title">Увійти</string>
-    <string name="auth_signin_tv_disabled">Введення Email/пароля на ТВ вимкнено. Продовжіть за допомогою QR-коду.</string>
-    <string name="auth_signin_qr_btn">Продовжити за QR</string>
 
     <string name="auth_qr_finishing">Завершення входу\u2026</string>
     <string name="auth_qr_expires">Закінчується через %1$s</string>
@@ -1350,25 +1332,7 @@
     <string name="auth_qr_continue">Продовжити</string>
     <string name="auth_qr_back">Назад</string>
 
-    <string name="sync_generate_title">Генерація коду синхронізації</string>
-    <string name="sync_generate_subtitle">Створіть PIN-код для захисту вашого коду синхронізації. Поділіться кодом з іншими вашими пристроями.</string>
-    <string name="sync_generate_code_label">Ваш код синхронізації</string>
-    <string name="sync_generate_instruction">Введіть цей код та ваш PIN-код на іншому пристрої для їх зв\'язування.</string>
-    <string name="sync_generate_done">Готово</string>
-    <string name="sync_generate_pin_label">Оберіть PIN (4-8 символів)</string>
-    <string name="sync_generate_pin_placeholder">Введіть PIN</string>
-    <string name="sync_generate_generating">Генерація\u2026</string>
-    <string name="sync_generate_code_btn">Згенерувати код</string>
 
-    <string name="sync_claim_title">Зв\'язати пристрій</string>
-    <string name="sync_claim_subtitle">Введіть код синхронізації та PIN-код з іншого пристрою, щоб прив\'язати цей пристрій.</string>
-    <string name="sync_claim_success">Пристрій успішно зв\'язано! Ваші адони тепер синхронізуватимуться.</string>
-    <string name="sync_claim_done">Готово</string>
-    <string name="sync_claim_code_label">Код синхронізації</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">Введіть PIN</string>
-    <string name="sync_claim_linking">Зв\'язування\u2026</string>
 
 
     <string name="profile_selection_title">Хто дивиться?</string>
@@ -1400,13 +1364,6 @@
     <string name="update_downloading_ellipsis">Завантаження…</string>
     <string name="update_unknown_sources">Дозвольте встановлення з невідомих джерел для продовження.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Акаунт</string>
-    <string name="account_sign_in_description">Увійдіть, щоб синхронізувати вашу бібліотеку, прогрес та адони між пристроями. Синхронізація бібліотеки використовує Fetch Sync, коли Trakt не підключено, а для прогресу перегляду можна використовувати Trakt або Fetch Sync.</string>
-    <string name="account_sync_code_title">Код синхронізації</string>
-    <string name="account_sync_code_description">Синхронізуйтеся між пристроями без створення акаунту.</string>
-    <string name="account_linked_devices">Зв\'язані пристрої (%1$d)</string>
-    <string name="account_no_linked_devices">Немає зв\'язаних пристроїв</string>
-    <string name="account_unlink">Від\'єднати</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Завантаження рейтингів епізоду...</string>
@@ -1500,7 +1457,6 @@
 
     <!-- General errors -->
     <string name="error_unknown">Невідома помилка</string>
-    <string name="addon_error_not_found">Адон не знайдено</string>
 
     <!-- Account errors -->
 
@@ -1519,11 +1475,7 @@
 
     <string name="cd_play">Відтворити</string>
     <string name="cd_pause">Пауза</string>
-    <string name="cd_subtitles">Субтитри</string>
-    <string name="cd_audio_tracks">Аудіодоріжки</string>
-    <string name="cd_sources">Джерела</string>
     <string name="cd_switch_player_engine">Перемкнути рушій плеєра</string>
-    <string name="cd_episodes">Епізоди</string>
     <string name="cd_playback_speed">Швидкість відтворення</string>
     <string name="cd_aspect_ratio">Співвідношення сторін</string>
     <string name="cd_open_external_player">Відкрити у зовнішньому плеєрі</string>
@@ -1548,7 +1500,6 @@
     <string name="cd_refresh">Оновити</string>
     <string name="cd_remove">Видалити</string>
     <string name="cd_preview">Попередній перегляд</string>
-    <string name="cd_unlink">Від\'єднати</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Логотип Trakt</string>
     <string name="cd_trakt_qr">QR-код активації Trakt</string>

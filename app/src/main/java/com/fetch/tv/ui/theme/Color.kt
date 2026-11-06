@@ -126,7 +126,6 @@ class FetchColorScheme(
     val Divider = if (highContrast) FetchPrimitives.neutral600 else FetchPrimitives.neutral750
 
     val Primary = FetchPrimitives.neutral500
-    val PrimaryVariant = FetchPrimitives.neutral650
     val OnPrimary = FetchPrimitives.neutral925
     val Secondary = palette.secondary
     val SecondaryVariant = palette.secondaryVariant
@@ -163,7 +162,6 @@ class FetchColorScheme(
 
     val Border = if (highContrast) FetchPrimitives.neutral600 else FetchPrimitives.neutral750
     val BorderFocused = FocusRing
-    val BorderMuted = Border.copy(alpha = 0.58f)
 
     val Scrim = FetchPrimitives.black.copy(alpha = if (highContrast) 0.78f else 0.62f)
     val ImageScrim = FetchPrimitives.black.copy(alpha = if (highContrast) 0.74f else 0.58f)
@@ -332,7 +330,6 @@ object FetchColors {
         get() = FetchTheme.colors.SurfaceVariant
 
     val Primary = FetchPrimitives.neutral500
-    val PrimaryVariant = FetchPrimitives.neutral650
     val OnPrimary = FetchPrimitives.neutral925
     val TextPrimary = FetchPrimitives.white
     val TextSecondary = FetchPrimitives.neutral400

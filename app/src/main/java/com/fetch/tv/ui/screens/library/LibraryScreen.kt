@@ -438,7 +438,21 @@ fun LibraryScreen(
                 }
             }
 
-            if (uiState.visibleItems.isEmpty()) {
+            if (uiState.visibleItems.isEmpty() && uiState.filtersHideAllItems) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    EmptyScreenState(
+                        title = stringResource(R.string.library_empty_filtered_title),
+                        subtitle = stringResource(R.string.library_empty_filtered_subtitle),
+                        icon = Icons.Default.BookmarkBorder,
+                        height = 300.dp,
+                        modifier = Modifier.padding(bottom = FetchTheme.spacing.xxl),
+                        action = StateAction(stringResource(R.string.library_action_clear_filters)) {
+                            expandedPicker = null
+                            viewModel.onClearFilters()
+                        }
+                    )
+                }
+            } else if (uiState.visibleItems.isEmpty()) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     val typeKey = uiState.selectedTypeTab?.key?.lowercase()
                     val selectedTypeLabel = when (typeKey) {

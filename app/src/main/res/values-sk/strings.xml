@@ -384,7 +384,6 @@
     <string name="settings_account">Účet</string>
     <string name="settings_profiles">Profily</string>
     <string name="settings_layout">Rozloženie</string>
-    <string name="settings_integration">Integrácie</string>
     <string name="settings_playback">Prehrávanie</string>
     <string name="settings_advanced">Pokročilé</string>
     <string name="settings_advanced_subtitle">Výkon, navigácia, cache a diagnostika</string>
@@ -483,11 +482,6 @@
     <string name="account_stat_library">knižnica</string>
     <string name="account_stat_progress">postup</string>
     <string name="account_stat_watched">videné</string>
-    <string name="settings_integrations_section">Integrácie</string>
-    <string name="settings_integrations_section_subtitle">Spravujte dostupné integrácie</string>
-    <string name="settings_tmdb_subtitle">Ovládanie obohatenia metadát</string>
-    <string name="settings_mdblist_subtitle">Externí poskytovatelia hodnotení</string>
-    <string name="settings_animeskip_subtitle">Časové značky preskočenia intra/outra anime</string>
 
     
     <string name="playback_title">Nastavenia prehrávania</string>
@@ -1011,7 +1005,6 @@
 
     
     
-    <string name="stream_retry">Skúsiť znova</string>
     <string name="stream_no_streams">Nenašli sa žiadne streamy</string>
     <string name="stream_no_streams_hint">Skúste nainštalovať viac doplnkov</string>
     <string name="stream_finding_source">Hľadá sa zdroj streamu</string>
@@ -1280,9 +1273,6 @@
     <string name="account_sign_out">Odhlásiť sa</string>
 
     
-    <string name="auth_signin_title">Prihlásiť sa</string>
-    <string name="auth_signin_tv_disabled">Zadávanie e-mailu/hesla na TV je vypnuté. Pokračujte prihlásením cez QR.</string>
-    <string name="auth_signin_qr_btn">Pokračovať cez QR</string>
 
     
     <string name="auth_qr_finishing">Dokončuje sa prihlásenie…</string>
@@ -1299,23 +1289,8 @@
     <string name="auth_qr_back">Späť</string>
 
     
-    <string name="sync_generate_title">Vygenerovať synchronizačný kód</string>
-    <string name="sync_generate_subtitle">Vytvorte PIN na ochranu synchronizačného kódu. Zdieľajte kód s ostatnými zariadeniami.</string>
-    <string name="sync_generate_code_label">Váš synchronizačný kód</string>
-    <string name="sync_generate_instruction">Zadajte tento kód a svoj PIN na druhom zariadení, aby ste ich prepojili.</string>
-    <string name="sync_generate_done">Hotovo</string>
-    <string name="sync_generate_pin_label">Vyberte PIN (4–8 znakov)</string>
-    <string name="sync_generate_pin_placeholder">Zadajte PIN</string>
 
     
-    <string name="sync_claim_title">Prepojiť zariadenie</string>
-    <string name="sync_claim_subtitle">Zadajte synchronizačný kód a PIN z druhého zariadenia, aby ste prepojili toto zariadenie.</string>
-    <string name="sync_claim_success">Zariadenie bolo úspešne prepojené! Vaše doplnky sa teraz budú synchronizovať.</string>
-    <string name="sync_claim_done">Hotovo</string>
-    <string name="sync_claim_code_label">Synchronizačný kód</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">Zadajte PIN</string>
 
     
 
@@ -1353,13 +1328,6 @@
     <string name="update_downloading_ellipsis">Sťahuje sa…</string>
     <string name="update_unknown_sources">Povoľte inštalácie z neznámych zdrojov, aby ste mohli pokračovať.</string>
     
-    <string name="account_title">Účet</string>
-    <string name="account_sign_in_description">Prihláste sa, aby sa synchronizovala vaša knižnica, postup sledovania a doplnky medzi zariadeniami. Synchronizácia knižnice používa Fetch Sync, keď Trakt nie je pripojený, a postup sledovania môže používať Trakt alebo Fetch Sync.</string>
-    <string name="account_sync_code_title">Synchronizačný kód</string>
-    <string name="account_sync_code_description">Synchronizujte medzi zariadeniami bez vytvorenia účtu.</string>
-    <string name="account_linked_devices">Prepojené zariadenia (%1$d)</string>
-    <string name="account_no_linked_devices">Žiadne prepojené zariadenia</string>
-    <string name="account_unlink">Odpojiť</string>
 
     
     <string name="ratings_loading">Načítavajú sa hodnotenia epizód...</string>
@@ -1413,18 +1381,8 @@
     <string name="profile_pin_current_required">Tento profil už má PIN. Zadajte aktuálny PIN pre jeho zmenu.</string>
 
     
-    <string name="account_signin_create_title">Prihlásiť sa / Vytvoriť účet</string>
-    <string name="account_signin_create_desc">Použite e-mail a heslo na vytvorenie alebo prihlásenie do účtu.</string>
-    <string name="account_generate_sync_desc">Vytvorte kód na tomto zariadení, aby sa k nemu mohli pripojiť ďalšie zariadenia.</string>
-    <string name="account_enter_sync_desc">Prepojte toto zariadenie s iným zariadením pomocou synchronizačného kódu.</string>
-    <string name="account_signed_in_as">Prihlásený ako</string>
-    <string name="account_generate_sync_signed_in_desc">Vytvorte kód, aby sa ďalšie zariadenia mohli synchronizovať s týmto účtom.</string>
-    <string name="account_unknown_device">Neznáme zariadenie</string>
 
     
-    <string name="sync_claim_linking">Prepája sa…</string>
-    <string name="sync_generate_generating">Generuje sa…</string>
-    <string name="sync_generate_code_btn">Generovať kód</string>
 
     
     <string name="search_no_results_subtitle">Skúste vyhľadávať pomocou iných kľúčových slov</string>
@@ -1469,10 +1427,8 @@
 
     
     <string name="error_unknown">Neznáma chyba</string>
-    <string name="addon_error_not_found">Doplnok sa nenašiel</string>
 
     
-    <string name="account_error_signin_required">Najprv sa prihláste pomocou účtu.</string>
 
     
     <string name="search_error_no_catalogs">V nainštalovaných doplnkoch sa nenašli žiadne prehľadávateľné katalógy</string>
@@ -1501,11 +1457,7 @@
     
     <string name="cd_play">Prehrať</string>
     <string name="cd_pause">Pozastaviť</string>
-    <string name="cd_subtitles">Titulky</string>
-    <string name="cd_audio_tracks">Zvukové stopy</string>
-    <string name="cd_sources">Zdroje</string>
     <string name="cd_switch_player_engine">Prepnúť engine prehrávača</string>
-    <string name="cd_episodes">Epizódy</string>
     <string name="cd_playback_speed">Rýchlosť prehrávania</string>
     <string name="cd_aspect_ratio">Pomer strán</string>
     <string name="cd_open_external_player">Otvoriť v externom prehrávači</string>
@@ -1530,7 +1482,6 @@
     <string name="cd_refresh">Obnoviť</string>
     <string name="cd_remove">Odstrániť</string>
     <string name="cd_preview">Náhľad</string>
-    <string name="cd_unlink">Odpojiť</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">Trakt aktivačné QR</string>

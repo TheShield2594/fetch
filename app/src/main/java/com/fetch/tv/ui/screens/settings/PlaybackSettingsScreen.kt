@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.settings
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -31,21 +30,9 @@ import com.fetch.tv.data.local.PlayerSettings
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@Composable
-fun PlaybackSettingsScreen(
-    viewModel: PlaybackSettingsViewModel = hiltViewModel(),
-    onBackPress: () -> Unit = {}
-) {
-    BackHandler { onBackPress() }
-
-    SettingsStandaloneScaffold {
-        PlaybackSettingsContent(viewModel = viewModel)
-    }
-}
-
 /**
  * The playback settings. With a [section], that section's page as the settings rail opens it;
- * without one, every section as a collapsible list, for the standalone screen.
+ * without one, every section as a collapsible list, for the Playback category.
  */
 @Composable
 internal fun PlaybackSettingsContent(

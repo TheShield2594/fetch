@@ -126,7 +126,6 @@
     <string name="settings_tracking_title">Urmărire</string>
     <string name="settings_profiles">Profile</string>
     <string name="settings_layout">Aranjament</string>
-    <string name="settings_integration">Integrări</string>
     <string name="settings_playback">Redare</string>
     <string name="settings_debug">Depanare</string>
     <string name="settings_account_section_subtitle">Statutul contului și sincronizării</string>
@@ -134,10 +133,6 @@
     <string name="account_stat_library">bibliotecă</string>
     <string name="account_stat_progress">progres</string>
     <string name="account_stat_watched">vizionate</string>
-    <string name="settings_integrations_section">Integrări</string>
-    <string name="settings_integrations_section_subtitle">Gestionați integrările disponibile</string>
-    <string name="settings_tmdb_subtitle">Controale de îmbogățire a metadatelor</string>
-    <string name="settings_mdblist_subtitle">Furnizori externi de evaluări</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Setări redare</string>
@@ -456,7 +451,6 @@
 
 
     <!-- StreamScreen -->
-    <string name="stream_retry">Reîncearcă</string>
     <string name="stream_no_streams">Nu s-au găsit fluxuri</string>
     <string name="stream_no_streams_hint">Încearcă să instalezi mai multe suplimente pentru a găsi fluxuri</string>
     <string name="stream_finding_source">Se caută sursa fluxului</string>
@@ -587,9 +581,6 @@
     <string name="account_sign_out">Deconectare</string>
 
     <!-- AuthSignInScreen -->
-    <string name="auth_signin_title">Autentificare</string>
-    <string name="auth_signin_tv_disabled">Introducerea de e‑mail/parolă pe TV este dezactivată. Continuați cu autentificarea prin QR.</string>
-    <string name="auth_signin_qr_btn">Continuați cu QR</string>
 
     <!-- AuthQrSignInScreen -->
     <string name="auth_qr_finishing">Se finalizează autentificarea\u2026</string>
@@ -606,23 +597,8 @@
     <string name="auth_qr_back">Înapoi</string>
 
     <!-- SyncCodeGenerateScreen -->
-    <string name="sync_generate_title">Generează cod de sincronizare</string>
-    <string name="sync_generate_subtitle">Creează un PIN pentru a proteja codul de sincronizare. Partajează codul cu celelalte dispozitive.</string>
-    <string name="sync_generate_code_label">Codul tău de sincronizare</string>
-    <string name="sync_generate_instruction">Introdu acest cod și PIN-ul tău pe celălalt dispozitiv pentru a le conecta.</string>
-    <string name="sync_generate_done">Gata</string>
-    <string name="sync_generate_pin_label">Alege un PIN (4-8 caractere)</string>
-    <string name="sync_generate_pin_placeholder">Introdu PIN-ul</string>
 
     <!-- SyncCodeClaimScreen -->
-    <string name="sync_claim_title">Conectează dispozitivul</string>
-    <string name="sync_claim_subtitle">Introdu codul de sincronizare și PIN-ul de pe celălalt dispozitiv pentru a conecta acest dispozitiv.</string>
-    <string name="sync_claim_success">Dispozitivul a fost conectat cu succes! Addon-urile tale se vor sincroniza acum.</string>
-    <string name="sync_claim_done">Gata</string>
-    <string name="sync_claim_code_label">Cod de sincronizare</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">Introdu PIN-ul</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Cine vizionează?</string>
@@ -648,13 +624,6 @@
     <string name="update_title">Actualizare aplicație</string>
     <string name="update_unknown_sources">Permite instalarea din surse necunoscute pentru a continua.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Cont</string>
-    <string name="account_sign_in_description">Conectează-te pentru a sincroniza biblioteca, progresul de vizionare și suplimentele pe toate dispozitivele. Biblioteca și progresul de vizionare se sincronizează doar când Trakt nu este conectat.</string>
-    <string name="account_sync_code_title">Cod de sincronizare</string>
-    <string name="account_sync_code_description">Sincronizează pe dispozitive fără a crea un cont.</string>
-    <string name="account_linked_devices">Dispozitive conectate (%1$d)</string>
-    <string name="account_no_linked_devices">Niciun dispozitiv conectat</string>
-    <string name="account_unlink">Deconectează</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Se încarcă evaluările episodului...</string>

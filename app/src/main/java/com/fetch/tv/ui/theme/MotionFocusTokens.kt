@@ -113,8 +113,6 @@ object FetchMotion {
 
     fun <T> mediumTween(): TweenSpec<T> = tween(tokens.durations.medium, easing = tokens.easings.standard)
 
-    fun <T> slowTween(): TweenSpec<T> = tween(tokens.durations.slow, easing = tokens.easings.decelerate)
-
     /** Something appearing: overlays, panels, labels, crossfades the user is waiting on. */
     fun <T> enterTween(): TweenSpec<T> = tween(tokens.durations.enter, easing = tokens.easings.out)
 

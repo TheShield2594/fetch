@@ -81,7 +81,6 @@ class UpdateViewModel @Inject constructor(
 
             val dismissedTag = updatePreferences.ignoredTag.first()
             val result = updateRepository.getLatestUpdate(channel)
-            updatePreferences.setLastCheckAtMs(System.currentTimeMillis())
 
             result
                 .onSuccess { update ->

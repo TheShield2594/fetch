@@ -37,14 +37,9 @@ import com.fetch.tv.ui.screens.player.playerBackOpensCurrentEpisodeStreams
 import com.fetch.tv.ui.screens.party.PartyScreen
 import com.fetch.tv.ui.screens.search.DiscoverScreen
 import com.fetch.tv.ui.screens.search.SearchScreen
-import com.fetch.tv.ui.screens.settings.AboutScreen
-import com.fetch.tv.ui.screens.settings.LayoutSettingsScreen
 import com.fetch.tv.ui.screens.settings.LicensesAttributionsScreen
-import com.fetch.tv.ui.screens.settings.PlaybackSettingsScreen
 import com.fetch.tv.ui.screens.settings.SettingsScreen
-import com.fetch.tv.ui.screens.settings.ThemeSettingsScreen
 import com.fetch.tv.ui.screens.settings.TrackingSettingsScreen
-import com.fetch.tv.ui.screens.settings.TmdbSettingsScreen
 import com.fetch.tv.ui.screens.setup.FirstRunWizardScreen
 import com.fetch.tv.ui.screens.stream.StreamScreen
 import com.fetch.tv.ui.screens.home.ContinueWatchingItem
@@ -1326,39 +1321,6 @@ private fun PlaybackNavHost(
             }
         }
 
-        composable(Screen.TmdbSettings.route) {
-            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
-                TmdbSettingsScreen(
-                    onBackPress = { navController.popBackStack() }
-                )
-            }
-        }
-
-        composable(Screen.ThemeSettings.route) {
-            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
-                ThemeSettingsScreen(
-                    onBackPress = { navController.popBackStack() }
-                )
-            }
-        }
-
-        composable(Screen.PlaybackSettings.route) {
-            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
-                PlaybackSettingsScreen(
-                    onBackPress = { navController.popBackStack() }
-                )
-            }
-        }
-
-        composable(Screen.About.route) {
-            AboutScreen(
-                onBackPress = { navController.popBackStack() },
-                onNavigateToLicensesAttributions = {
-                    navController.navigate(Screen.LicensesAttributions.route)
-                }
-            )
-        }
-
         composable(Screen.LicensesAttributions.route) {
             LicensesAttributionsScreen(
                 onBackPress = { navController.popBackStack() }
@@ -1458,33 +1420,9 @@ private fun PlaybackNavHost(
             )
         }
 
-        composable(Screen.Account.route) {
-            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
-                AuthQrSignInScreen(
-                    onBackPress = { navController.popBackStack() }
-                )
-            }
-        }
-
-        composable(Screen.AuthSignIn.route) {
-            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
-                AuthQrSignInScreen(
-                    onBackPress = { navController.popBackStack() }
-                )
-            }
-        }
-
         composable(Screen.AuthQrSignIn.route) {
             ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
                 AuthQrSignInScreen(
-                    onBackPress = { navController.popBackStack() }
-                )
-            }
-        }
-
-        composable(Screen.LayoutSettings.route) {
-            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
-                LayoutSettingsScreen(
                     onBackPress = { navController.popBackStack() }
                 )
             }

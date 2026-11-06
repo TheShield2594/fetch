@@ -162,7 +162,6 @@ private object ProfileSelectionSpacing {
     val AvatarContainer = 126.dp
     val CompactAvatarContainer = 104.dp
     val CompactAvatarSize = 82.dp
-    val CompactFocusedAvatarSize = 88.dp
     val CompactOuterAvatarSize = 98.dp
     val CompactFocusedOuterAvatarSize = 104.dp
     val AvatarToName = FetchTheme.spacing.md
@@ -170,7 +169,6 @@ private object ProfileSelectionSpacing {
     val NameToMeta = FetchTheme.spacing.sm
     val MetaSlotHeight = FetchTheme.spacing.lg
     val EditorPanelMaxWidth = 980.dp
-    val EditorPanelGap = 28.dp
     val EditorPreviewWidth = 280.dp
     val EditorPreviewAvatarSize = 112.dp
     val EditorFieldRadius = 14.dp

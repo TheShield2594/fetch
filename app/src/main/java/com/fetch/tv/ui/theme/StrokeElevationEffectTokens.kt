@@ -17,16 +17,6 @@ data class FetchStrokeTokens(
 )
 
 @Immutable
-data class FetchElevationTokens(
-    val none: Dp,
-    val card: Dp,
-    val focused: Dp,
-    val menu: Dp,
-    val dialog: Dp,
-    val overlay: Dp
-)
-
-@Immutable
 data class FetchEffectTokens(
     val blurSoft: Dp,
     val blurPanel: Dp,
@@ -52,17 +42,6 @@ object FetchStrokes {
         heavy = 3.dp,
         progress = 4.dp,
         divider = 1.dp
-    )
-}
-
-object FetchElevations {
-    val tokens = FetchElevationTokens(
-        none = 0.dp,
-        card = 2.dp,
-        focused = 8.dp,
-        menu = 8.dp,
-        dialog = 12.dp,
-        overlay = 16.dp
     )
 }
 

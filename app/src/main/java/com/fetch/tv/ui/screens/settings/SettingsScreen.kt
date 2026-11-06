@@ -106,17 +106,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlin.math.roundToInt
 
-internal enum class SettingsSectionDestination {
-    Inline,
-    External
-}
-
 internal data class SettingsSectionSpec(
     val category: SettingsCategory,
     val title: String,
     val icon: ImageVector? = null,
-    @param:RawRes val rawIconRes: Int? = null,
-    val destination: SettingsSectionDestination
+    @param:RawRes val rawIconRes: Int? = null
 )
 
 private const val SETTINGS_DETAIL_FOCUS_DELAY_MS = 120L
@@ -158,28 +152,28 @@ private sealed interface ExperienceModeLoadState {
 @Composable
 private fun settingsSectionSpec(category: SettingsCategory): SettingsSectionSpec {
     category.playbackSection?.let { section ->
-        return SettingsSectionSpec(category, stringResource(section.title), section.icon, destination = SettingsSectionDestination.Inline)
+        return SettingsSectionSpec(category, stringResource(section.title), section.icon)
     }
     return when (category) {
-        SettingsCategory.SEARCH -> SettingsSectionSpec(category, stringResource(R.string.settings_search_title), Icons.Default.Search, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.ACCOUNT -> SettingsSectionSpec(category, stringResource(R.string.settings_account), Icons.Default.Person, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.PROFILES -> SettingsSectionSpec(category, stringResource(R.string.settings_profiles), Icons.Default.People, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.WATCH_PARTY -> SettingsSectionSpec(category, stringResource(R.string.party_title), Icons.Rounded.Groups, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.PHONE -> SettingsSectionSpec(category, stringResource(R.string.phone_hub_title), Icons.Rounded.PhoneAndroid, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.APPEARANCE -> SettingsSectionSpec(category, stringResource(R.string.appearance_title), Icons.Default.Palette, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.LAYOUT -> SettingsSectionSpec(category, stringResource(R.string.settings_layout), Icons.Default.GridView, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.CONTENT_DISCOVERY -> SettingsSectionSpec(category, stringResource(R.string.settings_content_discovery), Icons.Default.Explore, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.SEARCH -> SettingsSectionSpec(category, stringResource(R.string.settings_search_title), Icons.Default.Search)
+        SettingsCategory.ACCOUNT -> SettingsSectionSpec(category, stringResource(R.string.settings_account), Icons.Default.Person)
+        SettingsCategory.PROFILES -> SettingsSectionSpec(category, stringResource(R.string.settings_profiles), Icons.Default.People)
+        SettingsCategory.WATCH_PARTY -> SettingsSectionSpec(category, stringResource(R.string.party_title), Icons.Rounded.Groups)
+        SettingsCategory.PHONE -> SettingsSectionSpec(category, stringResource(R.string.phone_hub_title), Icons.Rounded.PhoneAndroid)
+        SettingsCategory.APPEARANCE -> SettingsSectionSpec(category, stringResource(R.string.appearance_title), Icons.Default.Palette)
+        SettingsCategory.LAYOUT -> SettingsSectionSpec(category, stringResource(R.string.settings_layout), Icons.Default.GridView)
+        SettingsCategory.CONTENT_DISCOVERY -> SettingsSectionSpec(category, stringResource(R.string.settings_content_discovery), Icons.Default.Explore)
         // Essential mode's only playback page, so named for what it holds rather than after its heading.
-        SettingsCategory.PLAYBACK -> SettingsSectionSpec(category, stringResource(R.string.essential_playback_basics), Icons.Rounded.PlayArrow, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.TRACKING -> SettingsSectionSpec(category, stringResource(R.string.settings_tracking_title), Icons.Default.Sync, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.YOUTUBE -> SettingsSectionSpec(category, stringResource(R.string.youtube_name), rawIconRes = R.raw.youtube_logo, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.TMDB -> SettingsSectionSpec(category, "TMDB", rawIconRes = R.raw.mdblist_tmdb, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.MDBLIST -> SettingsSectionSpec(category, stringResource(R.string.mdblist_title), rawIconRes = R.raw.mdblist_logo, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.ANIME_SKIP -> SettingsSectionSpec(category, stringResource(R.string.animeskip_title), Icons.Default.FastForward, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.ADVANCED -> SettingsSectionSpec(category, stringResource(R.string.settings_advanced), Icons.Default.Build, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.ABOUT -> SettingsSectionSpec(category, stringResource(R.string.about_title), Icons.Default.Info, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.DEBUG -> SettingsSectionSpec(category, stringResource(R.string.settings_debug), Icons.Default.BugReport, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.EXPERIENCE -> SettingsSectionSpec(category, stringResource(R.string.settings_experience), Icons.Default.Tune, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.PLAYBACK -> SettingsSectionSpec(category, stringResource(R.string.essential_playback_basics), Icons.Rounded.PlayArrow)
+        SettingsCategory.TRACKING -> SettingsSectionSpec(category, stringResource(R.string.settings_tracking_title), Icons.Default.Sync)
+        SettingsCategory.YOUTUBE -> SettingsSectionSpec(category, stringResource(R.string.youtube_name), rawIconRes = R.raw.youtube_logo)
+        SettingsCategory.TMDB -> SettingsSectionSpec(category, "TMDB", rawIconRes = R.raw.mdblist_tmdb)
+        SettingsCategory.MDBLIST -> SettingsSectionSpec(category, stringResource(R.string.mdblist_title), rawIconRes = R.raw.mdblist_logo)
+        SettingsCategory.ANIME_SKIP -> SettingsSectionSpec(category, stringResource(R.string.animeskip_title), Icons.Default.FastForward)
+        SettingsCategory.ADVANCED -> SettingsSectionSpec(category, stringResource(R.string.settings_advanced), Icons.Default.Build)
+        SettingsCategory.ABOUT -> SettingsSectionSpec(category, stringResource(R.string.about_title), Icons.Default.Info)
+        SettingsCategory.DEBUG -> SettingsSectionSpec(category, stringResource(R.string.settings_debug), Icons.Default.BugReport)
+        SettingsCategory.EXPERIENCE -> SettingsSectionSpec(category, stringResource(R.string.settings_experience), Icons.Default.Tune)
         // Each of these is a playback section, covered above.
         else -> error("No rail entry for $category")
     }
@@ -479,22 +473,10 @@ fun SettingsScreen(
         ) {
 
             val onSectionClick: (SettingsSectionSpec) -> Unit = { section ->
-                if (section.destination == SettingsSectionDestination.External) {
-                    // These have no options of their own to come back to: the rail row is the
-                    // whole category, and it is the rail the user is leaving from. Without this
-                    // the flag keeps whatever an earlier visit to the pane left in it, and the
-                    // return aims at the options of a category that was never opened.
-                    allowDetailAutofocus = false
-                    when (section.category) {
-                        SettingsCategory.ACCOUNT -> onNavigateToAuthQrSignIn()
-                        else -> Unit
-                    }
-                } else {
-                    allowDetailAutofocus = true
-                    selectedCategory = section.category
-                    pendingContentFocusCategory = section.category
-                    pendingContentFocusRequestId += 1L
-                }
+                allowDetailAutofocus = true
+                selectedCategory = section.category
+                pendingContentFocusCategory = section.category
+                pendingContentFocusRequestId += 1L
             }
 
             var focusedTabCategory by remember { mutableStateOf<SettingsCategory?>(null) }
@@ -611,9 +593,7 @@ fun SettingsScreen(
                                     } else if (restoringTo == null) {
                                         railFocusCategoryName = section.category.name
                                     }
-                                    if (section.destination == SettingsSectionDestination.Inline) {
-                                        focusedTabCategory = section.category
-                                    }
+                                    focusedTabCategory = section.category
                                 },
                                 title = section.title,
                                 icon = section.icon,

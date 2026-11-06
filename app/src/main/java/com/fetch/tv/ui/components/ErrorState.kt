@@ -81,20 +81,6 @@ fun ErrorState(
     }
 }
 
-internal fun formatErrorStateMessage(message: String): String {
-    return buildErrorStatePresentation(
-        message = message,
-        strings = defaultErrorStateStrings()
-    ).text
-}
-
-internal fun buildErrorStateAnnotatedMessage(message: String): AnnotatedString {
-    return buildErrorStatePresentation(
-        message = message,
-        strings = defaultErrorStateStrings()
-    ).annotated
-}
-
 private data class ErrorStatePresentation(
     val text: String,
     val boldRanges: List<IntRange>
@@ -167,34 +153,6 @@ private fun rememberErrorStateStrings(): ErrorStateStrings {
         addonGenericFix = stringResource(R.string.error_state_fix_addon_generic),
         addonIssueTemplate = stringResource(R.string.error_state_addon_issue_template, "%1\$s", "%2\$s"),
         metaNotFound = stringResource(R.string.error_meta_not_found)
-    )
-}
-
-private fun defaultErrorStateStrings(): ErrorStateStrings {
-    return ErrorStateStrings(
-        genericIssue = "Something went wrong.",
-        possibleFixFormat = "Possible fix: %s",
-        retrySoonFix = "retry in a moment.",
-        noMetadataAnyAddonIssue = "This id could not load details because none of the installed addons returned metadata.",
-        noMetadataAnyAddonFix = "try another addon, disable \"Prefer external meta addon\" in Layout settings, or confirm an installed addon supports this id.",
-        noSupportedMetadataPrefix = "No installed addon supports metadata for ",
-        noAddonForIdPrefix = "No installed addon could provide metadata for id=",
-        noSupportedMetadataFix = "install or update an addon that supports this content type, then retry.",
-        triedMetaAddonsPrefix = "Tried meta addons:",
-        triedMetaAddonsFix = "install an addon that supports this id, or reconfigure/update the addon and retry.",
-        missingMetadataForIdIssue = "does not have metadata for this id",
-        missingMetadataForIdFix = "open this id from a different addon, disable \"Prefer external meta addon\", or check that the addon supports this id.",
-        addonUnreachableIssue = "could not be reached",
-        addonUnreachableFix = "check your internet connection, verify the addon URL still works, then retry.",
-        addonConnectionFailedIssue = "rejected the connection",
-        addonConnectionFailedFix = "make sure the addon server is online and reachable, then retry.",
-        addonTimeoutIssue = "took too long to respond",
-        addonTimeoutFix = "retry in a moment, or try a different addon if this keeps happening.",
-        addonCleartextIssue = "uses an insecure HTTP connection that Android blocked",
-        addonCleartextFix = "switch the addon URL to HTTPS or update the addon configuration.",
-        addonGenericFix = "retry, update or reinstall the addon, or try a different addon.",
-        addonIssueTemplate = "%s: %s.",
-        metaNotFound = "Meta not found"
     )
 }
 

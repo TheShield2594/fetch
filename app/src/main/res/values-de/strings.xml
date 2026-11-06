@@ -381,7 +381,6 @@
     <string name="settings_tracking_title">Tracking</string>
     <string name="settings_profiles">Profile</string>
     <string name="settings_layout">Layout</string>
-    <string name="settings_integration">Integrationen</string>
     <string name="settings_playback">Wiedergabe</string>
 <string name="settings_advanced">Erweitert</string>
 <string name="settings_advanced_subtitle">Netzwerkgeschwindigkeit testen</string>
@@ -480,11 +479,6 @@
     <string name="account_stat_library">Bibliothek</string>
     <string name="account_stat_progress">Fortschritt</string>
     <string name="account_stat_watched">angesehen</string>
-    <string name="settings_integrations_section">Integrationen</string>
-    <string name="settings_integrations_section_subtitle">Verwalten Sie verfügbare Integrationen</string>
-    <string name="settings_tmdb_subtitle">Steuerelemente zur Anreicherung von Metadaten</string>
-    <string name="settings_mdblist_subtitle">Externe Bewertungsanbieter</string>
-    <string name="settings_animeskip_subtitle">Zeitstempel zum Überspringen von Anime-Intro/Outro</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Wiedergabeeinstellungen</string>
@@ -998,7 +992,6 @@
 
 
     <!-- StreamScreen -->
-    <string name="stream_retry">Wiederholen</string>
     <string name="stream_no_streams">Keine Streams gefunden</string>
     <string name="stream_no_streams_hint">Versuchen Sie, weitere Add-ons zu installieren, um Streams zu finden</string>
     <string name="stream_finding_source">Suche nach Stream-Quelle</string>
@@ -1260,9 +1253,6 @@
     <string name="account_sign_out">Abmelden</string>
 
     <!-- AuthSignInScreen -->
-    <string name="auth_signin_title">Anmelden</string>
-    <string name="auth_signin_tv_disabled">Die Eingabe von E-Mail-Adresse/Passwort auf dem Fernseher ist deaktiviert. Fahren Sie mit der QR-Anmeldung fort.</string>
-    <string name="auth_signin_qr_btn">Mit QR fortfahren</string>
 
     <!-- AuthQrSignInScreen -->
     <string name="auth_qr_finishing">Anmeldung wird abgeschlossen\u2026</string>
@@ -1279,23 +1269,8 @@
     <string name="auth_qr_back">Zurück</string>
 
     <!-- SyncCodeGenerateScreen -->
-    <string name="sync_generate_title">Synchronisierungscode generieren</string>
-    <string name="sync_generate_subtitle">Erstellen Sie eine PIN, um Ihren Sync-Code zu schützen. Geben Sie den Code an Ihre anderen Geräte weiter.</string>
-    <string name="sync_generate_code_label">Ihr Synchronisierungscode</string>
-    <string name="sync_generate_instruction">Geben Sie diesen Code und Ihre PIN auf Ihrem anderen Gerät ein, um die Geräte zu verbinden.</string>
-    <string name="sync_generate_done">Fertig</string>
-    <string name="sync_generate_pin_label">Wählen Sie eine PIN (4–8 Zeichen)</string>
-    <string name="sync_generate_pin_placeholder">PIN eingeben</string>
 
     <!-- SyncCodeClaimScreen -->
-    <string name="sync_claim_title">Gerät verbinden</string>
-    <string name="sync_claim_subtitle">Geben Sie den Synchronisierungscode und die PIN Ihres anderen Geräts ein, um dieses Gerät zu verbinden.</string>
-    <string name="sync_claim_success">Gerät erfolgreich verbunden! Ihre Add-ons werden nun synchronisiert.</string>
-    <string name="sync_claim_done">Fertig</string>
-    <string name="sync_claim_code_label">Synchronisierungscode</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">PIN eingeben</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Wer schaut?</string>
@@ -1331,13 +1306,6 @@
     <string name="update_downloading_ellipsis">Herunterladen…</string>
     <string name="update_unknown_sources">Installationen aus unbekannten Quellen zulassen, um fortzufahren.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Konto</string>
-    <string name="account_sign_in_description">Melden Sie sich an, um Ihre Bibliothek, Ihren Fortschritt und Add-ons auf allen Geräten zu synchronisieren. Die Bibliothekssynchronisierung verwendet Fetch Sync, wenn Trakt nicht verbunden ist, und der Fortschritt kann entweder mit Trakt oder Fetch Sync angezeigt werden.</string>
-    <string name="account_sync_code_title">Synchronisierungscode</string>
-    <string name="account_sync_code_description">Synchronisieren Sie Geräte, ohne ein Konto zu erstellen.</string>
-    <string name="account_linked_devices">Verbundene Geräte (%1$d)</string>
-    <string name="account_no_linked_devices">Keine verknüpften Geräte</string>
-    <string name="account_unlink">Verknüpfung aufheben</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Episodenbewertungen werden geladen...</string>
@@ -1389,18 +1357,8 @@
     <string name="profile_pin_current_required">Dieses Profil hat bereits eine PIN. Bitte die aktuelle PIN eingeben um sie anzupassen.</string>
 
     <!-- Account Screen -->
-    <string name="account_signin_create_title">Einlogggen / Konto erstellen</string>
-    <string name="account_signin_create_desc">E-Mail und Passwort eingeben um ein neues Konto zu erstellen oder dich anzumelden.</string>
-    <string name="account_generate_sync_desc">Code auf diesem Gerät erstellen damit sich andere Geräte verbinden können.</string>
-    <string name="account_enter_sync_desc">Verbinde dieses Gerät mit einem anderen via Sync-Code.</string>
-    <string name="account_signed_in_as">Einloggen als</string>
-    <string name="account_generate_sync_signed_in_desc">Code erstellen damit andere Geräte sich mit diesem Konto synchronisieren können.</string>
-    <string name="account_unknown_device">Unbekanntes Gerät</string>
 
     <!-- Sync screens -->
-    <string name="sync_claim_linking">Verbinde\u2026</string>
-    <string name="sync_generate_generating">Generiere\u2026</string>
-    <string name="sync_generate_code_btn">Code generieren</string>
 
     <!-- Search -->
     <string name="search_no_results_subtitle">Versuche andere Suchwörter</string>
@@ -1443,10 +1401,8 @@
 
     <!-- General errors -->
     <string name="error_unknown">Unbekannter Fehler</string>
-    <string name="addon_error_not_found">Add-On nicht gefunden</string>
 
     <!-- Account errors -->
-    <string name="account_error_signin_required">Bitte zuerst einloggen.</string>
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Keine durchsuchbaren Kataloge in installieren Add-Ons gefunden</string>
@@ -1475,11 +1431,7 @@
     <!-- Content descriptions -->
     <string name="cd_play">Abspielen</string>
     <string name="cd_pause">Pausieren</string>
-    <string name="cd_subtitles">Untertitel</string>
-    <string name="cd_audio_tracks">Audiospuren</string>
-    <string name="cd_sources">Quellen</string>
     <string name="cd_switch_player_engine">Player-Engine wechseln</string>
-    <string name="cd_episodes">Folgen</string>
     <string name="cd_playback_speed">Abspielgeschwindigkeit</string>
     <string name="cd_aspect_ratio">Seitenverhältnis</string>
     <string name="cd_open_external_player">In externem Player öffnen</string>
@@ -1504,7 +1456,6 @@
     <string name="cd_refresh">Neuladen</string>
     <string name="cd_remove">Entfernen</string>
     <string name="cd_preview">Vorschau</string>
-    <string name="cd_unlink">Link aufheben</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt Logo</string>
     <string name="cd_trakt_qr">Trakt Aktivierungs-QR</string>

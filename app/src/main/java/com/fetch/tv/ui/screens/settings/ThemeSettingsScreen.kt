@@ -8,18 +8,14 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Process
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,7 +24,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -59,20 +54,16 @@ import android.widget.Toast
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Text
 import com.fetch.tv.LocaleCache
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.AppIconOption
 import com.fetch.tv.domain.model.AppTheme
 import com.fetch.tv.domain.model.CustomThemeColors
-import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.FocusMarqueeText
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.theme.ThemeColors
@@ -80,18 +71,6 @@ import com.fetch.tv.ui.theme.accentBrush
 import com.fetch.tv.ui.theme.getFontFamily
 import kotlinx.coroutines.delay
 import java.util.Locale
-
-@Composable
-fun ThemeSettingsScreen(
-    viewModel: ThemeSettingsViewModel = hiltViewModel(),
-    onBackPress: () -> Unit
-) {
-    BackHandler { onBackPress() }
-
-    SettingsStandaloneScaffold {
-        ThemeSettingsContent(viewModel = viewModel)
-    }
-}
 
 @Composable
 fun ThemeSettingsContent(

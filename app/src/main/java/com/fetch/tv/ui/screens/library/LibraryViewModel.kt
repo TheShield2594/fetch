@@ -120,6 +120,9 @@ data class LibraryUiState(
     val selectedGenre: String? = null,
     val selectedYear: String? = null,
     val selectedWatchedFilter: LibraryWatchedFilter = LibraryWatchedFilter.ALL,
+    // True when the list and type hold items but the genre, year or watched filter hides them all,
+    // so the empty grid says "nothing matches" and offers to clear the filters (#327).
+    val filtersHideAllItems: Boolean = false,
     val watchedMovieIds: Set<String> = emptySet(),
     val watchedSeriesIds: Set<String> = emptySet(),
     val isFetchAccount: Boolean = false,
@@ -290,6 +293,17 @@ class LibraryViewModel @Inject constructor(
         _uiState.update { current ->
             val updated = current.copy(selectedWatchedFilter = filter)
             updated.withVisibleItems()
+        }
+    }
+
+    /** Clears the genre, year and watched filters; list, type and sort are kept. */
+    fun onClearFilters() {
+        _uiState.update { current ->
+            current.copy(
+                selectedGenre = null,
+                selectedYear = null,
+                selectedWatchedFilter = LibraryWatchedFilter.ALL
+            ).withVisibleItems()
         }
     }
 
@@ -946,7 +960,8 @@ class LibraryViewModel @Inject constructor(
             availableYears = yearOptions,
             selectedTypeTab = validTypeTab,
             selectedGenre = validGenre,
-            selectedYear = validYear
+            selectedYear = validYear,
+            filtersHideAllItems = typeFiltered.isNotEmpty() && watchedFiltered.isEmpty()
         )
     }
 

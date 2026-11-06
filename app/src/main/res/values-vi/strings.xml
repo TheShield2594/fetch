@@ -453,7 +453,6 @@
     <string name="settings_content_discovery">Nội dung &amp; Khám phá</string>
     <string name="settings_content_discovery_subtitle">Tiện ích, danh mục và nguồn khám phá</string>
     <string name="settings_content_discovery_addons_subtitle">Quản lý tiện ích, thứ tự danh mục và bộ sưu tập</string>
-    <string name="settings_integration">Tích hợp</string>
     <string name="settings_playback">Phát lại</string>
     <string name="settings_tracking_title">Theo dõi</string>
     <string name="settings_tracking_description">Kết nối các dịch vụ theo dõi và chọn dịch vụ cung cấp dữ liệu cho Thư viện và Tiếp tục xem.</string>
@@ -592,11 +591,6 @@
     <string name="account_stat_library">thư viện</string>
     <string name="account_stat_progress">tiến độ</string>
     <string name="account_stat_watched">đã xem</string>
-    <string name="settings_integrations_section">Tích hợp</string>
-    <string name="settings_integrations_section_subtitle">Quản lý tích hợp có sẵn</string>
-    <string name="settings_tmdb_subtitle">Kiểm soát việc bổ sung siêu dữ liệu</string>
-    <string name="settings_mdblist_subtitle">Nhà cung cấp điểm đánh giá bên ngoài</string>
-    <string name="settings_animeskip_subtitle">Mốc thời gian bỏ qua phần mở đầu/kết thúc anime</string>
 
     <string name="playback_title">Cài đặt phát lại</string>
     <string name="playback_subtitle">Cấu hình trình phát lại video và tuỳ chọn phụ đề</string>
@@ -1370,7 +1364,6 @@
     <string name="catalog_order_disable">Tắt</string>
 
 
-    <string name="stream_retry">Thử lại</string>
     <string name="stream_no_streams">Không tìm thấy luồng</string>
     <string name="stream_no_streams_hint">Thử cài đặt thêm tiện ích để tìm luồng phát</string>
     <string name="stream_finding_source">Đang tìm nguồn phát</string>
@@ -1704,18 +1697,7 @@
     <string name="account_sign_out">Đăng xuất</string>
     <string name="account_sign_out_confirm_title">Đăng xuất?</string>
     <string name="account_sign_out_confirm_subtitle">Bạn sẽ cần đăng nhập lại để đồng bộ thư viện, tiến trình xem và tiện ích trên thiết bị này.</string>
-    <string name="account_error_signin_required">Đăng nhập bằng tài khoản trước.</string>
-    <string name="account_signin_create_title">Đăng nhập / Tạo tài khoản</string>
-    <string name="account_signin_create_desc">Sử dụng email và mật khẩu để tạo hoặc đăng nhập vào tài khoản.</string>
-    <string name="account_generate_sync_desc">Tạo một mã trên thiết bị này để các thiết bị khác bằng nó.</string>
-    <string name="account_enter_sync_desc">Liên kết thiết bị này với một thiết bị khác bằng mã đồng bộ.</string>
-    <string name="account_signed_in_as">Đã đăng nhập bằng</string>
-    <string name="account_generate_sync_signed_in_desc">Tạo một mã để các thiết bị khác có thể đồng bộ với tài khoản này.</string>
-    <string name="account_unknown_device">Thiết bị không rõ</string>
 
-    <string name="auth_signin_title">Đăng nhập</string>
-    <string name="auth_signin_tv_disabled">Tính năng nhập email/mật khẩu trên TV đã bị tắt. Tiếp tục bằng cách đăng nhập qua mã QR.</string>
-    <string name="auth_signin_qr_btn">Tiếp tục bằng mã QR</string>
     <string name="auth_email_hint">Đăng nhập trực tiếp bằng tài khoản trên máy chủ riêng của bạn.</string>
     <string name="auth_email_instruction">Nhập email và mật khẩu để tiếp tục.</string>
     <string name="auth_email_placeholder">Địa chỉ email</string>
@@ -1774,25 +1756,7 @@
     <string name="auth_qr_terms_prefix">Bằng việc đăng ký / đăng nhập, tôi đồng ý với</string>
     <string name="auth_qr_terms_link">Điều khoản sử dụng</string>
 
-    <string name="sync_generate_title">Tạo mã đồng bộ</string>
-    <string name="sync_generate_subtitle">Tạo mã PIN để bảo vệ mã đồng bộ. Chia sẻ mã với các thiết bị khác.</string>
-    <string name="sync_generate_code_label">Mã đồng bộ của bạn</string>
-    <string name="sync_generate_instruction">Nhập mã này và PIN trên thiết bị khác để liên kết chúng.</string>
-    <string name="sync_generate_done">Xong</string>
-    <string name="sync_generate_pin_label">Chọn mã PIN (4-8 ký tự)</string>
-    <string name="sync_generate_pin_placeholder">Nhập mã PIN</string>
-    <string name="sync_generate_generating">Đang tạo\u2026</string>
-    <string name="sync_generate_code_btn">Tạo mã</string>
 
-    <string name="sync_claim_title">Liên kết thiết bị</string>
-    <string name="sync_claim_subtitle">Nhập mã đồng bộ và mã PIN từ thiết bị khác của bạn để liên kết thiết bị này.</string>
-    <string name="sync_claim_success">Liên kết thiết bị thành công! Tiện ích của bạn sẽ đồng bộ ngay bây giờ.</string>
-    <string name="sync_claim_done">Xong</string>
-    <string name="sync_claim_code_label">Mã đồng bộ</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">Mã PIN</string>
-    <string name="sync_claim_pin_placeholder">Nhập mã PIN</string>
-    <string name="sync_claim_linking">Đang liên kết\u2026</string>
 
 
     <string name="profile_selection_title">Ai đang xem?</string>
@@ -1830,13 +1794,6 @@
     <string name="update_latest_version">Bạn đang sử dụng phiên bản mới nhất.</string>
     <string name="update_unknown_sources">Cho phép cài đặt từ nguồn không xác định để tiếp tục.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Tài khoản</string>
-    <string name="account_sign_in_description">Đăng nhập để đồng bộ thư viện, tiến trình xem và tiện ích trên các thiết bị. Tính năng đồng bộ thư viện sử dụng Đồng bộ Fetch khi chưa kết nối Trakt, còn tiến trình xem có thể sử dụng Trakt hoặc Đồng bộ Fetch.</string>
-    <string name="account_sync_code_title">Mã đồng bộ</string>
-    <string name="account_sync_code_description">Đồng bộ giữa các thiết bị mà không cần tạo tài khoản.</string>
-    <string name="account_linked_devices">Thiết bị đã liên kết (%1$d)</string>
-    <string name="account_no_linked_devices">Không có thiết bị đã liên kết</string>
-    <string name="account_unlink">Huỷ liên kết</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Đang tải điểm đánh giá các tập phim...</string>
@@ -1931,7 +1888,6 @@
 
     <!-- General errors -->
     <string name="error_unknown">Lỗi không xác định</string>
-    <string name="addon_error_not_found">Không tìm thấy tiện ích</string>
 
     <!-- Account errors -->
 
@@ -1950,11 +1906,7 @@
 
     <string name="cd_play">Phát</string>
     <string name="cd_pause">Tạm dừng</string>
-    <string name="cd_subtitles">Phụ đề</string>
-    <string name="cd_audio_tracks">Âm thanh</string>
-    <string name="cd_sources">Nguồn</string>
     <string name="cd_switch_player_engine">Chuyển lõi trình phát</string>
-    <string name="cd_episodes">Tập phim</string>
     <string name="cd_playback_speed">Tốc độ phát lại</string>
     <string name="cd_aspect_ratio">Tỷ lệ khung hình</string>
     <string name="cd_open_external_player">Mở bằng trình phát ngoài</string>
@@ -1979,7 +1931,6 @@
     <string name="cd_refresh">Làm mới</string>
     <string name="cd_remove">Xóa</string>
     <string name="cd_preview">Xem trước</string>
-    <string name="cd_unlink">Hủy liên kết</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">Mã QR kích hoạt Trakt</string>

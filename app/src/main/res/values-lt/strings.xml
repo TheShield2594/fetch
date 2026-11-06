@@ -182,7 +182,6 @@
     <string name="settings_tracking_title">Stebėjimas</string>
     <string name="settings_profiles">Profiliai</string>
     <string name="settings_layout">Išdėstymas</string>
-    <string name="settings_integration">Integracijos</string>
     <string name="settings_playback">Atkūrimas</string>
     <string name="settings_debug">Derinimas (Debug)</string>
     <string name="settings_account_section_subtitle">Paskyros ir sinchronizavimo būsena</string>
@@ -190,11 +189,6 @@
     <string name="account_stat_library">biblioteka</string>
     <string name="account_stat_progress">pažanga</string>
     <string name="account_stat_watched">žiūrėta</string>
-    <string name="settings_integrations_section">Integracijos</string>
-    <string name="settings_integrations_section_subtitle">Tvarkykite galimas integracijas</string>
-    <string name="settings_tmdb_subtitle">Metaduomenų praturtinimo valdikliai</string>
-    <string name="settings_mdblist_subtitle">Išoriniai įvertinimų teikėjai</string>
-    <string name="settings_animeskip_subtitle">„Anime Skip“ intro/outro praleidimo laiko žymos</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Atkūrimo nustatymai</string>
@@ -561,7 +555,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
 
 
     <!-- StreamScreen -->
-    <string name="stream_retry">Bandyti dar kartą</string>
     <string name="stream_no_streams">Srautų nerasta</string>
     <string name="stream_no_streams_hint">Pabandykite įdiegti daugiau priedų srautų paieškai</string>
     <string name="stream_finding_source">Ieškoma srauto šaltinio</string>
@@ -713,9 +706,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="account_sign_out">Atsijungti</string>
 
     <!-- AuthSignInScreen -->
-    <string name="auth_signin_title">Prisijungti</string>
-    <string name="auth_signin_tv_disabled">Rankinis prisijungimas televizoriuje saugumo sumetimais išjungtas.</string>
-    <string name="auth_signin_qr_btn">Prisijungti per QR</string>
 
     <!-- AuthQrSignInScreen -->
     <string name="auth_qr_finishing">Užbaigiama…</string>
@@ -732,23 +722,8 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="auth_qr_back">Atgal</string>
 
     <!-- SyncCodeGenerateScreen -->
-    <string name="sync_generate_title">Generuoti kodą</string>
-    <string name="sync_generate_subtitle">Naudokite šį kodą kitame įrenginyje</string>
-    <string name="sync_generate_code_label">Sinchronizavimo kodas</string>
-    <string name="sync_generate_instruction">Įveskite šį kodą kitame įrenginyje</string>
-    <string name="sync_generate_done">Atlikta</string>
-    <string name="sync_generate_pin_label">PIN kodas</string>
-    <string name="sync_generate_pin_placeholder">Įveskite PIN</string>
 
     <!-- SyncCodeClaimScreen -->
-    <string name="sync_claim_title">Prijungti įrenginį</string>
-    <string name="sync_claim_subtitle">Įveskite kodą iš kito įrenginio</string>
-    <string name="sync_claim_success">Sėkmingai prijungta</string>
-    <string name="sync_claim_done">Atlikta</string>
-    <string name="sync_claim_code_label">Įvesti kodą</string>
-    <string name="sync_claim_code_placeholder">Kodas</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">PIN</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Kas žiūri?</string>
@@ -781,13 +756,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="update_downloading_ellipsis">Atsiunčiama…</string>
     <string name="update_unknown_sources">Leisti diegti iš nežinomų šaltinių</string>
     <!-- AccountScreen -->
-    <string name="account_title">Paskyra</string>
-    <string name="account_sign_in_description">Prisijunkite, kad sinchronizuotumėte biblioteką, pažangą ir priedus tarp įrenginių. Biblioteka sinchronizuojama per „Fetch Sync“, kai „Trakt“ neprijungta.</string>
-    <string name="account_sync_code_title">Sinchronizavimo kodas</string>
-    <string name="account_sync_code_description">Susiekite savo įrenginius naudodami kodą</string>
-    <string name="account_linked_devices">Susieti įrenginiai (%1$d)</string>
-    <string name="account_no_linked_devices">Susietų įrenginių nėra</string>
-    <string name="account_unlink">Atsieti</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Įkeliami įvertinimai…</string>

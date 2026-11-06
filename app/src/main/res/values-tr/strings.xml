@@ -456,7 +456,6 @@
     <string name="settings_content_discovery">İçerik ve Keşif</string>
     <string name="settings_content_discovery_subtitle">Eklentiler, kataloglar ve içerik bulma kaynakları</string>
     <string name="settings_content_discovery_addons_subtitle">Eklentileri, katalog sırasını ve koleksiyonları yönetin</string>
-    <string name="settings_integration">Entegrasyonlar</string>
     <string name="settings_playback">Oynatma</string>
     <string name="settings_tracking_title">Takip</string>
     <string name="settings_tracking_description">Takip servislerini bağla ve Kütüphane ile İzlemeye Devam Et için hangisinin kullanılacağını seç.</string>
@@ -597,11 +596,6 @@
     <string name="account_stat_library">kütüphane</string>
     <string name="account_stat_progress">ilerleme</string>
     <string name="account_stat_watched">izlenen</string>
-    <string name="settings_integrations_section">Entegrasyonlar</string>
-    <string name="settings_integrations_section_subtitle">Mevcut entegrasyonları yönetin</string>
-    <string name="settings_tmdb_subtitle">Meta veri zenginleştirme kontrolleri</string>
-    <string name="settings_mdblist_subtitle">Harici değerlendirme sağlayıcıları</string>
-    <string name="settings_animeskip_subtitle">Anime jeneriklerini (intro/outro) otomatik atlama ayarları</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Oynatma Ayarları</string>
@@ -1370,7 +1364,6 @@
 
 
     <!-- StreamScreen -->
-    <string name="stream_retry">Yeniden Dene</string>
     <string name="stream_no_streams">Akış bulunamadı</string>
     <string name="stream_no_streams_hint">Daha fazla akış bulmak için farklı eklentiler kurmayı deneyin</string>
     <string name="stream_finding_source">Kaynak aranıyor</string>
@@ -1705,9 +1698,6 @@
     <string name="account_sign_out_confirm_subtitle">Bu cihazda kütüphane, izleme ilerlemesi ve eklentileri eşitlemek için tekrar giriş yapman gerekir.</string>
 
     <!-- AuthSignInScreen -->
-    <string name="auth_signin_title">Oturum Aç</string>
-    <string name="auth_signin_tv_disabled">TV\'de E-Posta / Parola girişi devre dışı. QR ile Giriş sekmesinden devam edin.</string>
-    <string name="auth_signin_qr_btn">QR Kod ile Devam Et</string>
     <string name="auth_email_hint">Kendi sunucundaki hesabınla doğrudan giriş yap.</string>
     <string name="auth_email_instruction">Devam etmek için e-posta ve şifreni gir.</string>
     <string name="auth_email_placeholder">E-posta adresi</string>
@@ -1768,23 +1758,8 @@
     <string name="auth_qr_terms_link">Şartlar</string>
 
     <!-- SyncCodeGenerateScreen -->
-    <string name="sync_generate_title">Senkronizasyon Kodu Oluştur</string>
-    <string name="sync_generate_subtitle">Senkronizasyon kodunuzu korumak için bir PIN oluşturun. Parolanızı diğer cihazlarda kullanabilirsiniz.</string>
-    <string name="sync_generate_code_label">Cihaz Eşleştirme Kodunuz</string>
-    <string name="sync_generate_instruction">Eşleştirme adresinden diğer cihazınızı bağlamak için bu kodu ve kendinize ait PIN\'i kullanın.</string>
-    <string name="sync_generate_done">Bitti</string>
-    <string name="sync_generate_pin_label">Bir PIN Belirleyin (4 ile 8 karakter arasında)</string>
-    <string name="sync_generate_pin_placeholder">PIN girin</string>
 
     <!-- SyncCodeClaimScreen -->
-    <string name="sync_claim_title">Cihazı Bağla</string>
-    <string name="sync_claim_subtitle">Cihazınızı eşleştirmek için diğer cihazdan aldığınız senkronizasyon kodunu ve PIN\'i girin.</string>
-    <string name="sync_claim_success">Cihaz eşleştirildi. Eklentileriniz arka planda kopyalanacak.</string>
-    <string name="sync_claim_done">Bitti</string>
-    <string name="sync_claim_code_label">Senkronizasyon Kodu</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">PIN numarasını gir</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Kim izliyor?</string>
@@ -1826,13 +1801,6 @@
     <string name="update_latest_version">En güncel sürümü kullanıyorsun.</string>
     <string name="update_unknown_sources">Fetch\'in indirdiği eklentileri yüklayabilmek adına `Bilinmeyen kaynaklar` veya `Dışarıdan yükleme` iznine ihtiyaç var.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Hesap</string>
-    <string name="account_sign_in_description">Kütüphanenizi, izleme ilerlemenizi ve eklentilerinizi cihazlar arasında eşleyin. Trakt bağlı değilken Fetch Sync kullanılır.</string>
-    <string name="account_sync_code_title">Eşleştirme Kodu</string>
-    <string name="account_sync_code_description">Hesap oluşturmadan cihazlarınızı eşleyin.</string>
-    <string name="account_linked_devices">Bağlı Cihazlar (%1$d)</string>
-    <string name="account_no_linked_devices">Bağlı cihaz yok</string>
-    <string name="account_unlink">Bağlantıyı Kes</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Bölüm puanları yükleniyor...</string>
@@ -2024,18 +1992,8 @@
     <string name="profile_pin_lock_removed_for_profile">%1$s için PIN kilidi kaldırıldı.</string>
 
     <!-- Account Screen -->
-    <string name="account_signin_create_title">Giriş Yap / Hesap Oluştur</string>
-    <string name="account_signin_create_desc">E-posta ve şifre ile hesabınıza giriş yapın ya da yeni hesap oluşturun.</string>
-    <string name="account_generate_sync_desc">Bu cihazda bir kod oluşturun, diğer cihazlar buna bağlansın.</string>
-    <string name="account_enter_sync_desc">Bir senkronizasyon koduyla bu cihazı başka bir cihaza bağlayın.</string>
-    <string name="account_signed_in_as">Giriş yapılan hesap</string>
-    <string name="account_generate_sync_signed_in_desc">Diğer cihazların bu hesapla senkronize olması için bir kod oluşturun.</string>
-    <string name="account_unknown_device">Bilinmeyen Cihaz</string>
 
     <!-- Sync screens -->
-    <string name="sync_claim_linking">Bağlanıyor...</string>
-    <string name="sync_generate_generating">Oluşturuluyor...</string>
-    <string name="sync_generate_code_btn">Kod Oluştur</string>
 
     <!-- Search -->
     <string name="search_no_results_subtitle">Farklı kelimelerle aramayı deneyin</string>
@@ -2082,10 +2040,8 @@
 
     <!-- General errors -->
     <string name="error_unknown">Bilinmeyen hata</string>
-    <string name="addon_error_not_found">Eklenti bulunamadı</string>
 
     <!-- Account errors -->
-    <string name="account_error_signin_required">Önce hesabınızla giriş yapın.</string>
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Kurulu eklentilerde aranabilir katalog bulunamadı</string>
@@ -2118,11 +2074,7 @@
     <!-- Content descriptions -->
     <string name="cd_play">Oynat</string>
     <string name="cd_pause">Duraklat</string>
-    <string name="cd_subtitles">Altyazılar</string>
-    <string name="cd_audio_tracks">Ses parçaları</string>
-    <string name="cd_sources">Kaynaklar</string>
     <string name="cd_switch_player_engine">Oynatıcı motorunu değiştir</string>
-    <string name="cd_episodes">Bölümler</string>
     <string name="cd_playback_speed">Oynatma hızı</string>
     <string name="cd_aspect_ratio">Görüntü oranı</string>
     <string name="cd_open_external_player">Harici oynatıcıda aç</string>
@@ -2147,7 +2099,6 @@
     <string name="cd_refresh">Yenile</string>
     <string name="cd_remove">Kaldır</string>
     <string name="cd_preview">Önizle</string>
-    <string name="cd_unlink">Bağlantıyı kes</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt logosu</string>
     <string name="cd_trakt_qr">Trakt etkinleştirme QR kodu</string>

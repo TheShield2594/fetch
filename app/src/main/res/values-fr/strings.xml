@@ -453,7 +453,6 @@
     <string name="settings_content_discovery">Contenu et découverte</string>
     <string name="settings_content_discovery_subtitle">Addons, catalogues et sources de découverte</string>
     <string name="settings_content_discovery_addons_subtitle">Gérer les addons, l’ordre des catalogues et les collections</string>
-    <string name="settings_integration">Intégrations</string>
     <string name="settings_playback">Lecture</string>
     <string name="settings_tracking_title">Suivi</string>
     <string name="settings_tracking_description">Connectez des services de suivi et choisissez celui qui alimente votre bibliothèque et la section Continuer à regarder.</string>
@@ -592,11 +591,6 @@
     <string name="account_stat_library">bibliothèque</string>
     <string name="account_stat_progress">progression</string>
     <string name="account_stat_watched">vus</string>
-    <string name="settings_integrations_section">Intégrations</string>
-    <string name="settings_integrations_section_subtitle">Gérer les intégrations disponibles</string>
-    <string name="settings_tmdb_subtitle">Contrôles d’enrichissement des métadonnées</string>
-    <string name="settings_mdblist_subtitle">Fournisseurs de notes externes</string>
-    <string name="settings_animeskip_subtitle">Repères temporels pour passer les intros et les outros d’animés</string>
 
     <string name="playback_title">Paramètres de lecture</string>
     <string name="playback_subtitle">Configurer la lecture vidéo et les options de sous-titres</string>
@@ -1370,7 +1364,6 @@
     <string name="catalog_order_disable">Désactiver</string>
 
 
-    <string name="stream_retry">Réessayer</string>
     <string name="stream_no_streams">Aucun flux trouvé</string>
     <string name="stream_no_streams_hint">Essayez d’installer d’autres addons pour trouver des flux</string>
     <string name="stream_finding_source">Recherche de la source du flux</string>
@@ -1704,18 +1697,7 @@
     <string name="account_sign_out">Se déconnecter</string>
     <string name="account_sign_out_confirm_title">Se déconnecter&#160;?</string>
     <string name="account_sign_out_confirm_subtitle">Vous devrez vous reconnecter pour synchroniser la bibliothèque, la progression de visionnage et les addons sur cet appareil.</string>
-    <string name="account_error_signin_required">Connectez-vous d’abord avec un compte.</string>
-    <string name="account_signin_create_title">Se connecter / Créer un compte</string>
-    <string name="account_signin_create_desc">Utilisez votre adresse e-mail et votre mot de passe pour créer un compte ou vous y connecter.</string>
-    <string name="account_generate_sync_desc">Créez un code sur cet appareil pour que d’autres appareils puissent s’y associer.</string>
-    <string name="account_enter_sync_desc">Associez cet appareil à un autre à l’aide d’un code de synchronisation.</string>
-    <string name="account_signed_in_as">Connecté en tant que</string>
-    <string name="account_generate_sync_signed_in_desc">Créez un code pour que d’autres appareils puissent se synchroniser avec ce compte.</string>
-    <string name="account_unknown_device">Appareil inconnu</string>
 
-    <string name="auth_signin_title">Connexion</string>
-    <string name="auth_signin_tv_disabled">La saisie de l’adresse e-mail et du mot de passe sur TV est désactivée. Continuez avec la connexion par code QR.</string>
-    <string name="auth_signin_qr_btn">Continuer avec un code QR</string>
     <string name="auth_email_hint">Connectez-vous directement avec le compte de votre serveur auto-hébergé.</string>
     <string name="auth_email_instruction">Saisissez votre adresse e-mail et votre mot de passe pour continuer.</string>
     <string name="auth_email_placeholder">Adresse e-mail</string>
@@ -1774,25 +1756,7 @@
     <string name="auth_qr_terms_prefix">En m’inscrivant ou en me connectant, j’accepte les</string>
     <string name="auth_qr_terms_link">Conditions d’utilisation</string>
 
-    <string name="sync_generate_title">Générer un code de synchronisation</string>
-    <string name="sync_generate_subtitle">Créez un code PIN pour protéger votre code de synchronisation. Partagez ensuite ce code avec vos autres appareils.</string>
-    <string name="sync_generate_code_label">Votre code de synchronisation</string>
-    <string name="sync_generate_instruction">Saisissez ce code et votre code PIN sur votre autre appareil pour les associer.</string>
-    <string name="sync_generate_done">Terminé</string>
-    <string name="sync_generate_pin_label">Choisissez un code PIN (4 à 8 caractères)</string>
-    <string name="sync_generate_pin_placeholder">Saisir le code PIN</string>
-    <string name="sync_generate_generating">Génération en cours…</string>
-    <string name="sync_generate_code_btn">Générer le code</string>
 
-    <string name="sync_claim_title">Associer un appareil</string>
-    <string name="sync_claim_subtitle">Saisissez le code de synchronisation et le code PIN de votre autre appareil pour y associer celui-ci.</string>
-    <string name="sync_claim_success">Appareil associé avec succès&#160;! Vos addons seront désormais synchronisés.</string>
-    <string name="sync_claim_done">Terminé</string>
-    <string name="sync_claim_code_label">Code de synchronisation</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">Code PIN</string>
-    <string name="sync_claim_pin_placeholder">Saisir le code PIN</string>
-    <string name="sync_claim_linking">Association en cours…</string>
 
 
     <string name="profile_selection_title">Qui regarde&#160;?</string>
@@ -1830,13 +1794,6 @@
     <string name="update_latest_version">Vous utilisez la dernière version.</string>
     <string name="update_unknown_sources">Autorisez les installations depuis des sources inconnues pour continuer.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Compte</string>
-    <string name="account_sign_in_description">Connectez-vous pour synchroniser votre bibliothèque, votre progression de visionnage et vos addons entre vos appareils. La bibliothèque est synchronisée via Fetch Sync lorsque Trakt n’est pas connecté, et la progression de visionnage peut utiliser Trakt ou Fetch Sync.</string>
-    <string name="account_sync_code_title">Code de synchronisation</string>
-    <string name="account_sync_code_description">Synchronisez vos appareils sans créer de compte.</string>
-    <string name="account_linked_devices">Appareils associés (%1$d)</string>
-    <string name="account_no_linked_devices">Aucun appareil associé</string>
-    <string name="account_unlink">Dissocier</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Chargement des notes des épisodes…</string>
@@ -1931,7 +1888,6 @@
 
     <!-- General errors -->
     <string name="error_unknown">Erreur inconnue</string>
-    <string name="addon_error_not_found">Addon introuvable</string>
 
     <!-- Account errors -->
 
@@ -1950,11 +1906,7 @@
 
     <string name="cd_play">Lecture</string>
     <string name="cd_pause">Pause</string>
-    <string name="cd_subtitles">Sous-titres</string>
-    <string name="cd_audio_tracks">Pistes audio</string>
-    <string name="cd_sources">Sources</string>
     <string name="cd_switch_player_engine">Changer de moteur de lecture</string>
-    <string name="cd_episodes">Épisodes</string>
     <string name="cd_playback_speed">Vitesse de lecture</string>
     <string name="cd_aspect_ratio">Format d’image</string>
     <string name="cd_open_external_player">Ouvrir dans un lecteur externe</string>
@@ -1979,7 +1931,6 @@
     <string name="cd_refresh">Actualiser</string>
     <string name="cd_remove">Retirer</string>
     <string name="cd_preview">Aperçu</string>
-    <string name="cd_unlink">Dissocier</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">Code QR d’activation Trakt</string>

@@ -371,7 +371,6 @@
     <string name="settings_content_discovery">Indhold &amp; Opdagelse</string>
     <string name="settings_content_discovery_subtitle">Add-ons, kataloger og opdagelseskilder</string>
     <string name="settings_content_discovery_addons_subtitle">Administrer add-ons, katalogrækkefølge og samlinger</string>
-    <string name="settings_integration">Integrationer</string>
     <string name="settings_playback">Afspilning</string>
     <string name="settings_advanced">Avanceret</string>
     <string name="settings_advanced_subtitle">Ydeevne, navigation, cache og diagnostik</string>
@@ -472,11 +471,6 @@
     <string name="account_stat_library">bibliotek</string>
     <string name="account_stat_progress">fremskridt</string>
     <string name="account_stat_watched">set</string>
-    <string name="settings_integrations_section">Integrationer</string>
-    <string name="settings_integrations_section_subtitle">Administrer tilgængelige integrationer</string>
-    <string name="settings_tmdb_subtitle">Kontrol af metadataberigelse</string>
-    <string name="settings_mdblist_subtitle">Eksterne vurderingsudbydere</string>
-    <string name="settings_animeskip_subtitle">Anime intro/outro spring-over-tidsstempler</string>
 
     <string name="playback_title">Afspilningsindstillinger</string>
     <string name="playback_subtitle">Konfigurer videoafspilning og undertekstindstillinger</string>
@@ -1060,7 +1054,6 @@
     <string name="catalog_order_disable">Deaktivér</string>
 
 
-    <string name="stream_retry">Prøv igen</string>
     <string name="stream_no_streams">Ingen streams fundet</string>
     <string name="stream_no_streams_hint">Prøv at installere flere addons for at finde streams</string>
     <string name="stream_finding_source">Finder stream-kilde</string>
@@ -1329,18 +1322,7 @@
     <string name="account_total_label">I alt</string>
     <string name="account_loading_sync">Indlæser synkroniseringsdata\u2026</string>
     <string name="account_sign_out">Log ud</string>
-    <string name="account_error_signin_required">Log ind med en konto først.</string>
-    <string name="account_signin_create_title">Log ind / Opret konto</string>
-    <string name="account_signin_create_desc">Brug e-mail og adgangskode til at oprette eller logge ind på din konto.</string>
-    <string name="account_generate_sync_desc">Opret en kode på denne enhed, så andre enheder kan tilknytte sig.</string>
-    <string name="account_enter_sync_desc">Tilknyt denne enhed til en anden enhed ved hjælp af en synkroniseringskode.</string>
-    <string name="account_signed_in_as">Logget ind som</string>
-    <string name="account_generate_sync_signed_in_desc">Opret en kode, så andre enheder kan synkronisere med denne konto.</string>
-    <string name="account_unknown_device">Ukendt enhed</string>
 
-    <string name="auth_signin_title">Log ind</string>
-    <string name="auth_signin_tv_disabled">Indtastning af e-mail/adgangskode på TV er deaktiveret. Fortsæt med QR-login.</string>
-    <string name="auth_signin_qr_btn">Fortsæt med QR</string>
 
     <string name="auth_qr_finishing">Afslutter login\u2026</string>
     <string name="auth_qr_expires">Udløber om %1$s</string>
@@ -1355,25 +1337,7 @@
     <string name="auth_qr_continue">Fortsæt</string>
     <string name="auth_qr_back">Tilbage</string>
 
-    <string name="sync_generate_title">Generer synkroniseringskode</string>
-    <string name="sync_generate_subtitle">Opret en PIN-kode for at beskytte din synkroniseringskode. Del koden med dine andre enheder.</string>
-    <string name="sync_generate_code_label">Din synkroniseringskode</string>
-    <string name="sync_generate_instruction">Indtast denne kode og din PIN-kode på din anden enhed for at tilknytte dem.</string>
-    <string name="sync_generate_done">Udført</string>
-    <string name="sync_generate_pin_label">Vælg en PIN-kode (4-8 tegn)</string>
-    <string name="sync_generate_pin_placeholder">Indtast PIN-kode</string>
-    <string name="sync_generate_generating">Genererer\u2026</string>
-    <string name="sync_generate_code_btn">Generer kode</string>
 
-    <string name="sync_claim_title">Tilknyt enhed</string>
-    <string name="sync_claim_subtitle">Indtast synkroniseringskoden og PIN-koden fra din anden enhed for at tilknytte denne enhed.</string>
-    <string name="sync_claim_success">Enhed tilknyttet! Dine addons synkroniseres nu.</string>
-    <string name="sync_claim_done">Udført</string>
-    <string name="sync_claim_code_label">Synkroniseringskode</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN-kode</string>
-    <string name="sync_claim_pin_placeholder">Indtast PIN-kode</string>
-    <string name="sync_claim_linking">Tilknytter\u2026</string>
 
 
     <string name="profile_selection_title">Hvem ser med?</string>
@@ -1405,13 +1369,6 @@
     <string name="update_downloading_ellipsis">Downloader…</string>
     <string name="update_unknown_sources">Tillad installationer fra ukendte kilder for at fortsætte.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Konto</string>
-    <string name="account_sign_in_description">Log ind for at synkronisere dit bibliotek, se-fremskridt og addons på tværs af enheder. Bibliotekssynkronisering bruger Fetch Sync, når Trakt ikke er tilsluttet, og se-fremskridt kan bruge enten Trakt eller Fetch Sync.</string>
-    <string name="account_sync_code_title">Synkroniseringskode</string>
-    <string name="account_sync_code_description">Synkroniser på tværs af enheder uden at oprette en konto.</string>
-    <string name="account_linked_devices">Tilknyttede enheder (%1$d)</string>
-    <string name="account_no_linked_devices">Ingen tilknyttede enheder</string>
-    <string name="account_unlink">Fjern tilknytning</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Indlæser episodebedømmelser...</string>
@@ -1505,7 +1462,6 @@
 
     <!-- General errors -->
     <string name="error_unknown">Ukendt fejl</string>
-    <string name="addon_error_not_found">Addon ikke fundet</string>
 
     <!-- Account errors -->
 
@@ -1524,11 +1480,7 @@
 
     <string name="cd_play">Afspil</string>
     <string name="cd_pause">Pause</string>
-    <string name="cd_subtitles">Undertekster</string>
-    <string name="cd_audio_tracks">Lydspor</string>
-    <string name="cd_sources">Kilder</string>
     <string name="cd_switch_player_engine">Skift afspiller-engine</string>
-    <string name="cd_episodes">Episoder</string>
     <string name="cd_playback_speed">Afspilningshastighed</string>
     <string name="cd_aspect_ratio">Billedformat</string>
     <string name="cd_open_external_player">Åbn i ekstern afspiller</string>
@@ -1553,7 +1505,6 @@
     <string name="cd_refresh">Opdater</string>
     <string name="cd_remove">Fjern</string>
     <string name="cd_preview">Forhåndsvisning</string>
-    <string name="cd_unlink">Fjern tilknytning</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt-logo</string>
     <string name="cd_trakt_qr">Trakt-aktiverings-QR</string>

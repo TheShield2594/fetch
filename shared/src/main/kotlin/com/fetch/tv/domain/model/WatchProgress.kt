@@ -28,15 +28,12 @@ data class WatchProgress(
     val traktShowId: Int? = null,
     val traktEpisodeId: Int? = null,
     val simklPlaybackId: Long? = null,
-    override val trackingProviderId: String? = null,
-    override val trackingProviderItemId: String? = null,
-    override val trackingSourceUrl: String? = null,
+    val trackingProviderId: String? = null,
+    val trackingProviderItemId: String? = null,
+    val trackingSourceUrl: String? = null,
     val completionThresholdOverride: Float? = null,
     val excludedNextUpSeasons: Set<Int> = emptySet()
-) : TrackingAttributedItem {
-    override val trackingContentId: String
-        get() = contentId
-
+) {
     companion object {
         const val SOURCE_LOCAL = "local"
         const val SOURCE_TRAKT_PLAYBACK = "trakt_playback"

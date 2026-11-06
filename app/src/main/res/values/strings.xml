@@ -515,7 +515,6 @@
     <string name="settings_content_discovery">Content &amp; Discovery</string>
     <string name="settings_content_discovery_subtitle">Add-ons, catalogs, and discovery sources</string>
     <string name="settings_content_discovery_addons_subtitle">Manage addons, catalog order, and collections</string>
-    <string name="settings_integration">Integrations</string>
     <string name="settings_playback">Playback</string>
     <string name="settings_tracking_title">Tracking</string>
     <string name="settings_group_accounts">Accounts</string>
@@ -678,11 +677,6 @@
     <string name="account_stat_library">library</string>
     <string name="account_stat_progress">progress</string>
     <string name="account_stat_watched">watched</string>
-    <string name="settings_integrations_section">Integrations</string>
-    <string name="settings_integrations_section_subtitle">Manage available integrations</string>
-    <string name="settings_tmdb_subtitle">Metadata enrichment controls</string>
-    <string name="settings_mdblist_subtitle">External ratings providers</string>
-    <string name="settings_animeskip_subtitle">Anime intro/outro skip timestamps</string>
 
     <string name="playback_title">Playback Settings</string>
     <string name="playback_subtitle">Configure video playback and subtitle options</string>
@@ -1602,7 +1596,6 @@
     <string name="catalog_order_disable">Disable</string>
 
 
-    <string name="stream_retry">Retry</string>
     <string name="stream_no_streams">No streams found</string>
     <string name="stream_no_streams_hint">Try installing more addons to find streams</string>
     <string name="stream_no_streams_from_addon">No streams from %1$s.</string>
@@ -1974,6 +1967,9 @@
     <string name="library_filter_option_count">%1$s (%2$d)</string>
     <string name="library_action_connect_provider">Connect %1$s</string>
     <string name="library_action_search_titles">Search for titles</string>
+    <string name="library_empty_filtered_title">Nothing matches these filters</string>
+    <string name="library_empty_filtered_subtitle">Try another genre, year or watched status, or clear the filters</string>
+    <string name="library_action_clear_filters">Clear filters</string>
     <string name="library_sync_btn">Sync</string>
     <string name="library_syncing_btn">Syncing\u2026</string>
 
@@ -1992,18 +1988,7 @@
     <string name="account_sign_out">Sign Out</string>
     <string name="account_sign_out_confirm_title">Sign out?</string>
     <string name="account_sign_out_confirm_subtitle">You will need to sign in again to sync library, watch progress, and addons on this device.</string>
-    <string name="account_error_signin_required">Sign in with an account first.</string>
-    <string name="account_signin_create_title">Sign In / Create Account</string>
-    <string name="account_signin_create_desc">Use email and password to create or sign into your account.</string>
-    <string name="account_generate_sync_desc">Create a code on this device so other devices can link to it.</string>
-    <string name="account_enter_sync_desc">Link this device to another device using a sync code.</string>
-    <string name="account_signed_in_as">Signed in as</string>
-    <string name="account_generate_sync_signed_in_desc">Create a code so other devices can sync with this account.</string>
-    <string name="account_unknown_device">Unknown Device</string>
 
-    <string name="auth_signin_title">Sign In</string>
-    <string name="auth_signin_tv_disabled">Email/password entry on TV is disabled. Continue with QR sign in.</string>
-    <string name="auth_signin_qr_btn">Continue with QR</string>
     <string name="auth_email_hint">Sign in directly with the account on your self-hosted server.</string>
     <string name="auth_email_instruction">Enter your email and password to continue.</string>
     <string name="auth_email_placeholder">Email address</string>
@@ -2068,25 +2053,7 @@
     <string name="auth_qr_terms_prefix">By signing up / logging in, I agree to the</string>
     <string name="auth_qr_terms_link">Terms</string>
 
-    <string name="sync_generate_title">Generate Sync Code</string>
-    <string name="sync_generate_subtitle">Create a PIN to protect your sync code. Share the code with your other devices.</string>
-    <string name="sync_generate_code_label">Your Sync Code</string>
-    <string name="sync_generate_instruction">Enter this code and your PIN on your other device to link them.</string>
-    <string name="sync_generate_done">Done</string>
-    <string name="sync_generate_pin_label">Choose a PIN (4-8 characters)</string>
-    <string name="sync_generate_pin_placeholder">Enter PIN</string>
-    <string name="sync_generate_generating">Generating\u2026</string>
-    <string name="sync_generate_code_btn">Generate Code</string>
 
-    <string name="sync_claim_title">Link Device</string>
-    <string name="sync_claim_subtitle">Enter the sync code and PIN from your other device to link this device.</string>
-    <string name="sync_claim_success">Device linked successfully! Your addons will now sync.</string>
-    <string name="sync_claim_done">Done</string>
-    <string name="sync_claim_code_label">Sync Code</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">Enter PIN</string>
-    <string name="sync_claim_linking">Linking\u2026</string>
 
 
     <string name="profile_selection_title">Who’s watching?</string>
@@ -2140,13 +2107,6 @@
     <string name="update_latest_version">You’re using the latest version.</string>
     <string name="update_unknown_sources">Allow installs from unknown sources to continue.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Account</string>
-    <string name="account_sign_in_description">Sign in to sync your library, watch progress, and addons across devices. Library sync uses Fetch Sync when Trakt is not connected, and watch progress can use either Trakt or Fetch Sync.</string>
-    <string name="account_sync_code_title">Sync Code</string>
-    <string name="account_sync_code_description">Sync across devices without creating an account.</string>
-    <string name="account_linked_devices">Linked Devices (%1$d)</string>
-    <string name="account_no_linked_devices">No linked devices</string>
-    <string name="account_unlink">Unlink</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Loading episode ratings…</string>
@@ -2243,7 +2203,6 @@
 
     <!-- General errors -->
     <string name="error_unknown">Unknown error</string>
-    <string name="addon_error_not_found">Addon not found</string>
 
     <!-- Account errors -->
 
@@ -2262,11 +2221,7 @@
 
     <string name="cd_play">Play</string>
     <string name="cd_pause">Pause</string>
-    <string name="cd_subtitles">Subtitles</string>
-    <string name="cd_audio_tracks">Audio tracks</string>
-    <string name="cd_sources">Sources</string>
     <string name="cd_switch_player_engine">Switch player engine</string>
-    <string name="cd_episodes">Episodes</string>
     <string name="cd_playback_speed">Playback speed</string>
     <string name="cd_aspect_ratio">Aspect ratio</string>
     <string name="cd_open_external_player">Open in external player</string>
@@ -2295,7 +2250,6 @@
     <string name="cd_refresh">Refresh</string>
     <string name="cd_remove">Remove</string>
     <string name="cd_preview">Preview</string>
-    <string name="cd_unlink">Unlink</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt Logo</string>
     <string name="cd_trakt_qr">Trakt activation QR</string>

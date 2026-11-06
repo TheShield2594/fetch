@@ -427,7 +427,6 @@
   <string name="settings_account">Λογαριασμός</string>
   <string name="settings_profiles">Προφίλ</string>
   <string name="settings_layout">Διάταξη</string>
-  <string name="settings_integration">Ενσωματώσεις</string>
   <string name="settings_playback">Αναπαραγωγή</string>
   <string name="settings_advanced">Για προχωρημένους</string>
   <string name="settings_advanced_subtitle">Εκτέλεση διαγνωστικών ταχύτητας δικτύου</string>
@@ -531,11 +530,6 @@
   <string name="account_stat_library">βιβλιοθήκη</string>
   <string name="account_stat_progress">πρόοδος</string>
   <string name="account_stat_watched">προβληθέντα</string>
-  <string name="settings_integrations_section">Ενσωματώσεις</string>
-  <string name="settings_integrations_section_subtitle">Διαχειριστείτε τις διαθέσιμες ενσωματώσεις</string>
-  <string name="settings_tmdb_subtitle">Έλεγχοι εμπλουτισμού μεταδεδομένων</string>
-  <string name="settings_mdblist_subtitle">Εξωτερικοί πάροχοι βαθμολογιών</string>
-  <string name="settings_animeskip_subtitle">Χρονοσημάνσεις παράλειψης εισαγωγής/επιλόγου anime</string>
   <!-- PlaybackSettingsScreen -->
   <string name="playback_title">Ρυθμίσεις αναπαραγωγής</string>
   <string name="playback_subtitle">Διαμόρφωση αναπαραγωγής βίντεο και επιλογών υπότιτλων</string>
@@ -1280,7 +1274,6 @@
   <string name="catalog_order_enable">Ενεργοποίηση</string>
   <string name="catalog_order_disable">Απενεργοποίηση</string>
   <!-- StreamScreen -->
-  <string name="stream_retry">Δοκιμάστε ξανά</string>
   <string name="stream_no_streams">Δεν βρέθηκαν ροές</string>
   <string name="stream_no_streams_hint">Δοκιμάστε να εγκαταστήσετε περισσότερα πρόσθετα για να βρείτε ροές</string>
   <string name="stream_finding_source">Αναζήτηση πηγής ροής</string>
@@ -1583,9 +1576,6 @@
   <string name="account_loading_sync">Φόρτωση δεδομένων συγχρονισμού…</string>
   <string name="account_sign_out">Αποσύνδεση</string>
   <!-- AuthSignInScreen -->
-  <string name="auth_signin_title">Σύνδεση</string>
-  <string name="auth_signin_tv_disabled">Η εισαγωγή email/κωδικού στην TV είναι απενεργοποιημένη. Συνεχίστε με QR σύνδεση.</string>
-  <string name="auth_signin_qr_btn">Συνέχεια με QR</string>
   <string name="auth_email_hint">Συνδεθείτε απευθείας με τον λογαριασμό στον αυτοφιλοξενούμενο διακομιστή σας.</string>
   <string name="auth_email_instruction">Εισάγετε το email και τον κωδικό πρόσβασης για να συνεχίσετε.</string>
   <string name="auth_email_placeholder">Διεύθυνση email</string>
@@ -1642,22 +1632,7 @@
   <string name="auth_qr_continue">Συνέχεια</string>
   <string name="auth_qr_back">Πίσω</string>
   <!-- SyncCodeGenerateScreen -->
-  <string name="sync_generate_title">Δημιουργία κωδικού συγχρονισμού</string>
-  <string name="sync_generate_subtitle">Δημιουργήστε PIN για προστασία του κωδικού συγχρονισμού. Μοιραστείτε τον κωδικό με τις άλλες συσκευές σας.</string>
-  <string name="sync_generate_code_label">Ο κωδικός συγχρονισμού σας</string>
-  <string name="sync_generate_instruction">Εισάγετε αυτόν τον κωδικό και το PIN σας σε άλλη συσκευή για σύνδεση.</string>
-  <string name="sync_generate_done">Έτοιμο</string>
-  <string name="sync_generate_pin_label">Επιλέξτε PIN (4-8 χαρακτήρες)</string>
-  <string name="sync_generate_pin_placeholder">Εισάγετε PIN</string>
   <!-- SyncCodeClaimScreen -->
-  <string name="sync_claim_title">Σύνδεση συσκευής</string>
-  <string name="sync_claim_subtitle">Εισάγετε τον κωδικό συγχρονισμού και το PIN από την άλλη συσκευή σας για σύνδεση αυτής της συσκευής.</string>
-  <string name="sync_claim_success">Η συσκευή συνδέθηκε επιτυχώς! Τα πρόσθετά σας θα συγχρονίζονται πλέον.</string>
-  <string name="sync_claim_done">Έτοιμο</string>
-  <string name="sync_claim_code_label">Κωδικός συγχρονισμού</string>
-  <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-  <string name="sync_claim_pin_label">PIN</string>
-  <string name="sync_claim_pin_placeholder">Εισάγετε PIN</string>
   <!-- ProfileSelectionScreen -->
   <string name="profile_selection_title">Ποιος παρακολουθεί;</string>
   <string name="profile_selection_subtitle">Επιλέξτε προφίλ για να συνεχίσετε</string>
@@ -1694,13 +1669,6 @@
   <string name="update_downloading_ellipsis">Λήψη…</string>
   <string name="update_unknown_sources">Επιτρέψτε εγκαταστάσεις από άγνωστες πηγές για να συνεχίσετε.</string>
   <!-- AccountScreen -->
-  <string name="account_title">Λογαριασμός</string>
-  <string name="account_sign_in_description">Συνδεθείτε για να συγχρονίσετε τη βιβλιοθήκη, την πρόοδο και τα πρόσθετά σας σε όλες τις συσκευές. Ο συγχρονισμός βιβλιοθήκης χρησιμοποιεί Fetch Sync όταν δεν είναι συνδεδεμένο το Trakt, ενώ η πρόοδος μπορεί να χρησιμοποιεί είτε Trakt είτε Fetch Sync.</string>
-  <string name="account_sync_code_title">Κωδικός συγχρονισμού</string>
-  <string name="account_sync_code_description">Συγχρονισμός συσκευών χωρίς δημιουργία λογαριασμού.</string>
-  <string name="account_linked_devices">Συνδεδεμένες συσκευές (%1$d)</string>
-  <string name="account_no_linked_devices">Δεν υπάρχουν συνδεδεμένες συσκευές</string>
-  <string name="account_unlink">Αποσύνδεση</string>
   <!-- EpisodeRatingsSection -->
   <string name="ratings_loading">Φόρτωση βαθμολογιών επεισοδίου…</string>
   <string name="ratings_unavailable">Οι βαθμολογίες επεισοδίου δεν είναι διαθέσιμες.</string>
@@ -1744,17 +1712,7 @@
   <string name="profile_pin_incorrect">Λάθος PIN. Δοκιμάστε ξανά.</string>
   <string name="profile_pin_current_required">Αυτό το προφίλ έχει ήδη PIN. Εισαγάγετε το τρέχον PIN για να το αλλάξετε.</string>
   <!-- Account Screen -->
-  <string name="account_signin_create_title">Σύνδεση / Δημιουργία λογαριασμού</string>
-  <string name="account_signin_create_desc">Χρησιμοποιήστε email και κωδικό για να δημιουργήσετε ή να συνδεθείτε στον λογαριασμό σας.</string>
-  <string name="account_generate_sync_desc">Δημιουργήστε έναν κωδικό σε αυτή τη συσκευή ώστε άλλες συσκευές να μπορούν να συνδεθούν με αυτήν.</string>
-  <string name="account_enter_sync_desc">Συνδέστε αυτή τη συσκευή με άλλη συσκευή χρησιμοποιώντας έναν κωδικό συγχρονισμού.</string>
-  <string name="account_signed_in_as">Συνδεδεμένος ως</string>
-  <string name="account_generate_sync_signed_in_desc">Δημιουργήστε έναν κωδικό ώστε άλλες συσκευές να συγχρονιστούν με αυτόν τον λογαριασμό.</string>
-  <string name="account_unknown_device">Άγνωστη συσκευή</string>
   <!-- Sync screens -->
-  <string name="sync_claim_linking">Σύνδεση…</string>
-  <string name="sync_generate_generating">Δημιουργία…</string>
-  <string name="sync_generate_code_btn">Δημιουργία κωδικού</string>
   <!-- Search -->
   <string name="search_no_results_subtitle">Δοκιμάστε αναζήτηση με διαφορετικές λέξεις-κλειδιά</string>
   <string name="discover_disabled_title">Η Ανακάλυψη είναι απενεργοποιημένη</string>
@@ -1792,9 +1750,7 @@
   <string name="trakt_error_failed_start">Αποτυχία έναρξης εξουσιοδότησης Trakt</string>
   <!-- General errors -->
   <string name="error_unknown">Άγνωστο σφάλμα</string>
-  <string name="addon_error_not_found">Το πρόσθετο δεν βρέθηκε</string>
   <!-- Account errors -->
-  <string name="account_error_signin_required">Συνδεθείτε πρώτα με έναν λογαριασμό.</string>
   <!-- Search errors -->
   <string name="search_error_no_catalogs">Δεν βρέθηκαν κατάλογοι με δυνατότητα αναζήτησης στα εγκατεστημένα πρόσθετα</string>
   <string name="search_no_catalogs_title">Κανένα από τα πρόσθετά σας δεν υποστηρίζει αναζήτηση</string>
@@ -1815,11 +1771,7 @@
   <!-- Content descriptions -->
   <string name="cd_play">Αναπαραγωγή</string>
   <string name="cd_pause">Παύση</string>
-  <string name="cd_subtitles">Υπότιτλοι</string>
-  <string name="cd_audio_tracks">Κομμάτια ήχου</string>
-  <string name="cd_sources">Πηγές</string>
   <string name="cd_switch_player_engine">Εναλλαγή μηχανής αναπαραγωγής</string>
-  <string name="cd_episodes">Επεισόδια</string>
   <string name="cd_playback_speed">Ταχύτητα αναπαραγωγής</string>
   <string name="cd_aspect_ratio">Αναλογία εικόνας</string>
   <string name="cd_open_external_player">Άνοιγμα σε εξωτερικό πρόγραμμα αναπαραγωγής</string>
@@ -1845,7 +1797,6 @@
   <string name="cd_remove">Αφαίρεση</string>
   <string name="cd_preview">Προεπισκόπηση</string>
   <string name="cd_clear_search">Εκκαθάριση αναζήτησης</string>
-  <string name="cd_unlink">Αποσύνδεση</string>
   <string name="cd_fetch_logo">Fetch</string>
   <string name="cd_trakt_logo">Λογότυπο Trakt</string>
   <string name="cd_trakt_qr">QR ενεργοποίησης Trakt</string>

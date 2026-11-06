@@ -452,7 +452,6 @@
     <string name="settings_content_discovery">Tartalom és felfedezés</string>
     <string name="settings_content_discovery_subtitle">Bővítmények, katalógusok és felfedezési források</string>
     <string name="settings_content_discovery_addons_subtitle">Bővítmények, katalógussorrend és gyűjtemények kezelése</string>
-    <string name="settings_integration">Integrációk</string>
     <string name="settings_playback">Lejátszás</string>
     <string name="settings_tracking_title">Követés</string>
     <string name="settings_tracking_description">Csatlakoztass követési szolgáltatásokat, és válaszd ki, melyik biztosítsa a Könyvtár és a Megtekintés folytatása adatait.</string>
@@ -591,11 +590,6 @@
     <string name="account_stat_library">könyvtár</string>
     <string name="account_stat_progress">megtekintési állapot</string>
     <string name="account_stat_watched">megnézve</string>
-    <string name="settings_integrations_section">Integrációk</string>
-    <string name="settings_integrations_section_subtitle">Elérhető integrációk kezelése</string>
-    <string name="settings_tmdb_subtitle">Metaadat-bővítési beállítások</string>
-    <string name="settings_mdblist_subtitle">Külső értékelési szolgáltatók</string>
-    <string name="settings_animeskip_subtitle">Anime intro/outro átugrási időbélyegek</string>
 
     <string name="playback_title">Lejátszási beállítások</string>
     <string name="playback_subtitle">Videólejátszás és feliratok konfigurálása</string>
@@ -1362,7 +1356,6 @@
     <string name="catalog_order_disable">Letiltás</string>
 
 
-    <string name="stream_retry">Újra</string>
     <string name="stream_no_streams">Nem találhatók források</string>
     <string name="stream_no_streams_hint">Próbálj meg több bővítményt telepíteni a források kereséséhez</string>
     <string name="stream_finding_source">Forrás keresése</string>
@@ -1696,18 +1689,7 @@
     <string name="account_sign_out">Kijelentkezés</string>
     <string name="account_sign_out_confirm_title">Kijelentkezel?</string>
     <string name="account_sign_out_confirm_subtitle">Újra be kell majd jelentkezned, hogy a könyvtár, a megtekintési állapot és a bővítmények szinkronizálódjanak ezen az eszközön.</string>
-    <string name="account_error_signin_required">Előbb jelentkezz be egy fiókkal.</string>
-    <string name="account_signin_create_title">Bejelentkezés / Fiók létrehozása</string>
-    <string name="account_signin_create_desc">Használd az e-mail címed és jelszavad a bejelentkezéshez vagy új fiók létrehozásához.</string>
-    <string name="account_generate_sync_desc">Hozz létre egy kódot ezen az eszközön, hogy más eszközöket is hozzáadhass.</string>
-    <string name="account_enter_sync_desc">Kapcsold össze ezt az eszközt egy másikkal szinkronizációs kód segítségével.</string>
-    <string name="account_signed_in_as">Bejelentkezve mint</string>
-    <string name="account_generate_sync_signed_in_desc">Hozz létre egy kódot, hogy más eszközök is szinkronizálhassanak ezzel a fiókkal.</string>
-    <string name="account_unknown_device">Ismeretlen eszköz</string>
 
-    <string name="auth_signin_title">Bejelentkezés</string>
-    <string name="auth_signin_tv_disabled">Az e-mail és jelszó megadása TV-n le van tiltva. Folytasd a bejelentkezést QR-kóddal.</string>
-    <string name="auth_signin_qr_btn">Folytatás QR-kóddal</string>
     <string name="auth_email_hint">Jelentkezz be közvetlenül a saját üzemeltetésű szervereden lévő fiókkal.</string>
     <string name="auth_email_instruction">A folytatáshoz add meg az e-mail címed és a jelszavad.</string>
     <string name="auth_email_placeholder">E-mail cím</string>
@@ -1766,25 +1748,7 @@
     <string name="auth_qr_terms_prefix">A regisztrációval / bejelentkezéssel elfogadom a</string>
     <string name="auth_qr_terms_link">Feltételeket</string>
 
-    <string name="sync_generate_title">Szinkronizációs kód generálása</string>
-    <string name="sync_generate_subtitle">Hozz létre egy PIN-kódot a szinkronizációs kód védelméhez. Oszd meg a kódot más eszközökkel.</string>
-    <string name="sync_generate_code_label">A te szinkronizációs kódod</string>
-    <string name="sync_generate_instruction">Add meg ezt a kódot és a PIN-t a másik eszközön az összekapcsoláshoz.</string>
-    <string name="sync_generate_done">Kész</string>
-    <string name="sync_generate_pin_label">Válassz PIN-kódot (4-8 karakter)</string>
-    <string name="sync_generate_pin_placeholder">PIN megadása</string>
-    <string name="sync_generate_generating">Generálás\u2026</string>
-    <string name="sync_generate_code_btn">Kód generálása</string>
 
-    <string name="sync_claim_title">Eszköz összekapcsolása</string>
-    <string name="sync_claim_subtitle">Add meg a másik eszközről származó szinkronizációs kódot és PIN-t az összekapcsoláshoz.</string>
-    <string name="sync_claim_success">Eszköz összekapcsolva! A bővítmények mostantól szinkronizálva lesznek.</string>
-    <string name="sync_claim_done">Kész</string>
-    <string name="sync_claim_code_label">Szinkronizációs kód</string>
-    <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
-    <string name="sync_claim_pin_label">PIN</string>
-    <string name="sync_claim_pin_placeholder">PIN megadása</string>
-    <string name="sync_claim_linking">Összekapcsolás\u2026</string>
 
 
     <string name="profile_selection_title">Ki nézi?</string>
@@ -1822,13 +1786,6 @@
     <string name="update_latest_version">A legfrissebb verziót használod.</string>
     <string name="update_unknown_sources">A folytatáshoz engedélyezd a telepítést ismeretlen forrásokból.</string>
     <!-- AccountScreen -->
-    <string name="account_title">Fiók</string>
-    <string name="account_sign_in_description">Jelentkezz be a könyvtár, a megtekintési állapot és a bővítmények eszközök közötti szinkronizálásához. Ha a Trakt nincs csatlakoztatva, a könyvtár szinkronizálásához a Fetch Sync használható. A megtekintési állapothoz a Traktot és a Fetch Syncet is választhatod.</string>
-    <string name="account_sync_code_title">Szinkronizációs kód</string>
-    <string name="account_sync_code_description">Szinkronizálás az eszközök között fiók létrehozása nélkül.</string>
-    <string name="account_linked_devices">Összekapcsolt eszközök (%1$d)</string>
-    <string name="account_no_linked_devices">Nincsenek összekapcsolt eszközök</string>
-    <string name="account_unlink">Leválasztás</string>
 
     <!-- EpisodeRatingsSection -->
     <string name="ratings_loading">Epizódértékelések betöltése\u2026</string>
@@ -1923,7 +1880,6 @@
 
     <!-- General errors -->
     <string name="error_unknown">Ismeretlen hiba</string>
-    <string name="addon_error_not_found">Bővítmény nem található</string>
 
     <!-- Account errors -->
 
@@ -1942,11 +1898,7 @@
 
     <string name="cd_play">Lejátszás</string>
     <string name="cd_pause">Szünet</string>
-    <string name="cd_subtitles">Feliratok</string>
-    <string name="cd_audio_tracks">Hangsávok</string>
-    <string name="cd_sources">Források</string>
     <string name="cd_switch_player_engine">Lejátszómotor váltása</string>
-    <string name="cd_episodes">Epizódok</string>
     <string name="cd_playback_speed">Lejátszási sebesség</string>
     <string name="cd_aspect_ratio">Képarány</string>
     <string name="cd_open_external_player">Megnyitás külső lejátszóban</string>
@@ -1971,7 +1923,6 @@
     <string name="cd_refresh">Frissítés</string>
     <string name="cd_remove">Eltávolítás</string>
     <string name="cd_preview">Előnézet</string>
-    <string name="cd_unlink">Leválasztás</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt logó</string>
     <string name="cd_trakt_qr">Trakt aktivációs QR-kód</string>

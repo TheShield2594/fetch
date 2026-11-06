@@ -1,6 +1,5 @@
 package com.fetch.tv.data.remote.api
 
-import com.fetch.tv.data.remote.dto.GitHubContributorDto
 import com.fetch.tv.data.remote.dto.GitHubReleaseDto
 import retrofit2.Response
 import retrofit2.http.GET
@@ -21,10 +20,4 @@ interface GitHubReleaseApi {
         @Path("repo") repo: String,
         @Query("per_page") perPage: Int = 100
     ): Response<List<GitHubReleaseDto>>
-
-    @GET("repos/{owner}/{repo}/contributors")
-    suspend fun getContributors(
-        @Path("owner") owner: String,
-        @Path("repo") repo: String
-    ): Response<List<GitHubContributorDto>>
 }

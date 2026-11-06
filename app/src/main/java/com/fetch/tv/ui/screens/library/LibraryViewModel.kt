@@ -233,10 +233,11 @@ class LibraryViewModel @Inject constructor(
         metaPrefetchJob = viewModelScope.launch {
             delay(150)
             if (id in metaPrefetchedIds) return@launch
-            metaPrefetchedIds.add(id)
             metaRepository.getMetaFromAllAddons(type = type, id = id)
                 .first { it !is com.fetch.tv.core.network.NetworkResult.Loading }
             watchProgressRepository.getAllEpisodeProgress(id.substringBefore(":")).first()
+            // Marked only once done, so a prefetch cancelled by the next focus is retried.
+            metaPrefetchedIds.add(id)
         }
     }
 

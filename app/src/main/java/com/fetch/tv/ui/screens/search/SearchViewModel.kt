@@ -97,6 +97,8 @@ class SearchViewModel @Inject constructor(
      */
     private val activeLoadMoreJobs: MutableSet<Job> =
         java.util.concurrent.ConcurrentHashMap.newKeySet()
+    /** Rows with a load-more page in flight, so cancelling the run can clear their spinners. */
+    private val loadMoreRowKeys: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
     private var searchRunJob: Job? = null
     private var activeSearchQuery: String? = null
     private var searchGeneration = 0L
@@ -237,10 +239,11 @@ class SearchViewModel @Inject constructor(
         metaPrefetchJob = viewModelScope.launch {
             delay(150)
             if (id in metaPrefetchedIds) return@launch
-            metaPrefetchedIds.add(id)
             metaRepository.getMetaFromAllAddons(type = type, id = id)
                 .first { it !is com.fetch.tv.core.network.NetworkResult.Loading }
             watchProgressRepository.getAllEpisodeProgress(id.substringBefore(":")).first()
+            // Marked only once done, so a prefetch cancelled by the next focus is retried.
+            metaPrefetchedIds.add(id)
         }
     }
 
@@ -515,8 +518,19 @@ class SearchViewModel @Inject constructor(
         searchRunJob = null
         activeSearchJobs.forEach { it.cancel() }
         activeSearchJobs = emptyList()
+        // Snapshot first: a cancelled job's completion handler removes its key.
+        val interruptedRowKeys = loadMoreRowKeys.toList()
         activeLoadMoreJobs.forEach { it.cancel() }
         activeLoadMoreJobs.clear()
+        // A cancelled page load never reaches clearRowLoading, and a run that is then found
+        // already satisfied keeps these rows, so drop their spinners here.
+        if (interruptedRowKeys.isNotEmpty()) {
+            interruptedRowKeys.forEach { key ->
+                catalogsMap[key]?.takeIf { it.isLoading }?.let { catalogsMap[key] = it.copy(isLoading = false) }
+            }
+            loadMoreRowKeys.clear()
+            scheduleCatalogRowsUpdate()
+        }
         activeSearchQuery = null
     }
 
@@ -864,7 +878,11 @@ class SearchViewModel @Inject constructor(
             }
         }
         activeLoadMoreJobs.add(job)
-        job.invokeOnCompletion { activeLoadMoreJobs.remove(job) }
+        loadMoreRowKeys.add(key)
+        job.invokeOnCompletion {
+            activeLoadMoreJobs.remove(job)
+            loadMoreRowKeys.remove(key)
+        }
     }
 
     /** Drops the loading flag for a row, but only while its search run is still current. */

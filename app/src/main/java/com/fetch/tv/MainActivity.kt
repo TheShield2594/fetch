@@ -94,6 +94,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import com.fetch.tv.core.parental.startupNeedsParentPin
 import com.fetch.tv.ui.screens.ambient.AmbientIdleController
 import com.fetch.tv.ui.screens.ambient.AmbientModeHost
 import com.fetch.tv.ui.screens.ambient.LocalAmbientIdleController
@@ -445,8 +446,8 @@ open class MainActivity : ComponentActivity() {
             val startupSplashEnabled by profileManager.startupSplashEnabled.collectAsState()
             val startupLoadingState = remember(activeProfileId, startupSession) { StartupLoadingState() }
             val profiles by profileManager.profiles.collectAsState()
-            val profilesLoaded by profileManager.profilesLoaded.collectAsState()
-            val activeProfileReady by profileManager.activeProfileReady.collectAsState()
+            val loadedProfiles by profileManager.loadedProfiles.collectAsState()
+            val loadedActiveProfileId by profileManager.loadedActiveProfileId.collectAsState()
             val hasEverSelectedProfile by profileManager.hasEverSelectedProfile.collectAsState()
             val rememberLastProfileEnabled by profileManager.rememberLastProfileEnabled.collectAsState()
             val activeProfile = remember(activeProfileId, profiles) {
@@ -472,18 +473,8 @@ open class MainActivity : ComponentActivity() {
             // Also null until the real profile list and active profile are read: judged against
             // the primary-only placeholder list, a restricted sibling would be missed and the
             // remembered profile auto-entered without the parent PIN.
-            val activeProfileNeedsParentPin = remember(
-                activeProfileId,
-                profiles,
-                profileOpenLock,
-                profilesLoaded,
-                activeProfileReady
-            ) {
-                if (!profilesLoaded || !activeProfileReady) {
-                    null
-                } else {
-                    profileOpenLock?.needsParentPinToOpen(activeProfileId, profiles.map { it.id })
-                }
+            val activeProfileNeedsParentPin = remember(profileOpenLock, loadedProfiles, loadedActiveProfileId) {
+                startupNeedsParentPin(profileOpenLock, loadedActiveProfileId, loadedProfiles?.map { it.id })
             }
 
             var profileSwitchedManually by remember { mutableStateOf(false) }

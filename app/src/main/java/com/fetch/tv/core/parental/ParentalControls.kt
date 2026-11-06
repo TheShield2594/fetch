@@ -379,6 +379,16 @@ fun MetaPreview.certificationQuery(): CertificationQuery = CertificationQuery(
     knownCertification = ageRating
 )
 
+/**
+ * Whether the profile remembered at startup needs the parent PIN, or null while any input is
+ * still unread. Each input is a value that is null until loaded, so readiness and value can't
+ * arrive separately: a lock decision is never made against a placeholder profile list or id.
+ */
+fun startupNeedsParentPin(lock: ProfileOpenLock?, activeProfileId: Int?, profileIds: List<Int>?): Boolean? {
+    if (lock == null || activeProfileId == null || profileIds == null) return null
+    return lock.needsParentPinToOpen(activeProfileId, profileIds)
+}
+
 /** The lock setting, limits and PIN states that decide [needsParentPinToOpen]. */
 data class ProfileOpenLock(
     val lockOn: Boolean,

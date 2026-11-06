@@ -8,6 +8,7 @@ import com.fetch.tv.ui.screens.home.approvedTitleRows
 import com.fetch.tv.ui.screens.player.effectiveStillWatching
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDateTime
@@ -149,5 +150,21 @@ class KidsRulesTest {
         assertEquals("p1", rows[0].items[1].poster)
         assertEquals(listOf("tt2"), rows[1].items.map { it.id })
         assertTrue(approvedTitleRows(approvedOnly = false, lists = lists, moviesTitle = "M", showsTitle = "S").isEmpty())
+    }
+
+    @Test
+    fun `startup makes no lock decision until every input is loaded`() {
+        val lock = ProfileOpenLock(
+            lockOn = true,
+            restrictions = mapOf(3 to ProfileRestrictions.KidsPreset),
+            pinEnabled = mapOf(1 to true)
+        )
+        // Lock settings arrive first; the profile list and active id are still unread.
+        assertNull(startupNeedsParentPin(lock, activeProfileId = null, profileIds = null))
+        assertNull(startupNeedsParentPin(lock, activeProfileId = 2, profileIds = null))
+        assertNull(startupNeedsParentPin(lock, activeProfileId = null, profileIds = listOf(1, 2, 3)))
+        assertNull(startupNeedsParentPin(null, activeProfileId = 2, profileIds = listOf(1, 2, 3)))
+        // Once the real list (with the restricted sibling) is in, the remembered profile is locked.
+        assertTrue(startupNeedsParentPin(lock, activeProfileId = 2, profileIds = listOf(1, 2, 3)) == true)
     }
 }

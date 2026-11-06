@@ -65,13 +65,17 @@ class ProfileManager @Inject constructor(
         ))
 
     /**
-     * False until [profiles] holds the list read from disk rather than its primary-only
-     * placeholder. Decisions that depend on every profile (such as whether a sibling is
-     * restricted) must wait for this.
+     * The profile list read from disk, or null before it has been read. Unlike [profiles] there is
+     * no placeholder, and readiness and value arrive together as one state, so a decision that
+     * depends on every profile (such as whether a sibling is restricted) can't see "loaded" paired
+     * with the primary-only placeholder.
      */
-    val profilesLoaded: StateFlow<Boolean> = profileDataStore.profilesList
-        .map { true }
-        .stateIn(scope, SharingStarted.Eagerly, false)
+    val loadedProfiles: StateFlow<List<UserProfile>?> = profileDataStore.profilesList
+        .stateIn(scope, SharingStarted.Eagerly, null)
+
+    /** The active profile id read from disk, or null before it has been read (see [loadedProfiles]). */
+    val loadedActiveProfileId: StateFlow<Int?> = profileDataStore.activeProfileId
+        .stateIn(scope, SharingStarted.Eagerly, null)
 
     val activeProfile: UserProfile?
         get() = profiles.value.find { it.id == activeProfileId.value }

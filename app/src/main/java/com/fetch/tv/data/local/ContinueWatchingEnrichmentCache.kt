@@ -77,13 +77,19 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         private const val CACHE_DIR_NAME = "cw_enrichment"
 
         /**
+         * Guards every snapshot file. Shared with [deleteProfileFiles] so a deletion
+         * cannot interleave with a write that is already in progress.
+         */
+        private val mutex = Mutex()
+
+        /**
          * Deletes the Continue Watching snapshots (and any half-written `.tmp`
          * files) of [profileId]. Profile ids are reused, so this must run when
          * a profile is deleted.
          */
-        fun deleteProfileFiles(filesDir: File, profileId: Int) {
+        suspend fun deleteProfileFiles(filesDir: File, profileId: Int) = mutex.withLock {
             val dir = File(filesDir, CACHE_DIR_NAME)
-            if (!dir.exists()) return
+            if (!dir.exists()) return@withLock
             listOf("inprogress_${profileId}.json", "nextup_${profileId}.json").forEach { name ->
                 File(dir, name).delete()
                 File(dir, "$name.tmp").delete()
@@ -92,7 +98,6 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
     }
 
     private val gson = Gson()
-    private val mutex = Mutex()
     @Volatile private var lastNextUpWriteMs = 0L
     @Volatile private var lastInProgressWriteMs = 0L
     @Volatile private var lastNextUpHash = 0
@@ -140,6 +145,9 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
             if (now - lastNextUpWriteMs < THROTTLE_MS) return@withContext
         }
         mutex.withLock {
+            // A deleted profile's snapshot must not be recreated by a save that was
+            // already running; its id can be reused by a new profile.
+            if (!isActiveProfileStillPresent()) return@withLock
             try {
                 val file = nextUpFile()
                 atomicWrite(file, gson.toJson(items))
@@ -186,6 +194,9 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
             if (now - lastInProgressWriteMs < THROTTLE_MS) return@withContext
         }
         mutex.withLock {
+            // A deleted profile's snapshot must not be recreated by a save that was
+            // already running; its id can be reused by a new profile.
+            if (!isActiveProfileStillPresent()) return@withLock
             try {
                 val file = inProgressFile()
                 atomicWrite(file, gson.toJson(items))
@@ -214,6 +225,11 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
             }
         }
         _cacheCleared.value++
+    }
+
+    private fun isActiveProfileStillPresent(): Boolean {
+        val activeId = profileManager.activeProfileId.value
+        return profileManager.profiles.value.any { it.id == activeId }
     }
 
     private fun atomicWrite(target: File, content: String) {

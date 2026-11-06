@@ -990,12 +990,24 @@ private fun RightStreamSection(
                         )
                     }
                     sharedStream == null && streams.isEmpty() -> {
+                        // D-pad focus can select an addon whose results were all hidden as
+                        // torrents; explain that for this addon rather than "No streams from".
+                        val hiddenForAddon = selectedAddonFilter?.let { hiddenUnplayableCounts[it] } ?: 0
                         EmptyScreenState(
-                            title = stringResource(R.string.stream_no_streams),
-                            subtitle = if (selectedAddonFilter == null) {
-                                stringResource(R.string.stream_no_streams_hint)
+                            title = if (hiddenForAddon > 0) {
+                                stringResource(R.string.stream_torrent_only_title)
                             } else {
-                                stringResource(R.string.stream_no_streams_from_addon, selectedAddonFilter)
+                                stringResource(R.string.stream_no_streams)
+                            },
+                            subtitle = when {
+                                selectedAddonFilter == null -> stringResource(R.string.stream_no_streams_hint)
+                                hiddenForAddon > 0 -> pluralStringResource(
+                                    R.plurals.stream_torrent_only_hint_addon,
+                                    hiddenForAddon,
+                                    selectedAddonFilter,
+                                    hiddenForAddon
+                                )
+                                else -> stringResource(R.string.stream_no_streams_from_addon, selectedAddonFilter)
                             },
                             icon = Icons.Default.Extension,
                             // With an addon filter on, other addons may still have streams.

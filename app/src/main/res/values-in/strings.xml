@@ -931,15 +931,15 @@
     <string name="profile_pin_overlay_unlock_heading">Masukkan PIN Anda untuk mengakses %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Buat PIN 4 digit untuk %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Konfirmasikan PIN baru Anda.</string>
-    <string name="profile_pin_overlay_unlock_support">Gunakan remote atau keyboard untuk memasukkan 4 digit.</string>
+    <string name="profile_pin_overlay_unlock_support">Gunakan remote atau keyboard untuk memasukkan PIN, lalu tekan OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Masukkan PIN saat ini untuk mengubah PIN untuk %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Masukkan PIN 4 digit saat ini sebelum menetapkan yang baru.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Masukkan PIN saat ini untuk menghapus kunci untuk %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Masukkan PIN 4 digit saat ini untuk menghapus kunci ini.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Masukkan PIN saat ini untuk menghapus %1$s.</string>
     <string name="profile_pin_overlay_delete_verify_support">Masukkan PIN 4 digit saat ini sebelum menghapus profil ini.</string>
-    <string name="profile_pin_overlay_set_support">PIN ini akan diperlukan sebelum membuka profil ini.</string>
-    <string name="profile_pin_overlay_confirm_support">Masukkan ulang 4 digit yang sama untuk menyelesaikan pengaturan.</string>
+    <string name="profile_pin_overlay_set_support">Gunakan 4 hingga 8 digit, lalu tekan OK. PIN ini akan diperlukan sebelum membuka profil ini.</string>
+    <string name="profile_pin_overlay_confirm_support">Masukkan ulang digit yang sama untuk menyelesaikan pengaturan.</string>
     <string name="profile_pin_overlay_mismatch">PIN tidak cocok. Masukkan PIN baru lagi.</string>
     <string name="profile_pin_overlay_back_hint">Tekan kembali untuk membatalkan</string>
 

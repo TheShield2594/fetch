@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -34,6 +35,7 @@ class ProfileManager @Inject constructor(
 ) {
     companion object {
         const val MAX_PROFILES = 6
+        private const val PROFILE_LIST_UPDATE_TIMEOUT_MS = 5_000L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -61,6 +63,15 @@ class ProfileManager @Inject constructor(
         .stateIn(scope, SharingStarted.Eagerly, listOf(
             UserProfile(id = 1, name = context.getString(R.string.profile_default_name, 1), avatarColorHex = "#1E88E5")
         ))
+
+    /**
+     * False until [profiles] holds the list read from disk rather than its primary-only
+     * placeholder. Decisions that depend on every profile (such as whether a sibling is
+     * restricted) must wait for this.
+     */
+    val profilesLoaded: StateFlow<Boolean> = profileDataStore.profilesList
+        .map { true }
+        .stateIn(scope, SharingStarted.Eagerly, false)
 
     val activeProfile: UserProfile?
         get() = profiles.value.find { it.id == activeProfileId.value }
@@ -125,6 +136,15 @@ class ProfileManager @Inject constructor(
         screenTimeStore.deleteProfile(id)
         deleteProfileDataAsync(id)
         profileDataStore.deleteProfile(id)
+        // A Continue Watching save that started before the cleanup above (while this
+        // was still the active profile) can recreate its snapshot. Once the profile is
+        // gone from the list, saves for it are skipped, so delete the snapshots again.
+        withTimeoutOrNull(PROFILE_LIST_UPDATE_TIMEOUT_MS) {
+            profiles.first { entries -> entries.none { it.id == id } }
+        }
+        withContext(Dispatchers.IO) {
+            ContinueWatchingEnrichmentCache.deleteProfileFiles(context.filesDir, id)
+        }
         return true
     }
 

@@ -61,6 +61,15 @@ class ProfileDataStoreFactory @Inject constructor(
     private val cache = ConcurrentHashMap<String, ScopedDataStore>()
     private val deletedProfileIds = ConcurrentHashMap.newKeySet<Int>()
     private val lock = Any()
+
+    /**
+     * Serializes shadow-copy writes with every deletion of a shadow copy. Without it,
+     * a copy that opened the primary file before a clear could finish after the clear
+     * deleted the backup and recreate it with pre-clear data (Trakt credentials
+     * included), which corruption recovery would later restore. A copy that runs
+     * after the clear copies the cleared file instead.
+     */
+    private val shadowCopyLock = Any()
     private companion object {
         const val DATASTORE_FILE_SUFFIX = ".preferences_pb"
         const val SHADOW_COPY_SUFFIX = ".bak"
@@ -107,7 +116,7 @@ class ProfileDataStoreFactory @Inject constructor(
             scoped.job.join()
             // The cancelled scope may never run the shadow-copy write that would
             // have dropped the .bak, so remove it here.
-            shadowCopyFile(key).delete()
+            synchronized(shadowCopyLock) { shadowCopyFile(key).delete() }
         }
     }
 
@@ -121,9 +130,11 @@ class ProfileDataStoreFactory @Inject constructor(
         val suffix = "_p$profileId$DATASTORE_FILE_SUFFIX"
         val dataStoreDir = File(context.filesDir, "datastore")
         if (!dataStoreDir.exists()) return
-        dataStoreDir.listFiles()?.forEach { file ->
-            if (file.name.endsWith(suffix) || file.name.endsWith("$suffix$SHADOW_COPY_SUFFIX")) {
-                file.delete()
+        synchronized(shadowCopyLock) {
+            dataStoreDir.listFiles()?.forEach { file ->
+                if (file.name.endsWith(suffix) || file.name.endsWith("$suffix$SHADOW_COPY_SUFFIX")) {
+                    file.delete()
+                }
             }
         }
     }
@@ -139,14 +150,16 @@ class ProfileDataStoreFactory @Inject constructor(
         val cachedFileNames = cachedStores.keys.mapTo(mutableSetOf()) { "$it$DATASTORE_FILE_SUFFIX" }
         val dataStoreDir = File(context.filesDir, "datastore")
         if (!dataStoreDir.exists()) return@withContext
-        dataStoreDir.listFiles()?.forEach { file ->
-            val isShadowCopy = file.name.endsWith(SHADOW_COPY_SUFFIX)
-            val primaryName = file.name.removeSuffix(SHADOW_COPY_SUFFIX)
-            if (!isProfileScopedDataStoreFile(primaryName)) return@forEach
-            // Live stores were cleared above and keep their (now empty) file, but
-            // their shadow copies still hold the old data and must go too.
-            if (isShadowCopy || primaryName !in cachedFileNames) {
-                file.delete()
+        synchronized(shadowCopyLock) {
+            dataStoreDir.listFiles()?.forEach { file ->
+                val isShadowCopy = file.name.endsWith(SHADOW_COPY_SUFFIX)
+                val primaryName = file.name.removeSuffix(SHADOW_COPY_SUFFIX)
+                if (!isProfileScopedDataStoreFile(primaryName)) return@forEach
+                // Live stores were cleared above and keep their (now empty) file, but
+                // their shadow copies still hold the old data and must go too.
+                if (isShadowCopy || primaryName !in cachedFileNames) {
+                    file.delete()
+                }
             }
         }
     }
@@ -219,13 +232,17 @@ class ProfileDataStoreFactory @Inject constructor(
         val sourceFile = File(File(context.filesDir, "datastore"), "$fileName$DATASTORE_FILE_SUFFIX")
         val backupFile = shadowCopyFile(fileName)
         try {
-            if (preferences.asMap().isEmpty()) {
-                // The store was cleared (sign-out, Trakt disconnect, profile reset).
-                // Keeping the old copy would let corruption recovery bring the
-                // cleared data back, so drop it.
-                backupFile.delete()
-            } else if (sourceFile.exists() && sourceFile.length() > 0) {
-                sourceFile.copyTo(backupFile, overwrite = true)
+            synchronized(shadowCopyLock) {
+                if (preferences.asMap().isEmpty()) {
+                    // The store was cleared (sign-out, Trakt disconnect, profile reset).
+                    // Keeping the old copy would let corruption recovery bring the
+                    // cleared data back, so drop it.
+                    backupFile.delete()
+                } else if (sourceFile.exists() && sourceFile.length() > 0) {
+                    // Copies the file as it is now, so a copy queued before a clear
+                    // that only runs after it copies the cleared file.
+                    sourceFile.copyTo(backupFile, overwrite = true)
+                }
             }
         } catch (e: Exception) {
             Log.w("ProfileDataStoreFactory", "Failed to write shadow copy for $fileName: ${e.message}")

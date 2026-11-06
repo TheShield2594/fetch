@@ -975,13 +975,13 @@
     <string name="profile_pin_overlay_unlock_heading">Ange din PIN för att komma åt %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Skapa en 4-siffrig PIN för %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Bekräfta din nya PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Använd fjärrkontrollen eller tangentbordet för att ange 4 siffror.</string>
+    <string name="profile_pin_overlay_unlock_support">Ange PIN-koden med fjärrkontrollen eller tangentbordet och tryck sedan på OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Ange nuvarande PIN för att ändra PIN för %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Ange den nuvarande 4-siffriga PIN-koden innan du anger en ny.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Ange nuvarande PIN för att ta bort låset för %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Ange den nuvarande 4-siffriga PIN-koden för att ta bort detta lås.</string>
-    <string name="profile_pin_overlay_set_support">Denna PIN krävs innan denna profil öppnas.</string>
-    <string name="profile_pin_overlay_confirm_support">Ange samma 4 siffror igen för att slutföra.</string>
+    <string name="profile_pin_overlay_set_support">Använd 4 till 8 siffror och tryck sedan på OK. Denna PIN krävs innan denna profil öppnas.</string>
+    <string name="profile_pin_overlay_confirm_support">Ange samma siffror igen för att slutföra.</string>
     <string name="profile_pin_overlay_mismatch">PIN-koderna matchade inte. Ange en ny PIN igen.</string>
     <string name="profile_pin_overlay_back_hint">Tryck tillbaka för att avbryta</string>
 

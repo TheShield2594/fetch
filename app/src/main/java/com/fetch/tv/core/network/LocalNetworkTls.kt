@@ -3,6 +3,7 @@ package com.fetch.tv.core.network
 import com.fetch.tv.core.server.PairingGuard
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import java.net.Proxy
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import javax.net.ssl.SSLContext
@@ -58,16 +59,23 @@ object LocalNetworkTls {
      * and the address actually connected to are local, so a local server redirecting to a public
      * URL, or a local-looking name that DNS resolves to a public address, never gets an
      * unverified request (and the URL's query, which can hold debrid keys).
+     *
+     * The client never uses a proxy: through one, the address connected to would be the
+     * proxy's, so the address check could pass while the request reaches a public target.
+     * Local servers are reached directly anyway.
      */
     fun unverifiedClient(base: OkHttpClient): OkHttpClient =
         base.newBuilder()
+            .proxy(Proxy.NO_PROXY)
             .sslSocketFactory(trustAllSslContext.socketFactory, trustAllManager)
             .hostnameVerifier { _, _ -> true }
             .addNetworkInterceptor { chain ->
                 val url = chain.request().url
                 if (url.isHttps) {
-                    val address = chain.connection()?.route()?.socketAddress?.address?.hostAddress
-                    if (!isLocalNetworkHost(url.host) || !PairingGuard.isLocalNetworkAddress(address)) {
+                    val route = chain.connection()?.route()
+                    val address = route?.socketAddress?.address?.hostAddress
+                    val direct = route?.proxy?.type() == Proxy.Type.DIRECT
+                    if (!direct || !isLocalNetworkHost(url.host) || !PairingGuard.isLocalNetworkAddress(address)) {
                         throw SSLPeerUnverifiedException(
                             "Refusing an unverified TLS connection to a non-local host: ${url.host}"
                         )

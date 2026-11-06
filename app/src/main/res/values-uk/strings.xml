@@ -978,15 +978,15 @@
     <string name="profile_pin_overlay_unlock_heading">Введіть ваш PIN для доступу до %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Створіть 4-значний PIN для %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Підтвердіть ваш новий PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Використовуйте пульт або клавіатуру для введення 4 цифр.</string>
+    <string name="profile_pin_overlay_unlock_support">Введіть PIN-код за допомогою пульта або клавіатури, потім натисніть OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Введіть поточний PIN для зміни PIN-коду %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Введіть поточний 4-значний PIN-код перед встановленням нового.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Введіть поточний PIN для видалення блокування %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Введіть поточний 4-значний PIN-код, щоб зняти це блокування.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Введіть PIN для видалення %1$s.</string>
     <string name="profile_pin_overlay_delete_verify_support">Введіть поточний 4-значний PIN перед видаленням профілю.</string>
-    <string name="profile_pin_overlay_set_support">Цей PIN-код запитуватиметься перед відкриттям цього профілю.</string>
-    <string name="profile_pin_overlay_confirm_support">Введіть ті самі 4 цифри ще раз для завершення налаштування.</string>
+    <string name="profile_pin_overlay_set_support">Використовуйте від 4 до 8 цифр, потім натисніть OK. Цей PIN-код запитуватиметься перед відкриттям цього профілю.</string>
+    <string name="profile_pin_overlay_confirm_support">Введіть ті самі цифри ще раз для завершення налаштування.</string>
     <string name="profile_pin_overlay_mismatch">PIN-коди не збіглися. Введіть новий PIN-код ще раз.</string>
     <string name="profile_pin_overlay_back_hint">Натисніть «Назад» для скасування</string>
 

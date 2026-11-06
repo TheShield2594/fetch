@@ -983,15 +983,15 @@
     <string name="profile_pin_overlay_unlock_heading">%1$sにアクセスするにはPINを入力してください</string>
     <string name="profile_pin_overlay_set_heading">%1$s用の4桁のPINを作成してください</string>
     <string name="profile_pin_overlay_confirm_heading">新しいPINを確認してください</string>
-    <string name="profile_pin_overlay_unlock_support">リモコンまたはキーボードで4桁を入力してください</string>
+    <string name="profile_pin_overlay_unlock_support">リモコンまたはキーボードでPINを入力し、OKを押してください</string>
     <string name="profile_pin_overlay_change_verify_heading">%1$sのPINを変更するには現在のPINを入力してください</string>
     <string name="profile_pin_overlay_change_verify_support">新しいPINを設定する前に現在の4桁のPINを入力してください</string>
     <string name="profile_pin_overlay_remove_verify_heading">%1$sのロックを解除するには現在のPINを入力してください</string>
     <string name="profile_pin_overlay_remove_verify_support">このロックを削除するには現在の4桁のPINを入力してください</string>
     <string name="profile_pin_overlay_delete_verify_heading">%1$sを削除するには現在のPINを入力してください</string>
     <string name="profile_pin_overlay_delete_verify_support">このプロフィールを削除するには現在の4桁のPINを入力してください</string>
-    <string name="profile_pin_overlay_set_support">このプロフィールを開く前にPINの入力が必要になります</string>
-    <string name="profile_pin_overlay_confirm_support">設定を完了するには同じ4桁を再入力してください</string>
+    <string name="profile_pin_overlay_set_support">4～8桁の数字を入力し、OKを押してください。このプロフィールを開く前にPINの入力が必要になります</string>
+    <string name="profile_pin_overlay_confirm_support">設定を完了するには同じ数字を再入力してください</string>
     <string name="profile_pin_overlay_mismatch">PINが一致しませんでした。もう一度新しいPINを入力してください</string>
     <string name="profile_pin_overlay_back_hint">戻るボタンでキャンセル</string>
 

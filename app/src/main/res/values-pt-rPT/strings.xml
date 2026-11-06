@@ -953,15 +953,15 @@
     <string name="profile_pin_overlay_unlock_heading">Introduz o teu PIN para aceder a %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Cria um PIN de 4 dígitos para %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Confirma o teu novo PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Utiliza o teu comando ou teclado para introduzir 4 dígitos.</string>
+    <string name="profile_pin_overlay_unlock_support">Utiliza o teu comando ou teclado para introduzir o PIN e depois prime OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Introduz o PIN atual para alterar o PIN de %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Introduz o PIN atual de 4 dígitos antes de definires um novo.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Introduz o PIN atual para remover o bloqueio de %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Introduz o PIN atual de 4 dígitos para remover este bloqueio.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Introduz o PIN atual para eliminar %1$s.</string>
     <string name="profile_pin_overlay_delete_verify_support">Introduz o PIN atual de 4 dígitos antes de eliminares este perfil.</string>
-    <string name="profile_pin_overlay_set_support">Este PIN será obrigatório antes de abrir este perfil.</string>
-    <string name="profile_pin_overlay_confirm_support">Reintroduz os mesmos 4 dígitos para concluir a configuração.</string>
+    <string name="profile_pin_overlay_set_support">Utiliza 4 a 8 dígitos e depois prime OK. Este PIN será obrigatório antes de abrir este perfil.</string>
+    <string name="profile_pin_overlay_confirm_support">Reintroduz os mesmos dígitos para concluir a configuração.</string>
     <string name="profile_pin_overlay_mismatch">Os PINs não coincidem. Introduz um novo PIN novamente.</string>
     <string name="profile_pin_overlay_back_hint">Carrega em Voltar para cancelar.</string>
     <!-- Essential addon setup wizard -->

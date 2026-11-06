@@ -89,7 +89,7 @@ class ProfileDataFileCleanupTest {
     }
 
     @Test
-    fun `deleting a profile's continue watching snapshots leaves other profiles alone`() {
+    fun `deleting a profile's continue watching snapshots leaves other profiles alone`() = runBlocking {
         val dir = File(context.filesDir, "cw_enrichment").apply { mkdirs() }
         val deleted = listOf("inprogress_3.json", "nextup_3.json", "nextup_3.json.tmp")
             .map { File(dir, it).apply { writeText("[]") } }

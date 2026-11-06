@@ -1293,15 +1293,15 @@
     <string name="profile_pin_overlay_unlock_heading">Saisissez votre code PIN pour accéder à %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Créez un code PIN à 4 chiffres pour %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Confirmez votre nouveau code PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Utilisez votre télécommande ou votre clavier pour saisir les 4 chiffres.</string>
+    <string name="profile_pin_overlay_unlock_support">Saisissez le code PIN avec votre télécommande ou votre clavier, puis appuyez sur OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Saisissez le code PIN actuel pour modifier celui de %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Saisissez le code PIN actuel à 4 chiffres avant d’en définir un nouveau.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Saisissez le code PIN actuel pour supprimer le verrouillage de %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Saisissez le code PIN actuel à 4 chiffres pour supprimer ce verrouillage.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Saisissez le code PIN actuel pour supprimer %1$s.</string>
     <string name="profile_pin_overlay_delete_verify_support">Saisissez le code PIN actuel à 4 chiffres avant de supprimer ce profil.</string>
-    <string name="profile_pin_overlay_set_support">Ce code PIN sera demandé avant l’ouverture de ce profil.</string>
-    <string name="profile_pin_overlay_confirm_support">Saisissez de nouveau les mêmes 4 chiffres pour terminer la configuration.</string>
+    <string name="profile_pin_overlay_set_support">Utilisez de 4 à 8 chiffres, puis appuyez sur OK. Ce code PIN sera demandé avant l’ouverture de ce profil.</string>
+    <string name="profile_pin_overlay_confirm_support">Saisissez de nouveau les mêmes chiffres pour terminer la configuration.</string>
     <string name="profile_pin_overlay_mismatch">Les codes PIN ne correspondent pas. Saisissez de nouveau un code PIN.</string>
     <string name="profile_pin_overlay_back_hint">Appuyez sur «&#160;Retour&#160;» pour annuler</string>
 

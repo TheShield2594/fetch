@@ -1297,15 +1297,12 @@
     <string name="profile_pin_overlay_unlock_heading">יש להזין את הסיסמה כדי לגשת אל %1$s.</string>
     <string name="profile_pin_overlay_set_heading">יצירת סיסמה בת 4 ספרות עבור %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">יש לאשר את הסיסמה החדשה.</string>
-    <string name="profile_pin_overlay_unlock_support">יש להשתמש בשלט או במקלדת כדי להזין 4 ספרות.</string>
     <string name="profile_pin_overlay_change_verify_heading">יש להזין סיסמה נוכחית כדי לשנות סיסמה עבור %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">יש להזין את הסיסמה הנוכחית בת 4 הספרות לפני הגדרת סיסמה חדשה.</string>
     <string name="profile_pin_overlay_remove_verify_heading">יש להזין סיסמה נוכחית כדי להסיר נעילה עבור %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">יש להזין את הסיסמה הנוכחית בת 4 הספרות כדי להסיר נעילה זו.</string>
     <string name="profile_pin_overlay_delete_verify_heading">יש להזין סיסמה כדי למחוק את %1$s.</string>
     <string name="profile_pin_overlay_delete_verify_support">יש להזין את הסיסמה הנוכחית בת 4 הספרות לפני מחיקת פרופיל זה.</string>
-    <string name="profile_pin_overlay_set_support">סיסמה זו תידרש לפני פתיחת פרופיל זה.</string>
-    <string name="profile_pin_overlay_confirm_support">יש להזין שוב את אותן 4 ספרות כדי לסיים את ההגדרה.</string>
     <string name="profile_pin_overlay_mismatch">הסיסמות אינן תואמות. יש להזין סיסמה חדשה שוב.</string>
     <string name="profile_pin_overlay_back_hint">יש ללחוץ חזרה כדי לבטל</string>
 

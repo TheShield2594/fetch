@@ -923,15 +923,15 @@
     <string name="profile_pin_overlay_unlock_heading">Gib deine PIN ein, um auf %1$s zuzugreifen.</string>
     <string name="profile_pin_overlay_set_heading">Erstelle eine 4-stellige PIN für %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Bestätige deine neue PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Verwende deine Fernbedienung oder Tastatur, um 4 Ziffern einzugeben.</string>
+    <string name="profile_pin_overlay_unlock_support">Gib die PIN mit deiner Fernbedienung oder Tastatur ein und drücke dann OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Gib die aktuelle PIN ein, um die PIN für %1$s zu ändern.</string>
     <string name="profile_pin_overlay_change_verify_support">Gib die aktuelle 4-stellige PIN ein, bevor du eine neue festlegst.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Gib die aktuelle PIN ein, um die Sperre für %1$s zu entfernen.</string>
     <string name="profile_pin_overlay_remove_verify_support">Gib die aktuelle 4-stellige PIN ein, um diese Sperre zu entfernen.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Aktuelle PIN eingeben um %1$s zu löschen.</string>
     <string name="profile_pin_overlay_delete_verify_support">Gib die aktuelle 4-stellige PIN ein, um dieses Profil zu löschen.</string>
-    <string name="profile_pin_overlay_set_support">Diese PIN wird benötigt, bevor dieses Profil geöffnet werden kann.</string>
-    <string name="profile_pin_overlay_confirm_support">Gib dieselben 4 Ziffern erneut ein, um die Einrichtung abzuschließen.</string>
+    <string name="profile_pin_overlay_set_support">Verwende 4 bis 8 Ziffern und drücke dann OK. Diese PIN wird benötigt, bevor dieses Profil geöffnet werden kann.</string>
+    <string name="profile_pin_overlay_confirm_support">Gib dieselben Ziffern erneut ein, um die Einrichtung abzuschließen.</string>
     <string name="profile_pin_overlay_mismatch">Die PINs stimmen nicht überein. Gib erneut eine neue PIN ein.</string>
     <string name="profile_pin_overlay_back_hint">Zurück drücken, um abzubrechen</string>	
 

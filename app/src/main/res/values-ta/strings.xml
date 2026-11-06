@@ -907,15 +907,12 @@
     <string name="profile_pin_overlay_unlock_heading">%1$s ஐ அணுக உங்கள் பினை உள்ளிடவும்.</string>
     <string name="profile_pin_overlay_set_heading">%1$s க்கு 4 இலக்க பினை உருவாக்கவும்.</string>
     <string name="profile_pin_overlay_confirm_heading">உங்கள் புதிய பினை உறுதிப்படுத்தவும்.</string>
-    <string name="profile_pin_overlay_unlock_support">4 இலக்கங்களை உள்ளிட உங்கள் ரிமோட் அல்லது விசைப்பலகையை பயன்படுத்தவும்.</string>
     <string name="profile_pin_overlay_change_verify_heading">%1$s க்கான பினை மாற்ற தற்போதைய பினை உள்ளிடவும்.</string>
     <string name="profile_pin_overlay_change_verify_support">புதியதை அமைக்கும் முன் தற்போதைய 4 இலக்க பினை உள்ளிடவும்.</string>
     <string name="profile_pin_overlay_remove_verify_heading">%1$s க்கான பூட்டை அகற்ற தற்போதைய பினை உள்ளிடவும்.</string>
     <string name="profile_pin_overlay_remove_verify_support">இந்த பூட்டை அகற்ற தற்போதைய 4 இலக்க பினை உள்ளிடவும்.</string>
     <string name="profile_pin_overlay_delete_verify_heading">%1$s ஐ நீக்க தற்போதைய பினை உள்ளிடவும்.</string>
     <string name="profile_pin_overlay_delete_verify_support">இந்த சுயவிவரத்தை நீக்கும் முன் தற்போதைய 4 இலக்க பினை உள்ளிடவும்.</string>
-    <string name="profile_pin_overlay_set_support">இந்த சுயவிவரத்தை திறப்பதற்கு முன் இந்த பின் தேவைப்படும்.</string>
-    <string name="profile_pin_overlay_confirm_support">அமைப்பை முடிக்க அதே 4 இலக்கங்களை மீண்டும் உள்ளிடவும்.</string>
     <string name="profile_pin_overlay_mismatch">பின்கள் பொருந்தவில்லை. புதிய பினை மீண்டும் உள்ளிடவும்.</string>
     <string name="profile_pin_overlay_back_hint">ரத்து செய்ய பின் பொத்தானை அழுத்தவும்</string>
 

@@ -394,8 +394,7 @@ class AuthManager @Inject constructor(
         cachedEffectiveUserId = null
         cachedEffectiveUserSourceUserId = null
         _authState.value = AuthState.SignedOut
-        accountLocalDataResetService.clearAfterSignOut()
-        clearLocalDataOwner()
+        clearLocalDataAfterSignOut()
     }
 
     suspend fun prepareForServerSwitch(): Result<Unit> {
@@ -408,8 +407,7 @@ class AuthManager @Inject constructor(
         _authState.value = AuthState.SignedOut
         authSessionNoticeDataStore.markFetchExplicitLogout()
         if (hadSession) {
-            accountLocalDataResetService.clearAfterSignOut()
-            clearLocalDataOwner()
+            clearLocalDataAfterSignOut()
         }
         return Result.success(Unit)
     }
@@ -432,8 +430,7 @@ class AuthManager @Inject constructor(
         cachedEffectiveUserSourceUserId = null
         _authState.value = AuthState.SignedOut
         if (authSessionNoticeDataStore.markUnexpectedFetchLogoutIfNeeded()) {
-            accountLocalDataResetService.clearAfterSignOut()
-            clearLocalDataOwner()
+            clearLocalDataAfterSignOut()
         }
     }
 
@@ -448,11 +445,29 @@ class AuthManager @Inject constructor(
             .getOrElse { return }
         if (shouldResetLocalDataForSignIn(previousOwner, userId)) {
             Log.i(TAG, "A different account signed in; clearing the previous account's local data")
-            accountLocalDataResetService.clearAfterSignOut()
+            if (!accountLocalDataResetService.clearAfterSignOut()) {
+                // Keep the previous owner recorded so the next sign-in retries the
+                // cleanup instead of treating the leftover data as this account's.
+                Log.w(TAG, "Local data cleanup incomplete; not recording the new account as its owner")
+                return
+            }
         }
         if (previousOwner != userId) {
             runCatching { authSessionNoticeDataStore.setLocalDataOwnerUserId(userId) }
                 .onFailure { Log.w(TAG, "Failed to record local data owner", it) }
+        }
+    }
+
+    /**
+     * Wipes the signed-out account's local data. The recorded owner is cleared only
+     * when every store was cleared: if anything was left behind, the owner stays
+     * recorded so a different account signing in next retries the cleanup.
+     */
+    private suspend fun clearLocalDataAfterSignOut() {
+        if (accountLocalDataResetService.clearAfterSignOut()) {
+            clearLocalDataOwner()
+        } else {
+            Log.w(TAG, "Local data cleanup incomplete; keeping the recorded local data owner")
         }
     }
 

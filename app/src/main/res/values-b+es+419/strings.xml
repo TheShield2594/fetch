@@ -1293,15 +1293,15 @@
     <string name="profile_pin_overlay_unlock_heading">Ingresa tu PIN para acceder a %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Crea un PIN de 4 dígitos para %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Confirma tu nuevo PIN.</string>
-    <string name="profile_pin_overlay_unlock_support">Usa tu control remoto o teclado para ingresar 4 dígitos.</string>
+    <string name="profile_pin_overlay_unlock_support">Usa tu control remoto o teclado para ingresar el PIN y luego presiona OK.</string>
     <string name="profile_pin_overlay_change_verify_heading">Ingresa el PIN actual para cambiar el PIN de %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Ingresa el PIN actual de 4 dígitos antes de establecer uno nuevo.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Ingresa el PIN actual para eliminar el bloqueo de %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Ingresa el PIN actual de 4 dígitos para eliminar este bloqueo.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Ingresa el PIN actual para eliminar %1$s.</string>
     <string name="profile_pin_overlay_delete_verify_support">Ingresa el PIN actual de 4 dígitos antes de eliminar este perfil.</string>
-    <string name="profile_pin_overlay_set_support">Este PIN será requerido antes de abrir este perfil.</string>
-    <string name="profile_pin_overlay_confirm_support">Vuelve a ingresar los mismos 4 dígitos para finalizar la configuración.</string>
+    <string name="profile_pin_overlay_set_support">Usa de 4 a 8 dígitos y luego presiona OK. Este PIN será requerido antes de abrir este perfil.</string>
+    <string name="profile_pin_overlay_confirm_support">Vuelve a ingresar los mismos dígitos para finalizar la configuración.</string>
     <string name="profile_pin_overlay_mismatch">Los PIN no coinciden. Ingresa uno nuevo nuevamente.</string>
     <string name="profile_pin_overlay_back_hint">Presiona atrás para cancelar</string>
 

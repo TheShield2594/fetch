@@ -445,6 +445,8 @@ open class MainActivity : ComponentActivity() {
             val startupSplashEnabled by profileManager.startupSplashEnabled.collectAsState()
             val startupLoadingState = remember(activeProfileId, startupSession) { StartupLoadingState() }
             val profiles by profileManager.profiles.collectAsState()
+            val profilesLoaded by profileManager.profilesLoaded.collectAsState()
+            val activeProfileReady by profileManager.activeProfileReady.collectAsState()
             val hasEverSelectedProfile by profileManager.hasEverSelectedProfile.collectAsState()
             val rememberLastProfileEnabled by profileManager.rememberLastProfileEnabled.collectAsState()
             val activeProfile = remember(activeProfileId, profiles) {
@@ -467,8 +469,21 @@ open class MainActivity : ComponentActivity() {
             // "Lock unrestricted profiles" can also lock the remembered profile behind the parent
             // PIN. Null until read from disk, so that profile is never auto-entered early either.
             val profileOpenLock by remember { parentalControls.profileOpenLock }.collectAsState(initial = null)
-            val activeProfileNeedsParentPin = remember(activeProfileId, profiles, profileOpenLock) {
-                profileOpenLock?.needsParentPinToOpen(activeProfileId, profiles.map { it.id })
+            // Also null until the real profile list and active profile are read: judged against
+            // the primary-only placeholder list, a restricted sibling would be missed and the
+            // remembered profile auto-entered without the parent PIN.
+            val activeProfileNeedsParentPin = remember(
+                activeProfileId,
+                profiles,
+                profileOpenLock,
+                profilesLoaded,
+                activeProfileReady
+            ) {
+                if (!profilesLoaded || !activeProfileReady) {
+                    null
+                } else {
+                    profileOpenLock?.needsParentPinToOpen(activeProfileId, profiles.map { it.id })
+                }
             }
 
             var profileSwitchedManually by remember { mutableStateOf(false) }
@@ -749,7 +764,7 @@ open class MainActivity : ComponentActivity() {
                     val surfaceContentReady = hasSeenAuthQrOnFirstLaunch != null &&
                         authState !is AuthState.Loading &&
                         profilePinStates != null &&
-                        profileOpenLock != null
+                        activeProfileNeedsParentPin != null
 
                     if (!surfaceContentReady) {
                         // Still loading auth state; nothing to show yet.

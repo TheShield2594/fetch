@@ -41,6 +41,13 @@ data class SearchUiState(
     val pendingDiscoverResults: List<MetaPreview> = emptyList(),
     val discoverHasMore: Boolean = true,
     val discoverPage: Int = 1,
+    /** The first page of the selected catalog failed to load; shown with a Retry instead of "No content". */
+    val discoverError: String? = null,
+    /**
+     * The last load-more page failed. Pagination stays open (a Load more cell still shows), but
+     * infinite scroll stops auto-requesting so an offline grid doesn't retry in a tight loop.
+     */
+    val discoverLoadMoreFailed: Boolean = false,
     val posterLabelsEnabled: Boolean = true,
     val catalogAddonNameEnabled: Boolean = true,
     val catalogTypeSuffixEnabled: Boolean = true,

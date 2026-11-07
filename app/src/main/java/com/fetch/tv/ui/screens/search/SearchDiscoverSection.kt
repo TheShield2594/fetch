@@ -78,6 +78,7 @@ import androidx.compose.ui.semantics.semantics
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.ui.components.EmptyScreenState
+import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.PosterCardStyle
@@ -106,6 +107,7 @@ internal fun DiscoverSection(
     onSelectCatalog: (String) -> Unit,
     onSelectGenre: (String?) -> Unit,
     onLoadMore: () -> Unit,
+    onRetry: () -> Unit,
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier
 ) {
@@ -253,6 +255,7 @@ internal fun DiscoverSection(
                     pendingCount = uiState.pendingDiscoverResults.size,
                     canLoadMore = uiState.discoverHasMore,
                     isLoadingMore = uiState.discoverLoadingMore,
+                    autoLoadPaused = uiState.discoverLoadMoreFailed,
                     onLoadMore = onLoadMore,
                     onItemClick = { _, item ->
                         HeroBackdropState.update(item.backdropUrl)
@@ -276,6 +279,12 @@ internal fun DiscoverSection(
                     subtitle = stringResource(R.string.discover_empty_no_catalog_subtitle),
                     icon = Icons.Default.Search
                 )
+            }
+
+            uiState.discoverError != null && !uiState.discoverLoading && selectedCatalog != null -> {
+                // A failed load isn't "No content found": say what went wrong and offer Retry,
+                // rather than leaving the user to switch catalogs and back.
+                ErrorState(message = uiState.discoverError, onRetry = onRetry)
             }
 
             uiState.discoverInitialized && !uiState.discoverLoading && selectedCatalog != null -> {
@@ -513,6 +522,8 @@ internal fun DiscoverGrid(
     pendingCount: Int,
     canLoadMore: Boolean,
     isLoadingMore: Boolean,
+    /** The last load-more failed: keep the Load more cell, but don't auto-request on scroll. */
+    autoLoadPaused: Boolean = false,
     onLoadMore: () -> Unit,
     onItemClick: (Int, MetaPreview) -> Unit,
     onItemLongPress: (MetaPreview) -> Unit = {},
@@ -600,7 +611,7 @@ internal fun DiscoverGrid(
     }
 
     // Infinite scroll: auto-load more when the user scrolls near the end.
-    val shouldAutoLoad = canLoadMore && !isLoadingMore && items.isNotEmpty()
+    val shouldAutoLoad = canLoadMore && !isLoadingMore && !autoLoadPaused && items.isNotEmpty()
     LaunchedEffect(gridState.firstVisibleItemIndex, items.size, shouldAutoLoad) {
         if (!shouldAutoLoad) return@LaunchedEffect
         val lastVisible = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return@LaunchedEffect

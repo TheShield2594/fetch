@@ -880,43 +880,46 @@ private fun EpisodeCard(video: Video, selected: Boolean, watched: Boolean, progr
 private fun Cast(cast: List<MetaCastMember>, onOpen: (MetaCastMember) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(tr("Cast"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = PageGutter))
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = PageGutter),
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            items(cast.take(30)) { member ->
-                val interaction = remember { MutableInteractionSource() }
-                val hovered by interaction.collectIsHoveredAsState()
-                val clickable = member.tmdbId != null
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.width(110.dp)
-                        .then(
-                            if (clickable) Modifier.hoverable(interaction)
-                                .clickable(interactionSource = interaction, indication = null) { onOpen(member) }
-                                .pointerHoverIcon(PointerIcon.Hand)
-                            else Modifier
-                        )
-                ) {
-                    Box(
-                        Modifier.size(96.dp).clip(CircleShape).background(FetchPalette.SurfaceRaised)
-                            .then(if (hovered && clickable) Modifier.border(3.dp, Color.White, CircleShape) else Modifier),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(member.name.take(1).uppercase(), style = MaterialTheme.typography.headlineSmall, color = FetchPalette.TextMuted)
-                        if (member.photo != null) {
-                            AsyncImage(
-                                model = member.photo,
-                                contentDescription = member.name,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
+        HoverPagedRow(arrowTop = 0.dp, cardHeight = 96.dp) { state ->
+            LazyRow(
+                state = state,
+                contentPadding = PaddingValues(horizontal = PageGutter),
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                items(cast.take(30)) { member ->
+                    val interaction = remember { MutableInteractionSource() }
+                    val hovered by interaction.collectIsHoveredAsState()
+                    val clickable = member.tmdbId != null
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.width(110.dp)
+                            .then(
+                                if (clickable) Modifier.hoverable(interaction)
+                                    .clickable(interactionSource = interaction, indication = null) { onOpen(member) }
+                                    .pointerHoverIcon(PointerIcon.Hand)
+                                else Modifier
                             )
+                    ) {
+                        Box(
+                            Modifier.size(96.dp).clip(CircleShape).background(FetchPalette.SurfaceRaised)
+                                .then(if (hovered && clickable) Modifier.border(3.dp, Color.White, CircleShape) else Modifier),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(member.name.take(1).uppercase(), style = MaterialTheme.typography.headlineSmall, color = FetchPalette.TextMuted)
+                            if (member.photo != null) {
+                                AsyncImage(
+                                    model = member.photo,
+                                    contentDescription = member.name,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
                         }
-                    }
-                    Text(member.name, style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    member.character?.takeIf { it.isNotBlank() }?.let {
-                        Text(it, style = MaterialTheme.typography.bodySmall, color = FetchPalette.TextMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(member.name, style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        member.character?.takeIf { it.isNotBlank() }?.let {
+                            Text(it, style = MaterialTheme.typography.bodySmall, color = FetchPalette.TextMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        }
                     }
                 }
             }
@@ -985,28 +988,30 @@ private fun sourceMenu(state: AppState, ranked: RankedStream): List<ContextMenuI
 private fun Companies(companies: List<Pair<MetaCompany, TmdbEntityKind>>, onOpen: (MetaCompany, TmdbEntityKind) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Text(tr("Production"), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = PageGutter))
-        LazyRow(contentPadding = PaddingValues(horizontal = PageGutter), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            items(companies) { (company, kind) ->
-                val interaction = remember { MutableInteractionSource() }
-                val hovered by interaction.collectIsHoveredAsState()
-                val shape = RoundedCornerShape(12.dp)
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .height(72.dp)
-                        .widthIn(min = 120.dp, max = 220.dp)
-                        .clip(shape)
-                        .background(if (company.logo != null) Color.White.copy(alpha = 0.92f) else FetchPalette.SurfaceRaised)
-                        .border(if (hovered) 3.dp else 0.dp, if (hovered) FetchPalette.Accent else Color.Transparent, shape)
-                        .hoverable(interaction)
-                        .clickable(interactionSource = interaction, indication = null) { onOpen(company, kind) }
-                        .pointerHoverIcon(PointerIcon.Hand)
-                        .padding(horizontal = 18.dp, vertical = 12.dp)
-                ) {
-                    if (company.logo != null) {
-                        AsyncImage(model = company.logo, contentDescription = company.name, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
-                    } else {
-                        Text(company.name, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis, fontSize = 14.sp)
+        HoverPagedRow(arrowTop = 0.dp) { state ->
+            LazyRow(state = state, contentPadding = PaddingValues(horizontal = PageGutter), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                items(companies) { (company, kind) ->
+                    val interaction = remember { MutableInteractionSource() }
+                    val hovered by interaction.collectIsHoveredAsState()
+                    val shape = RoundedCornerShape(12.dp)
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .height(72.dp)
+                            .widthIn(min = 120.dp, max = 220.dp)
+                            .clip(shape)
+                            .background(if (company.logo != null) Color.White.copy(alpha = 0.92f) else FetchPalette.SurfaceRaised)
+                            .border(if (hovered) 3.dp else 0.dp, if (hovered) FetchPalette.Accent else Color.Transparent, shape)
+                            .hoverable(interaction)
+                            .clickable(interactionSource = interaction, indication = null) { onOpen(company, kind) }
+                            .pointerHoverIcon(PointerIcon.Hand)
+                            .padding(horizontal = 18.dp, vertical = 12.dp)
+                    ) {
+                        if (company.logo != null) {
+                            AsyncImage(model = company.logo, contentDescription = company.name, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
+                        } else {
+                            Text(company.name, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis, fontSize = 14.sp)
+                        }
                     }
                 }
             }

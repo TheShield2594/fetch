@@ -271,6 +271,7 @@ class SearchViewModel @Inject constructor(
             is SearchEvent.SelectDiscoverCatalog -> selectDiscoverCatalog(event.catalogKey)
             is SearchEvent.SelectDiscoverGenre -> selectDiscoverGenre(event.genre)
             SearchEvent.LoadNextDiscoverResults -> loadNextDiscoverResults()
+            SearchEvent.RetryDiscover -> fetchDiscoverContent(reset = true)
             SearchEvent.Retry -> {
                 // An explicit retry must refetch even though nothing about the request changed.
                 lastRequestKey = null
@@ -1174,11 +1175,13 @@ class SearchViewModel @Inject constructor(
                         discoverResults = emptyList(),
                         pendingDiscoverResults = emptyList(),
                         discoverPage = 1,
-                        discoverHasMore = true
+                        discoverHasMore = true,
+                        discoverError = null,
+                        discoverLoadMoreFailed = false
                     )
                 }
             } else {
-                _uiState.update { it.copy(discoverLoadingMore = true) }
+                _uiState.update { it.copy(discoverLoadingMore = true, discoverLoadMoreFailed = false) }
             }
 
             val currentPage = if (reset) 1 else state.discoverPage + 1
@@ -1246,18 +1249,24 @@ class SearchViewModel @Inject constructor(
                                 discoverResults = visible,
                                 pendingDiscoverResults = pending,
                                 discoverHasMore = if (shouldStopPagination) false else result.data.hasMore,
-                                discoverPage = if (shouldStopPagination) it.discoverPage else currentPage
+                                discoverPage = if (shouldStopPagination) it.discoverPage else currentPage,
+                                discoverError = null,
+                                discoverLoadMoreFailed = false
                             )
                         }
                         revealBatchAfterNextDiscoverFetch = false
                     }
                     is NetworkResult.Error -> {
                         revealBatchAfterNextDiscoverFetch = false
+                        // A failed page says nothing about whether the catalog has more, so
+                        // discoverHasMore is left alone: a timeout must not end pagination for
+                        // good. A first-page failure shows an error with Retry, not "No content".
                         _uiState.update {
                             it.copy(
                                 discoverLoading = false,
                                 discoverLoadingMore = false,
-                                discoverHasMore = false
+                                discoverError = if (reset) result.message else it.discoverError,
+                                discoverLoadMoreFailed = !reset
                             )
                         }
                     }

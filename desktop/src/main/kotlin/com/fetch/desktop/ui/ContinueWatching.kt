@@ -116,12 +116,15 @@ fun ContinueWatchingRow(
             color = FetchPalette.TextPrimary,
             modifier = Modifier.padding(horizontal = PageGutter)
         )
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = PageGutter, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(18.dp)
-        ) {
-            items(entries, key = { it.contentId }) { entry ->
-                ContinueCard(entry, actions, onHover)
+        HoverPagedRow { state ->
+            LazyRow(
+                state = state,
+                contentPadding = PaddingValues(horizontal = PageGutter, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(18.dp)
+            ) {
+                items(entries, key = { it.contentId }) { entry ->
+                    ContinueCard(entry, actions, onHover)
+                }
             }
         }
     }

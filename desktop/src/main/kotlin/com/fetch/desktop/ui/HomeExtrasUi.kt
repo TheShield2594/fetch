@@ -167,14 +167,17 @@ fun ReadyTonightRow(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text(tr("Ready tonight"), style = MaterialTheme.typography.titleLarge, color = FetchPalette.TextPrimary, modifier = Modifier.padding(horizontal = PageGutter))
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = PageGutter, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(18.dp)
-        ) {
-            items(entries, key = { "cw|${it.contentId}" }) { entry -> ContinueCard(entry, actions, onHoverEntry) }
-            items(movies, key = { "movie|${it.id}" }) { movie ->
-                val preview = movie.toPreview()
-                PosterCard(preview, onClick = { onOpenMovie(preview) }, onHover = onHoverTitle, shape = PosterShape.LANDSCAPE)
+        HoverPagedRow { state ->
+            LazyRow(
+                state = state,
+                contentPadding = PaddingValues(horizontal = PageGutter, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(18.dp)
+            ) {
+                items(entries, key = { "cw|${it.contentId}" }) { entry -> ContinueCard(entry, actions, onHoverEntry) }
+                items(movies, key = { "movie|${it.id}" }) { movie ->
+                    val preview = movie.toPreview()
+                    PosterCard(preview, onClick = { onOpenMovie(preview) }, onHover = onHoverTitle, shape = PosterShape.LANDSCAPE)
+                }
             }
         }
     }

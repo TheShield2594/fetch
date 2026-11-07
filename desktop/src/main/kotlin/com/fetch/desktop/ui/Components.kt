@@ -59,6 +59,7 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -528,14 +529,30 @@ fun MediaRowView(
     }
 }
 
+/**
+ * A horizontal row with hover chevrons that page it. On desktop a plain vertical mouse wheel
+ * doesn't scroll a LazyRow (only Shift+wheel or a touchpad does), so without these a mouse user
+ * can't reach anything past the first screenful.
+ *
+ * [cardHeight] centres the chevrons on the cards (so labels under them don't pull the arrows
+ * down); null centres them on the whole row. [arrowTop] is the row's own top padding.
+ */
 @Composable
-private fun PagedRow(hovered: Boolean, cardHeight: Dp, content: @Composable (LazyListState) -> Unit) {
+internal fun PagedRow(
+    hovered: Boolean,
+    cardHeight: Dp?,
+    arrowTop: Dp = 8.dp,
+    content: @Composable (LazyListState) -> Unit
+) {
     val state = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
     var widthPx by remember { mutableIntStateOf(0) }
-    Box(Modifier.fillMaxWidth().onSizeChanged { widthPx = it.width }) {
+    var heightPx by remember { mutableIntStateOf(0) }
+    Box(Modifier.fillMaxWidth().onSizeChanged { widthPx = it.width; heightPx = it.height }) {
         content(state)
-        val arrowModifier = Modifier.padding(top = 8.dp).height(cardHeight).width(PageGutter)
+        val arrowHeight = cardHeight ?: with(density) { heightPx.toDp() - arrowTop * 2 }.coerceAtLeast(0.dp)
+        val arrowModifier = Modifier.padding(top = arrowTop).height(arrowHeight).width(PageGutter)
         AnimatedVisibility(
             visible = hovered && state.canScrollBackward,
             enter = fadeIn(),
@@ -560,6 +577,20 @@ private fun PagedRow(hovered: Boolean, cardHeight: Dp, content: @Composable (Laz
                 }, size = 40.dp)
             }
         }
+    }
+}
+
+/** [PagedRow] that shows its chevrons while the row itself is hovered. */
+@Composable
+internal fun HoverPagedRow(
+    cardHeight: Dp? = null,
+    arrowTop: Dp = 8.dp,
+    content: @Composable (LazyListState) -> Unit
+) {
+    val interaction = remember { MutableInteractionSource() }
+    val hovered by interaction.collectIsHoveredAsState()
+    Box(Modifier.fillMaxWidth().hoverable(interaction)) {
+        PagedRow(hovered = hovered, cardHeight = cardHeight, arrowTop = arrowTop, content = content)
     }
 }
 

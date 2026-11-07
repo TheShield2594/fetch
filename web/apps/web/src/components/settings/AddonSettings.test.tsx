@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AddonSettings } from "./AddonSettings";
 
@@ -46,5 +47,20 @@ describe("AddonSettings", () => {
     getAddonConfig.mockResolvedValue(config(null));
     render(<AddonSettings />);
     expect(await screen.findByText(`${runtimeConfig.getAddonBase()}/p/${PROFILE_ID}/manifest.json`)).toBeInTheDocument();
+  });
+
+  it("offers only Retry after a failed load, so Save can't wipe every catalog", async () => {
+    getAddonConfig.mockRejectedValueOnce(new Error("Request timed out"));
+    render(<AddonSettings />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Request timed out");
+    expect(screen.queryByRole("button", { name: /save configuration/i })).not.toBeInTheDocument();
+
+    getAddonConfig.mockResolvedValue({ ...config(KEY), config: { enabledCatalogs: ["trending"] } });
+    await userEvent.click(screen.getByRole("button", { name: /retry/i }));
+
+    expect(await screen.findByRole("button", { name: /save configuration/i })).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(api.updateAddonConfig).not.toHaveBeenCalled();
   });
 });

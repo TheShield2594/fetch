@@ -119,6 +119,18 @@ function CreateProfileForm({
         name: trimmedName,
         pin: trimmedPin || undefined,
       });
+      // POST /profiles mints no profile token, and the one in storage (if any)
+      // belongs to the previous profile. Without a fresh one, the first request
+      // as a PIN-protected profile 401s and drops the user straight back to
+      // "Who's watching?" to type the PIN they set a second ago. Verifying with
+      // no PIN also clears the stale token for an unprotected profile.
+      try {
+        await api.verifyProfile(profile.id, trimmedPin || undefined);
+      } catch {
+        // The profile exists either way; worst case the shell asks for the
+        // PIN once, which is what happened before. Don't send a stale token.
+        runtimeConfig.clearProfileToken();
+      }
       onCreated(profile);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create profile.");

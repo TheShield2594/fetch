@@ -185,6 +185,37 @@ describe("ProfileSwitcher", () => {
       await waitFor(() => expect(createProfile).toHaveBeenCalledWith({ name: "Sam", pin: "4321" }));
     });
 
+    it("verifies a new PIN profile with its PIN before entering it, so it isn't locked out at once", async () => {
+      const created: Profile = { id: "p-new", name: "Sam", hasPin: true };
+      createProfile.mockResolvedValue({ profile: created });
+      verifyProfile.mockResolvedValue({ id: created.id, name: created.name, profileToken: "signed" });
+      const { onSelected } = renderSwitcher();
+
+      await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
+      await userEvent.type(screen.getByLabelText("Profile name"), "Sam");
+      await userEvent.type(screen.getByLabelText("PIN (optional)"), "4321");
+      await userEvent.click(screen.getByRole("button", { name: /create/i }));
+
+      await waitFor(() => expect(onSelected).toHaveBeenCalledWith(created));
+      expect(verifyProfile).toHaveBeenCalledWith("p-new", "4321");
+    });
+
+    it("drops the previous profile's token and still enters the new profile if verifying fails", async () => {
+      const created: Profile = { id: "p-new", name: "Sam", hasPin: true };
+      createProfile.mockResolvedValue({ profile: created });
+      verifyProfile.mockRejectedValue(new ApiError("Profile store unavailable", 500));
+      runtimeConfig.setProfileToken("previous-profile-token");
+      const { onSelected } = renderSwitcher();
+
+      await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
+      await userEvent.type(screen.getByLabelText("Profile name"), "Sam");
+      await userEvent.type(screen.getByLabelText("PIN (optional)"), "4321");
+      await userEvent.click(screen.getByRole("button", { name: /create/i }));
+
+      await waitFor(() => expect(onSelected).toHaveBeenCalledWith(created));
+      expect(runtimeConfig.getProfileToken()).toBe("");
+    });
+
     it.each(["123", "12ab"])("explains the PIN rule instead of creating a profile with PIN %j", async (pin) => {
       renderSwitcher();
 

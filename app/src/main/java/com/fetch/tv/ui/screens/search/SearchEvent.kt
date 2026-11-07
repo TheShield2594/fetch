@@ -18,6 +18,8 @@ sealed interface SearchEvent {
     data class SelectDiscoverCatalog(val catalogKey: String) : SearchEvent
     data class SelectDiscoverGenre(val genre: String?) : SearchEvent
     data object LoadNextDiscoverResults : SearchEvent
+    /** Reloads the selected Discover catalog from its first page after an error. */
+    data object RetryDiscover : SearchEvent
 
     data object Retry : SearchEvent
 }

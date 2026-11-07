@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api, runtimeConfig } from "../../api";
 import { useTransientFlag } from "../../hooks/useTransientFlag";
 import type { AddonCatalogOption } from "../../api";
-import { Loader2, Check, AlertCircle, Copy, ExternalLink, Sparkles } from "lucide-react";
+import { Loader2, Check, AlertCircle, Copy, ExternalLink, Sparkles, RefreshCw } from "lucide-react";
 import { KICKER } from "../typography";
 import { ownAddonManifestUrl } from "../../utils/ownAddon";
 
@@ -91,6 +91,10 @@ export function AddonSettings() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useTransientFlag();
   const [error, setError] = useState<string | null>(null);
+  // Separate from `error` (which save failures also use): while the config
+  // hasn't loaded, `enabled` is just the empty initial state, and saving it
+  // would wipe every catalog and list from Stremio.
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [enabled, setEnabled] = useState<string[]>([]);
   const [available, setAvailable] = useState<AddonCatalogOption[]>([]);
   const [availableLists, setAvailableLists] = useState<{ id: string; name: string }[]>([]);
@@ -99,29 +103,33 @@ export function AddonSettings() {
   const [multiProfile, setMultiProfile] = useState(false);
   const [profileKey, setProfileKey] = useState<string | null>(null);
 
-  useEffect(() => {
-    void (async () => {
-      try {
-        const [res, aiRes, profilesRes] = await Promise.all([
-          api.getAddonConfig(),
-          api.getAiConfig().catch(() => ({ configured: false, config: null, lastGeneratedAt: null })),
-          api.getProfiles().catch(() => ({ profiles: [] })),
-        ]);
-        setEnabled(res.config.enabledCatalogs);
-        setAvailable(res.availableCatalogs);
-        setAvailableLists(res.availableLists ?? []);
-        setAiConfigured(res.aiConfigured ?? aiRes.configured);
-        setProfileKey(res.stremioProfileKey ?? null);
-        const activeProfileId = runtimeConfig.getProfileId();
-        setProfileName(profilesRes.profiles.find((p) => p.id === activeProfileId)?.name ?? null);
-        setMultiProfile(profilesRes.profiles.length > 1);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load config");
-      } finally {
-        setLoading(false);
-      }
-    })();
+  // State changes only after the await, so the mount effect doesn't set state
+  // synchronously; Retry resets loading/error itself before calling this.
+  const load = useCallback(async () => {
+    try {
+      const [res, aiRes, profilesRes] = await Promise.all([
+        api.getAddonConfig(),
+        api.getAiConfig().catch(() => ({ configured: false, config: null, lastGeneratedAt: null })),
+        api.getProfiles().catch(() => ({ profiles: [] })),
+      ]);
+      setEnabled(res.config.enabledCatalogs);
+      setAvailable(res.availableCatalogs);
+      setAvailableLists(res.availableLists ?? []);
+      setAiConfigured(res.aiConfigured ?? aiRes.configured);
+      setProfileKey(res.stremioProfileKey ?? null);
+      const activeProfileId = runtimeConfig.getProfileId();
+      setProfileName(profilesRes.profiles.find((p) => p.id === activeProfileId)?.name ?? null);
+      setMultiProfile(profilesRes.profiles.length > 1);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Failed to load config");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const toggle = (catalog: string) => {
     setEnabled((prev) =>
@@ -131,6 +139,7 @@ export function AddonSettings() {
   };
 
   const save = async () => {
+    if (loadError) return;
     setSaving(true);
     setError(null);
     try {
@@ -145,6 +154,29 @@ export function AddonSettings() {
 
   if (loading) {
     return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-mute)" }}><Loader2 size={16} className="animate-spin" /> Loading configuration...</div>;
+  }
+
+  if (loadError) {
+    return (
+      <div className="space-y-2">
+        <p role="alert" className="flex items-center gap-2 text-sm text-danger">
+          <AlertCircle size={16} /> {loadError}
+        </p>
+        {/* No form here: until the config loads, the checkboxes would all read
+            unchecked and Save would replace the real config with nothing. */}
+        <button
+          type="button"
+          onClick={() => {
+            setLoading(true);
+            setLoadError(null);
+            void load();
+          }}
+          className="btn-secondary"
+        >
+          <RefreshCw size={16} /> Retry
+        </button>
+      </div>
+    );
   }
 
   return (

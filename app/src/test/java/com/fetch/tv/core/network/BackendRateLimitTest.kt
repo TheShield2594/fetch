@@ -50,7 +50,8 @@ class BackendRateLimitTest {
         var now = 1_000L
         val waits = mutableListOf<Long>()
         val coordinator = BackendRateLimitCoordinator(
-            currentTimeMillis = { now },
+            currentTimeMillis = { 0L },
+            monotonicMillis = { now },
             pause = { waitMs ->
                 waits += waitMs
                 now += waitMs
@@ -63,5 +64,53 @@ class BackendRateLimitTest {
         coordinator.awaitPermission()
 
         assertEquals(listOf(5_000L), waits)
+    }
+
+    @Test
+    fun retryAfterIsCappedForHugeSecondsAndFarFutureDates() {
+        assertEquals(MaximumRetryAfterMs, retryAfterDelayMillis("3600", nowEpochMs = 0L))
+        assertEquals(MaximumRetryAfterMs, retryAfterDelayMillis("${Long.MAX_VALUE}", nowEpochMs = 0L))
+        assertEquals(
+            MaximumRetryAfterMs,
+            retryAfterDelayMillis(
+                retryAfterHeader = "Fri, 01 Jan 2100 00:00:00 GMT",
+                nowEpochMs = 1_445_412_470_000L
+            )
+        )
+        assertEquals(
+            MaximumRetryAfterMs + 250L,
+            backendRetryDelayMillis(0, "86400", nowEpochMs = 0L, jitterMs = 250L)
+        )
+    }
+
+    @Test
+    fun cooldownIgnoresWallClockJumps() = runBlocking {
+        var wall = 1_000_000L
+        var mono = 50L
+        val waits = mutableListOf<Long>()
+        val coordinator = BackendRateLimitCoordinator(
+            currentTimeMillis = { wall },
+            monotonicMillis = { mono },
+            pause = { waitMs ->
+                waits += waitMs
+                mono += waitMs
+            }
+        )
+
+        coordinator.record("10")
+        // A backwards NTP correction must not stretch the wait.
+        wall -= 3_600_000L
+        coordinator.awaitPermission()
+
+        assertEquals(listOf(10_000L), waits)
+    }
+
+    @Test
+    fun noCooldownBeforeAnyRateLimit() = runBlocking {
+        val coordinator = BackendRateLimitCoordinator(
+            monotonicMillis = { Long.MIN_VALUE + 5 },
+            pause = { error("should not wait") }
+        )
+        coordinator.awaitPermission()
     }
 }

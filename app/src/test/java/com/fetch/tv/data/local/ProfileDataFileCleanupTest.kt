@@ -89,6 +89,22 @@ class ProfileDataFileCleanupTest {
     }
 
     @Test
+    fun `account reset keeps device-wide IntroDB, screen time and updater stores`() = runBlocking {
+        val factory = ProfileDataStoreFactory(context)
+        val skipMarkers = file("skip_marker_settings.preferences_pb")
+        val screenTime = file("screen_time.preferences_pb")
+        val updater = file("update_settings.preferences_pb")
+        val profileScoped = file("library_p2.preferences_pb")
+
+        factory.clearProfileScopedData()
+
+        assertTrue(skipMarkers.exists())
+        assertTrue(screenTime.exists())
+        assertTrue(updater.exists())
+        assertFalse(profileScoped.exists())
+    }
+
+    @Test
     fun `account reset reports a file it could not delete instead of claiming success`() = runBlocking {
         val factory = ProfileDataStoreFactory(context)
         val deletable = file("watch_progress_p2.preferences_pb")

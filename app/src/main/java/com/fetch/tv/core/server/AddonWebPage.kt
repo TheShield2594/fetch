@@ -2103,10 +2103,10 @@ async function pollStatus(changeId) {
   poll();
 }
 
+// Escapes quotes too, so the result is safe inside an attribute as well as in text.
 function escapeHtml(str) {
-  var div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+  if (str === null || str === undefined) return '';
+  return escapeAttr(String(str));
 }
 
 function formatTemplate(template, values) {
@@ -2515,7 +2515,7 @@ async function searchTraktSources(ci, fi) {
     var data = await res.json();
     var results = Array.isArray(data) ? data : [];
     resultsEl.innerHTML = results.map(function(item) {
-      return '<button class="tmdb-preset-card" onclick="addTraktSearchResult(' + ci + ',' + fi + ',' + item.id + ',\'' + escapeJsSingle(item.title || (i18n.traktList + ' ' + item.id)) + '\',\'' + escapeJsSingle(item.coverImageUrl || '') + '\')">' +
+      return '<button class="tmdb-preset-card" onclick="addTraktSearchResult(' + ci + ',' + fi + ',' + (Number(item.id) || 0) + ',\'' + escapeJsSingle(item.title || (i18n.traktList + ' ' + item.id)) + '\',\'' + escapeJsSingle(item.coverImageUrl || '') + '\')">' +
         '<span>' + escapeHtml(item.title || (i18n.traktList + ' ' + item.id)) + '<br><small style="color:rgba(255,255,255,0.35);font-weight:400">' + escapeHtml(item.subtitle || i18n.traktList) + '</small></span>' +
         '<span style="color:rgba(130,200,130,0.9);font-size:0.72rem;flex-shrink:0">' + escapeHtml(i18n.add) + '</span>' +
       '</button>';
@@ -2842,7 +2842,7 @@ function tmdbGenreChipGroupHtml(ci, fi) {
   ];
   var html = '<div class="tmdb-helper">' + escapeHtml(i18n.tmdbQuickGenres) + '</div><div class="tmdb-mode-picker tmdb-source-wide">';
   chips.forEach(function(chip) {
-    html += '<button class="tmdb-mode-btn" data-movie-label="' + escapeAttr(chip[0]) + '" data-tv-label="' + escapeAttr(chip[1]) + '" onclick="setTmdbGenreValue(' + ci + ',' + fi + ',\'' + escapeAttr(chip[2]) + '\',\'' + escapeAttr(chip[3]) + '\',this)">' + escapeHtml(chip[0]) + '</button>';
+    html += '<button class="tmdb-mode-btn" data-movie-label="' + escapeAttr(chip[0]) + '" data-tv-label="' + escapeAttr(chip[1]) + '" onclick="setTmdbGenreValue(' + ci + ',' + fi + ',\'' + escapeJsSingle(chip[2]) + '\',\'' + escapeJsSingle(chip[3]) + '\',this)">' + escapeHtml(chip[0]) + '</button>';
   });
   html += '</div>';
   return html;
@@ -2851,7 +2851,7 @@ function tmdbGenreChipGroupHtml(ci, fi) {
 function tmdbChipGroupHtml(label, chips, ci, fi) {
   var html = '<div class="tmdb-helper">' + escapeHtml(label) + '</div><div class="tmdb-mode-picker tmdb-source-wide">';
   chips.forEach(function(chip) {
-    html += '<button class="tmdb-mode-btn" onclick="setTmdbFilterValue(\'' + chip[1] + '\',' + ci + ',' + fi + ',\'' + escapeAttr(chip[2]) + '\')">' + escapeHtml(chip[0]) + '</button>';
+    html += '<button class="tmdb-mode-btn" onclick="setTmdbFilterValue(\'' + escapeJsSingle(chip[1]) + '\',' + ci + ',' + fi + ',\'' + escapeJsSingle(chip[2]) + '\')">' + escapeHtml(chip[0]) + '</button>';
   });
   html += '</div>';
   return html;
@@ -3035,7 +3035,7 @@ function renderCollections() {
             '<span style="font-size:0.7rem;color:rgba(130,200,130,0.85);flex-shrink:0">' + escapeHtml(i18n.added) + '</span>' +
           '</div>';
         } else {
-          sourceListHtml += '<div class="source-item" data-label="' + escapeAttr(label) + '" style="cursor:pointer;padding:0.4rem 0.75rem" onclick="addCatalogSourceByVal(' + ci + ',' + fi + ',\'' + escapeAttr(val) + '\')">' +
+          sourceListHtml += '<div class="source-item" data-label="' + escapeAttr(label) + '" style="cursor:pointer;padding:0.4rem 0.75rem" onclick="addCatalogSourceByVal(' + ci + ',' + fi + ',\'' + escapeJsSingle(val) + '\')">' +
             '<span class="source-label" style="color:rgba(255,255,255,0.45)">' + escapeHtml(label) + '</span>' +
             '<span style="font-size:0.7rem;color:rgba(255,255,255,0.2);flex-shrink:0">' + escapeHtml(i18n.add) + '</span>' +
           '</div>';
@@ -3181,11 +3181,21 @@ function renderCollections() {
 
 function escapeAttr(str) {
   if (!str) return '';
-  return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+// For a value placed inside a single-quoted JS string in an inline on* handler. The HTML
+// parser decodes entities before the JS runs, so JS-escape first and HTML-escape last.
 function escapeJsSingle(str) {
-  return escapeAttr(str).replace(/\\/g, "\\\\").replace(/\r/g, "\\r").replace(/\n/g, "\\n").replace(/'/g, "\\'");
+  if (str === null || str === undefined) return '';
+  var js = String(str)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+  return escapeAttr(js);
 }
 
 function exportCollections() {

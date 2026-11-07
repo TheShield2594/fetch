@@ -35,7 +35,11 @@ export function DataSettings() {
     setError(null);
     try {
       const res = await api.refreshAllMetadata();
-      setResult(`Refreshed ${res.refreshed} of ${res.total} items`);
+      setResult(
+        res.processed === undefined
+          ? `Refreshed ${res.refreshed} of ${res.total} items` // older API: total is the batch size
+          : `Refreshed ${res.refreshed} of the ${res.processed} stalest items (${res.total} in library)`
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Metadata sync failed");
     } finally {

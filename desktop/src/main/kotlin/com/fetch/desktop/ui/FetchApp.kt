@@ -95,6 +95,12 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
     // The watch party follows the sync sign-in, and ends with this profile.
     LaunchedEffect(account.signedIn) { state.party.refreshAvailability() }
     androidx.compose.runtime.DisposableEffect(state) { onDispose { state.party.dispose() } }
+    // Closing the window lets this profile's playback save, scrobble and sync first.
+    androidx.compose.runtime.DisposableEffect(state) {
+        val onClose: suspend () -> Unit = { state.shutdown() }
+        com.fetch.desktop.AppShutdown.onClose = onClose
+        onDispose { if (com.fetch.desktop.AppShutdown.onClose === onClose) com.fetch.desktop.AppShutdown.onClose = null }
+    }
 
     val snackbar = remember { SnackbarHostState() }
     val message = state.message

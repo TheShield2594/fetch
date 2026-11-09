@@ -1,7 +1,11 @@
 package com.fetch.desktop
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -18,9 +22,22 @@ import com.fetch.desktop.i18n.I18n
 import com.fetch.desktop.ui.FetchApp
 import com.fetch.desktop.ui.LocalWindowState
 import org.jetbrains.skia.Image
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import javax.swing.SwingUtilities
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
+
+/**
+ * What runs before Fetch exits: the open profile's [AppState.shutdown] (playback's last save,
+ * scrobble stop and sync), set while a profile is open.
+ */
+object AppShutdown {
+    /** The longest closing waits for that work before exiting anyway. */
+    const val TIMEOUT_MS = 4_000L
+
+    @Volatile var onClose: (suspend () -> Unit)? = null
+}
 
 fun main(args: Array<String>) {
     val links = args.filter(DeepLinks::isLink)
@@ -40,8 +57,20 @@ fun main(args: Array<String>) {
                 BitmapPainter(Image.makeFromEncoded(stream.readBytes()).toComposeImageBitmap())
             }
         }
+        val closeScope = rememberCoroutineScope()
+        var closing by remember { mutableStateOf(false) }
         Window(
-            onCloseRequest = ::exitApplication,
+            // The window goes at once; playback's last save, scrobble and sync get a few seconds.
+            onCloseRequest = {
+                if (!closing) {
+                    closing = true
+                    closeScope.launch {
+                        withTimeoutOrNull(AppShutdown.TIMEOUT_MS) { runCatching { AppShutdown.onClose?.invoke() } }
+                        exitApplication()
+                    }
+                }
+            },
+            visible = !closing,
             title = "Fetch",
             icon = icon,
             state = windowState

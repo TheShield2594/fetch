@@ -19,10 +19,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import com.fetch.desktop.player.embedded.EmbeddedMpv
 import com.fetch.desktop.player.embedded.LibMpv
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.isActive
 
 /** A YouTube trailer's watch page, which mpv opens through yt-dlp. */
 fun youTubeWatchUrl(ytId: String) = "https://www.youtube.com/watch?v=$ytId"
@@ -49,9 +46,12 @@ fun BackgroundVideo(
     var player by remember(url) { mutableStateOf<EmbeddedMpv?>(null) }
     LaunchedEffect(url) {
         if (startDelayMs > 0) delay(startDelayMs)
-        val created = runCatching { withContext(Dispatchers.IO) { EmbeddedMpv.create(preferGpu = gpu) } }.getOrNull() ?: return@LaunchedEffect
-        if (!kotlinx.coroutines.currentCoroutineContext().isActive) {
-            Thread({ runCatching { created.close() } }, "background-video-close").start()
+        // Cancelled while libmpv starts (hover moved on), the new player is closed, not leaked.
+        val created = try {
+            EmbeddedMpv.createOffThread(preferGpu = gpu)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Throwable) {
             return@LaunchedEffect
         }
         created.load(

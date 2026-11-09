@@ -3,17 +3,26 @@ package com.fetch.desktop.playback
 import com.fetch.desktop.data.AutoPlaySettings
 import com.fetch.desktop.data.NextEpisodeThresholdMode
 import com.fetch.desktop.skip.Segment
+import com.fetch.desktop.skip.SkipButtonRules
 import com.fetch.desktop.skip.SegmentType
 
 /**
  * When the next episode's card shows, and with autoplay on the next episode starts: the TV's
- * `PlayerNextEpisodeRules.shouldShowNextEpisodeCard`, in seconds. With credits from IntroDB the
- * card shows when they start, unless the credits end well before the file does (a scene may
- * follow), when the threshold applies instead. Without credits the threshold applies.
+ * `PlayerNextEpisodeRules.shouldShowNextEpisodeCard`, in seconds. With credits from IntroDB:
+ * - a post-credits scene after them (IntroDB's own, or more than five seconds of file left, as
+ *   the Skip button judges it) holds the card back so the scene is seen: an explicit scene until
+ *   it ends or the threshold, whichever is later; a guessed one until the threshold, or, when it's
+ *   shorter than the threshold's window, not at all (autoplay takes over at the end);
+ * - otherwise the card shows when they start, unless they end well before the file does, when
+ *   the threshold applies instead.
+ * Without credits the threshold applies.
  */
 object NextEpisodeRules {
     /** A duration shorter than the position by more than this isn't a real end. */
     private const val END_EPSILON_SEC = 1.0
+
+    /** The provider [SkipButtonRules.followingPostCredits] gives a scene it guessed from the gap. */
+    private const val HEURISTIC = "heuristic"
 
     fun thresholdReached(
         positionSec: Double,
@@ -31,8 +40,20 @@ object NextEpisodeRules {
             NextEpisodeThresholdMode.MINUTES_BEFORE_END -> durationSec - positionSec <= clampMinutes(minutesBeforeEnd) * 60.0
         }
         if (credits.isEmpty()) return byThreshold
+        val thresholdFromEnd = thresholdSecondsFromEnd(durationSec, mode, percent, minutesBeforeEnd)
+        val scene = SkipButtonRules.followingPostCredits(credits.maxBy { it.endSec }, segments, durationSec)
+        if (scene != null) {
+            val userTrigger = durationSec - thresholdFromEnd
+            val sceneEnd = scene.endSec.coerceAtMost(durationSec)
+            val heuristic = scene.provider == HEURISTIC
+            return when {
+                heuristic && sceneEnd - scene.startSec < thresholdFromEnd -> false
+                heuristic -> positionSec >= userTrigger
+                else -> positionSec >= maxOf(sceneEnd, userTrigger)
+            }
+        }
         val gapAfterCredits = durationSec - credits.maxOf { it.endSec }
-        return if (gapAfterCredits > thresholdSecondsFromEnd(durationSec, mode, percent, minutesBeforeEnd)) {
+        return if (gapAfterCredits > thresholdFromEnd) {
             byThreshold
         } else {
             positionSec >= credits.minOf { it.startSec }

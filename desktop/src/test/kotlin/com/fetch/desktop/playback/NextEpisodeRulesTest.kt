@@ -37,6 +37,37 @@ class NextEpisodeRulesTest {
     }
 
     @Test
+    fun `a short guessed scene after the credits shows no card, leaving it to autoplay`() {
+        // 45 minutes, credits end 60 s before the end; 97 % is 81 s from the end.
+        val long = 2_700.0
+        val credits = listOf(Segment(SegmentType.OUTRO, 2_550.0, 2_640.0))
+        val at97 = AutoPlaySettings(nextEpisodeThresholdPercent = 97f)
+        assertFalse(NextEpisodeRules.thresholdReached(2_550.0, long, credits, at97))
+        assertFalse(NextEpisodeRules.thresholdReached(2_690.0, long, credits, at97))
+    }
+
+    @Test
+    fun `a long guessed scene after the credits waits for the threshold`() {
+        val long = 2_700.0
+        val credits = listOf(Segment(SegmentType.OUTRO, 2_400.0, 2_580.0)) // 2-minute scene after
+        val at97 = AutoPlaySettings(nextEpisodeThresholdPercent = 97f)
+        assertFalse(NextEpisodeRules.thresholdReached(2_400.0, long, credits, at97))
+        assertFalse(NextEpisodeRules.thresholdReached(2_618.0, long, credits, at97))
+        assertTrue(NextEpisodeRules.thresholdReached(2_619.0, long, credits, at97))
+    }
+
+    @Test
+    fun `an explicit post-credits scene holds the card until it ends`() {
+        val segments = listOf(
+            Segment(SegmentType.OUTRO, 2_200.0, 2_300.0),
+            Segment(SegmentType.POST_CREDITS, 2_300.0, 2_390.0)
+        )
+        // 99 % is 2 376 s; the scene ends later, at 2 390 s.
+        assertFalse(NextEpisodeRules.thresholdReached(2_380.0, duration, segments, percent))
+        assertTrue(NextEpisodeRules.thresholdReached(2_390.0, duration, segments, percent))
+    }
+
+    @Test
     fun `values are clamped to the TV's ranges and a bad duration never fires`() {
         assertEquals(72.0, NextEpisodeRules.thresholdSecondsFromEnd(duration, NextEpisodeThresholdMode.PERCENTAGE, 50f, 2f), 0.001)
         assertEquals(210.0, NextEpisodeRules.thresholdSecondsFromEnd(duration, NextEpisodeThresholdMode.MINUTES_BEFORE_END, 99f, 9f), 0.001)

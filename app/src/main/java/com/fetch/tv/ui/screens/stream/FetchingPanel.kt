@@ -258,6 +258,7 @@ private fun AddonStatus(chip: SourceChipItem) {
             SourceChipStatus.LOADING -> FetchTheme.colors.TextSecondary
             SourceChipStatus.ERROR, SourceChipStatus.TIMED_OUT -> FetchTheme.colors.Error
             SourceChipStatus.UNPLAYABLE_ONLY -> FetchTheme.colors.Warning
+            SourceChipStatus.NO_RESULTS -> FetchTheme.colors.TextTertiary
         },
         animationSpec = FetchMotion.focusTween(),
         label = "addonDot"

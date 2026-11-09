@@ -21,6 +21,7 @@ import com.fetch.tv.data.remote.api.AddonApi
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.Stream
+import com.fetch.tv.core.streams.supportsResource
 import com.fetch.tv.core.streams.supportsStreamResource
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.domain.repository.AddonRepository
@@ -89,7 +90,8 @@ class StreamRepositoryImpl @Inject constructor(
                     season = season,
                     episode = episode,
                     addons = if (isNativeServerRequest) emptyList() else sourceConfiguration.addons,
-                    serverSources = serverStreams.sources(type, videoId, season, episode, forceRefresh)
+                    serverSources = serverStreams.sources(type, videoId, season, episode, forceRefresh),
+                    forceRefresh = forceRefresh
                 )
             }
         )
@@ -144,6 +146,7 @@ class StreamRepositoryImpl @Inject constructor(
         episode: Int?,
         addons: List<Addon>,
         serverSources: List<ServerStreamSource>,
+        forceRefresh: Boolean = false,
         onSourceFailure: () -> Unit = {}
     ): Flow<NetworkResult<List<AddonStreams>>> = flow {
         emit(NetworkResult.Loading)
@@ -177,6 +180,8 @@ class StreamRepositoryImpl @Inject constructor(
                         try {
                             // A dead addon must not hold the whole search hostage: give each one
                             // its own budget and report it as timed out instead of waiting on OkHttp.
+                            // The inline-meta fallback runs inside the same budget, so the health
+                            // event (and the addon's chip) only settles once the addon is done.
                             val call = addonRequestGuard.run(
                                 addonName = addon.displayName,
                                 kind = AddonRequestKind.STREAM,
@@ -192,7 +197,18 @@ class StreamRepositoryImpl @Inject constructor(
                                 },
                                 errorOf = { (it as? NetworkResult.Error)?.message }
                             ) {
-                                getStreamsFromAddon(addon, type, videoId)
+                                val streams = getStreamsFromAddon(addon, type, videoId, forceRefresh)
+                                if (streams is NetworkResult.Success && streams.data.isEmpty() &&
+                                    canHaveInlineMetaStreams(addon, type, videoId)
+                                ) {
+                                    // The stream endpoint answered empty: some addons only list
+                                    // streams on the meta's video entries.
+                                    NetworkResult.Success(
+                                        fetchInlineStreamsFromMeta(addon, type, videoId, forceRefresh)
+                                    )
+                                } else {
+                                    streams
+                                }
                             }
                             val streamsResult = when (call) {
                                 is AddonCallResult.Completed -> call.value
@@ -219,22 +235,7 @@ class StreamRepositoryImpl @Inject constructor(
                                             )
                                         )
                                     } else {
-                                        // Stream endpoint returned empty - try inline
-                                        // streams from meta response as fallback.
-                                        val inlineStreams = fetchInlineStreamsFromMeta(
-                                            addon, type, videoId
-                                        )
-                                        if (inlineStreams.isNotEmpty()) {
-                                            resultChannel.send(
-                                                AddonStreams(
-                                                    addonName = addon.displayName,
-                                                    addonLogo = addon.logo,
-                                                    streams = inlineStreams
-                                                )
-                                            )
-                                        } else {
-                                            attemptedFailures += buildMissingStreamFailure(addon)
-                                        }
+                                        attemptedFailures += buildMissingStreamFailure(addon)
                                     }
                                 }
                                 is NetworkResult.Error -> {
@@ -388,7 +389,8 @@ class StreamRepositoryImpl @Inject constructor(
     override suspend fun getStreamsFromAddon(
         addon: Addon,
         type: String,
-        videoId: String
+        videoId: String,
+        forceRefresh: Boolean
     ): NetworkResult<List<Stream>> {
         val streamUrl = AddonUrls.stream(addon.baseUrl, type, videoId)
         Log.d(TAG, "Fetching streams type=$type videoId=$videoId url=$streamUrl")
@@ -400,7 +402,7 @@ class StreamRepositoryImpl @Inject constructor(
         val addonName = addon.displayName
         val addonLogo = addon.logo
 
-        return when (val result = safeApiCall(context) { api.getStreams(streamUrl) }) {
+        return when (val result = safeApiCall(context) { api.getStreams(streamUrl, cacheControlFor(forceRefresh)) }) {
             is NetworkResult.Success -> {
                 val streams = result.data.streams?.map { 
                     it.toDomain(addonName, addonLogo) 
@@ -420,40 +422,33 @@ class StreamRepositoryImpl @Inject constructor(
     }
 
     /**
+     * Refresh/Retry must reach the addon: the addon client's HTTP cache honours the addon's own
+     * max-age (hours, for Torrentio and similar), so a plain GET would get the same stale list.
+     */
+    private fun cacheControlFor(forceRefresh: Boolean): String? = if (forceRefresh) "no-cache" else null
+
+    /**
+     * Whether an empty /stream answer is worth a /meta request for inline streams: only a meta
+     * with per-video entries can carry them (so never a movie), and only an addon that serves
+     * meta for this id can answer.
+     */
+    private fun canHaveInlineMetaStreams(addon: Addon, type: String, videoId: String): Boolean {
+        if (type.equals("movie", ignoreCase = true)) return false
+        return addon.supportsResource("meta", type, inlineMetaIdFor(videoId))
+    }
+
+    /**
      * Fetch meta for the given content and extract inline streams from the
-     * matching video entry.  Returns an empty list when the addon doesn't
-     * support meta or the video has no inline streams.
+     * matching video entry.  Returns an empty list when the video has no
+     * inline streams. Callers check [canHaveInlineMetaStreams] first.
      */
     private suspend fun fetchInlineStreamsFromMeta(
         addon: Addon,
         type: String,
-        videoId: String
+        videoId: String,
+        forceRefresh: Boolean
     ): List<Stream> {
-        // For inline streams the meta is fetched using the content-level ID
-        // (everything before the video-specific suffix).  For "other" type
-        // the videoId IS the content ID; for series it is contentId:S:E.
-        // Video ID formats:
-        //   tt1234567:1:5      → metaId = tt1234567
-        //   mal:63375:1:5      → metaId = mal:63375
-        //   kitsu:12345:2      → metaId = kitsu:12345
-        // Strategy: drop up to 2 trailing numeric segments (season, episode)
-        // but never reduce below 2 segments for prefixed IDs (mal:X, kitsu:X).
-        val metaId = run {
-            val parts = videoId.split(":")
-            if (parts.size <= 1) return@run videoId
-            // Count trailing numeric segments
-            val trailingNumericCount = parts.reversed().takeWhile { it.toIntOrNull() != null }.size
-            // Keep at least 2 segments for prefixed IDs (e.g. "mal:63375"),
-            // or 1 segment for IMDB-style IDs (e.g. "tt1234567")
-            val firstSegment = parts.first()
-            val minSegments = if (firstSegment.startsWith("tt") || firstSegment.toIntOrNull() != null) 1 else 2
-            val segmentsToDrop = trailingNumericCount.coerceAtMost((parts.size - minSegments).coerceAtLeast(0))
-            if (segmentsToDrop > 0) {
-                parts.dropLast(segmentsToDrop).joinToString(":")
-            } else {
-                videoId
-            }
-        }
+        val metaId = inlineMetaIdFor(videoId)
         val cleanBaseUrl = addon.baseUrl.trimEnd('/')
         val queryStart = cleanBaseUrl.indexOf('?')
         val basePath = if (queryStart >= 0) cleanBaseUrl.substring(0, queryStart).trimEnd('/') else cleanBaseUrl
@@ -463,7 +458,7 @@ class StreamRepositoryImpl @Inject constructor(
         val metaUrl = "$basePath/meta/$encodedType/$encodedMetaId.json$baseQuery"
         Log.d(TAG, "Fetching inline streams via meta type=$type metaId=$metaId videoId=$videoId url=$metaUrl")
         return try {
-            when (val result = safeApiCall(context) { api.getMeta(metaUrl) }) {
+            when (val result = safeApiCall(context) { api.getMeta(metaUrl, cacheControlFor(forceRefresh)) }) {
                 is NetworkResult.Success -> {
                     val metaDto = result.data.meta ?: return emptyList()
                     val matchingVideo = metaDto.videos?.firstOrNull { it.id == videoId }
@@ -479,6 +474,34 @@ class StreamRepositoryImpl @Inject constructor(
             if (e is CancellationException) throw e
             Log.w(TAG, "Failed to fetch inline streams from meta for ${addon.displayName}: ${e.message}")
             emptyList()
+        }
+    }
+
+    private fun inlineMetaIdFor(videoId: String): String {
+        // For inline streams the meta is fetched using the content-level ID
+        // (everything before the video-specific suffix).  For "other" type
+        // the videoId IS the content ID; for series it is contentId:S:E.
+        // Video ID formats:
+        //   tt1234567:1:5      → metaId = tt1234567
+        //   mal:63375:1:5      → metaId = mal:63375
+        //   kitsu:12345:2      → metaId = kitsu:12345
+        // Strategy: drop up to 2 trailing numeric segments (season, episode)
+        // but never reduce below 2 segments for prefixed IDs (mal:X, kitsu:X).
+        return run {
+            val parts = videoId.split(":")
+            if (parts.size <= 1) return@run videoId
+            // Count trailing numeric segments
+            val trailingNumericCount = parts.reversed().takeWhile { it.toIntOrNull() != null }.size
+            // Keep at least 2 segments for prefixed IDs (e.g. "mal:63375"),
+            // or 1 segment for IMDB-style IDs (e.g. "tt1234567")
+            val firstSegment = parts.first()
+            val minSegments = if (firstSegment.startsWith("tt") || firstSegment.toIntOrNull() != null) 1 else 2
+            val segmentsToDrop = trailingNumericCount.coerceAtMost((parts.size - minSegments).coerceAtLeast(0))
+            if (segmentsToDrop > 0) {
+                parts.dropLast(segmentsToDrop).joinToString(":")
+            } else {
+                videoId
+            }
         }
     }
 

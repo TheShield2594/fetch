@@ -43,11 +43,13 @@ interface StreamRepository {
      * @param addon The installed addon to query
      * @param type The content type
      * @param videoId The video ID
+     * @param forceRefresh Skip the HTTP cache and ask the addon again
      * @return NetworkResult containing list of streams
      */
     suspend fun getStreamsFromAddon(
         addon: Addon,
         type: String,
-        videoId: String
+        videoId: String,
+        forceRefresh: Boolean = false
     ): NetworkResult<List<Stream>>
 }

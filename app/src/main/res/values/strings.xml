@@ -2842,6 +2842,8 @@
     <string name="source_chip_loading">loading</string>
     <!-- The addon answered with torrent results only, which Fetch hides (no debrid link). -->
     <string name="source_chip_torrents_only">torrents only</string>
+    <!-- The addon answered, but has nothing for this title. -->
+    <string name="source_chip_no_results">no results</string>
     <!-- An addon chip with its state: "Torrentio · loading". %1$s = addon name, %2$s = state. -->
     <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="advanced_section_addons">Addons</string>

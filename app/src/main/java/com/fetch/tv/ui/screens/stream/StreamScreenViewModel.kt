@@ -822,7 +822,10 @@ class StreamScreenViewModel @Inject constructor(
             val isUnlimitedTimeout = playerSettings.streamAutoPlayTimeoutSeconds == PlayerSettings.STREAM_AUTOPLAY_TIMEOUT_UNLIMITED
 
             val streamLoadInner = launch {
-                val chipOutcomeWatcher = launch { watchSourceChipOutcomes(since = fetchStartedAtMs) }
+                // Undispatched, so the watcher is subscribed before the search can record outcomes.
+                val chipOutcomeWatcher = launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                    watchSourceChipOutcomes(since = fetchStartedAtMs)
+                }
                 streamRepository.getStreamsFromAllAddons(
                     type = contentType,
                     videoId = videoId,
@@ -921,6 +924,9 @@ class StreamScreenViewModel @Inject constructor(
                     }
                 }
                 chipOutcomeWatcher.cancel()
+                // The watcher can miss the last addons' events; settle their chips from the
+                // outcomes the tracker already holds before treating any chip as failed.
+                settlePendingSourceChipsFromHealth(since = fetchStartedAtMs)
                 // All addons finished — run auto-select if not yet triggered
                 if (!autoSelectTriggered) {
                     autoSelectTriggered = true
@@ -1139,18 +1145,15 @@ class StreamScreenViewModel @Inject constructor(
     }
 
     /**
-     * Turns an addon's chip red as soon as its request fails or times out, instead of leaving it
-     * "loading" until every other addon has answered.
+     * Settles an addon's chip as soon as its request finishes, instead of leaving it "loading"
+     * until every other addon has answered: red when it failed or timed out, "no results" when it
+     * answered with nothing. The repository records an addon's stream outcome only after its
+     * inline-meta fallback, so an EMPTY outcome is final.
      */
     private suspend fun watchSourceChipOutcomes(since: Long) {
         addonHealthTracker.events.collect { event ->
             if (event.kind != com.fetch.tv.core.streams.AddonRequestKind.STREAM || event.atMs < since) return@collect
-            val failedStatus = when (event.outcome) {
-                com.fetch.tv.core.streams.AddonRequestOutcome.TIMEOUT -> SourceChipStatus.TIMED_OUT
-                com.fetch.tv.core.streams.AddonRequestOutcome.ERROR -> SourceChipStatus.ERROR
-                // An empty answer may still be rescued by the meta's inline streams.
-                else -> return@collect
-            }
+            val settledStatus = event.outcome.settledSourceChipStatus() ?: return@collect
             updateUiStateIfChanged { state ->
                 if (state.sourceChips.none { it.name == event.addonName && it.status == SourceChipStatus.LOADING }) {
                     return@updateUiStateIfChanged state
@@ -1158,13 +1161,21 @@ class StreamScreenViewModel @Inject constructor(
                 state.copy(
                     sourceChips = state.sourceChips.map { chip ->
                         if (chip.name == event.addonName && chip.status == SourceChipStatus.LOADING) {
-                            chip.copy(status = failedStatus)
+                            chip.copy(status = settledStatus)
                         } else {
                             chip
                         }
                     }
                 )
             }
+        }
+    }
+
+    private fun settlePendingSourceChipsFromHealth(since: Long) {
+        val health = addonHealthTracker.health.value
+        updateUiStateIfChanged { state ->
+            val settled = settlePendingSourceChips(state.sourceChips, health, since)
+            if (settled == state.sourceChips) state else state.copy(sourceChips = settled)
         }
     }
 

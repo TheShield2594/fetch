@@ -25,11 +25,19 @@ interface AddonApi {
         @Header("Cache-Control") cacheControl: String
     ): Response<CatalogResponseDto>
 
+    /** [cacheControl] "no-cache" makes OkHttp revalidate instead of serving a cached copy; null sends no header. */
     @GET
-    suspend fun getMeta(@Url metaUrl: String): Response<MetaResponseDto>
+    suspend fun getMeta(
+        @Url metaUrl: String,
+        @Header("Cache-Control") cacheControl: String? = null
+    ): Response<MetaResponseDto>
 
+    /** [cacheControl] "no-cache" makes OkHttp revalidate instead of serving a cached copy; null sends no header. */
     @GET
-    suspend fun getStreams(@Url streamUrl: String): Response<StreamResponseDto>
+    suspend fun getStreams(
+        @Url streamUrl: String,
+        @Header("Cache-Control") cacheControl: String? = null
+    ): Response<StreamResponseDto>
 
     @GET
     suspend fun getSubtitles(@Url subtitleUrl: String): Response<SubtitleResponseDto>

@@ -9,10 +9,12 @@ internal fun resolveNextToWatchLatestProgress(
 ): WatchProgress? {
     val resumeOverride = progressEntries
         .filter(isResumable)
+        // The most recently watched resumable episode; on a tie, the furthest one. The comparator
+        // is ascending because maxWithOrNull returns the greatest element under it.
         .maxWithOrNull(
-            compareByDescending<WatchProgress> { it.lastWatched }
-                .thenByDescending { it.season ?: 0 }
-                .thenByDescending { it.episode ?: 0 }
+            compareBy<WatchProgress> { it.lastWatched }
+                .thenBy { it.season ?: 0 }
+                .thenBy { it.episode ?: 0 }
         )
     return when {
         resumeOverride != null && (

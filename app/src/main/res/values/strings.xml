@@ -2164,6 +2164,8 @@
     <string name="update_error_check_failed">Update check failed</string>
     <string name="update_error_download_failed">Download failed</string>
     <string name="update_error_apk_missing">Downloaded file is missing</string>
+    <string name="update_error_unknown_sources_unavailable">Couldn’t open the install permission settings. Allow Fetch to install apps in your device settings, then try again.</string>
+    <string name="update_error_installer_unavailable">Couldn’t open the installer on this device</string>
 
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Could not save PIN. Try again.</string>

@@ -148,6 +148,7 @@ fun SearchScreen(
     /** Opens the cast screen for a person from the people row (TMDB person id and name). */
     onNavigateToPerson: (personId: Int, personName: String, preferCrew: Boolean) -> Unit = { _, _, _ -> }
 ) {
+    LaunchedEffect(viewModel) { viewModel.acceptRemoteSearches() }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val watchedMovieIds by viewModel.watchedMovieIds.collectAsStateWithLifecycle()
     val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()

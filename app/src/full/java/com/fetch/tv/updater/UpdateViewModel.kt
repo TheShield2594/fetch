@@ -299,10 +299,25 @@ class UpdateViewModel @Inject constructor(
         }
 
         _uiState.update { it.copy(showUnknownSourcesDialog = false) }
-        ApkInstaller.launchInstall(context, apkFile)
+        if (!ApkInstaller.launchInstall(context, apkFile)) {
+            _uiState.update {
+                it.copy(
+                    errorMessage = context.getString(R.string.update_error_installer_unavailable),
+                    showBanner = true
+                )
+            }
+        }
     }
 
     fun openUnknownSourcesSettings() {
-        ApkInstaller.buildUnknownSourcesSettingsIntent(context)?.let(context::startActivity)
+        if (!ApkInstaller.openUnknownSourcesSettings(context)) {
+            _uiState.update {
+                it.copy(
+                    showUnknownSourcesDialog = false,
+                    errorMessage = context.getString(R.string.update_error_unknown_sources_unavailable),
+                    showBanner = true
+                )
+            }
+        }
     }
 }

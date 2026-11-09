@@ -62,7 +62,7 @@ class StreamRepositoryAddonRequestTest {
         repository.getStreamsFromAllAddons("movie", "tt1").last()
 
         coVerify(exactly = 0) { api.getMeta(any(), any()) }
-        verify { tracker.record("Addon", AddonRequestOutcome.EMPTY, any(), any(), AddonRequestKind.STREAM) }
+        verify { tracker.record("Addon", AddonRequestOutcome.EMPTY, any(), any(), AddonRequestKind.STREAM, any()) }
     }
 
     @Test
@@ -96,8 +96,8 @@ class StreamRepositoryAddonRequestTest {
         assertEquals(1, groups.single().streams.size)
         coVerify(exactly = 1) { api.getMeta("https://addon.example/meta/series/tt1.json", null) }
         // One outcome per addon, recorded after the fallback: the chip settles on the real answer.
-        verify(exactly = 1) { tracker.record("Addon", AddonRequestOutcome.SUCCESS, any(), any(), AddonRequestKind.STREAM) }
-        verify(exactly = 0) { tracker.record("Addon", AddonRequestOutcome.EMPTY, any(), any(), any()) }
+        verify(exactly = 1) { tracker.record("Addon", AddonRequestOutcome.SUCCESS, any(), any(), AddonRequestKind.STREAM, any()) }
+        verify(exactly = 0) { tracker.record("Addon", AddonRequestOutcome.EMPTY, any(), any(), any(), any()) }
     }
 
     @Test

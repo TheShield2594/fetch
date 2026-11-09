@@ -623,7 +623,6 @@
     <string name="playback_skip_intro">Preskoči uvod</string>
     <string name="playback_skip_intro_sub">Koristi introdb.app za otkrivanje uvoda i sažetaka.</string>
     <string name="playback_parental_guide">Upozorenja o sadržaju</string>
-    <string name="playback_parental_guide_sub">Prikaži roditeljski vodič kada počne reprodukcija.</string>
     <string name="playback_auto_skip_segments">Automatsko preskakanje</string>
     <string name="playback_auto_skip_segments_sub">Odaberi koji se segmenti automatski preskaču.</string>
     <string name="auto_skip_intro">Uvod / Opening</string>

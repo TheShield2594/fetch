@@ -36,4 +36,12 @@ class RootBackPolicyTest {
     fun `Back on a sidebar page opened from another screen returns to that screen`() {
         assertEquals(RootBackAction.POP, rootBackAction(search, previousRoute = calendar, sidebarOpen = false))
     }
+
+    @Test
+    fun `Back on a sidebar page opened from another sidebar page returns to that page`() {
+        // Library's "Search titles" and "Open settings" buttons push a sidebar page on top of Library.
+        val library = Screen.Library.route
+        assertEquals(RootBackAction.POP, rootBackAction(search, previousRoute = library, sidebarOpen = false))
+        assertEquals(RootBackAction.POP, rootBackAction(settings, previousRoute = library, sidebarOpen = false))
+    }
 }

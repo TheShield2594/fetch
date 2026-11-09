@@ -104,7 +104,7 @@ fun DisplayModeOverlay(
             Text(
                 text = statusMessage,
                 style = MaterialTheme.typography.labelSmall,
-                color = FetchTheme.colors.Secondary,
+                color = FetchTheme.colors.AccentText,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.End,
                 modifier = Modifier

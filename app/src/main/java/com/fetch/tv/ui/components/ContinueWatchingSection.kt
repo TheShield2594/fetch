@@ -87,6 +87,13 @@ private const val POSTER_TITLE_SCALE = 0.85f
 // The smallest text the app draws (see TypeScaleFloorTest).
 private const val MIN_POSTER_TITLE_SP = 12f
 
+/**
+ * The poster card's title size for a base style of [baseSp]: scaled down to fit more of the
+ * title, but never below the 12sp floor the type scale holds everywhere else.
+ */
+internal fun posterTitleFontSizeSp(baseSp: Float): Float =
+    maxOf(baseSp * POSTER_TITLE_SCALE, MIN_POSTER_TITLE_SP)
+
 // Line height multiplier for the poster title, kept near 1 so the row below the artwork stays compact.
 private const val POSTER_TITLE_LINE_HEIGHT = 1.1f
 
@@ -333,8 +340,7 @@ fun ContinueWatchingCard(
             posterTitleOverride
         } else if (isPosterStyle) {
             // Tight line height keeps the title row short so the poster can stay catalog sized.
-            // Never below the 12sp floor the type scale holds everywhere else.
-            val scaled = maxOf(baseTitleStyle.fontSize.value * POSTER_TITLE_SCALE, MIN_POSTER_TITLE_SP).sp
+            val scaled = posterTitleFontSizeSp(baseTitleStyle.fontSize.value).sp
             baseTitleStyle.copy(fontSize = scaled, lineHeight = scaled * POSTER_TITLE_LINE_HEIGHT)
         } else {
             baseTitleStyle

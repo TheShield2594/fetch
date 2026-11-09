@@ -518,7 +518,6 @@
     <string name="playback_skip_intro">Kapërce hyrjen</string>
     <string name="playback_skip_intro_sub">Përdor introdb.app për të zbuluar hyrjet dhe përmbledhjet.</string>
     <string name="playback_parental_guide">Paralajmërimet e përmbajtjes</string>
-    <string name="playback_parental_guide_sub">Shfaq mbivendosjen e udhëzimit prindëror kur fillon riprodhimi.</string>
     <string name="playback_auto_skip_segments">Kapërcim automatik</string>
     <string name="playback_auto_skip_segments_sub">Zgjidh cilat segmente kapërcehen automatikisht.</string>
     <string name="auto_skip_intro">Hyrja / Opening</string>

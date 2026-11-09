@@ -563,7 +563,6 @@
 <string name="playback_skip_intro">Salta intro</string>
 <string name="playback_skip_intro_sub">Usa introdb.app per rilevare intro e riassunti.</string>
 <string name="playback_parental_guide">Avvisi sui contenuti</string>
-<string name="playback_parental_guide_sub">Mostra una notifica sulle linee guida dei contenuti all\'inizio della riproduzione.</string>
 <string name="playback_auto_skip_segments">Salto automatico</string>
 <string name="playback_auto_skip_segments_sub">Scegli quali segmenti saltare automaticamente.</string>
 <string name="auto_skip_intro">Intro / Sigla iniziale</string>

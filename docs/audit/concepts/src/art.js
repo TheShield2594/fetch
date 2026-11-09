@@ -6,13 +6,15 @@ const PAL = {
   slate:["#1b1f26","#55606f","#e6edf7","#0c0e12"], moss:["#18301a","#4f7f3c","#e4f5b0","#0a160b"],
   plum:["#2a1038","#6a3a9a","#e7c8ff","#120618"], rust:["#3a1a10","#8f4a30","#ffcfb0","#180a06"]
 };
+// Each SVG gets its own gradient ids: two artworks of one palette can have different centres.
+let artSeq=0;
 function artSvg(p, sunX=68, sunY=42, r=9){
-  const [a,b,s,d]=PAL[p];
+  const [a,b,s,d]=PAL[p]; const id=p+(artSeq++);
   return `<svg class="art" viewBox="0 0 160 90" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-  <defs><radialGradient id="g${p}" cx="${sunX}%" cy="${sunY}%" r="60%"><stop offset="0" stop-color="${b}"/><stop offset="1" stop-color="${a}"/></radialGradient>
-  <radialGradient id="h${p}" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="${s}" stop-opacity=".55"/><stop offset="1" stop-color="${s}" stop-opacity="0"/></radialGradient></defs>
-  <rect width="160" height="90" fill="url(#g${p})"/>
-  <circle cx="${sunX*1.6}" cy="${sunY*.9}" r="${r*3}" fill="url(#h${p})"/>
+  <defs><radialGradient id="g${id}" cx="${sunX}%" cy="${sunY}%" r="60%"><stop offset="0" stop-color="${b}"/><stop offset="1" stop-color="${a}"/></radialGradient>
+  <radialGradient id="h${id}" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="${s}" stop-opacity=".55"/><stop offset="1" stop-color="${s}" stop-opacity="0"/></radialGradient></defs>
+  <rect width="160" height="90" fill="url(#g${id})"/>
+  <circle cx="${sunX*1.6}" cy="${sunY*.9}" r="${r*3}" fill="url(#h${id})"/>
   <circle cx="${sunX*1.6}" cy="${sunY*.9}" r="${r}" fill="${s}"/>
   <path d="M0 62 C40 52 70 66 110 58 S150 54 160 60 V90 H0Z" fill="${d}" opacity=".55"/>
   <path d="M0 74 C30 66 80 80 120 70 S150 72 160 68 V90 H0Z" fill="${d}" opacity=".9"/></svg>`;

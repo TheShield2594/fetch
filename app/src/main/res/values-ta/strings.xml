@@ -488,7 +488,6 @@
     <string name="playback_skip_intro">அறிமுகத்தை தாவு</string>
     <string name="playback_skip_intro_sub">introdb.app மூலம் அறிமுகம் மற்றும் மீள்பார்வையை கண்டறி.</string>
     <string name="playback_parental_guide">உள்ளடக்க எச்சரிக்கைகள்</string>
-    <string name="playback_parental_guide_sub">இயக்கம் தொடங்கும் போது பெற்றோர் வழிகாட்டி மேலடுக்கை காட்டு.</string>
     <string name="playback_auto_skip_segments">தானியங்கி தாவல்</string>
     <string name="playback_auto_skip_segments_sub">எந்த பகுதிகள் தானாக தாவ வேண்டும் என்பதை தேர்வு செய்.</string>
     <string name="auto_skip_intro">அறிமுகம் / தொடக்கம்</string>

@@ -4,7 +4,7 @@
 :root {
   --bg: #0A0A0B; --elev: #111113; --card: #151517; --surface: #18181B; --variant: #202023; --line: #2A2A2E;
   --text: #F4F4F5; --text2: #B4B4BB; --text3: #8A8A93;
-  --red: #DC2B33; --ok: #58C27D; --warn: #E0A93B;
+  --red: #DC2B33; --accent-text: #F0666D; /* the accent lifted to 4.5:1 for labels */ --ok: #58C27D; --warn: #E0A93B;
   --focus: #FFFFFF;
   --safe-x: 48px; --safe-y: 27px;
 }

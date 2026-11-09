@@ -575,7 +575,6 @@
   <string name="playback_skip_intro">Παράλειψη εισαγωγής</string>
   <string name="playback_skip_intro_sub">Χρήση του introdb.app για ανίχνευση εισαγωγής και ανασκόπησης.</string>
   <string name="playback_parental_guide">Προειδοποιήσεις περιεχομένου</string>
-  <string name="playback_parental_guide_sub">Εμφάνιση επικάλυψης γονικού ελέγχου κατά την έναρξη αναπαραγωγής.</string>
   <string name="playback_auto_skip_segments">Αυτόματη παράλειψη</string>
   <string name="playback_auto_skip_segments_sub">Επιλέξτε ποια τμήματα θα παραλείπονται αυτόματα.</string>
   <string name="auto_skip_intro">Εισαγωγή / Άνοιγμα</string>

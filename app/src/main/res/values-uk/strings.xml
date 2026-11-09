@@ -495,7 +495,6 @@
     <string name="playback_skip_intro">Пропуск заставки</string>
     <string name="playback_skip_intro_sub">Використовувати introdb.app для виявлення заставок та рекапів.</string>
     <string name="playback_parental_guide">Попередження про контент</string>
-    <string name="playback_parental_guide_sub">Показувати накладення з рекомендаціями для батьків на початку відтворення.</string>
     <string name="playback_auto_skip_segments">Автоматичний пропуск</string>
     <string name="playback_auto_skip_segments_sub">Оберіть, які сегменти пропускати автоматично.</string>
     <string name="auto_skip_intro">Вступ / Опенінг</string>

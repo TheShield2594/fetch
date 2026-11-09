@@ -21,7 +21,13 @@ class PersistedGsonKeepRulesTest {
             .dropWhile { it.trim() != "# gson-persisted-begin" }
             .drop(1)
             .takeWhile { it.trim() != "# gson-persisted-end" }
-            .mapNotNull { KEEP_RULE.find(it)?.groupValues?.get(1) }
+            .map { it.trim() }
+            .filter { it.isNotEmpty() && !it.startsWith("#") }
+            .map { line ->
+                // A rule this test can't read would drop out of the list unnoticed.
+                KEEP_RULE.find(line)?.groupValues?.get(1)
+                    ?: error("Unrecognised line between the gson-persisted markers: $line")
+            }
     }
 
     @Test
@@ -48,6 +54,6 @@ class PersistedGsonKeepRulesTest {
     }
 
     private companion object {
-        val KEEP_RULE = Regex("""^-keep class ([\w.$]+) \{ \*; \}""")
+        val KEEP_RULE = Regex("""^-keep\s+class\s+([\w.$]+)\s*\{\s*\*\s*;\s*\}$""")
     }
 }

@@ -101,7 +101,7 @@ internal fun CodeSection(
                     Text(
                         text = stringResource(R.string.party_reconnecting),
                         style = MaterialTheme.typography.labelLarge,
-                        color = FetchTheme.colors.Secondary,
+                        color = FetchTheme.colors.AccentText,
                     )
                 }
             }
@@ -227,7 +227,7 @@ private fun MemberRow(
                         text = stringResource(R.string.party_host),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = FetchTheme.colors.Secondary,
+                        color = FetchTheme.colors.AccentText,
                     )
                 }
             }

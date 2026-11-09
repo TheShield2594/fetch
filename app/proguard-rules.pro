@@ -18,6 +18,17 @@
 # Keep TypeToken generic signatures (used in AddonConfigServer/RepositoryConfigServer)
 -keep class com.google.gson.reflect.TypeToken { *; }
 -keep class * extends com.google.gson.reflect.TypeToken
+# Classes stored on the device as Gson JSON: their field names are the stored keys, so R8
+# must not rename them or a release update can no longer read what the last one wrote.
+# domain.model is kept below; classes elsewhere carry @Keep and are listed here as well.
+-keep class com.fetch.tv.core.sync.PendingProgressUpsert { *; }
+-keep class com.fetch.tv.core.sync.PendingWatchedUpsert { *; }
+-keep class com.fetch.tv.data.local.CachedNextUpItem { *; }
+-keep class com.fetch.tv.data.local.CachedInProgressItem { *; }
+-keep class com.fetch.tv.core.tracking.LocalList { *; }
+-keepclassmembers,allowobfuscation class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
 
 # ── Retrofit ───────────────────────────────────────────────────────────────────
 # Keep generic signatures for Retrofit service methods

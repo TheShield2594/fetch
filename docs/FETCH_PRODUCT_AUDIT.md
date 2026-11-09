@@ -23,7 +23,7 @@ Paths are relative to `app/src/main/java/com/fetch/tv/` unless they start with `
 ### What was and was not possible
 
 - **Static analysis: done in depth.** Six parallel audits read the shell and navigation, every browse and management screen, the detail → sources → player pipeline, the design system, the data and startup layers, and the desktop and website.
-- **Screenshots: the repo's own renders were used.** `docs/screenshots/*.png` are drawn from the real Compose screens by `app/src/test/java/com/fetch/tv/screenshots/ReadmeScreenshots.kt`. I installed the Android SDK and tried to re-run that harness to render more screens. The build was blocked by Maven Central rate limiting (HTTP 429) in this environment, so no new renders of the current app exist.
+- **Screenshots: rendered from the app's own Compose screens.** `docs/screenshots/*.png` are drawn by `app/src/test/java/com/fetch/tv/screenshots/ReadmeScreenshots.kt` (Robolectric, 960×540 dp at 2×). I installed the Android SDK, built the app at the audited commit and ran that harness here. I also ran it once with a temporary, uncommitted copy that removes the detail page's −190 dp scroll offset, to capture the detail page as a user first sees it (`docs/audit/detail-first-screen.png`). The harness draws only the handful of composables that take plain data; screens bound to a view model (search, library, settings, the player overlay) cannot be rendered this way, which is itself a finding about testability.
 - **No device, no emulator, no profiling.** Nothing in this report is a runtime measurement. `docs/performance.md` has every results table empty, so the project has no measurements either. Performance findings are classified by how sure the mechanism is, never by a number.
 - **Research: primary sources for platform standards; press and community reports for competitors.** Gaps are listed in section 3.6.
 
@@ -409,11 +409,15 @@ Press counts are derived from the focus wiring, from Home's initial focus with d
 
 ![Current detail page](screenshots/detail.png)
 
-*Current detail page. The test scrolls the page by −190 dp to show the Sources row; on entry, a user sees only the hero.*
+*The README's detail screenshot. The test scrolls the page by −190 dp to show the Sources row.*
+
+![Detail page as first seen](audit/detail-first-screen.png)
+
+*The same screen rendered for this audit with the offset removed: what a user sees on entry. No season tabs, no episodes, no sources. The upper half is empty artwork. The focused Play button's 1.1× scale also pushes it over the neighbouring "In library" button and to about 12 dp from the bottom edge, inside the overscan margin.*
 
 | # | Problem | Label | Evidence |
 |---|---|---|---|
-| D1 | The hero is a fixed 540 dp, the whole screen. Nothing shows that episodes exist until the user presses Down. | Verified | `ui/screens/detail/HeroSection.kt:198` |
+| D1 | The hero is a fixed 540 dp, the whole screen. Nothing shows that episodes exist until the user presses Down. | Verified in code and by rendering | `ui/screens/detail/HeroSection.kt:198` |
 | D2 | The Sources row's Best match card calls the same handler as Play and shows the same pick. It adds a focus stop before seasons on every series. | Verified | `ui/screens/detail/MetaDetailsScreen.kt:2697` |
 | D3 | When resuming, the hero swaps the synopsis and ratings for a full episode row of the season, and the real episode row sits below. The same season appears twice. | Verified | `MetaDetailsScreen.kt:1346-1353` |
 | D4 | **Bug:** `maxWithOrNull(compareByDescending { lastWatched }…)` returns the oldest resumable entry. It bites when two or more episodes are half-watched and the latest entry is not resumable. Existing tests have at most one resumable entry. | Verified by reading | `ui/screens/detail/NextToWatchProgress.kt:10-16` |

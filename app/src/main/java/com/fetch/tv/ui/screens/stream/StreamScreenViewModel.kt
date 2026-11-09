@@ -822,7 +822,10 @@ class StreamScreenViewModel @Inject constructor(
             val isUnlimitedTimeout = playerSettings.streamAutoPlayTimeoutSeconds == PlayerSettings.STREAM_AUTOPLAY_TIMEOUT_UNLIMITED
 
             val streamLoadInner = launch {
-                val chipOutcomeWatcher = launch { watchSourceChipOutcomes(since = fetchStartedAtMs) }
+                // Undispatched, so the watcher is subscribed before the search can record outcomes.
+                val chipOutcomeWatcher = launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                    watchSourceChipOutcomes(since = fetchStartedAtMs)
+                }
                 streamRepository.getStreamsFromAllAddons(
                     type = contentType,
                     videoId = videoId,

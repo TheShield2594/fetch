@@ -100,6 +100,17 @@ class StreamRepositoryAddonRequestTest {
         verify(exactly = 0) { tracker.record("Addon", AddonRequestOutcome.EMPTY, any(), any(), any()) }
     }
 
+    @Test
+    fun `a forced refresh also revalidates the inline meta fallback`() = runTest {
+        coEvery { api.getStreams(any(), any()) } returns Response.success(StreamResponseDto(emptyList()))
+        coEvery { api.getMeta(any(), any()) } returns Response.success(MetaResponseDto(null))
+        val repository = newRepository(addon(resources = listOf("stream", "meta")))
+
+        repository.getStreamsFromAllAddons("series", "tt1:1:2", season = 1, episode = 2, forceRefresh = true).last()
+
+        coVerify(exactly = 1) { api.getMeta(any(), "no-cache") }
+    }
+
     private fun stream() = StreamDto(name = "1080p", url = "https://cdn.example/video.mkv")
 
     private fun addon(resources: List<String>) = Addon(

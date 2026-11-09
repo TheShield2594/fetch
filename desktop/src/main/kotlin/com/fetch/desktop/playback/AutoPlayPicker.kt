@@ -3,6 +3,7 @@ package com.fetch.desktop.playback
 import com.fetch.desktop.data.AutoPlayMode
 import com.fetch.desktop.pickSource
 import com.fetch.desktop.player.ExternalPlayer
+import com.fetch.tv.core.player.FilenameEpisodeMatcher
 import com.fetch.tv.core.streams.ranking.RankedStream
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
 import com.fetch.tv.core.streams.ranking.StreamTitleParser

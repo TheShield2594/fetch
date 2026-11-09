@@ -1,5 +1,6 @@
 package com.fetch.desktop.playback
 
+import com.fetch.tv.core.player.FilenameEpisodeMatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

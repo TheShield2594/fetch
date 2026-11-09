@@ -1,5 +1,10 @@
 package com.fetch.tv.core.player
 
+/**
+ * Turns the file name of the episode playing into the next episode's ("Show.S01E03.1080p" →
+ * "Show.S01E04.1080p"), so the next episode can play the same release. Shared by the TV and
+ * desktop apps.
+ */
 object FilenameEpisodeMatcher {
 
     /**

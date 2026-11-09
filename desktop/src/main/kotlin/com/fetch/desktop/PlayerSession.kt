@@ -86,14 +86,15 @@ class PlayerSession(val mpv: EmbeddedMpv) {
         else segments.firstOrNull { !it.skipsAutomatically(autoSkip) && position >= it.startSec && position < it.endSec - 1.0 }
 
     /**
-     * When the Up Next card shows: [promptSeconds] before the end, or from the start of the
-     * credits when IntroDB knows them, whichever comes first. Null when there's nothing next.
+     * When the Up Next card shows: at the next-episode threshold when the app set one ([upNextAt],
+     * which also holds it back for a post-credits scene), else [promptSeconds] before the end or
+     * from the start of the credits. Null when there's nothing next.
      */
-    fun upNextCountdown(position: Double, duration: Double, promptSeconds: Int): Int? = when {
-        nextEpisode == null || upNextDismissed -> null
+    fun upNextCountdown(position: Double, duration: Double, promptSeconds: Int): Int? {
+        if (nextEpisode == null || upNextDismissed) return null
         // From the next-episode threshold (Settings › Up Next), as on TV.
-        upNextAt?.invoke(position, duration) == true -> (duration - position).toInt().coerceAtLeast(0)
-        else -> upNextCountdown(segments, position, duration, promptSeconds)
+        val threshold = upNextAt ?: return upNextCountdown(segments, position, duration, promptSeconds)
+        return if (threshold(position, duration)) (duration - position).toInt().coerceAtLeast(0) else null
     }
 
     /** Whether the next-episode threshold is reached at (position, duration); set by the app. */

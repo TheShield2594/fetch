@@ -172,7 +172,6 @@ row genuinely is not found. Another account's profile is a `404` the same way.
 | `GET` | `/meta/series/:imdbId/season/:seasonNumber/episodes` | Episodes for one season; `seasonNumber` must be a positive integer. Fetched on demand as a season is expanded. |
 | `POST` | `/metadata/sync` | `{ imdbId, type }` — refresh one title from TMDB. |
 | `POST` | `/metadata/refresh-all?limit=` | Re-fetch stored metadata in batches of 5. `limit` defaults to 50, caps at 500. |
-| `GET` | `/metadata/anime-search?q=` | AniList search. |
 | `GET` | `/genres` | Every genre present in your stored metadata. |
 
 ### Discovery
@@ -383,9 +382,9 @@ Needs `TWITCH_CLIENT_ID` / `TWITCH_CLIENT_SECRET` for search, and
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/profiles` | Every profile with its appearance, sharing and parental settings (see below). |
-| `POST` | `/profiles` | `{ name, pin?, …settings }`. A PIN is 4–8 digits (`PATCH /profiles/:id` too); unlocking still accepts a PIN set before that rule. |
-| `PATCH` | `/profiles/:id` | `{ name?, pin?, …settings }`. Changing or clearing an existing PIN also needs `currentPin`; `pin: null` removes it. A *first* PIN has nothing to prove, so it is instead only accepted for the profile the caller is acting as (`x-profile-id`, or the only profile on a single-profile install) — `403 profile_not_active` otherwise. Without that, one PIN could lock a household member out of their own profile. |
-| `GET` | `/profiles/:id/summary` | Counts of what deleting the profile takes with it: `watchEvents`, `lists`, `listItems`, `playbackProgress`, `ratings`, `collections`. |
+| `POST` | `/profiles` | `{ name, pin?, …settings }`. A PIN is 4–8 digits (`PATCH /profiles/:id` too); unlocking still accepts a PIN set before that rule. Takes parental authority (below), so a kids profile can't add an unrestricted one. |
+| `PATCH` | `/profiles/:id` | `{ name?, pin?, currentPin?, …settings }`. Changing or clearing an existing PIN also needs `currentPin`; `pin: null` removes it. Any other change to a PIN-protected profile needs its profile token (`x-profile-token`) or `currentPin` — `401 profile_pin_required` without either. A *first* PIN has nothing to prove, so it is instead only accepted for the profile the caller is acting as (`x-profile-id` with that profile's token, or the only profile on a single-profile install) — `403 profile_not_active` otherwise. Loosening parental limits (kids mode off, a higher or no `maxRating`, `allowUnrated` on) takes parental authority — `403 parental_authority_required` otherwise; tightening never does. See below. |
+| `GET` | `/profiles/:id/summary` | Counts of what deleting the profile takes with it: `watchEvents`, `lists`, `listItems`, `playbackProgress`, `ratings`, `collections`. A PIN-protected profile needs its profile token (`401 profile_pin_required` otherwise). |
 | `DELETE` | `/profiles/:id` | Deletes the profile and everything it owns — history, lists, resume points, ratings, collections — and its slot on every paired TV. A PIN-protected profile needs `currentPin` unless the caller's profile token is for it. |
 | `POST` | `/profiles/:id/verify` | `{ pin }` → a profile token for `x-profile-token`. `401` on a wrong PIN, `429` once the profile is locked out after repeated failures — separate from the global rate limit. |
 
@@ -406,6 +405,14 @@ nullable ones.
 
 Responses also carry `hasPin`, `createdAt` and `updatedAt`. The parental fields
 are accepted flat as well as under `parental`.
+
+**Parental authority.** Loosening a profile's parental limits, and adding a
+profile, is a grown-up's call. `API_TOKEN` has it. Otherwise the request must be
+acting as a profile of the account (`x-profile-id`, or the only profile) that is
+not a kids profile, with that profile's token if it has a PIN. A request that
+names no usable profile has it only while the account has no kids profile. A
+PIN on the grown-ups' profiles is what makes this a boundary: a child can switch
+to an unlocked one anyway.
 
 ### Devices
 
@@ -432,7 +439,7 @@ its own token that can be revoked on its own.
 | `DELETE` | `/devices/:id` | Revokes the device; its next request is `401`. Only your own account's devices. Not with a device token. |
 | `GET` | `/devices/me` | The calling device. Device token only. |
 | `GET` | `/devices/me/profiles` | Every profile of the device's account with the `slot` (1–6) it occupies on this device, plus `isPrimary` for slot 1. Slots are assigned on first sight and kept; when slot 1 is empty the oldest profile moves into it. Device token only. |
-| `PUT` | `/devices/me/profiles/:slot` | `{ name?, …settings }`. Updates the profile in that slot, or creates one there (`201`, `name` required). Never takes a PIN: PINs are set on the website and checked with `POST /profiles/:id/verify`. Device token only. |
+| `PUT` | `/devices/me/profiles/:slot` | `{ name?, …settings }`. Updates the profile in that slot, or creates one there (`201`, `name` required). Never takes a PIN: PINs are set on the website and checked with `POST /profiles/:id/verify`. A parental limit the request has no authority to loosen is left as stored (the rest of the update still applies), and the answer carries what was stored. Device token only. |
 | `PUT` | `/devices/me/report` | `{ ok, appVersion?, flavor?, error? }`, sent by the TV after every sync: its build, and whether the sync worked. `GET /sync/overview` shows it. An `error` is kept to 500 characters and cleared by the next `ok: true`. Device token only. |
 
 ### Collections
@@ -472,14 +479,16 @@ profile_verification_required` otherwise), whoever is asking.
 
 **Addons.** A manifest URL can carry the addon's own credentials (a debrid key
 in the path, a token in the query), so the API logs only its host and never
-repeats it in an error. Manifests are fetched under the notification-channel
-rules: http(s) only, LAN hosts allowed, never the cloud-metadata range, checked
-by DNS, redirects refused. `stremio://` URLs are read as `https://`.
+repeats it in an error. Manifests are fetched under the profile's account
+outbound policy: http(s) only, private or loopback hosts only for the admin's
+profiles, never the cloud-metadata range, checked by DNS with the connection
+pinned to the checked addresses, redirects refused. `stremio://` URLs are read
+as `https://`.
 
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/profiles/:id/addons` | `{ addons, updatedAt }`, in order. `updatedAt` is when the list last changed from anywhere, and `null` until it first does — how a TV pairing for the first time knows to send its own addons rather than adopt an empty list. Each has its `manifestUrl`, `enabled`, the manifest's `addonId`, `name`, `version`, `logo`, `types`, `resources`, `catalogs`, `configurable` and `configureUrl`. `reachable: false` means the manifest has never been readable: the addon is kept and named by its host, but its catalogs are unknown. |
-| `POST` | `/profiles/:id/addons` | `{ manifestUrl, manifest? }`. Fetches and validates the manifest and installs the addon at the end. `400 manifest_invalid` with a reason when the address doesn't answer or isn't a Stremio manifest, `409` when it is already installed. `manifest` is a fallback used only when the server can't reach the address itself (the website's own addon on a public URL the API container can't resolve); it is validated the same way. 100 addons per profile. |
+| `POST` | `/profiles/:id/addons` | `{ manifestUrl, manifest? }`. Fetches and validates the manifest and installs the addon at the end. The fetch is held to the profile's account's outbound policy (only the admin's profiles may reach a private or loopback address), pinned to the checked addresses, and never follows a redirect. `400 manifest_invalid` with a reason when it fails; the reason is one of three — the address is refused, the addon didn't answer, or it answered without a manifest — never a status code (the detail goes to the server log), `409` when it is already installed. `manifest` is a fallback used only when the server can't reach the address itself (the website's own addon on a public URL the API container can't resolve); it is validated the same way. 100 addons per profile. |
 | `PATCH` | `/profiles/:id/addons/:addonId` | `{ enabled?, manifestUrl?, manifest? }`. A new `manifestUrl` (what an addon's configure page hands back) is fetched and validated like an add. |
 | `POST` | `/profiles/:id/addons/:addonId/refresh` | Fetches the manifest again. `502 manifest_unreachable` with a reason when it can't. |
 | `DELETE` | `/profiles/:id/addons/:addonId` | Also drops the addon's rows from the stored Home layout. |
@@ -537,7 +546,7 @@ rotated key doesn't mean editing `.env` and restarting.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/settings/preferences` | Language, region, spoiler protection, and the provider catalogue. Region and spoiler protection are the caller's account's (an account that never set one gets the install's value); the language is the install's. |
+| `GET` | `/settings/preferences` | Language, region, spoiler protection, and the provider catalogue. Region and spoiler protection are the caller's account's (an account that never set one gets the install's value); the language is the install's. With `API_TOKEN` (the add-on service), "the caller's account" is the account of the profile named by `x-profile-id`, or the admin's when none is named — the same for the region behind `/meta/:type/:imdbId/providers`, `/streaming` and the calendar's spoiler protection. |
 | `POST` | `/settings/preferences` | `{ language?, region?, spoilerProtection? }`. Language is `en` or `en-US` shaped; region is two letters. Both are normalized. Region and spoiler protection are saved for the caller's account; changing the language takes the admin (`403 admin_required` otherwise, though sending the current one back is accepted). Clears the discovery cache. |
 | `GET` | `/settings/job-status` | Background jobs that are currently failing — the Steam sync, Trakt poll, episode notifications, AI refresh. Otherwise these are only visible in the logs. |
 | `GET` | `/tmdb/status` | `{ configured, source }` where source is `db`, `env` or `none`. |
@@ -648,14 +657,11 @@ Every route here acts on the requesting profile's (`x-profile-id`).
 
 ### Stremio add-on
 
-These serve Stremio clients directly. The `:secret` variants are the per-profile
-URLs; the unprefixed ones use the default profile.
+These serve Stremio clients directly, at per-profile URLs: the `:secret` in the
+path is both the credential and the profile selector.
 
 | Method | Path |
 | --- | --- |
-| `GET` | `/addon/stremio/manifest.json` |
-| `GET` | `/addon/stremio/catalog/:type/:id.json` |
-| `GET` | `/addon/stremio/configure` |
 | `GET` | `/addon/stremio/:secret/manifest.json` |
 | `GET` | `/addon/stremio/:secret/catalog/:type/:id.json` |
 | `GET` | `/addon/stremio/:secret/configure` |
@@ -668,9 +674,9 @@ addon service's install URL: `<ADDON_PUBLIC_BASE>/u/<profileId>/<key>/manifest.j
 With `ADDON_REQUIRE_SIGNED_URLS=true` that is the only URL form the addon
 service serves.
 
-Catalog data also has plain-JSON equivalents used by the web UI: `/watchlist`,
-`/continue`, `/recent`, `/stremio/list/:listId`, and
-`/stremio/catalog/my_{watchlist_movies,watchlist_series,continue_series,recent_movies}`.
+A custom list's catalog is also served as plain JSON at
+`/stremio/list/:listId?type=&limit=&profileId=`, which the TV and desktop apps
+read.
 
 ### Push notifications
 

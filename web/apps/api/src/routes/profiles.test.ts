@@ -3,11 +3,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance } from "fastify";
 import { buildRouteApp } from "../lib/test-fixtures/route-app.js";
 import { at } from "../lib/test-fixtures/present.js";
+import { mintProfileToken } from "../lib/profile-token.js";
+import type { AuthPrincipal } from "../lib/request-auth.js";
 
 const PROFILE_ID = "11111111-1111-4111-8111-111111111111";
 const OTHER_PROFILE_ID = "22222222-2222-4222-8222-222222222222";
-/** Headers of a caller acting as `PROFILE_ID`, the way the web client sends them. */
-const ownProfile = { "x-profile-id": PROFILE_ID };
+/**
+ * Headers of a caller acting as `PROFILE_ID`, the way the web client sends
+ * them: the id, and the token switching to it handed out.
+ */
+const ownProfile = () => ({ "x-profile-id": PROFILE_ID, "x-profile-token": mintProfileToken(PROFILE_ID) });
 /**
  * How PINs were stored before the salted KDF. Fixtures still use it, because
  * an existing install's PINs are in exactly this shape and have to keep
@@ -53,8 +58,12 @@ const resetMocks = () => {
   );
 };
 
-const buildApp = (): Promise<FastifyInstance> =>
-  buildRouteApp(() => import("./profiles.js"));
+const buildApp = (auth?: AuthPrincipal): Promise<FastifyInstance> =>
+  buildRouteApp(() => import("./profiles.js"), {}, auth);
+
+/** A household member signed in to the website: not the operator's `API_TOKEN`. */
+const ACCOUNT_ID = "acc-1";
+const SESSION: AuthPrincipal = { kind: "session", sessionId: "s1", accountId: ACCOUNT_ID, isAdmin: false };
 
 describe("profiles routes", () => {
   beforeEach(() => {
@@ -385,7 +394,7 @@ describe("profiles routes", () => {
       const response = await app.inject({
         method: "PATCH",
         url: `/profiles/${PROFILE_ID}`,
-        headers: ownProfile,
+        headers: ownProfile(),
         payload: { pin: "9999" },
       });
 
@@ -437,7 +446,7 @@ describe("profiles routes", () => {
       const response = await app.inject({
         method: "PATCH",
         url: `/profiles/${PROFILE_ID}`,
-        headers: ownProfile,
+        headers: ownProfile(),
         payload: { pin },
       });
 
@@ -551,7 +560,7 @@ describe("profiles routes", () => {
         const response = await app.inject({
           method: "PATCH",
           url: `/profiles/${PROFILE_ID}`,
-          headers: ownProfile,
+          headers: ownProfile(),
           payload: { pin: "9999" },
         });
 
@@ -573,6 +582,23 @@ describe("profiles routes", () => {
           method: "PATCH",
           url: `/profiles/${PROFILE_ID}`,
           headers: { "x-profile-id": OTHER_PROFILE_ID },
+          payload: { pin: "9999" },
+        });
+
+        expect(response.statusCode).toBe(403);
+        expect(response.json().code).toBe("profile_not_active");
+        expect(prismaMock.profile.update).not.toHaveBeenCalled();
+      });
+
+      // Typing a profile's id into a header is not switching to it.
+      it("refuses a first PIN when the header names the profile but carries no token for it", async () => {
+        prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: null });
+        const app = await buildApp();
+
+        const response = await app.inject({
+          method: "PATCH",
+          url: `/profiles/${PROFILE_ID}`,
+          headers: { "x-profile-id": PROFILE_ID, "x-profile-token": mintProfileToken(OTHER_PROFILE_ID) },
           payload: { pin: "9999" },
         });
 
@@ -624,6 +650,200 @@ describe("profiles routes", () => {
 
         expect(response.statusCode).toBe(200);
       });
+    });
+  });
+
+  // The PIN guards the whole profile, not only the PIN itself.
+  describe("PATCH of a PIN-protected profile needs proof", () => {
+    const locked = () =>
+      prismaMock.profile.findUnique.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("1234") }));
+
+    it("refuses a rename with neither the profile's token nor its PIN", async () => {
+      locked();
+      const app = await buildApp();
+
+      const response = await app.inject({ method: "PATCH", url: `/profiles/${PROFILE_ID}`, payload: { name: "Mallory" } });
+
+      expect(response.statusCode).toBe(401);
+      // Not profile_verification_required, which the web client treats as its
+      // own active profile having locked.
+      expect(response.json().code).toBe("profile_pin_required");
+      expect(prismaMock.profile.update).not.toHaveBeenCalled();
+    });
+
+    it("renames with the profile's own token", async () => {
+      locked();
+      prismaMock.profile.update.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alicia", pinHash: hashPin("1234") }));
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "PATCH",
+        url: `/profiles/${PROFILE_ID}`,
+        headers: { "x-profile-token": mintProfileToken(PROFILE_ID) },
+        payload: { name: "Alicia" },
+      });
+
+      expect(response.statusCode).toBe(200);
+    });
+
+    it("renames with the correct currentPin, and counts a wrong one", async () => {
+      locked();
+      prismaMock.profile.update.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alicia", pinHash: hashPin("1234") }));
+      const app = await buildApp();
+
+      const wrong = await app.inject({
+        method: "PATCH",
+        url: `/profiles/${PROFILE_ID}`,
+        payload: { name: "Alicia", currentPin: "0000" },
+      });
+      expect(wrong.statusCode).toBe(401);
+      expect(prismaMock.kV.upsert).toHaveBeenCalled();
+      expect(prismaMock.profile.update).not.toHaveBeenCalled();
+
+      const right = await app.inject({
+        method: "PATCH",
+        url: `/profiles/${PROFILE_ID}`,
+        payload: { name: "Alicia", currentPin: "1234" },
+      });
+      expect(right.statusCode).toBe(200);
+    });
+
+    it("refuses a token minted for another profile", async () => {
+      locked();
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "PATCH",
+        url: `/profiles/${PROFILE_ID}`,
+        headers: { "x-profile-token": mintProfileToken(OTHER_PROFILE_ID) },
+        payload: { avatarColorHex: "#112233" },
+      });
+
+      expect(response.statusCode).toBe(401);
+    });
+  });
+
+  describe("GET /profiles/:id/summary", () => {
+    it("401s a PIN-protected profile without its token", async () => {
+      prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, pinHash: hashPin("1234"), accountId: null });
+      const app = await buildApp();
+
+      const response = await app.inject({ method: "GET", url: `/profiles/${PROFILE_ID}/summary` });
+
+      expect(response.statusCode).toBe(401);
+      expect(response.json().code).toBe("profile_pin_required");
+    });
+  });
+
+  // A kids profile may make itself stricter, never lift its own limits.
+  describe("parental limits", () => {
+    const KIDS_ID = PROFILE_ID;
+    const PARENT_ID = OTHER_PROFILE_ID;
+    const kids = profileRow({ id: KIDS_ID, name: "Kid", pinHash: null });
+    Object.assign(kids, { accountId: ACCOUNT_ID, isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE", allowUnrated: false });
+
+    /** The account's two profiles: the kid's, and a parent's with or without a PIN. */
+    const household = (parentPin: string | null) => {
+      const parent = { ...profileRow({ id: PARENT_ID, name: "Parent", pinHash: parentPin }), accountId: ACCOUNT_ID };
+      prismaMock.profile.findUnique.mockImplementation(async ({ where }: { where: { id: string } }) =>
+        where.id === KIDS_ID ? kids : where.id === PARENT_ID ? parent : null
+      );
+      prismaMock.profile.findMany.mockResolvedValue([kids, parent]);
+      prismaMock.profile.count.mockResolvedValue(1);
+      prismaMock.profile.update.mockImplementation(async ({ data }: { data: object }) => ({ ...kids, ...data }));
+      prismaMock.profile.create.mockImplementation(async ({ data }: { data: object }) => ({
+        ...profileRow({ id: "33333333-3333-4333-8333-333333333333", name: "New", pinHash: null }),
+        ...data,
+      }));
+    };
+
+    const patchKids = (app: FastifyInstance, headers: Record<string, string>, parental: object) =>
+      app.inject({ method: "PATCH", url: `/profiles/${KIDS_ID}`, headers, payload: { parental } });
+
+    it("refuses a kids profile lifting its own limits", async () => {
+      household(null);
+      const app = await buildApp(SESSION);
+
+      const asKid = { "x-profile-id": KIDS_ID, "x-profile-token": mintProfileToken(KIDS_ID) };
+      for (const parental of [{ isKidsProfile: false }, { maxRating: "ADULTS_ONLY" }, { maxRating: null }, { allowUnrated: true }]) {
+        const response = await patchKids(app, asKid, parental);
+        expect(response.statusCode).toBe(403);
+        expect(response.json().code).toBe("parental_authority_required");
+      }
+      expect(prismaMock.profile.update).not.toHaveBeenCalled();
+    });
+
+    it("lets a kids profile tighten its own limits", async () => {
+      household(null);
+      const app = await buildApp(SESSION);
+
+      const response = await patchKids(app, { "x-profile-id": KIDS_ID }, { maxRating: "ALL_AGES" });
+
+      expect(response.statusCode).toBe(200);
+    });
+
+    it("lets a parent's profile lift the limits", async () => {
+      household(null);
+      const app = await buildApp(SESSION);
+
+      const response = await patchKids(app, { "x-profile-id": PARENT_ID }, { isKidsProfile: false, maxRating: null });
+
+      expect(response.statusCode).toBe(200);
+    });
+
+    it("needs a PIN-protected parent's token, not just its id", async () => {
+      household(hashPin("4321"));
+      const app = await buildApp(SESSION);
+
+      const spoofed = await patchKids(app, { "x-profile-id": PARENT_ID }, { maxRating: "ADULTS_ONLY" });
+      expect(spoofed.statusCode).toBe(403);
+
+      const unlocked = await patchKids(
+        app,
+        { "x-profile-id": PARENT_ID, "x-profile-token": mintProfileToken(PARENT_ID) },
+        { maxRating: "ADULTS_ONLY" }
+      );
+      expect(unlocked.statusCode).toBe(200);
+    });
+
+    it("refuses a request naming no profile while the account has a kids profile", async () => {
+      household(null);
+      const app = await buildApp(SESSION);
+
+      const response = await patchKids(app, {}, { isKidsProfile: false });
+
+      expect(response.statusCode).toBe(403);
+    });
+
+    it("leaves the operator's API_TOKEN able to lift them", async () => {
+      household(null);
+      const app = await buildApp();
+
+      const response = await patchKids(app, {}, { isKidsProfile: false });
+
+      expect(response.statusCode).toBe(200);
+    });
+
+    it("refuses a kids profile adding a profile, and lets a parent add one", async () => {
+      household(null);
+      const app = await buildApp(SESSION);
+
+      const asKid = await app.inject({
+        method: "POST",
+        url: "/profiles",
+        headers: { "x-profile-id": KIDS_ID },
+        payload: { name: "Totally a grown-up" },
+      });
+      expect(asKid.statusCode).toBe(403);
+      expect(prismaMock.profile.create).not.toHaveBeenCalled();
+
+      const asParent = await app.inject({
+        method: "POST",
+        url: "/profiles",
+        headers: { "x-profile-id": PARENT_ID },
+        payload: { name: "Grandma" },
+      });
+      expect(asParent.statusCode).toBe(201);
     });
   });
 

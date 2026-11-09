@@ -7,6 +7,7 @@ import { type CachedProfile, profileCache, profileCacheClear, profileLookups } f
 import { verifyProfileToken } from "./profile-token.js";
 import { isServiceRequest } from "./service-request.js";
 import { UUID_V4_PATTERN } from "./types.js";
+import { RATING_LEVELS } from "./profile-view.js";
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -186,13 +187,20 @@ export const isProfileLocked = async (
 
 /**
  * Whether the request is acting *as* `profileId` — the same selection
- * `resolveProfile` makes, without the PIN gate or the replies.
+ * `resolveProfile` makes, without the replies.
  *
  * Used where a route may act on any profile but one particular change is only
  * yours to make: setting a first PIN takes no proof (there is nothing yet to
  * prove), so without this any holder of the shared token could PIN-lock a
  * household member out of their own profile, and removing it would then need
  * the PIN they never chose.
+ *
+ * The header path also needs a profile token minted for `profileId`: naming a
+ * profile in `x-profile-id` is something any caller can type, and a token is
+ * what switching to a profile hands out. For a profile with no PIN that token
+ * is free to anyone signed in to the account (there is no secret to tell
+ * household members apart), so this stops a stray request, not a member who
+ * deliberately switches to the profile first.
  */
 export const isActingAsProfile = async (
   request: FastifyRequest,
@@ -200,12 +208,81 @@ export const isActingAsProfile = async (
 ): Promise<boolean> => {
   const headerValue = request.headers[PROFILE_HEADER];
   const rawProfileId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-  if (rawProfileId) return rawProfileId === profileId;
+  if (rawProfileId) return rawProfileId === profileId && hasValidProfileToken(request, profileId);
 
   // No header is the single-profile install, where the one profile is implied.
   const profiles = await findProfileCandidates(request);
   const [only, ...rest] = profiles;
   return rest.length === 0 && only?.id === profileId;
+};
+
+/** The parental fields a change is judged on. */
+export type ParentalLimits = { isKidsProfile: boolean; maxRating: string | null; allowUnrated: boolean };
+
+const ratingRank = (rating: string | null): number => {
+  // No limit is looser than the loosest named one.
+  if (rating === null) return RATING_LEVELS.length;
+  const index = (RATING_LEVELS as readonly string[]).indexOf(rating);
+  return index === -1 ? RATING_LEVELS.length : index;
+};
+
+/**
+ * Whether going from `current` to `current` with `next` applied lifts any
+ * limit: kids mode off, a higher (or no) rating cap, or unrated titles let in.
+ * Tightening is never a loosening, so a kids profile may always make itself
+ * stricter.
+ */
+export const loosensParentalLimits = (current: ParentalLimits, next: Partial<ParentalLimits>): boolean =>
+  (current.isKidsProfile && next.isKidsProfile === false) ||
+  (next.maxRating !== undefined && ratingRank(next.maxRating) > ratingRank(current.maxRating)) ||
+  (!current.allowUnrated && next.allowUnrated === true);
+
+export const PARENTAL_AUTHORITY_RESPONSE = {
+  error: "Switch to a grown-up's profile to loosen parental controls or add a profile",
+  code: "parental_authority_required",
+} as const;
+
+/**
+ * Whether this request may loosen a profile's parental controls or add a
+ * profile to the account: the authority a kids profile must not have over
+ * itself.
+ *
+ * - `API_TOKEN` is the operator, and may.
+ * - Otherwise the request must be acting as a profile of the account
+ *   (`x-profile-id`, or the only profile) that is not a kids profile, and if
+ *   that profile has a PIN, with its profile token. A PIN on the grown-ups'
+ *   profiles is what makes this a boundary: a child can switch to an unlocked
+ *   one anyway.
+ * - A request that names no usable profile may only when the account has no
+ *   kids profile at all, so there is nothing to protect (a fresh account
+ *   adding its second profile, a script).
+ */
+export const hasParentalAuthority = async (request: FastifyRequest): Promise<boolean> => {
+  if (request.auth?.kind === "token") return true;
+  const scope = accountScope(request);
+
+  const headerValue = request.headers[PROFILE_HEADER];
+  const rawProfileId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
+  let actingId: string | null = null;
+  if (rawProfileId) {
+    if (UUID_V4_PATTERN.test(rawProfileId)) actingId = rawProfileId;
+  } else {
+    const [only, ...rest] = await findProfileCandidates(request);
+    if (only && rest.length === 0) actingId = only.id;
+  }
+
+  if (actingId) {
+    const acting = await prisma.profile.findUnique({
+      where: { id: actingId },
+      select: { id: true, accountId: true, pinHash: true, isKidsProfile: true },
+    });
+    if (acting && ownsProfile(request, acting)) {
+      return !acting.isKidsProfile && (!acting.pinHash || hasValidProfileToken(request, acting.id));
+    }
+  }
+
+  const kids = await prisma.profile.count({ where: { isKidsProfile: true, ...(scope ? { accountId: scope } : {}) } });
+  return kids === 0;
 };
 
 export const resolveProfile = async (request: FastifyRequest, reply: FastifyReply) => {

@@ -168,7 +168,7 @@ curl -H "Authorization: Bearer $API_TOKEN" http://localhost:7000/metrics
   total/max/average duration and how many answered 5xx. Routes are counted by
   their template (`GET /meta/:type/:id`), not by URL.
 - `upstream` — the same counts and timings per outbound host (TMDB, Trakt,
-  Stremio, IGDB, Steam, AniList, your AI provider, your notification channels),
+  Stremio, IGDB, Steam, your AI provider, your notification channels),
   which is what makes "which integration is slow or failing today" answerable.
   Hostnames only — several of these APIs take their key in the query string.
 - `database` — the same probe `/health/ready` runs, with its error when it fails.

@@ -184,35 +184,24 @@ describe("stremio routes — addon config is per profile", () => {
     });
   });
 
-  describe("GET /addon/stremio/manifest.json", () => {
-    it("reads the config of the profile named in the query string", async () => {
-      prismaMock.profile.findUnique.mockResolvedValue({ id: OTHER_PROFILE_ID });
-      const app = await buildApp();
+  describe("GET /addon/stremio/:secret/manifest.json", () => {
+    const originalToken = process.env.API_TOKEN;
+    let manifestUrl: string;
 
-      const response = await app.inject({
-        method: "GET",
-        url: `/addon/stremio/manifest.json?profileId=${OTHER_PROFILE_ID}`,
-      });
-
-      expect(response.statusCode).toBe(200);
-      expect(prismaMock.kV.findUnique).toHaveBeenCalledWith({
-        where: { key: `addon:config:${OTHER_PROFILE_ID}` },
-      });
+    beforeEach(async () => {
+      process.env.API_TOKEN = "test-api-token";
+      const { deriveStremioSecret } = await import("../lib/stremio-secret.js");
+      manifestUrl = `/addon/stremio/${deriveStremioSecret(PROFILE_ID)}/manifest.json`;
     });
 
-    it("falls back to the default profile when no profileId is given", async () => {
-      const app = await buildApp();
-
-      await app.inject({ method: "GET", url: "/addon/stremio/manifest.json" });
-
-      expect(prismaMock.kV.findUnique).toHaveBeenCalledWith({
-        where: { key: `addon:config:${PROFILE_ID}` },
-      });
+    afterEach(() => {
+      if (originalToken === undefined) delete process.env.API_TOKEN;
+      else process.env.API_TOKEN = originalToken;
     });
 
     it("offers the app icon as the addon's logo once the web UI has a public address", async () => {
       const unconfigured = await buildApp();
-      const before = await unconfigured.inject({ method: "GET", url: "/addon/stremio/manifest.json" });
+      const before = await unconfigured.inject({ method: "GET", url: manifestUrl });
       // Stremio fetches the logo itself, so a relative path would be useless.
       expect(before.json().logo).toBe("");
       await unconfigured.close();
@@ -220,7 +209,7 @@ describe("stremio routes — addon config is per profile", () => {
       process.env.FETCH_WEB_PUBLIC = "https://fetch.example/";
       try {
         const app = await buildApp();
-        const response = await app.inject({ method: "GET", url: "/addon/stremio/manifest.json" });
+        const response = await app.inject({ method: "GET", url: manifestUrl });
         expect(response.json().logo).toBe("https://fetch.example/icons/icon-192.png");
       } finally {
         delete process.env.FETCH_WEB_PUBLIC;
@@ -233,7 +222,7 @@ describe("stremio routes — addon config is per profile", () => {
       });
       const app = await buildApp();
 
-      const response = await app.inject({ method: "GET", url: "/addon/stremio/manifest.json" });
+      const response = await app.inject({ method: "GET", url: manifestUrl });
 
       expect(response.json().catalogs).toContainEqual({
         id: "fetch-netflix-series",
@@ -248,13 +237,13 @@ describe("stremio routes — addon config is per profile", () => {
       });
 
       const withoutAi = await buildApp();
-      const before = (await withoutAi.inject({ method: "GET", url: "/addon/stremio/manifest.json" })).json();
+      const before = (await withoutAi.inject({ method: "GET", url: manifestUrl })).json();
       expect((before.catalogs as { id: string }[]).map((c) => c.id)).not.toContain("fetch-ai-movie");
       await withoutAi.close();
 
       aiConfigured.value = true;
       const withAi = await buildApp();
-      const after = (await withAi.inject({ method: "GET", url: "/addon/stremio/manifest.json" })).json();
+      const after = (await withAi.inject({ method: "GET", url: manifestUrl })).json();
       expect(after.catalogs).toContainEqual({
         id: "fetch-ai-movie",
         type: "movie",
@@ -271,7 +260,7 @@ describe("stremio routes — addon config is per profile", () => {
       prismaMock.list.findMany.mockResolvedValue([]);
       const app = await buildApp();
 
-      const response = await app.inject({ method: "GET", url: "/addon/stremio/manifest.json" });
+      const response = await app.inject({ method: "GET", url: manifestUrl });
 
       const catalogIds = (response.json().catalogs as { id: string }[]).map((c) => c.id);
       expect(catalogIds).not.toContain(`list:${OTHER_LIST_ID}`);
@@ -279,7 +268,7 @@ describe("stremio routes — addon config is per profile", () => {
   });
 });
 
-describe("stremio routes — the legacy list route is profile-scoped", () => {
+describe("stremio routes — the list route is profile-scoped", () => {
   beforeEach(() => {
     resetMocks();
   });
@@ -338,33 +327,34 @@ describe("stremio routes — ?profileId names a profile, it does not unlock one"
     resetMocks();
   });
 
-  it("401s a catalog naming a PIN-protected profile", async () => {
+  it("401s a list naming a PIN-protected profile", async () => {
     const app = await buildApp();
     lockedProfileIds.add(OTHER_PROFILE_ID);
     prismaMock.profile.findUnique.mockResolvedValue({ id: OTHER_PROFILE_ID });
 
     const response = await app.inject({
       method: "GET",
-      url: `/watchlist?type=movie&profileId=${OTHER_PROFILE_ID}`,
+      url: `/stremio/list/${OTHER_LIST_ID}?type=movie&profileId=${OTHER_PROFILE_ID}`,
     });
 
     expect(response.statusCode).toBe(401);
     expect(response.json().code).toBe("profile_verification_required");
   });
 
-  it("serves that same catalog once the PIN has been verified", async () => {
+  it("serves that same list once the PIN has been verified", async () => {
     const app = await buildApp();
     lockedProfileIds.add(OTHER_PROFILE_ID);
     prismaMock.profile.findUnique.mockResolvedValue({ id: OTHER_PROFILE_ID });
+    prismaMock.list.findFirst.mockResolvedValue({ id: OTHER_LIST_ID, kind: "custom" });
 
     const response = await app.inject({
       method: "GET",
-      url: `/watchlist?type=movie&profileId=${OTHER_PROFILE_ID}`,
+      url: `/stremio/list/${OTHER_LIST_ID}?type=movie&profileId=${OTHER_PROFILE_ID}`,
       headers: { "x-profile-token": tokenFor(OTHER_PROFILE_ID) },
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.json().metas).toEqual([{ id: "tt0000001" }]);
+    expect(response.json().metas).toEqual([{ id: "tt0000002" }]);
   });
 
   it("does not accept another profile's token as verification for this one", async () => {
@@ -374,7 +364,7 @@ describe("stremio routes — ?profileId names a profile, it does not unlock one"
 
     const response = await app.inject({
       method: "GET",
-      url: `/watchlist?type=movie&profileId=${OTHER_PROFILE_ID}`,
+      url: `/stremio/list/${OTHER_LIST_ID}?type=movie&profileId=${OTHER_PROFILE_ID}`,
       // A token minted for the profile the caller *can* open, aimed at one it
       // cannot — the check has to be bound to the profile being served.
       headers: { "x-profile-token": tokenFor(PROFILE_ID) },
@@ -383,19 +373,10 @@ describe("stremio routes — ?profileId names a profile, it does not unlock one"
     expect(response.statusCode).toBe(401);
   });
 
-  it("401s the default-profile fallback when that profile is locked", async () => {
+  it("401s the default-profile fallback when that profile is locked, before it looks the list up", async () => {
     const app = await buildApp();
     // No ?profileId at all: omitting the selector must not be a way around the
     // PIN either, since it resolves to a real profile just the same.
-    lockedProfileIds.add(PROFILE_ID);
-
-    const response = await app.inject({ method: "GET", url: "/continue" });
-
-    expect(response.statusCode).toBe(401);
-  });
-
-  it("401s the legacy list route for a locked profile before it looks the list up", async () => {
-    const app = await buildApp();
     lockedProfileIds.add(PROFILE_ID);
 
     const response = await app.inject({

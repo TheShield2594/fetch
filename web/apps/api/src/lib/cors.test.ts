@@ -31,11 +31,8 @@ describe("cors", () => {
     it("allows any origin, including none", async () => {
       process.env.NODE_ENV = "development";
       vi.resetModules();
-      const { isAllowedOrigin, applyCorsHeaders } = await loadCors();
+      const { applyCorsHeaders } = await loadCors();
       const reply = new FakeReply();
-
-      expect(isAllowedOrigin(undefined)).toBe(true);
-      expect(isAllowedOrigin("https://anything.example")).toBe(true);
 
       applyCorsHeaders(makeRequest("https://anything.example"), reply as unknown as FastifyReply);
       expect(reply.headers["Access-Control-Allow-Origin"]).toBe("https://anything.example");
@@ -48,12 +45,11 @@ describe("cors", () => {
       process.env.NODE_ENV = "production";
       process.env.FETCH_ALLOWED_ORIGINS = "https://app.example.com, https://other.example.com";
       vi.resetModules();
-      const { isAllowedOrigin, applyCorsHeaders } = await loadCors();
+      const { applyCorsHeaders } = await loadCors();
 
-      expect(isAllowedOrigin("https://app.example.com")).toBe(true);
-      expect(isAllowedOrigin("https://other.example.com")).toBe(true);
-      expect(isAllowedOrigin("https://evil.example.com")).toBe(false);
-      expect(isAllowedOrigin(undefined)).toBe(false);
+      const otherReply = new FakeReply();
+      applyCorsHeaders(makeRequest("https://other.example.com"), otherReply as unknown as FastifyReply);
+      expect(otherReply.headers["Access-Control-Allow-Origin"]).toBe("https://other.example.com");
 
       const allowedReply = new FakeReply();
       applyCorsHeaders(makeRequest("https://app.example.com"), allowedReply as unknown as FastifyReply);
@@ -70,9 +66,11 @@ describe("cors", () => {
       process.env.NODE_ENV = "production";
       delete process.env.FETCH_ALLOWED_ORIGINS;
       vi.resetModules();
-      const { isAllowedOrigin } = await loadCors();
+      const { applyCorsHeaders } = await loadCors();
 
-      expect(isAllowedOrigin("https://app.example.com")).toBe(false);
+      const reply = new FakeReply();
+      applyCorsHeaders(makeRequest("https://app.example.com"), reply as unknown as FastifyReply);
+      expect(reply.headers["Access-Control-Allow-Origin"]).toBeUndefined();
     });
 
     it("allows every method the API routes use, so a preflight never blocks one", async () => {

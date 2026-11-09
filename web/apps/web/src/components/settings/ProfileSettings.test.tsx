@@ -347,6 +347,9 @@ describe("ProfileSettings deletion", () => {
       await user.click(screen.getByRole("button", { name: "Emerald" }));
       await user.click(screen.getByRole("button", { name: "Fox" }));
       await user.selectOptions(screen.getByLabelText("Highest rating allowed"), "TEENS");
+      // Kid has a PIN and isn't the profile in use, so the change carries it.
+      expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+      await user.type(screen.getByLabelText("PIN for Kid"), "1234");
       await user.click(screen.getByRole("button", { name: "Save" }));
 
       await waitFor(() =>
@@ -355,6 +358,7 @@ describe("ProfileSettings deletion", () => {
           avatarId: "fetch:fox",
           usesPrimaryAddons: false,
           parental: { isKidsProfile: false, maxRating: "TEENS", allowUnrated: true },
+          currentPin: "1234",
         })
       );
     });

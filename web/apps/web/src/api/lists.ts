@@ -5,7 +5,6 @@
 import { request } from "./client";
 import type {
   CatalogList,
-  CatalogMeta,
   ItemListMembership,
   ListItemWithMeta,
   ListLink,
@@ -78,12 +77,5 @@ export const listsApi = {
   },
   getItemLists(imdbId: string) {
     return request<{ lists: ItemListMembership[] }>(`/items/${encodeURIComponent(imdbId)}/lists`);
-  },
-  dashboard() {
-    return Promise.all([
-      request<{ metas: CatalogMeta[] }>("/watchlist?type=movie&limit=10"),
-      request<{ metas: CatalogMeta[] }>("/continue?limit=10"),
-      request<{ metas: CatalogMeta[] }>("/recent?type=movie&limit=10")
-    ]);
   },
 };

@@ -17,7 +17,6 @@ const loadProviders = vi.fn();
 const loadRecommendations = vi.fn();
 const syncMetadata = vi.fn();
 const upsertMetadata = vi.fn();
-const searchAnime = vi.fn();
 const getTmdb = vi.fn();
 const findByImdbId = vi.fn();
 const getOmdbApiKey = vi.fn();
@@ -45,7 +44,6 @@ vi.mock("../lib/metadata.js", () => ({
   syncMetadata: (...a: unknown[]) => syncMetadata(...a),
   upsertMetadata: (...a: unknown[]) => upsertMetadata(...a),
 }));
-vi.mock("../lib/anilist-client.js", () => ({ searchAnime: (...a: unknown[]) => searchAnime(...a) }));
 vi.mock("../lib/tmdb-client.js", () => ({ getTmdb: () => getTmdb() }));
 vi.mock("../lib/omdb.js", () => ({
   getOmdbApiKey: () => getOmdbApiKey(),
@@ -365,35 +363,6 @@ describe("metadata routes", () => {
       const res = await app.inject({ method: "POST", url: "/metadata/refresh-all" });
 
       expect(res.statusCode).toBe(500);
-    });
-  });
-
-  describe("GET /metadata/anime-search", () => {
-    it("returns AniList results", async () => {
-      searchAnime.mockResolvedValue([{ id: 1, title: "Cowboy Bebop" }]);
-      const app = await buildApp();
-
-      const res = await app.inject({ method: "GET", url: "/metadata/anime-search?q=bebop" });
-
-      expect(res.statusCode).toBe(200);
-      expect(res.json().results).toHaveLength(1);
-    });
-
-    it("requires a query", async () => {
-      const app = await buildApp();
-
-      const res = await app.inject({ method: "GET", url: "/metadata/anime-search" });
-
-      expect(res.statusCode).toBe(400);
-    });
-
-    it("returns 502 when AniList fails", async () => {
-      searchAnime.mockRejectedValue(new Error("down"));
-      const app = await buildApp();
-
-      const res = await app.inject({ method: "GET", url: "/metadata/anime-search?q=bebop" });
-
-      expect(res.statusCode).toBe(502);
     });
   });
 

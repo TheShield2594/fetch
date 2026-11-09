@@ -20,6 +20,17 @@ Every finding carries one of these labels.
 
 Paths are relative to `app/src/main/java/com/fetch/tv/` unless they start with `app/`, `shared/`, `desktop/`, `web/`, `docs/` or `.github/`. All layout arithmetic assumes the standard 960×540 dp TV canvas, which is also what the repo's own screenshot test uses.
 
+### Owner decisions recorded after the audit
+
+The first version of this report ended with four questions. The owner answered them the same day, and the recommendations below have been updated to match.
+
+| Question | Answer | Effect on the report |
+|---|---|---|
+| Is the Supabase backend or watch party in use? | No, and it will not be. The TV app is the product; the website is for the watchlist, history and settings. | E2 is a plain removal with no deprecation period. The website's scope is narrowed to exactly those three things. |
+| Is the YouTube section used? | Yes. | It stays. E3 changes from "remove" to "contain": one shared parser, out of the critical paths, failures isolated. |
+| Are app-store releases planned? | No. GitHub releases only. | The `playstore` flavour has no purpose and is recommended for removal (new item E6). Store-review risk drops out. |
+| Who is the desktop app for? | The owner and a few friends. | It stays as a personal tool. It is not a product surface: no parity target, no polish budget, shared code instead of copies. |
+
 ### What was and was not possible
 
 - **Static analysis: done in depth.** Six parallel audits read the shell and navigation, every browse and management screen, the detail → sources → player pipeline, the design system, the data and startup layers, and the desktop and website.
@@ -40,7 +51,7 @@ Fetch is a remote-first Android TV client for the Stremio addon ecosystem and fo
 1. **The core idea is excellent and already built.** "Press OK and the best version your setup can play starts, and here is what it is" is a better promise than Stremio, Plex or Kodi make, and Best match, the spec line, "Ready tonight" and the Fetching panel deliver it.
 2. **The product around that idea is not yet at the same level.** Navigation hides most of the app, the detail page spends a whole screen on a hero, search buries the best result, and the player's weakest part is the thing people do most (seeking).
 3. **Nothing has been proven on hardware.** There are no startup, frame or memory measurements, the baseline profile is inherited from the upstream fork, and the first public release is still an open issue.
-4. **The surface area is far beyond what one person can validate.** The TV app is about 257k lines; the repo also holds a 56k-line desktop app, a 61k-line website, three sync backends, a YouTube client and a watch party.
+4. **The surface area is far beyond what one person can validate.** The TV app is about 257k lines; the repo also holds a 56k-line desktop app, a 61k-line website, three sync backends, two build flavours, a YouTube client and a watch party.
 5. **The right move is to cut, verify and sharpen, not to add.** Fetch needs fewer things, each finished and measured, arranged around its one distinctive promise.
 
 ### The twelve findings that matter most
@@ -62,7 +73,7 @@ Fetch is a remote-first Android TV client for the Stremio addon ecosystem and fo
 
 ### What I recommend, in one paragraph
 
-Adopt one product thesis, **"Fetch knows what will play"**, and make every screen express it. Then run seven initiatives: **(A) Prove it** on real devices and ship a first release; **(B) Fix the core loop** (the resume bug, mid-playback recovery, seek feedback, binge defaults); **(C) Restructure navigation** into five destinations with a correct Back model; **(D) Redesign the four screens people live in** (Home density, a detail page with episodes above the fold, merged search, a tabbed Library); **(E) Subtract**: remove the Supabase backend, watch party, the YouTube client and the fork leftovers, and freeze the desktop app; **(F) Build a component layer** on top of the existing tokens; and **(G) Shore up the foundations** (main-thread JSON, background wake-ups, persistence, profile state). Section 16 has the full roadmap and section 17 the order, which is not alphabetical: eight small verified fixes come first.
+Adopt one product thesis, **"Fetch knows what will play"**, and make every screen express it. Then run seven initiatives: **(A) Prove it** on real devices and ship a first release; **(B) Fix the core loop** (the resume bug, mid-playback recovery, seek feedback, binge defaults); **(C) Restructure navigation** into five destinations with a correct Back model; **(D) Redesign the four screens people live in** (Home density, a detail page with episodes above the fold, merged search, a tabbed Library); **(E) Subtract**: remove the Supabase backend, watch party, the `playstore` flavour and the fork leftovers, contain the YouTube client, and stop chasing desktop parity; **(F) Build a component layer** on top of the existing tokens; and **(G) Shore up the foundations** (main-thread JSON, background wake-ups, persistence, profile state). Section 16 has the full roadmap and section 17 the order, which is not alphabetical: eight small verified fixes come first.
 
 ---
 
@@ -129,7 +140,7 @@ The full route inventory, with entry points and completeness, is in section 7.
 |---|---|
 | **Implemented and strong** | Stream parsing and device-aware Best match with visible reasons; the Fetching panel; "Ready tonight"; one-press resume from Home; phone hub (remote, keyboard, sign-ins, rules, backup); kids rules, PINs, screen time and bedtime; Android TV system search with parental awareness; subtitle auto-sync; AFR, HDR and Dolby Vision policy; skip intro/recap/credits; Trakt and Simkl sync; website pairing and sync. |
 | **Implemented, with a weak experience** | Navigation and Back; detail page layout; search results; Discover; Library chrome; seek feedback; player error recovery; settings depth; Home customisation discoverability. |
-| **Implemented but dormant or off-mission** | Supabase backend and watch party (release builds resolve the server to `https://sync.invalid`); the YouTube client; membership and supporter stubs; playback-report repositories with no endpoint; a speed test that scrapes fast.com. |
+| **Implemented but dormant or off-mission** | Supabase backend and watch party (release builds resolve the server to `https://sync.invalid`); membership and supporter stubs; playback-report repositories with no endpoint; a speed test that scrapes fast.com. |
 | **Partial** | Low-end performance work (tooling exists, no numbers); DV profile 7 → 8.1 conversion (code exists, not in CI release builds); translations (several locales 40–70% complete); accessibility; live TV (addon channels play, no guide). |
 | **Missing, and worth adding** | A watch-history view; new-episode surfacing on the TV; a merged search result; "See all" from Home; in-place recovery from a failed stream; chapters and skip markers on the scrubber. |
 | **Missing, and rightly so** | Downloads, casting, picture-in-picture, a live-TV guide, music and photos, an on-device recommendation engine. |
@@ -240,7 +251,7 @@ Detail and sources for each row are in section 3.4 and in the research notes cit
 
 - **Fire TV:** new sticks run Vega OS, which runs no Android apps and allows no sideloading. The sideloadable Fire TV base will shrink. (Press reporting: [AFTVnews](https://www.aftvnews.com/tag/vega-os/page/2/).)
 - **Sideloading:** Google's developer verification for sideloaded apps begins enforcement in four countries on 30 September 2026 and expands in 2027. ([Android Authority](https://www.androidauthority.com/android-sideloading-changes-timeline-3679204/).)
-- **Stores:** the `stremio://` scheme, addon presets and the YouTube client are the parts most likely to draw a store refusal. A store build should lead with Jellyfin, Emby and Plex.
+- **Stores:** not a concern. The owner distributes through GitHub releases only, which also means the sideloading change above is the distribution risk that matters.
 
 ---
 
@@ -372,7 +383,7 @@ Press counts are derived from the focus wiring, from Home's initial focus with d
 | `discover` | Type / catalog / genre grid | Icon in the search row (default) or sidebar (setting) | Complete, thin |
 | `library` | Saved lists and media-server shelves | Sidebar | Complete, chrome-heavy |
 | `stats`, `calendar` | Statistics; upcoming episodes | One button each in the Library header | Complete, buried |
-| `youtube` | A full YouTube client | Sidebar when signed in | Complete, off-mission |
+| `youtube` | A full YouTube client | Sidebar when signed in | Complete; kept by owner decision |
 | `settings` | Two-pane settings | Sidebar | Complete, very deep |
 | `catalog_see_all` | Grid for one catalog | Search rows of 15+; Library server shelves | Partial: the Home path has no caller |
 | `folder_detail` | A collection folder | Collection cards on Home | Complete |
@@ -779,7 +790,7 @@ Quality is my judgment from code: **A** strong, **B** solid, **C** works with ca
 | Website sync | Yes | B | Kids rules and non-IMDb titles do not travel. |
 | Supabase sync | Yes | D | Remove. |
 | Watch party | Yes | D | Remove. |
-| YouTube section | Yes (`full`) | C | Remove or isolate. |
+| YouTube section | Yes (`full`) | C | Keep (owner uses it); contain its upkeep. |
 | Ambient mode | Yes | B | Keep. |
 | In-app updater | Yes (`full`) | B | Keep. |
 | Backup and restore | Yes | B | Surface it. |
@@ -806,7 +817,7 @@ Quality is my judgment from code: **A** strong, **B** solid, **C** works with ca
 | Item | Evidence | Recommendation |
 |---|---|---|
 | Supabase backend and watch party | Release builds resolve the server to `https://sync.invalid` (`data/local/ServerConfigurationStore.kt:86`); no server in the repo; about 2k lines of auth, 3.5k of party code on TV, 2.7k on desktop. Every sync change is made twice. | **Remove.** |
-| YouTube section | About 6.3k lines on TV; a 716-line parser copied byte-for-byte into desktop; built on undocumented internals; a CI workflow exists only to detect breakage. | **Remove from default builds**, or delete. |
+| YouTube section | About 6.3k lines on TV; a 716-line parser copied byte-for-byte into desktop; built on undocumented internals; a CI workflow exists only to detect breakage. | **Keep, by owner decision. Contain it:** one parser in `shared/`, no start-up or Home dependency on it, and a failure in it must never affect the rest of the app. |
 | Membership and supporter remnants | `MemberAccessRepository` is a stub that unlocks everything. | Delete. |
 | Playback and auth report repositories | Do nothing unless an endpoint is set; no release sets one. | Delete, or replace with "save a log through the phone hub". |
 | Speed test | 1,000 lines that scrape fast.com's JavaScript for a token. | Remove. |
@@ -814,14 +825,15 @@ Quality is my judgment from code: **A** strong, **B** solid, **C** works with ca
 | MDBList as a tracking provider | 39 files. Ratings are valuable; a fourth scrobbler is not. | Keep ratings, freeze the rest. |
 | Six launcher icon palettes, custom theme editor | Cosmetic. | Advanced mode only. |
 | `release_test_cases.csv` | Inherited mobile and iOS test plan. | Replace with the smoke test in `docs/releasing.md`. |
+| `playstore` flavour | No store release is planned. It exists only to disable updates, trailers, YouTube and custom servers, and every feature flag it adds is a second code path to keep working. | **Remove** (E6). |
 
 ### 13.4 Desktop and website
 
-**Desktop (55.9k lines).** Structurally near parity with the TV, and a competent mouse app. But only 7.8k lines are shared; Trakt, Simkl, MDBList, sync, party and YouTube clients are reimplemented. The built-in player reads every frame back to the CPU and has been tested only on a software rasteriser (`docs/desktop.md`). It doubles the cost of every feature for the smallest audience of the three surfaces. **Recommendation: freeze it as a labelled preview with external mpv playback, and stop chasing parity** until the TV app has shipped and has users asking for it.
+**Desktop (55.9k lines).** Structurally near parity with the TV, and a competent mouse app. It is a personal tool for the owner and a few friends, which is a fine reason to have it and changes what it should cost. Today only 7.8k lines are shared; Trakt, Simkl, MDBList, sync, party and YouTube clients are reimplemented, some byte-for-byte. The built-in player reads every frame back to the CPU and has been tested only on a software rasteriser (`docs/desktop.md`). **Recommendation: keep it, and stop treating it as a second product.** Drop the parity target and `docs/desktop-parity.md`; default to external mpv playback; when a client is touched on the TV side, move it into `shared/` instead of editing two copies, starting with the YouTube parser since both apps keep YouTube. Desktop work should never block or delay a TV release.
 
-**Website (61k lines, 146 routes).** TV pairing and sync are real and cover profiles, addons, Home rows, settings, lists and watch state. Security is above hobby standard: accounts, invites, scrypt, per-TV revocable tokens, SSRF guards. Two problems: self-hosting is heavy (five containers; HTTPS needed), and the scope still includes Steam games and AI recommendations from its origin as a standalone tracker. **Recommendation: narrow it to "the Fetch account server"** in its README and navigation.
+**Website (61k lines, 146 routes).** TV pairing and sync are real and cover profiles, addons, Home rows, settings, lists and watch state. Security is above hobby standard: accounts, invites, scrypt, per-TV revocable tokens, SSRF guards. Two problems: self-hosting is heavy (five containers; HTTPS needed), and the scope still includes Steam games and AI recommendations from its origin as a standalone tracker. The owner's stated purpose for it is the watchlist, history and settings. **Recommendation: narrow it to exactly that**, as "the Fetch account server", in its README and navigation, and move games and AI recommendations out of the default path or out of the repo.
 
-**Strategy.** TV plus website is the coherent, differentiating pair: a household's profiles, limits and lists managed from a phone on a server the user owns. No competitor offers that. Desktop and a third backend are the over-extension.
+**Strategy.** TV plus website is the coherent, differentiating pair: a household's profiles, limits and lists managed from a phone on a server the user owns. No competitor offers that. The third backend is the over-extension, and the desktop is fine as long as it is budgeted as a personal tool.
 
 ### 13.5 Privacy disclosures (Verified)
 
@@ -953,7 +965,7 @@ That is unusually disciplined for a fork. The problems are above the colour laye
 
 ### 15.2 What to stop competing on
 
-Breadth. A YouTube client, a watch party, a desktop app, a games tracker, fourteen themes and 285 settings do not make Fetch better than Stremio or Plex. They make it harder to finish.
+Breadth. A watch party, a second sync backend, a store flavour, a games tracker, fourteen themes and 285 settings do not make Fetch better than Stremio or Plex. They make it harder to finish. YouTube and the desktop app stay because the owner uses them; the point is to hold their cost down, not to pretend they are the product.
 
 ### 15.3 Design concepts
 
@@ -1068,9 +1080,10 @@ Complexity: **S** under a day, **M** days, **L** weeks. "Measure" says how to kn
 | **E** | **Subtract** | | |
 | E1 | Privacy disclosures; parental guide opt-in | P0 | S |
 | E2 | Remove the Supabase backend and watch party | P1 | M |
-| E3 | Remove or isolate the YouTube client | P1 | M |
+| E3 | Contain the YouTube client | P2 | M |
 | E4 | Delete fork leftovers; documentation truth pass | P1 | S |
-| E5 | Freeze the desktop; narrow the website | P1 | S |
+| E5 | Desktop as a personal tool; narrow the website | P1 | S |
+| E6 | Remove the `playstore` flavour | P2 | S–M |
 | **F** | **Design system** | | |
 | F1 | Three fixes: panel theme import, 11.9 sp, accent as text | P1 | S |
 | F2 | Component layer: button, media card, chip, spec line, focus spec | P1 | L |
@@ -1120,13 +1133,13 @@ Complexity: **S** under a day, **M** days, **L** weeks. "Measure" says how to kn
 #### A3. CI gates · P1 · Engineering · M
 
 - **Current state:** Pull requests run unit tests and a debug assemble.
-- **Problem:** No lint, no release/R8 build, no instrumented tests, no `playstore` flavour build.
-- **Proposal:** Add `lintFullDebug`, `assembleFullRelease` with a debug key, `assemblePlaystoreDebug`, and the 45 instrumented tests on an emulator.
+- **Problem:** No lint, no release/R8 build, no instrumented tests.
+- **Proposal:** Add `lintFullDebug`, `assembleFullRelease` with a debug key, and the 45 instrumented tests on an emulator. (No `playstore` job: that flavour is removed in E6.)
 - **Why better:** R8, keep-rule and flavour regressions surface on the pull request, not in a manual release.
 - **User impact:** Fewer broken releases.
 - **Dependencies:** None.
 - **Files:** `.github/workflows/ci.yml`.
-- **Acceptance:** All four jobs required on `main`.
+- **Acceptance:** All three jobs required on `main`.
 - **Measure:** Count of release-only regressions (should go to zero).
 
 #### A4. First public release with a real smoke test · P0 · Product · M
@@ -1396,27 +1409,51 @@ Concepts are in section 15.3.
 
 #### E2. Remove the Supabase backend and watch party · P1 · Scope · M
 
-- **Evidence:** Release builds resolve the server to `sync.invalid`; the repo has no server for it; only this backend enables watch party.
-- **Proposal:** Delete the backend, `core/auth/`, `core/party/`, `ui/screens/party/`, and the avatar and background repositories tied to it. Keep the `SyncBackend` interface with the website as its implementation.
-- **Impact:** About 10k lines removed; Ktor and the Supabase client leave the start-up path.
-- **Open question:** Whether any existing user self-hosts a Supabase-compatible server (section 19).
-- **Acceptance:** Builds and tests pass with the modules removed; APK size and cold-start drop are recorded.
+- **Current state:** Release builds resolve the server to `sync.invalid`; the repo has no server for it; only this backend enables watch party. The owner has confirmed it is not used and will not be.
+- **Problem:** About 2k lines of auth, 3.5k of party code on TV and 2.7k on desktop, a second HTTP stack (Ktor) and a realtime client, all built on every process start, for a path nobody takes. Every sync change is made twice.
+- **Proposal:** Delete the backend, `core/auth/`, `core/party/`, `ui/screens/party/`, the avatar and background repositories tied to it, the desktop party code, and the Supabase and Ktor dependencies if nothing else needs them. Keep the `SyncBackend` interface with the website as its only implementation. Remove "Supabase-compatible" from Settings › Account › Sync.
+- **Why better:** One sync story (local, or the website for watchlist, history and settings), a smaller start-up graph and a smaller APK.
+- **User impact:** None visible; faster start and fewer settings.
+- **Dependencies:** None. No deprecation period is needed.
+- **Files:** `core/sync/backend/SupabaseSyncBackend.kt`, `core/auth/`, `core/party/`, `ui/screens/party/`, `data/remote/supabase/`, `core/di/SupabaseModule.kt`, `desktop/.../party/`.
+- **Acceptance:** Builds and tests pass with the modules removed; no Supabase or party symbol remains.
+- **Measure:** APK size and cold-start time before and after, on the A1 devices.
 
-#### E3. Remove or isolate the YouTube client · P1 · Scope · M
+#### E3. Contain the YouTube client · P2 · Scope · M
 
-- **Evidence:** About 6.3k lines on TV and 2.7k on desktop; built on undocumented internals; unrelated to the core; a store-review risk.
-- **Proposal:** Remove it. If it must stay, move it behind a separate build flavour and out of the rail.
-- **Acceptance:** Default builds contain no YouTube client code beyond trailer hand-off.
+- **Current state:** About 6.3k lines on TV and 2.7k on desktop. `YouTubeResponseParser.kt` (716 lines) and `YouTubeStoryboard.kt` are byte-identical in both apps. It depends on undocumented YouTube internals, and a CI workflow exists to detect breakage. The owner uses it, so it stays.
+- **Problem:** It is the part of the app most likely to break without warning, and each fix is made twice.
+- **Proposal:** Move the parser, storyboard and client into `shared/` so there is one copy. Keep YouTube out of start-up and out of Home's loading path (a failed YouTube row must not delay or break Home). Keep its rail item conditional on sign-in, as today. Treat the breakage workflow as its test suite and keep it.
+- **Why better:** Keeps a feature the owner values at roughly half its upkeep, with its failures fenced off.
+- **User impact:** None when it works; a broken YouTube no longer costs anything outside YouTube.
+- **Dependencies:** None.
+- **Files:** `data/youtube/`, `ui/screens/youtube/`, `desktop/.../youtube/`, `shared/`.
+- **Acceptance:** One parser in `shared/` used by both apps; Home renders normally with the YouTube endpoints unreachable.
+- **Measure:** A test that loads Home with YouTube failing; lines of duplicated code at zero.
 
 #### E4. Delete fork leftovers; documentation truth pass · P1 · Hygiene · S
 
 - **Proposal:** Delete membership stubs, report repositories, the speed test, dead flags, dead keep rules and stability entries, the dead tokens of section 14.2, and `CwStylePreview`. Fix every row in section 2.6, including the stale screenshots and `docs/ROADMAP.md:65`.
 - **Acceptance:** A dead-code scan is clean for the listed items; README and docs match the code.
 
-#### E5. Freeze the desktop; narrow the website · P1 · Strategy · S
+#### E5. Desktop as a personal tool; narrow the website · P1 · Strategy · S
 
-- **Proposal:** Label the desktop a frozen preview with external mpv playback; remove desktop YouTube and watch party; stop updating `docs/desktop-parity.md`. Rewrite the website README around "the Fetch account server" and move games and AI out of the default navigation.
-- **Acceptance:** Both READMEs state the scope in their first paragraph.
+- **Current state:** The desktop chases parity with the TV (`docs/desktop-parity.md` says to update it whenever either app changes). The website still carries games and AI recommendations from its origin as a standalone tracker.
+- **Proposal (desktop):** Keep it for the owner and friends. Delete the parity document and the parity goal. Default to external mpv playback. Remove desktop watch party with E2. Move duplicated clients into `shared/` when they are next touched. Never let desktop work gate a TV release.
+- **Proposal (website):** State its purpose in the first paragraph of its README: the Fetch account server for watchlist, history and settings. Move games and AI recommendations out of the default navigation, or out of the repo.
+- **Why better:** Each surface is budgeted for what it is.
+- **Acceptance:** Both READMEs state the scope in their first paragraph; `docs/desktop-parity.md` is gone; the TV release checklist has no desktop step.
+
+#### E6. Remove the `playstore` flavour · P2 · Scope · S–M
+
+- **Current state:** Two flavours. `playstore` (`com.fetch.app`) disables in-app updates, in-app trailers, the YouTube section, the IMDb logo and custom server connections through `AppFeaturePolicy`. No store release is planned.
+- **Problem:** Every feature gate is a second code path that must compile and behave, and nobody runs it.
+- **Proposal:** Remove the flavour and its source set; fold `AppFeaturePolicy` into constants or delete the checks; keep a single `full` build. Set `android.software.leanback` to required in the remaining manifest so the TV app does not install on phones by accident.
+- **Why better:** One build to test and release.
+- **User impact:** None.
+- **Dependencies:** None.
+- **Files:** `app/build.gradle.kts` (flavours), `app/src/playstore/`, `app/src/full/`, `AppFeaturePolicy.kt`, `.github/workflows/`.
+- **Acceptance:** `./gradlew :app:assembleRelease` produces the one APK set; no flavour dimension remains.
 
 ---
 
@@ -1531,7 +1568,8 @@ Phase 2  Core loop
          → A4 first public release
 
 Phase 3  Subtract (before any redesign, so there is less to redesign)
-         E2 Supabase and party · E3 YouTube · E4 leftovers and docs · E5 desktop and website
+         E2 Supabase and party · E6 playstore flavour · E4 leftovers and docs · E5 desktop and website
+         E3 contain YouTube (one shared parser)
 
 Phase 4  Foundations for redesign
          F2 component layer (button, card, chip, spec line, focus) · C7 padding and key repeat
@@ -1612,11 +1650,11 @@ I will not invent numbers. Record the baseline first; then hold these.
 | A static finding turns out wrong on a device (focus after rail close, IME suggestions, clipping at 1.3× font scale) | Medium | Low | Each is labelled a hypothesis; verify in phase 1 before fixing. |
 | Refactoring the player or detail composables introduces focus regressions | High | High | Policy tests exist; add focus tests first; change one concern per pull request. |
 | Moving stores to Room loses data on migration | Medium | High | Migrate one store at a time; keep the DataStore file until a release later; round-trip tests. |
-| Removing the Supabase backend strands an existing self-hoster | Low | Medium | Announce one release ahead; the phone-hub backup already exports a TV. |
+| A YouTube change breaks the YouTube section | High over time | Low | Contained by E3: one parser, fenced off from Home and start-up. |
 | Changing binge defaults surprises existing users | Low | Low | Apply to new profiles only. |
 | A denser Home regresses frame times on sticks | Medium | Medium | Gate D2 on the frame benchmark from A1. |
 | Fire TV moves to Vega OS | Certain over time | Medium | Treat Google TV as primary; keep Fire OS support while devices exist. |
-| Sideloading verification adds install friction from 2027 | Unknown for TV | Medium | Keep the `playstore` flavour healthy; lead it with media-server support. |
+| Sideloading verification adds install friction from 2027 | Unknown for TV | Medium | GitHub is the only channel, so watch this closely; document the ADB install route in the README. |
 | YouTube changes break trailers | High | Low | Keep trailers as a hand-off, not a client. |
 
 ### 19.2 Dependencies
@@ -1633,16 +1671,17 @@ I will not invent numbers. Record the baseline first; then hold these.
 - The primary user is the enthusiast described in section 2.1, and the household is a real secondary audience. If the household is the primary audience, Essential mode and kids rules move up and stream detail moves down.
 - Android TV and Google TV are the primary platform; Fire TV is supported but not designed for.
 - The project stays without telemetry.
-- One developer maintains it. Several recommendations (freeze desktop, remove YouTube) follow from that and would change with a team.
+- One developer maintains it. Several recommendations (no desktop parity, containing YouTube, one build flavour) follow from that and would change with a team.
+- Distribution is GitHub releases only; no store listing is planned (owner decision).
 
-### 19.4 Open questions that are genuinely the owner's
+### 19.4 Open questions
 
-1. **Is anyone using the Supabase-compatible backend or watch party?** If yes, E2 becomes "deprecate with notice".
-2. **Is YouTube a feature you use yourself?** The case for removing it is maintenance and scope, not quality.
-3. **Is a Play Store or Amazon listing a goal?** It changes how much the `playstore` flavour and the media-server story matter.
-4. **Is the desktop app for you or for users?** If it is a personal tool, freezing it costs nothing; if it is a product, it needs the shared data layer first.
+The four questions this report originally asked have been answered; see "Owner decisions recorded after the audit" at the top. Nothing else needs a decision before phases 0–2.
 
-None of these blocks phases 0–2.
+Two smaller ones will come up later:
+
+1. **Which themes stay?** Fourteen is more than the design system can guarantee. Section 14.6 suggests a handful of distinct art directions.
+2. **Which Home layout settings do you actually use?** D7 proposes removing the ones that only multiply code paths.
 
 ### 19.5 What this audit did not cover
 
@@ -1668,7 +1707,7 @@ Real-device behaviour of anything; the mpv engine path; frame-rate switching and
 
 **What should be added.** A history view, new-episode badges, "See all", chapters and skip marks on the scrubber. Little else.
 
-**What should be removed.** The Supabase backend, watch party, the YouTube client, the fork leftovers, most themes, and the chase for desktop parity.
+**What should be removed.** The Supabase backend, watch party, the `playstore` flavour, the fork leftovers, most themes, and the chase for desktop parity. YouTube and the desktop app stay, at a controlled cost.
 
 **What should be redesigned completely.** The detail page's first screen, search results, the Library, and navigation.
 

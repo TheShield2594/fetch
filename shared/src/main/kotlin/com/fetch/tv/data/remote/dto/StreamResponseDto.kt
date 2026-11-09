@@ -31,6 +31,8 @@ data class StreamClientResolveDto(
     @Json(name = "fileIdx") val fileIdx: Int? = null,
     @Json(name = "torrentName") val torrentName: String? = null,
     @Json(name = "filename") val filename: String? = null,
+    /** Set by debrid-resolving addons when the file is already in the debrid service's cache. */
+    @Json(name = "isCached") val isCached: Boolean? = null,
     @Json(name = "stream") val stream: StreamClientResolveStreamDto? = null
 )
 

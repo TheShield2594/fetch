@@ -9,6 +9,34 @@ import org.junit.Test
 class StreamTitleParserTest {
 
     @Test
+    fun `clientResolve isCached marks the stream debrid cached`() {
+        fun stream(isCached: Boolean?) = com.fetch.tv.domain.model.Stream(
+            name = "Fusion",
+            title = "Movie.2026.2160p.WEB-DL.mkv",
+            description = null,
+            url = null,
+            ytId = null,
+            infoHash = "abc",
+            fileIdx = 0,
+            externalUrl = null,
+            behaviorHints = null,
+            addonName = "Fusion",
+            addonLogo = null,
+            clientResolve = com.fetch.tv.domain.model.StreamClientResolve(
+                type = "debrid",
+                infoHash = "abc",
+                fileIdx = 0,
+                torrentName = null,
+                filename = null,
+                isCached = isCached
+            )
+        )
+        assertTrue(StreamTitleParser.parse(stream(isCached = true)).isDebridCached)
+        assertFalse(StreamTitleParser.parse(stream(isCached = false)).isDebridCached)
+        assertFalse(StreamTitleParser.parse(stream(isCached = null)).isDebridCached)
+    }
+
+    @Test
     fun `parses torrentio style multi line title`() {
         val d = StreamTitleParser.parse(
             "Torrentio\n4k DV | HDR\n" +

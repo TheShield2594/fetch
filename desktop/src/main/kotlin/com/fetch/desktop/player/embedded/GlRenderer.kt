@@ -98,6 +98,12 @@ internal class GlRenderer private constructor(
     }
     private val apiType = Memory(7).apply { setString(0, "opengl") }
 
+    // Each frame's parameters and GL id scratch, made once and refilled (this thread only).
+    private val fboParam = Memory(16)
+    private val flip = Memory(4).apply { setInt(0, 0) }
+    private val frameParams = Memory(EmbeddedMpv.renderParamsBytes(2))
+    private val ids = Memory(4)
+
     fun interface GetProcAddress : Callback {
         fun invoke(ctx: Pointer?, name: String): Pointer?
     }
@@ -115,19 +121,13 @@ internal class GlRenderer private constructor(
      */
     fun render(mpv: LibMpv, renderCtx: Pointer, width: Int, height: Int, pixels: Pointer, rowBytes: Int): Boolean {
         if (!ensureFbo(width, height)) return false
-        val fboParam = Memory(16).apply {
-            setInt(0, fbo)
-            setInt(4, width)
-            setInt(8, height)
-            setInt(12, GL_RGBA8)
-        }
-        // mpv draws an FBO top row first already; no flip.
-        val flip = Memory(4).apply { setInt(0, 0) }
-        val params = renderParamsOf(listOf(LibMpv.RENDER_PARAM_OPENGL_FBO to fboParam, LibMpv.RENDER_PARAM_FLIP_Y to flip))
-        val rc = mpv.mpv_render_context_render(renderCtx, params)
-        java.lang.ref.Reference.reachabilityFence(fboParam)
-        java.lang.ref.Reference.reachabilityFence(flip)
-        java.lang.ref.Reference.reachabilityFence(params)
+        fboParam.setInt(0, fbo)
+        fboParam.setInt(4, width)
+        fboParam.setInt(8, height)
+        fboParam.setInt(12, GL_RGBA8)
+        // mpv draws an FBO top row first already; no flip ([flip] stays 0).
+        EmbeddedMpv.fillRenderParams(frameParams, listOf(LibMpv.RENDER_PARAM_OPENGL_FBO to fboParam, LibMpv.RENDER_PARAM_FLIP_Y to flip))
+        val rc = mpv.mpv_render_context_render(renderCtx, frameParams)
         if (rc < 0) return false
         glBindFramebuffer.invoke(arrayOf(GL_FRAMEBUFFER, fbo))
         glPixelStorei.invoke(arrayOf(GL_PACK_ALIGNMENT, 4))
@@ -141,7 +141,6 @@ internal class GlRenderer private constructor(
     private fun ensureFbo(width: Int, height: Int): Boolean {
         if (fbo != 0 && width == fboWidth && height == fboHeight) return true
         deleteFbo()
-        val ids = Memory(4)
         glGenTextures.invoke(arrayOf(1, ids))
         texture = ids.getInt(0)
         glBindTexture.invoke(arrayOf(GL_TEXTURE_2D, texture))
@@ -166,7 +165,6 @@ internal class GlRenderer private constructor(
     }
 
     private fun deleteFbo() {
-        val ids = Memory(4)
         if (fbo != 0) {
             ids.setInt(0, fbo)
             glDeleteFramebuffers.invoke(arrayOf(1, ids))
@@ -272,18 +270,6 @@ internal class GlRenderer private constructor(
         fun isSoftware(rendererName: String): Boolean {
             val name = rendererName.lowercase()
             return listOf("llvmpipe", "softpipe", "swrast", "swiftshader", "software rasterizer").any { it in name }
-        }
-
-        /** An `mpv_render_param` array ({int type; void *data}), ended by an empty one. */
-        fun renderParamsOf(params: List<Pair<Int, Pointer>>): Pointer {
-            val entry = 2L * Native.POINTER_SIZE
-            val memory = Memory(entry * (params.size + 1))
-            memory.clear()
-            params.forEachIndexed { i, (type, data) ->
-                memory.setInt(i * entry, type)
-                memory.setPointer(i * entry + Native.POINTER_SIZE, data)
-            }
-            return memory
         }
     }
 }

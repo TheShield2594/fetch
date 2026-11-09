@@ -2568,7 +2568,8 @@ private fun MetaDetailsContent(
                         meta = meta,
                         nextEpisode = nextEpisode,
                         nextToWatch = nextToWatch,
-                        bestMatch = heroBestMatch.takeIf { !shufflePoolEmpty },
+                        // A finished search with no pick has nothing for the Play button to name.
+                        bestMatch = heroBestMatch?.takeIf { it.hasPick && !shufflePoolEmpty },
                         onPlayClick = { if (shufflePoolEmpty) showRandomEpisodeOverlay = true else heroPlayClick() },
                         isPlayEnabled = shufflePoolEmpty || isPlayEnabled,
                         onOpenAddonSettings = onNavigateToAddons,

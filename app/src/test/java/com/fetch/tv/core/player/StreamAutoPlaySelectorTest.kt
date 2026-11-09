@@ -262,6 +262,54 @@ class StreamAutoPlaySelectorTest {
         }
     }
 
+    @Test
+    fun `regex mode survives a nested exclusion group without crashing`() {
+        val nested = stream(addonName = "AddonA", url = "https://example.com/a.m3u8", name = "Movie abc 1080p")
+        val clean = stream(addonName = "AddonA", url = "https://example.com/b.m3u8", name = "Movie 1080p")
+
+        val selected = StreamAutoPlaySelector.selectAutoPlayStream(
+            streams = listOf(nested, clean),
+            mode = StreamAutoPlayMode.REGEX_MATCH,
+            regexPattern = "^(?!.*(a(b|c))).*",
+            installedAddonNames = setOf("AddonA"),
+            selectedAddons = emptySet()
+        )
+
+        assertEquals(clean, selected)
+    }
+
+    @Test
+    fun `regex mode applies leading exclusion words across the whole text`() {
+        val plus = stream(addonName = "AddonA", url = "https://example.com/a.m3u8", name = "Movie\nHDR10+")
+        val clean = stream(addonName = "AddonA", url = "https://example.com/b.m3u8", name = "Movie SDR")
+
+        val selected = StreamAutoPlaySelector.selectAutoPlayStream(
+            streams = listOf(plus, clean),
+            mode = StreamAutoPlayMode.REGEX_MATCH,
+            regexPattern = "^(?!.*(hdr10+)).*",
+            installedAddonNames = setOf("AddonA"),
+            selectedAddons = emptySet()
+        )
+
+        assertEquals(clean, selected)
+    }
+
+    @Test
+    fun `regex mode keeps a lookahead after a word positional`() {
+        // "extras" comes before 1080p, so the pattern matches; it must not become a global exclusion.
+        val extrasBefore = stream(addonName = "AddonA", url = "https://example.com/a.m3u8", name = "Extras 1080p")
+
+        val selected = StreamAutoPlaySelector.selectAutoPlayStream(
+            streams = listOf(extrasBefore),
+            mode = StreamAutoPlayMode.REGEX_MATCH,
+            regexPattern = "1080p(?!.*(extras))",
+            installedAddonNames = setOf("AddonA"),
+            selectedAddons = emptySet()
+        )
+
+        assertEquals(extrasBefore, selected)
+    }
+
     private fun stream(
         addonName: String,
         url: String? = null,

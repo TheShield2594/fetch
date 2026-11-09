@@ -32,11 +32,15 @@ internal data class StreamSearchRequestKey(
 /**
  * Keeps a small set of source searches alive independently of UI collectors.
  * Completed results are memory-only and short-lived because addon URLs may expire.
+ * A search where some source failed (timed out, unreachable) is kept only for
+ * [partialTtlMs], so the next visit asks those sources again soon instead of
+ * showing the incomplete list for the full [completedTtlMs].
  */
 internal class StreamSearchSessionCache(
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
     private val nowMs: () -> Long = System::currentTimeMillis,
     private val completedTtlMs: Long = DEFAULT_COMPLETED_TTL_MS,
+    private val partialTtlMs: Long = DEFAULT_PARTIAL_TTL_MS,
     private val maxEntries: Int = DEFAULT_MAX_ENTRIES
 ) {
     private data class Snapshot(
@@ -51,16 +55,22 @@ internal class StreamSearchSessionCache(
         lateinit var job: Job
         @Volatile var invalidated: Boolean = false
         var completedAtMs: Long? = null
+        /** Set through the producer's callback when a source failed rather than answered. */
+        @Volatile var hadSourceFailure: Boolean = false
         var lastSuccessfulResult: NetworkResult.Success<List<AddonStreams>>? = null
     }
 
     private val mutex = Mutex()
     private val sessions = LinkedHashMap<StreamSearchRequestKey, Session>(16, 0.75f, true)
 
+    /**
+     * [producer] gets a callback to call when a source failed (as opposed to answering with
+     * nothing), which shortens how long the finished search is reused.
+     */
     fun observe(
         key: StreamSearchRequestKey,
         forceRefresh: Boolean,
-        producer: () -> Flow<NetworkResult<List<AddonStreams>>>
+        producer: (onSourceFailure: () -> Unit) -> Flow<NetworkResult<List<AddonStreams>>>
     ): Flow<NetworkResult<List<AddonStreams>>> = flow {
         val session = acquireSession(key, forceRefresh, producer)
         var emittedVersion = -1L
@@ -86,7 +96,7 @@ internal class StreamSearchSessionCache(
     private suspend fun acquireSession(
         key: StreamSearchRequestKey,
         forceRefresh: Boolean,
-        producer: () -> Flow<NetworkResult<List<AddonStreams>>>
+        producer: (onSourceFailure: () -> Unit) -> Flow<NetworkResult<List<AddonStreams>>>
     ): Session {
         var created: Session? = null
         val selected = mutex.withLock {
@@ -113,7 +123,7 @@ internal class StreamSearchSessionCache(
 
     private fun createSession(
         key: StreamSearchRequestKey,
-        producer: () -> Flow<NetworkResult<List<AddonStreams>>>
+        producer: (onSourceFailure: () -> Unit) -> Flow<NetworkResult<List<AddonStreams>>>
     ): Session {
         val session = Session(
             MutableStateFlow(
@@ -126,7 +136,7 @@ internal class StreamSearchSessionCache(
         )
         session.job = scope.launch(start = CoroutineStart.LAZY) {
             try {
-                producer().collect { result ->
+                producer { session.hadSourceFailure = true }.collect { result ->
                     if (result is NetworkResult.Success && result.data.isNotEmpty()) {
                         session.lastSuccessfulResult = result
                     }
@@ -199,7 +209,8 @@ internal class StreamSearchSessionCache(
         while (iterator.hasNext()) {
             val session = iterator.next().value
             val completedAt = session.completedAtMs ?: continue
-            if (now - completedAt >= completedTtlMs) {
+            val ttlMs = if (session.hadSourceFailure) minOf(partialTtlMs, completedTtlMs) else completedTtlMs
+            if (now - completedAt >= ttlMs) {
                 iterator.remove()
                 session.cancelAndComplete()
             }
@@ -231,6 +242,7 @@ internal class StreamSearchSessionCache(
 
     private companion object {
         const val DEFAULT_COMPLETED_TTL_MS = 15 * 60 * 1_000L
+        const val DEFAULT_PARTIAL_TTL_MS = 2 * 60 * 1_000L
         const val DEFAULT_MAX_ENTRIES = 12
     }
 }

@@ -1071,7 +1071,9 @@ class StreamScreenViewModel @Inject constructor(
         alreadySucceededNames: Set<String> = emptySet()
     ) {
         val addonNames = installedAddons
-            .filter { it.supportsStreamResourceForChip(contentType) }
+            // The same test the repository uses to decide which addons to ask, so a chip never
+            // waits on an addon the search skipped.
+            .filter { it.supportsStreamResource(contentType, videoId) }
             .map { it.displayName }
 
         val orderedNames = (serverSourceNames + addonNames).distinct()
@@ -1196,18 +1198,6 @@ class StreamScreenViewModel @Inject constructor(
                 val remaining = state.sourceChips.filterNot { it.status.isFailed }
                 if (remaining.size == state.sourceChips.size) state else state.copy(sourceChips = remaining)
             }
-        }
-    }
-
-    private fun com.fetch.tv.domain.model.Addon.supportsStreamResourceForChip(type: String): Boolean {
-        return resources.any { resource ->
-            resource.name == "stream" &&
-                (resource.types.isEmpty() || resource.types.any { it.equals(type, ignoreCase = true) }) &&
-                run {
-                    val prefixes = resource.idPrefixes?.takeIf { it.isNotEmpty() }
-                        ?: idPrefixes.takeIf { it.isNotEmpty() }
-                    prefixes == null || prefixes.any { prefix -> videoId.startsWith(prefix) }
-                }
         }
     }
 

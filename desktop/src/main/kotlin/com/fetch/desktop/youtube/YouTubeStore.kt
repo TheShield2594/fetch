@@ -1,14 +1,10 @@
 package com.fetch.desktop.youtube
 
 import com.fetch.desktop.data.JsonFile
+import com.fetch.desktop.data.PrivateFiles
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardCopyOption
-import java.nio.file.attribute.PosixFilePermissions
 
 /**
  * Settings › YouTube, per profile, as the TV app's `youtube_settings` store keeps them. Kept apart
@@ -133,20 +129,8 @@ class YouTubeAuthFile(private val file: File) : YouTubeAuthStore {
     override fun save(auth: YouTubeAuth) {
         cached = auth
         runCatching {
-            file.parentFile?.mkdirs()
-            val tmp = File(file.parentFile, "${file.name}.tmp")
-            tmp.writeText(json.encodeToString(YouTubeAuth.serializer(), auth))
-            ownerOnly(tmp.toPath())
-            Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
-            ownerOnly(file.toPath())
-        }
-    }
-
-    private fun ownerOnly(path: Path) {
-        try {
-            Files.setPosixFilePermissions(path, PosixFilePermissions.fromString("rw-------"))
-        } catch (_: UnsupportedOperationException) {
-        } catch (_: IOException) {
+            // Owner-only (600), written then renamed so a crash never leaves half a file.
+            PrivateFiles.writeText(file, json.encodeToString(YouTubeAuth.serializer(), auth))
         }
     }
 }

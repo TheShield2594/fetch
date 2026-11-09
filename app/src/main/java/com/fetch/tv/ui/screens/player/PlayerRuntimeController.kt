@@ -756,12 +756,13 @@ class PlayerRuntimeController(
     }
 
     fun onCleared() {
-        playerSession.close()
         screenTime.save()
         // "End of this title" belongs to the title it was set on, not whatever plays next time.
         if (sleepTimer.stopsAtEndOfTitle) sleepTimer.cancel()
         stopServerPlayback()
-        releasePlayer()
+        // Same teardown as an explicit exit (party leave, process-wide references, player and
+        // session release). Every step is safe to repeat when the screen already called it.
+        stopAndRelease()
         startupLoadingReportJob?.cancel()
         vodTelemetryJob?.cancel()
         mediaSourceFactory.shutdown()

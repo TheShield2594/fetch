@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.fetch.desktop.data.AppDirs
+import com.fetch.desktop.data.PrivateFiles
 import com.fetch.desktop.parental.PinGate
 import com.fetch.tv.data.website.WebsiteList
 import com.fetch.tv.data.website.WebsiteListItem
@@ -31,10 +32,6 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.File
-import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import java.nio.file.attribute.PosixFilePermissions
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
@@ -528,20 +525,8 @@ class WebsiteStore(private val file: File = File(AppDirs.config, "website.json")
     fun load(): WebsiteFile = runCatching { json.decodeFromString(WebsiteFile.serializer(), file.readText()) }.getOrDefault(WebsiteFile())
 
     fun save(value: WebsiteFile) {
-        file.parentFile?.mkdirs()
-        val tmp = File(file.parentFile, "${file.name}.tmp")
-        tmp.writeText(json.encodeToString(WebsiteFile.serializer(), value))
-        ownerOnly(tmp)
-        Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
-        ownerOnly(file)
-    }
-
-    private fun ownerOnly(f: File) {
-        try {
-            Files.setPosixFilePermissions(f.toPath(), PosixFilePermissions.fromString("rw-------"))
-        } catch (_: UnsupportedOperationException) {
-        } catch (_: IOException) {
-        }
+        // Owner-only (600), written then renamed so a crash never leaves half a file.
+        PrivateFiles.writeText(file, json.encodeToString(WebsiteFile.serializer(), value))
     }
 }
 

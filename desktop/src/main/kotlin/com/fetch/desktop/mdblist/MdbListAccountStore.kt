@@ -1,12 +1,8 @@
 package com.fetch.desktop.mdblist
 
+import com.fetch.desktop.data.PrivateFiles
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardCopyOption
-import java.nio.file.attribute.PosixFilePermissions
 
 /**
  * Keeps [MdbListAccountFile] in the profile's `mdblist.json`. It holds an OAuth token or API key,
@@ -22,19 +18,7 @@ class MdbListAccountStore(private val file: File) {
     }
 
     fun save(value: MdbListAccountFile) {
-        file.absoluteFile.parentFile?.mkdirs()
-        val tmp = File(file.absolutePath + ".tmp")
-        tmp.writeText(json.encodeToString(MdbListAccountFile.serializer(), value))
-        ownerOnly(tmp.toPath())
-        Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
-        ownerOnly(file.toPath())
-    }
-
-    private fun ownerOnly(path: Path) {
-        try {
-            Files.setPosixFilePermissions(path, PosixFilePermissions.fromString("rw-------"))
-        } catch (_: UnsupportedOperationException) {
-        } catch (_: IOException) {
-        }
+        // Owner-only (600), written then renamed so a crash never leaves half a file.
+        PrivateFiles.writeText(file, json.encodeToString(MdbListAccountFile.serializer(), value))
     }
 }

@@ -290,7 +290,11 @@ class MetaRepositoryImpl @Inject constructor(
             addonMetaCache.remove(cacheKey)
         }
 
-        inFlightAddonMeta[cacheKey]?.let { existingDeferred ->
+        // The lookup outcome depends on the source addon: a caller passing the catalog's addon
+        // gets SourceSufficient, one passing none (or another addon) needs a real fetch. Sharing a
+        // Deferred across different sources would hand the second caller the first one's verdict.
+        val inFlightKey = "$cacheKey|${sourceAddonBaseUrl?.let(::normalizedAddonKey).orEmpty()}"
+        inFlightAddonMeta[inFlightKey]?.let { existingDeferred ->
             when (val lookupResult = existingDeferred.await()) {
                 is MetaLookupResult.Found -> {
                     emit(NetworkResult.Success(lookupResult.meta))
@@ -423,7 +427,7 @@ class MetaRepositoryImpl @Inject constructor(
             return@flow
         }
 
-        val deferred = inFlightAddonMeta.getOrPut(cacheKey) {
+        val deferred = inFlightAddonMeta.getOrPut(inFlightKey) {
             repositoryScope.async {
                 try {
                     // Kept here rather than in the enclosing flow's lists: this
@@ -500,7 +504,7 @@ class MetaRepositoryImpl @Inject constructor(
                             allMissing
                     )
                 } finally {
-                    inFlightAddonMeta.remove(cacheKey)
+                    inFlightAddonMeta.remove(inFlightKey)
                 }
             }
         }

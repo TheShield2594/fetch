@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <android/log.h>
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -234,13 +235,13 @@ Java_com_fetch_tv_core_player_DoviBridge_nativeConvertDv7RpuToDv81NonAllocating(
     }
 
     // 2. Parse. Remember which parser succeeded so steady-state streams skip the wasted
-    //    first attempt on every frame.
-    static int preferredParser = 0; // 0 unknown, 1 unspec62, 2 raw rpu
+    //    first attempt on every frame. Atomic: several extractor threads can convert at once.
+    static std::atomic<int> preferredParser{0}; // 0 unknown, 1 unspec62, 2 raw rpu
     DoviRpuOpaque* rpu = nullptr;
-    if (preferredParser != 2) {
+    if (preferredParser.load(std::memory_order_relaxed) != 2) {
         rpu = dovi_parse_unspec62_nalu(input.data(), input.size());
         if (rpu != nullptr && !dovi_has_error(rpu, nullptr)) {
-            preferredParser = 1;
+            preferredParser.store(1, std::memory_order_relaxed);
         } else if (rpu != nullptr) {
             dovi_rpu_free(rpu);
             rpu = nullptr;
@@ -249,7 +250,7 @@ Java_com_fetch_tv_core_player_DoviBridge_nativeConvertDv7RpuToDv81NonAllocating(
     if (rpu == nullptr) {
         rpu = dovi_parse_rpu(input.data(), input.size());
         if (rpu != nullptr && !dovi_has_error(rpu, nullptr)) {
-            preferredParser = 2;
+            preferredParser.store(2, std::memory_order_relaxed);
         } else if (rpu != nullptr) {
             dovi_rpu_free(rpu);
             rpu = nullptr;

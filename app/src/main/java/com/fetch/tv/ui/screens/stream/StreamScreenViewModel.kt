@@ -68,6 +68,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import javax.inject.Inject
 
 private const val TAG = "StreamScreenViewModel"
@@ -920,6 +921,8 @@ class StreamScreenViewModel @Inject constructor(
                         }
                     }
                 }
+                // Let the watcher apply the last addons' outcomes before giving up on their chips.
+                yield()
                 chipOutcomeWatcher.cancel()
                 // All addons finished — run auto-select if not yet triggered
                 if (!autoSelectTriggered) {
@@ -1139,16 +1142,19 @@ class StreamScreenViewModel @Inject constructor(
     }
 
     /**
-     * Turns an addon's chip red as soon as its request fails or times out, instead of leaving it
-     * "loading" until every other addon has answered.
+     * Settles an addon's chip as soon as its request finishes, instead of leaving it "loading"
+     * until every other addon has answered: red when it failed or timed out, "no results" when it
+     * answered with nothing. The repository records an addon's stream outcome only after its
+     * inline-meta fallback, so an EMPTY outcome is final.
      */
     private suspend fun watchSourceChipOutcomes(since: Long) {
         addonHealthTracker.events.collect { event ->
             if (event.kind != com.fetch.tv.core.streams.AddonRequestKind.STREAM || event.atMs < since) return@collect
-            val failedStatus = when (event.outcome) {
+            val settledStatus = when (event.outcome) {
                 com.fetch.tv.core.streams.AddonRequestOutcome.TIMEOUT -> SourceChipStatus.TIMED_OUT
                 com.fetch.tv.core.streams.AddonRequestOutcome.ERROR -> SourceChipStatus.ERROR
-                // An empty answer may still be rescued by the meta's inline streams.
+                com.fetch.tv.core.streams.AddonRequestOutcome.EMPTY -> SourceChipStatus.NO_RESULTS
+                // Success turns the chip green when its streams arrive.
                 else -> return@collect
             }
             updateUiStateIfChanged { state ->
@@ -1158,7 +1164,7 @@ class StreamScreenViewModel @Inject constructor(
                 state.copy(
                     sourceChips = state.sourceChips.map { chip ->
                         if (chip.name == event.addonName && chip.status == SourceChipStatus.LOADING) {
-                            chip.copy(status = failedStatus)
+                            chip.copy(status = settledStatus)
                         } else {
                             chip
                         }

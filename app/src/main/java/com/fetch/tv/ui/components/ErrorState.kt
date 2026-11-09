@@ -252,7 +252,17 @@ private fun buildErrorStatePresentation(
             )
         }
 
-        else -> trimmed
+        // Already a sentence written for the viewer (a screen's own localized error): keep it,
+        // and say what to try.
+        trimmed.last() in SENTENCE_END -> messageWithFix(issue = trimmed, fix = strings.retrySoonFix)
+
+        // Anything else is raw text from below, such as the HTTP reason phrase "Bad Gateway"
+        // from an addon's 502. Lead with the generic issue and keep the raw text as detail.
+        else -> return ErrorStatePresentation(
+            text = strings.genericIssue + "\n" + trimmed + "\n\n" +
+                strings.possibleFixFormat.format(strings.retrySoonFix),
+            boldRanges = emptyList()
+        )
     }
 
     val boldRanges = linkedSetOf<IntRange>()
@@ -282,6 +292,8 @@ private fun buildErrorStatePresentation(
         boldRanges = boldRanges.toList()
     )
 }
+
+private val SENTENCE_END = setOf('.', '!', '?', '…', '。', '！', '？', '؟', '।')
 
 private fun withPossibleFix(issue: String, fix: String, strings: ErrorStateStrings): String {
     return issue + "\n\n" + strings.possibleFixFormat.format(fix)

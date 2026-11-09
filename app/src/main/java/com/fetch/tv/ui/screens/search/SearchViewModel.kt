@@ -134,15 +134,6 @@ class SearchViewModel @Inject constructor(
     init {
         posterOptions.bind(viewModelScope)
         viewModelScope.launch {
-            // "Search on TV" from the phone remote.
-            remoteCommandBus.pendingSearch.collect { pending ->
-                if (pending == null) return@collect
-                val query = remoteCommandBus.consumePendingSearch() ?: return@collect
-                onQueryChanged(query)
-                submitSearch()
-            }
-        }
-        viewModelScope.launch {
             watchProgressRepository.observeWatchedMovieIds()
                 .collect { ids -> _watchedMovieIds.value = ids }
         }
@@ -253,6 +244,25 @@ class SearchViewModel @Inject constructor(
      */
     fun getCachedBackdrop(id: String, type: String): String? {
         return metaRepository.getCachedMeta(type, id)?.backdropUrl
+    }
+
+    private var remoteSearchJob: Job? = null
+
+    /**
+     * Takes "Search on TV" queries from the phone remote. Only the Search screen calls this:
+     * Discover and Home hold their own instances of this view model, and one of them taking the
+     * query would leave it sitting there, hidden, blocking every Discover fetch (Retry included).
+     */
+    fun acceptRemoteSearches() {
+        if (remoteSearchJob != null) return
+        remoteSearchJob = viewModelScope.launch {
+            remoteCommandBus.pendingSearch.collect { pending ->
+                if (pending == null) return@collect
+                val query = remoteCommandBus.consumePendingSearch() ?: return@collect
+                onQueryChanged(query)
+                submitSearch()
+            }
+        }
     }
 
     fun onEvent(event: SearchEvent) {

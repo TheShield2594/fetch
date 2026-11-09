@@ -1395,9 +1395,12 @@ private fun PlaybackNavHost(
                 }
             )
         ) {
-            com.fetch.tv.ui.screens.collection.CollectionEditorScreen(
-                onBack = { navController.popBackStack() }
-            )
+            // Also reachable from a folder's empty state, so it carries its own gate.
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                com.fetch.tv.ui.screens.collection.CollectionEditorScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(

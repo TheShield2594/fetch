@@ -17,10 +17,13 @@ import com.fetch.tv.domain.model.LibrarySyncKey
 import com.fetch.tv.domain.model.LibrarySyncReducer
 import com.fetch.tv.domain.model.LibrarySyncState
 import com.fetch.tv.domain.model.SavedLibraryItem
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -51,12 +54,27 @@ class LibraryPreferences @Inject constructor(
         }
     }
 
+    /**
+     * The saved items, decoded off the main thread. The file also holds the Library's sort and
+     * last-selected tab, so the stored sets are compared first: changing a tab or the sort order
+     * emits nothing here and re-parses nothing.
+     */
     val libraryItems: Flow<List<SavedLibraryItem>> =
         profileManager.activeProfileId.flatMapLatest { profileId ->
-            factory.get(profileId, FEATURE).data.map { preferences ->
-                preferences.toLibrarySyncState().items
-            }
-        }
+            factory.get(profileId, FEATURE).data
+                .distinctUntilChanged { old, new -> old.librarySyncFingerprint() == new.librarySyncFingerprint() }
+                .map { preferences -> preferences.toLibrarySyncState().items }
+        }.flowOn(Dispatchers.Default)
+
+    /** Everything [toLibrarySyncState] reads. Equal fingerprints decode to equal states. */
+    private fun Preferences.librarySyncFingerprint(): List<Any?> = listOf(
+        this[libraryItemsKey],
+        this[pendingUpsertKeysKey],
+        this[pendingDeleteKeysKey],
+        this[deltaCursorKey],
+        this[deltaInitializedKey],
+        this[mutationRevisionKey]
+    )
 
     suspend fun setSortOption(key: String) {
         store().edit { preferences ->

@@ -600,7 +600,6 @@
     <string name="playback_skip_intro">Saltar introducción</string>
     <string name="playback_skip_intro_sub">Utiliza introdb.app para detectar introducciones y recapitulaciones.</string>
     <string name="playback_parental_guide">Avisos de contenido</string>
-    <string name="playback_parental_guide_sub">Muestra la superposición de orientación parental al iniciar la reproducción.</string>
     <string name="playback_auto_skip_segments">Salto automático</string>
     <string name="playback_auto_skip_segments_sub">Elige qué segmentos se saltan automáticamente.</string>
     <string name="auto_skip_intro">Introducción / apertura</string>

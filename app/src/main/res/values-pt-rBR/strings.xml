@@ -586,7 +586,6 @@
     <string name="playback_skip_intro">Pular introduções</string>
     <string name="playback_skip_intro_sub">Usar introdb.app para detectar aberturas e resumos</string>
     <string name="playback_parental_guide">Avisos de conteúdo</string>
-    <string name="playback_parental_guide_sub">Exibir aviso de classificação indicativa ao iniciar a reprodução.</string>
     <string name="playback_auto_skip_segments">Pular automaticamente</string>
     <string name="playback_auto_skip_segments_sub">Escolha quais trechos pular automaticamente</string>
     <string name="auto_skip_intro">Aberturas</string>

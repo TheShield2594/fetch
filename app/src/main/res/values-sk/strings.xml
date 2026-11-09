@@ -507,7 +507,6 @@
     <string name="playback_skip_intro">Preskočiť intro</string>
     <string name="playback_skip_intro_sub">Použiť introdb.app na detekciu úvodov a rekapitulácií.</string>
     <string name="playback_parental_guide">Upozornenia na obsah</string>
-    <string name="playback_parental_guide_sub">Zobraziť rodičovský sprievodca pri spustení prehrávania.</string>
     <string name="playback_auto_skip_segments">Automatické preskočenie</string>
     <string name="playback_auto_skip_segments_sub">Vyberte, ktoré segmenty sa preskočia automaticky.</string>
     <string name="auto_skip_intro">Intro / Úvod</string>

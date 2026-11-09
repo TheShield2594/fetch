@@ -133,6 +133,15 @@ class FetchColorScheme(
     val OnSecondaryVariant = palette.onSecondaryVariant
     /** "Here" and "now": progress fills and the current page. Never a label colour. */
     val Accent = palette.accent
+    /**
+     * The accent as a label ("BEST MATCH"): lifted towards white until it reads at 4.5:1 on the
+     * lightest solid surface, so it passes on every darker one too. Use this, not [Accent],
+     * whenever the accent colours text.
+     */
+    val AccentText = palette.accent.liftedForContrast(
+        background = if (pureBlackSurfaces) pureBlack else palette.surfaceVariant,
+        minRatio = MIN_TEXT_CONTRAST
+    )
 
     val TextPrimary = FetchPrimitives.white
     val TextSecondary = if (highContrast) FetchPrimitives.neutral200 else FetchPrimitives.neutral400
@@ -285,6 +294,16 @@ class FetchColorScheme(
                 surfacesByName.forEach { (surfaceName, surface) ->
                     add(FetchContrastPair(text, surface, "$textName on $surfaceName"))
                 }
+            }
+            listOf(
+                "background" to Background,
+                "elevated" to BackgroundElevated,
+                "card" to BackgroundCard,
+                "surface" to Surface,
+                "surfaceVariant" to SurfaceVariant,
+                "panel" to Panel
+            ).forEach { (surfaceName, surface) ->
+                add(FetchContrastPair(AccentText, surface, "accentText on $surfaceName"))
             }
             add(FetchContrastPair(OnPrimary, Primary, "onPrimary on primary"))
             add(FetchContrastPair(OnSecondary, Secondary, "onSecondary on secondary"))

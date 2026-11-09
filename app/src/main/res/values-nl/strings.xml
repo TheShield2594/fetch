@@ -579,7 +579,6 @@
     <string name="playback_skip_intro">Intro overslaan</string>
     <string name="playback_skip_intro_sub">Gebruik introdb.app om intro\'s en samenvattingen te detecteren.</string>
     <string name="playback_parental_guide">Inhoudswaarschuwingen</string>
-    <string name="playback_parental_guide_sub">Toon een overlay met ouderlijk advies wanneer het afspelen start.</string>
     <string name="playback_auto_skip_segments">Automatisch overslaan</string>
     <string name="playback_auto_skip_segments_sub">Kies welke segmenten automatisch worden overgeslagen.</string>
     <string name="auto_skip_intro">Intro / opening</string>

@@ -634,7 +634,6 @@
     <string name="playback_skip_intro">Intro átugrása</string>
     <string name="playback_skip_intro_sub">Az introdb.app használata az intrók és összefoglalók felismeréséhez.</string>
     <string name="playback_parental_guide">Tartalmi figyelmeztetések</string>
-    <string name="playback_parental_guide_sub">Szülőknek szóló tartalmi figyelmeztetések megjelenítése a lejátszás kezdetekor.</string>
     <string name="playback_auto_skip_segments">Automatikus átugrás</string>
     <string name="playback_auto_skip_segments_sub">Válaszd ki, mely szakaszokat ugorja át automatikusan.</string>
     <string name="auto_skip_intro">Intro / Főcím</string>

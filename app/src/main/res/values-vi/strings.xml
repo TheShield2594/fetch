@@ -635,7 +635,6 @@
     <string name="playback_skip_intro">Bỏ qua Giới thiệu</string>
     <string name="playback_skip_intro_sub">Dùng introdb.app để tự động nhận diện phần giới thiệu và tóm tắt.</string>
     <string name="playback_parental_guide">Cảnh báo nội dung</string>
-    <string name="playback_parental_guide_sub">Hiển thị lớp phủ khuyến cáo phụ huynh khi bắt đầu phát.</string>
     <string name="playback_auto_skip_segments">Tự động bỏ qua</string>
     <string name="playback_auto_skip_segments_sub">Chọn các phân đoạn sẽ được tự động bỏ qua.</string>
     <string name="auto_skip_intro">Giới thiệu / Mở đầu</string>

@@ -258,7 +258,7 @@ private fun SyncOverviewCard(overview: SyncOverview) {
                 Text(
                     text = stringResource(R.string.account_total_label),
                     style = MaterialTheme.typography.bodySmall,
-                    color = FetchTheme.colors.Secondary,
+                    color = FetchTheme.colors.AccentText,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.width(100.dp)
                 )
@@ -289,7 +289,7 @@ private fun SyncStatChip(label: String, value: String) {
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
-            color = FetchTheme.colors.Secondary,
+            color = FetchTheme.colors.AccentText,
             fontWeight = FontWeight.Bold
         )
         Text(

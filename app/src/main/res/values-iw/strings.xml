@@ -639,7 +639,6 @@
     <string name="playback_skip_intro">דילוג על ההקדמה</string>
     <string name="playback_skip_intro_sub">שימוש ב-introdb.app לזיהוי הקדמות ותקצירים.</string>
     <string name="playback_parental_guide">אזהרות תוכן</string>
-    <string name="playback_parental_guide_sub">הצגת אזהרת תוכן להורים בתחילת ההפעלה.</string>
     <string name="playback_auto_skip_segments">דילוג אוטומטי</string>
     <string name="playback_auto_skip_segments_sub">בחירת הקטעים לדילוג אוטומטי.</string>
     <string name="auto_skip_intro">פתיח</string>

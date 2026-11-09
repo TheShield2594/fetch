@@ -55,7 +55,7 @@ fun DebugSettingsContent(
         Text(
             text = stringResource(R.string.debug_title),
             style = MaterialTheme.typography.headlineMedium,
-            color = FetchTheme.colors.Secondary
+            color = FetchTheme.colors.AccentText
         )
 
         Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))

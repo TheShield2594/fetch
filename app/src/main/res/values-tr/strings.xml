@@ -643,7 +643,6 @@
     <string name="playback_skip_intro">İntroyu Atla</string>
     <string name="playback_skip_intro_sub">İntro ve özetleri algılamak için introdb.app kullan.</string>
     <string name="playback_parental_guide">İçerik Uyarıları</string>
-    <string name="playback_parental_guide_sub">Oynatma başladığında ebeveyn denetimi uyarısı göster.</string>
     <string name="playback_auto_skip_segments">Otomatik Atlama</string>
     <string name="playback_auto_skip_segments_sub">Hangi bölümlerin otomatik atlanacağını seçin.</string>
     <string name="auto_skip_intro">Jenerik / Açılış</string>

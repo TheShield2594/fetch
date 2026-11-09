@@ -55,8 +55,20 @@
 # Keep server classes and their inner data classes (serialized with Gson)
 -keep class com.fetch.tv.core.server.** { *; }
 
-# ── Torrent streaming (Fetch Engine) ───────────────────────────────────────────
--keep class com.fetch.tv.core.torrent.** { *; }
+# ── Classes saved to disk with Gson reflection ─────────────────────────────────
+# Gson reads and writes these by field name, so the names are the file format. Without a rule
+# R8 renames the fields, and a later build with a different mapping can no longer read what an
+# earlier one wrote: queued watch-state changes are dropped and the Continue Watching cache
+# comes back empty. Classes in domain.model, data.remote.dto and core.server are kept above;
+# classes whose fields all carry @SerializedName need no rule.
+# PersistedGsonKeepRulesTest checks that every class named between the markers still exists.
+# gson-persisted-begin
+-keep class com.fetch.tv.core.sync.PendingProgressUpsert { *; }
+-keep class com.fetch.tv.core.sync.PendingWatchedUpsert { *; }
+-keep class com.fetch.tv.data.local.CachedNextUpItem { *; }
+-keep class com.fetch.tv.data.local.CachedInProgressItem { *; }
+-keep class com.fetch.tv.core.tracking.LocalList { *; }
+# gson-persisted-end
 
 # ── ExoPlayer / Media3 ────────────────────────────────────────────────────────
 # Media3 ships consumer rules for its own reflection (extension renderers, media source

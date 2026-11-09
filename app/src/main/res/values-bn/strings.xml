@@ -592,7 +592,6 @@
     <string name="playback_skip_intro">ইন্ট্রো স্কিপ করুন</string>
     <string name="playback_skip_intro_sub">ইন্ট্রো এবং রিক্যাপ শনাক্ত করতে introdb.app ব্যবহার করুন।</string>
     <string name="playback_parental_guide">কন্টেন্ট সতর্কতা</string>
-    <string name="playback_parental_guide_sub">প্লেব্যাক শুরু হলে অভিভাবকীয় নির্দেশিকা ওভারলে দেখান।</string>
     <string name="playback_auto_skip_segments">স্বয়ংক্রিয় স্কিপিং</string>
     <string name="playback_auto_skip_segments_sub">স্বয়ংক্রিয়ভাবে কোন সেগমেন্টগুলো স্কিপ হবে তা বেছে নিন।</string>
     <string name="auto_skip_intro">ইন্ট্রো / ওপেনিং</string>

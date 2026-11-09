@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.fetch.tv.R
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
@@ -82,6 +83,16 @@ private const val TITLE_MARQUEE_DELAY_MS = 3_000L
 
 // Poster cards are narrower than landscape cards, so the title is scaled down to fit more of it.
 private const val POSTER_TITLE_SCALE = 0.85f
+
+// The smallest text the app draws (see TypeScaleFloorTest).
+private const val MIN_POSTER_TITLE_SP = 12f
+
+/**
+ * The poster card's title size for a base style of [baseSp]: scaled down to fit more of the
+ * title, but never below the 12sp floor the type scale holds everywhere else.
+ */
+internal fun posterTitleFontSizeSp(baseSp: Float): Float =
+    maxOf(baseSp * POSTER_TITLE_SCALE, MIN_POSTER_TITLE_SP)
 
 // Line height multiplier for the poster title, kept near 1 so the row below the artwork stays compact.
 private const val POSTER_TITLE_LINE_HEIGHT = 1.1f
@@ -329,7 +340,7 @@ fun ContinueWatchingCard(
             posterTitleOverride
         } else if (isPosterStyle) {
             // Tight line height keeps the title row short so the poster can stay catalog sized.
-            val scaled = baseTitleStyle.fontSize * POSTER_TITLE_SCALE
+            val scaled = posterTitleFontSizeSp(baseTitleStyle.fontSize.value).sp
             baseTitleStyle.copy(fontSize = scaled, lineHeight = scaled * POSTER_TITLE_LINE_HEIGHT)
         } else {
             baseTitleStyle

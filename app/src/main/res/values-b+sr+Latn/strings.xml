@@ -589,7 +589,6 @@
     <string name="playback_skip_intro">Preskoči uvod</string>
     <string name="playback_skip_intro_sub">Koristi introdb.app za detekciju uvodnih špica i rezimea.</string>
     <string name="playback_parental_guide">Upozorenja o sadržaju</string>
-    <string name="playback_parental_guide_sub">Prikaži preklop sa roditeljskim smernicama kada reprodukcija počne.</string>
     <string name="playback_auto_skip_segments">Automatsko preskakanje</string>
     <string name="playback_auto_skip_segments_sub">Izaberite koji se segmenti preskaču automatski.</string>
     <string name="auto_skip_intro">Uvod / Otvaranje</string>

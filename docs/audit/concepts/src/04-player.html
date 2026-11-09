@@ -1,0 +1,46 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="common.css">
+<style>
+.bar{position:absolute;left:48px;right:48px;top:408px;height:4px;border-radius:2px;background:rgba(255,255,255,.22)}
+.bar .buf{position:absolute;left:0;width:52%;height:100%;background:rgba(255,255,255,.35);border-radius:2px}
+.bar .pl{position:absolute;left:0;width:38%;height:100%;background:var(--red);border-radius:2px}
+.bar .seg{position:absolute;top:-1px;height:6px;background:#F4F4F5;opacity:.75;border-radius:2px}
+.bar .ch{position:absolute;top:-3px;width:2px;height:10px;background:var(--bg)}
+.pc{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text)}
+.pc.lg{width:60px;height:60px;background:#fff;color:#0A0A0B}
+.pc.lbl{width:auto;padding:0 14px;gap:8px;font-size:13px;font-weight:600;border-radius:999px;background:rgba(255,255,255,.1)}
+</style>
+<div class="screen">
+  <div class="art" data-art="field,60,40,11"></div>
+  <div class="abs" style="inset:0;background:linear-gradient(180deg,rgba(0,0,0,.78) 0%,rgba(0,0,0,0) 28%,rgba(0,0,0,0) 52%,rgba(0,0,0,.9) 100%)"></div>
+  <div class="abs col" style="left:48px;top:27px">
+    <div style="font-size:22px;font-weight:700">The Long Field</div>
+    <div class="meta" style="margin-top:2px">S2 E5 · Dry Wells</div>
+    <div class="spec" style="margin-top:6px;font-size:12px"><span>4K</span><span>Dolby Vision</span><span>Atmos</span><span>23.976 Hz matched</span><span class="t2" style="font-weight:500">Torrentio · cached</span></div>
+  </div>
+  <div class="abs col" style="right:48px;top:27px;align-items:flex-end"><div style="font-size:15px;font-weight:600">9:47 PM</div><div class="meta t2" style="font-size:13px">Ends 10:19 PM</div></div>
+
+  <!-- seek preview: target time at the playhead + delta -->
+  <div class="abs col" style="left:calc(48px + 864px*.44 - 66px);top:296px;width:132px;align-items:center">
+    <div class="card" style="width:132px;height:74px;outline:2px solid #fff" data-art="creek,40,44,9"></div>
+    <div style="margin-top:6px;font-size:16px;font-weight:700">23:10 <span class="t2" style="font-size:13px;font-weight:600">+3:00</span></div>
+  </div>
+  <div class="bar"><div class="buf"></div><div class="pl"></div>
+    <div class="seg" style="left:3%;width:5%"></div><div class="seg" style="left:92%;width:8%"></div>
+    <div class="ch" style="left:21%"></div><div class="ch" style="left:47%"></div><div class="ch" style="left:70%"></div>
+    <div class="abs" style="left:44%;top:-6px;width:16px;height:16px;border-radius:50%;background:#fff;margin-left:-8px;box-shadow:0 0 0 4px rgba(255,255,255,.25)"></div>
+  </div>
+  <div class="abs meta" style="left:48px;top:420px;font-size:13px;font-weight:600">20:10</div>
+  <div class="abs meta t2" style="left:104px;top:420px;font-size:12px">Chapter 2 of 4 · The Offer</div>
+  <div class="abs meta" style="right:48px;top:420px;font-size:13px;font-weight:600">−31:50</div>
+
+  <div class="abs row gap8" style="left:48px;bottom:30px">
+    <div class="pc lbl"><span data-i="eps"></span>Episodes</div><div class="pc lbl"><span data-i="next"></span>Next: Hollow Ground</div>
+  </div>
+  <div class="abs row gap16" style="left:50%;transform:translateX(-50%);bottom:22px">
+    <div class="pc" data-i="back10"></div><div class="pc lg" data-i="pause"></div><div class="pc" data-i="fwd30"></div>
+  </div>
+  <div class="abs row gap8" style="right:48px;bottom:30px">
+    <div class="pc lbl"><span data-i="cc"></span>English</div><div class="pc lbl"><span data-i="audio"></span>Atmos 7.1</div><div class="pc" data-i="src"></div><div class="pc" data-i="more"></div>
+  </div>
+  <div class="abs" style="right:48px;top:224px"><div class="btn" style="background:#fff;color:#0A0A0B;height:40px">Skip intro</div></div>
+</div><script src="art.js"></script>

@@ -198,13 +198,28 @@ object DoviBridge {
         return converted
     }
 
-    // Reusable output buffer for the non-allocating path. Sized for typical RPU NALs; grows on
-    // demand if the native side reports a larger required size (see negative-return contract
-    // in [convertDv7RpuToDv81NonAllocating]). Read by the transformer on the same thread that made
-    // the call, immediately after it returns.
-    @JvmField
-    @Volatile
-    var rpuOutBuffer = ByteArray(4096)
+    // Reusable output buffer for the non-allocating path, one per calling thread: several
+    // extractor threads (e.g. preload + active player, or MKV + MP4 transformers) can run DV
+    // conversion concurrently, and a single process-wide buffer let one thread overwrite
+    // another's output between the native call and the read. Sized for typical RPU NALs; grows
+    // on demand if the native side reports a larger required size (see negative-return
+    // contract in [convertDv7RpuToDv81NonAllocating]).
+    private val rpuOutBufferLocal = object : ThreadLocal<ByteArray>() {
+        override fun initialValue(): ByteArray = ByteArray(4096)
+    }
+
+    /**
+     * The calling thread's output buffer. Callers must read it on the same thread that made the
+     * conversion call, immediately after it returns.
+     */
+    val rpuOutBuffer: ByteArray
+        get() = rpuOutBufferLocal.get()!!
+
+    private fun growRpuOutBuffer(required: Int): ByteArray {
+        val grown = ByteArray(maxOf(required, rpuOutBuffer.size * 2))
+        rpuOutBufferLocal.set(grown)
+        return grown
+    }
 
     /**
      * Converts a DV7 RPU NAL to DV8.1 into [rpuOutBuffer] with no per-call JVM allocation.
@@ -228,7 +243,7 @@ object DoviBridge {
         if (written < 0) {
             // Output didn't fit: grow the reusable buffer to the required size and retry once.
             val required = -written
-            rpuOutBuffer = ByteArray(maxOf(required, rpuOutBuffer.size * 2))
+            growRpuOutBuffer(required)
             written = runCatching {
                 nativeConvertDv7RpuToDv81NonAllocating(sample, offset, len, rpuOutBuffer, mode)
             }.onFailure { Log.w(TAG, "Non-allocating retry failed: ${it.message}") }
@@ -277,7 +292,7 @@ object DoviBridge {
 
         if (written < 0) {
             val required = -written
-            rpuOutBuffer = ByteArray(maxOf(required, rpuOutBuffer.size * 2))
+            growRpuOutBuffer(required)
             written = runCatching {
                 nativeProcessVideoSample(
                     sample = sample,

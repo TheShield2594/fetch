@@ -97,4 +97,14 @@ class StillWatchingGatingTest {
         mode as PostPlayMode.StillWatching
         assertEquals(nextInfo, mode.nextEpisode)
     }
+
+    @Test
+    fun `still-watching seconds left rounds up and never goes below zero`() {
+        assertEquals(60, stillWatchingSecondsLeft(60_000L))
+        assertEquals(60, stillWatchingSecondsLeft(59_001L))
+        assertEquals(59, stillWatchingSecondsLeft(59_000L))
+        assertEquals(1, stillWatchingSecondsLeft(1L))
+        assertEquals(0, stillWatchingSecondsLeft(0L))
+        assertEquals(0, stillWatchingSecondsLeft(-500L))
+    }
 }

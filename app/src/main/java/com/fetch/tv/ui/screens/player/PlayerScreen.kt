@@ -908,12 +908,16 @@ fun PlayerScreen(
                         uiState.showAudioOverlay || uiState.showSubtitleOverlay ||
                         uiState.showSubtitleStylePanel || uiState.showSpeedDialog ||
                         uiState.showSubtitleDelayOverlay || uiState.showSubtitleTimingDialog ||
-                        uiState.showMoreDialog ||
                         shouldConfirmNextEpisodeOnEnd ||
                         uiState.postPlayMode is PostPlayMode.StillWatching ||
                         postPlayRecommendationState.isVisible ||
                         uiState.error != null
                 if (panelOrDialogOpen) return@onKeyEvent false
+                // The More row is an inline row, not a modal: it keeps D-pad/Enter for its own
+                // focus handling, but hardware media keys still drive playback while it is open.
+                if (uiState.showMoreDialog && !isTransportMediaKey(keyEvent.nativeKeyEvent.keyCode)) {
+                    return@onKeyEvent false
+                }
 
                 if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
                     when (keyEvent.nativeKeyEvent.keyCode) {
@@ -1033,8 +1037,19 @@ fun PlayerScreen(
                             viewModel.onEvent(PlayerEvent.OnPause)
                             true
                         }
+                        // Stop only ever pauses; it must never resume a paused player.
                         KeyEvent.KEYCODE_MEDIA_STOP -> {
-                            viewModel.onEvent(PlayerEvent.OnPlayPause)
+                            viewModel.onEvent(PlayerEvent.OnPause)
+                            true
+                        }
+                        KeyEvent.KEYCODE_MEDIA_NEXT -> {
+                            if (uiState.nextEpisode?.hasAired == true) {
+                                viewModel.onEvent(PlayerEvent.OnPlayNextEpisode)
+                            }
+                            true
+                        }
+                        KeyEvent.KEYCODE_MEDIA_PREVIOUS -> {
+                            viewModel.onEvent(PlayerEvent.OnSeekTo(0L))
                             true
                         }
                         KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> {
@@ -4558,3 +4573,15 @@ private val SEEK_BAR_FOCUSED_PLAYHEAD_RADIUS = 10.dp
 private const val PREFER_NEXT_TIME_DELAY_MS = 4_000L
 private const val PREFER_NEXT_TIME_VISIBLE_MS = 12_000L
 private const val PREFER_NEXT_TIME_MAX_AGE_MS = 3 * 60_000L
+
+private fun isTransportMediaKey(keyCode: Int): Boolean = when (keyCode) {
+    KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
+    KeyEvent.KEYCODE_MEDIA_PLAY,
+    KeyEvent.KEYCODE_MEDIA_PAUSE,
+    KeyEvent.KEYCODE_MEDIA_STOP,
+    KeyEvent.KEYCODE_MEDIA_FAST_FORWARD,
+    KeyEvent.KEYCODE_MEDIA_REWIND,
+    KeyEvent.KEYCODE_MEDIA_NEXT,
+    KeyEvent.KEYCODE_MEDIA_PREVIOUS -> true
+    else -> false
+}

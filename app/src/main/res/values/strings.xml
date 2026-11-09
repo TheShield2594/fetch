@@ -1822,6 +1822,7 @@
     <string name="still_watching_exit">Exit</string>
     <string name="still_watching_countdown">Stopping in %1$d</string>
     <string name="still_watching_setting_title">Are You Still Watching?</string>
+    <string name="player_stream_source_indicator">Source: %1$s</string>
     <string name="still_watching_setting_sub">Prompt after consecutive auto-played episodes.</string>
     <string name="still_watching_threshold_title">Episode Threshold</string>
     <string name="still_watching_threshold_sub">Number of auto-played episodes before prompting.</string>

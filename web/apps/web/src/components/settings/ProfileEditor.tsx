@@ -232,6 +232,8 @@ export function ProfileEditor({
             inputMode="numeric"
             value={currentPin}
             onChange={(e) => setCurrentPin(e.target.value)}
+            required
+            aria-required="true"
             className="w-full rounded-lg border px-2.5 py-1.5 text-sm field-control"
             style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
           />

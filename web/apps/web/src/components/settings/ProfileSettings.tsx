@@ -55,6 +55,8 @@ function RenameForm({ profile, needsPin, onSaved, onCancel }: { profile: Profile
           inputMode="numeric"
           value={currentPin}
           onChange={(e) => setCurrentPin(e.target.value)}
+          required
+          aria-required="true"
           placeholder="PIN"
           aria-label={`PIN for ${profile.name}`}
           className="w-24 flex-none rounded-lg border px-2.5 py-1.5 text-sm field-control"

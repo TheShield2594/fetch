@@ -665,7 +665,9 @@ describe("profiles routes", () => {
       const response = await app.inject({ method: "PATCH", url: `/profiles/${PROFILE_ID}`, payload: { name: "Mallory" } });
 
       expect(response.statusCode).toBe(401);
-      expect(response.json().code).toBe("profile_verification_required");
+      // Not profile_verification_required, which the web client treats as its
+      // own active profile having locked.
+      expect(response.json().code).toBe("profile_pin_required");
       expect(prismaMock.profile.update).not.toHaveBeenCalled();
     });
 
@@ -729,6 +731,7 @@ describe("profiles routes", () => {
       const response = await app.inject({ method: "GET", url: `/profiles/${PROFILE_ID}/summary` });
 
       expect(response.statusCode).toBe(401);
+      expect(response.json().code).toBe("profile_pin_required");
     });
   });
 

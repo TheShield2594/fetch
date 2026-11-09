@@ -12,7 +12,6 @@ import {
   loosensParentalLimits,
   ownsProfile,
   PARENTAL_AUTHORITY_RESPONSE,
-  PROFILE_LOCKED_RESPONSE,
 } from "../lib/profile.js";
 import { hashPin, isValidPinFormat, needsRehash, PIN_FORMAT_ERROR, pinMatches } from "../lib/pin-hash.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
@@ -45,6 +44,18 @@ const upgradePinHashIfNeeded = async (
     app.log.warn({ err: error, profileId }, "Failed to upgrade a legacy PIN hash");
   }
 };
+
+/**
+ * A PIN-protected profile that is the *subject* of the request, not the one the
+ * caller is in, wants its PIN or token. Deliberately not
+ * `profile_verification_required`: the web client reads that code as "your
+ * active profile's token lapsed" and drops the active profile, which would
+ * throw someone out of their own profile for looking at another one.
+ */
+const TARGET_PROFILE_LOCKED_RESPONSE = {
+  error: "Enter this profile's PIN to change or inspect it",
+  code: "profile_pin_required",
+} as const;
 
 const lockedOutBody = async (profileId: string) => ({
   error: "Too many incorrect attempts. Try again later.",
@@ -253,7 +264,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     if (profile.pinHash && body.pin === undefined && !hasValidProfileToken(request, profile.id)) {
       const proof = await verifyCurrentPin(profile.id, profile.pinHash, body.currentPin);
       if (proof === "locked_out") return reply.code(429).send(await lockedOutBody(profile.id));
-      if (proof === "missing") return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
+      if (proof === "missing") return reply.code(401).send(TARGET_PROFILE_LOCKED_RESPONSE);
       if (proof === "wrong") return reply.code(401).send({ error: "Incorrect current PIN" });
     }
 
@@ -280,7 +291,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     if (!profile) return reply.code(404).send({ error: "Profile not found" });
     // What a locked profile holds is its own business until it is unlocked.
     if (profile.pinHash && !hasValidProfileToken(request, profile.id)) {
-      return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
+      return reply.code(401).send(TARGET_PROFILE_LOCKED_RESPONSE);
     }
 
     const [watchEvents, lists, listItems, playbackProgress, ratings, collections] = await Promise.all([

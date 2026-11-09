@@ -383,8 +383,8 @@ Needs `TWITCH_CLIENT_ID` / `TWITCH_CLIENT_SECRET` for search, and
 | --- | --- | --- |
 | `GET` | `/profiles` | Every profile with its appearance, sharing and parental settings (see below). |
 | `POST` | `/profiles` | `{ name, pin?, …settings }`. A PIN is 4–8 digits (`PATCH /profiles/:id` too); unlocking still accepts a PIN set before that rule. Takes parental authority (below), so a kids profile can't add an unrestricted one. |
-| `PATCH` | `/profiles/:id` | `{ name?, pin?, currentPin?, …settings }`. Changing or clearing an existing PIN also needs `currentPin`; `pin: null` removes it. Any other change to a PIN-protected profile needs its profile token (`x-profile-token`) or `currentPin` — `401 profile_verification_required` without either. A *first* PIN has nothing to prove, so it is instead only accepted for the profile the caller is acting as (`x-profile-id` with that profile's token, or the only profile on a single-profile install) — `403 profile_not_active` otherwise. Loosening parental limits (kids mode off, a higher or no `maxRating`, `allowUnrated` on) takes parental authority — `403 parental_authority_required` otherwise; tightening never does. See below. |
-| `GET` | `/profiles/:id/summary` | Counts of what deleting the profile takes with it: `watchEvents`, `lists`, `listItems`, `playbackProgress`, `ratings`, `collections`. A PIN-protected profile needs its profile token (`401` otherwise). |
+| `PATCH` | `/profiles/:id` | `{ name?, pin?, currentPin?, …settings }`. Changing or clearing an existing PIN also needs `currentPin`; `pin: null` removes it. Any other change to a PIN-protected profile needs its profile token (`x-profile-token`) or `currentPin` — `401 profile_pin_required` without either. A *first* PIN has nothing to prove, so it is instead only accepted for the profile the caller is acting as (`x-profile-id` with that profile's token, or the only profile on a single-profile install) — `403 profile_not_active` otherwise. Loosening parental limits (kids mode off, a higher or no `maxRating`, `allowUnrated` on) takes parental authority — `403 parental_authority_required` otherwise; tightening never does. See below. |
+| `GET` | `/profiles/:id/summary` | Counts of what deleting the profile takes with it: `watchEvents`, `lists`, `listItems`, `playbackProgress`, `ratings`, `collections`. A PIN-protected profile needs its profile token (`401 profile_pin_required` otherwise). |
 | `DELETE` | `/profiles/:id` | Deletes the profile and everything it owns — history, lists, resume points, ratings, collections — and its slot on every paired TV. A PIN-protected profile needs `currentPin` unless the caller's profile token is for it. |
 | `POST` | `/profiles/:id/verify` | `{ pin }` → a profile token for `x-profile-token`. `401` on a wrong PIN, `429` once the profile is locked out after repeated failures — separate from the global rate limit. |
 
@@ -479,9 +479,11 @@ profile_verification_required` otherwise), whoever is asking.
 
 **Addons.** A manifest URL can carry the addon's own credentials (a debrid key
 in the path, a token in the query), so the API logs only its host and never
-repeats it in an error. Manifests are fetched under the notification-channel
-rules: http(s) only, LAN hosts allowed, never the cloud-metadata range, checked
-by DNS, redirects refused. `stremio://` URLs are read as `https://`.
+repeats it in an error. Manifests are fetched under the profile's account
+outbound policy: http(s) only, private or loopback hosts only for the admin's
+profiles, never the cloud-metadata range, checked by DNS with the connection
+pinned to the checked addresses, redirects refused. `stremio://` URLs are read
+as `https://`.
 
 | Method | Path | Notes |
 | --- | --- | --- |

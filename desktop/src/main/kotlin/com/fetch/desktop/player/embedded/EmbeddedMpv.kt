@@ -9,7 +9,13 @@ import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.StringArray
 import com.sun.jna.ptr.PointerByReference
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -538,6 +544,27 @@ class EmbeddedMpv private constructor(
     }
 
     companion object {
+        /**
+         * [create] on the IO pool, for a coroutine that may be cancelled while it runs. Starting
+         * libmpv can't be interrupted, so a player that finishes starting after the caller was
+         * cancelled is closed (off this thread, as closing waits for mpv's threads) rather than
+         * dropped with its threads and GL context still running; the cancellation is then rethrown.
+         * Failures to start are thrown as from [create].
+         */
+        suspend fun createOffThread(preferGpu: Boolean = true): EmbeddedMpv {
+            // Held outside withContext: switching back to the caller's dispatcher is itself
+            // cancellable, and would drop the result even though the block ran to the end.
+            var created: EmbeddedMpv? = null
+            try {
+                withContext(NonCancellable + Dispatchers.IO) { created = create(preferGpu = preferGpu) }
+                currentCoroutineContext().ensureActive()
+            } catch (e: CancellationException) {
+                created?.let { player -> thread(name = "embedded-mpv-close", isDaemon = true) { runCatching { player.close() } } }
+                throw e
+            }
+            return created!!
+        }
+
         /**
          * Starts libmpv with Fetch's defaults: its own controls and keys off, staying open between
          * files. Throws when libmpv is missing or won't start.

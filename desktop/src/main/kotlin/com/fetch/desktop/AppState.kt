@@ -105,6 +105,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -550,6 +551,12 @@ class AppState(
 
     private val syncBaseStore = JsonFile(File(profileDir(profile), "sync-base.json"), SyncBase.serializer()) { SyncBase() }
     var accountSyncing by mutableStateOf(false)
+
+    /** The sync running now (or last run), so closing the window can wait for it. */
+    private var syncJob: Job? = null
+
+    /** A sync was asked for while one ran; closing runs it after, so the last progress goes up. */
+    private var syncAgain = false
         private set
 
     /**
@@ -557,12 +564,20 @@ class AppState(
      * as the TV app does, so both see the same. The server's profile number is this profile's id.
      */
     fun syncAccount() {
+        if (syncJob?.isActive == true) {
+            syncAgain = true
+            return
+        }
         val paired = websiteSync
         val sync = account
         val remote = sync?.client()
         if ((sync == null || remote == null) && paired == null) return
-        if (accountSyncing) return
-        scope.launch {
+        if (accountSyncing) {
+            syncAgain = true
+            return
+        }
+        syncAgain = false
+        syncJob = scope.launch {
             accountSyncing = true
             try {
                 // Paired with a Fetch website, it holds the profiles, addons, settings, Home layout
@@ -903,7 +918,9 @@ class AppState(
                 return answer.await()
             }
             override suspend fun openBuiltInPlayer(): PlayerSession? = playerSession ?: try {
-                PlayerSession(withContext(Dispatchers.IO) { EmbeddedMpv.create(preferGpu = settings.player.builtInGpu) }).also { playerSession = it }
+                PlayerSession(EmbeddedMpv.createOffThread(preferGpu = settings.player.builtInGpu)).also { playerSession = it }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 message = "The built-in player couldn't start (${e.message}). Using mpv's window."
                 null
@@ -2301,6 +2318,8 @@ class AppState(
             val options = MpvArgs.build(player, subtitles)
             // The built-in player also offers a Skip button for segments that aren't automatic.
             val segments = if (player.builtInPlayer || player.autoSkip.isNotEmpty()) segmentsFor(target) else emptyList()
+            // The window is closing: nothing new starts (an Up Next still looking up its source).
+            if (closing) return@launch
             val useBuiltIn = (builtIn ?: (player.builtInPlayer || playerSession != null)) || inParty
             val partyOverrode = inParty && builtIn != true && !player.builtInPlayer && playerSession == null
             if (useBuiltIn && LibMpv.available &&
@@ -2394,6 +2413,7 @@ class AppState(
     ) {
         val process = result.process ?: return
         val socket = result.ipcSocket ?: return
+        externalPlayers += process
         upNextCancelledFor = null
         // Up Next at the threshold, preloading and the queue, in mpv's window too (over IPC).
         val next = target.video?.takeIf { settings.player.autoplayNextEpisode }
@@ -2414,14 +2434,18 @@ class AppState(
                 if (upNext.movedOn && !continued && upNextCancelledFor != target.videoId) target.video?.let { continueToNext(target, it, countdown = false) }
             }
         ) { onPosition, onSample ->
-            MpvProgress.followToEnd(
-                socket, process,
-                onPosition = onPosition,
-                startup = upNext.startup(),
-                onTimes = upNext::onTimes,
-                onClientMessage = upNext::onClientMessage,
-                onSample = onSample
-            )
+            try {
+                MpvProgress.followToEnd(
+                    socket, process,
+                    onPosition = onPosition,
+                    startup = upNext.startup(),
+                    onTimes = upNext::onTimes,
+                    onClientMessage = upNext::onClientMessage,
+                    onSample = onSample
+                )
+            } finally {
+                externalPlayers -= process
+            }
         }
     }
 
@@ -2466,20 +2490,59 @@ class AppState(
                 }
             }
             // Stop at 80% or more marks it watched on both services.
-            ending.last?.let { if (scrobbled) tracking.scrobble(target, ScrobbleAction.STOP, it.percent()) }
-            // And the media server it came from hears where you stopped, or that you finished.
             val last = ending.last
+            if (last != null && scrobbled) endingWork += tracking.scrobble(target, ScrobbleAction.STOP, last.percent())
+            // And the media server it came from hears where you stopped, or that you finished.
             if (serverStream != null && last != null) {
                 servers.report(
                     serverStream,
                     positionMs = (last.positionSec * 1000).toLong(),
                     finished = last.percent() >= WatchProgress.COMPLETED_THRESHOLD * 100
-                )
+                )?.let { endingWork += it }
             }
             playbackFollowers--
-            val continued = playbackEnded(target, ending)
-            afterEnd(ending, continued)
+            // Closing the window: nothing plays next; the sync below still runs.
+            if (!closing) {
+                val continued = playbackEnded(target, ending)
+                afterEnd(ending, continued)
+            }
             syncAccount()
+        }
+    }
+
+    /** Set once the window is closing: playback that ends now moves on to nothing. */
+    private var closing = false
+
+    /** Scrobbles and server reports sent as playback ended, so closing can wait for them. */
+    private val endingWork = mutableListOf<Job>()
+        get() = field.apply { removeAll { it.isCompleted } }
+
+    /** mpv windows being followed; they close with Fetch so where they stopped is recorded. */
+    private val externalPlayers = java.util.Collections.synchronizedSet(mutableSetOf<Process>())
+
+    /**
+     * Before the window closes: stops the built-in player and Fetch's mpv windows so their last
+     * position is saved, the STOP scrobble and media-server report go out, and the account syncs,
+     * then waits for that work. The caller bounds the wait.
+     */
+    suspend fun shutdown() {
+        closing = true
+        closePlayer()
+        val external = externalPlayers.toList()
+        external.forEach { runCatching { it.destroy() } }
+        // An mpv that ignores the request is killed, so its follower isn't left reading.
+        if (external.isNotEmpty()) scope.launch {
+            delay(1_500)
+            external.filter { it.isAlive }.forEach { runCatching { it.destroyForcibly() } }
+        }
+        // Each follower saves its last sample, scrobbles, reports and starts a sync as it ends.
+        while (playbackFollowers > 0) delay(50)
+        endingWork.toList().joinAll()
+        syncJob?.join()
+        // A sync that was already running may have missed the last progress: one more.
+        if (syncAgain) {
+            syncAccount()
+            syncJob?.join()
         }
     }
 
@@ -2526,7 +2589,9 @@ class AppState(
             return true
         }
         val session = playerSession ?: try {
-            PlayerSession(withContext(Dispatchers.IO) { EmbeddedMpv.create(preferGpu = settings.player.builtInGpu) })
+            PlayerSession(EmbeddedMpv.createOffThread(preferGpu = settings.player.builtInGpu))
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
             message = "The built-in player couldn't start (${e.message}). Using mpv's window."
             return false

@@ -214,13 +214,17 @@ class TrackingState(
 
     // --- Scrobbling ---
 
-    /** Tells every connected service, and the paired Fetch website, what is playing and how far along it is (0–100). */
-    fun scrobble(target: PlaybackTarget, action: ScrobbleAction, percent: Float) {
-        mdbList()?.takeIf { it.connected }?.let { tracker -> scope.launch { tracker.scrobble(target, action, percent) } }
-        website()?.takeIf { it.paired }?.let { tracker -> scope.launch { tracker.scrobble(target, action, percent) } }
-        val item = trackedItem(target) ?: return
+    /**
+     * Tells every connected service, and the paired Fetch website, what is playing and how far
+     * along it is (0–100). Returns the requests sent, so closing the app can wait for a STOP.
+     */
+    fun scrobble(target: PlaybackTarget, action: ScrobbleAction, percent: Float): List<Job> {
+        val jobs = mutableListOf<Job>()
+        mdbList()?.takeIf { it.connected }?.let { tracker -> jobs += scope.launch { tracker.scrobble(target, action, percent) } }
+        website()?.takeIf { it.paired }?.let { tracker -> jobs += scope.launch { tracker.scrobble(target, action, percent) } }
+        val item = trackedItem(target) ?: return jobs
         connected.forEach { service ->
-            scope.launch {
+            jobs += scope.launch {
                 runCatching {
                     withTokens(service) { tokens ->
                         when (service) {
@@ -231,6 +235,7 @@ class TrackingState(
                 }
             }
         }
+        return jobs
     }
 
     // --- Watched history ---

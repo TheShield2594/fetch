@@ -295,10 +295,10 @@ class ServersState(
     /** The server stream behind a [Stream] this state handed out, when it is one. */
     fun serverStream(stream: Stream): ServerStream? = stream.url?.let { synchronized(issued) { issued[it] } }
 
-    /** Tells the server how far playback got, and marks it played when finished. */
-    fun report(stream: ServerStream, positionMs: Long, finished: Boolean) {
-        val account = accounts.firstOrNull { it.id == stream.accountId } ?: return
-        scope.launch(Dispatchers.IO) {
+    /** Tells the server how far playback got, and marks it played when finished; null when its account is gone. */
+    fun report(stream: ServerStream, positionMs: Long, finished: Boolean): Job? {
+        val account = accounts.firstOrNull { it.id == stream.accountId } ?: return null
+        return scope.launch(Dispatchers.IO) {
             runCatching {
                 val client = client(account.kind)
                 // mpv has closed either way, so the server's playback session ends too.

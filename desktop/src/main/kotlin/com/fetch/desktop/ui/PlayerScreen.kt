@@ -85,7 +85,9 @@ private val HiddenCursor: PointerIcon by lazy {
  * fullscreen at the bottom, and a Skip button for intros and credits.
  *
  * Keys: Space or K play/pause, ←/→ (J/L) 10 s, ↑/↓ volume, M mute, F fullscreen, Esc leaves
- * fullscreen, then the player. Mouse: click play/pause, double-click fullscreen, wheel volume.
+ * fullscreen, then the player. Media keys, where the system passes them to the window: play/pause,
+ * play, pause, stop (leaves), next episode, fast-forward/rewind 10 s. Mouse: click play/pause,
+ * double-click fullscreen, wheel volume.
  */
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -132,7 +134,13 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                 if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
                 poke()
                 when (event.key) {
-                    Key.Spacebar, Key.K -> controls.togglePause()
+                    Key.Spacebar, Key.K, Key.MediaPlayPause -> controls.togglePause()
+                    Key.MediaPlay -> if (mpv.paused) controls.togglePause()
+                    Key.MediaPause -> if (!mpv.paused) controls.togglePause()
+                    Key.MediaStop -> leave()
+                    Key.MediaNext -> if (session.nextEpisode != null) state.playNextNow() else return@onKeyEvent false
+                    Key.MediaFastForward -> controls.seekBy(10.0)
+                    Key.MediaRewind -> controls.seekBy(-10.0)
                     Key.I -> session.showInfo = !session.showInfo
                     Key.N -> if (session.nextEpisode != null) state.playNextNow() else return@onKeyEvent false
                     Key.Z -> mpv.changeSubtitleDelay(mpv.subtitleDelay - 0.1)

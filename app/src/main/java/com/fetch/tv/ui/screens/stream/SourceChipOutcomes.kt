@@ -1,37 +1,32 @@
 package com.fetch.tv.ui.screens.stream
 
-import com.fetch.tv.core.streams.AddonHealth
-import com.fetch.tv.core.streams.AddonRequestKind
-import com.fetch.tv.core.streams.AddonRequestOutcome
+import com.fetch.tv.domain.model.StreamSourceOutcome
 import com.fetch.tv.ui.components.SourceChipItem
 import com.fetch.tv.ui.components.SourceChipStatus
 
 /**
- * The chip status an addon's finished stream request settles on, or null for a success: a
- * successful addon's chip turns green when its streams arrive, not from its health outcome.
+ * The chip status a finished source settles on, or null when it answered with streams: that
+ * chip turns green (or "unplayable only") when its streams arrive, not from its outcome.
  */
-internal fun AddonRequestOutcome.settledSourceChipStatus(): SourceChipStatus? = when (this) {
-    AddonRequestOutcome.TIMEOUT -> SourceChipStatus.TIMED_OUT
-    AddonRequestOutcome.ERROR -> SourceChipStatus.ERROR
-    AddonRequestOutcome.EMPTY -> SourceChipStatus.NO_RESULTS
-    AddonRequestOutcome.SUCCESS -> null
+internal fun StreamSourceOutcome.settledSourceChipStatus(): SourceChipStatus? = when (this) {
+    StreamSourceOutcome.TIMED_OUT -> SourceChipStatus.TIMED_OUT
+    StreamSourceOutcome.FAILED -> SourceChipStatus.ERROR
+    StreamSourceOutcome.EMPTY -> SourceChipStatus.NO_RESULTS
+    StreamSourceOutcome.STREAMS -> null
 }
 
 /**
- * Settles every chip still loading from the outcome its addon recorded since [sinceMs].
- *
- * The live outcome events are a non-replaying SharedFlow, so the last ones can still be in
- * flight when the search finishes. The tracker's health map is updated synchronously before the
- * repository finishes an addon, so reading it at the end gives every addon's final outcome.
+ * Settles every chip still loading whose source has reported how it finished. The search
+ * reports every addon and media server, and a search replayed from the session cache brings its
+ * outcomes back, so a chip is only left loading for a source still running.
  */
 internal fun settlePendingSourceChips(
     chips: List<SourceChipItem>,
-    health: Map<String, AddonHealth>,
-    sinceMs: Long
-): List<SourceChipItem> = chips.map { chip ->
-    if (chip.status != SourceChipStatus.LOADING) return@map chip
-    val outcome = health[chip.name]?.samples
-        ?.lastOrNull { it.kind == AddonRequestKind.STREAM && it.atMs >= sinceMs }
-        ?.outcome
-    outcome?.settledSourceChipStatus()?.let { chip.copy(status = it) } ?: chip
+    outcomes: Map<String, StreamSourceOutcome>
+): List<SourceChipItem> {
+    if (outcomes.isEmpty() || chips.none { it.status == SourceChipStatus.LOADING }) return chips
+    return chips.map { chip ->
+        if (chip.status != SourceChipStatus.LOADING) return@map chip
+        outcomes[chip.name]?.settledSourceChipStatus()?.let { chip.copy(status = it) } ?: chip
+    }
 }

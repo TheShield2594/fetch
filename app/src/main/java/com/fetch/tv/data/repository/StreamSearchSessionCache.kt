@@ -2,6 +2,8 @@ package com.fetch.tv.data.repository
 
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.domain.model.AddonStreams
+import com.fetch.tv.domain.model.StreamSearchUpdate
+import com.fetch.tv.domain.model.StreamSourceOutcome
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -46,7 +48,9 @@ internal class StreamSearchSessionCache(
     private data class Snapshot(
         val result: NetworkResult<List<AddonStreams>>,
         val version: Long,
-        val isComplete: Boolean
+        val isComplete: Boolean,
+        /** How each finished source did; kept with the result so a replay settles its chips. */
+        val outcomes: Map<String, StreamSourceOutcome> = emptyMap()
     )
 
     private class Session(
@@ -55,7 +59,7 @@ internal class StreamSearchSessionCache(
         lateinit var job: Job
         @Volatile var invalidated: Boolean = false
         var completedAtMs: Long? = null
-        /** Set through the producer's callback when a source failed rather than answered. */
+        /** Set when a source reported that it failed rather than answered. */
         @Volatile var hadSourceFailure: Boolean = false
         var lastSuccessfulResult: NetworkResult.Success<List<AddonStreams>>? = null
     }
@@ -64,21 +68,22 @@ internal class StreamSearchSessionCache(
     private val sessions = LinkedHashMap<StreamSearchRequestKey, Session>(16, 0.75f, true)
 
     /**
-     * [producer] gets a callback to call when a source failed (as opposed to answering with
-     * nothing), which shortens how long the finished search is reused.
+     * [producer] gets a callback to report how each source finished. The outcomes are kept with
+     * the search and replayed with it; a failed or timed-out source also shortens how long the
+     * finished search is reused.
      */
     fun observe(
         key: StreamSearchRequestKey,
         forceRefresh: Boolean,
-        producer: (onSourceFailure: () -> Unit) -> Flow<NetworkResult<List<AddonStreams>>>
-    ): Flow<NetworkResult<List<AddonStreams>>> = flow {
+        producer: (onSourceFinished: (String, StreamSourceOutcome) -> Unit) -> Flow<NetworkResult<List<AddonStreams>>>
+    ): Flow<StreamSearchUpdate> = flow {
         val session = acquireSession(key, forceRefresh, producer)
         var emittedVersion = -1L
         emitAll(
             session.state.transformWhile { snapshot ->
                 if (snapshot.version != emittedVersion) {
                     emittedVersion = snapshot.version
-                    emit(snapshot.result)
+                    emit(StreamSearchUpdate(snapshot.result, snapshot.outcomes))
                 }
                 !snapshot.isComplete
             }
@@ -96,7 +101,7 @@ internal class StreamSearchSessionCache(
     private suspend fun acquireSession(
         key: StreamSearchRequestKey,
         forceRefresh: Boolean,
-        producer: (onSourceFailure: () -> Unit) -> Flow<NetworkResult<List<AddonStreams>>>
+        producer: (onSourceFinished: (String, StreamSourceOutcome) -> Unit) -> Flow<NetworkResult<List<AddonStreams>>>
     ): Session {
         var created: Session? = null
         val selected = mutex.withLock {
@@ -123,7 +128,7 @@ internal class StreamSearchSessionCache(
 
     private fun createSession(
         key: StreamSearchRequestKey,
-        producer: (onSourceFailure: () -> Unit) -> Flow<NetworkResult<List<AddonStreams>>>
+        producer: (onSourceFinished: (String, StreamSourceOutcome) -> Unit) -> Flow<NetworkResult<List<AddonStreams>>>
     ): Session {
         val session = Session(
             MutableStateFlow(
@@ -136,23 +141,27 @@ internal class StreamSearchSessionCache(
         )
         session.job = scope.launch(start = CoroutineStart.LAZY) {
             try {
-                producer { session.hadSourceFailure = true }.collect { result ->
+                val onSourceFinished: (String, StreamSourceOutcome) -> Unit = { name, outcome ->
+                    if (outcome == StreamSourceOutcome.FAILED || outcome == StreamSourceOutcome.TIMED_OUT) {
+                        session.hadSourceFailure = true
+                    }
+                    session.state.update { current ->
+                        current.copy(outcomes = current.outcomes + (name to outcome), version = current.version + 1)
+                    }
+                }
+                producer(onSourceFinished).collect { result ->
                     if (result is NetworkResult.Success && result.data.isNotEmpty()) {
                         session.lastSuccessfulResult = result
                     }
                     session.state.update { current ->
-                        Snapshot(
-                            result = result,
-                            version = current.version + 1,
-                            isComplete = false
-                        )
+                        current.copy(result = result, version = current.version + 1, isComplete = false)
                     }
                 }
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Throwable) {
                 session.state.update { current ->
-                    Snapshot(
+                    current.copy(
                         result = NetworkResult.Error(error.message ?: "Failed to fetch streams"),
                         version = current.version + 1,
                         isComplete = false
@@ -170,11 +179,7 @@ internal class StreamSearchSessionCache(
         session.state.update { current ->
             val lastSuccess = session.lastSuccessfulResult
             if (lastSuccess != null && current.result !is NetworkResult.Success) {
-                Snapshot(
-                    result = lastSuccess,
-                    version = current.version + 1,
-                    isComplete = true
-                )
+                current.copy(result = lastSuccess, version = current.version + 1, isComplete = true)
             } else {
                 current.copy(isComplete = true)
             }

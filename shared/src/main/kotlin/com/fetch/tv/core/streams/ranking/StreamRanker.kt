@@ -117,6 +117,7 @@ data class StreamRankingRules(
 enum class RankReason {
     OWN_LIBRARY,
     DEBRID_CACHED,
+    DEBRID_UNCACHED,
     PREFERRED_RESOLUTION,
     PREFERRED_CODEC,
     HDR,
@@ -317,9 +318,18 @@ object StreamRanker {
             score += 10_000
             reasons += RankReason.OWN_LIBRARY
         }
-        if (descriptor.isDebridCached && rules.preferCachedDebrid) {
-            score += 2_000
-            reasons += RankReason.DEBRID_CACHED
+        // Every listed stream is already a playable link, so an unmarked one (a plain HTTP or
+        // usenet addon, a self-hosted server) is neutral. What sinks is a debrid link the addon
+        // says is not cached yet: it waits for a download before it plays. A cached marker only
+        // breaks ties, so it never outweighs resolution.
+        if (rules.preferCachedDebrid) {
+            if (descriptor.isDebridUncached) {
+                score -= 2_000
+                reasons += RankReason.DEBRID_UNCACHED
+            } else if (descriptor.isDebridCached) {
+                score += 200
+                reasons += RankReason.DEBRID_CACHED
+            }
         }
 
         // Resolution: full marks at the preferred height, falling off on either side.

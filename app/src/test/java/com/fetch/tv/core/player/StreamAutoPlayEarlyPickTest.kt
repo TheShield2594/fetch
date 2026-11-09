@@ -63,11 +63,17 @@ class StreamAutoPlayEarlyPickTest {
 
     @Test
     fun `an uncached stream waits only while cached streams are preferred`() {
-        val uncached = stream("Movie 1080p")
+        val uncached = stream("Movie 1080p [RD download]")
         assertFalse(StreamAutoPlaySelector.isGoodEnoughToStartEarly(uncached, rules1080))
         assertTrue(
             StreamAutoPlaySelector.isGoodEnoughToStartEarly(uncached, rules1080.copy(preferCachedDebrid = false))
         )
+    }
+
+    @Test
+    fun `an unmarked direct link at the preferred quality starts early`() {
+        // TheShield2594/fetch#310: HTTP, usenet and self-hosted addons never say "cached".
+        assertTrue(StreamAutoPlaySelector.isGoodEnoughToStartEarly(stream("Movie 1080p"), rules1080))
     }
 
     @Test

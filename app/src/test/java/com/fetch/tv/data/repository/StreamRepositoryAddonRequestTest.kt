@@ -7,6 +7,7 @@ import com.fetch.tv.core.streams.AddonHealthTracker
 import com.fetch.tv.core.streams.AddonRequestGuard
 import com.fetch.tv.core.streams.AddonRequestKind
 import com.fetch.tv.core.streams.AddonRequestOutcome
+import com.fetch.tv.data.mediaserver.ServerStreamSource
 import com.fetch.tv.data.mediaserver.ServerStreams
 import com.fetch.tv.data.remote.api.AddonApi
 import com.fetch.tv.data.remote.dto.MetaDto
@@ -18,15 +19,18 @@ import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.AddonResource
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.ContentType
+import com.fetch.tv.domain.model.StreamSourceOutcome
 import com.fetch.tv.domain.repository.AddonRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import okhttp3.ResponseBody.Companion.toResponseBody
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -111,22 +115,68 @@ class StreamRepositoryAddonRequestTest {
         coVerify(exactly = 1) { api.getMeta(any(), "no-cache") }
     }
 
+    @Test
+    fun `each source reports how it finished, and a cached replay brings the outcomes back`() = runTest {
+        // TheShield2594/fetch#397: an empty media server and an empty addon are "no results",
+        // not failures, also when the search is served again from the session cache.
+        coEvery { api.getStreams("https://addon.example/stream/movie/tt1.json", any()) } returns
+            Response.success(StreamResponseDto(listOf(stream())))
+        coEvery { api.getStreams("https://empty.example/stream/movie/tt1.json", any()) } returns
+            Response.success(StreamResponseDto(emptyList()))
+        val server = ServerStreamSource(name = "Jellyfin", preferred = false) { emptyList() }
+        val repository = newRepository(
+            addon(resources = listOf("stream")),
+            addon(resources = listOf("stream"), name = "Empty", baseUrl = "https://empty.example"),
+            serverSources = listOf(server)
+        )
+        val expected = mapOf(
+            "Addon" to StreamSourceOutcome.STREAMS,
+            "Empty" to StreamSourceOutcome.EMPTY,
+            "Jellyfin" to StreamSourceOutcome.EMPTY
+        )
+
+        val live = repository.searchStreamsFromAllSources("movie", "tt1").last()
+        val replayed = repository.searchStreamsFromAllSources("movie", "tt1").toList()
+
+        assertEquals(expected, live.sourceOutcomes)
+        assertEquals(expected, replayed.last().sourceOutcomes)
+        assertEquals(live.result, replayed.last().result)
+        coVerify(exactly = 2) { api.getStreams(any(), any()) }
+    }
+
+    @Test
+    fun `a failing addon reports a failure`() = runTest {
+        coEvery { api.getStreams(any(), any()) } returns Response.error(500, "".toResponseBody(null))
+        val repository = newRepository(addon(resources = listOf("stream")))
+
+        val update = repository.searchStreamsFromAllSources("movie", "tt1").last()
+
+        assertEquals(mapOf("Addon" to StreamSourceOutcome.FAILED), update.sourceOutcomes)
+    }
+
     private fun stream() = StreamDto(name = "1080p", url = "https://cdn.example/video.mkv")
 
-    private fun addon(resources: List<String>) = Addon(
-        id = "test.addon",
-        name = "Addon",
+    private fun addon(
+        resources: List<String>,
+        name: String = "Addon",
+        baseUrl: String = "https://addon.example"
+    ) = Addon(
+        id = "test.${name.lowercase()}",
+        name = name,
         version = "1.0.0",
         description = null,
         logo = null,
-        baseUrl = "https://addon.example",
+        baseUrl = baseUrl,
         catalogs = emptyList(),
         types = listOf(ContentType.MOVIE, ContentType.SERIES),
         resources = resources.map { AddonResource(name = it, types = listOf("movie", "series"), idPrefixes = null) },
         idPrefixes = listOf("tt")
     )
 
-    private fun newRepository(vararg addons: Addon): StreamRepositoryImpl {
+    private fun newRepository(
+        vararg addons: Addon,
+        serverSources: List<ServerStreamSource> = emptyList()
+    ): StreamRepositoryImpl {
         val context = mockk<Context>(relaxed = true) {
             every { getString(any()) } returns "detail"
             every { getString(any(), *anyVararg()) } returns "message"
@@ -140,7 +190,7 @@ class StreamRepositoryAddonRequestTest {
         val serverStreams = mockk<ServerStreams> {
             every { isNativeRequest(any()) } returns false
             every { revision } returns 0
-            every { sources(any(), any(), any(), any(), any()) } returns emptyList()
+            every { sources(any(), any(), any(), any(), any()) } returns serverSources
         }
         return StreamRepositoryImpl(
             context = context,

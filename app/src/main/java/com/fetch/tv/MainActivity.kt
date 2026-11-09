@@ -64,10 +64,13 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.foundation.focusGroup
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusRestorer
+import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.BlendMode
@@ -1571,6 +1574,10 @@ private fun FetchSidebarScaffold(
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     val contentFocusRequester = remember { FocusRequester() }
     var pendingContentFocusTransfer by remember { mutableStateOf(false) }
+    // The page area, which remembers its last focused item (focusRestorer below), so closing
+    // the rail with Right can put focus back where the user left it.
+    val contentRestoreRequester = remember { FocusRequester() }
+    var pendingContentFocusRestore by remember { mutableStateOf(false) }
     var pendingSidebarFocusRequest by remember { mutableStateOf(false) }
     // Bumped on every key event the drawer sees so the auto-collapse timer
     // resets while the user navigates between drawer items.
@@ -1614,6 +1621,24 @@ private fun FetchSidebarScaffold(
         repeat(2) { withFrameNanos { } }
         runCatching { contentFocusRequester.requestFocus() }
         pendingContentFocusTransfer = false
+    }
+
+    // Right closes the rail; focus goes back to the page's last focused item (or the page's
+    // entry focus when it has none), so nothing is left focused on a collapsed or hidden rail.
+    LaunchedEffect(drawerState.currentValue, pendingContentFocusRestore) {
+        if (!pendingContentFocusRestore || drawerState.currentValue != DrawerValue.Closed) {
+            return@LaunchedEffect
+        }
+        // Cleared on cancellation too: a rail reopened mid-restore must not pull focus to the
+        // page on some later, unrelated close.
+        try {
+            val restored = contentRestoreRequester.requestFocusAfterFrames(frames = 1)
+            if (!restored) {
+                focusManager.moveFocus(if (isRtl) FocusDirection.Left else FocusDirection.Right)
+            }
+        } finally {
+            pendingContentFocusRestore = false
+        }
     }
 
     LaunchedEffect(drawerState.currentValue, selectedDrawerRoute, showSidebar, pendingSidebarFocusRequest) {
@@ -1667,6 +1692,7 @@ private fun FetchSidebarScaffold(
                             if (keyEvent.key == closeKey && keyEvent.type == KeyEventType.KeyDown) {
                                 drawerState.setValue(DrawerValue.Closed)
                                 pendingContentFocusTransfer = false
+                                pendingContentFocusRestore = true
                                 true
                             } else {
                                 false
@@ -1806,6 +1832,9 @@ private fun FetchSidebarScaffold(
                         false
                     }
                 }
+                .focusRequester(contentRestoreRequester)
+                .focusRestorer()
+                .focusGroup()
         ) {
             CompositionLocalProvider(
                 LocalSidebarExpanded provides (drawerState.currentValue == DrawerValue.Open),

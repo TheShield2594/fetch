@@ -50,6 +50,11 @@ fun DiscoverScreen(
     var discoverFocusedItemIndex by rememberSaveable { mutableStateOf(0) }
     var restoreDiscoverFocus by rememberSaveable { mutableStateOf(false) }
     var pendingDiscoverRestoreOnResume by rememberSaveable { mutableStateOf(false) }
+    // Not saved: each time Discover is entered (from the rail too) it takes focus, unless it is
+    // coming back from a title and restores the focused poster instead.
+    var initialFocusHandled by remember {
+        mutableStateOf(restoreDiscoverFocus || pendingDiscoverRestoreOnResume)
+    }
 
     val cardRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp)
     val posterCardStyle = remember(uiState.posterCardWidthDp, cardRadius) {
@@ -105,6 +110,8 @@ fun DiscoverScreen(
                 focusedItemIndex = discoverFocusedItemIndex,
                 shouldRestoreFocusedItem = restoreDiscoverFocus,
                 blockFilterFocus = restoreDiscoverFocus || pendingDiscoverRestoreOnResume,
+                requestInitialFocus = !initialFocusHandled,
+                onInitialFocusHandled = { initialFocusHandled = true },
                 onRestoreFocusedItemHandled = { restoreDiscoverFocus = false },
                 onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
                     pendingDiscoverRestoreOnResume = true

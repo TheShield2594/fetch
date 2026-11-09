@@ -50,6 +50,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -96,7 +97,6 @@ import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.screens.home.HeroBackdropState
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.fetch.tv.ui.components.PosterCardDefaults
 import com.fetch.tv.domain.model.localizedTitle
@@ -107,7 +107,6 @@ import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.localizedContentType
 import com.fetch.tv.ui.util.localizedGenreLabel
-import kotlinx.coroutines.delay
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
@@ -206,24 +205,18 @@ fun LibraryScreen(
             val restoreIndex = restoreKey?.let { visibleItemIndexByKey[it] }
             val restoreRequester = restoreKey?.let { posterFocusRequesters[it] }
 
+            // requestFocus() reports false while the target is not laid out yet, so each try
+            // waits for the next frame rather than a fixed delay.
             var focused = false
             if (restoreIndex != null && restoreRequester != null) {
                 if (gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0) {
                     runCatching { gridState.scrollToItem(restoreIndex) }
                 }
-                focused = runCatching { restoreRequester.requestFocus() }.isSuccess
-                if (!focused) {
-                    delay(16)
-                    focused = runCatching { restoreRequester.requestFocus() }.isSuccess
-                }
+                focused = restoreRequester.requestFocusAfterFrames(frames = 0)
             }
 
             if (!focused) {
-                focused = runCatching { primaryFocusRequester.requestFocus() }.isSuccess
-            }
-            if (!focused) {
-                delay(16)
-                runCatching { primaryFocusRequester.requestFocus() }
+                primaryFocusRequester.requestFocusAfterFrames(frames = 0)
             }
             pendingPrimaryFocus = false
         }
@@ -241,10 +234,7 @@ fun LibraryScreen(
         backScope.launch {
             runCatching { gridState.scrollToItem(0) }
             // Give the selectors row a frame to compose before focusing it.
-            repeat(3) {
-                if (runCatching { selectorFocusRequester.requestFocus() }.isSuccess) return@launch
-                delay(16)
-            }
+            selectorFocusRequester.requestFocusAfterFrames(frames = 0)
         }
     }
 
@@ -252,13 +242,16 @@ fun LibraryScreen(
         if (uiState.sortSelectionVersion <= 0L) return@LaunchedEffect
         val targetKey = firstVisiblePosterKey ?: return@LaunchedEffect
         runCatching { gridState.scrollToItem(0) }
-        var focused = false
+        // The poster's requester is registered when it composes, so look it up each frame, and
+        // stop once the user has focused a poster of their own.
+        val focusedBefore = lastFocusedPosterKey
         repeat(6) {
-            focused = posterFocusRequesters[targetKey]
-                ?.let { requester -> runCatching { requester.requestFocus() }.isSuccess }
+            if (lastFocusedPosterKey != focusedBefore) return@LaunchedEffect
+            val focused = posterFocusRequesters[targetKey]
+                ?.let { requester -> runCatching { requester.requestFocus() }.getOrDefault(false) }
                 ?: false
             if (focused) return@LaunchedEffect
-            delay(24)
+            withFrameNanos { }
         }
     }
 
@@ -872,17 +865,12 @@ private fun LibraryDropdownPicker(
     LaunchedEffect(expanded, selectedValue) {
         if (!expanded || selectedValue == null) return@LaunchedEffect
         var focused = selectedItemFocusRequester.requestFocusAfterFrames(frames = 3)
-        var attempt = 0
-        while (!focused && attempt < 6) {
-            delay(32)
-            focused = runCatching { selectedItemFocusRequester.requestFocus() }.getOrDefault(false)
-            attempt++
-        }
+        if (!focused) focused = selectedItemFocusRequester.requestFocusAfterFrames(frames = 2)
         if (!focused) return@LaunchedEffect
         runCatching { selectedBringIntoViewRequester.bringIntoView() }
         // Material DropdownMenu may still move initial focus to the first item after
         // the popup settles; re-assert once so long lists keep the real selection.
-        delay(48)
+        repeat(3) { withFrameNanos { } }
         if (runCatching { selectedItemFocusRequester.requestFocus() }.getOrDefault(false)) {
             runCatching { selectedBringIntoViewRequester.bringIntoView() }
         }

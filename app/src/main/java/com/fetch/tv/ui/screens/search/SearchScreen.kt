@@ -118,7 +118,7 @@ import com.fetch.tv.domain.model.stableKey
 import android.view.inputmethod.CompletionInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.ui.platform.LocalView
-import kotlinx.coroutines.delay
+import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.ui.res.stringResource
@@ -459,8 +459,8 @@ fun SearchScreen(
 
     LaunchedEffect(focusResults, isDiscoverMode, uiState.discoverResults.size) {
         if (focusResults && isDiscoverMode && uiState.discoverResults.isNotEmpty()) {
-            delay(100)
-            runCatching { discoverFirstItemFocusRequester.requestFocus() }
+            // Refused: keep the move pending so it runs again when the results change.
+            if (!discoverFirstItemFocusRequester.requestFocusAfterFrames()) return@LaunchedEffect
             focusResults = false
             pendingFocusMoveToResultsQuery = null
             pendingFocusMoveSawSearching = false
@@ -494,8 +494,9 @@ fun SearchScreen(
         if (isDiscoverMode) {
             focusResults = true
         } else {
-            // Use explicit first-item focus for deterministic landing on row 1 / column 1.
-            delay(80)
+            // Use explicit first-item focus for deterministic landing on row 1 / column 1, once
+            // the new rows have laid out.
+            repeat(2) { withFrameNanos { } }
             focusResults = true
         }
         pendingFocusMoveToResultsQuery = null

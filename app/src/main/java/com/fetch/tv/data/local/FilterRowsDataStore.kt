@@ -74,7 +74,9 @@ class FilterRowsDataStore @Inject constructor(
         }
     }
 
-    // Field names are the stored JSON keys; @SerializedName keeps them stable under R8.
+    // Field names are the stored JSON keys; @SerializedName keeps them stable under R8, and
+    // @Keep keeps the fields themselves (R8 can drop a field it sees only Gson writing).
+    @androidx.annotation.Keep
     private data class StoredFilterRow(
         @SerializedName("id") val id: String? = null,
         @SerializedName("title") val title: String? = null,

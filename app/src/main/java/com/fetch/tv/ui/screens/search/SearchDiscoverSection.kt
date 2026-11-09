@@ -54,7 +54,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.clip
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
-import kotlinx.coroutines.delay
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextAlign
@@ -100,6 +99,8 @@ internal fun DiscoverSection(
     focusedItemIndex: Int,
     shouldRestoreFocusedItem: Boolean,
     blockFilterFocus: Boolean = false,
+    requestInitialFocus: Boolean = false,
+    onInitialFocusHandled: () -> Unit = {},
     onRestoreFocusedItemHandled: () -> Unit,
     onNavigateToDetail: (String, String, String) -> Unit,
     onDiscoverItemFocused: (Int) -> Unit,
@@ -120,6 +121,12 @@ internal fun DiscoverSection(
 
     androidx.activity.compose.BackHandler(enabled = gridHasFocus) {
         try { filterFocusRequester.requestFocus() } catch (_: Exception) {}
+    }
+
+    // Entering Discover lands on the first filter, so something is focused on arrival.
+    LaunchedEffect(requestInitialFocus, blockFilterFocus) {
+        if (!requestInitialFocus || blockFilterFocus) return@LaunchedEffect
+        if (filterFocusRequester.requestFocusAfterFrames()) onInitialFocusHandled()
     }
 
     val localContext = LocalContext.current
@@ -326,17 +333,12 @@ private fun DiscoverDropdownPicker(
     LaunchedEffect(expanded, selectedValue) {
         if (!expanded || selectedValue == null) return@LaunchedEffect
         var focused = selectedItemFocusRequester.requestFocusAfterFrames(frames = 3)
-        var attempt = 0
-        while (!focused && attempt < 6) {
-            delay(32)
-            focused = runCatching { selectedItemFocusRequester.requestFocus() }.getOrDefault(false)
-            attempt++
-        }
+        if (!focused) focused = selectedItemFocusRequester.requestFocusAfterFrames(frames = 2)
         if (!focused) return@LaunchedEffect
         runCatching { selectedBringIntoViewRequester.bringIntoView() }
         // Material DropdownMenu may still move initial focus to the first item after
         // the popup settles; re-assert once so long lists keep the real selection.
-        delay(48)
+        repeat(3) { withFrameNanos { } }
         if (runCatching { selectedItemFocusRequester.requestFocus() }.getOrDefault(false)) {
             runCatching { selectedBringIntoViewRequester.bringIntoView() }
         }

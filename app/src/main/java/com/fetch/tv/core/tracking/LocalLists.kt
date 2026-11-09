@@ -1,5 +1,6 @@
 package com.fetch.tv.core.tracking
 
+import androidx.annotation.Keep
 import com.fetch.tv.domain.model.LibraryListPrivacy
 import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.model.PosterShape
@@ -11,7 +12,10 @@ import com.fetch.tv.domain.model.SavedLibraryItem
  * `watchlist`, `collection` or `custom`, and items with the time they were added), so the
  * library sync can carry them to the website later without a migration. Lists made on the
  * TV are `custom`; the profile's saved titles stay the [LOCAL_LIBRARY_LIST_KEY] list.
+ *
+ * Stored with Gson, so it is kept: its field names are the stored JSON keys.
  */
+@Keep
 data class LocalList(
     val id: String,
     val name: String,

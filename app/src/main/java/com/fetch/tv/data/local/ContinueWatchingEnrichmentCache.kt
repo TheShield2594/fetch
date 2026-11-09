@@ -2,6 +2,7 @@ package com.fetch.tv.data.local
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.Keep
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.fetch.tv.core.profile.ProfileManager
@@ -14,6 +15,9 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
+// Both snapshot types are written with Gson. @Keep pins their field names, which are the stored
+// JSON keys; R8 renamed them per build before, so each update threw the snapshot away.
+@Keep
 data class CachedNextUpItem(
     val contentId: String,
     val contentType: String,
@@ -43,6 +47,7 @@ data class CachedNextUpItem(
     val contentLanguage: String? = null
 )
 
+@Keep
 data class CachedInProgressItem(
     val contentId: String,
     val contentType: String,
@@ -132,8 +137,10 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
             try {
                 val file = nextUpFile()
                 if (!file.exists()) return@withContext emptyList()
-                gson.fromJson(file.readText(), object : TypeToken<List<CachedNextUpItem>>() {}.type)
-                    ?: emptyList()
+                gson.fromJson<List<CachedNextUpItem?>>(
+                    file.readText(),
+                    object : TypeToken<List<CachedNextUpItem?>>() {}.type
+                ).orEmpty().mapNotNull(::sanitizeNextUp)
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to read next-up cache: ${e.message}")
                 emptyList()
@@ -194,8 +201,10 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
             try {
                 val file = inProgressFile()
                 if (!file.exists()) return@withContext emptyList()
-                gson.fromJson(file.readText(), object : TypeToken<List<CachedInProgressItem>>() {}.type)
-                    ?: emptyList()
+                gson.fromJson<List<CachedInProgressItem?>>(
+                    file.readText(),
+                    object : TypeToken<List<CachedInProgressItem?>>() {}.type
+                ).orEmpty().mapNotNull(::sanitizeInProgress)
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to read in-progress cache: ${e.message}")
                 emptyList()
@@ -291,7 +300,6 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
             tmp.delete()
         }
     }
-
 }
 
 /**
@@ -307,3 +315,22 @@ internal fun snapshotSaveStillValid(
 ): Boolean = originGeneration == currentGeneration &&
     activeProfileId == originProfileId &&
     originProfileId in profileIds
+
+/**
+ * Gson leaves a field null where Kotlin says it can't be when the file was written with other
+ * keys (an older, minified build) or is damaged; such an entry is dropped, not handed on.
+ */
+private fun hasRequiredFields(contentId: String?, contentType: String?, name: String?, videoId: String?): Boolean =
+    !contentId.isNullOrBlank() && !contentType.isNullOrBlank() && name != null && videoId != null
+
+@Suppress("SENSELESS_COMPARISON")
+internal fun sanitizeNextUp(item: CachedNextUpItem?): CachedNextUpItem? {
+    if (item == null || !hasRequiredFields(item.contentId, item.contentType, item.name, item.videoId)) return null
+    return if (item.genres == null) item.copy(genres = emptyList()) else item
+}
+
+@Suppress("SENSELESS_COMPARISON")
+internal fun sanitizeInProgress(item: CachedInProgressItem?): CachedInProgressItem? {
+    if (item == null || !hasRequiredFields(item.contentId, item.contentType, item.name, item.videoId)) return null
+    return if (item.genres == null) item.copy(genres = emptyList()) else item
+}

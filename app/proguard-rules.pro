@@ -18,6 +18,11 @@
 # Keep TypeToken generic signatures (used in AddonConfigServer/RepositoryConfigServer)
 -keep class com.google.gson.reflect.TypeToken { *; }
 -keep class * extends com.google.gson.reflect.TypeToken
+# Fields Gson reads by @SerializedName keep their annotation's key, so they may be renamed but
+# not removed. Classes persisted by field name are listed between the gson-persisted markers.
+-keepclassmembers,allowobfuscation class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
 
 # ── Retrofit ───────────────────────────────────────────────────────────────────
 # Keep generic signatures for Retrofit service methods
@@ -68,6 +73,7 @@
 -keep class com.fetch.tv.data.local.CachedNextUpItem { *; }
 -keep class com.fetch.tv.data.local.CachedInProgressItem { *; }
 -keep class com.fetch.tv.core.tracking.LocalList { *; }
+-keep class com.fetch.tv.data.local.FilterRowsDataStore$StoredFilterRow { *; }
 # gson-persisted-end
 
 # ── ExoPlayer / Media3 ────────────────────────────────────────────────────────

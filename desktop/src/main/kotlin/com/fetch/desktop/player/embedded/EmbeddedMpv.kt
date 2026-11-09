@@ -9,12 +9,12 @@ import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.StringArray
 import com.sun.jna.ptr.PointerByReference
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.json.Json
@@ -552,12 +552,17 @@ class EmbeddedMpv private constructor(
          * Failures to start are thrown as from [create].
          */
         suspend fun createOffThread(preferGpu: Boolean = true): EmbeddedMpv {
-            val created = withContext(NonCancellable + Dispatchers.IO) { create(preferGpu = preferGpu) }
-            if (!currentCoroutineContext().isActive) {
-                thread(name = "embedded-mpv-close", isDaemon = true) { runCatching { created.close() } }
+            // Held outside withContext: switching back to the caller's dispatcher is itself
+            // cancellable, and would drop the result even though the block ran to the end.
+            var created: EmbeddedMpv? = null
+            try {
+                withContext(NonCancellable + Dispatchers.IO) { created = create(preferGpu = preferGpu) }
                 currentCoroutineContext().ensureActive()
+            } catch (e: CancellationException) {
+                created?.let { player -> thread(name = "embedded-mpv-close", isDaemon = true) { runCatching { player.close() } } }
+                throw e
             }
-            return created
+            return created!!
         }
 
         /**

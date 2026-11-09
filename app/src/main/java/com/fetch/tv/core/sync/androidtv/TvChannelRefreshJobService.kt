@@ -20,7 +20,10 @@ import kotlinx.coroutines.launch
 private const val TAG = "TvChannelSync"
 private const val JOB_ID_PERIODIC = 10_010
 private const val JOB_ID_IMMEDIATE = 10_011
-private const val PERIODIC_INTERVAL_MS = 15 * 60_000L  // 15 minutes (JobScheduler OS minimum)
+// Each run cold-starts the whole process when the app isn't open, so keep it rare. The channel is
+// also reconciled whenever the app goes to the background and after boot; this job only catches
+// what changes with the clock alone (an episode that has aired since).
+private const val PERIODIC_INTERVAL_MS = 6 * 60 * 60_000L
 
 /**
  * Background job that keeps the Continue Watching preview channel in sync when the app
@@ -81,7 +84,10 @@ class TvChannelRefreshJobService : JobService() {
     companion object {
         fun schedulePeriodic(context: Context) {
             val scheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-            if (scheduler.allPendingJobs.any { it.id == JOB_ID_PERIODIC }) return
+            // Installs from before the interval changed still hold a persisted 15-minute job;
+            // scheduling with the same id replaces it.
+            val pending = scheduler.allPendingJobs.firstOrNull { it.id == JOB_ID_PERIODIC }
+            if (pending != null && pending.intervalMillis == PERIODIC_INTERVAL_MS) return
             val job = JobInfo.Builder(
                 JOB_ID_PERIODIC,
                 ComponentName(context, TvChannelRefreshJobService::class.java)
@@ -91,7 +97,7 @@ class TvChannelRefreshJobService : JobService() {
                 .setPersisted(true)
                 .build()
             scheduler.schedule(job)
-            Log.d(TAG, "Scheduled periodic TV channel refresh every ${PERIODIC_INTERVAL_MS / 60_000}min")
+            Log.d(TAG, "Scheduled periodic TV channel refresh every ${PERIODIC_INTERVAL_MS / 3_600_000}h")
         }
 
         fun scheduleImmediate(context: Context) {

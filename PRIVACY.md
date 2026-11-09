@@ -10,7 +10,7 @@ stored on the device. Uninstalling Fetch deletes them.
 
 ## What Fetch talks to
 
-Fetch only connects to services you add or turn on yourself:
+Fetch connects to services you add or turn on yourself:
 
 - **Stremio addons** you install. Each addon receives the IDs of the titles you browse or play.
 - **Trakt, Simkl, MDBList** when you sign in to them.
@@ -32,6 +32,18 @@ Fetch only connects to services you add or turn on yourself:
   until you point it at a server you run.
 - **GitHub Releases** for the in-app update check (`full` builds only). It is an
   anonymous request to `api.github.com` and carries no personal data.
+
+A few features use a service Fetch picks for you. Each is listed here with what it receives:
+
+- **TMDB** (`api.themoviedb.org` and its image hosts), when TMDB metadata is on. It receives
+  the IDs of the titles you browse, with the app's own API key.
+- **Content warnings** (`api.tiffara.com`), **off by default**. When you turn on Content
+  Warnings in Settings, the IMDb ID of each title you play is sent to look up its parents
+  guide.
+- **Simkl artwork** is loaded through the `wsrv.nl` image proxy when you are signed in to
+  Simkl. The proxy sees the address of each Simkl image.
+- **The network speed test** in Settings contacts `fast.com` (Netflix) and
+  `cloudflare.com`, only when you start a test.
 
 Each of these services has its own privacy policy.
 

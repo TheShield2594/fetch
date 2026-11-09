@@ -289,7 +289,8 @@ data class PlayerSettings(
     val pauseOverlayEnabled: Boolean = true,
     val osdClockEnabled: Boolean = true,
     val skipIntroEnabled: Boolean = true,
-    val parentalGuideEnabled: Boolean = true,
+    // Off until asked for: the lookup sends each title's IMDb id to a third party (api.tiffara.com).
+    val parentalGuideEnabled: Boolean = false,
     val autoSkipSegmentTypes: Set<AutoSkipSegmentType> = emptySet(),
     // Dolby Vision settings (libdovi conversion). dv7HandlingMode == HDR10_BASE_LAYER
     // replaces the legacy mapDV7ToHevc boolean (strip DV7, play HEVC base layer).
@@ -1006,7 +1007,7 @@ class PlayerSettingsDataStore @Inject constructor(
                 pauseOverlayEnabled = prefs[pauseOverlayEnabledKey] ?: true,
                 osdClockEnabled = prefs[osdClockEnabledKey] ?: true,
                 skipIntroEnabled = prefs[skipIntroEnabledKey] ?: true,
-                parentalGuideEnabled = prefs[parentalGuideEnabledKey] ?: true,
+                parentalGuideEnabled = prefs[parentalGuideEnabledKey] ?: false,
                 autoSkipSegmentTypes = prefs[autoSkipSegmentTypesKey]
                     ?.mapNotNull(AutoSkipSegmentType::fromStoredValue)
                     ?.toSet()

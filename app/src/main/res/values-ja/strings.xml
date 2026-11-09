@@ -493,7 +493,6 @@
     <string name="playback_skip_intro">イントロスキップ</string>
     <string name="playback_skip_intro_sub">introdb.appを使用してイントロとリキャップを検出</string>
     <string name="playback_parental_guide">コンテンツ警告</string>
-    <string name="playback_parental_guide_sub">再生開始時にペアレンタルガイダンスオーバーレイを表示</string>
     <string name="playback_auto_skip_segments">自動スキップ</string>
     <string name="playback_auto_skip_segments_sub">自動でスキップするセグメントを選択</string>
     <string name="auto_skip_intro">イントロ / オープニング</string>

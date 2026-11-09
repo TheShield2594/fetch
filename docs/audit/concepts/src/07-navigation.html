@@ -1,0 +1,27 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="common.css">
+<style>
+.nav{position:absolute;left:0;top:0;bottom:0;width:232px;background:linear-gradient(90deg,rgba(10,10,11,.98) 70%,rgba(10,10,11,0));padding:27px 0 27px 12px;display:flex;flex-direction:column}
+.ni{display:flex;align-items:center;gap:14px;height:44px;padding:0 12px;border-radius:999px;width:176px;color:var(--text2);font-size:15px;font-weight:600;position:relative}
+.ni.cur{color:var(--text)} .ni.cur::before{content:"";position:absolute;left:-4px;width:3px;height:16px;border-radius:2px;background:var(--red)}
+.ni.f{background:#fff;color:#0A0A0B}
+.ni small{margin-left:auto;font-size:11px;font-weight:600;color:var(--text3)}
+</style>
+<div class="screen">
+  <div class="abs" style="left:260px;top:0;right:0;height:330px;opacity:.5" data-art="field,66,44,10"></div>
+  <div class="abs" style="inset:0;background:rgba(10,10,11,.6)"></div>
+  <div class="abs" style="left:250px;top:226px;opacity:.45"><div class="h-section" style="margin-bottom:9px">Continue Watching</div><div class="row gap12"><div class="card" style="width:188px;height:106px" data-art="field,70,40,9"></div><div class="card" style="width:188px;height:106px" data-art="creek,60,44,8"></div><div class="card" style="width:188px;height:106px" data-art="kestrel,56,46,8"></div><div class="card" style="width:188px;height:106px" data-art="signal,50,44,8"></div></div></div>
+  <div class="nav">
+    <div class="wordmark" style="margin:0 0 0 14px">FETCH</div>
+    <div class="col gap6" style="margin-top:auto;margin-bottom:auto">
+      <div class="ni cur"><span data-i="home"></span>Home</div>
+      <div class="ni"><span data-i="search"></span>Search</div>
+      <div class="ni f"><span data-i="disc"></span>Discover</div>
+      <div class="ni"><span data-i="lib"></span>Library<small>2 new</small></div>
+      <div class="ni"><span data-i="set"></span>Settings</div>
+    </div>
+    <div class="ni" style="height:48px"><span style="width:30px;height:30px;border-radius:50%;background:#C26A3D;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;margin-left:-5px">A</span>Alex<small>Switch</small></div>
+  </div>
+  <div class="note" style="left:250px;top:60px">Rail is always visible as 64dp icons; LEFT or BACK expands it. Five destinations + profile.</div>
+  <div class="note" style="left:250px;top:86px">BACK on any root → Home. BACK on Home → rail. BACK on rail → exit (no dialog).</div>
+  <div class="note" style="left:250px;top:112px">Library absorbs Calendar, Stats, History. Settings › Home absorbs Catalog order, Collections, Filter rows.</div>
+</div><script src="art.js"></script>

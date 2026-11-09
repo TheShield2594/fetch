@@ -501,7 +501,6 @@
     <string name="playback_skip_intro">تخطي المقدمة</string>
     <string name="playback_skip_intro_sub">استخدام introdb.app لرصد المقدمات والملخصات.</string>
     <string name="playback_parental_guide">تحذيرات المحتوى</string>
-    <string name="playback_parental_guide_sub">عرض تصنيف المحتوى عند بدء التشغيل.</string>
     <string name="playback_auto_skip_segments">التخطي التلقائي</string>
     <string name="playback_auto_skip_segments_sub">إختر الأجزاء التي تريد تخطيها تلقائياً.</string>
     <string name="auto_skip_intro">المقدمة</string>

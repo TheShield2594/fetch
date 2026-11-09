@@ -635,7 +635,6 @@
     <string name="playback_skip_intro">Omitir Intro</string>
     <string name="playback_skip_intro_sub">Usar introdb.app para detectar intros y resúmenes.</string>
     <string name="playback_parental_guide">Advertencias de contenido</string>
-    <string name="playback_parental_guide_sub">Mostrar una superposición de guía parental al iniciar la reproducción.</string>
     <string name="playback_auto_skip_segments">Omisión automática</string>
     <string name="playback_auto_skip_segments_sub">Elige qué segmentos se omiten automáticamente.</string>
     <string name="auto_skip_intro">Intro / Opening</string>

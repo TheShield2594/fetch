@@ -78,7 +78,7 @@ internal fun DetailSourcesRow(
                             if (pick.isFinal) R.string.autoplay_mode_best else R.string.fetching_best_so_far
                         ).uppercase(LocalConfiguration.current.locales[0]),
                         style = SourceLabelStyle,
-                        color = FetchTheme.colors.Accent,
+                        color = FetchTheme.colors.AccentText,
                         maxLines = 1
                     )
                     Text(

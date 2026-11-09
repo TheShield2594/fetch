@@ -635,7 +635,6 @@
     <string name="playback_skip_intro">Passer l’intro</string>
     <string name="playback_skip_intro_sub">Utiliser introdb.app pour détecter les intros et les résumés.</string>
     <string name="playback_parental_guide">Avertissements de contenu</string>
-    <string name="playback_parental_guide_sub">Afficher l’avertissement de contrôle parental au démarrage de la lecture.</string>
     <string name="playback_auto_skip_segments">Saut automatique</string>
     <string name="playback_auto_skip_segments_sub">Choisissez les segments à passer automatiquement.</string>
     <string name="auto_skip_intro">Intro / Générique de début</string>

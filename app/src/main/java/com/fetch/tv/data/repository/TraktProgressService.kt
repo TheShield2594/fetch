@@ -3,6 +3,7 @@ package com.fetch.tv.data.repository
 import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.VisibleForTesting
+import com.fetch.tv.core.lifecycle.AppForeground
 import com.fetch.tv.BuildConfig
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.network.NetworkResult
@@ -1020,6 +1021,9 @@ class TraktProgressService @Inject constructor(
     private fun refreshTicker(): Flow<Unit> = flow {
         while (true) {
             delay(refreshIntervalMs)
+            // No polling while the app is off screen. A tick that came due in the background
+            // fires as soon as the app returns.
+            AppForeground.awaitForeground()
             emit(Unit)
         }
     }

@@ -591,7 +591,6 @@
     <string name="playback_skip_intro">跳過片頭</string>
     <string name="playback_skip_intro_sub">使用 introdb.app 偵測片頭和前情提要。</string>
     <string name="playback_parental_guide">內容警告</string>
-    <string name="playback_parental_guide_sub">在播放開始時顯示家長指引覆蓋層。</string>
     <string name="playback_auto_skip_segments">自動跳過</string>
     <string name="playback_auto_skip_segments_sub">選擇要自動跳過的片段類型。</string>
     <string name="auto_skip_intro">片頭／開場</string>

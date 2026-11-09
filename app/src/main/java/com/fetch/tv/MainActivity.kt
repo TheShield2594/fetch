@@ -171,7 +171,10 @@ import com.fetch.tv.ui.components.FetchScrollDefaults
 import com.fetch.tv.ui.components.LocalLandscapePosterMode
 import com.fetch.tv.ui.components.LocalAlwaysBackdropWithLogo
 import com.fetch.tv.ui.components.ProfileAvatarCircle
+import com.fetch.tv.core.lifecycle.AppForeground
 import com.fetch.tv.ui.navigation.FetchNavHost
+import com.fetch.tv.ui.navigation.RootBackAction
+import com.fetch.tv.ui.navigation.rootBackAction
 import com.fetch.tv.ui.navigation.Screen
 import com.fetch.tv.ui.screens.party.PartyEffects
 import com.fetch.tv.ui.membership.LocalMemberAccess
@@ -1487,6 +1490,7 @@ open class MainActivity : ComponentActivity() {
         // tracked; onActivityResult keeps it for a completion or dismisses it otherwise.
         externalPlaybackTracker.raiseAutoNextOverlayOnReturn()
         super.onStart()
+        AppForeground.set(true)
         startupSyncService.startPeriodicSurfacePulls()
         androidTvChannelSyncService.onForegroundChanged(true)
     }
@@ -1494,6 +1498,7 @@ open class MainActivity : ComponentActivity() {
     override fun onStop() {
         externalPlaybackTracker.onExternalPlayerCoveredApp()
         super.onStop()
+        AppForeground.set(false)
         // Leaving the app or turning the screen off ends a parent's unlock on a kids profile.
         parentalControls.lockGate()
         startupSyncService.stopPeriodicSurfacePulls()
@@ -1579,14 +1584,34 @@ private fun FetchSidebarScaffold(
     var legacyDrawerInteractionVersion by remember { mutableStateOf(0) }
 
 
-    BackHandler(enabled = currentRoute in rootRoutes && drawerState.currentValue == DrawerValue.Closed) {
-        pendingSidebarFocusRequest = true
-        drawerState.setValue(DrawerValue.Open)
-    }
-
-    BackHandler(enabled = currentRoute in rootRoutes && drawerState.currentValue == DrawerValue.Open) {
-        if (longPressBackHeld.value) return@BackHandler
-        onExitApp()
+    // Back on a sidebar page: see rootBackAction. Only Home with the sidebar open leaves the app.
+    BackHandler(enabled = currentRoute in rootRoutes) {
+        val sidebarOpen = drawerState.currentValue == DrawerValue.Open
+        if (sidebarOpen && longPressBackHeld.value) return@BackHandler
+        when (
+            rootBackAction(
+                currentRoute = currentRoute,
+                previousRoute = navController.previousBackStackEntry?.destination?.route,
+                sidebarOpen = sidebarOpen
+            )
+        ) {
+            RootBackAction.OPEN_SIDEBAR -> {
+                pendingSidebarFocusRequest = true
+                drawerState.setValue(DrawerValue.Open)
+            }
+            RootBackAction.CLOSE_SIDEBAR -> {
+                // Move focus into the page while the sidebar item still has it; the rail's buttons
+                // stop being focusable once it closes. Home has a requester to fall back on.
+                val movedIntoPage = focusManager.moveFocus(
+                    if (isRtl) FocusDirection.Left else FocusDirection.Right
+                )
+                pendingContentFocusTransfer = !movedIntoPage
+                drawerState.setValue(DrawerValue.Closed)
+            }
+            RootBackAction.POP -> navController.popBackStack()
+            RootBackAction.GO_HOME -> navigateToDrawerRoute(navController, currentRoute, Screen.Home.route)
+            RootBackAction.EXIT -> onExitApp()
+        }
     }
 
     LaunchedEffect(drawerState.currentValue, pendingContentFocusTransfer) {

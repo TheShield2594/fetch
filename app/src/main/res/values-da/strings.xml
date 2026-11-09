@@ -493,7 +493,6 @@
     <string name="playback_skip_intro">Spring intro over</string>
     <string name="playback_skip_intro_sub">Brug introdb.app til at registrere intros og recaps.</string>
     <string name="playback_parental_guide">Indholdsadvarsler</string>
-    <string name="playback_parental_guide_sub">Vis forældrevejledningsoverlay når afspilning starter.</string>
     <string name="playback_auto_skip_segments">Automatisk spring-over</string>
     <string name="playback_auto_skip_segments_sub">Vælg hvilke segmenter der springes over automatisk.</string>
     <string name="auto_skip_intro">Intro / Åbning</string>

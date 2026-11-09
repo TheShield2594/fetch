@@ -1637,7 +1637,6 @@
     <string name="sub_opacity">Прозрачность</string>
     <!-- Batch 4: playback parental/skip/AFR, video/audio DV7, cache duration -->
     <string name="playback_parental_guide">Предупреждения о контенте</string>
-    <string name="playback_parental_guide_sub">Показывать наложение с рекомендациями для родителей при начале воспроизведения.</string>
     <string name="playback_auto_skip_segments">Автоматический пропуск</string>
     <string name="playback_auto_skip_segments_sub">Выберите, какие сегменты пропускать автоматически.</string>
     <string name="auto_skip_intro">Вступление / Опенинг</string>

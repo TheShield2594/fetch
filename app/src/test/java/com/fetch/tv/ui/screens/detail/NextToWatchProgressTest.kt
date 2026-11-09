@@ -57,6 +57,49 @@ class NextToWatchProgressTest {
         assertEquals(s4Completed, anchored)
     }
 
+    @Test
+    fun `most recently watched resumable episode wins when several are half watched`() {
+        val s3Completed = progress("s3e1", 3, 1, 1000L, 1000L, lastWatched = 500L, progressPercent = 100f)
+        val olderHalf = progress("s1e2", 1, 2, 500L, 1000L, lastWatched = 1_000L, progressPercent = 50f)
+        val newerHalf = progress("s2e4", 2, 4, 300L, 1000L, lastWatched = 3_000L, progressPercent = 30f)
+
+        val anchored = resolveNextToWatchLatestProgress(
+            latestProgress = s3Completed,
+            progressEntries = listOf(olderHalf, s3Completed, newerHalf),
+            isResumable = { !it.isCompleted() && it.progressPercentage >= 0.02f }
+        )
+
+        assertEquals(newerHalf, anchored)
+    }
+
+    @Test
+    fun `most recently watched resumable episode wins when there is no latest progress`() {
+        val olderHalf = progress("s1e2", 1, 2, 500L, 1000L, lastWatched = 1_000L, progressPercent = 50f)
+        val newerHalf = progress("s1e5", 1, 5, 300L, 1000L, lastWatched = 3_000L, progressPercent = 30f)
+
+        val anchored = resolveNextToWatchLatestProgress(
+            latestProgress = null,
+            progressEntries = listOf(newerHalf, olderHalf),
+            isResumable = { !it.isCompleted() && it.progressPercentage >= 0.02f }
+        )
+
+        assertEquals(newerHalf, anchored)
+    }
+
+    @Test
+    fun `furthest episode wins when resumable episodes were watched at the same moment`() {
+        val earlier = progress("s1e2", 1, 2, 500L, 1000L, lastWatched = 2_000L, progressPercent = 50f)
+        val later = progress("s1e3", 1, 3, 500L, 1000L, lastWatched = 2_000L, progressPercent = 50f)
+
+        val anchored = resolveNextToWatchLatestProgress(
+            latestProgress = null,
+            progressEntries = listOf(later, earlier),
+            isResumable = { !it.isCompleted() && it.progressPercentage >= 0.02f }
+        )
+
+        assertEquals(later, anchored)
+    }
+
     private fun progress(
         videoId: String,
         season: Int,

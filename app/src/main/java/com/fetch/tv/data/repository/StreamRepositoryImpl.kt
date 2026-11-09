@@ -81,8 +81,9 @@ class StreamRepositoryImpl @Inject constructor(
             streamSearchSessions.observe(
                 key = requestKey,
                 forceRefresh = forceRefresh
-            ) {
+            ) { onSourceFailure ->
                 fetchStreamsFromAllSources(
+                    onSourceFailure = onSourceFailure,
                     type = type,
                     videoId = videoId,
                     season = season,
@@ -142,7 +143,8 @@ class StreamRepositoryImpl @Inject constructor(
         season: Int?,
         episode: Int?,
         addons: List<Addon>,
-        serverSources: List<ServerStreamSource>
+        serverSources: List<ServerStreamSource>,
+        onSourceFailure: () -> Unit = {}
     ): Flow<NetworkResult<List<AddonStreams>>> = flow {
         emit(NetworkResult.Loading)
 
@@ -292,11 +294,19 @@ class StreamRepositoryImpl @Inject constructor(
                 }
             }
 
+            // A source that failed (rather than answering "nothing") may answer next time, so
+            // the session cache keeps this search only briefly.
+            if (attemptedFailures.toList().any { it.kind == StreamFailureKind.REQUEST_FAILED }) {
+                onSourceFailure()
+            }
+
             // Emit final result (even if empty)
             if (accumulatedResults.isEmpty()) {
                 val errorMessage = buildAggregateFailureMessage(
                     type = type,
                     id = videoId,
+                    season = season,
+                    episode = episode,
                     attemptedAddonNames = attemptedAddonNames,
                     failures = attemptedFailures.toList()
                 )
@@ -507,9 +517,17 @@ class StreamRepositoryImpl @Inject constructor(
         )
     }
 
+    /**
+     * The Stream screen's failure text: a plain title ("No sources for S1 E2"), a blank line, then
+     * which addons were asked and what went wrong with each. The id and type stay as format
+     * arguments of the detail strings so existing translations keep working, but the default
+     * text doesn't show them.
+     */
     private fun buildAggregateFailureMessage(
         type: String,
         id: String,
+        season: Int?,
+        episode: Int?,
         attemptedAddonNames: List<String>,
         failures: List<StreamAttemptFailure>
     ): String? {
@@ -517,22 +535,29 @@ class StreamRepositoryImpl @Inject constructor(
             return context.getString(R.string.error_stream_no_supported_addon, type)
         }
 
+        val title = if (season != null && episode != null) {
+            context.getString(R.string.error_stream_no_sources_episode, season, episode)
+        } else {
+            context.getString(R.string.error_stream_no_sources)
+        }
+        fun withTitle(detail: String) = "$title\n\n$detail"
+
         val triedAddons = attemptedAddonNames.joinToString(", ")
         val missingOnly = failures.isNotEmpty() && failures.all { it.kind == StreamFailureKind.MISSING }
         if (failures.isEmpty() || missingOnly) {
-            return context.getString(R.string.error_stream_tried_none, triedAddons, id, type)
+            return withTitle(context.getString(R.string.error_stream_tried_none, triedAddons, id, type))
         }
 
         val issueSummary = failures
             .filter { it.kind == StreamFailureKind.REQUEST_FAILED }
             .distinctBy { it.addonName to it.detail }
             .take(3)
-            .joinToString("; ") { "${it.addonName}: ${it.detail}" }
+            .joinToString("\n") { "${it.addonName}: ${it.detail}" }
 
         return if (issueSummary.isBlank()) {
-            context.getString(R.string.error_stream_tried_generic, triedAddons, id, type)
+            withTitle(context.getString(R.string.error_stream_tried_generic, triedAddons, id, type))
         } else {
-            context.getString(R.string.error_stream_tried_issues, triedAddons, id, type, issueSummary)
+            withTitle(context.getString(R.string.error_stream_tried_issues, triedAddons, id, type, issueSummary))
         }
     }
 

@@ -168,6 +168,13 @@ private fun buildErrorStatePresentation(
         )
     }
 
+    // Already written for the viewer as a title, a blank line, then detail (the stream search's
+    // "No sources for S1 E2" with each addon's reason): show it as is, title in bold.
+    val titleEnd = trimmed.indexOf("\n\n")
+    if (titleEnd > 0) {
+        return ErrorStatePresentation(text = trimmed, boldRanges = listOf(0 until titleEnd))
+    }
+
     val addonName = trimmed.substringBefore(':', missingDelimiterValue = "").trim()
         .takeIf { it.isNotBlank() && it.length < trimmed.length }
     val reason = trimmed.substringAfter(':', missingDelimiterValue = trimmed).trim()

@@ -80,8 +80,14 @@ class AddonRepositoryImpl(
     companion object {
         private const val TAG = "AddonRepository"
         private const val MANIFEST_CACHE_PREFS = "addon_manifest_cache"
-        private const val MANIFEST_CACHE_KEY = "manifests_v2"
-        private const val LEGACY_MANIFEST_CACHE_KEY = "manifests"
+        /**
+         * The disk cache is the [Addon] domain model written by Gson, and Gson does not run Kotlin
+         * constructors: a field added later reads back as null (or false/0), ignoring its default
+         * and its non-null type. Bump this key whenever [Addon] or the classes it holds gain or
+         * change a field, so old entries are dropped and refetched instead of read back broken.
+         */
+        private const val MANIFEST_CACHE_KEY = "manifests_v3"
+        private val LEGACY_MANIFEST_CACHE_KEYS = listOf("manifests", "manifests_v2")
         private const val MANIFEST_SUFFIX = "/manifest.json"
         private const val MANIFEST_CACHE_TTL_MS = 6 * 60 * 60 * 1000L 
     }
@@ -195,12 +201,18 @@ class AddonRepositoryImpl(
     private suspend fun loadManifestCacheFromDisk() = kotlinx.coroutines.withContext(dispatcher) {
         try {
             val prefs = context.getSharedPreferences(MANIFEST_CACHE_PREFS, Context.MODE_PRIVATE)
-            if (prefs.contains(LEGACY_MANIFEST_CACHE_KEY)) {
-                prefs.edit().remove(LEGACY_MANIFEST_CACHE_KEY).apply()
+            val legacyKeys = LEGACY_MANIFEST_CACHE_KEYS.filter(prefs::contains)
+            if (legacyKeys.isNotEmpty()) {
+                val editor = prefs.edit()
+                legacyKeys.forEach { editor.remove(it) }
+                editor.apply()
             }
             val json = prefs.getString(MANIFEST_CACHE_KEY, null) ?: return@withContext
             val type = object : TypeToken<Map<String, Addon>>() {}.type
-            val cached: Map<String, Addon> = gson.fromJson(json, type) ?: return@withContext
+            val decoded: Map<String, Addon> = gson.fromJson(json, type) ?: return@withContext
+            // A safety net for a model change that forgot the key bump: an entry missing a
+            // non-null field is dropped, so the manifest is fetched again rather than crashing later.
+            val cached = decoded.filterValues { it.readBackIntact() }
             synchronized(manifestCacheLock) {
                 manifestCache.putAll(cached)
             }
@@ -544,3 +556,17 @@ class AddonRepositoryImpl(
             existing.manifestLanguage != incoming.manifestLanguage ||
             existing.configVersion != incoming.configVersion
 }
+
+/**
+ * False when Gson left a non-null field of a cached [Addon] null, which happens when the cached
+ * JSON predates the field. The casts to Any? keep the compiler from treating the checks as
+ * always true.
+ */
+@Suppress("SENSELESS_COMPARISON", "USELESS_CAST")
+private fun Addon.readBackIntact(): Boolean =
+    listOf<Any?>(
+        id as Any?, name as Any?, displayName as Any?, version as Any?, baseUrl as Any?,
+        catalogs as Any?, types as Any?, rawTypes as Any?, resources as Any?, idPrefixes as Any?
+    ).none { it == null } &&
+        (resources as List<Any?>).none { it == null } &&
+        (catalogs as List<Any?>).none { it == null }

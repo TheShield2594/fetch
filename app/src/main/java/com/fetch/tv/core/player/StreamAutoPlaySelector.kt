@@ -135,17 +135,36 @@ object StreamAutoPlaySelector {
         return ordered.firstOrNull { !failed(it.stream) && (matches == null || matches(it.stream)) }?.stream
     }
 
-    /** The Regex match test for one stream: the pattern, minus its negative-lookahead words. Null when it won't compile. */
+    /**
+     * A leading "exclude these words" lookahead, as in `^(?!.*\b(cam|ts)\b).*$`, optionally after
+     * inline flags like `(?is)`. Only a flat word list right after the `^` counts: a lookahead
+     * elsewhere in the pattern is positional, and a nested group can't be split into words.
+     */
+    private val LEADING_EXCLUSION = Regex("^(?:\\(\\?[a-zA-Z]+\\))?\\^\\(\\?![^()]*?\\(([^()]+)\\)")
+
+    /**
+     * The Regex match test for one stream: the pattern, plus its leading negative-lookahead words
+     * applied across the whole text (the pattern's `.` stops at a line break, so the lookahead
+     * alone would only check the first line). Null when the pattern won't compile.
+     */
     private fun regexFilter(regexPattern: String): ((Stream) -> Boolean)? {
         val pattern = regexPattern.trim()
         val userRegex = runCatching { Regex(pattern, RegexOption.IGNORE_CASE) }.getOrNull() ?: return null
-        val exclusionWords = Regex("\\(\\?![^)]*?\\(([^)]+)\\)").findAll(pattern)
-            .flatMap { match -> match.groupValues[1].split("|") }
+        val exclusionWords = LEADING_EXCLUSION.find(pattern)
+            ?.groupValues?.get(1)
+            ?.split("|")
+            .orEmpty()
             .map { it.trim() }
             .filter { it.isNotBlank() }
-            .toList()
+        // Words are matched literally: they were written as part of a larger pattern, so on their
+        // own they may not compile, and a bad user pattern must never crash auto-play.
         val excludeRegex = if (exclusionWords.isNotEmpty()) {
-            Regex("\\b(${exclusionWords.joinToString("|")})\\b", RegexOption.IGNORE_CASE)
+            runCatching {
+                Regex(
+                    "(?<![A-Za-z0-9])(${exclusionWords.joinToString("|") { Regex.escape(it) }})(?![A-Za-z0-9])",
+                    RegexOption.IGNORE_CASE
+                )
+            }.getOrNull()
         } else null
         return { stream ->
             val searchableText = buildString {

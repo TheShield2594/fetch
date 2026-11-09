@@ -197,7 +197,9 @@ data class StreamClientResolve(
     val fileIdx: Int?,
     val torrentName: String?,
     val filename: String?,
-    val stream: StreamClientResolveStream? = null
+    val stream: StreamClientResolveStream? = null,
+    /** The addon's own word that the file is in the debrid cache; null when it didn't say. */
+    val isCached: Boolean? = null
 )
 
 @Immutable

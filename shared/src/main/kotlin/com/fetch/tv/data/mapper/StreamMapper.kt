@@ -51,7 +51,8 @@ fun StreamClientResolveDto.toDomain(): StreamClientResolve = StreamClientResolve
     fileIdx = fileIdx,
     torrentName = torrentName,
     filename = filename,
-    stream = stream?.toDomain()
+    stream = stream?.toDomain(),
+    isCached = isCached
 )
 
 fun StreamClientResolveStreamDto.toDomain(): StreamClientResolveStream = StreamClientResolveStream(

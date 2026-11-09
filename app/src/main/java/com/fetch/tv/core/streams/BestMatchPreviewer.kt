@@ -12,6 +12,7 @@ import com.fetch.tv.data.local.PlayerSettingsDataStore
 import com.fetch.tv.data.local.StreamAutoPlayMode
 import com.fetch.tv.data.local.StreamLinkCacheDataStore
 import com.fetch.tv.data.local.BestMatchCacheDataStore
+import com.fetch.tv.data.mediaserver.ServerStreams
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.domain.repository.AddonRepository
@@ -38,7 +39,13 @@ data class BestMatchPreview(
     /** False while addons are still answering; the pick can still change. */
     val isFinal: Boolean,
     /** A better-looking file Best match passed over, and why, so the pick is easier to trust. */
-    val skipped: SkippedStream? = null
+    val skipped: SkippedStream? = null,
+    /**
+     * False on the final answer when the search finished without a pick: no addon returned a
+     * stream ([sourceCount] 0) or the rules ruled every one out. Lets the UI say so instead of
+     * looking as if nothing was searched. The other fields name no file then.
+     */
+    val hasPick: Boolean = true
 )
 
 /** A file Best match ruled out: its picture ("4K DV P5") and the rule or device limit that did it. */
@@ -61,12 +68,14 @@ class BestMatchPreviewer @Inject constructor(
     private val addonRepository: AddonRepository,
     private val bingeGroupCacheDataStore: BingeGroupCacheDataStore,
     private val streamLinkCacheDataStore: StreamLinkCacheDataStore,
-    private val bestMatchCacheDataStore: BestMatchCacheDataStore
+    private val bestMatchCacheDataStore: BestMatchCacheDataStore,
+    private val serverStreams: ServerStreams
 ) {
     /**
      * Emits the best pick so far as addons answer, ending with a final one. Emits nothing when
      * the Stream screen would choose by something other than ranking (another auto-play mode, a
      * reused link or a remembered binge group), since the preview could then name the wrong file.
+     * When the search ends without a pick, the last emission has [BestMatchPreview.hasPick] false.
      */
     fun preview(
         type: String,
@@ -94,13 +103,20 @@ class BestMatchPreviewer @Inject constructor(
             return@flow
         }
 
-        val installedAddonNames = addonRepository.getInstalledAddons().first()
-            .enabledAddons()
-            .map { it.displayName }
-            .toSet()
+        val installedAddonOrder = if (serverStreams.isNativeRequest(videoId)) {
+            emptyList()
+        } else {
+            addonRepository.getInstalledAddons().first()
+                .enabledAddons()
+                .map { it.displayName }
+        }
+        val installedAddonNames = installedAddonOrder.toSet()
+        val preferredServerNames = serverStreams.preferredSourceNames(type, videoId)
 
         fun pick(groups: List<AddonStreams>, isFinal: Boolean): BestMatchPreview? {
-            val streams = groups.flatMap { it.streams }
+            // Same order the Stream screen ranks in, so ties go to the same file Play starts.
+            val streams = StreamAutoPlaySelector.orderAddonStreams(groups, installedAddonOrder, preferredServerNames)
+                .flatMap { it.streams }
             val stream = StreamAutoPlaySelector.selectAutoPlayStream(
                 streams = streams,
                 mode = settings.streamAutoPlayMode,
@@ -147,10 +163,23 @@ class BestMatchPreviewer @Inject constructor(
                 pick(latest, isFinal = false)?.let { emit(it) }
             }
         }
-        pick(latest, isFinal = true)?.let { final ->
+        val final = pick(latest, isFinal = true)
+        if (final != null) {
             // Home's hero reads this instead of asking addons again.
             bestMatchCacheDataStore.save(type, videoId, final.specLabels, final.isCached)
             emit(final)
+        } else {
+            emit(
+                BestMatchPreview(
+                    videoId = videoId,
+                    labels = emptyList(),
+                    isCached = false,
+                    addonName = null,
+                    sourceCount = latest.sumOf { it.streams.size },
+                    isFinal = true,
+                    hasPick = false
+                )
+            )
         }
     }
 }

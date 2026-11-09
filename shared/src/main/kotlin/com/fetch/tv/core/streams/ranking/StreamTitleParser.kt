@@ -33,7 +33,9 @@ object StreamTitleParser {
         return parsed.copy(
             sizeBytes = stream.behaviorHints?.videoSize?.takeIf { it > 0 } ?: parsed.sizeBytes,
             languages = parsed.languages + structured?.languages.orEmpty().mapNotNull(StreamLanguage::fromCode),
-            releaseGroup = parsed.releaseGroup ?: structured?.group?.takeIf { it.isNotBlank() }
+            releaseGroup = parsed.releaseGroup ?: structured?.group?.takeIf { it.isNotBlank() },
+            // The addon's structured flag counts as much as a "[RD+]" in the title.
+            isDebridCached = parsed.isDebridCached || stream.clientResolve?.isCached == true
         )
     }
 

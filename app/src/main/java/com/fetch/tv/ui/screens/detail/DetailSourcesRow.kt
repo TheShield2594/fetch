@@ -38,7 +38,8 @@ import com.fetch.tv.ui.theme.FetchTheme
  * and quality tags, then a card that opens every source. It shows only what the Play button's
  * search already found, so it never asks the addons anything itself.
  *
- * With no pick (Best match off, or a reused link) only the "All sources" card shows.
+ * With no pick (Best match off, or a reused link) only the "All sources" card shows. When the
+ * search finished and found nothing to play ([BestMatchPreview.hasPick] false), that card says so.
  * [focusRequester] goes on the first card, where up from the rows below lands; [upFocusRequester]
  * and [downFocusRequester] pin the rows around it, so focus never skips past the row.
  */
@@ -52,6 +53,7 @@ internal fun DetailSourcesRow(
     downFocusRequester: FocusRequester? = null,
     modifier: Modifier = Modifier
 ) {
+    val pick = bestMatch?.takeIf { it.hasPick }
     val neighbours = Modifier.focusProperties {
         upFocusRequester?.let { up = it }
         downFocusRequester?.let { down = it }
@@ -63,7 +65,7 @@ internal fun DetailSourcesRow(
             color = FetchTheme.colors.TextPrimary
         )
         Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
-            bestMatch?.let { pick ->
+            if (pick != null) {
                 SourceCard(
                     onClick = onPlayBestMatch,
                     modifier = neighbours
@@ -96,7 +98,7 @@ internal fun DetailSourcesRow(
             SourceCard(
                 onClick = onAllSources,
                 modifier = neighbours
-                    .then(focusRequester?.takeIf { bestMatch == null }?.let { Modifier.focusRequester(it) } ?: Modifier)
+                    .then(focusRequester?.takeIf { pick == null }?.let { Modifier.focusRequester(it) } ?: Modifier)
                     .width(240.dp)
             ) {
                 Text(
@@ -109,6 +111,12 @@ internal fun DetailSourcesRow(
                     text = when {
                         bestMatch == null -> stringResource(R.string.detail_sources_choose)
                         !bestMatch.isFinal -> stringResource(R.string.detail_sources_searching)
+                        !bestMatch.hasPick && bestMatch.sourceCount == 0 -> stringResource(R.string.detail_sources_none)
+                        !bestMatch.hasPick -> pluralStringResource(
+                            R.plurals.detail_sources_ruled_out,
+                            bestMatch.sourceCount,
+                            bestMatch.sourceCount
+                        )
                         else -> pluralStringResource(R.plurals.detail_sources_found, bestMatch.sourceCount, bestMatch.sourceCount)
                     },
                     style = MaterialTheme.typography.labelMedium,

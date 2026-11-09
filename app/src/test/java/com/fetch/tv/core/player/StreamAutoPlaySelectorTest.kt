@@ -262,6 +262,53 @@ class StreamAutoPlaySelectorTest {
         }
     }
 
+    @Test
+    fun `regex mode survives a nested exclusion group without crashing`() {
+        val cam = stream(addonName = "AddonA", url = "https://example.com/a.m3u8", name = "Movie abc CAM")
+        val clean = stream(addonName = "AddonA", url = "https://example.com/b.m3u8", name = "Movie 1080p")
+
+        val selected = StreamAutoPlaySelector.selectAutoPlayStream(
+            streams = listOf(cam, clean),
+            mode = StreamAutoPlayMode.REGEX_MATCH,
+            regexPattern = "^(?!.*(a(b|c))).*",
+            installedAddonNames = setOf("AddonA"),
+            selectedAddons = emptySet()
+        )
+
+        assertEquals(clean, selected)
+    }
+
+    @Test
+    fun `regex mode treats leading exclusion words literally across the whole text`() {
+        val plus = stream(addonName = "AddonA", url = "https://example.com/a.m3u8", name = "Movie\nHDR10+")
+        val clean = stream(addonName = "AddonA", url = "https://example.com/b.m3u8", name = "Movie SDR")
+
+        val selected = StreamAutoPlaySelector.selectAutoPlayStream(
+            streams = listOf(plus, clean),
+            mode = StreamAutoPlayMode.REGEX_MATCH,
+            regexPattern = "^(?!.*(hdr10+|c++)).*",
+            installedAddonNames = setOf("AddonA"),
+            selectedAddons = emptySet()
+        )
+
+        assertEquals(clean, selected)
+    }
+
+    @Test
+    fun `regex mode keeps a lookahead after a word positional`() {
+        val camBefore = stream(addonName = "AddonA", url = "https://example.com/a.m3u8", name = "CAM 1080p")
+
+        val selected = StreamAutoPlaySelector.selectAutoPlayStream(
+            streams = listOf(camBefore),
+            mode = StreamAutoPlayMode.REGEX_MATCH,
+            regexPattern = "1080p(?!.*(cam))",
+            installedAddonNames = setOf("AddonA"),
+            selectedAddons = emptySet()
+        )
+
+        assertEquals(camBefore, selected)
+    }
+
     private fun stream(
         addonName: String,
         url: String? = null,

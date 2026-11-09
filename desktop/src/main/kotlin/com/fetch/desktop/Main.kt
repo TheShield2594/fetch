@@ -64,6 +64,11 @@ fun main(args: Array<String>) {
             onCloseRequest = {
                 if (!closing) {
                     closing = true
+                    // Should the UI thread itself hang (a stuck libmpv call), exit anyway.
+                    thread(name = "fetch-exit-watchdog", isDaemon = true) {
+                        Thread.sleep(AppShutdown.TIMEOUT_MS + 2_000)
+                        exitProcess(0)
+                    }
                     closeScope.launch {
                         withTimeoutOrNull(AppShutdown.TIMEOUT_MS) { runCatching { AppShutdown.onClose?.invoke() } }
                         exitApplication()

@@ -554,6 +554,9 @@ class AppState(
 
     /** The sync running now (or last run), so closing the window can wait for it. */
     private var syncJob: Job? = null
+
+    /** A sync was asked for while one ran; closing runs it after, so the last progress goes up. */
+    private var syncAgain = false
         private set
 
     /**
@@ -561,12 +564,19 @@ class AppState(
      * as the TV app does, so both see the same. The server's profile number is this profile's id.
      */
     fun syncAccount() {
-        if (syncJob?.isActive == true) return
+        if (syncJob?.isActive == true) {
+            syncAgain = true
+            return
+        }
         val paired = websiteSync
         val sync = account
         val remote = sync?.client()
         if ((sync == null || remote == null) && paired == null) return
-        if (accountSyncing) return
+        if (accountSyncing) {
+            syncAgain = true
+            return
+        }
+        syncAgain = false
         syncJob = scope.launch {
             accountSyncing = true
             try {
@@ -2308,6 +2318,8 @@ class AppState(
             val options = MpvArgs.build(player, subtitles)
             // The built-in player also offers a Skip button for segments that aren't automatic.
             val segments = if (player.builtInPlayer || player.autoSkip.isNotEmpty()) segmentsFor(target) else emptyList()
+            // The window is closing: nothing new starts (an Up Next still looking up its source).
+            if (closing) return@launch
             val useBuiltIn = (builtIn ?: (player.builtInPlayer || playerSession != null)) || inParty
             val partyOverrode = inParty && builtIn != true && !player.builtInPlayer && playerSession == null
             if (useBuiltIn && LibMpv.available &&
@@ -2516,11 +2528,22 @@ class AppState(
     suspend fun shutdown() {
         closing = true
         closePlayer()
-        externalPlayers.toList().forEach { runCatching { it.destroy() } }
+        val external = externalPlayers.toList()
+        external.forEach { runCatching { it.destroy() } }
+        // An mpv that ignores the request is killed, so its follower isn't left reading.
+        if (external.isNotEmpty()) scope.launch {
+            delay(1_500)
+            external.filter { it.isAlive }.forEach { runCatching { it.destroyForcibly() } }
+        }
         // Each follower saves its last sample, scrobbles, reports and starts a sync as it ends.
         while (playbackFollowers > 0) delay(50)
         endingWork.toList().joinAll()
         syncJob?.join()
+        // A sync that was already running may have missed the last progress: one more.
+        if (syncAgain) {
+            syncAccount()
+            syncJob?.join()
+        }
     }
 
     /** Playbacks being followed (mpv's window or the built-in player); Ambient Mode waits while any are. */

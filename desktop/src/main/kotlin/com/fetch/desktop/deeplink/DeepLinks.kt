@@ -1,5 +1,6 @@
 package com.fetch.desktop.deeplink
 
+import com.fetch.desktop.data.PrivateFiles
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,6 +13,8 @@ import java.nio.channels.Channels
 import java.nio.channels.ServerSocketChannel
 import java.nio.channels.SocketChannel
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.LinkOption
 import kotlin.concurrent.thread
 
 /**
@@ -46,15 +49,31 @@ object DeepLinks {
  * running one over a Unix socket and exits, so the link opens in the window you already have.
  */
 object SingleInstance {
+    /**
+     * In `$XDG_RUNTIME_DIR` (private to the user by definition), else in `~/.cache/fetch` made 700,
+     * never in the shared temp folder, where another user could make the socket first and be sent
+     * this user's links.
+     */
     val socketFile: File by lazy {
-        val dir = System.getenv("XDG_RUNTIME_DIR")?.takeIf { it.isNotBlank() && File(it).isDirectory }
-            ?: System.getProperty("java.io.tmpdir")
+        val runtime = System.getenv("XDG_RUNTIME_DIR")?.takeIf { it.isNotBlank() && File(it).isDirectory }?.let(::File)
+        val dir = runtime ?: run {
+            val cache = System.getenv("XDG_CACHE_HOME")?.takeIf { it.isNotBlank() }?.let(::File)
+                ?: File(System.getProperty("user.home"), ".cache")
+            File(cache, "fetch").also { PrivateFiles.ensureDir(it, restrictExisting = true) }
+        }
         File(dir, "fetch-${System.getProperty("user.name")}.sock")
     }
 
+    /** True when [socket] is a real socket file of this user's, not a link or someone else's. */
+    internal fun ownedByMe(socket: File): Boolean = runCatching {
+        val path = socket.toPath()
+        if (Files.isSymbolicLink(path)) return@runCatching false
+        Files.getOwner(path, LinkOption.NOFOLLOW_LINKS).name == System.getProperty("user.name")
+    }.getOrDefault(false)
+
     /** Sends [links] to a running Fetch; true when one took them (this launch should then exit). */
     fun forward(links: List<String>, socket: File = socketFile): Boolean {
-        if (!socket.exists()) return false
+        if (!socket.exists() || !ownedByMe(socket)) return false
         return runCatching {
             SocketChannel.open(StandardProtocolFamily.UNIX).use { channel ->
                 channel.connect(UnixDomainSocketAddress.of(socket.toPath()))

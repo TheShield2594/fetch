@@ -1,8 +1,10 @@
 import java.util.Properties
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
-// Fetch for desktop: a Compose Multiplatform (JVM) app built on :shared. Linux first;
-// Windows and macOS use the same code once their packaging is set up.
+// Fetch for desktop: a Compose Multiplatform (JVM) app built on :shared. Linux only for now:
+// besides the .deb/.rpm packaging below, the code assumes Linux (libmpv and EGL loaded by their
+// Linux names, XDG paths, a Unix-domain socket for deep links, the updater's package formats).
+// Windows and macOS would need those ported as well as their own packaging.
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.compose)
@@ -80,7 +82,7 @@ dependencies {
     implementation(libs.coil.network.okhttp)
     implementation(libs.coil.svg)
     // The built-in player talks to libmpv (libmpv2 on Debian/Ubuntu) through JNA.
-    implementation("net.java.dev.jna:jna:5.6.0")
+    implementation(libs.jna)
 
     testImplementation("junit:junit:4.13.2")
 }

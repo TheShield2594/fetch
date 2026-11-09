@@ -55,4 +55,14 @@ class SingleInstanceTest {
         assertFalse(DeepLinks.isLink("https://example.com"))
         assertFalse(DeepLinks.isLink("--some-flag"))
     }
+
+    @Test
+    fun `a socket path that is a link is not trusted`() {
+        val real = File(socket.parentFile, "real.sock").apply { writeText("") }
+        val link = File(socket.parentFile, "link.sock")
+        Files.createSymbolicLink(link.toPath(), real.toPath())
+        assertTrue(SingleInstance.ownedByMe(real))
+        assertFalse(SingleInstance.ownedByMe(link))
+        assertFalse(SingleInstance.forward(listOf("fetch://movie/tt1"), link))
+    }
 }

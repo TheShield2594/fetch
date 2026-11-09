@@ -9,8 +9,6 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 
 /** Reads and writes one JSON file in [AppDirs.config], atomically. A missing or broken file reads as [default]. */
 class JsonFile<T>(
@@ -30,10 +28,8 @@ class JsonFile<T>(
     }
 
     fun save(value: T) {
-        file.parentFile?.mkdirs()
-        val tmp = File(file.parentFile, "${file.name}.tmp")
-        tmp.writeText(json.encodeToString(serializer, value))
-        Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
+        // Owner-only, written then renamed (some of these hold provider credentials).
+        PrivateFiles.writeText(file, json.encodeToString(serializer, value))
     }
 }
 

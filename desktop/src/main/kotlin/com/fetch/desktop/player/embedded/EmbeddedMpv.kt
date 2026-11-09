@@ -136,6 +136,13 @@ class EmbeddedMpv private constructor(
     @Volatile private var awaitingStart = false
     private var pendingSubtitles: List<String> = emptyList()
 
+    // The software renderer's mpv_render_param buffers, made once and refilled for each frame
+    // (render thread only); being fields also keeps them alive while mpv reads them.
+    private val swSize = Memory(8)
+    private val swStride = Memory(Native.SIZE_T_SIZE.toLong())
+    private val swFormat = stringPointer("bgr0")
+    private val swParams = Memory(renderParamsBytes(4))
+
     private val json = Json { ignoreUnknownKeys = true }
     private lateinit var eventThread: Thread
     private lateinit var renderThread: Thread
@@ -417,9 +424,15 @@ class EmbeddedMpv private constructor(
             // frame of a paused file and redraws after a seek while paused.
             if (gl == null && flags and LibMpv.RENDER_UPDATE_FRAME == 0L && videoWidth > 0) continue
             val (w, h) = frameSize() ?: continue
+            var replaced: Bitmap? = null
             val target = synchronized(frameLock) {
-                back?.takeIf { it.width == w && it.height == h } ?: newBitmap(w, h).also { back = it }
+                back?.takeIf { it.width == w && it.height == h } ?: newBitmap(w, h).also {
+                    replaced = back
+                    back = it
+                }
             }
+            // The old size's bitmap is closed on the UI thread, after any draw that still had it.
+            replaced?.let { old -> ui { old.close() } }
             val pixels = target.peekPixels() ?: continue
             val glRenderer = gl
             if (glRenderer != null) {
@@ -427,25 +440,19 @@ class EmbeddedMpv private constructor(
                 publish(target)
                 continue
             }
-            val stride = Memory(Native.SIZE_T_SIZE.toLong()).apply {
-                if (Native.SIZE_T_SIZE == 8) setLong(0, target.rowBytes.toLong()) else setInt(0, target.rowBytes)
-            }
-            val size = Memory(8).apply { setInt(0, w); setInt(4, h) }
-            val format = stringPointer("bgr0")
-            val params = renderParams(
+            if (Native.SIZE_T_SIZE == 8) swStride.setLong(0, target.rowBytes.toLong()) else swStride.setInt(0, target.rowBytes)
+            swSize.setInt(0, w)
+            swSize.setInt(4, h)
+            fillRenderParams(
+                swParams,
                 listOf(
-                    LibMpv.RENDER_PARAM_SW_SIZE to size,
-                    LibMpv.RENDER_PARAM_SW_FORMAT to format,
-                    LibMpv.RENDER_PARAM_SW_STRIDE to stride,
+                    LibMpv.RENDER_PARAM_SW_SIZE to swSize,
+                    LibMpv.RENDER_PARAM_SW_FORMAT to swFormat,
+                    LibMpv.RENDER_PARAM_SW_STRIDE to swStride,
                     LibMpv.RENDER_PARAM_SW_POINTER to Pointer(pixels.addr)
                 )
             )
-            val rendered = mpv.mpv_render_context_render(render, params)
-            // The parameter buffers are only referenced by address; keep them alive until here.
-            java.lang.ref.Reference.reachabilityFence(size)
-            java.lang.ref.Reference.reachabilityFence(stride)
-            java.lang.ref.Reference.reachabilityFence(format)
-            java.lang.ref.Reference.reachabilityFence(params)
+            val rendered = mpv.mpv_render_context_render(render, swParams)
             if (rendered < 0) continue
             publish(target)
         }
@@ -525,15 +532,30 @@ class EmbeddedMpv private constructor(
 
     private fun ui(block: () -> Unit) = SwingUtilities.invokeLater(block)
 
-    override fun close() {
-        if (!running && renderCtx == null) return
+    /**
+     * Stops the event and render threads; true when both have ended. One still running (stuck in
+     * a libmpv call) is still using libmpv and the frames.
+     */
+    private fun stopThreads(): Boolean {
         running = false
-        ending?.complete(false)
         mpv.mpv_wakeup(ctx)
         runCatching { eventThread.join(1_000) }
         frameReady.release()
         // The render thread frees its renderer as it ends; libmpv goes after.
         runCatching { renderThread.join(2_000) }
+        fun alive(thread: () -> Thread) = runCatching { thread().isAlive }.getOrDefault(false)
+        return !alive { eventThread } && !alive { renderThread }
+    }
+
+    override fun close() {
+        if (!running && renderCtx == null) return
+        ending?.complete(false)
+        if (!stopThreads()) {
+            // Freeing libmpv or the bitmaps under a thread that still uses them would crash the
+            // app; leaking this player's memory is the lesser harm.
+            System.err.println("Fetch: the player's threads didn't stop; leaving libmpv running")
+            return
+        }
         mpv.mpv_terminate_destroy(ctx)
         synchronized(frameLock) {
             listOfNotNull(front, back, spare).distinct().forEach { it.close() }
@@ -602,10 +624,8 @@ class EmbeddedMpv private constructor(
             try {
                 player.start()
             } catch (e: Throwable) {
-                player.running = false
-                lib.mpv_wakeup(ctx)
-                runCatching { player.eventThread.join(1_000) }
-                lib.mpv_terminate_destroy(ctx)
+                // As in close: a thread still inside libmpv keeps it, rather than crash.
+                if (player.stopThreads()) lib.mpv_terminate_destroy(ctx)
                 throw e
             }
             return player
@@ -614,15 +634,21 @@ class EmbeddedMpv private constructor(
         private fun stringPointer(value: String): Pointer = Memory(value.length + 1L).apply { setString(0, value) }
 
         /** An `mpv_render_param` array ({int type; void *data}), ended by an empty one. */
-        private fun renderParams(params: List<Pair<Int, Pointer>>): Pointer {
+        private fun renderParams(params: List<Pair<Int, Pointer>>): Pointer =
+            Memory(renderParamsBytes(params.size)).also { fillRenderParams(it, params) }
+
+        /** The bytes of an `mpv_render_param` array of [count] entries and its end marker. */
+        internal fun renderParamsBytes(count: Int): Long = 2L * Native.POINTER_SIZE * (count + 1)
+
+        /** Writes [params] and the end marker into [memory], made by [renderParamsBytes]. */
+        internal fun fillRenderParams(memory: Memory, params: List<Pair<Int, Pointer>>) {
             val entry = 2L * Native.POINTER_SIZE
-            val memory = Memory(entry * (params.size + 1))
+            require(memory.size() >= entry * (params.size + 1)) { "render params buffer too small" }
             memory.clear()
             params.forEachIndexed { i, (type, data) ->
                 memory.setInt(i * entry, type)
                 memory.setPointer(i * entry + Native.POINTER_SIZE, data)
             }
-            return memory
         }
     }
 }

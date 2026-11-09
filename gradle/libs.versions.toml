@@ -39,6 +39,8 @@ baselineProfilePlugin = "1.4.1"
 composeMultiplatform = "1.12.2"
 composeRuntimeAnnotation = "1.11.4"
 javaxInject = "1"
+# Desktop: the built-in player talks to libmpv through JNA.
+jna = "5.6.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -131,6 +133,7 @@ androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profi
 # Shared (platform-free) module
 androidx-compose-runtime-annotation = { group = "androidx.compose.runtime", name = "runtime-annotation", version.ref = "composeRuntimeAnnotation" }
 javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javaxInject" }
+jna = { group = "net.java.dev.jna", name = "jna", version.ref = "jna" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -111,6 +111,19 @@ class ParityRoundTest {
     }
 
     @Test
+    fun `the install's package is the one its package manager owns`() {
+        fun kind(owner: String?, home: String = "/opt/fetch/lib/runtime") =
+            UpdateChecker.packageKind(home) { command -> command.first() == owner }
+        assertEquals(".pkg.tar.zst", kind("pacman"))
+        assertEquals(".deb", kind("dpkg"))
+        assertEquals(".rpm", kind("rpm"))
+        assertEquals("unpacked into /opt by hand", ".tar.gz", kind(null))
+        assertEquals(".tar.gz", kind("dpkg", home = "/home/me/fetch/lib/runtime"))
+        val arch = release("v1.3.1").copy(assets = listOf(UpdateChecker.Asset("fetch-v1.3.1-linux-x86_64.pkg.tar.zst", "https://dl/arch")))
+        assertEquals("https://dl/arch", UpdateChecker.pick(listOf(arch), "1.3.0", beta = false, kind = ".pkg.tar.zst")!!.packageUrl)
+    }
+
+    @Test
     fun `the Up Next card shows near the end, or from the credits`() {
         val credits = listOf(Segment(SegmentType.OUTRO, 2_500.0, 2_640.0))
         assertNull(upNextCountdown(credits, position = 1_000.0, duration = 2_700.0, promptSeconds = 30))

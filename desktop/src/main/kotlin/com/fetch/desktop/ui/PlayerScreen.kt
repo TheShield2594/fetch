@@ -38,6 +38,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -270,6 +271,8 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                             seeking = null
                         },
                         valueRange = 0f..duration.toFloat().coerceAtLeast(0.01f),
+                        // Mouse only: focused, it would take the arrow keys from the player's seek.
+                        modifier = Modifier.focusProperties { canFocus = false },
                         colors = SliderDefaults.colors(
                             thumbColor = FetchPalette.Accent,
                             activeTrackColor = FetchPalette.Accent,
@@ -293,7 +296,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                             value = mpv.volume.toFloat().coerceIn(0f, 130f),
                             onValueChange = { mpv.changeVolume(it.toDouble()) },
                             valueRange = 0f..130f,
-                            modifier = Modifier.width(120.dp),
+                            modifier = Modifier.width(120.dp).focusProperties { canFocus = false },
                             colors = SliderDefaults.colors(thumbColor = Color.White, activeTrackColor = Color.White, inactiveTrackColor = Color.White.copy(alpha = 0.3f))
                         )
                         CircleIconButton(FetchIcons.Fullscreen, "Fullscreen", onClick = ::toggleFullscreen)

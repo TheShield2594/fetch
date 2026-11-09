@@ -17,7 +17,7 @@ data class AvailableUpdate(val version: String, val pageUrl: String, val package
 
 /**
  * The TV app's update check, for desktop: GitHub releases, stable only unless betas are wanted,
- * newer by semantic version. Installing stays with apt, dnf or the tarball; Fetch only says where.
+ * newer by semantic version. Installing stays with apt, dnf, pacman or the tarball; Fetch only says where.
  */
 class UpdateChecker(
     private val scope: CoroutineScope,
@@ -40,8 +40,8 @@ class UpdateChecker(
         scope.launch {
             checking = true
             try {
-                val releases = withContext(Dispatchers.IO) { fetch() }
-                available = pick(releases, current(), beta, packageKind())
+                val (releases, kind) = withContext(Dispatchers.IO) { fetch() to packageKind() }
+                available = pick(releases, current(), beta, kind)
                 status = if (available == null) "Fetch ${current()} is up to date" else "Fetch ${available?.version} is available"
             } catch (e: Exception) {
                 status = "Couldn't check for updates: ${e.message}"
@@ -75,16 +75,37 @@ class UpdateChecker(
     companion object {
         private val json = Json { ignoreUnknownKeys = true }
 
-        /** ".deb", ".rpm" or ".tar.gz", by what this install came from (the package's files), else the tarball. */
-        fun packageKind(): String {
-            val home = System.getProperty("java.home").orEmpty()
-            return when {
-                !home.startsWith("/opt/") -> ".tar.gz"
-                java.io.File("/usr/bin/dpkg").exists() -> ".deb"
-                java.io.File("/usr/bin/rpm").exists() -> ".rpm"
-                else -> ".tar.gz"
-            }
+        /**
+         * The package this install came from, by which package manager owns its files: ".pkg.tar.zst"
+         * (pacman), ".deb" (dpkg), ".rpm" (rpm), else ".tar.gz" (the tarball, also when it was
+         * unpacked into /opt by hand). [owns] runs a query command and says whether it succeeded.
+         */
+        fun packageKind(
+            home: String = System.getProperty("java.home").orEmpty(),
+            owns: (List<String>) -> Boolean = ::succeeds
+        ): String {
+            if (!home.startsWith("/opt/")) return ".tar.gz"
+            // A file of the bundled runtime (every package ships it), else the install's folder.
+            val path = java.io.File(home, "release").takeIf { it.isFile }?.path
+                ?: ("/opt/" + home.removePrefix("/opt/").substringBefore('/'))
+            val queries = listOf(
+                ".pkg.tar.zst" to listOf("pacman", "-Qqo", path),
+                ".deb" to listOf("dpkg", "-S", path),
+                ".rpm" to listOf("rpm", "-qf", path)
+            )
+            return queries.firstOrNull { (_, command) -> owns(command) }?.first ?: ".tar.gz"
         }
+
+        /** True when [command] runs and exits 0 within a few seconds; false if it's missing. */
+        private fun succeeds(command: List<String>): Boolean = runCatching {
+            val process = ProcessBuilder(command).redirectErrorStream(true).redirectOutput(ProcessBuilder.Redirect.DISCARD).start()
+            if (!process.waitFor(5, java.util.concurrent.TimeUnit.SECONDS)) {
+                process.destroyForcibly()
+                false
+            } else {
+                process.exitValue() == 0
+            }
+        }.getOrDefault(false)
 
         /** The newest release above [current] (betas only when [beta]), or null. */
         fun pick(releases: List<Release>, current: String, beta: Boolean, kind: String): AvailableUpdate? {

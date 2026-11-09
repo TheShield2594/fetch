@@ -95,7 +95,6 @@ class StreamScreenViewModel @Inject constructor(
     profileManager: com.fetch.tv.core.profile.ProfileManager,
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     private val screenTime: com.fetch.tv.core.parental.ScreenTimeManager,
-    private val addonHealthTracker: com.fetch.tv.core.streams.AddonHealthTracker,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private var autoPlayHandledForSession = false
@@ -577,10 +576,16 @@ class StreamScreenViewModel @Inject constructor(
             } else null
             // Filled once the source chips are known; see StreamAutoPlaySelector.sourcesNeededForPick.
             var sourcesNeededForPick: Set<String>? = null
+            // Streams a meta lists on this video's own entry, found alongside the addon search
+            // and shown as one more group.
+            var embeddedGroup: AddonStreams? = null
 
             fun applySuccess(addonStreamGroups: List<AddonStreams>, isAllLoaded: Boolean) {
+                val withEmbedded = embeddedGroup?.let { embedded ->
+                    addonStreamGroups.filterNot { it.addonName == embedded.addonName } + embedded
+                } ?: addonStreamGroups
                 val orderedAddonStreams = StreamAutoPlaySelector.orderAddonStreams(
-                    addonStreamGroups,
+                    withEmbedded,
                     installedAddonOrder,
                     preferredServerNames
                 )
@@ -772,34 +777,11 @@ class StreamScreenViewModel @Inject constructor(
                 scheduleStreamBadgePresentation(mergedAddonStreams)
             }
 
-            if (shouldAttemptEmbeddedMetaStreamLookup()) {
-                getEmbeddedStreamsFromMeta()?.let { embeddedAddonStreams ->
-                    Log.d(
-                        TAG,
-                        "Using embedded video streams for videoId=$videoId count=${embeddedAddonStreams.streams.size}"
-                    )
-                    applySuccess(listOf(embeddedAddonStreams), isAllLoaded = true)
-                    updateSourceChipsForEmbedded(embeddedAddonStreams.addonName)
-                    if (directAutoPlayFlowEnabledForSession && !resolvedAutoPlayTarget) {
-                        directAutoPlayFlowEnabledForSession = false
-                        updateUiStateIfChanged {
-                            it.copy(
-                                isDirectAutoPlayFlow = false,
-                                showDirectAutoPlayOverlay = false,
-                                directAutoPlayMessage = null
-                            )
-                        }
-                    }
-                    return@launch
-                }
-            }
-
             val alreadySucceededNames = if (forceRefresh) {
                 emptySet()
             } else {
                 _uiState.value.addonStreams.mapTo(linkedSetOf()) { it.addonName }
             }
-            val fetchStartedAtMs = System.currentTimeMillis()
             updateSourceChipsForFetchStart(
                 installedAddons = installedAddons,
                 serverSourceNames = serverSourceNames,
@@ -817,28 +799,46 @@ class StreamScreenViewModel @Inject constructor(
             }
 
             var lastSuccessData: List<AddonStreams>? = null
+            // The meta lookup for embedded streams runs beside the addon search instead of ahead
+            // of it, and its streams join the results instead of replacing them.
+            val embeddedLookup = if (shouldAttemptEmbeddedMetaStreamLookup()) {
+                launch {
+                    val embedded = getEmbeddedStreamsFromMeta() ?: return@launch
+                    Log.d(TAG, "Adding embedded video streams for videoId=$videoId count=${embedded.streams.size}")
+                    embeddedGroup = embedded
+                    applySuccess(lastSuccessData.orEmpty(), isAllLoaded = false)
+                    updateSourceChipsForEmbedded(embedded.addonName)
+                }
+            } else {
+                null
+            }
             var autoSelectTriggered = false
             var timeoutElapsed = false
             val isUnlimitedTimeout = playerSettings.streamAutoPlayTimeoutSeconds == PlayerSettings.STREAM_AUTOPLAY_TIMEOUT_UNLIMITED
 
             val streamLoadInner = launch {
-                // Undispatched, so the watcher is subscribed before the search can record outcomes.
-                val chipOutcomeWatcher = launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
-                    watchSourceChipOutcomes(since = fetchStartedAtMs)
-                }
-                streamRepository.getStreamsFromAllAddons(
+                var previousResult: NetworkResult<List<AddonStreams>>? = null
+                streamRepository.searchStreamsFromAllSources(
                     type = contentType,
                     videoId = videoId,
                     season = season,
                     episode = episode,
                     forceRefresh = forceRefresh
-                ).onEach { result ->
+                ).onEach { update ->
                     // Parse release names off the main thread; ranking in applySuccess then reads
                     // the parser's cache instead of running its regexes on every emission.
-                    if (result is NetworkResult.Success) {
+                    val result = update.result
+                    if (result is NetworkResult.Success && result !== previousResult) {
                         result.data.forEach { group -> group.streams.forEach(StreamTitleParser::parse) }
                     }
-                }.flowOn(kotlinx.coroutines.Dispatchers.Default).collect { result ->
+                }.flowOn(kotlinx.coroutines.Dispatchers.Default).collect { update ->
+                    // Each source says how it finished (also when the search is replayed from the
+                    // session cache), so its chip settles as soon as it is done.
+                    settleSourceChips(update.sourceOutcomes)
+                    val result = update.result
+                    // An update that only adds a source's outcome repeats the same result.
+                    if (result === previousResult) return@collect
+                    previousResult = result
                     when (result) {
                         is NetworkResult.Success -> {
                             lastSuccessData = result.data
@@ -896,6 +896,11 @@ class StreamScreenViewModel @Inject constructor(
                             }
                         }
                         is NetworkResult.Error -> {
+                            if (embeddedGroup != null) {
+                                // The addons found nothing, but the meta's own streams are there.
+                                applySuccess(emptyList(), isAllLoaded = false)
+                                return@collect
+                            }
                             if (directAutoPlayFlowEnabledForSession) {
                                 directAutoPlayFlowEnabledForSession = false
                             }
@@ -923,14 +928,12 @@ class StreamScreenViewModel @Inject constructor(
                         }
                     }
                 }
-                chipOutcomeWatcher.cancel()
-                // The watcher can miss the last addons' events; settle their chips from the
-                // outcomes the tracker already holds before treating any chip as failed.
-                settlePendingSourceChipsFromHealth(since = fetchStartedAtMs)
+                // Let the embedded lookup add its streams before the final pick.
+                embeddedLookup?.join()
                 // All addons finished — run auto-select if not yet triggered
                 if (!autoSelectTriggered) {
                     autoSelectTriggered = true
-                    lastSuccessData?.let { applySuccess(it, isAllLoaded = true) }
+                    (lastSuccessData ?: embeddedGroup?.let { emptyList() })?.let { applySuccess(it, isAllLoaded = true) }
                 }
                 markRemainingSourceChipsAsError()
                 if (directAutoPlayFlowEnabledForSession && !resolvedAutoPlayTarget) {
@@ -1067,8 +1070,9 @@ class StreamScreenViewModel @Inject constructor(
             } == true) return true
         if (contentType.equals("other", ignoreCase = true)) return true
 
-        val canonicalVideoMetaId = videoId.substringBefore(":")
-        return !metaId.equals(canonicalVideoMetaId, ignoreCase = true)
+        // "kitsu:123:5" belongs to "kitsu:123": only a video id that points at another meta
+        // than the one being shown is worth the lookup.
+        return !metaId.equals(com.fetch.tv.core.streams.metaIdForVideoId(videoId), ignoreCase = true)
     }
 
     private suspend fun updateSourceChipsForFetchStart(
@@ -1144,38 +1148,11 @@ class StreamScreenViewModel @Inject constructor(
         return updated
     }
 
-    /**
-     * Settles an addon's chip as soon as its request finishes, instead of leaving it "loading"
-     * until every other addon has answered: red when it failed or timed out, "no results" when it
-     * answered with nothing. The repository records an addon's stream outcome only after its
-     * inline-meta fallback, so an EMPTY outcome is final.
-     */
-    private suspend fun watchSourceChipOutcomes(since: Long) {
-        addonHealthTracker.events.collect { event ->
-            if (event.kind != com.fetch.tv.core.streams.AddonRequestKind.STREAM || event.atMs < since) return@collect
-            val settledStatus = event.outcome.settledSourceChipStatus() ?: return@collect
-            updateUiStateIfChanged { state ->
-                if (state.sourceChips.none { it.name == event.addonName && it.status == SourceChipStatus.LOADING }) {
-                    return@updateUiStateIfChanged state
-                }
-                state.copy(
-                    sourceChips = state.sourceChips.map { chip ->
-                        if (chip.name == event.addonName && chip.status == SourceChipStatus.LOADING) {
-                            chip.copy(status = settledStatus)
-                        } else {
-                            chip
-                        }
-                    }
-                )
-            }
-        }
-    }
-
-    private fun settlePendingSourceChipsFromHealth(since: Long) {
-        val health = addonHealthTracker.health.value
+    /** Settles the chips of sources that have reported how they finished; see [settlePendingSourceChips]. */
+    private fun settleSourceChips(outcomes: Map<String, com.fetch.tv.domain.model.StreamSourceOutcome>) {
         updateUiStateIfChanged { state ->
-            val settled = settlePendingSourceChips(state.sourceChips, health, since)
-            if (settled == state.sourceChips) state else state.copy(sourceChips = settled)
+            val settled = settlePendingSourceChips(state.sourceChips, outcomes)
+            if (settled === state.sourceChips) state else state.copy(sourceChips = settled)
         }
     }
 

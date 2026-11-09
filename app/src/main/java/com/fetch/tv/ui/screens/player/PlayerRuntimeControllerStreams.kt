@@ -18,6 +18,7 @@ import com.fetch.tv.domain.model.Video
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.ui.components.SourceChipItem
 import com.fetch.tv.ui.components.SourceChipStatus
+import com.fetch.tv.ui.screens.stream.settlePendingSourceChips
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancel
@@ -228,13 +229,22 @@ internal fun PlayerRuntimeController.loadSourceStreams(forceRefresh: Boolean) {
             updateSourceChipsForFetchStart(type, vid, installedAddons)
         }
 
-        streamRepository.getStreamsFromAllAddons(
+        var previousResult: NetworkResult<List<AddonStreams>>? = null
+        streamRepository.searchStreamsFromAllSources(
             type = type,
             videoId = vid,
             season = seasonArg,
             episode = episodeArg,
             forceRefresh = forceRefresh
-        ).collect { result ->
+        ).collect { update ->
+            // A source that answered nothing ends as "no results", live or replayed from cache.
+            _uiState.update { state ->
+                val settled = settlePendingSourceChips(state.sourceChips, update.sourceOutcomes)
+                if (settled === state.sourceChips) state else state.copy(sourceChips = settled)
+            }
+            val result = update.result
+            if (result === previousResult) return@collect
+            previousResult = result
             when (result) {
                 is NetworkResult.Success -> {
                     val addonStreams = StreamAutoPlaySelector.orderAddonStreams(result.data, installedAddonOrder, preferredServerNames)
@@ -407,6 +417,8 @@ private fun PlayerRuntimeController.mergeSourceChipStatuses(
 private fun PlayerRuntimeController.markRemainingSourceChipsAsError() {
     var markedAnyError = false
     _uiState.update { state ->
+        // A source that reported a failure already shows red; it is dismissed with the rest.
+        markedAnyError = state.sourceChips.any { it.status.isFailed }
         if (!state.sourceChips.any { it.status == SourceChipStatus.LOADING }) return@update state
         markedAnyError = true
         state.copy(
@@ -426,7 +438,7 @@ private fun PlayerRuntimeController.markRemainingSourceChipsAsError() {
         delay(1600L)
         _uiState.update { state ->
             state.copy(
-                sourceChips = state.sourceChips.filterNot { it.status == SourceChipStatus.ERROR }
+                sourceChips = state.sourceChips.filterNot { it.status.isFailed }
             )
         }
     }
@@ -452,6 +464,7 @@ private suspend fun PlayerRuntimeController.updateEpisodeSourceChipsForFetchStar
 private fun PlayerRuntimeController.markRemainingEpisodeSourceChipsAsError() {
     var markedAnyError = false
     _uiState.update { state ->
+        markedAnyError = state.episodeSourceChips.any { it.status.isFailed }
         if (!state.episodeSourceChips.any { it.status == SourceChipStatus.LOADING }) return@update state
         markedAnyError = true
         state.copy(
@@ -470,7 +483,7 @@ private fun PlayerRuntimeController.markRemainingEpisodeSourceChipsAsError() {
         delay(1600L)
         _uiState.update { state ->
             state.copy(
-                episodeSourceChips = state.episodeSourceChips.filterNot { it.status == SourceChipStatus.ERROR }
+                episodeSourceChips = state.episodeSourceChips.filterNot { it.status.isFailed }
             )
         }
     }
@@ -993,13 +1006,21 @@ internal fun PlayerRuntimeController.loadStreamsForEpisode(video: Video, forceRe
         // Initialize episode source chips with LOADING status
         updateEpisodeSourceChipsForFetchStart(type, video.id, installedAddons)
 
-        streamRepository.getStreamsFromAllAddons(
+        var previousResult: NetworkResult<List<AddonStreams>>? = null
+        streamRepository.searchStreamsFromAllSources(
             type = type,
             videoId = video.id,
             season = video.season,
             episode = video.episode,
             forceRefresh = forceRefresh
-        ).collect { result ->
+        ).collect { update ->
+            _uiState.update { state ->
+                val settled = settlePendingSourceChips(state.episodeSourceChips, update.sourceOutcomes)
+                if (settled === state.episodeSourceChips) state else state.copy(episodeSourceChips = settled)
+            }
+            val result = update.result
+            if (result === previousResult) return@collect
+            previousResult = result
             when (result) {
                 is NetworkResult.Success -> {
                     val addonStreams = StreamAutoPlaySelector.orderAddonStreams(result.data, installedAddonOrder, preferredServerNames)

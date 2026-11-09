@@ -4,6 +4,7 @@ import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.Stream
+import com.fetch.tv.domain.model.StreamSearchUpdate
 import kotlinx.coroutines.flow.Flow
 
 interface StreamRepository {
@@ -22,6 +23,20 @@ interface StreamRepository {
         episode: Int? = null,
         forceRefresh: Boolean = false
     ): Flow<NetworkResult<List<AddonStreams>>>
+
+    /**
+     * The same search as [getStreamsFromAllAddons], also saying how each source finished
+     * (streams, nothing, failed, timed out) as soon as it does, so source chips can settle
+     * without guessing. A search replayed from the session cache brings its outcomes back too.
+     * An update can repeat the previous result with only the outcomes changed.
+     */
+    fun searchStreamsFromAllSources(
+        type: String,
+        videoId: String,
+        season: Int? = null,
+        episode: Int? = null,
+        forceRefresh: Boolean = false
+    ): Flow<StreamSearchUpdate>
 
     /**
      * Returns the streams a recent [getStreamsFromAllAddons] search already holds for this video,

@@ -5,6 +5,7 @@ import com.fetch.tv.core.streams.AddonCallResult
 import com.fetch.tv.core.streams.AddonRequestGuard
 import com.fetch.tv.core.streams.AddonRequestKind
 import com.fetch.tv.core.streams.AddonRequestOutcome
+import com.fetch.tv.core.streams.metaIdForVideoId
 import com.fetch.tv.core.streams.withoutUnplayableStreams
 import android.content.Context
 import android.util.Log
@@ -21,6 +22,8 @@ import com.fetch.tv.data.remote.api.AddonApi
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.Stream
+import com.fetch.tv.domain.model.StreamSearchUpdate
+import com.fetch.tv.domain.model.StreamSourceOutcome
 import com.fetch.tv.core.streams.supportsResource
 import com.fetch.tv.core.streams.supportsStreamResource
 import com.fetch.tv.domain.model.enabledAddons
@@ -32,9 +35,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.security.MessageDigest
@@ -73,7 +78,19 @@ class StreamRepositoryImpl @Inject constructor(
         season: Int?,
         episode: Int?,
         forceRefresh: Boolean
-    ): Flow<NetworkResult<List<AddonStreams>>> = flow {
+    ): Flow<NetworkResult<List<AddonStreams>>> =
+        // An update that only adds a source's outcome repeats the same result; skip it here.
+        searchStreamsFromAllSources(type, videoId, season, episode, forceRefresh)
+            .map { it.result }
+            .distinctUntilChanged { old, new -> old === new }
+
+    override fun searchStreamsFromAllSources(
+        type: String,
+        videoId: String,
+        season: Int?,
+        episode: Int?,
+        forceRefresh: Boolean
+    ): Flow<StreamSearchUpdate> = flow {
         val sourceConfiguration = captureSourceConfiguration()
         val isNativeServerRequest = serverStreams.isNativeRequest(videoId)
         val requestKey = buildStreamSearchRequestKey(sourceConfiguration, type, videoId, season, episode)
@@ -82,9 +99,9 @@ class StreamRepositoryImpl @Inject constructor(
             streamSearchSessions.observe(
                 key = requestKey,
                 forceRefresh = forceRefresh
-            ) { onSourceFailure ->
+            ) { onSourceFinished ->
                 fetchStreamsFromAllSources(
-                    onSourceFailure = onSourceFailure,
+                    onSourceFinished = onSourceFinished,
                     type = type,
                     videoId = videoId,
                     season = season,
@@ -147,7 +164,7 @@ class StreamRepositoryImpl @Inject constructor(
         addons: List<Addon>,
         serverSources: List<ServerStreamSource>,
         forceRefresh: Boolean = false,
-        onSourceFailure: () -> Unit = {}
+        onSourceFinished: (sourceName: String, outcome: StreamSourceOutcome) -> Unit = { _, _ -> }
     ): Flow<NetworkResult<List<AddonStreams>>> = flow {
         emit(NetworkResult.Loading)
 
@@ -218,6 +235,7 @@ class StreamRepositoryImpl @Inject constructor(
                                         kind = StreamFailureKind.REQUEST_FAILED,
                                         detail = context.getString(com.fetch.tv.R.string.stream_error_detail_addon_timeout)
                                     )
+                                    onSourceFinished(addon.displayName, StreamSourceOutcome.TIMED_OUT)
                                     return@launch
                                 }
                             }
@@ -234,12 +252,19 @@ class StreamRepositoryImpl @Inject constructor(
                                                 streams = namedStreams
                                             )
                                         )
+                                        onSourceFinished(addon.displayName, StreamSourceOutcome.STREAMS)
                                     } else {
                                         attemptedFailures += buildMissingStreamFailure(addon)
+                                        onSourceFinished(addon.displayName, StreamSourceOutcome.EMPTY)
                                     }
                                 }
                                 is NetworkResult.Error -> {
-                                    attemptedFailures += buildAddonFailure(addon, streamsResult)
+                                    val failure = buildAddonFailure(addon, streamsResult)
+                                    attemptedFailures += failure
+                                    onSourceFinished(
+                                        addon.displayName,
+                                        if (failure.kind == StreamFailureKind.MISSING) StreamSourceOutcome.EMPTY else StreamSourceOutcome.FAILED
+                                    )
                                 }
                                 NetworkResult.Loading -> Unit
                             }
@@ -251,6 +276,7 @@ class StreamRepositoryImpl @Inject constructor(
                                 kind = StreamFailureKind.REQUEST_FAILED,
                                 detail = e.message ?: context.getString(com.fetch.tv.R.string.stream_error_detail_addon_request_failed)
                             )
+                            onSourceFinished(addon.displayName, StreamSourceOutcome.FAILED)
                         } finally {
                             if (completedJobs.incrementAndGet() >= totalJobs) {
                                 resultChannel.close()
@@ -265,12 +291,15 @@ class StreamRepositoryImpl @Inject constructor(
                             val streams = source.load()
                             if (streams.isNotEmpty()) {
                                 resultChannel.send(AddonStreams(addonName = source.name, addonLogo = null, streams = streams))
+                                onSourceFinished(source.name, StreamSourceOutcome.STREAMS)
                             } else {
                                 attemptedFailures += StreamAttemptFailure(
                                     addonName = source.name,
                                     kind = StreamFailureKind.MISSING,
                                     detail = context.getString(R.string.stream_error_detail_no_streams_for_id)
                                 )
+                                // A media server without this title answered; it isn't broken.
+                                onSourceFinished(source.name, StreamSourceOutcome.EMPTY)
                             }
                         } catch (e: Exception) {
                             if (e is CancellationException) throw e
@@ -279,6 +308,7 @@ class StreamRepositoryImpl @Inject constructor(
                                 kind = StreamFailureKind.REQUEST_FAILED,
                                 detail = context.getString(e.serverFailure().messageRes())
                             )
+                            onSourceFinished(source.name, StreamSourceOutcome.FAILED)
                         } finally {
                             if (completedJobs.incrementAndGet() >= totalJobs) {
                                 resultChannel.close()
@@ -293,12 +323,6 @@ class StreamRepositoryImpl @Inject constructor(
                     emit(NetworkResult.Success(accumulatedResults.toList()))
                     Log.d(TAG, "Emitted ${accumulatedResults.size} addon(s), latest: ${result.addonName} with ${result.streams.size} streams")
                 }
-            }
-
-            // A source that failed (rather than answering "nothing") may answer next time, so
-            // the session cache keeps this search only briefly.
-            if (attemptedFailures.toList().any { it.kind == StreamFailureKind.REQUEST_FAILED }) {
-                onSourceFailure()
             }
 
             // Emit final result (even if empty)
@@ -477,33 +501,7 @@ class StreamRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun inlineMetaIdFor(videoId: String): String {
-        // For inline streams the meta is fetched using the content-level ID
-        // (everything before the video-specific suffix).  For "other" type
-        // the videoId IS the content ID; for series it is contentId:S:E.
-        // Video ID formats:
-        //   tt1234567:1:5      → metaId = tt1234567
-        //   mal:63375:1:5      → metaId = mal:63375
-        //   kitsu:12345:2      → metaId = kitsu:12345
-        // Strategy: drop up to 2 trailing numeric segments (season, episode)
-        // but never reduce below 2 segments for prefixed IDs (mal:X, kitsu:X).
-        return run {
-            val parts = videoId.split(":")
-            if (parts.size <= 1) return@run videoId
-            // Count trailing numeric segments
-            val trailingNumericCount = parts.reversed().takeWhile { it.toIntOrNull() != null }.size
-            // Keep at least 2 segments for prefixed IDs (e.g. "mal:63375"),
-            // or 1 segment for IMDB-style IDs (e.g. "tt1234567")
-            val firstSegment = parts.first()
-            val minSegments = if (firstSegment.startsWith("tt") || firstSegment.toIntOrNull() != null) 1 else 2
-            val segmentsToDrop = trailingNumericCount.coerceAtMost((parts.size - minSegments).coerceAtLeast(0))
-            if (segmentsToDrop > 0) {
-                parts.dropLast(segmentsToDrop).joinToString(":")
-            } else {
-                videoId
-            }
-        }
-    }
+    private fun inlineMetaIdFor(videoId: String): String = metaIdForVideoId(videoId)
 
     private fun buildMissingStreamFailure(addon: Addon): StreamAttemptFailure {
         return StreamAttemptFailure(

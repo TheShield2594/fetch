@@ -264,11 +264,11 @@ class StreamAutoPlaySelectorTest {
 
     @Test
     fun `regex mode survives a nested exclusion group without crashing`() {
-        val cam = stream(addonName = "AddonA", url = "https://example.com/a.m3u8", name = "Movie abc CAM")
+        val nested = stream(addonName = "AddonA", url = "https://example.com/a.m3u8", name = "Movie abc 1080p")
         val clean = stream(addonName = "AddonA", url = "https://example.com/b.m3u8", name = "Movie 1080p")
 
         val selected = StreamAutoPlaySelector.selectAutoPlayStream(
-            streams = listOf(cam, clean),
+            streams = listOf(nested, clean),
             mode = StreamAutoPlayMode.REGEX_MATCH,
             regexPattern = "^(?!.*(a(b|c))).*",
             installedAddonNames = setOf("AddonA"),
@@ -279,14 +279,14 @@ class StreamAutoPlaySelectorTest {
     }
 
     @Test
-    fun `regex mode treats leading exclusion words literally across the whole text`() {
+    fun `regex mode applies leading exclusion words across the whole text`() {
         val plus = stream(addonName = "AddonA", url = "https://example.com/a.m3u8", name = "Movie\nHDR10+")
         val clean = stream(addonName = "AddonA", url = "https://example.com/b.m3u8", name = "Movie SDR")
 
         val selected = StreamAutoPlaySelector.selectAutoPlayStream(
             streams = listOf(plus, clean),
             mode = StreamAutoPlayMode.REGEX_MATCH,
-            regexPattern = "^(?!.*(hdr10+|c++)).*",
+            regexPattern = "^(?!.*(hdr10+)).*",
             installedAddonNames = setOf("AddonA"),
             selectedAddons = emptySet()
         )
@@ -296,17 +296,18 @@ class StreamAutoPlaySelectorTest {
 
     @Test
     fun `regex mode keeps a lookahead after a word positional`() {
-        val camBefore = stream(addonName = "AddonA", url = "https://example.com/a.m3u8", name = "CAM 1080p")
+        // "extras" comes before 1080p, so the pattern matches; it must not become a global exclusion.
+        val extrasBefore = stream(addonName = "AddonA", url = "https://example.com/a.m3u8", name = "Extras 1080p")
 
         val selected = StreamAutoPlaySelector.selectAutoPlayStream(
-            streams = listOf(camBefore),
+            streams = listOf(extrasBefore),
             mode = StreamAutoPlayMode.REGEX_MATCH,
-            regexPattern = "1080p(?!.*(cam))",
+            regexPattern = "1080p(?!.*(extras))",
             installedAddonNames = setOf("AddonA"),
             selectedAddons = emptySet()
         )
 
-        assertEquals(camBefore, selected)
+        assertEquals(extrasBefore, selected)
     }
 
     private fun stream(

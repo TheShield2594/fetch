@@ -459,7 +459,8 @@ fun SearchScreen(
 
     LaunchedEffect(focusResults, isDiscoverMode, uiState.discoverResults.size) {
         if (focusResults && isDiscoverMode && uiState.discoverResults.isNotEmpty()) {
-            discoverFirstItemFocusRequester.requestFocusAfterFrames()
+            // Refused: keep the move pending so it runs again when the results change.
+            if (!discoverFirstItemFocusRequester.requestFocusAfterFrames()) return@LaunchedEffect
             focusResults = false
             pendingFocusMoveToResultsQuery = null
             pendingFocusMoveSawSearching = false

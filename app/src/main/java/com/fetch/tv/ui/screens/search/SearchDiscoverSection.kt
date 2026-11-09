@@ -126,8 +126,7 @@ internal fun DiscoverSection(
     // Entering Discover lands on the first filter, so something is focused on arrival.
     LaunchedEffect(requestInitialFocus, blockFilterFocus) {
         if (!requestInitialFocus || blockFilterFocus) return@LaunchedEffect
-        filterFocusRequester.requestFocusAfterFrames()
-        onInitialFocusHandled()
+        if (filterFocusRequester.requestFocusAfterFrames()) onInitialFocusHandled()
     }
 
     val localContext = LocalContext.current

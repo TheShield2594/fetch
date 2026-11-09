@@ -3,6 +3,7 @@ package com.fetch.tv.data.local
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Test
 
@@ -43,6 +44,7 @@ class ContinueWatchingEnrichmentCacheDecodeTest {
             progressPercent = null
         )
         val json = gson.toJson(listOf(item)).replace(""","genres":[]""", "")
+        assertFalse(json.contains("genres"))
         val decoded = gson.fromJson<List<CachedInProgressItem?>>(
             json,
             object : TypeToken<List<CachedInProgressItem?>>() {}.type

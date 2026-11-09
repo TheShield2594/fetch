@@ -1629,11 +1629,16 @@ private fun FetchSidebarScaffold(
         if (!pendingContentFocusRestore || drawerState.currentValue != DrawerValue.Closed) {
             return@LaunchedEffect
         }
-        val restored = contentRestoreRequester.requestFocusAfterFrames(frames = 1)
-        if (!restored) {
-            focusManager.moveFocus(if (isRtl) FocusDirection.Left else FocusDirection.Right)
+        // Cleared on cancellation too: a rail reopened mid-restore must not pull focus to the
+        // page on some later, unrelated close.
+        try {
+            val restored = contentRestoreRequester.requestFocusAfterFrames(frames = 1)
+            if (!restored) {
+                focusManager.moveFocus(if (isRtl) FocusDirection.Left else FocusDirection.Right)
+            }
+        } finally {
+            pendingContentFocusRestore = false
         }
-        pendingContentFocusRestore = false
     }
 
     LaunchedEffect(drawerState.currentValue, selectedDrawerRoute, showSidebar, pendingSidebarFocusRequest) {

@@ -242,8 +242,11 @@ fun LibraryScreen(
         if (uiState.sortSelectionVersion <= 0L) return@LaunchedEffect
         val targetKey = firstVisiblePosterKey ?: return@LaunchedEffect
         runCatching { gridState.scrollToItem(0) }
-        // The poster's requester is registered when it composes, so look it up each frame.
+        // The poster's requester is registered when it composes, so look it up each frame, and
+        // stop once the user has focused a poster of their own.
+        val focusedBefore = lastFocusedPosterKey
         repeat(6) {
+            if (lastFocusedPosterKey != focusedBefore) return@LaunchedEffect
             val focused = posterFocusRequesters[targetKey]
                 ?.let { requester -> runCatching { requester.requestFocus() }.getOrDefault(false) }
                 ?: false

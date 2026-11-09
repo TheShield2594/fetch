@@ -320,18 +320,17 @@ internal fun snapshotSaveStillValid(
  * Gson leaves a field null where Kotlin says it can't be when the file was written with other
  * keys (an older, minified build) or is damaged; such an entry is dropped, not handed on.
  */
-@Suppress("SENSELESS_COMPARISON", "USELESS_ELVIS")
+private fun hasRequiredFields(contentId: String?, contentType: String?, name: String?, videoId: String?): Boolean =
+    !contentId.isNullOrBlank() && !contentType.isNullOrBlank() && name != null && videoId != null
+
+@Suppress("SENSELESS_COMPARISON")
 internal fun sanitizeNextUp(item: CachedNextUpItem?): CachedNextUpItem? {
-    if (item == null || item.contentId.isNullOrBlank() || item.contentType.isNullOrBlank() ||
-        item.name == null || item.videoId == null
-    ) return null
+    if (item == null || !hasRequiredFields(item.contentId, item.contentType, item.name, item.videoId)) return null
     return if (item.genres == null) item.copy(genres = emptyList()) else item
 }
 
-@Suppress("SENSELESS_COMPARISON", "USELESS_ELVIS")
+@Suppress("SENSELESS_COMPARISON")
 internal fun sanitizeInProgress(item: CachedInProgressItem?): CachedInProgressItem? {
-    if (item == null || item.contentId.isNullOrBlank() || item.contentType.isNullOrBlank() ||
-        item.name == null || item.videoId == null
-    ) return null
+    if (item == null || !hasRequiredFields(item.contentId, item.contentType, item.name, item.videoId)) return null
     return if (item.genres == null) item.copy(genres = emptyList()) else item
 }

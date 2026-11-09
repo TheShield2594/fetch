@@ -40,8 +40,12 @@ internal data class PendingWatchedUpsert(
 internal object PendingWatchStateDecoder {
     fun progressUpsert(gson: Gson, json: String): PendingProgressUpsert? = runCatching {
         val root = JsonParser.parseString(json).asJsonObject
-        val key = root.stringField("key")
-            ?: root.entrySet().map { it.value }.singleOrNull { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString
+        // Only an entry with no "key" at all is an old one; a damaged new one is dropped.
+        val key = if (root.has("key")) {
+            root.stringField("key")
+        } else {
+            root.entrySet().map { it.value }.singleOrNull { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString
+        }
         val progressJson = root.objectField("progress")
             ?: root.entrySet().map { it.value }.singleOrNull { it.isJsonObject }?.asJsonObject
         if (key.isNullOrBlank() || progressJson == null) return@runCatching null

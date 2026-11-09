@@ -53,6 +53,13 @@ class PendingWatchStateDecoderTest {
     }
 
     @Test
+    fun `a current entry with a damaged key is dropped, not read by its other values`() {
+        val damaged = """{"key":5,"note":"other","progress":${gson.toJson(progress())}}"""
+
+        assertNull(PendingWatchStateDecoder.progressUpsert(gson, damaged))
+    }
+
+    @Test
     fun `unreadable entries are dropped`() {
         assertNull(PendingWatchStateDecoder.progressUpsert(gson, "not json"))
         assertNull(PendingWatchStateDecoder.progressUpsert(gson, """{"key":"k","progress":{}}"""))

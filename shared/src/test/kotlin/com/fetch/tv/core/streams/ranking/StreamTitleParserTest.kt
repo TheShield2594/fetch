@@ -34,6 +34,8 @@ class StreamTitleParserTest {
         assertTrue(StreamTitleParser.parse(stream(isCached = true)).isDebridCached)
         assertFalse(StreamTitleParser.parse(stream(isCached = false)).isDebridCached)
         assertFalse(StreamTitleParser.parse(stream(isCached = null)).isDebridCached)
+        assertTrue(StreamTitleParser.parse(stream(isCached = false)).isDebridUncached)
+        assertFalse(StreamTitleParser.parse(stream(isCached = null)).isDebridUncached)
     }
 
     @Test
@@ -62,6 +64,53 @@ class StreamTitleParserTest {
         assertTrue(StreamTitleParser.parse("⚡ Comet 4K").isDebridCached)
         assertTrue(StreamTitleParser.parse("TB+ MediaFusion 720p").isDebridCached)
         assertFalse(StreamTitleParser.parse("[RD download] Torrentio 1080p").isDebridCached)
+    }
+
+    @Test
+    fun `detects not yet cached debrid markers`() {
+        listOf(
+            "[RD download] Torrentio 1080p",
+            "[RD⬇️] Comet 4K",
+            "⏳ MediaFusion 1080p",
+            "Movie 2024 1080p | Not cached",
+            "Uncached 2160p"
+        ).forEach { text ->
+            val d = StreamTitleParser.parse(text)
+            assertTrue(text, d.isDebridUncached)
+            assertFalse("$text is not cached", d.isDebridCached)
+        }
+        assertFalse(StreamTitleParser.parse("[RD+] Torrentio 1080p").isDebridUncached)
+        assertFalse(StreamTitleParser.parse("Movie 2024 1080p WEB-DL").isDebridUncached)
+    }
+
+    @Test
+    fun `words in the film's title are not read as release tags`() {
+        // TheShield2594/fetch#309
+        val piranha = StreamTitleParser.parse("Piranha.3D.2010.1080p.BluRay.x264-GRP")
+        assertFalse(piranha.is3d)
+        assertEquals(ReleaseSource.BLURAY, piranha.source)
+        assertFalse(StreamTitleParser.parse("Torrentio\n1080p\nStep Up 3D (2010) 1080p WEB-DL").is3d)
+        assertEquals(ReleaseSource.WEB_DL, StreamTitleParser.parse("Cam.2018.1080p.NF.WEB-DL.DDP5.1.x264").source)
+        assertTrue(StreamTitleParser.parse("The.Italian.Job.2003.1080p.BluRay.x264").languages.isEmpty())
+        assertTrue(StreamTitleParser.parse("The French Dispatch 2021 2160p WEB-DL").languages.isEmpty())
+        assertTrue(StreamTitleParser.parse("Chi-Raq.2015.720p.WEB-DL").languages.isEmpty())
+        assertTrue(StreamTitleParser.parse("Show.Polish.Name.S01E02.1080p.WEB-DL").languages.isEmpty())
+        // A title that is itself a year still has its tags read after the release year.
+        assertEquals(setOf(StreamLanguage.ITALIAN), StreamTitleParser.parse("1917.2019.1080p.BluRay.ITA").languages)
+
+        // The same tags after the title still count.
+        assertTrue(StreamTitleParser.parse("Avatar.2009.3D.1080p.BluRay.Half-SBS.x264").is3d)
+        assertEquals(ReleaseSource.CAM, StreamTitleParser.parse("Cam.2018.HDCAM.x264").source)
+        assertEquals(setOf(StreamLanguage.FRENCH), StreamTitleParser.parse("The.Italian.Job.2003.FRENCH.1080p").languages)
+        // Bracketed tags before the title, and flags anywhere, still count.
+        assertEquals(setOf(StreamLanguage.ITALIAN), StreamTitleParser.parse("[ITA] Il Film 2010 1080p").languages)
+        assertEquals(ReleaseSource.CAM, StreamTitleParser.parse("[HDCAM] New Movie 2025 720p").source)
+        assertEquals(setOf(StreamLanguage.ITALIAN), StreamTitleParser.parse("🇮🇹 The French Dispatch 2021 1080p").languages)
+        // A line with no year, episode or resolution is read whole.
+        assertEquals(
+            setOf(StreamLanguage.ITALIAN, StreamLanguage.ENGLISH),
+            StreamTitleParser.parse("Torrentio\n1080p\nAudio: ITA / ENG").languages
+        )
     }
 
     @Test

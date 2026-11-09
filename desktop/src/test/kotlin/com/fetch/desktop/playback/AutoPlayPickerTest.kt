@@ -34,12 +34,13 @@ class AutoPlayPickerTest {
     private val rules = DesktopDefaults.rankingRules
 
     @Test
-    fun `start early needs the preferred quality and, when preferred, a cached file`() {
+    fun `start early needs the preferred quality and, when preferred, a file not marked uncached`() {
         val wanted = rules.copy(preferredResolution = StreamResolution.FHD_1080, preferCachedDebrid = true)
         assertFalse(AutoPlayPicker.isGoodEnoughToStartEarly(stream("720p WEB [RD+]"), wanted))
-        assertFalse("not cached", AutoPlayPicker.isGoodEnoughToStartEarly(stream("1080p BluRay"), wanted))
+        assertFalse("not cached", AutoPlayPicker.isGoodEnoughToStartEarly(stream("1080p BluRay [RD download]"), wanted))
+        assertTrue("an unmarked direct link", AutoPlayPicker.isGoodEnoughToStartEarly(stream("1080p BluRay"), wanted))
         assertTrue(AutoPlayPicker.isGoodEnoughToStartEarly(stream("1080p BluRay [RD+]"), wanted))
-        assertTrue(AutoPlayPicker.isGoodEnoughToStartEarly(stream("1080p BluRay"), wanted.copy(preferCachedDebrid = false)))
+        assertTrue(AutoPlayPicker.isGoodEnoughToStartEarly(stream("1080p BluRay [RD download]"), wanted.copy(preferCachedDebrid = false)))
         assertFalse("a torrent never starts early", AutoPlayPicker.isGoodEnoughToStartEarly(stream("2160p [RD+]", url = null), wanted))
     }
 

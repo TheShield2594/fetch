@@ -61,8 +61,8 @@ object AutoPlayPicker {
 
     /**
      * "Start without waiting": the best so far reaches the preferred quality (never above the
-     * maximum) and, when cached debrid is preferred, is cached. Your own servers needn't be
-     * cached; a bare torrent never qualifies.
+     * maximum) and, when cached debrid is preferred, isn't marked as still downloading
+     * ("[RD download]", ⏳). Unmarked links play as they are; a bare torrent never qualifies.
      */
     fun isGoodEnoughToStartEarly(stream: Stream, rules: StreamRankingRules): Boolean {
         if (stream.isTorrent()) return false
@@ -70,7 +70,7 @@ object AutoPlayPicker {
         val target = minOf(rules.preferredResolution.height, rules.maxResolution.height)
         if (descriptor.resolution.height == 0 || descriptor.resolution.height < target) return false
         if (stream.serverTarget != null) return true
-        return !rules.preferCachedDebrid || descriptor.isDebridCached
+        return !rules.preferCachedDebrid || !descriptor.isDebridUncached
     }
 
     /**

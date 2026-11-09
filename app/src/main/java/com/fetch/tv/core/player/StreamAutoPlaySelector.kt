@@ -33,8 +33,9 @@ object StreamAutoPlaySelector {
     /**
      * For Best match with "Start without waiting" on: whether the best stream found so far is
      * good enough to play without waiting for slower sources. It has to reach the preferred
-     * quality (never above the maximum) and, when cached debrid streams are preferred, be cached.
-     * Your own media servers don't need to be cached. A bare torrent never qualifies.
+     * quality (never above the maximum) and, when cached debrid streams are preferred, not be
+     * marked as still downloading ("[RD download]", ⏳). An unmarked link (HTTP, usenet,
+     * self-hosted) plays as it is. A bare torrent never qualifies.
      */
     fun isGoodEnoughToStartEarly(stream: Stream, rankingRules: StreamRankingRules): Boolean {
         if (stream.isTorrent()) return false
@@ -42,7 +43,7 @@ object StreamAutoPlaySelector {
         val target = minOf(rankingRules.preferredResolution.height, rankingRules.maxResolution.height)
         if (descriptor.resolution.height == 0 || descriptor.resolution.height < target) return false
         if (stream.serverTarget != null) return true
-        return !rankingRules.preferCachedDebrid || descriptor.isDebridCached
+        return !rankingRules.preferCachedDebrid || !descriptor.isDebridUncached
     }
 
     fun orderAddonStreams(

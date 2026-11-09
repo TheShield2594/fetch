@@ -34,8 +34,18 @@ object StreamTitleParser {
             sizeBytes = stream.behaviorHints?.videoSize?.takeIf { it > 0 } ?: parsed.sizeBytes,
             languages = parsed.languages + structured?.languages.orEmpty().mapNotNull(StreamLanguage::fromCode),
             releaseGroup = parsed.releaseGroup ?: structured?.group?.takeIf { it.isNotBlank() },
-            // The addon's structured flag counts as much as a "[RD+]" in the title.
-            isDebridCached = parsed.isDebridCached || stream.clientResolve?.isCached == true
+            // The addon's structured flag counts as much as a "[RD+]" or "[RD download]" in the title,
+            // and wins over a marker when they disagree.
+            isDebridCached = when (stream.clientResolve?.isCached) {
+                true -> true
+                false -> false
+                null -> parsed.isDebridCached
+            },
+            isDebridUncached = when (stream.clientResolve?.isCached) {
+                true -> false
+                false -> true
+                null -> parsed.isDebridUncached
+            }
         )
     }
 
@@ -43,7 +53,11 @@ object StreamTitleParser {
         if (rawText.isBlank()) return StreamDescriptor.Empty
         // Normalise separators so "DDP5.1.Atmos", "H.265" and "[RD+]" tokenise predictably.
         val text = rawText.replace('_', ' ')
+        // Words in the film's own name ("Piranha 3D", "Cam", "The Italian Job") must not read as
+        // release tags, so those tags are only looked for after the title.
+        val tags = withoutTitles(text)
         val hdr = parseHdr(text)
+        val uncached = DEBRID_UNCACHED.containsMatchIn(text)
         return StreamDescriptor(
             resolution = parseResolution(text),
             videoCodec = parseCodec(text),
@@ -52,14 +66,37 @@ object StreamTitleParser {
             audio = parseAudio(text),
             hasAtmos = ATMOS.containsMatchIn(text) || ATMOS_DV.containsMatchIn(text),
             sizeBytes = parseSize(text),
-            source = parseSource(text),
-            is3d = THREE_D.containsMatchIn(text),
+            source = parseSource(text, tags),
+            is3d = THREE_D.containsMatchIn(tags),
             bitDepth = parseBitDepth(text),
-            isDebridCached = DEBRID_CACHED.containsMatchIn(text),
+            isDebridCached = !uncached && DEBRID_CACHED.containsMatchIn(text),
+            isDebridUncached = uncached,
             seeders = SEEDERS.find(text)?.groupValues?.get(1)?.toIntOrNull(),
             releaseGroup = parseReleaseGroup(rawText),
-            languages = parseLanguages(text)
+            languages = parseLanguages(text, tags)
         )
+    }
+
+    // ── Title ─────────────────────────────────────────────────────────────────
+
+    // Where a release name's title ends: the year ("2010", "(2010)"), the episode ("S01E02",
+    // "1x02") or the resolution, whichever comes first.
+    private val TITLE_END = Regex(
+        "(?<![A-Za-z0-9])(?:\\(?(?:19|20)\\d{2}\\)?|s\\d{1,2}[ .]?e\\d{1,4}|s\\d{1,2}|\\d{1,2}x\\d{2,3}|" +
+            "(?:2160|1440|1080|720|576|480|360)[pi])(?![A-Za-z0-9])",
+        RegexOption.IGNORE_CASE
+    )
+    private val BRACKETED = Regex("\\[[^\\]\n]*]|\\([^)\n]*\\)")
+
+    /**
+     * [text] with the title cut from every line that names a year, episode or resolution after it.
+     * Bracketed tags before the title ("[ITA] Film 2010", "[HDCAM] Film 2024") are kept.
+     */
+    private fun withoutTitles(text: String): String = text.lineSequence().joinToString("\n") { line ->
+        // A title can itself be a year ("1917", "2012"), so the first marker after the start counts.
+        val end = TITLE_END.findAll(line).firstOrNull { it.range.first > 0 } ?: return@joinToString line
+        val prefix = line.substring(0, end.range.first)
+        BRACKETED.findAll(prefix).joinToString(" ") { it.value } + " " + line.substring(end.range.first)
     }
 
     // ── Resolution ────────────────────────────────────────────────────────────
@@ -224,9 +261,9 @@ object StreamTitleParser {
     )
     private val CAM = token("cam|camrip|hdcam")
 
-    private fun parseSource(text: String): ReleaseSource = when {
-        CAM.containsMatchIn(text) -> ReleaseSource.CAM
-        TELESYNC.containsMatchIn(text) -> ReleaseSource.TELESYNC
+    private fun parseSource(text: String, tags: String = text): ReleaseSource = when {
+        CAM.containsMatchIn(tags) -> ReleaseSource.CAM
+        TELESYNC.containsMatchIn(tags) -> ReleaseSource.TELESYNC
         REMUX.containsMatchIn(text) -> ReleaseSource.REMUX
         BLURAY.containsMatchIn(text) || BLURAY_GLUED.containsMatchIn(text) -> ReleaseSource.BLURAY
         WEBRIP.containsMatchIn(text) -> ReleaseSource.WEBRIP
@@ -245,10 +282,11 @@ object StreamTitleParser {
     // "Multi-Subs" names the subtitles, not a multi-language audio track.
     private val MULTI_SUBS = token("multi[ .\\-]?subs?")
 
-    private fun parseLanguages(rawText: String): Set<StreamLanguage> {
-        val text = rawText.replace(MULTI_SUBS, " ")
+    /** Flags count anywhere in [rawText]; names only in [tagText], the text after the title. */
+    private fun parseLanguages(rawText: String, tagText: String = rawText): Set<StreamLanguage> {
+        val names = tagText.replace(MULTI_SUBS, " ")
         return StreamLanguage.entries.filterTo(linkedSetOf()) { language ->
-            language.flags.any { it in text } || LANGUAGE_NAMES.getValue(language).containsMatchIn(text)
+            language.flags.any { it in rawText } || LANGUAGE_NAMES.getValue(language).containsMatchIn(names)
         }
     }
 
@@ -256,6 +294,12 @@ object StreamTitleParser {
 
     private val DEBRID_CACHED = Regex(
         "\\[(?:rd|ad|pm|tb|dl|ed|oc|pp)\\+]|\\b(?:rd|ad|pm|tb)\\+(?=\\W|$)|⚡|\\binstant\\b|\\bcached\\b",
+        RegexOption.IGNORE_CASE
+    )
+    // How addons say a debrid link still has to be downloaded first: Torrentio's "[RD download]",
+    // Comet's "[RD⬇️]", the ⏳ of MediaFusion and AIOStreams, or plain words.
+    private val DEBRID_UNCACHED = Regex(
+        "\\[(?:rd|ad|pm|tb|dl|ed|oc|pp)[ ]?(?:download|⬇)[^\\]]*]|⏳|⬇|\\b(?:not[ -]?cached|uncached)\\b",
         RegexOption.IGNORE_CASE
     )
     private val SEEDERS = Regex("(?:👤|seeders?:?|seeds?:?|\\bS:)\\s?(\\d{1,6})", RegexOption.IGNORE_CASE)

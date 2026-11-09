@@ -195,6 +195,29 @@ class StreamRankerTest {
     }
 
     @Test
+    fun `an unmarked 4K link beats a cached 1080p when 4K is preferred`() {
+        // TheShield2594/fetch#310: a cached marker breaks ties but doesn't outweigh resolution.
+        val best = StreamRanker.best(
+            listOf(stream("[RD+] 1080p HEVC WEB-DL"), stream("2160p HEVC WEB-DL")),
+            StreamRankingRules(),
+            dvTv
+        )
+        assertEquals("2160p HEVC WEB-DL", best?.stream?.name)
+    }
+
+    @Test
+    fun `not yet cached debrid links rank below playable ones`() {
+        val ranked = StreamRanker.rank(
+            listOf(stream("[RD download] 2160p HEVC WEB-DL"), stream("1080p HEVC WEB-DL | Not cached"), stream("720p WEB-DL")),
+            StreamRankingRules(),
+            dvTv
+        )
+        assertEquals("720p WEB-DL", ranked.first().stream.name)
+        assertTrue(ranked.drop(1).all { RankReason.DEBRID_UNCACHED in it.reasons })
+        assertTrue(ranked.none { RankReason.DEBRID_CACHED in it.reasons })
+    }
+
+    @Test
     fun `cam releases and excluded keywords are filtered`() {
         val rules = StreamRankingRules(excludedKeywords = listOf("HC"))
         val ranked = StreamRanker.rank(

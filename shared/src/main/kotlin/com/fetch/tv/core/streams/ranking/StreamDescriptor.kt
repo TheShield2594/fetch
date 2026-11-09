@@ -77,6 +77,11 @@ data class StreamDescriptor(
     val bitDepth: Int? = null,
     /** True when the addon marks the file as already cached on a debrid service. */
     val isDebridCached: Boolean = false,
+    /**
+     * True when the addon marks the link as not cached yet ("[RD download]", ⏳, "not cached"):
+     * playing it waits for the debrid service to download the file first.
+     */
+    val isDebridUncached: Boolean = false,
     val seeders: Int? = null,
     val releaseGroup: String? = null,
     val languages: Set<StreamLanguage> = emptySet()

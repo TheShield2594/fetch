@@ -322,3 +322,25 @@ describe("resolveProfile for the addon service on a signed install URL", () => {
     expect(reply.statusCode).toBe(401);
   });
 });
+
+describe("loosensParentalLimits", () => {
+  const kids = { isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE", allowUnrated: false };
+
+  it("calls lifting any limit a loosening", async () => {
+    const { loosensParentalLimits } = await loadProfileLib();
+    expect(loosensParentalLimits(kids, { isKidsProfile: false })).toBe(true);
+    expect(loosensParentalLimits(kids, { maxRating: "TEENS" })).toBe(true);
+    expect(loosensParentalLimits(kids, { maxRating: null })).toBe(true);
+    expect(loosensParentalLimits(kids, { allowUnrated: true })).toBe(true);
+  });
+
+  it("never calls tightening, or sending the same values back, a loosening", async () => {
+    const { loosensParentalLimits } = await loadProfileLib();
+    expect(loosensParentalLimits(kids, { ...kids })).toBe(false);
+    expect(loosensParentalLimits(kids, { maxRating: "ALL_AGES" })).toBe(false);
+    expect(loosensParentalLimits(kids, {})).toBe(false);
+    const open = { isKidsProfile: false, maxRating: null, allowUnrated: true };
+    expect(loosensParentalLimits(open, { isKidsProfile: true, maxRating: "ADULTS_ONLY", allowUnrated: false })).toBe(false);
+    expect(loosensParentalLimits(open, { maxRating: null })).toBe(false);
+  });
+});

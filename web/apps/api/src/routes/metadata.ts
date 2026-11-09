@@ -17,7 +17,6 @@ import { loadRecommendations } from "../lib/recommendations.js";
 import { droppedSeriesKey } from "../lib/dropped-shows.js";
 import { resolveProfile } from "../lib/profile.js";
 import { ownerForRequest } from "../lib/integration-owner.js";
-import { searchAnime } from "../lib/anilist-client.js";
 
 /** Resolves to `fallback` instead of rejecting, for the bundle's optional sections. */
 const settled = <T,>(work: Promise<T>, fallback: T): Promise<T> => work.catch(() => fallback);
@@ -263,21 +262,6 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
     }
 
     return reply.send({ refreshed, processed: allMetadata.length, total, limit });
-  });
-
-  app.get<{ Querystring: { q?: string } }>("/metadata/anime-search", async (request, reply) => {
-    const q = request.query.q?.trim();
-    if (!q) {
-      return reply.code(400).send({ error: "q is required" });
-    }
-
-    try {
-      const results = await searchAnime(q);
-      return { results };
-    } catch (error) {
-      request.log.error(error, "AniList search failed");
-      return reply.code(502).send({ error: "AniList search failed" });
-    }
   });
 
   app.get("/genres", async () => {

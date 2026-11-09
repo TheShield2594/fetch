@@ -100,11 +100,6 @@ export const saveConnection = async <C, D>(input: {
   });
 };
 
-/** Changes what Settings shows about a connection, leaving its credentials alone. */
-export const updateConnectionDetails = async <D>(id: string, details: D): Promise<void> => {
-  await prisma.profileConnection.updateMany({ where: { id }, data: { details: details as Prisma.InputJsonValue } });
-};
-
 /**
  * Rewrites a connection's details from what is stored now, with the row locked,
  * so a sync finishing and a Settings change made meanwhile don't overwrite each

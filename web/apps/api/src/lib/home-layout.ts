@@ -258,10 +258,6 @@ export const mergeHomeLayout = (stored: StoredRow[], context: HomeRowContext): H
   return [...placed, ...unplaced];
 };
 
-/** What gets stored for a layout: key, visibility, and the title so an unreachable row keeps its name. */
-export const toStoredRows = (rows: HomeRow[] | StoredRow[]): StoredRow[] =>
-  rows.map((row) => ({ key: row.key, hidden: row.hidden, ...(row.title ? { title: row.title } : {}) }));
-
 /**
  * Drops the rows of addons that are no longer installed from the stored
  * layout. Called after an addon is removed, so the TV's next pull doesn't carry

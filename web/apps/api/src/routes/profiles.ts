@@ -4,7 +4,16 @@ import { findAdminAccountId } from "../lib/sessions.js";
 import { prisma } from "../lib/prisma.js";
 import { clearAttempts, getLockout, recordFailure } from "../lib/attempt-lockout.js";
 import { mintProfileToken } from "../lib/profile-token.js";
-import { hasValidProfileToken, invalidateProfileCache, isActingAsProfile, ownsProfile } from "../lib/profile.js";
+import {
+  hasParentalAuthority,
+  hasValidProfileToken,
+  invalidateProfileCache,
+  isActingAsProfile,
+  loosensParentalLimits,
+  ownsProfile,
+  PARENTAL_AUTHORITY_RESPONSE,
+  PROFILE_LOCKED_RESPONSE,
+} from "../lib/profile.js";
 import { hashPin, isValidPinFormat, needsRehash, PIN_FORMAT_ERROR, pinMatches } from "../lib/pin-hash.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 import { parseProfileAttributes, PROFILE_VIEW_SELECT, toProfileView } from "../lib/profile-view.js";
@@ -35,6 +44,31 @@ const upgradePinHashIfNeeded = async (
   } catch (error) {
     app.log.warn({ err: error, profileId }, "Failed to upgrade a legacy PIN hash");
   }
+};
+
+const lockedOutBody = async (profileId: string) => ({
+  error: "Too many incorrect attempts. Try again later.",
+  retryAfterSec: (await getPinLockout(profileId)).retryAfterSec,
+});
+
+/**
+ * Checks a `currentPin` from a request body against a profile's PIN, counting a
+ * wrong one towards the lockout. "missing" is no PIN sent at all, which is not
+ * counted: the caller may not have known one was needed.
+ */
+const verifyCurrentPin = async (
+  profileId: string,
+  pinHash: string,
+  raw: unknown
+): Promise<"ok" | "missing" | "wrong" | "locked_out"> => {
+  const currentPin = typeof raw === "string" ? raw.trim() : "";
+  if (!currentPin) return "missing";
+  if ((await getPinLockout(profileId)).locked) return "locked_out";
+  if (!(await pinMatches(currentPin, pinHash))) {
+    await recordPinFailure(profileId);
+    return "wrong";
+  }
+  return "ok";
 };
 
 /**
@@ -79,6 +113,11 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     }
     const attributes = parseProfileAttributes(body);
     if (!attributes.ok) return reply.code(400).send({ error: attributes.error });
+    // A kids profile adding an unrestricted profile would step around its own
+    // limits, so adding one takes the same authority as loosening them.
+    if (!(await hasParentalAuthority(request))) {
+      return reply.code(403).send(PARENTAL_AUTHORITY_RESPONSE);
+    }
     const pinHash = pin ? await hashPin(pin) : null;
 
     // A profile made with API_TOKEN goes to the admin, who is the operator.
@@ -151,6 +190,12 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       data.name = body.name.trim();
     }
 
+    // Loosening a profile's parental limits is a grown-up's call, wherever the
+    // request comes from: a kids profile may tighten its own, never lift them.
+    if (loosensParentalLimits(profile, attributes.data) && !(await hasParentalAuthority(request))) {
+      return reply.code(403).send(PARENTAL_AUTHORITY_RESPONSE);
+    }
+
     // pin: omitted = leave as-is, null = remove PIN protection, string = set/change PIN.
     if (body.pin !== undefined) {
       let nextPin: string | null = null;
@@ -202,6 +247,16 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(400).send({ error: "Nothing to update" });
     }
 
+    // Any other change to a PIN-protected profile — its name, picture or
+    // parental fields — needs the same proof that opening it does: its profile
+    // token, or its PIN. (A PIN change has just checked `currentPin` above.)
+    if (profile.pinHash && body.pin === undefined && !hasValidProfileToken(request, profile.id)) {
+      const proof = await verifyCurrentPin(profile.id, profile.pinHash, body.currentPin);
+      if (proof === "locked_out") return reply.code(429).send(await lockedOutBody(profile.id));
+      if (proof === "missing") return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
+      if (proof === "wrong") return reply.code(401).send({ error: "Incorrect current PIN" });
+    }
+
     const updated = await prisma.profile.update({ where: { id: profile.id }, data, select: PROFILE_VIEW_SELECT });
     invalidateProfileCache();
 
@@ -223,6 +278,10 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     const profileId = request.params.id;
     const profile = await findOwnedProfileRow(request, profileId);
     if (!profile) return reply.code(404).send({ error: "Profile not found" });
+    // What a locked profile holds is its own business until it is unlocked.
+    if (profile.pinHash && !hasValidProfileToken(request, profile.id)) {
+      return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
+    }
 
     const [watchEvents, lists, listItems, playbackProgress, ratings, collections] = await Promise.all([
       prisma.watchEvent.count({ where: { profileId } }),

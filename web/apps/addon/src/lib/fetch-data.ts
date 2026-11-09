@@ -201,7 +201,9 @@ export const fetchListItems = async (
   return payload.items;
 };
 
-let cachedSpoilerProtection: CacheEntry<boolean> | null = null;
+// Per profile, like the lists and config caches: spoiler protection is an
+// account setting, and the API answers for the account the profile is in.
+const spoilerProtectionCache = new Map<string, CacheEntry<boolean>>();
 const SPOILER_CACHE_TTL_MS = 60_000;
 
 export const isSpoilerProtectionEnabled = async (
@@ -209,16 +211,16 @@ export const isSpoilerProtectionEnabled = async (
   logger: FastifyBaseLogger
 ): Promise<boolean> => {
   const now = Date.now();
-  if (cachedSpoilerProtection && now < cachedSpoilerProtection.expiry) {
-    return cachedSpoilerProtection.data;
-  }
+  const cacheKey = cacheKeyFor(profile);
+  const cached = spoilerProtectionCache.get(cacheKey);
+  if (cached && now < cached.expiry) return cached.data;
   try {
     const prefs = await apiGet("/settings/preferences", profile, parsePreferencesResponse);
     const enabled = prefs.spoilerProtection === true;
-    cachedSpoilerProtection = { data: enabled, expiry: now + SPOILER_CACHE_TTL_MS };
+    cacheSet(spoilerProtectionCache, cacheKey, { data: enabled, expiry: now + SPOILER_CACHE_TTL_MS });
     return enabled;
   } catch (error) {
     logger.warn(error, "Failed to fetch spoiler protection setting, using cached value");
-    return cachedSpoilerProtection?.data ?? false;
+    return cached?.data ?? false;
   }
 };

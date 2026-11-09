@@ -85,12 +85,9 @@ const discoveryCacheKey = (catalog: DiscoveryCatalog, profileId: string, region:
 };
 
 const stremioRoutes: FastifyPluginAsync = async (app) => {
-  // The Stremio addon protocol (and the legacy catalog routes below) has no
-  // concept of multiple profiles — there's no header or auth flow to carry
-  // one through. We approximate multi-profile support by accepting an
-  // optional `profileId` query string param (which a per-profile addon
-  // manifest URL could embed) and otherwise falling back to the default
-  // (oldest) profile, so existing single-profile installs keep working
+  // `/stremio/list/:listId` has no header to name a profile by, so it accepts
+  // an optional `profileId` query string param and otherwise falls back to
+  // the default (oldest) profile, so single-profile installs keep working
   // unchanged.
   //
   // Returns null when the chosen profile is PIN-protected and the request has
@@ -114,48 +111,6 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
     profileId ??= await getDefaultProfileId(accountScope(request));
     return (await isProfileLocked(request, profileId)) ? null : profileId;
   };
-
-  // ─── Legacy stremio routes ───
-
-  app.get<{ Querystring: { limit?: string; profileId?: string } }>(
-    "/stremio/catalog/my_watchlist_movies",
-    async (request, reply) => {
-      const limit = parseCatalogLimit(request.query.limit);
-      const profileId = await resolveStremioProfileId(request, request.query.profileId);
-      if (!profileId) return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
-      return { metas: await getWatchlistMetas("movie", limit, profileId) };
-    }
-  );
-
-  app.get<{ Querystring: { limit?: string; profileId?: string } }>(
-    "/stremio/catalog/my_watchlist_series",
-    async (request, reply) => {
-      const limit = parseCatalogLimit(request.query.limit);
-      const profileId = await resolveStremioProfileId(request, request.query.profileId);
-      if (!profileId) return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
-      return { metas: await getWatchlistMetas("series", limit, profileId) };
-    }
-  );
-
-  app.get<{ Querystring: { limit?: string; profileId?: string } }>(
-    "/stremio/catalog/my_recent_movies",
-    async (request, reply) => {
-      const limit = parseCatalogLimit(request.query.limit);
-      const profileId = await resolveStremioProfileId(request, request.query.profileId);
-      if (!profileId) return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
-      return { metas: await getRecentMetas("movie", limit, profileId) };
-    }
-  );
-
-  app.get<{ Querystring: { limit?: string; profileId?: string } }>(
-    "/stremio/catalog/my_continue_series",
-    async (request, reply) => {
-      const limit = parseCatalogLimit(request.query.limit);
-      const profileId = await resolveStremioProfileId(request, request.query.profileId);
-      if (!profileId) return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
-      return { metas: await getContinueMetas(limit, profileId) };
-    }
-  );
 
   app.get<{ Params: { listId: string }; Querystring: { type?: string; limit?: string; profileId?: string } }>(
     "/stremio/list/:listId",
@@ -184,39 +139,6 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
 
       const limit = parseCatalogLimit(request.query.limit);
       return { metas: await getCustomListMetas(list.id, type, limit) };
-    }
-  );
-
-  // ─── Watchlist / Recent / Continue ───
-
-  app.get<{ Querystring: { type?: string; limit?: string; profileId?: string } }>(
-    "/watchlist",
-    async (request, reply) => {
-      const type = parseMetaType(request.query.type);
-      if (!type) return reply.code(400).send({ error: "type must be one of: movie, series" });
-      const limit = parseCatalogLimit(request.query.limit);
-      const profileId = await resolveStremioProfileId(request, request.query.profileId);
-      if (!profileId) return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
-      return { metas: await getWatchlistMetas(type, limit, profileId) };
-    }
-  );
-
-  app.get<{ Querystring: { limit?: string; profileId?: string } }>("/continue", async (request, reply) => {
-    const limit = parseCatalogLimit(request.query.limit);
-    const profileId = await resolveStremioProfileId(request, request.query.profileId);
-    if (!profileId) return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
-    return { metas: await getContinueMetas(limit, profileId) };
-  });
-
-  app.get<{ Querystring: { type?: string; limit?: string; profileId?: string } }>(
-    "/recent",
-    async (request, reply) => {
-      const type = parseMetaType(request.query.type);
-      if (!type) return reply.code(400).send({ error: "type must be one of: movie, series" });
-      const limit = parseCatalogLimit(request.query.limit);
-      const profileId = await resolveStremioProfileId(request, request.query.profileId);
-      if (!profileId) return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
-      return { metas: await getRecentMetas(type, limit, profileId) };
     }
   );
 
@@ -302,10 +224,8 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
   // routes are the only ones exempt from the API token gate — see index.ts) and
   // the profile selector.
   //
-  // The bare `/addon/stremio/…` paths stay registered for scripts that already
-  // call them with a token and the legacy `?profileId` selector, but they are no
-  // longer exempt from that gate, so they no longer hand a profile's library to
-  // anyone who can reach the server.
+  // There are no bare `/addon/stremio/…` manifest or catalog paths: behind the
+  // token gate Stremio could never have used them, so they were only surface.
   //
   // Sized for one Stremio home screen rather than one request: a client fetches
   // a catalog per entry the manifest advertises — 4 core plus up to 20 discovery
@@ -322,7 +242,6 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
     return reply.redirect(`${FETCH_WEB_PUBLIC}/settings`);
   };
 
-  app.get("/addon/stremio/configure", publicRoute, configureHandler);
   app.get<{ Params: { secret: string } }>(
     "/addon/stremio/:secret/configure",
     publicRoute,
@@ -380,16 +299,6 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
         : {}),
     };
   };
-
-  app.get<{ Querystring: { profileId?: string } }>(
-    "/addon/stremio/manifest.json",
-    publicRoute,
-    async (request, reply) => {
-      const profileId = await resolveStremioProfileId(request, request.query.profileId);
-      if (!profileId) return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
-      return buildManifest(profileId);
-    }
-  );
 
   app.get<{ Params: { secret: string } }>(
     "/addon/stremio/:secret/manifest.json",
@@ -549,16 +458,6 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
       return { metas: [] };
     }
   };
-
-  app.get<{ Params: { type: string; id: string }; Querystring: { skip?: string; profileId?: string } }>(
-    "/addon/stremio/catalog/:type/:id.json",
-    publicRoute,
-    async (request, reply) => {
-      const profileId = await resolveStremioProfileId(request, request.query.profileId);
-      if (!profileId) return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
-      return buildCatalog(profileId, request.params.type, request.params.id, reply);
-    }
-  );
 
   app.get<{ Params: { secret: string; type: string; id: string }; Querystring: { skip?: string } }>(
     "/addon/stremio/:secret/catalog/:type/:id.json",

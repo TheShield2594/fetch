@@ -1,5 +1,6 @@
 import { Sentry, initNodeSentry } from "@fetch/shared";
 
-export const sentryEnabled = initNodeSentry("api");
+// Initialised on import, so importing this first (index.ts) sets Sentry up.
+initNodeSentry("api");
 
 export { Sentry };

@@ -7,8 +7,11 @@ import { useToast } from "../../hooks/useToast";
 import { ProfileAvatar } from "../ProfileAvatar";
 import { ProfileEditor } from "./ProfileEditor";
 
-function RenameForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved: (p: Profile) => void; onCancel: () => void }) {
+// A PIN-protected profile this browser hasn't unlocked needs its PIN for any
+// change (enforced server-side), so `needsPin` asks for it alongside the name.
+function RenameForm({ profile, needsPin, onSaved, onCancel }: { profile: Profile; needsPin: boolean; onSaved: (p: Profile) => void; onCancel: () => void }) {
   const [name, setName] = useState(profile.name);
+  const [currentPin, setCurrentPin] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,10 +22,17 @@ function RenameForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved:
     setSaving(true);
     setError(null);
     try {
-      const { profile: updated } = await api.updateProfile(profile.id, { name: trimmed });
+      const { profile: updated } = await api.updateProfile(profile.id, {
+        name: trimmed,
+        ...(needsPin ? { currentPin: currentPin.trim() } : {}),
+      });
       onSaved(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not rename profile.");
+      if (needsPin && err instanceof ApiError && err.status === 401) {
+        setError("Incorrect PIN.");
+      } else {
+        setError(err instanceof Error ? err.message : "Could not rename profile.");
+      }
     } finally {
       setSaving(false);
     }
@@ -39,7 +49,19 @@ function RenameForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved:
         className="w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm field-control"
         style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
       />
-      <button type="submit" disabled={saving} aria-label="Save name" className="flex-none rounded-lg p-1.5 text-success hover:bg-[var(--surface-strong)]">
+      {needsPin && (
+        <input
+          type="password"
+          inputMode="numeric"
+          value={currentPin}
+          onChange={(e) => setCurrentPin(e.target.value)}
+          placeholder="PIN"
+          aria-label={`PIN for ${profile.name}`}
+          className="w-24 flex-none rounded-lg border px-2.5 py-1.5 text-sm field-control"
+          style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
+        />
+      )}
+      <button type="submit" disabled={saving || (needsPin && !currentPin.trim())} aria-label="Save name" className="flex-none rounded-lg p-1.5 text-success hover:bg-[var(--surface-strong)]">
         {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
       </button>
       <button type="button" onClick={onCancel} aria-label="Cancel rename" className="flex-none rounded-lg p-1.5 hover:bg-[var(--surface-strong)]" style={{ color: "var(--text-mute)" }}>
@@ -353,6 +375,9 @@ function ProfileRow({
   // it from the profile it belongs to — otherwise setting one on a household
   // member's profile would lock them out of it with a PIN they never chose.
   const canSetFirstPin = profile.hasPin || isActive;
+  // The browser holds a profile token only for the profile it is in, so a
+  // change to any other PIN-protected profile has to carry that profile's PIN.
+  const needsPin = profile.hasPin && !isActive;
 
   const remove = async () => {
     setDeleting(true);
@@ -380,6 +405,7 @@ function ProfileRow({
         {editing === "name" ? (
           <RenameForm
             profile={profile}
+            needsPin={needsPin}
             onSaved={(p) => { onUpdated(p); setEditing("none"); }}
             onCancel={() => setEditing("none")}
           />
@@ -474,6 +500,7 @@ function ProfileRow({
         <ProfileEditor
           profile={profile}
           isPrimary={isPrimary}
+          needsPin={needsPin}
           onSaved={(p) => { onUpdated(p); setEditing("none"); showToast(`Saved ${p.name}`); }}
           onCancel={() => setEditing("none")}
         />

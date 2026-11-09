@@ -49,7 +49,7 @@ vi.mock("./ssrf.js", async (importOriginal) => {
   return {
     ...actual,
     guardedFetch: async (url: string, scope: { allowPrivateNetwork: boolean }, init: RequestInit) =>
-      (await actual.resolveServerUrl(url, scope)) ? fetch(url, { ...init, redirect: "error" }) : null,
+      (await actual.resolveAiProviderUrl(url, undefined, scope)) ? fetch(url, { ...init, redirect: "error" }) : null,
   };
 });
 

@@ -2,6 +2,8 @@ import type { FastifyBaseLogger, FastifyPluginAsync } from "fastify";
 import { Prisma, type ProfileAddon } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { resolveProfileParam } from "../lib/profile.js";
+import { outboundScopeForProfile } from "../lib/integration-owner.js";
+import type { OutboundScope } from "../lib/ssrf.js";
 import {
   type CachedManifest,
   type ManifestResult,
@@ -94,11 +96,14 @@ const fallbackName = (manifestUrl: string, given?: string | null): string => {
 const resolveManifest = async (
   manifestUrl: string,
   supplied: unknown,
+  scope: OutboundScope,
   log: FastifyBaseLogger
 ): Promise<ManifestResult> => {
-  const fetched = await fetchManifest(manifestUrl);
+  const fetched = await fetchManifest(manifestUrl, scope);
+  if (!fetched.ok) {
+    log.info({ addon: manifestUrlForLog(manifestUrl), reason: fetched.reason, detail: fetched.detail }, "Addon manifest rejected");
+  }
   if (fetched.ok || supplied === undefined || supplied === null) {
-    if (!fetched.ok) log.info({ addon: manifestUrlForLog(manifestUrl), reason: fetched.reason }, "Addon manifest rejected");
     return fetched;
   }
   const parsed = parseManifest(supplied);
@@ -202,7 +207,8 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(400).send({ error: `A profile can have at most ${MAX_ADDONS_PER_PROFILE} addons.` });
       }
 
-      const result = await resolveManifest(manifestUrl, request.body.manifest, request.log);
+      const scope = await outboundScopeForProfile(request.profileId!);
+      const result = await resolveManifest(manifestUrl, request.body.manifest, scope, request.log);
       if (!result.ok) return reply.code(400).send({ error: result.reason, code: "manifest_invalid" });
 
       const position = existing.reduce((max, row) => Math.max(max, row.position + 1), 0);
@@ -244,7 +250,8 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
           return reply.code(400).send({ error: "That isn't an addon manifest address. It should end in /manifest.json." });
         }
         if (manifestUrl !== row.manifestUrl) {
-          const result = await resolveManifest(manifestUrl, request.body.manifest, request.log);
+          const scope = await outboundScopeForProfile(request.profileId!);
+      const result = await resolveManifest(manifestUrl, request.body.manifest, scope, request.log);
           if (!result.ok) return reply.code(400).send({ error: result.reason, code: "manifest_invalid" });
           Object.assign(data, { manifestUrl, ...manifestColumns(result.manifest, new Date()) });
         }
@@ -277,9 +284,12 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
       const row = await prisma.profileAddon.findFirst({ where: { id: addonId, profileId: request.profileId! } });
       if (!row) return reply.code(404).send({ error: "Addon not found" });
 
-      const result = await fetchManifest(row.manifestUrl);
+      const result = await fetchManifest(row.manifestUrl, await outboundScopeForProfile(row.profileId));
       if (!result.ok) {
-        request.log.info({ addon: manifestUrlForLog(row.manifestUrl), reason: result.reason }, "Addon manifest refresh failed");
+        request.log.info(
+          { addon: manifestUrlForLog(row.manifestUrl), reason: result.reason, detail: result.detail },
+          "Addon manifest refresh failed"
+        );
         return reply.code(502).send({ error: result.reason, code: "manifest_unreachable" });
       }
       const updated = await prisma.profileAddon.update({
@@ -353,11 +363,12 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
       const existing = await prisma.profileAddon.findMany({ where: { profileId } });
       const byUrl = new Map(existing.map((row) => [row.manifestUrl, row]));
       const fetchedAt = new Date();
+      const scope = await outboundScopeForProfile(profileId);
 
       const fresh = await mapLimited(
         entries.filter((entry) => !byUrl.has(entry.manifestUrl)),
         MANIFEST_FETCH_CONCURRENCY,
-        async (entry) => [entry.manifestUrl, await resolveManifest(entry.manifestUrl, entry.manifest, request.log)] as const
+        async (entry) => [entry.manifestUrl, await resolveManifest(entry.manifestUrl, entry.manifest, scope, request.log)] as const
       );
       const manifestsByUrl = new Map(fresh);
 

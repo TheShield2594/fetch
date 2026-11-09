@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Check, Loader2 } from "lucide-react";
-import { api, RATING_LEVELS, type Profile, type ProfileParental, type RatingLevel } from "../../api";
+import { api, ApiError, RATING_LEVELS, type Profile, type ProfileParental, type RatingLevel } from "../../api";
 import { BUILTIN_AVATARS, avatarImageUrl, PROFILE_COLORS } from "../../utils/builtinAvatars";
 import { ProfileAvatar } from "../ProfileAvatar";
 
@@ -46,18 +46,25 @@ const LABEL = "text-xs font-semibold uppercase tracking-[0.04em]";
 export function ProfileEditor({
   profile,
   isPrimary,
+  needsPin = false,
   onSaved,
   onCancel,
 }: {
   profile: Profile;
   /** The primary profile is the one others share addons with, so it can't share its own. */
   isPrimary: boolean;
+  /**
+   * A PIN-protected profile this browser hasn't unlocked: the server wants its
+   * PIN with any change, as it does to open it.
+   */
+  needsPin?: boolean;
   onSaved: (profile: Profile) => void;
   onCancel: () => void;
 }) {
   const [draft, setDraft] = useState<Draft>(() => draftOf(profile));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPin, setCurrentPin] = useState("");
 
   const setParental = (next: Partial<ProfileParental>) =>
     setDraft((current) => ({ ...current, parental: { ...current.parental, ...next } }));
@@ -74,10 +81,15 @@ export function ProfileEditor({
         avatarId: draft.avatarId,
         ...(isPrimary ? {} : { usesPrimaryAddons: draft.usesPrimaryAddons }),
         parental: draft.parental,
+        ...(needsPin ? { currentPin: currentPin.trim() } : {}),
       });
       onSaved(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not save this profile.");
+      if (needsPin && err instanceof ApiError && err.status === 401) {
+        setError("Incorrect PIN.");
+      } else {
+        setError(err instanceof Error ? err.message : "Could not save this profile.");
+      }
       setSaving(false);
     }
   };
@@ -212,9 +224,22 @@ export function ProfileEditor({
         </p>
       </fieldset>
 
+      {needsPin && (
+        <label className="block text-sm" style={{ color: "var(--text)" }}>
+          <span className="mb-1 block">PIN for {profile.name}</span>
+          <input
+            type="password"
+            inputMode="numeric"
+            value={currentPin}
+            onChange={(e) => setCurrentPin(e.target.value)}
+            className="w-full rounded-lg border px-2.5 py-1.5 text-sm field-control"
+            style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
+          />
+        </label>
+      )}
       {error && <p role="alert" className="text-xs text-danger">{error}</p>}
       <div className="flex gap-2">
-        <button type="button" onClick={save} disabled={saving} className="btn-primary btn-sm">
+        <button type="button" onClick={save} disabled={saving || (needsPin && !currentPin.trim())} className="btn-primary btn-sm">
           {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />} Save
         </button>
         <button type="button" onClick={onCancel} className="btn-secondary btn-sm">Cancel</button>

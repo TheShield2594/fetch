@@ -2,6 +2,8 @@ import type { FastifyRequest } from "fastify";
 import { accountScope } from "./request-auth.js";
 import { findAdminAccountId } from "./sessions.js";
 import { prisma } from "./prisma.js";
+import { PROFILE_HEADER } from "./profile.js";
+import { UUID_V4_PATTERN } from "./types.js";
 import { type OutboundScope, PRIVATE_NETWORK_ALLOWED, PUBLIC_ONLY } from "./ssrf.js";
 import { deleteSecretKv, readSecretKv, writeSecretKv } from "./secret-store.js";
 import { invalidateKv, readKv } from "./kv.js";
@@ -27,11 +29,28 @@ export const accountOwnerForProfile = async (profileId: string): Promise<Integra
 };
 
 /**
- * Whose account-level settings a request manages: the signed-in account's.
- * `API_TOKEN`, which has no account, acts as the admin, as it does for webhooks.
+ * Whose account-level settings a request manages: the signed-in account's (or
+ * the paired TV's).
+ *
+ * `API_TOKEN` has no account of its own. When it names a profile — the
+ * Stremio addon always does, for the install URL it is serving — the settings
+ * are that profile's account's, so a friend's spoiler protection and region
+ * follow their own profile rather than the admin's. Naming none, it acts as the
+ * admin, as it does for webhooks.
  */
-export const ownerForRequest = async (request: FastifyRequest): Promise<IntegrationOwner> =>
-  accountScope(request) ?? (await findAdminAccountId()) ?? LEGACY_OWNER;
+export const ownerForRequest = async (request: FastifyRequest): Promise<IntegrationOwner> => {
+  const scope = accountScope(request);
+  if (scope) return scope;
+  if (request.auth?.kind === "token") {
+    const headerValue = request.headers[PROFILE_HEADER];
+    const profileId = request.profileId ?? (Array.isArray(headerValue) ? headerValue[0] : headerValue);
+    if (profileId && UUID_V4_PATTERN.test(profileId)) {
+      const owner = await accountOwnerForProfile(profileId);
+      if (owner) return owner;
+    }
+  }
+  return (await findAdminAccountId()) ?? LEGACY_OWNER;
+};
 
 /**
  * Where an owner's own outbound integrations (its AI provider, its profiles'

@@ -13,12 +13,6 @@ export const ALLOWED_ORIGINS = IS_DEVELOPMENT ? ["*"] : Array.from(new Set(FETCH
 const CORS_METHODS = "GET,POST,PUT,DELETE,PATCH,OPTIONS";
 const CORS_HEADERS = "Authorization,Content-Type,If-Match,X-Profile-Id,X-Profile-Token";
 
-export const isAllowedOrigin = (origin: string | undefined): boolean => {
-  if (IS_DEVELOPMENT) return true;
-  if (!origin) return false;
-  return ALLOWED_ORIGINS.includes(origin);
-};
-
 export const applyCorsHeaders = (request: FastifyRequest, reply: FastifyReply) => {
   const origin = request.headers.origin;
 

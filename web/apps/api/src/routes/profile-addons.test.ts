@@ -28,6 +28,13 @@ vi.mock("../lib/profile.js", () => ({
   },
 }));
 
+const outboundScopeForProfile = vi.fn<(profileId: string) => Promise<{ allowPrivateNetwork: boolean }>>(
+  async () => ({ allowPrivateNetwork: false })
+);
+vi.mock("../lib/integration-owner.js", () => ({
+  outboundScopeForProfile: (profileId: string) => outboundScopeForProfile(profileId),
+}));
+
 const fetchManifest = vi.fn();
 vi.mock("../lib/addon-manifest.js", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../lib/addon-manifest.js")>()),
@@ -124,7 +131,9 @@ describe("profile addon routes", () => {
       });
 
       expect(response.statusCode).toBe(201);
-      expect(fetchManifest).toHaveBeenCalledWith(URL_A);
+      // Under the profile's own account's outbound scope.
+      expect(outboundScopeForProfile).toHaveBeenCalledWith(PROFILE_ID);
+      expect(fetchManifest).toHaveBeenCalledWith(URL_A, { allowPrivateNetwork: false });
       expect(prismaMock.profileAddon.create).toHaveBeenCalledWith({
         data: expect.objectContaining({ profileId: PROFILE_ID, manifestUrl: URL_A, position: 5, addonId: "com.example" }),
       });

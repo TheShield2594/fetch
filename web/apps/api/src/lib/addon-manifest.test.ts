@@ -1,7 +1,11 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { type GuardedRequest, type OutboundScope, PRIVATE_NETWORK_ALLOWED, PUBLIC_ONLY } from "./ssrf.js";
 import {
   configureUrlFor,
   fetchManifest,
+  MANIFEST_BLOCKED_REASON,
+  MANIFEST_REJECTED_REASON,
+  MANIFEST_UNREACHABLE_REASON,
   manifestUrlForLog,
   normalizeManifestUrl,
   parseManifest,
@@ -23,12 +27,6 @@ const MANIFEST = {
   ],
   behaviorHints: { configurable: true },
 };
-
-const publicHost = async () => ["93.184.216.34"];
-
-afterEach(() => {
-  vi.unstubAllGlobals();
-});
 
 describe("normalizeManifestUrl", () => {
   it("accepts an https manifest URL and drops the fragment", () => {
@@ -107,65 +105,56 @@ describe("parseManifest", () => {
 });
 
 describe("fetchManifest", () => {
-  const stubFetch = (response: Response | Error) => {
-    const fetchMock = vi.fn(async () => {
+  const URL_CFG = "https://addon.example/cfg/manifest.json";
+
+  const fetcherFor = (response: Response | Error | null) =>
+    vi.fn<(url: string, scope: OutboundScope, init: GuardedRequest) => Promise<Response | null>>(async () => {
       if (response instanceof Error) throw response;
       return response;
     });
-    vi.stubGlobal("fetch", fetchMock);
-    return fetchMock;
-  };
 
-  it("fetches and parses a manifest without following redirects", async () => {
-    const fetchMock = stubFetch(new Response(JSON.stringify(MANIFEST), { status: 200 }));
-    const result = await fetchManifest("https://addon.example/manifest.json", { resolveHost: publicHost });
+  it("fetches and parses a manifest under the scope it is given", async () => {
+    const fetcher = fetcherFor(new Response(JSON.stringify(MANIFEST), { status: 200 }));
+    const result = await fetchManifest(URL_CFG, PUBLIC_ONLY, { fetcher });
     expect(result.ok).toBe(true);
-    expect(fetchMock).toHaveBeenCalledWith(
-      expect.any(URL),
-      expect.objectContaining({ redirect: "manual" })
-    );
+    expect(fetcher).toHaveBeenCalledWith(URL_CFG, PUBLIC_ONLY, expect.objectContaining({ headers: { Accept: "application/json" } }));
   });
 
-  it("refuses a cloud metadata host before fetching", async () => {
-    const fetchMock = stubFetch(new Response("{}"));
-    const result = await fetchManifest("http://169.254.169.254/manifest.json", { resolveHost: publicHost });
-    expect(result).toMatchObject({ ok: false });
-    expect(fetchMock).not.toHaveBeenCalled();
+  it("says the address is refused when the guard refuses it", async () => {
+    const result = await fetchManifest(URL_CFG, PUBLIC_ONLY, { fetcher: fetcherFor(null) });
+    expect(result).toEqual({ ok: false, reason: MANIFEST_BLOCKED_REASON });
   });
 
-  it("says when the addon redirects, errors, isn't JSON or doesn't answer", async () => {
-    const url = "https://addon.example/cfg/manifest.json";
-
-    stubFetch(new Response(null, { status: 302, headers: { location: "https://elsewhere/" } }));
-    expect(await fetchManifest(url, { resolveHost: publicHost })).toMatchObject({
+  it("refuses a private address for a public-only scope before connecting", async () => {
+    // The real guardedFetch: a literal private host never reaches the network.
+    const result = await fetchManifest("http://192.168.1.1/x/manifest.json", PUBLIC_ONLY);
+    expect(result).toEqual({ ok: false, reason: MANIFEST_BLOCKED_REASON });
+    expect(await fetchManifest("http://169.254.169.254/manifest.json", PRIVATE_NETWORK_ALLOWED)).toEqual({
       ok: false,
-      reason: expect.stringContaining("redirects"),
+      reason: MANIFEST_BLOCKED_REASON,
     });
-
-    stubFetch(new Response("nope", { status: 404 }));
-    expect(await fetchManifest(url, { resolveHost: publicHost })).toMatchObject({
-      ok: false,
-      reason: "The addon answered with HTTP 404.",
-    });
-
-    stubFetch(new Response("<html>", { status: 200 }));
-    expect(await fetchManifest(url, { resolveHost: publicHost })).toMatchObject({
-      ok: false,
-      reason: expect.stringContaining("didn't return JSON"),
-    });
-
-    stubFetch(new TypeError("fetch failed"));
-    const unreachable = await fetchManifest(url, { resolveHost: publicHost });
-    expect(unreachable).toMatchObject({ ok: false, reason: expect.stringContaining("didn't answer") });
-    // The reason is shown to the user and may be logged: never the configured path.
-    expect(JSON.stringify(unreachable)).not.toContain("cfg");
   });
 
-  it("refuses a manifest that is too large", async () => {
-    stubFetch(new Response("x", { status: 200, headers: { "content-length": String(10 * 1024 * 1024) } }));
-    expect(await fetchManifest("https://addon.example/manifest.json", { resolveHost: publicHost })).toMatchObject({
-      ok: false,
-      reason: expect.stringContaining("too large"),
+  it("collapses what the target said into one verdict, with the detail kept for the log", async () => {
+    const cases: [Response, string][] = [
+      [new Response("nope", { status: 404 }), "HTTP 404"],
+      [new Response("nope", { status: 401 }), "HTTP 401"],
+      [new Response("<html>", { status: 200 }), "the body isn't JSON"],
+      [new Response(JSON.stringify({ hello: "world" }), { status: 200 }), "missing its id"],
+      [new Response("x".repeat(600 * 1024), { status: 200 }), "too large"],
+    ];
+    for (const [response, detail] of cases) {
+      const result = await fetchManifest(URL_CFG, PUBLIC_ONLY, { fetcher: fetcherFor(response) });
+      expect(result).toMatchObject({ ok: false, reason: MANIFEST_REJECTED_REASON, detail: expect.stringContaining(detail) });
+    }
+  });
+
+  it("says the addon didn't answer for any connection failure, redirects included", async () => {
+    const unreachable = await fetchManifest(URL_CFG, PUBLIC_ONLY, {
+      fetcher: fetcherFor(new TypeError("fetch failed", { cause: new Error("connect ECONNREFUSED 10.0.0.5:22") })),
     });
+    expect(unreachable).toMatchObject({ ok: false, reason: MANIFEST_UNREACHABLE_REASON });
+    // The reason is shown to the user: never the configured path or the address.
+    expect(unreachable.ok === false && unreachable.reason).not.toMatch(/cfg|10\.0\.0\.5/);
   });
 });

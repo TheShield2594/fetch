@@ -1,5 +1,4 @@
-import { fetchWithPolicy } from "./http.js";
-import { type HostResolver, resolveAiProviderUrl, validateAiProviderUrl } from "./ssrf.js";
+import { guardedFetch, type GuardedRequest, type OutboundScope, readBodyText } from "./ssrf.js";
 
 /**
  * Fetching and checking a Stremio addon manifest someone pasted on the website.
@@ -11,10 +10,18 @@ import { type HostResolver, resolveAiProviderUrl, validateAiProviderUrl } from "
  *     manifest URL is as secret as whatever was typed into the addon's
  *     configure page. Nothing in this module logs or returns it in an error;
  *     `manifestUrlForLog` is the only form that may reach a log line.
- *   - **The host is usually on the LAN.** AIOStreams, Jackettio and friends are
- *     self-hosted next to this server, so the outbound policy is the AI
- *     provider's: loopback and private ranges are allowed, the cloud metadata
- *     endpoints are not.
+ *   - **The host is often on the LAN.** AIOStreams, Jackettio and friends are
+ *     self-hosted next to this server, so the policy is the one every other
+ *     user-configured target gets (`ssrf.ts`): the admin's profiles may reach
+ *     loopback and private ranges, every other account's only public hosts,
+ *     and nobody the cloud metadata endpoints. The connection is pinned to
+ *     the checked addresses (`guardedFetch`), so DNS rebinding can't move it.
+ *   - **The answer is a verdict, not a probe result.** A failure says only
+ *     whether the address was refused, unreachable, or reached without a
+ *     manifest — never the status code or what the body looked like — for the
+ *     reason `outbound-test.ts` gives: those details name the service behind
+ *     a port, and a list of addons is a list of ports to try. The detail goes
+ *     to the server log through `detail`.
  */
 
 /** Generous: a big catalog addon's manifest is tens of KB. */
@@ -40,7 +47,10 @@ export type CachedManifest = {
   configurationRequired: boolean;
 };
 
-export type ManifestResult = { ok: true; manifest: CachedManifest } | { ok: false; reason: string };
+export type ManifestResult =
+  | { ok: true; manifest: CachedManifest }
+  /** `reason` is shown to the caller; `detail`, when there is one, is for the server log only. */
+  | { ok: false; reason: string; detail?: string };
 
 /**
  * The form a manifest URL is stored and compared in, or null when it can't be
@@ -158,78 +168,65 @@ export const parseManifest = (value: unknown): ManifestResult => {
   };
 };
 
-/** Reads at most `limit` bytes of the body, or null when there is more than that. */
-const readCapped = async (response: Response, limit: number): Promise<string | null> => {
-  const declared = Number(response.headers.get("content-length"));
-  if (Number.isFinite(declared) && declared > limit) return null;
-  if (!response.body) return "";
+export const MANIFEST_BLOCKED_REASON = "That address isn't one this server may fetch.";
+export const MANIFEST_UNREACHABLE_REASON =
+  "The addon didn't answer. Check the address and that the addon is running.";
+export const MANIFEST_REJECTED_REASON =
+  "The address answered, but not with a Stremio addon manifest. Check that it is the addon's manifest address.";
 
-  const reader = response.body.getReader();
-  const chunks: Uint8Array[] = [];
-  let total = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.byteLength;
-    if (total > limit) {
-      await reader.cancel();
-      return null;
-    }
-    chunks.push(value);
-  }
-  return Buffer.concat(chunks).toString("utf8");
-};
+/** How the manifest is requested; tests stand in for `guardedFetch`. */
+export type ManifestFetcher = (url: string, scope: OutboundScope, init: GuardedRequest) => Promise<Response | null>;
 
-export type FetchManifestOptions = { resolveHost?: HostResolver };
+export type FetchManifestOptions = { fetcher?: ManifestFetcher };
 
 /**
- * Fetches `manifestUrl` (already normalized) and parses it. Every failure comes
- * back as a reason a person can act on, phrased without the URL.
+ * Fetches `manifestUrl` (already normalized) under the profile's outbound
+ * `scope` and parses it. Every failure comes back as one of three reasons,
+ * phrased without the URL.
  */
 export const fetchManifest = async (
   manifestUrl: string,
-  options: FetchManifestOptions = {}
+  scope: OutboundScope,
+  { fetcher = guardedFetch }: FetchManifestOptions = {}
 ): Promise<ManifestResult> => {
-  if (!validateAiProviderUrl(manifestUrl)) {
-    return { ok: false, reason: "That address isn't one this server is allowed to fetch." };
-  }
-  const target = await resolveAiProviderUrl(manifestUrl, options.resolveHost);
-  if (!target) {
-    return { ok: false, reason: "The addon's host couldn't be found, or isn't one this server is allowed to fetch." };
-  }
-
-  let response: Response;
+  let response: Response | null;
   try {
-    response = await fetchWithPolicy(
-      target,
-      // A redirect is refused rather than followed: the address it points at
-      // would skip the check above.
-      { headers: { Accept: "application/json" }, redirect: "manual" },
-      { timeoutMs: MANIFEST_TIMEOUT_MS, retries: 1 }
-    );
-  } catch {
-    return { ok: false, reason: "The addon didn't answer. Check the address and that the addon is running." };
+    // guardedFetch refuses a redirect rather than following it: the address
+    // it points at would skip the checks.
+    response = await fetcher(manifestUrl, scope, {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(MANIFEST_TIMEOUT_MS),
+    });
+  } catch (error) {
+    return {
+      ok: false,
+      reason: MANIFEST_UNREACHABLE_REASON,
+      detail: error instanceof Error ? (error.cause instanceof Error ? error.cause.message : error.message) : "fetch failed",
+    };
   }
+  if (!response) return { ok: false, reason: MANIFEST_BLOCKED_REASON };
 
-  if (response.status >= 300 && response.status < 400) {
-    return { ok: false, reason: "The address redirects somewhere else. Paste the manifest address it redirects to." };
-  }
+  const rejected = (detail: string): ManifestResult => ({ ok: false, reason: MANIFEST_REJECTED_REASON, detail });
   if (!response.ok) {
-    return { ok: false, reason: `The addon answered with HTTP ${response.status}.` };
+    await response.body?.cancel().catch(() => undefined);
+    return rejected(`HTTP ${response.status}`);
   }
 
-  const body = await readCapped(response, MAX_MANIFEST_BYTES).catch(() => null);
-  if (body === null) {
-    return { ok: false, reason: "The addon's answer was too large or was cut off." };
+  let body: string;
+  try {
+    body = await readBodyText(response, MAX_MANIFEST_BYTES);
+  } catch {
+    return rejected("the body was too large or was cut off");
   }
 
   let parsed: unknown;
   try {
     parsed = JSON.parse(body);
   } catch {
-    return { ok: false, reason: "The address didn't return JSON, so it isn't a Stremio manifest." };
+    return rejected("the body isn't JSON");
   }
-  return parseManifest(parsed);
+  const result = parseManifest(parsed);
+  return result.ok ? result : rejected(result.reason);
 };
 
 /** A stored `manifest` column read back, or null when it isn't one of ours. */

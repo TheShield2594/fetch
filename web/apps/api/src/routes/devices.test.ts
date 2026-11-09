@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance, FastifyPluginAsync } from "fastify";
 import { buildRouteApp } from "../lib/test-fixtures/route-app.js";
+import type { AuthPrincipal } from "../lib/request-auth.js";
 import { createHash } from "node:crypto";
 
 const hashSecret = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -19,7 +20,7 @@ const prismaMock = {
   },
   device: { create: vi.fn(), findMany: vi.fn(), findUnique: vi.fn(), update: vi.fn(), deleteMany: vi.fn() },
   deviceProfileSlot: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), delete: vi.fn() },
-  profile: { findMany: vi.fn(), create: vi.fn(), update: vi.fn(), count: vi.fn() },
+  profile: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), count: vi.fn() },
   // A device confirmed with API_TOKEN goes to the admin account; none exists here.
   account: { findFirst: vi.fn() },
   $transaction: vi.fn(),
@@ -47,7 +48,7 @@ const profileRow = (id: string, name: string, createdAt: string) => ({
  * The real gate sets `request.deviceId` from a device token; here a test
  * header stands in for it, so each test can be the website or a TV.
  */
-const buildApp = (): Promise<FastifyInstance> =>
+const buildApp = (auth?: AuthPrincipal): Promise<FastifyInstance> =>
   buildRouteApp(async () => {
     const { default: routes } = await import("./devices.js");
     const plugin: FastifyPluginAsync = async (app) => {
@@ -58,7 +59,7 @@ const buildApp = (): Promise<FastifyInstance> =>
       await app.register(routes);
     };
     return { default: plugin };
-  });
+  }, {}, auth);
 
 const asDevice = { "x-test-device": DEVICE_ID };
 
@@ -356,6 +357,29 @@ describe("device routes", () => {
       expect(response.statusCode).toBe(200);
       expect(prismaMock.profile.update).toHaveBeenCalledWith(
         expect.objectContaining({ where: { id: PROFILE_ID }, data: { avatarColorHex: "#43A047", name: "Alicia" } })
+      );
+    });
+
+    // A TV pushes its whole list: a limit it may not lift stays as stored, and
+    // the rest of the update still lands.
+    it("keeps a stored parental limit the TV has no authority to lift, and applies the rest", async () => {
+      prismaMock.deviceProfileSlot.findUnique.mockResolvedValue({ deviceId: DEVICE_ID, slot: 2, profileId: PROFILE_ID });
+      prismaMock.profile.findUnique.mockResolvedValue({ isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE", allowUnrated: false });
+      prismaMock.profile.findMany.mockResolvedValue([{ id: PROFILE_ID }, { id: SECOND_PROFILE_ID }]);
+      prismaMock.profile.update.mockResolvedValue(profileRow(PROFILE_ID, "Alicia", "2026-01-01T00:00:00Z"));
+      const app = await buildApp({ kind: "device", deviceId: DEVICE_ID, accountId: "acc-1" });
+
+      const response = await app.inject({
+        method: "PUT",
+        url: "/devices/me/profiles/2",
+        headers: asDevice,
+        payload: { name: "Alicia", parental: { isKidsProfile: false, maxRating: "ADULTS_ONLY", allowUnrated: false } },
+      });
+
+      expect(response.statusCode).toBe(200);
+      // allowUnrated: false is no loosening, so it stays in.
+      expect(prismaMock.profile.update).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: PROFILE_ID }, data: { allowUnrated: false, name: "Alicia" } })
       );
     });
 

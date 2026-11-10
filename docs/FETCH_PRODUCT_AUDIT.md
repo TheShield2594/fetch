@@ -831,7 +831,7 @@ Quality is my judgment from code: **A** strong, **B** solid, **C** works with ca
 
 **Desktop (55.9k lines).** Structurally near parity with the TV, and a competent mouse app. It is a personal tool for the owner and a few friends, which is a fine reason to have it and changes what it should cost. Today only 7.8k lines are shared; Trakt, Simkl, MDBList, sync, party and YouTube clients are reimplemented, some byte-for-byte. The built-in player reads every frame back to the CPU and has been tested only on a software rasteriser (`docs/desktop.md`). **Recommendation: keep it, and stop treating it as a second product.** Drop the parity target and `docs/desktop-parity.md`; default to external mpv playback; when a client is touched on the TV side, move it into `shared/` instead of editing two copies, starting with the YouTube parser since both apps keep YouTube. Desktop work should never block or delay a TV release.
 
-**Website (61k lines, 146 routes).** TV pairing and sync are real and cover profiles, addons, Home rows, settings, lists and watch state. Security is above hobby standard: accounts, invites, scrypt, per-TV revocable tokens, SSRF guards. Two problems: self-hosting is heavy (five containers; HTTPS needed), and the scope still includes Steam games and AI recommendations from its origin as a standalone tracker. The owner's stated purpose for it is the watchlist, history and settings. **Recommendation: narrow it to exactly that**, as "the Fetch account server", in its README and navigation, and move games and AI recommendations out of the default path or out of the repo.
+**Website (61k lines, 146 routes).** TV pairing and sync are real and cover profiles, addons, Home rows, settings, lists and watch state. Security is above hobby standard: accounts, invites, scrypt, per-TV revocable tokens, SSRF guards. Two problems: self-hosting is heavy (five containers; HTTPS needed), and the scope still includes AI recommendations from its origin as a standalone tracker (the Steam games tracker has since been removed). The owner's stated purpose for it is the watchlist, history and settings. **Recommendation: narrow it to exactly that**, as "the Fetch account server", in its README and navigation, and move AI recommendations out of the default path or out of the repo.
 
 **Strategy.** TV plus website is the coherent, differentiating pair: a household's profiles, limits and lists managed from a phone on a server the user owns. No competitor offers that. The third backend is the over-extension, and the desktop is fine as long as it is budgeted as a personal tool.
 
@@ -1438,9 +1438,9 @@ Concepts are in section 15.3.
 
 #### E5. Desktop as a personal tool; narrow the website · P1 · Strategy · S
 
-- **Current state:** The desktop chases parity with the TV (`docs/desktop-parity.md` says to update it whenever either app changes). The website still carries games and AI recommendations from its origin as a standalone tracker.
+- **Current state:** The desktop chases parity with the TV (`docs/desktop-parity.md` says to update it whenever either app changes). The website still carries AI recommendations from its origin as a standalone tracker. Games (Steam/IGDB) have been removed.
 - **Proposal (desktop):** Keep it for the owner and friends. Delete the parity document and the parity goal. Default to external mpv playback. Remove desktop watch party with E2. Move duplicated clients into `shared/` when they are next touched. Never let desktop work gate a TV release.
-- **Proposal (website):** State its purpose in the first paragraph of its README: the Fetch account server for watchlist, history and settings. Move games and AI recommendations out of the default navigation, or out of the repo.
+- **Proposal (website):** State its purpose in the first paragraph of its README: the Fetch account server for watchlist, history and settings. Move AI recommendations out of the default navigation, or out of the repo.
 - **Why better:** Each surface is budgeted for what it is.
 - **Acceptance:** Both READMEs state the scope in their first paragraph; `docs/desktop-parity.md` is gone; the TV release checklist has no desktop step.
 

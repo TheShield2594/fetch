@@ -51,7 +51,7 @@ of the conclusions depends on the exact numbers.
   1. Fastify itself.
   2. LAN-only integrations that Cloudflare can't reach.
   3. The module-level Postgres pool.
-  4. Two jobs too long for one cron run: Trakt backfill and the first Steam→IGDB sync.
+  4. A job too long for one cron run: the Trakt backfill.
   5. About 30 pieces of in-process state, several of which are correctness-critical locks.
 - **Native modules:** none at runtime. There is no bcrypt, argon2, sharp or pg-native.
   PIN hashing uses `node:crypto` scrypt.
@@ -78,7 +78,7 @@ of the conclusions depends on the exact numbers.
 ```text
 web/
   apps/api/      Fastify 5 API, Prisma 7 (@prisma/adapter-pg + pg), web-push, lru-cache
-  apps/addon/    Fastify 5 Stremio addon (catalog/meta/stream/subtitles), calls the API
+  apps/addon/    Fastify 5 Stremio addon (catalog/meta), calls the API
   apps/web/      React + Vite PWA, vite-plugin-pwa injectManifest service worker
   packages/shared/   contracts, catalog registry, proxy prefix, service-token, Sentry init
   packages/migrate/  Prisma CLI only (the migrate image)
@@ -146,20 +146,17 @@ These are assembled in `web/apps/api/src/index.ts`:
      `SELECT … FOR UPDATE`.
 4. **Derived secrets, all HMACs of `API_TOKEN`:**
    - The API's built-in addon secret URL (per profile).
-   - The addon **service token** (`x-fetch-service-token`). It unlocks `/rpdb/config`
-     and `/stremio/play-signal`.
+   - The addon **service token** (`x-fetch-service-token`). It unlocks `/rpdb/config`.
    - The addon **scrobble mutation token**.
-   - The addon's 12 h **mark-watched capabilities**.
 5. **Secrets at rest.** AES-256-GCM, with the key = HKDF-SHA256(`API_TOKEN`, fixed
    salt/info). Format `cgy1.<iv>.<tag>.<ct>` (`lib/secret-box.ts`). This covers the
-   TMDB/OMDb/RPDB keys, AI config, Jellyseerr, the VAPID keys, Trakt and Stremio tokens,
+   TMDB/OMDb/RPDB keys, AI config, Jellyseerr, the VAPID keys, Trakt tokens,
    and notification-channel tokens.
 6. **Webhooks.** `WEBHOOK_SECRET`, sent as header `x-webhook-secret` or `?token=` (Plex),
    plus an optional `WEBHOOK_ALLOWED_IPS`. The profile comes from `?profile=`, then a
    media-server account name match, then the default.
-7. **Trakt OAuth.** A single-use 32-byte `state` stored in `KV` for 10 min. Trakt and the
-   Stremio account are **install-global** (singleton rows) and write into the oldest
-   profile.
+7. **Trakt OAuth.** A single-use 32-byte `state` stored in `KV` for 10 min. Trakt is
+   **install-global** (a singleton row) and writes into the oldest profile.
 
 ### 2.4 Database
 
@@ -173,12 +170,11 @@ These are assembled in `web/apps/api/src/index.ts`:
 | `Profile` | id, name, pinHash. Every child model cascades on delete. |
 | `List` / `ListItem` | kind `watchlist\|custom\|collection`. **SQL-only partial unique** indexes keep one watchlist and one collection per profile. |
 | `WatchEvent` | `traktHistoryId BigInt @unique`. **Partial expression unique** dedup key on `(profileId, type, COALESCE(seriesImdbId, imdbId), COALESCE(season,-1), COALESCE(episode,-1), (watchedAt AT TIME ZONE 'UTC')::date) WHERE traktHistoryId IS NULL`. |
-| `SeriesProgress`, `PlaybackProgress`, `ScrobbleSession`, `CheckIn`, `PlaySignal` | Watch state. `PlaySignal` is DB-backed delayed work (a `dueAt` index). |
+| `SeriesProgress`, `PlaybackProgress`, `ScrobbleSession`, `CheckIn` | Watch state. |
 | `Rating`, `Tag`, `ItemTag`, `Item` | |
-| `Game` | `genres String[]`. Partial uniques on `igdbId` and `steamAppId`, plus a CHECK that at least one is set. |
 | `Metadata` | `genres String[]`, cached TMDB/OMDb fields. |
 | `KV` | A general key/value store: settings, encrypted secrets, job status, watermarks, PIN lockouts, addon config, Trakt OAuth state. |
-| `TraktToken`, `StremioAuth` | Singletons (`id = "default"`). |
+| `TraktToken` | Singleton (`id = "default"`). |
 | `PushSubscription`, `NotificationChannel`, `NotifiedEpisode` | Notifications. |
 
 Postgres-specific usage is listed in §6.
@@ -192,12 +188,9 @@ at `index.ts:326-434`). There is an in-memory `inFlight` guard, and outcomes are
 | Job | Default interval |
 |---|---|
 | Trakt history poll + watchlist sync | `TRAKT_POLL_INTERVAL_SEC`, 300 s |
-| Stremio library sync | `STREMIO_POLL_INTERVAL_SEC`, 0 = off |
-| Play-signal settling | 60 s, only if `STREMIO_PLAY_DETECTION` |
 | Scrobble cleanup | 1 h |
 | Episode notifications (TMDB + web push + ntfy/Gotify/Discord/webhook) | `NOTIFICATION_CHECK_INTERVAL_SEC`, 3600 s |
 | AI recommendations refresh | `AI_REFRESH_INTERVAL_SEC`, 86400 s, first run deferred 2 min |
-| Steam library sync (+ IGDB matching) | `STEAM_SYNC_INTERVAL_SEC`, 86400 s, first run deferred 2 min |
 
 Request-driven background work:
 
@@ -216,7 +209,7 @@ There are **two** Stremio addons:
 | | Built into the API (`routes/stremio.ts`) | Addon service (`apps/addon`) |
 |---|---|---|
 | Manifest id | `com.fetch.api` | `com.fetch.addon` |
-| Resources | catalog | catalog, meta, stream, subtitles |
+| Resources | catalog | catalog, meta |
 | URL / credential | `/addon/stremio/<64-hex HMAC secret>/…`; the bare paths need the bearer | `/<route>` or `/p/<profile-uuid>/<route>`, **no credential** |
 | Shown in the PWA | No. `GET /addon/config` computes it, but the UI never displays it. | Yes. `AddonSettings.tsx:18-21` hands out `${VITE_ADDON_BASE}/p/<id>/manifest.json`. |
 
@@ -225,12 +218,9 @@ Addon service routes (each also under `/p/:profileId`, except `/health`):
 | Method | Path | Response |
 |---|---|---|
 | GET | `/health` | `{status, service:"addon", publicBase}` |
-| GET | `/manifest.json` | Stremio manifest: `resources:["catalog","meta","subtitles","stream"]`, `idPrefixes:["tt"]` |
+| GET | `/manifest.json` | Stremio manifest: `resources:["catalog","meta"]`, `idPrefixes:["tt"]` |
 | GET | `/catalog/:type/:id.json`, `/catalog/:type/:id/:extra.json` | `{metas}`; always 200, `{metas:[]}` on error. `search=` / `genre=` extras. |
 | GET | `/meta/:type/:id.json` | `{meta:{id,type,name,poster,background,description,releaseInfo,year,genres?,imdbRating?,totalSeasons?,totalEpisodes?}}` |
-| GET | `/stream/:type/:id.json` | `{streams:[]}`. Optionally forwards a play signal. |
-| GET | `/subtitles/:type/:id.json` | `{subtitles:[{id, url:"…/mark-watched/….srt?token=<cap>", lang}]}` |
-| GET | `/mark-watched/:type/:imdbId.srt`, `/mark-watched/:type/:imdbId/:season/:episode.srt` | `text/srt`. Calls `POST /watch`. |
 | POST | `/scrobble/:action` (start/pause/stop) | API passthrough. Needs the mutation token. |
 | GET | `/configure` | 302 → `${FETCH_WEB_PUBLIC}/settings` |
 
@@ -286,20 +276,15 @@ The calls go through `data/remote/api/AddonApi.kt`.
 | `GET <base>/manifest.json` | Stremio manifest JSON (`id`, `version`, `name`, `resources`, `types`, `idPrefixes`, `catalogs[{type,id,name,extra?}]`, `behaviorHints?`) |
 | `GET <base>/catalog/{type}/{id}.json`, `…/{id}/skip=N.json`, `…/{id}/{extra}.json` | `{metas:[{id,type,name,poster?,year?,description?,genres?,…}]}` |
 | `GET <base>/meta/{type}/{id}.json` | `{meta:{…}}` |
-| `GET <base>/stream/{type}/{id}.json` | `{streams:[]}` |
-| `GET <base>/subtitles/{type}/{id}[/{extra}].json` | `{subtitles:[{id,url,lang}]}` |
-| `GET <mark-watched .srt URL from the subtitles response>` | `text/srt`, which records the watch server-side |
 | `<base>/configure` (opened on the phone via QR) | 302 to the web Settings page |
 
 `<base>` is `https://host[/addon]` or `…/p/<profileId>`, and query strings on the base are
-preserved. Responses are JSON or SRT with `Access-Control-Allow-Origin: *`.
+preserved. Responses are JSON with `Access-Control-Allow-Origin: *`.
 
 **What must hold after the move:**
 
 - The same public base URL: host, the `/addon` prefix if used, and the `/p/<uuid>` segment.
 - The same paths and JSON shapes.
-- Mark-watched tokens minted before the cut-over stay valid. That follows from keeping
-  `API_TOKEN` identical, and they expire after 12 h anyway.
 
 If the hostname must change, every TV and Stremio client has to reinstall the addon. The
 TV's `AddonSyncService` stores full URLs, so the old one would also spread to other
@@ -358,8 +343,7 @@ Appendix A.
     while offline. It answers them with a synthetic `202` and `X-Fetch-Queued: 1`, then
     replays them. The replayed requests must stay idempotent; the watch-event dedup unique
     index guarantees that.
-  - **Preload.** `index.html:89-140` preloads `GET /lists`, `/series/progress` and
-    `/games?sort=recent`.
+  - **Preload.** `index.html:89-140` preloads `GET /lists`, and `/series/progress`.
 - **Cross-origin by default.** The PWA runs on 7002 and the API on 7000, so CORS is on the
   critical path.
 - **Runtime-typed responses.** `packages/shared/src/api-contracts.ts` parses only
@@ -381,7 +365,7 @@ request carries the bearer, the service token and `x-profile-id`.
 | `GET /settings/preferences` | `parsePreferencesResponse` |
 | `GET /trending`, `/popular`, `/recommendations/personal`, `/recommendations/ai`, `/anime`, `/streaming` | `parseMetasResponse` |
 | `GET /meta/:type/:imdbId`, `GET /series/progress/:imdbId` | raw / `parseSeriesProgressResponse` |
-| `POST /watch`, `POST /scrobble/{start,pause,stop}`, `POST /stremio/play-signal` (service token) | – |
+| `POST /scrobble/{start,pause,stop}` | – |
 
 On Workers this hop becomes a **Service Binding** (`env.API.fetch`). A Stremio home screen
 fans out to about 20 catalogs per load, so watch the subrequest and concurrent-connection
@@ -446,7 +430,7 @@ get the identical `API_TOKEN` and reproduce these formats exactly, or the follow
 |---|---|---|---|
 | AES-256-GCM + `hkdfSync` + `randomBytes` | `lib/secret-box.ts` | **C** | A WebCrypto port is format-compatible: split the 16-byte tag off the end of `ct‖tag`. The callers become async. |
 | scrypt N=16384 (about 16 MB, tens of ms of CPU per verify) | `lib/pin-hash.ts` | **C**, CPU-heavy | Too slow for the Free plan's CPU budget; fine on Paid. `needsRehash` already allows a transparent upgrade to PBKDF2-SHA256 (WebCrypto, which Workers caps at 100k iterations) or `@noble/hashes/scrypt`. |
-| HMAC-SHA256 + `timingSafeEqual` | `lib/profile-token.ts`, `lib/stremio-secret.ts`, `packages/shared/src/service-client.ts`, addon `lib/mutation-auth.ts`, addon `lib/mark-watched.ts`, `lib/auth.ts`, `lib/webhook-auth.ts` | **C** | Or WebCrypto HMAC plus `crypto.subtle.timingSafeEqual`. |
+| HMAC-SHA256 + `timingSafeEqual` | `lib/profile-token.ts`, `lib/stremio-secret.ts`, `packages/shared/src/service-client.ts`, addon `lib/mutation-auth.ts`, `lib/auth.ts`, `lib/webhook-auth.ts` | **C** | Or WebCrypto HMAC plus `crypto.subtle.timingSafeEqual`. |
 | `createHash("sha1")` for ETags | `lib/http-cache.ts:46` | **C** | |
 | `Buffer` (base64url, cursors, RFC 2047) | about 10 sites | **C** | |
 
@@ -473,7 +457,6 @@ get the identical `API_TOKEN` and reproduce these formats exactly, or the follow
   - `routes/series.ts:123`
   - `routes/scrobble.ts:292,334,410`
   - `routes/trakt.ts:434-456`
-  - addon `lib/play-signal.ts:55`
 
   The post-Trakt-import TMDB backfill (`routes/trakt.ts:434`, possibly thousands of calls)
   and AI regeneration need a **Queue**.
@@ -485,7 +468,6 @@ get the identical `API_TOKEN` and reproduce these formats exactly, or the follow
 | State | Where | Effect on Workers | Fix |
 |---|---|---|---|
 | Trakt client token singleton + refresh | `lib/trakt-client.ts:18-29`, `trakt.ts:545-582` | Two isolates refresh at once. Trakt rotates refresh tokens, so the loser gets `invalid_grant` and the connection breaks. | A Durable Object, or a conditional DB update on `TraktToken` |
-| Stremio `withSyncLock` | `lib/stremio-library.ts:150-157` | Overlapping passes record duplicate watches | DB lease or Durable Object |
 | Trakt `importInProgress` flag | `routes/trakt.ts:40-58` | The 409 guard stops working | DB lease or Durable Object |
 | Scheduler `inFlight` | `lib/scheduler.ts:86` | Cron runs overlap | DB lease |
 | AI recommendations kept only in `trendingCache` | `lib/cache.ts:26`, `lib/ai.ts:398`, `index.ts:395` | The cron isolate warms memory that request isolates never see, so the job does nothing | Persist to a table or Workers KV |
@@ -495,8 +477,7 @@ get the identical `API_TOKEN` and reproduce these formats exactly, or the follow
 ones to the Cache API or Workers KV:
 
 - About 20 LRU/Map caches: TMDB cast, seasons and episodes, providers, external ids, show
-  details, search, profiles, AniList, the IGDB search and **Twitch token** (put this one
-  in KV), coalescing maps, host gates and the addon's caches.
+  details, search, profiles, AniList, coalescing maps, host gates and the addon's caches.
 
 ### 5.8 Request and response size
 
@@ -512,7 +493,6 @@ ones to the Cache API or Workers KV:
 - `lib/http.ts` `fetchWithPolicy` (web `fetch`, `AbortSignal.any/timeout`).
 - `lib/concurrency.ts`.
 - `lib/html.ts`.
-- Play-signal "timers", which are already DB rows with a delete-as-claim.
 - Job-status recording.
 - Filesystem: none in runtime code. `fs` appears only in build, ops scripts and the web
   container entrypoint.
@@ -580,15 +560,11 @@ using a last-run marker in the DB. A DB lease replaces the in-memory `inFlight` 
 
 | Job | Per-run work | Fits one cron invocation? | Workers design |
 |---|---|---|---|
-| Play-signal settling (60 s) | DB only, delete-as-claim | Yes | Cron, as-is |
 | Scrobble cleanup (1 h) | One `updateMany` | Yes | Cron |
 | Trakt incremental poll + watchlist sync (300 s) | A few Trakt GETs, 2-3 DB round trips per entry | Yes | Cron, plus a **serialised token refresh** (§5.7) |
 | **Trakt backfill** (first connect or `POST /trakt/poll {full:true}`) | Up to `TRAKT_BACKFILL_MAX_PAGES` = 500 pages **per endpoint**, about 2,000 Trakt GETs and tens of thousands of DB round trips, all buffered in memory before writing (`trakt.ts:423-478`) | **No** | **Workflow** (one step per page, resumable cursor) or a Queue |
-| Stremio library sync (off by default) | One `datastoreMeta` + chunked `datastoreGet` + a watch per item | Yes | Cron, plus a DB lease to replace `withSyncLock` |
 | Episode notifications (1 h) | One TMDB call per tracked series, then web push + channels per new episode | Yes for a household | Cron. Move `showDetailsCache` to KV. LAN ntfy/Gotify per D4. |
 | AI recommendations refresh (24 h) | 2 LLM calls (60 s timeout) + about 15 TMDB searches each | Fits, but its output is in-memory only | Cron or Queue, **persisting** the results |
-| **Steam sync, first or large** (24 h) | One Steam call, then **per game** DB queries + 2 IGDB searches through a 4 req/s limiter. 1,000 games ≈ 2,000 IGDB calls, ≥ 500 s. | **No** | **Queue** (N games per message) with the IGDB rate limit in a Durable Object, or a Workflow. Incremental runs fit. |
-| IGDB/Twitch token | Cached in module memory | n/a | Workers KV with a TTL |
 | Request-driven backfills (metadata ≤ 25 calls, Jellyseerr, Trakt push) | Small | n/a | `ctx.waitUntil` |
 | Post-Trakt-import TMDB backfill | Possibly thousands of calls | n/a | **Queue** |
 
@@ -620,11 +596,8 @@ channel tokens.
 | `MAX_BODY_SIZE_MB` | 32 | body limit | Cap below 100 |
 | `TRAKT_CLIENT_ID`, `TRAKT_CLIENT_SECRET` **S**, `TRAKT_REDIRECT_URI` | unset | Trakt OAuth | Var / secret |
 | `TRAKT_POLL_INTERVAL_SEC` (300), `TRAKT_POLL_MAX_PAGES` (20), `TRAKT_BACKFILL_MAX_PAGES` (500), `TRAKT_WATCHLIST_MIRROR_DELETES` (false) | | Trakt sync | Vars |
-| `STREMIO_POLL_INTERVAL_SEC` (0), `STREMIO_API_BASE` (`https://api.strem.io`), `STREMIO_PLAY_DETECTION` (false) | | Stremio sync and play detection | Vars. Play detection must match the addon. |
 | `TMDB_API_KEY` **S** | unset; a DB value wins | TMDB | Secret |
-| `AI_REFRESH_INTERVAL_SEC` (86400), `NOTIFICATION_CHECK_INTERVAL_SEC` (3600), `STEAM_SYNC_INTERVAL_SEC` (86400) | | job cadence | Vars read by the cron dispatcher |
-| `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET` **S** | unset | IGDB | Var / secret |
-| `STEAM_API_KEY` **S**, `STEAM_ID` | unset | Steam | Secret / var |
+| `AI_REFRESH_INTERVAL_SEC` (86400), `NOTIFICATION_CHECK_INTERVAL_SEC` (3600) | | job cadence | Vars read by the cron dispatcher |
 | `VAPID_SUBJECT` | `mailto:admin@fetch.local` | VAPID `sub` | Var |
 | `WEBHOOK_SECRET` **S**, `WEBHOOK_ALLOWED_IPS` | unset | webhook auth | Secret / var |
 | `SENTRY_DSN` | unset | errors | Var |
@@ -639,7 +612,6 @@ channel tokens.
 | `FETCH_WEB_PUBLIC` / `WEB_PUBLIC_BASE` | unset | Var |
 | `PROXY_PATH_PREFIXES` (compose: `ADDON_PROXY_PATH_PREFIXES`) | `/addon` | Keep or route |
 | `TRUST_PROXY` | unset | Drop |
-| `STREMIO_PLAY_DETECTION` | false | Var |
 | `LOG_LEVEL` | info | Var |
 | `PORT` | 7001 | Drop |
 | `SENTRY_DSN`, `NODE_ENV` | – | Vars |
@@ -692,7 +664,7 @@ channel tokens.
 | Today | After |
 |---|---|
 | `scripts/backup.sh` / `restore.sh` (`docker compose exec db pg_dump/psql`) | `pg_dump`/`psql` against the direct DB URL, plus the provider's PITR. Never through Hyperdrive. |
-| `scripts/smoke.ts` | Mostly portable: point it at the Worker URLs. `/health/ready` must bypass the Hyperdrive cache. Trakt import and Steam sync become 202 + enqueue. |
+| `scripts/smoke.ts` | Mostly portable: point it at the Worker URLs. `/health/ready` must bypass the Hyperdrive cache. Trakt import becomes 202 + enqueue. |
 | `scripts/check-compose-env.mjs` | Re-target to `wrangler.toml` vars and secrets, or replace with `wrangler types`. |
 | `.github/workflows/web-dockerpublish.yml` (4 GHCR images, `latest`/`sha-*`/`vX.Y.Z`) | `wrangler-action` deploys (api, addon, web). `prisma migrate deploy` runs before the deploy. Workers versions + rollback replace image tags. Needs `CLOUDFLARE_API_TOKEN` and the account ID. |
 | `.github/workflows/web-verify.yml` | Keeps its Postgres service. Add `@cloudflare/vitest-pool-workers` tests for the fetch, `scheduled` and queue handlers. |
@@ -726,12 +698,7 @@ them, and so they can be fixed separately.
    - **Scope:** PIN profiles are spared only because the addon never sends a profile token.
    - **Unused fix:** the API's HMAC secret URL exists but isn't shown.
    - **Matters more on Cloudflare:** a LAN-only addon becomes internet-reachable.
-4. **The addon lets anyone record watches.**
-   - **Mark-watched links:** `/subtitles` mints a valid mark-watched capability for any
-     title and UUID-shaped profile without auth.
-   - **Play signals:** with `STREMIO_PLAY_DETECTION` on, `/stream` and `/subtitles`
-     forward play signals, and `/stremio/play-signal` doesn't check the PIN.
-   - **Matters more on Cloudflare:** the same internet exposure as item 3.
+4. *(Removed: the addon's mark-watched links and play signals no longer exist.)*
 5. **Possible BigInt serialization 500.**
    - **Where:** the webhooks and `/scrobble/stop` return the raw `watchEvent` row.
    - **Effect:** if it dedups onto a Trakt-imported event (a `traktHistoryId` BigInt),
@@ -878,18 +845,6 @@ column marks the routes the web app calls.
 | DELETE | `/tags/assign` | T+P | body `{tagId, type, imdbId}` | 204 | ✓ |
 | GET | `/calendar` | T+P | `days` | `{calendar:[{seriesImdbId,seriesName,poster,season,episode,episodeName,airDate,overview}]}` | ✓ |
 
-### Games
-
-| Method | Path | Auth | Request | Response | PWA |
-|---|---|---|---|---|---|
-| GET | `/games` | T+P | `sort` | `{games}` | ✓ |
-| GET | `/games/search` | T+P | `q` | `{results}`; 503 `igdb_not_configured` | ✓ |
-| POST | `/games` | T+P | `{igdbId, title, coverUrl?, releaseDate?, genres?}` | 201 `{game}` | ✓ |
-| PATCH/DELETE | `/games/:id` | T+P | `{rating?, notes?, finished?, finishedAt?}` | `{game}` / 204 | ✓ |
-| GET | `/games/steam/status` | T | – | `{configured, player}` | ✓ |
-| POST | `/games/steam/sync` | T+P | – | `{total,created,updated,matched,unmatched}` | ✓ |
-| GET | `/games/igdb/status` | T | – | `{configured}` | ✓ |
-
 ### Settings and integrations (install-global)
 
 | Method | Path | Auth | Request | Response | PWA |
@@ -907,12 +862,6 @@ column marks the routes the web app calls.
 | POST | `/trakt/disconnect` | T | – | `{disconnected:true}` | ✓ |
 | POST | `/trakt/import` | T+P (lock → 409) | – | `{imported:{…}}` | ✓ |
 | POST | `/trakt/poll` | T | `{full?}` | `{since, fullBackfill, polledAt, …}` | |
-| GET | `/stremio/library/status` | T | – | `{connected, email, apiBase, connectedAt, …}` | ✓ |
-| POST | `/stremio/library/connect` | T+P (10/min) | `{email, password}` | status | ✓ |
-| POST | `/stremio/library/disconnect` | T | – | `{connected:false}` | ✓ |
-| POST | `/stremio/library/import`, `/stremio/library/sync` | T+P | – | `{scanned,fetched,recorded,skipped}` | ✓ |
-| POST | `/stremio/play-signal` | T+S | `{type, imdbId, seriesImdbId?, season?, episode?, resource, profileId?, client?}` | 202 `{status}` | addon |
-| GET | `/stremio/play-signals` | T+P | – | `{enabled, signals}` | ✓ |
 
 ### Built-in Stremio addon and legacy catalog JSON (`routes/stremio.ts`)
 

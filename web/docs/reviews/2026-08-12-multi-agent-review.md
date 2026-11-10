@@ -11,6 +11,12 @@ signal in this document.
 Every claim in the "Verified" section was re-checked by hand against the source after
 the reviews completed.
 
+> **Note (2026-11-10):** Games (Steam/IGDB), the Stremio account library sync, play
+> detection and the addon's `/subtitles` "Mark Watched" entry have since been removed.
+> Findings below that cite `steam.ts`, `igdb.ts`, `routes/games.ts`,
+> `lib/stremio-library.ts` or the addon's `/subtitles` and `/mark-watched` routes describe
+> code that no longer exists. They are kept as a record of this review.
+
 ---
 
 ## Executive summary

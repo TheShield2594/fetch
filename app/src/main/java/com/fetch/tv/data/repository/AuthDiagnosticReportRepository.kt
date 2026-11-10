@@ -2,23 +2,27 @@ package com.fetch.tv.data.repository
 
 import android.content.Context
 import com.fetch.tv.BuildConfig
+import com.fetch.tv.data.local.PlayerSettingsDataStore
 import com.fetch.tv.data.remote.api.AuthDiagnosticReportApi
 import com.fetch.tv.data.remote.dto.AuthDiagnosticReportRequestDto
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
 
 @Singleton
 class AuthDiagnosticReportRepository @Inject constructor(
     private val authDiagnosticReportApi: AuthDiagnosticReportApi,
     moshi: Moshi,
-    @ApplicationContext context: Context
+    @ApplicationContext context: Context,
+    private val playerSettingsDataStore: Provider<PlayerSettingsDataStore>
 ) {
     private val mutex = Mutex()
     private val queue = AuthDiagnosticReportQueue(
@@ -26,7 +30,16 @@ class AuthDiagnosticReportRepository @Inject constructor(
         moshi = moshi
     )
 
+    /**
+     * Sign-in diagnostics are only sent when the build has a report endpoint and the user has
+     * turned on diagnostic reports (Settings → Advanced → Playback issue reports). Otherwise the
+     * report is dropped and nothing is kept on disk, including anything queued by older builds.
+     */
     suspend fun submit(report: AuthDiagnosticReportRequestDto): Result<String> = mutex.withLock {
+        if (!isUploadAllowed()) {
+            queue.write(emptyList())
+            return@withLock Result.success("disabled")
+        }
         drainQueuedLocked()
         return@withLock try {
             Result.success(upload(report))
@@ -34,6 +47,13 @@ class AuthDiagnosticReportRepository @Inject constructor(
             enqueueLocked(report)
             Result.failure(e)
         }
+    }
+
+    private suspend fun isUploadAllowed(): Boolean {
+        if (BuildConfig.PLAYBACK_REPORTS_BASE_URL.isBlank()) return false
+        return runCatching {
+            playerSettingsDataStore.get().playerSettings.first().playbackIssueReportsEnabled
+        }.getOrDefault(false)
     }
 
     private suspend fun drainQueuedLocked() {

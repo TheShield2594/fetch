@@ -71,8 +71,42 @@ private const val MdbListUrl = "https://mdblist.com"
 private const val IntroDbUrl = "https://introdb.app/"
 private const val ImdbDatasetsUrl = "https://developer.imdb.com/non-commercial-datasets/"
 private const val ApacheLicenseUrl = "https://www.apache.org/licenses/LICENSE-2.0"
-private const val HazeLicenseUrl = "https://github.com/chrisbanes/haze/blob/1.7.2/LICENSE"
-private const val LibMpvAndroidUrl = "https://github.com/jarnedemeulemeester/libmpv-android"
+private const val LibMpvAndroidUrl = "https://github.com/abdallahmehiz/mpv-android"
+private const val FfmpegLegalUrl = "https://ffmpeg.org/legal.html"
+
+private const val Apache2 = "Apache License 2.0"
+private const val Mit = "MIT License"
+private const val Bsd3 = "BSD 3-Clause License"
+
+/** A bundled third-party library: name, licence and where to read it. Names aren't translated. */
+private data class LibraryNotice(val name: String, val license: String, val url: String)
+
+// Keep in step with app/build.gradle.kts and app/libs. Media3, mpv and FFmpeg have their own
+// entries under playback.
+private val playbackLibraryNotices = listOf(
+    LibraryNotice("libgav1 (AV1 decoder)", Apache2, "https://chromium.googlesource.com/codecs/libgav1"),
+    LibraryNotice("libiamf (IAMF decoder)", "BSD 3-Clause Clear License", "https://github.com/AOMediaCodec/libiamf"),
+    LibraryNotice("Fraunhofer MPEG-H decoder (mpeghdec)", "Fraunhofer FDK MPEG-H software license", "https://github.com/Fraunhofer-IIS/mpeghdec"),
+    LibraryNotice("libass / libass-android (ass-media)", "ISC License (libass); MIT License (libass-android)", "https://github.com/peerless2012/libass-android"),
+    LibraryNotice("NextLib MediaInfo", Apache2, "https://github.com/anilbeesetti/nextlib")
+)
+
+private val libraryNotices = listOf(
+    LibraryNotice("Android Jetpack (AndroidX, Compose, Compose for TV)", Apache2, "https://developer.android.com/jetpack/androidx"),
+    LibraryNotice("Kotlin, kotlinx.coroutines, kotlinx.serialization", Apache2, "https://github.com/JetBrains/kotlin"),
+    LibraryNotice("Dagger / Hilt", Apache2, "https://github.com/google/dagger"),
+    LibraryNotice("Guava", Apache2, "https://github.com/google/guava"),
+    LibraryNotice("Gson", Apache2, "https://github.com/google/gson"),
+    LibraryNotice("ZXing", Apache2, "https://github.com/zxing/zxing"),
+    LibraryNotice("OkHttp", Apache2, "https://github.com/square/okhttp"),
+    LibraryNotice("Retrofit", Apache2, "https://github.com/square/retrofit"),
+    LibraryNotice("Moshi", Apache2, "https://github.com/square/moshi"),
+    LibraryNotice("Coil", Apache2, "https://github.com/coil-kt/coil"),
+    LibraryNotice("Ktor", Apache2, "https://github.com/ktorio/ktor"),
+    LibraryNotice("supabase-kt", Mit, "https://github.com/supabase-community/supabase-kt"),
+    LibraryNotice("Multiplatform Markdown Renderer", Apache2, "https://github.com/mikepenz/multiplatform-markdown-renderer"),
+    LibraryNotice("NanoHTTPD", Bsd3, "https://github.com/NanoHttpd/nanohttpd")
+)
 
 private sealed interface LicenseLogo {
     data class Drawable(@param:DrawableRes val resId: Int) : LicenseLogo
@@ -193,15 +227,11 @@ private fun LicensesAttributionsDetailsPanel(
                 }
 
                 AttributionSection(
-                    title = stringResource(R.string.licenses_attributions_section_ui)
+                    title = stringResource(R.string.licenses_attributions_section_libraries)
                 ) {
-                    AttributionDetailRow(
-                        item = LicenseAttributionItem(
-                            title = stringResource(R.string.licenses_attributions_haze_title),
-                            body = stringResource(R.string.licenses_attributions_haze_body),
-                            url = HazeLicenseUrl
-                        )
-                    )
+                    libraryNotices.forEach { notice ->
+                        AttributionDetailRow(item = notice.toItem())
+                    }
                 }
             }
             SettingsVerticalScrollIndicators(state = scrollState)
@@ -401,5 +431,17 @@ private fun playbackLicenseItems() = listOf(
         title = stringResource(R.string.licenses_attributions_libmpv_title),
         body = stringResource(R.string.licenses_attributions_libmpv_body),
         url = LibMpvAndroidUrl
+    ),
+    LicenseAttributionItem(
+        title = stringResource(R.string.licenses_attributions_ffmpeg_title),
+        body = stringResource(R.string.licenses_attributions_ffmpeg_body),
+        url = FfmpegLegalUrl
     )
+) + playbackLibraryNotices.map { it.toItem() }
+
+@Composable
+private fun LibraryNotice.toItem() = LicenseAttributionItem(
+    title = name,
+    body = stringResource(R.string.licenses_attributions_license_format, license),
+    url = url
 )

@@ -1,6 +1,7 @@
 package com.fetch.tv.data.repository
 
 import android.util.Log
+import com.fetch.tv.BuildConfig
 import com.fetch.tv.data.remote.api.ImdbTapframeApi
 import com.fetch.tv.data.remote.api.SeriesGraphApi
 import kotlinx.coroutines.CoroutineScope
@@ -81,13 +82,14 @@ class ImdbEpisodeRatingsRepository @Inject constructor(
         imdbId: String?,
         tmdbId: Int?
     ): Map<Pair<Int, Int>, Double> {
-        if (!imdbId.isNullOrBlank()) {
+        // Builds without these endpoints configured make no requests at all.
+        if (!imdbId.isNullOrBlank() && BuildConfig.IMDB_TAPFRAME_API_BASE_URL.isNotBlank()) {
             val primary = fetchFromImdbTapframe(imdbId)
             if (primary.isNotEmpty()) return primary
             Log.w(tag, "Primary episode ratings empty for imdbId=$imdbId, trying fallback.")
         }
 
-        if (tmdbId != null && tmdbId > 0) {
+        if (tmdbId != null && tmdbId > 0 && BuildConfig.IMDB_RATINGS_API_BASE_URL.isNotBlank()) {
             return fetchFromSeriesGraph(tmdbId)
         }
 

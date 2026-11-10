@@ -424,9 +424,6 @@
     <string name="licenses_attributions_section_app">LICENCE DE L’APPLICATION</string>
     <string name="licenses_attributions_section_data">DONNÉES ET SERVICES</string>
     <string name="licenses_attributions_section_playback">LICENCES DE LECTURE ANDROID</string>
-    <string name="licenses_attributions_section_ui">BIBLIOTHÈQUES D’INTERFACE</string>
-    <string name="licenses_attributions_haze_title">Haze 1.7.2</string>
-    <string name="licenses_attributions_haze_body">Utilisée pour les effets de flou d’arrière-plan. Créée par Chris Banes. Distribuée sous licence Apache, version 2.0.</string>
     <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch utilise l’API TMDB pour les métadonnées des films et des séries, les visuels, les bandes-annonces, la distribution, les détails de production, les collections et les recommandations. Ce produit utilise l’API TMDB, mais n’est ni approuvé ni certifié par TMDB.</string>

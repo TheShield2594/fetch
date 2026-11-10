@@ -402,9 +402,6 @@
   <string name="licenses_attributions_section_app">ΑΔΕΙΑ ΕΦΑΡΜΟΓΗΣ</string>
   <string name="licenses_attributions_section_data">ΔΕΔΟΜΕΝΑ &amp; ΥΠΗΡΕΣΙΕΣ</string>
   <string name="licenses_attributions_section_playback">ΑΔΕΙΕΣ ΑΝΑΠΑΡΑΓΩΓΗΣ ANDROID</string>
-  <string name="licenses_attributions_section_ui">ΒΙΒΛΙΟΘΗΚΕΣ UI</string>
-  <string name="licenses_attributions_haze_title">Haze 1.7.2</string>
-  <string name="licenses_attributions_haze_body">Χρησιμοποιείται για εφέ θολώματος φόντου. Δημιουργήθηκε από τον Chris Banes. Διατίθεται υπό την άδεια Apache, έκδοση 2.0.</string>
   <string name="licenses_attributions_fetch_title">Fetch</string>
   <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
   <string name="licenses_attributions_tmdb_body">Το Fetch χρησιμοποιεί το API του TMDB για μεταδεδομένα ταινιών και σειρών, εικόνες, τρέιλερ, ηθοποιούς, λεπτομέρειες παραγωγής, συλλογές και προτάσεις. Αυτό το προϊόν χρησιμοποιεί το API του TMDB αλλά δεν υποστηρίζεται ούτε πιστοποιείται από το TMDB.</string>

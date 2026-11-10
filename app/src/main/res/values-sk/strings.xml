@@ -2484,9 +2484,6 @@
     <string name="custom_theme_preview">NÁHĽAD</string>
     <string name="appearance_startup_splash">Úvodná obrazovka pri spustení</string>
     <string name="appearance_startup_splash_subtitle">Zobraziť logo a indikátor načítavania po výbere profilu</string>
-    <string name="licenses_attributions_section_ui">KNIŽNICE UI</string>
-    <string name="licenses_attributions_haze_title">Haze 1.7.2</string>
-    <string name="licenses_attributions_haze_body">Používa sa na efekty rozostrenia pozadia. Vytvoril Chris Banes. Licencované pod Apache License, Verzia 2.0.</string>
     <string name="tracking_simkl_anime_id_tvdb">Uprednostniť TVDB</string>
     <string name="auto_skip_movie_credits">Záverečné titulky</string>
     <string name="auto_skip_movie_credits_sub">Automaticky preskakovať záverečné titulky filmov so zachovaním medzititulkových a potitulkových scén.</string>

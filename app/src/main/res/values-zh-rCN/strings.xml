@@ -403,9 +403,6 @@
     <string name="licenses_attributions_section_app">应用许可</string>
     <string name="licenses_attributions_section_data">数据与服务</string>
     <string name="licenses_attributions_section_playback">Android 播放许可</string>
-    <string name="licenses_attributions_section_ui">UI 库</string>
-    <string name="licenses_attributions_haze_title">Haze 1.7.2</string>
-    <string name="licenses_attributions_haze_body">用于背景模糊效果。由 Chris Banes 创建。基于 Apache License, Version 2.0 许可。</string>
     <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch 使用 TMDB API 获取电影和电视节目的元数据、美术图、预告片、演员、制作细节、收藏和推荐内容。本产品使用 TMDB API，但未经 TMDB 认可或认证。</string>

@@ -135,7 +135,8 @@ python3 scripts/brand/generate_brand.py
 
 ## Privacy
 
-No analytics, no crash reporting, no account. See [PRIVACY.md](PRIVACY.md).
+No analytics, no automatic crash reporting, no account. Diagnostic reports exist only in builds
+that configure their own report server, and only after you turn them on. See [PRIVACY.md](PRIVACY.md).
 
 ## Credits and license
 
@@ -143,5 +144,6 @@ Fetch is a fork of [NuvioTV](https://github.com/NuvioMedia/NuvioTV) by the Nuvio
 whose work makes up most of this app. Like upstream it is licensed under the
 [GNU General Public License v3.0](./LICENSE). That covers the website in `web/` too.
 
-Media3, mpv, libass, Coil, Haze and the other dependencies are credited in
-Settings → About → Licenses & attributions.
+Media3, mpv, FFmpeg, libass, Coil, OkHttp and the other bundled libraries are credited, with
+their licences, in Settings → About → Licenses & attributions. When you add or remove a
+dependency, update `LicensesAttributionsScreen.kt` to match.

@@ -322,7 +322,9 @@ object NetworkModule {
     @Named("parentalGuide")
     fun provideParentalGuideRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://api.tiffara.com/")
+            // Overridable per build with PARENTAL_GUIDE_API_URL; the lookup itself is off until
+            // the user turns on Content Warnings.
+            .baseUrl(normalizedBaseUrl(BuildConfig.PARENTAL_GUIDE_API_URL, "https://api.tiffara.com/"))
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()

@@ -1978,9 +1978,6 @@
     <string name="licenses_attributions_section_app">LICENCJA APLIKACJI</string>
     <string name="licenses_attributions_section_data">DANE I USŁUGI</string>
     <string name="licenses_attributions_section_playback">LICENCJE ODTWARZANIA ANDROID</string>
-    <string name="licenses_attributions_section_ui">BIBLIOTEKI UI</string>
-    <string name="licenses_attributions_haze_title">Haze 1.7.2</string>
-    <string name="licenses_attributions_haze_body">Używany do efektów rozmycia tła. Stworzony przez Chrisa Banesa. Licencjonowany na licencji Apache, wersja 2.0.</string>
     <string name="licenses_attributions_subtitle">Dostawcy danych, podziękowania i licencje odtwarzania Android używane przez aplikację Fetch.</string>
     <string name="licenses_attributions_title">Licencje i atrybucje</string>
     <string name="licenses_attributions_tmdb_body">Fetch korzysta z API TMDB do metadanych filmów i seriali, grafik, zwiastunów, obsady, szczegółów produkcji, kolekcji i rekomendacji. Ten produkt korzysta z API TMDB, ale nie jest zatwierdzony ani certyfikowany przez TMDB.</string>

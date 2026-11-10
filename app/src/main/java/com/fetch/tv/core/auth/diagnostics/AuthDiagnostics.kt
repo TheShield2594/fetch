@@ -44,8 +44,8 @@ import javax.net.ssl.SSLException
 
 private const val TAG = "AuthDiagnostics"
 private const val EXCLUDED_CREDENTIAL = "[excluded-credential]"
-private val credentialKeyRegex = Regex("(authorization|cookie|token|secret|password|apikey|api_key|accesskey|session|refresh|bearer)", RegexOption.IGNORE_CASE)
-private val credentialJsonValueRegex = Regex("(\"[^\"]*(?:authorization|cookie|token|secret|password|apikey|api_key|accesskey|session|refresh|bearer)[^\"]*\"\\s*:\\s*)(\"(?:\\\\.|[^\"])*\"|[^,}\\]]+)", setOf(RegexOption.IGNORE_CASE))
+private val credentialKeyRegex = Regex("(authorization|cookie|token|secret|password|apikey|api_key|accesskey|session|refresh|bearer|email)", RegexOption.IGNORE_CASE)
+private val credentialJsonValueRegex = Regex("(\"[^\"]*(?:authorization|cookie|token|secret|password|apikey|api_key|accesskey|session|refresh|bearer|email)[^\"]*\"\\s*:\\s*)(\"(?:\\\\.|[^\"])*\"|[^,}\\]]+)", setOf(RegexOption.IGNORE_CASE))
 private val authDiagnosticsJson = Json { ignoreUnknownKeys = true }
 
 class AuthDiagnosticsSession(

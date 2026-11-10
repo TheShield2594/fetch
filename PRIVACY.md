@@ -1,7 +1,8 @@
 # Fetch privacy policy
 
-Fetch is local-first. It has no telemetry, no analytics, no crash reporting and no
-required account.
+Fetch is local-first. It has no telemetry, no analytics, no automatic crash reporting and
+no required account. The only reports it can send are the opt-in diagnostics described
+below.
 
 ## What stays on your TV
 
@@ -40,12 +41,33 @@ A few features use a service Fetch picks for you. Each is listed here with what 
 - **Content warnings** (`api.tiffara.com`), **off by default**. When you turn on Content
   Warnings in Settings, the IMDb ID of each title you play is sent to look up its parents
   guide.
+- **Episode ratings** for the ratings grid on series pages and episode ratings on Continue
+  Watching. Official builds ask an IMDb ratings service and a SeriesGraph-compatible service
+  for a series' per-episode ratings, sending the series' IMDb ID or TMDB ID. This is on
+  whenever those services are built in; builds made without them (the default for
+  self-built APKs) make no such requests.
 - **Simkl artwork** is loaded through the `wsrv.nl` image proxy when you are signed in to
   Simkl. The proxy sees the address of each Simkl image.
 - **The network speed test** in Settings contacts `fast.com` (Netflix) and
   `cloudflare.com`, only when you start a test.
 
 Each of these services has its own privacy policy.
+
+## Diagnostic reports
+
+Official builds send no reports. A build only has reporting if whoever built it set
+`PLAYBACK_REPORTS_BASE_URL` to an endpoint they run, and even then nothing is sent until you
+turn on **Playback issue reports** in Settings → Advanced. With it on:
+
+- **Playback issue reports** are sent only when you press a report button in the player.
+  They carry the title being played, the stream and player state, and device details.
+- **Sign-in diagnostics** are sent when signing in to, signing up with, or refreshing a session
+  on the build's default sync server. They carry device make, model and Android version, the
+  server and sign-in URLs, and a timeline of the sign-in requests and errors. Passwords, tokens,
+  email addresses and other credentials are removed first. Nothing is sent for a sync server
+  you set up yourself.
+
+With it off, sign-in diagnostics are discarded and nothing is saved for later.
 
 ## Phone configuration
 

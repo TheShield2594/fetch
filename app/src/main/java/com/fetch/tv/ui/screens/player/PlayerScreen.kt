@@ -18,6 +18,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
@@ -565,7 +566,9 @@ fun PlayerScreen(
     }
 
     // Frame rate matching lifecycle.
-    val activity = LocalContext.current as? android.app.Activity
+    // LocalActivity still finds the Activity if LocalContext is ever a ContextWrapper, where a cast
+    // would give null and silently turn frame rate matching off.
+    val activity = LocalActivity.current
     LaunchedEffect(activity) {
         viewModel.attachHostActivity(activity)
         viewModel.startInitialPlaybackIfNeeded()

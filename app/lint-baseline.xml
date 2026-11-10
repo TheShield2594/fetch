@@ -162,7 +162,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="4541"
+            line="4544"
             column="9"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="4543"
+            line="4546"
             column="9"/>
     </issue>
 
@@ -11437,7 +11437,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="1217"
+            line="1220"
             column="29"/>
     </issue>
 
@@ -11448,7 +11448,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2209"
+            line="2212"
             column="26"/>
     </issue>
 
@@ -11459,7 +11459,7 @@
         errorLine2="            ~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2226"
+            line="2229"
             column="13"/>
     </issue>
 
@@ -11470,7 +11470,7 @@
         errorLine2="            ~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2226"
+            line="2229"
             column="13"/>
     </issue>
 
@@ -11481,7 +11481,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2226"
+            line="2229"
             column="49"/>
     </issue>
 
@@ -11492,7 +11492,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2227"
+            line="2230"
             column="13"/>
     </issue>
 
@@ -11503,7 +11503,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2227"
+            line="2230"
             column="41"/>
     </issue>
 
@@ -11514,7 +11514,7 @@
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2242"
+            line="2245"
             column="39"/>
     </issue>
 
@@ -11525,7 +11525,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2250"
+            line="2253"
             column="43"/>
     </issue>
 
@@ -11536,7 +11536,7 @@
         errorLine2="        ~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2382"
+            line="2385"
             column="9"/>
     </issue>
 
@@ -11547,7 +11547,7 @@
         errorLine2="        ~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2383"
+            line="2386"
             column="9"/>
     </issue>
 
@@ -11558,7 +11558,7 @@
         errorLine2="                     ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2454"
+            line="2457"
             column="22"/>
     </issue>
 
@@ -11569,7 +11569,7 @@
         errorLine2="        ~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2471"
+            line="2474"
             column="9"/>
     </issue>
 
@@ -11580,7 +11580,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2471"
+            line="2474"
             column="19"/>
     </issue>
 
@@ -11591,7 +11591,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2481"
+            line="2484"
             column="9"/>
     </issue>
 
@@ -11602,7 +11602,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2482"
+            line="2485"
             column="9"/>
     </issue>
 
@@ -11613,7 +11613,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2491"
+            line="2494"
             column="51"/>
     </issue>
 
@@ -11624,7 +11624,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2493"
+            line="2496"
             column="51"/>
     </issue>
 
@@ -11635,7 +11635,7 @@
         errorLine2="        ~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2502"
+            line="2505"
             column="9"/>
     </issue>
 
@@ -11646,7 +11646,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2503"
+            line="2506"
             column="32"/>
     </issue>
 
@@ -11657,7 +11657,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2514"
+            line="2517"
             column="9"/>
     </issue>
 
@@ -11668,7 +11668,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2518"
+            line="2521"
             column="9"/>
     </issue>
 
@@ -11679,7 +11679,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2525"
+            line="2528"
             column="17"/>
     </issue>
 
@@ -14478,17 +14478,6 @@
     </issue>
 
     <issue
-        id="ContextCastToActivity"
-        message="LocalContext should not be cast to Activity, use LocalActivity instead"
-        errorLine1="    val activity = LocalContext.current as? android.app.Activity"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="600"
-            column="20"/>
-    </issue>
-
-    <issue
         id="LocalContextGetResourceValueCall"
         message="Querying resource values using LocalContext.current"
         errorLine1="            cardContext.getString(R.string.season_episode_format, season, episode)"
@@ -15199,7 +15188,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="4144"
+            line="4147"
             column="17"/>
     </issue>
 
@@ -15397,7 +15386,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="2210"
+            line="2213"
             column="5"/>
     </issue>
 
@@ -15408,7 +15397,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="4485"
+            line="4488"
             column="5"/>
     </issue>
 
@@ -15626,28 +15615,6 @@
         message="Overriding `@layout/exo_player_view` which is marked as private in androidx.media3:media3-ui:1.8.0. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name.">
         <location
             file="src/main/res/layout/exo_player_view.xml"/>
-    </issue>
-
-    <issue
-        id="UnrememberedGetBackStackEntry"
-        message="Calling getBackStackEntry during composition without using `remember` with a NavBackStackEntry key"
-        errorLine1="                    try { navController.getBackStackEntry(Screen.Search.route) } catch (_: Exception) { null }"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/navigation/FetchNavHost.kt"
-            line="1459"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UnrememberedGetBackStackEntry"
-        message="Calling getBackStackEntry during composition without using `remember` with a NavBackStackEntry key"
-        errorLine1="                try { navController.getBackStackEntry(Screen.Home.route) } catch (_: Exception) { null }"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/navigation/FetchNavHost.kt"
-            line="1467"
-            column="37"/>
     </issue>
 
     <issue
@@ -47798,7 +47765,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="3746"
+            line="3749"
             column="29"/>
     </issue>
 

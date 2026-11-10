@@ -1,5 +1,6 @@
 package com.fetch.tv
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -1320,6 +1321,10 @@ open class MainActivity : ComponentActivity() {
         }
     }
 
+    // Activity.dispatchKeyEvent is public framework API. androidx.core's ComponentActivity
+    // re-declares it @RestrictTo, so lint flags this override and its super call as
+    // RestrictedApi; that is a lint false positive.
+    @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (ambientIdleController.consumeKeyEvent(event)) return true
         if (event.keyCode == KeyEvent.KEYCODE_BACK) {

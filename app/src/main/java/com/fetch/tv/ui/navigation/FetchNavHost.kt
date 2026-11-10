@@ -864,7 +864,7 @@ private fun PlaybackNavHost(
                     val focusSeason = currentSeason ?: initialSeason
                     val focusEpisode = currentEpisode ?: initialEpisode
                     fun returnToDetail() {
-                        val detailEntry = navController.currentBackStack.value
+                        val detailEntry = navController.backStackEntries()
                             .lastOrNull {
                                 val itemId = it.arguments?.getString("itemId").orEmpty()
                                 val itemType = it.arguments?.getString("itemType").orEmpty()
@@ -982,7 +982,7 @@ private fun PlaybackNavHost(
                     } else {
                         // Back to the detail page after a still-watching or screen time stop.
                         if (exitReason != null) {
-                            val detailEntry = navController.currentBackStack.value
+                            val detailEntry = navController.backStackEntries()
                                 .lastOrNull { it.destination.route?.startsWith("detail/") == true }
                             if (detailEntry != null) {
                                 detailEntry.savedStateHandle["returnFocusSeason"] = null
@@ -1023,7 +1023,7 @@ private fun PlaybackNavHost(
                             val focusSeason = args?.getString("season")?.toIntOrNull()
                             val focusEpisode = args?.getString("episode")?.toIntOrNull()
                             if (contentId.isNotBlank()) {
-                                val detailEntry = navController.currentBackStack.value
+                                val detailEntry = navController.backStackEntries()
                                     .lastOrNull {
                                         val itemId = it.arguments?.getString("itemId").orEmpty()
                                         val itemType = it.arguments?.getString("itemType").orEmpty()

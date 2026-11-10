@@ -1,5 +1,6 @@
 package com.fetch.tv.core.sync.androidtv
 
+import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
@@ -26,6 +27,11 @@ import com.fetch.tv.core.util.runSuspendCatching
 
 private const val TAG = "TvChannelSync"
 
+// RestrictedApi is a lint false positive here: this class uses only tvprovider's public API
+// (TvContractCompat.PreviewPrograms / WatchNextPrograms constants and the program Builders),
+// but lint resolves those members to the @RestrictTo supertypes that declare them
+// (PreviewProgramColumns, BaseProgram.Builder, BasePreviewProgram.Builder).
+@SuppressLint("RestrictedApi")
 @Singleton
 class AndroidTvChannelManager @Inject constructor(
     @ApplicationContext private val context: Context,

@@ -8,7 +8,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1468"
+            line="1473"
             column="30"/>
     </issue>
 
@@ -706,7 +706,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="380"
+            line="379"
             column="27"/>
     </issue>
 
@@ -717,7 +717,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="391"
+            line="390"
             column="20"/>
     </issue>
 
@@ -728,7 +728,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="405"
+            line="404"
             column="20"/>
     </issue>
 
@@ -739,7 +739,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="497"
+            line="496"
             column="20"/>
     </issue>
 
@@ -750,7 +750,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="387"
+            line="386"
             column="17"/>
     </issue>
 
@@ -761,7 +761,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="470"
+            line="469"
             column="20"/>
     </issue>
 
@@ -772,7 +772,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="506"
+            line="505"
             column="24"/>
     </issue>
 
@@ -783,7 +783,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="507"
+            line="506"
             column="24"/>
     </issue>
 
@@ -794,7 +794,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="508"
+            line="507"
             column="24"/>
     </issue>
 
@@ -805,690 +805,8 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="509"
+            line="508"
             column="24"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.ASPECT_RATIO_16_9 can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                    !progress.backdrop.isNullOrBlank() -> progress.backdrop to TvContractCompat.PreviewPrograms.ASPECT_RATIO_16_9"
-        errorLine2="                                                                                                                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="152"
-            column="113"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.ASPECT_RATIO_2_3 can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                    !progress.poster.isNullOrBlank() -> progress.poster to TvContractCompat.PreviewPrograms.ASPECT_RATIO_2_3"
-        errorLine2="                                                                                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="153"
-            column="109"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="            TvContractCompat.PreviewPrograms.COLUMN_INTERNAL_PROVIDER_ID"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="240"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="            val keyIdx = c.getColumnIndexOrThrow(TvContractCompat.PreviewPrograms.COLUMN_INTERNAL_PROVIDER_ID)"
-        errorLine2="                                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="252"
-            column="83"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.TYPE_MOVIE can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="            TvContractCompat.PreviewPrograms.TYPE_MOVIE"
-        errorLine2="                                             ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="287"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.TYPE_TV_EPISODE can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="            TvContractCompat.PreviewPrograms.TYPE_TV_EPISODE"
-        errorLine2="                                             ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="289"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setType can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            .setType(type)"
-        errorLine2="             ~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="293"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setType can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            .setType(type)"
-        errorLine2="                     ~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="293"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setTitle can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            .setTitle(progress.name)"
-        errorLine2="             ~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="294"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setIntentUri can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            .setIntentUri(intentUri)"
-        errorLine2="             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="295"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setInternalProviderId can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            .setInternalProviderId(key)"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="296"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.ASPECT_RATIO_16_9 can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                progress.backdrop to TvContractCompat.PreviewPrograms.ASPECT_RATIO_16_9"
-        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="303"
-            column="71"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.ASPECT_RATIO_2_3 can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                progress.poster to TvContractCompat.PreviewPrograms.ASPECT_RATIO_2_3"
-        errorLine2="                                                                    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="305"
-            column="69"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setPosterArtAspectRatio can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="        imageUri?.let { builder.setPosterArtUri(Uri.parse(it)).setPosterArtAspectRatio(aspectRatio!!) }"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="308"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setPosterArtAspectRatio can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="        imageUri?.let { builder.setPosterArtUri(Uri.parse(it)).setPosterArtAspectRatio(aspectRatio!!) }"
-        errorLine2="                                                                                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="308"
-            column="88"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setPosterArtUri can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="        imageUri?.let { builder.setPosterArtUri(Uri.parse(it)).setPosterArtAspectRatio(aspectRatio!!) }"
-        errorLine2="                                ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="308"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setLogoUri can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="        progress.logo?.let { builder.setLogoUri(Uri.parse(it)) }"
-        errorLine2="                                     ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="309"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setDurationMillis can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            builder.setDurationMillis(progress.duration.toInt())"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="312"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setLastPlaybackPositionMillis can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            builder.setLastPlaybackPositionMillis(positionMs)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="318"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setDurationMillis can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            builder.setDurationMillis(syntheticDuration)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="325"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setLastPlaybackPositionMillis can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            builder.setLastPlaybackPositionMillis(syntheticPosition)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="326"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.TYPE_TV_EPISODE can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="        if (type == TvContractCompat.PreviewPrograms.TYPE_TV_EPISODE) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="329"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setSeasonNumber can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            progress.season?.let { builder.setSeasonNumber(it) }"
-        errorLine2="                                           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="330"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setEpisodeNumber can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            progress.episode?.let { builder.setEpisodeNumber(it) }"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="331"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setEpisodeTitle can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            progress.episodeTitle?.let { builder.setEpisodeTitle(it) }"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="332"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="ProgramColumns.COLUMN_POSTER_ART_URI can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                it.putNull(TvContractCompat.PreviewPrograms.COLUMN_POSTER_ART_URI)"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="342"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.COLUMN_LOGO_URI can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                it.putNull(TvContractCompat.PreviewPrograms.COLUMN_LOGO_URI)"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="345"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="NavController.currentBackStack can only be accessed from within the same library group (referenced groupId=`androidx.navigation` from groupId=`Fetch`)"
-        errorLine1="    val childBackStack by childNav.currentBackStack.collectAsState()"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/navigation/DetailChildHost.kt"
-            line="65"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="NavController.currentBackStack can only be accessed from within the same library group (referenced groupId=`androidx.navigation` from groupId=`Fetch`)"
-        errorLine1="    val detailCount = currentBackStack.value.count { it.destination.route == Screen.Detail.route }"
-        errorLine2="                      ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/navigation/DetailChildHost.kt"
-            line="335"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="NavController.currentBackStack can only be accessed from within the same library group (referenced groupId=`androidx.navigation` from groupId=`Fetch`)"
-        errorLine1="            currentBackStack.value.mapNotNull { it.toSavedChildRoute() } +"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/navigation/DetailChildHost.kt"
-            line="342"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="NavController.currentBackStack can only be accessed from within the same library group (referenced groupId=`androidx.navigation` from groupId=`Fetch`)"
-        errorLine1="                        val detailEntry = navController.currentBackStack.value"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/navigation/FetchNavHost.kt"
-            line="888"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="NavController.currentBackStack can only be accessed from within the same library group (referenced groupId=`androidx.navigation` from groupId=`Fetch`)"
-        errorLine1="                            val detailEntry = navController.currentBackStack.value"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/navigation/FetchNavHost.kt"
-            line="1006"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="NavController.currentBackStack can only be accessed from within the same library group (referenced groupId=`androidx.navigation` from groupId=`Fetch`)"
-        errorLine1="                                val detailEntry = navController.currentBackStack.value"
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/navigation/FetchNavHost.kt"
-            line="1047"
-            column="65"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="ComponentActivity.dispatchKeyEvent can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`Fetch`)"
-        errorLine1="    override fun dispatchKeyEvent(event: KeyEvent): Boolean {"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1466"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="ComponentActivity.dispatchKeyEvent can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`Fetch`)"
-        errorLine1="        return super.dispatchKeyEvent(event)"
-        errorLine2="                     ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1483"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="ComponentActivity.dispatchKeyEvent can only be called from within the same library group prefix (referenced groupId=`androidx.core` with prefix androidx from groupId=`Fetch`)"
-        errorLine1="        return super.dispatchKeyEvent(event)"
-        errorLine2="                                      ~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1483"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.TYPE_MOVIE can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="            TvContractCompat.WatchNextPrograms.TYPE_MOVIE"
-        errorLine2="                                               ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="28"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.TYPE_TV_EPISODE can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="            TvContractCompat.WatchNextPrograms.TYPE_TV_EPISODE"
-        errorLine2="                                               ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="30"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setType can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            .setType(programType)"
-        errorLine2="             ~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="34"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setType can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            .setType(programType)"
-        errorLine2="                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="34"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setTitle can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            .setTitle(progress.name)"
-        errorLine2="             ~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="36"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setInternalProviderId can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            .setInternalProviderId(watchNextId(progress))"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="38"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setIntentUri can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            .setIntentUri(buildPlayUri(progress))"
-        errorLine2="             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="39"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setPosterArtAspectRatio can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="        builder.setPosterArtAspectRatio(TvContractCompat.PreviewPrograms.ASPECT_RATIO_16_9)"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="41"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setPosterArtAspectRatio can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="        builder.setPosterArtAspectRatio(TvContractCompat.PreviewPrograms.ASPECT_RATIO_16_9)"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="41"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.ASPECT_RATIO_16_9 can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="        builder.setPosterArtAspectRatio(TvContractCompat.PreviewPrograms.ASPECT_RATIO_16_9)"
-        errorLine2="                                                                         ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="41"
-            column="74"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setPosterArtUri can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            builder.setPosterArtUri(uriWithCacheBuster)"
-        errorLine2="                    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="48"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setLastPlaybackPositionMillis can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            builder.setLastPlaybackPositionMillis(positionMs)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="57"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setDurationMillis can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            builder.setDurationMillis(progress.duration.toInt())"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="58"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setDurationMillis can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            builder.setDurationMillis(syntheticDuration)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="63"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setLastPlaybackPositionMillis can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            builder.setLastPlaybackPositionMillis(syntheticPosition)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="64"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setSeasonNumber can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            progress.season?.let { builder.setSeasonNumber(it) }"
-        errorLine2="                                           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="68"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setEpisodeNumber can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            progress.episode?.let { builder.setEpisodeNumber(it) }"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="69"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="Builder.setEpisodeTitle can only be called from within the same library (androidx.tvprovider:tvprovider)"
-        errorLine1="            progress.episodeTitle?.let { builder.setEpisodeTitle(it) }"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="70"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                    TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="107"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                        TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="114"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                arrayOf(TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID),"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="137"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                val idIdx = it.getColumnIndex(TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID)"
-        errorLine2="                                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="141"
-            column="82"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                    TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="163"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                        TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="170"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                    TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="196"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="PreviewProgramColumns.COLUMN_INTERNAL_PROVIDER_ID can only be accessed from within the same library group (referenced groupId=`androidx.tvprovider` from groupId=`Fetch`)"
-        errorLine1="                        TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="206"
-            column="60"/>
     </issue>
 
     <issue
@@ -15589,7 +14907,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="435"
+            line="436"
             column="29"/>
     </issue>
 
@@ -15600,7 +14918,7 @@
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="874"
+            line="875"
             column="53"/>
     </issue>
 
@@ -15611,7 +14929,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1071"
+            line="1072"
             column="57"/>
     </issue>
 
@@ -15622,7 +14940,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1076"
+            line="1077"
             column="57"/>
     </issue>
 
@@ -51355,7 +50673,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1584"
+            line="1589"
             column="54"/>
     </issue>
 
@@ -57765,7 +57083,7 @@
         errorLine2="                             ^">
         <location
             file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="98"
+            line="104"
             column="30"/>
     </issue>
 
@@ -57776,7 +57094,7 @@
         errorLine2="                        ^">
         <location
             file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="268"
+            line="274"
             column="25"/>
     </issue>
 
@@ -57787,7 +57105,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="308"
+            line="314"
             column="49"/>
     </issue>
 
@@ -57798,7 +57116,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="309"
+            line="315"
             column="49"/>
     </issue>
 
@@ -58139,7 +57457,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="374"
+            line="375"
             column="39"/>
     </issue>
 
@@ -58150,7 +57468,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="684"
+            line="685"
             column="25"/>
     </issue>
 
@@ -58161,7 +57479,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="687"
+            line="688"
             column="25"/>
     </issue>
 
@@ -58172,7 +57490,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="691"
+            line="692"
             column="25"/>
     </issue>
 
@@ -58183,7 +57501,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="697"
+            line="698"
             column="25"/>
     </issue>
 
@@ -58194,7 +57512,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="699"
+            line="700"
             column="25"/>
     </issue>
 
@@ -58447,7 +57765,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="45"
+            line="51"
             column="38"/>
     </issue>
 
@@ -58458,7 +57776,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="227"
+            line="233"
             column="9"/>
     </issue>
 
@@ -58656,7 +57974,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="380"
+            line="379"
             column="27"/>
     </issue>
 
@@ -58667,7 +57985,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="387"
+            line="386"
             column="17"/>
     </issue>
 
@@ -58678,7 +57996,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="391"
+            line="390"
             column="20"/>
     </issue>
 
@@ -58689,7 +58007,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="394"
+            line="393"
             column="20"/>
     </issue>
 
@@ -58700,7 +58018,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="398"
+            line="397"
             column="20"/>
     </issue>
 
@@ -58711,7 +58029,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="399"
+            line="398"
             column="20"/>
     </issue>
 
@@ -58722,7 +58040,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="400"
+            line="399"
             column="20"/>
     </issue>
 
@@ -58733,7 +58051,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="401"
+            line="400"
             column="20"/>
     </issue>
 
@@ -58744,7 +58062,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="405"
+            line="404"
             column="20"/>
     </issue>
 
@@ -58755,7 +58073,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="454"
+            line="453"
             column="20"/>
     </issue>
 
@@ -58766,7 +58084,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="470"
+            line="469"
             column="20"/>
     </issue>
 
@@ -58777,7 +58095,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="473"
+            line="472"
             column="20"/>
     </issue>
 
@@ -58788,7 +58106,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="497"
+            line="496"
             column="20"/>
     </issue>
 
@@ -58799,7 +58117,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="498"
+            line="497"
             column="25"/>
     </issue>
 
@@ -58810,7 +58128,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="504"
+            line="503"
             column="24"/>
     </issue>
 
@@ -58821,7 +58139,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="506"
+            line="505"
             column="24"/>
     </issue>
 
@@ -58832,7 +58150,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="507"
+            line="506"
             column="24"/>
     </issue>
 
@@ -58843,7 +58161,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="508"
+            line="507"
             column="24"/>
     </issue>
 
@@ -58854,7 +58172,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="509"
+            line="508"
             column="24"/>
     </issue>
 
@@ -58865,7 +58183,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="510"
+            line="509"
             column="24"/>
     </issue>
 
@@ -58876,7 +58194,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="513"
+            line="512"
             column="25"/>
     </issue>
 

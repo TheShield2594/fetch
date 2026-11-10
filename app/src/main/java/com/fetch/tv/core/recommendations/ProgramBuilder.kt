@@ -1,5 +1,6 @@
 package com.fetch.tv.core.recommendations
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -11,6 +12,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+// RestrictedApi is a lint false positive here: this class uses only tvprovider's public API
+// (TvContractCompat.PreviewPrograms / WatchNextPrograms constants and the program Builders),
+// but lint resolves those members to the @RestrictTo supertypes that declare them
+// (PreviewProgramColumns, BaseProgram.Builder, BasePreviewProgram.Builder).
+@SuppressLint("RestrictedApi")
 @Singleton
 class ProgramBuilder @Inject constructor(
     @ApplicationContext private val context: Context

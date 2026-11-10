@@ -18,10 +18,11 @@ DEFAULT_PROFILE_DIR = REPO_ROOT / "app/src/main/generated/baselineProfiles"
 
 APP_PACKAGE = "com/fetch/tv"
 
-# The start-up profile holds launch to the first Home frame only; the baseline profile adds
-# onboarding, Home scrolling and a detail page. A start-up profile close to the baseline's
-# size means the start-up run recorded more than launch.
-MAX_STARTUP_TO_BASELINE_RATIO = 0.8
+# The start-up profile holds launch to the first Home frames only; the baseline profile adds
+# onboarding, Home scrolling and a detail page. Launch to Home is most of what the app runs,
+# so the start-up profile is not small, but one almost the size of the baseline profile means
+# the start-up run recorded the journey too.
+MAX_STARTUP_TO_BASELINE_RATIO = 0.9
 
 # Screens and layers BaselineProfileGenerator's journey goes through, with the fewest rules
 # each must have. A profile below these was not recorded on Fetch, or the journey stalled

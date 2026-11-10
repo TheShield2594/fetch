@@ -14,7 +14,7 @@ internal const val TARGET_PACKAGE = "com.fetch.tv"
 private const val LOG_TAG = "FetchJourney"
 private const val SCREENSHOT_DIR = "/sdcard/Download/fetch-journey"
 private val ANY_TEXT = Pattern.compile(".+", Pattern.DOTALL)
-private const val MAX_SCREENSHOTS = 40
+private const val MAX_SCREENSHOTS = 20
 private var snapshotCount = 0
 
 // Home is never idle for long (hero rotation, image loads), and waitForIdle's default timeout
@@ -74,7 +74,9 @@ internal inline fun MacrobenchmarkScope.inEnglish(block: () -> Unit) {
 
 // Cold launches the app and waits for Home, stepping through first-run onboarding when a fresh
 // install shows it: sign-in, then the first-run wizard, whose last step (Advanced) opens Home.
-internal fun MacrobenchmarkScope.launchToHome() {
+// With onboardingDone the caller knows an earlier launch finished onboarding, so this only
+// glances for the sign-in screen and returns once Home has drawn, without the settling time.
+internal fun MacrobenchmarkScope.launchToHome(onboardingDone: Boolean = false) {
     Configurator.getInstance().waitForIdleTimeout = WAIT_FOR_IDLE_TIMEOUT_MS
     pressHome()
     startActivityAndWait()
@@ -82,7 +84,8 @@ internal fun MacrobenchmarkScope.launchToHome() {
     device.waitForIdle()
     device.snapshot("launched")
 
-    if (device.wait(Until.hasObject(By.text(SIGN_IN_SKIP)), 8_000) == true) {
+    val signInWaitMs = if (onboardingDone) 1_500L else 8_000L
+    if (device.wait(Until.hasObject(By.text(SIGN_IN_SKIP)), signInWaitMs) == true) {
         device.snapshot("sign-in")
         device.focusAndSelect(SIGN_IN_SKIP)
         device.wait(Until.hasObject(By.text(WIZARD_SKIP)), 10_000)
@@ -92,7 +95,7 @@ internal fun MacrobenchmarkScope.launchToHome() {
     // The wizard closes a moment after its last press; don't start on Home while it is still up.
     device.wait(Until.gone(By.text(WIZARD_EXPERIENCE_TITLE)), 10_000)
     device.waitForIdle()
-    Thread.sleep(3_000)
+    Thread.sleep(if (onboardingDone) 1_000 else 3_000)
     device.snapshot("after-onboarding")
 }
 

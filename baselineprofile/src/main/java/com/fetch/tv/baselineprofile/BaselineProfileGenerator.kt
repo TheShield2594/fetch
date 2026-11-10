@@ -54,7 +54,8 @@ class BaselineProfileGenerator {
     @Test
     fun generateStartup() {
         rule.collect(packageName = TARGET_PACKAGE, includeInStartupProfile = true) {
-            inEnglish { launchToHome() }
+            // The journey above has finished onboarding, so this is launch and the first Home frames.
+            inEnglish { launchToHome(onboardingDone = true) }
         }
     }
 }

@@ -223,7 +223,7 @@
     <string name="detail_marked_previous_watched">%1$d פרקים קודמים סומנו כנצפו.</string>
 
     <string name="playback_unavailable">ההפעלה לא זמינה</string>
-    <string name="playback_unavailable_message">אף אחד מהמקורות שהוגדרו לא יכול להפעיל את הכותר הזה. אפשר להוסיף או להפעיל תוסף סטרים בהגדרות &gt; תוכן וגילוי &gt; תוספים, או לבדוק את החיבור לשרת המדיה.</string>
+    <string name="playback_unavailable_message">אף אחד מהמקורות שהוגדרו לא יכול להפעיל את הכותר הזה. אפשר להוסיף או להפעיל תוסף סטרים בהגדרות &gt; תוספים, או לבדוק את החיבור לשרת המדיה.</string>
     <string name="detail_btn_play">הפעלה</string>
     <string name="detail_btn_resume">המשך</string>
     <string name="detail_btn_play_episode">הפעלת S%1$d E%2$d</string>
@@ -870,14 +870,6 @@
     <string name="layout_collapse_sidebar_sub">הסתרת סרגל הצד כברירת מחדל; הצגתו בעת פוקוס.</string>
     <string name="layout_fullscreen_hero_backdrop">תמונת רקע ראשית במסך מלא</string>
     <string name="layout_fullscreen_hero_backdrop_sub">הרחבת תמונת הרקע הראשית כך שתמלא את כל המסך.</string>
-    <string name="layout_show_discover">הצגת כפתור \"גילוי\"</string>
-    <string name="layout_show_discover_sub">הצגת אזור גילוי למציאת סרטים וסדרות.</string>
-    <string name="layout_discover_location_action">מיקום \"גילוי\"</string>
-    <string name="layout_discover_location_dialog_title">מיקום \"גילוי\"</string>
-    <string name="layout_discover_location_in_search">הצגת כפתור בחיפוש</string>
-    <string name="layout_discover_location_in_search_desc">כפתור הגילוי יופיע במסך החיפוש.</string>
-    <string name="layout_discover_location_in_sidebar">הצגה בסרגל הצד</string>
-    <string name="layout_discover_location_in_sidebar_desc">כפתור הגילוי יופיע בסרגל בצד הימני.</string>
     <string name="layout_poster_labels">הצגת תוויות פוסטרים</string>
     <string name="layout_poster_labels_sub">הצגת כותרות מתחת לפוסטרים בשורות.</string>
     <string name="layout_addon_name">הצגת שם תוסף</string>

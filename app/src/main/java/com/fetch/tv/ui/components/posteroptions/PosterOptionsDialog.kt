@@ -227,6 +227,14 @@ fun PosterOptionsHost(
             controller.consumeActionError()
         }
     }
+    // Every menu action closes the menu, so say that it worked.
+    val actionConfirmation = state.actionConfirmation
+    LaunchedEffect(actionConfirmation) {
+        if (actionConfirmation != null) {
+            android.widget.Toast.makeText(context, actionConfirmation, android.widget.Toast.LENGTH_SHORT).show()
+            controller.consumeActionConfirmation()
+        }
+    }
 
     val target = state.target
     if (target != null) {

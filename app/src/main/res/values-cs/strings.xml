@@ -222,7 +222,7 @@
     <string name="detail_marked_episodes_watched">Epizody označené jako zhlédnuté: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Epizody označené jako nezhlédnuté: %1$d</string>
     <string name="detail_marked_previous_watched">Předchozí epizody označené jako zhlédnuté: %1$d</string>
-    <string name="playback_unavailable_message">Nic z toho, co máte nastavené, nedokáže tento titul přehrát. Přidejte nebo zapněte doplněk pro streamování v Nastavení &gt; Obsah a objevování &gt; Doplňky, nebo zkontrolujte připojení k mediálnímu serveru.</string>
+    <string name="playback_unavailable_message">Nic z toho, co máte nastavené, nedokáže tento titul přehrát. Přidejte nebo zapněte doplněk pro streamování v Nastavení &gt; Doplňky, nebo zkontrolujte připojení k mediálnímu serveru.</string>
 
     <string name="detail_btn_play">Přehrát</string>
     <string name="detail_btn_resume">Pokračovat</string>
@@ -709,14 +709,6 @@
     <string name="layout_collapse_sidebar_sub">Standardně skrýt postranní panel; zobrazit při zaměření.</string>
     <string name="layout_fullscreen_hero_backdrop">Pozadí hrdiny přes celou obrazovku</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Rozšířit pozadí hrdiny, aby vyplnilo celou obrazovku.</string>
-    <string name="layout_show_discover">Zobrazit Objevovat ve vyhledávání</string>
-    <string name="layout_show_discover_sub">Zobrazit sekci procházení, když je vyhledávání prázdné.</string>
-    <string name="layout_discover_location_action">Umístění Objevování</string>
-    <string name="layout_discover_location_dialog_title">Umístění Objevování</string>
-    <string name="layout_discover_location_in_search">Zobrazit ve Vyhledávání</string>
-    <string name="layout_discover_location_in_search_desc">Objevování se zobrazí uvnitř karty Vyhledávání.</string>
-    <string name="layout_discover_location_in_sidebar">Zobrazit v bočním panelu</string>
-    <string name="layout_discover_location_in_sidebar_desc">Objevování dostane vlastní položku v bočním panelu.</string>
     <string name="layout_poster_labels">Zobrazit štítky plakátů</string>
     <string name="layout_poster_labels_sub">Zobrazit názvy pod plakáty v řádcích, mřížce a zobrazit vše.</string>
     <string name="layout_addon_name">Zobrazit název doplňku</string>

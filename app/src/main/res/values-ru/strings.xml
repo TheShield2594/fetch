@@ -190,7 +190,7 @@
     <string name="detail_marked_episodes_watched">Отмечено эпизодов как просмотренные: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Отмечено эпизодов как непросмотренные: %1$d</string>
     <string name="detail_marked_previous_watched">Предыдущие эпизоды отмечены как просмотренные: %1$d</string>
-    <string name="playback_unavailable_message">Ни один из настроенных источников не может воспроизвести этот контент. Добавьте или включите аддон для стриминга в Настройки &gt; Контент и поиск &gt; Аддоны или проверьте подключение к медиасерверу.</string>
+    <string name="playback_unavailable_message">Ни один из настроенных источников не может воспроизвести этот контент. Добавьте или включите аддон для стриминга в Настройки &gt; Аддоны или проверьте подключение к медиасерверу.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Смотреть</string>
@@ -515,8 +515,6 @@
     <string name="layout_collapse_sidebar_sub">Скрывать боковую панель по умолчанию; показывать при фокусе.</string>
     <string name="layout_fullscreen_hero_backdrop">Полноэкранный фон главного блока</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Растягивать фон главного блока на весь экран.</string>
-    <string name="layout_show_discover">Показывать Навигатор в поиске</string>
-    <string name="layout_show_discover_sub">Показывать раздел навигации, когда поиск пуст.</string>
     <string name="layout_poster_labels">Показывать названия под постерами</string>
     <string name="layout_poster_labels_sub">Показывать названия под постерами в строках, сетке и меню \"показать все\".</string>
     <string name="layout_addon_name">Показывать имя аддона</string>
@@ -1689,12 +1687,6 @@
     <string name="cache_duration_days_hours">%1$dд %2$dч</string>
     <string name="autoplay_reuse_binge_group">Повторно использовать группу Binge</string>
     <string name="autoplay_reuse_binge_group_sub">Запоминать и повторно использовать последнюю группу Binge между сессиями.</string>
-    <string name="layout_discover_location_action">Расположение Навигатора</string>
-    <string name="layout_discover_location_dialog_title">Расположение Навигатора</string>
-    <string name="layout_discover_location_in_search">Показать в Поиске</string>
-    <string name="layout_discover_location_in_search_desc">Навигатор отображается внутри вкладки Поиск.</string>
-    <string name="layout_discover_location_in_sidebar">Показать в боковой панели</string>
-    <string name="layout_discover_location_in_sidebar_desc">Навигатор получает отдельный элемент в боковой панели.</string>
     <string name="layout_section_continue_watching">Продолжить просмотр</string>
     <string name="layout_section_continue_watching_desc">Настройки раздела «Продолжить просмотр».</string>
     <string name="layout_cw_enabled">Показывать «Продолжить просмотр»</string>

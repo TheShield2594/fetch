@@ -30,6 +30,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -51,9 +59,20 @@ import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import kotlinx.coroutines.launch
 
+/**
+ * Customise Home: every row Home shows (addon catalogs, folders and filter rows), to reorder,
+ * hide or pin, and the ways to add a row. Opened from Settings › Customise Home, the addon
+ * manager, or a Home poster's menu, which passes [focusKey] so it opens on that row.
+ */
 @Composable
 fun CatalogOrderScreen(
     viewModel: CatalogOrderViewModel = hiltViewModel(),
+    focusKey: String? = null,
+    onAddCatalogRow: () -> Unit = {},
+    onAddFilterRow: () -> Unit = {},
+    onAddFolderRow: () -> Unit = {},
+    onEditFilterRows: () -> Unit = {},
+    onEditFolders: () -> Unit = {},
     onBackPress: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -61,6 +80,18 @@ fun CatalogOrderScreen(
     val scope = rememberCoroutineScope()
 
     BackHandler { onBackPress() }
+
+    // Opened from a row on Home: land on that row's first control, one press from moving it.
+    val focusRowRequester = remember { FocusRequester() }
+    var focusRowHandled by rememberSaveable(focusKey) { mutableStateOf(focusKey == null) }
+    val focusRowIndex = uiState.items.indexOfFirst { it.key == focusKey }
+    LaunchedEffect(focusRowIndex, focusRowHandled) {
+        if (focusRowHandled || focusRowIndex < 0) return@LaunchedEffect
+        // The header is item 0, so the row's list index is one past its position.
+        listState.scrollToItem(focusRowIndex + 1)
+        focusRowRequester.requestFocusAfterFrames(frames = 2)
+        focusRowHandled = true
+    }
 
     Box(
         modifier = Modifier
@@ -75,15 +106,32 @@ fun CatalogOrderScreen(
         ) {
             item {
                 Text(
-                    text = stringResource(R.string.catalog_order_title),
+                    text = stringResource(R.string.customise_home_title),
                     style = MaterialTheme.typography.headlineLarge,
                     color = FetchTheme.colors.TextPrimary
                 )
                 Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
                 Text(
-                    text = stringResource(R.string.catalog_order_subtitle),
+                    text = stringResource(R.string.customise_home_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = FetchTheme.colors.TextSecondary
+                )
+                Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
+                CustomiseHomeActionsRow(
+                    label = stringResource(R.string.customise_home_add_row),
+                    actions = listOf(
+                        stringResource(R.string.customise_home_from_catalog) to onAddCatalogRow,
+                        stringResource(R.string.customise_home_from_filter) to onAddFilterRow,
+                        stringResource(R.string.customise_home_from_folder) to onAddFolderRow
+                    )
+                )
+                Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
+                CustomiseHomeActionsRow(
+                    label = null,
+                    actions = listOf(
+                        stringResource(R.string.customise_home_edit_filter_rows) to onEditFilterRows,
+                        stringResource(R.string.customise_home_edit_folders) to onEditFolders
+                    )
                 )
                 Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
                 SettingsToggleRow(
@@ -125,6 +173,11 @@ fun CatalogOrderScreen(
                     ) { index, item ->
                         CatalogOrderCard(
                             item = item,
+                            firstControlModifier = if (item.key == focusKey) {
+                                Modifier.focusRequester(focusRowRequester)
+                            } else {
+                                Modifier
+                            },
                             onMoveUp = {
                                 viewModel.moveUp(item.key)
                                 scope.launch {
@@ -152,11 +205,18 @@ fun CatalogOrderScreen(
 @Composable
 private fun CatalogOrderCard(
     item: CatalogOrderItem,
+    firstControlModifier: Modifier = Modifier,
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit,
     onToggleEnabled: () -> Unit,
     onTogglePinned: () -> Unit
 ) {
+    // The first control that can take focus: a disabled button can't hold the requester.
+    val firstControl = when {
+        item.canMoveUp -> FirstControl.UP
+        item.canMoveDown -> FirstControl.DOWN
+        else -> FirstControl.PIN
+    }
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = FetchTheme.colors.BackgroundCard),
@@ -206,6 +266,7 @@ private fun CatalogOrderCard(
                 Button(
                     onClick = onMoveUp,
                     enabled = item.canMoveUp,
+                    modifier = if (firstControl == FirstControl.UP) firstControlModifier else Modifier,
                     colors = ButtonDefaults.colors(
                         containerColor = FetchTheme.colors.BackgroundCard,
                         contentColor = FetchTheme.colors.TextSecondary,
@@ -229,6 +290,7 @@ private fun CatalogOrderCard(
                 Button(
                     onClick = onMoveDown,
                     enabled = item.canMoveDown,
+                    modifier = if (firstControl == FirstControl.DOWN) firstControlModifier else Modifier,
                     colors = ButtonDefaults.colors(
                         containerColor = FetchTheme.colors.BackgroundCard,
                         contentColor = FetchTheme.colors.TextSecondary,
@@ -251,6 +313,7 @@ private fun CatalogOrderCard(
 
                 Button(
                     onClick = onTogglePinned,
+                    modifier = if (firstControl == FirstControl.PIN) firstControlModifier else Modifier,
                     colors = ButtonDefaults.colors(
                         containerColor = FetchTheme.colors.BackgroundCard,
                         contentColor = if (item.isPinned) FetchTheme.colors.Primary else FetchTheme.colors.TextSecondary,
@@ -291,6 +354,49 @@ private fun CatalogOrderCard(
                 ) {
                     Text(text = if (item.isDisabled) stringResource(R.string.catalog_order_enable) else stringResource(R.string.catalog_order_disable))
                 }
+            }
+        }
+    }
+}
+
+private enum class FirstControl { UP, DOWN, PIN }
+
+/** A label, then a row of buttons that each lead off the screen. */
+@Composable
+private fun CustomiseHomeActionsRow(
+    label: String?,
+    actions: List<Pair<String, () -> Unit>>
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (label != null) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.titleMedium,
+                color = FetchTheme.colors.TextPrimary,
+                modifier = Modifier.padding(end = FetchTheme.spacing.sm)
+            )
+        }
+        actions.forEach { (text, onClick) ->
+            Button(
+                onClick = onClick,
+                colors = ButtonDefaults.colors(
+                    containerColor = FetchTheme.colors.BackgroundCard,
+                    contentColor = FetchTheme.colors.TextPrimary,
+                    focusedContainerColor = FetchTheme.colors.FocusBackground,
+                    focusedContentColor = FetchTheme.colors.Primary
+                ),
+                border = ButtonDefaults.border(
+                    focusedBorder = Border(
+                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                        shape = RoundedCornerShape(FetchTheme.radii.md)
+                    )
+                ),
+                shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
+            ) {
+                Text(text = text)
             }
         }
     }

@@ -34,7 +34,7 @@ object FetchLayout {
         tvSafeVertical = 27.dp,
         compactSafeHorizontal = 32.dp,
         compactSafeVertical = 16.dp,
-        sidebarContentOffset = 54.dp,
+        sidebarContentOffset = 72.dp,
         rowAnchor = 0.42f,
         detailsHeroWidthFraction = 0.62f,
         detailsHeroHeightFraction = 0.72f

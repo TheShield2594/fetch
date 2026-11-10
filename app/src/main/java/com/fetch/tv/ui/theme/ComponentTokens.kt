@@ -30,6 +30,10 @@ data class FetchSidebarComponentTokens(
     val expandedWidth: Dp,
     val floatingButtonSize: Dp,
     val floatingGap: Dp,
+    /**
+     * Gap between the screen edge and the rail's buttons. At least the TV safe area's 5% of
+     * the 540dp screen height (27dp), so no rail element sits where overscan can crop it.
+     */
     val floatingInset: Dp,
     val iconSize: Dp
 )
@@ -129,11 +133,11 @@ object FetchComponents {
             titleBottomSpacing = 14.dp
         ),
         sidebar = FetchSidebarComponentTokens(
-            collapsedWidth = 72.dp,
+            collapsedWidth = 90.dp,
             expandedWidth = 300.dp,
             floatingButtonSize = 44.dp,
             floatingGap = 6.dp,
-            floatingInset = 9.dp,
+            floatingInset = 27.dp,
             iconSize = 22.dp
         ),
         dialog = FetchDialogComponentTokens(

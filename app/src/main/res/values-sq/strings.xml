@@ -210,7 +210,7 @@
     <string name="detail_marked_episodes_watched">Episode të shënuara si të shikuara: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episode të shënuara si të pashikuara: %1$d</string>
     <string name="detail_marked_previous_watched">Episode të mëparshme të shënuara si të shikuara: %1$d</string>
-    <string name="playback_unavailable_message">Asgjë nga ato që ke konfiguruar nuk mund ta luajë këtë titull. Shto ose aktivizo një shtesë transmetimi te Cilësimet &gt; Përmbajtja dhe zbulimi &gt; Shtesa, ose kontrollo lidhjen me serverin e medias.</string>
+    <string name="playback_unavailable_message">Asgjë nga ato që ke konfiguruar nuk mund ta luajë këtë titull. Shto ose aktivizo një shtesë transmetimi te Cilësimet &gt; Shtesa, ose kontrollo lidhjen me serverin e medias.</string>
     <string name="detail_btn_play">Luaj</string>
     <string name="detail_btn_resume">Vazhdo</string>
     <string name="detail_btn_play_episode">Luaj S%1$d E%2$d</string>
@@ -727,14 +727,6 @@
     <string name="layout_collapse_sidebar_sub">Fshih shiritin anësor si parazgjedhje; shfaqe kur merr fokusin.</string>
     <string name="layout_fullscreen_hero_backdrop">Sfond hero në ekran të plotë</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Zgjero sfondin e hero-s për të mbushur gjithë ekranin.</string>
-    <string name="layout_show_discover">Shfaq/Fshih Zbulo</string>
-    <string name="layout_show_discover_sub">Shton një seksion Zbulo për shfletim.</string>
-    <string name="layout_discover_location_action">Vendndodhja e Zbulo</string>
-    <string name="layout_discover_location_dialog_title">Vendndodhja e Zbulo</string>
-    <string name="layout_discover_location_in_search">Shfaq në Kërkim</string>
-    <string name="layout_discover_location_in_search_desc">Zbulo shfaqet brenda skedës Kërkim.</string>
-    <string name="layout_discover_location_in_sidebar">Shfaq në panelin anësor</string>
-    <string name="layout_discover_location_in_sidebar_desc">Zbulo merr artikullin e vet në panelin anësor.</string>
     <string name="layout_poster_labels">Shfaq etiketat e posterëve</string>
     <string name="layout_poster_labels_sub">Shfaq titujt nën posterë në rreshta, rrjetë dhe shfaq-të-gjitha.</string>
     <string name="layout_addon_name">Shfaq emrin e shtesës</string>

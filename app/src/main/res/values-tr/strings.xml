@@ -227,7 +227,7 @@
     <string name="detail_marked_episodes_unwatched">İzlenmedi olarak işaretlenen bölümler: %1$d</string>
     <string name="detail_marked_previous_watched">İzlendi olarak işaretlenen önceki bölümler: %1$d</string>
     <string name="playback_unavailable">Oynatma kullanılamıyor</string>
-    <string name="playback_unavailable_message">Kurduğunuz hiçbir kaynak bu içeriği oynatamıyor. Ayarlar &gt; İçerik ve Keşif &gt; Eklentiler bölümünden bir yayın eklentisi ekleyin veya açın ya da medya sunucusu bağlantınızı kontrol edin.</string>
+    <string name="playback_unavailable_message">Kurduğunuz hiçbir kaynak bu içeriği oynatamıyor. Ayarlar &gt; Eklentiler bölümünden bir yayın eklentisi ekleyin veya açın ya da medya sunucusu bağlantınızı kontrol edin.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Oynat</string>
@@ -878,14 +878,6 @@
     <string name="layout_collapse_sidebar_sub">Yan menüyü varsayılan olarak gizle; odaklanıldığında göster.</string>
     <string name="layout_fullscreen_hero_backdrop">Tam Ekran Hero Arka Planı</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Hero arka planını tüm ekrana yayacak şekilde genişlet.</string>
-    <string name="layout_show_discover">Aramada Keşfeti Göster</string>
-    <string name="layout_show_discover_sub">Arama boşken gezinme bölümünü göster.</string>
-    <string name="layout_discover_location_action">Keşif Konumu</string>
-    <string name="layout_discover_location_dialog_title">Keşif Konumu</string>
-    <string name="layout_discover_location_in_search">Arama\'da göster</string>
-    <string name="layout_discover_location_in_search_desc">Keşif, Arama sekmesinin içinde görünür.</string>
-    <string name="layout_discover_location_in_sidebar">Yan panelde göster</string>
-    <string name="layout_discover_location_in_sidebar_desc">Keşif, yan panelde kendi öğesi olarak görünür.</string>
     <string name="layout_poster_labels">Poster Etiketlerini Göster</string>
     <string name="layout_poster_labels_sub">Satırlardaki, ızgaradaki ve tümünü gör listesindeki başlıkları posterlerin altında göster.</string>
     <string name="layout_addon_name">Eklenti Adını Göster</string>

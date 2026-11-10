@@ -222,7 +222,7 @@
     <string name="detail_marked_previous_watched">Prethodne epizode označene kao odgledane: %1$d</string>
 
     <string name="playback_unavailable">Reprodukcija nije dostupna</string>
-    <string name="playback_unavailable_message">Ništa od onoga što ste podesili ne može da pusti ovaj naslov. Dodajte ili uključite dodatak za strimovanje u Podešavanja &gt; Sadržaj i otkrivanje &gt; Dodaci ili proverite vezu sa medijskim serverom.</string>
+    <string name="playback_unavailable_message">Ništa od onoga što ste podesili ne može da pusti ovaj naslov. Dodajte ili uključite dodatak za strimovanje u Podešavanja &gt; Dodaci ili proverite vezu sa medijskim serverom.</string>
     <string name="detail_btn_play">Pusti</string>
     <string name="detail_btn_resume">Nastavi</string>
     <string name="detail_btn_play_episode">Pusti S%1$d E%2$d</string>
@@ -808,14 +808,6 @@
     <string name="layout_collapse_sidebar_sub">Sakrij bočnu traku po podrazumevanoj vrednosti; prikaži kada je u fokusu.</string>
     <string name="layout_fullscreen_hero_backdrop">Pozadina glavne sekcije preko celog ekrana</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Proširi pozadinu glavne sekcije tako da ispuni ceo ekran.</string>
-    <string name="layout_show_discover">Prikaži/Sakrij Otkrij</string>
-    <string name="layout_show_discover_sub">Dodaje odeljak Otkrij za pregledanje.</string>
-    <string name="layout_discover_location_action">Lokacija za Otkrij</string>
-    <string name="layout_discover_location_dialog_title">Lokacija za Otkrij</string>
-    <string name="layout_discover_location_in_search">Prikaži u Pretrazi</string>
-    <string name="layout_discover_location_in_search_desc">Otkrij se pojavljuje unutar kartice Pretraga.</string>
-    <string name="layout_discover_location_in_sidebar">Prikaži u bočnom panelu</string>
-    <string name="layout_discover_location_in_sidebar_desc">Otkrij dobija sopstvenu stavku u bočnom panelu.</string>
     <string name="layout_poster_labels">Prikaži oznake postera</string>
     <string name="layout_poster_labels_sub">Prikaži naslove ispod postera u redovima, mreži i prikazu \"Vidi sve\".</string>
     <string name="layout_addon_name">Prikaži ime dodatka</string>

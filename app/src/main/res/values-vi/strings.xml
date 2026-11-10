@@ -220,7 +220,7 @@
     <string name="detail_marked_previous_watched">Đã đánh dấu %1$d tập trước đã xem</string>
 
     <string name="playback_unavailable">Không thể phát nội dung</string>
-    <string name="playback_unavailable_message">Không nguồn nào bạn đã thiết lập có thể phát nội dung này. Hãy thêm hoặc bật một tiện ích phát trực tuyến trong Cài đặt &gt; Nội dung &amp; Khám phá &gt; Tiện ích, hoặc kiểm tra kết nối máy chủ đa phương tiện.</string>
+    <string name="playback_unavailable_message">Không nguồn nào bạn đã thiết lập có thể phát nội dung này. Hãy thêm hoặc bật một tiện ích phát trực tuyến trong Cài đặt &gt; Tiện ích, hoặc kiểm tra kết nối máy chủ đa phương tiện.</string>
     <string name="detail_btn_play">Phát</string>
     <string name="detail_btn_resume">Xem tiếp</string>
     <string name="detail_btn_play_episode">Phát M%1$dT%2$d</string>
@@ -866,14 +866,6 @@
     <string name="layout_collapse_sidebar_sub">Ẩn thanh bên theo mặc định; hiển thị khi đang chọn.</string>
     <string name="layout_fullscreen_hero_backdrop">Phông nền Khu vực Nổi bật toàn màn hình</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Mở rộng phông nền Khu vực Nổi bật để lấp đầy toàn bộ màn hình.</string>
-    <string name="layout_show_discover">Hiển thị/ẩn mục Khám phá</string>
-    <string name="layout_show_discover_sub">Thêm mục Khám phá để duyệt nội dung.</string>
-    <string name="layout_discover_location_action">Vị trí Khám phá</string>
-    <string name="layout_discover_location_dialog_title">Vị trí Khám phá</string>
-    <string name="layout_discover_location_in_search">Hiển thị trong Tìm kiếm</string>
-    <string name="layout_discover_location_in_search_desc">Hiển thị mục Khám phá trong thẻ Tìm kiếm.</string>
-    <string name="layout_discover_location_in_sidebar">Hiển thị trong Bảng bên</string>
-    <string name="layout_discover_location_in_sidebar_desc">Khám phá có mục riêng trong bảng bên.</string>
     <string name="layout_poster_labels">Hiển thị nhãn Poster</string>
     <string name="layout_poster_labels_sub">Hiển thị tiêu đề bên dưới poster trong hàng, lưới và xem tất cả.</string>
     <string name="layout_addon_name">Hiển thị tên tiện ích</string>

@@ -149,6 +149,8 @@ fun ModernHomeContent(
     isCatalogItemWatched: (MetaPreview) -> Boolean = { false },
     onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit = { _, _, _ -> },
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
+    /** Opens a catalog row's full grid, from the See all card at the end of the row. */
+    onSeeAllRow: (HeroCarouselRow) -> Unit = {},
     onYouTubeVideoClick: (com.fetch.tv.data.youtube.YouTubeVideo) -> Unit = {},
     onItemFocus: (MetaPreview) -> Unit = {},
     onPreloadAdjacentItem: (MetaPreview) -> Unit = {},
@@ -1061,8 +1063,6 @@ fun ModernHomeContent(
             }
 
             val localDensity = LocalDensity.current
-            val rowsViewportHeightFraction = if (useLandscapePosters) 0.49f else 0.52f
-            val rowsViewportHeight = remember(screenHeight, rowsViewportHeightFraction) { screenHeight * rowsViewportHeightFraction }
             val rowTitleLineHeight = MaterialTheme.typography.titleMedium.lineHeight
             val rowTitleHeight = remember(rowTitleLineHeight, localDensity) {
                 with(localDensity) {
@@ -1070,6 +1070,33 @@ fun ModernHomeContent(
                         .getOrDefault(FetchTheme.spacing.xl)
                 }
             }
+            val rowsViewportHeightFraction = if (useLandscapePosters) 0.49f else 0.52f
+            // Two whole rows on entry where the cards allow it (landscape cards at the default
+            // size do): the rows grow into the hero up to MODERN_ROWS_VIEWPORT_MAX_FRACTION, and
+            // the hero's text block is shortened to match (compactHeroText below).
+            val entryRowCardHeight = if (useLandscapePosters) landscapeCatalogCardHeight else portraitCatalogCardHeight
+            // Continue Watching leads Home only while it is on and has something in it.
+            val continueWatchingLeads = uiState.continueWatchingEnabled && uiState.continueWatchingItems.isNotEmpty()
+            val firstRowCardHeight = if (continueWatchingLeads) {
+                maxOf(entryRowCardHeight, continueWatchingCardHeight)
+            } else {
+                entryRowCardHeight
+            }
+            val rowSpacing = FetchTheme.spacing.xl
+            val rowsViewportHeight = remember(
+                screenHeight,
+                rowsViewportHeightFraction,
+                rowTitleHeight,
+                entryRowCardHeight,
+                firstRowCardHeight,
+                rowSpacing
+            ) {
+                val twoRowsHeight = rowTitleHeight * 2 + MODERN_ROW_TITLE_BOTTOM * 2 +
+                    firstRowCardHeight + entryRowCardHeight + rowSpacing + MODERN_ROW_FOCUS_ALLOWANCE
+                maxOf(screenHeight * rowsViewportHeightFraction, twoRowsHeight)
+                    .coerceAtMost(screenHeight * MODERN_ROWS_VIEWPORT_MAX_FRACTION)
+            }
+            val compactHeroText = rowsViewportHeight > screenHeight * rowsViewportHeightFraction
             val heroBackdropHeight = remember(screenHeight, rowsViewportHeight, rowTitleHeight) { (screenHeight - rowsViewportHeight + rowTitleHeight + 14.dp).coerceAtMost(screenHeight) }
             val verticalRowBringIntoViewSpec = remember(localDensity, defaultBringIntoViewSpec) {
                 val topInsetPx = with(localDensity) { MODERN_ROW_HEADER_FOCUS_INSET.toPx() }
@@ -1188,6 +1215,7 @@ fun ModernHomeContent(
                 previewProvider = { resolvedHeroState.value.second },
                 bestMatchFor = { key -> latestCachedBestMatches.value[key] },
                 portraitMode = !useLandscapePosters,
+                compact = compactHeroText,
                 showImdbRatings = uiState.homeImdbRatingsVisibility.showRatings,
                 mdbListShowOnHero = uiState.mdbListShowOnHero,
                 mdbListRatingOrder = uiState.mdbListRatingOrder,
@@ -1281,6 +1309,7 @@ fun ModernHomeContent(
                 onRowItemFocusedInternal = onRowItemFocusedInternalLambda,
                 onNavigateToDetail = onNavigateToDetail,
                 onNavigateToFolderDetail = onNavigateToFolderDetail,
+                onSeeAllRow = onSeeAllRow,
                 onYouTubeVideoClick = onYouTubeVideoClick,
                 onLoadMoreCatalog = onLoadMoreCatalog,
                 onContinueWatchingClick = onContinueWatchingLaunch,

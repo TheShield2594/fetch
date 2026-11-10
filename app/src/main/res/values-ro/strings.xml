@@ -79,7 +79,7 @@
     <string name="detail_marked_episodes_watched">Episoade marcate ca vizionate: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episoade marcate ca necitite: %1$d</string>
     <string name="detail_marked_previous_watched">Episoadele anterioare marcate ca vizionate: %1$d</string>
-    <string name="playback_unavailable_message">Nimic din ce ai configurat nu poate reda acest titlu. Adaugă sau activează un complement de streaming în Setări &gt; Conținut și descoperire &gt; Complementuri sau verifică conexiunea cu serverul media.</string>
+    <string name="playback_unavailable_message">Nimic din ce ai configurat nu poate reda acest titlu. Adaugă sau activează un complement de streaming în Setări &gt; Complementuri sau verifică conexiunea cu serverul media.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Redă</string>
@@ -263,8 +263,6 @@
     <string name="layout_section_content_desc">Controlați ce apare pe pagina principală și în căutare.</string>
     <string name="layout_collapse_sidebar">Restrânge bara laterală</string>
     <string name="layout_collapse_sidebar_sub">Ascundeți bara laterală implicit; afișați când este focalizată.</string>
-    <string name="layout_show_discover">Afișează Descoperă în Căutare</string>
-    <string name="layout_show_discover_sub">Afișează secțiunea de navigare când căutarea este goală.</string>
     <string name="layout_poster_labels">Afișează Etichete Poster</string>
     <string name="layout_poster_labels_sub">Afișează titlurile sub postere în rânduri, grilă și vezi tot.</string>
     <string name="layout_addon_name">Afișează Numele Addon-ului</string>

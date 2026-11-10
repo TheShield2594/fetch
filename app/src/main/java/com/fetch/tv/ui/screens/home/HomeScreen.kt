@@ -85,6 +85,8 @@ fun HomeScreen(
     onNavigateToCatalogSeeAll: (String, String, String) -> Unit = { _, _, _ -> },
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
     onNavigateToAddons: () -> Unit = {},
+    /** Opens Customise Home, on the given row (its order key) when there is one. */
+    onCustomiseHome: (String?) -> Unit = {},
     /** Opens the YouTube screen, which plays the video a YouTube card asked for. */
     onOpenYouTube: () -> Unit = {}
 ) {
@@ -153,6 +155,17 @@ fun HomeScreen(
     val onContinueWatchingStartFromBeginningStable = remember(onContinueWatchingStartFromBeginning) { onContinueWatchingStartFromBeginning }
     val onContinueWatchingPlayManuallyStable = remember(onContinueWatchingPlayManually) { onContinueWatchingPlayManually }
     val onNavigateToFolderDetailStable = remember(onNavigateToFolderDetail) { onNavigateToFolderDetail }
+    val onSeeAllRow = remember(onNavigateToCatalogSeeAll) {
+        { row: HeroCarouselRow ->
+            val catalogId = row.catalogId
+            val addonId = row.addonId
+            val apiType = row.apiType
+            if (catalogId != null && addonId != null && apiType != null) {
+                onNavigateToCatalogSeeAll(catalogId, addonId, apiType)
+            }
+        }
+    }
+    val onCardFocused = remember(posterOptionsViewModel) { { posterOptionsViewModel.onCardFocused() } }
 
     LaunchedEffect(
         uiState.isLoading,
@@ -337,6 +350,8 @@ fun HomeScreen(
                             onContinueWatchingPlayManually = onContinueWatchingPlayManuallyStable,
                             showContinueWatchingManualPlayOption = effectiveAutoplayEnabled,
                             onNavigateToFolderDetail = onNavigateToFolderDetailStable,
+                            onSeeAllRow = onSeeAllRow,
+                            onCardFocused = onCardFocused,
                             onOpenYouTube = onOpenYouTube,
                             isCatalogItemWatched = isCatalogItemWatched,
                             onCatalogItemLongPress = onCatalogItemLongPress
@@ -380,6 +395,17 @@ fun HomeScreen(
         }
     }
 
+    // The long-press menu is otherwise invisible: say it exists, once per profile.
+    val showHoldHint by posterOptionsViewModel.showHoldHint.collectAsStateWithLifecycle()
+    val hintContext = androidx.compose.ui.platform.LocalContext.current
+    val holdHintText = stringResource(R.string.poster_options_hold_hint)
+    LaunchedEffect(showHoldHint) {
+        if (showHoldHint) {
+            android.widget.Toast.makeText(hintContext, holdHintText, android.widget.Toast.LENGTH_LONG).show()
+            posterOptionsViewModel.consumeHoldHint()
+        }
+    }
+
     val pinnedRowKeys by viewModel.pinnedRowKeys.collectAsStateWithLifecycle()
     com.fetch.tv.ui.components.posteroptions.PosterOptionsHost(
         state = posterOptionsState,
@@ -387,6 +413,14 @@ fun HomeScreen(
         onNavigateToDetail = onNavigateToDetail,
         extraActions = {
             val rowKey = posterOptionsRowKey
+            // Before Pin, so reordering a row from Home stays a few presses away.
+            HomeMenuButton(
+                text = stringResource(R.string.customise_home_title),
+                onClick = {
+                    posterOptionsController.dismiss()
+                    onCustomiseHome(rowKey)
+                }
+            )
             if (rowKey != null) {
                 HomePinRowButton(
                     isRowPinned = rowKey in pinnedRowKeys,
@@ -410,6 +444,8 @@ private fun ModernHomeRoute(
     onContinueWatchingPlayManually: (ContinueWatchingItem) -> Unit,
     showContinueWatchingManualPlayOption: Boolean,
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
+    onSeeAllRow: (HeroCarouselRow) -> Unit = {},
+    onCardFocused: () -> Unit = {},
     onOpenYouTube: () -> Unit = {},
     isCatalogItemWatched: (MetaPreview) -> Boolean,
     onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit
@@ -492,14 +528,18 @@ private fun ModernHomeRoute(
             isCatalogItemWatched = isCatalogItemWatched,
             onCatalogItemLongPress = onCatalogItemLongPress,
             onNavigateToFolderDetail = onNavigateToFolderDetail,
+            onSeeAllRow = onSeeAllRow,
             onYouTubeVideoClick = remember(viewModel, onOpenYouTube) {
                 { video: com.fetch.tv.data.youtube.YouTubeVideo ->
                     viewModel.youTubeRow.play(video)
                     onOpenYouTube()
                 }
             },
-            onItemFocus = remember(viewModel) {
-                { item -> viewModel.onItemFocus(item) }
+            onItemFocus = remember(viewModel, onCardFocused) {
+                { item ->
+                    viewModel.onItemFocus(item)
+                    onCardFocused()
+                }
             },
             onPreloadAdjacentItem = preloadAdjacentItem,
             onSaveFocusState = saveModernFocusState,
@@ -510,6 +550,24 @@ private fun ModernHomeRoute(
                 { catalogKey: String -> viewModel.requestLazyCatalogLoad(catalogKey) }
             }
         )
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun HomeMenuButton(
+    text: String,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.colors(
+            containerColor = FetchTheme.colors.BackgroundCard,
+            contentColor = FetchTheme.colors.TextPrimary
+        )
+    ) {
+        Text(text)
     }
 }
 

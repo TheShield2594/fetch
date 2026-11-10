@@ -43,6 +43,10 @@ class SettingsSearchIndexTest {
         SettingsCategory.PLAYBACK_VIDEO to listOf("settings/PlaybackVideoSettings.kt"),
         SettingsCategory.PLAYBACK_BUFFER_NETWORK to listOf("settings/PlaybackBufferNetworkSettings.kt"),
         SettingsCategory.ANIME_SKIP to listOf("settings/AnimeSkipSettingsScreen.kt"),
+        SettingsCategory.ADDONS to listOf("settings/HomeAndAddonsSettingsContent.kt#AddonsSettingsContent"),
+        SettingsCategory.CUSTOMISE_HOME to listOf(
+            "settings/HomeAndAddonsSettingsContent.kt#CustomiseHomeSettingsContent"
+        ),
         SettingsCategory.CONTENT_DISCOVERY to listOf(
             "settings/ContentDiscoverySettingsContent.kt",
             "settings/MediaServersSettingsScreen.kt",

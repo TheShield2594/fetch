@@ -331,6 +331,8 @@ internal fun HeroTitleBlock(
     mdbListShowOnHero: Boolean = false,
     mdbListRatingOrder: List<String> = com.fetch.tv.domain.model.MDBListSettings.DEFAULT_RATING_ORDER,
     trailerPlaying: () -> Boolean = { false },
+    /** A smaller logo and a one-line description, for when the rows below take more of the screen. */
+    compact: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     // The provider reads hero state that is rewritten on every focus move, often with an equal
@@ -360,7 +362,8 @@ internal fun HeroTitleBlock(
             showImdbRatings = showImdbRatings,
             mdbListShowOnHero = mdbListShowOnHero,
             mdbListRatingOrder = mdbListRatingOrder,
-            trailerPlaying = trailerPlaying
+            trailerPlaying = trailerPlaying,
+            compact = compact
         )
     }
 }
@@ -373,14 +376,15 @@ private fun HeroTitleContent(
     showImdbRatings: Boolean,
     mdbListShowOnHero: Boolean = false,
     mdbListRatingOrder: List<String> = com.fetch.tv.domain.model.MDBListSettings.DEFAULT_RATING_ORDER,
-    trailerPlaying: () -> Boolean = { false }
+    trailerPlaying: () -> Boolean = { false },
+    compact: Boolean = false
 ) {
     val preview = previewProvider() ?: return
     val highlighterEnabled = LocalRecompositionHighlighterEnabled.current
     val eyebrowText = preview.eyebrowText?.trim()?.takeIf { it.isNotBlank() }
     // The hero keeps little text over the art: two lines of description at most, one when the
     // eyebrow takes a line, and none when Resume is there to be the main thing.
-    val descriptionMaxLines = if (eyebrowText != null) 1 else 2
+    val descriptionMaxLines = if (eyebrowText != null || compact) 1 else 2
     val descriptionScale = if (portraitMode) 0.90f else 1f
     val titleScale = if (portraitMode) 0.92f else 1f
     val metaScale = 1f
@@ -392,8 +396,9 @@ private fun HeroTitleContent(
     val headlineLarge = MaterialTheme.typography.headlineLarge
     val labelMedium = MaterialTheme.typography.labelMedium
     val bodyMedium = MaterialTheme.typography.bodyMedium
+    val logoHeight = if (compact) 64.dp else 100.dp
     val logoMaxWidthPx = remember(density) { with(density) { 220.dp.roundToPx() } }
-    val logoHeightPx = remember(density) { with(density) { 100.dp.roundToPx() } }
+    val logoHeightPx = remember(density, logoHeight) { with(density) { logoHeight.roundToPx() } }
 
     val logoModel = remember(context, preview.logo, logoMaxWidthPx, logoHeightPx) {
         preview.logo?.let {
@@ -454,7 +459,7 @@ private fun HeroTitleContent(
                 contentDescription = preview.title,
                 onError = { logoLoadFailed = true },
                 modifier = Modifier
-                    .height(100.dp)
+                    .height(logoHeight)
                     .widthIn(min = 100.dp, max = 220.dp)
                     .fillMaxWidth(),
                 contentScale = ContentScale.Fit,

@@ -120,7 +120,7 @@
     <string name="detail_marked_episodes_watched">देखे हुए मार्क किए गए एपिसोड: %1$d</string>
     <string name="detail_marked_episodes_unwatched">अनदेखे मार्क किए गए एपिसोड: %1$d</string>
     <string name="detail_marked_previous_watched">देखे हुए मार्क किए गए पिछले एपिसोड: %1$d</string>
-    <string name="playback_unavailable_message">आपके सेट किए गए किसी भी स्रोत से यह टाइटल नहीं चल सकता। सेटिंग्स &gt; सामग्री और खोज &gt; ऐडऑन में कोई स्ट्रीमिंग ऐडऑन जोड़ें या चालू करें, या अपने मीडिया सर्वर का कनेक्शन जाँचें।</string>
+    <string name="playback_unavailable_message">आपके सेट किए गए किसी भी स्रोत से यह टाइटल नहीं चल सकता। सेटिंग्स &gt; ऐडऑन में कोई स्ट्रीमिंग ऐडऑन जोड़ें या चालू करें, या अपने मीडिया सर्वर का कनेक्शन जाँचें।</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">चलाएँ</string>
@@ -339,8 +339,6 @@
     <string name="layout_section_content_desc">होम और सर्च में क्या दिखाई देगा इसे नियंत्रित करें।</string>
     <string name="layout_collapse_sidebar">साइडबार छुपाएँ</string>
     <string name="layout_collapse_sidebar_sub">डिफ़ॉल्ट रूप से साइडबार छुपाएँ; फोकस होने पर दिखाएँ।</string>
-    <string name="layout_show_discover">सर्च में डिस्कवर दिखाएँ</string>
-    <string name="layout_show_discover_sub">जब सर्च खाली हो तो ब्राउज़ सेक्शन दिखाएँ।</string>
     <string name="layout_poster_labels">पोस्टर लेबल दिखाएँ</string>
     <string name="layout_poster_labels_sub">रो, ग्रिड और see-all में पोस्टर के नीचे टाइटल दिखाएँ।</string>
     <string name="layout_addon_name">ऐडऑन नाम दिखाएँ</string>

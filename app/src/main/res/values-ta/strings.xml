@@ -208,7 +208,7 @@
     <string name="detail_marked_episodes_watched">பார்த்ததாக குறிக்கப்பட்ட அத்தியாயங்கள்: %1$d</string>
     <string name="detail_marked_episodes_unwatched">பார்க்காததாக குறிக்கப்பட்ட அத்தியாயங்கள்: %1$d</string>
     <string name="detail_marked_previous_watched">முந்தைய அத்தியாயங்கள் பார்த்ததாக குறிக்கப்பட்டது: %1$d</string>
-    <string name="playback_unavailable_message">நீங்கள் அமைத்த எதனாலும் இந்தத் தலைப்பை இயக்க முடியவில்லை. அமைப்புகள் &gt; உள்ளடக்கம் &amp; கண்டுபிடிப்பு &gt; அட்ஆன்கள் என்பதில் ஒரு ஸ்ட்ரீமிங் அட்ஆனைச் சேர்க்கவும் அல்லது இயக்கவும், அல்லது உங்கள் மீடியா சர்வர் இணைப்பைச் சரிபார்க்கவும்.</string>
+    <string name="playback_unavailable_message">நீங்கள் அமைத்த எதனாலும் இந்தத் தலைப்பை இயக்க முடியவில்லை. அமைப்புகள் &gt; அட்ஆன்கள் என்பதில் ஒரு ஸ்ட்ரீமிங் அட்ஆனைச் சேர்க்கவும் அல்லது இயக்கவும், அல்லது உங்கள் மீடியா சர்வர் இணைப்பைச் சரிபார்க்கவும்.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">இயக்கு</string>
@@ -655,14 +655,6 @@
     <string name="layout_collapse_sidebar_sub">இயல்பாக மறை; கவனம் செலுத்தும் போது காட்டு.</string>
     <string name="layout_fullscreen_hero_backdrop">முழுத்திரை ஹீரோ பின்னணி</string>
     <string name="layout_fullscreen_hero_backdrop_sub">ஹீரோ பின்னணியை முழு திரைக்கும் விரிவாக்கு.</string>
-    <string name="layout_show_discover">டிஸ்கவர் காட்டு/மறை</string>
-    <string name="layout_show_discover_sub">உலாவுவதற்கான டிஸ்கவர் பகுதியை சேர்க்கும்.</string>
-    <string name="layout_discover_location_action">டிஸ்கவர் இடம்</string>
-    <string name="layout_discover_location_dialog_title">டிஸ்கவர் இடம்</string>
-    <string name="layout_discover_location_in_search">தேடலில் காட்டு</string>
-    <string name="layout_discover_location_in_search_desc">டிஸ்கவர் தேடல் தாவலில் தோன்றும்.</string>
-    <string name="layout_discover_location_in_sidebar">பக்கப் பலகையில் காட்டு</string>
-    <string name="layout_discover_location_in_sidebar_desc">டிஸ்கவருக்கு பக்கப் பலகையில் தனி உருப்படி கிடைக்கும்.</string>
     <string name="layout_poster_labels">போஸ்டர் தலைப்புகளைக் காட்டு</string>
     <string name="layout_poster_labels_sub">வரிகள், கிரிட், அனைத்தையும் காண் பகுதிகளில் போஸ்டரின் கீழ் தலைப்புகளைக் காட்டு.</string>
     <string name="layout_addon_name">ஆட்ஒன் பெயரைக் காட்டு</string>

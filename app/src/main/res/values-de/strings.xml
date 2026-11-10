@@ -224,7 +224,7 @@
     <string name="detail_marked_episodes_watched">Als gesehen markierte Episoden: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Als nicht angesehen markierte Episoden: %1$d</string>
     <string name="detail_marked_previous_watched">Als gesehen markierte vorherige Episoden: %1$d</string>
-    <string name="playback_unavailable_message">Nichts, was Sie eingerichtet haben, kann diesen Titel abspielen. Fügen Sie unter Optionen &gt; Inhalte &amp; Entdecken &gt; Addons ein Streaming-Addon hinzu oder aktivieren Sie eines, oder prüfen Sie die Verbindung zu Ihrem Medienserver.</string>
+    <string name="playback_unavailable_message">Nichts, was Sie eingerichtet haben, kann diesen Titel abspielen. Fügen Sie unter Optionen &gt; Addons ein Streaming-Addon hinzu oder aktivieren Sie eines, oder prüfen Sie die Verbindung zu Ihrem Medienserver.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Abspielen</string>
@@ -671,14 +671,6 @@
     <string name="layout_collapse_sidebar_sub">Seitenleiste standardmäßig ausblenden; bei Fokus anzeigen.</string>
     <string name="layout_fullscreen_hero_backdrop">Vollbild-Hintergrund (Hero)</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Erweitert den Hero-Hintergrund, sodass er den gesamten Bildschirm ausfüllt.</string>
-    <string name="layout_show_discover">Entdecken in der Suche anzeigen</string>
-    <string name="layout_show_discover_sub">Entdecken-Bereich anzeigen, wenn die Suche leer ist.</string>
-    <string name="layout_discover_location_action">Discover Location</string>
-    <string name="layout_discover_location_dialog_title">Discover Location</string>
-    <string name="layout_discover_location_in_search">Show in Search</string>
-    <string name="layout_discover_location_in_search_desc">Discover appears inside the Search tab.</string>
-    <string name="layout_discover_location_in_sidebar">Show in Side Panel</string>
-    <string name="layout_discover_location_in_sidebar_desc">Discover gets its own item in the side panel.</string>
     <string name="layout_poster_labels">Poster-Labels anzeigen</string>
     <string name="layout_poster_labels_sub">Titel unter Postern in Zeilen, Raster und „Alle anzeigen” anzeigen.</string>
     <string name="layout_addon_name">Addon-Name anzeigen</string>

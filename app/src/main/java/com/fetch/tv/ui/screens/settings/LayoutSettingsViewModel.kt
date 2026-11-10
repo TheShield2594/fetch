@@ -18,7 +18,6 @@ import com.fetch.tv.data.local.TraktSettingsDataStore
 import com.fetch.tv.data.local.TrailerSettingsDataStore
 import com.fetch.tv.domain.model.ContinueWatchingCardStyle
 import com.fetch.tv.domain.model.ContinueWatchingSortMode
-import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.domain.model.DetailImdbRatingsVisibility
 import com.fetch.tv.domain.model.EpisodeOptionsOverlayStyle
 import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
@@ -39,8 +38,6 @@ data class LayoutSettingsUiState(
     val sidebarCollapsedByDefault: Boolean = false,
     val modernLandscapePostersEnabled: Boolean = true,
     val modernHeroFullScreenBackdropEnabled: Boolean = true,
-    val discoverLocation: DiscoverLocation = DiscoverLocation.IN_SEARCH,
-    val lastNonOffDiscoverLocation: DiscoverLocation = DiscoverLocation.IN_SEARCH,
     val posterLabelsEnabled: Boolean = true,
     val catalogAddonNameEnabled: Boolean = true,
     val catalogTypeSuffixEnabled: Boolean = true,
@@ -85,7 +82,6 @@ sealed class LayoutSettingsEvent {
     data class SetSidebarCollapsed(val collapsed: Boolean) : LayoutSettingsEvent()
     data class SetModernLandscapePostersEnabled(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetModernHeroFullScreenBackdropEnabled(val enabled: Boolean) : LayoutSettingsEvent()
-    data class SetDiscoverLocation(val location: DiscoverLocation) : LayoutSettingsEvent()
     data class SetPosterLabelsEnabled(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetCatalogAddonNameEnabled(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetCatalogTypeSuffixEnabled(val enabled: Boolean) : LayoutSettingsEvent()
@@ -178,16 +174,6 @@ class LayoutSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             layoutPreferenceDataStore.modernHeroFullScreenBackdropEnabled.distinctUntilChanged().collectLatest { enabled ->
                 updateUiStateIfChanged { it.copy(modernHeroFullScreenBackdropEnabled = enabled) }
-            }
-        }
-        viewModelScope.launch {
-            layoutPreferenceDataStore.discoverLocation.distinctUntilChanged().collectLatest { location ->
-                updateUiStateIfChanged { it.copy(discoverLocation = location) }
-            }
-        }
-        viewModelScope.launch {
-            layoutPreferenceDataStore.lastNonOffDiscoverLocation.distinctUntilChanged().collectLatest { location ->
-                updateUiStateIfChanged { it.copy(lastNonOffDiscoverLocation = location) }
             }
         }
         viewModelScope.launch {
@@ -379,7 +365,6 @@ class LayoutSettingsViewModel @Inject constructor(
             is LayoutSettingsEvent.SetSidebarCollapsed -> setSidebarCollapsed(event.collapsed)
             is LayoutSettingsEvent.SetModernLandscapePostersEnabled -> setModernLandscapePostersEnabled(event.enabled)
             is LayoutSettingsEvent.SetModernHeroFullScreenBackdropEnabled -> setModernHeroFullScreenBackdropEnabled(event.enabled)
-            is LayoutSettingsEvent.SetDiscoverLocation -> setDiscoverLocation(event.location)
             is LayoutSettingsEvent.SetPosterLabelsEnabled -> setPosterLabelsEnabled(event.enabled)
             is LayoutSettingsEvent.SetCatalogAddonNameEnabled -> setCatalogAddonNameEnabled(event.enabled)
             is LayoutSettingsEvent.SetCatalogTypeSuffixEnabled -> setCatalogTypeSuffixEnabled(event.enabled)
@@ -507,13 +492,6 @@ class LayoutSettingsViewModel @Inject constructor(
         if (_uiState.value.modernHeroFullScreenBackdropEnabled == enabled) return
         viewModelScope.launch {
             layoutPreferenceDataStore.setModernHeroFullScreenBackdropEnabled(enabled)
-        }
-    }
-
-    private fun setDiscoverLocation(location: DiscoverLocation) {
-        if (_uiState.value.discoverLocation == location) return
-        viewModelScope.launch {
-            layoutPreferenceDataStore.setDiscoverLocation(location)
         }
     }
 

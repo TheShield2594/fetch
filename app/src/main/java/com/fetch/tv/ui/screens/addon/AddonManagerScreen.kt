@@ -40,15 +40,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.FolderOpen
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.QrCode2
-import androidx.compose.material.icons.filled.Reorder
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
@@ -150,9 +148,8 @@ fun AddonManagerScreen(
     viewModel: AddonManagerViewModel = hiltViewModel(),
     showBuiltInHeader: Boolean = true,
     onBackPress: () -> Unit = {},
-    onNavigateToCatalogOrder: () -> Unit = {},
-    onNavigateToCollections: () -> Unit = {},
-    onNavigateToFilterRows: () -> Unit = {}
+    /** Customise Home, where catalog order, folders and filter rows now live together. */
+    onNavigateToCustomiseHome: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val addonHealth by viewModel.addonHealth.collectAsState()
@@ -187,11 +184,6 @@ fun AddonManagerScreen(
     var isEditing by remember { mutableStateOf(false) }
     var addonUrlPendingDeletion by remember { mutableStateOf<String?>(null) }
     var showHealthPanel by remember { mutableStateOf(false) }
-    val hasHomeVisibleCatalogs = remember(uiState.installedAddons) {
-        uiState.installedAddons.any { addon ->
-            addon.enabled && addon.catalogs.any { catalog -> !catalog.isSearchOnlyCatalog() }
-        }
-    }
     val manageFromPhoneSubtitle = if (webConfigMode == com.fetch.tv.core.server.AddonWebConfigMode.COLLECTIONS_ONLY) {
         stringResource(R.string.addon_manage_collections_from_phone_subtitle)
     } else {
@@ -455,18 +447,14 @@ fun AddonManagerScreen(
                 )
             }
 
-            if (!viewModel.isReadOnly && !isEssential && hasHomeVisibleCatalogs) {
-                item {
-                    CatalogOrderEntryCard(onClick = onNavigateToCatalogOrder)
-                }
-            }
-
             if (!isEssential) {
                 item {
-                    CollectionsEntryCard(onClick = onNavigateToCollections)
-                }
-                item {
-                    FilterRowsEntryCard(onClick = onNavigateToFilterRows)
+                    NavigationEntryCard(
+                        icon = Icons.Default.Dashboard,
+                        title = stringResource(R.string.customise_home_title),
+                        subtitle = stringResource(R.string.customise_home_rows_sub),
+                        onClick = onNavigateToCustomiseHome
+                    )
                 }
             }
 
@@ -783,90 +771,6 @@ private fun ManageFromPhoneCard(
             )
         }
     }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun CatalogOrderEntryCard(onClick: () -> Unit) {
-    var isFocused by remember { mutableStateOf(false) }
-
-    Surface(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .onFocusChanged { isFocused = it.isFocused }
-            .semantics { role = Role.Button },
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = FetchTheme.colors.BackgroundCard,
-            focusedContainerColor = FetchTheme.colors.FocusBackground
-        ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(FetchTheme.radii.sm)
-            )
-        ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = FetchTheme.focus.subtleScale)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Reorder,
-                    contentDescription = null,
-                    modifier = Modifier.size(28.dp),
-                    tint = if (isFocused) FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary
-                )
-                Spacer(modifier = Modifier.width(FetchTheme.spacing.lg))
-                Column {
-                    Text(
-                        text = stringResource(R.string.addon_reorder_title),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
-                        color = FetchTheme.colors.TextPrimary,
-                    )
-                    Text(
-                        text = stringResource(R.string.addon_reorder_subtitle),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = FetchTheme.colors.TextSecondary
-                    )
-                }
-            }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = FetchTheme.colors.TextSecondary
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun CollectionsEntryCard(onClick: () -> Unit) {
-    NavigationEntryCard(
-        icon = Icons.Default.FolderOpen,
-        title = stringResource(R.string.collections_card_title),
-        subtitle = stringResource(R.string.collections_card_subtitle),
-        onClick = onClick
-    )
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun FilterRowsEntryCard(onClick: () -> Unit) {
-    NavigationEntryCard(
-        icon = Icons.Default.FilterList,
-        title = stringResource(R.string.filter_rows_title),
-        subtitle = stringResource(R.string.filter_rows_card_subtitle),
-        onClick = onClick
-    )
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)

@@ -223,7 +223,7 @@
     <string name="detail_marked_previous_watched">Episodios anteriores marcados como vistos: %1$d</string>
 
     <string name="playback_unavailable">Reproducción no disponible</string>
-    <string name="playback_unavailable_message">Nada de lo que has configurado puede reproducir este título. Añade o activa un complemento de transmisión en Configuración &gt; Contenido &amp; descubrimiento &gt; Complementos, o comprueba la conexión con tu servidor multimedia.</string>
+    <string name="playback_unavailable_message">Nada de lo que has configurado puede reproducir este título. Añade o activa un complemento de transmisión en Configuración &gt; Complementos, o comprueba la conexión con tu servidor multimedia.</string>
     <string name="detail_btn_play">Reproducir</string>
     <string name="detail_btn_resume">Reanudar</string>
     <string name="detail_btn_play_episode">Reproducir T%1$d E%2$d</string>
@@ -809,14 +809,6 @@
     <string name="layout_collapse_sidebar_sub">Oculta barra lateral por defecto; muestra cuando se enfoca.</string>
     <string name="layout_fullscreen_hero_backdrop">Telón de fondo de héroe a pantalla completa</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expande el telón de fondo de héroe para llenar toda la pantalla.</string>
-    <string name="layout_show_discover">Mostrar descubrir en búsqueda</string>
-    <string name="layout_show_discover_sub">Muestra sección de exploración cuando la búsqueda está vacía.</string>
-    <string name="layout_discover_location_action">Ubicación de Descubrir</string>
-    <string name="layout_discover_location_dialog_title">Ubicación de Descubrir</string>
-    <string name="layout_discover_location_in_search">Mostrar en Buscar</string>
-    <string name="layout_discover_location_in_search_desc">Descubrir aparece dentro de la pestaña Buscar.</string>
-    <string name="layout_discover_location_in_sidebar">Mostrar en barra lateral</string>
-    <string name="layout_discover_location_in_sidebar_desc">Descubrir obtiene su propio elemento en la barra lateral.</string>
     <string name="layout_poster_labels">Mostrar etiquetas de póster</string>
     <string name="layout_poster_labels_sub">Muestra títulos bajo pósters en filas, cuadrícula y ver todo.</string>
     <string name="layout_addon_name">Mostrar nombre del complemento</string>

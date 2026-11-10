@@ -223,7 +223,7 @@
     <string name="detail_marked_previous_watched">Prethodnih epizoda označenih kao pogledane: %1$d</string>
 
     <string name="playback_unavailable">Reprodukcija nije dostupna</string>
-    <string name="playback_unavailable_message">Ništa od onoga što je postavljeno ne može reproducirati ovaj naslov. Dodaj ili uključi dodatak za streamove u izborniku Postavke &gt; Sadržaj i otkrivanje &gt; Dodaci ili provjeri vezu s medijskim poslužiteljem.</string>
+    <string name="playback_unavailable_message">Ništa od onoga što je postavljeno ne može reproducirati ovaj naslov. Dodaj ili uključi dodatak za streamove u izborniku Postavke &gt; Dodaci ili provjeri vezu s medijskim poslužiteljem.</string>
     <string name="detail_btn_play">Reproduciraj</string>
     <string name="detail_btn_resume">Nastavi</string>
     <string name="detail_btn_play_episode">Reproduciraj S%1$d E%2$d</string>
@@ -837,14 +837,6 @@
     <string name="layout_collapse_sidebar_sub">Prema zadanim postavkama sakrij bočnu traku; prikaži je kad je u fokusu.</string>
     <string name="layout_fullscreen_hero_backdrop">Istaknuta pozadina preko cijelog zaslona</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Proširi pozadinu istaknutog odjeljka na cijeli zaslon.</string>
-    <string name="layout_show_discover">Prikaži/sakrij Otkrij</string>
-    <string name="layout_show_discover_sub">Dodaje odjeljak Otkrij za pregledavanje.</string>
-    <string name="layout_discover_location_action">Položaj odjeljka Otkrij</string>
-    <string name="layout_discover_location_dialog_title">Položaj odjeljka Otkrij</string>
-    <string name="layout_discover_location_in_search">Prikaži u pretraživanju</string>
-    <string name="layout_discover_location_in_search_desc">Otkrij se prikazuje unutar kartice Pretraživanje.</string>
-    <string name="layout_discover_location_in_sidebar">Prikaži u bočnoj traci</string>
-    <string name="layout_discover_location_in_sidebar_desc">Otkrij dobiva vlastitu stavku u bočnoj traci.</string>
     <string name="layout_poster_labels">Prikaži natpise postera</string>
     <string name="layout_poster_labels_sub">Prikaži naslove ispod postera u redovima, mreži i prikazu svega.</string>
     <string name="layout_addon_name">Prikaži naziv dodatka</string>

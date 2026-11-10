@@ -24,9 +24,7 @@ internal val essentialSettingsSearchIndex: Map<SettingsCategory, List<Int>> =
             R.string.layout_cw_sort_mode,
             R.string.layout_landscape_posters,
             R.string.audio_autoplay_trailers,
-            R.string.layout_hide_unreleased,
-            R.string.layout_show_discover,
-            R.string.layout_discover_location_action
+            R.string.layout_hide_unreleased
         ),
         SettingsCategory.APPEARANCE to listOf(
             R.string.appearance_title,

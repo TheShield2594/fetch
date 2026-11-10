@@ -131,6 +131,7 @@ internal fun buildModernHomePresentation(
                 HeroCarouselRow(
                     key = MODERN_READY_TONIGHT_ROW_KEY,
                     title = localizedContext.getString(R.string.home_row_ready_tonight),
+                    subtitle = localizedContext.getString(R.string.home_row_ready_tonight_explainer),
                     globalRowIndex = -1,
                     items = (continueWatchingCards + watchlistCards).asStable()
                 )

@@ -780,14 +780,6 @@
 <string name="layout_collapse_sidebar_sub">Nascondi la barra laterale per impostazione predefinita; mostrala quando è a fuoco.</string>
 <string name="layout_fullscreen_hero_backdrop">Sfondo Hero a schermo intero</string>
 <string name="layout_fullscreen_hero_backdrop_sub">Espandi lo sfondo hero per riempire tutto lo schermo.</string>
-<string name="layout_show_discover">Mostra Scopri nella ricerca</string>
-<string name="layout_show_discover_sub">Mostra la sezione sfoglia quando la ricerca è vuota.</string>
-<string name="layout_discover_location_action">Posizione di Discover</string>
-<string name="layout_discover_location_dialog_title">Posizione di Discover</string>
-<string name="layout_discover_location_in_search">Mostra in Cerca</string>
-<string name="layout_discover_location_in_search_desc">Discover appare all\'interno della scheda Cerca.</string>
-<string name="layout_discover_location_in_sidebar">Mostra nel pannello laterale</string>
-<string name="layout_discover_location_in_sidebar_desc">Discover avrà la sua voce dedicata nel pannello laterale.</string>
 <string name="layout_poster_labels">Mostra etichette locandine</string>
 <string name="layout_poster_labels_sub">Mostra i titoli sotto le locandine nelle righe, nella griglia e in \"vedi tutto\".</string>
 <string name="layout_addon_name">Mostra nome addon</string>
@@ -2423,7 +2415,7 @@
 
 
     <string name="playback_unavailable">Riproduzione non disponibile</string>
-    <string name="playback_unavailable_message">Niente di ciò che hai configurato può riprodurre questo titolo. Aggiungi o attiva un addon stream in Impostazioni &gt; Contenuti e scoperta &gt; Addon, oppure controlla la connessione al server multimediale.</string>
+    <string name="playback_unavailable_message">Niente di ciò che hai configurato può riprodurre questo titolo. Aggiungi o attiva un addon stream in Impostazioni &gt; Addon, oppure controlla la connessione al server multimediale.</string>
     <string name="detail_more_like_this_powered_by_simkl">Offerto da Simkl</string>
     <string name="because_you_watched_row_title">Perché hai guardato %1$s</string>
     <string name="because_you_watched_reason_collection">Anche in %1$s</string>

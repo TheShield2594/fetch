@@ -209,7 +209,7 @@
     <string name="detail_marked_episodes_watched">Epizode, označene kot ogledane: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Epizode, označene kot neogledane: %1$d</string>
     <string name="detail_marked_previous_watched">Prejšnje epizode, označene kot ogledane: %1$d</string>
-    <string name="playback_unavailable_message">Nič od tega, kar ste nastavili, ne more predvajati tega naslova. Dodajte ali vklopite dodatek za pretakanje v Nastavitve &gt; Vsebina in odkrivanje &gt; Dodatki ali preverite povezavo z medijskim strežnikom.</string>																		
+    <string name="playback_unavailable_message">Nič od tega, kar ste nastavili, ne more predvajati tega naslova. Dodajte ali vklopite dodatek za pretakanje v Nastavitve &gt; Dodatki ali preverite povezavo z medijskim strežnikom.</string>																		
 	<!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Predvajaj</string>
     <string name="detail_btn_resume">Nadaljuj</string>
@@ -635,14 +635,6 @@
     <string name="layout_collapse_sidebar_sub">Skrij stransko vrstico privzeto; prikaži ob fokusu.</string>
     <string name="layout_fullscreen_hero_backdrop">Celozaslonsko glavno ozadje</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Razširi glavno ozadje, da zapolni celoten zaslon.</string>
-             <string name="layout_show_discover">Prikaži/skrij Odkrivanje</string>
-    <string name="layout_show_discover_sub">Doda razdelek Odkrivanje za brskanje.</string>
-    <string name="layout_discover_location_action">Mesto Odkrivanja</string>
-    <string name="layout_discover_location_dialog_title">Mesto Odkrivanja</string>
-    <string name="layout_discover_location_in_search">Prikaži v Iskanju</string>
-    <string name="layout_discover_location_in_search_desc">Odkrivanje se prikaže znotraj zavihka Iskanje.</string>
-    <string name="layout_discover_location_in_sidebar">Prikaži v stranski plošči</string>
-    <string name="layout_discover_location_in_sidebar_desc">Odkrivanje dobi svoj element v stranski plošči.</string>
     <string name="layout_poster_labels">Prikaži oznake plakatov</string>
     <string name="layout_poster_labels_sub">Prikaži naslove pod plakati v vrsticah, mreži in pogledu za prikaz vseh.</string>
     <string name="layout_addon_name">Prikaži ime dodatka</string>

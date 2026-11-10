@@ -29,9 +29,11 @@ class SettingsCatalogTest {
                 SettingsCategory.PLAYBACK_VIDEO,
                 SettingsCategory.PLAYBACK_BUFFER_NETWORK,
                 SettingsCategory.ANIME_SKIP,
+                SettingsCategory.ADDONS,
                 SettingsCategory.CONTENT_DISCOVERY,
                 SettingsCategory.TMDB,
                 SettingsCategory.MDBLIST,
+                SettingsCategory.CUSTOMISE_HOME,
                 SettingsCategory.APPEARANCE,
                 SettingsCategory.LAYOUT,
                 SettingsCategory.ACCOUNT,
@@ -125,8 +127,8 @@ class SettingsCatalogTest {
             listOf(
                 SettingsCategory.PROFILES,
                 SettingsCategory.PLAYBACK_PLAYER,
-                SettingsCategory.CONTENT_DISCOVERY,
-                SettingsCategory.APPEARANCE,
+                SettingsCategory.ADDONS,
+                SettingsCategory.CUSTOMISE_HOME,
                 SettingsCategory.ACCOUNT,
                 SettingsCategory.PHONE
             ),

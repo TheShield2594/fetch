@@ -224,7 +224,7 @@
     <string name="detail_marked_episodes_watched">Episode ditandai sudah ditonton: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episode ditandai belum ditonton: %1$d</string>
     <string name="detail_marked_previous_watched">Episode sebelumnya ditandai sudah ditonton: %1$d</string>
-    <string name="playback_unavailable_message">Tidak ada yang Anda siapkan yang dapat memutar judul ini. Tambahkan atau aktifkan addon streaming di Pengaturan &gt; Konten &amp; Penemuan &gt; Addon, atau periksa koneksi server media Anda.</string>
+    <string name="playback_unavailable_message">Tidak ada yang Anda siapkan yang dapat memutar judul ini. Tambahkan atau aktifkan addon streaming di Pengaturan &gt; Addon, atau periksa koneksi server media Anda.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Putar</string>
@@ -676,14 +676,6 @@
     <string name="layout_collapse_sidebar_sub">Setelan bawaan membunyikan bilah sisi; tampilkan saat difokuskan.</string>
     <string name="layout_fullscreen_hero_backdrop">Latar Belakang Hero Layar Penuh</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Perluas latar belakang hero untuk mengisi seluruh layar.</string>
-    <string name="layout_show_discover">Tampilkan/Sembunyikan Penemuan`</string>
-    <string name="layout_show_discover_sub">Menambahkan bagian Penemuan untuk penelusuran.</string>
-    <string name="layout_discover_location_action">Lokasi Penemuan</string>
-    <string name="layout_discover_location_dialog_title">Lokasi Penemuan</string>
-    <string name="layout_discover_location_in_search">Tampilkan di Pencarian</string>
-    <string name="layout_discover_location_in_search_desc">Penemuan muncul di dalam tab Pencarian.</string>
-    <string name="layout_discover_location_in_sidebar">Tampilkan di Panel Sisi</string>
-    <string name="layout_discover_location_in_sidebar_desc">Penemuan mendapat item tersendiri di panel sisi.</string>
     <string name="layout_poster_labels">Tampilkan Label Poster</string>
     <string name="layout_poster_labels_sub">Tampilkan judul di bawah poster di baris, grid, dan lihat-semua.</string>
     <string name="layout_addon_name">Tampilkan Nama Addon</string>

@@ -216,7 +216,7 @@
     <string name="detail_marked_episodes_watched">Episoder markeret som set: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episoder markeret som ikke set: %1$d</string>
     <string name="detail_marked_previous_watched">Tidligere episoder markeret som set: %1$d</string>
-    <string name="playback_unavailable_message">Intet af det, du har sat op, kan afspille denne titel. Tilføj eller slå et streaming-addon til under Indstillinger &gt; Indhold &amp; Opdagelse &gt; Addons, eller tjek forbindelsen til din medieserver.</string>
+    <string name="playback_unavailable_message">Intet af det, du har sat op, kan afspille denne titel. Tilføj eller slå et streaming-addon til under Indstillinger &gt; Addons, eller tjek forbindelsen til din medieserver.</string>
 
     <string name="detail_btn_play">Afspil</string>
     <string name="detail_btn_resume">Genoptag</string>
@@ -699,14 +699,6 @@
     <string name="layout_collapse_sidebar_sub">Skjul sidebjælken som standard; vis den, når den er i fokus.</string>
     <string name="layout_fullscreen_hero_backdrop">Fuldskærms hero-baggrund</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Udvid hero-baggrunden til at fylde hele skærmen.</string>
-    <string name="layout_show_discover">Vis/Skjul Opdag</string>
-    <string name="layout_show_discover_sub">Tilføjer en Opdag-sektion til gennemsyn.</string>
-    <string name="layout_discover_location_action">Opdag-placering</string>
-    <string name="layout_discover_location_dialog_title">Opdag-placering</string>
-    <string name="layout_discover_location_in_search">Vis i søgning</string>
-    <string name="layout_discover_location_in_search_desc">Opdag vises i fanen Søgning.</string>
-    <string name="layout_discover_location_in_sidebar">Vis i sidepanel</string>
-    <string name="layout_discover_location_in_sidebar_desc">Opdag får sit eget element i sidepanelet.</string>
     <string name="layout_poster_labels">Vis postertitler</string>
     <string name="layout_poster_labels_sub">Vis titler under postere i rækker, gitre og se-alle-visninger.</string>
     <string name="layout_addon_name">Vis addon-navn</string>

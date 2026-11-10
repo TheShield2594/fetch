@@ -209,6 +209,15 @@ class PosterOptionsController @Inject constructor(
                 libraryRepository.toggleDefault(
                     canonical.toLibraryEntryInput(state.addonBaseUrl.takeIf { it.isNotBlank() })
                 )
+            }.onSuccess {
+                reportActionDone(
+                    if (state.isInLibrary) {
+                        com.fetch.tv.R.string.poster_options_done_removed_from_library
+                    } else {
+                        com.fetch.tv.R.string.poster_options_done_added_to_library
+                    },
+                    canonical.name
+                )
             }.onFailure { error ->
                 Log.w(TAG, "Failed to toggle library for ${canonical.id}: ${error.message}")
                 reportActionError(error, com.fetch.tv.R.string.detail_error_update_library_failed)
@@ -387,10 +396,12 @@ class PosterOptionsController @Inject constructor(
     }
 
     private fun closeListPickerAfterSave() {
+        val title = _state.value.listPickerTitle.orEmpty()
         activeListPickerInput = null
         pendingMembershipChanges = null
         _state.update {
             it.copy(
+                actionConfirmation = appContext.getString(com.fetch.tv.R.string.poster_options_done_lists_updated, title),
                 listPickerActive = false,
                 listPickerPending = false,
                 listPickerError = null,
@@ -428,6 +439,8 @@ class PosterOptionsController @Inject constructor(
                 } else {
                     watchProgressRepository.markAsCompleted(buildCompletedMovieProgress(canonical))
                 }
+            }.onSuccess {
+                reportWatchedDone(nowWatched = !currentlyWatched, title = canonical.name)
             }.onFailure { error ->
                 Log.w(TAG, "Failed to toggle watched for ${canonical.id}: ${error.message}")
                 // Revert optimistic update on failure
@@ -466,6 +479,8 @@ class PosterOptionsController @Inject constructor(
                 } else {
                     markSeriesWatched(canonical)
                 }
+            }.onSuccess {
+                reportWatchedDone(nowWatched = !currentlyWatched, title = canonical.name)
             }.onFailure { error ->
                 Log.w(TAG, "Failed to toggle series watched for ${canonical.id}: ${error.message}")
                 // Revert optimistic update on failure
@@ -538,6 +553,27 @@ class PosterOptionsController @Inject constructor(
     /** Clears [PosterOptionsState.actionError] once the screen has shown it. */
     fun consumeActionError() {
         _state.update { if (it.actionError == null) it else it.copy(actionError = null) }
+    }
+
+    /** Clears [PosterOptionsState.actionConfirmation] once the screen has shown it. */
+    fun consumeActionConfirmation() {
+        _state.update { if (it.actionConfirmation == null) it else it.copy(actionConfirmation = null) }
+    }
+
+    /** A short confirmation that a menu action went through; the menu has already closed. */
+    private fun reportActionDone(@androidx.annotation.StringRes message: Int, title: String) {
+        _state.update { it.copy(actionConfirmation = appContext.getString(message, title)) }
+    }
+
+    private fun reportWatchedDone(nowWatched: Boolean, title: String) {
+        reportActionDone(
+            if (nowWatched) {
+                com.fetch.tv.R.string.poster_options_done_marked_watched
+            } else {
+                com.fetch.tv.R.string.poster_options_done_marked_unwatched
+            },
+            title
+        )
     }
 
     /**

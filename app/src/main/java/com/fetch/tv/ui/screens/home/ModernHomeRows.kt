@@ -500,6 +500,7 @@ internal fun ModernRowSection(
     onCatalogSelectionFocused: (FocusedCatalogSelection) -> Unit,
     onNavigateToDetail: (String, String, String) -> Unit,
     onNavigateToFolderDetail: (String, String) -> Unit,
+    onSeeAllRow: (HeroCarouselRow) -> Unit = {},
     onYouTubeVideoClick: (com.fetch.tv.data.youtube.YouTubeVideo) -> Unit = {},
     onLoadMoreCatalog: (String, String, String) -> Unit,
     onBackdropInteraction: () -> Unit,
@@ -566,14 +567,37 @@ internal fun ModernRowSection(
             Modifier.padding(start = 52.dp, end = 52.dp, bottom = rowTitleBottom)
         }
         // One line, because the hero backdrop height reserves a single title line for each row.
-        Text(
-            text = rowTitle,
-            style = rowTitleStyle.copy(textDirection = rowTitle.contentTextDirection()),
-            color = textColor,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = textModifier
-        )
+        val rowSubtitle = row.subtitle
+        if (rowSubtitle.isNullOrBlank()) {
+            Text(
+                text = rowTitle,
+                style = rowTitleStyle.copy(textDirection = rowTitle.contentTextDirection()),
+                color = textColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = textModifier
+            )
+        } else {
+            androidx.compose.foundation.layout.Row(
+                modifier = textModifier,
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
+            ) {
+                Text(
+                    text = rowTitle,
+                    style = rowTitleStyle.copy(textDirection = rowTitle.contentTextDirection()),
+                    color = textColor,
+                    maxLines = 1
+                )
+                Text(
+                    text = rowSubtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FetchTheme.colors.TextTertiary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
 
         val rowListState = rowListStates.getOrPut(row.key) {
             // Resolved when the row is built, so a refresh that already moved the card is seen.
@@ -1090,10 +1114,31 @@ internal fun ModernRowSection(
                         }
                     }
                 }
+                if (row.showsSeeAllCard()) {
+                    item(key = "${row.key}__see_all", contentType = "modern_see_all_card") {
+                        ModernSeeAllCard(
+                            width = if (useLandscapePosters) landscapeCatalogCardWidth else portraitCatalogCardWidth,
+                            height = if (useLandscapePosters) landscapeCatalogCardHeight else portraitCatalogCardHeight,
+                            cornerRadius = posterCardCornerRadius,
+                            onClick = { onSeeAllRow(row) }
+                        )
+                    }
+                }
             }
         }
     }
 }
+
+/**
+ * Catalog rows end in a See all card that opens the full grid. Rows with no grid behind them
+ * (Continue Watching, Ready tonight, Because you watched, collections) don't get one.
+ */
+internal fun HeroCarouselRow.showsSeeAllCard(): Boolean =
+    !isLoading &&
+        items.list.isNotEmpty() &&
+        addonId != MODERN_READY_TONIGHT_ROW_KEY &&
+        !isContinueWatchingStyleRow(key) &&
+        orderKey() != null
 
 
 @OptIn(ExperimentalTvMaterial3Api::class)

@@ -216,7 +216,7 @@
     <string name="detail_marked_episodes_watched">視聴済みにしたエピソード: %1$d</string>
     <string name="detail_marked_episodes_unwatched">未視聴にしたエピソード: %1$d</string>
     <string name="detail_marked_previous_watched">視聴済みにした前のエピソード: %1$d</string>
-    <string name="playback_unavailable_message">設定済みのどのソースでもこのタイトルを再生できません。設定 &gt; コンテンツ &amp; ディスカバー &gt; アドオンでストリーミングアドオンを追加または有効にするか、メディアサーバーの接続を確認してください。</string>
+    <string name="playback_unavailable_message">設定済みのどのソースでもこのタイトルを再生できません。設定 &gt; アドオンでストリーミングアドオンを追加または有効にするか、メディアサーバーの接続を確認してください。</string>
 
     <string name="detail_btn_play">再生</string>
     <string name="detail_btn_resume">再開</string>
@@ -700,14 +700,6 @@
     <string name="layout_collapse_sidebar_sub">デフォルトでサイドバーを非表示にし、フォーカス時に表示</string>
     <string name="layout_fullscreen_hero_backdrop">フルスクリーンヒーローバックドロップ</string>
     <string name="layout_fullscreen_hero_backdrop_sub">ヒーローの背景画像を画面全体に広げます</string>
-    <string name="layout_show_discover">ディスカバーを表示/非表示</string>
-    <string name="layout_show_discover_sub">ブラウズ用のディスカバーセクションを追加</string>
-    <string name="layout_discover_location_action">ディスカバーの場所</string>
-    <string name="layout_discover_location_dialog_title">ディスカバーの場所</string>
-    <string name="layout_discover_location_in_search">検索内に表示</string>
-    <string name="layout_discover_location_in_search_desc">ディスカバーが検索タブ内に表示されます。</string>
-    <string name="layout_discover_location_in_sidebar">サイドパネルに表示</string>
-    <string name="layout_discover_location_in_sidebar_desc">ディスカバーがサイドパネルに独自の項目を持ちます。</string>
     <string name="layout_poster_labels">ポスターラベルを表示</string>
     <string name="layout_poster_labels_sub">行、グリッド、全表示のポスター下にタイトルを表示</string>
     <string name="layout_addon_name">アドオン名を表示</string>

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dns
-import androidx.compose.material.icons.filled.Extension
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,7 +26,6 @@ import com.fetch.tv.ui.theme.FetchTheme
 
 @Composable
 internal fun ContentDiscoverySettingsContent(
-    onNavigateToAddons: () -> Unit,
     initialFocusRequester: FocusRequester?
 ) {
     var serverPage by rememberSaveable { mutableStateOf<String?>(null) }
@@ -53,7 +51,6 @@ internal fun ContentDiscoverySettingsContent(
 
     when (val page = serverPage) {
         null -> ContentDiscoveryHub(
-            onNavigateToAddons = onNavigateToAddons,
             onNavigateToServers = { serverPage = SERVERS_PAGE },
             initialFocusRequester = initialFocusRequester,
             serversFocusRequester = hubServersRequester
@@ -73,7 +70,6 @@ internal fun ContentDiscoverySettingsContent(
 
 @Composable
 private fun ContentDiscoveryHub(
-    onNavigateToAddons: () -> Unit,
     onNavigateToServers: () -> Unit,
     initialFocusRequester: FocusRequester?,
     serversFocusRequester: FocusRequester
@@ -84,26 +80,17 @@ private fun ContentDiscoveryHub(
     ) {
         SettingsDetailHeader(
             title = stringResource(R.string.settings_content_discovery),
-            subtitle = stringResource(R.string.settings_content_discovery_subtitle)
+            subtitle = stringResource(R.string.settings_content_discovery_servers_subtitle)
         )
         SettingsGroupCard(modifier = Modifier.fillMaxWidth()) {
-            SettingsActionRow(
-                title = stringResource(R.string.addon_title),
-                subtitle = stringResource(R.string.settings_content_discovery_addons_subtitle),
-                onClick = onNavigateToAddons,
-                leadingIcon = Icons.Default.Extension,
-                modifier = if (initialFocusRequester != null) {
-                    Modifier.focusRequester(initialFocusRequester)
-                } else {
-                    Modifier
-                }
-            )
             SettingsActionRow(
                 title = stringResource(R.string.settings_media_servers),
                 subtitle = stringResource(R.string.settings_media_servers_subtitle),
                 onClick = onNavigateToServers,
                 leadingIcon = Icons.Default.Dns,
-                modifier = Modifier.focusRequester(serversFocusRequester)
+                modifier = Modifier
+                    .then(if (initialFocusRequester != null) Modifier.focusRequester(initialFocusRequester) else Modifier)
+                    .focusRequester(serversFocusRequester)
             )
         }
     }

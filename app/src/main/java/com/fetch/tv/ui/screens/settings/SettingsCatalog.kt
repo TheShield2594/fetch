@@ -33,9 +33,11 @@ internal enum class SettingsCategory(
     PLAYBACK_VIDEO(SettingsRailGroup.PLAYBACK, PlaybackSection.VIDEO),
     PLAYBACK_BUFFER_NETWORK(SettingsRailGroup.PLAYBACK, PlaybackSection.BUFFER_NETWORK),
     ANIME_SKIP(SettingsRailGroup.PLAYBACK),
+    ADDONS(SettingsRailGroup.SOURCES),
     CONTENT_DISCOVERY(SettingsRailGroup.SOURCES),
     TMDB(SettingsRailGroup.SOURCES),
     MDBLIST(SettingsRailGroup.SOURCES),
+    CUSTOMISE_HOME(SettingsRailGroup.HOME),
     APPEARANCE(SettingsRailGroup.HOME),
     LAYOUT(SettingsRailGroup.HOME),
     ACCOUNT(SettingsRailGroup.ACCOUNTS),
@@ -66,6 +68,8 @@ internal fun visibleSettingsCategories(
         SettingsCategory.WATCH_PARTY -> isWatchPartyAvailable
         SettingsCategory.YOUTUBE -> isYouTubeAvailable && !isEssentialMode
         SettingsCategory.ANIME_SKIP -> !isEssentialMode
+        // Folders and filter rows are Advanced mode's tools, as they were in the addon manager.
+        SettingsCategory.CUSTOMISE_HOME -> !isEssentialMode
         SettingsCategory.DEBUG -> isDebugBuild && !isEssentialMode
         SettingsCategory.EXPERIENCE -> false
         else -> true

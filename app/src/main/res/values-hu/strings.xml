@@ -218,7 +218,7 @@
     <string name="detail_marked_episodes_unwatched">Nem látottként megjelölt epizódok: %1$d</string>
     <string name="detail_marked_previous_watched">Megnézettként megjelölt korábbi epizódok: %1$d</string>
     <string name="playback_unavailable">A lejátszás nem érhető el</string>
-    <string name="playback_unavailable_message">Semmi, amit beállítottál, nem tudja lejátszani ezt a címet. Adj hozzá vagy kapcsolj be egy stream bővítményt itt: Beállítások &gt; Tartalom és felfedezés &gt; Bővítmények, vagy ellenőrizd a médiaszerver-kapcsolatot.</string>
+    <string name="playback_unavailable_message">Semmi, amit beállítottál, nem tudja lejátszani ezt a címet. Adj hozzá vagy kapcsolj be egy stream bővítményt itt: Beállítások &gt; Bővítmények, vagy ellenőrizd a médiaszerver-kapcsolatot.</string>
 
     <string name="detail_btn_play">Lejátszás</string>
     <string name="detail_btn_resume">Folytatás</string>
@@ -864,14 +864,6 @@
     <string name="layout_collapse_sidebar_sub">Oldalsáv elrejtése alapértelmezés szerint, fókusz esetén jelenik meg.</string>
     <string name="layout_fullscreen_hero_backdrop">Kiemelt háttér teljes képernyőn</string>
     <string name="layout_fullscreen_hero_backdrop_sub">A kiemelt háttérkép kiterjesztése a teljes képernyőre.</string>
-    <string name="layout_show_discover">Felfedezés megjelenítése</string>
-    <string name="layout_show_discover_sub">A Felfedezés rész megjelenítése tartalmak böngészéséhez.</string>
-    <string name="layout_discover_location_action">Felfedezés helye</string>
-    <string name="layout_discover_location_dialog_title">Felfedezés helye</string>
-    <string name="layout_discover_location_in_search">Megjelenítés a keresésben</string>
-    <string name="layout_discover_location_in_search_desc">A Felfedezés a Keresés lapon jelenik meg.</string>
-    <string name="layout_discover_location_in_sidebar">Megjelenítés az oldalsó panelen</string>
-    <string name="layout_discover_location_in_sidebar_desc">A Felfedezés saját elemet kap az oldalsó panelen.</string>
     <string name="layout_poster_labels">Posztercímek megjelenítése</string>
     <string name="layout_poster_labels_sub">Címek megjelenítése a poszterek alatt a sorokban, a rácsnézetben és az Összes megtekintése oldalon.</string>
     <string name="layout_addon_name">Bővítmény nevének megjelenítése</string>

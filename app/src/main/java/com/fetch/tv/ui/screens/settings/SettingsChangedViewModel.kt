@@ -98,8 +98,6 @@ class SettingsChangedViewModel @Inject constructor(
         layoutRow(home, R.string.layout_hide_unreleased, layout.hideUnreleasedContent)
         layoutRow(home, R.string.layout_overall_ratings, layout.homeImdbRatingsVisibility)
         layoutRow(home, R.string.layout_collapse_sidebar, layout.sidebarCollapsedByDefault)
-        layoutRow(home, R.string.layout_show_discover, layout.discoverLocation)
-        layoutRow(home, R.string.layout_discover_location_action, layout.discoverLocation)
         val advanced = SettingsCategory.ADVANCED
         layoutRow(advanced, R.string.advanced_fast_horizontal_navigation, layout.fastHorizontalNavigationEnabled)
         layoutRow(advanced, R.string.advanced_fetch_focus_scroll, layout.smoothBringIntoViewEnabled)

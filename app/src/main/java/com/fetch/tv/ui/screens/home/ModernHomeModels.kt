@@ -36,6 +36,12 @@ internal const val MODERN_TRAILER_OVERSCAN_ZOOM = 1.35f
  */
 internal const val MODERN_HERO_FOCUS_DEBOUNCE_MS = 200L
 internal val MODERN_ROW_HEADER_FOCUS_INSET = 40.dp
+/** Space under each row title before its cards (ModernRowSection's rowTitleBottom). */
+internal val MODERN_ROW_TITLE_BOTTOM = 14.dp
+/** Room for a focused card's scale and ring, so the second row on entry isn't clipped. */
+internal val MODERN_ROW_FOCUS_ALLOWANCE = 8.dp
+/** The rows never take more than this share of the screen, so the hero keeps its title block. */
+internal const val MODERN_ROWS_VIEWPORT_MAX_FRACTION = 0.66f
 internal const val MODERN_CONTINUE_WATCHING_ROW_KEY = "continue_watching"
 internal const val MODERN_UPCOMING_ROW_KEY = "upcoming_section"
 internal const val MODERN_READY_TONIGHT_ROW_KEY = "ready_tonight"
@@ -151,7 +157,9 @@ data class HeroCarouselRow(
     val apiType: String? = null,
     val supportsSkip: Boolean = false,
     val hasMore: Boolean = false,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    /** A short explanation shown after the title, on the same line. */
+    val subtitle: String? = null
 )
 
 /** Home order key of a catalog row, or null for rows that are not catalogs. */

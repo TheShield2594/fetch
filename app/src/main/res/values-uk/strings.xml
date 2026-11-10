@@ -221,7 +221,7 @@
     <string name="detail_marked_episodes_watched">Позначено епізодів як переглянуті: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Позначено епізодів як непереглянуті: %1$d</string>
     <string name="detail_marked_previous_watched">Попередні епізоди позначено як переглянуті: %1$d</string>
-    <string name="playback_unavailable_message">Жодне з налаштованих джерел не може відтворити цей контент. Додайте або увімкніть адон для стримінгу в Налаштування &gt; Контент і пошук &gt; Адони або перевірте з’єднання з медіасервером.</string>
+    <string name="playback_unavailable_message">Жодне з налаштованих джерел не може відтворити цей контент. Додайте або увімкніть адон для стримінгу в Налаштування &gt; Адони або перевірте з’єднання з медіасервером.</string>
 
     <string name="detail_btn_play">Дивитися</string>
     <string name="detail_btn_resume">Продовжити</string>
@@ -697,14 +697,6 @@
     <string name="layout_collapse_sidebar_sub">Приховувати бічну панель за замовчуванням; показувати при фокусі.</string>
     <string name="layout_fullscreen_hero_backdrop">Повноекранний фон головного блоку</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Розтягувати фон головного блоку на весь екран.</string>
-    <string name="layout_show_discover">Показувати Навігатор у пошуку</string>
-    <string name="layout_show_discover_sub">Показувати розділ навігації, коли пошук порожній.</string>
-    <string name="layout_discover_location_action">Розташування Навігатора</string>
-    <string name="layout_discover_location_dialog_title">Розташування Навігатора</string>
-    <string name="layout_discover_location_in_search">Показати в Пошуку</string>
-    <string name="layout_discover_location_in_search_desc">Навігатор відображається всередині вкладки Пошук.</string>
-    <string name="layout_discover_location_in_sidebar">Показати в бічній панелі</string>
-    <string name="layout_discover_location_in_sidebar_desc">Навігатор отримує окремий елемент у бічній панелі.</string>
     <string name="layout_poster_labels">Показувати назви під постерами</string>
     <string name="layout_poster_labels_sub">Показувати назви під постерами в рядках, сітці та меню «показати всі».</string>
     <string name="layout_addon_name">Показувати назву адона</string>

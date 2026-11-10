@@ -220,7 +220,7 @@
     <string name="detail_marked_previous_watched">Episodios anteriores marcados como vistos: %1$d</string>
 
     <string name="playback_unavailable">Reproducción no disponible</string>
-    <string name="playback_unavailable_message">Nada de lo que configuraste puede reproducir este título. Agrega o activa un addon de streaming en Configuración &gt; Contenido y descubrimiento &gt; Addons, o revisa la conexión con tu servidor multimedia.</string>
+    <string name="playback_unavailable_message">Nada de lo que configuraste puede reproducir este título. Agrega o activa un addon de streaming en Configuración &gt; Addons, o revisa la conexión con tu servidor multimedia.</string>
     <string name="detail_btn_play">Reproducir</string>
     <string name="detail_btn_resume">Continuar</string>
     <string name="detail_btn_play_episode">Reproducir T%1$d E%2$d</string>
@@ -866,14 +866,6 @@
     <string name="layout_collapse_sidebar_sub">Ocultar la barra lateral por defecto; mostrarla al interactuar con ella.</string>
     <string name="layout_fullscreen_hero_backdrop">Fondo principal en pantalla completa</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expande el fondo principal para que ocupe toda la pantalla.</string>
-    <string name="layout_show_discover">Mostrar/Ocultar Descubrir</string>
-    <string name="layout_show_discover_sub">Agrega una sección Descubrir para explorar contenido.</string>
-    <string name="layout_discover_location_action">Ubicación de Descubrir</string>
-    <string name="layout_discover_location_dialog_title">Ubicación de Descubrir</string>
-    <string name="layout_discover_location_in_search">Mostrar en Búsqueda</string>
-    <string name="layout_discover_location_in_search_desc">Descubrir aparece dentro de la pestaña de Búsqueda.</string>
-    <string name="layout_discover_location_in_sidebar">Mostrar en el panel lateral</string>
-    <string name="layout_discover_location_in_sidebar_desc">Descubrir obtiene su propio elemento en el panel lateral.</string>
     <string name="layout_poster_labels">Mostrar Etiquetas de Pósteres</string>
     <string name="layout_poster_labels_sub">Mostrar los títulos debajo de los pósteres en filas, cuadrículas y en \"ver todo\".</string>
     <string name="layout_addon_name">Mostrar Nombre del Addon</string>

@@ -220,7 +220,7 @@
     <string name="detail_marked_previous_watched">Épisodes précédents marqués comme vus&#160;: %1$d</string>
 
     <string name="playback_unavailable">Lecture indisponible</string>
-    <string name="playback_unavailable_message">Rien de ce que vous avez configuré ne peut lire ce titre. Ajoutez ou activez un addon de flux dans Paramètres &gt; Contenu et découverte &gt; Addons, ou vérifiez la connexion à votre serveur multimédia.</string>
+    <string name="playback_unavailable_message">Rien de ce que vous avez configuré ne peut lire ce titre. Ajoutez ou activez un addon de flux dans Paramètres &gt; Addons, ou vérifiez la connexion à votre serveur multimédia.</string>
     <string name="detail_btn_play">Regarder</string>
     <string name="detail_btn_resume">Reprendre</string>
     <string name="detail_btn_play_episode">Regarder S%1$d E%2$d</string>
@@ -866,14 +866,6 @@
     <string name="layout_collapse_sidebar_sub">Masquer la barre latérale par défaut&#160;; l’afficher lorsqu’elle est sélectionnée.</string>
     <string name="layout_fullscreen_hero_backdrop">Arrière-plan du hero en plein écran</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Étendre l’arrière-plan du hero pour remplir tout l’écran.</string>
-    <string name="layout_show_discover">Afficher/Masquer Découvrir</string>
-    <string name="layout_show_discover_sub">Ajoute une section Découvrir pour parcourir le contenu.</string>
-    <string name="layout_discover_location_action">Emplacement de Découvrir</string>
-    <string name="layout_discover_location_dialog_title">Emplacement de Découvrir</string>
-    <string name="layout_discover_location_in_search">Afficher dans la recherche</string>
-    <string name="layout_discover_location_in_search_desc">Découvrir apparaît dans l’onglet Recherche.</string>
-    <string name="layout_discover_location_in_sidebar">Afficher dans le panneau latéral</string>
-    <string name="layout_discover_location_in_sidebar_desc">Découvrir dispose de son propre élément dans le panneau latéral.</string>
     <string name="layout_poster_labels">Afficher les titres des affiches</string>
     <string name="layout_poster_labels_sub">Afficher les titres sous les affiches dans les rangées, la grille et la vue complète.</string>
     <string name="layout_addon_name">Afficher le nom de l’addon</string>

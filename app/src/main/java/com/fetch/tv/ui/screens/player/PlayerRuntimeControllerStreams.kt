@@ -18,6 +18,7 @@ import com.fetch.tv.domain.model.Video
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.ui.components.SourceChipItem
 import com.fetch.tv.ui.components.SourceChipStatus
+import com.fetch.tv.ui.components.timeOutPendingSourceChips
 import com.fetch.tv.ui.screens.stream.settlePendingSourceChips
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -118,6 +119,7 @@ internal fun PlayerRuntimeController.showEpisodesPanel() {
             showSubtitleStylePanel = false,
             showSubtitleTimingDialog = false,
             showSpeedDialog = false,
+            choiceDialog = null,
             showMoreDialog = false
         )
     }
@@ -140,6 +142,7 @@ internal fun PlayerRuntimeController.showSourcesPanel() {
             showSubtitleStylePanel = false,
             showSubtitleTimingDialog = false,
             showSpeedDialog = false,
+            choiceDialog = null,
             showMoreDialog = false,
             showEpisodesPanel = false,
             showEpisodeStreams = false
@@ -202,7 +205,6 @@ internal fun PlayerRuntimeController.loadSourceStreams(forceRefresh: Boolean) {
     sourceStreamsJob = null
     val newScope = kotlinx.coroutines.CoroutineScope(scope.coroutineContext + kotlinx.coroutines.SupervisorJob())
     sourceStreamsScope = newScope
-    sourceChipErrorDismissJob?.cancel()
     sourceStreamsJob = newScope.launch {
         sourceStreamsCacheRequestKey = requestKey
         sourceStreamsFetchCompleted = false
@@ -336,7 +338,6 @@ internal fun PlayerRuntimeController.dismissSourcesPanel() {
     sourceStreamsScope?.cancel()
     sourceStreamsScope = null
     sourceStreamsJob = null
-    sourceChipErrorDismissJob?.cancel()
     // Opened from the error screen and closed without a pick: nothing is playing, so the error returns.
     val restoredError = errorBeforeSourcesPanel
     errorBeforeSourcesPanel = null
@@ -426,33 +427,14 @@ private fun PlayerRuntimeController.mergeSourceChipStatuses(
     return updated
 }
 
+/**
+ * Sources still loading when the fetch ends never answered: they show as timed out and stay on
+ * the row with the failed ones, so the viewer can see which addon let them down.
+ */
 private fun PlayerRuntimeController.markRemainingSourceChipsAsError() {
-    var markedAnyError = false
     _uiState.update { state ->
-        // A source that reported a failure already shows red; it is dismissed with the rest.
-        markedAnyError = state.sourceChips.any { it.status.isFailed }
         if (!state.sourceChips.any { it.status == SourceChipStatus.LOADING }) return@update state
-        markedAnyError = true
-        state.copy(
-            sourceChips = state.sourceChips.map { chip ->
-                if (chip.status == SourceChipStatus.LOADING) {
-                    chip.copy(status = SourceChipStatus.ERROR)
-                } else {
-                    chip
-                }
-            }
-        )
-    }
-    if (!markedAnyError) return
-
-    sourceChipErrorDismissJob?.cancel()
-    sourceChipErrorDismissJob = scope.launch {
-        delay(1600L)
-        _uiState.update { state ->
-            state.copy(
-                sourceChips = state.sourceChips.filterNot { it.status.isFailed }
-            )
-        }
+        state.copy(sourceChips = timeOutPendingSourceChips(state.sourceChips))
     }
 }
 
@@ -1349,6 +1331,7 @@ internal fun PlayerRuntimeController.showEpisodeStreamPicker(video: Video, force
             showSubtitleStylePanel = false,
             showSubtitleTimingDialog = false,
             showSpeedDialog = false,
+            choiceDialog = null,
             showMoreDialog = false,
             episodesSelectedSeason = video.season ?: it.episodesSelectedSeason
         )

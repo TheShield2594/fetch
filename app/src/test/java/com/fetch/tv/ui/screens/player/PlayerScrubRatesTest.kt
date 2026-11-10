@@ -80,4 +80,17 @@ class PlayerScrubRatesTest {
         val defaults = PlayerSettings()
         assertEquals(SeekSteps(), SeekSteps.fromSeconds(defaults.seekBackSeconds, defaults.seekForwardSeconds))
     }
+
+    @Test
+    fun `number keys jump to that tenth of the title`() {
+        assertEquals(0L, numberKeySeekTargetMs(0, 6_000_000L, isLive = false))
+        assertEquals(3_000_000L, numberKeySeekTargetMs(5, 6_000_000L, isLive = false))
+        assertEquals(5_400_000L, numberKeySeekTargetMs(9, 6_000_000L, isLive = false))
+    }
+
+    @Test
+    fun `number keys do nothing on live streams or before the length is known`() {
+        assertEquals(null, numberKeySeekTargetMs(5, 6_000_000L, isLive = true))
+        assertEquals(null, numberKeySeekTargetMs(5, 0L, isLive = false))
+    }
 }

@@ -43,8 +43,51 @@ data class WatchProgress(
         const val SOURCE_REMOTE_PLAYBACK = "remote_playback"
         const val SOURCE_REMOTE_HISTORY = "remote_history"
         const val STARTED_THRESHOLD = 0.02f
+        /** The flat share of a title that counts as watched when no better rule applies. */
         const val COMPLETED_THRESHOLD = 0.90f
         const val SIMKL_COMPLETED_THRESHOLD = 0.80f
+
+        /**
+         * Google's Watch Next rule: a title is finished once under about three minutes are left.
+         * Used with [COMPLETED_THRESHOLD] so a long film keeps its resume point well past 90%.
+         */
+        const val COMPLETED_REMAINING_MS = 3L * 60_000L
+
+        /**
+         * Share of a title of [durationMs] that counts as watched: whichever comes later of 90% and
+         * "about three minutes left". A 180-minute film finishes at 177 minutes, not 162; anything
+         * under 30 minutes keeps the flat 90%. An unknown length falls back to 90%.
+         */
+        fun completedFraction(durationMs: Long): Float {
+            if (durationMs <= 0L) return COMPLETED_THRESHOLD
+            val remainingRule = 1f - COMPLETED_REMAINING_MS.toFloat() / durationMs.toFloat()
+            return maxOf(COMPLETED_THRESHOLD, remainingRule)
+        }
+
+        /**
+         * Whether playback stopped at [positionMs] of [durationMs] counts as finished. When the
+         * credits' start is known ([creditsStartMs]) reaching it is enough; a credits marker in
+         * the first half of the title is ignored as a bad marker.
+         */
+        fun isFinishedAt(positionMs: Long, durationMs: Long, creditsStartMs: Long? = null): Boolean {
+            if (durationMs <= 0L || positionMs <= 0L) return false
+            if (creditsStartMs != null && creditsStartMs >= durationMs / 2 && positionMs >= creditsStartMs) {
+                return true
+            }
+            // The later of the two thresholds means both must hold; whole milliseconds avoid float edges.
+            return positionMs * 10L >= durationMs * 9L && durationMs - positionMs <= COMPLETED_REMAINING_MS
+        }
+
+        /**
+         * How far before the saved position to resume after [gapMs] away: nothing after a short
+         * break, a few seconds after a longer one, a little more after a day or more, so the
+         * viewer picks up the thread instead of landing mid-sentence.
+         */
+        fun resumeRewindMs(gapMs: Long): Long = when {
+            gapMs < 10L * 60_000L -> 0L
+            gapMs < 24L * 60L * 60_000L -> 5_000L
+            else -> 10_000L
+        }
     }
 
     /**
@@ -59,7 +102,8 @@ data class WatchProgress(
         }
 
     /**
-     * Returns true if the content has been watched past the threshold (default 90%)
+     * Returns true if the content has been watched past the threshold: the later of 90% and
+     * "about three minutes left" when the length is known (see [completedFraction]).
      */
     fun isCompleted(threshold: Float = completionThreshold()): Boolean = progressPercentage >= threshold
 
@@ -71,13 +115,28 @@ data class WatchProgress(
 
     private fun completionThreshold(): Float =
         completionThresholdOverride?.takeIf { it.isFinite() && it > 0f && it <= 1f }
-            ?: if (source == SOURCE_SIMKL_PLAYBACK) SIMKL_COMPLETED_THRESHOLD else COMPLETED_THRESHOLD
+            ?: when {
+                source == SOURCE_SIMKL_PLAYBACK -> SIMKL_COMPLETED_THRESHOLD
+                // A remote percentage has no reliable length behind it, so it keeps the flat 90%.
+                progressPercent != null -> COMPLETED_THRESHOLD
+                else -> completedFraction(duration)
+            }
 
     /**
      * Returns the remaining time in milliseconds
      */
     val remainingTime: Long
         get() = (duration - position).coerceAtLeast(0)
+
+    /**
+     * [resolveResumePosition] stepped back by [resumeRewindMs] for the time since [lastWatched].
+     * A position of zero (start from the beginning) stays zero.
+     */
+    fun resolveResumePositionWithRewind(actualDuration: Long, nowMs: Long): Long {
+        val resolved = resolveResumePosition(actualDuration)
+        if (resolved <= 0L || lastWatched <= 0L) return resolved
+        return (resolved - resumeRewindMs(nowMs - lastWatched)).coerceAtLeast(0L)
+    }
 
     fun resolveResumePosition(actualDuration: Long): Long {
         if (actualDuration <= 0) return position.coerceAtLeast(0L)

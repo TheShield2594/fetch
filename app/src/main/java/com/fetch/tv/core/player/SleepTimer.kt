@@ -16,7 +16,7 @@ sealed interface SleepTimerSetting {
     data object EndOfTitle : SleepTimerSetting
 }
 
-/** One press on the sleep timer button moves to the next of these, then back to off. */
+/** One row of the sleep timer list; "Off" is a null choice, listed first. */
 sealed interface SleepTimerChoice {
     data class Minutes(val minutes: Int) : SleepTimerChoice
     data object EndOfTitle : SleepTimerChoice
@@ -37,15 +37,11 @@ class SleepTimer internal constructor(private val clock: () -> Long) {
 
     fun now(): Long = clock()
 
-    /** Moves to the choice after the current one: off, 15, 30, 45, 60, 90 minutes, end of title, off. */
-    fun cycle(): SleepTimerSetting? {
-        val index = when (val current = _setting.value) {
-            null -> -1
-            is SleepTimerSetting.Minutes -> CHOICES.indexOfFirst { it == SleepTimerChoice.Minutes(current.minutes) }
-            SleepTimerSetting.EndOfTitle -> CHOICES.indexOf(SleepTimerChoice.EndOfTitle)
-        }
-        val next = CHOICES.getOrNull(index + 1)
-        return set(next)
+    /** The list row the current setting came from, or null when the timer is off. */
+    fun currentChoice(): SleepTimerChoice? = when (val current = _setting.value) {
+        null -> null
+        is SleepTimerSetting.Minutes -> SleepTimerChoice.Minutes(current.minutes)
+        SleepTimerSetting.EndOfTitle -> SleepTimerChoice.EndOfTitle
     }
 
     fun set(choice: SleepTimerChoice?): SleepTimerSetting? {
@@ -76,6 +72,7 @@ class SleepTimer internal constructor(private val clock: () -> Long) {
     companion object {
         const val MINUTE_MS = 60_000L
 
+        /** The list, after "Off": 15, 30, 45, 60, 90 minutes, then end of title. */
         val CHOICES: List<SleepTimerChoice> = listOf(
             SleepTimerChoice.Minutes(15),
             SleepTimerChoice.Minutes(30),
@@ -84,6 +81,9 @@ class SleepTimer internal constructor(private val clock: () -> Long) {
             SleepTimerChoice.Minutes(90),
             SleepTimerChoice.EndOfTitle
         )
+
+        /** Every row of the sleep timer list in order: "Off" (null) first, so cancelling is two presses. */
+        val LIST_CHOICES: List<SleepTimerChoice?> = listOf<SleepTimerChoice?>(null) + CHOICES
 
         /** Minutes left, rounded up, so a timer never reads "0 min" while it is still running. */
         fun minutesLeft(remainingMs: Long): Int = ((remainingMs + MINUTE_MS - 1) / MINUTE_MS).toInt()

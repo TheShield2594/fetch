@@ -82,9 +82,16 @@ private fun PlayerRuntimeController.refreshSleepTimerLabel() {
     if (_uiState.value.sleepTimer != label) _uiState.update { it.copy(sleepTimer = label) }
 }
 
-/** One press on the button: the next duration, then "end of this title", then off. */
-internal fun PlayerRuntimeController.onCycleSleepTimer() {
-    val setting = sleepTimer.cycle()
+/** The button opens the list; the More row stays open behind it so focus comes back to the button. */
+internal fun PlayerRuntimeController.onShowSleepTimerDialog() {
+    hideControlsJob?.cancel()
+    _uiState.update { it.copy(choiceDialog = PlayerChoiceDialog.SLEEP_TIMER, showControls = true) }
+}
+
+/** A row of the list: a duration, "end of this title", or Off (null). */
+internal fun PlayerRuntimeController.onSelectSleepTimer(choice: SleepTimerChoice?) {
+    val setting = sleepTimer.set(choice)
+    _uiState.update { if (it.choiceDialog == PlayerChoiceDialog.SLEEP_TIMER) it.copy(choiceDialog = null) else it }
     if (setting == SleepTimerSetting.EndOfTitle) {
         // Nothing follows this title now, so take down an Up next card that is already counting.
         nextEpisodeAutoPlayJob?.cancel()

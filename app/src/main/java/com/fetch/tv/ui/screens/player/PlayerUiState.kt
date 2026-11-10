@@ -150,6 +150,8 @@ data class PlayerUiState(
     val subtitleAutoSyncLoading: Boolean = false,
     val subtitleAutoSyncLoadedTrackKey: String? = null,
     val showSpeedDialog: Boolean = false,
+    /** A short list opened from the More row (sleep timer or aspect), or null. */
+    val choiceDialog: PlayerChoiceDialog? = null,
     val showMoreDialog: Boolean = false,
     // Subtitle style settings
     val subtitleStyle: SubtitleStyleSettings = SubtitleStyleSettings(),
@@ -227,6 +229,8 @@ data class PlayerUiState(
     val parentalGuideHasShown: Boolean = false,
     // Skip intro
     val activeSkipInterval: SkipInterval? = null,
+    /** Intro, recap and credits segments for the title, drawn on the scrubber. */
+    val skipSegments: List<SkipInterval> = emptyList(),
     val activeSkipTargetsPostCredits: Boolean = false,
     val skipIntervalDismissed: Boolean = false,
     /** Whether the viewer can record and submit a skip marker for this title (IntroDB API key set). */
@@ -425,11 +429,18 @@ sealed class PlayerEvent {
     data object OnShowStreamInfo : PlayerEvent()
     data object OnDismissStreamInfo : PlayerEvent()
     data object OnTogglePlayerStatsHud : PlayerEvent()
-    data object OnCycleSleepTimer : PlayerEvent()
+    data object OnShowSleepTimerDialog : PlayerEvent()
+    data class OnSelectSleepTimer(val choice: com.fetch.tv.core.player.SleepTimerChoice?) : PlayerEvent()
+    data object OnShowAspectDialog : PlayerEvent()
+    data class OnSelectAspectMode(val mode: AspectMode) : PlayerEvent()
+    data object OnDismissChoiceDialog : PlayerEvent()
     data object OnSleepTimerKeepWatching : PlayerEvent()
     data object OnSleepTimerExtend : PlayerEvent()
     data object OnSleepTimerStop : PlayerEvent()
 }
+
+/** The short lists the More row opens in place of buttons that cycled on each press. */
+enum class PlayerChoiceDialog { SLEEP_TIMER, ASPECT }
 
 /** What the sleep timer button says: minutes left (rounded up), or that it stops at the end. */
 sealed interface SleepTimerLabel {

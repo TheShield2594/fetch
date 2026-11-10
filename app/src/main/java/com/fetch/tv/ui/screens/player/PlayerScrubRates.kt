@@ -97,3 +97,12 @@ internal fun formatSeekDelta(deltaMs: Long): String {
         String.format(java.util.Locale.ROOT, "%s%d:%02d", sign, minutes, seconds)
     }
 }
+
+/**
+ * Where a number key (0 to 9) jumps: that tenth of the title, so 0 is the start and 5 the
+ * middle. Null for live streams or while the length is unknown, so the key does nothing.
+ */
+internal fun numberKeySeekTargetMs(digit: Int, durationMs: Long, isLive: Boolean): Long? {
+    if (isLive || durationMs <= 0L || digit !in 0..9) return null
+    return durationMs / 10L * digit
+}

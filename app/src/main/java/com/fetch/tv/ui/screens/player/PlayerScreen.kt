@@ -165,8 +165,10 @@ import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
+import com.fetch.tv.data.repository.SkipInterval
 import com.fetch.tv.core.party.PartyAction
 import com.fetch.tv.core.party.PartyMedia
 import com.fetch.tv.core.party.PartyNotice
@@ -174,13 +176,14 @@ import com.fetch.tv.core.party.PartySync
 import com.fetch.tv.ui.screens.party.PartyPanel
 import com.fetch.tv.ui.screens.party.PartyStatusPill
 import com.fetch.tv.core.player.PlayerWindowBackdrop
+import com.fetch.tv.core.player.SleepTimer
+import com.fetch.tv.core.player.SleepTimerChoice
 import com.fetch.tv.ui.util.localizeEpisodeTitle
 import com.fetch.tv.data.local.InternalPlayerEngine
 import com.fetch.tv.data.local.LibassRenderType
 import com.fetch.tv.data.local.SubtitleStyleSettings
 import com.fetch.tv.data.local.StreamAutoPlayMode
 import com.fetch.tv.domain.model.Subtitle
-import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.tv.ui.components.LoadingIndicator
 import android.text.format.DateFormat
 import com.fetch.tv.ui.util.rememberRawSvgPainter
@@ -330,9 +333,7 @@ fun PlayerScreen(
         val timeline = viewModel.playbackTimeline.value
         viewModel.stopAndRelease()
         val completed = postPlayRecommendationState.isVisible || uiState.playbackEnded ||
-            (!timeline.isLive &&
-                timeline.duration > 0L &&
-                (timeline.currentPosition.toFloat() / timeline.duration.toFloat()) >= WatchProgress.COMPLETED_THRESHOLD)
+            (!timeline.isLive && viewModel.isPlaybackFinishedAt(timeline.currentPosition, timeline.duration))
         val (focusSeason, focusEpisode) = uiState.returnFocusSeasonEpisode(completed)
         onBackPress(
             uiState.currentVideoId,
@@ -709,8 +710,8 @@ fun PlayerScreen(
     }
     LaunchedEffect(uiState.showStreamInfoOverlay, uiState.showControls, uiState.showMoreDialog) {
         if (!uiState.showStreamInfoOverlay && uiState.showControls && uiState.showMoreDialog && restoreStreamInfoFocus) {
-            delay(250)
-            runCatching { streamInfoFocusRequester.requestFocus() }
+            // Back on the More row's Info button as soon as it is attached, not after a fixed wait.
+            requestFocusWithinFrames { streamInfoFocusRequester.requestFocus() }
             restoreStreamInfoFocus = false
         }
     }
@@ -923,7 +924,10 @@ fun PlayerScreen(
                 if (panelOrDialogOpen) return@onKeyEvent false
                 // The More row is an inline row, not a modal: it keeps D-pad/Enter for its own
                 // focus handling, but hardware media keys still drive playback while it is open.
-                if (uiState.showMoreDialog && !isTransportMediaKey(keyEvent.nativeKeyEvent.keyCode)) {
+                if (uiState.showMoreDialog &&
+                    !isTransportMediaKey(keyEvent.nativeKeyEvent.keyCode) &&
+                    keyEvent.nativeKeyEvent.keyCode != KeyEvent.KEYCODE_MENU
+                ) {
                     return@onKeyEvent false
                 }
 
@@ -1084,6 +1088,39 @@ fun PlayerScreen(
                                 )
                             )
                             true
+                        }
+                        // Skip keys move one step, the same as the transport's skip buttons.
+                        KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD -> {
+                            viewModel.onEvent(PlayerEvent.OnSeekForward)
+                            true
+                        }
+                        KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD -> {
+                            viewModel.onEvent(PlayerEvent.OnSeekBackward)
+                            true
+                        }
+                        // Menu opens the More row (showing the controls if needed) and closes it again.
+                        KeyEvent.KEYCODE_MENU -> {
+                            if (keyEvent.nativeKeyEvent.repeatCount == 0) {
+                                if (uiState.showMoreDialog) {
+                                    viewModel.onEvent(PlayerEvent.OnDismissMoreDialog)
+                                } else {
+                                    viewModel.onEvent(PlayerEvent.OnShowMoreDialog)
+                                }
+                            }
+                            true
+                        }
+                        // Number keys jump to that tenth of the title: 0 is the start, 5 the middle.
+                        in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9 -> {
+                            val timeline = viewModel.playbackTimeline.value
+                            val target = numberKeySeekTargetMs(
+                                digit = keyEvent.nativeKeyEvent.keyCode - KeyEvent.KEYCODE_0,
+                                durationMs = timeline.duration,
+                                isLive = timeline.isLive
+                            )
+                            if (target != null && keyEvent.nativeKeyEvent.repeatCount == 0) {
+                                viewModel.onEvent(PlayerEvent.OnSeekTo(target))
+                            }
+                            target != null
                         }
                         KeyEvent.KEYCODE_INFO -> {
                             if (uiState.showStreamInfoOverlay) {
@@ -1690,14 +1727,11 @@ fun PlayerScreen(
                     viewModel.onEvent(PlayerEvent.OnShowSubtitleOverlay)
                 },
                 onShowSpeedDialog = { viewModel.onEvent(PlayerEvent.OnShowSpeedDialog) },
-                onToggleAspectRatio = {
-                    Log.d("PlayerScreen", "onToggleAspectRatio called - dispatching event")
-                    viewModel.onEvent(PlayerEvent.OnToggleAspectRatio)
-                },
+                onOpenAspectList = { viewModel.onEvent(PlayerEvent.OnShowAspectDialog) },
                 onSwitchPlayerEngine = { viewModel.onEvent(PlayerEvent.OnSwitchInternalPlayerEngine) },
                 onReportPlaybackIssue = { viewModel.onEvent(PlayerEvent.OnReportPlaybackIssue) },
                 onMarkSkipSegment = { viewModel.onEvent(PlayerEvent.OnMarkSkipSegment) },
-                onCycleSleepTimer = { viewModel.onEvent(PlayerEvent.OnCycleSleepTimer) },
+                onOpenSleepTimerList = { viewModel.onEvent(PlayerEvent.OnShowSleepTimerDialog) },
                 onToggleMoreActions = {
                     if (uiState.showMoreDialog) {
                         viewModel.onEvent(PlayerEvent.OnDismissMoreDialog)
@@ -1710,8 +1744,7 @@ fun PlayerScreen(
                         externalHandoffInProgress = true
                         val timeline = viewModel.playbackTimeline.value
                         val completed = !timeline.isLive &&
-                            timeline.duration > 0L &&
-                            (timeline.currentPosition.toFloat() / timeline.duration.toFloat()) >= WatchProgress.COMPLETED_THRESHOLD
+                            viewModel.isPlaybackFinishedAt(timeline.currentPosition, timeline.duration)
                         viewModel.launchInExternalPlayer(context, timeline.currentPosition) { launched ->
                             externalHandoffInProgress = false
                             if (launched && !exitDispatched) {
@@ -1859,7 +1892,7 @@ fun PlayerScreen(
                 .align(Alignment.BottomCenter)
                 .reportSubtitleClearance(subtitleClearanceGapPx) { seekClearancePx = it }
         ) {
-            SeekOverlayHost(viewModel = viewModel, seekFeedback = uiState.seekFeedback)
+            SeekOverlayHost(viewModel = viewModel, seekFeedback = uiState.seekFeedback, skipSegments = uiState.skipSegments)
         }
 
         // Episodes/streams side panel
@@ -2141,6 +2174,19 @@ fun PlayerScreen(
                 onSpeedSelected = { viewModel.onEvent(PlayerEvent.OnSetPlaybackSpeed(it)) },
                 onDismiss = { viewModel.onEvent(PlayerEvent.OnDismissTransientOverlay) }
             )
+        }
+
+        when (uiState.choiceDialog) {
+            PlayerChoiceDialog.SLEEP_TIMER -> SleepTimerChoiceDialog(
+                isMovie = uiState.contentType == "movie",
+                viewModel = viewModel
+            )
+            PlayerChoiceDialog.ASPECT -> AspectChoiceDialog(
+                current = uiState.aspectMode,
+                onSelected = { viewModel.onEvent(PlayerEvent.OnSelectAspectMode(it)) },
+                onDismiss = { viewModel.onEvent(PlayerEvent.OnDismissChoiceDialog) }
+            )
+            null -> Unit
         }
     }
 }
@@ -2677,12 +2723,12 @@ internal fun PlayerControlsOverlay(
     onShowAudioDialog: () -> Unit,
     onShowSubtitleDialog: () -> Unit,
     onShowSpeedDialog: () -> Unit,
-    onToggleAspectRatio: () -> Unit,
+    onOpenAspectList: () -> Unit,
     onSwitchPlayerEngine: () -> Unit,
     onReportPlaybackIssue: () -> Unit,
     onToggleMoreActions: () -> Unit,
     onMarkSkipSegment: () -> Unit,
-    onCycleSleepTimer: () -> Unit,
+    onOpenSleepTimerList: () -> Unit,
     onOpenInExternalPlayer: (() -> Unit)?,
     onShowStreamInfo: () -> Unit,
     onResetHideTimer: () -> Unit,
@@ -2868,6 +2914,7 @@ internal fun PlayerControlsOverlay(
                             PlayerControlsProgressBarHost(
                                 viewModel = viewModel,
                                 seekSteps = uiState.seekSteps,
+                                skipSegments = uiState.skipSegments,
                                 seekFeedback = uiState.seekFeedback,
                                 focusRequester = progressBarFocusRequester,
                                 upFocusRequester = progressBarUpFocusRequester,
@@ -2916,9 +2963,7 @@ internal fun PlayerControlsOverlay(
                             iconPainter = customAspectPainter,
                             focusRequester = moreExtrasFocusRequester,
                             contentDescription = stringResource(R.string.cd_aspect_ratio),
-                            onClick = {
-                                onToggleAspectRatio()
-                            },
+                            onClick = onOpenAspectList,
                             upFocusRequester = progressUpTarget,
                             onDownKey = backToMore,
                             onFocused = onResetHideTimer,
@@ -2968,11 +3013,11 @@ internal fun PlayerControlsOverlay(
                                 contentColor = if (marking) FetchTheme.colors.Secondary else FetchTheme.colors.Player.TextPrimary
                             )
                         }
-                        // Each press moves to the next duration; the label says what it is now.
+                        // Opens a short list with Off first; the label says what the timer is now.
                         ControlButton(
                             icon = Icons.Default.Bedtime,
                             contentDescription = sleepTimerButtonLabel(uiState.sleepTimer, isMovie = uiState.contentType == "movie"),
-                            onClick = onCycleSleepTimer,
+                            onClick = onOpenSleepTimerList,
                             upFocusRequester = progressUpTarget,
                             onDownKey = backToMore,
                             onFocused = onResetHideTimer,
@@ -3241,6 +3286,7 @@ internal class PlayerPanelButtonFocus {
 private fun PlayerControlsProgressBarHost(
     viewModel: PlayerViewModel,
     seekSteps: SeekSteps,
+    skipSegments: List<SkipInterval>,
     seekFeedback: SeekFeedback?,
     focusRequester: FocusRequester,
     upFocusRequester: FocusRequester? = null,
@@ -3270,7 +3316,8 @@ private fun PlayerControlsProgressBarHost(
         onFocused = onFocused,
         onClick = onClick,
         bufferedPosition = playbackTimeline.bufferedPosition,
-        seekSteps = seekSteps
+        seekSteps = seekSteps,
+        skipSegments = skipSegments
     )
 }
 
@@ -3578,8 +3625,13 @@ private fun ProgressBar(
     /** Position (ms) up to which content is buffered. Pass 0 to skip the overlay. */
     bufferedPosition: Long = 0L,
     /** The steps a press of Left / Right moves; the same pair the transport buttons use. */
-    seekSteps: SeekSteps = SeekSteps()
+    seekSteps: SeekSteps = SeekSteps(),
+    /** Intro, recap and credits segments to mark on the bar. */
+    skipSegments: List<SkipInterval> = emptyList(),
+    /** False for a display-only bar (the seek overlay): it takes no focus and handles no keys. */
+    interactive: Boolean = true
 ) {
+    val segments = remember(skipSegments, duration) { scrubberSegments(skipSegments, duration) }
     val accentBrush = FetchTheme.palette.accentBrush()
     val progress = if (duration > 0) {
         (currentPosition.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
@@ -3630,7 +3682,7 @@ private fun ProgressBar(
                 stateDescription = seekBarState
                 progressBarRangeInfo = ProgressBarRangeInfo(progress, 0f..1f)
             }
-            .focusable()
+            .focusable(enabled = interactive)
             .playerPlayhead(
                 progress = { animatedProgress },
                 // Focus is white in the player: the playhead grows and turns white on focus,
@@ -3740,6 +3792,11 @@ private fun ProgressBar(
                     bufferedColor = FetchPrimitives.white,
                     playedBrush = accentBrush
                 )
+                .playerSegmentMarks(
+                    segments = segments,
+                    color = FetchPrimitives.white.copy(alpha = 0.28f),
+                    edgeColor = FetchTheme.colors.Background.copy(alpha = 0.7f)
+                )
         )
     }
 }
@@ -3749,7 +3806,8 @@ private fun SeekOverlay(
     currentPosition: Long,
     duration: Long,
     bufferedPosition: Long = 0L,
-    seekFeedback: SeekFeedback? = null
+    seekFeedback: SeekFeedback? = null,
+    skipSegments: List<SkipInterval> = emptyList()
 ) {
     Column(
         modifier = Modifier
@@ -3767,7 +3825,9 @@ private fun SeekOverlay(
                 duration = duration,
                 onSeekPreview = {},
                 onSeekCommit = {},
-                bufferedPosition = bufferedPosition
+                bufferedPosition = bufferedPosition,
+                skipSegments = skipSegments,
+                interactive = false
             )
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
@@ -3788,14 +3848,19 @@ private fun SeekOverlay(
 }
 
 @Composable
-private fun SeekOverlayHost(viewModel: PlayerViewModel, seekFeedback: SeekFeedback?) {
+private fun SeekOverlayHost(
+    viewModel: PlayerViewModel,
+    seekFeedback: SeekFeedback?,
+    skipSegments: List<SkipInterval> = emptyList()
+) {
     val playbackTimeline by viewModel.playbackTimeline.collectAsState()
 
     SeekOverlay(
         currentPosition = playbackTimeline.currentPosition,
         duration = playbackTimeline.duration,
         bufferedPosition = playbackTimeline.bufferedPosition,
-        seekFeedback = seekFeedback
+        seekFeedback = seekFeedback,
+        skipSegments = skipSegments
     )
 }
 
@@ -4631,6 +4696,21 @@ private fun SpeedItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
+    ChoiceItem(
+        modifier = modifier,
+        label = if (speed == 1f) stringResource(R.string.player_speed_normal) else formatSpeedLabel(speed),
+        isSelected = isSelected,
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun ChoiceItem(
+    modifier: Modifier = Modifier,
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
     var isFocused by remember { mutableStateOf(false) }
 
     Card(
@@ -4652,7 +4732,7 @@ private fun SpeedItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = if (speed == 1f) stringResource(R.string.player_speed_normal) else formatSpeedLabel(speed),
+                text = label,
                 style = MaterialTheme.typography.bodyLarge,
                 color = if (isFocused) FetchTheme.colors.Player.OnFocus else FetchTheme.colors.TextPrimary
             )
@@ -4664,6 +4744,107 @@ private fun SpeedItem(
                     tint = if (isFocused) FetchTheme.colors.Player.OnFocus else FetchTheme.colors.Secondary,
                     modifier = Modifier.size(FetchTheme.spacing.xl)
                 )
+            }
+        }
+    }
+}
+
+/**
+ * The sleep timer list: Off, then each duration, then the end of this title. Focus starts on Off
+ * while a timer runs, so cancelling it is the button then OK; with no timer it starts on the first
+ * duration.
+ */
+@Composable
+private fun SleepTimerChoiceDialog(isMovie: Boolean, viewModel: PlayerViewModel) {
+    val choices = SleepTimer.LIST_CHOICES
+    val current = remember { viewModel.currentSleepTimerChoice() }
+    val labels = choices.map { choice ->
+        when (choice) {
+            null -> stringResource(R.string.player_sleep_timer_off)
+            is SleepTimerChoice.Minutes -> pluralStringResource(
+                R.plurals.player_sleep_timer_choice_minutes, choice.minutes, choice.minutes
+            )
+            SleepTimerChoice.EndOfTitle -> stringResource(
+                if (isMovie) R.string.player_sleep_timer_choice_end_of_movie
+                else R.string.player_sleep_timer_choice_end_of_episode
+            )
+        }
+    }
+    PlayerChoiceListDialog(
+        title = stringResource(R.string.player_sleep_timer),
+        labels = labels,
+        selectedIndex = choices.indexOf(current).coerceAtLeast(0),
+        initialFocusIndex = if (current == null) 1 else 0,
+        onSelected = { index -> viewModel.onEvent(PlayerEvent.OnSelectSleepTimer(choices[index])) },
+        onDismiss = { viewModel.onEvent(PlayerEvent.OnDismissChoiceDialog) }
+    )
+}
+
+/** The aspect list: Fit first, then the other modes. Focus starts on the mode in use. */
+@Composable
+private fun AspectChoiceDialog(
+    current: AspectMode,
+    onSelected: (AspectMode) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val modes = AspectMode.entries
+    val selected = modes.indexOf(current).coerceAtLeast(0)
+    PlayerChoiceListDialog(
+        title = stringResource(R.string.cd_aspect_ratio),
+        labels = modes.map { stringResource(it.labelResId) },
+        selectedIndex = selected,
+        initialFocusIndex = selected,
+        onSelected = { index -> onSelected(modes[index]) },
+        onDismiss = onDismiss
+    )
+}
+
+/** A short single-choice list in a dialog, in the same style as the speed list. */
+@Composable
+private fun PlayerChoiceListDialog(
+    title: String,
+    labels: List<String>,
+    selectedIndex: Int,
+    initialFocusIndex: Int,
+    onSelected: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val focusIndex = initialFocusIndex.coerceIn(0, (labels.size - 1).coerceAtLeast(0))
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = focusIndex)
+    val focusRequesters = remember(labels.size) { List(labels.size) { FocusRequester() } }
+
+    LaunchedEffect(Unit) {
+        runCatching { focusRequesters[focusIndex].requestFocus() }
+    }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Box(
+            modifier = Modifier
+                .width(300.dp)
+                .clip(RoundedCornerShape(FetchTheme.radii.xl))
+                .background(FetchTheme.colors.BackgroundElevated)
+        ) {
+            Column(modifier = Modifier.padding(FetchTheme.spacing.xl)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = FetchTheme.colors.TextPrimary,
+                    modifier = Modifier.padding(bottom = FetchTheme.spacing.lg)
+                )
+                LazyColumn(
+                    state = listState,
+                    verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+                    contentPadding = PaddingValues(top = FetchTheme.spacing.xs)
+                ) {
+                    itemsIndexed(labels) { index, label ->
+                        ChoiceItem(
+                            modifier = Modifier.focusRequester(focusRequesters[index]),
+                            label = label,
+                            isSelected = index == selectedIndex,
+                            onClick = { onSelected(index) }
+                        )
+                    }
+                }
             }
         }
     }
@@ -4775,6 +4956,8 @@ private fun isTransportMediaKey(keyCode: Int): Boolean = when (keyCode) {
     KeyEvent.KEYCODE_MEDIA_FAST_FORWARD,
     KeyEvent.KEYCODE_MEDIA_REWIND,
     KeyEvent.KEYCODE_MEDIA_NEXT,
-    KeyEvent.KEYCODE_MEDIA_PREVIOUS -> true
+    KeyEvent.KEYCODE_MEDIA_PREVIOUS,
+    KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD,
+    KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD -> true
     else -> false
 }

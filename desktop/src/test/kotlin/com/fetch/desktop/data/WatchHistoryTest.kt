@@ -32,14 +32,15 @@ class WatchHistoryTest {
     @Test
     fun `a finished movie leaves Continue Watching and counts as watched`() {
         var file = WatchHistory.record(ProgressFile(), movie, 1_800_000, 6_000_000, now = 1)
-        file = WatchHistory.record(file, movie, 5_500_000, 6_000_000, now = 2)
+        // Finished means 90% in and under three minutes left: 2.5 minutes from the end of 100.
+        file = WatchHistory.record(file, movie, 5_850_000, 6_000_000, now = 2)
         assertTrue(WatchHistory.continueWatching(file).isEmpty())
         assertTrue("tt9" in file.watched)
     }
 
     @Test
     fun `a finished episode becomes Next Up for the following one, across seasons`() {
-        var file = WatchHistory.record(ProgressFile(), show(ep(1, 2)), 2_800_000, 3_000_000, now = 1)
+        var file = WatchHistory.record(ProgressFile(), show(ep(1, 2)), 2_850_000, 3_000_000, now = 1)
         val next = WatchHistory.continueWatching(file).single()
         assertTrue(next.upNext)
         assertEquals("tt1:2:1", next.videoId)
@@ -47,6 +48,14 @@ class WatchHistoryTest {
 
         file = WatchHistory.record(file, show(ep(2, 1)), 2_900_000, 3_000_000, now = 2)
         assertTrue("the last episode leaves nothing next", WatchHistory.continueWatching(file).isEmpty())
+    }
+
+    @Test
+    fun `a long film stopped minutes before the end keeps its place`() {
+        // 165 of 180 minutes is past 90% but 15 minutes from the end: still resumable.
+        val file = WatchHistory.record(ProgressFile(), movie, 9_900_000, 10_800_000, now = 1)
+        assertTrue("tt9" !in file.watched)
+        assertEquals(9_900L, WatchHistory.resumeSeconds(file, WatchHistory.continueWatching(file).single().videoId))
     }
 
     @Test

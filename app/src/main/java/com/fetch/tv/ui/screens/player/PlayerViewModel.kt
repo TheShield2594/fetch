@@ -205,6 +205,13 @@ class PlayerViewModel @Inject constructor(
 
     fun getCurrentStreamUrl(): String = controller.getCurrentStreamUrl()
 
+    /** The sleep timer list's current row; null when the timer is off. */
+    fun currentSleepTimerChoice(): com.fetch.tv.core.player.SleepTimerChoice? = controller.sleepTimer.currentChoice()
+
+    /** Whether stopping at [positionMs] of [durationMs] counts as finishing the title (credits or near the end). */
+    fun isPlaybackFinishedAt(positionMs: Long, durationMs: Long): Boolean =
+        controller.isPlaybackFinishedAt(positionMs, durationMs)
+
     fun getCurrentHeaders(): Map<String, String> = controller.getCurrentHeaders()
 
     fun getCurrentFileSizeBytes(): Long? = controller.currentVideoSize

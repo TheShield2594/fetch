@@ -191,6 +191,15 @@ internal fun PlaybackPlayerInterfaceSection(
         onValueChange = { seconds -> onUpdate { setSeekForwardSeconds(seconds) } },
         enabled = internalPlayer
     )
+    SliderSettingsItem(
+        title = stringResource(R.string.playback_controls_auto_hide),
+        subtitle = stringResource(R.string.playback_controls_auto_hide_sub),
+        values = PlayerSettings.CONTROLS_AUTO_HIDE_SECONDS_VALUES,
+        selected = settings.controlsAutoHideSeconds,
+        valueText = stringResource(R.string.playback_seek_step_value, settings.controlsAutoHideSeconds),
+        onValueChange = { seconds -> onUpdate { setControlsAutoHideSeconds(seconds) } },
+        enabled = internalPlayer
+    )
     SettingsToggleRow(
         title = stringResource(R.string.playback_parental_guide),
         subtitle = stringResource(R.string.playback_parental_guide_sub),

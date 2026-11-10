@@ -448,7 +448,6 @@ class PlayerRuntimeController(
     internal var sourceStreamsScope: kotlinx.coroutines.CoroutineScope? = null
     internal var episodeStreamsScope: kotlinx.coroutines.CoroutineScope? = null
     internal var episodeBadgeJob: Job? = null
-    internal var sourceChipErrorDismissJob: Job? = null
     internal var sourceStreamsCacheRequestKey: String? = null
     internal var sourceStreamsFetchCompleted: Boolean = false
     internal var hostActivityRef: WeakReference<Activity>? = null
@@ -521,7 +520,12 @@ class PlayerRuntimeController(
     internal var lastExoPlayerReleaseElapsedMs: Long = 0L
     internal var backgroundCrashSavedPositionMs: Long = 0L
 
+    // Mirrored into the UI state so the scrubber can draw the segments; set once per title, not per tick.
     internal var skipIntervals: List<SkipInterval> = emptyList()
+        set(intervals: List<SkipInterval>) {
+            field = intervals
+            _uiState.update { if (it.skipSegments == intervals) it else it.copy(skipSegments = intervals) }
+        }
     internal var skipIntroEnabled: Boolean = true
     internal var parentalGuideEnabled: Boolean = false
     internal var autoSkipSegmentTypes: Set<AutoSkipSegmentType> = emptySet()
@@ -582,6 +586,8 @@ class PlayerRuntimeController(
     internal var stillWatchingEpisodeThresholdSetting: Int =
         PlayerSettings.DEFAULT_STILL_WATCHING_EPISODE_THRESHOLD
     internal var autoPlayCountdownSecondsSetting: Int = PlayerSettings.DEFAULT_AUTO_PLAY_COUNTDOWN_SECONDS
+    /** Settings › Playback › Hide controls after. */
+    internal var controlsAutoHideMsSetting: Long = PLAYER_CONTROLS_AUTO_HIDE_MS
     internal var seekStepsSetting: SeekSteps = SeekSteps()
     internal var mpvHi10pGnextSoftwareFallbackEnabledSetting: Boolean = false
     internal var mpvHardwareDecodeModeSetting: MpvHardwareDecodeMode = MpvHardwareDecodeMode.AUTO_SAFE
@@ -773,7 +779,6 @@ class PlayerRuntimeController(
         startupLoadingReportJob?.cancel()
         vodTelemetryJob?.cancel()
         mediaSourceFactory.shutdown()
-        sourceChipErrorDismissJob?.cancel()
         sourceStreamsScope?.cancel()
         sourceStreamsScope = null
         episodeStreamsScope?.cancel()

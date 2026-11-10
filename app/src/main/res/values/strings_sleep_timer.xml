@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Player: the sleep timer button in the More row. Each press moves to the next duration. -->
+    <!-- Player: the sleep timer button in the More row. A press opens the list below. -->
     <string name="player_sleep_timer">Sleep timer</string>
     <plurals name="player_sleep_timer_minutes_left">
         <item quantity="one">Sleep timer: %d min left</item>
@@ -8,6 +8,15 @@
     </plurals>
     <string name="player_sleep_timer_end_of_episode">Sleep timer: end of this episode</string>
     <string name="player_sleep_timer_end_of_movie">Sleep timer: end of this movie</string>
+
+    <!-- Player: the sleep timer list. "Off" comes first so cancelling takes two presses. -->
+    <string name="player_sleep_timer_off">Off</string>
+    <plurals name="player_sleep_timer_choice_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <string name="player_sleep_timer_choice_end_of_episode">End of this episode</string>
+    <string name="player_sleep_timer_choice_end_of_movie">End of this movie</string>
 
     <!-- Player: the prompt when the sleep timer runs out. The title is still_watching_title. -->
     <plurals name="player_sleep_timer_prompt">

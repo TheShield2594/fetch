@@ -2499,7 +2499,7 @@ class AppState(
                 servers.report(
                     serverStream,
                     positionMs = (last.positionSec * 1000).toLong(),
-                    finished = last.percent() >= WatchProgress.COMPLETED_THRESHOLD * 100
+                    finished = WatchProgress.isFinishedAt((last.positionSec * 1000).toLong(), (last.durationSec * 1000).toLong())
                 )?.let { endingWork += it }
             }
             playbackFollowers--
@@ -2930,7 +2930,7 @@ class AppState(
             )
         )
         // Played to its end: sent at 100% under its own key, as the TV's markAsCompleted does.
-        if (durationMs > 0 && positionMs.toFloat() / durationMs >= WatchProgress.COMPLETED_THRESHOLD) {
+        if (WatchProgress.isFinishedAt(positionMs, durationMs)) {
             val video = target.video
             val completed = com.fetch.desktop.sync.PendingProgress(
                 target.contentId, target.contentType, target.videoId, video?.season, video?.episode, durationMs, durationMs, System.currentTimeMillis(),

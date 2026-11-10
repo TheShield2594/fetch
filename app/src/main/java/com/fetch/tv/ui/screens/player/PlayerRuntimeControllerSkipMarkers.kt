@@ -5,6 +5,31 @@ import com.fetch.tv.R
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** Segment types that mark the end credits, for deciding when a title is finished. */
+internal val CREDITS_SEGMENT_TYPES = PlayerNextEpisodeRules.OUTRO_SEGMENT_TYPES + setOf("credits", "movie-credits")
+
+/**
+ * Where the end credits start, in milliseconds, from the loaded skip segments: the earliest
+ * credits segment in the second half of the title. Null when there is none.
+ */
+internal fun creditsStartMs(intervals: List<com.fetch.tv.data.repository.SkipInterval>, durationMs: Long): Long? {
+    if (durationMs <= 0L) return null
+    return intervals
+        .asSequence()
+        .filter { it.type.lowercase() in CREDITS_SEGMENT_TYPES && it.endTime > it.startTime }
+        .map { (it.startTime * 1_000.0).toLong() }
+        .filter { it >= durationMs / 2 && it < durationMs }
+        .minOrNull()
+}
+
+/** Whether stopping at [positionMs] of [durationMs] counts as finishing this title. */
+internal fun PlayerRuntimeController.isPlaybackFinishedAt(positionMs: Long, durationMs: Long): Boolean =
+    com.fetch.tv.domain.model.WatchProgress.isFinishedAt(
+        positionMs = positionMs,
+        durationMs = durationMs,
+        creditsStartMs = creditsStartMs(skipIntervals, durationMs)
+    )
+
 /** Title a viewer-recorded skip marker belongs to; [season]/[episode] are null for movies. */
 internal data class SkipMarkerTarget(val imdbId: String, val season: Int?, val episode: Int?)
 

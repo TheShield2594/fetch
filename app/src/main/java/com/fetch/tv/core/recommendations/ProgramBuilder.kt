@@ -32,7 +32,13 @@ class ProgramBuilder @Inject constructor(
 
         val builder = WatchNextProgram.Builder()
             .setType(programType)
-            .setWatchNextType(TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)
+            .setWatchNextType(
+                if (isNextUpEpisode(progress)) {
+                    TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_NEXT
+                } else {
+                    TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE
+                }
+            )
             .setTitle(progress.name)
             .setLastEngagementTimeUtcMillis(progress.lastWatched)
             .setInternalProviderId(watchNextId(progress))
@@ -242,6 +248,18 @@ class ProgramBuilder @Inject constructor(
             }.toUri(Intent.URI_INTENT_SCHEME)
         )
 }
+
+/**
+ * An episode with no playback on it yet: the next one after a finished episode. Google's Watch
+ * Next rules publish these as `WATCH_NEXT_TYPE_NEXT` ("Next" on the launcher) rather than as a
+ * title to continue. Anything already started keeps `WATCH_NEXT_TYPE_CONTINUE`.
+ */
+internal fun isNextUpEpisode(progress: WatchProgress): Boolean =
+    progress.contentType != "movie" &&
+        progress.season != null &&
+        progress.episode != null &&
+        progress.position <= 0L &&
+        (progress.progressPercent ?: 0f) <= 0f
 
 internal fun watchNextIdMatchesContentId(providerId: String?, contentId: String): Boolean {
     val baseId = "wn_$contentId"

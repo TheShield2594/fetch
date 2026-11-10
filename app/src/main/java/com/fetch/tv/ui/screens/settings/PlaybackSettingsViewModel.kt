@@ -136,6 +136,10 @@ class PlaybackSettingsViewModel @Inject constructor(
         playerSettingsDataStore.setSeekForwardSeconds(seconds)
     }
 
+    suspend fun setControlsAutoHideSeconds(seconds: Int) {
+        playerSettingsDataStore.setControlsAutoHideSeconds(seconds)
+    }
+
     suspend fun setTransparentLetterbox(enabled: Boolean) {
         deviceLocalPlayerPreferences.setTransparentLetterbox(enabled)
     }

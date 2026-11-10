@@ -17,6 +17,8 @@ import { AddonSettings } from "../components/settings/AddonSettings";
 import { MdbListSettings, SimklSettings } from "../components/settings/TrackerSignInSettings";
 import { MdbListRatingsSettings } from "../components/settings/MdbListRatingsSettings";
 import { AiSettings } from "../components/settings/AiSettings";
+import { ExtrasSettings } from "../components/settings/ExtrasSettings";
+import { useExtrasEnabled } from "../hooks/useExtras";
 import { DataSettings } from "../components/settings/DataSettings";
 import { PreferencesSettings } from "../components/settings/PreferencesSettings";
 import { PushSettings } from "../components/settings/PushSettings";
@@ -57,6 +59,8 @@ export type SettingsSection = {
    * change (the server refuses anyone else). Hidden from other accounts.
    */
   adminOnly?: true;
+  /** Shown only with AI recommendations turned on (see hooks/useExtras.ts). */
+  extra?: true;
 };
 
 function AboutSection() {
@@ -116,6 +120,14 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         </div>
       </div>
     ),
+  },
+  {
+    id: "extras",
+    tab: "preferences",
+    title: "Show AI Recommendations",
+    icon: <Sparkles size={20} />,
+    keywords: "ai recommendations llm extras show",
+    content: <ExtrasSettings />,
   },
   {
     id: "job-status",
@@ -254,6 +266,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   },
   {
     id: "ai",
+    extra: true,
     tab: "integrations",
     group: "Recommendations",
     title: "AI Recommendations",
@@ -387,12 +400,15 @@ export function SettingsPage() {
   };
 
   const { isAdmin } = useAccount();
+  const showExtras = useExtrasEnabled();
   const visible = useMemo(() => {
     // A section whose answer the server's environment already holds (a TMDB
     // key in TMDB_API_KEY) has nothing to ask, so it isn't listed.
-    const allowed = SETTINGS_SECTIONS.filter((s) => (isAdmin || !s.adminOnly) && !health[s.id]?.setByServer);
+    const allowed = SETTINGS_SECTIONS.filter(
+      (s) => (isAdmin || !s.adminOnly) && (showExtras || !s.extra) && !health[s.id]?.setByServer,
+    );
     return searching ? allowed.filter((s) => matchesSearch(s, query)) : allowed.filter((s) => s.tab === tab);
-  }, [health, isAdmin, query, searching, tab]);
+  }, [health, isAdmin, showExtras, query, searching, tab]);
 
   // Empty until the status requests land, and empty again if every one of them
   // failed — in which case saying nothing is right, because the alternative is

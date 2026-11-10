@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
 import { INITIALLY_OPEN_SECTION_IDS, SETTINGS_SECTIONS, SETTINGS_TABS, SettingsPage, matchesSearch, type SettingsTab } from "./SettingsPage";
 import { at, present } from "../test/present";
+import { setExtrasEnabled } from "../hooks/useExtras";
 
 // Each section's body is its own component's business, and most of them fetch
 // on mount. Stub them out: what this file tests is which sections the page
@@ -50,12 +51,14 @@ vi.mock("../hooks/useAccount", () => ({
 }));
 
 beforeEach(() => {
+  setExtrasEnabled(false);
   health.value = {};
   refresh.mockClear();
   signedIn.isAdmin = true;
 });
 
-const byTab = (tab: SettingsTab) => SETTINGS_SECTIONS.filter((s) => s.tab === tab);
+// What a tab shows by default: AI recommendations are opt-in (hooks/useExtras.ts).
+const byTab = (tab: SettingsTab) => SETTINGS_SECTIONS.filter((s) => s.tab === tab && !s.extra);
 const find = (query: string) => SETTINGS_SECTIONS.filter((s) => matchesSearch(s, query)).map((s) => s.id);
 
 describe("settings sections", () => {
@@ -249,6 +252,7 @@ describe("SettingsPage", () => {
   });
 
   it("shows a match's body straight away, rather than one more thing to click", async () => {
+    setExtrasEnabled(true);
     renderPage();
     await userEvent.type(searchBox(), "ollama");
 
@@ -329,7 +333,19 @@ describe("SettingsPage", () => {
     expect(screen.getByText("Where history comes from")).toBeInTheDocument();
     expect(screen.getByText("Metadata & artwork")).toBeInTheDocument();
     expect(screen.getByText("This server")).toBeInTheDocument();
-    expect(screen.getByText("Recommendations")).toBeInTheDocument();
+    // AI recommendations are opt-in, and their group with them.
+    expect(screen.queryByText("Recommendations")).not.toBeInTheDocument();
+  });
+
+  it("keeps AI recommendations out of Settings until they are turned on", async () => {
+    renderPage();
+    await userEvent.type(searchBox(), "ollama");
+    expect(onScreen()).toEqual([]);
+
+    await userEvent.clear(searchBox());
+    setExtrasEnabled(true);
+    await userEvent.type(searchBox(), "ollama");
+    expect(onScreen()).toEqual(["AI Recommendations"]);
   });
 
   it("drops the group headings while searching, where a result set spans all of them", async () => {
@@ -374,7 +390,7 @@ describe("SettingsPage for an account that isn't the admin", () => {
     renderPage("integrations");
 
     // Each account connects its own Trakt, and has its own webhook link.
-    for (const title of ["Data", "Trakt Integration", "Plex, Jellyfin & Emby Webhooks", "Media Servers", "Simkl", "MDBList", "Ratings from MDBList", "AI Recommendations"]) {
+    for (const title of ["Data", "Trakt Integration", "Plex, Jellyfin & Emby Webhooks", "Media Servers", "Simkl", "MDBList", "Ratings from MDBList"]) {
       expect(screen.getByRole("button", { name: new RegExp(`^${title}`) })).toBeInTheDocument();
     }
     for (const title of ["TMDB Metadata", "Invites & Accounts", "Stremio Addon"]) {

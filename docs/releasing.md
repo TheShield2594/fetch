@@ -48,11 +48,17 @@ the keystore outside GitHub: if it is lost, every user has to uninstall to move 
    "pre-release" for betas.
 3. The workflow builds the per-ABI APKs and a universal APK, names them
    `fetch-<tag>-<abi>.apk`, and attaches them to a new GitHub release with generated notes.
-   It also builds the Linux desktop packages (`fetch-<tag>-linux-amd64.deb`,
-   `fetch-<tag>-linux-x86_64.rpm`, the Arch Linux `fetch-<tag>-linux-x86_64.pkg.tar.zst` and
-   `fetch-<tag>-linux-x64.tar.gz`) and attaches them to the
-   same release. The desktop app takes its version from `versionName`, so there is nothing
-   else to bump.
+
+## Desktop packages
+
+The desktop app is a personal tool, not part of the TV release, and nothing on it gates one:
+there is no desktop step above or in the device smoke test. After the APK release is
+published, a separate job in the same workflow builds the Linux packages
+(`fetch-<tag>-linux-amd64.deb`, `fetch-<tag>-linux-x86_64.rpm`, the Arch Linux
+`fetch-<tag>-linux-x86_64.pkg.tar.zst` and `fetch-<tag>-linux-x64.tar.gz`) and adds them to that
+release. If it fails, the TV release stands as published; fix the desktop and attach its
+packages later. The desktop app takes its version from `versionName`, so there is nothing else
+to bump.
 
 ## Device smoke test
 

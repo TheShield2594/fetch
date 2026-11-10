@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">İzlemeye Devam Et</string>
     <string name="type_movie">Film</string>
@@ -2073,7 +2073,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Bu TMDB tür numaralarıyla eşleşen yapımları hariç tutun.</string>
     <string name="collections_editor_tmdb_date_from">Yayın Tarihi (Başlangıç)</string>
     <string name="collections_editor_tmdb_date_to">Yayın Tarihi (Bitiş)</string>
-    <string name="collections_editor_tmdb_date_helper">YYYY-AA-GG formatını kullanın, örneğin 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">YYYY-AA-GG formatını kullanın, örneğin 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Minimum Puan</string>
     <string name="collections_editor_tmdb_rating_max">Maksimum Puan</string>
     <string name="collections_editor_tmdb_rating_helper">0\'dan 10\'a kadar TMDB puanı. Örnek: 7.0.</string>
@@ -2126,8 +2126,8 @@
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 veya 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">Animasyon için 16</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -2204,7 +2204,7 @@
     <string name="collections_editor_emoji_category_symbols">Semboller</string>
     <!-- Collection editor: TMDB picker placeholders + genres -->
     <string name="collections_editor_tmdb_watch_region">İzleme bölgesi</string>
-    <string name="collections_editor_tmdb_watch_region_helper">İçeriğin yayınlandığı ülkenin ISO 3166-1 kodu. Örnek: TR, US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">İçeriğin yayınlandığı ülkenin ISO 3166-1 kodu. Örnek: TR, US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Hızlı bölge seçimi</string>
     <string name="collections_editor_tmdb_watch_providers">İzleme platformu kimlikleri</string>
     <string name="collections_editor_tmdb_watch_providers_helper">TMDB platform kimliklerini kullanın. VE işlevi için virgülle, VEYA işlevi için dikey çizgiyle ayırın.</string>

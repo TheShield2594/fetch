@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Megtekintés folytatása</string>
     <string name="type_movie">Film</string>
@@ -264,7 +264,7 @@
     <string name="tmdb_entity_rail_recent">Legutóbbi</string>
     <string name="tmdb_entity_rail_most_voted">Legtöbb szavazat</string>
     <string name="collections_editor_tmdb_watch_region">Megtekintési régió</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Annak az országnak az ISO 3166-1 kódja, ahol a tartalom elérhető. Példa: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Annak az országnak az ISO 3166-1 kódja, ahol a tartalom elérhető. Példa: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Régió gyors kiválasztása</string>
     <string name="collections_editor_tmdb_watch_providers">Tartalomszolgáltatók azonosítói</string>
     <string name="collections_editor_tmdb_watch_providers_helper">A tartalomszolgáltatók TMDB-azonosítóit add meg. Több azonosítót vesszővel (ÉS) vagy függőleges vonallal (|, VAGY) válassz el.</string>
@@ -1881,7 +1881,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Kizárja a megadott TMDB-azonosítójú műfajokhoz tartozó tartalmakat.</string>
     <string name="collections_editor_tmdb_date_from">Megjelenési dátumtól</string>
     <string name="collections_editor_tmdb_date_to">Megjelenési dátumig</string>
-    <string name="collections_editor_tmdb_date_helper">Használd az ÉÉÉÉ-HH-NN formátumot, például: 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Használd az ÉÉÉÉ-HH-NN formátumot, például: 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Minimum értékelés</string>
     <string name="collections_editor_tmdb_rating_max">Maximum értékelés</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB értékelés 0-tól 10-ig. Példa: 7.0.</string>
@@ -1934,8 +1934,8 @@
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 vagy 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 az animációhoz</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, hu, ja, ko</string>
     <string name="collections_editor_tmdb_country_placeholder">US, HU, KR, JP</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

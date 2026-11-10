@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Vazhdo shikimin</string>
     <string name="type_movie">Film</string>
@@ -248,7 +248,7 @@
     <string name="tmdb_entity_rail_recent">Të fundit</string>
     <string name="tmdb_entity_rail_most_voted">Më të votuarat</string>
     <string name="collections_editor_tmdb_watch_region">Rajoni i shikimit</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Kodi ISO 3166-1 i shtetit ku titulli është i disponueshëm. Shembull: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Kodi ISO 3166-1 i shtetit ku titulli është i disponueshëm. Shembull: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Rajone të shpejta shikimi</string>
     <string name="collections_editor_tmdb_watch_providers">ID-të e ofruesve të shikimit</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Përdorni ID-të e ofruesve të shikimit TMDB. Ndani disa me presje për AND, ose me vija vertikale për OR.</string>
@@ -1539,7 +1539,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Përjashto titujt që përputhen me këta numra zhanresh TMDB.</string>
     <string name="collections_editor_tmdb_date_from">Data e publikimit ose transmetimit nga</string>
     <string name="collections_editor_tmdb_date_to">Data e publikimit ose transmetimit deri</string>
-    <string name="collections_editor_tmdb_date_helper">Përdor YYYY-MM-DD, për shembull 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Përdor YYYY-MM-DD, për shembull 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Vlerësimi minimal</string>
     <string name="collections_editor_tmdb_rating_max">Vlerësimi maksimal</string>
     <string name="collections_editor_tmdb_rating_helper">Vlerësimi TMDB nga 0 deri në 10. Shembull: 7.0.</string>
@@ -1592,8 +1592,8 @@
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ose 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 për Animacion</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

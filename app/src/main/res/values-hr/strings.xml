@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Nastavi gledati</string>
     <string name="type_movie">Film</string>
@@ -268,7 +268,7 @@
     <string name="tmdb_entity_rail_recent">Nedavno</string>
     <string name="tmdb_entity_rail_most_voted">Najviše glasova</string>
     <string name="collections_editor_tmdb_watch_region">Regija gledanja</string>
-    <string name="collections_editor_tmdb_watch_region_helper">ISO 3166-1 kôd države u kojoj je naslov dostupan. Primjer: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">ISO 3166-1 kôd države u kojoj je naslov dostupan. Primjer: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Brze regije gledanja</string>
     <string name="collections_editor_tmdb_watch_providers">ID-ovi pružatelja gledanja</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Koristi TMDB ID-ove pružatelja gledanja. Više njih odvoji zarezima za „I”, ili okomitim crtama za „ILI”.</string>
@@ -1832,7 +1832,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Isključi naslove koji odgovaraju ovim TMDB brojevima žanrova.</string>
     <string name="collections_editor_tmdb_date_from">Datum izlaska ili emitiranja od</string>
     <string name="collections_editor_tmdb_date_to">Datum izlaska ili emitiranja do</string>
-    <string name="collections_editor_tmdb_date_helper">Koristi GGGG-MM-DD, na primjer 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Koristi GGGG-MM-DD, na primjer 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Minimalna ocjena</string>
     <string name="collections_editor_tmdb_rating_max">Maksimalna ocjena</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB ocjena od 0 do 10. Primjer: 7.0.</string>
@@ -1885,8 +1885,8 @@
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ili 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 za animaciju</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

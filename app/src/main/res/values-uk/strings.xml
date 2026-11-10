@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Продовжити перегляд</string>
     <string name="type_movie">Фільм</string>
@@ -260,7 +260,7 @@
     <string name="tmdb_entity_rail_recent">Нещодавнє</string>
     <string name="tmdb_entity_rail_most_voted">З найбільшою кількістю голосів</string>
     <string name="collections_editor_tmdb_watch_region">Регіон перегляду</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Код країни ISO 3166-1, де доступний тайтл. Приклад: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Код країни ISO 3166-1, де доступний тайтл. Приклад: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Швидкі регіони перегляду</string>
     <string name="collections_editor_tmdb_watch_providers">ID провайдерів перегляду</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Використовуйте ID провайдерів TMDB. Коми — AND, вертикальна риска — OR.</string>
@@ -1532,7 +1532,7 @@
     <string name="collections_editor_tmdb_genres_helper">Використовуйте номери жанрів TMDB. Коми — AND, вертикальна риска — OR.</string>
     <string name="collections_editor_tmdb_date_from">Дата виходу від</string>
     <string name="collections_editor_tmdb_date_to">Дата виходу до</string>
-    <string name="collections_editor_tmdb_date_helper">Використовуйте формат РРРР-ММ-ДД, наприклад 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Використовуйте формат РРРР-ММ-ДД, наприклад 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Мінімальний рейтинг</string>
     <string name="collections_editor_tmdb_rating_max">Максимальний рейтинг</string>
     <string name="collections_editor_tmdb_rating_helper">Рейтинг TMDB від 0 до 10. Приклад: 7.0.</string>
@@ -1580,8 +1580,8 @@
     <string name="collections_editor_tmdb_person_placeholder">31 для Tom Hanks або URL персони</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 або 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

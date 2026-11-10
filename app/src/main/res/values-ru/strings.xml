@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="type_movie">Фильм</string>
     <string name="type_series">Сериал</string>
@@ -1319,7 +1319,7 @@
     <string name="detail_trailer_error">Не удалось загрузить трейлер.</string>
     <string name="tmdb_entity_rail_most_voted">С наибольшим числом голосов</string>
     <string name="collections_editor_tmdb_watch_region">Регион просмотра</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Код страны ISO 3166-1, где доступен тайтл. Пример: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Код страны ISO 3166-1, где доступен тайтл. Пример: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Быстрые регионы просмотра</string>
     <string name="collections_editor_tmdb_watch_providers">ID провайдеров просмотра</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Используйте ID провайдеров TMDB. Запятые — AND, вертикальная черта — OR.</string>
@@ -1764,7 +1764,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Исключить тайтлы, соответствующие этим номерам жанров TMDB.</string>
     <string name="collections_editor_tmdb_date_from">Дата выхода от</string>
     <string name="collections_editor_tmdb_date_to">Дата выхода до</string>
-    <string name="collections_editor_tmdb_date_helper">Используйте формат ГГГГ-ММ-ДД, например 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Используйте формат ГГГГ-ММ-ДД, например 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Минимальный рейтинг</string>
     <string name="collections_editor_tmdb_rating_max">Максимальный рейтинг</string>
     <string name="collections_editor_tmdb_rating_helper">Рейтинг TMDB от 0 до 10. Пример: 7.0.</string>
@@ -1817,8 +1817,8 @@
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 или 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 для «Анимация»</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

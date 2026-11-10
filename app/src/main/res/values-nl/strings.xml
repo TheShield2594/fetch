@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Verder kijken</string>
     <string name="type_movie">Film</string>
@@ -257,7 +257,7 @@
     <string name="tmdb_entity_rail_recent">Recent</string>
     <string name="tmdb_entity_rail_most_voted">Meest gestemd</string>
     <string name="collections_editor_tmdb_watch_region">Kijkregio</string>
-    <string name="collections_editor_tmdb_watch_region_helper">ISO 3166-1-landcode waar de titel beschikbaar is. Bijvoorbeeld: NL, BE.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">ISO 3166-1-landcode waar de titel beschikbaar is. Bijvoorbeeld: NL, BE.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Snelle kijkregio\'s</string>
     <string name="collections_editor_tmdb_watch_providers">ID\'s van kijkaanbieders</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Gebruik TMDB-ID\'s van kijkaanbieders. Scheid meerdere met komma\'s voor EN, of met pipes voor OF.</string>
@@ -1726,7 +1726,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Sluit titels uit die overeenkomen met deze TMDB-genrenummers.</string>
     <string name="collections_editor_tmdb_date_from">Release- of uitzenddatum vanaf</string>
     <string name="collections_editor_tmdb_date_to">Release- of uitzenddatum tot</string>
-    <string name="collections_editor_tmdb_date_helper">Gebruik JJJJ-MM-DD, bijvoorbeeld 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Gebruik JJJJ-MM-DD, bijvoorbeeld 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Minimale beoordeling</string>
     <string name="collections_editor_tmdb_rating_max">Maximale beoordeling</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB-beoordeling van 0 tot 10. Voorbeeld: 7.0.</string>
@@ -1779,8 +1779,8 @@
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 of 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 voor Animatie</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

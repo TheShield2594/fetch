@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">متابعة المشاهدة</string>
     <string name="type_movies">أفلام</string>
@@ -272,7 +272,7 @@
     <string name="tmdb_entity_rail_recent">مضاف حديثاً</string>
     <string name="tmdb_entity_rail_most_voted">الأكثر تصويتاً</string>
     <string name="collections_editor_tmdb_watch_region">منطقة التوفر</string>
-    <string name="collections_editor_tmdb_watch_region_helper">رمز الدولة المتوفر بها العمل. مثال: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">رمز الدولة المتوفر بها العمل. مثال: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">مناطق شائعة</string>
     <string name="collections_editor_tmdb_watch_providers">مُعرّفات مزودي الخدمات للمشاهدة</string>
     <string name="collections_editor_tmdb_watch_providers_helper">استخدم مُعرّفات مزودي الخدمات من TMDB. افصل بينها بفاصلة للعملية (AND)، أو بخط عمودي (|) للعملية (OR)..</string>
@@ -1555,7 +1555,7 @@
     <string name="collections_editor_tmdb_genres_helper">أرقام تصنيفات TMDB. افصل بفواصل (و) أو عمود (أو).</string>
     <string name="collections_editor_tmdb_date_from">تاريخ الإصدار أو البث من</string>
     <string name="collections_editor_tmdb_date_to">تاريخ الإصدار أو البث إلى</string>
-    <string name="collections_editor_tmdb_date_helper">استخدم صيغة YYYY-MM-DD مثل 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">استخدم صيغة YYYY-MM-DD مثل 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">التقييم الأدنى</string>
     <string name="collections_editor_tmdb_rating_max">التقييم الأقصى</string>
     <string name="collections_editor_tmdb_rating_helper">تقييم TMDB من 0 إلى 10. مثال: 7.0.</string>
@@ -1603,8 +1603,8 @@
     <string name="collections_editor_tmdb_person_placeholder">31 لـ Tom Hanks، أو رابط الشخص</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 أو 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, ar</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, SA</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

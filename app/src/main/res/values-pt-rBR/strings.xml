@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Continuar Assistindo</string>
     <string name="type_movie">Filme</string>
@@ -259,7 +259,7 @@
     <string name="tmdb_entity_rail_recent">Recentes</string>
     <string name="tmdb_entity_rail_most_voted">Mais Votados</string>
     <string name="collections_editor_tmdb_watch_region">Região de disponibilidade</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Código do país (ISO 3166-1) onde o título está disponível. Exemplo: BR, US.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Código do país (ISO 3166-1) onde o título está disponível. Exemplo: BR, US.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Regiões rápidas</string>
     <string name="collections_editor_tmdb_watch_providers">IDs de plataformas de streaming</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Use os IDs das plataformas no TMDB. Separe múltiplos por vírgula para \"E\", ou barras verticais (|) para \"OU\".</string>
@@ -1758,7 +1758,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Excluir títulos que correspondam a esses números de gênero do TMDB.</string>
     <string name="collections_editor_tmdb_date_from">Data de lançamento inicial</string>
     <string name="collections_editor_tmdb_date_to">Data de lançamento final</string>
-    <string name="collections_editor_tmdb_date_helper">Use AAAA-MM-DD, por exemplo 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Use AAAA-MM-DD, por exemplo 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Avaliação mínima</string>
     <string name="collections_editor_tmdb_rating_max">Avaliação máxima</string>
     <string name="collections_editor_tmdb_rating_helper">Avaliação do TMDB de 0 a 10. Exemplo: 7.0.</string>
@@ -1811,8 +1811,8 @@
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ou 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 para Animação</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">01-01-2020</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">31-12-2024</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">01-01-2020</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">31-12-2024</string>
     <string name="collections_editor_tmdb_language_placeholder">pt, en, ko, ja</string>
     <string name="collections_editor_tmdb_country_placeholder">BR, US, KR, JP</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

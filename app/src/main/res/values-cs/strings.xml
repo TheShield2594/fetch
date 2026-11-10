@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Pokračovat ve sledování</string>
     <string name="type_movie">Film</string>
@@ -261,7 +261,7 @@
     <string name="tmdb_entity_rail_recent">Nedávné</string>
     <string name="tmdb_entity_rail_most_voted">Nejhodnocenější</string>
     <string name="collections_editor_tmdb_watch_region">Region sledování</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Kód země ISO 3166-1, kde je titul dostupný. Příklad: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Kód země ISO 3166-1, kde je titul dostupný. Příklad: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Rychlé regiony sledování</string>
     <string name="collections_editor_tmdb_watch_providers">ID poskytovatelů sledování</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Použijte ID poskytovatelů sledování TMDB. Více hodnot oddělte čárkou pro AND nebo svislítkem pro OR.</string>
@@ -1554,7 +1554,7 @@
     <string name="collections_editor_tmdb_genres_helper">Použijte čísla žánrů TMDB. Více oddělte čárkami pro AND, nebo svislítky pro OR.</string>
     <string name="collections_editor_tmdb_date_from">Datum vydání nebo vysílání od</string>
     <string name="collections_editor_tmdb_date_to">Datum vydání nebo vysílání do</string>
-    <string name="collections_editor_tmdb_date_helper">Použijte RRRR-MM-DD, například 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Použijte RRRR-MM-DD, například 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Minimální hodnocení</string>
     <string name="collections_editor_tmdb_rating_max">Maximální hodnocení</string>
     <string name="collections_editor_tmdb_rating_helper">Hodnocení TMDB od 0 do 10. Příklad: 7.0.</string>
@@ -1602,8 +1602,8 @@
     <string name="collections_editor_tmdb_person_placeholder">31 pro Toma Hankse, nebo URL osoby</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 nebo 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

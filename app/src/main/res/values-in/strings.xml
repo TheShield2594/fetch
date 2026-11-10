@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Lanjutkan Menonton</string>
     <string name="type_movie">Film</string>
@@ -264,7 +264,7 @@
     <string name="tmdb_entity_rail_recent">Terbaru</string>
     <string name="tmdb_entity_rail_most_voted">Vote Terbanyak</string>
     <string name="collections_editor_tmdb_watch_region">Wilayah Tayang</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Kode negara ISO 3166-1 dimana judul dapat ditonton. Contoh: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Kode negara ISO 3166-1 dimana judul dapat ditonton. Contoh: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Pintasan Wilayah Tayang</string>
     <string name="collections_editor_tmdb_watch_providers">ID Penyedia Layanan</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Gunakan ID penyedia layanan dari TMDB. Pisahkan beberapa ID dengan koma untuk fungsi DAN, atau garis tegak untuk fungsi ATAU.</string>
@@ -1505,7 +1505,7 @@
     <string name="collections_editor_tmdb_genres_helper">Gunakan nomor genre TMDB. Pisahkan beberapa nilai dengan koma untuk fungsi DAN, atau garis tegak untuk fungsi ATAU.</string>
     <string name="collections_editor_tmdb_date_from">Tanggal rilis atau tayang dari</string>
     <string name="collections_editor_tmdb_date_to">Tanggal rilis atau tayang hingga</string>
-    <string name="collections_editor_tmdb_date_helper">Gunakan YYYY-MM-DD, misalnya 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Gunakan YYYY-MM-DD, misalnya 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Rating minimum</string>
     <string name="collections_editor_tmdb_rating_max">Rating maksimum</string>
     <string name="collections_editor_tmdb_rating_helper">Rating TMDB dari 0 hingga 10. Contoh: 7.0.</string>
@@ -1553,8 +1553,8 @@
     <string name="collections_editor_tmdb_person_placeholder">31 untuk Tom Hanks, atau URL orang</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 atau 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

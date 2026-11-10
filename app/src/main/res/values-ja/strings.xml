@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">視聴を続ける</string>
     <string name="type_movie">映画</string>
@@ -255,7 +255,7 @@
     <string name="tmdb_entity_rail_recent">最新</string>
     <string name="tmdb_entity_rail_most_voted">最多投票</string>
     <string name="collections_editor_tmdb_watch_region">視聴地域</string>
-    <string name="collections_editor_tmdb_watch_region_helper">タイトルが視聴可能なISO 3166-1国コード。例: US, GB。</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">タイトルが視聴可能なISO 3166-1国コード。例: US, GB。</string>
     <string name="collections_editor_tmdb_quick_watch_regions">クイック視聴地域</string>
     <string name="collections_editor_tmdb_watch_providers">視聴プロバイダーID</string>
     <string name="collections_editor_tmdb_watch_providers_helper">TMDB視聴プロバイダーIDを使用。複数はカンマ区切りでAND、またはパイプでOR。</string>
@@ -1534,7 +1534,7 @@
     <string name="collections_editor_tmdb_genres_helper">TMDBジャンル番号を使用。複数はカンマ区切りでAND、パイプでOR。</string>
     <string name="collections_editor_tmdb_date_from">公開・放送日（開始）</string>
     <string name="collections_editor_tmdb_date_to">公開・放送日（終了）</string>
-    <string name="collections_editor_tmdb_date_helper">YYYY-MM-DD形式、例: 2024-01-01。</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">YYYY-MM-DD形式、例: 2024-01-01。</string>
     <string name="collections_editor_tmdb_rating_min">最低評価</string>
     <string name="collections_editor_tmdb_rating_max">最高評価</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB評価 0〜10。例: 7.0。</string>
@@ -1582,8 +1582,8 @@
     <string name="collections_editor_tmdb_person_placeholder">31 for Tom Hanks, または人物URL</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 または 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

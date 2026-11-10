@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">Fetch</string>
   <string name="tv_channel_continue_watching">Συνέχεια παρακολούθησης</string>
   <string name="type_movie">Ταινία</string>
@@ -263,7 +263,7 @@
   <string name="tmdb_entity_rail_recent">Πρόσφατα</string>
   <string name="tmdb_entity_rail_most_voted">Περισσότερες ψήφοι</string>
   <string name="collections_editor_tmdb_watch_region">Περιοχή προβολής</string>
-  <string name="collections_editor_tmdb_watch_region_helper">Κωδικός χώρας ISO 3166-1 όπου είναι διαθέσιμος ο τίτλος. Παράδειγμα: US, GB.</string>
+  <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Κωδικός χώρας ISO 3166-1 όπου είναι διαθέσιμος ο τίτλος. Παράδειγμα: US, GB.</string>
   <string name="collections_editor_tmdb_quick_watch_regions">Γρήγορες περιοχές προβολής</string>
   <string name="collections_editor_tmdb_watch_providers">ID παρόχων προβολής</string>
   <string name="collections_editor_tmdb_watch_providers_helper">Χρησιμοποιήστε ID παρόχων προβολής TMDB. Χωρίστε πολλαπλά με κόμμα για ΚΑΙ, ή με κάθετη για Ή.</string>
@@ -1766,7 +1766,7 @@
   <string name="collections_editor_tmdb_genres_helper">Χρησιμοποιήστε τους αριθμούς ειδών του TMDB. Χωρίστε πολλαπλά με κόμματα για AND ή με κάθετες για OR.</string>
   <string name="collections_editor_tmdb_date_from">Ημερομηνία κυκλοφορίας ή προβολής από</string>
   <string name="collections_editor_tmdb_date_to">Ημερομηνία κυκλοφορίας ή προβολής έως</string>
-  <string name="collections_editor_tmdb_date_helper">Χρησιμοποιήστε YYYY-MM-DD, για παράδειγμα 2024-01-01.</string>
+  <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Χρησιμοποιήστε YYYY-MM-DD, για παράδειγμα 2024-01-01.</string>
   <string name="collections_editor_tmdb_rating_min">Ελάχιστη βαθμολογία</string>
   <string name="collections_editor_tmdb_rating_max">Μέγιστη βαθμολογία</string>
   <string name="collections_editor_tmdb_rating_helper">Βαθμολογία TMDB από 0 έως 10. Παράδειγμα: 7.0.</string>
@@ -1814,8 +1814,8 @@
   <string name="collections_editor_tmdb_person_placeholder">31 για Tom Hanks, ή URL προσώπου</string>
   <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ή 123456</string>
   <string name="collections_editor_url_short_placeholder">https://…</string>
-  <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-  <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+  <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+  <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
   <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
   <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
   <string name="collections_editor_tmdb_year_placeholder">2024</string>

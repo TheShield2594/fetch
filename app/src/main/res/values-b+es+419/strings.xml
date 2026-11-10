@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Seguir viendo</string>
     <string name="type_movie">Película</string>
@@ -267,7 +267,7 @@
     <string name="tmdb_entity_rail_recent">Recientes</string>
     <string name="tmdb_entity_rail_most_voted">Más votados</string>
     <string name="collections_editor_tmdb_watch_region">Región de disponibilidad</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Código de país ISO 3166-1 donde está disponible el título. Ejemplo: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Código de país ISO 3166-1 donde está disponible el título. Ejemplo: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Regiones de disponibilidad rápidas</string>
     <string name="collections_editor_tmdb_watch_providers">IDs de proveedores de streaming</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Usa los IDs de proveedores de streaming de TMDB. Separa varios con comas para AND o con barras verticales para OR.</string>
@@ -1892,7 +1892,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Excluye títulos que coincidan con estos números de género de TMDB.</string>
     <string name="collections_editor_tmdb_date_from">Fecha de estreno o emisión desde</string>
     <string name="collections_editor_tmdb_date_to">Fecha de estreno o emisión hasta</string>
-    <string name="collections_editor_tmdb_date_helper">Usa AAAA-MM-DD, por ejemplo 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Usa AAAA-MM-DD, por ejemplo 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Valoración mínima</string>
     <string name="collections_editor_tmdb_rating_max">Valoración máxima</string>
     <string name="collections_editor_tmdb_rating_helper">Valoración de TMDB de 0 a 10. Ejemplo: 7.0.</string>
@@ -1945,8 +1945,8 @@
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 o 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 para Animación</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

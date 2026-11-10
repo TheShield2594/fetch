@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Continuar a ver</string>
     <string name="type_movie">Filme</string>
@@ -248,7 +248,7 @@
     <string name="tmdb_entity_rail_recent">Recentes</string>
     <string name="tmdb_entity_rail_most_voted">Mais votados</string>
     <string name="collections_editor_tmdb_watch_region">Região de disponibilidade</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Código de país ISO 3166-1 onde o título está disponível. Exemplo: PT, BR, US.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Código de país ISO 3166-1 onde o título está disponível. Exemplo: PT, BR, US.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Regiões rápidas</string>
     <string name="collections_editor_tmdb_watch_providers">IDs dos serviços</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Utiliza os IDs dos serviços do TMDB. Separa vários com vírgulas para \"E\", ou com barras verticais para \"OU\".</string>
@@ -1454,7 +1454,7 @@
     <string name="collections_editor_tmdb_genres_helper">Utiliza os números de género do TMDB. Separa vários com vírgulas para \"E\", ou com barras verticais para \"OU\".</string>
     <string name="collections_editor_tmdb_date_from">Lançamento ou emissão desde</string>
     <string name="collections_editor_tmdb_date_to">Lançamento ou emissão até</string>
-    <string name="collections_editor_tmdb_date_helper">Utiliza o formato AAAA-MM-DD, por exemplo, 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Utiliza o formato AAAA-MM-DD, por exemplo, 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Classificação mínima</string>
     <string name="collections_editor_tmdb_rating_max">Classificação máxima</string>
     <string name="collections_editor_tmdb_rating_helper">Classificação do TMDB de 0 a 10. Exemplo: 7.0.</string>
@@ -1502,8 +1502,8 @@
     <string name="collections_editor_tmdb_person_placeholder">31 para Tom Hanks ou URL da pessoa</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ou 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

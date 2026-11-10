@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Tiếp tục xem</string>
     <string name="type_movie">Phim</string>
@@ -265,7 +265,7 @@
     <string name="tmdb_entity_rail_recent">Mới nhất</string>
     <string name="tmdb_entity_rail_most_voted">Bình chọn nhiều nhất</string>
     <string name="collections_editor_tmdb_watch_region">Khu vực xem</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Mã quốc gia ISO 3166-1 nơi nội dung có sẵn. Ví dụ: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Mã quốc gia ISO 3166-1 nơi nội dung có sẵn. Ví dụ: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Khu vực xem nhanh</string>
     <string name="collections_editor_tmdb_watch_providers">ID nền tảng</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Sử dụng ID nền tảng xem của TMDB. Dùng dấu phẩy cho VÀ hoặc dấu gạch đứng cho HOẶC.</string>
@@ -1889,7 +1889,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Loại trừ các tên khớp với những mã số thể loại TMDB này.</string>
     <string name="collections_editor_tmdb_date_from">Ngày phát hành hoặc phát sóng từ</string>
     <string name="collections_editor_tmdb_date_to">Ngày phát hành hoặc phát sóng đến</string>
-    <string name="collections_editor_tmdb_date_helper">Định dạng YYYY-MM-DD, ví dụ 2024-01-01</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Định dạng YYYY-MM-DD, ví dụ 2024-01-01</string>
     <string name="collections_editor_tmdb_rating_min">Điểm đánh giá tối thiểu</string>
     <string name="collections_editor_tmdb_rating_max">Điểm đánh giá tối đa</string>
     <string name="collections_editor_tmdb_rating_helper">Điểm đánh giá TMDB từ 0 đến 10, ví dụ 7.0</string>
@@ -1942,8 +1942,8 @@
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 or 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 cho Hoạt hình</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

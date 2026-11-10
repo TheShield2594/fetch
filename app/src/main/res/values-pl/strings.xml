@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="type_movie">Film</string>
     <string name="type_series">Serial</string>
 
@@ -1426,7 +1426,7 @@
     <string name="collections_editor_tmdb_country">Kraj pochodzenia</string>
     <string name="collections_editor_tmdb_country_helper">Użyj dwuliterowych kodów krajów, np. US, KR, JP, IN.</string>
     <string name="collections_editor_tmdb_date_from">Data premiery od</string>
-    <string name="collections_editor_tmdb_date_helper">Użyj formatu RRRR-MM-DD, np. 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Użyj formatu RRRR-MM-DD, np. 2024-01-01.</string>
     <string name="collections_editor_tmdb_date_to">Data premiery do</string>
     <string name="collections_editor_tmdb_display_title">Wyświetlany tytuł</string>
     <string name="collections_editor_tmdb_genres">ID gatunków</string>
@@ -1558,8 +1558,8 @@
     <string name="collections_editor_tmdb_companies_placeholder">420 dla Marvel Studios</string>
     <string name="collections_editor_tmdb_company_fallback">Firma TMDB %1$d</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_default_discover">TMDB Discover</string>
     <string name="collections_editor_tmdb_default_list">Lista TMDB</string>
     <string name="collections_editor_tmdb_default_network">Sieć TMDB</string>
@@ -1583,7 +1583,7 @@
     <string name="collections_editor_tmdb_placeholder_network">213 dla Netflix, 49 dla HBO, 2739 dla Disney+</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Best Action Movies, Korean Dramas, 2024 Animation</string>
     <string name="collections_editor_tmdb_watch_region">Region oglądania</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Kod kraju ISO 3166-1, w którym tytuł jest dostępny. Przykład: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Kod kraju ISO 3166-1, w którym tytuł jest dostępny. Przykład: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Szybki wybór regionu</string>
     <string name="collections_editor_tmdb_watch_providers">ID dostawców oglądania</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Użyj ID dostawców TMDB. Oddziel przecinkami dla AND lub pionowymi kreskami dla OR.</string>

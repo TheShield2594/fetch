@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Nadaljuj z ogledom</string>
     <string name="type_movie">Film</string>
@@ -1393,7 +1393,7 @@
     <string name="collections_editor_tmdb_genres_helper">Uporabite številke žanrov TMDB. Ločite jih z vejico za IN, ali z navpičnico za ALI.</string>
     <string name="collections_editor_tmdb_date_from">Datum izdaje ali predvajanja od</string>
     <string name="collections_editor_tmdb_date_to">Datum izdaje ali predvajanja do</string>
-    <string name="collections_editor_tmdb_date_helper">Uporabite LLLL-MM-DD, na primer 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Uporabite LLLL-MM-DD, na primer 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Najmanjša ocena</string>
     <string name="collections_editor_tmdb_rating_max">Največja ocena</string>
     <string name="collections_editor_tmdb_rating_helper">Ocena TMDB od 0 do 10. Primer: 7.0.</string>
@@ -1441,8 +1441,8 @@
     <string name="collections_editor_tmdb_person_placeholder">31 za Toma Hanksa, ali URL osebe</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ali 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

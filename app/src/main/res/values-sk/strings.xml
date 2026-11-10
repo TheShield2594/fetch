@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Pokračovať v sledovaní</string>
     <string name="type_movie">Film</string>
@@ -268,7 +268,7 @@
     <string name="tmdb_entity_rail_recent">Nedávne</string>
     <string name="tmdb_entity_rail_most_voted">Najviac hodnotené</string>
     <string name="collections_editor_tmdb_watch_region">Región sledovania</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Kód krajiny ISO 3166-1, kde je titul dostupný. Príklad: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Kód krajiny ISO 3166-1, kde je titul dostupný. Príklad: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Rýchle regióny sledovania</string>
     <string name="collections_editor_tmdb_watch_providers">ID poskytovateľov sledovania</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Použite ID poskytovateľov sledovania TMDB. Oddeľte viacero čiarkami pre AND alebo zvislou čiarou pre OR.</string>
@@ -1515,7 +1515,7 @@
     <string name="collections_editor_tmdb_genres_helper">Použite čísla žánrov TMDB. Viaceré oddeľte čiarkami pre AND alebo zvislou čiarou pre OR.</string>
     <string name="collections_editor_tmdb_date_from">Dátum vydania alebo vysielania od</string>
     <string name="collections_editor_tmdb_date_to">Dátum vydania alebo vysielania do</string>
-    <string name="collections_editor_tmdb_date_helper">Použite formát YYYY-MM-DD, napríklad 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Použite formát YYYY-MM-DD, napríklad 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Minimálne hodnotenie</string>
     <string name="collections_editor_tmdb_rating_max">Maximálne hodnotenie</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB hodnotenie od 0 do 10. Príklad: 7.0.</string>
@@ -1563,8 +1563,8 @@
     <string name="collections_editor_tmdb_person_placeholder">31 pre Tom Hanks alebo URL osoby</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 alebo 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

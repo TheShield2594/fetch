@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">தொடர்ந்து பார்க்கவும்</string>
     <string name="type_movie">திரைப்படம்</string>
@@ -249,7 +249,7 @@
     <string name="tmdb_entity_rail_recent">சமீபத்திய</string>
     <string name="tmdb_entity_rail_most_voted">அதிக வாக்குகள்</string>
     <string name="collections_editor_tmdb_watch_region">பார்க்கும் பகுதி</string>
-    <string name="collections_editor_tmdb_watch_region_helper">தலைப்பு கிடைக்கும் ISO 3166-1 நாடு குறியீடு. உதாரணம்: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">தலைப்பு கிடைக்கும் ISO 3166-1 நாடு குறியீடு. உதாரணம்: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">விரைவு பார்க்கும் பகுதிகள்</string>
     <string name="collections_editor_tmdb_watch_providers">பார்க்கும் வழங்குநர் ஐடிகள்</string>
     <string name="collections_editor_tmdb_watch_providers_helper">TMDB வழங்குநர் ஐடிகளை பயன்படுத்தவும். AND க்கு கமா, OR க்கு பைப் பயன்படுத்தவும்.</string>
@@ -1471,7 +1471,7 @@
     <string name="collections_editor_tmdb_genres_helper">டிஎம்டிபி வகை எண்களைப் பயன்படுத்துங்கள். பலவற்றை AND க்கு கமாவாலும், OR க்கு பைப் குறியாலும் பிரிக்கவும்.</string>
     <string name="collections_editor_tmdb_date_from">வெளியீடு அல்லது ஒளிபரப்பு தேதி முதல்</string>
     <string name="collections_editor_tmdb_date_to">வெளியீடு அல்லது ஒளிபரப்பு தேதி வரை</string>
-    <string name="collections_editor_tmdb_date_helper">YYYY-MM-DD வடிவத்தைப் பயன்படுத்துங்கள், எடுத்துக்காட்டு 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">YYYY-MM-DD வடிவத்தைப் பயன்படுத்துங்கள், எடுத்துக்காட்டு 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">குறைந்தபட்ச மதிப்பீடு</string>
     <string name="collections_editor_tmdb_rating_max">அதிகபட்ச மதிப்பீடு</string>
     <string name="collections_editor_tmdb_rating_helper">டிஎம்டிபி மதிப்பீடு 0 முதல் 10 வரை. எடுத்துக்காட்டு: 7.0.</string>
@@ -1519,8 +1519,8 @@
     <string name="collections_editor_tmdb_person_placeholder">டாம் ஹாங்க்ஸுக்கு 31, அல்லது நபர் யுஆர்எல்</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 அல்லது 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">המשך צפייה</string>
     <string name="type_movie">סרט</string>
@@ -268,7 +268,7 @@
     <string name="tmdb_entity_rail_recent">חדשים</string>
     <string name="tmdb_entity_rail_most_voted">עם הכי הרבה הצבעות</string>
     <string name="collections_editor_tmdb_watch_region">אזור צפייה</string>
-    <string name="collections_editor_tmdb_watch_region_helper">קוד מדינה בתקן ISO 3166-1 שבו הכותרת זמינה. לדוגמה: US, IL.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">קוד מדינה בתקן ISO 3166-1 שבו הכותרת זמינה. לדוגמה: US, IL.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">אזורי צפייה מהירים</string>
     <string name="collections_editor_tmdb_watch_providers">מזהי ספקי צפייה</string>
     <string name="collections_editor_tmdb_watch_providers_helper">שימוש במזהי ספקי צפייה של TMDB. הפרדה בין מספר מזהים בפסיקים עבור \"וגם\" (AND), או בקו אנכי עבור \"או\" (OR).</string>
@@ -1890,7 +1890,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">החרגת כותרות התואמות למספרי ז׳אנר אלה של TMDB.</string>
     <string name="collections_editor_tmdb_date_from">תאריך יציאה או שידור מ-</string>
     <string name="collections_editor_tmdb_date_to">תאריך יציאה או שידור עד</string>
-    <string name="collections_editor_tmdb_date_helper">יש להשתמש בפורמט YYYY-MM-DD, לדוגמה 2024-12-31.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">יש להשתמש בפורמט YYYY-MM-DD, לדוגמה 2024-12-31.</string>
     <string name="collections_editor_tmdb_rating_min">דירוג מינימלי</string>
     <string name="collections_editor_tmdb_rating_max">דירוג מקסימלי</string>
     <string name="collections_editor_tmdb_rating_helper">דירוג TMDB בין 0 ל-10. לדוגמה: 6.7.</string>
@@ -1943,8 +1943,8 @@
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 או 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 עבור אנימציה</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, he, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, IL, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2027</string>

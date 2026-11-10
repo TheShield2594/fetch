@@ -3,6 +3,7 @@ package com.fetch.tv
 import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
+import android.content.res.Resources
 import android.os.Build
 import android.os.Looper
 import android.os.StatFs
@@ -23,6 +24,7 @@ import coil3.bitmapFactoryMaxParallelism
 import okio.Path.Companion.toOkioPath
 import com.fetch.tv.core.image.StaleWhileRevalidateCacheStrategy
 import com.fetch.tv.core.sync.StartupSyncService
+import com.fetch.tv.core.util.AppLocaleResources
 import com.fetch.tv.core.sync.androidtv.AndroidTvChannelSyncService
 import com.fetch.tv.core.network.IPv4FirstDns
 import com.fetch.tv.core.network.NoDelaySocketFactory
@@ -70,6 +72,25 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
         val tag = getSharedPreferences("app_locale", Context.MODE_PRIVATE)
             .getString("locale_tag", null)
         LocaleCache.localeTag = tag ?: ""
+    }
+
+    /**
+     * Resources in the app's own language (#324). The language is applied to the activity in
+     * MainActivity.attachBaseContext, but ViewModels, repositories and services resolve their
+     * messages through an injected `@ApplicationContext`, which is this Application: without
+     * this it kept the device's language, so a German app on an English TV showed English
+     * errors and statuses. Follows a language change at once (LocaleCache is read on every
+     * call) and a system configuration change (the base configuration is part of the cache key).
+     */
+    override fun getResources(): Resources {
+        val base = super.getResources()
+        // Before attachBaseContext there is nothing to derive a configuration context from.
+        if (baseContext == null) return base
+        return appLocaleResources.resolve(base, LocaleCache.localeTag)
+    }
+
+    private val appLocaleResources = AppLocaleResources { configuration ->
+        createConfigurationContext(configuration)
     }
 
     override fun newImageLoader(context: android.content.Context): ImageLoader {

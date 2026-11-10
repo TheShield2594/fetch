@@ -177,13 +177,13 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
     // catalogs load in the background to avoid a flash of empty content.
     val isReload = _uiState.value.catalogRows.isNotEmpty() || _uiState.value.homeRows.isNotEmpty()
     if (!isReload) {
-        _uiState.update { it.copy(isLoading = true, error = null, installedAddonsCount = addons.size) }
+        _uiState.update { it.copy(isLoading = true, error = null, errorKind = null, installedAddonsCount = addons.size) }
         synchronized(catalogStateLock) {
             catalogOrder.clear()
         }
         clearCatalogData()
     } else {
-        _uiState.update { it.copy(error = null, installedAddonsCount = addons.size) }
+        _uiState.update { it.copy(error = null, errorKind = null, installedAddonsCount = addons.size) }
     }
     posterStatusReconcileJob?.cancel()
     reconcilePosterStatusObserversPipeline(emptyList())
@@ -210,7 +210,7 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
     try {
         if (addons.isEmpty()) {
             catalogsLoadInProgress = false
-            _uiState.update { it.copy(isLoading = false, error = appContext.getString(R.string.home_empty_no_sources_title)) }
+            _uiState.update { it.copy(isLoading = false, error = null, errorKind = HomeErrorKind.NO_ADDONS) }
             return
         }
 
@@ -227,7 +227,7 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
 
         if (isCatalogOrderEmpty() && !hasHeroSelections) {
             catalogsLoadInProgress = false
-            _uiState.update { it.copy(isLoading = false, error = appContext.getString(R.string.home_error_no_catalog_addons)) }
+            _uiState.update { it.copy(isLoading = false, error = null, errorKind = HomeErrorKind.NO_CATALOG_ADDONS) }
             return
         }
 
@@ -276,7 +276,7 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
             if (hasCatalogOrderEntries()) {
                 scheduleUpdateCatalogRows()
             } else {
-                _uiState.update { it.copy(isLoading = false, error = appContext.getString(R.string.home_error_no_catalog_addons)) }
+                _uiState.update { it.copy(isLoading = false, error = null, errorKind = HomeErrorKind.NO_CATALOG_ADDONS) }
             }
             return
         }
@@ -364,7 +364,7 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
         }
     } catch (e: Exception) {
         catalogsLoadInProgress = false
-        _uiState.update { it.copy(isLoading = false, error = e.message) }
+        _uiState.update { it.copy(isLoading = false, error = e.message, errorKind = HomeErrorKind.LOAD_FAILED) }
     }
 }
 
@@ -775,7 +775,8 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
             heroItems = if (state.heroItems == baseHeroItems) state.heroItems else baseHeroItems,
             homeRows = if (state.homeRows == computedHomeRows) state.homeRows else computedHomeRows,
             isLoading = false,
-            error = if (hasContent) null else state.error
+            error = if (hasContent) null else state.error,
+            errorKind = if (hasContent) null else state.errorKind
         )
     }
 

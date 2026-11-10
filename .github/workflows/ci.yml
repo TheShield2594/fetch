@@ -134,17 +134,21 @@ jobs:
       - name: Build test APKs
         run: ./gradlew --no-daemon :app:assembleFullDebug :app:assembleFullDebugAndroidTest
 
+      # An Android TV 14 emulator at 1080p, the same image baseline-profile.yml records on: the
+      # UI tests assume a landscape TV screen and D-pad (non-touch) focus, and fail on a phone.
       # The MDBList live tests skip themselves unless their instrumentation argument is set,
       # so this run needs no network credentials.
       - name: Instrumented tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
-          arch: x86_64
-          target: google_apis
-          profile: pixel_6
+          target: android-tv
+          arch: x86
+          profile: tv_1080p
+          cores: 4
+          ram-size: 4096M
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-snapshot-save -no-window -gpu swangle_indirect -noaudio -no-boot-anim -camera-back none
           script: ./gradlew --no-daemon :app:connectedFullDebugAndroidTest
 
       - uses: actions/upload-artifact@v7

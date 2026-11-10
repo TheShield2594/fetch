@@ -1324,7 +1324,11 @@ open class MainActivity : ComponentActivity() {
     // Activity.dispatchKeyEvent is public framework API. androidx.core's ComponentActivity
     // re-declares it @RestrictTo, so lint flags this override and its super call as
     // RestrictedApi; that is a lint false positive.
-    @SuppressLint("RestrictedApi")
+    // GestureBackNavigation: the Back intercepts below must run before every Compose
+    // BackHandler (see longPressBackHeld above), and they consume the raw DOWN repeats of a
+    // held Back. An OnBackPressedCallback can do neither: the most recently registered
+    // callback wins, and it sees only the completed Back.
+    @SuppressLint("RestrictedApi", "GestureBackNavigation")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (ambientIdleController.consumeKeyEvent(event)) return true
         if (event.keyCode == KeyEvent.KEYCODE_BACK) {

@@ -2,17 +2,6 @@
 <issues format="6" by="lint 8.13.2" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.2)" variant="all" version="8.13.2">
 
     <issue
-        id="GestureBackNavigation"
-        message="If intercepting back events, this should be handled through the registration of callbacks; see https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture"
-        errorLine1="        if (event.keyCode == KeyEvent.KEYCODE_BACK) {"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1473"
-            column="30"/>
-    </issue>
-
-    <issue
         id="DefaultLocale"
         message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
         errorLine1="        String.format(&quot;%.3f&quot;, rounded)"
@@ -49876,7 +49865,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1589"
+            line="1593"
             column="54"/>
     </issue>
 

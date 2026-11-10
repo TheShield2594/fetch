@@ -8,13 +8,15 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Buffer
+import java.util.Collections
 
 /** Answers every request with [respond] and records what was sent. */
 class FakeHttp(private val respond: (Request) -> Pair<Int, String>) : Interceptor {
 
     class Sent(val request: Request, val body: String)
 
-    val sent = mutableListOf<Sent>()
+    // Requests arrive on OkHttp / IO threads; a plain list could drop one under contention.
+    val sent: MutableList<Sent> = Collections.synchronizedList(mutableListOf())
 
     val client: OkHttpClient = OkHttpClient.Builder().addInterceptor(this).build()
 

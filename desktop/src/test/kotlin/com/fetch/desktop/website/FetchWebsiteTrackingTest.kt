@@ -90,7 +90,18 @@ class FetchWebsiteTrackingTest {
     private fun tracker(scope: CoroutineScope, fake: FakeHttp, slot: Int = 1, website: FetchWebsiteState = paired(fake)) =
         FetchWebsiteTracker(website, slot, scope, conflictRetryMs = 1L)
 
-    private suspend fun CoroutineScope.settle() = coroutineContext.job.children.forEach { it.join() }
+    /**
+     * Waits until no work launched in this scope is left, including work that finishing work
+     * launches (a stop scrobble's read-back, a conflict's retry). Joining one snapshot of the
+     * children missed those and raced the assertions.
+     */
+    private suspend fun CoroutineScope.settle() {
+        while (true) {
+            val running = coroutineContext.job.children.filter { it.isActive }.toList()
+            if (running.isEmpty()) return
+            running.forEach { it.join() }
+        }
+    }
 
     private fun json(text: String) = Json.parseToJsonElement(text).jsonObject
 

@@ -3,6 +3,7 @@ package com.fetch.tv.baselineprofile
 import android.util.Log
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Configurator
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
@@ -13,7 +14,12 @@ internal const val TARGET_PACKAGE = "com.fetch.tv"
 private const val LOG_TAG = "FetchJourney"
 private const val SCREENSHOT_DIR = "/sdcard/Download/fetch-journey"
 private val ANY_TEXT = Pattern.compile(".+", Pattern.DOTALL)
+private const val MAX_SCREENSHOTS = 40
 private var snapshotCount = 0
+
+// Home is never idle for long (hero rotation, image loads), and waitForIdle's default timeout
+// is 10 seconds per call, which turns one journey into several minutes of waiting.
+private const val WAIT_FOR_IDLE_TIMEOUT_MS = 1_500L
 
 // Records where the journey is: the focused control and the texts on screen go to logcat under
 // FetchJourney, and a screenshot goes to /sdcard/Download/fetch-journey. A journey that stalls
@@ -31,8 +37,10 @@ internal fun UiDevice.snapshot(step: String) {
     }.onFailure { Log.i(LOG_TAG, "#$number $step | could not read the screen: $it") }
     runCatching {
         executeShellCommand("mkdir -p $SCREENSHOT_DIR")
-        val name = "%03d-%s.png".format(number, step.replace(Regex("[^A-Za-z0-9]+"), "-"))
-        executeShellCommand("screencap -p $SCREENSHOT_DIR/$name")
+        if (number <= MAX_SCREENSHOTS) {
+            val name = "%03d-%s.png".format(number, step.replace(Regex("[^A-Za-z0-9]+"), "-"))
+            executeShellCommand("screencap -p $SCREENSHOT_DIR/$name")
+        }
     }
 }
 
@@ -67,6 +75,7 @@ internal inline fun MacrobenchmarkScope.inEnglish(block: () -> Unit) {
 // Cold launches the app and waits for Home, stepping through first-run onboarding when a fresh
 // install shows it: sign-in, then the first-run wizard, whose last step (Advanced) opens Home.
 internal fun MacrobenchmarkScope.launchToHome() {
+    Configurator.getInstance().waitForIdleTimeout = WAIT_FOR_IDLE_TIMEOUT_MS
     pressHome()
     startActivityAndWait()
     device.wait(Until.hasObject(By.pkg(TARGET_PACKAGE)), 5_000)

@@ -57,7 +57,7 @@ jobs:
           disable-animations: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
-            ./gradlew --no-daemon :app:generateBaselineProfile; status=$?; adb logcat -d -s FetchJourney > journey-log.txt; adb pull /sdcard/Download/fetch-journey journey-screens || true; exit $status
+            (adb logcat -s FetchJourney > journey-log.txt &); timeout 60m ./gradlew --no-daemon :app:generateBaselineProfile; status=$?; adb pull /sdcard/Download/fetch-journey journey-screens || true; exit $status
             python3 scripts/check_baseline_profiles.py
             if [ "${{ github.event_name != 'workflow_dispatch' || inputs.benchmark }}" = "true" ]; then scripts/perf_baseline.sh benchmark-emulator || echo "::warning::StartupBenchmark failed; the profiles are still uploaded."; fi
 

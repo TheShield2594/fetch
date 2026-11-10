@@ -2022,12 +2022,8 @@ internal fun resolvePreferredAudioLanguages(
 }
 
 internal fun resolveDeviceAudioLanguages(): List<String> {
-    return if (Build.VERSION.SDK_INT >= 24) {
-        val localeList = Resources.getSystem().configuration.locales
-        List(localeList.size()) { localeList[it].isO3Language }
-    } else {
-        listOf(Resources.getSystem().configuration.locale.isO3Language)
-    }
+    val localeList = Resources.getSystem().configuration.locales
+    return List(localeList.size()) { localeList[it].isO3Language }
 }
 
 internal suspend fun PlayerRuntimeController.prepareStartupSubtitles(): StartupSubtitlePreparation {

@@ -6,7 +6,6 @@ import android.app.Activity
 import android.content.Context
 import android.media.MediaExtractor
 import android.net.Uri
-import android.os.Build
 import android.util.Log
 import android.view.Display
 import androidx.core.net.toUri
@@ -224,7 +223,6 @@ object FrameRateUtils {
         detectedFps: Float,
         prefer23976Near24: Boolean = false
     ): Float {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return detectedFps
         if (detectedFps !in 23.5f..24.5f) return detectedFps
 
         return try {
@@ -364,7 +362,6 @@ object FrameRateUtils {
         videoHeight: Int? = null,
         resolutionMatchingEnabled: Boolean = false
     ): DisplayModeSwitchResult? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return null
         if (frameRate <= 0f) return null
 
         val switchPlan = withContext(Dispatchers.Main) {
@@ -464,7 +461,6 @@ object FrameRateUtils {
     }
 
     fun restoreOriginalDisplayMode(activity: Activity): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return false
         val targetModeId = originalModeId ?: return false
 
         return try {

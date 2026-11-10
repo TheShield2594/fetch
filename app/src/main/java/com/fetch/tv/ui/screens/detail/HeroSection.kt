@@ -1057,7 +1057,7 @@ private fun MetaInfoRow(
                         textStyle = MaterialTheme.typography.labelLarge,
                         textColor = FetchTheme.extendedColors.textSecondary
                     )
-                    val ratingText = remember(rating) { String.format("%.1f", rating) }
+                    val ratingText = remember(rating) { String.format(Locale.getDefault(), "%.1f", rating) }
                     Text(
                         text = ratingText,
                         style = MaterialTheme.typography.labelLarge,

@@ -5,7 +5,6 @@ package com.fetch.tv.ui.screens.player
 import android.media.AudioDeviceCallback
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
-import android.os.Build
 import android.util.Log
 import com.fetch.tv.data.local.AudioOutputChannels
 import kotlinx.coroutines.delay
@@ -89,7 +88,7 @@ internal fun PlayerRuntimeController.persistAudioDelayForCurrentRoute(delayMs: I
 }
 
 internal fun PlayerRuntimeController.registerAudioDelayRouteCallback() {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || audioOutputRouteCallback != null) return
+    if (audioOutputRouteCallback != null) return
 
     val audioManager = context.getSystemService(android.content.Context.AUDIO_SERVICE) as? AudioManager ?: return
     val callback = object : AudioDeviceCallback() {
@@ -112,7 +111,6 @@ internal fun PlayerRuntimeController.registerAudioDelayRouteCallback() {
 }
 
 internal fun PlayerRuntimeController.unregisterAudioDelayRouteCallback() {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
     val callback = audioOutputRouteCallback ?: return
     val audioManager = context.getSystemService(android.content.Context.AUDIO_SERVICE) as? AudioManager ?: return
     runCatching {

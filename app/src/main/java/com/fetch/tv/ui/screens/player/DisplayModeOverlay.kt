@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import androidx.compose.ui.platform.LocalConfiguration
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.core.Animatable
@@ -166,12 +167,13 @@ fun DisplayModeOverlay(
 
 @Composable
 internal fun formatHz(rate: Float): String {
+    val locale = LocalConfiguration.current.locales[0]
     val rounded = (rate * 1000f).roundToInt() / 1000f
     val whole = rounded.roundToInt()
     val display = if (abs(rounded - whole.toFloat()) < 0.01f) {
         whole.toString()
     } else {
-        String.format("%.3f", rounded)
+        String.format(locale, "%.3f", rounded)
     }
     return stringResource(R.string.display_refresh_hz, display)
 }

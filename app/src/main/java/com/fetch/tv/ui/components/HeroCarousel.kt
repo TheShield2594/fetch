@@ -73,6 +73,7 @@ import com.fetch.tv.ui.util.formatHeroRuntime
 import com.fetch.tv.ui.util.LocalRecompositionHighlighterEnabled
 import com.fetch.tv.ui.util.localizedContentType
 import com.fetch.tv.ui.util.localizedGenreLabel
+import java.util.Locale
 import kotlinx.coroutines.delay
 
 private const val AUTO_ADVANCE_INTERVAL_MS = 10000L
@@ -275,7 +276,7 @@ private fun HeroCarouselSlide(
     val ratingText = remember(item.imdbRating, showImdbRatings) {
         item.imdbRating
             ?.takeIf { showImdbRatings }
-            ?.let { String.format("%.1f", it) }
+            ?.let { String.format(Locale.getDefault(), "%.1f", it) }
     }
 
     Box(

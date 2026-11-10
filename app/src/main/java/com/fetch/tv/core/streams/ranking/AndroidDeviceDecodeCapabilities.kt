@@ -72,27 +72,21 @@ class AndroidDeviceDecodeCapabilities @Inject constructor(
         val display = (context.getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager)
             ?.getDisplay(Display.DEFAULT_DISPLAY)
         val hdr = buildSet {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                display?.hdrCapabilities?.supportedHdrTypes?.forEach { type ->
-                    when (type) {
-                        Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION -> add(HdrFormat.DOLBY_VISION)
-                        Display.HdrCapabilities.HDR_TYPE_HDR10 -> add(HdrFormat.HDR10)
-                        Display.HdrCapabilities.HDR_TYPE_HLG -> add(HdrFormat.HLG)
-                        else -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-                            type == Display.HdrCapabilities.HDR_TYPE_HDR10_PLUS
-                        ) {
-                            add(HdrFormat.HDR10_PLUS)
-                        }
+            display?.hdrCapabilities?.supportedHdrTypes?.forEach { type ->
+                when (type) {
+                    Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION -> add(HdrFormat.DOLBY_VISION)
+                    Display.HdrCapabilities.HDR_TYPE_HDR10 -> add(HdrFormat.HDR10)
+                    Display.HdrCapabilities.HDR_TYPE_HLG -> add(HdrFormat.HLG)
+                    else -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                        type == Display.HdrCapabilities.HDR_TYPE_HDR10_PLUS
+                    ) {
+                        add(HdrFormat.HDR10_PLUS)
                     }
                 }
             }
         }
 
-        val maxHeight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            display?.supportedModes?.maxOfOrNull { minOf(it.physicalWidth, it.physicalHeight) } ?: 2160
-        } else {
-            2160
-        }
+        val maxHeight = display?.supportedModes?.maxOfOrNull { minOf(it.physicalWidth, it.physicalHeight) } ?: 2160
         val maxResolution = StreamResolution.entries
             .filter { it != StreamResolution.UNKNOWN }
             .firstOrNull { it.height <= maxHeight + 40 } ?: StreamResolution.FHD_1080
@@ -111,7 +105,6 @@ class AndroidDeviceDecodeCapabilities @Inject constructor(
     }
 
     private fun probePassthrough(): Set<AudioFormat> {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return emptySet()
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return emptySet()
         val encodings = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
             .flatMap { it.encodings.toList() }

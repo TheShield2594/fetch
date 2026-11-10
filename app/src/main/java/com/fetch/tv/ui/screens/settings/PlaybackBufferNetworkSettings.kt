@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import androidx.compose.ui.platform.LocalConfiguration
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.background
@@ -485,11 +486,12 @@ private val PARALLEL_CHUNK_SIZES = listOf(
 
 @Composable
 private fun formatStorageSize(bytes: Long): String {
+    val locale = LocalConfiguration.current.locales[0]
     val gb = bytes / (1024.0 * 1024.0 * 1024.0)
-    if (gb >= 10.0) return stringResource(R.string.unit_size_gb, String.format("%.0f", gb))
-    if (gb >= 1.0) return stringResource(R.string.unit_size_gb, String.format("%.1f", gb))
+    if (gb >= 10.0) return stringResource(R.string.unit_size_gb, String.format(locale, "%.0f", gb))
+    if (gb >= 1.0) return stringResource(R.string.unit_size_gb, String.format(locale, "%.1f", gb))
     val mb = bytes / (1024.0 * 1024.0)
-    return stringResource(R.string.unit_size_mb, String.format("%.0f", mb))
+    return stringResource(R.string.unit_size_mb, String.format(locale, "%.0f", mb))
 }
 
 private fun resolveManualVodCacheMaxMb(freeDiskBytes: Long): Int {

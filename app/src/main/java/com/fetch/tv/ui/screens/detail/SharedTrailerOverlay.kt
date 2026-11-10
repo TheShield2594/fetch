@@ -47,6 +47,7 @@ import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.TrailerPlayer
+import java.util.Locale
 import kotlinx.coroutines.delay
 import android.view.KeyEvent
 import com.fetch.tv.ui.screens.ambient.AmbientDialogEffect
@@ -339,8 +340,8 @@ fun formatPlaybackTime(milliseconds: Long): String {
     val seconds = totalSeconds % 60
 
     return if (hours > 0) {
-        String.format("%d:%02d:%02d", hours, minutes, seconds)
+        String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
     } else {
-        String.format("%02d:%02d", minutes, seconds)
+        String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
     }
 }

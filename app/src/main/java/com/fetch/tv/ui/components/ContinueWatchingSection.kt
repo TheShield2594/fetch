@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.fetch.tv.R
@@ -241,11 +242,12 @@ fun ContinueWatchingCard(
     val progress = remember(item) { (item as? ContinueWatchingItem.InProgress)?.progress }
     val nextUp = remember(item) { (item as? ContinueWatchingItem.NextUp)?.info }
     val cardContext = LocalContext.current
-    val episodeStr = remember(progress, nextUp, cardContext) {
+    val resources = LocalResources.current
+    val episodeStr = remember(progress, nextUp, resources) {
         val season = progress?.season ?: nextUp?.season
         val episode = progress?.episode ?: nextUp?.episode
         if (season != null && episode != null) {
-            cardContext.getString(R.string.season_episode_format, season, episode)
+            resources.getString(R.string.season_episode_format, season, episode)
         } else {
             null
         }

@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -57,6 +58,7 @@ internal fun MediaServerSettingsContent(
         return
     }
     val context = LocalContext.current
+    val resources = LocalResources.current
     val provider = viewModel.provider(connection)
     val providerName = provider?.displayName ?: connection.providerId
     var signIn by remember { mutableStateOf<ServerSignInRequest?>(null) }
@@ -142,7 +144,7 @@ internal fun MediaServerSettingsContent(
                             leadingIcon = Icons.Default.Sync,
                             onClick = {
                                 viewModel.refreshLibraries(connection.id) { failure ->
-                                    Toast.makeText(context, context.getString(failure.messageRes()), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, resources.getString(failure.messageRes()), Toast.LENGTH_SHORT).show()
                                 }
                             }
                         )

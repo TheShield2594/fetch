@@ -5,6 +5,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import androidx.compose.ui.platform.LocalResources
 import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchMotion
 import android.view.KeyEvent
@@ -769,15 +770,16 @@ private fun EpisodeItem(
     var isFocused by remember { mutableStateOf(false) }
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     val context = LocalContext.current
-    val episodeTitle = episode.title.localizeEpisodeTitle(context).ifBlank { context.getString(R.string.episodes_episode) }
+    val resources = LocalResources.current
+    val episodeTitle = episode.title.localizeEpisodeTitle(context).ifBlank { resources.getString(R.string.episodes_episode) }
     val formattedDate = remember(episode.released) {
         episode.released?.let { formatReleaseDate(it) }?.takeIf { it.isNotBlank() }
     }
-    val episodeCode = remember(episode.season, episode.episode) {
+    val episodeCode = remember(episode.season, episode.episode, resources) {
         val s = episode.season
         val e = episode.episode
         if (s != null && e != null) {
-            context.getString(R.string.season_episode_format, s, e)
+            resources.getString(R.string.season_episode_format, s, e)
         } else {
             null
         }

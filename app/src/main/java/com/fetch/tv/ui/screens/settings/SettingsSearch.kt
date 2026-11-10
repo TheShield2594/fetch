@@ -14,8 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -99,15 +99,15 @@ internal fun SettingsSearchContent(
     onOpen: (SettingsSearchEntry) -> Unit,
     initialFocusRequester: FocusRequester?
 ) {
-    val context = LocalContext.current
+    val resources = LocalResources.current
     val focusManager = LocalFocusManager.current
-    val entries = remember(visibleCategories, index, context) {
+    val entries = remember(visibleCategories, index, resources) {
         visibleCategories.flatMap { category ->
-            index[category].orEmpty().map { SettingsSearchEntry(category, context.getString(it)) }
+            index[category].orEmpty().map { SettingsSearchEntry(category, resources.getString(it)) }
         }
     }
-    val changedEntries = remember(changedSettings, context) {
-        changedSettings.mapTo(HashSet()) { key -> SettingsSearchEntry(key.category, context.getString(key.title)) }
+    val changedEntries = remember(changedSettings, resources) {
+        changedSettings.mapTo(HashSet()) { key -> SettingsSearchEntry(key.category, resources.getString(key.title)) }
     }
     val results = remember(query, entries, changedOnly, changedEntries) {
         settingsSearchResults(query, entries, changedOnly, changedEntries)

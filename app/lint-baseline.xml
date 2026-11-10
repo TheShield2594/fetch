@@ -4628,7 +4628,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="261"
+            line="263"
             column="54"/>
     </issue>
 
@@ -4639,7 +4639,7 @@
         errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="261"
+            line="263"
             column="72"/>
     </issue>
 
@@ -4650,7 +4650,7 @@
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="286"
+            line="288"
             column="58"/>
     </issue>
 
@@ -4661,7 +4661,7 @@
         errorLine2="                                                                           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="286"
+            line="288"
             column="76"/>
     </issue>
 
@@ -4672,7 +4672,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="302"
+            line="304"
             column="66"/>
     </issue>
 
@@ -4683,7 +4683,7 @@
         errorLine2="                                                                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="302"
+            line="304"
             column="84"/>
     </issue>
 
@@ -4694,7 +4694,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="310"
+            line="312"
             column="66"/>
     </issue>
 
@@ -4705,7 +4705,7 @@
         errorLine2="                                                                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="310"
+            line="312"
             column="84"/>
     </issue>
 
@@ -4716,7 +4716,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="318"
+            line="320"
             column="66"/>
     </issue>
 
@@ -4727,7 +4727,7 @@
         errorLine2="                                                                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="318"
+            line="320"
             column="84"/>
     </issue>
 
@@ -4738,7 +4738,7 @@
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="326"
+            line="328"
             column="67"/>
     </issue>
 
@@ -4749,7 +4749,7 @@
         errorLine2="                                                                                    ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="326"
+            line="328"
             column="85"/>
     </issue>
 
@@ -14475,710 +14475,6 @@
             file="src/main/java/com/fetch/tv/ui/screens/home/ModernHomeContent.kt"
             line="722"
             column="24"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="            cardContext.getString(R.string.season_episode_format, season, episode)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/components/ContinueWatchingSection.kt"
-            line="248"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="    val episodeTitle = episode.title.localizeEpisodeTitle(context).ifBlank { context.getString(R.string.episodes_episode) }"
-        errorLine2="                                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/EpisodesSidePanel.kt"
-            line="777"
-            column="78"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="            context.getString(R.string.season_episode_format, s, e)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/EpisodesSidePanel.kt"
-            line="785"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                            context.getString(R.string.auth_notice_fetch_logged_out),"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="436"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                            Toast.makeText(context, context.getString(R.string.addon_installing), Toast.LENGTH_SHORT).show()"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="875"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                Toast.makeText(context, context.getString(R.string.parental_addons_blocked), Toast.LENGTH_LONG).show()"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1072"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                Toast.makeText(context, context.getString(R.string.addon_installing), Toast.LENGTH_SHORT).show()"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1077"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                    Toast.makeText(context, context.getString(failure.messageRes()), Toast.LENGTH_SHORT).show()"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/settings/MediaServerSettingsScreen.kt"
-            line="145"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                    streamErrorMessage = context.getString(R.string.stream_test_error_connection)"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="293"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                    ParentalGateViewModel.GateError.Incorrect -> context.getString(R.string.profile_pin_incorrect)"
-        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ParentalGate.kt"
-            line="226"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                    ParentalGateViewModel.GateError.VerifyFailed -> context.getString(R.string.profile_pin_verify_error)"
-        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ParentalGate.kt"
-            line="227"
-            column="69"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                        context.getString(R.string.profile_pin_locked, gateError.retryAfterSeconds)"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ParentalGate.kt"
-            line="229"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                forgotPin = ForgotPinOption(context.getString(R.string.profile_pin_forgot_main)),"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ParentalGate.kt"
-            line="232"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                is PartyEvent.MemberJoined -> context.getString(R.string.party_member_joined, event.name)"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/party/PartyEffects.kt"
-            line="20"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                is PartyEvent.MemberLeft -> context.getString(R.string.party_member_left, event.name)"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/party/PartyEffects.kt"
-            line="21"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                PartyEvent.Removed -> context.getString(R.string.party_removed)"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/party/PartyEffects.kt"
-            line="22"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                PartyEvent.Ended -> context.getString(R.string.party_ended)"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/party/PartyEffects.kt"
-            line="23"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                is PartyEvent.MediaChanged -> context.getString(R.string.party_media_changed, event.media.title)"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/party/PartyEffects.kt"
-            line="24"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                is PartyEvent.ControlChanged -> context.getString("
-        errorLine2="                                                ^">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/party/PartyEffects.kt"
-            line="25"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="        context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="378"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="        context.getString(R.string.profile_pin_incorrect)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="380"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="            target.isPrimary -> ForgotPinOption(context.getString(R.string.profile_pin_forgot_main))"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="390"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                context.getString(R.string.profile_pin_forgot_needs_main, parentProfile?.name.orEmpty())"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="392"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="            else -> ForgotPinOption(context.getString(R.string.profile_pin_forgot_reset, parentProfile.name)) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="394"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                        setError(context.getString(R.string.profile_pin_verify_error))"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="418"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                            onReset(state.profile, context.getString(R.string.profile_pin_reset_for_profile, state.profile.name))"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="426"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                            onReset(state.profile, context.getString(R.string.profile_pin_reset_local_only, state.profile.name))"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="430"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                        else -> setError(context.getString(R.string.profile_pin_save_error))"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="432"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                        context.getString(R.string.account_error_generic_retry)"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="460"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_saved_for_profile, activePinOverlay.profile.name)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="685"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                            pinOverlayError = context.getString(R.string.profile_pin_current_required)"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="692"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                            pinOverlayError = context.getString(R.string.profile_pin_save_error)"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="695"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="710"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_incorrect)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="712"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                        pinOverlayError = context.getString(R.string.profile_pin_verify_error)"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="716"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="732"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_incorrect)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="734"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                        pinOverlayError = context.getString(R.string.profile_pin_verify_error)"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="738"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_lock_removed_for_profile, activePinOverlay.profile.name)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="753"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="757"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_incorrect)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="759"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                        pinOverlayError = context.getString(R.string.profile_pin_verify_error)"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="763"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="779"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_incorrect)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="781"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                        pinOverlayError = context.getString(R.string.profile_pin_verify_error)"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="785"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="802"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_incorrect)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="804"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                        pinOverlayError = context.getString(R.string.profile_pin_verify_error)"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="808"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                        context.getString(R.string.profile_copy_settings_created_success, sourceName)"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="848"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                        context.getString(R.string.profile_copy_settings_created_error)"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="852"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                profileActionMessage = ProfileActionMessage.Error(context.getString(R.string.profile_create_error))"
-        errorLine2="                                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="857"
-            column="83"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                    profileActionMessage = ProfileActionMessage.Error(context.getString(R.string.profile_save_error))"
-        errorLine2="                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="898"
-            column="87"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                        !saved -> ProfileActionMessage.Error(context.getString(R.string.profile_save_error))"
-        errorLine2="                                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="1065"
-            column="78"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                            context.getString("
-        errorLine2="                                            ^">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="1067"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                            context.getString(R.string.profile_addons_own_saved, profile.name)"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="1074"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                        context.getString(R.string.parental_limits_saved, targetProfile.name)"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="1197"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                    context.getString("
-        errorLine2="                                    ^">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="1232"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                settingsCopyError = context.getString(R.string.profile_copy_settings_error)"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="1239"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                profileActionMessage = ProfileActionMessage.Error(context.getString(R.string.profile_delete_error))"
-        errorLine2="                                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="1281"
-            column="83"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="1373"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                                context.getString(R.string.profile_pin_incorrect_for_profile, check.profile.name)"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="1375"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="                                        pinCheckError = context.getString(R.string.profile_pin_verify_error)"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="1379"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="            index[category].orEmpty().map { SettingsSearchEntry(category, context.getString(it)) }"
-        errorLine2="                                                                          ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/settings/SettingsSearch.kt"
-            line="106"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="LocalContextGetResourceValueCall"
-        message="Querying resource values using LocalContext.current"
-        errorLine1="        changedSettings.mapTo(HashSet()) { key -> SettingsSearchEntry(key.category, context.getString(key.title)) }"
-        errorLine2="                                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/settings/SettingsSearch.kt"
-            line="110"
-            column="85"/>
     </issue>
 
     <issue
@@ -47721,7 +47017,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/EpisodesSidePanel.kt"
-            line="181"
+            line="182"
             column="49"/>
     </issue>
 
@@ -47732,7 +47028,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1593"
+            line="1595"
             column="54"/>
     </issue>
 
@@ -54516,7 +53812,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="375"
+            line="376"
             column="39"/>
     </issue>
 
@@ -54527,7 +53823,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="685"
+            line="687"
             column="25"/>
     </issue>
 
@@ -54538,7 +53834,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="688"
+            line="690"
             column="25"/>
     </issue>
 
@@ -54549,7 +53845,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="692"
+            line="694"
             column="25"/>
     </issue>
 
@@ -54560,7 +53856,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="698"
+            line="700"
             column="25"/>
     </issue>
 
@@ -54571,7 +53867,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="700"
+            line="702"
             column="25"/>
     </issue>
 
@@ -54637,7 +53933,7 @@
         errorLine2="                                                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="638"
+            line="640"
             column="95"/>
     </issue>
 

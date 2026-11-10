@@ -176,7 +176,7 @@ fun AdvancedSettingsContent(
                 streamBaselineSpeed = baseline
 
                 if (baseline <= 0.0) {
-                    streamErrorMessage = context.getString(R.string.stream_test_error_connection)
+                    streamErrorMessage = resources.getString(R.string.stream_test_error_connection)
                     streamTestState = "Error"
                     return@launch
                 }

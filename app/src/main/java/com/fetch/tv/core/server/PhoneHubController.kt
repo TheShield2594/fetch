@@ -227,13 +227,18 @@ class PhoneHubController @Inject constructor(
     private fun buildSections(): Map<String, NanoHTTPD> = mapOf(
         PhoneHubServer.SECTION_BADGES to StreamBadgeConfigServer(
             currentSettingsProvider = { runBlocking { streamBadgeSettingsDataStore.settings.first() } },
-            onSettingsChanged = { settings -> scope.launch { streamBadgeSettingsDataStore.setSettings(settings) } },
+            onSettingsChanged = { settings ->
+                // The hub refuses section changes while gated; this catches a write already in flight.
+                if (!parentalControls.needsGate()) scope.launch { streamBadgeSettingsDataStore.setSettings(settings) }
+            },
             context = context,
             logoProvider = { logoBytes }
         ),
         PhoneHubServer.SECTION_POSTERS to CustomPosterConfigServer(
             currentPatternProvider = { runBlocking { layoutPreferenceDataStore.customPosterUrlPattern.first() } },
-            onPatternChanged = { pattern -> scope.launch { layoutPreferenceDataStore.setCustomPosterUrlPattern(pattern) } },
+            onPatternChanged = { pattern ->
+                if (!parentalControls.needsGate()) scope.launch { layoutPreferenceDataStore.setCustomPosterUrlPattern(pattern) }
+            },
             context = context
         )
     )
@@ -258,6 +263,8 @@ class PhoneHubController @Inject constructor(
     // Account changes are also settings changes, so restricted profiles need the TV unlocked.
     private fun settingsBlocked(): PhoneHubResult? =
         if (parentalControls.needsGate()) PhoneHubResult(false, text(R.string.phone_hub_parental_blocked)) else null
+
+    override fun settingsChangeBlocked(): String? = settingsBlocked()?.message
 
     override suspend fun saveMdbListKey(apiKey: String): PhoneHubResult {
         settingsBlocked()?.let { return it }

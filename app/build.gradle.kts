@@ -242,6 +242,15 @@ android {
         buildConfig = true
     }
 
+    // CI runs lintFullDebug on every pull request. Errors already in the code are recorded in
+    // lint-baseline.xml, so only new ones fail the build; regenerate it with
+    // `./gradlew :app:updateLintBaselineFullDebug` after fixing a batch of them. Untranslated
+    // strings fall back to English and are filled in later, so they warn instead of failing.
+    lint {
+        baseline = file("lint-baseline.xml")
+        warning += "MissingTranslation"
+    }
+
     sourceSets {
         getByName("main") {
             jniLibs.srcDirs("src/main/jniLibs")

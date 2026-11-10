@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.semantics.SemanticsActions
@@ -75,8 +76,9 @@ class LibraryListDialogsTest {
             }
         }
         composeRule.onNodeWithText(context.getString(R.string.library_list_description_label)).assertIsDisplayed()
-        composeRule.onNodeWithText("Friends").assertIsDisplayed()
-        composeRule.onNodeWithText("Link").assertIsDisplayed()
+        // The editor scrolls; the last privacy rows sit below the fold on a 1080p TV screen.
+        composeRule.onNodeWithText("Friends").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Link").performScrollTo().assertIsDisplayed()
     }
 
     @Test

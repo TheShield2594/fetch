@@ -132,8 +132,10 @@ private fun UiDevice.completeFirstRunWizard() {
         snapshot("wizard-step")
         when {
             hasObject(By.text(WIZARD_EXPERIENCE_TITLE)) -> {
-                // Focus starts on Essential with Advanced to its right. If that card can't be
-                // reached, Skip for now (which takes Essential) still opens Home.
+                // Focus starts on Essential, with Advanced the card below it. On the CI emulator
+                // the script has not managed to select Advanced (the log shows
+                // advanced-not-selected), so this normally ends on Skip for now, which takes
+                // Essential and opens Home just the same.
                 if (!focusAndSelect(WIZARD_ADVANCED, maxSteps = 6, rightFirst = true)) {
                     snapshot("advanced-not-selected")
                     focusAndSelect(WIZARD_SKIP)

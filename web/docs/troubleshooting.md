@@ -170,10 +170,11 @@ deliver episode alerts over plain http.
 Fetch needs a TMDB API key for essentially all metadata. Without one, search
 returns `500` with "TMDB integration is not configured".
 
-Set `TMDB_API_KEY` in `.env`, or leave it unset and save a key in **Settings →
-TMDB Metadata** (the setup wizard also asks). A key saved there is validated
-against TMDB first, so a typo can't overwrite a working one. With the variable
-set, the Settings section is left out; change the key in `.env` and restart.
+Set `TMDB_API_KEY` in `.env`, or save a key in **Settings → TMDB Metadata**
+(the setup wizard also asks). A saved key takes precedence over `TMDB_API_KEY`,
+and is validated against TMDB first, so a typo can't overwrite a working one.
+When the environment key is the one in use, the Settings section is left out;
+change the key in `.env` and restart.
 
 - **Some titles have no poster** — TMDB has no image for them. Adding an RPDB
   key gives rating-badge posters instead.

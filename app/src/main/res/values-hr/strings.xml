@@ -413,9 +413,6 @@
     <string name="licenses_attributions_section_app">LICENCA APLIKACIJE</string>
     <string name="licenses_attributions_section_data">PODACI I USLUGE</string>
     <string name="licenses_attributions_section_playback">ANDROID LICENCE ZA REPRODUKCIJU</string>
-    <string name="licenses_attributions_section_ui">UI BIBLIOTEKE</string>
-    <string name="licenses_attributions_haze_title">Haze 1.7.2</string>
-    <string name="licenses_attributions_haze_body">Koristi se za efekte zamućenja pozadine. Autor: Chris Banes. Licencirano pod Apache licencom, verzija 2.0.</string>
     <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch koristi TMDB API za metapodatke o filmovima i serijama, grafike, trailere, glumce, produkcijske detalje, kolekcije i preporuke. Ovaj proizvod koristi TMDB API, ali ga TMDB ne podržava niti certificira.</string>
@@ -551,7 +548,6 @@
     <string name="advanced_section_performance">Performanse i navigacija</string>
     <string name="advanced_section_diagnostics">Dijagnostika</string>
     <string name="advanced_playback_issue_reports">Izvješća o problemima s reprodukcijom</string>
-    <string name="advanced_playback_issue_reports_subtitle">Prikaži gumbe za prijavu tijekom reprodukcije, dugog učitavanja i pogrešaka reprodukcije</string>
     <string name="advanced_player_stats_hud">Prikaz statistike reprodukcije</string>
     <string name="advanced_player_stats_hud_subtitle">Prikaži gumb u informacijama o streamu za uključivanje prikaza CPU-a, memorije, međuspremnika, bitratea i temperature uživo tijekom reprodukcije</string>
     <string name="advanced_section_cache">Predmemorija</string>

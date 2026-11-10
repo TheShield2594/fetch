@@ -423,9 +423,6 @@
     <string name="licenses_attributions_section_app">AZ ALKALMAZÁS LICENCE</string>
     <string name="licenses_attributions_section_data">ADATOK ÉS SZOLGÁLTATÁSOK</string>
     <string name="licenses_attributions_section_playback">ANDROID LEJÁTSZÁSI LICENCEK</string>
-    <string name="licenses_attributions_section_ui">FELÜLETI KÖNYVTÁRAK</string>
-    <string name="licenses_attributions_haze_title">Haze 1.7.2</string>
-    <string name="licenses_attributions_haze_body">Háttérelmosáshoz használjuk. Készítette Chris Banes. Apache License 2.0 alatt érhető el.</string>
     <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">A Fetch a TMDB API-t használja a filmek és tévéműsorok metaadataihoz, borítóképekhez, előzetesekhez, stáblistákhoz, gyártási adatokhoz, gyűjteményekhez és ajánlásokhoz. Ez a termék a TMDB API-t használja, de a TMDB nem támogatja és nem hagyta jóvá.</string>
@@ -561,7 +558,6 @@
     <string name="advanced_section_performance">Teljesítmény és navigáció</string>
     <string name="advanced_section_diagnostics">Diagnosztika</string>
     <string name="advanced_playback_issue_reports">Lejátszási hibajelentések</string>
-    <string name="advanced_playback_issue_reports_subtitle">Hibajelentő gombok megjelenítése lejátszás közben, hosszú betöltésnél és lejátszási hibáknál</string>
     <string name="advanced_player_stats_hud">Lejátszási adatok a képernyőn</string>
     <string name="advanced_player_stats_hud_subtitle">A streamadatoknál lévő gombbal lejátszás közben megjelenítheted vagy elrejtheted a CPU-, memória-, puffer-, bitráta- és hőmérsékletadatokat.</string>
     <string name="advanced_section_cache">Gyorsítótár</string>

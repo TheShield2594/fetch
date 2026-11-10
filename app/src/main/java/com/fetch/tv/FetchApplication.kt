@@ -9,6 +9,7 @@ import android.os.Looper
 import android.os.StatFs
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
+import com.fetch.tv.data.repository.AuthDiagnosticReportRepository
 import com.fetch.tv.core.image.BrowserImageRequestHeadersInterceptor
 import com.fetch.tv.core.image.CustomPosterFallbackInterceptor
 import coil3.disk.DiskCache
@@ -62,6 +63,10 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
             serverUserStateProjection.get().start()
             false
         }
+        // Remove sign-in reports older builds queued on disk, whether or not reports are on.
+        Thread({ AuthDiagnosticReportRepository.deleteLegacyQueue(this) }, "auth-report-cleanup")
+            .apply { priority = Thread.MIN_PRIORITY }
+            .start()
         // Probe decoders/HDR/passthrough off the main thread so cold start isn't delayed;
         // stream ranking assumes a capable device until the probe lands.
         Thread({ DeviceDecodeCapabilities.current = deviceDecodeCapabilities.get() }, "decode-caps-probe")

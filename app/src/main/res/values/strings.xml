@@ -486,13 +486,14 @@
     <string name="about_licenses_attributions">Licenses &amp; Attribution</string>
     <string name="about_licenses_attributions_subtitle">Data sources, acknowledgements, and Android licenses</string>
     <string name="licenses_attributions_title">Licenses &amp; Attribution</string>
-    <string name="licenses_attributions_subtitle">Data providers, service credits, and Android playback licenses used by Fetch.</string>
+    <string name="licenses_attributions_subtitle">Data providers, service credits, and the playback engines and open-source libraries Fetch bundles.</string>
     <string name="licenses_attributions_section_app">APP LICENSE</string>
     <string name="licenses_attributions_section_data">DATA &amp; SERVICES</string>
     <string name="licenses_attributions_section_playback">ANDROID PLAYBACK LICENSES</string>
-    <string name="licenses_attributions_section_ui">UI LIBRARIES</string>
-    <string name="licenses_attributions_haze_title">Haze 1.7.2</string>
-    <string name="licenses_attributions_haze_body">Used for background blur effects. Created by Chris Banes. Licensed under the Apache License, Version 2.0.</string>
+    <string name="licenses_attributions_section_libraries">OPEN-SOURCE LIBRARIES</string>
+    <string name="licenses_attributions_license_format">Licensed under the %1$s.</string>
+    <string name="licenses_attributions_section_texts">FULL LICENSE TEXTS</string>
+    <string name="licenses_attributions_license_text_body">The full text of this license, which applies to the libraries above that name it.</string>
     <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_fetch_body">Fetch is free software under the GNU General Public License v3.0. It is a fork of NuvioTV by the Nuvio contributors (github.com/NuvioMedia/NuvioTV), whose work makes up most of this app.</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
@@ -510,7 +511,9 @@
     <string name="licenses_attributions_exoplayer_title">AndroidX Media3 ExoPlayer 1.8.0</string>
     <string name="licenses_attributions_exoplayer_body">Used as an Android playback engine. Licensed under the Apache License, Version 2.0.</string>
     <string name="licenses_attributions_libmpv_title">libmpv / libmpv-android</string>
-    <string name="licenses_attributions_libmpv_body">Used as an Android playback engine. The libmpv-android wrapper is licensed under the MIT license; mpv/libmpv and bundled native components retain their upstream license terms.</string>
+    <string name="licenses_attributions_libmpv_body">Used as an Android playback engine. The mpv-android library wrapper is licensed under the MIT license; mpv/libmpv and its bundled native components (including FFmpeg) retain their upstream license terms.</string>
+    <string name="licenses_attributions_ffmpeg_title">FFmpeg</string>
+    <string name="licenses_attributions_ffmpeg_body">Used for audio decoding through the Media3 FFmpeg extension (with downmix behaviour adapted from Kodi, GPL-2.0-or-later) and for reading media information. FFmpeg is licensed under the GNU Lesser General Public License 2.1 or later. Its source code is available from ffmpeg.org.</string>
 
     <!-- SettingsScreen categories -->
     <string name="settings_experience">Experience</string>
@@ -663,7 +666,7 @@
     <string name="advanced_section_performance">Performance &amp; navigation</string>
     <string name="advanced_section_diagnostics">Diagnostics</string>
     <string name="advanced_playback_issue_reports">Playback issue reports</string>
-    <string name="advanced_playback_issue_reports_subtitle">Show report buttons during playback, long loading, and playback errors</string>
+    <string name="advanced_playback_issue_reports_subtitle">Show report buttons during playback, long loading, and playback errors. Also sends a diagnostics report for each sign-in or sign-up to the default sync server, successful or not</string>
     <string name="advanced_player_stats_hud">Playback stats overlay</string>
     <string name="advanced_player_stats_hud_subtitle">Show a button in stream info to toggle live cpu, memory, buffer, bitrate and thermal readings during playback</string>
     <string name="advanced_section_cache">Cache</string>

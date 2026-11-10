@@ -2032,7 +2032,6 @@
     <string name="settings_content_discovery_subtitle">Адони, каталоги та джерела пошуку</string>
     <string name="settings_content_discovery_addons_subtitle">Керуйте адонами, порядком каталогів і колекціями</string>
     <string name="advanced_playback_issue_reports">Звіти про проблеми відтворення</string>
-    <string name="advanced_playback_issue_reports_subtitle">Показувати кнопки звіту під час відтворення, тривалого завантаження та помилок відтворення</string>
     <string name="audio_force_optical_passthrough">Примусове транскодування AC-3 (Optical/SPDIF)</string>
     <string name="audio_force_optical_passthrough_sub">Транскодує багатоканальні формати (TrueHD, DTS, AAC тощо) у Dolby Digital 5.1 в реальному часі для підключень Optical/SPDIF.</string>
     <string name="audio_strip_hdr10plus_title">Видаляти метадані HDR10+</string>

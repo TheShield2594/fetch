@@ -44,9 +44,20 @@ import javax.net.ssl.SSLException
 
 private const val TAG = "AuthDiagnostics"
 private const val EXCLUDED_CREDENTIAL = "[excluded-credential]"
-private val credentialKeyRegex = Regex("(authorization|cookie|token|secret|password|apikey|api_key|accesskey|session|refresh|bearer)", RegexOption.IGNORE_CASE)
-private val credentialJsonValueRegex = Regex("(\"[^\"]*(?:authorization|cookie|token|secret|password|apikey|api_key|accesskey|session|refresh|bearer)[^\"]*\"\\s*:\\s*)(\"(?:\\\\.|[^\"])*\"|[^,}\\]]+)", setOf(RegexOption.IGNORE_CASE))
+private val credentialKeyRegex = Regex("(authorization|cookie|token|secret|password|apikey|api_key|accesskey|session|refresh|bearer|email)", RegexOption.IGNORE_CASE)
+private val credentialJsonValueRegex = Regex("(\"[^\"]*(?:authorization|cookie|token|secret|password|apikey|api_key|accesskey|session|refresh|bearer|email)[^\"]*\"\\s*:\\s*)(\"(?:\\\\.|[^\"])*\"|[^,}\\]]+)", setOf(RegexOption.IGNORE_CASE))
+private const val EXCLUDED_EMAIL = "[excluded-email]"
+private val emailAddressRegex = Regex("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}")
 private val authDiagnosticsJson = Json { ignoreUnknownKeys = true }
+
+/**
+ * Free text that can carry a response body (exception messages, cause chains, stack traces,
+ * log lines): credential-looking JSON values and every email address are removed.
+ */
+fun authDiagnosticScrubText(text: String): String =
+    credentialJsonValueRegex
+        .replace(text) { match -> "${match.groupValues[1]}\"$EXCLUDED_CREDENTIAL\"" }
+        .replace(emailAddressRegex, EXCLUDED_EMAIL)
 
 class AuthDiagnosticsSession(
     private val repository: AuthDiagnosticReportRepository,
@@ -233,7 +244,7 @@ class AuthDiagnosticsSession(
         val result = repository.submit(payload)
         result.fold(
             onSuccess = { reportId -> Log.d(TAG, "attempt=$attemptId flow=$flowType upload=success reportId=$reportId") },
-            onFailure = { uploadError -> Log.w(TAG, "attempt=$attemptId flow=$flowType upload=queued error=${uploadError.javaClass.simpleName}: ${uploadError.message}") }
+            onFailure = { uploadError -> Log.w(TAG, "attempt=$attemptId flow=$flowType upload=dropped error=${uploadError.javaClass.simpleName}: ${uploadError.message}") }
         )
         return result
     }
@@ -248,7 +259,7 @@ class AuthDiagnosticsSession(
     }
 
     private fun appendLocked(event: AuthDiagnosticEventDto) {
-        val line = event.toLogLine()
+        val line = authDiagnosticScrubText(event.toLogLine())
         events += event
         rawLogs += "${event.timeMs} $line"
         if (event.exception != null) Log.e(TAG, line) else Log.d(TAG, line)
@@ -407,7 +418,7 @@ fun authDiagnosticFilteredBody(body: String?): String? {
     if (body.isBlank()) return body
     val parsed = runCatching { authDiagnosticsJson.parseToJsonElement(body) }.getOrNull()
     if (parsed != null) return filterJsonElement(parsed).toString()
-    return credentialJsonValueRegex.replace(body) { match -> "${match.groupValues[1]}\"$EXCLUDED_CREDENTIAL\"" }
+    return authDiagnosticScrubText(body)
 }
 
 fun authNetworkErrorFamily(error: Throwable?): String? {
@@ -434,6 +445,7 @@ private fun filterJsonElement(element: JsonElement, key: String? = null): JsonEl
     return when (element) {
         is JsonObject -> JsonObject(element.mapValues { (childKey, childValue) -> filterJsonElement(childValue, childKey) })
         is JsonArray -> JsonArray(element.map { child -> filterJsonElement(child) })
+        is JsonPrimitive -> if (element.isString) JsonPrimitive(element.content.replace(emailAddressRegex, EXCLUDED_EMAIL)) else element
         else -> element
     }
 }
@@ -448,9 +460,9 @@ private fun String.hostOrNull(): String? =
 private fun Throwable.toAuthDiagnosticExceptionDto(): AuthDiagnosticExceptionDto =
     AuthDiagnosticExceptionDto(
         className = javaClass.name,
-        message = message,
-        causeChain = causeChain(),
-        stackTrace = stackTraceString()
+        message = message?.let(::authDiagnosticScrubText),
+        causeChain = causeChain().map(::authDiagnosticScrubText),
+        stackTrace = authDiagnosticScrubText(stackTraceString())
     )
 
 private fun Throwable.causeChain(): List<String> {

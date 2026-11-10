@@ -387,9 +387,6 @@
     <string name="licenses_attributions_section_app">অ্যাপ লাইসেন্স</string>
     <string name="licenses_attributions_section_data">ডেটা এবং পরিষেবা</string>
     <string name="licenses_attributions_section_playback">ANDROID PLAYBACK LICENSES</string>
-    <string name="licenses_attributions_section_ui">UI লাইব্রেরি</string>
-    <string name="licenses_attributions_haze_title">Haze 1.7.2</string>
-    <string name="licenses_attributions_haze_body">ব্যাকগ্রাউন্ড ব্লার ইফেক্টের জন্য ব্যবহৃত হয়। Chris Banes দ্বারা তৈরি। Apache License, Version 2.0-এর অধীনে লাইসেন্সকৃত।</string>
     <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch মুভি এবং টিভি মেটাডেটা, আর্টওয়ার্ক, ট্রেলার, কাস্ট, প্রোডাকশন বিবরণ, কালেকশন এবং সুপারিশের জন্য TMDB API ব্যবহার করে। এই পণ্যটি TMDB API ব্যবহার করে কিন্তু TMDB দ্বারা অনুমোদিত বা প্রত্যয়িত নয়।</string>
@@ -522,7 +519,6 @@
     <string name="advanced_section_performance">পারফরম্যান্স এবং নেভিগেশন</string>
     <string name="advanced_section_diagnostics">ডায়াগনস্টিকস</string>
     <string name="advanced_playback_issue_reports">প্লেব্যাক সমস্যার রিপোর্ট</string>
-    <string name="advanced_playback_issue_reports_subtitle">প্লেব্যাক, দীর্ঘ লোডিং এবং প্লেব্যাক এররের সময় রিপোর্ট বাটন দেখান</string>
     <string name="advanced_player_stats_hud">প্লেব্যাক স্ট্যাটস ওভারলে</string>
     <string name="advanced_player_stats_hud_subtitle">প্লেব্যাকের সময় লাইভ cpu, মেমোরি, বাফার, বিটরেট এবং থার্মাল রিডিং টগল করতে স্ট্রিম ইনফোতে একটি বাটন দেখান</string>
     <string name="advanced_section_cache">ক্যাশে</string>

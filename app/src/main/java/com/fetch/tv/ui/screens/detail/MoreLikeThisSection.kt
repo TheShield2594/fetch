@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.res.stringResource
+import com.fetch.tv.R
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
@@ -200,19 +202,36 @@ fun MoreLikeThisSection(
             }
         }
 
-        sourceLabel
-            ?.takeIf { it.isNotBlank() }
-            ?.let { label ->
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = FetchTheme.colors.TextTertiary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .align(androidx.compose.ui.Alignment.End)
-                        .padding(end = 10.dp, top = FetchTheme.spacing.xxs, bottom = FetchTheme.spacing.xxs)
-                )
-            }
+        androidx.compose.foundation.layout.Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = FetchTheme.spacing.xxxl,
+                    end = 10.dp,
+                    top = FetchTheme.spacing.xxs,
+                    bottom = FetchTheme.spacing.xxs
+                ),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+        ) {
+            // The long-press menu has no visible handle, so the detail page always names it.
+            Text(
+                text = stringResource(R.string.poster_options_hold_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = FetchTheme.colors.TextTertiary,
+                maxLines = 1,
+                modifier = Modifier.weight(1f)
+            )
+            sourceLabel
+                ?.takeIf { it.isNotBlank() }
+                ?.let { label ->
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FetchTheme.colors.TextTertiary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+        }
     }
 }

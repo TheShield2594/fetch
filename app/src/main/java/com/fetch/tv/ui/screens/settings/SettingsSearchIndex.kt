@@ -179,9 +179,21 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.animeskip_client_id_title,
         R.string.animeskip_dialog_title
     ),
+    SettingsCategory.ADDONS to listOf(
+        R.string.addon_title,
+        R.string.settings_addons_manage
+    ),
+    SettingsCategory.CUSTOMISE_HOME to listOf(
+        R.string.customise_home_title,
+        R.string.customise_home_rows,
+        R.string.customise_home_add_catalog,
+        R.string.customise_home_add_filter,
+        R.string.customise_home_add_folder,
+        R.string.customise_home_edit_filter_rows,
+        R.string.customise_home_edit_folders
+    ),
     SettingsCategory.CONTENT_DISCOVERY to listOf(
         R.string.settings_content_discovery,
-        R.string.addon_title,
         R.string.settings_media_servers,
         R.string.servers_enabled,
         R.string.servers_catalog_metadata,
@@ -281,9 +293,6 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.layout_hide_unreleased,
         R.string.layout_overall_ratings,
         R.string.layout_collapse_sidebar,
-        R.string.layout_show_discover,
-        R.string.layout_discover_location_action,
-        R.string.layout_discover_location_dialog_title,
         R.string.layout_section_home,
         R.string.layout_section_content,
         R.string.layout_section_sidebar,

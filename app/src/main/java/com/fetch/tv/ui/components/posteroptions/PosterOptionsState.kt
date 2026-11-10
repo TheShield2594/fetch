@@ -27,7 +27,9 @@ data class PosterOptionsState(
     val listPickerError: String? = null,
     val removalConfirmations: List<TrackingMembershipRemovalConfirmation> = emptyList(),
     /** A library or watched write that failed after the menu closed; shown once, then consumed. */
-    val actionError: String? = null
+    val actionError: String? = null,
+    /** A library, list or watched write that went through; shown once, then consumed. */
+    val actionConfirmation: String? = null
 )
 
 /** Long-press "Add to list" opens the list picker rather than toggling the saved library. */

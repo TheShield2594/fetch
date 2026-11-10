@@ -679,14 +679,6 @@
     <string name="layout_collapse_sidebar_sub">Skryť bočný panel predvolene; zobraziť pri zameraní.</string>
     <string name="layout_fullscreen_hero_backdrop">Celostránkové pozadie hero sekcie</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Rozšíriť pozadie hero sekcie na celú obrazovku.</string>
-    <string name="layout_show_discover">Zobraziť/Skryť Objavovať</string>
-    <string name="layout_show_discover_sub">Pridá sekciu Objavovať pre prehliadanie.</string>
-    <string name="layout_discover_location_action">Umiestnenie Objavovania</string>
-    <string name="layout_discover_location_dialog_title">Umiestnenie Objavovania</string>
-    <string name="layout_discover_location_in_search">Zobraziť v Hľadaní</string>
-    <string name="layout_discover_location_in_search_desc">Objavovanie sa zobrazí v záložke Hľadať.</string>
-    <string name="layout_discover_location_in_sidebar">Zobraziť v bočnom paneli</string>
-    <string name="layout_discover_location_in_sidebar_desc">Objavovanie dostane vlastnú položku v bočnom paneli.</string>
     <string name="layout_poster_labels">Zobraziť názvy posterov</string>
     <string name="layout_poster_labels_sub">Zobraziť názvy pod postermi v radoch, mriežke a zobrazení všetkých.</string>
     <string name="layout_addon_name">Zobraziť názov doplnku</string>

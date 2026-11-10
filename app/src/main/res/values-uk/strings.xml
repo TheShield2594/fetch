@@ -697,14 +697,6 @@
     <string name="layout_collapse_sidebar_sub">Приховувати бічну панель за замовчуванням; показувати при фокусі.</string>
     <string name="layout_fullscreen_hero_backdrop">Повноекранний фон головного блоку</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Розтягувати фон головного блоку на весь екран.</string>
-    <string name="layout_show_discover">Показувати Навігатор у пошуку</string>
-    <string name="layout_show_discover_sub">Показувати розділ навігації, коли пошук порожній.</string>
-    <string name="layout_discover_location_action">Розташування Навігатора</string>
-    <string name="layout_discover_location_dialog_title">Розташування Навігатора</string>
-    <string name="layout_discover_location_in_search">Показати в Пошуку</string>
-    <string name="layout_discover_location_in_search_desc">Навігатор відображається всередині вкладки Пошук.</string>
-    <string name="layout_discover_location_in_sidebar">Показати в бічній панелі</string>
-    <string name="layout_discover_location_in_sidebar_desc">Навігатор отримує окремий елемент у бічній панелі.</string>
     <string name="layout_poster_labels">Показувати назви під постерами</string>
     <string name="layout_poster_labels_sub">Показувати назви під постерами в рядках, сітці та меню «показати всі».</string>
     <string name="layout_addon_name">Показувати назву адона</string>

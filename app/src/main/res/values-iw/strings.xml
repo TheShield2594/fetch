@@ -870,14 +870,6 @@
     <string name="layout_collapse_sidebar_sub">הסתרת סרגל הצד כברירת מחדל; הצגתו בעת פוקוס.</string>
     <string name="layout_fullscreen_hero_backdrop">תמונת רקע ראשית במסך מלא</string>
     <string name="layout_fullscreen_hero_backdrop_sub">הרחבת תמונת הרקע הראשית כך שתמלא את כל המסך.</string>
-    <string name="layout_show_discover">הצגת כפתור \"גילוי\"</string>
-    <string name="layout_show_discover_sub">הצגת אזור גילוי למציאת סרטים וסדרות.</string>
-    <string name="layout_discover_location_action">מיקום \"גילוי\"</string>
-    <string name="layout_discover_location_dialog_title">מיקום \"גילוי\"</string>
-    <string name="layout_discover_location_in_search">הצגת כפתור בחיפוש</string>
-    <string name="layout_discover_location_in_search_desc">כפתור הגילוי יופיע במסך החיפוש.</string>
-    <string name="layout_discover_location_in_sidebar">הצגה בסרגל הצד</string>
-    <string name="layout_discover_location_in_sidebar_desc">כפתור הגילוי יופיע בסרגל בצד הימני.</string>
     <string name="layout_poster_labels">הצגת תוויות פוסטרים</string>
     <string name="layout_poster_labels_sub">הצגת כותרות מתחת לפוסטרים בשורות.</string>
     <string name="layout_addon_name">הצגת שם תוסף</string>

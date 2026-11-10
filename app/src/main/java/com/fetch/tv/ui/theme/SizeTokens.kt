@@ -22,17 +22,6 @@ data class FetchButtonSizes(
 )
 
 @Immutable
-data class FetchSidebarSizes(
-    val hiddenWidth: Dp,
-    val compactWidth: Dp,
-    val closedWidth: Dp,
-    val expandedWidth: Dp,
-    val expandedItemWidth: Dp,
-    val railItemHeight: Dp,
-    val leadingVisual: Dp
-)
-
-@Immutable
 data class FetchCardSizes(
     val posterWidth: Dp,
     val posterHeight: Dp,
@@ -75,7 +64,6 @@ data class FetchSettingsSizes(
 data class FetchSizeTokens(
     val icons: FetchIconSizes,
     val buttons: FetchButtonSizes,
-    val sidebar: FetchSidebarSizes,
     val cards: FetchCardSizes,
     val avatars: FetchAvatarSizes,
     val player: FetchPlayerSizes,
@@ -99,15 +87,6 @@ object FetchSizes {
             defaultHeight = 52.dp,
             largeHeight = 64.dp,
             minWidth = 96.dp
-        ),
-        sidebar = FetchSidebarSizes(
-            hiddenWidth = 0.dp,
-            compactWidth = 72.dp,
-            closedWidth = 184.dp,
-            expandedWidth = 262.dp,
-            expandedItemWidth = 148.dp,
-            railItemHeight = 52.dp,
-            leadingVisual = 34.dp
         ),
         cards = FetchCardSizes(
             posterWidth = 126.dp,

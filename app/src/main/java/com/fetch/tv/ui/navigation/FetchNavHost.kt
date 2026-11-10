@@ -263,6 +263,7 @@ private fun PlaybackNavHost(
                     navController.navigate(Screen.FolderDetail.createRoute(collectionId, folderId))
                 },
                 onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
+                onCustomiseHome = { rowKey -> navController.navigate(Screen.CatalogOrder.createRoute(rowKey)) },
                 onOpenYouTube = { navController.navigate(Screen.YouTube.route) { launchSingleTop = true } }
             )
         }
@@ -1269,6 +1270,13 @@ private fun PlaybackNavHost(
                 SettingsScreen(
                     showBuiltInHeader = !hideBuiltInHeaders,
                     onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
+                    customiseHomeActions = com.fetch.tv.ui.screens.settings.CustomiseHomeActions(
+                        openCustomiseHome = { navController.navigate(Screen.CatalogOrder.createRoute()) },
+                        addFilterRow = { navController.navigate(Screen.FilterRowEditor.createRoute()) },
+                        addFolderRow = { navController.navigate(Screen.CollectionEditor.createRoute()) },
+                        editFilterRows = { navController.navigate(Screen.FilterRows.route) },
+                        editFolders = { navController.navigate(Screen.Collections.route) }
+                    ),
                     onNavigateToAuthQrSignIn = { navController.navigate(Screen.AuthQrSignIn.route) },
                     onNavigateToManageProfiles = { navController.navigate(Screen.ManageProfiles.route) },
                     onNavigateToLicensesAttributions = {
@@ -1333,16 +1341,30 @@ private fun PlaybackNavHost(
                 AddonManagerScreen(
                     showBuiltInHeader = !hideBuiltInHeaders,
                     onBackPress = { navController.popBackStack() },
-                    onNavigateToCatalogOrder = { navController.navigate(Screen.CatalogOrder.route) },
-                    onNavigateToCollections = { navController.navigate(Screen.Collections.route) },
-                    onNavigateToFilterRows = { navController.navigate(Screen.FilterRows.route) }
+                    onNavigateToCustomiseHome = { navController.navigate(Screen.CatalogOrder.createRoute()) }
                 )
             }
         }
 
-        composable(Screen.CatalogOrder.route) {
+        composable(
+            route = Screen.CatalogOrder.route,
+            arguments = listOf(
+                navArgument("focusKey") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val focusKey = backStackEntry.arguments?.getString("focusKey")?.takeIf { it.isNotBlank() }
             ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
                 CatalogOrderScreen(
+                    focusKey = focusKey,
+                    onAddCatalogRow = { navController.navigate(Screen.AddonManager.route) },
+                    onAddFilterRow = { navController.navigate(Screen.FilterRowEditor.createRoute()) },
+                    onAddFolderRow = { navController.navigate(Screen.CollectionEditor.createRoute()) },
+                    onEditFilterRows = { navController.navigate(Screen.FilterRows.route) },
+                    onEditFolders = { navController.navigate(Screen.Collections.route) },
                     onBackPress = { navController.popBackStack() }
                 )
             }

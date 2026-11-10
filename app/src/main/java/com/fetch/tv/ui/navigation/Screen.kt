@@ -149,7 +149,12 @@ sealed class Screen(val route: String) {
     }
     data object LicensesAttributions : Screen("licenses_attributions")
     data object AddonManager : Screen("addon_manager")
-    data object CatalogOrder : Screen("catalog_order")
+    /** Customise Home: every Home row, to reorder, hide or pin, and the ways to add one. */
+    data object CatalogOrder : Screen("catalog_order?focusKey={focusKey}") {
+        /** [focusKey]: the order key of a row to open on, as when coming from that row on Home. */
+        fun createRoute(focusKey: String? = null): String =
+            "catalog_order?focusKey=${focusKey?.let { URLEncoder.encode(it, "UTF-8").replace("+", "%20") }.orEmpty()}"
+    }
     data object ExperienceModeSelection : Screen("experience_mode_selection")
     data object ManageProfiles : Screen("manage_profiles")
     data object AuthQrSignIn : Screen("auth_qr_sign_in")

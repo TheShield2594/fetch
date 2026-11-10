@@ -43,6 +43,8 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Info
@@ -162,7 +164,9 @@ private fun settingsSectionSpec(category: SettingsCategory): SettingsSectionSpec
         SettingsCategory.PHONE -> SettingsSectionSpec(category, stringResource(R.string.phone_hub_title), Icons.Rounded.PhoneAndroid)
         SettingsCategory.APPEARANCE -> SettingsSectionSpec(category, stringResource(R.string.appearance_title), Icons.Default.Palette)
         SettingsCategory.LAYOUT -> SettingsSectionSpec(category, stringResource(R.string.settings_layout), Icons.Default.GridView)
+        SettingsCategory.ADDONS -> SettingsSectionSpec(category, stringResource(R.string.addon_title), Icons.Default.Extension)
         SettingsCategory.CONTENT_DISCOVERY -> SettingsSectionSpec(category, stringResource(R.string.settings_content_discovery), Icons.Default.Explore)
+        SettingsCategory.CUSTOMISE_HOME -> SettingsSectionSpec(category, stringResource(R.string.customise_home_title), Icons.Default.Dashboard)
         // Essential mode's only playback page, so named for what it holds rather than after its heading.
         SettingsCategory.PLAYBACK -> SettingsSectionSpec(category, stringResource(R.string.essential_playback_basics), Icons.Rounded.PlayArrow)
         SettingsCategory.TRACKING -> SettingsSectionSpec(category, stringResource(R.string.settings_tracking_title), Icons.Default.Sync)
@@ -189,10 +193,20 @@ private fun settingsGroupTitle(group: SettingsRailGroup): String = when (group) 
     SettingsRailGroup.SYSTEM -> stringResource(R.string.settings_group_system)
 }
 
+/** Where Settings › Customise Home's entries lead. */
+data class CustomiseHomeActions(
+    val openCustomiseHome: () -> Unit = {},
+    val addFilterRow: () -> Unit = {},
+    val addFolderRow: () -> Unit = {},
+    val editFilterRows: () -> Unit = {},
+    val editFolders: () -> Unit = {}
+)
+
 @Composable
 fun SettingsScreen(
     showBuiltInHeader: Boolean = true,
     onNavigateToAddons: () -> Unit = {},
+    customiseHomeActions: CustomiseHomeActions = CustomiseHomeActions(),
     onNavigateToAuthQrSignIn: () -> Unit = {},
     onNavigateToManageProfiles: () -> Unit = {},
     onNavigateToLicensesAttributions: () -> Unit = {},
@@ -661,6 +675,7 @@ fun SettingsScreen(
                         },
                         onNavigateToManageProfiles = onNavigateToManageProfiles,
                         onNavigateToAddons = onNavigateToAddons,
+                        customiseHomeActions = customiseHomeActions,
                         onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn,
                         onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
                         onNavigateToWatchParty = onNavigateToWatchParty,
@@ -689,6 +704,7 @@ private fun SettingsDetailPane(
     onOpenSearchResult: (SettingsSearchEntry) -> Unit,
     onNavigateToManageProfiles: () -> Unit,
     onNavigateToAddons: () -> Unit,
+    customiseHomeActions: CustomiseHomeActions,
     onNavigateToAuthQrSignIn: () -> Unit,
     onNavigateToLicensesAttributions: () -> Unit,
     onNavigateToWatchParty: () -> Unit,
@@ -830,8 +846,20 @@ private fun SettingsDetailPane(
             },
             essentialMode = isEssentialMode
         )
-        SettingsCategory.CONTENT_DISCOVERY -> ContentDiscoverySettingsContent(
+        SettingsCategory.ADDONS -> AddonsSettingsContent(
             onNavigateToAddons = onNavigateToAddons,
+            initialFocusRequester = focusFor(SettingsCategory.ADDONS)
+        )
+        SettingsCategory.CUSTOMISE_HOME -> CustomiseHomeSettingsContent(
+            onOpenCustomiseHome = customiseHomeActions.openCustomiseHome,
+            onAddCatalogRow = onNavigateToAddons,
+            onAddFilterRow = customiseHomeActions.addFilterRow,
+            onAddFolderRow = customiseHomeActions.addFolderRow,
+            onEditFilterRows = customiseHomeActions.editFilterRows,
+            onEditFolders = customiseHomeActions.editFolders,
+            initialFocusRequester = focusFor(SettingsCategory.CUSTOMISE_HOME)
+        )
+        SettingsCategory.CONTENT_DISCOVERY -> ContentDiscoverySettingsContent(
             initialFocusRequester = if (allowDetailAutofocus) {
                 contentFocusRequesters[SettingsCategory.CONTENT_DISCOVERY]
             } else {

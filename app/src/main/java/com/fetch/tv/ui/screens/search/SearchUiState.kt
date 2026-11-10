@@ -29,7 +29,7 @@ data class SearchUiState(
     val error: String? = null,
     val catalogRows: List<CatalogRow> = emptyList(),
     val installedAddons: List<Addon> = emptyList(),
-    val discoverLocation: DiscoverLocation = DiscoverLocation.IN_SEARCH,
+    val discoverLocation: DiscoverLocation = DiscoverLocation.IN_SIDEBAR,
     val discoverInitialized: Boolean = false,
     val discoverLoading: Boolean = false,
     val discoverLoadingMore: Boolean = false,

@@ -703,14 +703,6 @@
     <string name="layout_collapse_sidebar_sub">إخفاء الشريط الجانبي تلقائياً؛ وإظهاره عند التركيز.</string>
     <string name="layout_fullscreen_hero_backdrop">خلفية القسم المميز بملء الشاشة</string>
     <string name="layout_fullscreen_hero_backdrop_sub">توسيع خلفية القسم المميز لتملأ الشاشة بأكملها.</string>
-    <string name="layout_show_discover">إظهار \"استكشاف\" في البحث</string>
-    <string name="layout_show_discover_sub">إظهار قسم \"استكشاف\" عندما يكون حقل البحث فارغاً.</string>
-    <string name="layout_discover_location_action">مكان \"استكشاف\"</string>
-    <string name="layout_discover_location_dialog_title">مكان قسم \"استكشاف\"</string>
-    <string name="layout_discover_location_in_search">إظهار في علامة تبويب البحث</string>
-    <string name="layout_discover_location_in_search_desc">يظهر قسم \"استكشاف\" داخل علامة تبويب البحث.</string>
-    <string name="layout_discover_location_in_sidebar">إظهار في القائمة الجانبية</string>
-    <string name="layout_discover_location_in_sidebar_desc">إضافة علامة تبويب مستقلة لميزة \"استكشاف\" في القائمة الجانبية.</string>
     <string name="layout_poster_labels">إظهار عناوين البطاقات</string>
     <string name="layout_poster_labels_sub">إظهار العناوين تحت البطاقات في القوائم , و\"عرض الكل\".</string>
     <string name="layout_addon_name">إظهار اسم الإضافة</string>

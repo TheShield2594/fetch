@@ -367,8 +367,6 @@
     <string name="layout_section_content_desc">Kontroluj co pojawia się na stronie głównej i w wyszukiwarce.</string>
     <string name="layout_collapse_sidebar">Zwiń pasek boczny</string>
     <string name="layout_collapse_sidebar_sub">Ukryj pasek boczny domyślnie; pokaż po skupieniu.</string>
-    <string name="layout_show_discover">Pokaż Odkrywaj w wyszukiwarce</string>
-    <string name="layout_show_discover_sub">Pokaż sekcję przeglądania gdy wyszukiwarka jest pusta.</string>
     <string name="layout_poster_labels">Pokaż etykiety plakatów</string>
     <string name="layout_poster_labels_sub">Pokaż tytuły pod plakatami w wierszach, siatce i widoku wszystkich.</string>
     <string name="layout_addon_name">Pokaż nazwę dodatku</string>
@@ -1954,12 +1952,6 @@
     <string name="layout_cw_sort_streaming_desc">Wydane elementy najpierw, nadchodzące na końcu</string>
     <string name="layout_cw_sort_split_upcoming">Oddzielny rząd Nadchodzące</string>
     <string name="layout_cw_sort_split_upcoming_desc">Przenieś niewydane odcinki do oddzielnego rzędu Nadchodzące</string>
-    <string name="layout_discover_location_action">Lokalizacja Odkrywaj</string>
-    <string name="layout_discover_location_dialog_title">Lokalizacja Odkrywaj</string>
-    <string name="layout_discover_location_in_search">Pokaż w Szukaj</string>
-    <string name="layout_discover_location_in_search_desc">Odkrywaj pojawia się w zakładce Szukaj.</string>
-    <string name="layout_discover_location_in_sidebar">Pokaż w panelu bocznym</string>
-    <string name="layout_discover_location_in_sidebar_desc">Odkrywaj ma własny element w panelu bocznym.</string>
     <string name="library_error_delete_list_failed">Nie udało się usunąć listy</string>
     <string name="library_error_refresh_failed">Nie udało się odświeżyć biblioteki</string>
     <string name="library_error_reorder_lists_failed">Nie udało się zmienić kolejności list</string>

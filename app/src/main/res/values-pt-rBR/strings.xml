@@ -805,14 +805,6 @@
     <string name="layout_collapse_sidebar_sub">Esconda o menu; exiba-o apenas ao focar.</string>
     <string name="layout_fullscreen_hero_backdrop">Fundo em tela cheia</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expanda o fundo do modo Moderno por toda a tela.</string>
-    <string name="layout_show_discover">Mostrar/Ocultar Descobrir</string>
-    <string name="layout_show_discover_sub">Adiciona seção Descobrir para navegação</string>
-    <string name="layout_discover_location_action">Local do Descobrir</string>
-    <string name="layout_discover_location_dialog_title">Local do Descobrir</string>
-    <string name="layout_discover_location_in_search">Mostrar na Busca</string>
-    <string name="layout_discover_location_in_search_desc">Descobrir aparece dentro da aba Busca</string>
-    <string name="layout_discover_location_in_sidebar">Mostrar no Painel Lateral</string>
-    <string name="layout_discover_location_in_sidebar_desc">Descobrir terá item próprio no painel lateral</string>
     <string name="layout_poster_labels">Títulos nos pôsteres</string>
     <string name="layout_poster_labels_sub">Exiba os títulos abaixo das imagens e grades.</string>
     <string name="layout_addon_name">Nome do addon</string>

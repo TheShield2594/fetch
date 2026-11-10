@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -76,6 +77,7 @@ class LayoutPreferenceDataStore @Inject constructor(
     private val sidebarCollapsedKey = booleanPreferencesKey("sidebar_collapsed_by_default")
     private val modernLandscapePostersEnabledKey = booleanPreferencesKey("modern_landscape_posters_enabled")
     private val heroSectionEnabledKey = booleanPreferencesKey("hero_section_enabled")
+    private val posterOptionsHintSeenKey = booleanPreferencesKey("poster_options_hint_seen")
     private val posterLabelsEnabledKey = booleanPreferencesKey("poster_labels_enabled")
     private val catalogAddonNameEnabledKey = booleanPreferencesKey("catalog_addon_name_enabled")
     private val catalogTypeSuffixEnabledKey = booleanPreferencesKey("catalog_type_suffix_enabled")
@@ -250,21 +252,16 @@ class LayoutPreferenceDataStore @Inject constructor(
         prefs[heroSectionEnabledKey] ?: true
     }
 
-    val discoverLocation: Flow<DiscoverLocation> = profileFlow { prefs ->
-        val stored = prefs[discoverLocationKey] ?: DiscoverLocation.IN_SEARCH.name
-        runCatching { DiscoverLocation.valueOf(stored) }
-            .getOrDefault(DiscoverLocation.IN_SEARCH)
+    /** Whether this profile has been shown the "Hold OK for options" hint on a card. */
+    val posterOptionsHintSeen: Flow<Boolean> = profileFlow { prefs ->
+        prefs[posterOptionsHintSeenKey] ?: false
     }
 
-    val lastNonOffDiscoverLocation: Flow<DiscoverLocation> = profileFlow { prefs ->
-        val stored = prefs[lastNonOffDiscoverLocationKey]
-            ?.takeIf { it != DiscoverLocation.OFF.name }
-        val fallback = prefs[discoverLocationKey]
-            ?.takeIf { it != DiscoverLocation.OFF.name }
-        val source = stored ?: fallback ?: DiscoverLocation.IN_SEARCH.name
-        runCatching { DiscoverLocation.valueOf(source) }
-            .getOrDefault(DiscoverLocation.IN_SEARCH)
-    }
+    /**
+     * Discover is always its own item in the TV sidebar, so this no longer reads the stored
+     * `discover_location` value. The key is still kept and synced for the phone and desktop apps.
+     */
+    val discoverLocation: Flow<DiscoverLocation> = flowOf(DiscoverLocation.IN_SIDEBAR)
 
     val posterLabelsEnabled: Flow<Boolean> = profileFlow { prefs ->
         prefs[posterLabelsEnabledKey] ?: true
@@ -592,19 +589,15 @@ class LayoutPreferenceDataStore @Inject constructor(
         }
     }
 
-    suspend fun setHeroSectionEnabled(enabled: Boolean) {
+    suspend fun setPosterOptionsHintSeen() {
         store().edit { prefs ->
-            prefs[heroSectionEnabledKey] = enabled
+            prefs[posterOptionsHintSeenKey] = true
         }
     }
 
-    suspend fun setDiscoverLocation(location: DiscoverLocation) {
+    suspend fun setHeroSectionEnabled(enabled: Boolean) {
         store().edit { prefs ->
-            prefs[discoverLocationKey] = location.name
-            if (location != DiscoverLocation.OFF) {
-                prefs[lastNonOffDiscoverLocationKey] = location.name
-            }
-            prefs.remove(legacySearchDiscoverEnabledKey)
+            prefs[heroSectionEnabledKey] = enabled
         }
     }
 

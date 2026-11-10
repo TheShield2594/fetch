@@ -692,14 +692,6 @@
     <string name="layout_collapse_sidebar_sub">Скрий страничната лента по подразбиране; показвай при фокус.</string>
     <string name="layout_fullscreen_hero_backdrop">Пълен екран hero backdrop</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Разшири hero backdrop-а да запълни целия екран.</string>
-    <string name="layout_show_discover">Показвай/Скривай Discover</string>
-    <string name="layout_show_discover_sub">Добавя Discover секция за преглеждане.</string>
-    <string name="layout_discover_location_action">Място на Discover</string>
-    <string name="layout_discover_location_dialog_title">Място на Discover</string>
-    <string name="layout_discover_location_in_search">Показвай в Търсене</string>
-    <string name="layout_discover_location_in_search_desc">Discover се появява вътре в раздела Търсене.</string>
-    <string name="layout_discover_location_in_sidebar">Показвай в страничния панел</string>
-    <string name="layout_discover_location_in_sidebar_desc">Discover получава собствен елемент в страничния панел.</string>
     <string name="layout_poster_labels">Показвай надписи под постерите</string>
     <string name="layout_poster_labels_sub">Показвай заглавия под постерите в редове, решетка и „виж всички“.</string>
     <string name="layout_addon_name">Показвай името на добавката</string>

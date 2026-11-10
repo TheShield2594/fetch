@@ -815,14 +815,6 @@
     <string name="layout_collapse_sidebar_sub">ডিফল্টরূপে সাইডবার লুকান; ফোকাস করার সময় দেখান।</string>
     <string name="layout_fullscreen_hero_backdrop">ফুলস্ক্রিন হিরো ব্যাকড্রপ</string>
     <string name="layout_fullscreen_hero_backdrop_sub">পুরো স্ক্রিন জুড়ে হিরো ব্যাকড্রপ প্রসারিত করুন।</string>
-    <string name="layout_show_discover">Discover দেখান/লুকান</string>
-    <string name="layout_show_discover_sub">ব্রাউজ করার জন্য একটি Discover সেকশন যোগ করে।</string>
-    <string name="layout_discover_location_action">Discover-এর লোকেশন</string>
-    <string name="layout_discover_location_dialog_title">Discover-এর লোকেশন</string>
-    <string name="layout_discover_location_in_search">সার্চে দেখান</string>
-    <string name="layout_discover_location_in_search_desc">Discover সার্চ ট্যাবের ভেতরে দেখা যাবে।</string>
-    <string name="layout_discover_location_in_sidebar">সাইড প্যানেলে দেখান</string>
-    <string name="layout_discover_location_in_sidebar_desc">Discover-এর সাইড প্যানেলে নিজস্ব আইটেম থাকবে।</string>
     <string name="layout_poster_labels">পোস্টার লেবেল দেখান</string>
     <string name="layout_poster_labels_sub">রো, গ্রিড এবং সি-অলে পোস্টারের নিচে টাইটেল দেখান।</string>
     <string name="layout_addon_name">অ্যাডনের নাম দেখান</string>

@@ -674,14 +674,6 @@
     <string name="layout_collapse_sidebar_sub">Ocultar a barra lateral por predefinição; mostrar quando focada.</string>
     <string name="layout_fullscreen_hero_backdrop">Fundo em destaque em ecrã inteiro</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expandir o fundo em destaque para preencher o ecrã inteiro.</string>
-    <string name="layout_show_discover">Mostrar/Ocultar Descobrir</string>
-    <string name="layout_show_discover_sub">Adiciona uma secção Descobrir para navegação.</string>
-    <string name="layout_discover_location_action">Localização do Descobrir</string>
-    <string name="layout_discover_location_dialog_title">Localização do Descobrir</string>
-    <string name="layout_discover_location_in_search">Mostrar na Pesquisa</string>
-    <string name="layout_discover_location_in_search_desc">O Descobrir aparece dentro do separador Pesquisa.</string>
-    <string name="layout_discover_location_in_sidebar">Mostrar no painel lateral</string>
-    <string name="layout_discover_location_in_sidebar_desc">O Descobrir ganha o seu próprio item no painel lateral.</string>
     <string name="layout_poster_labels">Mostrar etiquetas nos cartazes</string>
     <string name="layout_poster_labels_sub">Mostra os títulos por baixo dos cartazes nas linhas, grelha e em Ver tudo.</string>
     <string name="layout_addon_name">Mostrar nome do addon</string>

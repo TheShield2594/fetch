@@ -878,14 +878,6 @@
     <string name="layout_collapse_sidebar_sub">Yan menüyü varsayılan olarak gizle; odaklanıldığında göster.</string>
     <string name="layout_fullscreen_hero_backdrop">Tam Ekran Hero Arka Planı</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Hero arka planını tüm ekrana yayacak şekilde genişlet.</string>
-    <string name="layout_show_discover">Aramada Keşfeti Göster</string>
-    <string name="layout_show_discover_sub">Arama boşken gezinme bölümünü göster.</string>
-    <string name="layout_discover_location_action">Keşif Konumu</string>
-    <string name="layout_discover_location_dialog_title">Keşif Konumu</string>
-    <string name="layout_discover_location_in_search">Arama\'da göster</string>
-    <string name="layout_discover_location_in_search_desc">Keşif, Arama sekmesinin içinde görünür.</string>
-    <string name="layout_discover_location_in_sidebar">Yan panelde göster</string>
-    <string name="layout_discover_location_in_sidebar_desc">Keşif, yan panelde kendi öğesi olarak görünür.</string>
     <string name="layout_poster_labels">Poster Etiketlerini Göster</string>
     <string name="layout_poster_labels_sub">Satırlardaki, ızgaradaki ve tümünü gör listesindeki başlıkları posterlerin altında göster.</string>
     <string name="layout_addon_name">Eklenti Adını Göster</string>

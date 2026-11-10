@@ -814,14 +814,6 @@
     <string name="layout_collapse_sidebar_sub">預設隱藏側邊欄；獲得焦點時顯示。</string>
     <string name="layout_fullscreen_hero_backdrop">全螢幕焦點區塊背景</string>
     <string name="layout_fullscreen_hero_backdrop_sub">將焦點區塊背景延伸到整個螢幕。</string>
-    <string name="layout_show_discover">顯示/隱藏探索</string>
-    <string name="layout_show_discover_sub">新增探索區塊以便瀏覽。</string>
-    <string name="layout_discover_location_action">探索位置</string>
-    <string name="layout_discover_location_dialog_title">探索位置</string>
-    <string name="layout_discover_location_in_search">在搜尋中顯示</string>
-    <string name="layout_discover_location_in_search_desc">探索顯示在搜尋標籤內。</string>
-    <string name="layout_discover_location_in_sidebar">在側邊面板顯示</string>
-    <string name="layout_discover_location_in_sidebar_desc">探索在側邊面板中有自己的項目。</string>
     <string name="layout_poster_labels">顯示海報標籤</string>
     <string name="layout_poster_labels_sub">在列、網格和「查看全部」中的海報下方顯示標題。</string>
     <string name="layout_addon_name">顯示擴充套件名稱</string>

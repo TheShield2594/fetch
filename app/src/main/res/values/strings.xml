@@ -520,6 +520,27 @@
     <string name="settings_content_discovery">Content &amp; Discovery</string>
     <string name="settings_content_discovery_subtitle">Add-ons, catalogs, and discovery sources</string>
     <string name="settings_content_discovery_addons_subtitle">Manage addons, catalog order, and collections</string>
+    <string name="settings_content_discovery_servers_subtitle">Media servers you browse and play from</string>
+    <string name="settings_addons_page_subtitle">Where your catalogs and streams come from</string>
+    <string name="settings_addons_manage">Manage addons</string>
+    <string name="settings_addons_manage_sub">Install, remove, configure and check addons</string>
+    <string name="customise_home_title">Customise Home</string>
+    <string name="customise_home_subtitle">Reorder, hide and pin the rows on Home. Add a row from a catalog, a filter or a folder.</string>
+    <string name="customise_home_settings_subtitle">Choose which rows Home shows, and in what order</string>
+    <string name="customise_home_rows">Home rows</string>
+    <string name="customise_home_rows_sub">Reorder, hide and pin every row on Home</string>
+    <string name="customise_home_add_row">Add row</string>
+    <string name="customise_home_add_catalog">Add a row from a catalog</string>
+    <string name="customise_home_add_catalog_sub">Catalogs come from addons: install one, then its catalogs appear here</string>
+    <string name="customise_home_add_filter">Add a filter row</string>
+    <string name="customise_home_add_filter_sub">A row of titles matching a genre, year or rating you choose</string>
+    <string name="customise_home_add_folder">Add a folder row</string>
+    <string name="customise_home_add_folder_sub">A row of folders, each holding catalogs you pick</string>
+    <string name="customise_home_from_catalog">From a catalog</string>
+    <string name="customise_home_from_filter">From a filter</string>
+    <string name="customise_home_from_folder">From a folder</string>
+    <string name="customise_home_edit_filter_rows">Edit filter rows</string>
+    <string name="customise_home_edit_folders">Edit folders</string>
     <string name="settings_playback">Playback</string>
     <string name="settings_tracking_title">Tracking</string>
     <string name="settings_group_accounts">Accounts</string>
@@ -974,14 +995,6 @@
     <string name="layout_collapse_sidebar_sub">Hide sidebar by default; show when focused.</string>
     <string name="layout_fullscreen_hero_backdrop">Fullscreen Hero Backdrop</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expand the hero backdrop to fill the entire screen.</string>
-    <string name="layout_show_discover">Show/Hide Discover</string>
-    <string name="layout_show_discover_sub">Adds a Discover section for browsing.</string>
-    <string name="layout_discover_location_action">Discover Location</string>
-    <string name="layout_discover_location_dialog_title">Discover Location</string>
-    <string name="layout_discover_location_in_search">Show in Search</string>
-    <string name="layout_discover_location_in_search_desc">Discover appears inside the Search tab.</string>
-    <string name="layout_discover_location_in_sidebar">Show in Side Panel</string>
-    <string name="layout_discover_location_in_sidebar_desc">Discover gets its own item in the side panel.</string>
     <string name="layout_poster_labels">Show Poster Labels</string>
     <string name="layout_poster_labels_sub">Show titles under posters in rows, grid, and see-all.</string>
     <string name="layout_addon_name">Show Addon Name</string>
@@ -2772,6 +2785,12 @@
     <string name="detail_error_meta_network">Couldn’t load this title. Check your connection and try again.</string>
     <string name="detail_error_update_episode_watched_failed">Couldn’t update this episode’s watched status. Check your connection and try again.</string>
     <string name="poster_options_error_load_lists_failed">Failed to load lists</string>
+    <string name="poster_options_done_added_to_library">Added “%1$s” to your Library</string>
+    <string name="poster_options_done_removed_from_library">Removed “%1$s” from your Library</string>
+    <string name="poster_options_done_marked_watched">Marked “%1$s” as watched</string>
+    <string name="poster_options_done_marked_unwatched">Marked “%1$s” as unwatched</string>
+    <string name="poster_options_done_lists_updated">Updated lists for “%1$s”</string>
+    <string name="poster_options_hold_hint">Hold OK for options</string>
     <string name="poster_options_error_update_lists_failed">Failed to update lists</string>
 
     <!-- Search errors -->
@@ -3194,6 +3213,7 @@
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
     <string name="home_row_ready_tonight">Ready tonight</string>
+    <string name="home_row_ready_tonight_explainer">A stream is already found: these start instantly. The dot marks them elsewhere on Home.</string>
     <string name="ready_check_title">Check what’s ready in the background</string>
     <string name="autoplay_start_early_title">Start without waiting for every addon</string>
     <string name="autoplay_next_source_on_failure_title">Try the next stream when one fails</string>

@@ -330,8 +330,6 @@
     <string name="layout_section_content_desc">Valdyti, kas rodoma pradiniame ekrane ir paieškoje.</string>
     <string name="layout_collapse_sidebar">Suskleisti šoninę juostą</string>
     <string name="layout_collapse_sidebar_sub">Slėpti šoninę juostą pagal numatytuosius nustatymus; rodyti, kai fokusuojama.</string>
-    <string name="layout_show_discover">Rodyti „Atrasti“ paieškoje</string>
-    <string name="layout_show_discover_sub">Rodyti naršymo skiltį, kai paieška tuščia.</string>
     <string name="layout_poster_labels">Rodyti plakatų etiketes</string>
     <string name="layout_poster_labels_sub">Rodyti pavadinimus po plakatais eilutėse, tinklelyje ir „Rodyti viską“.</string>
     <string name="layout_addon_name">Rodyti priedo pavadinimą</string>

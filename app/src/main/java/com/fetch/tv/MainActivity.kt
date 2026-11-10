@@ -159,7 +159,6 @@ import com.fetch.tv.domain.model.AppTheme
 import com.fetch.tv.domain.model.CustomThemeColors
 import com.fetch.tv.domain.model.AuthState
 import com.fetch.tv.domain.model.CosmeticEntitlement
-import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.domain.model.ExperienceMode
 import com.fetch.tv.domain.model.MemberAccess
 import com.fetch.tv.domain.model.ProfileBackgroundSelection
@@ -243,7 +242,6 @@ private data class MainUiPrefs(
     val experienceModeLoaded: Boolean = false,
     val addonSetupSkipped: Boolean = false,
     val sidebarCollapsed: Boolean = false,
-    val discoverLocation: DiscoverLocation? = null,
     val smoothBringIntoViewEnabled: Boolean = true,
     val fastHorizontalNavigationEnabled: Boolean = false,
     val composeHighlighterEnabled: Boolean = false,
@@ -572,12 +570,10 @@ open class MainActivity : ComponentActivity() {
                 val layoutAndFeaturesFlow = combine(
                     layoutPreferenceDataStore.hasChosenLayout,
                     layoutPreferenceDataStore.sidebarCollapsedByDefault,
-                    layoutPreferenceDataStore.discoverLocation,
-                ) { hasChosenLayout, sidebarCollapsed, discoverLocation ->
+                ) { hasChosenLayout, sidebarCollapsed ->
                     MainUiPrefs(
                         hasChosenLayout = hasChosenLayout,
                         sidebarCollapsed = sidebarCollapsed,
-                        discoverLocation = discoverLocation,
                     )
                 }
                 val extraFeaturesFlow = combine(
@@ -608,7 +604,6 @@ open class MainActivity : ComponentActivity() {
                     themePrefs.copy(
                         hasChosenLayout = layoutPrefs.hasChosenLayout,
                         sidebarCollapsed = layoutPrefs.sidebarCollapsed,
-                        discoverLocation = layoutPrefs.discoverLocation,
                         addonSetupSkipped = extraPrefs.addonSetupSkipped,
                         smoothBringIntoViewEnabled = extraPrefs.smoothBringIntoViewEnabled,
                         fastHorizontalNavigationEnabled = extraPrefs.fastHorizontalNavigationEnabled,
@@ -627,7 +622,6 @@ open class MainActivity : ComponentActivity() {
                     addonRepository.getInstalledAddons()
                 }.collectAsState(initial = null)
             }
-            val discoverLocation = mainUiPrefs.discoverLocation
 
             FetchTheme(
                 appTheme = mainUiPrefs.theme,
@@ -1130,27 +1124,13 @@ open class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    LaunchedEffect(discoverLocation, currentRoute) {
-                        if (discoverLocation == null) return@LaunchedEffect
-                        val onDiscoverRoute = currentRoute == Screen.Discover.route ||
-                            currentRoute?.startsWith("${Screen.Discover.route}/") == true
-                        if (discoverLocation == DiscoverLocation.OFF && onDiscoverRoute) {
-                            navController.navigate(Screen.Home.route) {
-                                popUpTo(navController.graph.startDestinationId) { saveState = false }
-                                launchSingleTop = true
-                            }
-                        }
-                    }
-
-                    val rootRoutes = remember(discoverLocation, youTubeInSidebar) {
+                    val rootRoutes = remember(youTubeInSidebar) {
                         buildSet {
                             add(Screen.Home.route)
                             add(Screen.Search.route)
+                            add(Screen.Discover.route)
                             add(Screen.Library.route)
                             add(Screen.Settings.route)
-                            if (discoverLocation == DiscoverLocation.IN_SIDEBAR) {
-                                add(Screen.Discover.route)
-                            }
                             if (youTubeInSidebar) {
                                 add(Screen.YouTube.route)
                             }
@@ -1170,7 +1150,6 @@ open class MainActivity : ComponentActivity() {
                         strNavLibrary,
                         strNavSettings,
                         strNavYouTube,
-                        discoverLocation,
                         youTubeInSidebar
                     ) {
                         buildList {
@@ -1181,20 +1160,18 @@ open class MainActivity : ComponentActivity() {
                                     icon = Icons.Default.Home
                                 )
                             )
-                            if (discoverLocation == DiscoverLocation.IN_SIDEBAR) {
-                                add(
-                                    DrawerItem(
-                                        route = Screen.Discover.route,
-                                        label = strNavDiscover,
-                                        icon = Icons.Default.Explore
-                                    )
-                                )
-                            }
                             add(
                                 DrawerItem(
                                     route = Screen.Search.route,
                                     label = strNavSearch,
                                     iconRes = R.raw.sidebar_search
+                                )
+                            )
+                            add(
+                                DrawerItem(
+                                    route = Screen.Discover.route,
+                                    label = strNavDiscover,
+                                    icon = Icons.Default.Explore
                                 )
                             )
                             add(

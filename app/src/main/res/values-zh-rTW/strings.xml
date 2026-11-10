@@ -2428,7 +2428,7 @@
     <string name="best_match_cached">已快取</string>
     <string name="best_match_excluded">未自動播放：%1$s</string>
     <string name="stream_hold_for_options">長按 OK 鍵查看最佳符合選項</string>
-    <string name="best_match_preview_sub">在您瀏覽某部影片時預先向串流擴充套件查詢，讓播放按鈕能顯示檔案名稱，並更快開始播放。關閉後僅在按下播放後才搜尋。</string>
+    <string name="best_match_preview_sub">當您停留在某部影片上時向串流擴充套件查詢，讓播放按鈕能顯示檔案名稱。擴充套件會因此得知是哪部影片，debrid 服務也會計入這些請求。關閉後僅在按下播放後才查詢。</string>
     <string name="best_match_preview_title">在播放按鈕上顯示選擇結果</string>
     <string name="catalog_order_pin">置頂</string>
     <string name="catalog_order_pinned_on_home">已置頂到首頁</string>

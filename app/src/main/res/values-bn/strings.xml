@@ -2291,7 +2291,7 @@
     <string name="best_match_cached">ক্যাশড</string>
     <string name="best_match_excluded">অটো-প্লে হবে না: %1$s</string>
     <string name="stream_hold_for_options">সেরা মিল অপশনের জন্য OK চেপে ধরে রাখুন</string>
-    <string name="best_match_preview_sub">আপনি কোনো টাইটেল দেখার সময় আপনার স্ট্রিম অ্যাডনগুলোকে সেটি সম্পর্কে জিজ্ঞেস করে, যাতে প্লে বোতামে ফাইলের নাম দেখা যায় এবং প্লেব্যাক দ্রুত শুরু হয়। শুধু প্লে চাপার পরে খুঁজতে চাইলে বন্ধ করুন।</string>
+    <string name="best_match_preview_sub">আপনি কোনো টাইটেলে থেমে থাকলে আপনার স্ট্রিম অ্যাডনগুলোকে সেটি সম্পর্কে জিজ্ঞেস করে, যাতে প্লে বোতামে ফাইলের নাম দেখা যায়। অ্যাডনগুলো জানতে পারে টাইটেলটি কী, আর ডেব্রিড সার্ভিস অনুরোধগুলো গণনা করে। শুধু প্লে চাপার পরে জিজ্ঞেস করতে চাইলে বন্ধ করুন।</string>
     <string name="best_match_preview_title">প্লে বোতামে নির্বাচিতটি দেখান</string>
     <string name="catalog_order_pin">উপরে পিন করুন</string>
     <string name="catalog_order_pinned_on_home">হোমের উপরে পিন করা</string>

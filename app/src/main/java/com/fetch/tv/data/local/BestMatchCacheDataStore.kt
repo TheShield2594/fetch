@@ -24,8 +24,8 @@ data class CachedBestMatch(
 )
 
 /**
- * Remembers the last Best match per video so Home can show it without asking any addon.
- * Written after a detail-page resolve and when a stream starts playing; Home only reads it.
+ * Remembers the last Best match per video so Home and the detail page can show it without
+ * asking any addon. Written after a detail-page resolve and when a stream starts playing.
  */
 @Singleton
 class BestMatchCacheDataStore @Inject constructor(
@@ -70,12 +70,14 @@ internal const val READY_WINDOW_MS = 24L * 60L * 60L * 1000L
 /** An unchanged pick is re-saved at most this often, only to record that it was checked again. */
 internal const val RECHECK_TOUCH_MS = 60L * 60L * 1000L
 
+/** True when this pick was confirmed in the last [READY_WINDOW_MS], recent enough to show as is. */
+fun CachedBestMatch.isFresh(nowMs: Long): Boolean = nowMs - savedAtMs in 0..READY_WINDOW_MS
+
 /**
  * True when this pick is cached on a debrid service and was confirmed in the last
  * [READY_WINDOW_MS], so pressing Play should start it at once.
  */
-fun CachedBestMatch.isReady(nowMs: Long): Boolean =
-    isCached && nowMs - savedAtMs in 0..READY_WINDOW_MS
+fun CachedBestMatch.isReady(nowMs: Long): Boolean = isCached && isFresh(nowMs)
 
 /**
  * The entries after saving [entry] under [key], or null when nothing needs writing: the pick is

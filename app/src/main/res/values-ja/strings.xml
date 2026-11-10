@@ -2058,7 +2058,7 @@
     <string name="best_match_cached">キャッシュ済み</string>
     <string name="best_match_excluded">自動再生対象外: %1$s</string>
     <string name="stream_hold_for_options">OKを長押しでベストマッチのオプション</string>
-    <string name="best_match_preview_sub">タイトルを表示している間にストリームアドオンへ問い合わせ、再生ボタンにファイル名を表示して再生を早く開始します。オフにすると再生を押した後にのみ検索します。</string>
+    <string name="best_match_preview_sub">タイトルにとどまるとストリームアドオンへ問い合わせ、再生ボタンにファイル名を表示します。アドオンにはどのタイトルかが伝わり、デブリッドサービスではリクエストとして数えられます。オフにすると再生を押した後にのみ問い合わせます。</string>
     <string name="best_match_preview_title">再生ボタンに選択結果を表示</string>
     <string name="catalog_order_pin">先頭に固定</string>
     <string name="catalog_order_pinned_on_home">ホームの先頭に固定中</string>

@@ -805,7 +805,7 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="best_match_cached">Talpykloje</string>
     <string name="best_match_excluded">Nepaleista automatiškai: %1$s</string>
     <string name="stream_hold_for_options">Laikykite OK, kad atvertumėte Geriausio atitikmens parinktis</string>
-    <string name="best_match_preview_sub">Kol žiūrite į pavadinimą, užklausia srautų priedus, kad mygtukas „Leisti“ galėtų parodyti failą ir atkūrimas prasidėtų greičiau. Išjunkite, kad paieška vyktų tik paspaudus „Leisti“.</string>
+    <string name="best_match_preview_sub">Kai užsibūnate ties pavadinimu, užklausia apie jį srautų priedus, kad mygtukas „Leisti“ galėtų parodyti failą. Priedai sužino, koks tai pavadinimas, o debrid paslaugos įskaičiuoja užklausas. Išjunkite, kad užklausa vyktų tik paspaudus „Leisti“.</string>
     <string name="best_match_preview_title">Rodyti pasirinkimą ant mygtuko „Leisti“</string>
     <string name="catalog_order_pin">Prisegti viršuje</string>
     <string name="catalog_order_pinned_on_home">Prisegta pagrindinio ekrano viršuje</string>

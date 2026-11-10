@@ -2050,7 +2050,7 @@
     <string name="best_match_cached">Кеширан</string>
     <string name="best_match_excluded">Не се пуска автоматично: %1$s</string>
     <string name="stream_hold_for_options">Задръж OK за опции на Най-доброто съвпадение</string>
-    <string name="best_match_preview_sub">Пита стрийм добавките ти за заглавие, докато го разглеждаш, така че бутонът Пусни да покаже файла и възпроизвеждането да започне по-бързо. Изключи, за да се търси само след натискане на Пусни.</string>
+    <string name="best_match_preview_sub">Пита стрийм добавките ти за заглавие, когато останеш на него, така че бутонът Пусни да покаже файла. Добавките научават кое е заглавието, а debrid услугите отчитат заявките. Изключи, за да се пита само след натискане на Пусни.</string>
     <string name="best_match_preview_title">Показвай избора на бутона Пусни</string>
     <string name="catalog_order_pin">Закачи най-горе</string>
     <string name="catalog_order_pinned_on_home">Закачено най-горе в Начало</string>

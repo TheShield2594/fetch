@@ -2446,7 +2446,7 @@
     <string name="sub_hdr_text_color">Color del texto HDR</string>
     <string name="sub_hdr_brightness">Brillo de subtítulos HDR</string>
     <string name="best_match_preview_title">Mostrar la elección en el botón Reproducir</string>
-    <string name="best_match_preview_sub">Consulta a tus complementos de transmisión sobre un título mientras lo miras, para que el botón Reproducir muestre el archivo y la reproducción empiece antes. Desactívalo para buscar solo después de pulsar Reproducir.</string>
+    <string name="best_match_preview_sub">Consulta a tus complementos de transmisión sobre un título cuando te quedas en él, para que el botón Reproducir muestre el archivo. Los complementos saben qué título es y los servicios debrid cuentan las solicitudes. Desactívalo para consultar solo después de pulsar Reproducir.</string>
     <string name="autoplay_allowed_addons_early_sub">La reproducción automática empieza en cuanto respondan estos complementos, en lugar de esperar a todos.</string>
     <string name="layout_trailer_crop_to_fill">Recortar tráilers para llenar</string>
     <string name="layout_trailer_crop_to_fill_sub">Amplía los tráilers de fondo en Inicio y en las páginas de detalles para que llenen el cuadro. Desactívalo para ver la imagen completa con barras negras.</string>

@@ -822,7 +822,7 @@
     <string name="sub_hdr_text_color">HDR टेक्स्ट रंग</string>
     <string name="sub_hdr_brightness">HDR सबटाइटल ब्राइटनेस</string>
     <string name="best_match_preview_title">प्ले बटन पर चुनी गई फ़ाइल दिखाएँ</string>
-    <string name="best_match_preview_sub">जब आप किसी टाइटल को देख रहे होते हैं, तभी आपके स्ट्रीम ऐडऑन से पूछ लेता है, ताकि प्ले बटन फ़ाइल का नाम दिखा सके और प्लेबैक जल्दी शुरू हो। बंद करने पर खोज सिर्फ़ प्ले दबाने के बाद होगी।</string>
+    <string name="best_match_preview_sub">जब आप किसी टाइटल पर रुकते हैं, तब आपके स्ट्रीम ऐडऑन से उसके बारे में पूछता है, ताकि प्ले बटन फ़ाइल का नाम दिखा सके। ऐडऑन जान जाते हैं कि टाइटल कौन-सा है, और डेब्रिड सेवाएँ अनुरोधों को गिनती हैं। बंद करने पर सिर्फ़ प्ले दबाने के बाद पूछा जाएगा।</string>
     <string name="autoplay_allowed_addons_early_sub">हर ऐडऑन का इंतज़ार करने के बजाय, इन ऐडऑन के जवाब देते ही ऑटो-प्ले शुरू हो जाता है।</string>
     <string name="layout_trailer_crop_to_fill">ट्रेलर को क्रॉप करके भरें</string>
     <string name="layout_trailer_crop_to_fill_sub">होम और डिटेल पेज पर बैकग्राउंड ट्रेलर को ज़ूम करें ताकि वे पूरा फ़्रेम भरें। काली पट्टियों के साथ पूरी तस्वीर देखने के लिए बंद करें।</string>

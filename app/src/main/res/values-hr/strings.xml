@@ -2495,7 +2495,7 @@
     <string name="sub_hdr_text_color">Boja teksta za HDR</string>
     <string name="sub_hdr_brightness">Svjetlina titlova za HDR</string>
     <string name="best_match_preview_title">Prikaži odabir na gumbu Reproduciraj</string>
-    <string name="best_match_preview_sub">Pita tvoje dodatke za streamove o naslovu dok ga gledaš, tako da gumb Reproduciraj može navesti datoteku i reprodukcija brže započne. Isključi kako bi se tražilo tek nakon što pritisneš Reproduciraj.</string>
+    <string name="best_match_preview_sub">Pita tvoje dodatke za streamove o naslovu kada se zadržiš na njemu, tako da gumb Reproduciraj može navesti datoteku. Dodaci saznaju o kojem je naslovu riječ, a debrid servisi broje zahtjeve. Isključi kako bi se pitalo tek nakon što pritisneš Reproduciraj.</string>
     <string name="autoplay_allowed_addons_early_sub">Automatska reprodukcija počinje čim ovi dodaci odgovore, umjesto da čeka sve dodatke.</string>
     <string name="layout_trailer_crop_to_fill">Izreži trailere da ispune zaslon</string>
     <string name="layout_trailer_crop_to_fill_sub">Uvećaj pozadinske trailere na Početnoj i stranicama detalja da ispune okvir. Isključi za prikaz cijele slike s crnim trakama.</string>

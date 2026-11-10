@@ -2078,7 +2078,7 @@
     <string name="best_match_cached">У кеші</string>
     <string name="best_match_excluded">Не відтворено автоматично: %1$s</string>
     <string name="stream_hold_for_options">Утримуйте OK для параметрів «Найкращий збіг»</string>
-    <string name="best_match_preview_sub">Опитує адони потоків, поки ви переглядаєте картку, щоб кнопка «Дивитися» показувала файл, а відтворення починалося швидше. Вимкніть, щоб шукати лише після натискання «Дивитися».</string>
+    <string name="best_match_preview_sub">Опитує адони потоків, коли ви затримуєтеся на картці, щоб кнопка «Дивитися» показувала файл. Адони дізнаються, що це за назва, а debrid-сервіси зараховують запити. Вимкніть, щоб опитувати лише після натискання «Дивитися».</string>
     <string name="best_match_preview_title">Показувати вибір на кнопці «Дивитися»</string>
     <string name="catalog_order_pin">Закріпити вгорі</string>
     <string name="catalog_order_pinned_on_home">Закріплено вгорі головної</string>

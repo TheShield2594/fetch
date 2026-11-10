@@ -1832,7 +1832,7 @@
     <string name="best_match_cached">V predpomnilniku</string>
     <string name="best_match_excluded">Ni samodejno predvajano: %1$s</string>
     <string name="stream_hold_for_options">Pridržite OK za možnosti Najboljšega ujemanja</string>
-    <string name="best_match_preview_sub">Med ogledom naslova povpraša vaše dodatke za vire, da gumb Predvajaj pokaže datoteko in se predvajanje začne hitreje. Izklopite, če želite iskati šele po pritisku na Predvajaj.</string>
+    <string name="best_match_preview_sub">Ko se zadržite na naslovu, povpraša vaše dodatke za vire o njem, da gumb Predvajaj pokaže datoteko. Dodatki izvedo, za kateri naslov gre, storitve debrid pa štejejo zahteve. Izklopite, če želite spraševati šele po pritisku na Predvajaj.</string>
     <string name="best_match_preview_title">Prikaži izbiro na gumbu Predvajaj</string>
     <string name="catalog_order_pin">Pripni na vrh</string>
     <string name="catalog_order_pinned_on_home">Pripeto na vrh začetnega zaslona</string>

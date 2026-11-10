@@ -2340,7 +2340,7 @@
     <string name="best_match_cached">In cache</string>
     <string name="best_match_excluded">Niet automatisch afgespeeld: %1$s</string>
     <string name="stream_hold_for_options">Houd OK ingedrukt voor Beste match-opties</string>
-    <string name="best_match_preview_sub">Vraagt je stream-add-ons naar een titel terwijl je ernaar kijkt, zodat de afspeelknop het bestand kan tonen en het afspelen sneller start. Zet uit om pas te zoeken nadat je op Afspelen drukt.</string>
+    <string name="best_match_preview_sub">Vraagt je stream-add-ons naar een titel als je erop blijft, zodat de afspeelknop het bestand kan tonen. De add-ons komen te weten om welke titel het gaat en debrid-diensten tellen de verzoeken. Zet uit om pas te vragen nadat je op Afspelen drukt.</string>
     <string name="best_match_preview_title">Keuze tonen op de afspeelknop</string>
     <string name="catalog_order_pin">Bovenaan vastzetten</string>
     <string name="catalog_order_pinned_on_home">Vastgezet bovenaan Home</string>

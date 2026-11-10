@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -64,6 +65,7 @@ import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import android.util.Log
 import com.fetch.tv.R
@@ -126,6 +128,12 @@ fun HeroContentSection(
     bestMatch: com.fetch.tv.core.streams.BestMatchPreview? = null,
     onPlayClick: () -> Unit,
     isPlayEnabled: Boolean = true,
+    /** A series gets the short hero, with its episodes right below. */
+    isSeries: Boolean = false,
+    /** Opens every source for what Play starts; null hides the button. */
+    onSourcesClick: (() -> Unit)? = null,
+    /** Play gaining or losing focus, which can start the Best match search. */
+    onPlayFocusChanged: (Boolean) -> Unit = {},
     /** When nothing can play the title, a button beside Play opens the addon settings. */
     onOpenAddonSettings: (() -> Unit)? = null,
     onPlayLongPress: (() -> Unit)? = null,
@@ -154,12 +162,7 @@ fun HeroContentSection(
     onHeroActionFocused: () -> Unit = {},
     onPlayFocusRestored: () -> Unit = {},
     onShowFullDescription: () -> Unit = {},
-    onTruncationChanged: (Boolean) -> Unit = {},
-    /**
-     * For a series in progress: the next episodes, shown right under Play in place of the
-     * credits, ratings and synopsis, because the next episode is the most likely action.
-     */
-    upNext: (@Composable () -> Unit)? = null
+    onTruncationChanged: (Boolean) -> Unit = {}
 ) {
     val context = LocalContext.current
     val logoModel = remember(context, meta.logo) {
@@ -184,18 +187,20 @@ fun HeroContentSection(
     // The details fade out first, and only then does the hero take its trailer layout, so
     // nothing still visible jumps. Coming back, the layout returns at once and they fade in.
     val heroDetailsVisibility = remember { MutableTransitionState(!isTrailerPlaying) }
-    val upNextVisibility = remember { MutableTransitionState(!isTrailerPlaying) }
     SideEffect {
         heroDetailsVisibility.targetState = !isTrailerPlaying
-        upNextVisibility.targetState = !isTrailerPlaying
     }
-    val trailerLayout = isTrailerPlaying &&
-        !heroDetailsVisibility.currentState &&
-        (upNext == null || !upNextVisibility.currentState)
-    // During a trailer the hero fills the screen so the logo sits at the bottom
-    // on screens taller than the hero (lower-density TV boxes).
+    val trailerLayout = isTrailerPlaying && !heroDetailsVisibility.currentState
+    // A series keeps its hero short so the season tabs and the top of the episode row show on
+    // entry: picking an episode is the likeliest thing to do there. It grows only when its
+    // content needs more room. During a trailer the hero fills the screen so the logo sits at
+    // the bottom on screens taller than the hero (lower-density TV boxes).
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val heroHeight = if (trailerLayout) maxOf(540.dp, screenHeight) else 540.dp
+    val heroHeightModifier = when {
+        trailerLayout -> Modifier.height(maxOf(MOVIE_HERO_HEIGHT, screenHeight))
+        isSeries -> Modifier.heightIn(min = SERIES_HERO_HEIGHT)
+        else -> Modifier.height(MOVIE_HERO_HEIGHT)
+    }
     val logoScale = animateFloatAsState(
         targetValue = if (trailerLayout) TRAILER_LOGO_SCALE else 1f,
         animationSpec = if (fullMotion) FetchMotion.moveTween() else snap(),
@@ -229,7 +234,7 @@ fun HeroContentSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(heroHeight)
+            .then(heroHeightModifier)
             .onPlaced { heroCoordinates = it },
         verticalArrangement = Arrangement.Bottom
     ) {
@@ -318,18 +323,18 @@ fun HeroContentSection(
                         tmdbRating = tmdbRating
                     )
 
-                    if (upNext == null && mdbListRatings?.isEmpty() == false) {
+                    if (mdbListRatings?.isEmpty() == false) {
                         Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
                         MDBListRatingsRow(ratings = mdbListRatings, order = mdbListRatingOrder)
                     }
 
-                    val description = meta.description?.takeIf { upNext == null && it.isNotBlank() }
+                    val description = meta.description?.takeIf { it.isNotBlank() }
                     if (description != null) {
                         Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
                         SynopsisDescription(
                             description = description,
                             onShowFullDescription = onShowFullDescription,
-                            maxLines = HERO_SYNOPSIS_LINES,
+                            maxLines = if (isSeries) SERIES_HERO_SYNOPSIS_LINES else HERO_SYNOPSIS_LINES,
                             focusRequester = synopsisFocusRequester,
                             downFocusRequester = playButtonFocusRequester,
                             onFocused = onHeroActionFocused,
@@ -368,8 +373,18 @@ fun HeroContentSection(
                                 onHeroActionFocused()
                                 onPlayFocusRestored()
                             },
+                            onFocusChanged = onPlayFocusChanged,
                             upFocusRequester = actionsUp
                         )
+
+                        if (onSourcesClick != null && isPlayEnabled) {
+                            SourcesButton(
+                                bestMatch = bestMatch,
+                                onClick = onSourcesClick,
+                                onFocused = onHeroActionFocused,
+                                upFocusRequester = actionsUp
+                            )
+                        }
 
                         if (onOpenAddonSettings != null && !isPlayEnabled) {
                             LaunchedEffect(restorePlayFocusToken) {
@@ -483,21 +498,60 @@ fun HeroContentSection(
                 }
             }
         }
-        // Full width, so the row keeps its own edge padding and scrolls to the screen edge.
-        if (upNext != null) {
-            AnimatedVisibility(
-                visibleState = upNextVisibility,
-                enter = fadeIn(FetchMotion.enterTween()),
-                exit = fadeOut(FetchMotion.exitTween())
-            ) {
-                upNext()
-            }
-        }
     }
 }
 
 /** The hero keeps the synopsis short; "Read more" opens the rest. */
 private const val HERO_SYNOPSIS_LINES = 3
+
+/** A series has less room above its episodes, so its synopsis is shorter still. */
+private const val SERIES_HERO_SYNOPSIS_LINES = 2
+
+private val MOVIE_HERO_HEIGHT = 540.dp
+private val SERIES_HERO_HEIGHT = 280.dp
+
+/**
+ * Opens every source for what Play starts. Names how many there are once the Best match search
+ * has finished, so the list is a known size before it opens; it never searches by itself.
+ */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun SourcesButton(
+    bestMatch: com.fetch.tv.core.streams.BestMatchPreview?,
+    onClick: () -> Unit,
+    onFocused: () -> Unit,
+    upFocusRequester: FocusRequester
+) {
+    val finished = bestMatch?.takeIf { it.isFinal }
+    DetailButton(
+        onClick = onClick,
+        modifier = Modifier
+            .onFocusChanged { if (it.isFocused) onFocused() }
+            .focusProperties { up = upFocusRequester },
+        contentPadding = PaddingValues(horizontal = FetchTheme.spacing.lg, vertical = 14.dp)
+    ) {
+        Text(
+            text = when {
+                finished == null -> stringResource(R.string.sources_title)
+                // The search finished and found nothing to play: say so rather than offer a count.
+                !finished.hasPick && finished.sourceCount == 0 -> stringResource(R.string.detail_sources_none)
+                !finished.hasPick -> pluralStringResource(
+                    R.plurals.detail_sources_ruled_out,
+                    finished.sourceCount,
+                    finished.sourceCount
+                )
+                finished.sourceCount > 0 -> pluralStringResource(
+                    R.plurals.detail_sources_count,
+                    finished.sourceCount,
+                    finished.sourceCount
+                )
+                else -> stringResource(R.string.sources_title)
+            },
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+            maxLines = 1
+        )
+    }
+}
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -511,6 +565,7 @@ internal fun PlayButton(
     focusRequester: FocusRequester? = null,
     restoreFocusToken: Int = 0,
     onFocusRestored: () -> Unit = {},
+    onFocusChanged: (Boolean) -> Unit = {},
     /** Where Up goes: the synopsis above when it can open, otherwise nowhere. */
     upFocusRequester: FocusRequester = FocusRequester.Cancel
 ) {
@@ -543,6 +598,7 @@ internal fun PlayButton(
                 if (it.isFocused) {
                     onFocusRestored()
                 }
+                onFocusChanged(it.isFocused)
             }
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent

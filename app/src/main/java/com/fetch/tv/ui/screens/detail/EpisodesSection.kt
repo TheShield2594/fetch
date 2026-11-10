@@ -404,6 +404,8 @@ fun EpisodesRow(
     upFocusRequester: FocusRequester,
     downFocusRequester: FocusRequester? = null,
     episodeFocusRequesters: MutableMap<String, FocusRequester> = mutableMapOf(),
+    /** The episode Play starts, marked "Up next" on its card. */
+    nextEpisodeId: String? = null,
     restoreEpisodeId: String? = null,
     restoreFocusToken: Int = 0,
     onRestoreFocusHandled: () -> Unit = {},
@@ -549,6 +551,7 @@ fun EpisodesRow(
                 watchProgress = progress,
                 imdbRating = imdbRating,
                 isMarkedWatched = isMarkedWatched,
+                isUpNext = episode.id == nextEpisodeId,
                 blurUnwatched = blurUnwatchedEpisodes,
                 suppressMarquee = isOverlayOpen,
                 cardMetrics = cardMetrics,
@@ -649,6 +652,7 @@ private fun EpisodeCard(
     watchProgress: com.fetch.tv.domain.model.WatchProgress? = null,
     imdbRating: Double? = null,
     isMarkedWatched: Boolean = false,
+    isUpNext: Boolean = false,
     blurUnwatched: Boolean = false,
     suppressMarquee: Boolean = false,
     cardMetrics: EpisodeCardMetrics,
@@ -816,9 +820,11 @@ private fun EpisodeCard(
     }
     val strEpisode = stringResource(R.string.episodes_episode)
     val strUnavailable = stringResource(R.string.episodes_unavailable)
-    val episodeCode = remember(episode.episode, strEpisode) {
+    val strUpNext = stringResource(R.string.episodes_up_next)
+    val episodeCode = remember(episode.episode, strEpisode, isUpNext, strUpNext) {
         val prefix = strEpisode.uppercase(Locale.getDefault())
-        episode.episode?.let { number -> "$prefix $number" } ?: prefix
+        val code = episode.episode?.let { number -> "$prefix $number" } ?: prefix
+        if (isUpNext) "$code · ${strUpNext.uppercase(Locale.getDefault())}" else code
     }
 
     val progressColor = FetchTheme.colors.Accent
@@ -952,10 +958,11 @@ private fun EpisodeCard(
                     ),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
+                // The next episode's badge takes the accent, the colour of the Play that starts it.
                 Box(
                     modifier = Modifier
                         .background(
-                            color = badgeBgColor,
+                            color = if (isUpNext) progressColor else badgeBgColor,
                             shape = badgeShape
                         )
                         .padding(

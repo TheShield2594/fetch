@@ -1897,7 +1897,7 @@
     <string name="sub_hdr_text_color">HDR-Textfarbe</string>
     <string name="sub_hdr_brightness">HDR-Untertitelhelligkeit</string>
     <string name="best_match_preview_title">Auswahl auf der Play-Taste anzeigen</string>
-    <string name="best_match_preview_sub">Fragt Ihre Stream-Addons schon beim Ansehen eines Titels ab, damit die Play-Taste die Datei nennen kann und die Wiedergabe schneller startet. Deaktivieren, um erst nach dem Drücken von Play zu suchen.</string>
+    <string name="best_match_preview_sub">Fragt Ihre Stream-Addons nach einem Titel, wenn Sie darauf verweilen, damit die Play-Taste die Datei nennen kann. Die Addons erfahren, um welchen Titel es geht, und Debrid-Dienste zählen die Anfragen. Deaktivieren, um erst nach dem Drücken von Play zu fragen.</string>
     <string name="autoplay_allowed_addons_early_sub">Die automatische Wiedergabe startet, sobald diese Addons antworten, statt auf alle Addons zu warten.</string>
     <string name="layout_trailer_crop_to_fill">Trailer bildfüllend zuschneiden</string>
     <string name="layout_trailer_crop_to_fill_sub">Hintergrund-Trailer auf der Startseite und den Detailseiten so zoomen, dass sie das Bild füllen. Deaktivieren, um das ganze Bild mit schwarzen Balken zu sehen.</string>

@@ -2562,7 +2562,7 @@
     <string name="best_match_cached">Önbellekte</string>
     <string name="best_match_excluded">Otomatik oynatılmadı: %1$s</string>
     <string name="stream_hold_for_options">En iyi eşleşme seçenekleri için OK tuşunu basılı tutun</string>
-    <string name="best_match_preview_sub">Bir başlığa bakarken yayın eklentilerine sorar, böylece Oynat düğmesi dosyayı gösterebilir ve oynatma daha hızlı başlar. Yalnızca Oynat\'a bastıktan sonra aramak için kapat.</string>
+    <string name="best_match_preview_sub">Bir başlıkta kaldığınızda yayın eklentilerine onu sorar, böylece Oynat düğmesi dosyayı gösterebilir. Eklentiler hangi başlık olduğunu öğrenir ve debrid hizmetleri istekleri sayar. Yalnızca Oynat\'a bastıktan sonra sormak için kapat.</string>
     <string name="best_match_preview_title">Seçimi Oynat düğmesinde göster</string>
     <string name="catalog_order_pin">En üste sabitle</string>
     <string name="catalog_order_pinned_on_home">Ana Menü\'nün en üstüne sabitlendi</string>

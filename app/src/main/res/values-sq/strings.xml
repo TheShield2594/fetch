@@ -2115,7 +2115,7 @@
     <string name="best_match_cached">Në cache</string>
     <string name="best_match_excluded">Nuk luhet automatikisht: %1$s</string>
     <string name="stream_hold_for_options">Mbaj shtypur OK për opsionet e Përputhjes më të mirë</string>
-    <string name="best_match_preview_sub">Pyet shtesat e transmetimeve për një titull ndërsa e shikon, që butoni Luaj të emërtojë skedarin dhe luajtja të nisë më shpejt. Çaktivizoje për të kërkuar vetëm pasi shtyp Luaj.</string>
+    <string name="best_match_preview_sub">Pyet shtesat e transmetimeve për një titull kur qëndron te ai, që butoni Luaj të emërtojë skedarin. Shtesat mësojnë se cili titull është dhe shërbimet debrid i numërojnë kërkesat. Çaktivizoje për të pyetur vetëm pasi shtyp Luaj.</string>
     <string name="best_match_preview_title">Shfaq zgjedhjen në butonin Luaj</string>
     <string name="catalog_order_pin">Fikso në krye</string>
     <string name="catalog_order_pinned_on_home">E fiksuar në krye të Faqes kryesore</string>

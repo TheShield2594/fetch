@@ -2369,7 +2369,7 @@
     <string name="best_match_cached">Em cache</string>
     <string name="best_match_excluded">Não reproduzido automaticamente: %1$s</string>
     <string name="stream_hold_for_options">Segure OK para ver as opções da Melhor opção</string>
-    <string name="best_match_preview_sub">Consulta seus addons de stream sobre um título enquanto você o vê, para que o botão Assistir mostre o arquivo e a reprodução comece mais rápido. Desative para buscar só depois de apertar Assistir.</string>
+    <string name="best_match_preview_sub">Consulta seus addons de stream sobre um título quando você fica nele, para que o botão Assistir mostre o arquivo. Os addons ficam sabendo qual é o título, e os serviços debrid contam as solicitações. Desative para consultar só depois de apertar Assistir.</string>
     <string name="best_match_preview_title">Mostrar a escolha no botão Assistir</string>
     <string name="catalog_order_pin">Fixar no topo</string>
     <string name="catalog_order_pinned_on_home">Fixado no topo do Início</string>

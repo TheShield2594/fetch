@@ -2549,7 +2549,7 @@
     <string name="best_match_cached">Đã lưu đệm</string>
     <string name="best_match_excluded">Không tự động phát: %1$s</string>
     <string name="stream_hold_for_options">Giữ OK để xem tùy chọn Khớp nhất</string>
-    <string name="best_match_preview_sub">Hỏi các tiện ích luồng về một nội dung khi bạn đang xem nó, để nút Phát có thể hiển thị tên tệp và phát nhanh hơn. Tắt để chỉ tìm sau khi bạn bấm Phát.</string>
+    <string name="best_match_preview_sub">Hỏi các tiện ích luồng về một nội dung khi bạn dừng lại ở đó, để nút Phát có thể hiển thị tên tệp. Các tiện ích sẽ biết đó là nội dung nào, và dịch vụ debrid tính các yêu cầu này. Tắt để chỉ hỏi sau khi bạn bấm Phát.</string>
     <string name="best_match_preview_title">Hiển thị lựa chọn trên nút Phát</string>
     <string name="catalog_order_pin">Ghim lên đầu</string>
     <string name="catalog_order_pinned_on_home">Đã ghim lên đầu Trang chủ</string>

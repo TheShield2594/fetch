@@ -2060,7 +2060,7 @@
     <string name="best_match_cached">Cachet</string>
     <string name="best_match_excluded">Afspilles ikke automatisk: %1$s</string>
     <string name="stream_hold_for_options">Hold OK nede for Bedste match-muligheder</string>
-    <string name="best_match_preview_sub">Spørger dine stream-addons om en titel, mens du kigger på den, så Afspil-knappen kan vise filen, og afspilningen starter hurtigere. Slå fra for kun at søge, når du trykker på Afspil.</string>
+    <string name="best_match_preview_sub">Spørger dine stream-addons om en titel, når du bliver på den, så Afspil-knappen kan vise filen. Addons får at vide, hvilken titel det er, og debrid-tjenester tæller forespørgslerne. Slå fra for kun at spørge, når du trykker på Afspil.</string>
     <string name="best_match_preview_title">Vis valget på Afspil-knappen</string>
     <string name="catalog_order_pin">Fastgør øverst</string>
     <string name="catalog_order_pinned_on_home">Fastgjort øverst på Hjem</string>

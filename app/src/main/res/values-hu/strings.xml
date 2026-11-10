@@ -2535,7 +2535,7 @@
     <string name="sub_hdr_text_color">HDR szövegszín</string>
     <string name="sub_hdr_brightness">HDR felirat fényereje</string>
     <string name="best_match_preview_title">Választás mutatása a Lejátszás gombon</string>
-    <string name="best_match_preview_sub">Már a cím böngészése közben lekérdezi a forrásbővítményeidet, így a Lejátszás gomb megnevezheti a fájlt, és gyorsabban indul a lejátszás. Kapcsold ki, ha csak a Lejátszás megnyomása után szeretnél keresni.</string>
+    <string name="best_match_preview_sub">Ha egy címnél maradsz, lekérdezi róla a forrásbővítményeidet, így a Lejátszás gomb megnevezheti a fájlt. A bővítmények megtudják, melyik címről van szó, a debrid szolgáltatások pedig beszámítják a kéréseket. Kapcsold ki, ha csak a Lejátszás megnyomása után szeretnél lekérdezni.</string>
     <string name="autoplay_allowed_addons_early_sub">Az automatikus lejátszás elindul, amint ezek a bővítmények válaszolnak, nem várja meg az összeset.</string>
     <string name="layout_trailer_crop_to_fill">Előzetesek kitöltő vágása</string>
     <string name="layout_trailer_crop_to_fill_sub">A háttér-előzetesek nagyítása a Kezdőlapon és a részletek oldalon, hogy kitöltsék a képet. Kapcsold ki, ha a teljes képet szeretnéd látni fekete sávokkal.</string>

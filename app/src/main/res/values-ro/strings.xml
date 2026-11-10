@@ -677,7 +677,7 @@
     <string name="best_match_cached">În cache</string>
     <string name="best_match_excluded">Nu se redă automat: %1$s</string>
     <string name="stream_hold_for_options">Ține apăsat OK pentru opțiunile Cea mai bună potrivire</string>
-    <string name="best_match_preview_sub">Interoghează suplimentele de fluxuri despre un titlu cât timp îl privești, astfel încât butonul Redă să numească fișierul și redarea să pornească mai repede. Dezactivează pentru a căuta doar după ce apeși Redă.</string>
+    <string name="best_match_preview_sub">Interoghează suplimentele de fluxuri despre un titlu când rămâi pe el, astfel încât butonul Redă să numească fișierul. Suplimentele află ce titlu este, iar serviciile debrid numără cererile. Dezactivează pentru a întreba doar după ce apeși Redă.</string>
     <string name="best_match_preview_title">Arată alegerea pe butonul Redă</string>
     <string name="catalog_order_pin">Fixează sus</string>
     <string name="catalog_order_pinned_on_home">Fixat în partea de sus a ecranului Acasă</string>

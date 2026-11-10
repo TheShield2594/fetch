@@ -2428,7 +2428,7 @@
     <string name="best_match_cached">已缓存</string>
     <string name="best_match_excluded">未自动播放：%1$s</string>
     <string name="stream_hold_for_options">长按 OK 键查看最佳匹配选项</string>
-    <string name="best_match_preview_sub">在您浏览某个影片时预先向流扩展查询，让播放按钮能显示文件名，并更快开始播放。关闭后仅在按下播放后才搜索。</string>
+    <string name="best_match_preview_sub">当您停留在某个影片上时向流扩展查询，让播放按钮能显示文件名。扩展会因此得知是哪部影片，debrid 服务也会计入这些请求。关闭后仅在按下播放后才查询。</string>
     <string name="best_match_preview_title">在播放按钮上显示选择结果</string>
     <string name="catalog_order_pin">置顶</string>
     <string name="catalog_order_pinned_on_home">已置顶到首页</string>

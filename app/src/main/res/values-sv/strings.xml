@@ -1337,7 +1337,7 @@
     <string name="best_match_cached">Cachad</string>
     <string name="best_match_excluded">Spelas inte upp automatiskt: %1$s</string>
     <string name="stream_hold_for_options">Håll ned OK för alternativ för Bästa matchning</string>
-    <string name="best_match_preview_sub">Frågar dina strömtillägg om en titel medan du tittar på den, så att Spela upp-knappen kan visa filen och uppspelningen startar snabbare. Stäng av för att bara söka efter att du tryckt på Spela upp.</string>
+    <string name="best_match_preview_sub">Frågar dina strömtillägg om en titel när du stannar på den, så att Spela upp-knappen kan visa filen. Tilläggen får veta vilken titel det är, och debrid-tjänster räknar förfrågningarna. Stäng av för att bara fråga efter att du tryckt på Spela upp.</string>
     <string name="best_match_preview_title">Visa valet på Spela upp-knappen</string>
     <string name="catalog_order_pin">Fäst högst upp</string>
     <string name="catalog_order_pinned_on_home">Fäst högst upp på Hem</string>

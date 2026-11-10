@@ -2117,7 +2117,7 @@
     <string name="best_match_cached">V mezipaměti</string>
     <string name="best_match_excluded">Nepřehrává se automaticky: %1$s</string>
     <string name="stream_hold_for_options">Podržte OK pro možnosti Nejlepší shody</string>
-    <string name="best_match_preview_sub">Zeptá se vašich streamovacích doplňků na titul, zatímco si jej prohlížíte, takže tlačítko Přehrát může ukázat soubor a přehrávání začne dříve. Vypněte, chcete-li hledat až po stisknutí Přehrát.</string>
+    <string name="best_match_preview_sub">Když u titulu zůstanete, zeptá se na něj vašich streamovacích doplňků, aby tlačítko Přehrát mohlo ukázat soubor. Doplňky se tak dozví, o jaký titul jde, a debridové služby si požadavky započítají. Vypněte, chcete-li se ptát až po stisknutí Přehrát.</string>
     <string name="best_match_preview_title">Zobrazit výběr na tlačítku Přehrát</string>
     <string name="catalog_order_pin">Připnout nahoru</string>
     <string name="catalog_order_pinned_on_home">Připnuto nahoru na Domů</string>

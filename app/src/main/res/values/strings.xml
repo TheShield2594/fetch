@@ -195,6 +195,7 @@
     <string name="episodes_season">Season %1$d</string>
     <string name="episodes_specials">Specials</string>
     <string name="episodes_episode">Episode</string>
+    <string name="episodes_up_next">Up next</string>
     <string name="episodes_cd_watched">Watched</string>
     <string name="episodes_dialog_subtitle">Episode actions</string>
     <string name="episodes_mark_watched">Mark as watched</string>
@@ -894,7 +895,7 @@
     <string name="autoplay_reuse_last_link">Reuse Last Link</string>
     <string name="autoplay_reuse_last_link_sub">Auto-play your last working stream for this same movie/episode when cache is still valid</string>
     <string name="best_match_preview_title">Show the pick on the Play button</string>
-    <string name="best_match_preview_sub">Asks your stream addons about a title while you look at it, so the Play button can name the file and playback starts sooner. Turn off to only search after you press Play.</string>
+    <string name="best_match_preview_sub">Asks your stream addons about a title when you stay on it, so the Play button can name the file. The addons learn which title it is, and debrid services count the requests. Turn off to only ask after you press Play.</string>
     <string name="autoplay_allowed_addons_early_sub">Auto-play starts as soon as these addons answer instead of waiting for every addon.</string>
     <string name="autoplay_last_link_cache">Last Link Cache Duration</string>
     <string name="cache_duration_hour_one">%1$d hour</string>
@@ -1705,17 +1706,14 @@
     <string name="stream_info_player_engine">Player Engine</string>
 
     <string name="sources_title">Sources</string>
-    <string name="detail_sources_all">All sources</string>
-    <string name="detail_sources_choose">Choose a file</string>
-    <string name="detail_sources_searching">Searching…</string>
     <string name="detail_sources_none">No sources found</string>
     <plurals name="detail_sources_ruled_out">
         <item quantity="one">%1$d source ruled out</item>
         <item quantity="other">All %1$d sources ruled out</item>
     </plurals>
-    <plurals name="detail_sources_found">
-        <item quantity="one">%1$d found</item>
-        <item quantity="other">%1$d found</item>
+    <plurals name="detail_sources_count">
+        <item quantity="one">%1$d source</item>
+        <item quantity="other">%1$d sources</item>
     </plurals>
     <string name="sources_close">Close</string>
     <string name="sources_playing">Playing</string>

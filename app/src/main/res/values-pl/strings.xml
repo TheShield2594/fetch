@@ -2629,7 +2629,7 @@
     <string name="best_match_cached">W cache</string>
     <string name="best_match_excluded">Nie odtwarzane automatycznie: %1$s</string>
     <string name="stream_hold_for_options">Przytrzymaj OK, aby zobaczyć opcje Najlepszego dopasowania</string>
-    <string name="best_match_preview_sub">Odpytuje dodatki streamów o tytuł, gdy go przeglądasz, dzięki czemu przycisk Odtwórz może pokazać plik, a odtwarzanie startuje szybciej. Wyłącz, aby szukać dopiero po naciśnięciu Odtwórz.</string>
+    <string name="best_match_preview_sub">Odpytuje dodatki streamów o tytuł, gdy na nim zostajesz, dzięki czemu przycisk Odtwórz może pokazać plik. Dodatki dowiadują się, o jaki tytuł chodzi, a usługi debrid liczą zapytania. Wyłącz, aby pytać dopiero po naciśnięciu Odtwórz.</string>
     <string name="best_match_preview_title">Pokaż wybór na przycisku Odtwórz</string>
     <string name="catalog_order_pin">Przypnij na górze</string>
     <string name="catalog_order_pinned_on_home">Przypięto na górze ekranu głównego</string>

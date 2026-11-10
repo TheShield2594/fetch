@@ -2551,7 +2551,7 @@
     <string name="best_match_cached">במטמון</string>
     <string name="best_match_excluded">לא הופעל אוטומטית: %1$s</string>
     <string name="stream_hold_for_options">לחיצה ארוכה על OK פותחת את אפשרויות ההתאמה הטובה ביותר</string>
-    <string name="best_match_preview_sub">שואל את תוספי הסטרים על כותר בזמן שמסתכלים עליו, כך שכפתור הניגון יכול להציג את שם הקובץ וההפעלה מתחילה מהר יותר. יש לכבות כדי לחפש רק אחרי לחיצה על ניגון.</string>
+    <string name="best_match_preview_sub">שואל את תוספי הסטרים על כותר כשנשארים עליו, כך שכפתור הניגון יכול להציג את שם הקובץ. התוספים יודעים באיזה כותר מדובר, ושירותי דבריד סופרים את הבקשות. יש לכבות כדי לשאול רק אחרי לחיצה על ניגון.</string>
     <string name="best_match_preview_title">הצגת הבחירה על כפתור הניגון</string>
     <string name="catalog_order_pin">הצמדה למעלה</string>
     <string name="catalog_order_pinned_on_home">מוצמד לראש מסך הבית</string>

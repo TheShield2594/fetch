@@ -2565,7 +2565,7 @@
     <string name="sub_hdr_text_color">Couleur du texte HDR</string>
     <string name="sub_hdr_brightness">Luminosité des sous-titres HDR</string>
     <string name="best_match_preview_title">Afficher le choix sur le bouton Lecture</string>
-    <string name="best_match_preview_sub">Interroge vos addons de flux sur un titre pendant que vous le consultez, pour que le bouton Lecture indique le fichier et que la lecture démarre plus vite. Désactivez pour ne chercher qu’après avoir appuyé sur Lecture.</string>
+    <string name="best_match_preview_sub">Interroge vos addons de flux sur un titre quand vous restez dessus, pour que le bouton Lecture indique le fichier. Les addons apprennent de quel titre il s’agit et les services debrid comptent les requêtes. Désactivez pour n’interroger qu’après avoir appuyé sur Lecture.</string>
     <string name="autoplay_allowed_addons_early_sub">La lecture automatique démarre dès que ces addons répondent, sans attendre tous les addons.</string>
     <string name="layout_trailer_crop_to_fill">Recadrer les bandes-annonces</string>
     <string name="layout_trailer_crop_to_fill_sub">Agrandit les bandes-annonces d’arrière-plan de l’accueil et des pages de détails pour remplir le cadre. Désactivez pour voir l’image entière avec des bandes noires.</string>

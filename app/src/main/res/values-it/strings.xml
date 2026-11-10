@@ -2541,7 +2541,7 @@
     <string name="best_match_cached">In cache</string>
     <string name="best_match_excluded">Non riprodotto automaticamente: %1$s</string>
     <string name="stream_hold_for_options">Tieni premuto OK per le opzioni di Miglior risultato</string>
-    <string name="best_match_preview_sub">Interroga gli addon di stream mentre guardi un titolo, così il pulsante Riproduci può mostrare il file e la riproduzione parte prima. Disattiva per cercare solo dopo aver premuto Riproduci.</string>
+    <string name="best_match_preview_sub">Interroga gli addon di stream su un titolo quando ti soffermi su di esso, così il pulsante Riproduci può mostrare il file. Gli addon vengono a sapere di quale titolo si tratta e i servizi debrid contano le richieste. Disattiva per chiedere solo dopo aver premuto Riproduci.</string>
     <string name="best_match_preview_title">Mostra la scelta sul pulsante Riproduci</string>
     <string name="catalog_order_pin">Fissa in alto</string>
     <string name="catalog_order_pinned_on_home">Fissato in cima alla Home</string>

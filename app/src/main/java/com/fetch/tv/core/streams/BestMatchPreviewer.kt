@@ -8,10 +8,13 @@ import com.fetch.tv.core.streams.ranking.AudioFormat
 import com.fetch.tv.core.streams.ranking.StreamDescriptor
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.data.local.BingeGroupCacheDataStore
+import com.fetch.tv.data.local.PlayerSettings
 import com.fetch.tv.data.local.PlayerSettingsDataStore
 import com.fetch.tv.data.local.StreamAutoPlayMode
 import com.fetch.tv.data.local.StreamLinkCacheDataStore
 import com.fetch.tv.data.local.BestMatchCacheDataStore
+import com.fetch.tv.data.local.READY_WINDOW_MS
+import com.fetch.tv.data.local.isFresh
 import com.fetch.tv.data.mediaserver.ServerStreams
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.enabledAddons
@@ -72,6 +75,28 @@ class BestMatchPreviewer @Inject constructor(
     private val serverStreams: ServerStreams
 ) {
     /**
+     * The pick saved for [videoId] in the last [READY_WINDOW_MS], shown as a final preview so the
+     * page can name the file without asking any addon. Null when there is none, or when the
+     * Stream screen would choose by something other than ranking (see [preview]).
+     */
+    suspend fun cached(type: String, videoId: String, contentId: String?): BestMatchPreview? {
+        val settings = playerSettingsDataStore.playerSettings.first()
+        if (!picksByRanking(settings, type, videoId, contentId)) return null
+        val entry = bestMatchCacheDataStore.entries.first()[BestMatchCacheDataStore.contentKey(type, videoId)]
+            ?.takeIf { it.isFresh(System.currentTimeMillis()) }
+            ?: return null
+        return BestMatchPreview(
+            videoId = videoId,
+            labels = entry.labels,
+            isCached = entry.isCached,
+            addonName = null,
+            // Not saved with the pick; the Sources button then names no count.
+            sourceCount = 0,
+            isFinal = true
+        )
+    }
+
+    /**
      * Emits the best pick so far as addons answer, ending with a final one. Emits nothing when
      * the Stream screen would choose by something other than ranking (another auto-play mode, a
      * reused link or a remembered binge group), since the preview could then name the wrong file.
@@ -85,23 +110,7 @@ class BestMatchPreviewer @Inject constructor(
         contentId: String?
     ): Flow<BestMatchPreview> = flow {
         val settings = playerSettingsDataStore.playerSettings.first()
-        if (settings.streamAutoPlayMode != StreamAutoPlayMode.BEST_MATCH) return@flow
-        if (!settings.bestMatchPreviewEnabled) return@flow
-        if (settings.streamReuseLastLinkEnabled &&
-            streamLinkCacheDataStore.getValid(
-                contentKey = "${type.lowercase()}|$videoId",
-                maxAgeMs = settings.streamReuseLastLinkCacheHours * 60L * 60L * 1000L
-            ) != null
-        ) {
-            return@flow
-        }
-        if (settings.streamAutoPlayPreferBingeGroupForNextEpisode &&
-            settings.streamAutoPlayReuseBingeGroup &&
-            contentId != null &&
-            bingeGroupCacheDataStore.get(contentId) != null
-        ) {
-            return@flow
-        }
+        if (!picksByRanking(settings, type, videoId, contentId)) return@flow
 
         val installedAddonOrder = if (serverStreams.isNativeRequest(videoId)) {
             emptyList()
@@ -181,6 +190,29 @@ class BestMatchPreviewer @Inject constructor(
                 )
             )
         }
+    }
+
+    /** True when Best match and its preview are on and nothing but ranking picks the file. */
+    private suspend fun picksByRanking(
+        settings: PlayerSettings,
+        type: String,
+        videoId: String,
+        contentId: String?
+    ): Boolean {
+        if (settings.streamAutoPlayMode != StreamAutoPlayMode.BEST_MATCH) return false
+        if (!settings.bestMatchPreviewEnabled) return false
+        if (settings.streamReuseLastLinkEnabled &&
+            streamLinkCacheDataStore.getValid(
+                contentKey = "${type.lowercase()}|$videoId",
+                maxAgeMs = settings.streamReuseLastLinkCacheHours * 60L * 60L * 1000L
+            ) != null
+        ) {
+            return false
+        }
+        return !(settings.streamAutoPlayPreferBingeGroupForNextEpisode &&
+            settings.streamAutoPlayReuseBingeGroup &&
+            contentId != null &&
+            bingeGroupCacheDataStore.get(contentId) != null)
     }
 }
 

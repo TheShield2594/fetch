@@ -2256,7 +2256,7 @@
     <string name="best_match_cached">مخزّن مؤقتاً</string>
     <string name="best_match_excluded">لا يُشغَّل تلقائياً: %1$s</string>
     <string name="stream_hold_for_options">اضغط مطولاً على OK لخيارات أفضل تطابق</string>
-    <string name="best_match_preview_sub">يسأل إضافات المصادر عن العنوان أثناء تصفحك له، ليعرض زر التشغيل اسم الملف ويبدأ التشغيل أسرع. أوقفه للبحث فقط بعد الضغط على تشغيل.</string>
+    <string name="best_match_preview_sub">يسأل إضافات المصادر عن العنوان عندما تبقى عليه، ليعرض زر التشغيل اسم الملف. تعرف الإضافات أي عنوان هو، وتحتسب خدمات Debrid الطلبات. أوقفه لعدم السؤال إلا بعد الضغط على تشغيل.</string>
     <string name="best_match_preview_title">إظهار الاختيار على زر التشغيل</string>
     <string name="catalog_order_pin">تثبيت في الأعلى</string>
     <string name="catalog_order_pinned_on_home">مثبّت أعلى الرئيسية</string>

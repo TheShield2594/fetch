@@ -2366,7 +2366,7 @@
     <string name="best_match_cached">Keširano</string>
     <string name="best_match_excluded">Ne pušta se automatski: %1$s</string>
     <string name="stream_hold_for_options">Držite OK za opcije Najboljeg podudaranja</string>
-    <string name="best_match_preview_sub">Pita vaše dodatke za strim o naslovu dok ga gledate, tako da dugme Pusti može da prikaže fajl, a reprodukcija počne brže. Isključite da bi se pretraga vršila tek nakon pritiska na Pusti.</string>
+    <string name="best_match_preview_sub">Pita vaše dodatke za strim o naslovu kada se zadržite na njemu, tako da dugme Pusti može da prikaže fajl. Dodaci saznaju o kom naslovu je reč, a debrid servisi broje zahteve. Isključite da bi se pitalo tek nakon pritiska na Pusti.</string>
     <string name="best_match_preview_title">Prikaži izbor na dugmetu Pusti</string>
     <string name="catalog_order_pin">Zakači na vrh</string>
     <string name="catalog_order_pinned_on_home">Zakačeno na vrh Početne</string>

@@ -2317,7 +2317,7 @@
     <string name="best_match_cached">В кэше</string>
     <string name="best_match_excluded">Не воспроизводится автоматически: %1$s</string>
     <string name="stream_hold_for_options">Удерживайте OK для настроек «Лучшего совпадения»</string>
-    <string name="best_match_preview_sub">Опрашивает аддоны потоков, пока вы смотрите на тайтл, чтобы кнопка «Воспроизвести» показывала файл и воспроизведение начиналось быстрее. Выключите, чтобы искать только после нажатия «Воспроизвести».</string>
+    <string name="best_match_preview_sub">Опрашивает аддоны потоков, когда вы задерживаетесь на тайтле, чтобы кнопка «Воспроизвести» показывала файл. Аддоны узнают, что это за тайтл, а debrid-сервисы засчитывают запросы. Выключите, чтобы опрашивать только после нажатия «Воспроизвести».</string>
     <string name="best_match_preview_title">Показывать выбор на кнопке «Воспроизвести»</string>
     <string name="catalog_order_pin">Закрепить сверху</string>
     <string name="catalog_order_pinned_on_home">Закреплено вверху Главной</string>

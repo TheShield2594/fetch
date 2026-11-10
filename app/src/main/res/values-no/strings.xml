@@ -899,7 +899,7 @@
     <string name="best_match_cached">Bufret</string>
     <string name="best_match_excluded">Ikke autoavspilt: %1$s</string>
     <string name="stream_hold_for_options">Hold inne OK for Beste treff-valg</string>
-    <string name="best_match_preview_sub">Spør strømmetilleggene om en tittel mens du ser på den, slik at Spill av-knappen kan vise filen og avspillingen starter raskere. Slå av for å søke først etter at du trykker Spill av.</string>
+    <string name="best_match_preview_sub">Spør strømmetilleggene om en tittel når du blir værende på den, slik at Spill av-knappen kan vise filen. Tilleggene får vite hvilken tittel det er, og debrid-tjenester teller forespørslene. Slå av for å spørre først etter at du trykker Spill av.</string>
     <string name="best_match_preview_title">Vis valget på Spill av-knappen</string>
     <string name="catalog_order_pin">Fest øverst</string>
     <string name="catalog_order_pinned_on_home">Festet øverst på Hjem</string>

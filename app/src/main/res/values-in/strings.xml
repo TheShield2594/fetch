@@ -1913,7 +1913,7 @@
     <string name="sub_hdr_text_color">Warna Teks HDR</string>
     <string name="sub_hdr_brightness">Kecerahan Subtitle HDR</string>
     <string name="best_match_preview_title">Tampilkan pilihan di tombol Putar</string>
-    <string name="best_match_preview_sub">Menanyakan addon stream Anda tentang sebuah judul saat Anda melihatnya, sehingga tombol Putar bisa menyebut file-nya dan pemutaran dimulai lebih cepat. Nonaktifkan agar hanya mencari setelah Anda menekan Putar.</string>
+    <string name="best_match_preview_sub">Menanyakan addon stream Anda tentang sebuah judul saat Anda bertahan di sana, sehingga tombol Putar bisa menyebut file-nya. Addon jadi tahu judul apa itu, dan layanan debrid menghitung permintaannya. Nonaktifkan agar hanya bertanya setelah Anda menekan Putar.</string>
     <string name="autoplay_allowed_addons_early_sub">Putar otomatis dimulai begitu addon ini menjawab, tanpa menunggu semua addon.</string>
     <string name="layout_trailer_crop_to_fill">Potong trailer agar memenuhi layar</string>
     <string name="layout_trailer_crop_to_fill_sub">Perbesar trailer latar di Beranda dan halaman detail agar memenuhi bingkai. Nonaktifkan untuk melihat seluruh gambar dengan bilah hitam.</string>

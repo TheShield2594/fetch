@@ -3,6 +3,7 @@
 package com.fetch.tv.ui.screens.player
 
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.ByteArrayDataSource
 import androidx.media3.datasource.DataSource
@@ -96,7 +97,7 @@ private class SubtitleRoutingDataSource(
         }
         transferListeners.forEach(source::addTransferListener)
         delegate = source
-        return source.open(if (target is SubtitleRequestTarget.Routed) dataSpec.withUri(Uri.parse(target.route.url)) else dataSpec)
+        return source.open(if (target is SubtitleRequestTarget.Routed) dataSpec.withUri(target.route.url.toUri()) else dataSpec)
     }
 
     override fun read(buffer: ByteArray, offset: Int, length: Int): Int =

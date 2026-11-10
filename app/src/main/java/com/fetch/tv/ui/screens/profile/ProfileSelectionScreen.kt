@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.profile
 
 import androidx.compose.ui.platform.LocalResources
+import androidx.core.graphics.toColorInt
 import androidx.tv.material3.MaterialTheme
 import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.util.contentTextDirection
@@ -1848,7 +1849,7 @@ private fun ProfileCard(
 }
 
 private fun parseProfileColor(colorHex: String): Color {
-    return runCatching { Color(android.graphics.Color.parseColor(colorHex)) }
+    return runCatching { Color(colorHex.toColorInt()) }
         .getOrDefault(FetchPrimitives.blue500)
 }
 

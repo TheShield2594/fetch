@@ -63,7 +63,7 @@ class SyncBackends @Inject constructor(
 
     /** Records the choice. Ending the other backend's connection is up to the caller. */
     fun choose(kind: SyncBackendKind) {
-        preferences.edit().putString(KEY_CHOICE, kind.name).apply()
+        preferences.edit { putString(KEY_CHOICE, kind.name) }
         _storedChoice.value = kind
     }
 

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.os.SystemClock
@@ -25,6 +24,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.platform.LocalResources
+import androidx.core.content.edit
+import androidx.core.graphics.drawable.toDrawable
 import androidx.tv.material3.MaterialTheme
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -336,7 +337,7 @@ open class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         isFirstResumeAfterCreate = true
-        window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
+        window?.setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
 
         // Wire the Activity-level launcher to the tracker
         externalPlaybackTracker.activityLauncher = externalPlayerLauncher
@@ -574,7 +575,7 @@ open class MainActivity : ComponentActivity() {
                     // Only overwrite bg_url when we have a real value or when
                     // we know the profile has no background at all.
                     if (splashPreferencesReady && colorHex != null) {
-                        splashPrefs.edit().putString("color_$activeProfileId", colorHex).apply()
+                        splashPrefs.edit { putString("color_$activeProfileId", colorHex) }
                     }
                     if (splashPreferencesReady && bgUrl != null) {
                         splashPrefs.edit()
@@ -587,9 +588,9 @@ open class MainActivity : ComponentActivity() {
                     }
                     val activeTheme = mainUiPrefs.theme
                     if (splashPreferencesReady && activeTheme != com.fetch.tv.domain.model.DEFAULT_APP_THEME) {
-                        splashPrefs.edit().putString("theme_$activeProfileId", activeTheme.name).apply()
+                        splashPrefs.edit { putString("theme_$activeProfileId", activeTheme.name) }
                     } else if (splashPreferencesReady) {
-                        splashPrefs.edit().remove("theme_$activeProfileId").apply()
+                        splashPrefs.edit { remove("theme_$activeProfileId") }
                     }
                     // Fall back to cached values only on cold start (no focused override)
                     val hasFocusedOverride = focusedSplashColor != null

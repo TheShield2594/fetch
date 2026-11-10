@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import android.view.Display
+import androidx.core.net.toUri
 import androidx.media3.common.MimeTypes
 import io.github.anilbeesetti.nextlib.mediainfo.MediaInfo
 import io.github.anilbeesetti.nextlib.mediainfo.MediaInfoBuilder
@@ -1448,7 +1449,7 @@ object FrameRateUtils {
         candidates.forEach { candidateUrl ->
             var mediaInfo: MediaInfo? = null
             try {
-                val uri = Uri.parse(candidateUrl)
+                val uri = candidateUrl.toUri()
                 val builder = MediaInfoBuilder().from(context = context, uri = uri)
                 mediaInfo = builder.build() ?: return@forEach
 
@@ -1480,7 +1481,7 @@ object FrameRateUtils {
         val safeHeaders = headers
         val extractor = MediaExtractor()
         return try {
-            val uri = Uri.parse(sourceUrl)
+            val uri = sourceUrl.toUri()
             when (uri.scheme?.lowercase()) {
                 "http", "https" -> extractor.setDataSource(sourceUrl, safeHeaders)
                 else -> extractor.setDataSource(context, uri, safeHeaders)
@@ -1610,7 +1611,7 @@ object FrameRateUtils {
     /** Scheme extraction that tolerates missing/stub Android Uri in JVM unit tests. */
     private fun parseUriScheme(sourceUrl: String): String? {
         val fromUri = try {
-            Uri.parse(sourceUrl).scheme?.lowercase(Locale.ROOT)
+            sourceUrl.toUri().scheme?.lowercase(Locale.ROOT)
         } catch (_: Throwable) {
             null
         }
@@ -1623,7 +1624,7 @@ object FrameRateUtils {
     /** Host extraction that tolerates missing/stub Android Uri in JVM unit tests. */
     private fun parseUriHost(url: String): String {
         val fromUri = try {
-            Uri.parse(url).host
+            url.toUri().host
         } catch (_: Throwable) {
             null
         }

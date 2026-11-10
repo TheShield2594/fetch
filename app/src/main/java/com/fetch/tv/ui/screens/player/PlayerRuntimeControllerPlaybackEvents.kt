@@ -2,8 +2,8 @@
 
 package com.fetch.tv.ui.screens.player
 
-import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.SeekParameters
 import com.fetch.tv.R
@@ -1808,6 +1808,6 @@ internal fun PlayerRuntimeController.buildStreamInfoData(): StreamInfoData {
 
 private fun String.safePlaybackEventsHost(): String {
     return runCatching {
-        Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
+        toUri().host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
     }.getOrDefault("unknown")
 }

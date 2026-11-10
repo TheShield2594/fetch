@@ -2,10 +2,10 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import androidx.core.net.toUri
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes

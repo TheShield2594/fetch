@@ -7,12 +7,12 @@ import android.content.res.Resources
 import android.graphics.RectF
 import android.media.MediaFormat
 import android.media.audiofx.LoudnessEnhancer
-import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.SystemClock
 import android.util.Log
 import android.view.accessibility.CaptioningManager
+import androidx.core.net.toUri
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.Format
@@ -2528,7 +2528,7 @@ private fun PlaybackException.isMediaPeriodHolderStateCrash(): Boolean {
 }
 
 private fun String.safeHost(): String {
-    return runCatching { Uri.parse(this).host ?: "unknown" }.getOrDefault("unknown")
+    return runCatching { toUri().host ?: "unknown" }.getOrDefault("unknown")
 }
 
 /**

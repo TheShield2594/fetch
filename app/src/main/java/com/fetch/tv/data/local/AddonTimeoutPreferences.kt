@@ -1,6 +1,7 @@
 package com.fetch.tv.data.local
 
 import android.content.Context
+import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,12 +29,12 @@ class AddonTimeoutPreferences @Inject constructor(
 
     fun setTimeoutSeconds(seconds: Int) {
         val value = seconds.takeIf { it in TIMEOUT_OPTIONS_SECONDS } ?: DEFAULT_TIMEOUT_SECONDS
-        preferences.edit().putInt(KEY_TIMEOUT_SECONDS, value).apply()
+        preferences.edit { putInt(KEY_TIMEOUT_SECONDS, value) }
         _timeoutSeconds.value = value
     }
 
     fun setSkipSlowAddons(enabled: Boolean) {
-        preferences.edit().putBoolean(KEY_SKIP_SLOW, enabled).apply()
+        preferences.edit { putBoolean(KEY_SKIP_SLOW, enabled) }
         _skipSlowAddons.value = enabled
     }
 

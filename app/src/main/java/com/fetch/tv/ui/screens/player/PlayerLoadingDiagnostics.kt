@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.player
 
-import android.net.Uri
 import android.os.SystemClock
 import kotlinx.coroutines.flow.update
 
@@ -112,7 +111,7 @@ private fun PlayerRuntimeController.recordLoadingDiagnosticRawEventLine(line: St
 
 private fun String.safePlaybackRawHost(): String {
     return runCatching {
-        Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
+        toUri().host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
     }.getOrDefault("unknown")
 }
 

@@ -7,8 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.tvprovider.media.tv.Channel
 import androidx.tvprovider.media.tv.PreviewProgram
 import androidx.tvprovider.media.tv.TvContractCompat
@@ -102,11 +102,9 @@ class AndroidTvChannelManager @Inject constructor(
                 return@runSuspendCatching orphan
             }
 
-            val appLinkUri = Uri.parse(
-                Intent(context, MainActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }.toUri(Intent.URI_INTENT_SCHEME)
-            )
+            val appLinkUri = Intent(context, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }.toUri(Intent.URI_INTENT_SCHEME).toUri()
             val channel = Channel.Builder()
                 .setType(TvContractCompat.Channels.TYPE_PREVIEW)
                 .setDisplayName(context.getString(R.string.tv_channel_continue_watching))
@@ -272,23 +270,21 @@ class AndroidTvChannelManager @Inject constructor(
         sortOrder: Int,
         key: String
     ): ContentValues {
-        val intentUri = Uri.parse(
-            Intent(context, MainActivity::class.java).apply {
-                action = Intent.ACTION_VIEW
-                putExtra("contentId", progress.contentId)
-                putExtra("contentType", progress.contentType)
-                putExtra("videoId", progress.videoId)
-                putExtra("name", progress.name)
-                putExtra("poster", progress.poster)
-                putExtra("backdrop", progress.backdrop)
-                putExtra("logo", progress.logo)
-                progress.season?.let { putExtra("season", it) }
-                progress.episode?.let { putExtra("episode", it) }
-                progress.episodeTitle?.let { putExtra("episodeTitle", it) }
-                putExtra("launchMode", "stream")
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            }.toUri(Intent.URI_INTENT_SCHEME)
-        )
+        val intentUri = Intent(context, MainActivity::class.java).apply {
+            action = Intent.ACTION_VIEW
+            putExtra("contentId", progress.contentId)
+            putExtra("contentType", progress.contentType)
+            putExtra("videoId", progress.videoId)
+            putExtra("name", progress.name)
+            putExtra("poster", progress.poster)
+            putExtra("backdrop", progress.backdrop)
+            putExtra("logo", progress.logo)
+            progress.season?.let { putExtra("season", it) }
+            progress.episode?.let { putExtra("episode", it) }
+            progress.episodeTitle?.let { putExtra("episodeTitle", it) }
+            putExtra("launchMode", "stream")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }.toUri(Intent.URI_INTENT_SCHEME).toUri()
 
         val type = if (progress.contentType.equals("movie", ignoreCase = true))
             TvContractCompat.PreviewPrograms.TYPE_MOVIE
@@ -312,8 +308,8 @@ class AndroidTvChannelManager @Inject constructor(
                 progress.poster to TvContractCompat.PreviewPrograms.ASPECT_RATIO_2_3
             else -> null to null
         }
-        imageUri?.let { builder.setPosterArtUri(Uri.parse(it)).setPosterArtAspectRatio(aspectRatio!!) }
-        progress.logo?.let { builder.setLogoUri(Uri.parse(it)) }
+        imageUri?.let { builder.setPosterArtUri(it.toUri()).setPosterArtAspectRatio(aspectRatio!!) }
+        progress.logo?.let { builder.setLogoUri(it.toUri()) }
 
         if (progress.duration > 0) {
             builder.setDurationMillis(progress.duration.toInt())

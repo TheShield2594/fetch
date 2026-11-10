@@ -1,6 +1,7 @@
 package com.fetch.tv.data.website
 
 import android.content.Context
+import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -66,21 +67,21 @@ class FetchWebsiteStore internal constructor(
 
     /** Signing out on the TV: forget the token, keep the address for next time. */
     fun clear() {
-        prefs.edit().remove(KEY_TOKEN).remove(KEY_DEVICE_NAME).apply()
+        prefs.edit { remove(KEY_TOKEN).remove(KEY_DEVICE_NAME) }
         clearSettingsBases()
         _session.value = null
     }
 
     /** The website revoked this TV. Same as [clear], but remembered so the TV can say why. */
     fun markSignedOutByWebsite() {
-        prefs.edit().remove(KEY_TOKEN).remove(KEY_DEVICE_NAME).putBoolean(KEY_SIGNED_OUT, true).apply()
+        prefs.edit { remove(KEY_TOKEN).remove(KEY_DEVICE_NAME).putBoolean(KEY_SIGNED_OUT, true) }
         clearSettingsBases()
         _signedOutByWebsite.value = true
         _session.value = null
     }
 
     fun dismissSignedOutNotice() {
-        prefs.edit().putBoolean(KEY_SIGNED_OUT, false).apply()
+        prefs.edit { putBoolean(KEY_SIGNED_OUT, false) }
         _signedOutByWebsite.value = false
     }
 
@@ -92,14 +93,13 @@ class FetchWebsiteStore internal constructor(
     fun settingsBase(websiteProfileId: String): String? = prefs.getString(KEY_SETTINGS_BASE_PREFIX + websiteProfileId, null)
 
     fun saveSettingsBase(websiteProfileId: String, blob: String) {
-        prefs.edit().putString(KEY_SETTINGS_BASE_PREFIX + websiteProfileId, blob).apply()
+        prefs.edit { putString(KEY_SETTINGS_BASE_PREFIX + websiteProfileId, blob) }
     }
 
     /** A new pairing, or the website a TV left, starts from the TV's own settings again. */
     private fun clearSettingsBases() {
-        val editor = prefs.edit()
-        prefs.all.keys.filter { it.startsWith(KEY_SETTINGS_BASE_PREFIX) }.forEach(editor::remove)
-        editor.apply()
+        val keys = prefs.all.keys.filter { it.startsWith(KEY_SETTINGS_BASE_PREFIX) }
+        prefs.edit { keys.forEach { remove(it) } }
     }
 
     private fun readSession(): FetchWebsiteSession? {

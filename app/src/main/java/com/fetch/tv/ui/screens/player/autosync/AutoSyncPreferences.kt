@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.player.autosync
 
 import android.content.Context
+import androidx.core.content.edit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -58,9 +59,7 @@ internal object AutoSyncPreferences {
         _aggressiveMode.value = enabled
         context.applicationContext
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putBoolean(KEY_AGGRESSIVE_MODE, enabled)
-            .apply()
+            .edit { putBoolean(KEY_AGGRESSIVE_MODE, enabled) }
     }
 
     fun setEnabled(context: Context, enabled: Boolean) {
@@ -69,9 +68,7 @@ internal object AutoSyncPreferences {
         _enabled.value = enabled
         context.applicationContext
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putBoolean(KEY_ENABLED, enabled)
-            .apply()
+            .edit { putBoolean(KEY_ENABLED, enabled) }
     }
 
     fun setSyncToleranceMs(context: Context, toleranceMs: Int) {
@@ -80,9 +77,7 @@ internal object AutoSyncPreferences {
         _syncToleranceMs.value = toleranceMs
         context.applicationContext
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putInt(KEY_SYNC_TOLERANCE_MS, toleranceMs)
-            .apply()
+            .edit { putInt(KEY_SYNC_TOLERANCE_MS, toleranceMs) }
     }
 
     fun claimStartupRun(sessionKey: Int, playbackKey: String): Boolean {

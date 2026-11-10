@@ -415,7 +415,7 @@ fun AdvancedSettingsContent(
                         else R.string.stream_test_card_title
                     ),
                     subtitle = if (hasStream) {
-                        stringResource(R.string.stream_test_server_label, lastStreamUrl.let { android.net.Uri.parse(it).host } ?: stringResource(R.string.stream_quality_unknown))
+                        stringResource(R.string.stream_test_server_label, lastStreamUrl.let { it.toUri().host } ?: stringResource(R.string.stream_quality_unknown))
                     } else {
                         stringResource(R.string.stream_test_no_stream)
                     },

@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.tmdb
 
+import androidx.core.graphics.get
 import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
@@ -659,7 +660,7 @@ private fun isLogoDarkAndMonochrome(bitmap: Bitmap): Boolean {
     while (x < width) {
         var y = 0
         while (y < height) {
-            val pixel = bitmap.getPixel(x, y)
+            val pixel = bitmap[x, y]
             val alpha = (pixel ushr 24) and 0xFF
             if (alpha > 50) { // skip transparent / nearly-transparent pixels
                 val r = ((pixel ushr 16) and 0xFF) / 255.0

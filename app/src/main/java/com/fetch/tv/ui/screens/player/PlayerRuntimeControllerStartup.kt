@@ -3,6 +3,7 @@ package com.fetch.tv.ui.screens.player
 import android.app.Activity
 import android.os.SystemClock
 import android.util.Log
+import androidx.core.net.toUri
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
@@ -53,6 +54,6 @@ internal fun PlayerRuntimeController.currentHostActivity(): Activity? {
 
 private fun String.safeStartupHost(): String {
     return runCatching {
-        android.net.Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
+        toUri().host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
     }.getOrDefault("unknown")
 }

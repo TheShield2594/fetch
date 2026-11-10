@@ -2,10 +2,10 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import androidx.core.net.toUri
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
@@ -130,7 +130,7 @@ fun AboutSettingsContent(
                                 onClick = {
                                     val intent = Intent(
                                         Intent.ACTION_VIEW,
-                                        Uri.parse("https://github.com/TheShield2594/fetch/blob/main/PRIVACY.md")
+                                        "https://github.com/TheShield2594/fetch/blob/main/PRIVACY.md".toUri()
                                     )
                                     context.startActivity(intent)
                                 }

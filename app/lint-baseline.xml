@@ -646,7 +646,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="684"
+            line="685"
             column="50"/>
     </issue>
 
@@ -657,7 +657,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="687"
+            line="688"
             column="50"/>
     </issue>
 
@@ -668,7 +668,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="2259"
+            line="2260"
             column="51"/>
     </issue>
 
@@ -679,7 +679,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="2260"
+            line="2261"
             column="52"/>
     </issue>
 
@@ -690,7 +690,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="3351"
+            line="3352"
             column="33"/>
     </issue>
 
@@ -701,7 +701,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="3354"
+            line="3355"
             column="33"/>
     </issue>
 
@@ -756,7 +756,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/account/AccountSettingsContent.kt"
-            line="172"
+            line="173"
             column="5"/>
     </issue>
 
@@ -767,7 +767,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/components/AvatarPickerGrid.kt"
-            line="80"
+            line="81"
             column="5"/>
     </issue>
 
@@ -1086,7 +1086,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/components/StartupSplashScreen.kt"
-            line="37"
+            line="38"
             column="5"/>
     </issue>
 
@@ -28174,7 +28174,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/core/player/FrameRateUtils.kt"
-            line="226"
+            line="227"
             column="13"/>
     </issue>
 
@@ -28185,7 +28185,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/core/player/FrameRateUtils.kt"
-            line="366"
+            line="367"
             column="13"/>
     </issue>
 
@@ -28196,7 +28196,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/core/player/FrameRateUtils.kt"
-            line="466"
+            line="467"
             column="13"/>
     </issue>
 
@@ -28405,7 +28405,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1595"
+            line="1592"
             column="54"/>
     </issue>
 
@@ -28581,7 +28581,7 @@
         errorLine2="                                                                     ~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/core/player/FrameRateUtils.kt"
-            line="926"
+            line="927"
             column="70"/>
     </issue>
 
@@ -28592,7 +28592,7 @@
         errorLine2="                                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/core/player/FrameRateUtils.kt"
-            line="1036"
+            line="1037"
             column="58"/>
     </issue>
 
@@ -28756,996 +28756,6 @@
         message="Found bitmap drawable `res/drawable/rating_tmdb.png` in densityless folder">
         <location
             file="src/main/res/drawable/rating_tmdb.png"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="                                        Uri.parse(&quot;https://github.com/TheShield2594/fetch/blob/main/PRIVACY.md&quot;)"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/settings/AboutScreen.kt"
-            line="133"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toColorInt` instead?"
-        errorLine1="    val color = runCatching { Color(android.graphics.Color.parseColor(profile.avatarColorHex)) }"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/account/AccountSettingsContent.kt"
-            line="305"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        preferences.edit().putString(KEY_HEALTH, encode(health)).apply()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/streams/AddonHealthStore.kt"
-            line="24"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="                val editor = prefs.edit()"
-        errorLine2="                             ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/repository/AddonRepositoryImpl.kt"
-            line="206"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="                prefs.edit().putString(MANIFEST_CACHE_KEY, gson.toJson(snapshot)).apply()"
-        errorLine2="                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/repository/AddonRepositoryImpl.kt"
-            line="231"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        preferences.edit().putInt(KEY_TIMEOUT_SECONDS, value).apply()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/local/AddonTimeoutPreferences.kt"
-            line="31"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        preferences.edit().putBoolean(KEY_SKIP_SLOW, enabled).apply()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/local/AddonTimeoutPreferences.kt"
-            line="36"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        preferences.edit()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/simkl/AndroidSimklAuthStorage.kt"
-            line="135"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        preferences.edit().clear().apply()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/simkl/AndroidSimklAuthStorage.kt"
-            line="149"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        preferences.edit()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/simkl/AndroidSimklAuthStorage.kt"
-            line="198"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        val editor = preferences.edit()"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/simkl/AndroidSimklAuthStorage.kt"
-            line="214"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            val appLinkUri = Uri.parse("
-        errorLine2="                             ^">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="104"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        val intentUri = Uri.parse("
-        errorLine2="                        ^">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="274"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        imageUri?.let { builder.setPosterArtUri(Uri.parse(it)).setPosterArtAspectRatio(aspectRatio!!) }"
-        errorLine2="                                                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="314"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        progress.logo?.let { builder.setLogoUri(Uri.parse(it)) }"
-        errorLine2="                                                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/androidtv/AndroidTvChannelManager.kt"
-            line="315"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        val packageUri = Uri.parse(&quot;package:${context.packageName}&quot;)"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/full/java/com/fetch/tv/updater/ApkInstaller.kt"
-            line="28"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="    runCatching { Uri.parse(this).host }.getOrNull()?.takeIf { it.isNotBlank() }"
-        errorLine2="                  ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/auth/diagnostics/AuthDiagnostics.kt"
-            line="446"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(&quot;https://github.com/TheShield2594/fetch/blob/main/PRIVACY.md&quot;)))"
-        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/account/AuthQrSignInScreen.kt"
-            line="691"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        context.applicationContext"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/autosync/AutoSyncPreferences.kt"
-            line="59"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        context.applicationContext"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/autosync/AutoSyncPreferences.kt"
-            line="70"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        context.applicationContext"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/autosync/AutoSyncPreferences.kt"
-            line="81"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toColorInt` instead?"
-        errorLine1="            avatar.bgColor?.let { hex -> runCatching { Color(android.graphics.Color.parseColor(hex)) }.getOrNull() }"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/components/AvatarPickerGrid.kt"
-            line="350"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        return runCatching { android.net.Uri.parse(this).host ?: &quot;unknown&quot; }.getOrDefault(&quot;unknown&quot;)"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/player/DoviBridge.kt"
-            line="330"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        persistedPrefs.edit()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/player/ExternalPlaybackTracker.kt"
-            line="725"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        persistedPrefs.edit()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/player/ExternalPlaybackTracker.kt"
-            line="745"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        persistedPrefs.edit().clear().apply()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/player/ExternalPlaybackTracker.kt"
-            line="803"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        setDataAndType(Uri.parse(input.url), &quot;video/*&quot;)"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/player/ExternalPlayerIntents.kt"
-            line="15"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            val subtitleUris = subs.map { Uri.parse(it.url) }.toTypedArray()"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/player/ExternalPlayerIntents.kt"
-            line="49"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        prefs.edit()"
-        errorLine2="        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/website/FetchWebsiteStore.kt"
-            line="46"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        prefs.edit().remove(KEY_TOKEN).remove(KEY_DEVICE_NAME).apply()"
-        errorLine2="        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/website/FetchWebsiteStore.kt"
-            line="58"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        prefs.edit().remove(KEY_TOKEN).remove(KEY_DEVICE_NAME).putBoolean(KEY_SIGNED_OUT, true).apply()"
-        errorLine2="        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/website/FetchWebsiteStore.kt"
-            line="65"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        prefs.edit().putBoolean(KEY_SIGNED_OUT, false).apply()"
-        errorLine2="        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/website/FetchWebsiteStore.kt"
-            line="72"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        prefs.edit().putString(KEY_SETTINGS_BASE_PREFIX + websiteProfileId, blob).apply()"
-        errorLine2="        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/website/FetchWebsiteStore.kt"
-            line="84"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        val editor = prefs.edit()"
-        errorLine2="                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/website/FetchWebsiteStore.kt"
-            line="89"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="                val uri = Uri.parse(candidateUrl)"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/player/FrameRateUtils.kt"
-            line="1451"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            val uri = Uri.parse(sourceUrl)"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/player/FrameRateUtils.kt"
-            line="1483"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            Uri.parse(sourceUrl).scheme?.lowercase(Locale.ROOT)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/player/FrameRateUtils.kt"
-            line="1613"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            Uri.parse(url).host"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/player/FrameRateUtils.kt"
-            line="1626"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        return preferences.edit()"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/local/ImagePerformancePreferences.kt"
-            line="18"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        return preferences.edit()"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/local/ImagePerformancePreferences.kt"
-            line="32"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            val uri = Uri.parse(normalized)"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/trailer/InAppYouTubeExtractor.kt"
-            line="668"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            !Uri.parse(url).getQueryParameter(&quot;n&quot;).isNullOrBlank()"
-        errorLine2="             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/trailer/InAppYouTubeExtractor.kt"
-            line="866"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        val uri = Uri.parse(url)"
-        errorLine2="                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/trailer/InAppYouTubeExtractor.kt"
-            line="953"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX function `createBitmap` instead?"
-        errorLine1="    private val bitmap = Bitmap.createBitmap("
-        errorLine2="                         ^">
-        <location
-            file="src/main/java/com/fetch/tv/core/player/LetterboxDetector.kt"
-            line="58"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.url)))"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/settings/LicensesAttributionsScreen.kt"
-            line="240"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `Int.toDrawable` instead?"
-        errorLine1="        window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="376"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="                        splashPrefs.edit().putString(&quot;color_$activeProfileId&quot;, colorHex).apply()"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="687"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="                        splashPrefs.edit()"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="690"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="                        splashPrefs.edit()"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="694"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="                        splashPrefs.edit().putString(&quot;theme_$activeProfileId&quot;, activeTheme.name).apply()"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="700"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="                        splashPrefs.edit().remove(&quot;theme_$activeProfileId&quot;).apply()"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="702"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        preferences.edit().putString(AvatarCatalogKey, payload).apply()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/local/MemberCatalogStorage.kt"
-            line="17"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        preferences.edit().putString(ProfileBackgroundCatalogKey, payload).apply()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/local/MemberCatalogStorage.kt"
-            line="24"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX function `createBitmap` instead?"
-        errorLine1="        val bmp = android.graphics.Bitmap.createBitmap(w, 2, android.graphics.Bitmap.Config.ARGB_8888)"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="2310"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX function `createBitmap` instead?"
-        errorLine1="        val bmp = android.graphics.Bitmap.createBitmap(2, h, android.graphics.Bitmap.Config.ARGB_8888)"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="2357"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))"
-        errorLine2="                                                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsViewModel.kt"
-            line="3183"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="                        stringResource(R.string.stream_test_server_label, lastStreamUrl.let { android.net.Uri.parse(it).host } ?: stringResource(R.string.stream_quality_unknown))"
-        errorLine2="                                                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt"
-            line="642"
-            column="95"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        val streamUri = runCatching { Uri.parse(streamUrl) }.getOrNull()"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/data/repository/PlaybackIssueReportRepository.kt"
-            line="204"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        Uri.parse(this).host ?: substringBefore(&quot;://&quot;).takeIf { it.isNotBlank() } ?: &quot;unknown&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerLoadingDiagnostics.kt"
-            line="198"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        ?.let { runCatching { Uri.parse(it) }.getOrNull() }"
-        errorLine2="                              ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerMediaSessionMetadata.kt"
-            line="37"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        val scheme = Uri.parse(url).scheme?.lowercase()"
-        errorLine2="                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerMediaSourceFactory.kt"
-            line="379"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="    return runCatching { Uri.parse(this).host ?: &quot;unknown&quot; }.getOrDefault(&quot;unknown&quot;)"
-        errorLine2="                         ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerRuntimeControllerInitialization.kt"
-            line="2550"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        android.net.Uri.parse(this).host ?: substringBefore(&quot;://&quot;).takeIf { it.isNotBlank() } ?: &quot;unknown&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerRuntimeControllerMpv.kt"
-            line="227"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="    return runCatching { Uri.parse(this).host ?: &quot;unknown&quot; }.getOrDefault(&quot;unknown&quot;)"
-        errorLine2="                         ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerRuntimeControllerPlaybackEvents.kt"
-            line="643"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        Uri.parse(this).host ?: substringBefore(&quot;://&quot;).takeIf { it.isNotBlank() } ?: &quot;unknown&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerRuntimeControllerPlaybackEvents.kt"
-            line="2014"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        android.net.Uri.parse(this).host ?: substringBefore(&quot;://&quot;).takeIf { it.isNotBlank() } ?: &quot;unknown&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerRuntimeControllerScrobble.kt"
-            line="127"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        android.net.Uri.parse(this).host ?: substringBefore(&quot;://&quot;).takeIf { it.isNotBlank() } ?: &quot;unknown&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerRuntimeControllerStartup.kt"
-            line="56"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(externalUrl))"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerRuntimeControllerStreams.kt"
-            line="668"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        Uri.parse(this).host ?: substringBefore(&quot;://&quot;).takeIf { it.isNotBlank() } ?: &quot;unknown&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerRuntimeControllerStreams.kt"
-            line="1288"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="    val baseUri = android.net.Uri.parse(subtitle.url)"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerRuntimeControllerTrackSelection.kt"
-            line="430"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        return source.open(if (target is SubtitleRequestTarget.Routed) dataSpec.withUri(Uri.parse(target.route.url)) else dataSpec)"
-        errorLine2="                                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerSubtitleDataSource.kt"
-            line="99"
-            column="89"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toColorInt` instead?"
-        errorLine1="    val avatarColor = runCatching { Color(android.graphics.Color.parseColor(colorHex)) }"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/components/ProfileAvatarCircle.kt"
-            line="39"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toColorInt` instead?"
-        errorLine1="    return runCatching { Color(android.graphics.Color.parseColor(colorHex)) }"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt"
-            line="1911"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            val uriWithCacheBuster = Uri.parse(it).buildUpon()"
-        errorLine2="                                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="51"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        Uri.parse("
-        errorLine2="        ^">
-        <location
-            file="src/main/java/com/fetch/tv/core/recommendations/ProgramBuilder.kt"
-            line="233"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="            if (!preferences.edit().remove(key).commit()) throw IOException(&quot;Unable to clear protected credentials&quot;)"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/profile/ProtectedProfilePreferences.kt"
-            line="33"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        if (!preferences.edit().clear().commit()) throw IOException(&quot;Unable to clear protected credentials&quot;)"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/profile/ProtectedProfilePreferences.kt"
-            line="54"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX function `createBitmap` instead?"
-        errorLine1="        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/qr/QrCodeGenerator.kt"
-            line="25"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX function `createBitmap` instead?"
-        errorLine1="        val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/qr/QrCodeGenerator.kt"
-            line="73"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)"
-        errorLine2="               ^">
-        <location
-            file="src/main/java/com/fetch/tv/data/local/ServerConfigurationStore.kt"
-            line="44"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/com/fetch/tv/data/local/ServerConfigurationStore.kt"
-            line="57"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toColorInt` instead?"
-        errorLine1="            runCatching { Color(android.graphics.Color.parseColor(it)) }.getOrNull()"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/components/StartupSplashScreen.kt"
-            line="41"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))"
-        errorLine2="                                                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/stream/StreamScreen.kt"
-            line="198"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="            dataSource.open(DataSpec(android.net.Uri.parse(url)))"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/network/StreamSpeedTester.kt"
-            line="109"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        preferences.edit().putString(KEY_CHOICE, kind.name).apply()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/backend/SyncBackends.kt"
-            line="77"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="        preferences.edit().putString(&quot;client_instance_id&quot;, generated).apply()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/sync/SyncClientIdentity.kt"
-            line="39"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `SharedPreferences.edit` instead?"
-        errorLine1="                context.getSharedPreferences(&quot;app_locale&quot;, android.content.Context.MODE_PRIVATE)"
-        errorLine2="                ^">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/settings/ThemeSettingsScreen.kt"
-            line="329"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `Bitmap.get` instead?"
-        errorLine1="            val pixel = bitmap.getPixel(x, y)"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/tmdb/TmdbEntityBrowseScreen.kt"
-            line="662"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="                                            Uri.parse(SIMKL_SYNC_GUIDE_URL)"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/settings/TrackingProviderDialogs.kt"
-            line="197"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UseKtx"
-        message="Use the KTX extension function `String.toUri` instead?"
-        errorLine1="                                            Uri.parse(SIMKL_WEBSITE_URL)"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/settings/TrackingProviderDialogs.kt"
-            line="229"
-            column="45"/>
     </issue>
 
     <issue

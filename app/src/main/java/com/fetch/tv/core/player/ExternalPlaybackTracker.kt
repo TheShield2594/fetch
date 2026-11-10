@@ -2,6 +2,7 @@ package com.fetch.tv.core.player
 
 import android.content.Context
 import android.util.Log
+import androidx.core.content.edit
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.tracking.TrackingMediaKind
 import com.fetch.tv.core.tracking.TrackingMediaReference
@@ -722,36 +723,36 @@ class ExternalPlaybackTracker @Inject constructor(
     // --- Disk persistence for pendingMetadata (survives process death) -------------
 
     private fun persistMetadata(m: ExternalPlaybackMetadata) {
-        persistedPrefs.edit()
-            .putString("contentId", m.contentId)
-            .putString("contentType", m.contentType)
-            .putString("contentName", m.contentName)
-            .putString("poster", m.poster)
-            .putString("backdrop", m.backdrop)
-            .putString("logo", m.logo)
-            .putString("videoId", m.videoId)
-            .putInt("season", m.season ?: Int.MIN_VALUE)
-            .putInt("episode", m.episode ?: Int.MIN_VALUE)
-            .putString("episodeTitle", m.episodeTitle)
-            .putString("year", m.year)
-            .putInt("profileId", m.profileId)
-            .apply()
+        persistedPrefs.edit {
+            putString("contentId", m.contentId)
+            putString("contentType", m.contentType)
+            putString("contentName", m.contentName)
+            putString("poster", m.poster)
+            putString("backdrop", m.backdrop)
+            putString("logo", m.logo)
+            putString("videoId", m.videoId)
+            putInt("season", m.season ?: Int.MIN_VALUE)
+            putInt("episode", m.episode ?: Int.MIN_VALUE)
+            putString("episodeTitle", m.episodeTitle)
+            putString("year", m.year)
+            putInt("profileId", m.profileId)
+        }
     }
 
     private fun persistAutoNextState(
         snapshot: ExternalNextEpisodeSnapshot,
         autoNextEnabled: Boolean?
     ) {
-        persistedPrefs.edit()
-            .putBoolean("autoNextEnabledPresent", autoNextEnabled != null)
-            .putBoolean("autoNextEnabled", autoNextEnabled == true)
-            .putBoolean("nextEpisodeSnapshotPresent", true)
-            .putBoolean("nextEpisodeMetadataResolved", snapshot.metadataResolved)
-            .putBoolean("nextEpisodeShufflePlayback", snapshot.shufflePlayback)
-            .putString("nextEpisodeVideoId", snapshot.nextVideoId)
-            .putInt("nextEpisodeSeason", snapshot.nextSeason ?: Int.MIN_VALUE)
-            .putInt("nextEpisodeNumber", snapshot.nextEpisode ?: Int.MIN_VALUE)
-            .apply()
+        persistedPrefs.edit {
+            putBoolean("autoNextEnabledPresent", autoNextEnabled != null)
+            putBoolean("autoNextEnabled", autoNextEnabled == true)
+            putBoolean("nextEpisodeSnapshotPresent", true)
+            putBoolean("nextEpisodeMetadataResolved", snapshot.metadataResolved)
+            putBoolean("nextEpisodeShufflePlayback", snapshot.shufflePlayback)
+            putString("nextEpisodeVideoId", snapshot.nextVideoId)
+            putInt("nextEpisodeSeason", snapshot.nextSeason ?: Int.MIN_VALUE)
+            putInt("nextEpisodeNumber", snapshot.nextEpisode ?: Int.MIN_VALUE)
+        }
     }
 
     private fun loadPersistedAutoNextEnabled(): Boolean? {
@@ -800,7 +801,7 @@ class ExternalPlaybackTracker @Inject constructor(
     }
 
     private fun clearPersistedMetadata() {
-        persistedPrefs.edit().clear().apply()
+        persistedPrefs.edit { clear() }
     }
 
     // ===================== Completion + auto-next =====================

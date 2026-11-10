@@ -2,6 +2,7 @@ package com.fetch.tv.data.repository
 
 import android.content.Context
 import android.util.Log
+import androidx.core.content.edit
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.fetch.tv.core.network.NetworkResult
@@ -199,9 +200,7 @@ class AddonRepositoryImpl(
             val prefs = context.getSharedPreferences(MANIFEST_CACHE_PREFS, Context.MODE_PRIVATE)
             val legacyKeys = LEGACY_MANIFEST_CACHE_KEYS.filter(prefs::contains)
             if (legacyKeys.isNotEmpty()) {
-                val editor = prefs.edit()
-                legacyKeys.forEach { editor.remove(it) }
-                editor.apply()
+                prefs.edit { legacyKeys.forEach { remove(it) } }
             }
             val json = prefs.getString(MANIFEST_CACHE_KEY, null) ?: return@withContext
             val type = object : TypeToken<Map<String, Addon>>() {}.type
@@ -224,7 +223,7 @@ class AddonRepositoryImpl(
             try {
                 val snapshot = synchronized(manifestCacheLock) { manifestCache.toMap() }
                 val prefs = context.getSharedPreferences(MANIFEST_CACHE_PREFS, Context.MODE_PRIVATE)
-                prefs.edit().putString(MANIFEST_CACHE_KEY, gson.toJson(snapshot)).apply()
+                prefs.edit { putString(MANIFEST_CACHE_KEY, gson.toJson(snapshot)) }
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to persist manifest cache to disk", e)
             }

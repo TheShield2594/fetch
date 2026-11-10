@@ -3,6 +3,7 @@
 package com.fetch.tv.ui.screens.stream
 
 import androidx.compose.material.icons.filled.Extension
+import androidx.core.net.toUri
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.StateActionButton
 import com.fetch.tv.ui.components.StateAction
@@ -28,7 +29,6 @@ import com.fetch.tv.core.streams.ranking.setupSummary
 import com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities
 import com.fetch.tv.core.streams.ranking.RankedStream
 import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -196,7 +196,7 @@ fun StreamScreen(
     fun openExternalInBrowser(playbackInfo: StreamPlaybackInfo): Boolean {
         if (!playbackInfo.isExternal) return false
         val url = playbackInfo.url?.takeIf { it.isNotBlank() } ?: return false
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        val browserIntent = Intent(Intent.ACTION_VIEW, url.toUri())
             .addCategory(Intent.CATEGORY_BROWSABLE)
         runCatching {
             context.startActivity(browserIntent)

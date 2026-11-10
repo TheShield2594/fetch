@@ -1,6 +1,7 @@
 package com.fetch.tv.core.player
 
 import android.util.Log
+import androidx.core.net.toUri
 import com.fetch.tv.BuildConfig
 import java.util.concurrent.atomic.AtomicLong
 
@@ -327,7 +328,7 @@ object DoviBridge {
     }
 
     private fun String.safeHost(): String {
-        return runCatching { android.net.Uri.parse(this).host ?: "unknown" }.getOrDefault("unknown")
+        return runCatching { toUri().host ?: "unknown" }.getOrDefault("unknown")
     }
 
     @JvmStatic

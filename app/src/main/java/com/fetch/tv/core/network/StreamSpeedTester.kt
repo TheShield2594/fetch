@@ -1,5 +1,6 @@
 package com.fetch.tv.core.network
 
+import androidx.core.net.toUri
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
@@ -106,7 +107,7 @@ object StreamSpeedTester {
                 addTransferListener(transferListener)
             }
             openSource = dataSource
-            dataSource.open(DataSpec(android.net.Uri.parse(url)))
+            dataSource.open(DataSpec(url.toUri()))
             val buffer = ByteArray(64 * 1024)
 
             var eof = false

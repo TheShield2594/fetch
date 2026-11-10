@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.core.player.NextEpisodeCardRules
 import com.fetch.tv.data.local.NextEpisodeThresholdMode
 import com.fetch.tv.data.repository.SkipInterval
 import com.fetch.tv.core.util.isEpisodeReleaseAired
@@ -36,6 +37,7 @@ object PlayerNextEpisodeRules {
         return sortedEpisodes.getOrNull(currentIndex + 1)
     }
 
+    /** The shared [NextEpisodeCardRules], fed this app's skip segments and settings. */
     fun shouldShowNextEpisodeCard(
         positionMs: Long,
         durationMs: Long,
@@ -44,85 +46,31 @@ object PlayerNextEpisodeRules {
         thresholdPercent: Float,
         thresholdMinutesBeforeEnd: Float
     ): Boolean {
-        // A duration below the current position is not a valid end-of-video signal.
-        if (durationMs > 0L && positionMs > durationMs + END_OF_VIDEO_EPSILON_MS) return false
-
-        val outroSegments = skipIntervals.filter { it.type in OUTRO_SEGMENT_TYPES }
-
-        if (outroSegments.isNotEmpty()) {
-            if (durationMs <= 0L) return false
-
-            // Use the same post-credits detection as the skip-credits button so
-            // the next-episode card never appears over a post-credits scene.
-            val latestOutro = outroSegments.maxByOrNull { it.endTime }
-            val postCreditsScene = latestOutro?.followingPostCreditsScene(skipIntervals, durationMs)
-
-            if (postCreditsScene != null) {
-                val sceneEndMs = (postCreditsScene.endTime * 1_000.0).toLong()
-                    .coerceAtMost(durationMs)
-                val userTriggerMs = userThresholdPositionMs(
-                    durationMs, thresholdMode, thresholdPercent, thresholdMinutesBeforeEnd
-                )
-                val isHeuristic = postCreditsScene.provider == "heuristic"
-                val sceneDurationMs = sceneEndMs - (postCreditsScene.startTime * 1_000.0).toLong()
-                val userThresholdFromEndMs = durationMs - userTriggerMs
-                return if (isHeuristic && sceneDurationMs < userThresholdFromEndMs) {
-                    // Short heuristic scene (shorter than user threshold window):
-                    // card is not needed - autoplay will handle it at playback end.
-                    false
-                } else if (isHeuristic) {
-                    positionMs >= userTriggerMs
-                } else {
-                    positionMs >= maxOf(sceneEndMs, userTriggerMs)
-                }
-            }
-
-            val latestOutroEndMs = (outroSegments.maxOf { it.endTime } * 1_000.0).toLong()
-            val postOutroGapMs = durationMs - latestOutroEndMs
-
-            // Calculate the user's configured threshold as milliseconds from end.
-            val userThresholdMs = when (thresholdMode) {
-                NextEpisodeThresholdMode.PERCENTAGE -> {
-                    val clampedPercent = thresholdPercent.coerceIn(97f, 100f)
-                    ((1.0 - clampedPercent / 100.0) * durationMs).toLong()
-                }
-                NextEpisodeThresholdMode.MINUTES_BEFORE_END -> {
-                    val clampedMinutes = thresholdMinutesBeforeEnd.coerceIn(0f, 3.5f)
-                    (clampedMinutes * 60_000f).toLong()
-                }
-            }
-
-            return if (postOutroGapMs > userThresholdMs) {
-                when (thresholdMode) {
-                    NextEpisodeThresholdMode.PERCENTAGE -> {
-                        val clampedPercent = thresholdPercent.coerceIn(97f, 100f)
-                        (positionMs.toDouble() / durationMs.toDouble()) >= (clampedPercent / 100.0)
-                    }
-                    NextEpisodeThresholdMode.MINUTES_BEFORE_END -> {
-                        val clampedMinutes = thresholdMinutesBeforeEnd.coerceIn(0f, 3.5f)
-                        val remainingMs = durationMs - positionMs
-                        remainingMs <= (clampedMinutes * 60_000f).toLong()
-                    }
-                }
-            } else {
-                // Outro ends close to the file end — fire at earliest outro start.
-                positionMs / 1_000.0 >= outroSegments.minOf { it.startTime }
-            }
+        val outros = skipIntervals.filter { it.type in OUTRO_SEGMENT_TYPES && it.endTime > it.startTime }
+        // The same post-credits detection as the Skip button, so the card never covers the scene.
+        val scene = if (durationMs > 0L) {
+            outros.maxByOrNull { it.endTime }?.followingPostCreditsScene(skipIntervals, durationMs)
+        } else {
+            null
         }
+        return NextEpisodeCardRules.shouldShow(
+            positionSec = positionMs / 1_000.0,
+            durationSec = durationMs / 1_000.0,
+            credits = outros.map { NextEpisodeCardRules.Credits(it.startTime, it.endTime) },
+            postCreditsScene = scene?.let {
+                NextEpisodeCardRules.PostCreditsScene(it.startTime, it.endTime, guessed = it.provider == "heuristic")
+            },
+            threshold = threshold(thresholdMode, thresholdPercent, thresholdMinutesBeforeEnd)
+        )
+    }
 
-        // Fallback to the settings threshold when no outro data exists.
-        if (durationMs <= 0L) return false
-        return when (thresholdMode) {
-            NextEpisodeThresholdMode.PERCENTAGE -> {
-                val clampedPercent = thresholdPercent.coerceIn(97f, 100f)
-                (positionMs.toDouble() / durationMs.toDouble()) >= (clampedPercent / 100.0)
-            }
-            NextEpisodeThresholdMode.MINUTES_BEFORE_END -> {
-                val clampedMinutes = thresholdMinutesBeforeEnd.coerceIn(0f, 3.5f)
-                val remainingMs = durationMs - positionMs
-                remainingMs <= (clampedMinutes * 60_000f).toLong()
-            }
-        }
+    fun threshold(
+        mode: NextEpisodeThresholdMode,
+        percent: Float,
+        minutesBeforeEnd: Float
+    ): NextEpisodeCardRules.Threshold = when (mode) {
+        NextEpisodeThresholdMode.PERCENTAGE -> NextEpisodeCardRules.Threshold.Percent(percent)
+        NextEpisodeThresholdMode.MINUTES_BEFORE_END -> NextEpisodeCardRules.Threshold.MinutesBeforeEnd(minutesBeforeEnd)
     }
 
     /** True when a reading is clearly before the end and outside the next-episode window. */
@@ -161,20 +109,4 @@ object PlayerNextEpisodeRules {
 
     /** How close to the duration MPV treats as the end of the file. */
     const val NEAR_END_MS = 500L
-
-    private fun userThresholdPositionMs(
-        durationMs: Long,
-        thresholdMode: NextEpisodeThresholdMode,
-        thresholdPercent: Float,
-        thresholdMinutesBeforeEnd: Float,
-    ): Long = when (thresholdMode) {
-        NextEpisodeThresholdMode.PERCENTAGE -> {
-            val clampedPercent = thresholdPercent.coerceIn(97f, 100f)
-            kotlin.math.ceil(durationMs * (clampedPercent / 100.0)).toLong()
-        }
-        NextEpisodeThresholdMode.MINUTES_BEFORE_END -> {
-            val clampedMinutes = thresholdMinutesBeforeEnd.coerceIn(0f, 3.5f)
-            durationMs - (clampedMinutes * 60_000f).toLong()
-        }
-    }
 }

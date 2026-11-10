@@ -1,6 +1,8 @@
 @file:OptIn(ExperimentalTvMaterial3Api::class)
 
 
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.fetch.tv.ui.screens.settings
 
 import com.fetch.tv.ui.theme.FetchTheme

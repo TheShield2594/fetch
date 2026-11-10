@@ -1,10 +1,13 @@
 package com.fetch.tv.core.player.avi;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.media3.common.util.ParsableByteArray;
+import androidx.media3.common.util.UnstableApi;
 import java.util.Arrays;
 
 /** An OpenDML super index ('indx' in a stream list): where the stream's standard index chunks are. */
+@OptIn(markerClass = UnstableApi.class)
 /* package */ final class SuperIndexChunk implements AviChunk {
 
   private static final int AVI_INDEX_OF_INDEXES = 0;

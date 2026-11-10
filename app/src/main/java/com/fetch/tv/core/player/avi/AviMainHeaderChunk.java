@@ -15,9 +15,12 @@
  */
 package com.fetch.tv.core.player.avi;
 
+import androidx.annotation.OptIn;
 import androidx.media3.common.util.ParsableByteArray;
+import androidx.media3.common.util.UnstableApi;
 
 /** Wrapper around the AVIMAINHEADER structure */
+@OptIn(markerClass = UnstableApi.class)
 /* package */ final class AviMainHeaderChunk implements AviChunk {
 
   private static final int AVIF_HAS_INDEX = 0x10;

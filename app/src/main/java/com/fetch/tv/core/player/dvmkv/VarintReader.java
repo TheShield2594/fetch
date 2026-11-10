@@ -15,13 +15,16 @@
  */
 package com.fetch.tv.core.player.dvmkv;
 
+import androidx.annotation.OptIn;
 import androidx.media3.common.C;
 import androidx.media3.common.ParserException;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.extractor.ExtractorInput;
 import java.io.EOFException;
 import java.io.IOException;
 
 /** Reads EBML variable-length integers (varints) from an {@link ExtractorInput}. */
+@OptIn(markerClass = UnstableApi.class)
 /* package */ final class VarintReader {
 
   private static final int STATE_BEGIN_READING = 0;

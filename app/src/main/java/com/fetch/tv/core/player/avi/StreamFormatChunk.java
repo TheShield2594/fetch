@@ -16,15 +16,18 @@
 package com.fetch.tv.core.player.avi;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableByteArray;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 
 /** Holds the {@link Format} information contained in an STRF chunk. */
+@OptIn(markerClass = UnstableApi.class)
 /* package */ final class StreamFormatChunk implements AviChunk {
   private static final String TAG = "StreamFormatChunk";
 

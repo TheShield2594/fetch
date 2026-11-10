@@ -132,8 +132,8 @@
     <string name="error_meta_tried_issues">முயற்சித்த meta ஆடான்கள்: %1$s. id=%2$s (type=%3$s) க்கான metadata ஏற்ற முடியவில்லை. சிக்கல்கள்: %4$s.</string>
     <string name="error_stream_no_supported_addon">நிறுவப்பட்ட எந்த ஆடானும் \"%1$s\" க்கான streams-ஐ ஆதரிக்கவில்லை.</string>
     <string name="error_stream_tried_none">முயற்சித்த stream ஆடான்கள்: %1$s. இவற்றில் எதுவும் streams வழங்கவில்லை.</string>
-    <string name="error_stream_tried_generic">முயற்சித்த stream ஆடான்கள்: %1$s. streams ஏற்ற முடியவில்லை.</string>
-    <string name="error_stream_tried_issues">முயற்சித்த stream ஆடான்கள்: %1$s. streams ஏற்ற முடியவில்லை. சிக்கல்கள்: %2$s.</string>
+    <string name="error_stream_tried_generic">முயற்சித்த stream ஆடான்கள்: %1$s. Streams ஏற்ற முடியவில்லை.</string>
+    <string name="error_stream_tried_issues">முயற்சித்த stream ஆடான்கள்: %1$s. Streams ஏற்ற முடியவில்லை. சிக்கல்கள்: %2$s.</string>
 
         <!-- ContinueWatchingSection -->
     <string name="continue_watching">தொடர்ந்து பார்க்க</string>

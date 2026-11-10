@@ -130,8 +130,8 @@
     <string name="error_meta_tried_issues">Complementos de metadatos probados: %1$s. No se pudo cargar metadatos para id=%2$s (tipo=%3$s). Problemas: %4$s.</string>
     <string name="error_stream_no_supported_addon">Ningún complemento instalado admite transmisiones para \"%1$s\".</string>
     <string name="error_stream_tried_none">Complementos de transmisión probados: %1$s. Ninguno de ellos devolvió transmisiones.</string>
-    <string name="error_stream_tried_generic">Complementos de transmisión probados: %1$s. No se pudo cargar transmisiones.</string>
-    <string name="error_stream_tried_issues">Complementos de transmisión probados: %1$s. No se pudo cargar transmisiones. Problemas: %2$s.</string>
+    <string name="error_stream_tried_generic">Complementos de transmisión probados: %1$s. No se pudieron cargar las transmisiones.</string>
+    <string name="error_stream_tried_issues">Complementos de transmisión probados: %1$s. No se pudieron cargar las transmisiones. Problemas: %2$s.</string>
 
     <string name="continue_watching">Continuar viendo</string>
     <string name="cw_upcoming">Próximamente</string>

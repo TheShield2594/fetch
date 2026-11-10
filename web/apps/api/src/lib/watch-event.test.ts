@@ -21,7 +21,7 @@ vi.mock("./series-progress.js", () => seriesProgressMock);
 const aiMock = { shouldRefreshAiRecs: vi.fn().mockResolvedValue(false), getAiRecommendations: vi.fn() };
 vi.mock("./ai.js", () => aiMock);
 
-const cacheMock = { trendingCacheDeletePrefix: vi.fn() };
+const cacheMock = { aiRecsCacheDeleteForProfiles: vi.fn() };
 vi.mock("./cache.js", async (importOriginal) => ({
   ...(await importOriginal<typeof import("./cache.js")>()),
   ...cacheMock,

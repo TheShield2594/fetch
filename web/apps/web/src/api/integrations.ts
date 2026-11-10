@@ -172,7 +172,9 @@ export const integrationsApi = {
     return request<{ connected: boolean; configured: boolean; expiresAt: string | null; redirectUri: string }>("/trakt/status");
   },
   getTraktOAuthUrl() {
-    return request<{ url: string }>("/trakt/oauth/authorize");
+    // With credentials, so the browser keeps the cookie this sets: the callback
+    // is only accepted in the browser that started the sign-in.
+    return request<{ url: string }>("/trakt/oauth/authorize", { credentials: "include" });
   },
   traktImport() {
     // A full history import walks every play on the account, so this is sized

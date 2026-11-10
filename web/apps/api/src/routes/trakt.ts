@@ -23,7 +23,7 @@ import {
 } from "../lib/trakt-import.js";
 import { renderOAuthHtml } from "../lib/html.js";
 import { SECRET_CONTEXT, encryptSecret } from "../lib/secret-box.js";
-import { consumeOAuthState, createOAuthState } from "../lib/trakt-oauth-state.js";
+import { OAUTH_STATE_TTL_MS, consumeOAuthState, createOAuthState } from "../lib/trakt-oauth-state.js";
 import { traktRedirectUri } from "../lib/trakt-redirect-uri.js";
 import { resolveProfile } from "../lib/profile.js";
 import type { SeriesProgressCandidate } from "../lib/types.js";
@@ -35,6 +35,33 @@ import type { SeriesProgressCandidate } from "../lib/types.js";
 // can pile up. Matches the limit PIN verification already uses; completing the
 // linking flow takes one request, not ten.
 const OAUTH_RATE_LIMIT = { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } };
+
+// The cookie that ties a callback to the browser that started its flow (see
+// `lib/trakt-oauth-state.ts`). Scoped to the callback's own path — the only
+// request that needs it — and as long-lived as the state it goes with. It is
+// set on the authorize response, which the web app fetches with credentials,
+// and read on the top-level navigation trakt.tv redirects the browser into,
+// which `SameSite=Lax` allows.
+const OAUTH_BROWSER_COOKIE = "fetch_trakt_oauth";
+
+const oauthBrowserCookie = (value: string, maxAgeSec: number): string => {
+  let path = "/";
+  let secure = false;
+  try {
+    const redirect = new URL(traktRedirectUri());
+    path = redirect.pathname;
+    secure = redirect.protocol === "https:";
+  } catch { /* an unparseable redirect URI fails at Trakt anyway; scope to the whole host */ }
+  return `${OAUTH_BROWSER_COOKIE}=${value}; Max-Age=${maxAgeSec}; Path=${path}; HttpOnly; SameSite=Lax${secure ? "; Secure" : ""}`;
+};
+
+const readCookie = (header: string | undefined, name: string): string | undefined => {
+  for (const part of (header ?? "").split(";")) {
+    const separator = part.indexOf("=");
+    if (separator !== -1 && part.slice(0, separator).trim() === name) return part.slice(separator + 1).trim();
+  }
+  return undefined;
+};
 
 // A full import walks the entire account and can run for minutes. Two at once
 // do the same work twice against the same rows — every write is idempotent, so
@@ -92,7 +119,8 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
     // This route is behind the API token gate, so a `state` minted here proves
     // the flow was started from Fetch itself — the callback below refuses
     // anything else.
-    const { state, codeChallenge } = await createOAuthState(request.profileId!);
+    const { state, codeChallenge, browserNonce } = await createOAuthState(request.profileId!);
+    reply.header("Set-Cookie", oauthBrowserCookie(browserNonce, Math.floor(OAUTH_STATE_TTL_MS / 1000)));
     const url = new URL("/oauth/authorize", TRAKT_AUTH_BASE);
     url.search = new URLSearchParams({
       response_type: "code",
@@ -129,7 +157,11 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
     // and the code it carries belongs to someone else's Trakt account.
     // The profile that started the flow. One deleted while its owner was on
     // trakt.tv has nowhere to keep the tokens.
-    const flow = await consumeOAuthState(state);
+    // The browser also has to be the one that started the flow: a link sent
+    // from one account to another, finished in the second's browser, would
+    // otherwise put the second's Trakt tokens on the first's profile.
+    const flow = await consumeOAuthState(state, readCookie(request.headers.cookie, OAUTH_BROWSER_COOKIE));
+    if (flow) reply.header("Set-Cookie", oauthBrowserCookie("", 0));
     const owner = flow?.owner;
     const ownerGone = !!owner && !(await prisma.profile.findUnique({ where: { id: owner }, select: { id: true } }));
     if (!flow || !owner || ownerGone) {
@@ -139,7 +171,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
         .type("text/html")
         .send(
           renderOAuthHtml(
-            "This authorization could not be verified — it was not started from this Fetch install, or it took too long to complete. Start again from Settings.",
+            "This authorization could not be verified — it was not started from this browser on this Fetch install, or it took too long to complete. Start again from Settings.",
             "Trakt authorization failed"
           )
         );

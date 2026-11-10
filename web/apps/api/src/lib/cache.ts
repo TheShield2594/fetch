@@ -123,11 +123,36 @@ export const trendingCacheDelete = (key: string) => {
   trendingCache.delete(key);
 };
 
-export const trendingCacheDeletePrefix = (prefix: string) => {
-  for (const key of [...trendingCache.keys()]) {
-    if (key.startsWith(prefix)) trendingCache.delete(key);
+// A profile's AI recommendations (`ai-recs:<type>:<limit>:<profileId>`). Their
+// own instance rather than a corner of `trendingCache`: that one is shared by
+// every account's catalog requests, so a burst of those could evict the LLM
+// round trips these stand for, and the other way round.
+export const aiRecsCache = new LRUCache<string, TrendingCacheEntry>({ max: 200, ttl: TRENDING_CACHE_TTL_MS });
+
+const AI_RECS_PREFIX = "ai-recs:";
+
+// The Stremio addon's AI catalog (`ai-recs:<type>:<profileId>`) still sits in
+// `trendingCache`, so both are swept; either way the profile id is the last
+// segment of the key.
+const deleteAiRecsWhere = (matches: (profileId: string) => boolean) => {
+  for (const cache of [aiRecsCache, trendingCache]) {
+    for (const key of [...cache.keys()]) {
+      if (key.startsWith(AI_RECS_PREFIX) && matches(key.slice(key.lastIndexOf(":") + 1))) cache.delete(key);
+    }
   }
 };
+
+/**
+ * Drops the cached AI recommendations of these profiles, and nobody else's: a
+ * request may only throw away what its own account's profiles would regenerate.
+ */
+export const aiRecsCacheDeleteForProfiles = (profileIds: Iterable<string>) => {
+  const ids = new Set(profileIds);
+  if (ids.size > 0) deleteAiRecsWhere((profileId) => ids.has(profileId));
+};
+
+/** Every profile's — for the install-wide jobs, never for one account's request. */
+export const aiRecsCacheClear = () => deleteAiRecsWhere(() => true);
 
 // Settings and credentials live in the same KV table and are read on paths that
 // run per request: `getTmdb()` resolves the language and the API key on every

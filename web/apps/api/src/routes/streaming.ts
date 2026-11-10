@@ -9,6 +9,8 @@ import { trendingCacheGet, trendingCacheSet } from "../lib/cache.js";
 import { getMetadataType } from "../lib/types.js";
 import type { StremioMetaPreview, StremioMetaType } from "../lib/types.js";
 
+const REGION_PATTERN = /^[A-Z]{2}$/;
+
 const streamingRoutes: FastifyPluginAsync = async (app) => {
   app.get<{ Querystring: { type?: string; provider?: string; region?: string } }>(
     "/streaming",
@@ -25,7 +27,18 @@ const streamingRoutes: FastifyPluginAsync = async (app) => {
         });
       }
 
-      const region = request.query.region ?? (await getRegionSetting(await ownerForRequest(request)));
+      // Part of the cache key, so it is held to what a region is: free text
+      // here would let any caller fill the shared catalog cache with junk keys
+      // and push everyone's real entries out.
+      let region: string;
+      if (request.query.region !== undefined) {
+        region = request.query.region.trim().toUpperCase();
+        if (!REGION_PATTERN.test(region)) {
+          return reply.code(400).send({ error: "region must be a two-letter country code (e.g., 'US', 'GB')" });
+        }
+      } else {
+        region = await getRegionSetting(await ownerForRequest(request));
+      }
       const provider = STREAMING_PROVIDERS[providerKey];
       const cacheKey = `streaming:${providerKey}:${rawType}:${region}`;
 

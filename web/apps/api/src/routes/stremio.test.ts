@@ -36,8 +36,8 @@ const tokenFor = (profileId: string) => `verified-${profileId}`;
 // deliberate one rather than something a duplicated literal here hides.
 vi.mock("../lib/profile.js", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../lib/profile.js")>()),
-  resolveProfile: async (request: { profileId?: string }) => {
-    request.profileId = PROFILE_ID;
+  resolveProfile: async (request: { headers: Record<string, string | undefined>; profileId?: string }) => {
+    request.profileId = request.headers["x-profile-id"] ?? PROFILE_ID;
   },
   getDefaultProfileId: async () => PROFILE_ID,
   isProfileLocked: async (
@@ -297,6 +297,23 @@ describe("stremio routes — the list route is profile-scoped", () => {
     const response = await app.inject({
       method: "GET",
       url: `/stremio/list/${OTHER_LIST_ID}?type=movie&profileId=${OTHER_PROFILE_ID}`,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(prismaMock.list.findFirst).toHaveBeenCalledWith({
+      where: { id: OTHER_LIST_ID, profileId: OTHER_PROFILE_ID },
+      select: { id: true, kind: true },
+    });
+  });
+
+  it("looks the list up under the x-profile-id profile when no profileId is given", async () => {
+    const app = await buildApp();
+    prismaMock.list.findFirst.mockResolvedValue({ id: OTHER_LIST_ID, kind: "custom" });
+
+    const response = await app.inject({
+      method: "GET",
+      url: `/stremio/list/${OTHER_LIST_ID}?type=movie`,
+      headers: { "x-profile-id": OTHER_PROFILE_ID },
     });
 
     expect(response.statusCode).toBe(200);

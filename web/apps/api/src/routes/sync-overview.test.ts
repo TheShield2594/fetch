@@ -132,6 +132,26 @@ describe("GET /sync/overview", () => {
     expect(kids).toMatchObject({ addonsFromPrimary: true, counts: { addons: 3, enabledAddons: 2 } });
   });
 
+  it("counts only the caller's profiles' rows rather than the whole install's", async () => {
+    const app = await buildApp();
+    await app.inject({ method: "GET", url: "/sync/overview" });
+    const ofProfiles = { profileId: { in: [PROFILE_ID, OTHER_ID] } };
+    for (const groupBy of [
+      prismaMock.profileAddon.groupBy,
+      prismaMock.list.groupBy,
+      prismaMock.playbackProgress.groupBy,
+      prismaMock.watchEvent.groupBy,
+    ]) {
+      for (const [args] of groupBy.mock.calls) {
+        expect(args).toMatchObject({ where: ofProfiles });
+      }
+    }
+    expect(prismaMock.profileAddon.groupBy).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { ...ofProfiles, enabled: true } })
+    );
+    expect(prismaMock.profileDocument.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: ofProfiles }));
+  });
+
   it("still says the database is down when it can't count anything", async () => {
     database.ok = false;
     const app = await buildApp();

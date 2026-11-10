@@ -73,7 +73,14 @@ fun FirstRunWizardScreen(
 
     BackHandler(enabled = index > 0) { stepName = steps[index - 1].name }
 
+    // A second press of Skip / Choose while the first is still saving would otherwise run
+    // choose() and onFinished twice and push Home twice. Plain remember (not saveable) so a
+    // restored wizard whose save never finished isn't left with every button dead.
+    var finishing by remember { mutableStateOf(false) }
+
     fun finish(mode: ExperienceMode) {
+        if (finishing) return
+        finishing = true
         coroutineScope.launch {
             viewModel.choose(mode)
             onFinished(mode)

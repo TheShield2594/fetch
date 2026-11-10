@@ -25,6 +25,7 @@ const getTmdbApiKey = vi.fn();
 const getRpdbApiKey = vi.fn();
 const getJobRuns = vi.fn();
 const trendingCacheClear = vi.fn();
+const aiRecsCacheClear = vi.fn();
 
 // Every caller is the account "owner-1" (lib/test-fixtures/integration-owner-mock.ts).
 vi.mock("../lib/integration-owner.js", async () =>
@@ -57,6 +58,7 @@ vi.mock("../lib/rpdb.js", () => ({
 vi.mock("../lib/cache.js", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../lib/cache.js")>()),
   trendingCache: { clear: () => trendingCacheClear() },
+  aiRecsCacheClear: () => aiRecsCacheClear(),
 }));
 // `failuresFrom` is a pure projection over whatever `getJobRuns` returned, so
 // the route is tested against the real one rather than a second copy of it.
@@ -209,12 +211,27 @@ describe("settings routes", () => {
       expect(setSpoilerProtection).toHaveBeenCalledWith(false, "owner-1");
     });
 
-    it("clears the trending cache so cached rows pick up the new region", async () => {
+    // The streaming catalogs carry the region in their cache key, so an
+    // account's own preferences have nothing cached to drop — and the cache is
+    // shared, so dropping it would be one account emptying everyone's.
+    it("leaves the shared caches alone for an account's own preferences", async () => {
       const app = await buildApp();
 
-      await app.inject({ method: "POST", url: "/settings/preferences", payload: { region: "GB" } });
+      await app.inject({ method: "POST", url: "/settings/preferences", payload: { region: "GB", spoilerProtection: true } });
 
+      expect(trendingCacheClear).not.toHaveBeenCalled();
+      expect(aiRecsCacheClear).not.toHaveBeenCalled();
+    });
+
+    it("clears the caches when the admin changes the metadata language", async () => {
+      getLanguageSetting.mockResolvedValue("en-US");
+      const app = await buildApp();
+
+      await app.inject({ method: "POST", url: "/settings/preferences", payload: { language: "de-DE" } });
+
+      expect(setLanguageSetting).toHaveBeenCalledWith("de-DE");
       expect(trendingCacheClear).toHaveBeenCalled();
+      expect(aiRecsCacheClear).toHaveBeenCalled();
     });
   });
 
@@ -382,8 +399,9 @@ describe("settings routes", () => {
     });
 
     // This is the only route that hands a stored third-party key back out, and
-    // the browser holds the same `API_TOKEN` the add-on does — so an XSS'd tab
-    // could read it. Settings reads `/rpdb/status`, which says only whether one
+    // `API_TOKEN` is not the add-on's alone — the operator's scripts and a
+    // browser that stored it before accounts can hold it too — so it must not
+    // be enough to read it. Settings reads `/rpdb/status`, which says only whether one
     // is configured.
     it("does not exist for a caller that only holds API_TOKEN", async () => {
       getRpdbApiKey.mockResolvedValue("rpdb-key");

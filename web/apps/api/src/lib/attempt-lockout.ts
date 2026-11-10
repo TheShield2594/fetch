@@ -2,7 +2,7 @@ import { prisma } from "./prisma.js";
 
 // Escalating lockout after repeated wrong guesses, kept in a KV row per key.
 // Used for profile PINs ("pinattempts:<profileId>") and account passwords
-// ("loginattempts:<username>"). The comments below were written for PINs; the
+// ("loginattempts:<username>:<ip>"). The comments below were written for PINs; the
 // reasoning is the same for a password.
 
 const MAX_ATTEMPTS = 5;

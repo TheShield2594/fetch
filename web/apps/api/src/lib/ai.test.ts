@@ -24,6 +24,10 @@ const resolveAiProviderUrl = vi.fn();
 vi.mock("./ssrf.js", async (importOriginal) => ({
   ...(await importOriginal<typeof import("./ssrf.js")>()),
   resolveAiProviderUrl: (url: string, _resolveHost: unknown, scope: unknown) => resolveAiProviderUrl(url, scope),
+  // The pinned fetch, as these tests can see it: the global fetch with
+  // redirects refused, and nothing sent when the URL is refused.
+  guardedFetch: async (url: string, scope: unknown, init: RequestInit) =>
+    (await resolveAiProviderUrl(url, scope)) ? fetch(url, { ...init, redirect: "error" }) : null,
 }));
 
 // Every profile is in the account "owner-1", whose provider is the one stored.
@@ -48,7 +52,7 @@ vi.mock("./metadata.js", () => ({ upsertMetadata: (...args: unknown[]) => upsert
 
 const { AI_CONFIG_KEY, getAiConfig, getAiRecommendations, isAiConfigured, redactAiConfig, shouldRefreshAiRecs } =
   await import("./ai.js");
-const { trendingCacheDeletePrefix, watchedImdbIdsCache } = await import("./cache.js");
+const { aiRecsCacheClear, watchedImdbIdsCache } = await import("./cache.js");
 
 const CONFIG = {
   url: "https://llm.example/v1/chat/completions",
@@ -74,7 +78,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   // Real caches rather than mocked ones, so a stale entry cannot make a test
   // pass by answering from a previous one.
-  trendingCacheDeletePrefix("ai-recs:");
+  aiRecsCacheClear();
   watchedImdbIdsCache.clear();
 
   vi.stubGlobal("fetch", fetchMock);

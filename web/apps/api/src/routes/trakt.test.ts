@@ -41,7 +41,14 @@ const buildApp = (): Promise<FastifyInstance> =>
 
 const STATE = "a".repeat(64);
 const VERIFIER = "v".repeat(43);
-const FLOW = JSON.stringify({ owner: PROFILE_ID, codeVerifier: VERIFIER });
+const NONCE = "n".repeat(43);
+const FLOW = JSON.stringify({
+  owner: PROFILE_ID,
+  codeVerifier: VERIFIER,
+  browserNonceHash: createHash("sha256").update(NONCE).digest("hex"),
+});
+/** The cookie the authorize route gave the browser that started the flow. */
+const STARTING_BROWSER = { cookie: `other=1; fetch_trakt_oauth=${NONCE}` };
 const originalEnv = { ...process.env };
 
 describe("trakt OAuth — the callback is bound to the flow that started it", () => {
@@ -108,7 +115,11 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
     prismaMock.kV.deleteMany.mockResolvedValue({ count: 1 });
     const app = await buildApp();
 
-    const response = await app.inject({ method: "GET", url: `/trakt/oauth/callback?code=real-code&state=${STATE}` });
+    const response = await app.inject({
+      method: "GET",
+      url: `/trakt/oauth/callback?code=real-code&state=${STATE}`,
+      headers: STARTING_BROWSER,
+    });
 
     expect(response.statusCode).toBe(403);
     expect(globalThis.fetch).not.toHaveBeenCalled();
@@ -152,9 +163,12 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
     const response = await app.inject({
       method: "GET",
       url: `/trakt/oauth/callback?code=real-code&state=${STATE}`,
+      headers: STARTING_BROWSER,
     });
 
     expect(response.statusCode).toBe(200);
+    // The cookie has done its job.
+    expect(response.headers["set-cookie"]).toMatch(/^fetch_trakt_oauth=; Max-Age=0;/);
     const [tokenUrl, init] = first(vi.mocked(globalThis.fetch).mock.calls, "token exchange call");
     expect(tokenUrl).toEqual(new URL("https://auth.trakt.tv/oauth/token"));
     // The verifier stands in for the client secret, which is never sent.
@@ -176,7 +190,11 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
     prismaMock.profile.findUnique.mockResolvedValue(null);
     const app = await buildApp();
 
-    const response = await app.inject({ method: "GET", url: `/trakt/oauth/callback?code=real-code&state=${STATE}` });
+    const response = await app.inject({
+      method: "GET",
+      url: `/trakt/oauth/callback?code=real-code&state=${STATE}`,
+      headers: STARTING_BROWSER,
+    });
 
     expect(response.statusCode).toBe(403);
     expect(globalThis.fetch).not.toHaveBeenCalled();
@@ -195,7 +213,11 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
     const { SECRET_CONTEXT, decryptSecret } = await import("../lib/secret-box.js");
     const app = await buildApp();
 
-    await app.inject({ method: "GET", url: `/trakt/oauth/callback?code=real-code&state=${STATE}` });
+    await app.inject({
+      method: "GET",
+      url: `/trakt/oauth/callback?code=real-code&state=${STATE}`,
+      headers: STARTING_BROWSER,
+    });
 
     const { accessToken, refreshToken } = first(prismaMock.traktToken.upsert.mock.calls, "prismaMock.traktToken.upsert call")[0].update;
     expect(accessToken).not.toBe("access");
@@ -204,6 +226,38 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
     expect(decryptSecret(SECRET_CONTEXT.traktAccessToken, accessToken)).toBe("access");
     expect(decryptSecret(SECRET_CONTEXT.traktRefreshToken, refreshToken)).toBe("refresh");
     expect(decryptSecret(SECRET_CONTEXT.traktAccessToken, refreshToken)).toBeNull();
+  });
+
+  it("hands the starting browser an httpOnly cookie scoped to the callback", async () => {
+    process.env.FETCH_API_PUBLIC = "https://fetch.example.com/api";
+    const app = await buildApp();
+
+    const response = await app.inject({ method: "GET", url: "/trakt/oauth/authorize" });
+
+    const cookie = String(response.headers["set-cookie"]);
+    expect(cookie).toMatch(/^fetch_trakt_oauth=[A-Za-z0-9_-]{43}; Max-Age=600; /);
+    expect(cookie).toContain("Path=/api/trakt/oauth/callback");
+    expect(cookie).toContain("HttpOnly");
+    expect(cookie).toContain("SameSite=Lax");
+    expect(cookie).toContain("Secure");
+  });
+
+  // One account starts the flow and sends the authorize link to another: the
+  // state is genuine, but the browser finishing it is not the one that started.
+  it("refuses a genuine state finished in another browser, without exchanging the code", async () => {
+    prismaMock.kV.deleteMany.mockResolvedValue({ count: 1 });
+    const app = await buildApp();
+
+    for (const headers of [{}, { cookie: `fetch_trakt_oauth=${"m".repeat(43)}` }]) {
+      const response = await app.inject({
+        method: "GET",
+        url: `/trakt/oauth/callback?code=victim-code&state=${STATE}`,
+        headers,
+      });
+      expect(response.statusCode).toBe(403);
+    }
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+    expect(prismaMock.traktToken.upsert).not.toHaveBeenCalled();
   });
 
   it("still reports a denial from Trakt rather than a state failure", async () => {

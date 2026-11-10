@@ -1,12 +1,16 @@
 package com.fetch.tv.data.local
 
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.preferencesOf
 import androidx.datastore.preferences.core.stringPreferencesKey
 import java.io.File
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -146,5 +150,27 @@ class ProfileDataFileCleanupTest {
         assertFalse(snapshotSaveStillValid(3, 0, currentGeneration = 1, activeProfileId = 3, profileIds = listOf(1, 3)))
         // Active profile switched to another one without a deletion: refused too.
         assertFalse(snapshotSaveStillValid(3, 0, currentGeneration = 0, activeProfileId = 2, profileIds = listOf(1, 2, 3)))
+    }
+
+    @Test
+    fun `a deleted profile's stores read empty and refuse writes until the id is reused`() = runBlocking {
+        val factory = ProfileDataStoreFactory(context)
+        val key = stringPreferencesKey("k")
+        factory.get(3, "library").edit { it[key] = "v" }
+
+        factory.clearProfile(3)
+        factory.deleteProfileFiles(3)
+
+        val deleted = factory.get(3, "library")
+        assertEquals(emptyPreferences(), deleted.data.first())
+        val refused = runCatching { deleted.edit { it[key] = "late" } }.exceptionOrNull()
+        assertNotNull(refused)
+        assertTrue(refused is CancellationException)
+        assertFalse(File(dataStoreDir, "library_p3.preferences_pb").exists())
+
+        factory.markProfileCreated(3)
+        val reused = factory.get(3, "library")
+        reused.edit { it[key] = "new" }
+        assertEquals("new", reused.data.first()[key])
     }
 }

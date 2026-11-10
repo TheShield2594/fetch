@@ -4,6 +4,7 @@ package com.fetch.tv.updater.ui
 
 import android.text.format.Formatter
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +57,7 @@ internal fun UpdateBanner(
     state: UpdateUiState,
     update: AppUpdate,
     onDownload: () -> Unit,
+    onCancelDownload: () -> Unit,
     onInstall: () -> Unit,
     onShowReleaseNotes: () -> Unit,
     onDismiss: () -> Unit
@@ -65,7 +67,7 @@ internal fun UpdateBanner(
         .coerceIn(0f, 1f)
     val progress by animateFloatAsState(
         targetValue = targetProgress,
-        animationSpec = tween(durationMillis = 180),
+        animationSpec = if (FetchTheme.fullMotion) tween(durationMillis = 180) else snap(),
         label = "updateBannerProgress"
     )
     val containerColor = FetchTheme.colors.BackgroundElevated
@@ -188,7 +190,13 @@ internal fun UpdateBanner(
                 )
             }
 
-            if (!state.isDownloading) {
+            if (state.isDownloading) {
+                UpdateBannerIconButton(
+                    icon = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.action_cancel),
+                    onClick = onCancelDownload
+                )
+            } else {
                 UpdateBannerIconButton(
                     icon = Icons.Default.Close,
                     contentDescription = stringResource(R.string.update_close),

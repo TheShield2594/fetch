@@ -14,7 +14,7 @@ import { applyCorsHeaders } from "./lib/cors.js";
 import { registerHttpCaching } from "./lib/http-cache.js";
 import { registerAuthGate } from "./lib/auth-gate.js";
 import { getAiRecommendations, isAiConfigured, listAiOwners } from "./lib/ai.js";
-import { trendingCacheDeletePrefix } from "./lib/cache.js";
+import { aiRecsCacheClear } from "./lib/cache.js";
 import { listTraktProfiles, pollTraktHistory, syncTraktPlayback, syncTraktWatchlist } from "./lib/trakt-client.js";
 import { listSimklProfiles, syncSimkl } from "./lib/simkl.js";
 import { listMdbListProfiles, syncMdbList } from "./lib/mdblist.js";
@@ -174,11 +174,12 @@ attachDatabaseLogging(app.log);
 // therefore get their own key and a larger budget.
 //
 // Identification is a token derived from API_TOKEN rather than API_TOKEN itself
-// (`lib/service-request.ts`). The addon authenticates with the same token the
-// browser uses, so the raw token can't tell them apart — only something the
-// addon can compute and the browser is never given. That also means a leaked
-// browser token can't be used to drain the addon's budget, and it needs no
-// extra configuration on either side.
+// (`lib/service-request.ts`). The addon authenticates with `API_TOKEN`, which
+// other callers can hold too (the operator's scripts, a browser that stored it
+// before accounts existed), so the raw token can't single it out — only
+// something the addon can compute and a browser is never given. That also means
+// a leaked `API_TOKEN` or session token can't be used to drain the addon's
+// budget, and it needs no extra configuration on either side.
 
 const BROWSER_RATE_LIMIT_MAX = 200;
 const SERVICE_RATE_LIMIT_MAX = 1000;
@@ -256,6 +257,11 @@ app.setErrorHandler((error, request, reply) => {
     return reply.code(400).send({ error: error.message });
   }
   if (isBodyTooLargeError(error)) {
+    // The webhook routes set their own, smaller limit that `MAX_BODY_SIZE_MB`
+    // doesn't move, so the advice to raise it would be wrong there.
+    if (request.routeOptions.bodyLimit !== mbToBytes(MAX_BODY_SIZE_MB)) {
+      return reply.code(413).send({ error: "Request body is too large", code: "body_too_large" });
+    }
     request.log.warn(
       { url: redactUrl(request.url), limitMb: MAX_BODY_SIZE_MB },
       "Rejected a request body larger than MAX_BODY_SIZE_MB"
@@ -494,7 +500,7 @@ const start = async () => {
   const refreshAiRecommendations = async () => {
     const owners = await listAiOwners();
     if (owners.length === 0) return;
-    trendingCacheDeletePrefix("ai-recs:");
+    aiRecsCacheClear();
     for (const owner of owners) {
       if (!(await isAiConfigured(owner))) continue;
       const profileId = await getDefaultProfileId(accountOfOwner(owner));

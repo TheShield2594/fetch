@@ -41,6 +41,8 @@ class UpdateViewModel @Inject constructor() : ViewModel() {
 
     fun downloadUpdate() = Unit
 
+    fun cancelDownload() = Unit
+
     fun installUpdateOrRequestPermission() = Unit
 
     fun openUnknownSourcesSettings() = Unit

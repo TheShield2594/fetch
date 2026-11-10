@@ -9,8 +9,9 @@ const SERVICE_TOKEN_LABEL = "fetch-service-client";
  * Derives the addon's service token from the shared API token.
  *
  * The addon has to prove it *is* the addon, not merely that it holds
- * `API_TOKEN` — the browser holds that too, so the raw token cannot tell the
- * two apart. Deriving costs no extra configuration (both sides already have
+ * `API_TOKEN` — other callers can hold that too (the operator's scripts, a
+ * browser that stored it before accounts existed; a signed-in browser holds a
+ * session token instead), so the raw token cannot single the addon out. Deriving costs no extra configuration (both sides already have
  * `API_TOKEN`) and keeps the blast radius small: the derived value grants
  * nothing on its own, and does not yield the token it came from.
  *

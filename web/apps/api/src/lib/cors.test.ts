@@ -12,8 +12,8 @@ class FakeReply {
   }
 }
 
-const makeRequest = (origin?: string, method = "GET"): FastifyRequest =>
-  ({ headers: { origin }, method }) as unknown as FastifyRequest;
+const makeRequest = (origin?: string, method = "GET", url = "/watchlist"): FastifyRequest =>
+  ({ headers: { origin }, method, url }) as unknown as FastifyRequest;
 
 const loadCors = async () => import("./cors.js");
 
@@ -84,6 +84,35 @@ describe("cors", () => {
       // PUT /playback is what the web app saves resume points with.
       const allowed = (reply.headers["Access-Control-Allow-Methods"] ?? "").split(",");
       expect(allowed).toEqual(expect.arrayContaining(["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]));
+    });
+
+    // Starting Trakt sign-in sets a cookie the callback checks, and a browser
+    // only keeps a cross-origin cookie from a credentialed request.
+    it("allows credentials on the Trakt authorize route alone", async () => {
+      process.env.NODE_ENV = "production";
+      process.env.FETCH_ALLOWED_ORIGINS = "https://app.example.com";
+      vi.resetModules();
+      const { applyCorsHeaders } = await loadCors();
+
+      for (const method of ["OPTIONS", "GET"]) {
+        const reply = new FakeReply();
+        applyCorsHeaders(
+          makeRequest("https://app.example.com", method, "/trakt/oauth/authorize"),
+          reply as unknown as FastifyReply
+        );
+        expect(reply.headers["Access-Control-Allow-Credentials"]).toBe("true");
+      }
+
+      const other = new FakeReply();
+      applyCorsHeaders(makeRequest("https://app.example.com"), other as unknown as FastifyReply);
+      expect(other.headers["Access-Control-Allow-Credentials"]).toBeUndefined();
+
+      const blocked = new FakeReply();
+      applyCorsHeaders(
+        makeRequest("https://evil.example.com", "GET", "/trakt/oauth/authorize"),
+        blocked as unknown as FastifyReply
+      );
+      expect(blocked.headers["Access-Control-Allow-Credentials"]).toBeUndefined();
     });
   });
 });

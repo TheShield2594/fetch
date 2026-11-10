@@ -1,24 +1,59 @@
 package com.fetch.tv.core.parental
 
+import android.os.SystemClock
 import android.util.Log
 import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.sync.ProfileSyncService
 import com.fetch.tv.core.sync.SetProfilePinResult
 import com.fetch.tv.data.local.PinAttemptState
 import com.fetch.tv.data.local.ProfileLockStateDataStore
+import com.fetch.tv.data.local.ProfileRestrictionsDataStore
 import com.fetch.tv.data.website.FetchWebsiteProfilePins
 import com.fetch.tv.domain.model.AuthState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
 
 private const val TAG = "ProfilePinManager"
+
+/**
+ * PIN lockouts measured on `elapsedRealtime`, so setting the wall clock forward can't end one.
+ * The wall clock is only used to notice a reboot (elapsedRealtime restarts from zero): the boot
+ * time each pair of readings implies then disagrees. Since a lockout's progress before a reboot
+ * (or a wall-clock change) can't be trusted, it restarts in full from that point.
+ */
+internal object PinLockoutClock {
+    /** Wall-clock adjustment (NTP and the like) tolerated before a lockout is treated as interrupted. */
+    const val BOOT_TIME_TOLERANCE_MS = 60_000L
+
+    /** True when [state]'s lockout started in this boot and the clocks still agree on it. */
+    fun startedThisBoot(state: PinAttemptState, nowElapsedMs: Long, nowWallMs: Long): Boolean {
+        if (state.lockedAtElapsedMs < 0L || nowElapsedMs < state.lockedAtElapsedMs) return false
+        val bootThen = state.lockedAtWallMs - state.lockedAtElapsedMs
+        val bootNow = nowWallMs - nowElapsedMs
+        return abs(bootNow - bootThen) <= BOOT_TIME_TOLERANCE_MS
+    }
+
+    /** [state] with its lockout restarted at now when it can't be measured from where it began. */
+    fun reanchored(state: PinAttemptState, nowElapsedMs: Long, nowWallMs: Long): PinAttemptState {
+        if (state.lockoutMs <= 0L || startedThisBoot(state, nowElapsedMs, nowWallMs)) return state
+        return state.copy(lockedAtElapsedMs = nowElapsedMs, lockedAtWallMs = nowWallMs)
+    }
+
+    fun retryAfterSeconds(state: PinAttemptState, nowElapsedMs: Long): Int {
+        if (state.lockoutMs <= 0L) return 0
+        return PinAttemptPolicy.retryAfterSeconds(state.lockedAtElapsedMs + state.lockoutMs, nowElapsedMs)
+    }
+}
 
 data class PinVerifyResult(
     val unlocked: Boolean,
@@ -111,20 +146,43 @@ class ActiveRemoteProfilePins @Inject constructor(
 class ProfilePinManager internal constructor(
     private val store: ProfileLockStateDataStore,
     private val remote: RemoteProfilePins,
-    private val clock: () -> Long
+    private val clock: () -> Long,
+    private val elapsedClock: () -> Long,
+    /** Whether parental controls are set up on this TV; see [ProfileRestrictionsDataStore.parentalControlsConfigured]. */
+    parentalControlsConfigured: Flow<Boolean>
 ) {
     @Inject
     constructor(
         store: ProfileLockStateDataStore,
-        remote: ActiveRemoteProfilePins
-    ) : this(store, remote, System::currentTimeMillis)
+        remote: ActiveRemoteProfilePins,
+        restrictions: ProfileRestrictionsDataStore
+    ) : this(
+        store,
+        remote,
+        System::currentTimeMillis,
+        SystemClock::elapsedRealtime,
+        restrictions.parentalControlsConfigured
+    )
 
     private val mutex = Mutex()
 
-    /** Profiles that require a PIN. */
-    val pinEnabled: Flow<Map<Int, Boolean>> = store.pinEnabled
+    /**
+     * True while the PIN file was lost to corruption and parental controls are in use: the main
+     * profile then counts as PIN-locked, so a corrupt file can't take its PIN away. Its PIN is
+     * checked by the sync server or website when one is available; without one it can't be
+     * checked and the profile stays locked (fail closed) until it is set up again. Without
+     * parental controls there is nothing to protect, so nobody is locked out of their own TV.
+     */
+    private val mainPinLost: Flow<Boolean> = combine(store.lostToCorruption, parentalControlsConfigured) { lost, configured ->
+        lost && configured
+    }.distinctUntilChanged()
 
-    suspend fun hasPin(profileId: Int): Boolean = store.pinEnabled.first()[profileId] == true
+    /** Profiles that require a PIN. */
+    val pinEnabled: Flow<Map<Int, Boolean>> = combine(store.pinEnabled, mainPinLost) { pins, mainLost ->
+        if (mainLost && pins[PARENT_PROFILE_ID] != true) pins + (PARENT_PROFILE_ID to true) else pins
+    }
+
+    suspend fun hasPin(profileId: Int): Boolean = pinEnabled.first()[profileId] == true
 
     suspend fun setPin(profileId: Int, pin: String, currentPin: String? = null): SetProfilePinResult {
         if (!ProfilePinHasher.isValidPin(pin)) {
@@ -216,7 +274,8 @@ class ProfilePinManager internal constructor(
         }
         val localHash = store.localPinHash(profileId)
         if (localHash == null) {
-            val remoteEnabled = store.remotePinEnabled.first()[profileId] == true
+            val remoteEnabled = store.remotePinEnabled.first()[profileId] == true ||
+                (profileId == PARENT_PROFILE_ID && mainPinLost.first())
             if (!remoteEnabled) return Result.success(PinVerifyResult(unlocked = true))
             if (!remote.isAvailable) return Result.failure(IllegalStateException("Sync server not available"))
             val remoteResult = runCatchingNonCancel { remote.verifyPin(profileId, pin).getOrThrow() }
@@ -229,8 +288,11 @@ class ProfilePinManager internal constructor(
 
         return mutex.withLock {
             val now = clock()
-            val attempts = store.attemptState(profileId)
-            val retryAfter = PinAttemptPolicy.retryAfterSeconds(attempts.lockedUntilMs, now)
+            val nowElapsed = elapsedClock()
+            val stored = store.attemptState(profileId)
+            val attempts = PinLockoutClock.reanchored(stored, nowElapsed, now)
+            if (attempts != stored) store.setAttemptState(profileId, attempts)
+            val retryAfter = PinLockoutClock.retryAfterSeconds(attempts, nowElapsed)
             if (retryAfter > 0) {
                 return@withLock Result.success(PinVerifyResult(unlocked = false, retryAfterSeconds = retryAfter))
             }
@@ -242,12 +304,16 @@ class ProfilePinManager internal constructor(
             } else {
                 val failures = attempts.failures + 1
                 val lockout = PinAttemptPolicy.lockoutAfterFailures(failures)
-                val lockedUntil = if (lockout > 0) now + lockout else 0L
-                store.setAttemptState(profileId, PinAttemptState(failures, lockedUntil))
+                val next = if (lockout > 0) {
+                    PinAttemptState(failures, lockout, lockedAtElapsedMs = nowElapsed, lockedAtWallMs = now)
+                } else {
+                    PinAttemptState(failures)
+                }
+                store.setAttemptState(profileId, next)
                 Result.success(
                     PinVerifyResult(
                         unlocked = false,
-                        retryAfterSeconds = PinAttemptPolicy.retryAfterSeconds(lockedUntil, now)
+                        retryAfterSeconds = PinLockoutClock.retryAfterSeconds(next, nowElapsed)
                     )
                 )
             }

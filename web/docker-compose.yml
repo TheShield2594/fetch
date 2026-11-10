@@ -45,7 +45,9 @@ services:
     security_opt:
       - no-new-privileges:true
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d fetch"]
+      # `$$` defers to the container's own environment, which carries whatever
+      # POSTGRES_USER/POSTGRES_DB the .env set rather than the defaults.
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10

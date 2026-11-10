@@ -159,6 +159,7 @@ private fun PlaybackNavHost(
                 onFinished = {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.ExperienceModeSelection.route) { inclusive = true }
+                        launchSingleTop = true
                     }
                 }
             )

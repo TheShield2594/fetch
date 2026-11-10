@@ -1,11 +1,11 @@
 import { MetadataType } from "@prisma/client";
 import type { FastifyBaseLogger } from "fastify";
 import { prisma } from "./prisma.js";
-import { trendingCacheGet, trendingCacheSet, trendingCacheDelete, watchedImdbIdsCache } from "./cache.js";
+import { aiRecsCache, aiRecsCacheDeleteForProfiles, watchedImdbIdsCache } from "./cache.js";
 import { getTmdb } from "./tmdb-client.js";
 import { getRpdbApiKey, withRpdbPoster } from "./rpdb.js";
 import { upsertMetadata } from "./metadata.js";
-import { resolveAiProviderUrl } from "./ssrf.js";
+import { guardedFetch, resolveAiProviderUrl } from "./ssrf.js";
 import { readSecretKv } from "./secret-store.js";
 import {
   AI_CONFIG_KEY,
@@ -14,6 +14,7 @@ import {
   LEGACY_OWNER,
   outboundScopeForOwner,
   accountOwnerForProfile,
+  accountOfOwner,
   ownerKvKey,
 } from "./integration-owner.js";
 import type { OutboundScope } from "./ssrf.js";
@@ -45,6 +46,18 @@ export const getAiConfig = async (owner: IntegrationOwner): Promise<AiProviderCo
   } catch {
     return null;
   }
+};
+
+/**
+ * Drops the cached recommendations of every profile in `owner`'s account: what
+ * changing or removing that account's provider makes stale, and no more.
+ */
+export const invalidateAiRecsForOwner = async (owner: IntegrationOwner): Promise<void> => {
+  const profiles = await prisma.profile.findMany({
+    where: { accountId: accountOfOwner(owner) },
+    select: { id: true },
+  });
+  aiRecsCacheDeleteForProfiles(profiles.map((profile) => profile.id));
 };
 
 export const isAiConfigured = async (owner: IntegrationOwner): Promise<boolean> => {
@@ -242,20 +255,23 @@ const callAiProvider = async (
     max_tokens: Math.max(configuredMaxTokens, minTokens),
   };
 
-  let response: Response;
+  let response: Response | null;
   try {
-    response = await fetch(config.url, {
+    // Pinned to the addresses the check above allows, so a name whose records
+    // change after it (DNS rebinding) cannot move the connection inward; and
+    // redirects are refused, so an allowed host cannot bounce the request —
+    // Authorization header and all — to an address the check would reject.
+    response = await guardedFetch(config.url, scope, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...config.headers },
       body: JSON.stringify(payload),
       signal: controller.signal,
-      // Do not follow redirects: an allowed host must not be able to bounce the
-      // request (carrying any configured Authorization header) to an internal
-      // address the SSRF validator would otherwise reject.
-      redirect: "error",
     });
   } finally {
     clearTimeout(timeoutId);
+  }
+  if (!response) {
+    throw new Error("AI provider URL is not an allowed outbound target");
   }
 
   if (!response.ok) {
@@ -338,7 +354,7 @@ export const getAiRecommendations = async (
   logger?: FastifyBaseLogger
 ): Promise<{ metas: StremioMetaPreview[]; reasons: Record<string, string> } | null> => {
   const cacheKey = `ai-recs:${type}:${limit}:${profileId}`;
-  const cached = trendingCacheGet(cacheKey);
+  const cached = aiRecsCache.get(cacheKey);
   if (cached) {
     // The cache lives up to AI_RECS_TTL_MS and isn't purged on every watch event
     // (regeneration is rate-limited by shouldRefreshAiRecs), so titles watched
@@ -355,7 +371,7 @@ export const getAiRecommendations = async (
     // so the next request gets a full list again.
     if (metas.length < limit && metas.length < cached.data.length && !regeneratingCacheKeys.has(cacheKey)) {
       regeneratingCacheKeys.add(cacheKey);
-      trendingCacheDelete(cacheKey);
+      aiRecsCache.delete(cacheKey);
       void getAiRecommendations(type, limit, profileId, logger)
         .catch((error) => logger?.debug({ error }, "Background AI recs top-up failed"))
         .finally(() => regeneratingCacheKeys.delete(cacheKey));
@@ -432,7 +448,7 @@ Return ONLY a JSON array, no other text, no markdown:
       }
     }
 
-    trendingCacheSet(cacheKey, { data: metas, reasons }, AI_RECS_TTL_MS);
+    aiRecsCache.set(cacheKey, { data: metas, reasons }, { ttl: AI_RECS_TTL_MS });
 
     const now = new Date();
     const lastGeneratedKey = ownerKvKey(AI_LAST_RECS_GENERATED_AT_KEY, owner);

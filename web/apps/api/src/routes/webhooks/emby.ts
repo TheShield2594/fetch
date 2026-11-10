@@ -1,6 +1,10 @@
 import type { FastifyPluginAsync } from "fastify";
 import { recordWatchEvent } from "../../lib/watch-event.js";
-import { authenticateWebhook } from "../../lib/webhook-caller.js";
+import {
+  JSON_WEBHOOK_BODY_LIMIT,
+  requireWebhookCaller,
+  webhookCallerOf,
+} from "../../lib/webhook-gate.js";
 import { resolveWebhookProfile } from "../../lib/webhook-profile.js";
 
 /**
@@ -76,11 +80,15 @@ const seriesImdbIdOf = (item: EmbyItem): string | null =>
   imdbIdOf(item.SeriesProviderIds) ?? imdbIdOf(item.ProviderIds);
 
 const embyWebhookRoutes: FastifyPluginAsync = async (app) => {
-  app.post("/webhooks/emby", { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } }, async (request, reply) => {
-    const caller = await authenticateWebhook(request);
-    if (!caller) {
-      return reply.code(403).send({ error: "Invalid webhook secret" });
-    }
+  // The secret is checked before the body is read (see `webhook-gate.ts`).
+  const routeOptions = {
+    bodyLimit: JSON_WEBHOOK_BODY_LIMIT,
+    preParsing: requireWebhookCaller,
+    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
+  };
+
+  app.post("/webhooks/emby", routeOptions, async (request, reply) => {
+    const caller = webhookCallerOf(request);
 
     const body = request.body as EmbyPayload;
     if (!body) {

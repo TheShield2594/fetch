@@ -11,14 +11,18 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.fetch.tv.domain.model.DiscoverLocation
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.io.File
@@ -100,9 +104,19 @@ class ProfileDataStoreFactory @Inject constructor(
     /** Set of DataStore file names that were reset due to corruption during this session. */
     val corruptedFileNames: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
+    /**
+     * The [featureName] store of [profileId]. For a profile removed by [clearProfile] (until
+     * [markProfileCreated] reuses the id) this is a [DeletedProfileDataStore]: it reads as empty
+     * and refuses writes with a [CancellationException], so sync work still running for the
+     * deleted profile stops instead of recreating its files. It never throws here, so callers
+     * outside coroutines (and flows keyed on a profile that was just deleted) keep working.
+     */
     fun get(profileId: Int, featureName: String): DataStore<Preferences> {
         val fileName = if (profileId == 1) featureName else "${featureName}_p$profileId"
         synchronized(lock) {
+            // Checked under the lock: clearProfile marks the id before it collects the cached
+            // stores to close, so a store is either refused here or closed there.
+            if (profileId in deletedProfileIds) return DeletedProfileDataStore(fileName)
             cache[fileName]?.let { return it.store }
             return createAndCache(fileName).store
         }
@@ -301,32 +315,48 @@ private class ShadowCopyDataStore(
     private val factory: ProfileDataStoreFactory
 ) : DataStore<Preferences> {
 
-    @Volatile
-    private var shadowWritten = false
+    // Set by the first read that starts the initial shadow copy, so later reads don't each launch
+    // another one. Reset only when that copy failed, so a later read can try again.
+    private val initialShadowStarted = AtomicBoolean(false)
 
-    override val data: kotlinx.coroutines.flow.Flow<Preferences>
+    override val data: Flow<Preferences>
         get() = delegate.data.also {
-            if (!shadowWritten) {
+            if (initialShadowStarted.compareAndSet(false, true)) {
                 scope.launch(Dispatchers.IO) {
                     try {
                         val prefs = delegate.data.first()
+                        // An empty store has nothing worth backing up; that still counts as done.
                         if (prefs != emptyPreferences()) {
                             factory.writeShadowCopy(fileName, prefs)
-                            shadowWritten = true
                         }
-                    } catch (_: Exception) { }
+                    } catch (_: Exception) {
+                        initialShadowStarted.set(false)
+                    }
                 }
             }
         }
 
     override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
         val result = delegate.updateData(transform)
+        // Each edit keeps the copy current, so the initial one is no longer needed.
+        initialShadowStarted.set(true)
         scope.launch(Dispatchers.IO) {
             try {
                 factory.writeShadowCopy(fileName, result)
-                shadowWritten = true
             } catch (_: Exception) { }
         }
         return result
     }
+}
+
+/**
+ * What [ProfileDataStoreFactory.get] hands out for a deleted profile until its id is reused.
+ * Reads see no data and touch no file; writes are refused with a [CancellationException], which
+ * stops the coroutine doing them (an edit for a deleted profile is work that should no longer run).
+ */
+private class DeletedProfileDataStore(private val fileName: String) : DataStore<Preferences> {
+    override val data: Flow<Preferences> = flowOf(emptyPreferences())
+
+    override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences =
+        throw CancellationException("DataStore $fileName belongs to a deleted profile")
 }

@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { first } from "./test-fixtures/present.js";
 
@@ -9,7 +10,9 @@ vi.mock("./prisma.js", () => ({ prisma: prismaMock }));
 
 const STATE_PREFIX = "trakt:oauth:state:";
 const VERIFIER = "v".repeat(43);
-const FLOW = JSON.stringify({ owner: "acct-1", codeVerifier: VERIFIER });
+const NONCE = "n".repeat(43);
+const NONCE_HASH = createHash("sha256").update(NONCE).digest("hex");
+const FLOW = JSON.stringify({ owner: "acct-1", codeVerifier: VERIFIER, browserNonceHash: NONCE_HASH });
 
 describe("trakt OAuth state", () => {
   beforeEach(() => {
@@ -76,7 +79,7 @@ describe("trakt OAuth state", () => {
     const { consumeOAuthState, OAUTH_STATE_TTL_MS } = await import("./trakt-oauth-state.js");
     const state = "a".repeat(64);
 
-    await expect(consumeOAuthState(state)).resolves.toEqual({ owner: "acct-1", codeVerifier: VERIFIER });
+    await expect(consumeOAuthState(state, NONCE)).resolves.toEqual({ owner: "acct-1", codeVerifier: VERIFIER });
 
     const call = first(prismaMock.kV.deleteMany.mock.calls, "prismaMock.kV.deleteMany call")[0];
     expect(call.where.key).toBe(`${STATE_PREFIX}${state}`);
@@ -87,16 +90,24 @@ describe("trakt OAuth state", () => {
     prismaMock.kV.findFirst.mockResolvedValue(null);
     const { consumeOAuthState } = await import("./trakt-oauth-state.js");
 
-    await expect(consumeOAuthState("b".repeat(64))).resolves.toBeNull();
+    await expect(consumeOAuthState("b".repeat(64), NONCE)).resolves.toBeNull();
   });
 
   it("refuses a state stored without a usable PKCE verifier", async () => {
     prismaMock.kV.deleteMany.mockResolvedValue({ count: 1 });
     const { consumeOAuthState } = await import("./trakt-oauth-state.js");
 
-    for (const value of ["acct-1", "", "{}", JSON.stringify({ owner: "acct-1" }), JSON.stringify({ owner: "acct-1", codeVerifier: "short" })]) {
+    for (const value of [
+      "acct-1",
+      "",
+      "{}",
+      JSON.stringify({ owner: "acct-1" }),
+      JSON.stringify({ owner: "acct-1", codeVerifier: "short", browserNonceHash: NONCE_HASH }),
+      // A flow from before the browser nonce, which no browser can finish.
+      JSON.stringify({ owner: "acct-1", codeVerifier: VERIFIER }),
+    ]) {
       prismaMock.kV.findFirst.mockResolvedValue({ value });
-      await expect(consumeOAuthState("d".repeat(64))).resolves.toBeNull();
+      await expect(consumeOAuthState("d".repeat(64), NONCE)).resolves.toBeNull();
     }
   });
 
@@ -105,14 +116,36 @@ describe("trakt OAuth state", () => {
     prismaMock.kV.deleteMany.mockResolvedValue({ count: 0 });
     const { consumeOAuthState } = await import("./trakt-oauth-state.js");
 
-    await expect(consumeOAuthState("c".repeat(64))).resolves.toBeNull();
+    await expect(consumeOAuthState("c".repeat(64), NONCE)).resolves.toBeNull();
+  });
+
+  it("mints a browser nonce and stores only its digest", async () => {
+    const { createOAuthState } = await import("./trakt-oauth-state.js");
+
+    const { browserNonce } = await createOAuthState("acct-1");
+
+    expect(browserNonce).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    const { value } = first(prismaMock.kV.create.mock.calls, "prismaMock.kV.create call")[0].data;
+    expect(value).not.toContain(browserNonce);
+    expect(JSON.parse(value).browserNonceHash).toBe(createHash("sha256").update(browserNonce).digest("hex"));
+  });
+
+  it("refuses a browser that did not start the flow, and leaves the flow for the one that did", async () => {
+    prismaMock.kV.findFirst.mockResolvedValue({ value: FLOW });
+    prismaMock.kV.deleteMany.mockResolvedValue({ count: 1 });
+    const { consumeOAuthState } = await import("./trakt-oauth-state.js");
+
+    for (const nonce of [undefined, "", "m".repeat(43), "not a nonce"]) {
+      await expect(consumeOAuthState("e".repeat(64), nonce)).resolves.toBeNull();
+    }
+    expect(prismaMock.kV.deleteMany).not.toHaveBeenCalled();
   });
 
   it("rejects missing or malformed states without touching the database", async () => {
     const { consumeOAuthState } = await import("./trakt-oauth-state.js");
 
     for (const candidate of [undefined, null, "", "not-hex", "A".repeat(64), "a".repeat(63), ["a".repeat(64)]]) {
-      await expect(consumeOAuthState(candidate)).resolves.toBeNull();
+      await expect(consumeOAuthState(candidate, NONCE)).resolves.toBeNull();
     }
     expect(prismaMock.kV.findFirst).not.toHaveBeenCalled();
     expect(prismaMock.kV.deleteMany).not.toHaveBeenCalled();

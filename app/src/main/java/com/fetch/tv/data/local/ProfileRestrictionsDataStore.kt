@@ -2,9 +2,11 @@ package com.fetch.tv.data.local
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.preferencesOf
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -18,10 +20,35 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Set when the file was unreadable and replaced. Every profile but the main one then reads as a
+ * kids profile until a parent sets its limits again; see [ProfileRestrictionsDataStore.restrictions].
+ */
+private val restrictionsCorruptionResetKey = booleanPreferencesKey("corruption_reset")
+
 private val Context.profileRestrictionsDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "profile_restrictions",
-    corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler { androidx.datastore.preferences.core.emptyPreferences() }
+    // Fail closed: a corrupt file must not read as "no limits on any profile".
+    corruptionHandler = ReplaceFileCorruptionHandler { preferencesOf(restrictionsCorruptionResetKey to true) }
 )
+
+/** The main profile; it belongs to the parent and is never restricted. */
+private const val MAIN_PROFILE_ID = 1
+
+/**
+ * Limits read after the file was lost to corruption: a profile with nothing stored gets
+ * [ProfileRestrictions.KidsPreset] rather than no limits, except the main profile. Only lookups
+ * by id see the fallback; iteration sees what is stored. Equality is by identity, so a reader
+ * using distinctUntilChanged notices when the fallback goes away.
+ */
+private class FailClosedRestrictions(
+    private val stored: Map<Int, ProfileRestrictions>
+) : Map<Int, ProfileRestrictions> by stored {
+    override fun get(key: Int): ProfileRestrictions? =
+        stored[key] ?: ProfileRestrictions.KidsPreset.takeIf { key != MAIN_PROFILE_ID }
+
+    override fun containsKey(key: Int): Boolean = get(key) != null
+}
 
 /** Parental settings for one profile. */
 data class ProfileRestrictions(
@@ -263,16 +290,36 @@ class ProfileRestrictionsDataStore internal constructor(
     // The account's kids rules per profile, like the limits' account copy; pushes use the same pending set.
     private val accountKidsRulesKey = stringPreferencesKey("account_kids_rules")
     private val lockUnrestrictedKey = booleanPreferencesKey("lock_unrestricted_profiles")
+    private val corruptionResetKey = restrictionsCorruptionResetKey
     private val json = Json { ignoreUnknownKeys = true }
 
+    /**
+     * Limits per profile. After the file was lost to corruption, a profile other than the main
+     * one with nothing stored reads as [ProfileRestrictions.KidsPreset] (fail closed) until a
+     * parent or the account sets its limits; see [FailClosedRestrictions].
+     */
     val restrictions: Flow<Map<Int, ProfileRestrictions>> = dataStore.data.map { prefs ->
-        decode(prefs[restrictionsKey])
+        val stored = decode(prefs[restrictionsKey])
+        if (prefs[corruptionResetKey] == true) FailClosedRestrictions(stored) else stored
+    }
+
+    /**
+     * True when parental controls are in use on this TV: some profile has limits, the
+     * unrestricted-profile lock is on, or the limits were lost to corruption.
+     */
+    val parentalControlsConfigured: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[corruptionResetKey] == true ||
+            prefs[lockUnrestrictedKey] == true ||
+            decode(prefs[restrictionsKey]).values.any { it.isRestricted }
     }
 
     suspend fun setRestrictions(profileId: Int, restrictions: ProfileRestrictions) {
         dataStore.edit { prefs ->
             val current = decode(prefs[restrictionsKey]).toMutableMap()
-            if (restrictions == ProfileRestrictions.None) current.remove(profileId) else current[profileId] = restrictions
+            // After corruption a missing entry reads as the kids preset, so "no limits" has to be
+            // stored explicitly for it to stick.
+            val keepNone = prefs[corruptionResetKey] == true
+            if (restrictions == ProfileRestrictions.None && !keepNone) current.remove(profileId) else current[profileId] = restrictions
             prefs[restrictionsKey] = encode(current)
         }
     }
@@ -430,7 +477,12 @@ class ProfileRestrictionsDataStore internal constructor(
         json.encodeToString(map.mapKeys { it.key.toString() })
 
     /** Drops the profile's limits. Its title lists stay: they're kept on this TV whatever the website says. */
-    suspend fun removeProfile(profileId: Int) = setRestrictions(profileId, ProfileRestrictions.None)
+    suspend fun removeProfile(profileId: Int) {
+        dataStore.edit { prefs ->
+            val current = decode(prefs[restrictionsKey])
+            if (profileId in current) prefs[restrictionsKey] = encode(current - profileId)
+        }
+    }
 
     /** For a deleted profile: its limits, the account's copy of them and its title lists. */
     suspend fun deleteProfile(profileId: Int) {

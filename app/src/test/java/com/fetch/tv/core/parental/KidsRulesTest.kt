@@ -80,6 +80,27 @@ class KidsRulesTest {
     }
 
     @Test
+    fun `setting the clock back doesn't start a fresh day`() {
+        val today = ScreenTimeDay("2026-10-29", watchedMs = 60 * 60_000L)
+
+        assertEquals(today, today.forDate("2026-10-28"))
+        assertEquals(
+            ScreenTimeStatus.DailyLimitReached,
+            screenTimeStatus(KidsRules(dailyMinutes = 60), today.forDate("2026-10-28"), LocalDateTime.of(2026, 10, 28, 12, 0), 0L)
+        )
+    }
+
+    @Test
+    fun `a day whose usage was lost counts as used up`() {
+        val lost = ScreenTimeDay("2026-10-29", watchedMs = LOST_DAY_WATCHED_MS)
+
+        assertEquals(
+            ScreenTimeStatus.DailyLimitReached,
+            screenTimeStatus(KidsRules(dailyMinutes = 600), lost, LocalDateTime.of(2026, 10, 29, 12, 0), 0L)
+        )
+    }
+
+    @Test
     fun `a kids autoplay cap turns the still-watching prompt on`() {
         assertEquals(false to 3, effectiveStillWatching(false, 3, kidsAutoplayCap = null))
         assertEquals(true to 2, effectiveStillWatching(false, 5, kidsAutoplayCap = 2))

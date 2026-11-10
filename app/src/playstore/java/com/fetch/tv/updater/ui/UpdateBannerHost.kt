@@ -8,6 +8,7 @@ fun UpdateBannerHost(
     state: UpdateUiState,
     onDismissBanner: () -> Unit,
     onDownload: () -> Unit,
+    onCancelDownload: () -> Unit,
     onInstall: () -> Unit,
     onDismissUnknownSources: () -> Unit,
     onOpenUnknownSources: () -> Unit,

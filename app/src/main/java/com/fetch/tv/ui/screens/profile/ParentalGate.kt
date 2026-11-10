@@ -149,10 +149,14 @@ class ParentalGateViewModel @Inject constructor(
 
     override fun openGuardedScreen(key: Any) {
         openGuardedScreens += key
+        parentalControls.holdGateOpen(true)
     }
 
     override fun closeGuardedScreen(key: Any) {
-        if (openGuardedScreens.remove(key) && openGuardedScreens.isEmpty()) parentalControls.lockGate()
+        if (openGuardedScreens.remove(key) && openGuardedScreens.isEmpty()) {
+            parentalControls.holdGateOpen(false)
+            parentalControls.lockGate()
+        }
     }
 
     fun submit(pin: String) {

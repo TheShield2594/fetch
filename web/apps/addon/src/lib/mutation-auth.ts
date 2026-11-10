@@ -14,8 +14,7 @@ import { FETCH_API_TOKEN } from "./config.js";
  * URL containing it leaks — e.g. via proxy/access logs).
  *
  * Scrobble callers (media-player integrations, capable of setting headers) send
- * this as a standard Bearer token. It is never emitted from a route — see
- * `lib/mark-watched.ts` for why /subtitles cannot hand it out.
+ * this as a standard Bearer token. It is never emitted from a route.
  */
 const MUTATION_TOKEN = FETCH_API_TOKEN
   ? createHmac("sha256", FETCH_API_TOKEN).update("fetch-addon-mutation").digest("hex")

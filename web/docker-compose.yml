@@ -276,7 +276,7 @@ services:
     environment:
       VITE_API_BASE: ${VITE_API_BASE:-http://192.168.1.25:7000}
       # Public URL of the dedicated addon service — the full-featured
-      # Stremio addon (meta/subtitles/search/genre support). Used to build
+      # Stremio addon (meta/search/genre support). Used to build
       # the manifest URL shown in Settings.
       VITE_ADDON_BASE: ${VITE_ADDON_BASE:-http://192.168.1.25:7001}
       # Extra origins the browser may connect to, on top of VITE_API_BASE,

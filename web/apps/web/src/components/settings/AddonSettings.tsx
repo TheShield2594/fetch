@@ -14,9 +14,9 @@ function AddonManifestUrl({ profileName, multiProfile, profileKey }: { profileNa
   // Stremio has no way to say who is watching, so the profile is baked into the
   // installed URL: everything Stremio requests hangs off the manifest URL's
   // base, and the addon reads the profile back out of that path. Without it,
-  // marking something watched from Stremio has no profile to write to once a
-  // second profile exists. The profile's key makes the URL unguessable, so it
-  // can't be used to read or mark watched on someone else's profile.
+  // every catalog would be the oldest profile's once a second profile exists.
+  // The profile's key makes the URL unguessable, so it can't be used to read
+  // someone else's profile.
   const activeProfileId = runtimeConfig.getProfileId();
   const manifestUrl = activeProfileId
     ? ownAddonManifestUrl(activeProfileId, profileKey)

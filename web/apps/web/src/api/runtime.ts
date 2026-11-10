@@ -24,7 +24,7 @@ const API_BASE_DEFAULT = stripTrailingSlash(
   window.__FETCH_API_BASE__ || import.meta.env.VITE_API_BASE || "http://localhost:7000"
 );
 // Base URL of the dedicated apps/addon service (the full-featured Stremio
-// addon with meta/subtitles/search/genre support) — distinct from the API
+// addon with meta/search/genre support) — distinct from the API
 // server above, which only hosts a thinner catalog-only manifest.
 const ADDON_BASE_DEFAULT = stripTrailingSlash(
   window.__FETCH_ADDON_BASE__ || import.meta.env.VITE_ADDON_BASE || "http://localhost:7001"

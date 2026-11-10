@@ -9,10 +9,8 @@
 // out of the API's own logs — the proxy's copy is outside our reach, which is
 // why the README steers senders that *can* set headers to `x-webhook-secret`.
 //
-// The addon has the same exposure from the other end: every "Mark Watched"
-// click is a `GET /mark-watched/…?token=<capability>`. It lives here rather
-// than in either service so both loggers can share one list of parameters to
-// mask.
+// It lives here rather than in either service so the API's and the addon's
+// loggers share one list of parameters to mask.
 
 const SENSITIVE_QUERY_PARAMS = new Set([
   "token",

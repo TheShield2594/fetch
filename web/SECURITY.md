@@ -74,9 +74,7 @@ the port on your LAN.
 - Reaching data or an endpoint without the credential it's supposed to need —
   including using one profile's credential to read or write another's.
 - Bypassing `API_TOKEN`, a profile PIN, the derived add-on URL secret, the
-  add-on service's scrobble token, or a "Mark Watched" capability URL (forging
-  one, or widening one beyond the single title and twelve hours it was signed
-  for).
+  add-on service's scrobble token.
 - Reading stored credentials out of a database copy without `API_TOKEN` — a
   weakness in the AES-256-GCM/HKDF scheme or its per-column binding.
 - SSRF through any user-supplied URL — an AI provider endpoint, a notification

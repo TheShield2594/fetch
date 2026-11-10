@@ -87,7 +87,7 @@ export const buildManifest = (lists: FetchList[], genres: string[], config: Addo
     // Stremio fetches this itself, so it can only be offered once the web UI
     // has a public address; without one the addon keeps Stremio's generic tile.
     ...(WEB_PUBLIC_BASE ? { logo: `${WEB_PUBLIC_BASE}/icons/icon-192.png` } : {}),
-    resources: ["catalog", "meta", "subtitles"],
+    resources: ["catalog", "meta"],
     types: ["movie", "series"],
     idPrefixes: ["tt"],
     catalogs,

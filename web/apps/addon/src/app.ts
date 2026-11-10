@@ -7,17 +7,16 @@ import { addonRouter } from "./lib/router.js";
 import { rateLimitKey } from "./lib/rate-limit-key.js";
 import { registerCatalogRoutes } from "./routes/catalog.js";
 import { registerManifestRoute } from "./routes/manifest.js";
-import { registerMarkWatchedRoutes } from "./routes/mark-watched.js";
 import { registerMetaRoute } from "./routes/meta.js";
 import { registerConfigureRoute, registerHealthRoute } from "./routes/misc.js";
 import { registerScrobbleRoute } from "./routes/scrobble.js";
-import { registerSubtitlesRoute } from "./routes/subtitles.js";
 
 /**
  * The Stremio addon service: the server itself, and the routes it carries.
  *
- * This file was 1,283 lines — routing, caching, an HTTP client, auth and SRT
- * generation in one scroll, with a single lib file beside it. It is now the assembly, mirroring how `apps/api` is laid out:
+ * This file was 1,283 lines — routing, caching, an HTTP client and auth in
+ * one scroll, with a single lib file beside it. It is now the assembly,
+ * mirroring how `apps/api` is laid out:
  * `lib/` for everything that is a decision (who this request is acting as,
  * what may write, what is worth caching and for how long), `routes/` for the
  * endpoints Stremio actually calls.
@@ -26,12 +25,10 @@ import { registerSubtitlesRoute } from "./routes/subtitles.js";
 export const app = Fastify({
   logger: {
     level: LOG_LEVEL,
-    // Every "Mark Watched" click arrives as `GET /mark-watched/…?token=<capability>`
-    // — Stremio can only click a link, so the capability has nowhere but the
-    // query string to travel. Fastify's default `req` serializer would write
-    // that URL to the log verbatim, and `docker-compose.yml` keeps 30 MB of
-    // those logs per service on the host, where a log shipper or a support
-    // bundle pasted into an issue can carry the token off with them.
+    // Fastify's default `req` serializer writes the URL to the log verbatim,
+    // query string and all, and `docker-compose.yml` keeps 30 MB of those logs
+    // per service on the host, where a log shipper or a support bundle pasted
+    // into an issue can carry a credential off with them.
     serializers: { req: redactedRequestSerializer },
   },
   ...(trustProxy !== undefined ? { trustProxy } : {}),
@@ -77,8 +74,6 @@ app.register(async (scope) => {
   registerManifestRoute(routes);
   registerCatalogRoutes(routes);
   registerMetaRoute(routes);
-  registerSubtitlesRoute(routes);
-  registerMarkWatchedRoutes(routes);
   registerScrobbleRoute(routes);
   registerConfigureRoute(routes);
 });

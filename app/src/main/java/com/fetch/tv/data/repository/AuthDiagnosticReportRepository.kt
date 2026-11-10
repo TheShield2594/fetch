@@ -5,7 +5,6 @@ import com.fetch.tv.BuildConfig
 import com.fetch.tv.data.local.PlayerSettingsDataStore
 import com.fetch.tv.data.remote.api.AuthDiagnosticReportApi
 import com.fetch.tv.data.remote.dto.AuthDiagnosticReportRequestDto
-import com.squareup.moshi.Moshi
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -20,31 +19,26 @@ import javax.inject.Singleton
 @Singleton
 class AuthDiagnosticReportRepository @Inject constructor(
     private val authDiagnosticReportApi: AuthDiagnosticReportApi,
-    moshi: Moshi,
     @ApplicationContext context: Context,
     private val playerSettingsDataStore: Provider<PlayerSettingsDataStore>
 ) {
     private val mutex = Mutex()
-    private val queue = AuthDiagnosticReportQueue(
-        queueFile = File(context.filesDir, "auth_diagnostics_queue.jsonl"),
-        moshi = moshi
-    )
+
+    /** Where older builds queued reports that failed to upload. Deleted, never read. */
+    private val legacyQueueFile = File(context.filesDir, "auth_diagnostics_queue.jsonl")
 
     /**
-     * Sign-in diagnostics are only sent when the build has a report endpoint and the user has
-     * turned on diagnostic reports (Settings → Advanced → Playback issue reports). Otherwise the
-     * report is dropped and nothing is kept on disk, including anything queued by older builds.
+     * Sends one sign-in diagnostics report, only when the build has a report endpoint and the
+     * active profile has turned on Playback issue reports (Settings → Advanced). Nothing is kept
+     * on this device: a report that can't be sent now is dropped, so it can never be sent later
+     * under another profile's choice or after reports are turned off.
      */
     suspend fun submit(report: AuthDiagnosticReportRequestDto): Result<String> = mutex.withLock {
-        if (!isUploadAllowed()) {
-            queue.write(emptyList())
-            return@withLock Result.success("disabled")
-        }
-        drainQueuedLocked()
+        deleteLegacyQueue()
+        if (!isUploadAllowed()) return@withLock Result.success("disabled")
         return@withLock try {
             Result.success(upload(report))
         } catch (e: Exception) {
-            enqueueLocked(report)
             Result.failure(e)
         }
     }
@@ -56,30 +50,13 @@ class AuthDiagnosticReportRepository @Inject constructor(
         }.getOrDefault(false)
     }
 
-    private suspend fun drainQueuedLocked() {
-        val queued = queue.read()
-        if (queued.isEmpty()) return
-        val remaining = mutableListOf<AuthDiagnosticReportRequestDto>()
-        var blocked = false
-        queued.forEach { report ->
-            if (blocked) {
-                remaining += report
-            } else {
-                try {
-                    upload(report)
-                } catch (_: Exception) {
-                    remaining += report
-                    blocked = true
-                }
-            }
+    private suspend fun deleteLegacyQueue() {
+        withContext(Dispatchers.IO) {
+            if (legacyQueueFile.exists()) legacyQueueFile.delete()
         }
-        queue.write(remaining)
     }
 
     private suspend fun upload(report: AuthDiagnosticReportRequestDto): String {
-        if (BuildConfig.PLAYBACK_REPORTS_BASE_URL.isBlank()) {
-            error("Auth diagnostics endpoint is not configured")
-        }
         val response = authDiagnosticReportApi.createAuthDiagnosticReport(report)
         if (!response.isSuccessful) {
             error("Auth diagnostics upload failed: HTTP ${response.code()}")
@@ -88,43 +65,5 @@ class AuthDiagnosticReportRepository @Inject constructor(
         return body?.reportId?.trim()?.takeIf { it.isNotBlank() }
             ?: body?.id?.trim()?.takeIf { it.isNotBlank() }
             ?: error("Auth diagnostics upload failed: missing report id")
-    }
-
-    private suspend fun enqueueLocked(report: AuthDiagnosticReportRequestDto) {
-        queue.enqueue(report)
-    }
-}
-
-class AuthDiagnosticReportQueue(
-    private val queueFile: File,
-    moshi: Moshi,
-    private val maxReports: Int = 50
-) {
-    private val adapter = moshi.adapter(AuthDiagnosticReportRequestDto::class.java)
-
-    suspend fun enqueue(report: AuthDiagnosticReportRequestDto) {
-        write(read() + report)
-    }
-
-    suspend fun read(): List<AuthDiagnosticReportRequestDto> = withContext(Dispatchers.IO) {
-        if (!queueFile.exists()) return@withContext emptyList()
-        queueFile.readLines()
-            .asSequence()
-            .map { it.trim() }
-            .filter { it.isNotBlank() }
-            .mapNotNull { line -> runCatching { adapter.fromJson(line) }.getOrNull() }
-            .toList()
-    }
-
-    suspend fun write(reports: List<AuthDiagnosticReportRequestDto>) {
-        withContext(Dispatchers.IO) {
-            val bounded = reports.takeLast(maxReports)
-            if (bounded.isEmpty()) {
-                if (queueFile.exists()) queueFile.delete()
-                return@withContext
-            }
-            queueFile.parentFile?.mkdirs()
-            queueFile.writeText(bounded.joinToString(separator = "\n") { adapter.toJson(it) } + "\n")
-        }
     }
 }

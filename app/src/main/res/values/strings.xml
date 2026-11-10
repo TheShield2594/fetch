@@ -492,6 +492,8 @@
     <string name="licenses_attributions_section_playback">ANDROID PLAYBACK LICENSES</string>
     <string name="licenses_attributions_section_libraries">OPEN-SOURCE LIBRARIES</string>
     <string name="licenses_attributions_license_format">Licensed under the %1$s.</string>
+    <string name="licenses_attributions_section_texts">FULL LICENSE TEXTS</string>
+    <string name="licenses_attributions_license_text_body">The full text of this license, which applies to the libraries above that name it.</string>
     <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_fetch_body">Fetch is free software under the GNU General Public License v3.0. It is a fork of NuvioTV by the Nuvio contributors (github.com/NuvioMedia/NuvioTV), whose work makes up most of this app.</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
@@ -664,7 +666,7 @@
     <string name="advanced_section_performance">Performance &amp; navigation</string>
     <string name="advanced_section_diagnostics">Diagnostics</string>
     <string name="advanced_playback_issue_reports">Playback issue reports</string>
-    <string name="advanced_playback_issue_reports_subtitle">Show report buttons during playback, long loading, and playback errors, and send sign-in failure diagnostics</string>
+    <string name="advanced_playback_issue_reports_subtitle">Show report buttons during playback, long loading, and playback errors. Also sends a diagnostics report for each sign-in or sign-up to the default sync server, successful or not</string>
     <string name="advanced_player_stats_hud">Playback stats overlay</string>
     <string name="advanced_player_stats_hud_subtitle">Show a button in stream info to toggle live cpu, memory, buffer, bitrate and thermal readings during playback</string>
     <string name="advanced_section_cache">Cache</string>

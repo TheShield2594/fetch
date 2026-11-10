@@ -559,7 +559,6 @@
     <string name="advanced_section_performance">Hiệu năng &amp; điều hướng</string>
     <string name="advanced_section_diagnostics">Chẩn đoán</string>
     <string name="advanced_playback_issue_reports">Báo cáo vấn đề phát lại</string>
-    <string name="advanced_playback_issue_reports_subtitle">Hiển thị các nút báo cáo trong khi phát lại, tải lâu và khi phát lại bị lỗi</string>
     <string name="advanced_player_stats_hud">Lớp phủ thống kê phát lại</string>
     <string name="advanced_player_stats_hud_subtitle">Hiển thị nút trong thông tin luồng để bật hoặc tắt các chỉ số CPU, bộ nhớ, bộ đệm, bitrate và nhiệt độ theo thời gian thực khi phát lại</string>
     <string name="advanced_section_cache">Bộ nhớ đệm</string>

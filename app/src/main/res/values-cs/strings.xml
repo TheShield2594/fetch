@@ -459,7 +459,6 @@
     <string name="advanced_section_performance">Výkon a navigace</string>
     <string name="advanced_section_diagnostics">Diagnostika</string>
     <string name="advanced_playback_issue_reports">Hlášení problémů s přehráváním</string>
-    <string name="advanced_playback_issue_reports_subtitle">Zobrazit tlačítka hlášení během přehrávání, dlouhého načítání a chyb přehrávání</string>
     <string name="advanced_section_cache">Mezipaměť</string>
     <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">Rychlá horizontální navigace</string>

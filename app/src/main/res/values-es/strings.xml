@@ -548,7 +548,6 @@
     <string name="advanced_section_performance">Rendimiento &amp; navegación</string>
     <string name="advanced_section_diagnostics">Diagnósticos</string>
     <string name="advanced_playback_issue_reports">Informes de problemas de reproducción</string>
-    <string name="advanced_playback_issue_reports_subtitle">Muestra botones de informe durante la reproducción, cargas largas y errores de reproducción</string>
     <string name="advanced_player_stats_hud">Superposición de estadísticas de reproducción</string>
     <string name="advanced_player_stats_hud_subtitle">Muestra un botón en la información de transmisión para alternar lecturas en vivo de CPU, memoria, búfer, velocidad de bits y temperatura durante la reproducción</string>
     <string name="advanced_section_cache">Caché</string>

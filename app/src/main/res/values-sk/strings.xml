@@ -1947,7 +1947,6 @@
 <string name="settings_content_discovery_addons_subtitle">Spravovať doplnky, poradie katalógu a kolekcie</string>
 <string name="external_auto_next_loading">Načítavanie ďalšej epizódy…</string>
 <string name="advanced_playback_issue_reports">Hlásenia o problémoch s prehrávaním</string>
-<string name="advanced_playback_issue_reports_subtitle">Zobrazovať tlačidlá hlásení počas prehrávania, dlhého načítavania a chýb prehrávania</string>
 <string name="advanced_section_dv_diagnostics">Diagnostika DV</string>
 <string name="playback_external_forward_subtitles">Posielaj titulky do externého prehrávača</string>
 <string name="playback_external_forward_subtitles_sub">Načítaj titulky v tvojom preferovanom jazyku z doplnkov a posielaj ich do externého prehrávača.</string>

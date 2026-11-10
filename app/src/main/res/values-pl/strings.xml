@@ -2365,7 +2365,6 @@
 
     <!-- Advanced settings -->
     <string name="advanced_playback_issue_reports">Raporty problemów z odtwarzaniem</string>
-    <string name="advanced_playback_issue_reports_subtitle">Pokaż przyciski zgłaszania problemów podczas odtwarzania, długiego ładowania i błędów odtwarzania</string>
     <string name="advanced_player_stats_hud">Nakładka statystyk odtwarzania</string>
 
     <!-- Buffer -->

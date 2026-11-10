@@ -67,7 +67,8 @@ turn on **Playback issue reports** in Settings → Advanced. With it on:
   email addresses and other credentials are removed first. Nothing is sent for a sync server
   you set up yourself.
 
-With it off, sign-in diagnostics are discarded and nothing is saved for later.
+With it off, sign-in diagnostics are discarded. Either way none are stored on the device: a
+report that can't be sent straight away is dropped, not kept to retry.
 
 ## Phone configuration
 

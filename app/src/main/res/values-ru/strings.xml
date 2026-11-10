@@ -1611,7 +1611,6 @@
     <string name="advanced_section_performance">Производительность и навигация</string>
     <string name="advanced_section_diagnostics">Диагностика</string>
     <string name="advanced_playback_issue_reports">Отчёты о проблемах воспроизведения</string>
-    <string name="advanced_playback_issue_reports_subtitle">Показывать кнопки отправки отчёта при воспроизведении, долгой загрузке и ошибках воспроизведения</string>
     <string name="advanced_player_stats_hud">Оверлей статистики воспроизведения</string>
     <string name="advanced_player_stats_hud_subtitle">Показать в информации о потоке кнопку для переключения показателей ЦП, памяти, буфера, битрейта и температуры в реальном времени во время воспроизведения</string>
     <string name="advanced_section_cache">Кэш</string>

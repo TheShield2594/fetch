@@ -1989,7 +1989,6 @@
     <string name="action_back">رجوع</string>
     <string name="action_remove_anyway">إزالة على أي حال</string>
     <string name="advanced_playback_issue_reports">تقارير مشاكل التشغيل</string>
-    <string name="advanced_playback_issue_reports_subtitle">إظهار أزرار التقرير أثناء التشغيل والتحميل الطويل وأخطاء التشغيل</string>
     <string name="audio_enable_downmix_subtitle">يستخدم مسار الدمج (Downmix) في FFmpeg. يتطلب تفضيل مفككات التطبيق (FFmpeg). عند التعطيل، يتبع الصوت المسار السابق لنظام أندرويد/الجهاز.</string>
     <string name="audio_force_optical_passthrough">فرض تحويل AC-3 (بصري/SPDIF)</string>
     <string name="audio_force_optical_passthrough_sub">يحوّل الصيغ متعددة القنوات (TrueHD وDTS وAAC وغيرها) إلى دولبي ديجيتال 5.1 في الوقت الفعلي لاتصالات البصري/SPDIF.</string>

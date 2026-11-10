@@ -22,7 +22,13 @@ export const profilesApi = {
       body: JSON.stringify(payload),
     });
   },
-  async verifyProfile(profileId: string, pin?: string) {
+  /**
+   * Checks the PIN (or its absence) and stores the profile token it returns.
+   * `persist: false` leaves storage alone, for a caller that may have been
+   * overtaken by the time the answer comes back and stores the token itself
+   * (`runtimeConfig.setProfileToken(result.profileToken ?? "")`) only if not.
+   */
+  async verifyProfile(profileId: string, pin?: string, { persist = true }: { persist?: boolean } = {}) {
     const result = await request<{ id: string; name: string; profileToken?: string | undefined }>(
       `/profiles/${encodeURIComponent(profileId)}/verify`,
       {
@@ -32,7 +38,7 @@ export const profilesApi = {
     );
     // Persist the signed capability so subsequent requests for this profile
     // clear the server-side PIN gate.
-    runtimeConfig.setProfileToken(result.profileToken ?? "");
+    if (persist) runtimeConfig.setProfileToken(result.profileToken ?? "");
     return result;
   },
   updateProfile(

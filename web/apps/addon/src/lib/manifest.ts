@@ -5,7 +5,7 @@ import {
   selectDiscoveryCatalogs,
 } from "@fetch/shared";
 import type { AddonManifestConfig, FetchList, DiscoveryCatalog } from "@fetch/shared";
-import { WEB_PUBLIC_BASE } from "./config.js";
+import { addonSettingsUrl, WEB_PUBLIC_BASE } from "./config.js";
 
 /** The manifest Stremio installs, and the rules about what appears in it. */
 
@@ -77,7 +77,7 @@ export const buildManifest = (lists: FetchList[], genres: string[], config: Addo
 
   const catalogs = [...listCatalogs, ...discoveryCatalogs];
 
-  const configUrl = WEB_PUBLIC_BASE ? `${WEB_PUBLIC_BASE}/settings` : undefined;
+  const configUrl = addonSettingsUrl() ?? undefined;
 
   return {
     id: "com.fetch.addon",

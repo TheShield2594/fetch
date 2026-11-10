@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { ADDON_PUBLIC_BASE, WEB_PUBLIC_BASE } from "../lib/config.js";
+import { ADDON_PUBLIC_BASE, addonSettingsUrl } from "../lib/config.js";
 import type { AddonRouter } from "../lib/router.js";
 
 /** Liveness. Not profile-scoped: it says nothing about anyone's data. */
@@ -14,9 +14,8 @@ export const registerHealthRoute = (app: FastifyInstance): void => {
  */
 export const registerConfigureRoute = (routes: AddonRouter): void => {
   routes.get("/configure", async (_request, reply) => {
-    if (WEB_PUBLIC_BASE) {
-      return reply.redirect(`${WEB_PUBLIC_BASE}/settings`);
-    }
+    const settingsUrl = addonSettingsUrl();
+    if (settingsUrl) return reply.redirect(settingsUrl);
     return reply.code(200).send({ message: "Configure Fetch through the web UI." });
   });
 };

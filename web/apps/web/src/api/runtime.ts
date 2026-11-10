@@ -93,9 +93,15 @@ export const runtimeConfig = {
     // Storage, readable by any same-origin script, until they expire a day
     // later. Signing out or rotating the token has to take them with it, so
     // the next person on a shared device inherits nothing.
-    if (trimmed !== runtimeConfig.getToken()) {
+    const previous = runtimeConfig.getToken();
+    if (trimmed !== previous) {
       identityEpoch += 1;
       void purgeApiCache();
+      // Writes the worker is holding for later carry the previous token in
+      // their headers. Signed out (or someone else signed in) on a shared
+      // device, they would otherwise be replayed as that person the next time
+      // the connection comes back.
+      if (previous) void clearQueuedWrites();
     }
 
     if (!trimmed) {
@@ -235,6 +241,15 @@ export async function tellServiceWorkerWhereTheApiIs(): Promise<void> {
  */
 export async function replayQueuedWrites(): Promise<void> {
   await postToServiceWorker({ type: "REPLAY_QUEUED_WRITES" });
+}
+
+/**
+ * Asks the worker to drop the writes it is holding for later, because the
+ * person who made them has signed out. Like `replayQueuedWrites`, a no-op with
+ * no active worker.
+ */
+export async function clearQueuedWrites(): Promise<void> {
+  await postToServiceWorker({ type: "CLEAR_WRITE_QUEUE" });
 }
 
 /**
@@ -409,6 +424,10 @@ export function invalidatedCachePrefixes(path: string): string[] | null {
   // Paired devices and collections are read by nothing the client caches:
   // the pages that show them fetch on mount.
   if (under("/devices") || under("/collections")) return [];
+
+  // POSTs that change nothing: checking an AI provider's connection, and
+  // signing in (which swaps the token, and that purges both caches itself).
+  if (route === "/ai/test" || route === "/auth/login") return [];
 
   // Settings, keys, integrations and imports. A Trakt import writes thousands
   // of watch rows, a metadata refresh changes every poster, and a language

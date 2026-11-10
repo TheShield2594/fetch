@@ -115,6 +115,18 @@ describe("CollectionsPage", () => {
     expect(screen.getByLabelText("Folder title")).toHaveValue("New folder");
   });
 
+  it("goes back to a saved collection when Discard drops the unsaved one that was open", async () => {
+    const user = userEvent.setup();
+    await renderPage();
+
+    await user.click(screen.getAllByRole("button", { name: "New collection" })[0]!);
+    expect(screen.getByLabelText("Collection title")).toHaveValue("New collection");
+    await user.click(screen.getByRole("button", { name: /discard/i }));
+
+    expect(screen.getByLabelText("Collection title")).toHaveValue("Weekend");
+    expect(screen.queryByText("No collections yet")).not.toBeInTheDocument();
+  });
+
   it("previews an addon source through the server, from the address it carries", async () => {
     const user = userEvent.setup();
     const fetchMock = vi.spyOn(globalThis, "fetch");

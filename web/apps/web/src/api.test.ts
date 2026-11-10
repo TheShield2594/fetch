@@ -466,6 +466,13 @@ describe("memory cache invalidation after a mutation", () => {
     expect(invalidatedCachePrefixes("/watchlist")).toBeNull();
   });
 
+  it("treats the read-only POSTs as reaching nothing cached", () => {
+    expect(invalidatedCachePrefixes("/collections/preview")).toEqual([]);
+    expect(invalidatedCachePrefixes("/ai/test")).toEqual([]);
+    expect(invalidatedCachePrefixes("/auth/login")).toEqual([]);
+    expect(invalidatedCachePrefixes("/auth/logout")).toBeNull();
+  });
+
   it("leaves the games library alone when an episode is marked watched", async () => {
     resetDataCacheForTests();
     writeCache("games:recent", ["Outer Wilds"]);

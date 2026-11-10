@@ -52,5 +52,13 @@ export const PLAY_DETECTION = parseBool(process.env.STREMIO_PLAY_DETECTION);
 
 export const LOG_LEVEL = process.env.LOG_LEVEL ?? "info";
 
+/**
+ * Where Stremio's "Configure" button sends someone: the Stremio Addon section of
+ * the web UI's Settings, opened, rather than the Preferences tab it lands on by
+ * default. Null without a public web address.
+ */
+export const addonSettingsUrl = (): string | null =>
+  WEB_PUBLIC_BASE ? `${WEB_PUBLIC_BASE}/settings?tab=integrations&section=addon` : null;
+
 /** The address this service tells Stremio to come back to, for the URLs it mints. */
 export const addonBaseUrl = (): string => ADDON_PUBLIC_BASE ?? `http://localhost:${process.env.PORT ?? 7001}`;

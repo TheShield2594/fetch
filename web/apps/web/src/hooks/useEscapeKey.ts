@@ -12,6 +12,27 @@ let stack: Array<() => void> = [];
  */
 export const hasOpenModalLayer = (): boolean => stack.length > 0;
 
+// One document listener for the whole stack, there only while something is on
+// it. Each hook instance used to add its own, so a single Escape ran the
+// topmost handler once per mounted instance — harmless only while every
+// handler happened to be idempotent.
+const onKeyDown = (e: KeyboardEvent) => {
+  // Topmost handler wins: the innermost overlay is the one Escape closes.
+  const innermost = stack.at(-1);
+  if (e.key !== "Escape" || !innermost) return;
+  innermost();
+};
+
+const push = (entry: () => void) => {
+  if (stack.length === 0) document.addEventListener("keydown", onKeyDown);
+  stack.push(entry);
+};
+
+const remove = (entry: () => void) => {
+  stack = stack.filter((e) => e !== entry);
+  if (stack.length === 0) document.removeEventListener("keydown", onKeyDown);
+};
+
 /**
  * Registers `onEscape` for the Escape key, but only the most recently
  * mounted handler (i.e. the topmost modal in a stack) actually fires.
@@ -20,27 +41,14 @@ export const hasOpenModalLayer = (): boolean => stack.length > 0;
  */
 export function useEscapeKey(onEscape: () => void, active = true) {
   const callbackRef = useRef(onEscape);
-  callbackRef.current = onEscape;
+  useEffect(() => {
+    callbackRef.current = onEscape;
+  });
 
   useEffect(() => {
     if (!active) return;
-
     const entry = () => callbackRef.current();
-    stack.push(entry);
-
-    return () => {
-      stack = stack.filter((e) => e !== entry);
-    };
+    push(entry);
+    return () => remove(entry);
   }, [active]);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      // Topmost handler wins: the innermost overlay is the one Escape closes.
-      const innermost = stack.at(-1);
-      if (e.key !== "Escape" || !innermost) return;
-      innermost();
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, []);
 }

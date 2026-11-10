@@ -492,6 +492,35 @@ describe("profile scoping", () => {
     }
   });
 
+  it("sends Stremio's Configure button to the addon's own section of Settings", async () => {
+    process.env.FETCH_WEB_PUBLIC = "https://fetch.example/";
+    try {
+      const configured = await buildApp();
+      const response = await configured.inject({ method: "GET", url: "/configure" });
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe("https://fetch.example/settings?tab=integrations&section=addon");
+    } finally {
+      delete process.env.FETCH_WEB_PUBLIC;
+    }
+  });
+
+  it("answers a meta request the API couldn't serve with a 502, not a 500", async () => {
+    const stub = fetchMock.getMockImplementation()!;
+    fetchMock.mockImplementation(async (input, init) => {
+      if (new URL(String(input)).pathname.startsWith("/meta/")) {
+        throw new Error("Request to the API timed out after 10000ms");
+      }
+      return stub(input, init);
+    });
+    try {
+      const response = await app.inject({ method: "GET", url: "/meta/movie/tt0111161.json" });
+      expect(response.statusCode).toBe(502);
+      expect(response.json()).toEqual({ meta: null });
+    } finally {
+      fetchMock.mockImplementation(stub);
+    }
+  });
+
   it("scopes catalog reads to the profile in the addon URL", async () => {
     await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/manifest.json` });
 

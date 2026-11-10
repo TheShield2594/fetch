@@ -8,7 +8,7 @@ vi.mock("../../api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../api")>();
   return {
     ...actual,
-    api: { getDevices: vi.fn(), confirmPairing: vi.fn(), revokeDevice: vi.fn() },
+    api: { getDevices: vi.fn(), confirmPairing: vi.fn(), revokeDevice: vi.fn(), renameDevice: vi.fn() },
   };
 });
 
@@ -16,6 +16,7 @@ const { api, ApiError } = await import("../../api");
 const getDevices = vi.mocked(api.getDevices);
 const confirmPairing = vi.mocked(api.confirmPairing);
 const revokeDevice = vi.mocked(api.revokeDevice);
+const renameDevice = vi.mocked(api.renameDevice);
 
 const LIVING_ROOM = { id: "d1", name: "Living room", createdAt: "2026-10-01T00:00:00Z", lastSeenAt: null };
 
@@ -50,6 +51,38 @@ describe("DevicesSettings", () => {
     const list = screen.getByRole("list", { name: "Signed-in devices" });
     expect(within(list).getByText("Living room")).toBeInTheDocument();
     expect(within(list).getByText(/Not seen since pairing/)).toBeInTheDocument();
+  });
+
+  it("renames a TV in place", async () => {
+    renameDevice.mockResolvedValue({ device: { ...LIVING_ROOM, name: "Den" } });
+    await renderDevices();
+
+    await userEvent.click(screen.getByRole("button", { name: "Rename Living room" }));
+    const field = screen.getByLabelText("New name for Living room");
+    expect(field).toHaveFocus();
+    await userEvent.clear(field);
+    await userEvent.type(field, "  Den {Enter}");
+
+    expect(renameDevice).toHaveBeenCalledWith("d1", "Den");
+    const list = screen.getByRole("list", { name: "Signed-in devices" });
+    expect(await within(list).findByText("Den")).toBeInTheDocument();
+    expect(screen.queryByLabelText("New name for Living room")).not.toBeInTheDocument();
+  });
+
+  it("keeps the name being typed when a rename fails, and cancels back to the old one", async () => {
+    renameDevice.mockRejectedValue(new ApiError("Device not found", 404));
+    await renderDevices();
+
+    await userEvent.click(screen.getByRole("button", { name: "Rename Living room" }));
+    const field = screen.getByLabelText("New name for Living room");
+    await userEvent.clear(field);
+    await userEvent.type(field, "Den{Enter}");
+
+    expect(await screen.findByText("Device not found")).toHaveAttribute("role", "alert");
+    expect(field).toHaveValue("Den");
+
+    await userEvent.click(screen.getByRole("button", { name: "Cancel renaming" }));
+    expect(screen.getByText("Living room")).toBeInTheDocument();
   });
 
   it("confirms a code typed loosely, then refreshes the list", async () => {

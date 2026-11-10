@@ -81,7 +81,10 @@ export function TvAddonsSettings() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [busyId, setBusyId] = useState<string | null>(null);
+  // A set, not one id: toggling B while A is still saving used to hand A's
+  // controls back early, and A finishing then cleared B's busy state.
+  const [busyIds, setBusyIds] = useState<ReadonlySet<string>>(() => new Set());
+  const isBusy = (id: string) => busyIds.has(id);
   // One order save at a time: two in flight could land out of order, and the
   // older answer would put back the order the newer move replaced.
   const [reordering, setReordering] = useState(false);
@@ -146,14 +149,18 @@ export function TvAddonsSettings() {
   };
 
   const run = async (addon: TvAddon, action: () => Promise<void>, fallback: string) => {
-    setBusyId(addon.id);
+    setBusyIds((current) => new Set(current).add(addon.id));
     setActionError(null);
     try {
       await action();
     } catch (err) {
       setActionError(errorMessage(err, fallback));
     } finally {
-      setBusyId(null);
+      setBusyIds((current) => {
+        const next = new Set(current);
+        next.delete(addon.id);
+        return next;
+      });
     }
   };
 
@@ -258,7 +265,7 @@ export function TvAddonsSettings() {
                   index={index}
                   count={addons.length}
                   label={addon.name}
-                  disabled={busyId !== null || reordering}
+                  disabled={busyIds.size > 0 || reordering}
                   onMove={move}
                 />
                 <AddonLogo key={addon.logo ?? ""} src={addon.logo} />
@@ -286,7 +293,7 @@ export function TvAddonsSettings() {
                       role="switch"
                       className="switch-control"
                       checked={addon.enabled}
-                      disabled={busyId === addon.id}
+                      disabled={isBusy(addon.id)}
                       onChange={() => void toggle(addon)}
                       aria-label={`${addon.name} enabled`}
                     />
@@ -307,18 +314,18 @@ export function TvAddonsSettings() {
                   <button
                     type="button"
                     onClick={() => void refresh(addon)}
-                    disabled={busyId === addon.id}
+                    disabled={isBusy(addon.id)}
                     className="rounded-lg p-1.5 hover:bg-[var(--surface-strong)] disabled:opacity-50"
                     style={{ color: "var(--text-dim)" }}
                     title="Reload the manifest"
                     aria-label={`Reload ${addon.name}'s manifest`}
                   >
-                    {busyId === addon.id ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+                    {isBusy(addon.id) ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
                   </button>
                   <button
                     type="button"
                     onClick={() => void remove(addon)}
-                    disabled={busyId === addon.id}
+                    disabled={isBusy(addon.id)}
                     className="rounded-lg p-1.5 text-danger hover:bg-[var(--surface-strong)] disabled:opacity-50"
                     title="Remove addon"
                     aria-label={`Remove ${addon.name}`}

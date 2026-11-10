@@ -361,7 +361,12 @@ export function SettingsPage() {
   const { sections: health, refresh: refreshHealth } = useSettingsHealth();
   useEffect(() => { refreshHealth(); }, [refreshHealth]);
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab: SettingsTab = isSettingsTab(searchParams.get("tab")) ? (searchParams.get("tab") as SettingsTab) : "preferences";
+  // `?section=<id>` (Stremio's Configure button sends `section=addon`) picks the
+  // tab that section is on, unless `tab` says otherwise, and opens it.
+  const requestedSectionId = searchParams.get("section");
+  const requestedSection = SETTINGS_SECTIONS.find((s) => s.id === requestedSectionId);
+  const tabParam = searchParams.get("tab");
+  const tab: SettingsTab = isSettingsTab(tabParam) ? tabParam : requestedSection?.tab ?? "preferences";
   const [query, setQuery] = useState("");
   const searching = query.trim().length > 0;
 
@@ -543,6 +548,7 @@ export function SettingsPage() {
               storageKey={section.id}
               defaultOpen={INITIALLY_OPEN_SECTION_IDS.has(section.id)}
               alwaysOpen={searching}
+              requested={section.id === requestedSection?.id}
               health={health[section.id]}
             >
               {section.content}

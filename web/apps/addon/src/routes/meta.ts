@@ -29,13 +29,25 @@ export const registerMetaRoute = (routes: AddonRouter): void => {
     const scope = await resolveProfileScope(request);
     if (!scope.ok) return reply.code(404).send({ error: "Unknown profile in addon URL" });
 
-    const [upstreamResponse, rpdb, spoilerEnabled] = await Promise.all([
-      fetchWithTimeout(apiUrl(`/meta/${type}/${encodeURIComponent(imdbId)}`), {
-        headers: apiHeaders(scope),
-      }),
-      fetchRpdbConfig(scope, request.log),
-      isSpoilerProtectionEnabled(scope, request.log),
-    ]);
+    // The two lookups beside it degrade on their own; the API call is the one
+    // that can throw (a timeout, a refused connection). That is an upstream
+    // failure like any other here, answered as one rather than as a 500 with
+    // a Sentry event attached.
+    let upstreamResponse: Response;
+    let rpdb: Awaited<ReturnType<typeof fetchRpdbConfig>>;
+    let spoilerEnabled: boolean;
+    try {
+      [upstreamResponse, rpdb, spoilerEnabled] = await Promise.all([
+        fetchWithTimeout(apiUrl(`/meta/${type}/${encodeURIComponent(imdbId)}`), {
+          headers: apiHeaders(scope),
+        }),
+        fetchRpdbConfig(scope, request.log),
+        isSpoilerProtectionEnabled(scope, request.log),
+      ]);
+    } catch (error) {
+      request.log.warn(error, "Failed to fetch meta from the API");
+      return reply.code(502).send({ meta: null });
+    }
     const payload = await upstreamResponse.json().catch(() => ({}));
 
     if (!upstreamResponse.ok) {

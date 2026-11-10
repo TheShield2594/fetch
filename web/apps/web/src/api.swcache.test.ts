@@ -153,6 +153,22 @@ describe("notifyServiceWorkerToInvalidateApiCache", () => {
 
     expect(marking.settled).toBe(true);
   });
+
+  it("leaves the worker's cache alone for a write that reaches nothing cached", async () => {
+    const controller = ackingController();
+    installController(controller);
+    const { api } = await loadApi();
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ metas: [] }), { status: 200, headers: { "Content-Type": "application/json" } })
+    );
+
+    await api.previewCollectionSource({ provider: "fetch", listId: "l1" } as never);
+    expect(controller.postMessage).not.toHaveBeenCalled();
+
+    vi.mocked(fetch).mockResolvedValue(new Response(null, { status: 204 }));
+    await api.markEpisodeWatched("tt1", 2, 3);
+    expect(controller.postMessage).toHaveBeenCalledWith({ type: "INVALIDATE_API_CACHE" }, expect.any(Array));
+  });
 });
 
 describe("onQueuedWritesReplayed", () => {
@@ -252,5 +268,32 @@ describe("onQueuedWritesReplayed", () => {
     stop();
 
     expect(worker.size()).toBe(0);
+  });
+});
+
+describe("the offline write queue on sign-out", () => {
+  it("asks the worker to drop the queued writes, which carry the old token", async () => {
+    const controller = ackingController();
+    installController(controller);
+    const { runtimeConfig } = await loadApi();
+    window.localStorage.setItem(runtimeConfig.tokenKey, "fs1_signed-in");
+
+    runtimeConfig.setToken("");
+
+    await vi.waitFor(() =>
+      expect(controller.postMessage).toHaveBeenCalledWith({ type: "CLEAR_WRITE_QUEUE" })
+    );
+  });
+
+  it("keeps them when signing in from signed out, when there is no one else's to drop", async () => {
+    const controller = ackingController();
+    installController(controller);
+    const { runtimeConfig } = await loadApi();
+    window.localStorage.removeItem(runtimeConfig.tokenKey);
+
+    runtimeConfig.setToken("fs1_new-session");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(controller.postMessage).not.toHaveBeenCalledWith({ type: "CLEAR_WRITE_QUEUE" });
   });
 });

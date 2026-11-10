@@ -193,7 +193,10 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
       const prefixes = invalidatedCachePrefixes(path);
       if (prefixes === null) invalidateMemoryCache();
       else for (const prefix of prefixes) invalidateCachePrefix(prefix);
-      await notifyServiceWorkerToInvalidateApiCache();
+      // The worker's cache can only be dropped whole, so a write that reaches
+      // nothing cached (a collection preview, an AI connection test) leaves it
+      // alone rather than costing every cached page a refetch.
+      if (prefixes === null || prefixes.length > 0) await notifyServiceWorkerToInvalidateApiCache();
     }
   }
 

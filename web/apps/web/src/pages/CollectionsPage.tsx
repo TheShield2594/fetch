@@ -693,6 +693,15 @@ export function CollectionsPage() {
   const dirty = saved !== null && JSON.stringify(saved) !== JSON.stringify(draft);
   const selected = draft.find((c) => c.id === selectedId) ?? null;
 
+  // A collection added since the last save goes with the discard; if it was
+  // the one open, the editor would otherwise show "No collections yet" beside
+  // a nav full of them.
+  const discard = () => {
+    if (!saved) return;
+    setDraft(saved);
+    if (!saved.some((c) => c.id === selectedId)) setSelectedId(saved[0]?.id ?? null);
+  };
+
   const save = async () => {
     setSaving(true);
     setSaveError(null);
@@ -728,7 +737,7 @@ export function CollectionsPage() {
         </div>
         <div className="flex items-center gap-2">
           {dirty && <span className="text-xs" style={{ color: "var(--text-mute)" }}>Unsaved changes</span>}
-          <button type="button" onClick={() => saved && setDraft(saved)} disabled={!dirty || saving} className="btn-secondary btn-sm">
+          <button type="button" onClick={discard} disabled={!dirty || saving} className="btn-secondary btn-sm">
             <RotateCcw size={14} /> Discard
           </button>
           <button type="button" onClick={save} disabled={!dirty || saving} className="btn-primary btn-sm">

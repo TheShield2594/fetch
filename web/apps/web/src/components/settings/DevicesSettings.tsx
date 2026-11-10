@@ -1,5 +1,5 @@
 import { type FormEvent, useCallback, useEffect, useState } from "react";
-import { AlertCircle, Check, Loader2, Tv, X } from "lucide-react";
+import { AlertCircle, Check, Loader2, Pencil, Tv, X } from "lucide-react";
 import { api, ApiError, type Device } from "../../api";
 import { useToast } from "../../hooks/useToast";
 import { timeAgo } from "../../utils/timeAgo";
@@ -97,9 +97,23 @@ export function PairingCodeForm({
   );
 }
 
-function DeviceRow({ device, onRevoked }: { device: Device; onRevoked: (id: string) => void }) {
+/** The API keeps the first 80 characters of a device name; the field says so up front. */
+const MAX_DEVICE_NAME_LENGTH = 80;
+
+function DeviceRow({
+  device,
+  onRevoked,
+  onRenamed,
+}: {
+  device: Device;
+  onRevoked: (id: string) => void;
+  onRenamed: (device: Device) => void;
+}) {
   const [confirming, setConfirming] = useState(false);
   const [revoking, setRevoking] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [draftName, setDraftName] = useState(device.name);
+  const [renaming, setRenaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const revoke = async () => {
@@ -114,41 +128,115 @@ function DeviceRow({ device, onRevoked }: { device: Device; onRevoked: (id: stri
     }
   };
 
+  const startEditing = () => {
+    setDraftName(device.name);
+    setError(null);
+    setConfirming(false);
+    setEditing(true);
+  };
+
+  const rename = async (e: FormEvent) => {
+    e.preventDefault();
+    const name = draftName.trim();
+    if (!name) return;
+    if (name === device.name) {
+      setEditing(false);
+      return;
+    }
+    setRenaming(true);
+    setError(null);
+    try {
+      const { device: updated } = await api.renameDevice(device.id, name);
+      onRenamed(updated);
+      setEditing(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not rename this device.");
+    } finally {
+      setRenaming(false);
+    }
+  };
+
   return (
     <li className="rounded-xl border px-3 py-2.5" style={{ borderColor: "var(--border)", background: "var(--bg-1)" }}>
       <div className="flex items-center gap-3">
         <Tv size={18} className="flex-none" style={{ color: "var(--text-mute)" }} />
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium" style={{ color: "var(--text)" }}>{device.name}</p>
-          <p className="text-xs" style={{ color: "var(--text-mute)" }}>
-            {device.lastSeenAt ? `Last seen ${timeAgo(device.lastSeenAt)}` : "Not seen since pairing"} · paired{" "}
-            {new Date(device.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-        {confirming ? (
-          <div className="flex flex-none items-center gap-1">
-            <button type="button" onClick={revoke} disabled={revoking} className="btn-danger btn-sm">
-              {revoking ? <Loader2 size={14} className="animate-spin" /> : null} Sign out
+        {editing ? (
+          <form onSubmit={rename} className="flex min-w-0 flex-1 items-center gap-1">
+            <input
+              // eslint-disable-next-line jsx-a11y/no-autofocus -- opened by the Rename button, so focus belongs here
+              autoFocus
+              value={draftName}
+              onChange={(e) => setDraftName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  e.stopPropagation();
+                  setEditing(false);
+                }
+              }}
+              maxLength={MAX_DEVICE_NAME_LENGTH}
+              aria-label={`New name for ${device.name}`}
+              className={INPUT}
+              style={INPUT_STYLE}
+            />
+            <button type="submit" disabled={renaming || !draftName.trim()} aria-label="Save name" className="btn-secondary btn-sm flex-none">
+              {renaming ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
             </button>
             <button
               type="button"
-              onClick={() => setConfirming(false)}
-              aria-label="Keep this device"
+              onClick={() => setEditing(false)}
+              aria-label="Cancel renaming"
               className="rounded-lg p-1.5 hover:bg-[var(--surface-strong)]"
               style={{ color: "var(--text-mute)" }}
             >
               <X size={16} />
             </button>
-          </div>
+          </form>
         ) : (
-          <button
-            type="button"
-            onClick={() => setConfirming(true)}
-            aria-label={`Revoke ${device.name}`}
-            className="btn-secondary btn-sm flex-none"
-          >
-            Revoke
-          </button>
+          <>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium" style={{ color: "var(--text)" }}>{device.name}</p>
+              <p className="text-xs" style={{ color: "var(--text-mute)" }}>
+                {device.lastSeenAt ? `Last seen ${timeAgo(device.lastSeenAt)}` : "Not seen since pairing"} · paired{" "}
+                {new Date(device.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+            {confirming ? (
+              <div className="flex flex-none items-center gap-1">
+                <button type="button" onClick={revoke} disabled={revoking} className="btn-danger btn-sm">
+                  {revoking ? <Loader2 size={14} className="animate-spin" /> : null} Sign out
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirming(false)}
+                  aria-label="Keep this device"
+                  className="rounded-lg p-1.5 hover:bg-[var(--surface-strong)]"
+                  style={{ color: "var(--text-mute)" }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-none items-center gap-1">
+                <button
+                  type="button"
+                  onClick={startEditing}
+                  aria-label={`Rename ${device.name}`}
+                  className="rounded-lg p-1.5 hover:bg-[var(--surface-strong)]"
+                  style={{ color: "var(--text-mute)" }}
+                >
+                  <Pencil size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirming(true)}
+                  aria-label={`Revoke ${device.name}`}
+                  className="btn-secondary btn-sm"
+                >
+                  Revoke
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
       {error && <p role="alert" className="mt-1.5 text-xs text-danger">{error}</p>}
@@ -213,6 +301,7 @@ export function DevicesSettings() {
                 setDevices((prev) => prev.filter((d) => d.id !== id));
                 showToast(`${device.name} was signed out`);
               }}
+              onRenamed={(updated) => setDevices((prev) => prev.map((d) => (d.id === updated.id ? updated : d)))}
             />
           ))}
         </ul>

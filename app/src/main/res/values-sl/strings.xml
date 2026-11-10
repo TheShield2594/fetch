@@ -241,7 +241,6 @@
     <string name="detail_comments_back_hint">Kliknite nazaj za zapiranje</string>
     <string name="detail_comments_badge_review">Ocena</string>
     <string name="detail_comments_badge_spoiler">Spoiler (Kvarnik)</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d všečkov</string>
     <string name="tmdb_entity_kind_company">Produkcijska hiša</string>
     <string name="tmdb_entity_kind_network">Televizijska mreža</string>
@@ -330,7 +329,6 @@
     <string name="licenses_attributions_section_app">LICENCA APLIKACIJE</string>
     <string name="licenses_attributions_section_data">PODATKI IN STORITVE</string>
     <string name="licenses_attributions_section_playback">LICENCE ZA PREDVAJANJE V ANDROIDU</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
        <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch uporablja API TMDB za metapodatke o filmih in TV serijah, naslovnice, napovednike, igralsko zasedbo, podrobnosti o produkciji, zbirke in priporočila. Ta izdelek uporablja API TMDB, vendar ni odobren ali certificiran s strani TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
@@ -439,7 +437,6 @@
     <string name="playback_player_external">Zunanji</string>
     <string name="playback_player_ask">Vprašaj vsakič</string>
 	<string name="playback_internal_player_engine">Predvajalnik</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Samodejno preklopi predvajalnik ob napaki pri zagonu</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Če zagon vira ne uspe, samodejno preklopi med ExoPlayer in libmpv.</string>																	   
@@ -1245,7 +1242,6 @@
     <string name="cd_refresh">Osveži</string>
     <string name="cd_remove">Odstrani</string>
     <string name="cd_preview">Predogled</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logotip Trakt</string>
     <string name="cd_trakt_qr">QR za aktivacijo Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1445,13 +1441,8 @@
     <string name="collections_editor_tmdb_person_placeholder">31 za Toma Hanksa, ali URL osebe</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ali 123456</string>
     <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

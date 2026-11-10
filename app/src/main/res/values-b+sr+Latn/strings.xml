@@ -159,7 +159,6 @@
         <item quantity="other">Prikazuje se za %d dana</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Danas</string>
     <string name="cw_airs_tomorrow_short">Sutra</string>
     <plurals name="cw_airs_in_days_short">
@@ -253,7 +252,6 @@
     <string name="detail_comments_back_hint">Kliknite nazad za zatvaranje</string>
     <string name="detail_comments_badge_review">Recenzija</string>
     <string name="detail_comments_badge_spoiler">Spojler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d sviđanja</string>
     <string name="tmdb_entity_kind_company">Produkcijska kuća</string>
     <string name="tmdb_entity_kind_network">Mreža</string>
@@ -266,10 +264,8 @@
     <string name="collections_editor_tmdb_quick_watch_regions">Brzi regioni gledanja</string>
     <string name="collections_editor_tmdb_watch_providers">ID-ovi provajdera gledanja</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Koristite TMDB ID-ove provajdera. Odvojite više stavki zarezom za I, ili uspravnom crtom za ILI.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">Isključeni ID-ovi provajdera gledanja</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Isključite naslove dostupne kod ovih TMDB provajdera u izabranom regionu.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Brzi provajderi gledanja</string>
     <string name="tmdb_error_load_source">Nije moguće učitati TMDB izvor</string>
     <string name="tmdb_error_list_not_found">TMDB lista nije pronađena</string>
@@ -404,12 +400,10 @@
     <string name="licenses_attributions_section_app">LICENCA APLIKACIJE</string>
     <string name="licenses_attributions_section_data">PODACI I USLUGE</string>
     <string name="licenses_attributions_section_playback">ANDROID LICENCE ZA REPRODUKCIJU</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch koristi TMDB API za metapodatke o filmovima i TV serijama, grafiku, trejlere, glumačku ekipu, detalje o produkciji, kolekcije i preporuke. Ovaj proizvod koristi TMDB API, ali nije podržan niti sertifikovan od strane TMDB-a.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch se povezuje sa Trakt-om radi autentifikacije naloga, istorije gledanja, sinhronizacije napretka, podataka biblioteke, ocena, lista i komentara. Fetch nije povezan niti podržan od strane Trakt-a.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch se povezuje sa Simkl-om radi autentifikacije naloga, lista gledanja, istorije gledanja, napretka reprodukcije i skrobovanja. Podatke o praćenju filmova, TV-a i animesa obezbeđuje Simkl. Fetch nije povezan niti podržan od strane Simkl-a.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch koristi MDBList za ocene i podatke eksternih provajdera rezulata. Fetch nije povezan niti podržan od strane MDBList-a.</string>
@@ -455,8 +449,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">Izaberite uslugu koju Fetch čita za nastavak i Nastavak gledanja. Skrobovanje ostaje aktivno za svaku povezanu uslugu.</string>
     <string name="tracking_library_source_dialog_subtitle">Izaberite uslugu koju Fetch čita za vašu Biblioteku. Reprodukcija se skrobluje na svaku povezanu uslugu.</string>
     <string name="tracking_trakt_progress_required">Dostupno kada je Trakt izvor napretka gledanja</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Napredno</string>
     <string name="settings_advanced_subtitle">Performanse, navigacija, keš i dijagnostika</string>
     <string name="experience_mode_essential">Osnovno</string>
@@ -556,7 +548,6 @@
     <string name="playback_player_external">Eksterni</string>
     <string name="playback_player_ask">Pitaj svaki put</string>
     <string name="playback_internal_player_engine">Interni mehanizam</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Automatski promeni mehanizam pri grešci pokretanja</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Ako pokretanje strima ne uspe, automatski prebaci između ExoPlayer-a i libmpv-a.</string>
@@ -1609,7 +1600,6 @@
     <string name="cd_refresh">Osveži</string>
     <string name="cd_remove">Ukloni</string>
     <string name="cd_preview">Pregled</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt logotip</string>
     <string name="cd_trakt_qr">QR kod za Trakt aktivaciju</string>
     <string name="cd_imdb">IMDb</string>
@@ -1813,14 +1803,9 @@
     <string name="collections_editor_tmdb_person_placeholder">31 za Tom Hanks-a ili URL osobe</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ili 123456</string>
     <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 za animaciju</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1882,9 +1867,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Filmovi sa Tomom Henksom, Omiljeni glumci</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Filmovi Kristofera Nolana, Omiljeni režiseri</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 za superheroja</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 za Marvel Studios</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 za Netflix</string>
     <string name="folder_detail_not_found">Fascikla nije pronađena</string>
     <string name="cast_error_load_details_for">Nije bilo moguće učitati detalje za %1$s</string>

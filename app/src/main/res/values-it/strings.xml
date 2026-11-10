@@ -159,7 +159,6 @@
         <item quantity="other">In onda tra %d giorni</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-<string name="cw_airs_date_short">%1$s</string>
 <string name="cw_airs_today_short">Oggi</string>
 <string name="cw_airs_tomorrow_short">Domani</string>
     <plurals name="cw_airs_in_days_short">
@@ -251,7 +250,6 @@
 <string name="detail_comments_back_hint">Premi indietro per chiudere</string>
 <string name="detail_comments_badge_review">Recensione</string>
 <string name="detail_comments_badge_spoiler">Spoiler</string>
-<string name="detail_comments_badge_rating">%1$d/10</string>
 <string name="detail_comments_likes">%1$d mi piace</string>
 <string name="tmdb_entity_kind_company">Casa di produzione</string>
 <string name="tmdb_entity_kind_network">Rete</string>
@@ -264,10 +262,8 @@
 <string name="collections_editor_tmdb_quick_watch_regions">Paesi di visione rapidi</string>
 <string name="collections_editor_tmdb_watch_providers">ID fornitori di visione</string>
 <string name="collections_editor_tmdb_watch_providers_helper">Usa gli ID fornitore di TMDB. Separa con una virgola per la condizione \"E\" (AND), o con una barra verticale per \"O\" (OR).</string>
-<string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
 <string name="collections_editor_tmdb_without_watch_providers">ID provider di visione esclusi</string>
 <string name="collections_editor_tmdb_without_watch_providers_helper">Escludi i titoli disponibili tramite questi numeri di provider di visione TMDB nella regione selezionata.</string>
-<string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
 <string name="collections_editor_tmdb_quick_watch_providers">Fornitori di visione rapidi</string>
 <string name="tmdb_error_load_source">Impossibile caricare la sorgente TMDB</string>
 <string name="tmdb_error_list_not_found">Lista TMDB non trovata</string>
@@ -380,12 +376,10 @@
 <string name="licenses_attributions_section_app">LICENZA APP</string>
 <string name="licenses_attributions_section_data">DATI E SERVIZI</string>
 <string name="licenses_attributions_section_playback">LICENZE DI RIPRODUZIONE ANDROID</string>
-<string name="licenses_attributions_fetch_title">Fetch</string>
 <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
 <string name="licenses_attributions_tmdb_body">Fetch utilizza l\'API di TMDB per metadati di film e serie TV, locandine, trailer, cast, dettagli di produzione, collezioni e raccomandazioni. Questo prodotto utilizza l\'API di TMDB ma non è approvato o certificato da TMDB.</string>
 <string name="licenses_attributions_trakt_title">Trakt</string>
 <string name="licenses_attributions_trakt_body">Fetch si connette a Trakt per l\'autenticazione dell\'account, la cronologia di visione, la sincronizzazione dei progressi, i dati della libreria, le valutazioni, le liste e i commenti. Fetch non è affiliato né approvato da Trakt.</string>
-<string name="licenses_attributions_simkl_title">Simkl</string>
 <string name="licenses_attributions_simkl_body">Fetch si collega a Simkl per l\'autenticazione dell\'account, le watchlist, la cronologia visti, i progressi di riproduzione e lo scrobbling. I dati di tracciamento di film, serie TV e anime sono forniti da Simkl. Fetch non è affiliata né approvata da Simkl.</string>
 <string name="licenses_attributions_mdblist_title">MDBList</string>
 <string name="licenses_attributions_mdblist_body">Fetch utilizza MDBList per le valutazioni e i dati di fornitori esterni. Fetch non è affiliato né approvato da MDBList.</string>
@@ -431,8 +425,6 @@
 <string name="tracking_watch_progress_dialog_subtitle">Scegli il servizio da cui Fetch legge la ripresa e Continua a guardare. Lo scrobbling resta attivo per ogni servizio collegato.</string>
 <string name="tracking_library_source_dialog_subtitle">Scegli il servizio da cui Fetch legge la tua Libreria. La riproduzione viene sincronizzata (scrobbling) su ogni servizio collegato.</string>
 <string name="tracking_trakt_progress_required">Disponibile quando Trakt è la fonte dei progressi di visione</string>
-<string name="trakt_name">Trakt</string>
-<string name="simkl_name">Simkl</string>
 <string name="settings_advanced">Avanzate</string>
 <string name="settings_advanced_subtitle">Esegui diagnostica velocità di rete</string>
 <string name="experience_mode_essential">Essenziale</string>
@@ -532,7 +524,6 @@
 <string name="playback_player_external">Esterno</string>
 <string name="playback_player_ask">Chiedi ogni volta</string>
 <string name="playback_internal_player_engine">Motore Interno</string>
-<string name="playback_engine_exoplayer">ExoPlayer</string>
 <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
 <string name="playback_auto_switch_internal_player_on_error">Cambio motore automatico su errore di avvio</string>
 <string name="playback_auto_switch_internal_player_on_error_sub">Se l\'avvio del flusso fallisce, passa automaticamente tra ExoPlayer e libmpv.</string>
@@ -1581,7 +1572,6 @@
 <string name="cd_refresh">Aggiorna</string>
 <string name="cd_remove">Rimuovi</string>
 <string name="cd_preview">Anteprima</string>
-<string name="cd_fetch_logo">Fetch</string>
 <string name="cd_trakt_logo">Logo Trakt</string>
 <string name="cd_trakt_qr">QR attivazione Trakt</string>
 <string name="cd_imdb">IMDb</string>
@@ -1785,14 +1775,9 @@
 <string name="collections_editor_tmdb_person_placeholder">31 per Tom Hanks o URL persona</string>
 <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 o 123456</string>
 <string name="collections_editor_url_short_placeholder">https://…</string>
-<string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-<string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
 <string name="collections_editor_tmdb_without_genres_placeholder">16 per Animazione</string>
 <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
 <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-<string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-<string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-<string name="collections_editor_tmdb_votes_min_placeholder">100</string>
 <string name="collections_editor_tmdb_language_placeholder">it, en, ko, ja</string>
 <string name="collections_editor_tmdb_country_placeholder">IT, US, KR, JP</string>
 <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1854,9 +1839,7 @@
 <string name="collections_editor_tmdb_person_title_placeholder">Film con Tom Hanks, Attori preferiti</string>
 <string name="collections_editor_tmdb_director_title_placeholder">Film di Christopher Nolan, Registi preferiti</string>
 <string name="collections_editor_tmdb_keywords_placeholder">9715 per supereroi</string>
-<string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
 <string name="collections_editor_tmdb_companies_placeholder">420 per Marvel Studios</string>
-<string name="collections_editor_tmdb_without_companies_placeholder">420</string>
 <string name="collections_editor_tmdb_networks_placeholder">213 per Netflix</string>
 <string name="folder_detail_not_found">Cartella non trovata</string>
 <string name="cast_error_load_details_for">Impossibile caricare i dettagli per %1$s</string>
@@ -2363,7 +2346,6 @@
     <string name="web_custom_poster_none">Nessuno schema configurato</string>
     <string name="web_custom_poster_loading">Caricamento\u2026</string>
     <string name="web_custom_poster_placeholders_info">Segnaposto: {id} include tutti gli ID dei contenuti. {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} indicano un singolo tipo di ID: se non disponibile, viene mantenuta la locandina originale. {imdb_id|tmdb_id|kitsu_id} dichiara i tipi di ID supportati: viene usato quello corrispondente, altrimenti viene mantenuta la locandina originale. Aggiungi ? per rendere facoltativo un segnaposto: verrà sostituito con un valore vuoto invece di interrompere la ricerca ({imdb_id?}). Altri segnaposto: {id_type}, {typed_id}, {type}, {shape}.</string>
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">Sincronizza la cronologia di visione e i progressi di riproduzione tra i dispositivi.</string>
     <string name="mdblist_connected_as">Connesso come %1$s</string>
     <string name="mdblist_account_fallback">Utente MDBList</string>
@@ -2395,7 +2377,6 @@
     <string name="mdblist_library_lists_summary">%1$d su %2$d visualizzate</string>
     <string name="tracking_mdblist_features_title">Funzioni MDBList</string>
     <string name="tracking_mdblist_features_subtitle">Impostazioni specifiche di MDBList</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
     <string name="youtube_resolving_stream">Caricamento del video YouTube</string>
     <string name="youtube_resolution_failed">Impossibile caricare questo video di YouTube.</string>
     <string name="player_switch_to_mpv">Passa al lettore MPV</string>

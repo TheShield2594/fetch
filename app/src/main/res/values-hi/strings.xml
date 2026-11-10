@@ -63,7 +63,6 @@
         <item quantity="other">%d दिनों में प्रसारित होगा</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">आज</string>
     <string name="cw_airs_tomorrow_short">कल</string>
     <plurals name="cw_airs_in_days_short">

@@ -155,7 +155,6 @@
         <item quantity="other">Estreia daqui a %d dias</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Hoje</string>
     <string name="cw_airs_tomorrow_short">Amanhã</string>
     <plurals name="cw_airs_in_days_short">
@@ -241,7 +240,6 @@
     <string name="detail_comments_back_hint">Carrega em Voltar para fechar.</string>
     <string name="detail_comments_badge_review">Crítica</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d gostos</string>
     <string name="tmdb_entity_kind_company">Produtora</string>
     <string name="tmdb_entity_kind_network">Canal/Plataforma</string>
@@ -254,7 +252,6 @@
     <string name="collections_editor_tmdb_quick_watch_regions">Regiões rápidas</string>
     <string name="collections_editor_tmdb_watch_providers">IDs dos serviços</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Utiliza os IDs dos serviços do TMDB. Separa vários com vírgulas para \"E\", ou com barras verticais para \"OU\".</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Serviços rápidos</string>
     <string name="tmdb_error_load_source">Não foi possível carregar a fonte TMDB</string>
     <string name="tmdb_error_list_not_found">Lista TMDB não encontrada</string>
@@ -334,7 +331,6 @@
     <string name="licenses_attributions_section_app">LICENÇA DA APP</string>
     <string name="licenses_attributions_section_data">DADOS E SERVIÇOS</string>
     <string name="licenses_attributions_section_playback">LICENÇAS DE REPRODUÇÃO ANDROID</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">O Fetch utiliza a API do TMDB para metadados de filmes e séries, imagens, trailers, elenco, detalhes de produção, coleções e recomendações. Este produto utiliza a API do TMDB, mas não é endossado nem certificado pelo TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
@@ -447,7 +443,6 @@
     <string name="playback_player_external">Externo</string>
     <string name="playback_player_ask">Perguntar sempre</string>
     <string name="playback_internal_player_engine">Motor interno</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Mudar automaticamente de motor em caso de erro ao iniciar</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Se o início do stream falhar, alterna entre o ExoPlayer e a libmpv automaticamente.</string>
@@ -1314,7 +1309,6 @@
     <string name="cd_refresh">Atualizar</string>
     <string name="cd_remove">Remover</string>
     <string name="cd_preview">Visualização</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logótipo do Trakt</string>
     <string name="cd_trakt_qr">QR de ativação do Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1508,13 +1502,8 @@
     <string name="collections_editor_tmdb_person_placeholder">31 para Tom Hanks ou URL da pessoa</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ou 123456</string>
     <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

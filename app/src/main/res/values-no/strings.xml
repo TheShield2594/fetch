@@ -69,7 +69,6 @@
         <item quantity="other">Sendes om %d dager</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">I dag</string>
     <string name="cw_airs_tomorrow_short">I morgen</string>
     <plurals name="cw_airs_in_days_short">
@@ -151,7 +150,6 @@
     <string name="detail_comments_back_hint">Klikk tilbake for å lukke</string>
     <string name="detail_comments_badge_review">Anmeldelse</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d liker</string>
     <string name="tmdb_entity_kind_company">Produksjonsfirma</string>
     <string name="tmdb_entity_kind_network">Nettverk</string>

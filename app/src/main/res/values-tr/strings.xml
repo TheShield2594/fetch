@@ -162,7 +162,6 @@
         <item quantity="other">Yayın tarihi: %d gün sonra</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Bugün</string>
     <string name="cw_airs_tomorrow_short">Yarın</string>
     <plurals name="cw_airs_in_days_short">
@@ -267,7 +266,6 @@
     <string name="detail_comments_back_hint">Kapatmak için geri tuşuna basın</string>
     <string name="detail_comments_badge_review">İnceleme</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d beğeni</string>
     <string name="tmdb_entity_kind_company">Yapım Şirketi</string>
     <string name="tmdb_entity_kind_network">Kanal</string>
@@ -426,12 +424,10 @@
     <string name="licenses_attributions_section_app">UYGULAMA LİSANSI</string>
     <string name="licenses_attributions_section_data">VERİ VE HİZMETLER</string>
     <string name="licenses_attributions_section_playback">ANDROID OYNATMA LİSANSLARI</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch, film ve dizi meta verileri, görseller, fragmanlar, oyuncular, yapım detayları, koleksiyonlar ve öneriler için TMDB API\'sini kullanır. Bu ürün TMDB API\'sini kullanır ancak TMDB tarafından onaylanmamıştır veya sertifikalandırılmamıştır.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch, hesap doğrulama, izleme geçmişi, ilerleme senkronizasyonu, kütüphane verileri, puanlar, listeler ve yorumlar için Trakt\'a bağlanır. Fetch Trakt ile bağlantılı veya onaylanmış değildir.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch; hesap doğrulama, izleme listeleri, izleme geçmişi, oynatma ilerlemesi ve scrobbling için Simkl\'a bağlanır. Film, dizi ve anime takip verileri Simkl tarafından sağlanır. Fetch, Simkl ile bağlantılı veya onaylanmış değildir.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch, puanlar ve harici skor sağlayıcı verileri için MDBList\'i kullanır. Fetch MDBList ile bağlantılı veya onaylanmış değildir.</string>
@@ -478,8 +474,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">Fetch\'in devam etme ve İzlemeye Devam Et için okuyacağı servisi seç. Scrobbling bağlı tüm servislerde açık kalır.</string>
     <string name="tracking_library_source_dialog_subtitle">Fetch\'in Kütüphane için okuyacağı servisi seç. Oynatma, bağlı tüm servislere scrobble edilir.</string>
     <string name="tracking_trakt_progress_required">İzleme İlerlemesi kaynağı Trakt olduğunda kullanılabilir</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Gelişmiş</string>
     <string name="settings_advanced_subtitle">Ağ hızı tanılaması çalıştır</string>
 
@@ -611,7 +605,6 @@
     <string name="playback_player_external">Harici</string>
     <string name="playback_player_ask">Her seferinde sor</string>
     <string name="playback_internal_player_engine">Dahili Oynatıcı Motoru</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Başlangıç hatasında motoru otomatik değiştir</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Yayın başlarken hata olursa ExoPlayer ile libmpv arasında otomatik geçiş yap.</string>
@@ -951,7 +944,6 @@
     <string name="web_custom_poster_none">Şablon ayarlanmadı</string>
     <string name="web_custom_poster_loading">Yükleniyor…</string>
     <string name="web_custom_poster_placeholders_info">Yer tutucular: {id} tüm içerik kimliklerini iletir. {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} tek bir kimlik türünü hedefler — kullanılamıyorsa orijinal poster korunur. {imdb_id|tmdb_id|kitsu_id} desteklenen kimlik türlerini belirtir — eşleşen kullanılır, aksi halde orijinal poster korunur. Bir yer tutucuyu isteğe bağlı yapmak için ? ekleyin (atlanmak yerine boş bırakılır): {imdb_id?}. Diğer yer tutucular: {id_type}, {typed_id}, {type}, {shape}.</string>
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">İzleme geçmişini ve oynatma ilerlemesini cihazlar arasında eşitler</string>
     <string name="mdblist_connected_as">%1$s olarak bağlı</string>
     <string name="mdblist_account_fallback">MDBList kullanıcısı</string>
@@ -1916,7 +1908,6 @@
     <string name="cd_refresh">Yenile</string>
     <string name="cd_remove">Kaldır</string>
     <string name="cd_preview">Önizle</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt logosu</string>
     <string name="cd_trakt_qr">Trakt etkinleştirme QR kodu</string>
     <string name="cd_simkl_qr">Simkl etkinleştirme QR kodu</string>
@@ -2134,14 +2125,9 @@
     <string name="collections_editor_tmdb_person_placeholder">31 - Tom Hanks veya kişi URL\'si</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 veya 123456</string>
     <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">Animasyon için 16</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -2193,9 +2179,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Filmleri, Favori Oyuncular</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Christopher Nolan Filmleri, Favori Yönetmenler</string>
     <string name="collections_editor_tmdb_keywords_placeholder">Süper kahraman için 9715</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">Marvel Studios için 420</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">Netflix için 213</string>
     <string name="folder_detail_not_found">Klasör bulunamadı</string>
     <string name="cast_error_load_details_for">%1$s detayları yüklenemedi</string>
@@ -2224,10 +2208,8 @@
     <string name="collections_editor_tmdb_quick_watch_regions">Hızlı bölge seçimi</string>
     <string name="collections_editor_tmdb_watch_providers">İzleme platformu kimlikleri</string>
     <string name="collections_editor_tmdb_watch_providers_helper">TMDB platform kimliklerini kullanın. VE işlevi için virgülle, VEYA işlevi için dikey çizgiyle ayırın.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">Hariç tutulan platform kimlikleri</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Seçilen bölgede bu TMDB platform kimliklerinde bulunan yapımları hariç tutun.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Hızlı platform seçimi</string>
     <string name="collections_editor_tmdb_network_placeholder_example">Netflix için 213, HBO için 49, Disney+ için 2739</string>
     <string name="collections_editor_tmdb_collection_placeholder_example">Star Wars Koleksiyonu için 10</string>
@@ -2370,7 +2352,6 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">Detay sayfalarında gösterilen öneriler için kaynağı seçin.</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
 
     <!-- Detail / poster options errors -->
     <string name="detail_error_update_library_failed">Kütüphaneniz güncellenemedi. Bağlantınızı kontrol edip tekrar deneyin.</string>

@@ -162,7 +162,7 @@
         <item quantity="other">Airs in %d Days</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
+    <string name="cw_airs_date_short" translatable="false">%1$s</string>
     <string name="cw_airs_today_short">Today</string>
     <string name="cw_airs_tomorrow_short">Tomorrow</string>
     <plurals name="cw_airs_in_days_short">
@@ -266,7 +266,7 @@
     <string name="detail_comments_back_hint">Press Back to close</string>
     <string name="detail_comments_badge_review">Review</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
+    <string name="detail_comments_badge_rating" translatable="false">%1$d/10</string>
     <string name="detail_comments_likes">%1$d likes</string>
     <string name="tmdb_entity_kind_company">Production Company</string>
     <string name="tmdb_entity_kind_network">Network</string>
@@ -279,10 +279,10 @@
     <string name="collections_editor_tmdb_quick_watch_regions">Quick watch regions</string>
     <string name="collections_editor_tmdb_watch_providers">Watch provider IDs</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Use TMDB watch provider IDs. Separate multiple with commas for AND, or pipes for OR.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
+    <string name="collections_editor_tmdb_watch_providers_placeholder" translatable="false">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">Excluded watch provider IDs</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Exclude titles available from these TMDB watch provider numbers in the selected region.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
+    <string name="collections_editor_tmdb_without_watch_providers_placeholder" translatable="false">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Quick watch providers</string>
     <string name="tmdb_error_load_source">Could not load TMDB source</string>
     <string name="tmdb_error_list_not_found">TMDB list not found</string>
@@ -498,13 +498,13 @@
     <string name="licenses_attributions_license_format">Licensed under the %1$s.</string>
     <string name="licenses_attributions_section_texts">FULL LICENSE TEXTS</string>
     <string name="licenses_attributions_license_text_body">The full text of this license, which applies to the libraries above that name it.</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
+    <string name="licenses_attributions_fetch_title" translatable="false">Fetch</string>
     <string name="licenses_attributions_fetch_body">Fetch is free software under the GNU General Public License v3.0. It is a fork of NuvioTV by the Nuvio contributors (github.com/NuvioMedia/NuvioTV), whose work makes up most of this app.</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch uses the TMDB API for movie and TV metadata, artwork, trailers, cast, production details, collections, and recommendations. This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch connects to Trakt for account authentication, watched history, progress sync, library data, ratings, lists, and comments. Fetch is not affiliated with or endorsed by Trakt.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
+    <string name="licenses_attributions_simkl_title" translatable="false">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch connects to Simkl for account authentication, watchlists, watched history, playback progress, and scrobbling. Movie, TV, and anime tracking data is provided by Simkl. Fetch is not affiliated with or endorsed by Simkl.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch uses MDBList for ratings, watched history and playback tracking. Fetch is not affiliated with or endorsed by MDBList.</string>
@@ -587,8 +587,8 @@
     <string name="tracking_watch_progress_dialog_subtitle">Choose the service Fetch reads for resume and Continue Watching. Scrobbling remains active for every connected service.</string>
     <string name="tracking_library_source_dialog_subtitle">Choose the service Fetch reads for your Library. Playback scrobbles to every connected service.</string>
     <string name="tracking_trakt_progress_required">Available when Trakt is the Watch Progress source</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
+    <string name="trakt_name" translatable="false">Trakt</string>
+    <string name="simkl_name" translatable="false">Simkl</string>
     <string name="settings_advanced">Advanced settings</string>
     <string name="settings_tabs_addons">Addons &amp; servers</string>
     <string name="settings_tabs_metadata">Metadata &amp; ratings</string>
@@ -730,7 +730,7 @@
     <string name="playback_player_external">External</string>
     <string name="playback_player_ask">Ask every time</string>
     <string name="playback_internal_player_engine">Internal Engine</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
+    <string name="playback_engine_exoplayer" translatable="false">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Auto-switch engine on startup error</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">If stream startup fails, switch between ExoPlayer and libmpv automatically.</string>
@@ -1098,7 +1098,7 @@
     <string name="web_custom_poster_placeholders_info">Placeholders: {id} passes all content IDs. {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} target a single ID type - if unavailable, the original poster is kept. {imdb_id|tmdb_id|kitsu_id} declares supported ID types - the matching one is used, or the original poster is kept. Add ? to make a placeholder optional, resolving to empty instead of skipping: {imdb_id?}. Other placeholders: {id_type}, {typed_id}, {type}, {shape}. Landscape cards only get custom art when the pattern contains {shape}.</string>
 
 
-    <string name="mdblist_name">MDBList</string>
+    <string name="mdblist_name" translatable="false">MDBList</string>
     <string name="mdblist_tracking_description">Sync watched history and playback progress across devices</string>
     <string name="mdblist_connected_as">Connected as %1$s</string>
     <string name="mdblist_account_fallback">MDBList user</string>
@@ -1246,7 +1246,7 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">Select the source for recommendations shown on detail and post-play screens.</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
+    <string name="trakt_more_like_this_source_simkl" translatable="false">Simkl</string>
     <string name="trakt_cached_label">Cached</string>
     <string name="trakt_stat_movies">Movies</string>
     <string name="trakt_stat_shows">Shows</string>
@@ -1627,13 +1627,13 @@
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <!-- Two parts of a player metadata line, e.g. "S1 E2 · Pilot" or "AAC · 6 ch". One separator for every player overlay. -->
-    <string name="player_meta_line">%1$s · %2$s</string>
+    <string name="player_meta_line" translatable="false">%1$s · %2$s</string>
     <!-- Audio channel count on an audio track, e.g. "6 ch". %1$d = channels. -->
     <string name="audio_channels">%1$d ch</string>
     <!-- Audio sample rate, e.g. "48 kHz". %1$d = kilohertz. -->
     <string name="audio_sample_rate_khz">%1$d kHz</string>
     <!-- A playback speed, e.g. "1.5×". %1$s = the speed. -->
-    <string name="playback_speed_value">%1$s×</string>
+    <string name="playback_speed_value" translatable="false">%1$s×</string>
     <!-- A display refresh rate, e.g. "23.976 Hz". %1$s = the rate. -->
     <string name="display_refresh_hz">%1$s Hz</string>
     <string name="player_subtitle_delay">Subtitles Delay</string>
@@ -1926,7 +1926,7 @@
     <string name="library_list_privacy_link">Anyone with the link</string>
     <string name="library_list_privacy_friends">Friends</string>
     <string name="library_list_privacy_public">Public</string>
-    <string name="library_filter_option_count">%1$s (%2$d)</string>
+    <string name="library_filter_option_count" translatable="false">%1$s (%2$d)</string>
     <string name="library_action_connect_provider">Connect %1$s</string>
     <string name="library_action_search_titles">Search for titles</string>
     <string name="library_empty_filtered_title">Nothing matches these filters</string>
@@ -2160,7 +2160,7 @@
     <string name="cd_refresh">Refresh</string>
     <string name="cd_remove">Remove</string>
     <string name="cd_preview">Preview</string>
-    <string name="cd_fetch_logo">Fetch</string>
+    <string name="cd_fetch_logo" translatable="false">Fetch</string>
     <string name="cd_trakt_logo">Trakt Logo</string>
     <string name="cd_trakt_qr">Trakt activation QR</string>
     <string name="cd_imdb">IMDb</string>
@@ -2378,14 +2378,14 @@
     <string name="collections_editor_tmdb_person_placeholder">31 for Tom Hanks, or person URL</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 or 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
+    <string name="collections_editor_tmdb_genres_movie_placeholder" translatable="false">28,12</string>
+    <string name="collections_editor_tmdb_genres_tv_placeholder" translatable="false">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 for Animation</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_tmdb_rating_min_placeholder" translatable="false">7.0</string>
+    <string name="collections_editor_tmdb_rating_max_placeholder" translatable="false">10</string>
+    <string name="collections_editor_tmdb_votes_min_placeholder" translatable="false">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -2449,9 +2449,9 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Movies, Favorite Actors</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Christopher Nolan Movies, Favorite Directors</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 for superhero</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
+    <string name="collections_editor_tmdb_without_keywords_placeholder" translatable="false">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 for Marvel Studios</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
+    <string name="collections_editor_tmdb_without_companies_placeholder" translatable="false">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 for Netflix</string>
     <string name="folder_detail_not_found">Folder not found</string>
     <string name="collections_editor_folder_required">Add at least one folder, then save.</string>
@@ -3252,7 +3252,7 @@
     <string name="youtube_options_speed">Speed</string>
     <string name="youtube_options_chapters">Chapters</string>
     <string name="youtube_speed_normal">Normal</string>
-    <string name="youtube_speed_value">%1$s×</string>
+    <string name="youtube_speed_value" translatable="false">%1$s×</string>
     <string name="youtube_votes">%1$s likes · %2$s dislikes</string>
     <string name="youtube_playlist_position">%1$s · %2$d of %3$d</string>
     <string name="youtube_up_next_in_playlist">Next in %1$s</string>

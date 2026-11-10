@@ -128,7 +128,6 @@
         <item quantity="other">Выходит через %d дней</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Сегодня</string>
     <string name="cw_airs_tomorrow_short">Завтра</string>
     <plurals name="cw_airs_in_days_short">
@@ -216,7 +215,6 @@
     <string name="detail_comments_back_hint">Нажмите Назад, чтобы закрыть</string>
     <string name="detail_comments_badge_review">Отзыв</string>
     <string name="detail_comments_badge_spoiler">Спойлер</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">Лайков: %1$d</string>
     <string name="tmdb_entity_kind_company">Производственная компания</string>
     <string name="tmdb_entity_kind_network">Телесеть</string>
@@ -316,8 +314,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">Выберите сервис, из которого Fetch считывает продолжение просмотра и раздел «Продолжить просмотр». Скробблинг остаётся активным для всех подключённых сервисов.</string>
     <string name="tracking_library_source_dialog_subtitle">Выберите сервис, из которого Fetch считывает вашу Библиотеку. Воспроизведение скробблится во все подключённые сервисы.</string>
     <string name="tracking_trakt_progress_required">Доступно, когда Trakt используется как источник прогресса просмотра</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Дополнительно</string>
     <string name="settings_advanced_subtitle">Запуск диагностики скорости сети</string>
     <string name="settings_debug">Отладка</string>
@@ -350,7 +346,6 @@
     <string name="playback_player_external">Внешний</string>
     <string name="playback_player_ask">Спрашивать каждый раз</string>
     <string name="playback_internal_player_engine">Движок встроенного плеера</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Бета)</string>
     <string name="playback_auto_switch_internal_player_on_error">Авто-переключение движка при ошибке запуска</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Если запуск потока не удался, автоматически переключаться между ExoPlayer и libmpv.</string>
@@ -1188,7 +1183,6 @@
     <string name="cd_refresh">Обновить</string>
     <string name="cd_remove">Удалить</string>
     <string name="cd_preview">Предпросмотр</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Логотип Trakt</string>
     <string name="cd_trakt_qr">QR-код активации Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1329,10 +1323,8 @@
     <string name="collections_editor_tmdb_quick_watch_regions">Быстрые регионы просмотра</string>
     <string name="collections_editor_tmdb_watch_providers">ID провайдеров просмотра</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Используйте ID провайдеров TMDB. Запятые — AND, вертикальная черта — OR.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">Исключённые ID сервисов показа</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Исключить тайтлы, доступные у этих номеров сервисов показа TMDB в выбранном регионе.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Быстрые провайдеры просмотра</string>
     <string name="tmdb_error_load_source">Не удалось загрузить источник TMDB</string>
     <string name="tmdb_error_list_not_found">Список TMDB не найден</string>
@@ -1388,12 +1380,10 @@
     <string name="licenses_attributions_section_app">ЛИЦЕНЗИЯ ПРИЛОЖЕНИЯ</string>
     <string name="licenses_attributions_section_data">ДАННЫЕ И СЕРВИСЫ</string>
     <string name="licenses_attributions_section_playback">ЛИЦЕНЗИИ ВОСПРОИЗВЕДЕНИЯ ANDROID</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch использует API TMDB для метаданных фильмов и ТВ, иллюстраций, трейлеров, актёров, производственных деталей, коллекций и рекомендаций. Этот продукт использует API TMDB, но не одобрен и не сертифицирован TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch подключается к Trakt для авторизации, истории просмотров, синхронизации прогресса, данных библиотеки, рейтингов, списков и комментариев. Fetch не аффилирован с Trakt и не одобрен им.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch подключается к Simkl для аутентификации аккаунта, списков просмотра, истории просмотренного, прогресса воспроизведения и скробблинга. Данные об отслеживании фильмов, сериалов и аниме предоставляются Simkl. Fetch не аффилирован с Simkl и не одобрен им.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch использует MDBList для рейтингов и данных внешних провайдеров оценок. Fetch не аффилирован с MDBList и не одобрен им.</string>
@@ -1826,14 +1816,9 @@
     <string name="collections_editor_tmdb_person_placeholder">31 для Tom Hanks или URL персоны</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 или 123456</string>
     <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 для «Анимация»</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1888,9 +1873,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Фильмы с Tom Hanks, Любимые актёры</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Фильмы Christopher Nolan, Любимые режиссёры</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 для супергероев</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 для Marvel Studios</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 для Netflix</string>
     <string name="folder_detail_not_found">Папка не найдена</string>
     <string name="cast_error_load_details_for">Не удалось загрузить детали для %1$s</string>

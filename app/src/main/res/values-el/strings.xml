@@ -158,7 +158,6 @@
     <item quantity="other">Πρεμιέρα σε %d ημέρες</item>
   </plurals>
   <!-- Short versions for compact card styles (wide/poster) -->
-  <string name="cw_airs_date_short">%1$s</string>
   <string name="cw_airs_today_short">Σήμερα</string>
   <string name="cw_airs_tomorrow_short">Αύριο</string>
   <plurals name="cw_airs_in_days_short">
@@ -256,7 +255,6 @@
   <string name="detail_comments_back_hint">Πατήστε πίσω για κλείσιμο</string>
   <string name="detail_comments_badge_review">Κριτική</string>
   <string name="detail_comments_badge_spoiler">Σπόιλερ</string>
-  <string name="detail_comments_badge_rating">%1$d/10</string>
   <string name="detail_comments_likes">%1$d επισημάνσεις \"Μου αρέσει\"</string>
   <string name="tmdb_entity_kind_company">Εταιρεία παραγωγής</string>
   <string name="tmdb_entity_kind_network">Δίκτυο</string>
@@ -269,20 +267,16 @@
   <string name="collections_editor_tmdb_quick_watch_regions">Γρήγορες περιοχές προβολής</string>
   <string name="collections_editor_tmdb_watch_providers">ID παρόχων προβολής</string>
   <string name="collections_editor_tmdb_watch_providers_helper">Χρησιμοποιήστε ID παρόχων προβολής TMDB. Χωρίστε πολλαπλά με κόμμα για ΚΑΙ, ή με κάθετη για Ή.</string>
-  <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
   <string name="collections_editor_tmdb_quick_watch_providers">Γρήγοροι πάροχοι προβολής</string>
   <string name="collections_editor_tmdb_without_watch_providers">Αποκλεισμένα ID παρόχων προβολής</string>
   <string name="collections_editor_tmdb_without_watch_providers_helper">Αποκλείστε τίτλους διαθέσιμους από αυτούς τους αριθμούς παρόχων προβολής TMDB στην επιλεγμένη περιοχή.</string>
-  <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
   <string name="collections_editor_tmdb_without_genres">Αποκλεισμένα ID ειδών</string>
   <string name="collections_editor_tmdb_without_genres_helper">Αποκλείστε τίτλους που ταιριάζουν με αυτούς τους αριθμούς ειδών TMDB.</string>
   <string name="collections_editor_tmdb_without_genres_placeholder">16 για Κινούμενα σχέδια</string>
   <string name="collections_editor_tmdb_without_keywords">Αποκλεισμένα ID λέξεων-κλειδιών</string>
   <string name="collections_editor_tmdb_without_keywords_helper">Αποκλείστε τίτλους που ταιριάζουν με αυτούς τους αριθμούς λέξεων-κλειδιών TMDB.</string>
-  <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
   <string name="collections_editor_tmdb_without_companies">Αποκλεισμένα ID εταιρειών</string>
   <string name="collections_editor_tmdb_without_companies_helper">Αποκλείστε τίτλους που σχετίζονται με αυτούς τους αριθμούς εταιρειών TMDB.</string>
-  <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
   <string name="tmdb_error_load_source">Δεν ήταν δυνατή η φόρτωση της πηγής TMDB</string>
   <string name="tmdb_error_list_not_found">Δεν βρέθηκε λίστα TMDB</string>
   <string name="tmdb_error_collection_not_found">Δεν βρέθηκε συλλογή TMDB</string>
@@ -401,12 +395,10 @@
   <string name="licenses_attributions_section_app">ΑΔΕΙΑ ΕΦΑΡΜΟΓΗΣ</string>
   <string name="licenses_attributions_section_data">ΔΕΔΟΜΕΝΑ &amp; ΥΠΗΡΕΣΙΕΣ</string>
   <string name="licenses_attributions_section_playback">ΑΔΕΙΕΣ ΑΝΑΠΑΡΑΓΩΓΗΣ ANDROID</string>
-  <string name="licenses_attributions_fetch_title">Fetch</string>
   <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
   <string name="licenses_attributions_tmdb_body">Το Fetch χρησιμοποιεί το API του TMDB για μεταδεδομένα ταινιών και σειρών, εικόνες, τρέιλερ, ηθοποιούς, λεπτομέρειες παραγωγής, συλλογές και προτάσεις. Αυτό το προϊόν χρησιμοποιεί το API του TMDB αλλά δεν υποστηρίζεται ούτε πιστοποιείται από το TMDB.</string>
   <string name="licenses_attributions_trakt_title">Trakt</string>
   <string name="licenses_attributions_trakt_body">Το Fetch συνδέεται με το Trakt για ταυτοποίηση λογαριασμού, ιστορικό παρακολούθησης, συγχρονισμό προόδου, δεδομένα βιβλιοθήκης, βαθμολογίες, λίστες και σχόλια. Το Fetch δεν συνδέεται ούτε υποστηρίζεται από το Trakt.</string>
-  <string name="licenses_attributions_simkl_title">Simkl</string>
   <string name="licenses_attributions_simkl_body">Το Fetch συνδέεται με το Simkl για ταυτοποίηση λογαριασμού, λίστες παρακολούθησης, ιστορικό προβολής, πρόοδο αναπαραγωγής και scrobbling. Τα δεδομένα παρακολούθησης ταινιών, σειρών και anime παρέχονται από το Simkl. Το Fetch δεν συνδέεται ούτε υποστηρίζεται επίσημα από το Simkl.</string>
   <string name="licenses_attributions_mdblist_title">MDBList</string>
   <string name="licenses_attributions_mdblist_body">Το Fetch χρησιμοποιεί το MDBList για βαθμολογίες και δεδομένα εξωτερικών παρόχων βαθμολογίας. Το Fetch δεν συνδέεται ούτε υποστηρίζεται από το MDBList.</string>
@@ -545,7 +537,6 @@
   <string name="playback_player_external">Εξωτερικό</string>
   <string name="playback_player_ask">Ερώτηση κάθε φορά</string>
   <string name="playback_internal_player_engine">Εσωτερική μηχανή</string>
-  <string name="playback_engine_exoplayer">ExoPlayer</string>
   <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
   <string name="playback_auto_switch_internal_player_on_error">Αυτόματη εναλλαγή μηχανής σε σφάλμα εκκίνησης</string>
   <string name="playback_auto_switch_internal_player_on_error_sub">Αν αποτύχει η εκκίνηση ροής, γίνεται αυτόματη εναλλαγή μεταξύ ExoPlayer και libmpv.</string>
@@ -841,7 +832,6 @@
   <string name="web_custom_poster_none">Δεν έχει οριστεί μοτίβο</string>
   <string name="web_custom_poster_loading">Φόρτωση…</string>
   <string name="web_custom_poster_placeholders_info">Σύμβολα θέσης: το {id} περνά όλα τα ID περιεχομένου. Τα {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} στοχεύουν έναν μόνο τύπο ID - αν δεν είναι διαθέσιμος, διατηρείται η αρχική αφίσα. Το {imdb_id|tmdb_id|kitsu_id} δηλώνει τους υποστηριζόμενους τύπους ID - χρησιμοποιείται ο αντίστοιχος ή, αν δεν υπάρχει, διατηρείται η αρχική αφίσα. Προσθέστε ? για να γίνει ένα σύμβολο θέσης προαιρετικό, ώστε να επιλύεται σε κενό αντί να παραλείπεται: {imdb_id?}. Άλλα σύμβολα θέσης: {id_type}, {typed_id}, {type}, {shape}.</string>
-  <string name="mdblist_name">MDBList</string>
   <string name="mdblist_tracking_description">Συγχρονισμός ιστορικού παρακολούθησης και προόδου αναπαραγωγής σε όλες τις συσκευές</string>
   <string name="mdblist_connected_as">Συνδεδεμένος ως %1$s</string>
   <string name="mdblist_account_fallback">Χρήστης MDBList</string>
@@ -954,7 +944,6 @@
   <string name="trakt_more_like_this_source_dialog_subtitle">Επιλέξτε την πηγή προτάσεων στις σελίδες λεπτομερειών.</string>
   <string name="trakt_more_like_this_source_trakt">Trakt</string>
   <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-  <string name="trakt_more_like_this_source_simkl">Simkl</string>
   <string name="trakt_cached_label">Αποθηκευμένο</string>
   <string name="trakt_stat_movies">Ταινίες</string>
   <string name="trakt_stat_shows">Σειρές</string>
@@ -993,8 +982,6 @@
   <string name="tracking_watch_progress_dialog_subtitle">Επιλέξτε την υπηρεσία από την οποία διαβάζει το Fetch την επανάληψη και τη Συνέχεια παρακολούθησης. Το scrobbling παραμένει ενεργό για κάθε συνδεδεμένη υπηρεσία.</string>
   <string name="tracking_library_source_dialog_subtitle">Επιλέξτε την υπηρεσία από την οποία διαβάζει το Fetch τη Βιβλιοθήκη. Το scrobbling αναπαραγωγής γίνεται σε κάθε συνδεδεμένη υπηρεσία.</string>
   <string name="tracking_trakt_progress_required">Διαθέσιμο όταν το Trakt είναι η πηγή Προόδου παρακολούθησης</string>
-  <string name="trakt_name">Trakt</string>
-  <string name="simkl_name">Simkl</string>
   <!-- SimklScreen -->
   <string name="simkl_description">Συνδέστε το Simkl για συγχρονισμό λιστών, ιστορικού προβολής, προόδου αναπαραγωγής και scrobbles.</string>
   <string name="simkl_disconnect_title">Αποσύνδεση από το Simkl;</string>
@@ -1632,7 +1619,6 @@
   <string name="cd_remove">Αφαίρεση</string>
   <string name="cd_preview">Προεπισκόπηση</string>
   <string name="cd_clear_search">Εκκαθάριση αναζήτησης</string>
-  <string name="cd_fetch_logo">Fetch</string>
   <string name="cd_trakt_logo">Λογότυπο Trakt</string>
   <string name="cd_trakt_qr">QR ενεργοποίησης Trakt</string>
   <string name="cd_imdb">IMDb</string>
@@ -1828,13 +1814,8 @@
   <string name="collections_editor_tmdb_person_placeholder">31 για Tom Hanks, ή URL προσώπου</string>
   <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ή 123456</string>
   <string name="collections_editor_url_short_placeholder">https://...</string>
-  <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-  <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
   <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
   <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-  <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-  <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-  <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
   <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
   <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
   <string name="collections_editor_tmdb_year_placeholder">2024</string>

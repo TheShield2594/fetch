@@ -158,7 +158,6 @@
         <item quantity="other">%d 天後播出</item>
     </plurals>
     <!-- 緊湊卡片樣式的簡短版本（寬卡/海報） -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">今天</string>
     <string name="cw_airs_tomorrow_short">明天</string>
     <plurals name="cw_airs_in_days_short">
@@ -251,7 +250,6 @@
     <string name="detail_comments_back_hint">點擊返回鍵關閉</string>
     <string name="detail_comments_badge_review">評論</string>
     <string name="detail_comments_badge_spoiler">劇透</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d 個讚</string>
     <string name="tmdb_entity_kind_company">製作公司</string>
     <string name="tmdb_entity_kind_network">頻道</string>
@@ -264,10 +262,8 @@
     <string name="collections_editor_tmdb_quick_watch_regions">快速觀看地區</string>
     <string name="collections_editor_tmdb_watch_providers">觀看平台 ID</string>
     <string name="collections_editor_tmdb_watch_providers_helper">使用 TMDB 觀看平台 ID。多個請用逗號分隔 (AND) 或豎線分隔 (OR)。</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">排除的觀看平台 ID</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">排除在所選地區可由這些 TMDB 觀看平台編號觀看的標題。</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">快速觀看平台</string>
     <string name="tmdb_error_load_source">無法載入 TMDB 來源</string>
     <string name="tmdb_error_list_not_found">找不到 TMDB 清單</string>
@@ -402,12 +398,10 @@
     <string name="licenses_attributions_section_app">應用程式授權</string>
     <string name="licenses_attributions_section_data">資料與服務</string>
     <string name="licenses_attributions_section_playback">Android 播放授權</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch 使用 TMDB API 獲取電影和電視節目的中繼資料、美術圖、預告片、演員、製作細節、收藏和推薦內容。本產品使用 TMDB API，但未經 TMDB 認可或認證。</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch 連線至 Trakt 以進行帳戶驗證、觀看歷史、進度同步、媒體庫資料、評分、清單和評論。Fetch 與 Trakt 無關聯或未經其認可。</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch 連線至 Simkl 以進行帳戶驗證、觀看清單、觀看歷史、播放進度和記錄。電影、電視和動畫追蹤資料由 Simkl 提供。Fetch 與 Simkl 無關聯或未經其認可。</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch 使用 MDBList 獲取評分、觀看歷史和播放追蹤。Fetch 與 MDBList 無關聯或未經其認可。</string>
@@ -454,8 +448,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">選擇 Fetch 從哪裡讀取繼續播放和繼續觀看資料。所有已連接的服務仍會保持記錄。</string>
     <string name="tracking_library_source_dialog_subtitle">選擇 Fetch 從哪裡讀取您的媒體庫。播放記錄會同步到所有已連接的服務。</string>
     <string name="tracking_trakt_progress_required">當 Trakt 為觀看進度來源時可用</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">進階</string>
     <string name="settings_advanced_subtitle">效能、導航、快取與診斷</string>
     <string name="experience_mode_essential">基礎模式</string>
@@ -559,7 +551,6 @@
     <string name="playback_player_external">外部</string>
     <string name="playback_player_ask">每次都詢問</string>
     <string name="playback_internal_player_engine">內建播放引擎</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (測試版)</string>
     <string name="playback_auto_switch_internal_player_on_error">啟動錯誤時自動切換播放引擎</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">如果串流啟動失敗，自動在 ExoPlayer 和 libmpv 之間切換。</string>
@@ -876,7 +867,6 @@
     <string name="web_custom_poster_placeholders_info">佔位符：{id} 傳遞所有內容 ID。{imdb_id}、{tmdb_id}、{tvdb_id}、{kitsu_id} 針對單一 ID 類型 - 如果不可用，則保留原始海報。{imdb_id|tmdb_id|kitsu_id} 宣告支援的 ID 類型 - 使用匹配的那個，否則保留原始海報。新增 ? 使佔位符變為可選，解析為空而非跳過：{imdb_id?}。其他佔位符：{id_type}、{typed_id}、{type}、{shape}。</string>
 
 
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">在裝置間同步觀看歷史和播放進度</string>
     <string name="mdblist_connected_as">以 %1$s 身分連線</string>
     <string name="mdblist_account_fallback">MDBList 使用者</string>
@@ -1664,7 +1654,6 @@
     <string name="cd_refresh">重新整理</string>
     <string name="cd_remove">移除</string>
     <string name="cd_preview">預覽</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt 標誌</string>
     <string name="cd_trakt_qr">Trakt 啟用 QR</string>
     <string name="cd_imdb">IMDb</string>
@@ -1868,14 +1857,9 @@
     <string name="collections_editor_tmdb_person_placeholder">湯姆·漢克斯為 31，或人物網址</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 或 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 代表動畫</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en、ko、ja、hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US、KR、JP、IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1937,9 +1921,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">湯姆·漢克斯電影、喜愛演員</string>
     <string name="collections_editor_tmdb_director_title_placeholder">克里斯多福·諾蘭電影、喜愛導演</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 代表超級英雄</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 代表漫威影業</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 代表 Netflix</string>
     <string name="folder_detail_not_found">找不到資料夾</string>
     <string name="cast_error_load_details_for">無法載入 %1$s 的詳細資訊</string>

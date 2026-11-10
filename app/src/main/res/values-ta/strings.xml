@@ -241,7 +241,6 @@
     <string name="detail_comments_back_hint">மூட பின் அழுத்தவும்</string>
     <string name="detail_comments_badge_review">விமர்சனம்</string>
     <string name="detail_comments_badge_spoiler">ஸ்பாய்லர்</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d விருப்பங்கள்</string>
     <string name="tmdb_entity_kind_company">தயாரிப்பு நிறுவனம்</string>
     <string name="tmdb_entity_kind_network">நெட்வொர்க்</string>
@@ -254,7 +253,6 @@
     <string name="collections_editor_tmdb_quick_watch_regions">விரைவு பார்க்கும் பகுதிகள்</string>
     <string name="collections_editor_tmdb_watch_providers">பார்க்கும் வழங்குநர் ஐடிகள்</string>
     <string name="collections_editor_tmdb_watch_providers_helper">TMDB வழங்குநர் ஐடிகளை பயன்படுத்தவும். AND க்கு கமா, OR க்கு பைப் பயன்படுத்தவும்.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">விரைவு வழங்குநர்கள்</string>
     <string name="tmdb_error_load_source">TMDB மூலத்தை ஏற்ற முடியவில்லை</string>
     <string name="tmdb_error_list_not_found">TMDB பட்டியல் கிடைக்கவில்லை</string>
@@ -342,7 +340,6 @@
     <string name="licenses_attributions_section_app">செயலி உரிமம்</string>
     <string name="licenses_attributions_section_data">தரவு &amp; சேவைகள்</string>
     <string name="licenses_attributions_section_playback">ஆண்ட்ராய்டு இயக்க உரிமங்கள்</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">தி மூவி டேட்டாபேஸ் (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch திரைப்படம் மற்றும் டிவி தகவல்கள், கலைப்படங்கள், முன்னோட்டங்கள், நடிகர்கள், தயாரிப்பு விவரங்கள், தொகுப்புகள் மற்றும் பரிந்துரைகளுக்காக TMDB API-ஐ பயன்படுத்துகிறது. இந்த தயாரிப்பு TMDB API-ஐ பயன்படுத்தினாலும் TMDB ஆதரவு அல்லது சான்றளிப்பு பெறவில்லை.</string>
     <string name="licenses_attributions_trakt_title">ட்ராக்ட்</string>
@@ -457,7 +454,6 @@
     <string name="playback_player_external">வெளிப்புறம்</string>
     <string name="playback_player_ask">ஒவ்வொரு முறையும் கேள்</string>
     <string name="playback_internal_player_engine">உள்ளமை engine</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (பீட்டா)</string>
     <string name="playback_auto_switch_internal_player_on_error">தொடக்க பிழையில் engine-ஐ தானாக மாற்று</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">ஸ்ட்ரீம் தொடக்கம் தோல்வியடைந்தால் ExoPlayer மற்றும் libmpv இடையே தானாக மாறு.</string>
@@ -1326,7 +1322,6 @@
     <string name="cd_refresh">புதுப்பிப்பு</string>
     <string name="cd_remove">அகற்று</string>
     <string name="cd_preview">முன்னோட்டம்</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">ட்ராக்ட் லோகோ</string>
     <string name="cd_trakt_qr">ட்ராக்ட் செயல்படுத்தும் க்யூஆர்</string>
     <string name="cd_imdb">ஐஎம்டிபி</string>
@@ -1524,13 +1519,8 @@
     <string name="collections_editor_tmdb_person_placeholder">டாம் ஹாங்க்ஸுக்கு 31, அல்லது நபர் யுஆர்எல்</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 அல்லது 123456</string>
     <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>

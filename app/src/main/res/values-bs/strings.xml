@@ -202,7 +202,6 @@
     <string name="detail_comments_back_hint">Kliknite nazad za zatvaranje</string>
     <string name="detail_comments_badge_review">Recenzija</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d lajkova</string>
     <string name="tmdb_entity_kind_company">Produkcijska Kuća</string>
     <string name="tmdb_entity_kind_network">Mreža</string>
@@ -298,7 +297,6 @@
     <string name="playback_player_external">Eksterni</string>
     <string name="playback_player_ask">Pitaj svaki put</string>
     <string name="playback_internal_player_engine">Interni Engine</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Automatski promijeni engine u slučaju greške</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Ako pokretanje streama ne uspije, automatski se prebaci između ExoPlayer i libmpv.</string>
@@ -1047,7 +1045,6 @@
     <string name="cd_refresh">Osvježi</string>
     <string name="cd_remove">Ukloni</string>
     <string name="cd_preview">Pregled</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt Logo</string>
     <string name="cd_trakt_qr">Trakt QR za aktivaciju</string>
     <string name="cd_imdb">IMDb</string>

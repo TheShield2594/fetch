@@ -150,7 +150,6 @@
     <string name="cw_airs_date">প্রচার: %1$s</string>
     <string name="cw_airs_today">আজ প্রচারিত হবে</string>
     <string name="cw_airs_tomorrow">আগামীকাল প্রচারিত হবে</string>
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">আজ</string>
     <string name="cw_airs_tomorrow_short">আগামীকাল</string>
     <string name="cw_action_go_to_details">বিস্তারিত দেখুন</string>
@@ -241,7 +240,6 @@
     <string name="detail_comments_back_hint">বন্ধ করতে back চাপুন</string>
     <string name="detail_comments_badge_review">পর্যালোচনা</string>
     <string name="detail_comments_badge_spoiler">স্পয়লার</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d লাইক</string>
     <string name="tmdb_entity_kind_company">প্রোডাকশন কোম্পানি</string>
     <string name="tmdb_entity_kind_network">নেটওয়ার্ক</string>
@@ -254,10 +252,8 @@
     <string name="collections_editor_tmdb_quick_watch_regions">কুইক দেখার অঞ্চলগুলি</string>
     <string name="collections_editor_tmdb_watch_providers">প্রোভাইডার আইডি দেখুন</string>
     <string name="collections_editor_tmdb_watch_providers_helper">TMDB ওয়াচ প্রোভাইডার আইডি ব্যবহার করুন। একাধিক আইডির ক্ষেত্রে AND-এর জন্য কমা (,) অথবা OR-এর জন্য পাইপ (|) ব্যবহার করুন।</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">বাদ দেওয়া ওয়াচ প্রোভাইডার আইডি</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">নির্বাচিত অঞ্চলে এই ওয়াচ প্রোভাইডারগুলো থেকে আসা কন্টেন্ট বাদ দিন।</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">কুইক ওয়াচ প্রোভাইডার</string>
     <string name="tmdb_error_load_source">TMDB সোর্স লোড করা যায়নি</string>
     <string name="tmdb_error_list_not_found">TMDB তালিকা পাওয়া যায়নি</string>
@@ -386,12 +382,10 @@
     <string name="licenses_attributions_section_app">অ্যাপ লাইসেন্স</string>
     <string name="licenses_attributions_section_data">ডেটা এবং পরিষেবা</string>
     <string name="licenses_attributions_section_playback">ANDROID PLAYBACK LICENSES</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch মুভি এবং টিভি মেটাডেটা, আর্টওয়ার্ক, ট্রেলার, কাস্ট, প্রোডাকশন বিবরণ, কালেকশন এবং সুপারিশের জন্য TMDB API ব্যবহার করে। এই পণ্যটি TMDB API ব্যবহার করে কিন্তু TMDB দ্বারা অনুমোদিত বা প্রত্যয়িত নয়।</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch অ্যাকাউন্ট প্রমাণীকরণ, দেখার হিস্ট্রি, অগ্রগতি সিঙ্ক, লাইব্রেরি ডেটা, রেটিং, তালিকা এবং মন্তব্যের জন্য Trakt-এর সাথে সংযোগ করে। Fetch Trakt দ্বারা অনুমোদিত বা প্রত্যয়িত নয়।</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch অ্যাকাউন্ট প্রমাণীকরণ, ওয়াচলিস্ট, দেখার হিস্ট্রি, প্লেব্যাক অগ্রগতি এবং স্ক্রবব্লিংয়ের জন্য Simkl-এর সাথে সংযোগ করে। সিনেমা, টিভি এবং অ্যানিমে ট্র্যাকিং ডেটা Simkl সরবরাহ করে। Fetch Simkl দ্বারা অনুমোদিত বা প্রত্যয়িত নয়।</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch রেটিং, দেখার হিস্ট্রি এবং প্লেব্যাক ট্র্যাকিংয়ের জন্য MDBList ব্যবহার করে। Fetch MDBList দ্বারা অনুমোদিত বা প্রত্যয়িত নয়।</string>
@@ -436,8 +430,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">পুনরায় প্লেব্যাক ও দেখা চালিয়ে যাওয়ার জন্য কোনো সার্ভিস ব্যবহার করা হবে তা বাছুন। প্রতিটি সংযুক্ত সার্ভিসের জন্য স্ক্রবলিং সক্রিয় থাকবে।</string>
     <string name="tracking_library_source_dialog_subtitle">লাইব্রেরির জন্য Fetch কোনো সার্ভিস ব্যবহার করবে তা বাছুন। প্রতিটি সংযুক্ত সার্ভিসে প্লেব্যাক স্ক্রবল হবে।</string>
     <string name="tracking_trakt_progress_required">Trakt যখন ওয়াচ প্রগ্রেস সোর্স হয় তখন পাওয়া যায়</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">উন্নত</string>
     <string name="settings_advanced_subtitle">পারফরম্যান্স, নেভিগেশন, ক্যাশে এবং ডায়াগনস্টিকস</string>
     <string name="experience_mode_essential">এসেনশিয়াল</string>
@@ -560,7 +552,6 @@
     <string name="playback_player_external">এক্সটার্নাল</string>
     <string name="playback_player_ask">প্রতিবার জিজ্ঞাসা করুন</string>
     <string name="playback_internal_player_engine">ইন্টারনাল ইঞ্জিন</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">libmpv (বিটা)</string>
     <string name="playback_auto_switch_internal_player_on_error">স্টার্টআপ এররে অটো-সুইচ ইঞ্জিন</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">যদি স্ট্রিম স্টার্টআপ ফেইল করে, তাহলে স্বয়ংক্রিয়ভাবে ExoPlayer এবং libmpv-এর মধ্যে সুইচ করুন।</string>
@@ -879,7 +870,6 @@
     <string name="web_custom_poster_none">কোনো প্যাটার্ন সেট করা নেই</string>
     <string name="web_custom_poster_loading">লোড হচ্ছে…</string>
     <string name="web_custom_poster_placeholders_info">প্লেসহোল্ডার: {id} সব কন্টেন্ট ID পাস করে। {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} একটি সিঙ্গেল ID টাইপ টার্গেট করে - অ্যাভেইলেবল না থাকলে মূল পোস্টার রেখে দেওয়া হয়। {imdb_id|tmdb_id|kitsu_id} সাপোর্টেড ID টাইপ ডিক্লেয়ার করে - ম্যাচ করাটি ব্যবহার করা হয়, অথবা মূল পোস্টার রেখে দেওয়া হয়। স্কিপ করার পরিবর্তে খালি করতে একটি প্লেসহোল্ডার অপশনাল করতে ? যোগ করুন: {imdb_id?}। অন্যান্য প্লেসহোল্ডার: {id_type}, {typed_id}, {type}, {shape}।</string>
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">ডিভাইসগুলোর মধ্যে দেখা হিস্ট্রি এবং প্লেব্যাক প্রোগ্রেস সিঙ্ক করুন</string>
     <string name="mdblist_connected_as">%1$s হিসেবে সংযুক্ত</string>
     <string name="mdblist_account_fallback">MDBList ইউজার</string>
@@ -1013,7 +1003,6 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">বিস্তারিত পৃষ্ঠায় দেখানো সুপারিশের জন্য সোর্স নির্বাচন করুন।</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
     <string name="trakt_cached_label">ক্যাশেড</string>
     <string name="trakt_stat_movies">সিনেমা</string>
     <string name="trakt_stat_shows">শো</string>
@@ -1578,7 +1567,6 @@
     <string name="cd_refresh">রিফ্রেশ</string>
     <string name="cd_remove">সরান</string>
     <string name="cd_preview">পূর্বরূপ</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt লোগো</string>
     <string name="cd_trakt_qr">Trakt অ্যাক্টিভেশন QR</string>
     <string name="cd_imdb">IMDb</string>
@@ -1778,14 +1766,9 @@
     <string name="collections_editor_tmdb_person_placeholder">টম হ্যাঙ্কস বা ব্যক্তির URL-এর জন্য 31</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 অথবা 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">অ্যানিমেশন জন্য 16</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1847,9 +1830,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">টম হ্যাঙ্কস মুভি, প্রিয় অভিনেতা</string>
     <string name="collections_editor_tmdb_director_title_placeholder">ক্রিস্টোফার নোলান মুভিজ, প্রিয় পরিচালক</string>
     <string name="collections_editor_tmdb_keywords_placeholder">সুপারহিরোর জন্য 9715</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">মার্ভেল স্টুডিওর জন্য 420</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">Netflix-এর জন্য 213</string>
     <string name="folder_detail_not_found">ফোল্ডার পাওয়া যায়নি</string>
     <string name="cast_error_load_details_for">%1$s-এর বিস্তারিত লোড করা যায়নি</string>

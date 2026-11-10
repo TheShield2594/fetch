@@ -27,7 +27,6 @@
     <string name="servers_remove">הסרת שרת</string>
     <string name="servers_remove_confirm_title">להסיר את השרת?</string>
     <string name="servers_remove_confirm_message">פעולה זו תנתק אותך מ-%1$s במכשיר זה. ניתן להוסיף אותו מחדש בכל עת.</string>
-    <string name="servers_signed_in_as">%1$s · %2$s</string>
     <string name="servers_status_disabled">מושבת</string>
     <string name="servers_status_auth">התחברות מחדש</string>
     <string name="servers_status_unreachable">השרת אינו זמין</string>

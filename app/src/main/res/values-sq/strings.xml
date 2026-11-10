@@ -154,7 +154,6 @@
         <item quantity="other">Transmetohet pas %d ditësh</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Sot</string>
     <string name="cw_airs_tomorrow_short">Nesër</string>
     <plurals name="cw_airs_in_days_short">
@@ -241,7 +240,6 @@
     <string name="detail_comments_back_hint">Kliko Kthehu për ta mbyllur</string>
     <string name="detail_comments_badge_review">Vlerësim</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d pëlqime</string>
     <string name="tmdb_entity_kind_company">Kompania e produksionit</string>
     <string name="tmdb_entity_kind_network">Rrjeti</string>
@@ -254,10 +252,8 @@
     <string name="collections_editor_tmdb_quick_watch_regions">Rajone të shpejta shikimi</string>
     <string name="collections_editor_tmdb_watch_providers">ID-të e ofruesve të shikimit</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Përdorni ID-të e ofruesve të shikimit TMDB. Ndani disa me presje për AND, ose me vija vertikale për OR.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">ID-të e përjashtuara të ofruesve të shikimit</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Përjashto titujt e disponueshëm nga këta numra ofruesish TMDB në rajonin e zgjedhur.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Ofrues të shpejtë shikimi</string>
     <string name="tmdb_error_load_source">Nuk mund të ngarkohet burimi TMDB</string>
     <string name="tmdb_error_list_not_found">Lista TMDB nuk u gjet</string>
@@ -344,12 +340,10 @@
     <string name="licenses_attributions_section_app">LICENCA E APLIKACIONIT</string>
     <string name="licenses_attributions_section_data">TË DHËNAT DHE SHËRBIMET</string>
     <string name="licenses_attributions_section_playback">LICENCAT E RIPRODHIMIT ANDROID</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch përdor API-në TMDB për metadata të filmave dhe serialeve, grafika, trailera, aktorë, detaje produksioni, koleksione dhe rekomandime. Ky produkt përdor API-në TMDB, por nuk mbështetet ose certifikohet nga TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch lidhet me Trakt për autentifikimin e llogarisë, historikun e shikimit, sinkronizimin e progresit, të dhënat e bibliotekës, vlerësimet, listat dhe komentet. Fetch nuk është i lidhur me dhe as i mbështetur nga Trakt.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch lidhet me Simkl për autentifikimin e llogarisë, listat e shikimit, historikun e shikimit, progresin e riprodhimit dhe scrobbling. Të dhënat e gjurmimit për filma, seriale dhe anime ofrohen nga Simkl. Fetch nuk është i lidhur me dhe as i mbështetur nga Simkl.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch përdor MDBList për vlerësime dhe të dhëna nga ofrues të jashtëm të pikëve. Fetch nuk është i lidhur me dhe as i mbështetur nga MDBList.</string>
@@ -394,8 +388,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">Zgjidh shërbimin nga i cili Fetch lexon për vazhdim dhe Vazhdo shikimin. Scrobbling mbetet aktiv për çdo shërbim të lidhur.</string>
     <string name="tracking_library_source_dialog_subtitle">Zgjidh shërbimin nga i cili Fetch lexon Bibliotekën. Scrobbling i riprodhimit mbetet aktiv për çdo shërbim të lidhur.</string>
     <string name="tracking_trakt_progress_required">E disponueshme kur Trakt është burimi i progresit të shikimit</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Të avancuara</string>
     <string name="settings_advanced_subtitle">Performanca, navigimi, cache-i dhe diagnostikimi</string>
     <string name="experience_mode_essential">Bazë</string>
@@ -485,7 +477,6 @@
     <string name="playback_player_external">I jashtëm</string>
     <string name="playback_player_ask">Pyet çdo herë</string>
     <string name="playback_internal_player_engine">Motori i brendshëm</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Ndërro automatikisht motorin në rast gabimi gjatë nisjes</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Nëse nisja e transmetimit dështon, ndërro automatikisht midis ExoPlayer dhe libmpv.</string>
@@ -1400,7 +1391,6 @@
     <string name="cd_refresh">Rifresko</string>
     <string name="cd_remove">Hiq</string>
     <string name="cd_preview">Pamje paraprake</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logoja e Trakt</string>
     <string name="cd_trakt_qr">QR-ja e aktivizimit Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1601,14 +1591,9 @@
     <string name="collections_editor_tmdb_person_placeholder">31 për Tom Hanks, ose URL e personit</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ose 123456</string>
     <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 për Animacion</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1670,9 +1655,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Movies, Favorite Actors</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Christopher Nolan Movies, Favorite Directors</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 për superhero</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 për Marvel Studios</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 për Netflix</string>
     <string name="folder_detail_not_found">Dosja nuk u gjet</string>
     <string name="cast_error_load_details_for">Nuk mund të ngarkohen detajet për %1$s</string>

@@ -157,7 +157,6 @@
         <item quantity="one">Premier %d nap múlva</item>
         <item quantity="other">Premier %d nap múlva</item>
     </plurals>
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Ma</string>
     <string name="cw_airs_tomorrow_short">Holnap</string>
     <plurals name="cw_airs_in_days_short">
@@ -257,7 +256,6 @@
     <string name="detail_comments_back_hint">A bezáráshoz nyomd meg a Vissza gombot</string>
     <string name="detail_comments_badge_review">Vélemény</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d kedvelés</string>
     <string name="tmdb_entity_kind_company">Stúdió</string>
     <string name="tmdb_entity_kind_network">Csatorna</string>
@@ -270,10 +268,8 @@
     <string name="collections_editor_tmdb_quick_watch_regions">Régió gyors kiválasztása</string>
     <string name="collections_editor_tmdb_watch_providers">Tartalomszolgáltatók azonosítói</string>
     <string name="collections_editor_tmdb_watch_providers_helper">A tartalomszolgáltatók TMDB-azonosítóit add meg. Több azonosítót vesszővel (ÉS) vagy függőleges vonallal (|, VAGY) válassz el.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">Kizárt tartalomszolgáltatók azonosítói</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Kizárja azokat a tartalmakat, amelyek a kiválasztott régióban a megadott TMDB-azonosítójú szolgáltatóknál elérhetők.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Szolgáltató gyors kiválasztása</string>
     <string name="tmdb_error_load_source">Nem sikerült betölteni a TMDB forrást</string>
     <string name="tmdb_error_list_not_found">TMDB lista nem található</string>
@@ -422,12 +418,10 @@
     <string name="licenses_attributions_section_app">AZ ALKALMAZÁS LICENCE</string>
     <string name="licenses_attributions_section_data">ADATOK ÉS SZOLGÁLTATÁSOK</string>
     <string name="licenses_attributions_section_playback">ANDROID LEJÁTSZÁSI LICENCEK</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">A Fetch a TMDB API-t használja a filmek és tévéműsorok metaadataihoz, borítóképekhez, előzetesekhez, stáblistákhoz, gyártási adatokhoz, gyűjteményekhez és ajánlásokhoz. Ez a termék a TMDB API-t használja, de a TMDB nem támogatja és nem hagyta jóvá.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">A Fetch a Trakthoz kapcsolódik fiókhitelesítéshez, a megtekintési előzmények és a megtekintési állapot szinkronizálásához, valamint a könyvtár, az értékelések, a listák és a vélemények kezeléséhez. A Fetch nem áll kapcsolatban a Trakttal, és a Trakt nem támogatja.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">A Fetch a Simklhez kapcsolódik fiókhitelesítéshez, a várólisták, a megtekintési előzmények és a lejátszási állapot szinkronizálásához, valamint a lejátszási adatok automatikus küldéséhez. A filmek, sorozatok és animék követési adatait a Simkl szolgáltatja. A Fetch nem áll kapcsolatban a Simkllel, és a Simkl nem támogatja.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">A Fetch az MDBList szolgáltatását használja az értékelésekhez, a megtekintési előzményekhez és a lejátszás követéséhez. A Fetch nem áll kapcsolatban az MDBListtel, és az MDBList nem támogatja.</string>
@@ -474,8 +468,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">Válaszd ki, melyik szolgáltatás adja meg, hol hagytad abba a lejátszást, és mi kerüljön a Megtekintés folytatása sorba. A lejátszási adatokat minden csatlakoztatott szolgáltatás megkapja.</string>
     <string name="tracking_library_source_dialog_subtitle">Válaszd ki a Könyvtár adatforrását. A lejátszási adatokat minden csatlakoztatott szolgáltatás megkapja.</string>
     <string name="tracking_trakt_progress_required">Akkor érhető el, ha a megtekintési állapot forrása a Trakt</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Haladó</string>
     <string name="settings_advanced_subtitle">Teljesítmény, navigáció, gyorsítótár és diagnosztika</string>
     <string name="experience_mode_essential">Alapvető</string>
@@ -602,7 +594,6 @@
     <string name="playback_player_external">Külső</string>
     <string name="playback_player_ask">Kérdezzen rá minden alkalommal</string>
     <string name="playback_internal_player_engine">Belső motor</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Béta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Automatikus motorváltás indítási hiba esetén</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Ha a stream indítása sikertelen, váltson automatikusan az ExoPlayer és libmpv között.</string>
@@ -938,7 +929,6 @@
     <string name="web_custom_poster_none">Nincs megadva URL-minta</string>
     <string name="web_custom_poster_loading">Betöltés…</string>
     <string name="web_custom_poster_placeholders_info">Helyőrzők: a {id} minden elérhető tartalomazonosítót továbbít. A {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} egyetlen azonosítótípust céloz; ha nem elérhető, az eredeti poszter marad. A {imdb_id|tmdb_id|kitsu_id} felsorolja a támogatott azonosítótípusokat; a megfelelő lesz használva, egyébként az eredeti poszter marad. A helyőrzőt a ? jellel teheted opcionálissá, ilyenkor kihagyás helyett üres értéket kap: {imdb_id?}. További helyőrzők: {id_type}, {typed_id}, {type}, {shape}.</string>
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">Megtekintési előzmények és lejátszási állapot szinkronizálása az eszközök között</string>
     <string name="mdblist_connected_as">Csatlakoztatott fiók: %1$s</string>
     <string name="mdblist_account_fallback">MDBList-felhasználó</string>
@@ -1088,7 +1078,6 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">Válaszd ki a részletek oldalán és a lejátszás után megjelenő ajánlások forrását.</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
     <string name="trakt_cached_label">Gyorsítótárazva</string>
     <string name="trakt_stat_movies">Film</string>
     <string name="trakt_stat_shows">Sorozat</string>
@@ -1740,7 +1729,6 @@
     <string name="cd_refresh">Frissítés</string>
     <string name="cd_remove">Eltávolítás</string>
     <string name="cd_preview">Előnézet</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt logó</string>
     <string name="cd_trakt_qr">Trakt aktivációs QR-kód</string>
     <string name="cd_imdb">IMDb</string>
@@ -1945,14 +1933,9 @@
     <string name="collections_editor_tmdb_person_placeholder">31 Tom Hankshez, vagy személy URL-je</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 vagy 123456</string>
     <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 az animációhoz</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en, hu, ja, ko</string>
     <string name="collections_editor_tmdb_country_placeholder">US, HU, KR, JP</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -2014,9 +1997,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks filmjei, Kedvenc színészek</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Christopher Nolan filmjei, Kedvenc rendezők</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 a szuperhősökhöz</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 a Marvel Studios-hoz</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 a Netflixhez</string>
     <string name="folder_detail_not_found">A mappa nem található</string>
     <string name="cast_error_load_details_for">Nem sikerült betölteni a részleteket ehhez: %1$s</string>

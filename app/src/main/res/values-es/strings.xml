@@ -160,7 +160,6 @@
         <item quantity="other">Se transmite dentro de %d días</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Hoy</string>
     <string name="cw_airs_tomorrow_short">Mañana</string>
     <plurals name="cw_airs_in_days_short">
@@ -261,7 +260,6 @@
     <string name="detail_comments_back_hint">Presiona atrás para cerrar</string>
     <string name="detail_comments_badge_review">Reseña</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d me gusta</string>
     <string name="tmdb_entity_kind_company">Productora</string>
     <string name="tmdb_entity_kind_network">Red</string>
@@ -274,10 +272,8 @@
     <string name="collections_editor_tmdb_quick_watch_regions">Regiones de visualización rápidas</string>
     <string name="collections_editor_tmdb_watch_providers">IDs de proveedores de visualización</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Usa los IDs de proveedores de visualización de TMDB. Separa varios con comas para Y, o con barras verticales para O.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">IDs de proveedores de visualización excluidos</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Excluye títulos disponibles en estos números de proveedor de visualización de TMDB en la región seleccionada.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Proveedores de visualización rápidos</string>
     <string name="tmdb_error_load_source">No se pudo cargar la fuente de TMDB</string>
     <string name="tmdb_error_list_not_found">Lista de TMDB no encontrada</string>
@@ -412,12 +408,10 @@
     <string name="licenses_attributions_section_app">LICENCIA DE LA APP</string>
     <string name="licenses_attributions_section_data">DATOS &amp; SERVICIOS</string>
     <string name="licenses_attributions_section_playback">LICENCIAS DE REPRODUCCIÓN DE ANDROID</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch usa la API de TMDB para metadatos de películas y series, ilustraciones, tráilers, elenco, detalles de producción, colecciones y recomendaciones. Este producto usa la API de TMDB pero no está respaldado ni certificado por TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch se conecta a Trakt para autenticación de cuenta, historial de visualización, sincronización de progreso, datos de biblioteca, calificaciones, listas y comentarios. Fetch no está afiliado ni respaldado por Trakt.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch se conecta a Simkl para autenticación de cuenta, listas de deseos, historial de visualización, progreso de reproducción y scrobbling. Los datos de seguimiento de películas, series y anime los proporciona Simkl. Fetch no está afiliado ni respaldado por Simkl.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch usa MDBList para calificaciones, historial de visualización y seguimiento de reproducción. Fetch no está afiliado ni respaldado por MDBList.</string>
@@ -464,8 +458,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">Elige el servicio que Fetch usa para reanudar y Continuar viendo. El scrobbling permanece activo en todos los servicios conectados.</string>
     <string name="tracking_library_source_dialog_subtitle">Elige el servicio que Fetch lee para tu Biblioteca. La reproducción hace scrobbling en todos los servicios conectados.</string>
     <string name="tracking_trakt_progress_required">Disponible cuando Trakt es la fuente de progreso de visualización</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Avanzado</string>
     <string name="settings_advanced_subtitle">Rendimiento, navegación, caché y diagnósticos</string>
     <string name="experience_mode_essential">Esencial</string>
@@ -568,7 +560,6 @@
     <string name="playback_player_external">Externo</string>
     <string name="playback_player_ask">Preguntar cada vez</string>
     <string name="playback_internal_player_engine">Motor interno</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Cambiar de motor automáticamente ante error de inicio</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Si falla el inicio de la transmisión, cambia automáticamente entre ExoPlayer y libmpv.</string>
@@ -879,7 +870,6 @@
     <string name="web_custom_poster_placeholders_info">Marcadores de posición: {id} pasa todos los IDs de contenido. {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} apuntan a un único tipo de ID; si no está disponible, se conserva el póster original. {imdb_id|tmdb_id|kitsu_id} declara los tipos de ID admitidos; se usa el que coincida, o se conserva el póster original. Añade ? para hacer que un marcador de posición sea opcional, resolviéndose a vacío en lugar de omitirse: {imdb_id?}. Otros marcadores de posición: {id_type}, {typed_id}, {type}, {shape}.</string>
 
 
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">Sincroniza el historial de visualización y el progreso de reproducción entre dispositivos</string>
     <string name="mdblist_connected_as">Conectado como %1$s</string>
     <string name="mdblist_account_fallback">Usuario de MDBList</string>
@@ -1018,7 +1008,6 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">Selecciona la fuente de las recomendaciones que se muestran en las pantallas de detalles y posreproducción.</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
     <string name="trakt_cached_label">En caché</string>
     <string name="trakt_stat_movies">Películas</string>
     <string name="trakt_stat_shows">Series</string>
@@ -1666,7 +1655,6 @@
     <string name="cd_refresh">Actualizar</string>
     <string name="cd_remove">Eliminar</string>
     <string name="cd_preview">Vista previa</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logotipo de Trakt</string>
     <string name="cd_trakt_qr">Código QR de activación de Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1870,14 +1858,9 @@
     <string name="collections_editor_tmdb_person_placeholder">31 para Tom Hanks, o URL de persona</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 o 123456</string>
     <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 para Animación</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1939,9 +1922,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Movies, Favorite Actors</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Christopher Nolan Movies, Favorite Directors</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 para superhéroe</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 para Marvel Studios</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 para Netflix</string>
     <string name="folder_detail_not_found">Carpeta no encontrada</string>
     <string name="cast_error_load_details_for">No se pudieron cargar los detalles de %1$s</string>

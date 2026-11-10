@@ -166,7 +166,6 @@
         <item quantity="other">يُعرض بعد %d يوم</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">اليوم</string>
     <string name="cw_airs_tomorrow_short">غداً</string>
     <plurals name="cw_airs_in_days_short">
@@ -265,7 +264,6 @@
     <string name="detail_comments_back_hint">اضغط رجوع للإغلاق</string>
     <string name="detail_comments_badge_review">مراجعة</string>
     <string name="detail_comments_badge_spoiler">حرق أحداث</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d إعجاب</string>
     <string name="tmdb_entity_kind_company">شركة الإنتاج</string>
     <string name="tmdb_entity_kind_network">شبكة العرض</string>
@@ -278,7 +276,6 @@
     <string name="collections_editor_tmdb_quick_watch_regions">مناطق شائعة</string>
     <string name="collections_editor_tmdb_watch_providers">مُعرّفات مزودي الخدمات للمشاهدة</string>
     <string name="collections_editor_tmdb_watch_providers_helper">استخدم مُعرّفات مزودي الخدمات من TMDB. افصل بينها بفاصلة للعملية (AND)، أو بخط عمودي (|) للعملية (OR)..</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">مزودون شائعون</string>
     <string name="tmdb_error_load_source">تعذر تحميل مصدر TMDB</string>
     <string name="tmdb_error_list_not_found">لم يتم العثور على قائمة TMDB</string>
@@ -366,7 +363,6 @@
     <string name="licenses_attributions_section_app">APP LICENSE</string>
     <string name="licenses_attributions_section_data">DATA &amp; SERVICES</string>
     <string name="licenses_attributions_section_playback">ANDROID PLAYBACK LICENSES</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch uses the TMDB API for movie and TV metadata, artwork, trailers, cast, production details, collections, and recommendations. This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
@@ -478,7 +474,6 @@
     <string name="playback_player_external">خارجي</string>
     <string name="playback_player_ask">السؤال في كل مرة</string>
     <string name="playback_internal_player_engine">محرك التشغيل الداخلي</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (تجريبي)</string>
     <string name="playback_auto_switch_internal_player_on_error">التبديل التلقائي لمحرك التشغيل عند خطأ بالتشغيل</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">إذا فشل بدء التشغيل، سيتم التبديل بين ExoPlayer و libmpv تلقائياً.</string>
@@ -1411,7 +1406,6 @@
     <string name="cd_refresh">تحديث</string>
     <string name="cd_remove">إزالة</string>
     <string name="cd_preview">معاينة</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">شعار Trakt</string>
     <string name="cd_trakt_qr">رمز QR لتفعيل Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1609,13 +1603,8 @@
     <string name="collections_editor_tmdb_person_placeholder">31 لـ Tom Hanks، أو رابط الشخص</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 أو 123456</string>
     <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, ar</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, SA</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1899,16 +1888,13 @@
     <string name="collections_editor_tmdb_collection_fallback">مجموعة TMDB ‏%1$d</string>
     <string name="collections_editor_tmdb_without_companies">معرفات الشركات المستثناة</string>
     <string name="collections_editor_tmdb_without_companies_helper">استثناء العناوين المرتبطة بأرقام هذه الشركات في TMDB.</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_without_genres">معرفات التصنيفات المستثناة</string>
     <string name="collections_editor_tmdb_without_genres_helper">استثناء العناوين المطابقة لأرقام هذه التصنيفات في TMDB.</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 للرسوم المتحركة</string>
     <string name="collections_editor_tmdb_without_keywords">معرفات الكلمات المفتاحية المستثناة</string>
     <string name="collections_editor_tmdb_without_keywords_helper">استثناء العناوين المطابقة لأرقام هذه الكلمات المفتاحية في TMDB.</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_without_watch_providers">معرفات مزودي المشاهدة المستثناة</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">استثناء العناوين المتوفرة عبر أرقام مزودي المشاهدة هؤلاء في TMDB للمنطقة المحددة.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="debug_progress_indicator_default">افتراضي</string>
     <string name="debug_progress_indicator_large">كبير</string>
     <string name="debug_progress_indicator_small">صغير</string>
@@ -1989,7 +1975,6 @@
     <string name="library_watched_filter_unwatched">لم تتم مشاهدته</string>
     <string name="library_watched_filter_watched">تمت مشاهدته</string>
     <string name="licenses_attributions_simkl_body">يتصل Fetch بـ Simkl لمصادقة الحساب وقوائم المشاهدة وسجل المشاهدة وتقدم التشغيل والتسجيل التلقائي (Scrobbling). بيانات تتبع الأفلام والمسلسلات والأنمي مقدمة من Simkl. Fetch غير تابع لـ Simkl ولا معتمد منه.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="playback_buffer_after_rebuffer">التخزين المؤقت بعد الانقطاع</string>
     <string name="playback_buffer_after_rebuffer_sub">مقدار المحتوى المخزن مؤقتًا بعد توقف التشغيل بسبب التخزين المؤقت. القيم الأعلى تقلل انقطاعات التخزين المتكررة.</string>
     <string name="playback_buffer_allow_large">السماح بمخزون هدف أكبر</string>
@@ -2078,7 +2063,6 @@
     <string name="simkl_error_code_expired">انتهت صلاحية رمز Simkl. ابدأ من جديد.</string>
     <string name="simkl_error_network">تعذر الوصول إلى Simkl. حاول مجددًا.</string>
     <string name="simkl_missing_credentials">ينقص SIMKL_CLIENT_ID</string>
-    <string name="simkl_name">Simkl</string>
     <string name="simkl_status_connected">متصل بـ Simkl</string>
     <string name="simkl_status_disconnected">انقطع الاتصال بـ Simkl</string>
     <string name="simkl_status_enter_code">أدخل الرمز في Simkl لإتمام الربط</string>
@@ -2148,7 +2132,6 @@
     <string name="tracking_trakt_features_title">ميزات Trakt</string>
     <string name="tracking_trakt_progress_required">متاح عندما يكون Trakt هو مصدر تقدم المشاهدة</string>
     <string name="tracking_watch_progress_dialog_subtitle">اختر الخدمة التي يقرأ منها Fetch للاستئناف ومتابعة المشاهدة. يبقى التسجيل التلقائي نشطًا لكل خدمة متصلة.</string>
-    <string name="trakt_name">Trakt</string>
     <string name="unit_size_b">‏%1$d بايت</string>
     <string name="unit_size_gb">‏%1$s ج.ب</string>
     <string name="unit_size_kb">‏%1$s ك.ب</string>

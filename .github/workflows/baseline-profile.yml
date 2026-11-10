@@ -44,6 +44,12 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # Built before the emulator boots, so the two don't compete for the runner's memory.
+      - name: Build the app and the journey
+        run: |
+          ./gradlew --no-daemon :app:assembleFullNonMinifiedRelease :baselineprofile:assembleNonMinifiedRelease
+          ./gradlew --stop
+
       # API 33+ records profiles without root. The build needs no private configuration.
       - name: Record profiles
         uses: reactivecircus/android-emulator-runner@v2
@@ -55,15 +61,17 @@ jobs:
           cores: 4
           ram-size: 4096M
           disable-animations: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-snapshot-save -no-window -gpu swangle_indirect -noaudio -no-boot-anim -camera-back none
           script: |
-            (adb logcat -s FetchJourney > journey-log.txt &); timeout 60m ./gradlew --no-daemon :app:generateBaselineProfile; status=$?; adb pull /sdcard/Download/fetch-journey journey-screens || true; exit $status
+            (adb logcat -s FetchJourney > journey-log.txt &); timeout 60m ./gradlew --no-daemon -Dorg.gradle.jvmargs=-Xmx3g :app:generateBaselineProfile; status=$?; adb pull /sdcard/Download/fetch-journey journey-screens || true; exit $status
             python3 scripts/check_baseline_profiles.py
             if [ "${{ github.event_name != 'workflow_dispatch' || inputs.benchmark }}" = "true" ]; then scripts/perf_baseline.sh benchmark-emulator || echo "::warning::StartupBenchmark failed; the profiles are still uploaded."; fi
 
       - name: Summarise
         if: always()
         run: |
+          # An emulator that vanished mid-run was usually killed for memory; say so if it was.
+          sudo dmesg | grep -i -E "out of memory|oom-kill|killed process" | tail -5 || true
           {
             echo "### Profiles"
             echo '```'

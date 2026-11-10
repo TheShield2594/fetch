@@ -89,6 +89,8 @@ internal fun MacrobenchmarkScope.launchToHome() {
     }
     // Also covers a wizard left half-done by an earlier run that stopped after sign-in.
     device.completeFirstRunWizard()
+    // The wizard closes a moment after its last press; don't start on Home while it is still up.
+    device.wait(Until.gone(By.text(WIZARD_EXPERIENCE_TITLE)), 10_000)
     device.waitForIdle()
     Thread.sleep(3_000)
     device.snapshot("after-onboarding")

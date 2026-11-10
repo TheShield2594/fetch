@@ -57,25 +57,26 @@ const syncOverviewRoutes: FastifyPluginAsync = async (app) => {
       };
     }
 
-    // The caller's own account. Counts below are grouped over every profile,
-    // and only the rows for these ones are read back out.
+    // The caller's own account, and the counts below for its profiles only —
+    // grouping install-wide (the whole watch history included) and filtering
+    // afterwards would read every other account's rows on each poll.
     const scope = accountScope(request);
-    const [profiles, addons, enabledAddons, lists, resumePoints, watched, documents, jobs] =
-      await Promise.all([
-        prisma.profile.findMany({
-          where: scope ? { accountId: scope } : {},
-          orderBy: { createdAt: "asc" },
-          select: { id: true, name: true, usesPrimaryAddons: true },
-        }),
-        prisma.profileAddon.groupBy({ by: ["profileId"], _count: { _all: true } }),
-        prisma.profileAddon.groupBy({ by: ["profileId"], where: { enabled: true }, _count: { _all: true } }),
-        prisma.list.groupBy({ by: ["profileId"], _count: { _all: true } }),
-        prisma.playbackProgress.groupBy({ by: ["profileId"], _count: { _all: true } }),
-        prisma.watchEvent.groupBy({ by: ["profileId"], _count: { _all: true } }),
-        prisma.profileDocument.findMany({ select: { profileId: true, kind: true, updatedAt: true } }),
-        // The scheduled jobs are the install's, and their errors are the admin's to see.
-        isAdminRequest(request) ? getJobRuns() : Promise.resolve([]),
-      ]);
+    const profiles = await prisma.profile.findMany({
+      where: scope ? { accountId: scope } : {},
+      orderBy: { createdAt: "asc" },
+      select: { id: true, name: true, usesPrimaryAddons: true },
+    });
+    const ofProfiles = { profileId: { in: profiles.map((profile) => profile.id) } };
+    const [addons, enabledAddons, lists, resumePoints, watched, documents, jobs] = await Promise.all([
+      prisma.profileAddon.groupBy({ by: ["profileId"], where: ofProfiles, _count: { _all: true } }),
+      prisma.profileAddon.groupBy({ by: ["profileId"], where: { ...ofProfiles, enabled: true }, _count: { _all: true } }),
+      prisma.list.groupBy({ by: ["profileId"], where: ofProfiles, _count: { _all: true } }),
+      prisma.playbackProgress.groupBy({ by: ["profileId"], where: ofProfiles, _count: { _all: true } }),
+      prisma.watchEvent.groupBy({ by: ["profileId"], where: ofProfiles, _count: { _all: true } }),
+      prisma.profileDocument.findMany({ where: ofProfiles, select: { profileId: true, kind: true, updatedAt: true } }),
+      // The scheduled jobs are the install's, and their errors are the admin's to see.
+      isAdminRequest(request) ? getJobRuns() : Promise.resolve([]),
+    ]);
     const devices = request.deviceId
       ? null
       : await prisma.device.findMany({

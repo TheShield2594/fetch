@@ -50,15 +50,18 @@ const apiToken = process.env.API_TOKEN ?? "dev-token";
 
 let failed = false;
 
-const check = async (name: string, run: () => Promise<void>): Promise<void> => {
+// Answers what `run` returned, so a later check can build on it, or null when it failed.
+const check = async <T>(name: string, run: () => Promise<T>): Promise<T | null> => {
   process.stdout.write(`• ${name}... `);
   try {
-    await run();
+    const result = await run();
     process.stdout.write("PASS\n");
+    return result;
   } catch (error) {
     const details = error instanceof Error ? error.message : String(error);
     process.stdout.write(`FAIL (${details})\n`);
     failed = true;
+    return null;
   }
 };
 
@@ -97,43 +100,72 @@ await check("API /health/ready", async () => {
   }
 });
 
-// 3. GET /manifest.json on addon — expect 200 with valid JSON containing a catalogs array
-type Manifest = { catalogs?: Array<{ type: string; id: string; name: string }> };
-let manifest: Manifest | null = null;
+const auth = { Authorization: `Bearer ${apiToken}` };
 
-await check("Addon /manifest.json", async () => {
-  const { response, body } = await getJson(`${addonBase}/manifest.json`);
+// 3. GET /profiles — pick the profile the profile-scoped checks below act as.
+// Every one of them goes through the API's `resolveProfile`, which wants an
+// `x-profile-id` as soon as the install has a second profile, and turns away a
+// PIN-protected one that `API_TOKEN` alone hasn't unlocked — so the first
+// profile without a PIN.
+const profileId = await check("API /profiles", async () => {
+  const { response, body } = await getJson(`${apiBase}/profiles`, { headers: auth });
   if (response.status !== 200) {
     throw new Error(`Expected 200, got ${response.status}`);
   }
-  const m = body as Manifest;
-  if (!Array.isArray(m?.catalogs)) {
-    throw new Error(`Response missing catalogs array: ${JSON.stringify(body)}`);
+  const profiles = (body as { profiles?: Array<{ id: string; hasPin?: boolean }> })?.profiles;
+  if (!Array.isArray(profiles)) {
+    throw new Error(`Response missing profiles array: ${JSON.stringify(body)}`);
   }
-  manifest = m;
+  const unlocked = profiles.find((profile) => !profile.hasPin);
+  if (!unlocked) {
+    throw new Error(
+      profiles.length === 0 ? "No profiles yet" : "Every profile has a PIN, so API_TOKEN alone can't act as one"
+    );
+  }
+  return unlocked.id;
 });
 
-// 4. If TRAKT_CLIENT_ID is set, POST /trakt/import — expect 200 with { imported: { movies, episodes } }
-if (process.env.TRAKT_CLIENT_ID) {
-  await check("POST /trakt/import", async () => {
-    const { response, body } = await getJson(`${apiBase}/trakt/import`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiToken}` },
-    });
+const profileHeaders = (id: string) => ({ ...auth, "x-profile-id": id });
+
+// 4. GET /addon/config, then the add-on's manifest at that profile's signed URL
+// (`/u/<profileId>/<key>/manifest.json`) — expect 200 with a catalogs array.
+// The add-on's un-prefixed `/manifest.json` 404s whenever signed URLs are
+// required, which by default is as soon as a second account exists.
+type Manifest = { catalogs?: Array<{ type: string; id: string; name: string }> };
+
+const addonProfileBase = profileId
+  ? await check("API /addon/config", async () => {
+      const { response, body } = await getJson(`${apiBase}/addon/config`, { headers: profileHeaders(profileId) });
+      if (response.status !== 200) {
+        throw new Error(`Expected 200, got ${response.status}`);
+      }
+      const key = (body as { stremioProfileKey?: string | null })?.stremioProfileKey;
+      if (!key) {
+        throw new Error(`Response missing stremioProfileKey: ${JSON.stringify(body)}`);
+      }
+      return `${addonBase}/u/${profileId}/${key}`;
+    })
+  : null;
+
+if (addonProfileBase) {
+  const base = addonProfileBase;
+  const manifest = await check("Addon /u/…/manifest.json", async () => {
+    const { response, body } = await getJson(`${base}/manifest.json`);
     if (response.status !== 200) {
       throw new Error(`Expected 200, got ${response.status}`);
     }
-    const b = body as { imported?: { movies?: unknown; episodes?: unknown } };
-    if (!b?.imported || !("movies" in b.imported) || !("episodes" in b.imported)) {
-      throw new Error(`Expected { imported: { movies, episodes } }, got: ${JSON.stringify(body)}`);
+    const m = body as Manifest;
+    if (!Array.isArray(m?.catalogs)) {
+      throw new Error(`Response missing catalogs array: ${JSON.stringify(body)}`);
     }
+    return m;
   });
 
-  // 5. GET /catalog/movie/{first catalog id}.json — expect { metas: [...] }
+  // 5. GET /catalog/movie/{first catalog id}.json on the same signed URL — expect { metas: [...] }
   const firstMovieCatalog = manifest?.catalogs?.find((c) => c.type === "movie");
   if (firstMovieCatalog) {
-    await check(`Catalog /catalog/movie/${firstMovieCatalog.id}.json`, async () => {
-      const { response, body } = await getJson(`${addonBase}/catalog/movie/${firstMovieCatalog.id}.json`);
+    await check(`Addon /u/…/catalog/movie/${firstMovieCatalog.id}.json`, async () => {
+      const { response, body } = await getJson(`${base}/catalog/movie/${firstMovieCatalog.id}.json`);
       if (response.status !== 200) {
         throw new Error(`Expected 200, got ${response.status}`);
       }
@@ -146,16 +178,35 @@ if (process.env.TRAKT_CLIENT_ID) {
     process.stdout.write("• Catalog movie check... SKIP (no movie catalog in manifest)\n");
   }
 } else {
-  process.stdout.write("• Trakt checks... SKIP (TRAKT_CLIENT_ID not set)\n");
+  process.stdout.write("• Addon manifest and catalog checks... SKIP (no profile or addon key)\n");
 }
 
-// 6. If STEAM_API_KEY and STEAM_ID are set, POST /games/steam/sync — expect
+// 6. GET /trakt/status — read-only, unlike an import, which would pull the
+// profile's whole Trakt history on every smoke run. With TRAKT_CLIENT_ID set,
+// the API should also report Trakt as configured.
+if (profileId) {
+  await check("API /trakt/status", async () => {
+    const { response, body } = await getJson(`${apiBase}/trakt/status`, { headers: profileHeaders(profileId) });
+    if (response.status !== 200) {
+      throw new Error(`Expected 200, got ${response.status}`);
+    }
+    const b = body as { connected?: unknown; configured?: unknown };
+    if (typeof b?.connected !== "boolean" || typeof b.configured !== "boolean") {
+      throw new Error(`Expected { connected, configured, … }, got: ${JSON.stringify(body)}`);
+    }
+    if (process.env.TRAKT_CLIENT_ID && !b.configured) {
+      throw new Error("TRAKT_CLIENT_ID is set here but the API reports Trakt as not configured");
+    }
+  });
+}
+
+// 7. If STEAM_API_KEY and STEAM_ID are set, POST /games/steam/sync — expect
 // 200 with a { total, created, updated, matched, unmatched } summary.
-if (process.env.STEAM_API_KEY && process.env.STEAM_ID) {
+if (process.env.STEAM_API_KEY && process.env.STEAM_ID && profileId) {
   await check("POST /games/steam/sync", async () => {
     const { response, body } = await getJson(`${apiBase}/games/steam/sync`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${apiToken}` },
+      headers: profileHeaders(profileId),
     });
     if (response.status !== 200) {
       throw new Error(`Expected 200, got ${response.status}`);

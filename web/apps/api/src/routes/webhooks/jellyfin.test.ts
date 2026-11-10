@@ -36,6 +36,35 @@ describe("POST /webhooks/jellyfin", () => {
     expect(watchEventMock.recordWatchEvent).not.toHaveBeenCalled();
   });
 
+  it("rejects an unauthenticated request before parsing its body", async () => {
+    webhookAuthMock.authenticateWebhook.mockResolvedValue(null);
+    const app = await buildApp();
+
+    // Malformed JSON: had the body been parsed first, this would be a 400.
+    const response = await app.inject({
+      method: "POST",
+      url: "/webhooks/jellyfin",
+      headers: { "content-type": "application/json" },
+      payload: "{not json",
+    });
+
+    expect(response.statusCode).toBe(403);
+  });
+
+  it("413s a body over the route's own limit", async () => {
+    const app = await buildApp();
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/webhooks/jellyfin",
+      headers: { "content-type": "application/json" },
+      payload: JSON.stringify({ padding: "x".repeat(2 * 1024 * 1024) }),
+    });
+
+    expect(response.statusCode).toBe(413);
+    expect(watchEventMock.recordWatchEvent).not.toHaveBeenCalled();
+  });
+
   it("400s with the route's own error when the parsed body is null", async () => {
     const app = await buildApp();
 

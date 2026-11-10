@@ -21,6 +21,7 @@ import {
   getDefaultProfileId,
   ownsProfile,
   isProfileLocked,
+  PROFILE_HEADER,
   PROFILE_LOCKED_RESPONSE,
   resolveProfile,
 } from "../lib/profile.js";
@@ -85,10 +86,15 @@ const discoveryCacheKey = (catalog: DiscoveryCatalog, profileId: string, region:
 };
 
 const stremioRoutes: FastifyPluginAsync = async (app) => {
-  // `/stremio/list/:listId` has no header to name a profile by, so it accepts
-  // an optional `profileId` query string param and otherwise falls back to
-  // the default (oldest) profile, so single-profile installs keep working
-  // unchanged.
+  // `/stremio/list/:listId` takes an optional `profileId` query string param,
+  // which is how the TV app names one. Without it, an `x-profile-id` header is
+  // honoured through `resolveProfile`, as on every other profile-scoped route —
+  // ignoring it served the oldest profile's library to a caller acting as
+  // another. With neither, the default (oldest) profile, so single-profile
+  // installs keep working unchanged.
+  //
+  // Answers REPLIED once `resolveProfile` has sent its own error (a bad or
+  // unknown header, or a locked profile); the caller just stops.
   //
   // Returns null when the chosen profile is PIN-protected and the request has
   // not verified that PIN — the selector names a profile, it does not authorise
@@ -99,14 +105,20 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
   // The `/addon/stremio/:secret/…` routes are deliberately not affected: they
   // resolve their profile from the secret in the path, which *is* the
   // credential — Stremio sends no headers and could never carry a PIN token.
+  const REPLIED = Symbol("replied");
   const resolveStremioProfileId = async (
     request: FastifyRequest,
+    reply: FastifyReply,
     queryProfileId: unknown
-  ): Promise<string | null> => {
+  ): Promise<string | null | typeof REPLIED> => {
     let profileId: string | null = null;
     if (typeof queryProfileId === "string" && UUID_V4_PATTERN.test(queryProfileId)) {
       const profile = await prisma.profile.findUnique({ where: { id: queryProfileId } });
       if (profile && ownsProfile(request, profile)) profileId = profile.id;
+    } else if (request.headers[PROFILE_HEADER]) {
+      // `resolveProfile` does its own PIN check on this path.
+      await resolveProfile(request, reply);
+      return reply.sent ? REPLIED : (request.profileId ?? null);
     }
     profileId ??= await getDefaultProfileId(accountScope(request));
     return (await isProfileLocked(request, profileId)) ? null : profileId;
@@ -126,7 +138,8 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
       // contents. Looking a list up by id alone made this an IDOR: a caller who
       // knew (or guessed) a UUID could read a list belonging to a profile it was
       // not acting as, including a PIN-protected one.
-      const profileId = await resolveStremioProfileId(request, request.query.profileId);
+      const profileId = await resolveStremioProfileId(request, reply, request.query.profileId);
+      if (profileId === REPLIED) return reply;
       if (!profileId) return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
       const list = await prisma.list.findFirst({
         where: { id: request.params.listId, profileId },

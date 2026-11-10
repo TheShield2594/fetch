@@ -683,7 +683,8 @@ account exists, which the addon learns from `GET /auth/status` (called with
 
 A custom list's catalog is also served as plain JSON at
 `/stremio/list/:listId?type=&limit=&profileId=`, which the TV and desktop apps
-read.
+read. Without `profileId` the profile comes from `x-profile-id`, as on other
+routes, and with neither, the default (oldest) profile.
 
 ### Push notifications
 

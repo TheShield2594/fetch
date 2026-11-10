@@ -46,6 +46,35 @@ describe("POST /webhooks/plex", () => {
     expect(watchEventMock.recordWatchEvent).not.toHaveBeenCalled();
   });
 
+  it("rejects an unauthenticated request before reading its body", async () => {
+    webhookAuthMock.authenticateWebhook.mockResolvedValue(null);
+    const app = await buildApp();
+
+    // Over the route's body limit: had the body been read first, this would be a 413.
+    const response = await app.inject({
+      method: "POST",
+      url: "/webhooks/plex",
+      headers: { "content-type": "multipart/form-data; boundary=b" },
+      payload: "x".repeat(6 * 1024 * 1024),
+    });
+
+    expect(response.statusCode).toBe(403);
+  });
+
+  it("413s a body over the route's own limit", async () => {
+    const app = await buildApp();
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/webhooks/plex",
+      headers: { "content-type": "multipart/form-data; boundary=b" },
+      payload: "x".repeat(6 * 1024 * 1024),
+    });
+
+    expect(response.statusCode).toBe(413);
+    expect(watchEventMock.recordWatchEvent).not.toHaveBeenCalled();
+  });
+
   it("400s when no payload field is found in a multipart body", async () => {
     const app = await buildApp();
 

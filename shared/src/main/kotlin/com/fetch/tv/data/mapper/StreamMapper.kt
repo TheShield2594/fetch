@@ -32,11 +32,11 @@ fun StreamDto.toDomain(addonName: String, addonLogo: String?): Stream = Stream(
     sources = sources,
     clientResolve = clientResolve?.toDomain(),
     subtitles = subtitles.orEmpty().mapNotNull { dto ->
-        val url = dto.url.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+        val url = dto.url?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
         Subtitle(
             id = dto.id?.takeIf { it.isNotBlank() } ?: url,
             url = url,
-            lang = dto.lang.ifBlank { "Unknown" },
+            lang = dto.lang?.takeIf { it.isNotBlank() } ?: "Unknown",
             addonName = addonName,
             addonLogo = addonLogo,
             isStreamProvided = true,

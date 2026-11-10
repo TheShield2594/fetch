@@ -145,6 +145,7 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Fixed
 
+- **Series opened from a Fetch row in a Stremio client have episodes.** The add-on answers `meta` for every series but sent no `videos`, so a client that asked it first (Omni, Nuvio, Vidi, or Stremio with Fetch above Cinemeta) showed a series with nothing to play. Series meta now lists every numbered season's episodes as `tt…:season:episode`, with title, air date and still; a season whose episodes can't be read is still listed, numbered from its episode count ([#343](https://github.com/TheShield2594/fetch/issues/343)).
 - **Closing the profile switcher mid-request no longer switches profiles anyway.** Creating a profile, unlocking one with its PIN or picking one, then closing the switcher (or going back) before the answer came, still switched to that profile and replaced the stored profile token. A late answer now changes nothing ([#391](https://github.com/TheShield2594/fetch/issues/391)).
 - **Settings → Stremio Addon says when profile details didn't load.** A failed profile lookup used to drop the profile name and the "each profile has its own URL" hint without a word; the panel now says so and offers a Retry that reloads only the profiles ([#392](https://github.com/TheShield2594/fetch/issues/392)).
 - **Small fixes from the web and add-on review** ([#364](https://github.com/TheShield2594/fetch/issues/364)):

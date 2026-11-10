@@ -20,3 +20,13 @@ export type StremioSubtitle = {
   url: string;
   lang: string;
 };
+
+/** One episode of a series meta. Without these a client shows a series with nothing to play. */
+export type StremioVideo = {
+  id: string;
+  title: string;
+  season: number;
+  episode: number;
+  released?: string;
+  thumbnail?: string;
+};

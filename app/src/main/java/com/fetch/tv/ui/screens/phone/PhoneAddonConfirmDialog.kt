@@ -35,15 +35,20 @@ fun PhoneAddonConfirmDialog(viewModel: PhoneHubViewModel) {
     }
 }
 
+/**
+ * The addon install question itself, shared by phone proposals and by stremio:// / fetch://
+ * deep links, which another app or a web page can fire without anyone at the TV asking.
+ */
 @Composable
-private fun PhoneAddonConfirmContent(
+internal fun PhoneAddonConfirmContent(
     request: PhoneAddonRequest,
     onConfirm: () -> Unit,
-    onReject: () -> Unit
+    onReject: () -> Unit,
+    title: String = stringResource(R.string.phone_addon_confirm_title)
 ) {
     FetchDialog(
         onDismiss = onReject,
-        title = stringResource(R.string.phone_addon_confirm_title),
+        title = title,
         subtitle = request.name,
         width = 560.dp,
         scrollable = true

@@ -2,10 +2,9 @@ package com.fetch.tv.core.search
 
 import android.util.Log
 import com.fetch.tv.core.network.NetworkResult
-import com.fetch.tv.core.parental.ProfilePinManager
 import com.fetch.tv.core.poster.CustomPosterScreen
+import com.fetch.tv.core.profile.LauncherExposureGate
 import com.fetch.tv.core.profile.ProfileManager
-import com.fetch.tv.data.local.ProfileRestrictionsDataStore
 import com.fetch.tv.data.mediaserver.ServerCatalog
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.CatalogDescriptor
@@ -51,8 +50,7 @@ class GlobalSearch @Inject constructor(
     private val serverCatalog: ServerCatalog,
     private val catalogRepository: CatalogRepository,
     private val profileManager: ProfileManager,
-    private val restrictionsDataStore: ProfileRestrictionsDataStore,
-    private val pinManager: ProfilePinManager
+    private val launcherExposureGate: LauncherExposureGate
 ) {
     private val cache = object : LinkedHashMap<String, CachedResults>(CACHE_SIZE, 0.75f, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, CachedResults>?): Boolean =
@@ -64,7 +62,7 @@ class GlobalSearch @Inject constructor(
     suspend fun search(rawQuery: String, limit: Int): List<GlobalSearchResult> {
         val query = rawQuery.trim()
         if (query.length < MIN_QUERY_LENGTH) return emptyList()
-        if (!isAllowed()) return emptyList()
+        if (!launcherExposureGate.mayExposeActiveProfile()) return emptyList()
 
         val addons = withTimeoutOrNull(ADDONS_TIMEOUT_MS) {
             addonRepository.getInstalledAddons().first().enabledAddons() + serverCatalog.searchAddons.first()
@@ -79,13 +77,6 @@ class GlobalSearch @Inject constructor(
         val merged = mergeGlobalSearchResults(searchCatalogs(targets, query), MAX_RESULTS)
         if (merged.isNotEmpty()) synchronized(cache) { cache[key] = CachedResults(now, merged) }
         return merged.take(limit)
-    }
-
-    private suspend fun isAllowed(): Boolean {
-        withTimeoutOrNull(PROFILE_READY_TIMEOUT_MS) { profileManager.activeProfileReady.first { it } } ?: return false
-        if (restrictionsDataStore.restrictions.first().values.any { it.isRestricted }) return false
-        val activeId = profileManager.activeProfileId.value
-        return pinManager.pinEnabled.first()[activeId] != true
     }
 
     /**
@@ -138,7 +129,6 @@ class GlobalSearch @Inject constructor(
         // The launcher stops waiting after a few seconds; slow addons are left out, not waited on.
         private const val ADDONS_TIMEOUT_MS = 1_000L
         private const val CATALOG_TIMEOUT_MS = 3_500L
-        private const val PROFILE_READY_TIMEOUT_MS = 2_000L
     }
 }
 

@@ -521,6 +521,93 @@ describe("profile scoping", () => {
     }
   });
 
+  it("lists a series' episodes as videos so a client has something to play", async () => {
+    const stub = fetchMock.getMockImplementation()!;
+    fetchMock.mockImplementation(async (input, init) => {
+      const { pathname } = new URL(String(input));
+      if (pathname === "/meta/series/tt0903747") return jsonResponse({ name: "Breaking Bad", year: 2008 });
+      if (pathname === "/meta/series/tt0903747/seasons") {
+        return jsonResponse({
+          seasons: [
+            { seasonNumber: 0, name: "Specials", episodeCount: 3, airYear: null, poster: null },
+            { seasonNumber: 2, name: "Season 2", episodeCount: 2, airYear: 2009, poster: null },
+            { seasonNumber: 1, name: "Season 1", episodeCount: 2, airYear: 2008, poster: null },
+          ],
+        });
+      }
+      if (pathname === "/meta/series/tt0903747/season/1/episodes") {
+        return jsonResponse({
+          episodes: [
+            { episodeNumber: 2, name: "Cat's in the Bag...", airDate: "2008-01-27", still: null, runtime: 48 },
+            { episodeNumber: 1, name: "Pilot", airDate: "2008-01-20", still: "https://img.test/1.jpg", runtime: 58 },
+          ],
+        });
+      }
+      // Season 2's episodes can't be read: they are still listed, numbered from its count.
+      if (pathname === "/meta/series/tt0903747/season/2/episodes") return jsonResponse({ error: "boom" }, 500);
+      return stub(input, init);
+    });
+    try {
+      const response = await app.inject({ method: "GET", url: "/meta/series/tt0903747.json" });
+      expect(response.statusCode).toBe(200);
+      const { meta } = response.json() as { meta: { videos: Record<string, unknown>[] } };
+      expect(meta.videos).toEqual([
+        {
+          id: "tt0903747:1:1",
+          title: "Pilot",
+          season: 1,
+          episode: 1,
+          released: "2008-01-20T00:00:00.000Z",
+          thumbnail: "https://img.test/1.jpg",
+        },
+        { id: "tt0903747:1:2", title: "Cat's in the Bag...", season: 1, episode: 2, released: "2008-01-27T00:00:00.000Z" },
+        { id: "tt0903747:2:1", title: "Episode 1", season: 2, episode: 1 },
+        { id: "tt0903747:2:2", title: "Episode 2", season: 2, episode: 2 },
+      ]);
+      expect(callsTo("/meta/series/tt0903747/season/0/episodes")).toHaveLength(0);
+    } finally {
+      fetchMock.mockImplementation(stub);
+    }
+  });
+
+  it("numbers a season's episodes when none of those it got has a usable number", async () => {
+    const stub = fetchMock.getMockImplementation()!;
+    fetchMock.mockImplementation(async (input, init) => {
+      const { pathname } = new URL(String(input));
+      if (pathname === "/meta/series/tt1") return jsonResponse({ name: "Show" });
+      if (pathname === "/meta/series/tt1/seasons") {
+        return jsonResponse({ seasons: [{ seasonNumber: 1, name: "Season 1", episodeCount: 2, airYear: null, poster: null }] });
+      }
+      if (pathname === "/meta/series/tt1/season/1/episodes") {
+        return jsonResponse({ episodes: [{ name: "No number", airDate: null, still: null, runtime: null }] });
+      }
+      return stub(input, init);
+    });
+    try {
+      const response = await app.inject({ method: "GET", url: "/meta/series/tt1.json" });
+      const { meta } = response.json() as { meta: { videos: { id: string }[] } };
+      expect(meta.videos.map((video) => video.id)).toEqual(["tt1:1:1", "tt1:1:2"]);
+    } finally {
+      fetchMock.mockImplementation(stub);
+    }
+  });
+
+  it("leaves videos off a movie meta", async () => {
+    const stub = fetchMock.getMockImplementation()!;
+    fetchMock.mockImplementation(async (input, init) => {
+      if (new URL(String(input)).pathname === "/meta/movie/tt0111161") return jsonResponse({ name: "Shawshank" });
+      return stub(input, init);
+    });
+    try {
+      const response = await app.inject({ method: "GET", url: "/meta/movie/tt0111161.json" });
+      expect(response.statusCode).toBe(200);
+      expect((response.json() as { meta: Record<string, unknown> }).meta.videos).toBeUndefined();
+      expect(calls.some((call) => new URL(call.url).pathname.includes("/seasons"))).toBe(false);
+    } finally {
+      fetchMock.mockImplementation(stub);
+    }
+  });
+
   it("scopes catalog reads to the profile in the addon URL", async () => {
     await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/manifest.json` });
 

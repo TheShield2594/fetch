@@ -84,8 +84,11 @@ data class ProxyHeadersDto(
 @JsonClass(generateAdapter = true)
 data class SubtitleDto(
     @Json(name = "id") val id: String? = null,
-    @Json(name = "url") val url: String,
-    @Json(name = "lang") val lang: String,
+    // Nullable on purpose: many addons leave `lang` (and sometimes `url`) out, and a
+    // required field here would make Moshi reject the addon's whole stream or meta
+    // response over one bad subtitle entry. The mapper drops or defaults them.
+    @Json(name = "url") val url: String? = null,
+    @Json(name = "lang") val lang: String? = null,
     @Json(name = "headers") val headers: Map<String, String>? = null
 )
 

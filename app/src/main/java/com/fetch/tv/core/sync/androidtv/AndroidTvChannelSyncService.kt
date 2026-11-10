@@ -5,6 +5,7 @@ import android.util.Log
 import com.fetch.tv.core.poster.CustomPosterScreen
 import com.fetch.tv.core.poster.patternForScreen
 import com.fetch.tv.core.poster.withCustomPosterArt
+import com.fetch.tv.core.profile.LauncherExposureGate
 import com.fetch.tv.core.recommendations.TvRecommendationManager
 import com.fetch.tv.data.local.CachedInProgressItem
 import com.fetch.tv.data.local.CachedNextUpItem
@@ -20,6 +21,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -48,7 +50,8 @@ class AndroidTvChannelSyncService @Inject constructor(
     private val cwEnrichmentCache: ContinueWatchingEnrichmentCache,
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
     private val traktSettingsDataStore: TraktSettingsDataStore,
-    private val tvRecommendationManager: TvRecommendationManager
+    private val tvRecommendationManager: TvRecommendationManager,
+    private val launcherExposureGate: LauncherExposureGate
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -100,6 +103,19 @@ class AndroidTvChannelSyncService @Inject constructor(
                     reconcileFromCache(settings)
                 }
         }
+
+        scope.launch {
+            // A PIN or parental limit can arrive with no cache or settings change (a website sync
+            // while Fetch is in the background), so the exposure policy triggers its own
+            // reconcile: that clears the rows when it turns to "don't show", and restores them
+            // when it turns back. The first value is the starting state, not a change.
+            launcherExposureGate.exposureChanges
+                .drop(1)
+                .collect {
+                    if (appInForeground) return@collect
+                    reconcileFromCache()
+                }
+        }
     }
 
     /**
@@ -107,6 +123,15 @@ class AndroidTvChannelSyncService @Inject constructor(
      * Called both from the live observer and from [TvChannelRefreshJobService].
      */
     suspend fun reconcileFromCache(settings: ChannelSettingsSnapshot? = null) {
+        // The channel and Watch Next are on the launcher for anyone holding the remote, outside
+        // every profile lock. With a PIN on the active profile, or parental limits on any profile,
+        // clear them instead of publishing that profile's history.
+        if (!launcherExposureGate.mayExposeActiveProfile()) {
+            Log.d(TAG, "Active profile is locked or the TV has restricted profiles; clearing launcher rows")
+            manager.reconcile(emptyList())
+            runCatching { tvRecommendationManager.updateWatchNext(emptyList()) }
+            return
+        }
         val resolvedSettings = settings ?: run {
             val daysCap = traktSettingsDataStore.continueWatchingDaysCap.first()
             val dismissed = traktSettingsDataStore.dismissedNextUpKeys.first()

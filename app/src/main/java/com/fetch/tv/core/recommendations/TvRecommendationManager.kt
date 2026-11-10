@@ -6,6 +6,7 @@ import android.util.Log
 import com.fetch.tv.core.poster.CustomPosterScreen
 import com.fetch.tv.core.poster.patternForScreen
 import com.fetch.tv.core.poster.withCustomPosterArt
+import com.fetch.tv.core.profile.LauncherExposureGate
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.tv.ui.screens.home.ContinueWatchingItem
@@ -29,7 +30,8 @@ import kotlin.math.abs
 class TvRecommendationManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val programBuilder: ProgramBuilder,
-    private val layoutPreferenceDataStore: LayoutPreferenceDataStore
+    private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
+    private val launcherExposureGate: LauncherExposureGate
 ) {
 
     private val mutex = Mutex()
@@ -89,11 +91,15 @@ class TvRecommendationManager @Inject constructor(
 
     suspend fun updateWatchNext(items: List<WatchProgress>) {
         if (!isTvDevice()) return
+        // Watch Next is on the launcher for anyone holding the remote: on a TV with a PIN-protected
+        // active profile or parental limits, publish nothing (and so clear what's there).
         mutex.withLock {
+            // Decided under the lock, so an allowed update can't land after a clear that ran in between.
+            val published = if (launcherExposureGate.mayExposeActiveProfile()) items else emptyList()
             withContext(Dispatchers.IO) {
                 try {
                     val posterPattern = recommendationPosterPattern()
-                    val decorated = items.withCustomPosterArt(posterPattern)
+                    val decorated = published.withCustomPosterArt(posterPattern)
                     val currentInternalIds = decorated.map { programBuilder.watchNextId(it) }.toSet()
                     val existingInternalIds = programBuilder.getAllWatchNextInternalIds()
 
@@ -167,6 +173,14 @@ class TvRecommendationManager @Inject constructor(
                 return@withContext
             }
             try {
+                if (!launcherExposureGate.mayExposeActiveProfile()) {
+                    // Locked or restricted since the rows went up: clear them rather than leave them.
+                    programBuilder.getAllWatchNextInternalIds().forEach { staleId ->
+                        programBuilder.removeWatchNextProgram(staleId)
+                        syncedFingerprints.remove(staleId)
+                    }
+                    return@withContext
+                }
                 val decorated = progress.withCustomPosterArt(recommendationPosterPattern())
                 val id = programBuilder.watchNextId(decorated)
                 val newFingerprint = ProgramFingerprint(

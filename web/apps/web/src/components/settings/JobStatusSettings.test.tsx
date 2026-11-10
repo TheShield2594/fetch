@@ -7,7 +7,7 @@ const getJobStatus = vi.fn();
 vi.mock("../../api", () => ({ api: { getJobStatus: () => getJobStatus() } }));
 
 const run = (overrides: Partial<{ job: string; status: string; message: string | null; durationMs: number | null; overran: boolean; at: string }>) => ({
-  job: "steam-sync",
+  job: "simkl-sync",
   status: "ok",
   message: null,
   durationMs: 1200,
@@ -29,14 +29,14 @@ describe("JobStatusSettings", () => {
 
   it("names the failing job and shows the error it failed with", async () => {
     getJobStatus.mockResolvedValue({
-      failures: [{ job: "steam-sync", message: "Steam API returned 503", failedAt: "2026-01-01T00:00:00.000Z" }],
-      runs: [run({ status: "failed", message: "Steam API returned 503" })],
+      failures: [{ job: "simkl-sync", message: "Simkl API returned 503", failedAt: "2026-01-01T00:00:00.000Z" }],
+      runs: [run({ status: "failed", message: "Simkl API returned 503" })],
     });
 
     render(<JobStatusSettings />);
 
-    expect(await screen.findByText("Steam API returned 503")).toBeInTheDocument();
-    expect(screen.getAllByText("Steam library sync").length).toBeGreaterThan(0);
+    expect(await screen.findByText("Simkl API returned 503")).toBeInTheDocument();
+    expect(screen.getAllByText("Simkl sync").length).toBeGreaterThan(0);
     expect(screen.queryByText(/all scheduled jobs healthy/i)).not.toBeInTheDocument();
   });
 
@@ -59,7 +59,7 @@ describe("JobStatusSettings", () => {
   it("lists how long each job's last run took", async () => {
     getJobStatus.mockResolvedValue({
       failures: [],
-      runs: [run({ job: "scrobble-cleanup", durationMs: 40 }), run({ job: "steam-sync", durationMs: 65_000 })],
+      runs: [run({ job: "scrobble-cleanup", durationMs: 40 }), run({ job: "simkl-sync", durationMs: 65_000 })],
     });
 
     render(<JobStatusSettings />);

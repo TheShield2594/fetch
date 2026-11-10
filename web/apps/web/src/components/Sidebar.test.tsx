@@ -162,7 +162,7 @@ describe("Sidebar", () => {
     const nav = screen.getByRole("navigation", { name: "Primary" });
     const all = await within(nav).findByRole("link", { name: "All Lists" });
     expect(all).toHaveAttribute("href", "/lists");
-    expect(SIDEBAR_MANAGE_ITEMS.map((i) => i.label)).toEqual(["Collections", "Games", "History", "Profiles"]);
+    expect(SIDEBAR_MANAGE_ITEMS.map((i) => i.label)).toEqual(["Collections", "History", "Profiles"]);
   });
 
   /*
@@ -213,8 +213,8 @@ describe("Sidebar", () => {
   });
 
   /*
-   * The second group. Lists, Games and History were a row of links inside the
-   * Shelf's own header — a page carrying navigation to three other pages,
+   * The second group. Lists and History were a row of links inside the
+   * Shelf's own header — a page carrying navigation to other pages,
    * level with its subtitle. They belong in the source list, under a heading
    * that says what kind of destination they are.
    */

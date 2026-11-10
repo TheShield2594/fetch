@@ -16,12 +16,12 @@ describe("job-status", () => {
 
   it("recordJobFailure upserts a KV row keyed by job name with the error message", async () => {
     const { recordJobFailure } = await import("./job-status.js");
-    await recordJobFailure("steam-sync", new Error("Steam API unreachable"));
+    await recordJobFailure("trakt-history-poll", new Error("Trakt API unreachable"));
 
     expect(prismaMock.kV.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { key: "job-status:steam-sync" } })
+      expect.objectContaining({ where: { key: "job-status:trakt-history-poll" } })
     );
-    expect(storedValue()).toEqual({ status: "failed", message: "Steam API unreachable" });
+    expect(storedValue()).toEqual({ status: "failed", message: "Trakt API unreachable" });
   });
 
   it("recordJobFailure stringifies non-Error values and truncates long messages", async () => {
@@ -58,7 +58,7 @@ describe("job-status", () => {
   it("getJobRuns reports successes and failures alike, with their durations", async () => {
     prismaMock.kV.findMany.mockResolvedValue([
       {
-        key: "job-status:steam-sync",
+        key: "job-status:trakt-history-poll",
         value: JSON.stringify({ status: "failed", message: "boom", durationMs: 12, overran: false }),
         updatedAt: new Date("2026-01-01T00:00:00Z"),
       },
@@ -73,7 +73,7 @@ describe("job-status", () => {
 
     expect(await getJobRuns()).toEqual([
       {
-        job: "steam-sync",
+        job: "trakt-history-poll",
         status: "failed",
         message: "boom",
         durationMs: 12,
@@ -94,20 +94,20 @@ describe("job-status", () => {
   it("still reads a failure written before runs were stored as JSON", async () => {
     // Upgrading shouldn't lose the failure a self-hoster is looking at right now.
     prismaMock.kV.findMany.mockResolvedValue([
-      { key: "job-status:steam-sync", value: "Steam API returned 503", updatedAt: new Date("2026-01-01T00:00:00Z") },
+      { key: "job-status:trakt-history-poll", value: "Trakt API returned 503", updatedAt: new Date("2026-01-01T00:00:00Z") },
     ]);
 
     const { failuresFrom, getJobRuns } = await import("./job-status.js");
 
     expect(failuresFrom(await getJobRuns())).toEqual([
-      { job: "steam-sync", message: "Steam API returned 503", failedAt: "2026-01-01T00:00:00.000Z" },
+      { job: "trakt-history-poll", message: "Trakt API returned 503", failedAt: "2026-01-01T00:00:00.000Z" },
     ]);
   });
 
   it("failuresFrom keeps the failed runs and leaves out the healthy ones", async () => {
     prismaMock.kV.findMany.mockResolvedValue([
       {
-        key: "job-status:steam-sync",
+        key: "job-status:trakt-history-poll",
         value: JSON.stringify({ status: "failed", message: "boom" }),
         updatedAt: new Date("2026-01-01T00:00:00Z"),
       },
@@ -121,7 +121,7 @@ describe("job-status", () => {
     const { failuresFrom, getJobRuns } = await import("./job-status.js");
 
     expect(failuresFrom(await getJobRuns())).toEqual([
-      { job: "steam-sync", message: "boom", failedAt: "2026-01-01T00:00:00.000Z" },
+      { job: "trakt-history-poll", message: "boom", failedAt: "2026-01-01T00:00:00.000Z" },
     ]);
     expect(prismaMock.kV.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { key: { startsWith: "job-status:" } } })

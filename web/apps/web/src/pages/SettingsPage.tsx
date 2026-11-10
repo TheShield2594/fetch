@@ -14,10 +14,8 @@ import { TmdbSettings } from "../components/settings/TmdbSettings";
 import { OmdbSettings } from "../components/settings/OmdbSettings";
 import { RpdbSettings } from "../components/settings/RpdbSettings";
 import { AddonSettings } from "../components/settings/AddonSettings";
-import { StremioSyncSettings } from "../components/settings/StremioSyncSettings";
 import { MdbListSettings, SimklSettings } from "../components/settings/TrackerSignInSettings";
 import { MdbListRatingsSettings } from "../components/settings/MdbListRatingsSettings";
-import { PlayDetectionSettings } from "../components/settings/PlayDetectionSettings";
 import { AiSettings } from "../components/settings/AiSettings";
 import { DataSettings } from "../components/settings/DataSettings";
 import { PreferencesSettings } from "../components/settings/PreferencesSettings";
@@ -125,7 +123,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     tab: "preferences",
     title: "Sync Status",
     icon: <Activity size={20} />,
-    keywords: "background jobs scheduled sync failures errors trakt steam scrobble",
+    keywords: "background jobs scheduled sync failures errors trakt scrobble",
     content: <JobStatusSettings />,
   },
   {
@@ -167,15 +165,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     content: <MdbListSettings />,
   },
   {
-    id: "stremio-sync",
-    tab: "integrations",
-    group: "Where history comes from",
-    title: "Stremio Watched Sync",
-    icon: <Clapperboard size={20} />,
-    keywords: "stremio watched history sync library account import scrobble",
-    content: <StremioSyncSettings />,
-  },
-  {
     id: "media-servers",
     tab: "integrations",
     group: "Where history comes from",
@@ -192,16 +181,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     icon: <Webhook size={20} />,
     keywords: "plex jellyfin emby webhook media server scrobble watched link key",
     content: <WebhookSettings />,
-  },
-  {
-    id: "play-detection",
-    adminOnly: true,
-    tab: "integrations",
-    group: "Where history comes from",
-    title: "Play Detection",
-    icon: <Activity size={20} />,
-    keywords: "stremio vidi omni nuvio addon apps automatic watched inferred signals",
-    content: <PlayDetectionSettings />,
   },
   // What titles look like once they arrive.
   {
@@ -270,7 +249,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     group: "This server",
     title: "Data",
     icon: <Database size={20} />,
-    keywords: "export import backup restore refresh metadata steam wipe",
+    keywords: "export import backup restore refresh metadata wipe",
     content: <DataSettings />,
   },
   {

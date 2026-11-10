@@ -5,13 +5,12 @@ import {
   PLEX_PIN_KEY,
   SIMKL_LAST_SYNCED_AT_KEY,
   SIMKL_PIN_KEY,
-  STREMIO_WATERMARK_KEY,
   TRAKT_HISTORY_BACKFILLED_AT_KEY,
   TRAKT_LAST_POLLED_AT_KEY,
   TRAKT_WATCHLIST_SNAPSHOT_KEY,
 } from "./owner-keys.js";
 
-// Trakt, Stremio and the other tracking and media-server connections belong to
+// Trakt and the other tracking and media-server connections belong to
 // a profile, as they do in the TV app: each profile signs in to its own. A
 // connection's row is keyed (and cascades) by the profile's id, and its sync
 // state in KV is "<base>:<profileId>".
@@ -24,7 +23,6 @@ export const PROFILE_CONNECTION_KV_KEYS = [
   TRAKT_WATCHLIST_SNAPSHOT_KEY,
   TRAKT_LAST_POLLED_AT_KEY,
   TRAKT_HISTORY_BACKFILLED_AT_KEY,
-  STREMIO_WATERMARK_KEY,
   SIMKL_PIN_KEY,
   SIMKL_LAST_SYNCED_AT_KEY,
   MDBLIST_DEVICE_KEY,

@@ -85,8 +85,8 @@ type Tx = Pick<typeof prisma, "kV">;
 
 /**
  * Hands the pre-accounts AI recommendation state to the admin account. Run
- * when the admin is created, inside that transaction. (Trakt and Stremio are
- * per profile, and the profiles themselves go to the admin.)
+ * when the admin is created, inside that transaction. (Trakt is per
+ * profile, and the profiles themselves go to the admin.)
  */
 export const claimLegacyIntegrations = async (tx: Tx, adminAccountId: string): Promise<void> => {
   for (const key of CLAIMABLE_KV_KEYS) {

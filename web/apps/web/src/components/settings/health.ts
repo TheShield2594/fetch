@@ -1,4 +1,4 @@
-import type { JobFailure, JobRun, StremioLibraryStatus, TmdbStatus } from "../../api";
+import type { JobFailure, JobRun, TmdbStatus } from "../../api";
 
 /*
  * Settings, leading with health.
@@ -117,18 +117,6 @@ export function traktHealth(
   if (failed(jobs, "trakt-history-poll")) return { tone: "bad", label: "Last sync failed" };
 
   const last = lastRunLabel(jobs, "trakt-history-poll", timeAgo);
-  return { tone: "ok", label: last ? `Synced ${last}` : "Connected" };
-}
-
-/** Stremio's watched-library sync — same shape, different job. */
-export function stremioHealth(
-  status: StremioLibraryStatus,
-  jobs: JobStatus | null,
-  timeAgo: (iso: string) => string
-): SectionHealth {
-  if (!status.connected) return { tone: "idle", label: "Not connected" };
-  if (failed(jobs, "stremio-library-sync")) return { tone: "bad", label: "Last sync failed" };
-  const last = lastRunLabel(jobs, "stremio-library-sync", timeAgo);
   return { tone: "ok", label: last ? `Synced ${last}` : "Connected" };
 }
 

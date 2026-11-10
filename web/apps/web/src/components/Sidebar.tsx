@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
-import { BarChart3, CalendarDays, Compass, Gamepad2, History, LayoutGrid, Library, List, Pin, PinOff, Search, Settings, User, Users } from "lucide-react";
+import { BarChart3, CalendarDays, Compass, History, LayoutGrid, Library, List, Pin, PinOff, Search, Settings, User, Users } from "lucide-react";
 import { api, type CatalogList, type Profile } from "../api";
 import { BrandMark, BrandWordmark } from "./BrandMark";
 import { healthDotClass } from "./settings/health";
@@ -13,12 +13,12 @@ import { prefetchRoute } from "../utils/routePrefetch";
 /*
  * Six destinations, down from eight.
  *
- * Lists, Games and History were never really places — they were three filters
- * over one collection, each given a tab because of the table it happened to be
- * stored in. The Shelf is that collection, and its filter row does what the
- * three tabs did. All three pages still exist as the surfaces where you
- * *manage* things (make a list, add a game, read the full log); they are linked
- * from the Shelf's header, which is where you are when you want one.
+ * Lists and History were never really places — they were filters over one
+ * collection, each given a tab because of the table it happened to be stored
+ * in. The Shelf is that collection, and its filter row does what the tabs did.
+ * Both pages still exist as the surfaces where you *manage* things (make a
+ * list, read the full log); they are linked from the Shelf's header, which is
+ * where you are when you want one.
  *
  * What is left is six things that genuinely differ: what you have (Shelf), what
  * you're looking for (Search), what you might want (Discover), what's coming
@@ -49,7 +49,6 @@ export const SIDEBAR_NAV_ITEMS = [
  */
 export const SIDEBAR_MANAGE_ITEMS = [
   { to: "/collections", label: "Collections", icon: LayoutGrid, end: false },
-  { to: "/games", label: "Games", icon: Gamepad2, end: false },
   { to: "/history", label: "History", icon: History, end: false },
   { to: "/profiles", label: "Profiles", icon: Users, end: false },
 ] as const;

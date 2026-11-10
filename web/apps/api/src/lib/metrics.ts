@@ -169,10 +169,10 @@ let fetchInstrumented = false;
  * Times every outbound `fetch`.
  *
  * The upstream calls in this service are spread across a dozen modules — TMDB,
- * Trakt, Stremio, IGDB, Steam, OMDb, the AI provider, notification
- * channels — with no shared client to hook, so wrapping the global once at
- * startup is what makes "which integration is slow today" answerable without
- * threading a timer through all of them.
+ * Trakt, Simkl, MDBList, OMDb, the AI provider, notification channels — with
+ * no shared client to hook, so wrapping the global once at startup is what
+ * makes "which integration is slow today" answerable without threading a timer
+ * through all of them.
  *
  * Called from index.ts only, so importing this module for its counters (a test,
  * the `/metrics` route) never patches anything.

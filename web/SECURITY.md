@@ -39,7 +39,7 @@ What makes a report quick to act on:
 - Steps to reproduce, and what you were able to read, write or reach.
 
 Redact secrets from anything you paste — `API_TOKEN`, `WEBHOOK_SECRET`,
-`POSTGRES_PASSWORD`, OAuth tokens, a Stremio access key — and rotate anything
+`POSTGRES_PASSWORD`, OAuth tokens — and rotate anything
 already exposed. Note that rotating `API_TOKEN` invalidates every stored
 credential, every add-on URL and every profile access token; the README's
 [Secrets at rest](../README.md#secrets-at-rest) section covers what that costs.
@@ -83,8 +83,7 @@ the port on your LAN.
   channel — including a way past the cloud-metadata and link-local checks, or
   a DNS-rebinding window between the check and the request.
 - Webhook authentication bypass on `/webhooks/plex` or `/webhooks/jellyfin`.
-- OAuth CSRF or account-binding problems in the Trakt or Stremio Watched Sync
-  flows.
+- OAuth CSRF or account-binding problems in the Trakt sign-in flow.
 - XSS, CSP bypass, or any route that gets the browser's bearer token off the
   page.
 - SQL injection, path traversal, unauthenticated writes, or a bypass of the

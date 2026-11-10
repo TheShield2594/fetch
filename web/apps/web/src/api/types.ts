@@ -147,20 +147,6 @@ export type AddonCatalogOption = {
   requiresAi: boolean;
 };
 
-export type StremioLibraryStatus = {
-  connected: boolean;
-  email: string | null;
-  apiBase: string | null;
-  connectedAt: string | null;
-};
-
-export type StremioSyncSummary = {
-  scanned: number;
-  fetched: number;
-  recorded: number;
-  skipped: number;
-};
-
 export type NotificationChannelKind = "ntfy" | "gotify" | "discord" | "webhook";
 
 export type NotificationChannel = {
@@ -182,19 +168,6 @@ export type NotificationChannel = {
  * in the server log.
  */
 export type OutboundFailure = "blocked" | "misconfigured" | "unreachable" | "rejected" | "failed";
-
-export type PlaySignal = {
-  id: string;
-  type: "movie" | "episode";
-  imdbId: string;
-  season: number | null;
-  episode: number | null;
-  resource: "stream" | "subtitles";
-  client: string | null;
-  firstSeenAt: string;
-  lastSeenAt: string;
-  dueAt: string;
-};
 
 export type TrendingMeta = {
   id: string;
@@ -513,66 +486,6 @@ export type ImportSummary = {
   ratings: number;
   /** Absent when the API predates resume points. */
   playback?: number;
-};
-
-export type GameSort = "recent" | "playtime" | "rating";
-
-export type Game = {
-  id: string;
-  igdbId: number | null;
-  steamAppId: number | null;
-  title: string;
-  coverUrl: string | null;
-  releaseDate: string | null;
-  genres: string[];
-  playtimeMinutes: number;
-  lastPlayedAt: string | null;
-  rating: number | null;
-  notes: string | null;
-  finished: boolean;
-  finishedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type GameSearchResult = {
-  igdbId: number;
-  title: string;
-  coverUrl: string | null;
-  releaseDate: string | null;
-  genres: string[];
-  inLibrary: boolean;
-};
-
-export type SteamPlayerSummary = {
-  steamId: string;
-  username: string;
-  avatar: string | null;
-  profileUrl: string | null;
-};
-
-export type SteamStatus = {
-  configured: boolean;
-  player: SteamPlayerSummary | null;
-};
-
-/**
- * Whether the server has IGDB credentials. Game *search* is the only thing that
- * needs them, so `GET /games` cannot answer this — an empty library reads the
- * same either way.
- */
-
-export type IgdbStatus = {
-  configured: boolean;
-};
-
-
-export type SteamSyncSummary = {
-  total: number;
-  created: number;
-  updated: number;
-  matched: number;
-  unmatched: number;
 };
 
 export type JobFailure = {

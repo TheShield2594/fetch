@@ -4,7 +4,7 @@ import { STARS_MAX, formatStars } from "../utils/rating";
 
 /**
  * Five stars, half a star at a time — the shape every rating the user sets is
- * drawn in, whether it's a film, a season, an episode or a game.
+ * drawn in, whether it's a film, a season or an episode.
  *
  * `value` and `onRate` speak the stored 1-10 scale rather than stars, because
  * that is what the API takes and what Trakt, IMDb and TMDB all rate on. Half

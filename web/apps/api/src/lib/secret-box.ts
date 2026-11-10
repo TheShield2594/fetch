@@ -1,9 +1,9 @@
 import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from "node:crypto";
 
 // Envelope encryption for the credentials Fetch holds on your behalf: the
-// Trakt access/refresh pair, a connected Stremio account's authKey, per-channel
-// notification tokens, and the KV rows carrying the TMDB/OMDB/RPDB keys, the AI
-// provider config (Authorization header and all) and the VAPID private key.
+// Trakt access/refresh pair, per-channel notification tokens, and the KV rows
+// carrying the TMDB/OMDB/RPDB keys, the AI provider config (Authorization
+// header and all) and the VAPID private key.
 //
 // The threat this addresses is a *copy of the database*: a dump on a NAS, the
 // `pgdata` volume, a backup that outlived the machine it came from. Postgres is
@@ -49,7 +49,6 @@ const TAG_BYTES = 16;
 export const SECRET_CONTEXT = {
   traktAccessToken: "traktToken.accessToken",
   traktRefreshToken: "traktToken.refreshToken",
-  stremioAuthKey: "stremioAuth.authKey",
   notificationChannelToken: "notificationChannel.token",
   profileConnectionCredentials: "profileConnection.credentials",
 } as const;

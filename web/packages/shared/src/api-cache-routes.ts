@@ -14,7 +14,7 @@
  * profile's own dropped flag. It matched `recommendations(/.*)?` the same way,
  * over `/recommendations/personal` and `/recommendations/ai`, which are
  * generated from that profile's history. And it had never heard of `collection`,
- * `games`, `tags` or `anime` at all — routes the API has long declared
+ * `tags` or `anime` at all — routes the API has long declared
  * cacheable, which therefore simply did not work offline.
  *
  * The two consumers ask different questions of this list, which is why it is a
@@ -79,8 +79,8 @@ export const API_CACHE_ROUTES: readonly ApiCacheRoute[] = [
 
   // ─── What the user owns ───
   //
-  // Watchlist, lists, history, stats, progress, calendar, collection, games,
-  // tags. A `max-age` on any of these would outlive the mutation that should
+  // Watchlist, lists, history, stats, progress, calendar, collection, tags.
+  // A `max-age` on any of these would outlive the mutation that should
   // have replaced it, so they get an ETag and a round trip.
   { pattern: "watchlist", tier: "revalidate" },
   { pattern: "continue", tier: "revalidate" },
@@ -94,7 +94,6 @@ export const API_CACHE_ROUTES: readonly ApiCacheRoute[] = [
   { pattern: "lists(?:/.*)?", tier: "revalidate" },
   { pattern: "calendar", tier: "revalidate" },
   { pattern: "collection", tier: "revalidate" },
-  { pattern: "games(?:/.*)?", tier: "revalidate" },
   { pattern: "tags", tier: "revalidate" },
 ];
 

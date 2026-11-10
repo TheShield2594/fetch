@@ -1,15 +1,10 @@
 /**
- * The services that feed watch history in: Trakt, Simkl, MDBList and Stremio. Each is
+ * The services that feed watch history in: Trakt, Simkl and MDBList. Each is
  * the active profile's own connection.
  */
 
 import type { MdbListRatingSource } from "@fetch/shared/tv-settings";
 import { request } from "./client";
-import type {
-  PlaySignal,
-  StremioLibraryStatus,
-  StremioSyncSummary,
-} from "./types";
 
 export type SimklPin = { userCode: string; verificationUrl: string; expiresAt: string; interval: number };
 
@@ -183,26 +178,5 @@ export const integrationsApi = {
   },
   traktDisconnect() {
     return request<{ disconnected: boolean }>("/trakt/disconnect", { method: "POST" });
-  },
-  getStremioLibraryStatus() {
-    return request<StremioLibraryStatus>("/stremio/library/status");
-  },
-  stremioLibraryConnect(email: string, password: string) {
-    return request<StremioLibraryStatus>("/stremio/library/connect", {
-      method: "POST",
-      body: JSON.stringify({ email, password })
-    });
-  },
-  stremioLibraryDisconnect() {
-    return request<{ connected: boolean }>("/stremio/library/disconnect", { method: "POST" });
-  },
-  stremioLibraryImport() {
-    return request<StremioSyncSummary>("/stremio/library/import", { method: "POST", timeoutMs: 120000 });
-  },
-  stremioLibrarySync() {
-    return request<StremioSyncSummary>("/stremio/library/sync", { method: "POST", timeoutMs: 60000 });
-  },
-  getStremioPlaySignals() {
-    return request<{ enabled: boolean; signals: PlaySignal[] }>("/stremio/play-signals");
   },
 };

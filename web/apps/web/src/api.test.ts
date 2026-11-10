@@ -423,14 +423,12 @@ describe("API response cache on sign-out", () => {
  * Which cached pages a write is allowed to take down with it.
  *
  * Every mutation used to call `invalidateAll()`, so rating one episode dropped
- * the lists page's rows, the games library's and the calendar's alongside the
+ * the lists page's rows and the calendar's alongside the
  * stats it actually moved — and the next visit to any of them was a full
  * refetch behind a skeleton, which is the wait the cache exists to remove.
  */
 describe("memory cache invalidation after a mutation", () => {
   it("keeps a write inside the domain it can reach", () => {
-    expect(invalidatedCachePrefixes("/games/abc")).toEqual(["games:"]);
-    expect(invalidatedCachePrefixes("/games/steam/sync")).toEqual(["games:"]);
     // Two prefixes rather than one: the Shelf's grid is the union of every
     // list, cached under its own key, so adding a title has to move both.
     expect(invalidatedCachePrefixes("/lists/watchlist/items")).toEqual(["lists:", "shelf:"]);
@@ -473,9 +471,8 @@ describe("memory cache invalidation after a mutation", () => {
     expect(invalidatedCachePrefixes("/auth/logout")).toBeNull();
   });
 
-  it("leaves the games library alone when an episode is marked watched", async () => {
+  it("leaves the lists alone when an episode is marked watched", async () => {
     resetDataCacheForTests();
-    writeCache("games:recent", ["Outer Wilds"]);
     writeCache("lists:all", [{ id: "watchlist" }]);
     writeCache("dash:progress", [{ imdbId: "tt1" }]);
     fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
@@ -483,19 +480,18 @@ describe("memory cache invalidation after a mutation", () => {
     await api.markEpisodeWatched("tt1", 2, 3);
 
     expect(readCache("dash:progress")).toBeUndefined();
-    expect(readCache("games:recent")).toEqual(["Outer Wilds"]);
     expect(readCache("lists:all")).toEqual([{ id: "watchlist" }]);
   });
 
   it("drops every page when the mutation is one with no mapping", async () => {
     resetDataCacheForTests();
-    writeCache("games:recent", ["Outer Wilds"]);
+    writeCache("lists:all", [{ id: "watchlist" }]);
     writeCache("dash:progress", [{ imdbId: "tt1" }]);
     fetchMock.mockResolvedValue(json({ imported: {} }));
 
     await api.traktImport();
 
-    expect(readCache("games:recent")).toBeUndefined();
+    expect(readCache("lists:all")).toBeUndefined();
     expect(readCache("dash:progress")).toBeUndefined();
   });
 

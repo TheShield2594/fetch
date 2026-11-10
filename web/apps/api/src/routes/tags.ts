@@ -52,7 +52,7 @@ const tagsRoutes: FastifyPluginAsync = async (app) => {
   // `Tag.id` is a uuid column, so a malformed id is rejected by Postgres rather
   // than simply matching nothing — an unhandled driver error and a 500 where the
   // caller sent a bad request. Guarded here as the sibling routes in lists.ts
-  // and games.ts already do.
+  // already do.
   app.delete<{ Params: { tagId: string } }>("/tags/:tagId", async (request, reply) => {
     const profileId = request.profileId!;
     const { tagId } = request.params;

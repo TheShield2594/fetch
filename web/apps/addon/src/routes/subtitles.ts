@@ -1,6 +1,5 @@
 import { addonBaseUrl } from "../lib/config.js";
 import { mintMarkWatchedToken, type MarkWatchedTarget } from "../lib/mark-watched.js";
-import { forwardPlaySignal } from "../lib/play-signal.js";
 import { resolveProfileScope, signedProfilePath } from "../lib/profile.js";
 import type { AddonRouter } from "../lib/router.js";
 import type { StremioSubtitle } from "../lib/stremio-types.js";
@@ -30,10 +29,6 @@ export const registerSubtitlesRoute = (routes: AddonRouter): void => {
 
     const scope = await resolveProfileScope(request);
     if (!scope.ok) return reply.send({ subtitles: [] });
-
-    // A subtitles request means a player actually loaded, which is a stronger
-    // play signal than the stream request that preceded it.
-    forwardPlaySignal("subtitles", type, id, scope, request.headers["user-agent"], request.log);
 
     const addonBase = addonBaseUrl();
     // Pin the resolved profile into the mark-watched URL rather than leaving it

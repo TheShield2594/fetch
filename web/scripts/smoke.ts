@@ -200,26 +200,6 @@ if (profileId) {
   });
 }
 
-// 7. If STEAM_API_KEY and STEAM_ID are set, POST /games/steam/sync — expect
-// 200 with a { total, created, updated, matched, unmatched } summary.
-if (process.env.STEAM_API_KEY && process.env.STEAM_ID && profileId) {
-  await check("POST /games/steam/sync", async () => {
-    const { response, body } = await getJson(`${apiBase}/games/steam/sync`, {
-      method: "POST",
-      headers: profileHeaders(profileId),
-    });
-    if (response.status !== 200) {
-      throw new Error(`Expected 200, got ${response.status}`);
-    }
-    const b = body as { total?: unknown };
-    if (typeof b?.total !== "number") {
-      throw new Error(`Expected { total, created, updated, matched, unmatched }, got: ${JSON.stringify(body)}`);
-    }
-  });
-} else {
-  process.stdout.write("• Steam sync check... SKIP (STEAM_API_KEY/STEAM_ID not set)\n");
-}
-
 if (failed) {
   process.stdout.write("\nSome smoke checks failed.\n");
   process.exit(1);

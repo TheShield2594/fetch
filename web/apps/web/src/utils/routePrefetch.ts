@@ -26,7 +26,6 @@ export const EAGER_ROUTES = new Set(["/"]);
 export const loadSearchPage = () => import("../pages/SearchPage");
 export const loadDashboardPage = () => import("../pages/DashboardPage");
 export const loadListsPage = () => import("../pages/ListsPage");
-export const loadGamesPage = () => import("../pages/GamesPage");
 export const loadCalendarPage = () => import("../pages/CalendarPage");
 export const loadHistoryPage = () => import("../pages/HistoryPage");
 export const loadStatsPage = () => import("../pages/StatsPage");
@@ -106,7 +105,6 @@ const ROUTE_LOADERS: Record<string, Loader> = {
   "/search": loadSearchPage,
   "/discover": loadDashboardPage,
   "/lists": loadListsPage,
-  "/games": loadGamesPage,
   "/calendar": loadCalendarPage,
   "/history": loadHistoryPage,
   "/stats": loadStatsPage,

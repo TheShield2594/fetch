@@ -48,7 +48,7 @@ export const encryptStoredSecrets = async (logger: FastifyBaseLogger): Promise<S
 
   if (!isSecretEncryptionAvailable()) {
     logger.warn(
-      "API_TOKEN is not set, so stored credentials (API keys, Trakt/Stremio tokens) are being kept in plaintext"
+      "API_TOKEN is not set, so stored credentials (API keys, Trakt tokens) are being kept in plaintext"
     );
     return sweep;
   }
@@ -85,12 +85,6 @@ export const encryptStoredSecrets = async (logger: FastifyBaseLogger): Promise<S
     );
     await visit(SECRET_CONTEXT.traktRefreshToken, "Trakt refresh token", token.refreshToken, (value) =>
       prisma.traktToken.update({ where: { id: token.id }, data: { refreshToken: value } })
-    );
-  }
-
-  for (const auth of await prisma.stremioAuth.findMany()) {
-    await visit(SECRET_CONTEXT.stremioAuthKey, "Stremio access key", auth.authKey, (value) =>
-      prisma.stremioAuth.update({ where: { id: auth.id }, data: { authKey: value } })
     );
   }
 

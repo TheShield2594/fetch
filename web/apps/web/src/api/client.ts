@@ -20,7 +20,7 @@ import { invalidate as invalidateCachePrefix, invalidateAll as invalidateMemoryC
 export class ApiError extends Error {
   /**
    * `code` is the API's machine-readable reason, when the response carried one
-   * — `igdb_not_configured`, `too_many_rows`, `profile_not_active`. It is what
+   * — `tmdb_not_configured`, `too_many_rows`, `profile_not_active`. It is what
    * lets a caller tell apart two failures that share a status: a 503 because an
    * optional integration was never set up is a thing to offer setup for, while
    * any other 503 is a thing to retry. Branch on `code` before `message`, which

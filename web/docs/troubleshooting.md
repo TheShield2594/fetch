@@ -21,7 +21,7 @@ pnpm smoke                 # end-to-end check of the health and catalog endpoint
 - [Trakt](#trakt)
 - [Import and export](#import-and-export)
 - [Notifications](#notifications)
-- [Games](#games)
+- [Scheduled job intervals](#scheduled-job-intervals)
 - [AI recommendations](#ai-recommendations)
 - [Database and migrations](#database-and-migrations)
 - [Still stuck](#still-stuck)
@@ -200,32 +200,6 @@ change the key in `.env` and restart.
 Fetch doesn't play anything, so history has to come from somewhere else.
 Check which source you expect:
 
-### Stremio play detection
-
-Off by default. Set `STREMIO_PLAY_DETECTION=true` and install the add-on.
-
-It works by inference: the add-on sees a stream or subtitle request and records
-a *signal*, which becomes a watch once the title's runtime has elapsed. So:
-
-- A watch appears roughly one runtime after you start, not immediately.
-- Something you started and abandoned won't count. That's intentional.
-- `GET /stremio/play-signals` shows what the add-on has seen but not yet acted
-  on — the fastest way to tell "my client isn't reaching the add-on" apart from
-  "it is, and the timer hasn't elapsed".
-
-### Stremio library sync
-
-Also off by default (`STREMIO_POLL_INTERVAL_SEC=0`). It reads Stremio's own
-watched state rather than inferring it.
-
-Connecting an account takes a *baseline* — it learns the current state without
-recording it, so years of history don't land as a flood of backdated watch
-events. `POST /stremio/library/import` is the opt-in backfill.
-
-One known limitation: Stremio reports the episode you're *on*, so several
-episodes finished within a single poll interval collapse into the latest one.
-Two minutes is a reasonable interval; the default of `0` disables it entirely.
-
 ### Plex / Jellyfin webhooks
 
 1. `WEBHOOK_SECRET` must be set (the API warns at startup if it isn't).
@@ -352,38 +326,17 @@ hides it without deleting history, and `DELETE` on the same path undoes it.
 - **Set `NOTIFICATION_CHECK_INTERVAL_SEC=0`** and the episode check is disabled
   entirely; the API logs this at startup.
 
-## Games
+## Scheduled job intervals
 
-The Games tab needs at least one integration to be useful, and they do different
-jobs:
-
-- **Adding a game** is an IGDB search — needs `TWITCH_CLIENT_ID` and
-  `TWITCH_CLIENT_SECRET`.
-- **Library and playtime sync** needs `STEAM_API_KEY` and `STEAM_ID`.
-
-With neither, the tab has no way to populate itself. `502` from search means
-IGDB is unreachable; `503` with `"code": "igdb_not_configured"` means the
-credentials were never set, which is a configuration state rather than a fault.
-Steam sync answers the same way — `503` with `"code": "steam_not_configured"` —
-so in both cases a `500` is a real failure worth reporting, not a missing
-setting.
-
-`GET /games/igdb/status` and `GET /games/steam/status` each report `configured`
-as a `200`, and the Games page uses both: with neither set up it offers
-**Connect IGDB or Steam** instead of claiming your library is empty.
-
-`STEAM_ID` is the 64-bit numeric id, not the vanity URL name. Your Steam profile
-must also be public for the API to return anything.
-
-If `STEAM_SYNC_INTERVAL_SEC` is out of range the API refuses to start and says
-so — timer delays are a 32-bit value underneath, and a too-large one fires
-immediately instead of waiting, hammering the sync in a loop. The same applies
-to `TRAKT_POLL_INTERVAL_SEC`, `STREMIO_POLL_INTERVAL_SEC`,
-`AI_REFRESH_INTERVAL_SEC` and `NOTIFICATION_CHECK_INTERVAL_SEC`: a value that
-isn't a number (`5min`, say) is a startup error naming the variable, where it
-used to disable that job silently while the log claimed it had been "set to 0".
-Blank counts as unset, so the default applies; `0` is still the way to turn a
-job off.
+If an interval variable (`TRAKT_POLL_INTERVAL_SEC`, `SIMKL_POLL_INTERVAL_SEC`,
+`MDBLIST_POLL_INTERVAL_SEC`, `MEDIA_SERVER_SYNC_INTERVAL_SEC`,
+`AI_REFRESH_INTERVAL_SEC`, `NOTIFICATION_CHECK_INTERVAL_SEC`) is out of range
+the API refuses to start and says so — timer delays are a 32-bit value
+underneath, and a too-large one fires immediately instead of waiting, hammering
+the job in a loop. A value that isn't a number (`5min`, say) is a startup error
+naming the variable, where it used to disable that job silently while the log
+claimed it had been "set to 0". Blank counts as unset, so the default applies;
+`0` is still the way to turn a job off.
 
 ## AI recommendations
 

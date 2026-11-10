@@ -11,15 +11,13 @@ import { registerMarkWatchedRoutes } from "./routes/mark-watched.js";
 import { registerMetaRoute } from "./routes/meta.js";
 import { registerConfigureRoute, registerHealthRoute } from "./routes/misc.js";
 import { registerScrobbleRoute } from "./routes/scrobble.js";
-import { registerStreamRoute } from "./routes/stream.js";
 import { registerSubtitlesRoute } from "./routes/subtitles.js";
 
 /**
  * The Stremio addon service: the server itself, and the routes it carries.
  *
- * This file was 1,283 lines — routing, caching, an HTTP client, auth, SRT
- * generation and play-signal inference in one scroll, with a single lib file
- * beside it. It is now the assembly, mirroring how `apps/api` is laid out:
+ * This file was 1,283 lines — routing, caching, an HTTP client, auth and SRT
+ * generation in one scroll, with a single lib file beside it. It is now the assembly, mirroring how `apps/api` is laid out:
  * `lib/` for everything that is a decision (who this request is acting as,
  * what may write, what is worth caching and for how long), `routes/` for the
  * endpoints Stremio actually calls.
@@ -79,7 +77,6 @@ app.register(async (scope) => {
   registerManifestRoute(routes);
   registerCatalogRoutes(routes);
   registerMetaRoute(routes);
-  registerStreamRoute(routes);
   registerSubtitlesRoute(routes);
   registerMarkWatchedRoutes(routes);
   registerScrobbleRoute(routes);

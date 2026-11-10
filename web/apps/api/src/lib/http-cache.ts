@@ -30,7 +30,7 @@ const METADATA_STALE_WHILE_REVALIDATE_SEC = 24 * 60 * 60;
 // the same table. It used to be written out here and again in sw.js, and the
 // two had drifted: the worker cached the `/bundle` and personal-recommendation
 // routes this tiering deliberately keeps out of `metadata`, and cached none of
-// `collection`, `games`, `tags` or `anime` at all.
+// `collection`, `tags` or `anime` at all.
 export type { CacheTier };
 
 const pathOf = (url: string): string => {

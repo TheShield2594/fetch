@@ -13,12 +13,9 @@ const JOB_LABELS: Record<string, string> = {
   "mdblist-sync": "MDBList sync",
   "mdblist-list-sync": "MDBList linked lists sync",
   "media-server-sync": "Plex, Jellyfin & Emby sync",
-  "stremio-library-sync": "Stremio library sync",
-  "stremio-play-signals": "Stremio play signals",
   "scrobble-cleanup": "Scrobble session cleanup",
   "episode-notifications": "Upcoming episode notifications",
   "ai-recommendations": "AI recommendations refresh",
-  "steam-sync": "Steam library sync",
 };
 
 const jobLabel = (job: string) => JOB_LABELS[job] ?? job;

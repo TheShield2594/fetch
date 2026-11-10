@@ -64,7 +64,7 @@ describe("metrics route", () => {
       })
     );
     getJobRuns.mockResolvedValue([
-      { job: "steam-sync", status: "failed", message: "429", durationMs: 900, overran: false, at: "2026-08-12T00:00:00.000Z" },
+      { job: "trakt-history-poll", status: "failed", message: "429", durationMs: 900, overran: false, at: "2026-08-12T00:00:00.000Z" },
     ]);
     const app = await buildApp();
 
@@ -78,7 +78,7 @@ describe("metrics route", () => {
       expect.objectContaining({ route: "GET /watchlist", count: 2, failures: 1 })
     );
     expect(body.upstream).toEqual([expect.objectContaining({ host: "api.themoviedb.org", count: 1 })]);
-    expect(body.jobs).toEqual([expect.objectContaining({ job: "steam-sync", status: "failed", message: "429" })]);
+    expect(body.jobs).toEqual([expect.objectContaining({ job: "trakt-history-poll", status: "failed", message: "429" })]);
     expect(body.jobsError).toBeNull();
   });
 

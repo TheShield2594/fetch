@@ -119,12 +119,12 @@
           // is how it recognises them. A mismatch is not a breakage — the response
           // goes unclaimed and the app fetches again — but it is a wasted request.
           //
-          // The Shelf's three: the lists it is built from (which also gates the
-          // per-list fan-out that follows, so it is the most valuable head start
-          // of the three), what is part-way watched, and the game library. The
-          // check-in and the one-row history are cheap and only decorate a
-          // string, so they wait their turn.
-          var paths = ["/lists", "/series/progress", "/games?sort=recent"];
+          // The Shelf's two: the lists it is built from (which also gates the
+          // per-list fan-out that follows, so it is the more valuable head start
+          // of the two) and what is part-way watched. The check-in and the
+          // one-row history are cheap and only decorate a string, so they wait
+          // their turn.
+          var paths = ["/lists", "/series/progress"];
 
           var preloaded = {};
           for (var i = 0; i < paths.length; i++) {

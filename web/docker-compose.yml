@@ -157,16 +157,8 @@ services:
       # How often each profile's signed-in Plex, Jellyfin and Emby servers are
       # read for watched state and resume points.
       MEDIA_SERVER_SYNC_INTERVAL_SEC: ${MEDIA_SERVER_SYNC_INTERVAL_SEC:-3600}
-      STREMIO_POLL_INTERVAL_SEC: ${STREMIO_POLL_INTERVAL_SEC:-0}
-      STREMIO_API_BASE: ${STREMIO_API_BASE:-https://api.strem.io}
-      STREMIO_PLAY_DETECTION: ${STREMIO_PLAY_DETECTION:-false}
       TMDB_API_KEY: ${TMDB_API_KEY}
       AI_REFRESH_INTERVAL_SEC: ${AI_REFRESH_INTERVAL_SEC:-86400}
-      TWITCH_CLIENT_ID: ${TWITCH_CLIENT_ID}
-      TWITCH_CLIENT_SECRET: ${TWITCH_CLIENT_SECRET}
-      STEAM_API_KEY: ${STEAM_API_KEY}
-      STEAM_ID: ${STEAM_ID}
-      STEAM_SYNC_INTERVAL_SEC: ${STEAM_SYNC_INTERVAL_SEC:-86400}
       # Optional: report unhandled errors to a Sentry project. Leave unset
       # to disable error tracking entirely (default).
       SENTRY_DSN: ${SENTRY_DSN}
@@ -241,10 +233,6 @@ services:
       # Public URL of the web service — used to build the "Configure" link
       # Stremio shows for this addon's manifest (redirects to /settings).
       FETCH_WEB_PUBLIC: ${FETCH_WEB_PUBLIC:-http://192.168.1.25:7002}
-      # Must match the api service's value — the addon observes the signals and
-      # the api decides what to do with them, so enabling it on only one side
-      # does nothing.
-      STREMIO_PLAY_DETECTION: ${STREMIO_PLAY_DETECTION:-false}
       # Shared with the api service: same meaning, same .env variable, because
       # a proxy that forwards to one of them forwards to both.
       TRUST_PROXY: ${TRUST_PROXY}

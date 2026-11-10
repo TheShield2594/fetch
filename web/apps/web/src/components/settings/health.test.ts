@@ -6,7 +6,6 @@ import {
   jobsHealth,
   lastRunLabel,
   optionalKeyHealth,
-  stremioHealth,
   tmdbHealth,
   traktHealth,
   type JobStatus,
@@ -84,30 +83,6 @@ describe("traktHealth", () => {
   });
 });
 
-describe("stremioHealth", () => {
-  const connected = { connected: true, email: "a@b.c", apiBase: null, connectedAt: null };
-
-  it("is idle until an account is linked", () => {
-    expect(stremioHealth({ ...connected, connected: false }, null, timeAgo)).toEqual({
-      tone: "idle",
-      label: "Not connected",
-    });
-  });
-
-  it("carries the last sync once one has happened", () => {
-    expect(stremioHealth(connected, jobs({ runs: [run("stremio-library-sync")] }), timeAgo)).toEqual({
-      tone: "ok",
-      label: "Synced 4m ago",
-    });
-  });
-
-  it("reports a failing sync rather than the success before it", () => {
-    const status = jobs({ failures: [{ job: "stremio-library-sync", message: "boom", failedAt: "x" }] });
-
-    expect(stremioHealth(connected, status, timeAgo)).toEqual({ tone: "bad", label: "Last sync failed" });
-  });
-});
-
 describe("tmdbHealth", () => {
   it("treats a missing TMDB key as a fault, because the app is visibly broken without one", () => {
     expect(tmdbHealth({ configured: false, source: null })).toEqual({
@@ -153,7 +128,7 @@ describe("optionalKeyHealth", () => {
 
 describe("jobsHealth", () => {
   it("counts failures first", () => {
-    const status = jobs({ failures: [{ job: "steam-sync", message: "x", failedAt: "y" }] });
+    const status = jobs({ failures: [{ job: "scrobble-cleanup", message: "x", failedAt: "y" }] });
 
     expect(jobsHealth(status)).toEqual({ tone: "bad", label: "1 failing" });
   });
@@ -166,13 +141,13 @@ describe("jobsHealth", () => {
   });
 
   it("is healthy when nothing failed and nothing overran", () => {
-    expect(jobsHealth(jobs({ runs: [run("steam-sync")] }))).toEqual({ tone: "ok", label: "All healthy" });
+    expect(jobsHealth(jobs({ runs: [run("scrobble-cleanup")] }))).toEqual({ tone: "ok", label: "All healthy" });
   });
 
   it("counts every failure, not just the first", () => {
     const status = jobs({
       failures: [
-        { job: "steam-sync", message: "x", failedAt: "y" },
+        { job: "scrobble-cleanup", message: "x", failedAt: "y" },
         { job: "trakt-history-poll", message: "x", failedAt: "y" },
       ],
     });

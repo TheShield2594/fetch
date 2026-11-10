@@ -107,7 +107,6 @@ const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
   }
   if (pathname === "/rpdb/config") return jsonResponse({ enabled: false, apiKey: null });
   if (pathname === "/settings/preferences") return jsonResponse({ spoilerProtection: false });
-  if (pathname === "/stremio/play-signal") return jsonResponse({ status: "opened" }, 202);
   if (pathname.startsWith("/lists/") && pathname.endsWith("/items")) {
     // Mirrors the real route: the list holds one of each type, and ?type=
     // narrows it server-side rather than shipping both and discarding half.
@@ -811,145 +810,12 @@ describe("mark-watched capabilities", () => {
   });
 });
 
-describe("play detection", () => {
-  // The signal is fire-and-forget, so the response returns before the POST has
-  // necessarily landed. Yield until it shows up rather than asserting blind.
-  const waitForSignals = async (expected: number): Promise<Call[]> => {
-    for (let attempt = 0; attempt < 50; attempt += 1) {
-      const signals = callsTo("/stremio/play-signal");
-      if (signals.length >= expected) return signals;
-      await new Promise((resolve) => setTimeout(resolve, 5));
-    }
-    return callsTo("/stremio/play-signal");
-  };
-
-  describe("when enabled", () => {
-    beforeEach(async () => {
-      process.env.STREMIO_PLAY_DETECTION = "true";
-      await app.close();
-      calls = [];
-      app = await buildApp();
-    });
-
-    afterEach(() => {
-      delete process.env.STREMIO_PLAY_DETECTION;
-    });
-
-    it("declares the stream resource so clients ask about titles they open", async () => {
-      const response = await app.inject({ method: "GET", url: "/manifest.json" });
-      expect(JSON.parse(response.body).resources).toContain("stream");
-    });
-
-    it("answers a stream request with an empty list and forwards the signal", async () => {
-      const response = await app.inject({ method: "GET", url: "/stream/movie/tt0111161.json" });
-
-      expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.body)).toEqual({ streams: [] });
-
-      const signal = first(await waitForSignals(1), "forwarded play signal");
-      expect(signal.body).toMatchObject({ type: "movie", imdbId: "tt0111161", resource: "stream" });
-    });
-
-    it("forwards an episode signal with its season and episode", async () => {
-      await app.inject({ method: "GET", url: "/stream/series/tt0903747:2:7.json" });
-
-      const signal = first(await waitForSignals(1), "forwarded play signal");
-      expect(signal.body).toMatchObject({
-        type: "episode",
-        seriesImdbId: "tt0903747",
-        season: 2,
-        episode: 7,
-        resource: "stream",
-      });
-    });
-
-    it("forwards the profile pinned in the addon URL", async () => {
-      await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/stream/movie/tt0111161.json` });
-
-      const signal = first(await waitForSignals(1), "forwarded play signal");
-      expect(signal.headers["x-profile-id"]).toBe(OTHER_PROFILE_ID);
-    });
-
-    it("forwards the player's own user-agent, not this service's", async () => {
-      // Without this the API would only ever see the addon's fetch agent, which
-      // says nothing about which app is watching — the one thing the field is for.
-      await app.inject({
-        method: "GET",
-        url: "/stream/movie/tt0111161.json",
-        headers: { "user-agent": "Vidi/2.1 (Apple TV)" },
-      });
-
-      const signal = first(await waitForSignals(1), "forwarded play signal");
-      expect((signal.body as { client?: string }).client).toBe("Vidi/2.1 (Apple TV)");
-    });
-
-    it("sends no client at all rather than an empty one when the request carries no user-agent", async () => {
-      await app.inject({ method: "GET", url: "/stream/movie/tt0111161.json", headers: { "user-agent": "" } });
-
-      const signal = first(await waitForSignals(1), "forwarded play signal");
-      expect(signal.body).not.toHaveProperty("client");
-    });
-
-    it("forwards a signal from the subtitles request too", async () => {
-      await app.inject({ method: "GET", url: "/subtitles/series/tt0903747:2:7.json" });
-
-      const signal = first(await waitForSignals(1), "forwarded play signal");
-      expect(signal.body).toMatchObject({ resource: "subtitles", season: 2, episode: 7 });
-    });
-
-    it("sends nothing for a bare series id, which names no episode to record", async () => {
-      await app.inject({ method: "GET", url: "/stream/series/tt0903747.json" });
-
-      expect(await waitForSignals(1)).toHaveLength(0);
-    });
-
-    it("sends nothing for a half-numeric episode id, which names no episode either", async () => {
-      // `Number.parseInt` takes a numeric prefix, so this used to read as S1E2
-      // and file a signal against an episode nobody opened.
-      await app.inject({ method: "GET", url: "/stream/series/tt0903747:1junk:2junk.json" });
-
-      expect(await waitForSignals(1)).toHaveLength(0);
-    });
-
-    it("still records a special, which Stremio numbers as season 0", async () => {
-      await app.inject({ method: "GET", url: "/stream/series/tt0903747:0:1.json" });
-
-      const signal = first(await waitForSignals(1), "forwarded play signal");
-      expect(signal.body).toMatchObject({ type: "episode", season: 0, episode: 1 });
-    });
-
-    it("sends nothing for content that is not IMDb-keyed", async () => {
-      await app.inject({ method: "GET", url: "/stream/movie/kitsu:12345.json" });
-
-      expect(await waitForSignals(1)).toHaveLength(0);
-    });
-
-    it("still answers the stream request when forwarding the signal fails", async () => {
-      fetchMock.mockImplementationOnce(async () => {
-        throw new Error("api down");
-      });
-
-      const response = await app.inject({ method: "GET", url: "/stream/movie/tt0111161.json" });
-
-      expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.body)).toEqual({ streams: [] });
-    });
-  });
-
-  describe("when disabled", () => {
-    it("still answers stream requests, but forwards nothing", async () => {
-      const response = await app.inject({ method: "GET", url: "/stream/movie/tt0111161.json" });
-
-      expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.body)).toEqual({ streams: [] });
-      expect(callsTo("/stremio/play-signal")).toHaveLength(0);
-    });
-
-    it("forwards nothing from a subtitles request either", async () => {
-      await app.inject({ method: "GET", url: "/subtitles/series/tt0903747:2:7.json" });
-
-      expect(callsTo("/stremio/play-signal")).toHaveLength(0);
-    });
+describe("stream requests", () => {
+  // Fetch is not a stream provider, so the manifest leaves `stream` out and
+  // clients never ask this addon for one.
+  it("are not declared in the manifest", async () => {
+    const response = await app.inject({ method: "GET", url: "/manifest.json" });
+    expect(JSON.parse(response.body).resources).not.toContain("stream");
   });
 });
 

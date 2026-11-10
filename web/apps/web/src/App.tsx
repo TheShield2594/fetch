@@ -21,7 +21,6 @@ import { ShelfPage } from "./pages/ShelfPage";
 import {
   loadCalendarPage,
   loadDashboardPage,
-  loadGamesPage,
   loadHistoryPage,
   loadListsPage,
   loadNotFoundPage,
@@ -61,7 +60,6 @@ const CalendarPage = lazy(() => loadCalendarPage().then((m) => ({ default: m.Cal
 // route until the Shelf took that job; it is now the second destination rather
 // than the first, so it is code-split like every other one.
 const DashboardPage = lazy(() => loadDashboardPage().then((m) => ({ default: m.DashboardPage })));
-const GamesPage = lazy(() => loadGamesPage().then((m) => ({ default: m.GamesPage })));
 const HistoryPage = lazy(() => loadHistoryPage().then((m) => ({ default: m.HistoryPage })));
 const ListsPage = lazy(() => loadListsPage().then((m) => ({ default: m.ListsPage })));
 const NotFoundPage = lazy(() => loadNotFoundPage().then((m) => ({ default: m.NotFoundPage })));
@@ -93,7 +91,6 @@ const ROUTE_TITLES: Record<string, string> = {
   "/search": "Search",
   "/discover": "Discover",
   "/lists": "Lists",
-  "/games": "Games",
   "/calendar": "Calendar",
   "/history": "Watch History",
   "/stats": "Watch Statistics",
@@ -488,7 +485,6 @@ function AppShell({
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/discover" element={<DashboardPage />} />
                 <Route path="/lists" element={<ListsPage />} />
-                <Route path="/games" element={<GamesPage />} />
                 <Route path="/calendar" element={<CalendarPage />} />
                 <Route path="/history" element={<HistoryPage />} />
                 <Route path="/stats" element={<StatsPage />} />

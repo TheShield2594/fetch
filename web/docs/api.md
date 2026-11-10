@@ -24,14 +24,12 @@ something on top of it.
   - [Lists](#lists)
   - [Tags](#tags)
   - [Calendar](#calendar)
-  - [Games](#games)
   - [Profiles API](#profiles-api)
   - [Devices](#devices)
   - [Collections](#collections)
   - [Settings and API keys](#settings-and-api-keys)
   - [AI recommendations](#ai-recommendations)
   - [Trakt](#trakt)
-  - [Stremio library](#stremio-library)
   - [Stremio add-on](#stremio-add-on)
   - [Push notifications](#push-notifications)
   - [Notification channels](#notification-channels)
@@ -85,15 +83,15 @@ These paths are exempt, because they cannot carry a bearer token by construction
 
 Accounts are invite-only. The first account is created with `API_TOKEN` and is
 the **admin**; everyone else redeems an invite link the admin made. Each account
-owns its profiles, and through them its lists, history, ratings, games and
-Trakt and Stremio connections (one per profile, as on the TV), and has its own
+owns its profiles, and through them its lists, history, ratings and
+Trakt connection (one per profile, as on the TV), and has its own
 media-server webhook key, AI provider, streaming region and spoiler
 protection.
 
 Settings that belong to the whole install are shared by every account and can
 only be changed by the admin; anyone else gets `403` with
 `code: "admin_required"`. That covers the TMDB, OMDb and RPDB keys, the
-metadata language, play detection, the Steam sync, the metadata refresh, `/settings/job-status` and `/metrics`.
+metadata language, the metadata refresh, `/settings/job-status` and `/metrics`.
 `API_TOKEN` counts as the admin.
 
 ## Profiles
@@ -126,13 +124,13 @@ row genuinely is not found. Another account's profile is a `404` the same way.
   a specific config change.
 - **Rate limits** are 200 requests/minute per IP, and 1000/minute for the add-on
   service, which authenticates with a derived service token. Credential-taking
-  routes (sign-in, sign-up, password changes, profile PIN verification, Stremio
-  connect, the Trakt OAuth pair) are
+  routes (sign-in, sign-up, password changes, profile PIN verification, the
+  Trakt OAuth pair) are
   limited to 10/minute on top of that.
 - **Types** are `movie` and `series` almost everywhere. Watch events use `movie`
   and `episode`; tags additionally accept `episode`.
 - **IDs** are IMDb ids (`tt0111161`) for films and shows, UUIDs for
-  Fetch's own rows (lists, games, profiles, tags, watch events). Those are
+  Fetch's own rows (lists, profiles, tags, watch events). Those are
   uuid columns, so a malformed id is a `400` before any query runs rather than
   an empty result.
 - **Validation** rejects a request before it reaches the database, either way it
@@ -362,21 +360,6 @@ Trakt.
 | --- | --- | --- |
 | `GET` | `/calendar?days=` | Upcoming episodes for shows you follow. `days` is 1–90, default 30. Respects the spoiler-protection setting. |
 
-### Games
-
-Needs `TWITCH_CLIENT_ID` / `TWITCH_CLIENT_SECRET` for search, and
-`STEAM_API_KEY` / `STEAM_ID` for library sync.
-
-| Method | Path | Notes |
-| --- | --- | --- |
-| `GET` | `/games?sort=` | `recent` (default), `playtime` or `rating`. |
-| `GET` | `/games/search?q=` | IGDB search, each result flagged `inLibrary`. |
-| `POST` | `/games` | `{ igdbId, title, coverUrl?, releaseDate?, genres? }`. `409` if already held. |
-| `PATCH` | `/games/:id` | `{ rating?, notes?, finished?, finishedAt? }`. Marking `finished` stamps today unless a date is given; un-marking clears it. |
-| `DELETE` | `/games/:id` | |
-| `GET` | `/games/steam/status` | Reports `configured: true` even if the player-summary lookup fails — the summary is display only. |
-| `POST` | `/games/steam/sync` | Syncs into the calling profile. |
-
 ### Profiles API
 
 | Method | Path | Notes |
@@ -548,7 +531,7 @@ rotated key doesn't mean editing `.env` and restarting.
 | --- | --- | --- |
 | `GET` | `/settings/preferences` | Language, region, spoiler protection, and the provider catalogue. Region and spoiler protection are the caller's account's (an account that never set one gets the install's value); the language is the install's. With `API_TOKEN` (the add-on service), "the caller's account" is the account of the profile named by `x-profile-id`, or the admin's when none is named — the same for the region behind `/meta/:type/:imdbId/providers`, `/streaming` and the calendar's spoiler protection. |
 | `POST` | `/settings/preferences` | `{ language?, region?, spoilerProtection? }`. Language is `en` or `en-US` shaped; region is two letters. Both are normalized. Region and spoiler protection are saved for the caller's account; changing the language takes the admin (`403 admin_required` otherwise, though sending the current one back is accepted). Clears the discovery cache. |
-| `GET` | `/settings/job-status` | Background jobs that are currently failing — the Steam sync, Trakt poll, episode notifications, AI refresh. Otherwise these are only visible in the logs. |
+| `GET` | `/settings/job-status` | Background jobs that are currently failing — the Trakt poll, episode notifications, AI refresh. Otherwise these are only visible in the logs. |
 | `GET` | `/tmdb/status` | `{ configured, source }` where source is `db`, `env` or `none`. |
 | `POST` | `/tmdb/key` | Validated against TMDB before saving, so a typo can't overwrite a working key. |
 | `DELETE` | `/tmdb/key` | Reports the env fallback that remains, if any. |
@@ -644,21 +627,6 @@ account's scope: only the admin's profiles may reach a private-network server
 | `POST` | `/media-servers/:id/libraries/refresh` | Asks the server for its libraries again, keeping what was chosen; returns the server. |
 | `POST` | `/media-servers/:id/sync` | Reads the server now: `{ movies, episodes, resumePoints, skipped }`. |
 | `DELETE` | `/media-servers/:id` | Signs out (Jellyfin and Emby) and forgets the sign-in. |
-
-### Stremio library
-
-Each profile has its own Stremio connection, which syncs into that profile.
-Every route here acts on the requesting profile's (`x-profile-id`).
-
-| Method | Path | Notes |
-| --- | --- | --- |
-| `GET` | `/stremio/library/status` | |
-| `POST` | `/stremio/library/connect` | `{ email, password }`. Takes a baseline without recording history, so connecting an account with years of history doesn't backdate a flood of watch events. If the baseline fails the connection is undone — a connection with no baseline would make the next incremental pass treat the whole library as newly watched. |
-| `POST` | `/stremio/library/import` | The opt-in backfill, dated from Stremio's own `lastWatched`. |
-| `POST` | `/stremio/library/sync` | The incremental pass, on demand. |
-| `POST` | `/stremio/library/disconnect` | |
-| `POST` | `/stremio/play-signal` | Written by the add-on service, and only by it: the profile id picks which profile a signal is written to, so the route takes the add-on's service token and 404s for anything else. The id may come as `x-profile-id` (what the add-on sends) or in the body, and is validated rather than trusted either way; absent both, the default profile. |
-| `GET` | `/stremio/play-signals` | Diagnostics: what the add-on has seen but not yet acted on. |
 
 ### Stremio add-on
 

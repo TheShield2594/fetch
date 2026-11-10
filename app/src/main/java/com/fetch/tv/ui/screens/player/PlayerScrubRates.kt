@@ -64,7 +64,14 @@ object PlayerScrubRates {
      * configured step on a tap, the hold ramp once it overtakes that step.
      */
     fun deltaMsForKeyRepeat(repeatCount: Int, forward: Boolean, steps: SeekSteps = SeekSteps()): Long {
-        val step = maxOf(steps.stepMs(forward), stepMsForKeyRepeat(repeatCount))
+        val configured = steps.stepMs(forward)
+        // Taps and the first repeats move exactly the configured step, even one below the
+        // ramp's shortest; only a sustained hold speeds up.
+        val step = if (repeatCount < MEDIUM_REPEAT_THRESHOLD) {
+            configured
+        } else {
+            maxOf(configured, stepMsForKeyRepeat(repeatCount))
+        }
         return if (forward) step else -step
     }
 }

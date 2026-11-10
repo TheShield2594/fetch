@@ -888,12 +888,12 @@ open class MainActivity : ComponentActivity() {
                             title = stringResource(R.string.link_addon_confirm_title),
                             onConfirm = {
                                 lifecycleScope.launch {
-                                    deepLinkHandler.confirmPending()?.let { result ->
+                                    deepLinkHandler.confirmPending(request.id)?.let { result ->
                                         Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
                                     }
                                 }
                             },
-                            onReject = deepLinkHandler::rejectPending
+                            onReject = { deepLinkHandler.rejectPending(request.id) }
                         )
                     }
 

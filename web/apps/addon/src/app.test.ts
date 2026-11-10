@@ -570,6 +570,28 @@ describe("profile scoping", () => {
     }
   });
 
+  it("numbers a season's episodes when none of those it got has a usable number", async () => {
+    const stub = fetchMock.getMockImplementation()!;
+    fetchMock.mockImplementation(async (input, init) => {
+      const { pathname } = new URL(String(input));
+      if (pathname === "/meta/series/tt1") return jsonResponse({ name: "Show" });
+      if (pathname === "/meta/series/tt1/seasons") {
+        return jsonResponse({ seasons: [{ seasonNumber: 1, name: "Season 1", episodeCount: 2, airYear: null, poster: null }] });
+      }
+      if (pathname === "/meta/series/tt1/season/1/episodes") {
+        return jsonResponse({ episodes: [{ name: "No number", airDate: null, still: null, runtime: null }] });
+      }
+      return stub(input, init);
+    });
+    try {
+      const response = await app.inject({ method: "GET", url: "/meta/series/tt1.json" });
+      const { meta } = response.json() as { meta: { videos: { id: string }[] } };
+      expect(meta.videos.map((video) => video.id)).toEqual(["tt1:1:1", "tt1:1:2"]);
+    } finally {
+      fetchMock.mockImplementation(stub);
+    }
+  });
+
   it("leaves videos off a movie meta", async () => {
     const stub = fetchMock.getMockImplementation()!;
     fetchMock.mockImplementation(async (input, init) => {

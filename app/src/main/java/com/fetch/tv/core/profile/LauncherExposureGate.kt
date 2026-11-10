@@ -22,9 +22,12 @@ class LauncherExposureGate @Inject constructor(
     private val pinManager: ProfilePinManager
 ) {
     suspend fun mayExposeActiveProfile(): Boolean {
-        withTimeoutOrNull(PROFILE_READY_TIMEOUT_MS) { profileManager.activeProfileReady.first { it } } ?: return false
+        // The loaded id, not activeProfileId: that one starts as a placeholder (profile 1) on its
+        // own collector, so "ready" could pair with the wrong profile's PIN state.
+        val activeId = withTimeoutOrNull(PROFILE_READY_TIMEOUT_MS) {
+            profileManager.loadedActiveProfileId.first { it != null }
+        } ?: return false
         if (restrictionsDataStore.restrictions.first().values.any { it.isRestricted }) return false
-        val activeId = profileManager.activeProfileId.value
         return pinManager.pinEnabled.first()[activeId] != true
     }
 

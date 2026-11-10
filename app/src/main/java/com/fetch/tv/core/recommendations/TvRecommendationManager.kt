@@ -93,8 +93,9 @@ class TvRecommendationManager @Inject constructor(
         if (!isTvDevice()) return
         // Watch Next is on the launcher for anyone holding the remote: on a TV with a PIN-protected
         // active profile or parental limits, publish nothing (and so clear what's there).
-        val published = if (launcherExposureGate.mayExposeActiveProfile()) items else emptyList()
         mutex.withLock {
+            // Decided under the lock, so an allowed update can't land after a clear that ran in between.
+            val published = if (launcherExposureGate.mayExposeActiveProfile()) items else emptyList()
             withContext(Dispatchers.IO) {
                 try {
                     val posterPattern = recommendationPosterPattern()
@@ -171,8 +172,15 @@ class TvRecommendationManager @Inject constructor(
                 pendingWatchNext = progress
                 return@withContext
             }
-            if (!launcherExposureGate.mayExposeActiveProfile()) return@withContext
             try {
+                if (!launcherExposureGate.mayExposeActiveProfile()) {
+                    // Locked or restricted since the rows went up: clear them rather than leave them.
+                    programBuilder.getAllWatchNextInternalIds().forEach { staleId ->
+                        programBuilder.removeWatchNextProgram(staleId)
+                        syncedFingerprints.remove(staleId)
+                    }
+                    return@withContext
+                }
                 val decorated = progress.withCustomPosterArt(recommendationPosterPattern())
                 val id = programBuilder.watchNextId(decorated)
                 val newFingerprint = ProgramFingerprint(

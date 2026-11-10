@@ -42,11 +42,11 @@ export const loadSeriesVideos = async (
           scope,
           parseEpisodesResponse
         );
-        if (episodes.length > 0) {
-          return episodes
-            .filter((episode) => Number.isInteger(episode.episodeNumber) && episode.episodeNumber >= 1)
-            .sort((a, b) => a.episodeNumber - b.episodeNumber)
-            .map((episode) => toVideo(imdbId, seasonNumber, episode.episodeNumber, episode));
+        const numberedEpisodes = episodes
+          .filter((episode) => Number.isInteger(episode.episodeNumber) && episode.episodeNumber >= 1)
+          .sort((a, b) => a.episodeNumber - b.episodeNumber);
+        if (numberedEpisodes.length > 0) {
+          return numberedEpisodes.map((episode) => toVideo(imdbId, seasonNumber, episode.episodeNumber, episode));
         }
       } catch (error) {
         logger.debug(error, `Failed to fetch episodes for season ${seasonNumber}, numbering them instead`);

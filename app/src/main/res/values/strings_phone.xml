@@ -15,6 +15,7 @@
     </plurals>
     <string name="phone_addon_confirm_title">Install this addon from your phone?</string>
     <string name="link_addon_confirm_title">Install this addon from a link?</string>
+    <string name="link_addon_profile_not_ready">Profiles are still loading. Open the link again in a moment.</string>
     <string name="phone_addon_confirm_provides">Provides: %1$s</string>
     <plurals name="phone_addon_confirm_catalogs">
         <item quantity="one">%d catalog for Home and Discover</item>

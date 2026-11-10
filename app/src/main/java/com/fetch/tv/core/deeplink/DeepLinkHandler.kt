@@ -6,10 +6,10 @@ import com.fetch.tv.core.addon.AddonInstallOutcome
 import com.fetch.tv.core.addon.installOrReplace
 import com.fetch.tv.core.addon.needsConfiguration
 import com.fetch.tv.core.addon.normalizeAddonInstallUrl
-import com.fetch.tv.core.parental.ParentalControls
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.server.PhoneAddonRequest
 import com.fetch.tv.core.network.NetworkResult
+import com.fetch.tv.data.local.ProfileRestrictionsDataStore
 import com.fetch.tv.domain.repository.AddonRepository
 import com.fetch.tv.ui.screens.addon.AddonManagementAccess
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -34,7 +34,7 @@ import javax.inject.Singleton
 class DeepLinkHandler @Inject constructor(
     private val addonRepository: AddonRepository,
     private val profileManager: ProfileManager,
-    private val parentalControls: ParentalControls,
+    private val restrictionsDataStore: ProfileRestrictionsDataStore,
     @ApplicationContext private val context: Context
 ) {
     private val _pendingAddon = MutableStateFlow<PhoneAddonRequest?>(null)
@@ -42,13 +42,27 @@ class DeepLinkHandler @Inject constructor(
     /** The addon a link asked to install, waiting for an answer at the TV; null when none. */
     val pendingAddon: StateFlow<PhoneAddonRequest?> = _pendingAddon.asStateFlow()
 
-    /** Why the active profile can't take an addon now, or null when it can. */
-    fun installBlocked(): String? = when {
-        parentalControls.activeRestrictions.value.isRestricted ->
-            context.getString(R.string.parental_addons_blocked)
-        AddonManagementAccess.isReadOnly(profileManager.activeProfile) ->
-            context.getString(R.string.phone_web_addon_read_only)
-        else -> null
+    /**
+     * Why the active profile can't take an addon now, or null when it can.
+     *
+     * Reads the profile id, the profile list and the restrictions as loaded from disk rather than
+     * the StateFlows' placeholders: on a cold start a link can arrive before those have loaded,
+     * and the placeholders (profile 1, no restrictions) would let it through.
+     */
+    suspend fun installBlocked(): String? {
+        val loaded = withTimeoutOrNull(PROFILE_READY_TIMEOUT_MS) {
+            val profileId = profileManager.loadedActiveProfileId.first { it != null }!!
+            val profiles = profileManager.loadedProfiles.first { it != null }!!
+            profileId to profiles
+        } ?: return context.getString(R.string.link_addon_profile_not_ready)
+        val (profileId, profiles) = loaded
+        return when {
+            restrictionsDataStore.restrictions.first()[profileId]?.isRestricted == true ->
+                context.getString(R.string.parental_addons_blocked)
+            AddonManagementAccess.isReadOnly(profiles.find { it.id == profileId }) ->
+                context.getString(R.string.phone_web_addon_read_only)
+            else -> null
+        }
     }
 
     /**
@@ -94,9 +108,13 @@ class DeepLinkHandler @Inject constructor(
         return null
     }
 
-    /** Installs the pending addon, as someone at the TV just confirmed. Null when there was nothing to do. */
-    suspend fun confirmPending(): DeepLinkInstallResult? {
-        val request = _pendingAddon.value?.takeUnless { it.installing } ?: return null
+    /**
+     * Installs the pending addon with [requestId], as someone at the TV just confirmed it. Null when
+     * there was nothing to do. Bound to the id the dialog showed, so a newer link fired just before
+     * the press can't swap in a different addon under the viewer's Install.
+     */
+    suspend fun confirmPending(requestId: String): DeepLinkInstallResult? {
+        val request = _pendingAddon.value?.takeUnless { it.installing }?.takeIf { it.id == requestId } ?: return null
         // The profile may have changed, or been locked, since the link arrived.
         installBlocked()?.let { reason ->
             _pendingAddon.compareAndSet(request, null)
@@ -111,8 +129,8 @@ class DeepLinkHandler @Inject constructor(
         }
     }
 
-    fun rejectPending() {
-        val request = _pendingAddon.value?.takeUnless { it.installing } ?: return
+    fun rejectPending(requestId: String) {
+        val request = _pendingAddon.value?.takeUnless { it.installing }?.takeIf { it.id == requestId } ?: return
         _pendingAddon.compareAndSet(request, null)
     }
 
@@ -142,6 +160,7 @@ class DeepLinkHandler @Inject constructor(
 
     private companion object {
         const val MANIFEST_TIMEOUT_MS = 15_000L
+        const val PROFILE_READY_TIMEOUT_MS = 5_000L
     }
 }
 

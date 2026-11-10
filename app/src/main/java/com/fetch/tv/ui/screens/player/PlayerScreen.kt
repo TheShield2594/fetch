@@ -85,7 +85,6 @@ import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.runtime.Stable
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.SwapHoriz
-import androidx.compose.material.icons.rounded.Groups
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -169,12 +168,6 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import com.fetch.tv.data.repository.SkipInterval
-import com.fetch.tv.core.party.PartyAction
-import com.fetch.tv.core.party.PartyMedia
-import com.fetch.tv.core.party.PartyNotice
-import com.fetch.tv.core.party.PartySync
-import com.fetch.tv.ui.screens.party.PartyPanel
-import com.fetch.tv.ui.screens.party.PartyStatusPill
 import com.fetch.tv.core.player.PlayerWindowBackdrop
 import com.fetch.tv.core.player.SleepTimer
 import com.fetch.tv.core.player.SleepTimerChoice
@@ -232,7 +225,6 @@ fun PlayerScreen(
     onPlaybackEnded: ((nextVideoId: String?, nextSeason: Int?, nextEpisode: Int?, exitReason: PlayerExitReason?) -> Unit)? = null,
     onPlayRecommendation: (PostPlayRecommendation, manualSelection: Boolean) -> Unit = { _, _ -> },
     onOpenRecommendationDetails: (PostPlayRecommendation) -> Unit = {},
-    onOpenPartyMedia: (PartyMedia) -> Unit = {},
     onPlayQueueItem: (com.fetch.tv.data.local.QueueItem) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -250,19 +242,6 @@ fun PlayerScreen(
             onExtend = { viewModel.onEvent(PlayerEvent.OnSleepTimerExtend) },
             onStop = { viewModel.onEvent(PlayerEvent.OnSleepTimerStop) }
         )
-    }
-    val partyState by viewModel.party.state.collectAsState()
-    val partyPlayback by viewModel.party.playback.collectAsState()
-    val partyAvailable by viewModel.party.available.collectAsState()
-    val partyCanUse by viewModel.party.canUse.collectAsState()
-    val partyProfile by viewModel.party.profile.collectAsState()
-    var partyNotice by remember { mutableStateOf<PartyNotice?>(null) }
-    LaunchedEffect(Unit) {
-        viewModel.party.notices.collectLatest { next ->
-            partyNotice = next
-            kotlinx.coroutines.delay(3000)
-            partyNotice = null
-        }
     }
     val postPlayRecommendationState by viewModel.postPlayRecommendationUiState.collectAsState()
     val effectiveAutoplayEnabled by viewModel.effectiveAutoplayEnabled.collectAsState(initial = false)
@@ -456,8 +435,6 @@ fun PlayerScreen(
             viewModel.onEvent(PlayerEvent.OnHideSubtitleDelayOverlay)
         } else if (uiState.showSubtitleStylePanel) {
             viewModel.onEvent(PlayerEvent.OnDismissSubtitleStylePanel)
-        } else if (uiState.showPartyPanel) {
-            viewModel.onEvent(PlayerEvent.OnDismissPartyPanel)
         } else if (uiState.showQueuePanel) {
             viewModel.onEvent(PlayerEvent.OnDismissQueuePanel)
         } else if (uiState.showSourcesPanel) {
@@ -644,7 +621,6 @@ fun PlayerScreen(
         uiState.showEpisodesPanel,
         uiState.showSourcesPanel,
         uiState.showQueuePanel,
-        uiState.showPartyPanel,
         uiState.showSubtitleStylePanel,
         uiState.showSubtitleDelayOverlay,
         uiState.showSubtitleTimingDialog,
@@ -656,7 +632,6 @@ fun PlayerScreen(
     ) {
         if (shouldConfirmNextEpisodeOnEnd || postPlayRecommendationState.isVisible) return@LaunchedEffect
         if (uiState.error != null) return@LaunchedEffect
-        if (uiState.showPartyPanel) return@LaunchedEffect
         if (uiState.showControls && !uiState.showEpisodesPanel && !uiState.showSourcesPanel &&
             !uiState.showQueuePanel && !uiState.showAudioOverlay && !uiState.showSubtitleOverlay &&
             !uiState.showSubtitleStylePanel && !uiState.showSubtitleDelayOverlay &&
@@ -789,7 +764,6 @@ fun PlayerScreen(
                     !uiState.showEpisodesPanel &&
                     !uiState.showSourcesPanel &&
                     !uiState.showQueuePanel &&
-                    !uiState.showPartyPanel &&
                     !uiState.showAudioOverlay &&
                     !uiState.showSubtitleOverlay &&
                     !uiState.showSubtitleStylePanel &&
@@ -912,7 +886,7 @@ fun PlayerScreen(
                 }
 
                 // When a side panel or dialog is open, let it handle all keys
-                val panelOrDialogOpen = uiState.showEpisodesPanel || uiState.showSourcesPanel || uiState.showPartyPanel ||
+                val panelOrDialogOpen = uiState.showEpisodesPanel || uiState.showSourcesPanel ||
                         uiState.showQueuePanel ||
                         uiState.showAudioOverlay || uiState.showSubtitleOverlay ||
                         uiState.showSubtitleStylePanel || uiState.showSpeedDialog ||
@@ -1171,7 +1145,6 @@ fun PlayerScreen(
                 !uiState.showEpisodesPanel &&
                 !uiState.showSourcesPanel &&
                 !uiState.showQueuePanel &&
-                !uiState.showPartyPanel &&
                 !uiState.showAudioOverlay &&
                 !uiState.showSubtitleOverlay &&
                 !uiState.showSubtitleStylePanel &&
@@ -1193,7 +1166,6 @@ fun PlayerScreen(
             !uiState.showEpisodesPanel &&
             !uiState.showSourcesPanel &&
             !uiState.showQueuePanel &&
-            !uiState.showPartyPanel &&
             !uiState.showAudioOverlay &&
             !uiState.showSubtitleOverlay &&
             !uiState.showSpeedDialog &&
@@ -1647,7 +1619,6 @@ fun PlayerScreen(
             !uiState.showEpisodesPanel &&
             !uiState.showSourcesPanel &&
             !uiState.showQueuePanel &&
-            !uiState.showPartyPanel &&
             !uiState.showAudioOverlay &&
             !uiState.showSubtitleOverlay &&
             !uiState.showSubtitleStylePanel &&
@@ -1712,12 +1683,6 @@ fun PlayerScreen(
                     viewModel.onEvent(PlayerEvent.OnShowQueuePanel)
                 },
                 onPlayQueueItem = { viewModel.onEvent(PlayerEvent.OnPlayQueueItem(it)) },
-                onShowPartyPanel = if (partyAvailable && viewModel.canUseParty) {
-                    { viewModel.onEvent(PlayerEvent.OnShowPartyPanel) }
-                } else {
-                    null
-                },
-                partyActive = partyState.party != null,
                 onShowAudioDialog = {
                     panelReturnFocus = panelButtonFocus.audio
                     viewModel.onEvent(PlayerEvent.OnShowAudioOverlay)
@@ -1796,35 +1761,6 @@ fun PlayerScreen(
             StreamSourceIndicator(text = uiState.streamSourceIndicatorText)
         }
 
-        partyState.party?.let { party ->
-            val waitingNames = if (partyPlayback?.paused == true && partyPlayback?.waiting == true) {
-                PartySync.waitingMemberIds(party, emptySet())
-                    .filter { it != party.memberId }
-                    .mapNotNull { id -> party.member(id)?.displayName }
-            } else {
-                emptyList()
-            }
-            val noticeText = partyNotice?.let { notice -> partyNoticeText(notice) }
-            val partyPausedBehind = uiState.partyBehind && !uiState.isPlaying && !uiState.isBuffering
-            PartyStatusPill(
-                visible = (uiState.showControls || waitingNames.isNotEmpty() || !party.connected || noticeText != null || partyPausedBehind) &&
-                    !uiState.showPartyPanel && uiState.error == null,
-                members = party.members,
-                message = when {
-                    !party.connected -> stringResource(R.string.party_reconnecting)
-                    waitingNames.isNotEmpty() -> stringResource(R.string.party_waiting_for, waitingNames.joinToString())
-                    partyPlayback?.waiting == true -> stringResource(R.string.party_waiting)
-                    noticeText != null -> noticeText
-                    partyPausedBehind -> stringResource(R.string.party_paused_for_you)
-                    uiState.partyBehind -> uiState.partyBehindMs?.let { stringResource(R.string.party_behind, formatPlaybackTime(it)) }
-                    else -> null
-                },
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 28.dp)
-            )
-        }
-
         AnimatedVisibility(
             visible = uiState.showPlayerEngineSwitchInfo && uiState.error == null,
             enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
@@ -1850,7 +1786,6 @@ fun PlayerScreen(
                 !uiState.showEpisodesPanel &&
                 !uiState.showSourcesPanel &&
                 !uiState.showQueuePanel &&
-                !uiState.showPartyPanel &&
                 !uiState.showAudioOverlay &&
                 !uiState.showSubtitleOverlay &&
                 !uiState.showSubtitleTimingDialog &&
@@ -1941,76 +1876,6 @@ fun PlayerScreen(
                 onRestore = { item, index -> viewModel.onEvent(PlayerEvent.OnRestoreQueueItem(item, index)) },
                 onClose = { viewModel.onEvent(PlayerEvent.OnDismissQueuePanel) }
             )
-        }
-
-        AnimatedVisibility(
-            visible = uiState.showPartyPanel && uiState.error == null,
-            enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.quick)),
-            exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(FetchTheme.colors.Player.ScrimLight)
-            )
-        }
-
-        AnimatedVisibility(
-            visible = uiState.showPartyPanel && uiState.error == null,
-            enter = if (FetchTheme.fullMotion) {
-                slideInHorizontally(
-                    animationSpec = tween(FetchMotion.tokens.durations.fast),
-                    initialOffsetX = { it }
-                )
-            } else {
-                fadeIn(animationSpec = FetchMotion.enterTween())
-            },
-            exit = if (FetchTheme.fullMotion) {
-                slideOutHorizontally(
-                    animationSpec = tween(FetchMotion.tokens.durations.fast),
-                    targetOffsetX = { it }
-                )
-            } else {
-                fadeOut(animationSpec = FetchMotion.exitTween())
-            }
-        ) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                PartyPanel(
-                    state = partyState,
-                    profile = partyProfile,
-                    playerMedia = viewModel.partyMedia,
-                    isSupported = partyAvailable,
-                    canStart = partyCanUse,
-                    canShareStream = viewModel.currentPartyStream() != null,
-                    onStart = { viewModel.startParty() },
-                    onSwitchParty = { viewModel.switchParty() },
-                    onWatchWithParty = {
-                        partyState.party?.media?.let { media ->
-                            viewModel.onEvent(PlayerEvent.OnDismissPartyPanel)
-                            viewModel.stopAndRelease()
-                            onOpenPartyMedia(media)
-                        }
-                    },
-                    onLeave = {
-                        viewModel.onEvent(PlayerEvent.OnDismissPartyPanel)
-                        viewModel.party.leave()
-                    },
-                    onEnd = {
-                        viewModel.onEvent(PlayerEvent.OnDismissPartyPanel)
-                        viewModel.party.end()
-                    },
-                    onRemove = { member -> viewModel.party.removeMember(member.id) },
-                    onHostOnlyChange = { enabled -> viewModel.party.setHostOnly(enabled) },
-                    onSharingChange = { enabled -> viewModel.party.setSharing(enabled) },
-                    behindMs = if (uiState.partyBehind) uiState.partyBehindMs ?: 0L else null,
-                    onCatchUp = {
-                        viewModel.catchUpParty()
-                        viewModel.onEvent(PlayerEvent.OnDismissPartyPanel)
-                    },
-                    onClose = { viewModel.onEvent(PlayerEvent.OnDismissPartyPanel) },
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                )
-            }
         }
 
         // Subtitle style panel scrim
@@ -2137,7 +2002,6 @@ fun PlayerScreen(
                 !uiState.showEpisodesPanel &&
                 !uiState.showSourcesPanel &&
                 !uiState.showQueuePanel &&
-                !uiState.showPartyPanel &&
                 !uiState.showAudioOverlay &&
                 !uiState.showSubtitleOverlay &&
                 !uiState.showSubtitleStylePanel &&
@@ -2718,8 +2582,6 @@ internal fun PlayerControlsOverlay(
     onShowSourcesPanel: () -> Unit,
     onShowQueuePanel: () -> Unit,
     onPlayQueueItem: (com.fetch.tv.data.local.QueueItem) -> Unit,
-    onShowPartyPanel: (() -> Unit)?,
-    partyActive: Boolean,
     onShowAudioDialog: () -> Unit,
     onShowSubtitleDialog: () -> Unit,
     onShowSpeedDialog: () -> Unit,
@@ -3024,17 +2886,6 @@ internal fun PlayerControlsOverlay(
                             labelAbove = true,
                             contentColor = if (uiState.sleepTimer != null) FetchTheme.colors.Secondary else FetchTheme.colors.Player.TextPrimary
                         )
-                        if (onShowPartyPanel != null && !partyActive) {
-                            ControlButton(
-                                icon = Icons.Rounded.Groups,
-                                contentDescription = stringResource(R.string.party_title),
-                                onClick = onShowPartyPanel,
-                                upFocusRequester = progressUpTarget,
-                                onDownKey = backToMore,
-                                onFocused = onResetHideTimer,
-                                labelAbove = true
-                            )
-                        }
                         ControlButton(
                             icon = Icons.Default.SwapHoriz,
                             contentDescription = stringResource(R.string.cd_switch_player_engine),
@@ -3100,20 +2951,6 @@ internal fun PlayerControlsOverlay(
                             upFocusRequester = progressUpTarget,
                             onDownKey = onHideControls,
                             onFocused = onResetHideTimer,
-                            labelAbove = true
-                        )
-                    }
-                    // Party sits here only while one is running, where its accent icon is live
-                    // status; otherwise it waits under More.
-                    if (onShowPartyPanel != null && partyActive) {
-                        ControlButton(
-                            icon = Icons.Rounded.Groups,
-                            contentDescription = stringResource(R.string.party_title),
-                            onClick = onShowPartyPanel,
-                            upFocusRequester = progressUpTarget,
-                            onDownKey = onHideControls,
-                            onFocused = onResetHideTimer,
-                            contentColor = FetchTheme.colors.Secondary,
                             labelAbove = true
                         )
                     }
@@ -3423,7 +3260,7 @@ private fun ControlButton(
         if (isFocused && focusLabel != null) labelBringIntoView.bringIntoView()
     }
 
-    // Icon-only buttons (engine, party, aspect, flag, report) were hard to tell apart from the
+    // Icon-only buttons (engine, aspect, flag, report) were hard to tell apart from the
     // couch. The label joins and leaves layout in one frame with focus; only its fade animates.
     Row(
         modifier = Modifier.bringIntoViewRequester(labelBringIntoView),
@@ -4888,14 +4725,6 @@ internal fun DialogButton(
             overflow = TextOverflow.Ellipsis
         )
     }
-}
-
-@Composable
-private fun partyNoticeText(notice: PartyNotice): String = when (notice.action) {
-    PartyAction.Paused -> stringResource(R.string.party_action_paused, notice.name)
-    PartyAction.Resumed -> stringResource(R.string.party_action_resumed, notice.name)
-    PartyAction.Seeked -> stringResource(R.string.party_action_seeked, notice.name, formatTime(notice.positionMs))
-    PartyAction.Speed -> stringResource(R.string.party_action_speed, notice.name, formatSpeedLabel(notice.rate))
 }
 
 @Composable

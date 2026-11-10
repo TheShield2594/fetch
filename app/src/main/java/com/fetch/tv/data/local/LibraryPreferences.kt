@@ -9,7 +9,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.google.gson.Gson
 import com.fetch.tv.core.profile.ProfileManager
-import com.fetch.tv.core.sync.library.LibrarySyncLocalStore
 import com.fetch.tv.domain.model.LibraryDeltaApplyResult
 import com.fetch.tv.domain.model.LibraryDeltaEvent
 import com.fetch.tv.domain.model.LibrarySnapshotApplyResult
@@ -33,7 +32,7 @@ import javax.inject.Singleton
 class LibraryPreferences @Inject constructor(
     private val factory: ProfileDataStoreFactory,
     private val profileManager: ProfileManager
-) : LibrarySyncLocalStore {
+) {
     private val gson = Gson()
     private val libraryItemsKey = stringSetPreferencesKey("library_items")
     private val sortOptionKey = stringPreferencesKey("library_sort_option")
@@ -178,69 +177,8 @@ class LibraryPreferences @Inject constructor(
         }
     }
 
-    override suspend fun getSyncState(profileId: Int): LibrarySyncState {
+    private suspend fun getSyncState(profileId: Int): LibrarySyncState {
         return store(profileId).data.first().toLibrarySyncState()
-    }
-
-    override suspend fun applyRemoteSnapshot(
-        profileId: Int,
-        remoteItems: Collection<SavedLibraryItem>,
-        cursorEventId: Long
-    ): LibrarySnapshotApplyResult {
-        lateinit var result: LibrarySnapshotApplyResult
-        store(profileId).edit { preferences ->
-            result = LibrarySyncReducer.applySnapshot(
-                state = preferences.toLibrarySyncState(),
-                remoteItems = remoteItems,
-                cursorEventId = cursorEventId
-            )
-            preferences.writeLibrarySyncState(result.state)
-        }
-        return result
-    }
-
-    override suspend fun applyRemoteDelta(
-        profileId: Int,
-        events: Collection<LibraryDeltaEvent>
-    ): LibraryDeltaApplyResult {
-        lateinit var result: LibraryDeltaApplyResult
-        store(profileId).edit { preferences ->
-            result = LibrarySyncReducer.applyDelta(
-                state = preferences.toLibrarySyncState(),
-                events = events
-            )
-            preferences.writeLibrarySyncState(result.state)
-        }
-        return result
-    }
-
-    override suspend fun queueAllItemsForPush(profileId: Int): LibrarySyncState {
-        lateinit var result: LibrarySyncState
-        store(profileId).edit { preferences ->
-            result = LibrarySyncReducer.queueAllItemsForPush(
-                preferences.toLibrarySyncState()
-            )
-            preferences.writeLibrarySyncState(result)
-        }
-        return result
-    }
-
-    override suspend fun acknowledgePush(
-        profileId: Int,
-        expectedMutationRevision: Long
-    ): Boolean {
-        var acknowledged = false
-        store(profileId).edit { preferences ->
-            val updated = LibrarySyncReducer.acknowledgePush(
-                state = preferences.toLibrarySyncState(),
-                expectedMutationRevision = expectedMutationRevision
-            )
-            if (updated != null) {
-                preferences.writeLibrarySyncState(updated)
-                acknowledged = true
-            }
-        }
-        return acknowledged
     }
 
     private fun Preferences.toLibrarySyncState(): LibrarySyncState {

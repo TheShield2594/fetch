@@ -102,7 +102,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">A Kezdőlapnak katalógusbővítményre van szüksége a címek megjelenítéséhez.</string>
     <string name="home_empty_no_catalogs_title">Nincs megjeleníthető katalógus</string>
     <string name="home_empty_no_catalogs_subtitle">A bővítményeid nem kínálnak katalógust a Kezdőlapra.</string>
-    <string name="auth_notice_fetch_logged_out">Kijelentkeztél a Fetch-fiókodból. Jelentkezz be újra itt: Beállítások &gt; Fiók.</string>
     <string name="auth_notice_trakt_logged_out">Kijelentkeztél a Trakt-fiókodból. Csatlakoztasd újra itt: Beállítások &gt; Követés.</string>
     <string name="error_generic">Hiba történt</string>
 
@@ -505,34 +504,7 @@
     <string name="essential_subtitle_language_subtitle">A feliratok előnyben részesített nyelve.</string>
     <string name="essential_audio_language_subtitle">A hangsáv előnyben részesített nyelve.</string>
     <!-- Account / sign-in error messages -->
-    <string name="account_error_incorrect_pin">Helytelen PIN.</string>
-    <string name="account_error_sync_code_expired">A szinkronizálási kód lejárt.</string>
-    <string name="account_error_invalid_sync_code">Érvénytelen szinkronizálási kód.</string>
-    <string name="account_error_sync_code_not_found">A szinkronizálási kód nem található.</string>
-    <string name="account_error_device_already_linked">Az eszköz már össze van kapcsolva.</string>
     <string name="account_error_generic_retry">Hiba történt. Próbáld újra.</string>
-    <string name="account_error_invalid_credentials">Helytelen e-mail cím vagy jelszó.</string>
-    <string name="account_error_email_not_confirmed">Kérlek, először erősítsd meg az e-mail címed.</string>
-    <string name="account_error_email_already_registered">Már létezik fiók ezzel az e-mail címmel.</string>
-    <string name="account_error_invalid_email">Kérlek, adj meg egy érvényes e-mail címet.</string>
-    <string name="account_error_password_too_short">A jelszó túl rövid.</string>
-    <string name="account_error_password_too_weak">A jelszó túl gyenge.</string>
-    <string name="account_error_signup_disabled">A regisztráció jelenleg le van tiltva.</string>
-    <string name="account_error_rate_limited">Túl sok próbálkozás. Kérlek, próbáld újra később.</string>
-    <string name="account_error_qr_login_expired">A QR-kódos bejelentkezés lejárt. Kérlek próbáld újra.</string>
-    <string name="account_error_invalid_qr_login">Érvénytelen QR-kódos bejelentkezési kód.</string>
-    <string name="account_error_qr_login_other_device">Ezt a QR-kódos bejelentkezést egy másik eszközről kérték.</string>
-    <string name="account_error_qr_login_outdated">A QR-kódos bejelentkezési szolgáltatás elavult. Alkalmazd újra a TV bejelentkezési SQL beállítást.</string>
-    <string name="account_error_qr_login_missing_setup">A QR-kódos bejelentkezési háttérrendszerből hiányzik a beállítás. Frissítsd a TV bejelentkezési SQL beállítását.</string>
-    <string name="account_error_qr_login_misconfigured">A QR-kódos bejelentkezési URL hibásan van konfigurálva.</string>
-    <string name="account_error_qr_login_invalid_request">A QR-kódos bejelentkezési kérés érvénytelen volt. Kérlek próbáld újra.</string>
-    <string name="account_error_no_internet">Nincs internetkapcsolat.</string>
-    <string name="account_error_connection_timeout">A kapcsolat időtúllépés miatt megszakadt. Kérlek próbáld újra.</string>
-    <string name="account_error_connection_refused">Nem sikerült csatlakozni a szerverhez.</string>
-    <string name="account_error_not_authenticated">Kérlek, először jelentkezz be.</string>
-    <string name="account_error_service_unavailable">A szolgáltatás nem elérhető. Kérlek, próbáld újra később.</string>
-    <string name="account_error_invalid_request">Érvénytelen kérés. Kérlek ellenőrizd az adataid.</string>
-    <string name="account_error_unexpected">Váratlan hiba történt.</string>
     <string name="experience_mode_switch_to_essential">Váltás Alapvető módra</string>
     <string name="experience_mode_switch_to_essential_subtitle">Speciális beállítások elrejtése anélkül, hogy a mentett értékek megváltoznának.</string>
     <string name="experience_mode_switch_to_advanced">Váltás Haladó módra</string>
@@ -582,10 +554,6 @@
     <string name="confirm_exit_toast">A kilépéshez nyomd meg újra a Vissza gombot</string>
     <string name="settings_debug">Hibakeresés</string>
     <string name="settings_account_section_subtitle">Fiók és szinkronizálási állapot.</string>
-    <string name="account_stat_addons">bővítmény</string>
-    <string name="account_stat_library">könyvtár</string>
-    <string name="account_stat_progress">megtekintési állapot</string>
-    <string name="account_stat_watched">megnézve</string>
 
     <string name="playback_title">Lejátszási beállítások</string>
     <string name="playback_subtitle">Videólejátszás és feliratok konfigurálása</string>
@@ -1121,15 +1089,6 @@
     <string name="trakt_connected_as">Csatlakoztatott fiók: %1$s</string>
     <string name="trakt_awaiting_instruction">Látogass el a trakt.tv/activate oldalra, és írd be ezt a kódot:</string>
     <string name="trakt_waiting_approval">Várakozás jóváhagyásra\u2026</string>
-    <string name="qr_login_approved">Sikeres jóváhagyás. Bejelentkezés befejezése\u2026</string>
-    <string name="qr_login_pending">Várakozás a telefonos jóváhagyásra\u2026</string>
-    <string name="qr_login_expired">A QR-kód lejárt. Kérj új kódot.</string>
-    <string name="qr_login_preparing">QR-kódos bejelentkezés előkészítése...</string>
-    <string name="qr_login_scan_prompt">Szkenneld be a QR-kódot és jelentkezz be a telefonodon</string>
-    <string name="qr_login_start_failed">A QR-kódos bejelentkezés indítása sikertelen</string>
-    <string name="qr_login_signing_in">Bejelentkezés…</string>
-    <string name="qr_login_success">Sikeres bejelentkezés</string>
-    <string name="qr_login_exchange_failed">Nem sikerült befejezni a QR-kódos bejelentkezést</string>
     <string name="trakt_code_expires">A kód lejár: %1$s múlva</string>
     <string name="trakt_token_refreshes">Trakt token frissítése: %1$s múlva</string>
     <string name="trakt_missing_credentials">Hiányzó TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET a local.properties fájlban.</string>
@@ -1190,13 +1149,6 @@
     <string name="debug_member_tier_two">Támogató+</string>
     <string name="debug_buffer_logs_title">BUFFER naplók engedélyezése</string>
     <string name="debug_buffer_logs_subtitle">A lejátszópuffer diagnosztikai adatainak rendszeres küldése a logcatbe (alapértelmezés szerint kikapcsolva)</string>
-    <string name="debug_section_account">Fiók</string>
-    <string name="debug_manual_signin_title">Kézi bejelentkezés</string>
-    <string name="debug_manual_signin_subtitle">Bejelentkezés e-maillel és jelszóval (Supabase hitelesítés)</string>
-    <string name="debug_email_placeholder">E-mail</string>
-    <string name="debug_password_placeholder">Jelszó</string>
-    <string name="debug_signing_in">Bejelentkezés\u2026</string>
-    <string name="debug_sign_in">Bejelentkezés</string>
     <string name="debug_error_dialog_title">Lejátszási hiba</string>
     <string name="debug_error_dialog_subtitle">Hiba történt a lejátszás során.\n\nHiba: Szimulált teszthiba – ez nem valódi meghibásodás. A forrás HTTP 503 (Service Unavailable) kódot küldött.</string>
     <string name="debug_dismiss">Bezárás</string>
@@ -1228,12 +1180,6 @@
     <string name="profile_background_custom">Egyedi</string>
     <string name="profile_avatar_focus_hint">Jelölj ki egy avatart a név megjelenítéséhez</string>
     <string name="profile_avatar_category_all">Összes</string>
-    <string name="profile_avatar_category_supporter">Támogató</string>
-    <string name="profile_avatar_category_anime">Anime</string>
-    <string name="profile_avatar_category_animation">Animáció</string>
-    <string name="profile_avatar_category_movie">Film</string>
-    <string name="profile_avatar_category_tv">TV</string>
-    <string name="profile_avatar_category_gaming">Játék</string>
     <string name="profile_add_new">Új profil</string>
     <string name="profile_cancel">Mégse</string>
     <string name="profile_save">Mentés</string>
@@ -1663,77 +1609,10 @@
 
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">Betöltés\u2026</string>
-    <string name="account_sync_description">Könyvtár, megtekintési állapot és bővítmények szinkronizálása az eszközök között.</string>
-    <string name="account_sync_restart_note">A szinkronizálás nem valós idejű az aktív eszközök között. Indítsd újra ezt az eszközt bejelentkezés után, vagy ha máshol végzett módosításokat szeretnél érvényesíteni.</string>
     <string name="account_signin_qr_title">Bejelentkezés QR-kóddal</string>
-    <string name="account_signin_qr_subtitle">Olvasd be a QR-kódot, és jelentkezz be az e-mail címeddel a telefonodon</string>
     <string name="account_signin_email_title">Bejelentkezés</string>
-    <string name="account_signin_email_subtitle">Add meg a saját üzemeltetésű szerveren lévő fiókod e-mail címét és jelszavát</string>
-    <string name="account_signed_in_label">Bejelentkezve</string>
-    <string name="account_total_label">Összesen</string>
-    <string name="account_loading_sync">Szinkronizálási adatok betöltése\u2026</string>
-    <string name="account_sign_out">Kijelentkezés</string>
-    <string name="account_sign_out_confirm_title">Kijelentkezel?</string>
-    <string name="account_sign_out_confirm_subtitle">Újra be kell majd jelentkezned, hogy a könyvtár, a megtekintési állapot és a bővítmények szinkronizálódjanak ezen az eszközön.</string>
 
-    <string name="auth_email_hint">Jelentkezz be közvetlenül a saját üzemeltetésű szervereden lévő fiókkal.</string>
-    <string name="auth_email_instruction">A folytatáshoz add meg az e-mail címed és a jelszavad.</string>
-    <string name="auth_email_placeholder">E-mail cím</string>
-    <string name="auth_password_placeholder">Jelszó</string>
-    <string name="auth_email_sign_in">Bejelentkezés</string>
-    <string name="auth_email_signing_in">Bejelentkezés\u2026</string>
-    <string name="server_options_content_description">Szerver beállításai</string>
-    <string name="server_options_connect_custom">Csatlakozás egyéni szerverhez</string>
-    <string name="server_options_change_custom">Csatlakozás másik szerverhez</string>
-    <string name="custom_server_title">Csatlakozás egyéni szerverhez</string>
-    <string name="custom_server_description">Add meg a szerver rendszergazdájától kapott Backend URL-t.</string>
-    <string name="custom_server_url_placeholder">https://backend.example.com</string>
-    <string name="custom_server_check">Szerver ellenőrzése</string>
-    <string name="custom_server_checking">Ellenőrzés\u2026</string>
-    <string name="custom_server_review_title">Egyéni szerver áttekintése</string>
-    <string name="custom_server_review_description">A felderítési dokumentum érvényes. A csatlakozás kijelentkeztet a jelenlegi szerverről, és újraindítja az alkalmazást. Ellenőrizd, hogy ez a szerver a sajátod, vagy megbízol benne.</string>
-    <string name="custom_server_verified_label">Felderített backend</string>
-    <string name="custom_server_key_label">Kliens konfigurációja</string>
-    <string name="custom_server_key_discovered">A publikálható kulcs automatikusan felderítve</string>
-    <string name="custom_server_warning_title">Csak olyan szerverhez csatlakozz, amelyben megbízol</string>
-    <string name="custom_server_warning_public">Ez a szerver nyilvános hosztnevet használ. Az alkalmazás nem tudja ellenőrizni, hogy ki birtokolja vagy üzemelteti.</string>
-    <string name="custom_server_warning_http">Ez a szerver privát hálózaton van, de a HTTP-forgalom nincs titkosítva. A hálózat más eszközei hozzáférhetnek az átvitt adatokhoz.</string>
-    <string name="custom_server_warning_public_http">Ez a szerver nyilvános hosztnevet és titkosítás nélküli HTTP-t használ. A hitelesítő adatok és a szinkronizált adatok átvitel közben kiszivároghatnak.</string>
-    <string name="custom_server_warning_private">Úgy tűnik, ez privát hálózati szerver, de az alkalmazás továbbra sem tudja ellenőrizni, hogy ki felügyeli.</string>
-    <string name="custom_server_warning_credentials">A szerver üzemeltetője megkaphatja a fiókod hitelesítő adatait, és hozzáférhet az ezen a szerveren szinkronizált adataidhoz.</string>
-    <string name="custom_server_trust_action">Megbízom ebben a szerverben</string>
-    <string name="custom_server_switching">Váltás\u2026</string>
-    <string name="custom_server_error_invalid_url">Adj meg egy érvényes HTTP vagy HTTPS Backend URL-t.</string>
-    <string name="custom_server_error_connection">Nem sikerült elérni a felderítési végpontot. Ellenőrizd az URL-t és a szerver elérhetőségét.</string>
-    <string name="custom_server_error_http">A felderítési végpont HTTP %1$d hibát adott vissza.</string>
-    <string name="custom_server_error_response_too_large">A felderítési dokumentum nagyobb a megengedettnél.</string>
-    <string name="custom_server_error_invalid_document">A szerver érvénytelen felderítési dokumentumot adott vissza.</string>
-    <string name="custom_server_error_version">A felderítési dokumentum ezen verziója nem támogatott.</string>
-    <string name="custom_server_error_service">A felderítési dokumentum nem ehhez az alkalmazáshoz tartozik.</string>
-    <string name="custom_server_error_not_self_hosted">A felderítési dokumentum nem saját üzemeltetésű szervert azonosít.</string>
-    <string name="custom_server_error_missing_configuration">A felderítési dokumentumból hiányzik az érvényes Backend URL vagy a publikálható kulcs.</string>
-    <string name="custom_server_error_no_auth">A szerver nem kínál támogatott bejelentkezési módot.</string>
-    <string name="custom_server_save_failed">Nem sikerült elmenteni a szerver konfigurációját.</string>
-    <string name="custom_server_session_clear_failed">Nem sikerült biztonságosan törölni a jelenlegi munkamenetet. A szerver nem változott.</string>
-    <string name="custom_server_restart_failed">A szerver elmentve, de az alkalmazás nem tudott automatikusan újraindulni. Indítsd újra kézzel.</string>
 
-    <string name="auth_qr_tagline">Nézd a könyvtárad tartalmait bárhol</string>
-    <string name="auth_qr_finishing">Bejelentkezés befejezése\u2026</string>
-    <string name="auth_qr_expires">Lejár: %1$s múlva</string>
-    <string name="auth_qr_scan_instruction">Olvasd be a QR-kódot, vagy add meg a rövid kódot a böngészőben.</string>
-    <string name="auth_qr_manual_instruction">Vagy nyisd meg ezt a címet: %1$s, és írd be a kódot</string>
-    <string name="auth_qr_refresh">QR-kód frissítése</string>
-    <string name="auth_qr_continue_without_account">Folytatás fiók nélkül</string>
-    <string name="auth_qr_connected">Fiókod csatlakoztatva van ezen a TV-n.</string>
-    <string name="auth_qr_synced_data">Szinkronizált adataid</string>
-    <string name="auth_qr_generating">QR-kód generálása\u2026</string>
-    <string name="auth_qr_unavailable">A QR-kód nem érhető el. Frissítsd, majd próbáld újra.</string>
-    <string name="auth_qr_please_wait">Kérjük, várj\u2026</string>
-    <string name="auth_qr_continue">Folytatás</string>
-    <string name="auth_qr_back">Vissza</string>
-    <string name="auth_qr_terms_prefix">A regisztrációval / bejelentkezéssel elfogadom a</string>
-    <string name="auth_qr_terms_link">Feltételeket</string>
 
 
 
@@ -1919,10 +1798,7 @@
     <string name="cd_voice_search">Hangalapú keresés</string>
     <string name="cd_expand">Kibontás: %1$s</string>
     <string name="cd_collapse">Összecsukás: %1$s</string>
-    <string name="cd_qr_login">QR-kód a bejelentkezéshez</string>
-    <string name="cd_fetch">Fetch</string>
 
-    <string name="debug_signin_success">Sikeres bejelentkezés</string>
     <string name="debug_generate_description">Debug-generált %1$s elem #%2$d</string>
     <string name="debug_generate_result_failed">Sikertelen: %1$s</string>
     <string name="debug_generate_library_result_added">%1$d elem hozzáadva a könyvtárhoz</string>
@@ -2732,12 +2608,6 @@
     <string name="library_empty_type_movies">film</string>
     <string name="library_empty_type_series">sorozat</string>
     <string name="library_empty_type_items">elem</string>
-    <string name="server_options_use_official">Szinkronizálás kikapcsolása</string>
-    <string name="official_server_title">Kikapcsolod a szinkronizálást?</string>
-    <string name="official_server_description">Kijelentkezel a szinkronizálási szerverről, és az alkalmazás csak helyi módban indul újra. Minden, ami már ezen a TV-n van, megmarad.</string>
-    <string name="official_server_action">Szinkronizálás kikapcsolása</string>
-    <string name="custom_server_error_official_active">A szinkronizálás már ki van kapcsolva ezen a TV-n.</string>
-    <string name="custom_server_error_official_available">Ez nem szinkronizálási szerver. Zárd be ezt az ablakot, és válaszd a Szinkronizálás kikapcsolása lehetőséget, hogy visszatérj a csak helyi módhoz.</string>
     <string name="cd_mark_intro_start">Bevezető kezdetének megjelölése</string>
     <string name="cd_mark_intro_end">Bevezető végének megjelölése</string>
     <string name="cd_mark_credits_start">Stáblista kezdetének megjelölése</string>
@@ -2795,7 +2665,6 @@
     <string name="source_chip_failed">sikertelen</string>
     <string name="source_chip_loading">betöltés</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>
-    <string name="account_local_only_note">A szinkronizálás ki van kapcsolva. A Fetch ezen a TV-n tárolja a bővítményeidet, a megtekintési állapotot és a beállításokat, és nincs szüksége fiókra. Az eszközök közötti szinkronizáláshoz csatlakoztasd a saját szinkronizálási szerveredet a szerverbeállításokban.</string>
     <string name="parental_title_blocked">Ez a cím meghaladja a profil korhatár-besorolási korlátját.</string>
     <string name="parental_addons_blocked">Ez a profil nem telepíthet bővítményeket. Kérd meg egy szülőt.</string>
     <string name="parental_gate_heading">Add meg %1$s PIN-kódját</string>

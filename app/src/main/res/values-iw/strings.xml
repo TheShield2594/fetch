@@ -103,7 +103,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">מסך הבית צריך תוסף קטלוג כדי להציג כותרים.</string>
     <string name="home_empty_no_catalogs_title">אין קטלוגים להצגה</string>
     <string name="home_empty_no_catalogs_subtitle">התוספים שלך לא מציעים קטלוגים למסך הבית.</string>
-    <string name="auth_notice_fetch_logged_out">יצאת מחשבון Fetch. אפשר להתחבר מחדש דרך הגדרות &gt; חשבון.</string>
     <string name="auth_notice_trakt_logged_out">יצאת מחשבון Trakt. אפשר לחבר אותו מחדש דרך הגדרות &gt; מעקב.</string>
     <string name="error_generic">אירעה שגיאה</string>
 
@@ -510,34 +509,7 @@
     <string name="essential_subtitle_language_subtitle">שפת הכתוביות המועדפת.</string>
     <string name="essential_audio_language_subtitle">שפת האודיו המועדפת.</string>
     <!-- Account / sign-in error messages -->
-    <string name="account_error_incorrect_pin">סיסמה שגויה.</string>
-    <string name="account_error_sync_code_expired">קוד הסנכרון פג תוקף.</string>
-    <string name="account_error_invalid_sync_code">קוד סנכרון שגוי.</string>
-    <string name="account_error_sync_code_not_found">קוד סנכרון לא נמצא.</string>
-    <string name="account_error_device_already_linked">המכשיר כבר מקושר.</string>
     <string name="account_error_generic_retry">משהו השתבש. כדאי לנסות שוב.</string>
-    <string name="account_error_invalid_credentials">אימייל או סיסמה שגויים.</string>
-    <string name="account_error_email_not_confirmed">יש לאשר תחילה את כתובת האימייל.</string>
-    <string name="account_error_email_already_registered">כבר קיים חשבון עם כתובת האימייל הזו.</string>
-    <string name="account_error_invalid_email">יש להזין כתובת אימייל תקינה.</string>
-    <string name="account_error_password_too_short">הסיסמה קצרה מדי.</string>
-    <string name="account_error_password_too_weak">הסיסמה חלשה מדי.</string>
-    <string name="account_error_signup_disabled">ההרשמה כרגע מושבתת.</string>
-    <string name="account_error_rate_limited">יותר מדי ניסיונות. כדאי לנסות שוב מאוחר יותר.</string>
-    <string name="account_error_qr_login_expired">התחברות ה-QR פגה. כדאי לנסות שוב.</string>
-    <string name="account_error_invalid_qr_login">קוד התחברות QR שגוי.</string>
-    <string name="account_error_qr_login_other_device">התחברות QR זו התבקשה ממכשיר אחר.</string>
-    <string name="account_error_qr_login_outdated">שירות התחברות ה-QR מיושן. יש להחיל מחדש את הגדרת ה-SQL להתחברות בטלוויזיה.</string>
-    <string name="account_error_qr_login_missing_setup">חסרה הגדרה בשרת ההתחברות ב-QR. יש לעדכן את הגדרת ה-SQL להתחברות בטלוויזיה.</string>
-    <string name="account_error_qr_login_misconfigured">כתובת ה-URL להתחברות ב-QR מוגדרת בצורה שגויה.</string>
-    <string name="account_error_qr_login_invalid_request">בקשת התחברות ב-QR הייתה שגויה. כדאי לנסות שוב.</string>
-    <string name="account_error_no_internet">אין חיבור לאינטרנט.</string>
-    <string name="account_error_connection_timeout">הזמן הקצוב לחיבור פג. כדאי לנסות שוב.</string>
-    <string name="account_error_connection_refused">לא ניתן להתחבר לשרת.</string>
-    <string name="account_error_not_authenticated">תחילה יש להתחבר.</string>
-    <string name="account_error_service_unavailable">השירות אינו זמין. כדאי לנסות שוב מאוחר יותר.</string>
-    <string name="account_error_invalid_request">בקשה שגויה. יש לבדוק את הפרטים שהוזנו.</string>
-    <string name="account_error_unexpected">אירעה שגיאה בלתי צפויה.</string>
     <string name="experience_mode_switch_to_essential">מעבר למצב בסיסי</string>
     <string name="experience_mode_switch_to_essential_subtitle">הסתרת משטחי הגדרה מתקדמים, מבלי לשנות את הערכים השמורים שלך.</string>
     <string name="experience_mode_switch_to_advanced">מעבר למצב מתקדם</string>
@@ -587,10 +559,6 @@
     <string name="confirm_exit_toast">יש ללחוץ שוב על חזרה כדי לצאת</string>
     <string name="settings_debug">ניפוי שגיאות</string>
     <string name="settings_account_section_subtitle">חשבון וסטטוס סנכרון</string>
-    <string name="account_stat_addons">תוספים</string>
-    <string name="account_stat_library">נשמרו בספרייה</string>
-    <string name="account_stat_progress">התקדמות צפייה</string>
-    <string name="account_stat_watched">נצפה</string>
 
     <string name="playback_title">הגדרות הפעלה</string>
     <string name="playback_subtitle">הגדרת אפשרויות הפעלת וידאו וכתוביות</string>
@@ -1133,15 +1101,6 @@
     <string name="trakt_connected_as">מחוברים בתור %1$s</string>
     <string name="trakt_awaiting_instruction">יש לעבור אל trakt.tv/activate ולהזין את הקוד:</string>
     <string name="trakt_waiting_approval">ממתין לאישור…</string>
-    <string name="qr_login_approved">ההתחברות אושרה. מסיים כניסה…</string>
-    <string name="qr_login_pending">ממתין לאישור בטלפון שלך…</string>
-    <string name="qr_login_expired">פג תוקף קוד ה-QR. יש ללחוץ על \"רענון קוד QR\".</string>
-    <string name="qr_login_preparing">מכין כניסה עם קוד QR…</string>
-    <string name="qr_login_scan_prompt">יש לסרוק קוד QR ולהתחבר בטלפון</string>
-    <string name="qr_login_start_failed">לא ניתן היה להתחיל התחברות באמצעות קוד QR</string>
-    <string name="qr_login_signing_in">מחבר אותך…</string>
-    <string name="qr_login_success">ההתחברות הצליחה</string>
-    <string name="qr_login_exchange_failed">לא ניתן היה להשלים כניסה באמצעות QR</string>
     <string name="trakt_code_expires">הקוד יפוג בעוד %1$s</string>
     <string name="trakt_token_refreshes">אסימון גישה Trakt יתחדש בעוד %1$s</string>
     <string name="trakt_missing_credentials">חסר TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET ב-local.properties.</string>
@@ -1202,13 +1161,6 @@
     <string name="debug_member_tier_two">תומך+</string>
     <string name="debug_buffer_logs_title">הפעלת לוגים של BUFFER</string>
     <string name="debug_buffer_logs_subtitle">שליחת אבחוני מאגר נגן תקופתיים ל-logcat (כבוי כברירת מחדל)</string>
-    <string name="debug_section_account">חשבון</string>
-    <string name="debug_manual_signin_title">כניסה ידנית</string>
-    <string name="debug_manual_signin_subtitle">התחברות עם אימייל וסיסמה (Supabase auth)</string>
-    <string name="debug_email_placeholder">אימייל</string>
-    <string name="debug_password_placeholder">סיסמה</string>
-    <string name="debug_signing_in">מתחבר…</string>
-    <string name="debug_sign_in">התחברות</string>
     <string name="debug_error_dialog_title">שגיאת הפעלה</string>
     <string name="debug_error_dialog_subtitle">אירעה שגיאה במהלך ההפעלה.\n\nשגיאה: שגיאה מדומה לבדיקה - זו אינה כשל אמיתי. המקור החזיר HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">סגירה</string>
@@ -1240,12 +1192,6 @@
     <string name="profile_background_custom">מותאם אישית</string>
     <string name="profile_avatar_focus_hint">התמקדות באווטאר מציגה את שמו.</string>
     <string name="profile_avatar_category_all">הכול</string>
-    <string name="profile_avatar_category_supporter">תומך</string>
-    <string name="profile_avatar_category_anime">אנימה</string>
-    <string name="profile_avatar_category_animation">אנימציה</string>
-    <string name="profile_avatar_category_movie">סרט</string>
-    <string name="profile_avatar_category_tv">טלוויזיה</string>
-    <string name="profile_avatar_category_gaming">גיימינג</string>
     <string name="profile_add_new">הוספת פרופיל</string>
     <string name="profile_cancel">ביטול</string>
     <string name="profile_save">שמירה</string>
@@ -1673,77 +1619,10 @@
 
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">טוען…</string>
-    <string name="account_sync_description">סנכרון הספרייה, התקדמות הצפייה והתוספים שלך בין מכשירים.</string>
-    <string name="account_sync_restart_note">הסנכרון אינו בזמן אמת בין מכשירים פעילים. יש להפעיל מחדש את המכשיר הזה לאחר הכניסה כדי לקבל שינויים שנעשו במקום אחר.</string>
     <string name="account_signin_qr_title">התחברות עם קוד QR</string>
-    <string name="account_signin_qr_subtitle">יש לסרוק קוד QR ולהשלים כניסה באמצעות אימייל וסיסמה בטלפון</string>
     <string name="account_signin_email_title">התחברות</string>
-    <string name="account_signin_email_subtitle">יש להזין את כתובת האימייל והסיסמה של החשבון</string>
-    <string name="account_signed_in_label">מחובר</string>
-    <string name="account_total_label">סה״כ</string>
-    <string name="account_loading_sync">טוען נתוני סנכרון…</string>
-    <string name="account_sign_out">התנתקות</string>
-    <string name="account_sign_out_confirm_title">להתנתק?</string>
-    <string name="account_sign_out_confirm_subtitle">יהיה צורך להתחבר מחדש כדי לסנכרן את הספרייה, התקדמות הצפייה והתוספים במכשיר זה.</string>
 
-    <string name="auth_email_hint">יש להתחבר ישירות עם החשבון בשרת שלך.</string>
-    <string name="auth_email_instruction">יש להזין את האימייל והסיסמה שלך כדי להמשיך.</string>
-    <string name="auth_email_placeholder">כתובת אימייל</string>
-    <string name="auth_password_placeholder">סיסמה</string>
-    <string name="auth_email_sign_in">התחברות</string>
-    <string name="auth_email_signing_in">מתחבר…</string>
-    <string name="server_options_content_description">אפשרויות שרת</string>
-    <string name="server_options_connect_custom">התחברות לשרת מותאם אישית</string>
-    <string name="server_options_change_custom">התחברות לשרת אחר</string>
-    <string name="custom_server_title">התחברות לשרת מותאם אישית</string>
-    <string name="custom_server_description">יש להזין את כתובת ה-Backend שסופקה על ידי מנהל השרת.</string>
-    <string name="custom_server_url_placeholder">https://backend.example.com</string>
-    <string name="custom_server_check">בדיקת שרת</string>
-    <string name="custom_server_checking">בודק…</string>
-    <string name="custom_server_review_title">בדיקת שרת מותאם אישית</string>
-    <string name="custom_server_review_description">מסמך ה-Discovery תקין. ההתחברות תנתק אותך מהשרת הנוכחי ותפעיל מחדש את האפליקציה. חשוב לוודא שמדובר בשרת מהימן, בבעלותך או כזה שניתן לסמוך עליו.</string>
-    <string name="custom_server_verified_label">שרת Backend שהתגלה</string>
-    <string name="custom_server_key_label">הגדרות לקוח</string>
-    <string name="custom_server_key_discovered">המפתח הציבורי (Publishable) התגלה אוטומטית</string>
-    <string name="custom_server_warning_title">מומלץ להתחבר רק לשרת מהימן</string>
-    <string name="custom_server_warning_public">שרת זה משתמש בשם מארח ציבורי. האפליקציה אינה יכולה לאמת מי הבעלים או המפעיל שלו.</string>
-    <string name="custom_server_warning_http">שרת זה נמצא ברשת פרטית, אך תעבורת HTTP אינה מוצפנת. ייתכן שמכשירים אחרים ברשת יוכלו לקרוא את המידע.</string>
-    <string name="custom_server_warning_public_http">שרת זה משתמש בשם מארח ציבורי וב-HTTP לא מוצפן. פרטי התחברות ונתונים המסונכרנים עשויים להיחשף במהלך ההעברה.</string>
-    <string name="custom_server_warning_private">נראה שזהו שרת ברשת פרטית, אך האפליקציה עדיין אינה יכולה לאמת מי שולט בו.</string>
-    <string name="custom_server_warning_credentials">מפעיל השרת יכול לקבל את פרטי החשבון ולגשת לנתונים המסונכרנים דרך שרת זה.</string>
-    <string name="custom_server_trust_action">השרת הזה מהימן בעיניי</string>
-    <string name="custom_server_switching">מחליף…</string>
-    <string name="custom_server_error_invalid_url">יש להזין כתובת Backend חוקית מסוג HTTP או HTTPS.</string>
-    <string name="custom_server_error_connection">לא ניתן להגיע לנקודת הקצה של ה-Discovery. יש לבדוק את הכתובת ואת זמינות השרת.</string>
-    <string name="custom_server_error_http">נקודת הקצה של ה-Discovery החזירה HTTP %1$d.</string>
-    <string name="custom_server_error_response_too_large">מסמך ה-Discovery גדול מהמותר.</string>
-    <string name="custom_server_error_invalid_document">השרת החזיר מסמך Discovery לא תקין.</string>
-    <string name="custom_server_error_version">גרסת מסמך ה-Discovery אינה נתמכת.</string>
-    <string name="custom_server_error_service">מסמך ה-Discovery אינו מיועד לאפליקציה זו.</string>
-    <string name="custom_server_error_not_self_hosted">מסמך ה-Discovery אינו מזהה שרת באירוח עצמי.</string>
-    <string name="custom_server_error_missing_configuration">במסמך ה-Discovery חסרים כתובת Backend תקינה או מפתח פרסום.</string>
-    <string name="custom_server_error_no_auth">השרת אינו מציע שיטת התחברות נתמכת.</string>
-    <string name="custom_server_save_failed">לא ניתן לשמור את הגדרות השרת.</string>
-    <string name="custom_server_session_clear_failed">לא ניתן לנקות בבטחה את ההתחברות הנוכחית. השרת לא שונה.</string>
-    <string name="custom_server_restart_failed">השרת נשמר, אך לא ניתן היה להפעיל מחדש את האפליקציה באופן אוטומטי. יש להפעיל אותה מחדש באופן ידני.</string>
 
-    <string name="auth_qr_tagline">צפייה בספרייה שלך, בכל מקום</string>
-    <string name="auth_qr_finishing">מסיים כניסה…</string>
-    <string name="auth_qr_expires">יפוג בעוד %1$s</string>
-    <string name="auth_qr_scan_instruction">יש לסרוק את קוד ה-QR או להזין את הקוד הקצר בדפדפן.</string>
-    <string name="auth_qr_manual_instruction">אפשר גם לגשת אל %1$s ולהזין</string>
-    <string name="auth_qr_refresh">רענון קוד QR</string>
-    <string name="auth_qr_continue_without_account">המשך ללא חשבון</string>
-    <string name="auth_qr_connected">החשבון שלך מחובר בטלוויזיה זו.</string>
-    <string name="auth_qr_synced_data">הנתונים שלך</string>
-    <string name="auth_qr_generating">יוצר קוד QR…</string>
-    <string name="auth_qr_unavailable">קוד ה-QR לא זמין. יש לרענן כדי לנסות שוב.</string>
-    <string name="auth_qr_please_wait">בהמתנה…</string>
-    <string name="auth_qr_continue">המשך</string>
-    <string name="auth_qr_back">חזרה</string>
-    <string name="auth_qr_terms_prefix">בהרשמה / התחברות, ניתנת הסכמה ל</string>
-    <string name="auth_qr_terms_link">תנאי השימוש</string>
 
 
 
@@ -1929,10 +1808,7 @@
     <string name="cd_voice_search">חיפוש קולי</string>
     <string name="cd_expand">הרחבת %1$s</string>
     <string name="cd_collapse">כיווץ %1$s</string>
-    <string name="cd_qr_login">קוד התחברות QR</string>
-    <string name="cd_fetch">Fetch</string>
 
-    <string name="debug_signin_success">ההתחברות הצליחה</string>
     <string name="debug_generate_description">פריט %1$s שנוצר לצורכי דיבאג #%2$d</string>
     <string name="debug_generate_result_failed">נכשל: %1$s</string>
     <string name="debug_generate_library_result_added">נוספו %1$d פריטים לספרייה</string>
@@ -2629,7 +2505,6 @@
     <string name="autosync_label_synced">מסונכרן אוטומטית</string>
 
     <!-- Fetch: new and changed strings -->
-    <string name="account_local_only_note">הסנכרון כבוי. Fetch שומרת את התוספים, ההתקדמות וההגדרות בטלוויזיה הזו ואינה דורשת חשבון. לסנכרון בין מכשירים, יש לחבר שרת סנכרון משלך מאפשרויות השרת.</string>
     <string name="addon_badge_needs_setup">דורש הגדרה</string>
     <string name="addon_configure">הגדרה</string>
     <string name="addon_configure_install">התקנה</string>
@@ -2685,8 +2560,6 @@
     <string name="cd_mark_credits_start">סימון תחילת כתוביות הסיום</string>
     <string name="cd_mark_intro_end">סימון סוף הפתיח</string>
     <string name="cd_mark_intro_start">סימון תחילת הפתיח</string>
-    <string name="custom_server_error_official_active">הסנכרון כבר כבוי בטלוויזיה הזו.</string>
-    <string name="custom_server_error_official_available">זה אינו שרת סנכרון. יש לסגור את החלון ולבחור \"כיבוי סנכרון\" כדי לחזור למצב מקומי בלבד.</string>
     <string name="exclusion_3d">גרסת תלת־ממד</string>
     <string name="exclusion_above_max_resolution">מעל הרזולוציה המרבית שלך</string>
     <string name="exclusion_audio">בחרת לדלג על שמע %1$s</string>
@@ -2764,9 +2637,6 @@
     <string name="library_empty_type_movies">סרטים</string>
     <string name="library_empty_type_series">סדרות</string>
     <string name="licenses_attributions_fetch_body">Fetch היא תוכנה חופשית ברישיון GNU General Public License v3.0. היא פורק של NuvioTV מאת התורמים של Nuvio (github.com/NuvioMedia/NuvioTV), שעבודתם מהווה את רוב האפליקציה הזו.</string>
-    <string name="official_server_action">כיבוי סנכרון</string>
-    <string name="official_server_description">החשבון שלך ינותק משרת הסנכרון והאפליקציה תופעל מחדש במצב מקומי בלבד. כל מה שכבר נמצא בטלוויזיה הזו יישאר.</string>
-    <string name="official_server_title">לכבות את הסנכרון?</string>
     <string name="parental_addons_blocked">הפרופיל הזה לא יכול להתקין תוספים. יש לבקש מהורה.</string>
     <string name="parental_allow_unrated">הצגת כותרים ללא סיווג: %1$s</string>
     <string name="parental_gate_heading">יש להזין את קוד ה-PIN של %1$s</string>
@@ -2844,7 +2714,6 @@
     <string name="ranking_size_gb">%1$d GB</string>
     <string name="ranking_skip_dv5">דילוג על Dolby Vision פרופיל 5</string>
     <string name="ranking_skip_dv5_sub">לפרופיל 5 אין גיבוי HDR10. מדלגים עליו תמיד כשהטלוויזיה לא יכולה להציג אותו</string>
-    <string name="server_options_use_official">כיבוי סנכרון</string>
     <string name="skip_marker_report_failed">לא ניתן היה לדווח על הסימון</string>
     <string name="skip_marker_reported">דיווחת על סימון שגוי. תודה!</string>
     <string name="skip_marker_start_recorded">ההתחלה סומנה. יש ללחוץ שוב במקום שבו זה נגמר.</string>

@@ -92,7 +92,6 @@ class StreamScreenViewModel @Inject constructor(
     private val subtitleFileCache: com.fetch.tv.core.player.SubtitleFileCache,
     private val serverStreams: ServerStreams,
     private val serverPlayback: ServerPlayback,
-    party: com.fetch.tv.core.party.PartyRepository,
     profileManager: com.fetch.tv.core.profile.ProfileManager,
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     private val screenTime: com.fetch.tv.core.parental.ScreenTimeManager,
@@ -140,32 +139,6 @@ class StreamScreenViewModel @Inject constructor(
         ?.toBooleanStrictOrNull()
         ?: false
     private val streamCacheKey: String = "${contentType.lowercase()}|$videoId"
-    private val partyKey: String = com.fetch.tv.core.party.partyMediaKey(
-        metaType = contentType,
-        metaId = contentId ?: videoId.substringBefore(":"),
-        season = season,
-        episode = episode
-    )
-
-    val partySource: StateFlow<com.fetch.tv.core.party.PartySource?> = party.state
-        .map { state -> state.party?.media?.takeIf { it.key == partyKey }?.source }
-        .distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
-
-    val sharedStream: StateFlow<SharedStream?> = combine(party.state, party.sharedStream) { state, stream ->
-        val current = state.party
-        if (current == null || current.isHost || stream == null || stream.mediaKey != partyKey) {
-            null
-        } else {
-            SharedStream(
-                hostName = current.member(current.hostMemberId)?.displayName.orEmpty(),
-                stream = stream.toStream()
-            )
-        }
-    }
-        .distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
-
     private val _uiState = MutableStateFlow(
         StreamScreenUiState(
             videoId = videoId,

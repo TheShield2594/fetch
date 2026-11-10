@@ -103,7 +103,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">Головній потрібен адон каталогу, щоб показувати тайтли.</string>
     <string name="home_empty_no_catalogs_title">Немає каталогів для показу</string>
     <string name="home_empty_no_catalogs_subtitle">Ваші адони не пропонують каталогів для головної.</string>
-    <string name="auth_notice_fetch_logged_out">Ви вийшли з Fetch. Увійдіть знову в розділі Налаштування &gt; Акаунт.</string>
     <string name="auth_notice_trakt_logged_out">Ви вийшли з Trakt. Підключіть його знову в розділі Налаштування &gt; Відстеження.</string>
     <string name="error_generic">Сталася помилка</string>
 
@@ -402,34 +401,7 @@
     <string name="essential_subtitle_language_subtitle">Бажана мова субтитрів.</string>
     <string name="essential_audio_language_subtitle">Бажана мова аудіо.</string>
     <!-- Account / sign-in error messages -->
-    <string name="account_error_incorrect_pin">Невірний PIN.</string>
-    <string name="account_error_sync_code_expired">Код синхронізації закінчився.</string>
-    <string name="account_error_invalid_sync_code">Невірний код синхронізації.</string>
-    <string name="account_error_sync_code_not_found">Код синхронізації не знайдено.</string>
-    <string name="account_error_device_already_linked">Пристрій вже прив\'язано.</string>
     <string name="account_error_generic_retry">Щось пішло не так. Будь ласка, спробуйте ще раз.</string>
-    <string name="account_error_invalid_credentials">Невірний email або пароль.</string>
-    <string name="account_error_email_not_confirmed">Будь ласка, спочатку підтвердіть email.</string>
-    <string name="account_error_email_already_registered">Акаунт з таким email вже існує.</string>
-    <string name="account_error_invalid_email">Будь ласка, введіть коректний email.</string>
-    <string name="account_error_password_too_short">Пароль занадто короткий.</string>
-    <string name="account_error_password_too_weak">Пароль занадто слабкий.</string>
-    <string name="account_error_signup_disabled">Реєстрація зараз недоступна.</string>
-    <string name="account_error_rate_limited">Забагато спроб. Повторіть пізніше.</string>
-    <string name="account_error_qr_login_expired">QR-вхід закінчився. Спробуйте ще раз.</string>
-    <string name="account_error_invalid_qr_login">Невірний код QR-входу.</string>
-    <string name="account_error_qr_login_other_device">Цей QR-вхід було запрошено з іншого пристрою.</string>
-    <string name="account_error_qr_login_outdated">Сервіс QR-входу застарів. Оновіть налаштування SQL TV-входу.</string>
-    <string name="account_error_qr_login_missing_setup">Бекенд QR-входу не налаштовано. Оновіть налаштування SQL TV-входу.</string>
-    <string name="account_error_qr_login_misconfigured">URL QR-входу налаштовано невірно.</string>
-    <string name="account_error_qr_login_invalid_request">Запит QR-входу був невірним. Спробуйте ще раз.</string>
-    <string name="account_error_no_internet">Немає підключення до інтернету.</string>
-    <string name="account_error_connection_timeout">Час очікування підключення вичерпано. Спробуйте ще раз.</string>
-    <string name="account_error_connection_refused">Не вдалося підключитися до сервера.</string>
-    <string name="account_error_not_authenticated">Будь ласка, спочатку увійдіть.</string>
-    <string name="account_error_service_unavailable">Сервіс недоступний. Спробуйте пізніше.</string>
-    <string name="account_error_invalid_request">Невірний запит. Перевірте введені дані.</string>
-    <string name="account_error_unexpected">Сталася непередбачена помилка.</string>
     <string name="experience_mode_switch_to_essential">Перейти на Базовий</string>
     <string name="experience_mode_switch_to_essential_subtitle">Приховати розширені налаштування без зміни збережених значень.</string>
     <string name="experience_mode_switch_to_advanced">Перейти на Розширений</string>
@@ -469,10 +441,6 @@
     <string name="profile_remember_last_profile_subtitle">Запам\'ятовувати останній обраний профіль при запуску</string>
     <string name="settings_debug">Налагодження</string>
     <string name="settings_account_section_subtitle">Акаунт та статус синхронізації</string>
-    <string name="account_stat_addons">адони</string>
-    <string name="account_stat_library">бібліотека</string>
-    <string name="account_stat_progress">прогрес</string>
-    <string name="account_stat_watched">переглянуто</string>
 
     <string name="playback_title">Налаштування відтворення</string>
     <string name="playback_subtitle">Налаштування параметрів відео та субтитрів</string>
@@ -858,15 +826,6 @@
     <string name="trakt_connected_as">Підключено як %1$s</string>
     <string name="trakt_awaiting_instruction">Перейдіть на trakt.tv/activate та введіть цей код:</string>
     <string name="trakt_waiting_approval">Очікування підтвердження…</string>
-    <string name="qr_login_approved">Вхід підтверджено. Завершення…</string>
-    <string name="qr_login_pending">Очікування підтвердження на вашому телефоні…</string>
-    <string name="qr_login_expired">QR-код застарів. Згенеруйте новий код.</string>
-    <string name="qr_login_preparing">Підготовка QR-входу...</string>
-    <string name="qr_login_scan_prompt">Відскануйте QR та увійдіть на телефоні</string>
-    <string name="qr_login_start_failed">Не вдалося запустити QR-вхід</string>
-    <string name="qr_login_signing_in">Виконується вхід…</string>
-    <string name="qr_login_success">Вхід виконано успішно</string>
-    <string name="qr_login_exchange_failed">Не вдалося завершити QR-вхід</string>
     <string name="trakt_code_expires">Код закінчується через %1$s</string>
     <string name="trakt_token_refreshes">Токен доступу Trakt оновиться через %1$s</string>
     <string name="trakt_missing_credentials">Відсутні TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET у local.properties.</string>
@@ -915,13 +874,6 @@
     <string name="debug_sync_code_subtitle">Показувати кнопки генерації/введення коду синхронізації в налаштуваннях акаунту</string>
     <string name="debug_buffer_logs_title">Увімкнути журнали BUFFER</string>
     <string name="debug_buffer_logs_subtitle">Періодично виводити діагностику буфера плеєра в logcat (за замовчуванням вимкнено)</string>
-    <string name="debug_section_account">Акаунт</string>
-    <string name="debug_manual_signin_title">Ручний вхід</string>
-    <string name="debug_manual_signin_subtitle">Вхід з Email та паролем (Supabase auth)</string>
-    <string name="debug_email_placeholder">Email</string>
-    <string name="debug_password_placeholder">Пароль</string>
-    <string name="debug_signing_in">Вхід до системи\u2026</string>
-    <string name="debug_sign_in">Увійти</string>
     <string name="debug_error_dialog_title">Помилка відтворення</string>
     <string name="debug_error_dialog_subtitle">Сталася помилка під час відтворення.\n\nПомилка: Тестова симуляція помилки — це не справжній збій. Джерело повернуло HTTP 503 (Сервіс недоступний).</string>
     <string name="debug_dismiss">Закрити</string>
@@ -948,11 +900,6 @@
     <string name="profile_choose_avatar">Обрати аватар</string>
     <string name="profile_avatar_focus_hint">Сфокусуйтесь на аватарі, щоб побачити його назву</string>
     <string name="profile_avatar_category_all">Всі</string>
-    <string name="profile_avatar_category_anime">Аніме</string>
-    <string name="profile_avatar_category_animation">Анімація</string>
-    <string name="profile_avatar_category_movie">Фільми</string>
-    <string name="profile_avatar_category_tv">ТВ</string>
-    <string name="profile_avatar_category_gaming">Ігри</string>
     <string name="profile_add_new">Додати профіль</string>
     <string name="profile_cancel">Скасувати</string>
     <string name="profile_save">Зберегти</string>
@@ -1299,29 +1246,9 @@
 
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">Завантаження\u2026</string>
-    <string name="account_sync_description">Синхронізуйте вашу бібліотеку, прогрес перегляду та адони між пристроями.</string>
-    <string name="account_sync_restart_note">Синхронізація не відбувається в реальному часі на активних пристроях. Перезавантажте цей пристрій після входу або щоб отримати зміни, зроблені в іншому місці.</string>
     <string name="account_signin_qr_title">Вхід за QR</string>
-    <string name="account_signin_qr_subtitle">Відскануйте QR-код та завершіть вхід через email на вашому телефоні</string>
-    <string name="account_signed_in_label">Виконано вхід</string>
-    <string name="account_total_label">Всього</string>
-    <string name="account_loading_sync">Завантаження даних синхронізації\u2026</string>
-    <string name="account_sign_out">Вийти</string>
 
 
-    <string name="auth_qr_finishing">Завершення входу\u2026</string>
-    <string name="auth_qr_expires">Закінчується через %1$s</string>
-    <string name="auth_qr_scan_instruction">Відскануйте QR, підтвердіть у браузері, потім поверніться сюди.</string>
-    <string name="auth_qr_refresh">Оновити QR</string>
-    <string name="auth_qr_continue_without_account">Продовжити без акаунту</string>
-    <string name="auth_qr_connected">Ваш акаунт підключено на цьому ТВ.</string>
-    <string name="auth_qr_synced_data">Ваші синхронізовані дані</string>
-    <string name="auth_qr_generating">Генерація QR\u2026</string>
-    <string name="auth_qr_unavailable">QR недоступний. Оновіть для повтору.</string>
-    <string name="auth_qr_please_wait">Будь ласка, зачекайте\u2026</string>
-    <string name="auth_qr_continue">Продовжити</string>
-    <string name="auth_qr_back">Назад</string>
 
 
 
@@ -1499,10 +1426,7 @@
     <string name="cd_voice_search">Голосовий пошук</string>
     <string name="cd_expand">Розгорнути %1$s</string>
     <string name="cd_collapse">Згорнути %1$s</string>
-    <string name="cd_qr_login">QR-код входу</string>
-    <string name="cd_fetch">Fetch</string>
 
-    <string name="debug_signin_success">Вхід успішно виконано</string>
     <string name="debug_generate_description">Згенерований налагодженням елемент %1$s #%2$d</string>
     <string name="debug_generate_result_failed">Помилка: %1$s</string>
     <string name="debug_generate_library_result_added">Додано %1$d елементів до бібліотеки</string>
@@ -2108,7 +2032,6 @@
     <string name="collections_editor_tmdb_collection_fallback">Колекція TMDB %1$d</string>
 
     <!-- Fetch: new and changed strings -->
-    <string name="account_local_only_note">Синхронізацію вимкнено. Fetch зберігає ваші адони, прогрес і налаштування на цьому телевізорі й не потребує акаунта. Щоб синхронізувати між пристроями, підключіть власний сервер синхронізації в параметрах сервера.</string>
     <string name="addon_badge_needs_setup">Потребує налаштування</string>
     <string name="addon_configure">Налаштувати</string>
     <string name="addon_configure_install">Встановити</string>
@@ -2164,8 +2087,6 @@
     <string name="cd_mark_credits_start">Позначити початок фінальних титрів</string>
     <string name="cd_mark_intro_end">Позначити кінець вступу</string>
     <string name="cd_mark_intro_start">Позначити початок вступу</string>
-    <string name="custom_server_error_official_active">Синхронізацію на цьому телевізорі вже вимкнено.</string>
-    <string name="custom_server_error_official_available">Це не сервер синхронізації. Закрийте це вікно й виберіть «Вимкнути синхронізацію», щоб повернутися до локального режиму.</string>
     <string name="exclusion_3d">3D-реліз</string>
     <string name="exclusion_above_max_resolution">вище за вашу максимальну роздільність</string>
     <string name="exclusion_audio">ви пропускаєте аудіо %1$s</string>
@@ -2245,9 +2166,6 @@
     <string name="library_empty_type_movies">фільмів</string>
     <string name="library_empty_type_series">серіалів</string>
     <string name="licenses_attributions_fetch_body">Fetch — вільне програмне забезпечення за ліцензією GNU General Public License v3.0. Це форк NuvioTV від учасників проєкту Nuvio (github.com/NuvioMedia/NuvioTV), чия робота становить більшу частину цього застосунку.</string>
-    <string name="official_server_action">Вимкнути синхронізацію</string>
-    <string name="official_server_description">Ви вийдете із сервера синхронізації, а застосунок перезапуститься в локальному режимі. Усе, що вже є на цьому телевізорі, залишиться.</string>
-    <string name="official_server_title">Вимкнути синхронізацію?</string>
     <string name="parental_addons_blocked">Цей профіль не може встановлювати адони. Попросіть батьків.</string>
     <string name="parental_allow_unrated">Показувати контент без рейтингу: %1$s</string>
     <string name="parental_gate_heading">Введіть PIN профілю %1$s</string>
@@ -2326,7 +2244,6 @@
     <string name="ranking_size_gb">%1$d ГБ</string>
     <string name="ranking_skip_dv5">Пропускати Dolby Vision профілю 5</string>
     <string name="ranking_skip_dv5_sub">Профіль 5 не має запасного HDR10. Його завжди пропущено, якщо цей телевізор не може його показати</string>
-    <string name="server_options_use_official">Вимкнути синхронізацію</string>
     <string name="skip_marker_report_failed">Не вдалося повідомити про позначку</string>
     <string name="skip_marker_reported">Повідомлено про неправильну позначку. Дякуємо!</string>
     <string name="skip_marker_start_recorded">Початок позначено. Натисніть ще раз там, де він закінчується.</string>
@@ -2476,7 +2393,6 @@
     <string name="youtube_show_live_subtitle">Додає трансляції, що тривають зараз, до стрічок, результатів пошуку та розділу Далі</string>
     <string name="youtube_hide_watched_title">Приховувати переглянуті відео</string>
     <string name="youtube_hide_watched_subtitle">Пропускає відео, які ви переглянули до кінця. В історії вони залишаються</string>
-    <string name="profile_avatar_category_supporter">Прихильники</string>
     <string name="profile_avatar_category_animals">Тварини</string>
     <string name="profile_avatar_category_characters">Персонажі</string>
     <string name="profile_avatar_category_fun">Розваги</string>

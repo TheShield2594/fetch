@@ -58,7 +58,7 @@ class CalendarViewModel @Inject constructor(
 
     init {
         // The sync method, and not only the website sign-in: a TV can stay signed in to the website
-        // while Supabase is the method chosen. The history's first full load counts too, since a
+        // while local only is the method chosen. The history's first full load counts too, since a
         // read before it would find Trakt's history still empty.
         val account = combine(
             profileManager.activeProfileId,

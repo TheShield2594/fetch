@@ -102,7 +102,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">L’Accueil a besoin d’un addon de catalogue pour afficher des titres.</string>
     <string name="home_empty_no_catalogs_title">Aucun catalogue à afficher</string>
     <string name="home_empty_no_catalogs_subtitle">Vos addons ne proposent aucun catalogue pour l’Accueil.</string>
-    <string name="auth_notice_fetch_logged_out">Déconnecté de Fetch. Reconnectez-vous depuis Paramètres &gt; Compte.</string>
     <string name="auth_notice_trakt_logged_out">Déconnecté de Trakt. Reconnectez-le depuis Paramètres &gt; Suivi.</string>
     <string name="error_generic">Une erreur est survenue</string>
 
@@ -506,34 +505,7 @@
     <string name="essential_subtitle_language_subtitle">Langue préférée des sous-titres.</string>
     <string name="essential_audio_language_subtitle">Langue audio préférée.</string>
     <!-- Account / sign-in error messages -->
-    <string name="account_error_incorrect_pin">Code PIN incorrect.</string>
-    <string name="account_error_sync_code_expired">Le code de synchronisation a expiré.</string>
-    <string name="account_error_invalid_sync_code">Code de synchronisation invalide.</string>
-    <string name="account_error_sync_code_not_found">Code de synchronisation introuvable.</string>
-    <string name="account_error_device_already_linked">Cet appareil est déjà associé.</string>
     <string name="account_error_generic_retry">Une erreur est survenue. Veuillez réessayer.</string>
-    <string name="account_error_invalid_credentials">Adresse e-mail ou mot de passe incorrect.</string>
-    <string name="account_error_email_not_confirmed">Veuillez d’abord confirmer votre adresse e-mail.</string>
-    <string name="account_error_email_already_registered">Un compte existe déjà avec cette adresse e-mail.</string>
-    <string name="account_error_invalid_email">Veuillez saisir une adresse e-mail valide.</string>
-    <string name="account_error_password_too_short">Le mot de passe est trop court.</string>
-    <string name="account_error_password_too_weak">Le mot de passe est trop faible.</string>
-    <string name="account_error_signup_disabled">Les inscriptions sont actuellement désactivées.</string>
-    <string name="account_error_rate_limited">Trop de tentatives. Veuillez réessayer plus tard.</string>
-    <string name="account_error_qr_login_expired">La connexion par code QR a expiré. Veuillez réessayer.</string>
-    <string name="account_error_invalid_qr_login">Code de connexion QR invalide.</string>
-    <string name="account_error_qr_login_other_device">Cette connexion par code QR a été demandée depuis un autre appareil.</string>
-    <string name="account_error_qr_login_outdated">Le service de connexion par code QR est obsolète. Réappliquez la configuration SQL de la connexion TV.</string>
-    <string name="account_error_qr_login_missing_setup">Le backend de connexion par code QR n’est pas configuré. Mettez à jour la configuration SQL de la connexion TV.</string>
-    <string name="account_error_qr_login_misconfigured">L’URL de connexion par code QR est mal configurée.</string>
-    <string name="account_error_qr_login_invalid_request">La requête de connexion par code QR est invalide. Veuillez réessayer.</string>
-    <string name="account_error_no_internet">Aucune connexion Internet.</string>
-    <string name="account_error_connection_timeout">Délai de connexion dépassé. Veuillez réessayer.</string>
-    <string name="account_error_connection_refused">Impossible de se connecter au serveur.</string>
-    <string name="account_error_not_authenticated">Veuillez d’abord vous connecter.</string>
-    <string name="account_error_service_unavailable">Service indisponible. Veuillez réessayer plus tard.</string>
-    <string name="account_error_invalid_request">Requête invalide. Veuillez vérifier votre saisie.</string>
-    <string name="account_error_unexpected">Une erreur inattendue est survenue.</string>
     <string name="experience_mode_switch_to_essential">Passer en mode Essentiel</string>
     <string name="experience_mode_switch_to_essential_subtitle">Masquer les écrans de configuration avancée sans modifier vos valeurs enregistrées.</string>
     <string name="experience_mode_switch_to_advanced">Passer en mode Avancé</string>
@@ -583,10 +555,6 @@
     <string name="confirm_exit_toast">Appuyez de nouveau sur «&#160;Retour&#160;» pour quitter</string>
     <string name="settings_debug">Débogage</string>
     <string name="settings_account_section_subtitle">Compte et état de la synchronisation</string>
-    <string name="account_stat_addons">addons</string>
-    <string name="account_stat_library">bibliothèque</string>
-    <string name="account_stat_progress">progression</string>
-    <string name="account_stat_watched">vus</string>
 
     <string name="playback_title">Paramètres de lecture</string>
     <string name="playback_subtitle">Configurer la lecture vidéo et les options de sous-titres</string>
@@ -1129,15 +1097,6 @@
     <string name="trakt_connected_as">Connecté en tant que %1$s</string>
     <string name="trakt_awaiting_instruction">Rendez-vous sur trakt.tv/activate et saisissez ce code&#160;:</string>
     <string name="trakt_waiting_approval">En attente d’approbation…</string>
-    <string name="qr_login_approved">Connexion approuvée. Finalisation de la connexion…</string>
-    <string name="qr_login_pending">En attente d’approbation sur votre téléphone…</string>
-    <string name="qr_login_expired">Le code QR a expiré. Générez un nouveau code.</string>
-    <string name="qr_login_preparing">Préparation de la connexion par code QR…</string>
-    <string name="qr_login_scan_prompt">Scannez le code QR et connectez-vous sur votre téléphone</string>
-    <string name="qr_login_start_failed">Impossible de démarrer la connexion par code QR</string>
-    <string name="qr_login_signing_in">Connexion en cours…</string>
-    <string name="qr_login_success">Connexion réussie</string>
-    <string name="qr_login_exchange_failed">Impossible de finaliser la connexion par code QR</string>
     <string name="trakt_code_expires">Le code expire dans %1$s</string>
     <string name="trakt_token_refreshes">Le jeton d’accès Trakt sera actualisé dans %1$s</string>
     <string name="trakt_missing_credentials">TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET manquants dans local.properties.</string>
@@ -1198,13 +1157,6 @@
     <string name="debug_member_tier_two">Supporter+</string>
     <string name="debug_buffer_logs_title">Activer les journaux BUFFER</string>
     <string name="debug_buffer_logs_subtitle">Émettre périodiquement les diagnostics de la mémoire tampon du lecteur dans logcat (désactivé par défaut)</string>
-    <string name="debug_section_account">Compte</string>
-    <string name="debug_manual_signin_title">Connexion manuelle</string>
-    <string name="debug_manual_signin_subtitle">Se connecter avec une adresse e-mail et un mot de passe (authentification Supabase)</string>
-    <string name="debug_email_placeholder">Adresse e-mail</string>
-    <string name="debug_password_placeholder">Mot de passe</string>
-    <string name="debug_signing_in">Connexion en cours…</string>
-    <string name="debug_sign_in">Se connecter</string>
     <string name="debug_error_dialog_title">Erreur de lecture</string>
     <string name="debug_error_dialog_subtitle">Une erreur est survenue pendant la lecture.\n\nErreur&#160;: erreur simulée de test, il ne s’agit pas d’une vraie panne. La source a renvoyé HTTP 503 (service indisponible).</string>
     <string name="debug_dismiss">Fermer</string>
@@ -1236,12 +1188,6 @@
     <string name="profile_background_custom">Personnalisé</string>
     <string name="profile_avatar_focus_hint">Sélectionnez un avatar pour voir son nom</string>
     <string name="profile_avatar_category_all">Tous</string>
-    <string name="profile_avatar_category_supporter">Supporter</string>
-    <string name="profile_avatar_category_anime">Animés</string>
-    <string name="profile_avatar_category_animation">Animation</string>
-    <string name="profile_avatar_category_movie">Films</string>
-    <string name="profile_avatar_category_tv">Séries</string>
-    <string name="profile_avatar_category_gaming">Jeux vidéo</string>
     <string name="profile_add_new">Ajouter un profil</string>
     <string name="profile_cancel">Annuler</string>
     <string name="profile_save">Enregistrer</string>
@@ -1671,77 +1617,10 @@
 
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">Chargement…</string>
-    <string name="account_sync_description">Synchronisez votre bibliothèque, votre progression de visionnage et vos addons entre vos appareils.</string>
-    <string name="account_sync_restart_note">La synchronisation n’est pas en temps réel entre les appareils actifs. Redémarrez cet appareil après vous être connecté, ou pour récupérer les modifications effectuées ailleurs.</string>
     <string name="account_signin_qr_title">Se connecter par code QR</string>
-    <string name="account_signin_qr_subtitle">Scannez un code QR et terminez la connexion par e-mail sur votre téléphone</string>
     <string name="account_signin_email_title">Se connecter</string>
-    <string name="account_signin_email_subtitle">Saisissez l’adresse e-mail et le mot de passe de votre compte auto-hébergé</string>
-    <string name="account_signed_in_label">Connecté</string>
-    <string name="account_total_label">Total</string>
-    <string name="account_loading_sync">Chargement des données de synchronisation…</string>
-    <string name="account_sign_out">Se déconnecter</string>
-    <string name="account_sign_out_confirm_title">Se déconnecter&#160;?</string>
-    <string name="account_sign_out_confirm_subtitle">Vous devrez vous reconnecter pour synchroniser la bibliothèque, la progression de visionnage et les addons sur cet appareil.</string>
 
-    <string name="auth_email_hint">Connectez-vous directement avec le compte de votre serveur auto-hébergé.</string>
-    <string name="auth_email_instruction">Saisissez votre adresse e-mail et votre mot de passe pour continuer.</string>
-    <string name="auth_email_placeholder">Adresse e-mail</string>
-    <string name="auth_password_placeholder">Mot de passe</string>
-    <string name="auth_email_sign_in">Se connecter</string>
-    <string name="auth_email_signing_in">Connexion en cours…</string>
-    <string name="server_options_content_description">Options du serveur</string>
-    <string name="server_options_connect_custom">Se connecter à un serveur personnalisé</string>
-    <string name="server_options_change_custom">Se connecter à un autre serveur</string>
-    <string name="custom_server_title">Connexion à un serveur personnalisé</string>
-    <string name="custom_server_description">Saisissez l’URL du backend fournie par l’administrateur de votre serveur.</string>
-    <string name="custom_server_url_placeholder">https://backend.example.com</string>
-    <string name="custom_server_check">Vérifier le serveur</string>
-    <string name="custom_server_checking">Vérification en cours…</string>
-    <string name="custom_server_review_title">Vérifier le serveur personnalisé</string>
-    <string name="custom_server_review_description">Le document de découverte est valide. La connexion vous déconnectera du serveur actuel et redémarrera l’application. Confirmez qu’il s’agit d’un serveur qui vous appartient ou auquel vous faites confiance.</string>
-    <string name="custom_server_verified_label">Backend découvert</string>
-    <string name="custom_server_key_label">Configuration du client</string>
-    <string name="custom_server_key_discovered">Clé publiable découverte automatiquement</string>
-    <string name="custom_server_warning_title">Ne vous connectez qu’à un serveur de confiance</string>
-    <string name="custom_server_warning_public">Ce serveur utilise un nom d’hôte public. L’application ne peut pas vérifier qui en est propriétaire ou exploitant.</string>
-    <string name="custom_server_warning_http">Ce serveur se trouve sur un réseau privé, mais le trafic HTTP n’est pas chiffré. D’autres appareils du réseau pourraient le lire.</string>
-    <string name="custom_server_warning_public_http">Ce serveur utilise un nom d’hôte public et du HTTP non chiffré. Vos identifiants et vos données synchronisées peuvent être exposés pendant leur transmission.</string>
-    <string name="custom_server_warning_private">Ce serveur semble se trouver sur un réseau privé, mais l’application ne peut toujours pas vérifier qui le contrôle.</string>
-    <string name="custom_server_warning_credentials">L’exploitant du serveur peut recevoir les identifiants de votre compte et accéder aux données que vous synchronisez via ce serveur.</string>
-    <string name="custom_server_trust_action">Je fais confiance à ce serveur</string>
-    <string name="custom_server_switching">Changement en cours…</string>
-    <string name="custom_server_error_invalid_url">Saisissez une URL de backend HTTP ou HTTPS valide.</string>
-    <string name="custom_server_error_connection">Impossible de joindre le point de terminaison de découverte. Vérifiez l’URL et la disponibilité du serveur.</string>
-    <string name="custom_server_error_http">Le point de terminaison de découverte a renvoyé le code HTTP %1$d.</string>
-    <string name="custom_server_error_response_too_large">Le document de découverte est plus volumineux que la taille autorisée.</string>
-    <string name="custom_server_error_invalid_document">Le serveur a renvoyé un document de découverte invalide.</string>
-    <string name="custom_server_error_version">La version de ce document de découverte n’est pas prise en charge.</string>
-    <string name="custom_server_error_service">Ce document de découverte n’est pas destiné à cette application.</string>
-    <string name="custom_server_error_not_self_hosted">Le document de découverte n’identifie pas un serveur auto-hébergé.</string>
-    <string name="custom_server_error_missing_configuration">Il manque au document de découverte une URL de backend ou une clé publiable valide.</string>
-    <string name="custom_server_error_no_auth">Le serveur n’annonce aucune méthode de connexion prise en charge.</string>
-    <string name="custom_server_save_failed">Impossible d’enregistrer la configuration du serveur.</string>
-    <string name="custom_server_session_clear_failed">Impossible d’effacer la session actuelle en toute sécurité. Le serveur n’a pas été modifié.</string>
-    <string name="custom_server_restart_failed">Le serveur a été enregistré, mais l’application n’a pas pu redémarrer automatiquement. Redémarrez-la manuellement.</string>
 
-    <string name="auth_qr_tagline">Regardez votre bibliothèque, où que vous soyez</string>
-    <string name="auth_qr_finishing">Finalisation de la connexion…</string>
-    <string name="auth_qr_expires">Expire dans %1$s</string>
-    <string name="auth_qr_scan_instruction">Scannez le code QR ou saisissez le code court dans votre navigateur.</string>
-    <string name="auth_qr_manual_instruction">Ou rendez-vous sur %1$s et saisissez</string>
-    <string name="auth_qr_refresh">Actualiser le code QR</string>
-    <string name="auth_qr_continue_without_account">Continuer sans compte</string>
-    <string name="auth_qr_connected">Votre compte est connecté sur cette TV.</string>
-    <string name="auth_qr_synced_data">Vos données synchronisées</string>
-    <string name="auth_qr_generating">Génération du code QR…</string>
-    <string name="auth_qr_unavailable">Code QR indisponible. Actualisez pour réessayer.</string>
-    <string name="auth_qr_please_wait">Veuillez patienter…</string>
-    <string name="auth_qr_continue">Continuer</string>
-    <string name="auth_qr_back">Retour</string>
-    <string name="auth_qr_terms_prefix">En m’inscrivant ou en me connectant, j’accepte les</string>
-    <string name="auth_qr_terms_link">Conditions d’utilisation</string>
 
 
 
@@ -1927,10 +1806,7 @@
     <string name="cd_voice_search">Recherche vocale</string>
     <string name="cd_expand">Développer %1$s</string>
     <string name="cd_collapse">Réduire %1$s</string>
-    <string name="cd_qr_login">Code QR de connexion</string>
-    <string name="cd_fetch">Fetch</string>
 
-    <string name="debug_signin_success">Connexion réussie</string>
     <string name="debug_generate_description">Élément %1$s n° %2$d généré en mode débogage</string>
     <string name="debug_generate_result_failed">Échec&#160;: %1$s</string>
     <string name="debug_generate_library_result_added">%1$d éléments ajoutés à la bibliothèque</string>
@@ -2762,12 +2638,6 @@
     <string name="library_empty_type_movies">films</string>
     <string name="library_empty_type_series">séries</string>
     <string name="library_empty_type_items">éléments</string>
-    <string name="server_options_use_official">Désactiver la synchronisation</string>
-    <string name="official_server_title">Désactiver la synchronisation&#160;?</string>
-    <string name="official_server_description">Vous serez déconnecté de votre serveur de synchronisation et l’application redémarrera en mode local uniquement. Tout ce qui se trouve déjà sur cette TV est conservé.</string>
-    <string name="official_server_action">Désactiver la synchronisation</string>
-    <string name="custom_server_error_official_active">La synchronisation est déjà désactivée sur cette TV.</string>
-    <string name="custom_server_error_official_available">Ce n’est pas un serveur de synchronisation. Fermez cette boîte de dialogue et choisissez «&#160;Désactiver la synchronisation&#160;» pour revenir au mode local uniquement.</string>
     <string name="cd_mark_intro_start">Marquer le début de l’intro</string>
     <string name="cd_mark_intro_end">Marquer la fin de l’intro</string>
     <string name="cd_mark_credits_start">Marquer le début du générique de fin</string>
@@ -2826,7 +2696,6 @@
     <string name="source_chip_failed">échec</string>
     <string name="source_chip_loading">chargement</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>
-    <string name="account_local_only_note">La synchronisation est désactivée. Fetch conserve vos addons, votre progression et vos paramètres sur cette TV et ne nécessite aucun compte. Pour synchroniser entre appareils, connectez votre propre serveur de synchronisation depuis les options du serveur.</string>
     <string name="parental_title_blocked">Ce titre dépasse la limite de classification de ce profil.</string>
     <string name="parental_addons_blocked">Ce profil ne peut pas installer d’addons. Demandez à un parent.</string>
     <string name="parental_gate_heading">Saisissez le code PIN de %1$s</string>

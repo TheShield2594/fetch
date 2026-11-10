@@ -82,8 +82,8 @@ cd fetch
 ```
 
 Requires a JDK (17+) and the Android SDK (compile SDK 36). No keys are needed to build;
-`local.example.properties` lists optional ones (TMDB, Trakt, Simkl, MDBList client IDs, a
-default self-hosted sync server, release signing).
+`local.example.properties` lists optional ones (TMDB, Trakt, Simkl, MDBList client IDs,
+release signing).
 
 ### Trakt, Simkl, MDBList and other API keys
 

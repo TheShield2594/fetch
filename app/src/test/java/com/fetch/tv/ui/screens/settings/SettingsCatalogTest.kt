@@ -149,19 +149,6 @@ class SettingsCatalogTest {
         assertTrue(categories.startsNewGroup(categories.indexOf(SettingsCategory.TRACKING)))
     }
 
-    @Test
-    fun `watch party shows for every profile only while available`() {
-        listOf(true, false).forEach { primary ->
-            val available = visibleSettingsCategories(primary, isEssentialMode = false, isDebugBuild = false, isWatchPartyAvailable = true)
-            val unavailable = visibleSettingsCategories(primary, isEssentialMode = false, isDebugBuild = false, isWatchPartyAvailable = false)
-            assertTrue(SettingsCategory.WATCH_PARTY in available)
-            assertFalse(SettingsCategory.WATCH_PARTY in unavailable)
-        }
-        assertEquals(
-            listOf(SettingsCategory.SEARCH, SettingsCategory.PROFILES, SettingsCategory.WATCH_PARTY),
-            visibleSettingsCategories(true, isEssentialMode = false, isDebugBuild = false, isWatchPartyAvailable = true).take(3)
-        )
-    }
 
     @Test
     fun `youtube sits after tracking only in builds that have it`() {
@@ -214,10 +201,8 @@ class SettingsCatalogTest {
         listOf(true, false).flatMap { primary ->
             listOf(true, false).flatMap { essential ->
                 listOf(true, false).flatMap { debug ->
-                    listOf(true, false).flatMap { watchParty ->
-                        listOf(true, false).map { youTube ->
-                            visibleSettingsCategories(primary, essential, debug, watchParty, youTube)
-                        }
+                    listOf(true, false).map { youTube ->
+                        visibleSettingsCategories(primary, essential, debug, isYouTubeAvailable = youTube)
                     }
                 }
             }

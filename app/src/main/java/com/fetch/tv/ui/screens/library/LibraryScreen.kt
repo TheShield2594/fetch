@@ -345,7 +345,6 @@ fun LibraryScreen(
                     uiState.sourceMode == LibrarySourceMode.SIMKL -> stringResource(R.string.simkl_name)
                     uiState.sourceMode == LibrarySourceMode.MDBLIST -> stringResource(R.string.mdblist_name)
                     uiState.sourceMode == LibrarySourceMode.FETCH_WEBSITE -> stringResource(R.string.website_name)
-                    uiState.isFetchAccount -> stringResource(R.string.app_name)
                     else -> stringResource(R.string.library_source_local)
                 }
                 Text(

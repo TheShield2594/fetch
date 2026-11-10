@@ -5,7 +5,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.exoplayer.ExoPlayer
-import com.fetch.tv.core.party.PartyMedia
 import com.fetch.tv.core.player.StreamAutoPlayPolicy
 import com.fetch.tv.core.tracking.TrackingScrobbleCoordinator
 import com.fetch.tv.data.local.AudioDelayRouteDataStore
@@ -87,7 +86,6 @@ class PlayerViewModel @Inject constructor(
     private val tvRecommendationManager: com.fetch.tv.core.recommendations.TvRecommendationManager,
     private val serverPlayback: com.fetch.tv.data.mediaserver.ServerPlayback,
     private val serverStreams: com.fetch.tv.data.mediaserver.ServerStreams,
-    partyRepository: com.fetch.tv.core.party.PartyRepository,
     parentalControls: com.fetch.tv.core.parental.ParentalControls,
     screenTime: com.fetch.tv.core.parental.ScreenTimeManager,
     sleepTimer: com.fetch.tv.core.player.SleepTimer,
@@ -133,7 +131,6 @@ class PlayerViewModel @Inject constructor(
         tvRecommendationManager = tvRecommendationManager,
         serverPlayback = serverPlayback,
         serverStreams = serverStreams,
-        party = partyRepository,
         parentalControls = parentalControls,
         screenTime = screenTime,
         sleepTimer = sleepTimer,
@@ -142,27 +139,6 @@ class PlayerViewModel @Inject constructor(
         savedStateHandle = savedStateHandle,
         scope = viewModelScope
     )
-
-    init {
-        controller.bindParty()
-    }
-
-    val party: com.fetch.tv.core.party.PartyRepository
-        get() = controller.party
-
-    val canUseParty: Boolean
-        get() = controller.canUseParty
-
-    fun startParty() = controller.startParty()
-
-    fun catchUpParty() = controller.catchUpParty()
-
-    val partyMedia: PartyMedia
-        get() = controller.currentPartyMedia()
-
-    fun switchParty() = controller.party.publishMedia(controller.currentPartyMedia(), controller.currentPlaybackPositionMs() ?: 0L)
-
-    fun currentPartyStream() = controller.currentPartyStream()
 
     private val postPlayRecommendationController = PostPlayRecommendationController(
         playbackController = controller,

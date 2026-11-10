@@ -89,8 +89,6 @@ import coil3.request.crossfade
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import com.fetch.tv.core.party.PartySource
-import com.fetch.tv.core.party.matches
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.formatRuntimeMinutes
 import com.fetch.tv.ui.util.toAbsoluteAlignment
@@ -154,8 +152,6 @@ fun StreamScreen(
             onGranted = viewModel::onScreenTimeGranted
         )
     }
-    val sharedStream by viewModel.sharedStream.collectAsStateWithLifecycle()
-    val partySource by viewModel.partySource.collectAsStateWithLifecycle()
     val playerPreference by viewModel.playerPreference.collectAsStateWithLifecycle(
         initialValue = null
     )
@@ -518,18 +514,6 @@ fun StreamScreen(
                     hasBadgeRules = streamBadgeSettings.rules.hasImport,
                     onAddonFilterSelected = { viewModel.onEvent(StreamScreenEvent.OnAddonFilterSelected(it)) },
                     onRefresh = { viewModel.onEvent(StreamScreenEvent.OnRefresh) },
-                    sharedStream = sharedStream,
-                    partySource = partySource,
-                    onSharedStreamSelected = { stream ->
-                        scope.coroutineLaunch {
-                            val playbackInfo = viewModel.resolveStreamForPlayback(stream, saveLastLink = false)
-                            if (playbackInfo != null) {
-                                pendingRestoreOnResume = true
-                                routePlayback(playbackInfo)
-                                viewModel.onEvent(StreamScreenEvent.OnAutoPlayConsumed)
-                            }
-                        }
-                    },
                     onStreamSelected = { stream ->
                         val currentIndex = uiState.filteredStreams.indexOfFirst {
                             it.url == stream.url &&
@@ -810,9 +794,6 @@ private fun RightStreamSection(
     hasBadgeRules: Boolean = false,
     onAddonFilterSelected: (String?) -> Unit,
     onRefresh: () -> Unit,
-    sharedStream: SharedStream?,
-    partySource: PartySource?,
-    onSharedStreamSelected: (Stream) -> Unit,
     onStreamSelected: (Stream) -> Unit,
     focusedStreamIndex: Int,
     shouldRestoreFocusedStream: Boolean,
@@ -963,10 +944,10 @@ private fun RightStreamSection(
                 contentAlignment = Alignment.Center
             ) {
                 when {
-                    sharedStream == null && isLoading -> {
+                    isLoading -> {
                         LoadingState(showAddonLogo = showAddonLogo)
                     }
-                    sharedStream == null && error != null -> {
+                    error != null -> {
                         ErrorState(
                             message = error,
                             onRetry = onRetry
@@ -974,7 +955,7 @@ private fun RightStreamSection(
                     }
                     // Every result was a torrent (or client-resolved debrid) stream: say so, and
                     // where to fix it, instead of suggesting more addons.
-                    sharedStream == null && streams.isEmpty() && selectedAddonFilter == null &&
+                    streams.isEmpty() && selectedAddonFilter == null &&
                         hiddenUnplayableCounts.isNotEmpty() -> {
                         val hiddenTotal = hiddenUnplayableCounts.values.sum()
                         val onlyAddon = hiddenUnplayableCounts.keys.singleOrNull()
@@ -989,7 +970,7 @@ private fun RightStreamSection(
                             action = StateAction(stringResource(R.string.stream_torrent_only_manage_addons), onNavigateToAddons)
                         )
                     }
-                    sharedStream == null && streams.isEmpty() -> {
+                    streams.isEmpty() -> {
                         // D-pad focus can select an addon whose results were all hidden as
                         // torrents; explain that for this addon rather than "No streams from".
                         val hiddenForAddon = selectedAddonFilter?.let { hiddenUnplayableCounts[it] } ?: 0
@@ -1026,9 +1007,6 @@ private fun RightStreamSection(
                             streams = streams,
                             streamExclusions = streamExclusions,
                             sections = sections,
-                            sharedStream = sharedStream,
-                            partySource = partySource,
-                            onSharedStreamSelected = onSharedStreamSelected,
                             onStreamSelected = onStreamSelected,
                             focusedStreamIndex = focusedStreamIndex,
                             shouldRestoreFocusedStream = shouldRestoreFocusedStream,
@@ -1096,9 +1074,6 @@ internal fun StreamsList(
     streamExclusions: Map<String, ExclusionReason>,
     /** The list's quality sections, from [sourceSections]. */
     sections: List<SourceSection>,
-    sharedStream: SharedStream?,
-    partySource: PartySource?,
-    onSharedStreamSelected: (Stream) -> Unit,
     onStreamSelected: (Stream) -> Unit,
     focusedStreamIndex: Int = 0,
     shouldRestoreFocusedStream: Boolean = false,
@@ -1135,10 +1110,10 @@ internal fun StreamsList(
     // A single section needs no header: the list is already what it says.
     val showSectionHeaders = sections.size > 1
     val firstShownIndex = sections.firstShownIndex() ?: 0
-    // Where each stream sits in the lazy list, counting the party card and section headers.
-    val lazyIndexOfStream = remember(sections, showSectionHeaders, sharedStream != null) {
+    // Where each stream sits in the lazy list, counting the section headers.
+    val lazyIndexOfStream = remember(sections, showSectionHeaders) {
         val positions = IntArray(streams.size)
-        var next = if (sharedStream != null) 1 else 0
+        var next = 0
         sections.forEach { section ->
             if (showSectionHeaders) next++
             section.indices.forEach { positions[it] = next++ }
@@ -1152,9 +1127,6 @@ internal fun StreamsList(
         streamFocusRequesters.keys.retainAll(validKeys)
     }
     var firstCardHasFocus by remember(firstStreamKey) { mutableStateOf(false) }
-    val sharedFocusRequester = remember { FocusRequester() }
-    var sharedCardHasFocus by remember { mutableStateOf(false) }
-    val partySourceLabel = stringResource(R.string.party_source)
 
     var focusedStreamKey by remember { mutableStateOf<String?>(null) }
     val prevStreamKeysRef = remember { mutableStateOf(streamKeys) }
@@ -1207,22 +1179,8 @@ internal fun StreamsList(
         streamListState.scrollToItem(0)
         repeat(30) {
             withFrameNanos { }
-            if (firstCardHasFocus || sharedCardHasFocus) return@LaunchedEffect
-            runCatching {
-                if (sharedStream != null) sharedFocusRequester.requestFocus()
-                else streamFocusRequesters.getValue(requestedKey).requestFocus()
-            }
-        }
-    }
-
-    val sharedStreamUrl = sharedStream?.stream?.url
-    LaunchedEffect(sharedStreamUrl) {
-        if (sharedStreamUrl == null || shouldRestoreFocusedStream) return@LaunchedEffect
-        streamListState.scrollToItem(0)
-        repeat(30) {
-            withFrameNanos { }
-            if (sharedCardHasFocus) return@LaunchedEffect
-            runCatching { sharedFocusRequester.requestFocus() }
+            if (firstCardHasFocus) return@LaunchedEffect
+            runCatching { streamFocusRequesters.getValue(requestedKey).requestFocus() }
         }
     }
 
@@ -1279,36 +1237,6 @@ internal fun StreamsList(
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
         contentPadding = PaddingValues(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, top = FetchTheme.spacing.sm, bottom = FetchTheme.spacing.xxl)
     ) {
-        sharedStream?.let { shared ->
-            item(key = "party_shared_stream") {
-                Column(
-                    modifier = Modifier.padding(vertical = FetchTheme.spacing.xs),
-                    verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-                ) {
-                    Text(
-                        text = stringResource(R.string.party_shared_by, shared.hostName),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = FetchTheme.colors.TextSecondary,
-                        modifier = Modifier.padding(start = FetchTheme.spacing.xs)
-                    )
-                    StreamCard(
-                        stream = shared.stream,
-                        showFileSizeBadges = showFileSizeBadges,
-                        showAddonLogo = showAddonLogo,
-                        badgePlacement = badgePlacement,
-                        onClick = { onSharedStreamSelected(shared.stream) },
-                        focusRequester = sharedFocusRequester,
-                        onFocusChanged = { focused -> sharedCardHasFocus = focused },
-                        onUpKey = {
-                            val idx = if (selectedAddonFilter == null) 1
-                                      else orderedAddonNames.indexOf(selectedAddonFilter) + 2
-                            onRequestChipFocus(idx)
-                        },
-                        marked = true
-                    )
-                }
-            }
-        }
         sections.forEach { section ->
         if (showSectionHeaders) {
             item(key = "source_group_${section.group}", contentType = "source_group_header") {
@@ -1318,15 +1246,12 @@ internal fun StreamsList(
         items(section.indices, key = { index -> streamKeys[index] }) { index ->
             val stream = streams[index]
             Box(modifier = Modifier.padding(vertical = FetchTheme.spacing.xs)) {
-                val isPartySource = partySource?.matches(stream) == true
                 StreamCard(
                     stream = stream,
                     showFileSizeBadges = showFileSizeBadges,
                     showAddonLogo = showAddonLogo,
                     badgePlacement = badgePlacement,
                     reserveBadgeSpace = hasBadgeRules && stream.badges.isEmpty(),
-                    marked = isPartySource,
-                    markedLabel = partySourceLabel.takeIf { isPartySource },
                     exclusion = if (streamExclusions.isEmpty()) null else streamExclusions[stream.stableKey()],
                     onClick = { onStreamSelected(stream) },
                     onLongClick = {
@@ -1345,8 +1270,8 @@ internal fun StreamsList(
                         }
                         if (index == firstShownIndex) {
                             firstCardHasFocus = focused
-                            // Focus only scrolls the card itself into view; show the header and
-                            // party card above it too, so the top of the list is never clipped.
+                            // Focus only scrolls the card itself into view; show the header
+                            // above it too, so the top of the list is never clipped.
                             if (focused && streamListState.firstVisibleItemIndex <= lazyIndexOfStream.getOrElse(index) { 0 }) {
                                 listScope.coroutineLaunch {
                                     withFrameNanos { }
@@ -1358,7 +1283,7 @@ internal fun StreamsList(
                             }
                         }
                     },
-                    onUpKey = if (index == firstShownIndex && sharedStream == null) {{
+                    onUpKey = if (index == firstShownIndex) {{
                         val idx = if (selectedAddonFilter == null) 1
                                   else orderedAddonNames.indexOf(selectedAddonFilter) + 2
                         onRequestChipFocus(idx)

@@ -2,10 +2,8 @@ package com.fetch.tv.data.repository
 
 import android.util.Log
 import com.fetch.tv.R
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.profile.ProfileManager
-import com.fetch.tv.core.sync.LibrarySyncService
 import com.fetch.tv.core.tracking.TrackingListManager
 import com.fetch.tv.core.tracking.TrackingLibraryProviderRegistry
 import com.fetch.tv.core.tracking.TrackingMembershipApplyResult
@@ -37,24 +35,17 @@ import com.fetch.tv.domain.model.ListMembershipSnapshot
 import com.fetch.tv.domain.model.SavedLibraryItem
 import com.fetch.tv.domain.model.LibraryListPrivacy
 import com.fetch.tv.domain.repository.LibraryRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -64,8 +55,6 @@ class LibraryRepositoryImpl @Inject constructor(
     @dagger.hilt.android.qualifiers.ApplicationContext private val appContext: android.content.Context,
     private val libraryPreferences: LibraryPreferences,
     private val traktSettingsDataStore: TraktSettingsDataStore,
-    private val librarySyncService: LibrarySyncService,
-    private val authManager: AuthManager,
     private val metaRepository: MetaRepository,
     private val trackingProviders: TrackingLibraryProviderRegistry,
     private val profileManager: ProfileManager,
@@ -73,25 +62,7 @@ class LibraryRepositoryImpl @Inject constructor(
     private val localListManager: LocalTrackingListManager,
 ) : LibraryRepository {
 
-    private val syncScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val hydratedLogoIds = mutableSetOf<String>()
-    private var syncJob: Job? = null
-    private val _isSyncingFromRemote = MutableStateFlow(false)
-    var isSyncingFromRemote: Boolean
-        get() = _isSyncingFromRemote.value
-        set(value) { _isSyncingFromRemote.value = value }
-    @Volatile
-    var hasCompletedInitialPull = false
-
-    private fun triggerRemoteSync(profileId: Int) {
-        if (!hasCompletedInitialPull) return
-        if (!authManager.isAuthenticated) return
-        syncJob?.cancel()
-        syncJob = syncScope.launch {
-            delay(500)
-            librarySyncService.pushToRemote(profileId)
-        }
-    }
 
     // combine() over no flows never emits, so with no providers say so directly.
     private val providerConnections = trackingProviders.providers()
@@ -117,7 +88,7 @@ class LibraryRepositoryImpl @Inject constructor(
             mode.providerId
                 ?.let(trackingProviders::provider)
                 ?.isRefreshing
-                ?: _isSyncingFromRemote
+                ?: flowOf(false)
         }
         .distinctUntilChanged()
 
@@ -249,7 +220,6 @@ class LibraryRepositoryImpl @Inject constructor(
                 profileId = profileId
             )
         }
-        triggerRemoteSync(profileId)
         return TrackingMembershipApplyResult()
     }
 
@@ -320,7 +290,6 @@ class LibraryRepositoryImpl @Inject constructor(
                     profileId = profileId
                 )
             }
-            triggerRemoteSync(profileId)
         }
         val localListChanges = desired.mapNotNull { (key, wanted) ->
             localListIdFromKey(key)?.let { id -> id to wanted }

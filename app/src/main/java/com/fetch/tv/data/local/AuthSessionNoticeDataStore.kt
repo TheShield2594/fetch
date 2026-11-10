@@ -5,7 +5,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +19,6 @@ private val Context.authSessionNoticeDataStore: DataStore<Preferences> by prefer
 )
 
 enum class StartupAuthNotice {
-    FETCH,
     TRAKT
 }
 
@@ -28,68 +26,14 @@ enum class StartupAuthNotice {
 class AuthSessionNoticeDataStore @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private val hadFetchAuthKey = booleanPreferencesKey("had_fetch_auth")
-    private val fetchExplicitLogoutKey = booleanPreferencesKey("fetch_explicit_logout")
-    private val pendingFetchNoticeKey = booleanPreferencesKey("pending_fetch_notice")
-
-    // The Fetch account whose data is on this TV. Kept through an unexpected
-    // sign-out so the same account can pick its data back up, and so a different
-    // account signing in later is detected and the old data cleared first.
-    private val localDataOwnerUserIdKey = stringPreferencesKey("local_data_owner_user_id")
-
     private val hadTraktAuthKey = booleanPreferencesKey("had_trakt_auth")
     private val traktExplicitLogoutKey = booleanPreferencesKey("trakt_explicit_logout")
     private val pendingTraktNoticeKey = booleanPreferencesKey("pending_trakt_notice")
 
     val pendingNotice: Flow<StartupAuthNotice?> = context.authSessionNoticeDataStore.data.map { preferences ->
         when {
-            preferences[pendingFetchNoticeKey] == true -> StartupAuthNotice.FETCH
             preferences[pendingTraktNoticeKey] == true -> StartupAuthNotice.TRAKT
             else -> null
-        }
-    }
-
-    suspend fun markFetchAuthenticated() {
-        context.authSessionNoticeDataStore.edit { preferences ->
-            preferences[hadFetchAuthKey] = true
-            preferences[fetchExplicitLogoutKey] = false
-            preferences[pendingFetchNoticeKey] = false
-        }
-    }
-
-    suspend fun markFetchExplicitLogout() {
-        context.authSessionNoticeDataStore.edit { preferences ->
-            preferences[hadFetchAuthKey] = false
-            preferences[fetchExplicitLogoutKey] = true
-            preferences[pendingFetchNoticeKey] = false
-        }
-    }
-
-    suspend fun markUnexpectedFetchLogoutIfNeeded(): Boolean {
-        var marked = false
-        context.authSessionNoticeDataStore.edit { preferences ->
-            val hadAuth = preferences[hadFetchAuthKey] == true
-            val explicitLogout = preferences[fetchExplicitLogoutKey] == true
-            if (hadAuth && !explicitLogout) {
-                preferences[pendingFetchNoticeKey] = true
-                marked = true
-            }
-            preferences[hadFetchAuthKey] = false
-            preferences[fetchExplicitLogoutKey] = false
-        }
-        return marked
-    }
-
-    suspend fun localDataOwnerUserId(): String? =
-        context.authSessionNoticeDataStore.data.first()[localDataOwnerUserIdKey]?.takeIf { it.isNotBlank() }
-
-    suspend fun setLocalDataOwnerUserId(userId: String?) {
-        context.authSessionNoticeDataStore.edit { preferences ->
-            if (userId.isNullOrBlank()) {
-                preferences.remove(localDataOwnerUserIdKey)
-            } else {
-                preferences[localDataOwnerUserIdKey] = userId
-            }
         }
     }
 
@@ -135,7 +79,6 @@ class AuthSessionNoticeDataStore @Inject constructor(
     suspend fun consumeNotice(notice: StartupAuthNotice) {
         context.authSessionNoticeDataStore.edit { preferences ->
             when (notice) {
-                StartupAuthNotice.FETCH -> preferences[pendingFetchNoticeKey] = false
                 StartupAuthNotice.TRAKT -> preferences[pendingTraktNoticeKey] = false
             }
         }

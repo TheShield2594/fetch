@@ -125,8 +125,7 @@ import com.fetch.tv.core.parental.PickerOpenGate
 import com.fetch.tv.core.parental.PinVerifyResult
 import com.fetch.tv.core.parental.ResetPinResult
 import com.fetch.tv.core.parental.needsParentPinToDelete
-import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
-import com.fetch.tv.data.remote.supabase.ProfileBackgroundCatalogItem
+import com.fetch.tv.data.local.AvatarCatalogItem
 import com.fetch.tv.data.local.ProfileRestrictions
 import com.fetch.tv.domain.model.PROFILE_AVATAR_COLORS
 import com.fetch.tv.domain.model.UserProfile
@@ -134,7 +133,6 @@ import com.fetch.tv.ui.components.AvatarPickerGrid
 import com.fetch.tv.ui.components.CustomProfileBackgroundImage
 import com.fetch.tv.ui.components.MemberBrandWordmark
 import com.fetch.tv.ui.components.FetchDialog
-import com.fetch.tv.ui.components.ProfileBackgroundImage
 import com.fetch.tv.ui.components.ProfileBackgroundPicker
 import com.fetch.tv.ui.components.ProfileAvatarCircle
 import com.fetch.tv.ui.components.ProfileEditorTab
@@ -184,11 +182,6 @@ private object ProfileSelectionSpacing {
     val PinBoxSizeLong = 84.dp
     val PinBoxGapLong = 12.dp
     val PinSupportMaxWidth = 720.dp
-}
-
-private sealed interface ProfileBackgroundArtwork {
-    data class Catalog(val background: ProfileBackgroundCatalogItem) : ProfileBackgroundArtwork
-    data class Custom(val url: String) : ProfileBackgroundArtwork
 }
 
 private val ProfileCardFocusEasing = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)
@@ -316,7 +309,6 @@ fun ProfileSelectionScreen(
     val profiles by viewModel.profiles.collectAsState()
     val activeProfileId by viewModel.activeProfileId.collectAsState()
     val avatarCatalog by viewModel.avatarCatalog.collectAsState()
-    val profileBackgroundCatalog by viewModel.profileBackgroundCatalog.collectAsState()
     val hasProfileBackgroundAccess by viewModel.hasProfileBackgroundAccess.collectAsState()
     val isCreating by viewModel.isCreating.collectAsState()
     val isSaving by viewModel.isSaving.collectAsState()
@@ -334,9 +326,6 @@ fun ProfileSelectionScreen(
                 viewModel.getAvatarImageUrl(avatarId)?.let { imageUrl -> putIfAbsent(avatarId, imageUrl) }
             }
         }
-    }
-    val profileBackgroundsById = remember(profileBackgroundCatalog) {
-        profileBackgroundCatalog.associateBy { it.id }
     }
     val memberAccess = Membership.access
     var focusedAvatarColor by remember { mutableStateOf(FetchPrimitives.blue500) }
@@ -497,12 +486,6 @@ fun ProfileSelectionScreen(
         }
     }
 
-    LaunchedEffect(profileToEdit, hasProfileBackgroundAccess) {
-        if (profileToEdit != null && hasProfileBackgroundAccess) {
-            viewModel.preloadProfileBackgrounds()
-        }
-    }
-
     // Observes key presses without consuming them, to clear an error that has been read. Dialogs
     // get their own window, so each one this screen opens carries it too.
     val dismissReadErrorOnKey = Modifier.onPreviewKeyEvent { event ->
@@ -523,37 +506,16 @@ fun ProfileSelectionScreen(
             profile = backgroundProfile,
             entitlements = memberAccess.entitlements
         )
-        LaunchedEffect(backgroundSelection) {
-            val selectedId = (backgroundSelection as? ProfileBackgroundSelection.Catalog)?.id
-            if (selectedId != null) viewModel.loadProfileBackground(selectedId)
-        }
-        val profileBackground = when (backgroundSelection) {
-            is ProfileBackgroundSelection.Catalog -> profileBackgroundsById[backgroundSelection.id]
-                ?.takeIf { it.imageFile != null }
-                ?.let {
-                ProfileBackgroundArtwork.Catalog(it)
-            }
-            is ProfileBackgroundSelection.Custom -> ProfileBackgroundArtwork.Custom(backgroundSelection.url)
-            null -> null
-        }
+        // Only a custom picture: the catalog of backgrounds came from the sync server, which is gone.
+        val profileBackground = (backgroundSelection as? ProfileBackgroundSelection.Custom)?.url
 
         // Keep splash background in sync with whichever profile is focused
         // so the splash matches after the user clicks.
         LaunchedEffect(profileBackground, backgroundProfile) {
-            val bgUrl = when (profileBackground) {
-                is ProfileBackgroundArtwork.Custom -> profileBackground.url
-                is ProfileBackgroundArtwork.Catalog -> profileBackground.background.imageFile?.toURI()?.toString()
-                null -> null
-            }
-            val cacheKey = when (profileBackground) {
-                is ProfileBackgroundArtwork.Catalog -> "profile-background-${profileBackground.background.id}-v${profileBackground.background.assetVersion}"
-                is ProfileBackgroundArtwork.Custom -> "custom-profile-background-${profileBackground.url}"
-                null -> null
-            }
             onProfileFocusChanged?.invoke(
                 backgroundProfile?.avatarColorHex,
-                bgUrl,
-                cacheKey
+                profileBackground,
+                profileBackground?.let { "custom-profile-background-$it" }
             )
         }
 
@@ -882,7 +844,6 @@ fun ProfileSelectionScreen(
                     EditProfileOverlay(
                         profile = profile,
                         avatarCatalog = avatarCatalog,
-                        profileBackgroundCatalog = profileBackgroundCatalog,
                         hasProfileBackgroundAccess = hasProfileBackgroundAccess,
                         preferences = editorPreferences,
                         isSaving = isSaving,
@@ -1404,7 +1365,7 @@ fun ProfileSelectionScreen(
 @Composable
 private fun ProfileSelectionBackground(
     focusedAvatarColor: Color,
-    profileBackground: ProfileBackgroundArtwork?
+    profileBackground: String?
 ) {
     val animatedAvatarColor by animateColorAsState(
         targetValue = focusedAvatarColor,
@@ -1426,31 +1387,11 @@ private fun ProfileSelectionBackground(
         transitionSpec = {
             fadeIn(tween(FetchMotion.tokens.durations.medium)) togetherWith fadeOut(tween(FetchMotion.tokens.durations.fast))
         },
-        contentKey = { background ->
-            when (background) {
-                is ProfileBackgroundArtwork.Catalog -> "catalog:${background.background.id}"
-                is ProfileBackgroundArtwork.Custom -> "custom:${background.url}"
-                null -> null
-            }
-        },
+        contentKey = { background -> background?.let { "custom:$it" } },
         modifier = Modifier.fillMaxSize(),
         label = "profileBackground"
     ) { background ->
         when (background) {
-            is ProfileBackgroundArtwork.Catalog -> ProfileBackgroundImage(
-                background = background.background,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .profileArtworkScrim(imageScrim)
-            )
-            is ProfileBackgroundArtwork.Custom -> CustomProfileBackgroundImage(
-                imageUrl = background.url,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .profileArtworkScrim(imageScrim)
-            )
             null -> {
                 Box(
                     modifier = Modifier
@@ -1477,6 +1418,13 @@ private fun ProfileSelectionBackground(
                         )
                 )
             }
+            else -> CustomProfileBackgroundImage(
+                imageUrl = background,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .profileArtworkScrim(imageScrim)
+            )
         }
     }
 }
@@ -2411,7 +2359,6 @@ private fun rememberKeyboardVisibilityState(): KeyboardVisibilityState {
 private fun EditProfileOverlay(
     profile: UserProfile,
     avatarCatalog: List<AvatarCatalogItem>,
-    profileBackgroundCatalog: List<ProfileBackgroundCatalogItem>,
     hasProfileBackgroundAccess: Boolean,
     preferences: ProfileEditorPreferences?,
     isSaving: Boolean,
@@ -2453,9 +2400,8 @@ private fun EditProfileOverlay(
         runCatching { nameFocusRequester.requestFocus() }
     }
 
-    // Backgrounds come from a sync server's catalog or a custom URL; without either there's only "Normal".
-    val showBackgroundTab = hasProfileBackgroundAccess &&
-        (profileBackgroundCatalog.isNotEmpty() || !profile.profileBackgroundUrl.isNullOrBlank())
+    // The only background besides "Normal" is a custom picture set on the website.
+    val showBackgroundTab = hasProfileBackgroundAccess && !profile.profileBackgroundUrl.isNullOrBlank()
     LaunchedEffect(showBackgroundTab) {
         if (!showBackgroundTab && selectedEditorTab == ProfileEditorTab.Background) {
             selectedEditorTab = ProfileEditorTab.Avatar
@@ -2684,24 +2630,12 @@ private fun EditProfileOverlay(
 
 
                             ProfileBackgroundPicker(
-                                backgrounds = profileBackgroundCatalog,
                                 selectedBackgroundId = selectedBackgroundId,
                                 customBackgroundUrl = profile.profileBackgroundUrl,
                                 selectedBackgroundUrl = selectedBackgroundUrl,
                                 standardBackgroundColor = parseProfileColor(selectedColorHex),
                                 onStandardBackgroundSelected = {
                                     selectedBackgroundId = null
-                                    selectedBackgroundUrl = null
-                                },
-                                onBackgroundSelected = { background ->
-                                    selectedBackgroundId = if (
-                                        selectedBackgroundUrl == null &&
-                                        selectedBackgroundId == background.id
-                                    ) {
-                                        null
-                                    } else {
-                                        background.id
-                                    }
                                     selectedBackgroundUrl = null
                                 },
                                 onCustomBackgroundSelected = {

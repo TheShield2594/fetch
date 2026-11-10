@@ -66,7 +66,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     @ApplicationContext internal val appContext: Context,
     internal val addonRepository: AddonRepository,
-    internal val startupSyncService: com.fetch.tv.core.sync.StartupSyncService,
+    private val addonRefreshService: com.fetch.tv.core.sync.AddonRefreshService,
     internal val catalogRepository: CatalogRepository,
     internal val watchProgressRepository: WatchProgressRepository,
     internal val libraryRepository: LibraryRepository,
@@ -902,7 +902,7 @@ class HomeViewModel @Inject constructor(
      */
     private fun observeManualAddonRefresh() {
         viewModelScope.launch {
-            startupSyncService.manualAddonRefreshes.collect {
+            addonRefreshService.manualAddonRefreshes.collect {
                 if (addonsCache.isEmpty()) return@collect
                 lastHomeCatalogRefreshAtMs = android.os.SystemClock.elapsedRealtime()
                 refreshVisibleCatalogsPipeline(requestedByUser = true)

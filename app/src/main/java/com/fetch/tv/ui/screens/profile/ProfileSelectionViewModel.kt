@@ -14,10 +14,8 @@ import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.PlayerSettingsDataStore
 import com.fetch.tv.data.local.WatchProgressPreferences
 import com.fetch.tv.data.local.WatchedItemsPreferences
-import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
-import com.fetch.tv.data.remote.supabase.AvatarRepository
-import com.fetch.tv.data.remote.supabase.ProfileBackgroundCatalogItem
-import com.fetch.tv.data.remote.supabase.ProfileBackgroundRepository
+import com.fetch.tv.data.local.AvatarCatalogItem
+import com.fetch.tv.data.local.BundledAvatars
 import com.fetch.tv.data.repository.MemberAccessRepository
 import com.fetch.tv.domain.model.CosmeticEntitlement
 import com.fetch.tv.domain.model.UserProfile
@@ -55,8 +53,7 @@ class ProfileSelectionViewModel @Inject constructor(
     private val profileManager: ProfileManager,
     private val profileSyncService: ProfileSyncService,
     private val profileSettingsSyncService: ProfileSettingsSyncService,
-    private val avatarRepository: AvatarRepository,
-    private val profileBackgroundRepository: ProfileBackgroundRepository,
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
     memberAccessRepository: MemberAccessRepository,
     private val profilePinManager: ProfilePinManager,
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
@@ -75,21 +72,10 @@ class ProfileSelectionViewModel @Inject constructor(
     private val _avatarCatalog = MutableStateFlow<List<AvatarCatalogItem>>(emptyList())
     val avatarCatalog: StateFlow<List<AvatarCatalogItem>> = _avatarCatalog.asStateFlow()
 
-    val hasProfileAvatarAccess: StateFlow<Boolean> = memberAccessRepository.access
-        .map { access -> access.entitlements.includes(CosmeticEntitlement.PROFILE_AVATARS) }
-        .distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
-
     val hasProfileBackgroundAccess: StateFlow<Boolean> = memberAccessRepository.access
         .map { access -> access.entitlements.includes(CosmeticEntitlement.PROFILE_BACKGROUNDS) }
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
-
-    val profileBackgroundCatalog: StateFlow<List<ProfileBackgroundCatalogItem>> = combine(
-        profileBackgroundRepository.catalog,
-        hasProfileBackgroundAccess
-    ) { catalog, hasAccess -> if (hasAccess) catalog else emptyList() }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     private val _isCreating = MutableStateFlow(false)
     val isCreating: StateFlow<Boolean> = _isCreating.asStateFlow()
@@ -160,20 +146,7 @@ class ProfileSelectionViewModel @Inject constructor(
 
     init {
         refreshProfilePinStates()
-        viewModelScope.launch {
-            hasProfileAvatarAccess.collectLatest { hasAccess ->
-                loadAvatarCatalog(hasAccess)
-            }
-        }
-        viewModelScope.launch {
-            hasProfileBackgroundAccess.collectLatest { hasAccess ->
-                if (hasAccess) {
-                    profileBackgroundRepository.ensureLoaded()
-                } else {
-                    profileBackgroundRepository.invalidateCache()
-                }
-            }
-        }
+        loadAvatarCatalog()
         viewModelScope.launch {
             profiles.flatMapLatest { profileList ->
                 if (profileList.isEmpty()) {
@@ -193,32 +166,12 @@ class ProfileSelectionViewModel @Inject constructor(
     }
 
     fun loadAvatarCatalog() {
-        viewModelScope.launch {
-            loadAvatarCatalog(hasProfileAvatarAccess.value)
-        }
-    }
-
-    private suspend fun loadAvatarCatalog(hasMemberAccess: Boolean) {
-        try {
-            _avatarCatalog.value = avatarRepository.getAvatarCatalog(hasMemberAccess)
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Exception) {
-            Log.e("ProfileSelectionVM", "Failed to load avatar catalog", error)
-        }
+        if (_avatarCatalog.value.isEmpty()) _avatarCatalog.value = BundledAvatars.catalog(context)
     }
 
     fun getAvatarImageUrl(avatarId: String?): String? {
         if (avatarId == null) return null
-        return avatarRepository.getAvatarImageUrl(avatarId, _avatarCatalog.value)
-    }
-
-    fun loadProfileBackground(id: String) {
-        if (hasProfileBackgroundAccess.value) profileBackgroundRepository.loadSelectedAndPreload(id)
-    }
-
-    fun preloadProfileBackgrounds() {
-        if (hasProfileBackgroundAccess.value) profileBackgroundRepository.preloadImages()
+        return BundledAvatars.imageUrl(avatarId)
     }
 
     var isSelectingProfile = false

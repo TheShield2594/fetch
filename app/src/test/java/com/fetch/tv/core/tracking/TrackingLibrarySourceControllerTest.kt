@@ -40,7 +40,7 @@ class TrackingLibrarySourceControllerTest {
     private fun controller(settings: TraktSettingsDataStore, provider: TrackingLibraryProvider, profiles: MutableStateFlow<Int>) =
         TrackingSourceController(
             settings, TrackingProgressProviderRegistry(emptySet()), TrackingLibraryProviderRegistry(setOf(provider)),
-            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
-            mockk(relaxed = true), mockk(relaxed = true), mockk<ProfileManager> { every { activeProfileId } returns profiles }
+            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
+            mockk(relaxed = true), mockk<ProfileManager> { every { activeProfileId } returns profiles }
         )
 }

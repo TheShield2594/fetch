@@ -116,15 +116,14 @@ internal fun PlayerRuntimeController.skipInterval(interval: SkipInterval): Boole
     } else {
         (targetTime * 1000).toLong()
     }
-    // Exact, like a watch party's seeks. A skip jumps out of the buffer to a marker's end; it used
+    // Exact. A skip jumps out of the buffer to a marker's end; it used
     // NEXT_SYNC (the next keyframe, possibly seconds on) for intros, the only far seek that did,
     // and audio was reported out of step after skipping an IntroDB intro but not after other seeks.
     val requested = seekMs.coerceAtMost(duration)
-    val target = if (isPartyControlLocked) ownSeekTarget(requested) ?: return false else requested
+    val target = requested
     seekPlaybackTo(target, SeekParameters.EXACT)
     updatePlaybackTimeline(currentPosition = target)
     scheduleProgressSyncAfterSeek()
-    publishPartyPlayback(positionMs = target)
     skippedIntervalKey = interval.autoSkipKey()
     _uiState.update { it.copy(activeSkipInterval = null, skipIntervalDismissed = true) }
     return true
@@ -1086,7 +1085,6 @@ fun PlayerRuntimeController.scheduleHideControls() {
             !_uiState.value.showSubtitleDelayOverlay &&
             !_uiState.value.showSubtitleTimingDialog &&
             !_uiState.value.showEpisodesPanel && !_uiState.value.showSourcesPanel &&
-            !_uiState.value.showPartyPanel &&
             !_uiState.value.showStreamInfoOverlay) {
             _uiState.update { it.copy(showControls = false) }
         }
@@ -1193,7 +1191,7 @@ internal fun PlayerRuntimeController.schedulePauseOverlay() {
         val anyPanelOpen = s.showSubtitleOverlay || s.showSubtitleStylePanel ||
             s.showSpeedDialog || s.showMoreDialog || s.choiceDialog != null || s.showEpisodesPanel ||
             s.showSourcesPanel || s.showAudioOverlay || s.showStreamInfoOverlay ||
-            s.showSubtitleTimingDialog || s.showSubtitleDelayOverlay || s.showPartyPanel
+            s.showSubtitleTimingDialog || s.showSubtitleDelayOverlay
         if (!s.isPlaying && s.pauseOverlayEnabled && s.error == null && !anyPanelOpen) {
             _uiState.update { it.copy(showPauseOverlay = true, showControls = false) }
         }
@@ -1234,10 +1232,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
     }
     when (event) {
         PlayerEvent.OnPlayPause -> {
-            if (isPartyControlLocked) {
-                toggleOwnPlayback()
-                return
-            }
             if (isUsingMpvEngine()) {
                 val playing = isPlaybackCurrentlyPlaying()
                 if (playing) {
@@ -1257,7 +1251,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                     scheduleHideControls()
                     emitScrobbleStart()
                 }
-                publishPartyPlayback(paused = playing)
             } else {
                 _exoPlayer?.let { player ->
                     // isPlaying is false while buffering; playWhenReady is the user's intent.
@@ -1271,7 +1264,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                         collapseMoreActionsOnResume()
                         player.play()
                     }
-                    publishPartyPlayback(paused = !player.playWhenReady)
                 }
             }
             showControlsTemporarily()
@@ -1299,14 +1291,13 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             val requested = (current + event.deltaMs)
                 .coerceAtLeast(0L)
                 .coerceAtMost(maxDuration)
-            val target = if (isPartyControlLocked) ownSeekTarget(requested) ?: return else requested
+            val target = requested
             // A step from the buttons or the FF/Rewind keys lands where it says: snapping to a
             // keyframe could move a 10 s step by several seconds either way.
             seekPlaybackTo(target, SeekParameters.EXACT)
             updatePlaybackTimeline(currentPosition = target)
             updateSeekFeedback(originMs = current, targetMs = target, committed = true)
             scheduleProgressSyncAfterSeek()
-            publishPartyPlayback(positionMs = target)
             if (_uiState.value.showControls) {
                 showControlsTemporarily()
             } else {
@@ -1335,19 +1326,12 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             if (isLiveSeekBlocked()) return
             val requested = pendingPreviewSeekPosition
             if (requested != null) {
-                val target = if (isPartyControlLocked) ownSeekTarget(requested) else requested
-                if (target == null) {
-                    pendingPreviewSeekPosition = null
-                    updatePlaybackTimeline(currentPosition = currentPlaybackPositionMs() ?: 0L)
-                    clearSeekFeedback()
-                    return
-                }
+                val target = requested
                 seekPlaybackTo(target, SeekParameters.CLOSEST_SYNC)
                 updatePlaybackTimeline(currentPosition = target)
                 updateSeekFeedback(originMs = target, targetMs = target, committed = true)
                 pendingPreviewSeekPosition = null
                 scheduleProgressSyncAfterSeek()
-                publishPartyPlayback(positionMs = target)
                 if (_uiState.value.showControls) {
                     showControlsTemporarily()
                 } else {
@@ -1359,12 +1343,11 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             if (isLiveSeekBlocked()) return
             pendingPreviewSeekPosition = null
             val origin = currentPlaybackPositionMs()?.coerceAtLeast(0L) ?: 0L
-            val target = if (isPartyControlLocked) ownSeekTarget(event.position) ?: return else event.position
+            val target = event.position
             seekPlaybackTo(target, SeekParameters.CLOSEST_SYNC)
             updatePlaybackTimeline(currentPosition = target)
             updateSeekFeedback(originMs = origin, targetMs = target, committed = true)
             scheduleProgressSyncAfterSeek()
-            publishPartyPlayback(positionMs = target)
             if (_uiState.value.showControls) {
                 showControlsTemporarily()
             } else {
@@ -1498,8 +1481,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             }
         }
         is PlayerEvent.OnSetPlaybackSpeed -> {
-            if (partyBlocksControl()) return
-            partyRateNudge = null
             if (isUsingMpvEngine()) {
                 setPlaybackSpeedInternal(event.speed)
             } else {
@@ -1533,7 +1514,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             contentId?.takeIf { it.isNotBlank() }?.let { id ->
                 scope.launch { trackPreferenceDataStore.savePlaybackSpeed(id, event.speed) }
             }
-            publishPartyPlayback(rate = event.speed)
         }
         PlayerEvent.OnToggleControls -> {
             if (_uiState.value.showSubtitleTimingDialog) {
@@ -1726,12 +1706,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
         }
         PlayerEvent.OnQueuePlaybackHandled -> {
             _uiState.update { it.copy(pendingQueuePlayback = null) }
-        }
-        PlayerEvent.OnShowPartyPanel -> {
-            showPartyPanel()
-        }
-        PlayerEvent.OnDismissPartyPanel -> {
-            dismissPartyPanel()
         }
         PlayerEvent.OnReloadSourceStreams -> {
             loadSourceStreams(forceRefresh = true)

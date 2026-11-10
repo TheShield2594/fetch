@@ -3,7 +3,6 @@ package com.fetch.tv.ui.screens.library
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.tracking.LocalListManagementCapabilities
 import com.fetch.tv.core.tracking.TrackingListManagementCapabilities
 import com.fetch.tv.core.tracking.TrackingLibraryProviderRegistry
@@ -11,7 +10,6 @@ import com.fetch.tv.core.tracking.providerId
 import com.fetch.tv.core.poster.withCustomPosterUrls
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.LibraryPreferences
-import com.fetch.tv.domain.model.AuthState
 import com.fetch.tv.domain.model.LibraryEntry
 import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.model.LibrarySourceMode
@@ -125,7 +123,6 @@ data class LibraryUiState(
     val filtersHideAllItems: Boolean = false,
     val watchedMovieIds: Set<String> = emptySet(),
     val watchedSeriesIds: Set<String> = emptySet(),
-    val isFetchAccount: Boolean = false,
     val isTrackingAuthenticated: Boolean = false,
     val posterCardWidthDp: Int = 126,
     val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
@@ -168,7 +165,6 @@ class LibraryViewModel @Inject constructor(
     private val metaRepository: com.fetch.tv.domain.repository.MetaRepository,
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
     private val libraryPreferences: LibraryPreferences,
-    private val authManager: AuthManager,
     private val trackingProviderRegistry: TrackingLibraryProviderRegistry,
     private val watchProgressRepository: com.fetch.tv.domain.repository.WatchProgressRepository,
     private val watchedSeriesStateHolder: com.fetch.tv.data.local.WatchedSeriesStateHolder,
@@ -552,7 +548,6 @@ class LibraryViewModel @Inject constructor(
                 libraryRepository.libraryItems,
                 libraryRepository.listTabs,
                 libraryPreferences.sortOption,
-                authManager.authState,
                 selectedProviderAuthenticated,
                 libraryPreferences.lastSelectedList,
                 libraryPreferences.lastSelectedType
@@ -564,23 +559,21 @@ class LibraryViewModel @Inject constructor(
                 @Suppress("UNCHECKED_CAST")
                 val listTabs = args[3] as List<LibraryListTab>
                 val persistedSortKey = args[4] as String?
-                val authState = args[5] as AuthState
-                val isTrackingAuthenticated = args[6] as Boolean
-                val persistedListKey = args[7] as String?
-                val persistedTypeKey = args[8] as String?
+                val isTrackingAuthenticated = args[5] as Boolean
+                val persistedListKey = args[6] as String?
+                val persistedTypeKey = args[7] as String?
                 DataBundle(
                     sourceMode = sourceMode,
                     isSyncing = isSyncing,
                     items = items,
                     listTabs = listTabs,
                     persistedSortKey = persistedSortKey,
-                    authState = authState,
                     isTrackingAuthenticated = isTrackingAuthenticated,
                     persistedListKey = persistedListKey,
                     persistedTypeKey = persistedTypeKey
                 )
             }.collectLatest { bundle ->
-                val (sourceMode, isSyncing, items, listTabs, persistedSortKey, authState, isTrackingAuthenticated, persistedListKey, persistedTypeKey) = bundle
+                val (sourceMode, isSyncing, items, listTabs, persistedSortKey, isTrackingAuthenticated, persistedListKey, persistedTypeKey) = bundle
                 if (_uiState.value.sourceMode != sourceMode || !isTrackingAuthenticated) onCloseManageLists()
                 _uiState.update { current ->
                     // The local library has tabs only once the profile has a list of its own.
@@ -621,8 +614,6 @@ class LibraryViewModel @Inject constructor(
                         .takeIf { it in sortOptions }
                         ?: modeDefault
 
-                    val isFetchAccount = sourceMode == LibrarySourceMode.LOCAL && authState is AuthState.FullAccount
-
                     val updated = current.copy(
                         sourceMode = sourceMode,
                         listManagement = if (sourceMode == LibrarySourceMode.LOCAL) {
@@ -637,7 +628,6 @@ class LibraryViewModel @Inject constructor(
                         selectedListKey = nextSelectedList,
                         selectedSortOption = nextSelectedSort,
                         manageSelectedListKey = nextManageSelected,
-                        isFetchAccount = isFetchAccount,
                         isTrackingAuthenticated = isTrackingAuthenticated,
                         isSyncing = isSyncing,
                         isLoading = isSyncing && items.isEmpty()
@@ -698,7 +688,6 @@ class LibraryViewModel @Inject constructor(
         val items: List<LibraryEntry>,
         val listTabs: List<LibraryListTab>,
         val persistedSortKey: String?,
-        val authState: AuthState,
         val isTrackingAuthenticated: Boolean,
         val persistedListKey: String? = null,
         val persistedTypeKey: String? = null

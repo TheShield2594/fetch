@@ -88,8 +88,8 @@ class TrackingSourceMemoryTest {
         coEvery { settings.setRememberedLibrarySourceMode(any(), 1) } answers { stored.rememberedLibrary = firstArg() }
         return TrackingSourceController(
             settings, TrackingProgressProviderRegistry(emptySet()), TrackingLibraryProviderRegistry(emptySet()),
-            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
-            mockk(relaxed = true), mockk(relaxed = true), mockk<ProfileManager> { every { activeProfileId } returns MutableStateFlow(1) }
+            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
+            mockk(relaxed = true), mockk<ProfileManager> { every { activeProfileId } returns MutableStateFlow(1) }
         )
     }
 }

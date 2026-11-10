@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.R
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.data.local.DebugSettingsDataStore
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.LibraryPreferences
@@ -31,7 +30,6 @@ class DebugSettingsViewModel @Inject constructor(
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
     private val playerSettingsDataStore: PlayerSettingsDataStore,
     private val themeDataStore: ThemeDataStore,
-    private val authManager: AuthManager,
     private val libraryPreferences: LibraryPreferences,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
@@ -115,18 +113,6 @@ class DebugSettingsViewModel @Inject constructor(
                     }
                 }
             }
-            is DebugSettingsEvent.SignIn -> {
-                viewModelScope.launch {
-                    _uiState.update { it.copy(signInLoading = true, signInResult = null) }
-                    val result = authManager.signInWithEmail(event.email, event.password)
-                    _uiState.update {
-                        it.copy(
-                            signInLoading = false,
-                            signInResult = if (result.isSuccess) context.getString(R.string.debug_signin_success) else context.getString(R.string.debug_generate_result_failed, result.exceptionOrNull()?.message ?: "")
-                        )
-                    }
-                }
-            }
         }
     }
 
@@ -181,9 +167,7 @@ data class DebugSettingsUiState(
     val composeHighlighterEnabled: Boolean = false,
     val bufferLogsEnabled: Boolean = false,
     val generateLibraryLoading: Boolean = false,
-    val generateLibraryResult: String? = null,
-    val signInLoading: Boolean = false,
-    val signInResult: String? = null
+    val generateLibraryResult: String? = null
 )
 
 sealed class DebugSettingsEvent {
@@ -193,5 +177,4 @@ sealed class DebugSettingsEvent {
     data class ToggleComposeHighlighter(val enabled: Boolean) : DebugSettingsEvent()
     data class ToggleBufferLogs(val enabled: Boolean) : DebugSettingsEvent()
     data class GenerateLibraryItems(val count: Int) : DebugSettingsEvent()
-    data class SignIn(val email: String, val password: String) : DebugSettingsEvent()
 }

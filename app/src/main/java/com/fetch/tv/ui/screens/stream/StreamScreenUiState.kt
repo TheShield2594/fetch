@@ -70,8 +70,3 @@ sealed class StreamScreenEvent {
     /** Leave the auto-play loader for the full source list. */
     data object OnShowAllSources : StreamScreenEvent()
 }
-
-data class SharedStream(
-    val hostName: String,
-    val stream: Stream
-)

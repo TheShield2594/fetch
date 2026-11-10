@@ -1,7 +1,6 @@
 package com.fetch.tv.core.sync.backend
 
 import com.fetch.tv.core.sync.SyncHomeCatalogPayload
-import com.fetch.tv.core.tracking.TrackingProviderId
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 
@@ -11,32 +10,8 @@ enum class SyncBackendKind {
     LOCAL_ONLY,
 
     /** A self-hosted Fetch website (`web/`) this TV is paired with. */
-    FETCH_WEBSITE,
-
-    /** A self-hosted server that speaks the Supabase sync protocol inherited from NuvioTV. */
-    SUPABASE
+    FETCH_WEBSITE
 }
-
-/** What a backend carries beyond the domains every backend has. */
-data class SyncBackendFeatures(
-    /**
-     * How watch progress, watched items and the library travel. A backend that names a
-     * tracking provider carries them as that provider (scrobbles, resume points, watched marks
-     * and lists, read when it is the chosen source). Null means the built-in delta sync in
-     * `WatchProgressSyncService`, `WatchedItemsSyncService` and `LibrarySyncService`, which
-     * only the Supabase protocol speaks.
-     */
-    val watchStateProvider: TrackingProviderId?,
-    /**
-     * Parental limits, kids rules and the day's screen time ride inside each profile's settings
-     * blob and are tightened on the way in. When false they come with the profiles instead.
-     */
-    val parentalLimitsInSettings: Boolean,
-    /** Profile PINs are checked by the server rather than only on the TV. */
-    val serverCheckedPins: Boolean,
-    /** Watch party rooms (`core/party/`). */
-    val watchParty: Boolean
-)
 
 /** One installed addon as a backend stores it, in the TV's own base URL form. */
 data class SyncAddon(
@@ -46,14 +21,15 @@ data class SyncAddon(
 )
 
 /**
- * The transport behind the TV's sync services. Each service in `core/sync/` still decides when
- * to push and what to apply, the same way for every backend; this is only how the data gets to
- * the account and back. [SyncBackends.active] is the one in use.
+ * The transport behind the TV's sync services. Each service in `core/sync/` decides when to push
+ * and what to apply; this is only how the data gets to the account and back. The Fetch website
+ * ([FetchWebsiteSyncBackend]) is the one implementation; [SyncBackends.active] is it while the TV
+ * is paired.
  *
  * Domains: profiles, each profile's collections, addons, Home rows and settings. The settings
  * blob also carries the episode queue (`EpisodeQueueStore.FEATURE`), so the queue follows the
- * profile on every backend. Watch progress, watched items and the library are routed by
- * [SyncBackendFeatures.watchStateProvider].
+ * profile. Watch progress, watched items and lists travel through the website's tracking
+ * provider (`data/website/FetchWebsiteTracking.kt`) instead.
  *
  * Every call fails rather than returns when the backend can't be reached; a backend that isn't
  * [isConnected] fails too.
@@ -70,8 +46,6 @@ interface SyncBackend {
      * not connected.
      */
     val accountKey: String?
-
-    val features: SyncBackendFeatures
 
     // ─── Profiles ───
 

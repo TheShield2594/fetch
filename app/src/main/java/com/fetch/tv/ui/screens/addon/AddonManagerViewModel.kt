@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.fetch.tv.R
 import com.fetch.tv.core.sync.CollectionSyncService
 import com.fetch.tv.core.sync.HomeCatalogSettingsSyncService
-import com.fetch.tv.core.sync.StartupSyncService
+import com.fetch.tv.core.sync.AddonRefreshService
 import com.fetch.tv.core.sync.homeCatalogKey
 import com.fetch.tv.core.sync.homeLegacyDisabledCatalogKey
 import com.fetch.tv.core.network.NetworkResult
@@ -80,7 +80,7 @@ class AddonManagerViewModel @Inject constructor(
     private val collectionsDataStore: CollectionsDataStore,
     private val collectionSyncService: CollectionSyncService,
     private val homeCatalogSettingsSyncService: HomeCatalogSettingsSyncService,
-    private val startupSyncService: StartupSyncService,
+    private val addonRefreshService: AddonRefreshService,
     private val profileManager: ProfileManager,
     private val tmdbCollectionSourceResolver: TmdbCollectionSourceResolver,
     private val traktPublicListSourceResolver: TraktPublicListSourceResolver,
@@ -128,7 +128,7 @@ class AddonManagerViewModel @Inject constructor(
     }
 
     fun requestAddonSyncNow() {
-        startupSyncService.requestAddonSyncNow()
+        addonRefreshService.requestAddonSyncNow()
     }
 
     private fun loadLogoBytes() {

@@ -42,10 +42,8 @@ class PersistedGsonKeepRulesTest {
     }
 
     @Test
-    fun `the offline sync queue and the Continue Watching cache are kept`() {
+    fun `the Continue Watching cache is kept`() {
         val required = listOf(
-            "com.fetch.tv.core.sync.PendingProgressUpsert",
-            "com.fetch.tv.core.sync.PendingWatchedUpsert",
             "com.fetch.tv.data.local.CachedNextUpItem",
             "com.fetch.tv.data.local.CachedInProgressItem"
         )

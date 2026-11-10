@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.library
 
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.tracking.TrackingLibraryProvider
 import com.fetch.tv.core.tracking.TrackingLibrarySorter
@@ -11,7 +10,6 @@ import com.fetch.tv.core.tracking.TrackingProviderId
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.LibraryPreferences
 import com.fetch.tv.data.local.WatchedSeriesStateHolder
-import com.fetch.tv.domain.model.AuthState
 import com.fetch.tv.domain.model.LibraryEntry
 import com.fetch.tv.domain.model.LibraryListPrivacy
 import com.fetch.tv.domain.model.LibraryListTab
@@ -62,7 +60,6 @@ internal class LibraryViewModelTestFixture(sorter: TrackingLibrarySorter? = null
             every { lastSelectedList } returns flowOf(null)
             every { lastSelectedType } returns flowOf(null)
         },
-        authManager = mockk<AuthManager> { every { authState } returns MutableStateFlow(AuthState.SignedOut) },
         trackingProviderRegistry = TrackingLibraryProviderRegistry(setOf(provider)),
         watchProgressRepository = mockk<WatchProgressRepository> { every { observeWatchedMovieIds() } returns flowOf(emptySet()) },
         watchedSeriesStateHolder = mockk<WatchedSeriesStateHolder> { every { fullyWatchedSeriesIds } returns MutableStateFlow(emptySet()) },

@@ -51,18 +51,15 @@ import coil3.request.ImageRequest
 import coil3.request.allowRgb565
 import coil3.request.crossfade
 import com.fetch.tv.R
-import com.fetch.tv.data.remote.supabase.ProfileBackgroundCatalogItem
 import com.fetch.tv.ui.theme.FetchTheme
 
 @Composable
 fun ProfileBackgroundPicker(
-    backgrounds: List<ProfileBackgroundCatalogItem>,
     selectedBackgroundId: String?,
     customBackgroundUrl: String?,
     selectedBackgroundUrl: String?,
     standardBackgroundColor: Color,
     onStandardBackgroundSelected: () -> Unit,
-    onBackgroundSelected: (ProfileBackgroundCatalogItem) -> Unit,
     onCustomBackgroundSelected: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -99,19 +96,6 @@ fun ProfileBackgroundPicker(
                 CustomProfileBackgroundImage(
                     imageUrl = imageUrl,
                     contentDescription = stringResource(R.string.profile_background_custom),
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-        }
-        backgrounds.forEach { background ->
-            ProfileBackgroundItem(
-                label = background.displayName,
-                isSelected = selectedBackgroundUrl == null && background.id == selectedBackgroundId,
-                onClick = { onBackgroundSelected(background) }
-            ) {
-                ProfileBackgroundImage(
-                    background = background,
-                    contentDescription = background.displayName,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -193,27 +177,6 @@ private fun ProfileBackgroundItem(
             overflow = TextOverflow.Ellipsis
         )
     }
-}
-
-@Composable
-fun ProfileBackgroundImage(
-    background: ProfileBackgroundCatalogItem,
-    contentDescription: String?,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    AsyncImage(
-        model = ImageRequest.Builder(context)
-            .data(background.imageFile)
-            .memoryCacheKey("profile-background-${background.id}-v${background.assetVersion}")
-            .diskCachePolicy(CachePolicy.DISABLED)
-            .allowRgb565(false)
-            .crossfade(true)
-            .build(),
-        contentDescription = contentDescription,
-        modifier = modifier,
-        contentScale = ContentScale.Crop
-    )
 }
 
 @Composable

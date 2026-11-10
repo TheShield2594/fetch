@@ -66,10 +66,10 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.fetch.tv.R
-import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
+import com.fetch.tv.data.local.AvatarCatalogItem
 
-// Bundled categories first, then the ones a sync server's catalog commonly uses.
-private val PinnedAvatarCategories = listOf("animals", "characters", "fun", "anime", "animation", "tv", "movie", "gaming")
+// The bundled categories, in this order; any others follow alphabetically.
+private val PinnedAvatarCategories = listOf("animals", "characters", "fun")
 
 @Composable
 fun AvatarPickerGrid(
@@ -82,10 +82,8 @@ fun AvatarPickerGrid(
     val categories = remember(avatars) {
         buildList {
             add("all")
-            if (avatars.any { it.memberOnly }) add("supporter")
 
             val normalizedCategories = avatars
-                .filterNot { it.memberOnly }
                 .mapNotNull { avatar -> avatar.category.trim().takeIf { it.isNotEmpty() } }
                 .distinct()
 
@@ -117,10 +115,7 @@ fun AvatarPickerGrid(
     val filteredAvatars = remember(avatars, selectedCategory) {
         when (selectedCategory) {
             "all" -> avatars
-            "supporter" -> avatars.filter { it.memberOnly }
-            else -> avatars.filter {
-                !it.memberOnly && it.category.equals(selectedCategory, ignoreCase = true)
-            }
+            else -> avatars.filter { it.category.equals(selectedCategory, ignoreCase = true) }
         }
     }
     val avatarRequesters = remember(filteredAvatars) {
@@ -373,12 +368,6 @@ private fun AvatarGridItem(
 private fun categoryLabel(category: String): String {
     return when (category.lowercase()) {
         "all" -> stringResource(R.string.profile_avatar_category_all)
-        "supporter" -> stringResource(R.string.profile_avatar_category_supporter)
-        "anime" -> stringResource(R.string.profile_avatar_category_anime)
-        "animation" -> stringResource(R.string.profile_avatar_category_animation)
-        "movie" -> stringResource(R.string.profile_avatar_category_movie)
-        "tv" -> stringResource(R.string.profile_avatar_category_tv)
-        "gaming" -> stringResource(R.string.profile_avatar_category_gaming)
         "animals" -> stringResource(R.string.profile_avatar_category_animals)
         "characters" -> stringResource(R.string.profile_avatar_category_characters)
         "fun" -> stringResource(R.string.profile_avatar_category_fun)

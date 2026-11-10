@@ -9,7 +9,6 @@ import android.os.Looper
 import android.os.StatFs
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
-import com.fetch.tv.data.repository.AuthDiagnosticReportRepository
 import com.fetch.tv.core.image.BrowserImageRequestHeadersInterceptor
 import com.fetch.tv.core.image.CustomPosterFallbackInterceptor
 import coil3.disk.DiskCache
@@ -24,7 +23,6 @@ import coil3.bitmapFactoryMaxParallelism
 
 import okio.Path.Companion.toOkioPath
 import com.fetch.tv.core.image.StaleWhileRevalidateCacheStrategy
-import com.fetch.tv.core.sync.StartupSyncService
 import com.fetch.tv.core.util.AppLocaleResources
 import com.fetch.tv.core.sync.androidtv.AndroidTvChannelSyncService
 import com.fetch.tv.core.network.IPv4FirstDns
@@ -42,7 +40,6 @@ import javax.inject.Inject
 @HiltAndroidApp
 class FetchApplication : Application(), SingletonImageLoader.Factory {
 
-    @Inject lateinit var startupSyncService: dagger.Lazy<StartupSyncService>
     @Inject lateinit var androidTvChannelSyncService: dagger.Lazy<AndroidTvChannelSyncService>
     @Inject lateinit var deviceDecodeCapabilities: AndroidDeviceDecodeCapabilities
     @Inject lateinit var imagePerformancePreferences: ImagePerformancePreferences
@@ -51,20 +48,18 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
 
     override fun onCreate() {
         super.onCreate()
-        // None of these are needed for the first frame: startup sync starts its pull when it is
-        // built, the launcher channel only matters once the app is backgrounded, and server
-        // projection only reacts to later screens. Building their dependency graphs (DataStores,
+        // None of these are needed for the first frame: the launcher channel only matters once
+        // the app is backgrounded, and server projection only reacts to later screens. Building their dependency graphs (DataStores,
         // sync services, JobScheduler IPC) on the main thread before the first frame is
         // measurable on Fire TV Stick class devices, so build them once the main looper first
         // goes idle. They are injected lazily so field injection doesn't build them up front.
         Looper.myQueue().addIdleHandler {
-            startupSyncService.get()
             androidTvChannelSyncService.get().start()
             serverUserStateProjection.get().start()
             false
         }
-        // Remove sign-in reports older builds queued on disk, whether or not reports are on.
-        Thread({ AuthDiagnosticReportRepository.deleteLegacyQueue(this) }, "auth-report-cleanup")
+        // Remove sign-in reports older builds queued on disk; sign-in diagnostics are gone.
+        Thread({ runCatching { java.io.File(filesDir, "auth_diagnostics_queue.jsonl").delete() } }, "auth-report-cleanup")
             .apply { priority = Thread.MIN_PRIORITY }
             .start()
         // Probe decoders/HDR/passthrough off the main thread so cold start isn't delayed;

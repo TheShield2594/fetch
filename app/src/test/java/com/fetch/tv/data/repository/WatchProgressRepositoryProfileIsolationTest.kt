@@ -1,10 +1,6 @@
 package com.fetch.tv.data.repository
 
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.profile.ProfileManager
-import com.fetch.tv.core.sync.WatchProgressSyncService
-import com.fetch.tv.core.sync.WatchStateMutationStore
-import com.fetch.tv.core.sync.WatchedItemsSyncService
 import com.fetch.tv.core.tmdb.TmdbService
 import com.fetch.tv.core.tracking.TrackingHistoryWriterRegistry
 import com.fetch.tv.core.tracking.TrackingProgressProviderRegistry
@@ -25,15 +21,12 @@ import org.junit.Test
 
 class WatchProgressRepositoryProfileIsolationTest {
     @Test
-    fun `explicit save writes and queues only its playback profile`() = runTest {
+    fun `explicit save writes only its playback profile`() = runTest {
         val harness = harness(activeProfileId = 2)
         val progress = progress("item", position = 2_000L, duration = 10_000L)
 
         harness.repository.saveProgress(progress, profileId = 1, syncRemote = true)
 
-        coVerify(exactly = 1) {
-            harness.mutationStore.queueProgressUpserts(mapOf("item" to progress), 1)
-        }
         coVerify(exactly = 1) {
             harness.progressPreferences.saveProgress(progress, profileId = 1)
         }
@@ -43,7 +36,7 @@ class WatchProgressRepositoryProfileIsolationTest {
     }
 
     @Test
-    fun `completion queues progress and watched mutations for one profile`() = runTest {
+    fun `completion marks one profile watched`() = runTest {
         val harness = harness(activeProfileId = 2)
         val progress = progress("item", position = 2_000L, duration = 10_000L)
 
@@ -54,19 +47,9 @@ class WatchProgressRepositoryProfileIsolationTest {
         )
 
         coVerify(exactly = 1) {
-            harness.mutationStore.queueProgressUpserts(
-                match { entries ->
-                    entries.keys == setOf("item") &&
-                        entries.getValue("item").position == 10_000L &&
-                        entries.getValue("item").duration == 10_000L
-                },
-                1
-            )
-        }
-        coVerify(exactly = 1) {
-            harness.mutationStore.queueWatchedUpserts(
-                match { items -> items.single().contentId == "item" },
-                1
+            harness.progressPreferences.saveProgress(
+                match { it.contentId == "item" && it.position == 10_000L && it.duration == 10_000L },
+                profileId = 1
             )
         }
         coVerify(exactly = 1) {
@@ -78,19 +61,11 @@ class WatchProgressRepositoryProfileIsolationTest {
     }
 
     @Test
-    fun `profile switch during delete key lookup cannot redirect local deletion`() = runTest {
+    fun `removal deletes from the profile active when it started`() = runTest {
         val harness = harness(activeProfileId = 1)
-        val progress = progress("item", position = 2_000L, duration = 10_000L)
-        coEvery { harness.progressPreferences.getAllRawEntries(1) } coAnswers {
-            harness.activeProfile.value = 2
-            mapOf("item" to progress)
-        }
 
         harness.repository.removeProgress("item")
 
-        coVerify(exactly = 1) {
-            harness.mutationStore.queueProgressDeletes(listOf("item"), 1)
-        }
         coVerify(exactly = 1) {
             harness.progressPreferences.removeProgress("item", null, null, 1)
         }
@@ -107,9 +82,6 @@ class WatchProgressRepositoryProfileIsolationTest {
         val progressPreferences = mockk<WatchProgressPreferences>(relaxed = true)
         coEvery { progressPreferences.getAllRawEntries(any()) } returns emptyMap()
         val watchedPreferences = mockk<WatchedItemsPreferences>(relaxed = true)
-        val mutationStore = mockk<WatchStateMutationStore>(relaxed = true)
-        val authManager = mockk<AuthManager>(relaxed = true)
-        every { authManager.isAuthenticated } returns false
         val traktSettings = mockk<TraktSettingsDataStore>(relaxed = true)
         every { traktSettings.watchProgressSource } returns MutableStateFlow(WatchProgressSource.FETCH_SYNC)
 
@@ -117,24 +89,19 @@ class WatchProgressRepositoryProfileIsolationTest {
             watchProgressPreferences = progressPreferences,
             traktSettingsDataStore = traktSettings,
             layoutPreferenceDataStore = mockk<LayoutPreferenceDataStore>(relaxed = true),
-            watchProgressSyncService = mockk<WatchProgressSyncService>(relaxed = true),
             watchedItemsPreferences = watchedPreferences,
-            watchedItemsSyncService = mockk<WatchedItemsSyncService>(relaxed = true),
-            authManager = authManager,
             metaRepository = mockk<MetaRepository>(relaxed = true),
             tmdbService = mockk<TmdbService>(relaxed = true),
             profileManager = profileManager,
             trackingProgressProviders = TrackingProgressProviderRegistry(emptySet()),
             trackingHistoryWriters = TrackingHistoryWriterRegistry(emptySet()),
-            mutationStore = mutationStore,
             serverWatched = mockk(relaxed = true)
         )
         return Harness(
             repository = repository,
             activeProfile = activeProfile,
             progressPreferences = progressPreferences,
-            watchedPreferences = watchedPreferences,
-            mutationStore = mutationStore
+            watchedPreferences = watchedPreferences
         )
     }
 
@@ -158,7 +125,6 @@ class WatchProgressRepositoryProfileIsolationTest {
         val repository: WatchProgressRepositoryImpl,
         val activeProfile: MutableStateFlow<Int>,
         val progressPreferences: WatchProgressPreferences,
-        val watchedPreferences: WatchedItemsPreferences,
-        val mutationStore: WatchStateMutationStore
+        val watchedPreferences: WatchedItemsPreferences
     )
 }

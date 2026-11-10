@@ -15,7 +15,6 @@ class SettingsEssentialIndexTest {
             isPrimaryProfile = true,
             isEssentialMode = true,
             isDebugBuild = false,
-            isWatchPartyAvailable = true,
             isYouTubeAvailable = true
         ).toSet() - SettingsCategory.SEARCH
 

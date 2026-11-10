@@ -21,7 +21,6 @@ internal enum class SettingsCategory(
 ) {
     SEARCH(null),
     PROFILES(SettingsRailGroup.PROFILES),
-    WATCH_PARTY(SettingsRailGroup.PROFILES),
     PLAYBACK(SettingsRailGroup.PLAYBACK),
     PLAYBACK_PLAYER(SettingsRailGroup.PLAYBACK, PlaybackSection.PLAYER),
     PLAYBACK_STREAM_SELECTION(SettingsRailGroup.PLAYBACK, PlaybackSection.STREAM_SELECTION),
@@ -54,7 +53,6 @@ internal fun visibleSettingsCategories(
     isPrimaryProfile: Boolean,
     isEssentialMode: Boolean,
     isDebugBuild: Boolean,
-    isWatchPartyAvailable: Boolean = false,
     isYouTubeAvailable: Boolean = false,
     playbackSections: List<PlaybackSection> = PlaybackSection.entries
 ): List<SettingsCategory> = SettingsCategory.entries.filter { category ->
@@ -65,7 +63,6 @@ internal fun visibleSettingsCategories(
         SettingsCategory.PLAYBACK -> isEssentialMode
         SettingsCategory.ACCOUNT,
         SettingsCategory.PROFILES -> isPrimaryProfile
-        SettingsCategory.WATCH_PARTY -> isWatchPartyAvailable
         SettingsCategory.YOUTUBE -> isYouTubeAvailable && !isEssentialMode
         SettingsCategory.ANIME_SKIP -> !isEssentialMode
         // Folders and filter rows are Advanced mode's tools, as they were in the addon manager.

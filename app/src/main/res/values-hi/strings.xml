@@ -194,10 +194,6 @@
     <string name="settings_playback">प्लेबैक</string>
     <string name="settings_debug">डीबग</string>
     <string name="settings_account_section_subtitle">अकाउंट और सिंक स्थिति।</string>
-    <string name="account_stat_addons">ऐडऑन</string>
-    <string name="account_stat_library">लाइब्रेरी</string>
-    <string name="account_stat_progress">प्रोग्रेस</string>
-    <string name="account_stat_watched">देखा गया</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">प्लेबैक सेटिंग्स</string>
@@ -447,9 +443,6 @@
     <string name="trakt_connected_as">%1$s के रूप में कनेक्टेड</string>
     <string name="trakt_awaiting_instruction">trakt.tv/activate पर जाएँ और यह कोड दर्ज करें:</string>
     <string name="trakt_waiting_approval">स्वीकृति की प्रतीक्षा हो रही है…</string>
-    <string name="qr_login_approved">लॉगिन स्वीकृत। साइन इन पूरा किया जा रहा है…</string>
-    <string name="qr_login_pending">आपके फोन पर स्वीकृति की प्रतीक्षा हो रही है…</string>
-    <string name="qr_login_expired">QR लॉगिन समाप्त हो गया। नया कोड जनरेट करें।</string>
     <string name="trakt_code_expires">कोड %1$s में समाप्त होगा</string>
     <string name="trakt_token_refreshes">Trakt एक्सेस टोकन %1$s में रिफ्रेश होगा</string>
     <string name="trakt_missing_credentials">local.properties में TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET नहीं मिला।</string>
@@ -479,13 +472,6 @@
     <string name="debug_account_tab_subtitle">सेटिंग्स नेविगेशन में अकाउंट टैब दिखाएँ</string>
     <string name="debug_sync_code_title">सिंक कोड फीचर्स</string>
     <string name="debug_sync_code_subtitle">अकाउंट सेटिंग्स में Generate/Enter Sync Code बटन दिखाएँ</string>
-    <string name="debug_section_account">अकाउंट</string>
-    <string name="debug_manual_signin_title">मैन्युअल साइन इन</string>
-    <string name="debug_manual_signin_subtitle">ईमेल और पासवर्ड से साइन इन करें (Supabase auth)</string>
-    <string name="debug_email_placeholder">ईमेल</string>
-    <string name="debug_password_placeholder">पासवर्ड</string>
-    <string name="debug_signing_in">साइन इन हो रहा है\u2026</string>
-    <string name="debug_sign_in">साइन इन</string>
     <string name="debug_error_dialog_title">प्लेबैक एरर</string>
     <string name="debug_error_dialog_subtitle">प्लेबैक के दौरान एक त्रुटि हुई.\n\nError: टेस्ट सिम्युलेटेड एरर - यह वास्तविक विफलता नहीं है. सोर्स ने HTTP 503 (Service Unavailable) लौटाया.</string>
     <string name="debug_dismiss">बंद करें</string>
@@ -506,11 +492,6 @@
     <string name="profile_choose_avatar">अवतार चुनें</string>
     <string name="profile_avatar_focus_hint">उसका नाम देखने के लिए अवतार पर फोकस करें</string>
     <string name="profile_avatar_category_all">सभी</string>
-    <string name="profile_avatar_category_anime">एनीमे</string>
-    <string name="profile_avatar_category_animation">एनिमेशन</string>
-    <string name="profile_avatar_category_movie">मूवी</string>
-    <string name="profile_avatar_category_tv">टीवी</string>
-    <string name="profile_avatar_category_gaming">गेमिंग</string>
     <string name="profile_add_new">प्रोफाइल जोड़ें</string>
     <string name="profile_cancel">रद्द करें</string>
     <string name="profile_save">सेव करें</string>
@@ -696,31 +677,11 @@
     <string name="library_empty_trakt_subtitle">वॉचलिस्ट या लिस्ट में आइटम जोड़ने के लिए डिटेल्स में + उपयोग करें</string>
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">लोड हो रहा है\u2026</string>
-    <string name="account_sync_description">अपनी लाइब्रेरी, वॉच प्रोग्रेस और ऐडऑन को डिवाइसों के बीच सिंक करें।</string>
-    <string name="account_sync_restart_note">सिंक सक्रिय डिवाइसों के बीच रियल-टाइम नहीं है। साइन इन करने के बाद या अन्य जगह किए बदलाव लाने के लिए इस डिवाइस को रीस्टार्ट करें।</string>
     <string name="account_signin_qr_title">QR से साइन इन</string>
-    <string name="account_signin_qr_subtitle">QR कोड स्कैन करें और अपने फोन पर ईमेल लॉगिन पूरा करें</string>
-    <string name="account_signed_in_label">साइन इन</string>
-    <string name="account_total_label">कुल</string>
-    <string name="account_loading_sync">सिंक डेटा लोड हो रहा है\u2026</string>
-    <string name="account_sign_out">साइन आउट</string>
 
     <!-- AuthSignInScreen -->
 
     <!-- AuthQrSignInScreen -->
-    <string name="auth_qr_finishing">साइन इन पूरा किया जा रहा है\u2026</string>
-    <string name="auth_qr_expires">%1$s में समाप्त</string>
-    <string name="auth_qr_scan_instruction">QR स्कैन करें, ब्राउज़र में अनुमति दें, फिर यहाँ लौटें।</string>
-    <string name="auth_qr_refresh">QR रीफ्रेश करें</string>
-    <string name="auth_qr_continue_without_account">अकाउंट के बिना जारी रखें</string>
-    <string name="auth_qr_connected">आपका अकाउंट इस टीवी से जुड़ा है।</string>
-    <string name="auth_qr_synced_data">आपका सिंक किया हुआ डेटा</string>
-    <string name="auth_qr_generating">QR बनाया जा रहा है\u2026</string>
-    <string name="auth_qr_unavailable">QR उपलब्ध नहीं। फिर से कोशिश करने के लिए रीफ्रेश करें।</string>
-    <string name="auth_qr_please_wait">कृपया प्रतीक्षा करें\u2026</string>
-    <string name="auth_qr_continue">जारी रखें</string>
-    <string name="auth_qr_back">वापस</string>
 
     <!-- SyncCodeGenerateScreen -->
 
@@ -934,12 +895,6 @@
     <string name="library_empty_type_movies">मूवी</string>
     <string name="library_empty_type_series">सीरीज़</string>
     <string name="library_empty_type_items">आइटम</string>
-    <string name="server_options_use_official">सिंक बंद करें</string>
-    <string name="official_server_title">सिंक बंद करें?</string>
-    <string name="official_server_description">आप अपने सिंक सर्वर से साइन आउट हो जाएँगे और ऐप सिर्फ़-लोकल मोड में रीस्टार्ट होगा। इस टीवी पर पहले से मौजूद सब कुछ बना रहेगा।</string>
-    <string name="official_server_action">सिंक बंद करें</string>
-    <string name="custom_server_error_official_active">इस टीवी पर सिंक पहले से बंद है।</string>
-    <string name="custom_server_error_official_available">यह सिंक सर्वर नहीं है। सिर्फ़-लोकल मोड पर वापस जाने के लिए यह डायलॉग बंद करें और सिंक बंद करें चुनें।</string>
     <string name="cd_mark_intro_start">इंट्रो की शुरुआत मार्क करें</string>
     <string name="cd_mark_intro_end">इंट्रो का अंत मार्क करें</string>
     <string name="cd_mark_credits_start">एंड क्रेडिट की शुरुआत मार्क करें</string>
@@ -1016,7 +971,6 @@
     <string name="source_chip_failed">विफल</string>
     <string name="source_chip_loading">लोड हो रहा है</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>
-    <string name="account_local_only_note">सिंक बंद है। Fetch आपके ऐडऑन, प्रोग्रेस और सेटिंग्स इसी टीवी पर रखता है और इसके लिए किसी अकाउंट की ज़रूरत नहीं है। डिवाइसों के बीच सिंक करने के लिए, सर्वर विकल्पों से अपना सिंक सर्वर कनेक्ट करें।</string>
     <string name="parental_title_blocked">यह टाइटल इस प्रोफाइल की रेटिंग सीमा से ऊपर है।</string>
     <string name="parental_addons_blocked">यह प्रोफाइल ऐडऑन इंस्टॉल नहीं कर सकता। किसी अभिभावक से कहें।</string>
     <string name="parental_gate_heading">%1$s का PIN डालें</string>
@@ -1180,7 +1134,6 @@
     <string name="youtube_show_live_subtitle">अपने फ़ीड, खोज नतीजों और अगले वीडियो में अभी लाइव चल रही स्ट्रीम शामिल करें</string>
     <string name="youtube_hide_watched_title">देखे हुए वीडियो छिपाएँ</string>
     <string name="youtube_hide_watched_subtitle">जो वीडियो आपने पूरे देख लिए हैं उन्हें छोड़ दें। हिस्ट्री में वे फिर भी दिखेंगे</string>
-    <string name="profile_avatar_category_supporter">सपोर्टर</string>
     <string name="profile_avatar_category_animals">जानवर</string>
     <string name="profile_avatar_category_characters">किरदार</string>
     <string name="profile_avatar_category_fun">मज़ेदार</string>
@@ -1258,7 +1211,6 @@
     <string name="cd_profile_color_cyan">सियान</string>
     <string name="cd_profile_color_brown">भूरा</string>
     <string name="cd_profile_color_position">रंग %2$d में से %1$d</string>
-    <string name="auth_notice_fetch_logged_out">Fetch से साइन आउट हो गए। सेटिंग्स &gt; अकाउंट से फिर से साइन इन करें।</string>
     <string name="auth_notice_trakt_logged_out">Trakt से साइन आउट हो गए। सेटिंग्स &gt; ट्रैकिंग से इसे फिर से कनेक्ट करें।</string>
     <string name="profile_save_error">प्रोफाइल सेव नहीं हो सका। फिर से कोशिश करें।</string>
     <string name="profile_delete_error">प्रोफाइल हटाया नहीं जा सका। फिर से कोशिश करें।</string>

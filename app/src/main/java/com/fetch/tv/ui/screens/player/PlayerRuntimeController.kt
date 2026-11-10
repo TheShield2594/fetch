@@ -90,7 +90,6 @@ class PlayerRuntimeController(
     internal val tvRecommendationManager: com.fetch.tv.core.recommendations.TvRecommendationManager,
     internal val serverPlayback: ServerPlayback,
     internal val serverStreams: ServerStreams,
-    internal val party: com.fetch.tv.core.party.PartyRepository,
     internal val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     internal val screenTime: com.fetch.tv.core.parental.ScreenTimeManager,
     internal val sleepTimer: com.fetch.tv.core.player.SleepTimer,
@@ -243,7 +242,6 @@ class PlayerRuntimeController(
     fun getCurrentHeaders(): Map<String, String> = currentHeaders
 
     fun stopAndRelease() {
-        leavePartyPlayback()
         // Cache counters only reach the card on a natural finish, so capture them when the user exits too.
         val diagnostics = lastPlaybackDiagnosticsForReport
         if (diagnostics.timestampMs > 0L) {
@@ -419,8 +417,6 @@ class PlayerRuntimeController(
     internal val afrPreflightGate = AfrPreflightGate()
     internal var hideAspectRatioIndicatorJob: Job? = null
     internal var hideStreamSourceIndicatorJob: Job? = null
-    internal var partyRateNudge: Float? = null
-    internal var partyPreviousKey: String? = null
     internal var hidePlayerEngineSwitchInfoJob: Job? = null
     internal var hideSubtitleDelayOverlayJob: Job? = null
     internal var subtitleAutoSyncLoadJob: Job? = null
@@ -710,9 +706,6 @@ class PlayerRuntimeController(
     internal var libassPipelineSwitchInFlight: Boolean = false
     internal var hasDetectedAssSsaTrackForCurrentStream: Boolean = false
     internal var libassPipelineDecisionStreamUrl: String? = null
-    // Info hash and file index of a debrid-resolved torrent, for party source matching.
-    internal var currentInfoHash: String? = navigationArgs.infoHash
-    internal var currentFileIdx: Int? = navigationArgs.fileIdx
 
     internal var currentStreamHasVideoTrack: Boolean = false
     internal var currentVideoTrackIsLikelyVc1: Boolean = false
@@ -773,7 +766,7 @@ class PlayerRuntimeController(
         // "End of this title" belongs to the title it was set on, not whatever plays next time.
         if (sleepTimer.stopsAtEndOfTitle) sleepTimer.cancel()
         stopServerPlayback()
-        // Same teardown as an explicit exit (party leave, process-wide references, player and
+        // Same teardown as an explicit exit (process-wide references, player and
         // session release). Every step is safe to repeat when the screen already called it.
         stopAndRelease()
         startupLoadingReportJob?.cancel()

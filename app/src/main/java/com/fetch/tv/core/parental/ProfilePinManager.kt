@@ -2,14 +2,11 @@ package com.fetch.tv.core.parental
 
 import android.os.SystemClock
 import android.util.Log
-import com.fetch.tv.core.auth.AuthManager
-import com.fetch.tv.core.sync.ProfileSyncService
 import com.fetch.tv.core.sync.SetProfilePinResult
 import com.fetch.tv.data.local.PinAttemptState
 import com.fetch.tv.data.local.ProfileLockStateDataStore
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
 import com.fetch.tv.data.website.FetchWebsiteProfilePins
-import com.fetch.tv.domain.model.AuthState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -74,8 +71,8 @@ sealed interface ResetPinResult {
 }
 
 /**
- * The sync server's copy of profile PINs. Only used when sync is configured and signed in;
- * the local PIN never depends on it.
+ * The server's copy of profile PINs: the Fetch website's ([FetchWebsiteProfilePins]) while this
+ * TV is paired with one. The local PIN never depends on it.
  */
 interface RemoteProfilePins {
     val isAvailable: Boolean
@@ -96,47 +93,6 @@ interface RemoteProfilePins {
     suspend fun onVerifiedLocally(profileId: Int, pin: String) {}
 }
 
-class SyncServerProfilePins @Inject constructor(
-    private val authManager: AuthManager,
-    private val profileSyncService: ProfileSyncService
-) : RemoteProfilePins {
-    override val isAvailable: Boolean
-        get() = authManager.authState.value is AuthState.FullAccount
-
-    override suspend fun pullStates(): Result<Map<Int, Boolean>> = profileSyncService.pullProfileLockStates()
-
-    override suspend fun setPin(profileId: Int, pin: String, currentPin: String?): SetProfilePinResult =
-        profileSyncService.setProfilePin(profileId, pin, currentPin)
-
-    override suspend fun clearPin(profileId: Int, currentPin: String?): Result<Unit> =
-        profileSyncService.clearProfilePin(profileId, currentPin)
-
-    override suspend fun verifyPin(profileId: Int, pin: String): Result<PinVerifyResult> =
-        profileSyncService.verifyProfilePin(profileId, pin).map {
-            PinVerifyResult(unlocked = it.unlocked, retryAfterSeconds = it.retryAfterSeconds)
-        }
-}
-
-/**
- * The remote side PINs are checked against: the Fetch website while this TV is signed in to
- * one, the sync server otherwise.
- */
-class ActiveRemoteProfilePins @Inject constructor(
-    private val syncServer: SyncServerProfilePins,
-    private val website: FetchWebsiteProfilePins
-) : RemoteProfilePins {
-    private val active: RemoteProfilePins get() = if (website.isAvailable) website else syncServer
-
-    override val isAvailable: Boolean get() = active.isAvailable
-    override val isAuthoritative: Boolean get() = active.isAuthoritative
-    override suspend fun pullStates(): Result<Map<Int, Boolean>> = active.pullStates()
-    override suspend fun setPin(profileId: Int, pin: String, currentPin: String?): SetProfilePinResult =
-        active.setPin(profileId, pin, currentPin)
-    override suspend fun clearPin(profileId: Int, currentPin: String?): Result<Unit> = active.clearPin(profileId, currentPin)
-    override suspend fun verifyPin(profileId: Int, pin: String): Result<PinVerifyResult> = active.verifyPin(profileId, pin)
-    override suspend fun onVerifiedLocally(profileId: Int, pin: String) = active.onVerifiedLocally(profileId, pin)
-}
-
 /**
  * Profile PINs that work offline. The PIN is checked against a salted hash stored on the
  * device; when sync is signed in, changes are mirrored to the sync server, and a PIN that so
@@ -154,7 +110,7 @@ class ProfilePinManager internal constructor(
     @Inject
     constructor(
         store: ProfileLockStateDataStore,
-        remote: ActiveRemoteProfilePins,
+        remote: FetchWebsiteProfilePins,
         restrictions: ProfileRestrictionsDataStore
     ) : this(
         store,

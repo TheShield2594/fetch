@@ -22,7 +22,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.fetch.tv.core.party.PartyMedia
 import com.fetch.tv.data.mediaserver.ServerCatalog
 import com.fetch.tv.ui.screens.CatalogSeeAllScreen
 import com.fetch.tv.ui.screens.detail.MetaDetailsScreen
@@ -34,7 +33,6 @@ import com.fetch.tv.ui.screens.player.PlayerExitReason
 import com.fetch.tv.ui.screens.player.PlayerScreen
 import com.fetch.tv.ui.screens.player.PostPlayRecommendation
 import com.fetch.tv.ui.screens.player.playerBackOpensCurrentEpisodeStreams
-import com.fetch.tv.ui.screens.party.PartyScreen
 import com.fetch.tv.ui.screens.search.DiscoverScreen
 import com.fetch.tv.ui.screens.search.SearchScreen
 import com.fetch.tv.ui.screens.settings.LicensesAttributionsScreen
@@ -43,7 +41,6 @@ import com.fetch.tv.ui.screens.settings.TrackingSettingsScreen
 import com.fetch.tv.ui.screens.setup.FirstRunWizardScreen
 import com.fetch.tv.ui.screens.stream.StreamScreen
 import com.fetch.tv.ui.screens.home.ContinueWatchingItem
-import com.fetch.tv.ui.screens.account.AuthQrSignInScreen
 import com.fetch.tv.ui.screens.cast.CastDetailScreen
 import com.fetch.tv.ui.screens.profile.ProfileSelectionMode
 import com.fetch.tv.ui.screens.profile.ParentalGuardedRoute
@@ -77,26 +74,6 @@ private fun PlaybackNavHost(
 
     fun isPlayerToStream(from: String, to: String): Boolean {
         return from.startsWith("player/") && to.startsWith("stream/")
-    }
-
-    fun openPartyMedia(media: PartyMedia) {
-        if (navController.currentDestination?.route?.startsWith("player/") == true) navController.popBackStack()
-        navController.navigate(
-            Screen.Stream.createRoute(
-                videoId = media.videoId ?: media.metaId,
-                contentType = media.type,
-                title = media.title,
-                poster = media.poster,
-                backdrop = media.background,
-                logo = media.logo,
-                season = media.season,
-                episode = media.episode,
-                episodeName = media.episodeTitle,
-                contentId = media.metaId,
-                contentName = media.title,
-                manualSelection = true
-            )
-        )
     }
 
     // Transition lambdas aren't composable, so read reduced motion here and capture it.
@@ -1096,7 +1073,6 @@ private fun PlaybackNavHost(
                         playOnLoad = false
                     )
                 },
-                onOpenPartyMedia = ::openPartyMedia,
                 onPlayQueueItem = { item ->
                     // A queued title gets its own stream search, the same way Continue Watching starts one.
                     navController.navigate(
@@ -1277,12 +1253,10 @@ private fun PlaybackNavHost(
                         editFilterRows = { navController.navigate(Screen.FilterRows.route) },
                         editFolders = { navController.navigate(Screen.Collections.route) }
                     ),
-                    onNavigateToAuthQrSignIn = { navController.navigate(Screen.AuthQrSignIn.route) },
                     onNavigateToManageProfiles = { navController.navigate(Screen.ManageProfiles.route) },
                     onNavigateToLicensesAttributions = {
                         navController.navigate(Screen.LicensesAttributions.route)
                     },
-                    onNavigateToWatchParty = { navController.navigate(Screen.WatchParty.createRoute()) },
                     onNavigateToPhoneHub = { navController.navigate(Screen.PhoneHub.route) }
                 )
             }
@@ -1294,22 +1268,6 @@ private fun PlaybackNavHost(
                     onBackPress = { navController.popBackStack() }
                 )
             }
-        }
-
-        composable(
-            route = Screen.WatchParty.route,
-            arguments = listOf(
-                navArgument("code") {
-                    type = NavType.StringType
-                    defaultValue = ""
-                }
-            )
-        ) { backStackEntry ->
-            PartyScreen(
-                initialCode = backStackEntry.arguments?.getString("code").orEmpty(),
-                onBackPress = { navController.popBackStack() },
-                onWatch = ::openPartyMedia
-            )
         }
 
         composable(Screen.ManageProfiles.route) {
@@ -1444,14 +1402,6 @@ private fun PlaybackNavHost(
                 },
                 onBack = { navController.popBackStack() }
             )
-        }
-
-        composable(Screen.AuthQrSignIn.route) {
-            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
-                AuthQrSignInScreen(
-                    onBackPress = { navController.popBackStack() }
-                )
-            }
         }
 
         composable(

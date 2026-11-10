@@ -1,7 +1,6 @@
 package com.fetch.tv.core.sync.backend
 
 import com.fetch.tv.core.sync.SyncHomeCatalogPayload
-import com.fetch.tv.core.tracking.TrackingProviderId
 import com.fetch.tv.data.website.FetchWebsiteStore
 import com.fetch.tv.data.website.FetchWebsiteSyncService
 import kotlinx.coroutines.CancellationException
@@ -32,13 +31,6 @@ class FetchWebsiteSyncBackend @Inject constructor(
     // One website per TV, and it has no user id of its own: the address it was paired with
     // tells one account from the next.
     override val accountKey: String? get() = store.session.value?.serverUrl?.let { "website:$it" }
-
-    override val features = SyncBackendFeatures(
-        watchStateProvider = TrackingProviderId.FETCH_WEBSITE,
-        parentalLimitsInSettings = false,
-        serverCheckedPins = true,
-        watchParty = false
-    )
 
     override suspend fun pushProfiles(): Result<Unit> = call { website.get().pushProfiles().getOrThrow() }
 

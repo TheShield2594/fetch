@@ -1,7 +1,5 @@
 package com.fetch.tv.core.deeplink
 
-import com.fetch.tv.core.party.PARTY_CODE_LENGTH
-import com.fetch.tv.core.party.normalizePartyCode
 import com.fetch.tv.domain.deeplink.AppDeepLink
 import java.net.URI
 import java.net.URLDecoder
@@ -41,10 +39,6 @@ object DeepLinkParser {
                 if (type.isBlank() || id.isBlank()) null else AppDeepLink.Meta(type = type, id = id)
             }
             "imdb", "tmdb" -> parseProviderMetaDeepLink(host, pathSegments, parsedUrl)
-            "party" -> (pathSegments.firstOrNull() ?: firstParameter(queryParameters(parsedUrl), "code"))
-                ?.let(::normalizePartyCode)
-                ?.takeIf { it.length == PARTY_CODE_LENGTH }
-                ?.let(AppDeepLink::Party)
             "search" -> firstParameter(queryParameters(parsedUrl), "q", "query")
                 ?.take(MAX_SEARCH_QUERY_LENGTH)
                 ?.let(AppDeepLink::Search)

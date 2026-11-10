@@ -1,4 +1,4 @@
-package com.fetch.tv.data.repository
+package com.fetch.tv.data.website
 
 import com.fetch.tv.domain.model.WatchProgress
 import org.junit.Assert.assertFalse

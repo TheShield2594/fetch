@@ -401,9 +401,6 @@ class ReadmeScreenshots {
                         sections = com.fetch.tv.ui.screens.stream.sourceSections(
                             Samples.streams, emptyMap(), bestMatchFirst = true, addonFilter = null
                         ),
-                        sharedStream = null,
-                        partySource = null,
-                        onSharedStreamSelected = {},
                         onStreamSelected = {},
                         showFileSizeBadges = false,
                         badgePlacement = StreamBadgePlacement.BOTTOM

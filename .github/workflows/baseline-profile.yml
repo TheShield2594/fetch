@@ -14,9 +14,6 @@ on:
   # Temporary: records the first Fetch profiles from this branch. Removed before merge.
   push:
     branches: [claude/github-issue-401-q87wva]
-    paths:
-      - ".github/workflows/baseline-profile.yml"
-      - "baselineprofile/**"
 
 permissions:
   contents: read

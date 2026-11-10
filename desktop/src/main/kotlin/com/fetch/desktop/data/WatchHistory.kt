@@ -40,7 +40,7 @@ object WatchHistory {
         val others = file.entries.filter { it.contentId != target.contentId }
         val existing = file.entries.firstOrNull { it.contentId == target.contentId }
 
-        if (fraction >= WatchProgress.COMPLETED_THRESHOLD) {
+        if (WatchProgress.isFinishedAt(positionMs, durationMs)) {
             val watched = (file.watched + target.videoId).distinct()
             return moveOn(file.copy(watched = watched), target, target.video, now, fromFurthest)
                 .copy(finished = finished(file, target, now))
@@ -217,7 +217,7 @@ object WatchHistory {
     /** Seconds to resume [videoId] from, or null to start at the beginning. */
     fun resumeSeconds(file: ProgressFile, videoId: String): Long? {
         val entry = file.entries.firstOrNull { it.videoId == videoId && !it.upNext } ?: return null
-        if (entry.durationMs <= 0 || entry.positionMs.toFloat() / entry.durationMs >= WatchProgress.COMPLETED_THRESHOLD) return null
+        if (entry.durationMs <= 0 || WatchProgress.isFinishedAt(entry.positionMs, entry.durationMs)) return null
         return (entry.positionMs / 1000).takeIf { it > 0 }
     }
 

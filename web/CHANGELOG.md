@@ -11,6 +11,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-10
+
 ### Removed
 
 - **Games, Stremio Watched Sync, Play Detection and the add-on's "Mark Watched" entry are gone.** Fetch is no longer a Stremio client and tracks watches itself (or through Trakt, Simkl, MDBList and your media servers), so the Games tab with its Steam and IGDB sync, connecting a Stremio account to read its library, and inferring watches from the add-on's `stream`/`subtitles` requests were all removed. Their tables (`Game`, `StremioAuth`, `PlaySignal`) are dropped by a migration, and the data in them is deleted for good (the data export never included games). `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`, `STEAM_API_KEY`, `STEAM_ID`, `STEAM_SYNC_INTERVAL_SEC`, `STREMIO_POLL_INTERVAL_SEC`, `STREMIO_API_BASE` and `STREMIO_PLAY_DETECTION` are no longer read and can be removed from `.env`. The add-on no longer declares the `stream` or `subtitles` resources, so the "Fetch: Mark Watched" subtitle entry and its `/mark-watched` links are gone too; its catalogs and metadata are unchanged.
@@ -458,5 +460,6 @@ name.
 - The addon's mutation-token check no longer assumes the incoming token is a string — a repeated query param (`?token=a&token=b`) would have thrown instead of being rejected cleanly.
 - `dockerpublish.yml` reads the git ref type/name from the runner's `GITHUB_REF_TYPE`/`GITHUB_REF_NAME` environment variables instead of interpolating `github.ref_type`/`github.ref_name` into a shell script.
 
-[Unreleased]: https://github.com/TheShield2594/cataloggy/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/TheShield2594/fetch/compare/web-v0.2.0...HEAD
+[0.2.0]: https://github.com/TheShield2594/fetch/releases/tag/web-v0.2.0
 [0.1.0]: https://github.com/TheShield2594/cataloggy/releases/tag/v0.1.0

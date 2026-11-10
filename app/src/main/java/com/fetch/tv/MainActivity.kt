@@ -1475,7 +1475,40 @@ open class MainActivity : ComponentActivity() {
             }
             return true
         }
-        return super.dispatchKeyEvent(event)
+        // Released while its press was turned into OK: release OK too, so the card's click lands.
+        if (event.action == KeyEvent.ACTION_UP && playKeyDownTranslated && playKeyAsSelect(event) != null) {
+            playKeyDownTranslated = false
+            if (super.dispatchKeyEvent(event)) return true
+            return super.dispatchKeyEvent(playKeyAsSelect(event)!!)
+        }
+        if (super.dispatchKeyEvent(event)) return true
+        // On browse screens nothing takes Play/Pause, so it opens the focused card like OK does.
+        // The player and detail screens handle these keys themselves and never get here. Only a
+        // press nobody took is turned into OK, so a stray release can't click anything.
+        if (event.action != KeyEvent.ACTION_DOWN) return false
+        val playAsSelect = playKeyAsSelect(event) ?: return false
+        val handled = super.dispatchKeyEvent(playAsSelect)
+        if (handled && event.repeatCount == 0) playKeyDownTranslated = true
+        return handled
+    }
+
+    /** True between a Play/Pause press turned into OK and its release. */
+    private var playKeyDownTranslated = false
+
+    private fun playKeyAsSelect(event: KeyEvent): KeyEvent? {
+        if (event.keyCode != KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE && event.keyCode != KeyEvent.KEYCODE_MEDIA_PLAY) return null
+        return KeyEvent(
+            event.downTime,
+            event.eventTime,
+            event.action,
+            KeyEvent.KEYCODE_DPAD_CENTER,
+            event.repeatCount,
+            event.metaState,
+            event.deviceId,
+            event.scanCode,
+            event.flags,
+            event.source
+        )
     }
 
     override fun onStart() {

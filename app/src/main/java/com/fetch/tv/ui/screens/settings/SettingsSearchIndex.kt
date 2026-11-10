@@ -106,6 +106,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.playback_osd_clock,
         R.string.playback_seek_back_step,
         R.string.playback_seek_forward_step,
+        R.string.playback_controls_auto_hide,
         R.string.playback_parental_guide
     ),
     SettingsCategory.PLAYBACK_AUDIO to listOf(

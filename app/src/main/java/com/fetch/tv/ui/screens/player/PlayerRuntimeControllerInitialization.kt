@@ -806,6 +806,15 @@ internal fun PlayerRuntimeController.initializePlayer(
                         setParameters(buildUponParameters().setPreferredTextLanguage(locale.isO3Language))
                     }
                 }
+                // The system "audio description" preference (Android 13+): among tracks in the
+                // preferred language, pick the one that describes the video.
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    val accessibility = context?.getSystemService(Context.ACCESSIBILITY_SERVICE)
+                        as? android.view.accessibility.AccessibilityManager
+                    if (accessibility?.isAudioDescriptionRequested == true) {
+                        setParameters(buildUponParameters().setPreferredAudioRoleFlags(C.ROLE_FLAG_DESCRIBES_VIDEO))
+                    }
+                }
                 // Forced mode: disable ExoPlayer auto text selection; our logic handles it.
                 if (playerSettings.subtitleStyle.useForcedSubtitles) {
                     setParameters(buildUponParameters().setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true))

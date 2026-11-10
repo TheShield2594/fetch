@@ -58,6 +58,7 @@ internal fun PlayerRuntimeController.showSubtitleTimingDialog() {
             showSubtitleDelayOverlay = false,
             showMoreDialog = false,
             showSpeedDialog = false,
+            choiceDialog = null,
             showAudioOverlay = false,
             showControls = false,
             subtitleAutoSyncCapturedVideoMs = null,

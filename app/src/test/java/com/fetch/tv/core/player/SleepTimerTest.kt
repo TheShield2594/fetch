@@ -14,15 +14,25 @@ class SleepTimerTest {
     private val timer = SleepTimer { now }
 
     @Test
-    fun `cycling walks every duration, then end of title, then off`() {
-        val seen = (0..SleepTimer.CHOICES.size).map { timer.cycle() }
+    fun `the list starts with Off, then every duration, then end of title`() {
+        assertNull(SleepTimer.LIST_CHOICES.first())
         assertEquals(
             listOf(15, 30, 45, 60, 90),
-            seen.filterIsInstance<SleepTimerSetting.Minutes>().map { it.minutes }
+            SleepTimer.LIST_CHOICES.filterIsInstance<SleepTimerChoice.Minutes>().map { it.minutes }
         )
-        assertEquals(SleepTimerSetting.EndOfTitle, seen[5])
-        assertNull(seen[6])
+        assertEquals(SleepTimerChoice.EndOfTitle, SleepTimer.LIST_CHOICES.last())
+    }
+
+    @Test
+    fun `the current choice follows the setting and Off cancels it`() {
+        assertNull(timer.currentChoice())
+        timer.set(SleepTimerChoice.Minutes(45))
+        assertEquals(SleepTimerChoice.Minutes(45), timer.currentChoice())
+        timer.set(SleepTimerChoice.EndOfTitle)
+        assertEquals(SleepTimerChoice.EndOfTitle, timer.currentChoice())
+        timer.set(SleepTimer.LIST_CHOICES.first())
         assertNull(timer.setting.value)
+        assertNull(timer.currentChoice())
     }
 
     @Test
@@ -39,10 +49,10 @@ class SleepTimerTest {
     }
 
     @Test
-    fun `cycling restarts the clock from the press`() {
-        timer.cycle()
+    fun `choosing again restarts the clock from the press`() {
+        timer.set(SleepTimerChoice.Minutes(15))
         now += 10 * SleepTimer.MINUTE_MS
-        val next = timer.cycle() as SleepTimerSetting.Minutes
+        val next = timer.set(SleepTimerChoice.Minutes(30)) as SleepTimerSetting.Minutes
         assertEquals(30, next.minutes)
         assertEquals(30 * SleepTimer.MINUTE_MS, timer.remainingMs())
     }

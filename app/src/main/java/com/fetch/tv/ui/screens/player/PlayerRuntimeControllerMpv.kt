@@ -538,7 +538,7 @@ internal fun PlayerRuntimeController.applyPendingMpvSeekIfNeeded(
 
     val target = when {
         savedResume != null && durationMs > 0L -> {
-            savedResume.resolveResumePosition(durationMs).coerceAtLeast(0L)
+            savedResume.resolveResumePositionWithRewind(durationMs, System.currentTimeMillis()).coerceAtLeast(0L)
         }
         savedResume != null -> {
             val requiresDurationForPercentResume = savedResume.progressPercent != null &&

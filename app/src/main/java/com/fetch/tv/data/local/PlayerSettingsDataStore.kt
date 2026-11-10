@@ -292,6 +292,8 @@ data class PlayerSettings(
     val seekBackSeconds: Int = DEFAULT_SEEK_BACK_SECONDS,
     /** How far one press of Forward / fast-forward goes, in seconds. */
     val seekForwardSeconds: Int = DEFAULT_SEEK_FORWARD_SECONDS,
+    /** Seconds the player's controls stay up with no input while playing. */
+    val controlsAutoHideSeconds: Int = DEFAULT_CONTROLS_AUTO_HIDE_SECONDS,
     val skipIntroEnabled: Boolean = true,
     // Off until asked for: the lookup sends each title's IMDb id to a third party (api.tiffara.com).
     val parentalGuideEnabled: Boolean = false,
@@ -412,6 +414,9 @@ data class PlayerSettings(
         const val DEFAULT_SEEK_FORWARD_SECONDS = 30
         val SEEK_BACK_SECONDS_VALUES: List<Int> = listOf(5, 10, 15, 20, 30, 45, 60)
         val SEEK_FORWARD_SECONDS_VALUES: List<Int> = listOf(5, 10, 15, 20, 30, 45, 60, 90, 120)
+
+        const val DEFAULT_CONTROLS_AUTO_HIDE_SECONDS = 4
+        val CONTROLS_AUTO_HIDE_SECONDS_VALUES: List<Int> = listOf(2, 3, 4, 5, 6, 8, 10, 15, 20, 30)
 
         /** The stored value if it is one of [values], else the nearest one. */
         fun normalizeSeekSeconds(stored: Int?, values: List<Int>, default: Int): Int {
@@ -646,6 +651,7 @@ class PlayerSettingsDataStore @Inject constructor(
     private val osdClockEnabledKey = booleanPreferencesKey("osd_clock_enabled")
     private val seekBackSecondsKey = intPreferencesKey("seek_back_seconds")
     private val seekForwardSecondsKey = intPreferencesKey("seek_forward_seconds")
+    private val controlsAutoHideSecondsKey = intPreferencesKey("controls_auto_hide_seconds")
     private val skipIntroEnabledKey = booleanPreferencesKey("skip_intro_enabled")
     private val parentalGuideEnabledKey = booleanPreferencesKey("parental_guide_enabled")
     private val autoSkipSegmentTypesKey = stringSetPreferencesKey("auto_skip_segment_types")
@@ -1083,6 +1089,11 @@ class PlayerSettingsDataStore @Inject constructor(
                     PlayerSettings.SEEK_FORWARD_SECONDS_VALUES,
                     PlayerSettings.DEFAULT_SEEK_FORWARD_SECONDS
                 ),
+                controlsAutoHideSeconds = PlayerSettings.normalizeSeekSeconds(
+                    prefs[controlsAutoHideSecondsKey],
+                    PlayerSettings.CONTROLS_AUTO_HIDE_SECONDS_VALUES,
+                    PlayerSettings.DEFAULT_CONTROLS_AUTO_HIDE_SECONDS
+                ),
                 skipIntroEnabled = prefs[skipIntroEnabledKey] ?: true,
                 parentalGuideEnabled = prefs[parentalGuideEnabledKey] ?: false,
                 autoSkipSegmentTypes = prefs[autoSkipSegmentTypesKey]
@@ -1423,6 +1434,16 @@ class PlayerSettingsDataStore @Inject constructor(
                 seconds,
                 PlayerSettings.SEEK_FORWARD_SECONDS_VALUES,
                 PlayerSettings.DEFAULT_SEEK_FORWARD_SECONDS
+            )
+        }
+    }
+
+    suspend fun setControlsAutoHideSeconds(seconds: Int) {
+        store().edit { prefs ->
+            prefs[controlsAutoHideSecondsKey] = PlayerSettings.normalizeSeekSeconds(
+                seconds,
+                PlayerSettings.CONTROLS_AUTO_HIDE_SECONDS_VALUES,
+                PlayerSettings.DEFAULT_CONTROLS_AUTO_HIDE_SECONDS
             )
         }
     }

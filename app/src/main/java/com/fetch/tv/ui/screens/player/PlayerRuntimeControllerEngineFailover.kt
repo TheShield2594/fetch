@@ -101,6 +101,7 @@ internal fun PlayerRuntimeController.switchToInternalPlayerEngine(
             showSubtitleStylePanel = false,
             showSubtitleDelayOverlay = false,
             showSpeedDialog = false,
+            choiceDialog = null,
             showMoreDialog = false,
             internalPlayerEngine = targetEngine,
             showPlayerEngineSwitchInfo = true,

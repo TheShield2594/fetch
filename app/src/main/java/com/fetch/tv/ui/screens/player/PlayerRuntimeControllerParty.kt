@@ -65,6 +65,7 @@ internal fun PlayerRuntimeController.showPartyPanel() {
             showSubtitleStylePanel = false,
             showSubtitleTimingDialog = false,
             showSpeedDialog = false,
+            choiceDialog = null,
             showSourcesPanel = false,
             showEpisodesPanel = false,
             showEpisodeStreams = false,

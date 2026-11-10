@@ -46,6 +46,12 @@ data class SourceChipItem(
     val status: SourceChipStatus
 )
 
+/** Chips still loading when a fetch ends become [SourceChipStatus.TIMED_OUT]; the rest are kept. */
+fun timeOutPendingSourceChips(chips: List<SourceChipItem>): List<SourceChipItem> =
+    chips.map { chip ->
+        if (chip.status == SourceChipStatus.LOADING) chip.copy(status = SourceChipStatus.TIMED_OUT) else chip
+    }
+
 /**
  * The addon's name, plus its state in words unless it finished: "Torrentio · loading". Colour,
  * the error shake and the loading shimmer stay as second cues; this one survives greyscale,

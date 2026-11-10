@@ -38,7 +38,8 @@ internal const val AUDIO_DELAY_HOLD_FAST_STEP_MS = 100
 internal const val AUDIO_DELAY_HOLD_THRESHOLD_MS = 1000L
 internal const val AUDIO_DELAY_HOLD_FAST_THRESHOLD_MS = 2000L
 internal const val AUDIO_DELAY_HOLD_REPEAT_INTERVAL_MS = 100L
-internal const val WATCH_PROGRESS_SAVE_INTERVAL_MS = 90_000L
+// Local-only writes to the small "recent" store, so a forced stop loses at most this much.
+internal const val WATCH_PROGRESS_SAVE_INTERVAL_MS = 30_000L
 
 /**
  * Audio delay split into its sources, so the stream hint and the user's tweak on that stream
@@ -765,6 +766,8 @@ internal fun PlayerRuntimeController.saveWatchProgressInternal(position: Long, d
 
     val progress = currentWatchProgress(parentContentId, parentContentType, position, duration, System.currentTimeMillis())
         .copy(progressPercent = fallbackPercent)
+    // Reaching the credits marker finishes the title even before the length-based threshold.
+    val finishedByCredits = duration > 0L && isPlaybackFinishedAt(position, duration)
 
     scope.launch(kotlinx.coroutines.NonCancellable) {
         val effectiveContentId = watchProgressRepository.normalizeParentContentId(
@@ -773,7 +776,7 @@ internal fun PlayerRuntimeController.saveWatchProgressInternal(position: Long, d
             profileId = profileId
         )
         val normalizedProgress = progress.copy(contentId = effectiveContentId)
-        if (normalizedProgress.isCompleted()) {
+        if (normalizedProgress.isCompleted() || finishedByCredits) {
             if (!hasMarkedCurrentEpisodeCompleted) {
                 hasMarkedCurrentEpisodeCompleted = true
                 watchProgressRepository.markAsCompleted(
@@ -1049,13 +1052,37 @@ internal fun PlayerRuntimeController.scheduleProgressSyncAfterSeek() {
  */
 internal val PLAYER_CONTROLS_AUTO_HIDE_MS = com.fetch.tv.ui.theme.FetchMotion.tokens.durations.playerControlsAutoHide.toLong()
 
+/** Applies [newMode] as the picture's aspect, shows its name briefly, and saves it for this device. */
+private fun PlayerRuntimeController.applyAspectMode(newMode: AspectMode) {
+    val previous = _uiState.value.aspectMode
+    val label = aspectModeLabel(newMode, context::getString)
+    Log.d(PlayerRuntimeController.TAG, "Aspect mode set by user: $previous -> $newMode ($label)")
+    _uiState.update {
+        it.copy(
+            aspectMode = newMode,
+            showAspectRatioIndicator = true,
+            aspectRatioIndicatorText = label
+        )
+    }
+    scope.launch {
+        Log.d(PlayerRuntimeController.TAG, "Persisting aspect mode: $newMode")
+        deviceLocalPlayerPreferences.setAspectMode(newMode)
+    }
+    hideAspectRatioIndicatorJob?.cancel()
+    hideAspectRatioIndicatorJob = scope.launch {
+        delay(1500)
+        _uiState.update { it.copy(showAspectRatioIndicator = false) }
+    }
+}
+
 fun PlayerRuntimeController.scheduleHideControls() {
     hideControlsJob?.cancel()
     hideControlsJob = scope.launch {
-        delay(PLAYER_CONTROLS_AUTO_HIDE_MS)
+        delay(controlsAutoHideMsSetting)
         if (_uiState.value.isPlaying && !_uiState.value.showAudioOverlay &&
             !_uiState.value.showSubtitleOverlay && !_uiState.value.showSubtitleStylePanel &&
             !_uiState.value.showSpeedDialog && !_uiState.value.showMoreDialog &&
+            _uiState.value.choiceDialog == null &&
             !_uiState.value.showSubtitleDelayOverlay &&
             !_uiState.value.showSubtitleTimingDialog &&
             !_uiState.value.showEpisodesPanel && !_uiState.value.showSourcesPanel &&
@@ -1076,7 +1103,8 @@ internal fun PlayerRuntimeController.showSubtitleDelayOverlay() {
             showSubtitleOverlay = false,
             showSubtitleStylePanel = false,
             showSubtitleTimingDialog = false,
-            showSpeedDialog = false
+            showSpeedDialog = false,
+            choiceDialog = null
         )
     }
     scheduleHideSubtitleDelayOverlay()
@@ -1163,7 +1191,7 @@ internal fun PlayerRuntimeController.schedulePauseOverlay() {
         delay(pauseOverlayDelayMs)
         val s = _uiState.value
         val anyPanelOpen = s.showSubtitleOverlay || s.showSubtitleStylePanel ||
-            s.showSpeedDialog || s.showMoreDialog || s.showEpisodesPanel ||
+            s.showSpeedDialog || s.showMoreDialog || s.choiceDialog != null || s.showEpisodesPanel ||
             s.showSourcesPanel || s.showAudioOverlay || s.showStreamInfoOverlay ||
             s.showSubtitleTimingDialog || s.showSubtitleDelayOverlay || s.showPartyPanel
         if (!s.isPlaying && s.pauseOverlayEnabled && s.error == null && !anyPanelOpen) {
@@ -1272,12 +1300,9 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 .coerceAtLeast(0L)
                 .coerceAtMost(maxDuration)
             val target = if (isPartyControlLocked) ownSeekTarget(requested) ?: return else requested
-            val seekParameters = if (event.deltaMs < 0L) {
-                SeekParameters.PREVIOUS_SYNC
-            } else {
-                SeekParameters.NEXT_SYNC
-            }
-            seekPlaybackTo(target, seekParameters)
+            // A step from the buttons or the FF/Rewind keys lands where it says: snapping to a
+            // keyframe could move a 10 s step by several seconds either way.
+            seekPlaybackTo(target, SeekParameters.EXACT)
             updatePlaybackTimeline(currentPosition = target)
             updateSeekFeedback(originMs = current, targetMs = target, committed = true)
             scheduleProgressSyncAfterSeek()
@@ -1500,6 +1525,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 it.copy(
                     playbackSpeed = event.speed,
                     showSpeedDialog = false,
+                    choiceDialog = null,
                     showSubtitleTimingDialog = false,
                     showSubtitleDelayOverlay = false
                 )
@@ -1636,6 +1662,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                     showSubtitleTimingDialog = false,
                     showSubtitleDelayOverlay = false,
                     showSpeedDialog = false,
+                    choiceDialog = null,
                     showControls = true
                 )
             }
@@ -1731,6 +1758,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                     showSubtitleStylePanel = false,
                     showSubtitleTimingDialog = false,
                     showSpeedDialog = false,
+                    choiceDialog = null,
                     showSubtitleDelayOverlay = false,
                     showMoreDialog = false
                 )
@@ -1900,25 +1928,25 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 }
                 return
             }
-            val newMode = nextAspectMode(state.aspectMode)
-            val label = aspectModeLabel(newMode, context::getString)
-            Log.d(PlayerRuntimeController.TAG, "Aspect mode toggled by user: ${state.aspectMode} -> $newMode ($label)")
-            _uiState.update {
-                it.copy(
-                    aspectMode = newMode,
-                    showAspectRatioIndicator = true,
-                    aspectRatioIndicatorText = label
-                )
+            applyAspectMode(nextAspectMode(state.aspectMode))
+        }
+        PlayerEvent.OnShowAspectDialog -> {
+            // Tunneled playback only has Fit and Fill, so the button keeps toggling between them.
+            if (_uiState.value.tunnelingEnabled) {
+                onEvent(PlayerEvent.OnToggleAspectRatio)
+            } else {
+                hideControlsJob?.cancel()
+                _uiState.update { it.copy(choiceDialog = PlayerChoiceDialog.ASPECT, showControls = true) }
             }
-            scope.launch {
-                Log.d(PlayerRuntimeController.TAG, "Persisting aspect mode: $newMode")
-                deviceLocalPlayerPreferences.setAspectMode(newMode)
-            }
-            hideAspectRatioIndicatorJob?.cancel()
-            hideAspectRatioIndicatorJob = scope.launch {
-                delay(1500)
-                _uiState.update { it.copy(showAspectRatioIndicator = false) }
-            }
+        }
+        is PlayerEvent.OnSelectAspectMode -> {
+            _uiState.update { if (it.choiceDialog == PlayerChoiceDialog.ASPECT) it.copy(choiceDialog = null) else it }
+            if (event.mode != _uiState.value.aspectMode) applyAspectMode(event.mode)
+            scheduleHideControls()
+        }
+        PlayerEvent.OnDismissChoiceDialog -> {
+            _uiState.update { it.copy(choiceDialog = null) }
+            scheduleHideControls()
         }
         PlayerEvent.OnSwitchInternalPlayerEngine -> {
             logSwitchTrace(
@@ -1956,7 +1984,8 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 }
             }
         }
-        PlayerEvent.OnCycleSleepTimer -> onCycleSleepTimer()
+        PlayerEvent.OnShowSleepTimerDialog -> onShowSleepTimerDialog()
+        is PlayerEvent.OnSelectSleepTimer -> onSelectSleepTimer(event.choice)
         PlayerEvent.OnSleepTimerKeepWatching -> onSleepTimerKeepWatching()
         PlayerEvent.OnSleepTimerExtend -> onSleepTimerExtend()
         PlayerEvent.OnSleepTimerStop -> onSleepTimerStop()

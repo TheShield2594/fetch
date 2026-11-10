@@ -364,6 +364,7 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
             stillWatchingEnabledSetting = settings.stillWatchingEnabled
             stillWatchingEpisodeThresholdSetting = settings.stillWatchingEpisodeThreshold
             autoPlayCountdownSecondsSetting = settings.autoPlayCountdownSeconds
+            controlsAutoHideMsSetting = settings.controlsAutoHideSeconds * 1_000L
             val seekSteps = SeekSteps.fromSeconds(settings.seekBackSeconds, settings.seekForwardSeconds)
             seekStepsSetting = seekSteps
             if (_uiState.value.seekSteps != seekSteps) _uiState.update { it.copy(seekSteps = seekSteps) }
@@ -616,8 +617,8 @@ internal fun PlayerRuntimeController.tryApplyPendingResumeProgress(player: Playe
     }
     val duration = player.duration
     val target = when {
-        duration > 0L -> saved.resolveResumePosition(duration)
-        saved.position > 0L -> saved.position
+        duration > 0L -> saved.resolveResumePositionWithRewind(duration, System.currentTimeMillis())
+        saved.position > 0L -> saved.resolveResumePositionWithRewind(saved.position, System.currentTimeMillis())
         else -> 0L
     }
 
@@ -631,8 +632,8 @@ internal fun PlayerRuntimeController.tryApplyPendingResumeProgress(player: Playe
 internal fun PlayerRuntimeController.resolvePendingInitialResumePosition(): Long {
     val saved = pendingResumeProgress ?: return 0L
     val target = when {
-        saved.duration > 0L -> saved.resolveResumePosition(saved.duration)
-        saved.position > 0L -> saved.position
+        saved.duration > 0L -> saved.resolveResumePositionWithRewind(saved.duration, System.currentTimeMillis())
+        saved.position > 0L -> saved.resolveResumePositionWithRewind(saved.position, System.currentTimeMillis())
         else -> 0L
     }
     if (target <= 0L && saved.progressPercent == null) {

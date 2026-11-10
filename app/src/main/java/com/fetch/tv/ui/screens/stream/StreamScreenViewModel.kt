@@ -44,6 +44,7 @@ import com.fetch.tv.domain.repository.MetaRepository
 import com.fetch.tv.domain.repository.StreamRepository
 import com.fetch.tv.ui.components.SourceChipItem
 import com.fetch.tv.ui.components.SourceChipStatus
+import com.fetch.tv.ui.components.timeOutPendingSourceChips
 import com.fetch.tv.ui.screens.player.StreamSidecarSubtitles
 import com.fetch.tv.ui.util.localizedGenreLabel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -103,7 +104,6 @@ class StreamScreenViewModel @Inject constructor(
     private var streamLoadJob: Job? = null
     private var streamLoadScope: kotlinx.coroutines.CoroutineScope? = null
     private var streamLoadCompleted = false
-    private var sourceChipErrorDismissJob: Job? = null
     private var pendingCacheSaveJob: Job? = null
     private var streamBadgePresentationJob: Job? = null
     private var streamFilterExpandJob: Job? = null
@@ -409,7 +409,6 @@ class StreamScreenViewModel @Inject constructor(
         if (forceRefresh || _uiState.value.addonStreams.isEmpty()) {
             badgedAddonNames = emptySet()
         }
-        sourceChipErrorDismissJob?.cancel()
         val newScope = kotlinx.coroutines.CoroutineScope(viewModelScope.coroutineContext + kotlinx.coroutines.SupervisorJob())
         streamLoadScope = newScope
         streamLoadJob = newScope.launch {
@@ -1123,36 +1122,15 @@ class StreamScreenViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Sources still loading when the fetch ends never answered: they show as timed out and stay
+     * on the row with the failed ones, so the viewer can see which addon let them down.
+     */
     private fun markRemainingSourceChipsAsError() {
-        var markedAnyError = false
         updateUiStateIfChanged { state ->
-            markedAnyError = state.sourceChips.any { it.status.isFailed }
             val hasPending = state.sourceChips.any { it.status == SourceChipStatus.LOADING }
             if (!hasPending) return@updateUiStateIfChanged state
-            markedAnyError = true
-            state.copy(
-                sourceChips = state.sourceChips.map { chip ->
-                    if (chip.status == SourceChipStatus.LOADING) {
-                        chip.copy(status = SourceChipStatus.ERROR)
-                    } else {
-                        chip
-                    }
-                }
-            )
-        }
-        if (markedAnyError) {
-            scheduleErrorChipRemoval()
-        }
-    }
-
-    private fun scheduleErrorChipRemoval() {
-        sourceChipErrorDismissJob?.cancel()
-        sourceChipErrorDismissJob = viewModelScope.launch {
-            delay(1600L)
-            updateUiStateIfChanged { state ->
-                val remaining = state.sourceChips.filterNot { it.status.isFailed }
-                if (remaining.size == state.sourceChips.size) state else state.copy(sourceChips = remaining)
-            }
+            state.copy(sourceChips = timeOutPendingSourceChips(state.sourceChips))
         }
     }
 
@@ -1572,7 +1550,6 @@ class StreamScreenViewModel @Inject constructor(
         streamLoadScope?.cancel()
         streamLoadScope = null
         streamLoadJob = null
-        sourceChipErrorDismissJob?.cancel()
     }
 
     /**

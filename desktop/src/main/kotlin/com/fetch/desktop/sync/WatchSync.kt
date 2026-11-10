@@ -320,7 +320,7 @@ object WatchSync {
         pending: PendingWatchOps,
     ): Pair<ProgressFile, PendingWatchOps> {
         fun ownKey(entry: ProgressEntry) = entry.source == null && !entry.upNext
-        fun finished(p: RemoteProgress) = p.positionMs.toFloat() / p.durationMs >= WatchProgress.COMPLETED_THRESHOLD
+        fun finished(p: RemoteProgress) = WatchProgress.isFinishedAt(p.positionMs, p.durationMs)
         var entries = file.entries
         var queued = pending
         val gone = deletes.filter { it !in pending.progressUpserts }.toSet()

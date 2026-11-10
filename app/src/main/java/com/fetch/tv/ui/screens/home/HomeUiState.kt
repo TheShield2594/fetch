@@ -12,6 +12,20 @@ import com.fetch.tv.domain.model.DetailImdbRatingsVisibility
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.WatchProgress
 
+/**
+ * Why Home is empty (#324). A kind, not a localized string: the screen used to compare the
+ * message against its own stringResource, which failed whenever the two were resolved in
+ * different languages, and showed a generic error instead of the "Add addon" empty state.
+ */
+enum class HomeErrorKind {
+    /** No addons installed. */
+    NO_ADDONS,
+    /** Addons installed, but none of them has catalogs. */
+    NO_CATALOG_ADDONS,
+    /** Loading failed; [HomeUiState.error] has the message when there is one. */
+    LOAD_FAILED,
+}
+
 @Immutable
 data class HomeUiState(
     val catalogRows: List<CatalogRow> = emptyList(),
@@ -19,6 +33,9 @@ data class HomeUiState(
     val upcomingItems: List<ContinueWatchingItem> = emptyList(),
     val isLoading: Boolean = true,
     val layoutPreferencesReady: Boolean = false,
+    /** Why Home has nothing to show; the screen picks its empty or error state from this. */
+    val errorKind: HomeErrorKind? = null,
+    /** The failure's own message, for [HomeErrorKind.LOAD_FAILED]; null for the others. */
     val error: String? = null,
     val installedAddonsCount: Int = 0,
     val modernLandscapePostersEnabled: Boolean = true,

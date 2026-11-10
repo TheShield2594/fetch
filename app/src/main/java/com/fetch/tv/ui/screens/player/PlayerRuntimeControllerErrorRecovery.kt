@@ -129,19 +129,20 @@ internal fun PlaybackException.toDisplayMessage(context: android.content.Context
     if (responseException != null) {
         val code = responseException.responseCode
         val statusText = responseException.responseMessage?.takeIf { it.isNotBlank() }
-        val providerHint = httpStatusExplanation(context, code)
+        // Technical only: the error screen leads with the plain sentence for this status
+        // (playerErrorKind), and this goes in its detail line and in reports.
         return buildString {
             append("HTTP $code")
             statusText?.let { append(" $it") }
             append(" [$errorCodeName]")
-            append(providerHint)
         }
     }
 
-    // Check for unrecognized format (provider returned non-video content)
-    val isUnrecognizedFormat = findCause<androidx.media3.exoplayer.source.UnrecognizedInputFormatException>() != null
-    if (isUnrecognizedFormat) {
-        return context.getString(com.fetch.tv.R.string.player_error_source_invalid_content, errorCodeName)
+    // Provider returned non-video content (often an error page); playerErrorKind says so.
+    val unrecognizedFormat = findCause<androidx.media3.exoplayer.source.UnrecognizedInputFormatException>()
+    if (unrecognizedFormat != null) {
+        val reason = unrecognizedFormat.message?.trim()?.takeIf { it.isNotBlank() }
+        return listOfNotNull("UnrecognizedInputFormatException", reason).joinToString(": ") + " [$errorCodeName]"
     }
 
     val decoderInit = findCause<MediaCodecRenderer.DecoderInitializationException>()
@@ -504,10 +505,12 @@ internal fun PlayerRuntimeController.tryParsingErrorProbeFallback(
                 return@launch
             }
             val userFacingError = error.toDisplayMessage(context)
+            val errorKind = error.playerErrorKind()
             val showFatalError = {
                 _uiState.update {
                     it.copy(
                         error = userFacingError,
+                        errorTag = PlayerErrorTag(userFacingError, errorKind),
                         isBuffering = false,
                         showLoadingOverlay = false,
                         showPauseOverlay = false

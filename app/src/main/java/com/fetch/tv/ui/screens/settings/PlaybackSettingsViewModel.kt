@@ -128,6 +128,14 @@ class PlaybackSettingsViewModel @Inject constructor(
         playerSettingsDataStore.setOsdClockEnabled(enabled)
     }
 
+    suspend fun setSeekBackSeconds(seconds: Int) {
+        playerSettingsDataStore.setSeekBackSeconds(seconds)
+    }
+
+    suspend fun setSeekForwardSeconds(seconds: Int) {
+        playerSettingsDataStore.setSeekForwardSeconds(seconds)
+    }
+
     suspend fun setTransparentLetterbox(enabled: Boolean) {
         deviceLocalPlayerPreferences.setTransparentLetterbox(enabled)
     }
@@ -476,6 +484,10 @@ class PlaybackSettingsViewModel @Inject constructor(
 
     suspend fun setStillWatchingEnabled(enabled: Boolean) {
         playerSettingsDataStore.setStillWatchingEnabled(enabled)
+    }
+
+    suspend fun setAutoPlayCountdownSeconds(seconds: Int) {
+        playerSettingsDataStore.setAutoPlayCountdownSeconds(seconds)
     }
 
     suspend fun setStillWatchingEpisodeThreshold(threshold: Int) {

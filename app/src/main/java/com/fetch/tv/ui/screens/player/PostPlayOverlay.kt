@@ -198,7 +198,7 @@ private fun AutoPlayBody(
             countdownFill.snapTo(0f)
             return@LaunchedEffect
         }
-        val total = AUTO_PLAY_COUNTDOWN_SECONDS.toFloat()
+        val total = mode.countdownTotalSec.coerceAtLeast(1).toFloat()
         val tickStart = ((total - countdownSec) / total).coerceIn(0f, 1f)
         val tickEnd = ((total - countdownSec + 1) / total).coerceIn(0f, 1f)
         if (countdownFill.value < tickStart) countdownFill.snapTo(tickStart)

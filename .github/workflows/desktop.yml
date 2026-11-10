@@ -14,6 +14,10 @@ on:
       - "gradle.properties"
       - "scripts/build-arch-package.sh"
       - ".github/workflows/desktop.yml"
+      # The desktop build reads versionName, fonts and strings from :app.
+      - "app/build.gradle.kts"
+      - "app/src/main/res/font/**"
+      - "app/src/main/res/values*/strings.xml"
   pull_request:
     paths:
       - "shared/**"
@@ -23,6 +27,10 @@ on:
       - "gradle.properties"
       - "scripts/build-arch-package.sh"
       - ".github/workflows/desktop.yml"
+      # The desktop build reads versionName, fonts and strings from :app.
+      - "app/build.gradle.kts"
+      - "app/src/main/res/font/**"
+      - "app/src/main/res/values*/strings.xml"
   workflow_dispatch:
 
 permissions:

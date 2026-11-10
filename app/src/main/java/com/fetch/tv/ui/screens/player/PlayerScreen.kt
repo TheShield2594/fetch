@@ -73,8 +73,14 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.Replay10
+import androidx.compose.material.icons.filled.FastForward
+import androidx.compose.material.icons.filled.FastRewind
+import androidx.compose.material.icons.filled.Forward10
 import androidx.compose.material.icons.filled.Forward30
+import androidx.compose.material.icons.filled.Forward5
+import androidx.compose.material.icons.filled.Replay10
+import androidx.compose.material.icons.filled.Replay30
+import androidx.compose.material.icons.filled.Replay5
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.runtime.Stable
 import androidx.compose.material.icons.filled.Speed
@@ -122,6 +128,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.layout
@@ -131,6 +138,7 @@ import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalDensity
@@ -971,7 +979,8 @@ fun PlayerScreen(
                                     keyEvent.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DPAD_LEFT
                                 val deltaMs = PlayerScrubRates.deltaMsForKeyRepeat(
                                     repeatCount = keyEvent.nativeKeyEvent.repeatCount,
-                                    forward = !isLeft
+                                    forward = !isLeft,
+                                    steps = uiState.seekSteps
                                 )
                                 viewModel.onEvent(PlayerEvent.OnPreviewSeekBy(deltaMs))
                                 true
@@ -1057,7 +1066,8 @@ fun PlayerScreen(
                                 PlayerEvent.OnSeekBy(
                                     PlayerScrubRates.deltaMsForKeyRepeat(
                                         repeatCount = keyEvent.nativeKeyEvent.repeatCount,
-                                        forward = true
+                                        forward = true,
+                                        steps = uiState.seekSteps
                                     )
                                 )
                             )
@@ -1068,7 +1078,8 @@ fun PlayerScreen(
                                 PlayerEvent.OnSeekBy(
                                     PlayerScrubRates.deltaMsForKeyRepeat(
                                         repeatCount = keyEvent.nativeKeyEvent.repeatCount,
-                                        forward = false
+                                        forward = false,
+                                        steps = uiState.seekSteps
                                     )
                                 )
                             )
@@ -1409,7 +1420,7 @@ fun PlayerScreen(
         // Error state
         if (uiState.error != null) {
             ErrorOverlay(
-                message = uiState.error!!,
+                display = playerErrorDisplay(uiState.error!!, uiState.currentErrorKind()),
                 showSwitchToMpvAction = uiState.showSwitchToMpvErrorAction &&
                     uiState.internalPlayerEngine != InternalPlayerEngine.MVP_PLAYER,
                 onSwitchToMpv = { viewModel.onEvent(PlayerEvent.OnSwitchToMpvPlayer) },
@@ -1848,7 +1859,7 @@ fun PlayerScreen(
                 .align(Alignment.BottomCenter)
                 .reportSubtitleClearance(subtitleClearanceGapPx) { seekClearancePx = it }
         ) {
-            SeekOverlayHost(viewModel = viewModel)
+            SeekOverlayHost(viewModel = viewModel, seekFeedback = uiState.seekFeedback)
         }
 
         // Episodes/streams side panel
@@ -2856,6 +2867,8 @@ internal fun PlayerControlsOverlay(
                         Box(modifier = Modifier.weight(1f)) {
                             PlayerControlsProgressBarHost(
                                 viewModel = viewModel,
+                                seekSteps = uiState.seekSteps,
+                                seekFeedback = uiState.seekFeedback,
                                 focusRequester = progressBarFocusRequester,
                                 upFocusRequester = progressBarUpFocusRequester,
                                 downFocusRequester = playPauseFocusRequester,
@@ -3067,14 +3080,22 @@ internal fun PlayerControlsOverlay(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (!isLivePlayback) {
+                        val backSeconds = uiState.seekSteps.backSeconds
+                        val backIcon = seekBackIcon(backSeconds)
                         ControlButton(
-                            icon = Icons.Default.Replay10,
-                            contentDescription = stringResource(R.string.player_seek_back_10),
-                            onClick = { onSeekBy(-PLAYER_SEEK_BACK_MS) },
+                            icon = backIcon ?: Icons.Default.FastRewind,
+                            contentDescription = stringResource(R.string.player_seek_back_seconds, backSeconds),
+                            onClick = { onSeekBy(uiState.seekSteps.deltaMs(forward = false)) },
                             upFocusRequester = progressUpTarget,
                             onDownKey = onHideControls,
                             onFocused = onResetHideTimer,
-                            focusLabel = null,
+                            // A step without its own numbered icon names its length on focus.
+                            focusLabel = if (backIcon == null) {
+                                "\u2212" + stringResource(R.string.playback_seek_step_value, backSeconds)
+                            } else {
+                                null
+                            },
+                            labelAbove = true,
                             size = TRANSPORT_SKIP_SIZE,
                             iconSize = 32.dp
                         )
@@ -3093,14 +3114,21 @@ internal fun PlayerControlsOverlay(
                         iconSize = 36.dp
                     )
                     if (!isLivePlayback) {
+                        val forwardSeconds = uiState.seekSteps.forwardSeconds
+                        val forwardIcon = seekForwardIcon(forwardSeconds)
                         ControlButton(
-                            icon = Icons.Default.Forward30,
-                            contentDescription = stringResource(R.string.player_seek_forward_30),
-                            onClick = { onSeekBy(PLAYER_SEEK_FORWARD_MS) },
+                            icon = forwardIcon ?: Icons.Default.FastForward,
+                            contentDescription = stringResource(R.string.player_seek_forward_seconds, forwardSeconds),
+                            onClick = { onSeekBy(uiState.seekSteps.deltaMs(forward = true)) },
                             upFocusRequester = progressUpTarget,
                             onDownKey = onHideControls,
                             onFocused = onResetHideTimer,
-                            focusLabel = null,
+                            focusLabel = if (forwardIcon == null) {
+                                "+" + stringResource(R.string.playback_seek_step_value, forwardSeconds)
+                            } else {
+                                null
+                            },
+                            labelAbove = true,
                             size = TRANSPORT_SKIP_SIZE,
                             iconSize = 32.dp
                         )
@@ -3175,11 +3203,25 @@ internal fun PlayerControlsOverlay(
     }
 }
 
-private const val PLAYER_SEEK_BACK_MS = 10_000L
 /** The transport is the biggest target on screen: play/pause first, the skips beside it. */
 private val TRANSPORT_PLAY_SIZE = 72.dp
 private val TRANSPORT_SKIP_SIZE = 56.dp
-private const val PLAYER_SEEK_FORWARD_MS = 30_000L
+
+/** The numbered icon for a back step, when there is one for that length. */
+private fun seekBackIcon(seconds: Int): ImageVector? = when (seconds) {
+    5 -> Icons.Default.Replay5
+    10 -> Icons.Default.Replay10
+    30 -> Icons.Default.Replay30
+    else -> null
+}
+
+/** The numbered icon for a forward step, when there is one for that length. */
+private fun seekForwardIcon(seconds: Int): ImageVector? = when (seconds) {
+    5 -> Icons.Default.Forward5
+    10 -> Icons.Default.Forward10
+    30 -> Icons.Default.Forward30
+    else -> null
+}
 
 /** "4K · DV · Atmos · Cached" for the playing stream, or null when nothing is known about it. */
 internal fun playerSourceSpecLine(labels: List<String>, isCached: Boolean, cachedLabel: String): SpecLine? =
@@ -3198,6 +3240,8 @@ internal class PlayerPanelButtonFocus {
 @Composable
 private fun PlayerControlsProgressBarHost(
     viewModel: PlayerViewModel,
+    seekSteps: SeekSteps,
+    seekFeedback: SeekFeedback?,
     focusRequester: FocusRequester,
     upFocusRequester: FocusRequester? = null,
     downFocusRequester: FocusRequester? = null,
@@ -3207,6 +3251,9 @@ private fun PlayerControlsProgressBarHost(
 ) {
     val playbackTimeline by viewModel.playbackTimeline.collectAsState()
 
+    if (seekFeedback != null) {
+        SeekFeedbackBubble(feedback = seekFeedback, durationMs = playbackTimeline.duration)
+    }
     ProgressBar(
         currentPosition = playbackTimeline.currentPosition,
         duration = playbackTimeline.duration,
@@ -3222,7 +3269,8 @@ private fun PlayerControlsProgressBarHost(
         onUpKey = onUpKey,
         onFocused = onFocused,
         onClick = onClick,
-        bufferedPosition = playbackTimeline.bufferedPosition
+        bufferedPosition = playbackTimeline.bufferedPosition,
+        seekSteps = seekSteps
     )
 }
 
@@ -3528,7 +3576,9 @@ private fun ProgressBar(
     onFocused: (() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
     /** Position (ms) up to which content is buffered. Pass 0 to skip the overlay. */
-    bufferedPosition: Long = 0L
+    bufferedPosition: Long = 0L,
+    /** The steps a press of Left / Right moves; the same pair the transport buttons use. */
+    seekSteps: SeekSteps = SeekSteps()
 ) {
     val accentBrush = FetchTheme.palette.accentBrush()
     val progress = if (duration > 0) {
@@ -3649,7 +3699,8 @@ private fun ProgressBar(
                             onSeekPreview(
                                 PlayerScrubRates.deltaMsForKeyRepeat(
                                     repeatCount = keyEvent.nativeKeyEvent.repeatCount,
-                                    forward = false
+                                    forward = false,
+                                    steps = seekSteps
                                 )
                             )
                             true
@@ -3658,7 +3709,8 @@ private fun ProgressBar(
                             onSeekPreview(
                                 PlayerScrubRates.deltaMsForKeyRepeat(
                                     repeatCount = keyEvent.nativeKeyEvent.repeatCount,
-                                    forward = true
+                                    forward = true,
+                                    steps = seekSteps
                                 )
                             )
                             true
@@ -3696,7 +3748,8 @@ private fun ProgressBar(
 private fun SeekOverlay(
     currentPosition: Long,
     duration: Long,
-    bufferedPosition: Long = 0L
+    bufferedPosition: Long = 0L,
+    seekFeedback: SeekFeedback? = null
 ) {
     Column(
         modifier = Modifier
@@ -3704,6 +3757,11 @@ private fun SeekOverlay(
             .padding(horizontal = FetchTheme.spacing.xxl, vertical = FetchTheme.spacing.xl)
     ) {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            if (seekFeedback != null) {
+                // Room for the bubble, which floats above the playhead.
+                Spacer(modifier = Modifier.height(SEEK_FEEDBACK_BUBBLE_ROOM))
+                SeekFeedbackBubble(feedback = seekFeedback, durationMs = duration)
+            }
             ProgressBar(
                 currentPosition = currentPosition,
                 duration = duration,
@@ -3730,15 +3788,69 @@ private fun SeekOverlay(
 }
 
 @Composable
-private fun SeekOverlayHost(viewModel: PlayerViewModel) {
+private fun SeekOverlayHost(viewModel: PlayerViewModel, seekFeedback: SeekFeedback?) {
     val playbackTimeline by viewModel.playbackTimeline.collectAsState()
 
     SeekOverlay(
         currentPosition = playbackTimeline.currentPosition,
         duration = playbackTimeline.duration,
-        bufferedPosition = playbackTimeline.bufferedPosition
+        bufferedPosition = playbackTimeline.bufferedPosition,
+        seekFeedback = seekFeedback
     )
 }
+
+private val SEEK_FEEDBACK_BUBBLE_ROOM = 56.dp
+
+/**
+ * Where a seek will land and how far that is ("12:34", "+0:30"), floated above the playhead
+ * at the target (#407). Takes no height: it is drawn above whatever follows it, the seek bar.
+ */
+@Composable
+private fun SeekFeedbackBubble(feedback: SeekFeedback, durationMs: Long) {
+    val fraction = if (durationMs > 0L) {
+        (feedback.targetMs.toFloat() / durationMs.toFloat()).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
+    val gapPx = with(LocalDensity.current) { FetchTheme.spacing.sm.roundToPx() }
+    Layout(
+        content = {
+            Column(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(FetchTheme.radii.sm))
+                    .background(FetchTheme.colors.Player.ScrimStrong)
+                    .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = formatTime(feedback.targetMs),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = FetchTheme.colors.Player.TextPrimary,
+                    maxLines = 1
+                )
+                Text(
+                    text = formatSeekDelta(feedback.deltaMs),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FetchTheme.colors.Player.TextSecondary,
+                    maxLines = 1
+                )
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(SEEK_FEEDBACK_TAG)
+    ) { measurables, constraints ->
+        val placeable = measurables.single().measure(constraints.copy(minWidth = 0, minHeight = 0))
+        val width = constraints.maxWidth
+        layout(width, 0) {
+            val x = (fraction * width - placeable.width / 2f).roundToInt()
+                .coerceIn(0, (width - placeable.width).coerceAtLeast(0))
+            placeable.place(x, -placeable.height - gapPx)
+        }
+    }
+}
+
+internal const val SEEK_FEEDBACK_TAG = "player_seek_feedback"
 
 @Composable
 private fun PlayerClockOverlay(
@@ -4181,7 +4293,7 @@ private fun LoadingIssueReportAction(
 
 @Composable
 private fun ErrorOverlay(
-    message: String,
+    display: PlayerErrorDisplay,
     showSwitchToMpvAction: Boolean = false,
     onSwitchToMpv: (() -> Unit)? = null,
     showReportAction: Boolean,
@@ -4247,19 +4359,44 @@ private fun ErrorOverlay(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
         ) {
+            // Plain words first (#406): what happened, then what to do. The code, HTTP status
+            // or decoder name only follows in a small detail line, for reports.
+            val headline = display.kind?.let { stringResource(it.headline) }
+                ?: display.plainHeadline.orEmpty()
+            val advice = display.kind?.let { stringResource(it.advice) }
             Text(
-                text = stringResource(R.string.player_error_title),
+                text = headline,
                 style = MaterialTheme.typography.headlineMedium,
-                color = FetchTheme.colors.Player.TextPrimary
+                color = FetchTheme.colors.Player.TextPrimary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .testTag(PLAYER_ERROR_HEADLINE_TAG)
+                    .padding(horizontal = FetchTheme.spacing.xxl)
             )
 
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyLarge,
-                color = FetchTheme.colors.Player.TextTertiary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxl)
-            )
+            if (advice != null) {
+                Text(
+                    text = advice,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = FetchTheme.colors.Player.TextSecondary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxl)
+                )
+            }
+
+            display.detail?.let { detail ->
+                Text(
+                    text = detail,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FetchTheme.colors.Player.TextTertiary,
+                    textAlign = TextAlign.Center,
+                    maxLines = 4,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .testTag(PLAYER_ERROR_DETAIL_TAG)
+                        .padding(horizontal = FetchTheme.spacing.xxl)
+                )
+            }
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
 

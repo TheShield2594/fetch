@@ -363,6 +363,10 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
             nextEpisodeThresholdMinutesBeforeEndSetting = settings.nextEpisodeThresholdMinutesBeforeEnd
             stillWatchingEnabledSetting = settings.stillWatchingEnabled
             stillWatchingEpisodeThresholdSetting = settings.stillWatchingEpisodeThreshold
+            autoPlayCountdownSecondsSetting = settings.autoPlayCountdownSeconds
+            val seekSteps = SeekSteps.fromSeconds(settings.seekBackSeconds, settings.seekForwardSeconds)
+            seekStepsSetting = seekSteps
+            if (_uiState.value.seekSteps != seekSteps) _uiState.update { it.copy(seekSteps = seekSteps) }
 
             // VOD cache config is gated by the "Custom Playback Buffers" master.
             // When the master is off the cache is disabled at player build time, so
@@ -850,6 +854,7 @@ internal fun PlayerRuntimeController.handleVc1PlaybackFailure(errorMessage: Stri
     _uiState.update {
         it.copy(
             error = displayMessage,
+            errorTag = PlayerErrorTag(displayMessage, PlayerErrorKind.UNSUPPORTED_FORMAT),
             showSwitchToMpvErrorAction = true,
             isPlaying = false,
             showControls = false,
@@ -886,9 +891,12 @@ internal fun PlayerRuntimeController.scheduleDeferredPlayerReinitialize(
             releasePlayer(flushPlaybackState = true)
             initializePlayer(currentStreamUrl, currentHeaders)
         }.onFailure { e ->
+            val message = e.toDisplayMessage(context)
             _uiState.update {
                 it.copy(
-                    error = e.toDisplayMessage(context),
+                    error = message,
+                    errorTag = (e as? androidx.media3.common.PlaybackException)
+                        ?.let { playback -> PlayerErrorTag(message, playback.playerErrorKind()) },
                     showLoadingOverlay = false,
                     showPauseOverlay = false
                 )

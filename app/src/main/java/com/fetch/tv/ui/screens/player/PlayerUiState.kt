@@ -7,6 +7,7 @@ import com.fetch.tv.core.streams.StreamBadgePlacement
 import com.fetch.tv.data.local.FrameRateMatchingMode
 import com.fetch.tv.data.local.InternalPlayerEngine
 import com.fetch.tv.data.local.LibassRenderType
+import com.fetch.tv.data.local.PlayerSettings
 import com.fetch.tv.data.local.StreamAutoPlayMode
 import com.fetch.tv.data.local.SubtitleStyleSettings
 import com.fetch.tv.data.repository.SkipInterval
@@ -41,6 +42,8 @@ sealed interface PostPlayMode {
         val searching: Boolean = false,
         val sourceName: String? = null,
         val countdownSec: Int? = null,
+        /** Length of the whole countdown, which the up-next fill is paced against. */
+        val countdownTotalSec: Int = AUTO_PLAY_COUNTDOWN_SECONDS,
     ) : PostPlayMode
 
     data class StillWatching(
@@ -62,8 +65,11 @@ sealed interface PostPlayMode {
     }
 }
 
-/** Seconds the autoplay countdown runs once the next episode's source is chosen. */
-internal const val AUTO_PLAY_COUNTDOWN_SECONDS = 3
+/**
+ * Seconds the autoplay countdown runs once the next episode's source is chosen, unless the
+ * profile set its own length (Settings › Up next).
+ */
+internal const val AUTO_PLAY_COUNTDOWN_SECONDS = PlayerSettings.DEFAULT_AUTO_PLAY_COUNTDOWN_SECONDS
 /** Interval between autoplay countdown ticks; the up-next fill animates over each one. */
 internal const val POST_PLAY_COUNTDOWN_TICK_MS = 1_000
 
@@ -98,6 +104,10 @@ data class PlayerUiState(
     val episodeGuestStars: List<MetaCastMember> = emptyList(),
     val showControls: Boolean = true,
     val showSeekOverlay: Boolean = false,
+    /** Where a seek will land and how far from its start; null when no seek is in progress. */
+    val seekFeedback: SeekFeedback? = null,
+    /** The one pair of seek steps the keys and on-screen buttons use (#407). */
+    val seekSteps: SeekSteps = SeekSteps(),
     val pendingPreviewSeekPosition: Long? = null,
     val playbackSpeed: Float = 1f,
     val loadingOverlayEnabled: Boolean = true,
@@ -202,6 +212,8 @@ data class PlayerUiState(
     val showAddonLogo: Boolean = true,
     val streamBadgePlacement: StreamBadgePlacement = StreamBadgePlacement.BOTTOM,
     val error: String? = null,
+    /** What [error] means for the user, when that is known; see [currentErrorKind]. */
+    val errorTag: PlayerErrorTag? = null,
     val showSwitchToMpvErrorAction: Boolean = false,
     /** The error is a mid-playback failure that recovery couldn't fix: Retry, Try next source, All sources. */
     val showErrorRecoveryActions: Boolean = false,

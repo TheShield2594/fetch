@@ -88,6 +88,7 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     val upNext = SettingsCategory.PLAYBACK_UP_NEXT
     add(rule(upNext, R.string.autoplay_next_episode) { it.streamAutoPlayNextEpisodeEnabled })
     add(rule(upNext, R.string.autoplay_next_episode_fallback) { it.streamAutoPlayNextEpisodeFallbackEnabled })
+    add(rule(upNext, R.string.autoplay_countdown_title) { it.autoPlayCountdownSeconds })
     add(rule(upNext, R.string.autoplay_threshold_mode) { it.nextEpisodeThresholdMode })
     add(rule(upNext, R.string.autoplay_threshold_pct_title) { it.nextEpisodeThresholdPercent })
     add(rule(upNext, R.string.autoplay_threshold_min_title) { it.nextEpisodeThresholdMinutesBeforeEnd })
@@ -110,6 +111,8 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     add(rule(ui, R.string.playback_show_loading_status) { it.showPlayerLoadingStatus })
     add(rule(ui, R.string.playback_pause_overlay) { it.pauseOverlayEnabled })
     add(rule(ui, R.string.playback_osd_clock) { it.osdClockEnabled })
+    add(rule(ui, R.string.playback_seek_back_step) { it.seekBackSeconds })
+    add(rule(ui, R.string.playback_seek_forward_step) { it.seekForwardSeconds })
     add(rule(ui, R.string.playback_parental_guide) { it.parentalGuideEnabled })
 
     val audio = SettingsCategory.PLAYBACK_AUDIO

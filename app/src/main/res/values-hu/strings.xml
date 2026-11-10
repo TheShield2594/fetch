@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Kipróbált meta bővítmények: %1$s. A metaadatok betöltése sikertelen ehhez: id=%2$s (típus=%3$s).</string>
     <string name="error_meta_tried_issues">Kipróbált meta bővítmények: %1$s. A metaadatok betöltése sikertelen ehhez: id=%2$s (típus=%3$s). Problémák: %4$s.</string>
     <string name="error_stream_no_supported_addon">Egyetlen telepített bővítmény sem támogatja a streameket ehhez: \"%1$s\".</string>
-    <string name="error_stream_tried_none">Kipróbált stream bővítmények: %1$s. Egyik sem adott vissza streameket a következőhöz: id=%2$s (típus=%3$s).</string>
-    <string name="error_stream_tried_generic">Kipróbált stream bővítmények: %1$s. A streameket nem sikerült betölteni a következőhöz: id=%2$s (típus=%3$s).</string>
-    <string name="error_stream_tried_issues">Kipróbált stream bővítmények: %1$s. A streameket nem sikerült betölteni a következőhöz: id=%2$s (típus=%3$s). Problémák: %4$s.</string>
+    <string name="error_stream_tried_none">Kipróbált stream bővítmények: %1$s. Egyik sem adott vissza streameket.</string>
+    <string name="error_stream_tried_generic">Kipróbált stream bővítmények: %1$s. A streameket nem sikerült betölteni.</string>
+    <string name="error_stream_tried_issues">Kipróbált stream bővítmények: %1$s. A streameket nem sikerült betölteni. Problémák: %2$s.</string>
 
     <string name="continue_watching">Megtekintés folytatása</string>
     <string name="cw_upcoming">Hamarosan</string>

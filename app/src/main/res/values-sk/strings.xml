@@ -138,9 +138,9 @@
     <string name="error_meta_tried_generic">Vyskúšané meta doplnky: %1$s. Metadáta sa nepodarilo načítať pre id=%2$s (typ=%3$s).</string>
     <string name="error_meta_tried_issues">Vyskúšané meta doplnky: %1$s. Metadáta sa nepodarilo načítať pre id=%2$s (typ=%3$s). Problémy: %4$s.</string>
     <string name="error_stream_no_supported_addon">Žiadny nainštalovaný doplnok nepodporuje streamy pre „%1$s\".</string>
-    <string name="error_stream_tried_none">Vyskúšané stream doplnky: %1$s. Žiadny z nich nevrátil streamy pre id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_generic">Vyskúšané stream doplnky: %1$s. Streamy sa nepodarilo načítať pre id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_issues">Vyskúšané stream doplnky: %1$s. Streamy sa nepodarilo načítať pre id=%2$s (typ=%3$s). Problémy: %4$s.</string>
+    <string name="error_stream_tried_none">Vyskúšané stream doplnky: %1$s. Žiadny z nich nevrátil streamy.</string>
+    <string name="error_stream_tried_generic">Vyskúšané stream doplnky: %1$s. Streamy sa nepodarilo načítať.</string>
+    <string name="error_stream_tried_issues">Vyskúšané stream doplnky: %1$s. Streamy sa nepodarilo načítať. Problémy: %2$s.</string>
 
     
     <string name="continue_watching">Pokračovať v sledovaní</string>

@@ -132,9 +132,9 @@
     <string name="error_meta_tried_generic">Shtesat meta të provuara: %1$s. Metadata nuk mundën të ngarkoheshin për id=%2$s (lloji=%3$s).</string>
     <string name="error_meta_tried_issues">Shtesat meta të provuara: %1$s. Metadata nuk mundën të ngarkoheshin për id=%2$s (lloji=%3$s). Probleme: %4$s.</string>
     <string name="error_stream_no_supported_addon">Asnjë shtesë e instaluar nuk mbështet transmetime për \"%1$s\".</string>
-    <string name="error_stream_tried_none">Shtesat e transmetimit të provuara: %1$s. Asnjëra prej tyre nuk ktheu transmetime për id=%2$s (lloji=%3$s).</string>
-    <string name="error_stream_tried_generic">Shtesat e transmetimit të provuara: %1$s. Transmetimet nuk mundën të ngarkoheshin për id=%2$s (lloji=%3$s).</string>
-    <string name="error_stream_tried_issues">Shtesat e transmetimit të provuara: %1$s. Transmetimet nuk mundën të ngarkoheshin për id=%2$s (lloji=%3$s). Probleme: %4$s.</string>
+    <string name="error_stream_tried_none">Shtesat e transmetimit të provuara: %1$s. Asnjëra prej tyre nuk ktheu transmetime.</string>
+    <string name="error_stream_tried_generic">Shtesat e transmetimit të provuara: %1$s. Transmetimet nuk mundën të ngarkoheshin.</string>
+    <string name="error_stream_tried_issues">Shtesat e transmetimit të provuara: %1$s. Transmetimet nuk mundën të ngarkoheshin. Probleme: %2$s.</string>
     <string name="continue_watching">Vazhdo shikimin</string>
     <string name="cw_upcoming">Së shpejti</string>
     <string name="cw_next_up">Në vazhdim</string>

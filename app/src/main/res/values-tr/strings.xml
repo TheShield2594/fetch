@@ -138,9 +138,9 @@
     <string name="error_meta_tried_generic">Şu eklentiler denendi: %1$s. Bu içerik için gerekli bilgiler yüklenemedi: id=%2$s (tür=%3$s).</string>
     <string name="error_meta_tried_issues">Şu eklentiler denendi: %1$s. Bu içerik için gerekli bilgiler yüklenemedi: id=%2$s (tür=%3$s). Karşılaşılan sorunlar: %4$s.</string>
     <string name="error_stream_no_supported_addon">Yüklü eklentilerin hiçbiri \"%1$s\" için yayın desteği sunmuyor.</string>
-    <string name="error_stream_tried_none">Şu eklentiler denendi: %1$s. Hiçbiri id=%2$s (tür=%3$s) için yayın döndürmedi.</string>
-    <string name="error_stream_tried_generic">Şu eklentiler denendi: %1$s. id=%2$s (tür=%3$s) için yayınlar yüklenemedi.</string>
-    <string name="error_stream_tried_issues">Şu eklentiler denendi: %1$s. id=%2$s (tür=%3$s) için yayınlar yüklenemedi. Sorunlar: %4$s.</string>
+    <string name="error_stream_tried_none">Şu eklentiler denendi: %1$s. Hiçbiri yayın döndürmedi.</string>
+    <string name="error_stream_tried_generic">Şu eklentiler denendi: %1$s. Yayınlar yüklenemedi.</string>
+    <string name="error_stream_tried_issues">Şu eklentiler denendi: %1$s. Yayınlar yüklenemedi. Sorunlar: %2$s.</string>
 
     <!-- ContinueWatchingSection -->
     <string name="continue_watching">İzlemeye Devam Et</string>

@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Afprøvede meta-addons: %1$s. Metadata kunne ikke indlæses for id=%2$s (type=%3$s).</string>
     <string name="error_meta_tried_issues">Afprøvede meta-addons: %1$s. Metadata kunne ikke indlæses for id=%2$s (type=%3$s). Problemer: %4$s.</string>
     <string name="error_stream_no_supported_addon">Ingen installeret addon understøtter streams for \"%1$s\".</string>
-    <string name="error_stream_tried_none">Afprøvede stream-addons: %1$s. Ingen af dem returnerede streams for id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_generic">Afprøvede stream-addons: %1$s. Streams kunne ikke indlæses for id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">Afprøvede stream-addons: %1$s. Streams kunne ikke indlæses for id=%2$s (type=%3$s). Problemer: %4$s.</string>
+    <string name="error_stream_tried_none">Afprøvede stream-addons: %1$s. Ingen af dem returnerede streams.</string>
+    <string name="error_stream_tried_generic">Afprøvede stream-addons: %1$s. Streams kunne ikke indlæses.</string>
+    <string name="error_stream_tried_issues">Afprøvede stream-addons: %1$s. Streams kunne ikke indlæses. Problemer: %2$s.</string>
 
     <string name="continue_watching">Fortsæt med at se</string>
     <string name="cw_upcoming">Kommende</string>

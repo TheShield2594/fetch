@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">已尝试的元数据扩展：%1$s。无法为 id=%2$s (类型=%3$s) 加载元数据。</string>
     <string name="error_meta_tried_issues">已尝试的元数据扩展：%1$s。无法为 id=%2$s (类型=%3$s) 加载元数据。问题：%4$s。</string>
     <string name="error_stream_no_supported_addon">没有已安装的扩展支持「%1$s」的流。</string>
-    <string name="error_stream_tried_none">已尝试的流扩展：%1$s。皆未为 id=%2$s (类型=%3$s) 返回流。</string>
-    <string name="error_stream_tried_generic">已尝试的流扩展：%1$s。无法为 id=%2$s (类型=%3$s) 加载流。</string>
-    <string name="error_stream_tried_issues">已尝试的流扩展：%1$s。无法为 id=%2$s (类型=%3$s) 加载流。问题：%4$s。</string>
+    <string name="error_stream_tried_none">已尝试的流扩展：%1$s。皆未返回流。</string>
+    <string name="error_stream_tried_generic">已尝试的流扩展：%1$s。无法加载流。</string>
+    <string name="error_stream_tried_issues">已尝试的流扩展：%1$s。无法加载流。问题：%2$s。</string>
 
     <string name="continue_watching">继续观看</string>
     <string name="cw_upcoming">即将播出</string>

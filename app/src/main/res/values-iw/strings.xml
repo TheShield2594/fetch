@@ -136,9 +136,9 @@
     <string name="error_meta_tried_generic">תוספי מטא-דאטה שנוסו: %1$s. לא ניתן לטעון מטא-דאטה עבור id=%2$s (type=%3$s).</string>
     <string name="error_meta_tried_issues">תוספי מטא-דאטה שנוסו: %1$s. לא ניתן לטעון מטא-דאטה עבור id=%2$s (type=%3$s). בעיות: %4$s.</string>
     <string name="error_stream_no_supported_addon">אין תוסף מותקן שתומך במקורות עבור \"%1$s\".</string>
-    <string name="error_stream_tried_none">תוספי סטרים שנוסו: %1$s. אף אחד מהם לא החזיר מקורות עבור id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_generic">תוספי סטרים שנוסו: %1$s. לא ניתן היה לטעון מקורות עבור id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">תוספי סטרים שנוסו: %1$s. לא ניתן היה לטעון מקורות עבור id=%2$s (type=%3$s). בעיות: %4$s.</string>
+    <string name="error_stream_tried_none">תוספי סטרים שנוסו: %1$s. אף אחד מהם לא החזיר מקורות.</string>
+    <string name="error_stream_tried_generic">תוספי סטרים שנוסו: %1$s. לא ניתן היה לטעון מקורות.</string>
+    <string name="error_stream_tried_issues">תוספי סטרים שנוסו: %1$s. לא ניתן היה לטעון מקורות. בעיות: %2$s.</string>
 
     <string name="continue_watching">המשך בצפייה</string>
     <string name="cw_upcoming">בקרוב</string>

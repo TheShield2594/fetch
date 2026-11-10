@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">已嘗試的中繼資料擴充套件：%1$s。無法為 id=%2$s (類型=%3$s) 載入中繼資料。</string>
     <string name="error_meta_tried_issues">已嘗試的中繼資料擴充套件：%1$s。無法為 id=%2$s (類型=%3$s) 載入中繼資料。問題：%4$s。</string>
     <string name="error_stream_no_supported_addon">沒有已安裝的擴充套件支援「%1$s」的串流。</string>
-    <string name="error_stream_tried_none">已嘗試的串流擴充套件：%1$s。皆未為 id=%2$s (類型=%3$s) 回傳串流。</string>
-    <string name="error_stream_tried_generic">已嘗試的串流擴充套件：%1$s。無法為 id=%2$s (類型=%3$s) 載入串流。</string>
-    <string name="error_stream_tried_issues">已嘗試的串流擴充套件：%1$s。無法為 id=%2$s (類型=%3$s) 載入串流。問題：%4$s。</string>
+    <string name="error_stream_tried_none">已嘗試的串流擴充套件：%1$s。皆未回傳串流。</string>
+    <string name="error_stream_tried_generic">已嘗試的串流擴充套件：%1$s。無法載入串流。</string>
+    <string name="error_stream_tried_issues">已嘗試的串流擴充套件：%1$s。無法載入串流。問題：%2$s。</string>
 
     <string name="continue_watching">繼續觀看</string>
     <string name="cw_upcoming">即將播出</string>

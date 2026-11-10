@@ -138,9 +138,9 @@
     <string name="error_meta_tried_generic">Ausprobierte Meta-Add-ons: %1$s. Metadaten konnten für id=%2$s (Typ=%3$s) nicht geladen werden. </string>
     <string name="error_meta_tried_issues">Versuchte Meta-Add-ons: %1$s. Metadaten konnten für id=%2$s (Typ=%3$s) nicht geladen werden. Probleme: %4$s.</string>
     <string name="error_stream_no_supported_addon">Kein installiertes Add-on unterstützt \"%1$s\" Streams.</string>
-    <string name="error_stream_tried_none">Versuchte Add-ons: %1$s. Keines hat Streams für id=%2$s (type=%3$s) gefunden.</string>
-    <string name="error_stream_tried_generic">Versuchte Add-ons: %1$s. Streams konnten nicht geladen werden für id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">Versuchte Add-ons: %1$s. Streams konnten nicht geladen werden für id=%2$s (type=%3$s). Fehler: %4$s.</string>
+    <string name="error_stream_tried_none">Versuchte Add-ons: %1$s. Keines hat Streams gefunden.</string>
+    <string name="error_stream_tried_generic">Versuchte Add-ons: %1$s. Streams konnten nicht geladen werden.</string>
+    <string name="error_stream_tried_issues">Versuchte Add-ons: %1$s. Streams konnten nicht geladen werden. Fehler: %2$s.</string>
 
     <!-- ContinueWatchingSection -->
     <string name="continue_watching">Weiter ansehen</string>

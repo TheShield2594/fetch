@@ -136,9 +136,9 @@
     <string name="error_meta_tried_generic">Перевірено адони: %1$s. Не вдалося завантажити метадані для id=%2$s (тип=%3$s).</string>
     <string name="error_meta_tried_issues">Перевірено адони: %1$s. Не вдалося завантажити метадані для id=%2$s (тип=%3$s). Проблеми: %4$s.</string>
     <string name="error_stream_no_supported_addon">Жоден встановлений адон не підтримує потоки для \"%1$s\".</string>
-    <string name="error_stream_tried_none">Перевірено адони потоків: %1$s. Жоден із них не повернув потоки для id=%2$s (тип=%3$s).</string>
-    <string name="error_stream_tried_generic">Перевірено адони потоків: %1$s. Не вдалося завантажити потоки для id=%2$s (тип=%3$s).</string>
-    <string name="error_stream_tried_issues">Перевірено адони потоків: %1$s. Не вдалося завантажити потоки для id=%2$s (тип=%3$s). Проблеми: %4$s.</string>
+    <string name="error_stream_tried_none">Перевірено адони потоків: %1$s. Жоден із них не повернув потоки.</string>
+    <string name="error_stream_tried_generic">Перевірено адони потоків: %1$s. Не вдалося завантажити потоки.</string>
+    <string name="error_stream_tried_issues">Перевірено адони потоків: %1$s. Не вдалося завантажити потоки. Проблеми: %2$s.</string>
 
     <string name="continue_watching">Продовжити перегляд</string>
     <string name="cw_upcoming">Незабаром</string>

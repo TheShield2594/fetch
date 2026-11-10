@@ -136,9 +136,9 @@
     <string name="error_meta_tried_generic">Isprobani dodaci za metapodatke: %1$s. Metapodaci se nisu mogli učitati za id=%2$s (vrsta=%3$s).</string>
     <string name="error_meta_tried_issues">Isprobani dodaci za metapodatke: %1$s. Metapodaci se nisu mogli učitati za id=%2$s (vrsta=%3$s). Problemi: %4$s.</string>
     <string name="error_stream_no_supported_addon">Nijedan instalirani dodatak ne podržava streamove za \"%1$s\".</string>
-    <string name="error_stream_tried_none">Isprobani dodaci za streamove: %1$s. Nijedan nije vratio streamove za id=%2$s (vrsta=%3$s).</string>
-    <string name="error_stream_tried_generic">Isprobani dodaci za streamove: %1$s. Streamovi se nisu mogli učitati za id=%2$s (vrsta=%3$s).</string>
-    <string name="error_stream_tried_issues">Isprobani dodaci za streamove: %1$s. Streamovi se nisu mogli učitati za id=%2$s (vrsta=%3$s). Problemi: %4$s.</string>
+    <string name="error_stream_tried_none">Isprobani dodaci za streamove: %1$s. Nijedan nije vratio streamove.</string>
+    <string name="error_stream_tried_generic">Isprobani dodaci za streamove: %1$s. Streamovi se nisu mogli učitati.</string>
+    <string name="error_stream_tried_issues">Isprobani dodaci za streamove: %1$s. Streamovi se nisu mogli učitati. Problemi: %2$s.</string>
 
     <string name="continue_watching">Nastavi gledati</string>
     <string name="cw_upcoming">Uskoro</string>

@@ -135,9 +135,9 @@
 <string name="error_meta_tried_generic">Addon meta provati: %1$s. Impossibile caricare i metadati per id=%2$s (tipo=%3$s).</string>
 <string name="error_meta_tried_issues">Addon meta provati: %1$s. Impossibile caricare i metadati per id=%2$s (tipo=%3$s). Problemi: %4$s.</string>
 <string name="error_stream_no_supported_addon">Nessun addon installato supporta gli stream per \"%1$s\".</string>
-<string name="error_stream_tried_none">Addon stream provati: %1$s. Nessuno ha restituito stream per id=%2$s (tipo=%3$s).</string>
-<string name="error_stream_tried_generic">Addon stream provati: %1$s. Impossibile caricare gli stream per id=%2$s (tipo=%3$s).</string>
-<string name="error_stream_tried_issues">Addon stream provati: %1$s. Impossibile caricare gli stream per id=%2$s (tipo=%3$s). Problemi: %4$s.</string>
+<string name="error_stream_tried_none">Addon stream provati: %1$s. Nessuno ha restituito stream.</string>
+<string name="error_stream_tried_generic">Addon stream provati: %1$s. Impossibile caricare gli stream.</string>
+<string name="error_stream_tried_issues">Addon stream provati: %1$s. Impossibile caricare gli stream. Problemi: %2$s.</string>
 
 <string name="continue_watching">Continua a guardare</string>
 <string name="cw_upcoming">In arrivo</string>

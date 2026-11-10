@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Geprobeerde meta-add-ons: %1$s. Metadata kon niet worden geladen voor id=%2$s (type=%3$s).</string>
     <string name="error_meta_tried_issues">Geprobeerde meta-add-ons: %1$s. Metadata kon niet worden geladen voor id=%2$s (type=%3$s). Problemen: %4$s.</string>
     <string name="error_stream_no_supported_addon">Geen enkele geïnstalleerde add-on ondersteunt streams voor \"%1$s\".</string>
-    <string name="error_stream_tried_none">Geprobeerde stream-add-ons: %1$s. Geen enkele leverde streams voor id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_generic">Geprobeerde stream-add-ons: %1$s. Streams konden niet worden geladen voor id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">Geprobeerde stream-add-ons: %1$s. Streams konden niet worden geladen voor id=%2$s (type=%3$s). Problemen: %4$s.</string>
+    <string name="error_stream_tried_none">Geprobeerde stream-add-ons: %1$s. Geen enkele leverde streams.</string>
+    <string name="error_stream_tried_generic">Geprobeerde stream-add-ons: %1$s. Streams konden niet worden geladen.</string>
+    <string name="error_stream_tried_issues">Geprobeerde stream-add-ons: %1$s. Streams konden niet worden geladen. Problemen: %2$s.</string>
 
     <string name="continue_watching">Verder kijken</string>
     <string name="cw_upcoming">Aankomend</string>

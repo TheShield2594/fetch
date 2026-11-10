@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Опитани мета добавки: %1$s. Метаданните не могат да бъдат заредени за id=%2$s (type=%3$s).</string>
     <string name="error_meta_tried_issues">Опитани мета добавки: %1$s. Метаданните не могат да бъдат заредени за id=%2$s (type=%3$s). Проблеми: %4$s.</string>
     <string name="error_stream_no_supported_addon">Нито една инсталирана добавка не поддържа потоци за „%1$s“.</string>
-    <string name="error_stream_tried_none">Опитани стрийм добавки: %1$s. Нито една не върна потоци за id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_generic">Опитани стрийм добавки: %1$s. Потокът не може да бъде зареден за id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">Опитани стрийм добавки: %1$s. Потокът не може да бъде зареден за id=%2$s (type=%3$s). Проблеми: %4$s.</string>
+    <string name="error_stream_tried_none">Опитани стрийм добавки: %1$s. Нито една не върна потоци.</string>
+    <string name="error_stream_tried_generic">Опитани стрийм добавки: %1$s. Потокът не може да бъде зареден.</string>
+    <string name="error_stream_tried_issues">Опитани стрийм добавки: %1$s. Потокът не може да бъде зареден. Проблеми: %2$s.</string>
 
     <string name="continue_watching">Продължаване на гледането</string>
     <string name="cw_upcoming">Предстоящи</string>

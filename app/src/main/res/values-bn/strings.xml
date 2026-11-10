@@ -133,9 +133,9 @@
     <string name="error_meta_tried_generic">মেটা অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। মেটাডেটা লোড করা যায়নি, id=%2$s (type=%3$s)।</string>
     <string name="error_meta_tried_issues">মেটা অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। মেটাডেটা লোড করা যায়নি, id=%2$s (type=%3$s)। সমস্যাগুলো: %4$s।</string>
     <string name="error_stream_no_supported_addon">\"%1$s\"-এর জন্য কোনো ইনস্টল করা অ্যাডন স্ট্রিম সাপোর্ট করে না।</string>
-    <string name="error_stream_tried_none">স্ট্রিম অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। এগুলোর কোনোটিই স্ট্রিম দেয়নি, id=%2$s (type=%3$s)।</string>
-    <string name="error_stream_tried_generic">স্ট্রিম অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। স্ট্রিম লোড করা যায়নি, id=%2$s (type=%3$s)।</string>
-    <string name="error_stream_tried_issues">স্ট্রিম অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। স্ট্রিম লোড করা যায়নি, id=%2$s (type=%3$s)। সমস্যাগুলো: %4$s।</string>
+    <string name="error_stream_tried_none">স্ট্রিম অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। এগুলোর কোনোটিই স্ট্রিম দেয়নি।</string>
+    <string name="error_stream_tried_generic">স্ট্রিম অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। স্ট্রিম লোড করা যায়নি।</string>
+    <string name="error_stream_tried_issues">স্ট্রিম অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। স্ট্রিম লোড করা যায়নি। সমস্যাগুলো: %2$s।</string>
     <string name="continue_watching">দেখা চালিয়ে যান</string>
     <string name="cw_upcoming">আসন্ন</string>
     <string name="cw_next_up">পরবর্তী পর্ব</string>

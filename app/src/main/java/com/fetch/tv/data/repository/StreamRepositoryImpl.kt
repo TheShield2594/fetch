@@ -7,7 +7,6 @@ import com.fetch.tv.core.streams.AddonRequestKind
 import com.fetch.tv.core.streams.AddonRequestOutcome
 import com.fetch.tv.core.streams.metaIdForVideoId
 import com.fetch.tv.core.streams.withoutUnplayableStreams
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import com.fetch.tv.R
@@ -330,7 +329,6 @@ class StreamRepositoryImpl @Inject constructor(
             if (accumulatedResults.isEmpty()) {
                 val errorMessage = buildAggregateFailureMessage(
                     type = type,
-                    id = videoId,
                     season = season,
                     episode = episode,
                     attemptedAddonNames = attemptedAddonNames,
@@ -541,14 +539,10 @@ class StreamRepositoryImpl @Inject constructor(
 
     /**
      * The Stream screen's failure text: a plain title ("No sources for S1 E2"), a blank line, then
-     * which addons were asked and what went wrong with each. The id and type stay as format
-     * arguments of the detail strings so existing translations keep working, but the default
-     * text doesn't show them.
+     * which addons were asked and what went wrong with each.
      */
-    @SuppressLint("StringFormatMatches") // See above: the extra arguments are for the translations.
     private fun buildAggregateFailureMessage(
         type: String,
-        id: String,
         season: Int?,
         episode: Int?,
         attemptedAddonNames: List<String>,
@@ -568,7 +562,7 @@ class StreamRepositoryImpl @Inject constructor(
         val triedAddons = attemptedAddonNames.joinToString(", ")
         val missingOnly = failures.isNotEmpty() && failures.all { it.kind == StreamFailureKind.MISSING }
         if (failures.isEmpty() || missingOnly) {
-            return withTitle(context.getString(R.string.error_stream_tried_none, triedAddons, id, type))
+            return withTitle(context.getString(R.string.error_stream_tried_none, triedAddons))
         }
 
         val issueSummary = failures
@@ -578,9 +572,9 @@ class StreamRepositoryImpl @Inject constructor(
             .joinToString("\n") { "${it.addonName}: ${it.detail}" }
 
         return if (issueSummary.isBlank()) {
-            withTitle(context.getString(R.string.error_stream_tried_generic, triedAddons, id, type))
+            withTitle(context.getString(R.string.error_stream_tried_generic, triedAddons))
         } else {
-            withTitle(context.getString(R.string.error_stream_tried_issues, triedAddons, id, type, issueSummary))
+            withTitle(context.getString(R.string.error_stream_tried_issues, triedAddons, issueSummary))
         }
     }
 

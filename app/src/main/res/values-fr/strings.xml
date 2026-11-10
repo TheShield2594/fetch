@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Addons de métadonnées essayés&#160;: %1$s. Impossible de charger les métadonnées pour l’ID=%2$s (type=%3$s).</string>
     <string name="error_meta_tried_issues">Addons de métadonnées essayés&#160;: %1$s. Impossible de charger les métadonnées pour l’ID=%2$s (type=%3$s). Problèmes&#160;: %4$s.</string>
     <string name="error_stream_no_supported_addon">Aucun addon installé ne prend en charge les flux pour «&#160;%1$s&#160;».</string>
-    <string name="error_stream_tried_none">Addons de flux essayés&#160;: %1$s. Aucun n’a renvoyé de flux pour l’ID=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_generic">Addons de flux essayés&#160;: %1$s. Impossible de charger les flux pour l’ID=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">Addons de flux essayés&#160;: %1$s. Impossible de charger les flux pour l’ID=%2$s (type=%3$s). Problèmes&#160;: %4$s.</string>
+    <string name="error_stream_tried_none">Addons de flux essayés&#160;: %1$s. Aucun n’a renvoyé de flux.</string>
+    <string name="error_stream_tried_generic">Addons de flux essayés&#160;: %1$s. Impossible de charger les flux.</string>
+    <string name="error_stream_tried_issues">Addons de flux essayés&#160;: %1$s. Impossible de charger les flux. Problèmes&#160;: %2$s.</string>
 
     <string name="continue_watching">Continuer à regarder</string>
     <string name="cw_upcoming">À venir</string>

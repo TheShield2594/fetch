@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">試したメタアドオン: %1$s。id=%2$s (type=%3$s) のメタデータを読み込めませんでした</string>
     <string name="error_meta_tried_issues">試したメタアドオン: %1$s。id=%2$s (type=%3$s) のメタデータを読み込めませんでした。問題: %4$s。</string>
     <string name="error_stream_no_supported_addon">「%1$s」のストリームに対応したインストール済みアドオンがありません</string>
-    <string name="error_stream_tried_none">試したストリームアドオン: %1$s。id=%2$s (type=%3$s) のストリームを返したものはありませんでした</string>
-    <string name="error_stream_tried_generic">試したストリームアドオン: %1$s。id=%2$s (type=%3$s) のストリームを読み込めませんでした</string>
-    <string name="error_stream_tried_issues">試したストリームアドオン: %1$s。id=%2$s (type=%3$s) のストリームを読み込めませんでした。問題: %4$s。</string>
+    <string name="error_stream_tried_none">試したストリームアドオン: %1$s。ストリームを返したものはありませんでした</string>
+    <string name="error_stream_tried_generic">試したストリームアドオン: %1$s。ストリームを読み込めませんでした</string>
+    <string name="error_stream_tried_issues">試したストリームアドオン: %1$s。ストリームを読み込めませんでした。問題: %2$s。</string>
 
     <string name="continue_watching">視聴を続ける</string>
     <string name="cw_upcoming">近日公開</string>

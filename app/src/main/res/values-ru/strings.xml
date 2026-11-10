@@ -102,9 +102,9 @@
     <string name="error_meta_tried_generic">Проверены аддоны: %1$s. Не удалось загрузить метаданные для id=%2$s (тип=%3$s).</string>
     <string name="error_meta_tried_issues">Проверены аддоны: %1$s. Не удалось загрузить метаданные для id=%2$s (тип=%3$s). Проблемы: %4$s.</string>
     <string name="error_stream_no_supported_addon">Ни один установленный аддон не поддерживает потоки для \"%1$s\".</string>
-    <string name="error_stream_tried_none">Проверены аддоны потоков: %1$s. Ни один из них не вернул потоки для id=%2$s (тип=%3$s).</string>
-    <string name="error_stream_tried_generic">Проверены аддоны потоков: %1$s. Не удалось загрузить потоки для id=%2$s (тип=%3$s).</string>
-    <string name="error_stream_tried_issues">Проверены аддоны потоков: %1$s. Не удалось загрузить потоки для id=%2$s (тип=%3$s). Проблемы: %4$s.</string>
+    <string name="error_stream_tried_none">Проверены аддоны потоков: %1$s. Ни один из них не вернул потоки.</string>
+    <string name="error_stream_tried_generic">Проверены аддоны потоков: %1$s. Не удалось загрузить потоки.</string>
+    <string name="error_stream_tried_issues">Проверены аддоны потоков: %1$s. Не удалось загрузить потоки. Проблемы: %2$s.</string>
 
     <!-- ContinueWatchingSection -->
     <string name="continue_watching">Продолжить просмотр</string>

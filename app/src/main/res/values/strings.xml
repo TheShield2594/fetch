@@ -141,7 +141,7 @@
     <string name="error_stream_tried_none">Checked %1$s. None of them had a stream for this title.</string>
     <string name="error_stream_tried_generic">Checked %1$s. Streams could not be loaded.</string>
     <!-- %4$s is one "Addon: reason" line per failed addon. -->
-    <string name="error_stream_tried_issues">Checked %1$s.\n%4$s</string>
+    <string name="error_stream_tried_issues">Checked %1$s.\n%2$s</string>
 
     <string name="continue_watching">Continue Watching</string>
     <string name="cw_upcoming">Upcoming</string>

@@ -784,9 +784,9 @@
 
     <!-- Missing: ErrorState (streams) -->
     <string name="error_stream_no_supported_addon">Inget installerat tillägg stödjer strömmar för \"%1$s\".</string>
-    <string name="error_stream_tried_none">Provade strömtillägg: %1$s. Inget av dem returnerade strömmar för id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_generic">Provade strömtillägg: %1$s. Strömmar kunde inte laddas för id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_issues">Provade strömtillägg: %1$s. Strömmar kunde inte laddas för id=%2$s (typ=%3$s). Problem: %4$s.</string>
+    <string name="error_stream_tried_none">Provade strömtillägg: %1$s. Inget av dem returnerade strömmar.</string>
+    <string name="error_stream_tried_generic">Provade strömtillägg: %1$s. Strömmar kunde inte laddas.</string>
+    <string name="error_stream_tried_issues">Provade strömtillägg: %1$s. Strömmar kunde inte laddas. Problem: %2$s.</string>
 
     <!-- Missing: AddonManager -->
     <string name="addon_install_success">Installerade %1$s</string>

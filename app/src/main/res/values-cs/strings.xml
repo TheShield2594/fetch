@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Vyzkoušené meta doplňky: %1$s. Metadata nemohla být načtena pro id=%2$s (typ=%3$s).</string>
     <string name="error_meta_tried_issues">Vyzkoušené meta doplňky: %1$s. Metadata nemohla být načtena pro id=%2$s (typ=%3$s). Problémy: %4$s.</string>
     <string name="error_stream_no_supported_addon">Žádný nainstalovaný doplněk nepodporuje streamy pro \"%1$s\".</string>
-    <string name="error_stream_tried_none">Vyzkoušené streamovací doplňky: %1$s. Žádný z nich nevrátil streamy pro id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_generic">Vyzkoušené streamovací doplňky: %1$s. Streamy nemohly být načteny pro id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_issues">Vyzkoušené streamovací doplňky: %1$s. Streamy nemohly být načteny pro id=%2$s (typ=%3$s). Problémy: %4$s.</string>
+    <string name="error_stream_tried_none">Vyzkoušené streamovací doplňky: %1$s. Žádný z nich nevrátil streamy.</string>
+    <string name="error_stream_tried_generic">Vyzkoušené streamovací doplňky: %1$s. Streamy nemohly být načteny.</string>
+    <string name="error_stream_tried_issues">Vyzkoušené streamovací doplňky: %1$s. Streamy nemohly být načteny. Problémy: %2$s.</string>
 
     <string name="continue_watching">Pokračovat ve sledování</string>
     <string name="cw_upcoming">Nadcházející</string>

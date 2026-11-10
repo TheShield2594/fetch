@@ -311,6 +311,50 @@ export const parseSeriesProgressResponse = (value: unknown): SeriesProgressRespo
   };
 };
 
+// ─── Seasons and episodes ───
+
+/** `GET /meta/series/:imdbId/seasons`. Season 0 (specials) may be among them. */
+export type SeasonsResponse = {
+  seasons: { seasonNumber: number; name: string; episodeCount: number; airYear: number | null; poster: string | null }[];
+};
+
+export const parseSeasonsResponse = (value: unknown): SeasonsResponse => {
+  const body = asObject(value, "response");
+  return {
+    seasons: asArray(body.seasons, "seasons").map((entry, index) => {
+      const season = asObject(entry, `seasons[${index}]`);
+      return {
+        seasonNumber: optionalNumber(season.seasonNumber, `seasons[${index}].seasonNumber`) ?? 0,
+        name: optionalString(season.name, `seasons[${index}].name`) ?? "",
+        episodeCount: optionalNumber(season.episodeCount, `seasons[${index}].episodeCount`) ?? 0,
+        airYear: nullableNumber(season.airYear, `seasons[${index}].airYear`),
+        poster: nullableString(season.poster, `seasons[${index}].poster`),
+      };
+    }),
+  };
+};
+
+/** `GET /meta/series/:imdbId/season/:seasonNumber/episodes`. `airDate` is `YYYY-MM-DD`. */
+export type EpisodesResponse = {
+  episodes: { episodeNumber: number; name: string; airDate: string | null; still: string | null; runtime: number | null }[];
+};
+
+export const parseEpisodesResponse = (value: unknown): EpisodesResponse => {
+  const body = asObject(value, "response");
+  return {
+    episodes: asArray(body.episodes, "episodes").map((entry, index) => {
+      const episode = asObject(entry, `episodes[${index}]`);
+      return {
+        episodeNumber: optionalNumber(episode.episodeNumber, `episodes[${index}].episodeNumber`) ?? 0,
+        name: optionalString(episode.name, `episodes[${index}].name`) ?? "",
+        airDate: nullableString(episode.airDate, `episodes[${index}].airDate`),
+        still: nullableString(episode.still, `episodes[${index}].still`),
+        runtime: nullableNumber(episode.runtime, `episodes[${index}].runtime`),
+      };
+    }),
+  };
+};
+
 // ─── The web client's boundary ───
 //
 // Everything above crosses api↔addon. What follows crosses api↔web, and it is

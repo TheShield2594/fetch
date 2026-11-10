@@ -6,6 +6,7 @@ import {
   isSpoilerProtectionEnabled,
 } from "../lib/fetch-data.js";
 import { resolveProfileScope } from "../lib/profile.js";
+import { loadSeriesVideos } from "../lib/series-videos.js";
 import type { AddonRouter } from "../lib/router.js";
 
 /**
@@ -36,13 +37,17 @@ export const registerMetaRoute = (routes: AddonRouter): void => {
     let upstreamResponse: Response;
     let rpdb: Awaited<ReturnType<typeof fetchRpdbConfig>>;
     let spoilerEnabled: boolean;
+    let videos: Awaited<ReturnType<typeof loadSeriesVideos>>;
     try {
-      [upstreamResponse, rpdb, spoilerEnabled] = await Promise.all([
+      [upstreamResponse, rpdb, spoilerEnabled, videos] = await Promise.all([
         fetchWithTimeout(apiUrl(`/meta/${type}/${encodeURIComponent(imdbId)}`), {
           headers: apiHeaders(scope),
         }),
         fetchRpdbConfig(scope, request.log),
         isSpoilerProtectionEnabled(scope, request.log),
+        // A series meta without `videos` has no episodes in the addon protocol.
+        // This degrades to an empty list on its own, like the two lookups above.
+        type === "series" ? loadSeriesVideos(imdbId, scope, request.log) : Promise.resolve([]),
       ]);
     } catch (error) {
       request.log.warn(error, "Failed to fetch meta from the API");
@@ -105,6 +110,7 @@ export const registerMetaRoute = (routes: AddonRouter): void => {
     if (rating !== undefined) meta.imdbRating = String(rating);
     if (typeof payload.totalSeasons === "number") meta.totalSeasons = payload.totalSeasons;
     if (typeof payload.totalEpisodes === "number") meta.totalEpisodes = payload.totalEpisodes;
+    if (type === "series") meta.videos = videos;
 
     return reply.send({ meta });
   });

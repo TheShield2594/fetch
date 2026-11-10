@@ -68,7 +68,8 @@ data class AppExtrasDto(
 
 @JsonClass(generateAdapter = true)
 data class AppExtrasCastMemberDto(
-    @Json(name = "name") val name: String,
+    // Nullable so one nameless entry can't fail the whole meta response; mapPeople drops it.
+    @Json(name = "name") val name: String? = null,
     @Json(name = "character") val character: String? = null,
     @Json(name = "photo") val photo: String? = null,
     @Json(name = "tmdbId") val tmdbId: Int? = null
@@ -94,8 +95,10 @@ data class VideoDto(
 
 @JsonClass(generateAdapter = true)
 data class MetaLinkDto(
-    @Json(name = "name") val name: String,
-    @Json(name = "category") val category: String,
+    // Nullable so one malformed link can't fail the whole meta/catalog response;
+    // MetaLinkDto.toDomain() drops links without a name or url.
+    @Json(name = "name") val name: String? = null,
+    @Json(name = "category") val category: String? = null,
     @Json(name = "url") val url: String? = null
 )
 

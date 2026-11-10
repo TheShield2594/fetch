@@ -21,6 +21,8 @@ import {
   parseProfilesResponse,
   parseRpdbConfigResponse,
   parseSeriesProgressResponse,
+  parseEpisodesResponse,
+  parseSeasonsResponse,
   selectDiscoveryCatalogs,
   ApiContractError,
 } from "@fetch/shared";
@@ -226,5 +228,21 @@ describe("response parsers", () => {
         progress: { lastSeason: 2, lastEpisode: 5, totalEpisodes: 10, watchedEpisodes: 10 },
       }).progress
     ).toEqual({ lastSeason: 2, lastEpisode: 5, totalEpisodes: 10, watchedEpisodes: 10 });
+  });
+});
+
+describe("seasons and episodes contracts", () => {
+  it("normalises seasons and fills what a season leaves out", () => {
+    expect(parseSeasonsResponse({ seasons: [{ seasonNumber: 1, episodeCount: 7, extra: true }] })).toEqual({
+      seasons: [{ seasonNumber: 1, name: "", episodeCount: 7, airYear: null, poster: null }],
+    });
+  });
+
+  it("rejects an episodes body without a list", () => {
+    expect(() => parseEpisodesResponse({ episodes: null })).toThrow(ApiContractError);
+  });
+
+  it("rejects an episode number that isn't a number", () => {
+    expect(() => parseEpisodesResponse({ episodes: [{ episodeNumber: "1" }] })).toThrow(ApiContractError);
   });
 });

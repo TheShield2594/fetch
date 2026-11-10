@@ -20,6 +20,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import retrofit2.Response
 import java.io.IOException
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,7 +44,9 @@ class TraktAuthService @Inject constructor(
 ) {
     private val refreshLeewaySeconds = 60L
     private val writeRequestMutex = Mutex()
-    private val tokenRefreshMutex = Mutex()
+    // One lock per profile: two profiles' refreshes don't contend, and one profile's
+    // refresh can't be serialised behind (and then read the state of) another's.
+    private val tokenRefreshMutexes = ConcurrentHashMap<Int, Mutex>()
     private var lastWriteRequestAtMs = 0L
     private val minWriteIntervalMs = 1_000L
     private val transientRetryStatusCodes = setOf(502, 503, 504, 520, 521, 522)
@@ -126,6 +129,9 @@ class TraktAuthService @Inject constructor(
 
     suspend fun getCurrentAuthState(): TraktAuthState = traktAuthDataStore.getCurrentState()
 
+    private suspend fun authState(profileId: Int): TraktAuthState =
+        traktAuthDataStore.getCurrentState(profileId)
+
     suspend fun startDeviceAuth(): Result<TraktDeviceCodeResponseDto> {
         if (!hasRequiredCredentials()) {
             return Result.failure(IllegalStateException(context.getString(R.string.trakt_error_missing_credentials)))
@@ -135,7 +141,8 @@ class TraktAuthService @Inject constructor(
         // This avoids re-hitting /oauth/device/code (which is tightly rate-limited
         // by Trakt) when the user navigates back to the login screen or taps the
         // Connect button twice in a row — see issue #1197.
-        val state = getCurrentAuthState()
+        val profileId = traktAuthDataStore.activeProfileId()
+        val state = authState(profileId)
         val existingExpiresAt = state.expiresAt
         val existingCode = state.deviceCode
         if (
@@ -183,7 +190,7 @@ class TraktAuthService @Inject constructor(
 
         val body = response.body()
         if (response.isSuccessful && body != null) {
-            traktAuthDataStore.saveDeviceFlow(body)
+            traktAuthDataStore.saveDeviceFlow(profileId, body)
             return Result.success(body)
         }
 
@@ -205,7 +212,10 @@ class TraktAuthService @Inject constructor(
             return TraktTokenPollResult.Failed(context.getString(R.string.trakt_error_missing_credentials))
         }
 
-        val state = getCurrentAuthState()
+        // Pin the profile that started the device flow: if the user switches profile while
+        // the poll is in flight, the approved tokens still belong to this one.
+        val profileId = traktAuthDataStore.activeProfileId()
+        val state = authState(profileId)
         val deviceCode = state.deviceCode
         if (deviceCode.isNullOrBlank()) {
             return TraktTokenPollResult.Failed(context.getString(R.string.trakt_error_no_active_device_code))
@@ -225,35 +235,35 @@ class TraktAuthService @Inject constructor(
 
         val tokenBody = response.body()
         if (response.isSuccessful && tokenBody != null) {
-            traktAuthDataStore.saveToken(tokenBody)
+            traktAuthDataStore.saveToken(profileId, tokenBody)
             authSessionNoticeDataStore.markTraktAuthenticated()
             resetCircuit()
-            traktAuthDataStore.clearDeviceFlow()
-            val user = fetchUserSettings()
+            traktAuthDataStore.clearDeviceFlow(profileId)
+            val user = fetchUserSettings(profileId)
             return TraktTokenPollResult.Approved(user)
         }
 
         return when (response.code()) {
             400 -> TraktTokenPollResult.Pending
             409 -> {
-                traktAuthDataStore.clearDeviceFlow()
+                traktAuthDataStore.clearDeviceFlow(profileId)
                 TraktTokenPollResult.AlreadyUsed
             }
             404 -> {
-                traktAuthDataStore.clearDeviceFlow()
+                traktAuthDataStore.clearDeviceFlow(profileId)
                 TraktTokenPollResult.Failed(context.getString(R.string.trakt_error_invalid_device_code))
             }
             410 -> {
-                traktAuthDataStore.clearDeviceFlow()
+                traktAuthDataStore.clearDeviceFlow(profileId)
                 TraktTokenPollResult.Expired
             }
             418 -> {
-                traktAuthDataStore.clearDeviceFlow()
+                traktAuthDataStore.clearDeviceFlow(profileId)
                 TraktTokenPollResult.Denied
             }
             429 -> {
                 val nextInterval = ((state.pollInterval ?: 5) + 5).coerceAtMost(60)
-                traktAuthDataStore.updatePollInterval(nextInterval)
+                traktAuthDataStore.updatePollInterval(profileId, nextInterval)
                 TraktTokenPollResult.SlowDown(nextInterval)
             }
             else -> TraktTokenPollResult.Failed(
@@ -262,11 +272,20 @@ class TraktAuthService @Inject constructor(
         }
     }
 
-    suspend fun refreshTokenIfNeeded(force: Boolean = false): Boolean {
+    suspend fun refreshTokenIfNeeded(force: Boolean = false): Boolean =
+        refreshTokenIfNeeded(traktAuthDataStore.activeProfileId(), force)
+
+    /**
+     * Refreshes [profileId]'s tokens. Every read and write goes to that profile's store,
+     * so a profile switch during the network call can't save the rotated pair onto, or
+     * clear the tokens of, whichever profile happens to be active when it returns.
+     */
+    private suspend fun refreshTokenIfNeeded(profileId: Int, force: Boolean): Boolean {
         if (!hasRequiredCredentials()) return false
 
-        return tokenRefreshMutex.withLock {
-            val state = getCurrentAuthState()
+        val mutex = tokenRefreshMutexes.getOrPut(profileId) { Mutex() }
+        return mutex.withLock {
+            val state = authState(profileId)
             val refreshToken = state.refreshToken ?: return@withLock false
             if (!force && !isTokenExpiredOrExpiring(state)) {
                 trace("refreshTokenIfNeeded: token still valid, skip refresh")
@@ -292,12 +311,12 @@ class TraktAuthService @Inject constructor(
             if (!response.isSuccessful || tokenBody == null) {
                 trace("refreshTokenIfNeeded: failed code=${response.code()}")
                 if (response.code() == 400 || response.code() == 401 || response.code() == 403) {
-                    invalidateCredentials(response.code())
+                    invalidateCredentials(profileId, response.code())
                 }
                 return@withLock false
             }
 
-            traktAuthDataStore.saveToken(tokenBody)
+            traktAuthDataStore.saveToken(profileId, tokenBody)
             authSessionNoticeDataStore.markTraktAuthenticated()
             resetCircuit()
             trace("refreshTokenIfNeeded: success")
@@ -306,7 +325,8 @@ class TraktAuthService @Inject constructor(
     }
 
     suspend fun revokeAndLogout() {
-        val state = getCurrentAuthState()
+        val profileId = traktAuthDataStore.activeProfileId()
+        val state = authState(profileId)
         if (hasRequiredCredentials()) {
             state.accessToken?.let { accessToken ->
                 runCatching {
@@ -321,11 +341,13 @@ class TraktAuthService @Inject constructor(
             }
         }
         authSessionNoticeDataStore.markTraktExplicitLogout()
-        traktAuthDataStore.clearAuth()
+        traktAuthDataStore.clearAuth(profileId)
     }
 
-    suspend fun fetchUserSettings(): String? {
-        val response = executeAuthorizedRequest { authHeader ->
+    suspend fun fetchUserSettings(): String? = fetchUserSettings(traktAuthDataStore.activeProfileId())
+
+    private suspend fun fetchUserSettings(profileId: Int): String? {
+        val response = executeAuthorizedRequest(profileId) { authHeader ->
             traktApi.getUserSettings(authorization = authHeader)
         } ?: return null
 
@@ -333,11 +355,16 @@ class TraktAuthService @Inject constructor(
 
         val username = response.body()?.user?.username
         val slug = response.body()?.user?.ids?.slug
-        traktAuthDataStore.saveUser(username = username, userSlug = slug)
+        traktAuthDataStore.saveUser(profileId, username = username, userSlug = slug)
         return username
     }
 
     suspend fun <T> executeAuthorizedRequest(
+        call: suspend (authorizationHeader: String) -> Response<T>
+    ): Response<T>? = executeAuthorizedRequest(traktAuthDataStore.activeProfileId(), call)
+
+    private suspend fun <T> executeAuthorizedRequest(
+        profileId: Int,
         call: suspend (authorizationHeader: String) -> Response<T>
     ): Response<T>? {
         if (isCircuitOpen()) {
@@ -345,7 +372,7 @@ class TraktAuthService @Inject constructor(
             return null
         }
 
-        var token = getValidAccessToken() ?: return null
+        var token = getValidAccessToken(profileId) ?: return null
         var retriedAuth = false
         var retriedRateLimit = false
         var retriedTransient = false
@@ -390,10 +417,10 @@ class TraktAuthService @Inject constructor(
             }
 
             if (code == 401 && !retriedAuth) {
-                val refreshed = refreshTokenIfNeeded(force = true)
+                val refreshed = refreshTokenIfNeeded(profileId, force = true)
                 if (refreshed) {
                     trace("authorized request: 401 for ${responseTarget(response)}, retrying after token refresh")
-                    token = getCurrentAuthState().accessToken ?: return response
+                    token = authState(profileId).accessToken ?: return response
                     retriedAuth = true
                     continue
                 }
@@ -494,11 +521,11 @@ class TraktAuthService @Inject constructor(
         return executeAuthorizedRequest(call)
     }
 
-    private suspend fun getValidAccessToken(): String? {
-        val state = getCurrentAuthState()
+    private suspend fun getValidAccessToken(profileId: Int): String? {
+        val state = authState(profileId)
         if (state.accessToken.isNullOrBlank()) return null
-        if (refreshTokenIfNeeded(force = false)) {
-            return getCurrentAuthState().accessToken
+        if (refreshTokenIfNeeded(profileId, force = false)) {
+            return authState(profileId).accessToken
         }
         return null
     }
@@ -535,9 +562,9 @@ class TraktAuthService @Inject constructor(
         }
     }
 
-    private suspend fun invalidateCredentials(statusCode: Int) {
+    private suspend fun invalidateCredentials(profileId: Int, statusCode: Int) {
         authSessionNoticeDataStore.markTraktReconnectRequired()
-        traktAuthDataStore.clearAuth()
+        traktAuthDataStore.clearAuth(profileId)
         tripCircuit("Token refresh returned $statusCode")
     }
 }

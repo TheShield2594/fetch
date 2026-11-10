@@ -37,8 +37,8 @@ fun mapPeople(
     forceRole: Boolean = false
 ): List<MetaCastMember> {
     return people.orEmpty().mapNotNull { person ->
-        val name = person.name.trim()
-        if (name.isBlank()) return@mapNotNull null
+        val name = person.name?.trim()
+        if (name.isNullOrBlank()) return@mapNotNull null
         MetaCastMember(
             name = name,
             character = if (forceRole) roleFallback else person.character?.takeIf { it.isNotBlank() } ?: roleFallback,

@@ -135,6 +135,7 @@ import com.fetch.tv.R
 import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.auth.DeviceSessionRegistration
 import com.fetch.tv.core.deeplink.DeepLinkHandler
+import com.fetch.tv.ui.screens.phone.PhoneAddonConfirmContent
 import com.fetch.tv.core.deeplink.DeepLinkParser
 import com.fetch.tv.core.player.PlayerWindowBackdrop
 import com.fetch.tv.core.party.PartyRepository
@@ -868,16 +869,32 @@ open class MainActivity : ComponentActivity() {
                     LaunchedEffect(pendingDeepLink) {
                         val url = pendingDeepLink ?: return@LaunchedEffect
                         val deepLink = DeepLinkParser.parse(url)
-                        if (deepLink is AppDeepLink.AddonInstall && (needsEssentialAddonSetup || !layoutChosen) &&
-                            !parentalControls.activeRestrictions.value.isRestricted
-                        ) {
-                            Toast.makeText(context, context.getString(R.string.addon_installing), Toast.LENGTH_SHORT).show()
-                            val installResult = deepLinkHandler.installAddon(deepLink.manifestUrl)
+                        if (deepLink is AppDeepLink.AddonInstall && (needsEssentialAddonSetup || !layoutChosen)) {
+                            // Never installs on its own: the handler asks the TV first (see below).
+                            val result = deepLinkHandler.requestInstall(deepLink.manifestUrl)
                             if (pendingDeepLinkUrl.value == url) {
                                 pendingDeepLinkUrl.value = null
                             }
-                            Toast.makeText(context, installResult.message, Toast.LENGTH_LONG).show()
+                            result?.let { Toast.makeText(context, it.message, Toast.LENGTH_LONG).show() }
                         }
+                    }
+
+                    // Any app or web page can fire a stremio:// or fetch:// link, so an addon it
+                    // names is installed only once someone at the TV says yes.
+                    val deepLinkAddon by deepLinkHandler.pendingAddon.collectAsState()
+                    deepLinkAddon?.let { request ->
+                        PhoneAddonConfirmContent(
+                            request = request,
+                            title = stringResource(R.string.link_addon_confirm_title),
+                            onConfirm = {
+                                lifecycleScope.launch {
+                                    deepLinkHandler.confirmPending()?.let { result ->
+                                        Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            },
+                            onReject = deepLinkHandler::rejectPending
+                        )
                     }
 
                     if (needsEssentialAddonSetup) {
@@ -1065,20 +1082,20 @@ open class MainActivity : ComponentActivity() {
                                     launchSingleTop = true
                                 }
                             }
-                            is AppDeepLink.AddonInstall -> if (parentalControls.activeRestrictions.value.isRestricted) {
-                                // Restricted profiles can't install addons, even from a link.
-                                pendingDeepLinkUrl.value = null
-                                Toast.makeText(context, context.getString(R.string.parental_addons_blocked), Toast.LENGTH_LONG).show()
-                            } else {
-                                navController.navigate(Screen.AddonManager.route) {
-                                    launchSingleTop = true
-                                }
-                                Toast.makeText(context, context.getString(R.string.addon_installing), Toast.LENGTH_SHORT).show()
-                                val installResult = deepLinkHandler.installAddon(deepLink.manifestUrl)
+                            is AppDeepLink.AddonInstall -> {
+                                // Restricted and read-only profiles are refused inside requestInstall();
+                                // otherwise the TV is asked to confirm before anything is installed.
+                                val result = deepLinkHandler.requestInstall(deepLink.manifestUrl)
                                 if (pendingDeepLinkUrl.value == url) {
                                     pendingDeepLinkUrl.value = null
                                 }
-                                Toast.makeText(context, installResult.message, Toast.LENGTH_LONG).show()
+                                if (result == null) {
+                                    navController.navigate(Screen.AddonManager.route) {
+                                        launchSingleTop = true
+                                    }
+                                } else {
+                                    Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+                                }
                             }
                             null -> {
                                 pendingDeepLinkUrl.value = null

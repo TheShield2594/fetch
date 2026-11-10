@@ -86,13 +86,13 @@ fun VideoDto.toDomain(episodeLabel: String = "Episode"): Video {
 }
 
 fun MetaLinkDto.toDomain(): MetaLink? {
-    return url?.let {
-        MetaLink(
-            name = name,
-            category = category,
-            url = it
-        )
-    }
+    val linkUrl = url?.takeIf { it.isNotBlank() } ?: return null
+    val linkName = name?.takeIf { it.isNotBlank() } ?: return null
+    return MetaLink(
+        name = linkName,
+        category = category.orEmpty(),
+        url = linkUrl
+    )
 }
 
 private fun parseEpisodeRuntimeMinutes(runtime: String?): Int? {

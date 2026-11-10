@@ -72,6 +72,13 @@ class TraktAuthDataStore @Inject constructor(
     private fun store(profileId: Int = profileManager.activeProfileId.value) =
         factory.get(profileId, FEATURE)
 
+    /**
+     * The profile whose tokens a multi-step operation (refresh, device-code poll) should
+     * read and write. Callers capture it once at the start so a profile switch during the
+     * network call can't make the result land on, or clear, another profile's tokens.
+     */
+    fun activeProfileId(): Int = profileManager.activeProfileId.value
+
     val state: Flow<TraktAuthState> = profileManager.activeProfileId.flatMapLatest { profileId ->
         store(profileId).data.map { preferences ->
             TraktAuthState(
@@ -117,8 +124,12 @@ class TraktAuthDataStore @Inject constructor(
         )
     }
 
-    suspend fun saveToken(token: TraktTokenResponseDto) {
-        store().edit { preferences ->
+    suspend fun saveToken(token: TraktTokenResponseDto) =
+        saveToken(profileManager.activeProfileId.value, token)
+
+    /** Writes [token] to [profileId]'s store, not whichever profile is active when the write lands. */
+    suspend fun saveToken(profileId: Int, token: TraktTokenResponseDto) {
+        store(profileId).edit { preferences ->
             preferences[accessTokenKey] = token.accessToken
             preferences[refreshTokenKey] = token.refreshToken
             preferences[tokenTypeKey] = token.tokenType
@@ -127,8 +138,11 @@ class TraktAuthDataStore @Inject constructor(
         }
     }
 
-    suspend fun saveUser(username: String?, userSlug: String?) {
-        store().edit { preferences ->
+    suspend fun saveUser(username: String?, userSlug: String?) =
+        saveUser(profileManager.activeProfileId.value, username, userSlug)
+
+    suspend fun saveUser(profileId: Int, username: String?, userSlug: String?) {
+        store(profileId).edit { preferences ->
             if (username.isNullOrBlank()) {
                 preferences.remove(usernameKey)
             } else {
@@ -142,9 +156,12 @@ class TraktAuthDataStore @Inject constructor(
         }
     }
 
-    suspend fun saveDeviceFlow(data: TraktDeviceCodeResponseDto) {
+    suspend fun saveDeviceFlow(data: TraktDeviceCodeResponseDto) =
+        saveDeviceFlow(profileManager.activeProfileId.value, data)
+
+    suspend fun saveDeviceFlow(profileId: Int, data: TraktDeviceCodeResponseDto) {
         val now = System.currentTimeMillis()
-        store().edit { preferences ->
+        store(profileId).edit { preferences ->
             preferences[deviceCodeKey] = data.deviceCode
             preferences[userCodeKey] = data.userCode
             preferences[verificationUrlKey] = data.verificationUrl
@@ -153,14 +170,19 @@ class TraktAuthDataStore @Inject constructor(
         }
     }
 
-    suspend fun updatePollInterval(seconds: Int) {
-        store().edit { preferences ->
+    suspend fun updatePollInterval(seconds: Int) =
+        updatePollInterval(profileManager.activeProfileId.value, seconds)
+
+    suspend fun updatePollInterval(profileId: Int, seconds: Int) {
+        store(profileId).edit { preferences ->
             preferences[pollIntervalKey] = seconds
         }
     }
 
-    suspend fun clearDeviceFlow() {
-        store().edit { preferences ->
+    suspend fun clearDeviceFlow() = clearDeviceFlow(profileManager.activeProfileId.value)
+
+    suspend fun clearDeviceFlow(profileId: Int) {
+        store(profileId).edit { preferences ->
             preferences.remove(deviceCodeKey)
             preferences.remove(userCodeKey)
             preferences.remove(verificationUrlKey)
@@ -169,8 +191,10 @@ class TraktAuthDataStore @Inject constructor(
         }
     }
 
-    suspend fun clearAuth() {
-        store().edit { preferences ->
+    suspend fun clearAuth() = clearAuth(profileManager.activeProfileId.value)
+
+    suspend fun clearAuth(profileId: Int) {
+        store(profileId).edit { preferences ->
             preferences.remove(accessTokenKey)
             preferences.remove(refreshTokenKey)
             preferences.remove(tokenTypeKey)

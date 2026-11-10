@@ -294,6 +294,7 @@ class TraktPublicListSourceResolverTest {
     private fun resolver(api: TraktApi, authenticated: Boolean): TraktPublicListSourceResolver {
         val authStore = mockk<TraktAuthDataStore> {
             every { isAuthenticated } returns flowOf(authenticated)
+            every { activeProfileId() } returns 1
             every { state } returns flowOf(
                 TraktAuthState(
                     accessToken = "token",

@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
+import type { EpisodesResponse, SeasonsResponse } from "@fetch/shared";
 import { requireAdmin } from "../lib/request-auth.js";
 import { prisma } from "../lib/prisma.js";
 import { getTmdb } from "../lib/tmdb-client.js";
@@ -58,7 +59,7 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
 
   app.get<{ Params: { imdbId: string } }>(
     "/meta/series/:imdbId/seasons",
-    async (request) => {
+    async (request): Promise<SeasonsResponse> => {
       return { seasons: await loadSeasons(request.params.imdbId.trim(), request.log) };
     }
   );
@@ -72,7 +73,8 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(400).send({ error: "seasonNumber must be a positive integer" });
       }
 
-      return { episodes: await loadEpisodes(imdbId, seasonNumber, request.log) };
+      const body: EpisodesResponse = { episodes: await loadEpisodes(imdbId, seasonNumber, request.log) };
+      return body;
     }
   );
 

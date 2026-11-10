@@ -226,7 +226,7 @@
 
     <string name="playback_unavailable">Playback unavailable</string>
     <string name="playback_unavailable_open_addons">Set up addons</string>
-    <string name="playback_unavailable_message">Nothing you’ve set up can play this title. Add or turn on a streaming addon in Settings &gt; Content &amp; Discovery &gt; Addons, or check your media server connection.</string>
+    <string name="playback_unavailable_message">Nothing you’ve set up can play this title. Add or turn on a streaming addon in Settings &gt; Addons, or check your media server connection.</string>
     <string name="detail_btn_play">Play</string>
     <string name="detail_btn_resume">Resume</string>
     <string name="detail_btn_play_episode">Play S%1$d E%2$d</string>

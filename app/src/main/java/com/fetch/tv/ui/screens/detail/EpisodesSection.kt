@@ -1092,7 +1092,7 @@ private fun EpisodeCard(
                         )
                 ) {
                     Text(
-                        text = strUnavailable.uppercase(Locale.getDefault()),
+                        text = strUnavailable.uppercase(LocalConfiguration.current.locales[0]),
                         style = episodeBadgeStyle,
                         maxLines = 1
                     )

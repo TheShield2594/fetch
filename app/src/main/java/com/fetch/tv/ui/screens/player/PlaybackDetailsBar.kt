@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -32,7 +33,6 @@ import com.fetch.tv.ui.components.SpecStrip
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 import kotlinx.coroutines.delay
-import java.util.Locale
 
 internal enum class PlaybackAudioPath {
     PASSTHROUGH,
@@ -134,7 +134,7 @@ internal fun PlaybackDetailsBar(
                 null -> Unit
             }
             live.bitrateBps?.let {
-                add(stringResource(R.string.playback_details_bitrate, String.format(Locale.getDefault(), "%.1f", it / 1_000_000.0)))
+                add(stringResource(R.string.playback_details_bitrate, String.format(LocalConfiguration.current.locales[0], "%.1f", it / 1_000_000.0)))
             }
         }
 

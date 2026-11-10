@@ -208,6 +208,8 @@ data class PlayerUiState(
     val showAddonLogo: Boolean = true,
     val streamBadgePlacement: StreamBadgePlacement = StreamBadgePlacement.BOTTOM,
     val error: String? = null,
+    /** What [error] means for the user, when that is known; see [currentErrorKind]. */
+    val errorTag: PlayerErrorTag? = null,
     val showSwitchToMpvErrorAction: Boolean = false,
     /** The error is a mid-playback failure that recovery couldn't fix: Retry, Try next source, All sources. */
     val showErrorRecoveryActions: Boolean = false,

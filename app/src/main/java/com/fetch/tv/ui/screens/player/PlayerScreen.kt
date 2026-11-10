@@ -131,6 +131,7 @@ import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalDensity
@@ -1409,7 +1410,7 @@ fun PlayerScreen(
         // Error state
         if (uiState.error != null) {
             ErrorOverlay(
-                message = uiState.error!!,
+                display = playerErrorDisplay(uiState.error!!, uiState.currentErrorKind()),
                 showSwitchToMpvAction = uiState.showSwitchToMpvErrorAction &&
                     uiState.internalPlayerEngine != InternalPlayerEngine.MVP_PLAYER,
                 onSwitchToMpv = { viewModel.onEvent(PlayerEvent.OnSwitchToMpvPlayer) },
@@ -4181,7 +4182,7 @@ private fun LoadingIssueReportAction(
 
 @Composable
 private fun ErrorOverlay(
-    message: String,
+    display: PlayerErrorDisplay,
     showSwitchToMpvAction: Boolean = false,
     onSwitchToMpv: (() -> Unit)? = null,
     showReportAction: Boolean,
@@ -4247,19 +4248,44 @@ private fun ErrorOverlay(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
         ) {
+            // Plain words first (#406): what happened, then what to do. The code, HTTP status
+            // or decoder name only follows in a small detail line, for reports.
+            val headline = display.kind?.let { stringResource(it.headline) }
+                ?: display.plainHeadline.orEmpty()
+            val advice = display.kind?.let { stringResource(it.advice) }
             Text(
-                text = stringResource(R.string.player_error_title),
+                text = headline,
                 style = MaterialTheme.typography.headlineMedium,
-                color = FetchTheme.colors.Player.TextPrimary
+                color = FetchTheme.colors.Player.TextPrimary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .testTag(PLAYER_ERROR_HEADLINE_TAG)
+                    .padding(horizontal = FetchTheme.spacing.xxl)
             )
 
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyLarge,
-                color = FetchTheme.colors.Player.TextTertiary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxl)
-            )
+            if (advice != null) {
+                Text(
+                    text = advice,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = FetchTheme.colors.Player.TextSecondary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxl)
+                )
+            }
+
+            display.detail?.let { detail ->
+                Text(
+                    text = detail,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FetchTheme.colors.Player.TextTertiary,
+                    textAlign = TextAlign.Center,
+                    maxLines = 4,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .testTag(PLAYER_ERROR_DETAIL_TAG)
+                        .padding(horizontal = FetchTheme.spacing.xxl)
+                )
+            }
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
 

@@ -1692,10 +1692,12 @@ internal fun PlayerRuntimeController.initializePlayer(
                              error.errorCode == PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES ||
                              error.errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED ||
                              error.errorCode == PlaybackException.ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED)
+                        val fatalErrorKind = error.playerErrorKind()
                         val showFatalError = {
                             _uiState.update {
                                 it.copy(
                                     error = detailedError,
+                                    errorTag = PlayerErrorTag(detailedError, fatalErrorKind),
                                     showSwitchToMpvErrorAction = canSwitchToMpvOnFatal,
                                     showLoadingOverlay = false,
                                     showPauseOverlay = false,

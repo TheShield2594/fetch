@@ -111,6 +111,9 @@ internal fun httpStatusExplanation(context: android.content.Context, code: Int):
     }
 }
 
+/** A failure reading the source (network, HTTP status, file): the 2xxx range. */
+internal fun PlaybackException.isSourceError(): Boolean = errorCode in 2000..2999
+
 internal fun PlaybackException.findInvalidResponseCodeException(): HttpDataSource.InvalidResponseCodeException? {
     var current: Throwable? = cause
     while (current != null) {
@@ -281,6 +284,7 @@ internal fun PlayerRuntimeController.scheduleStableProgressReset() {
         val player = _exoPlayer ?: return@launch
         if (player.playbackState == Player.STATE_READY && player.isPlaying) {
             resetErrorRetryState()
+            clearMidPlaybackRecovery()
         }
     }
 }
@@ -510,7 +514,14 @@ internal fun PlayerRuntimeController.tryParsingErrorProbeFallback(
                     )
                 }
             }
-            if (!tryNextSourceAfterFailure(showFatalError)) showFatalError()
+            if (!tryNextSourceAfterFailure(
+                    showFatalError,
+                    httpStatus = error.findInvalidResponseCodeException()?.responseCode,
+                    isSourceError = error.isSourceError()
+                )
+            ) {
+                showFatalError()
+            }
         }
     }
     return true

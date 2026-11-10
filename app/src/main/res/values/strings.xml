@@ -1690,6 +1690,9 @@
     <string name="player_subtitle_delay">Subtitles Delay</string>
     <string name="player_error_title">Playback error</string>
     <string name="player_error_choose_source">Choose another source</string>
+    <string name="player_error_try_next_source">Try next source</string>
+    <string name="player_error_all_sources">All sources</string>
+    <string name="player_error_no_more_sources">No other source would play. Pick one from All sources.</string>
     <string name="player_switch_to_mpv">Switch to mpv player</string>
     <string name="player_report_issue">Report issue</string>
     <string name="player_report_issue_sending">Sending playback report…</string>

@@ -560,6 +560,10 @@ class PlayerRuntimeController(
     internal val failedSourceUrls: MutableSet<String> = mutableSetOf()
     internal var failedSourcesRequestKey: String? = null
     internal var nextSourceJob: Job? = null
+    /** A stream that failed after it started playing, being recovered at its position. */
+    internal var midPlaybackRecovery: MidPlaybackRecovery? = null
+    /** The error left on screen when the sources panel was opened from it, shown again if nothing is picked. */
+    internal var errorBeforeSourcesPanel: String? = null
     internal var runtimeInternalPlayerEngineOverride: InternalPlayerEngine? = null
     internal var resolvedAutoPlayerEngine: InternalPlayerEngine? = null
     internal var currentInternalPlayerEngine: InternalPlayerEngine = InternalPlayerEngine.EXOPLAYER

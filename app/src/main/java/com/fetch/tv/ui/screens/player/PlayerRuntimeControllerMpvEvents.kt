@@ -294,8 +294,17 @@ internal fun PlayerRuntimeController.handleMpvPlaybackError(
                 )
             }
         }
-        // The stream never played: the next one in the ranking, when that's on.
-        if (!startupFailed || !tryNextSourceAfterFailure(showFatalError)) showFatalError()
+        // A stream that had played recovers at its position (fresh link, then the next sources);
+        // one that never played moves to the next in the ranking, when that's on.
+        val httpStatus = mpvHttpStatusCodeFromLog()
+        if (!tryNextSourceAfterFailure(
+                showFatalError,
+                httpStatus = httpStatus,
+                isSourceError = mpvErrorCode == MPV_ERROR_LOADING_FAILED || httpStatus != null
+            )
+        ) {
+            showFatalError()
+        }
     } finally {
         mpvErrorHandlingInProgress.set(false)
     }

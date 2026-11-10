@@ -1706,8 +1706,16 @@ internal fun PlayerRuntimeController.initializePlayer(
                                 )
                             }
                         }
-                        // The stream never played: the next one in the ranking, when that's on.
-                        if (!tryNextSourceAfterFailure(showFatalError)) showFatalError()
+                        // A stream that had played recovers at its position (fresh link, then the
+                        // next sources); one that never played moves to the next in the ranking.
+                        if (!tryNextSourceAfterFailure(
+                                showFatalError,
+                                httpStatus = error.findInvalidResponseCodeException()?.responseCode,
+                                isSourceError = error.isSourceError()
+                            )
+                        ) {
+                            showFatalError()
+                        }
                     }
                 })
 

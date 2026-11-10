@@ -337,13 +337,25 @@ internal fun PlayerRuntimeController.dismissSourcesPanel() {
     sourceStreamsScope = null
     sourceStreamsJob = null
     sourceChipErrorDismissJob?.cancel()
+    // Opened from the error screen and closed without a pick: nothing is playing, so the error returns.
+    val restoredError = errorBeforeSourcesPanel
+    errorBeforeSourcesPanel = null
     _uiState.update {
         it.copy(
             showSourcesPanel = false,
-            isLoadingSourceStreams = false
+            isLoadingSourceStreams = false,
+            error = restoredError ?: it.error,
+            showErrorRecoveryActions = if (restoredError != null) true else it.showErrorRecoveryActions
         )
     }
-    scheduleHideControls()
+    if (restoredError == null) scheduleHideControls()
+}
+
+/** "All sources" on the error screen: the sources panel, with the error back if nothing is picked. */
+internal fun PlayerRuntimeController.showSourcesPanelFromError() {
+    errorBeforeSourcesPanel = _uiState.value.error
+    _uiState.update { it.copy(error = null, showErrorRecoveryActions = false) }
+    showSourcesPanel()
 }
 
 internal fun PlayerRuntimeController.filterSourceStreamsByAddon(addonName: String?) {
@@ -703,8 +715,13 @@ private fun PlayerRuntimeController.openExternalStreamInBrowser(
 
 @androidx.annotation.OptIn(UnstableApi::class)
 internal fun PlayerRuntimeController.switchToSourceStream(
-    stream: Stream
+    stream: Stream,
+    /** Where to start, for a stream replacing one that failed mid-playback; else the saved progress. */
+    resumePositionMs: Long? = null
 ) {
+    // A source the user picks ends any recovery; a replacement carries it on.
+    if (resumePositionMs == null) midPlaybackRecovery = null
+    errorBeforeSourcesPanel = null
     sourceStreamsScope?.cancel()
     sourceStreamsScope = null
     sourceStreamsJob = null
@@ -719,7 +736,7 @@ internal fun PlayerRuntimeController.switchToSourceStream(
             val prepared = prepareServerStream(stream)
             streamResolveJob = null
             if (prepared != null) {
-                switchToSourceStream(prepared)
+                switchToSourceStream(prepared, resumePositionMs)
             } else {
                 _uiState.update { it.copy(isLoadingSourceStreams = false) }
             }
@@ -734,7 +751,7 @@ internal fun PlayerRuntimeController.switchToSourceStream(
             val resolved = resolveYouTubeStream(stream)
             streamResolveJob = null
             if (resolved != null) {
-                switchToSourceStream(resolved)
+                switchToSourceStream(resolved, resumePositionMs)
             } else {
                 _uiState.update {
                     it.copy(
@@ -804,7 +821,9 @@ internal fun PlayerRuntimeController.switchToSourceStream(
             selectedSubtitleTrackIndex = -1,
             showSourcesPanel = false,
             isLoadingSourceStreams = false,
-            sourceStreamsError = null
+            sourceStreamsError = null,
+            showErrorRecoveryActions = false,
+            pendingSeekPosition = resumePositionMs?.takeIf { position -> position > 0L } ?: it.pendingSeekPosition
         )
     }
     showStreamSourceIndicator(stream)
@@ -843,7 +862,12 @@ internal fun PlayerRuntimeController.switchToSourceStream(
         initializePlayer(playbackUrl, playbackHeaders)
     }
 
-    loadSavedProgressFor(currentSeason, currentEpisode)
+    if (resumePositionMs != null && resumePositionMs > 0L) {
+        // The failed stream's position, not the saved progress, which may lag behind it.
+        pendingResumeProgress = null
+    } else {
+        loadSavedProgressFor(currentSeason, currentEpisode)
+    }
 }
 
 internal fun PlayerRuntimeController.dismissEpisodesPanel() {

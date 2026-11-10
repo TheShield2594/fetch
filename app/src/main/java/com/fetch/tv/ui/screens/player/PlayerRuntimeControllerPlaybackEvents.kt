@@ -1730,7 +1730,16 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             }
             scheduleHideControls()
         }
+        PlayerEvent.OnErrorTryNextSource -> {
+            tryNextSourceFromError()
+        }
+        PlayerEvent.OnErrorShowAllSources -> {
+            showSourcesPanelFromError()
+        }
         PlayerEvent.OnRetry -> {
+            // A stream that failed mid-playback picks up where it stopped.
+            val resumeAt = midPlaybackRecovery?.positionMs?.takeIf { it > 0L }
+                ?: _playbackTimeline.value.currentPosition.takeIf { hasRenderedFirstFrame && it > 0L }
             hasRenderedFirstFrame = false
             endDetectionArmed = false
             mpvEofSeenClear = false
@@ -1743,6 +1752,8 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             _uiState.update { state ->
                 state.copy(
                     error = null,
+                    showErrorRecoveryActions = false,
+                    pendingSeekPosition = resumeAt ?: state.pendingSeekPosition,
                     playbackIssueReportStatus = PlaybackIssueReportStatus.Idle,
                     playbackIssueReportId = null,
                     playbackIssueReportError = null,

@@ -405,7 +405,6 @@
     <string name="advanced_section_performance">Производителност и навигация</string>
     <string name="advanced_section_diagnostics">Диагностика</string>
     <string name="advanced_section_cache">Кеш</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">Бърза хоризонтална навигация</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Увеличаване на скоростта на повторение на D-pad в редовете, докато повторението с ограничение е включено.</string>
     <string name="advanced_fetch_focus_scroll">Fetch фокусирано превъртане</string>
@@ -527,20 +526,16 @@
     <string name="audio_dv5_to_dv81_sub">Сигнализирай Profile 5 потоци като Profile 8.1 за HDR10-съвместим изход. Помага на устройства без нативен DV5 декодер.</string>
     <string name="audio_dv7_preserve_mapping_title">Запази DV mapping (DV7 към DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">Запазва оригиналното tone-mapping, замислено от създателя, за сметка на леко повече обработка на кадър.</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Режим на конверсия (автоматично избран, не променяй освен ако не е указано). Избери един за принудително; None използва автоматично. Активно само когато DV7 Handling е Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Режим на конверсия</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">Без презапис. Използва автоматично избрания режим на конверсия.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (без конверсия)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Парсирай RPU и го запиши обратно непроменен. Без конверсия на профила.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Конвертирай RPU, за да бъде съвместим с MEL (Minimum Enhancement Layer).</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Конвертирай към profile 8.1 с luma и chroma mapping, зададени като no-op. Стандартната конверсия.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 към 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Конвертирай Profile 5 (DV5) потоци към Profile 8.1. Същата конверсия, която използва превключвателят Convert DV5 to DV8.1.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Конвертирай към статичен profile 8.4.</string>
+    <string name="dv7_libdovi_mode_caption">Режим на конверсия (автоматично избран, не променяй освен ако не е указано). Избери един за принудително; None използва автоматично. Активно само когато DV7 Handling е Convert to DV8.1.</string>
+    <string name="dv7_libdovi_mode_row_title">Режим на конверсия</string>
+    <string name="dv7_libdovi_mode_none_sub">Без презапис. Използва автоматично избрания режим на конверсия.</string>
+    <string name="dv7_libdovi_mode_0_title">Mode 0 — Copy (без конверсия)</string>
+    <string name="dv7_libdovi_mode_0_sub">Парсирай RPU и го запиши обратно непроменен. Без конверсия на профила.</string>
+    <string name="dv7_libdovi_mode_1_sub">Конвертирай RPU, за да бъде съвместим с MEL (Minimum Enhancement Layer).</string>
+    <string name="dv7_libdovi_mode_2_sub">Конвертирай към profile 8.1 с luma и chroma mapping, зададени като no-op. Стандартната конверсия.</string>
+    <string name="dv7_libdovi_mode_3_title">Mode 3 — Profile 5 към 8.1</string>
+    <string name="dv7_libdovi_mode_3_sub">Конвертирай Profile 5 (DV5) потоци към Profile 8.1. Същата конверсия, която използва превключвателят Convert DV5 to DV8.1.</string>
+    <string name="dv7_libdovi_mode_4_sub">Конвертирай към статичен profile 8.4.</string>
     <string name="audio_mpv_hwdec_title">Хардуерно декодиране (само MPV)</string>
     <string name="audio_mpv_hwdec_dialog_subtitle">Избери как libmpv да използва хардуерни декодери.</string>
     <string name="audio_mpv_hwdec_legacy_direct_copy">Legacy (direct -&gt; copy)</string>

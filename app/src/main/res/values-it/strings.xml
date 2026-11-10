@@ -468,7 +468,7 @@
 <string name="advanced_player_stats_hud">Overlay statistiche di riproduzione</string>
 <string name="advanced_player_stats_hud_subtitle">Mostra un pulsante nelle info dello stream per attivare/disattivare le letture in tempo reale di CPU, memoria, buffer, bitrate e temperatura durante la riproduzione</string>
 <string name="advanced_section_cache">Cache</string>
-<string name="advanced_section_dv_diagnostics" translatable="false">Diagnostica DV</string>
+<string name="advanced_section_dv_diagnostics">Diagnostica DV</string>
 <string name="advanced_fast_horizontal_navigation">Navigazione Orizzontale Rapida</string>
 <string name="advanced_fast_horizontal_navigation_subtitle">Aumenta la velocità di ripetizione del D-pad nelle righe mantenendo il throttling attivo.</string>
 <string name="advanced_fetch_focus_scroll">Scorrimento Focus Fetch</string>
@@ -603,20 +603,19 @@
 <string name="audio_strip_hdr10plus_sub">Rimuove i metadati dinamici HDR10+ dai flussi. Quando è attivo anche Converti in DV8.1, la rimozione avviene dopo la conversione.</string>
 <string name="audio_dv7_preserve_mapping_title">Mantieni il mapping DV (DV7 in DV8.1)</string>
 <string name="audio_dv7_preserve_mapping_sub">Mantiene il tone-mapping originale voluto dal creatore, al costo di un po\' più di elaborazione per frame.</string>
-<string name="dv7_libdovi_mode_caption" translatable="false">Modalità di conversione (selezionata automaticamente; non modificarla salvo diversa indicazione). Scegline una per forzarla; \"Nessuna\" usa la modalità automatica. È attiva solo quando \"Gestione DV7\" è impostata su \"Converti in DV8.1\".</string>
-<string name="dv7_libdovi_mode_row_title" translatable="false">Modalità di conversione</string>
-<string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-<string name="dv7_libdovi_mode_none_sub" translatable="false">Nessuna sovrascrittura. Usa la modalità di conversione selezionata automaticamente.</string>
-<string name="dv7_libdovi_mode_0_title" translatable="false">Modalità 0 — Copia (nessuna conversione)</string>
-<string name="dv7_libdovi_mode_0_sub" translatable="false">Analizza l\'RPU e lo riscrive senza modifiche. Nessuna conversione del profilo.</string>
-<string name="dv7_libdovi_mode_1_title" translatable="false">Modalità 1 — MEL</string>
-<string name="dv7_libdovi_mode_1_sub" translatable="false">Converte l\'RPU per renderlo compatibile con MEL (Minimum Enhancement Layer).</string>
-<string name="dv7_libdovi_mode_2_title" translatable="false">Modalità 2 — 8.1 (mappatura senza effetto)</string>
-<string name="dv7_libdovi_mode_2_sub" translatable="false">Converte al profilo 8.1 con la mappatura di luminanza e crominanza impostata senza effetto. È la conversione standard.</string>
-<string name="dv7_libdovi_mode_3_title" translatable="false">Modalità 3 — Profilo 5 a 8.1</string>
-<string name="dv7_libdovi_mode_3_sub" translatable="false">Converte gli stream del profilo 5 (DV5) al profilo 8.1. È la stessa conversione dell\'opzione \"Converti DV5 in DV8.1\".</string>
-<string name="dv7_libdovi_mode_4_title" translatable="false">Modalità 4 — 8.4 (statico)</string>
-<string name="dv7_libdovi_mode_4_sub" translatable="false">Converte al profilo statico 8.4.</string>
+<string name="dv7_libdovi_mode_caption">Modalità di conversione (selezionata automaticamente; non modificarla salvo diversa indicazione). Scegline una per forzarla; \"Nessuna\" usa la modalità automatica. È attiva solo quando \"Gestione DV7\" è impostata su \"Converti in DV8.1\".</string>
+<string name="dv7_libdovi_mode_row_title">Modalità di conversione</string>
+<string name="dv7_libdovi_mode_none_sub">Nessuna sovrascrittura. Usa la modalità di conversione selezionata automaticamente.</string>
+<string name="dv7_libdovi_mode_0_title">Modalità 0 — Copia (nessuna conversione)</string>
+<string name="dv7_libdovi_mode_0_sub">Analizza l\'RPU e lo riscrive senza modifiche. Nessuna conversione del profilo.</string>
+<string name="dv7_libdovi_mode_1_title">Modalità 1 — MEL</string>
+<string name="dv7_libdovi_mode_1_sub">Converte l\'RPU per renderlo compatibile con MEL (Minimum Enhancement Layer).</string>
+<string name="dv7_libdovi_mode_2_title">Modalità 2 — 8.1 (mappatura senza effetto)</string>
+<string name="dv7_libdovi_mode_2_sub">Converte al profilo 8.1 con la mappatura di luminanza e crominanza impostata senza effetto. È la conversione standard.</string>
+<string name="dv7_libdovi_mode_3_title">Modalità 3 — Profilo 5 a 8.1</string>
+<string name="dv7_libdovi_mode_3_sub">Converte gli stream del profilo 5 (DV5) al profilo 8.1. È la stessa conversione dell\'opzione \"Converti DV5 in DV8.1\".</string>
+<string name="dv7_libdovi_mode_4_title">Modalità 4 — 8.4 (statico)</string>
+<string name="dv7_libdovi_mode_4_sub">Converte al profilo statico 8.4.</string>
 <string name="audio_mpv_hwdec_title">Decodifica Hardware (Solo MPV)</string>
 <string name="audio_mpv_hwdec_dialog_subtitle">Seleziona come libmpv deve utilizzare i decoder hardware.</string>
 <string name="audio_mpv_hwdec_legacy_direct_copy">Legacy (diretto -> copia)</string>

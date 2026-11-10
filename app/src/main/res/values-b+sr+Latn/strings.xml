@@ -492,7 +492,7 @@
     <string name="advanced_player_stats_hud">Preklop sa statistikama reprodukcije</string>
     <string name="advanced_player_stats_hud_subtitle">Prikaži dugme u informacijama o strimu za uključivanje/isključivanje live CPU, memorije, bafera, bitrejta i termalnih očitavanja tokom reprodukcije</string>
     <string name="advanced_section_cache">Keš memorija</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Dijagnostika</string>
+    <string name="advanced_section_dv_diagnostics">DV Dijagnostika</string>
     <string name="advanced_fast_horizontal_navigation">Brza horizontalna navigacija</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Povećaj brzinu ponavljanja na D-padu u redovima dok zadržavaš omogućeno ograničavanje ponavljanja.</string>
     <string name="advanced_fetch_focus_scroll">Fetch fokus skrolovanje</string>
@@ -627,20 +627,6 @@
     <string name="audio_strip_hdr10plus_sub">Ukloni HDR10+ dinamičke metapodatke iz strimova. Kada je takođe omogućeno \"Pretvori u DV8.1\", uklanjanje se vrši nakon konverzije.</string>
     <string name="audio_dv7_preserve_mapping_title">Sačuvaj DV preslikavanje (DV7 u DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">Zadržava originalno mapiranje tonova koje je zamislio autor, uz cenu malo veće obrade po kadru.</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hi10p_gnext_sw_title">Hi10P G-NEXT SW rezervna opcija (samo MPV)</string>
     <string name="audio_mpv_hi10p_gnext_sw_subtitle">Koristi G-NEXT softversko dekodiranje kada detalji strima identifikuju H.264 Hi10P. Isključeno podrazumevano; uključite samo ako Hi10P reprodukcija zastane ili ne uspe.</string>
     <string name="audio_mpv_hwdec_title">Hardversko dekodiranje (samo za MPV)</string>

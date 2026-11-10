@@ -2046,21 +2046,6 @@
     <string name="trakt_comments_error_request_failed">Не удалось загрузить комментарии</string>
     <string name="trakt_library_error_fetch_list_items">Не удалось загрузить элементы списка</string>
     <!-- Batch 13 (final): DV diagnostics, meta/stream addon errors, home poster errors, debrid picker filters, subtitle language unknown -->
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hi10p_gnext_sw_title">Программный откат Hi10P G-NEXT (только MPV)</string>
     <string name="audio_mpv_hi10p_gnext_sw_subtitle">Использовать программное декодирование G-NEXT, когда параметры потока определяют H.264 Hi10P. Отключено по умолчанию; включайте, только если воспроизведение Hi10P зависает или не работает.</string>
     <string name="meta_error_detail_no_metadata_for_id">не вернул метаданные для этого ID</string>

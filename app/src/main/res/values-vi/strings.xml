@@ -511,7 +511,6 @@
     <string name="advanced_section_cache">Bộ nhớ đệm</string>
     <string name="advanced_section_startup">Khởi động &amp; thoát</string>
     <string name="advanced_section_network_tests">Kiểm tra mạng</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">Điều hướng ngang nhanh</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Tăng tốc độ lặp của phím điều hướng trong các hàng nhưng vẫn bật tính năng giới hạn tốc độ lặp.</string>
     <string name="advanced_fetch_focus_scroll">Cuộn theo tiêu điểm Fetch</string>
@@ -673,20 +672,6 @@
     <string name="audio_strip_hdr10plus_sub">Loại bỏ siêu dữ liệu động HDR10+ khỏi các luồng. Khi Chuyển đổi sang DV8.1 được bật, việc loại bỏ sẽ được thực hiện sau khi chuyển đổi.</string>
     <string name="audio_dv7_preserve_mapping_title">Giữ nguyên dữ liệu ánh xạ DV (DV7 sang DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">Giữ nguyên cách ánh xạ tông màu theo chủ ý ban đầu của nhà sáng tạo nhưng cần xử lý nhiều hơn một chút cho mỗi khung hình.</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hi10p_gnext_sw_title">Giải mã phần mềm dự phòng Hi10P G-NEXT (chỉ MPV)</string>
     <string name="audio_mpv_hi10p_gnext_sw_subtitle">Dùng giải mã phần mềm G-NEXT khi thông tin luồng nhận diện là H.264 Hi10P. Tắt theo mặc định; chỉ bật nếu phát lại Hi10P bị treo hoặc gặp lỗi.</string>
     <string name="audio_mpv_hwdec_title">Giải mã phần cứng (chỉ cho MPV))</string>

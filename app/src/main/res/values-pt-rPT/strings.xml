@@ -396,7 +396,7 @@
     <string name="advanced_section_performance">Desempenho e navegação</string>
     <string name="advanced_section_diagnostics">Diagnósticos</string>
     <string name="advanced_section_cache">Cache</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">Diagnóstico Dolby Vision</string>
+    <string name="advanced_section_dv_diagnostics">Diagnóstico Dolby Vision</string>
     <string name="advanced_fast_horizontal_navigation">Navegação horizontal rápida</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Aumenta a velocidade de repetição do D-pad nas linhas, mantendo ativa a limitação de repetição.</string>
     <string name="advanced_fetch_focus_scroll">Deslocamento de foco do Fetch</string>
@@ -514,20 +514,20 @@
     <string name="audio_dv5_to_dv81_sub">Sinaliza streams Profile 5 como Profile 8.1 para saída compatível com HDR10. Ajuda em dispositivos sem descodificador DV5 nativo.</string>
     <string name="audio_dv7_preserve_mapping_title">Preservar mapeamento Dolby Vision (DV7 para DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">Mantém o mapeamento de tons original definido pelo criador, à custa de um pouco mais de processamento por fotograma.</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Modo de conversão (selecionado automaticamente; não alteres salvo indicação). Escolhe um para o forçar; Nenhum utiliza o modo automático. Só fica ativo quando o Tratamento Dolby Vision está definido para Converter para DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Modo de conversão</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">Nenhum</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">Sem substituição. Utiliza o modo de conversão selecionado automaticamente.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Modo 0 — Copiar (sem converter)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Analisa o RPU e volta a escrevê-lo sem alterações. Sem conversão de perfil.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Modo 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Converte o RPU para ser compatível com MEL (Minimum Enhancement Layer).</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Modo 2 — 8.1 (mapeamento no-op)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Converte para Profile 8.1 com mapeamento de luma e croma definido como no-op. É a conversão predefinida.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Modo 3 — Profile 5 para 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Converte streams Profile 5 (DV5) para Profile 8.1. É a mesma conversão utilizada pela opção Converter DV5 para DV8.1.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Modo 4 — 8.4 (estático)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Converte para Profile 8.4 estático.</string>
+    <string name="dv7_libdovi_mode_caption">Modo de conversão (selecionado automaticamente; não alteres salvo indicação). Escolhe um para o forçar; Nenhum utiliza o modo automático. Só fica ativo quando o Tratamento Dolby Vision está definido para Converter para DV8.1.</string>
+    <string name="dv7_libdovi_mode_row_title">Modo de conversão</string>
+    <string name="dv7_libdovi_mode_none_title">Nenhum</string>
+    <string name="dv7_libdovi_mode_none_sub">Sem substituição. Utiliza o modo de conversão selecionado automaticamente.</string>
+    <string name="dv7_libdovi_mode_0_title">Modo 0 — Copiar (sem converter)</string>
+    <string name="dv7_libdovi_mode_0_sub">Analisa o RPU e volta a escrevê-lo sem alterações. Sem conversão de perfil.</string>
+    <string name="dv7_libdovi_mode_1_title">Modo 1 — MEL</string>
+    <string name="dv7_libdovi_mode_1_sub">Converte o RPU para ser compatível com MEL (Minimum Enhancement Layer).</string>
+    <string name="dv7_libdovi_mode_2_title">Modo 2 — 8.1 (mapeamento no-op)</string>
+    <string name="dv7_libdovi_mode_2_sub">Converte para Profile 8.1 com mapeamento de luma e croma definido como no-op. É a conversão predefinida.</string>
+    <string name="dv7_libdovi_mode_3_title">Modo 3 — Profile 5 para 8.1</string>
+    <string name="dv7_libdovi_mode_3_sub">Converte streams Profile 5 (DV5) para Profile 8.1. É a mesma conversão utilizada pela opção Converter DV5 para DV8.1.</string>
+    <string name="dv7_libdovi_mode_4_title">Modo 4 — 8.4 (estático)</string>
+    <string name="dv7_libdovi_mode_4_sub">Converte para Profile 8.4 estático.</string>
     <string name="audio_mpv_hwdec_title">Descodificação por Hardware (Apenas MPV)</string>
     <string name="audio_mpv_hwdec_dialog_subtitle">Seleciona como a libmpv deve utilizar os descodificadores por hardware.</string>
     <string name="audio_mpv_hwdec_legacy_direct_copy">Legado (direto -&gt; cópia)</string>

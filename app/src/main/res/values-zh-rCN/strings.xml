@@ -489,7 +489,6 @@
     <string name="advanced_player_stats_hud">播放统计覆盖层</string>
     <string name="advanced_player_stats_hud_subtitle">在流信息中显示一个按钮，用于在播放期间切换实时 CPU、内存、缓冲、比特率和温度读数</string>
     <string name="advanced_section_cache">缓存</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">快速水平导航</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">提高 D-pad 在行内的重复速度，同时保留重复节流功能。</string>
     <string name="advanced_fetch_focus_scroll">Fetch 焦点滚动</string>
@@ -628,20 +627,6 @@
     <string name="audio_strip_hdr10plus_sub">从流中移除 HDR10+ 动态元数据。当同时启用「转换为 DV8.1」时，移除操作在转换之后执行。</string>
     <string name="audio_dv7_preserve_mapping_title">保留 DV 映射 (DV7 转 DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">保留创作者原始意图的色调映射，代价是每帧处理量略增。</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hi10p_gnext_sw_title">Hi10P G-NEXT 软件回退 (仅限 MPV)</string>
     <string name="audio_mpv_hi10p_gnext_sw_subtitle">当流详情识别为 H.264 Hi10P 时使用 G-NEXT 软件解码。默认关闭；仅在 Hi10P 播放卡死或失败时启用。</string>
     <string name="audio_mpv_hwdec_title">硬件解码 (仅限 MPV)</string>

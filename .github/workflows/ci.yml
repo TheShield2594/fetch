@@ -28,6 +28,13 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Fails when startup-prof.txt copies baseline-prof.txt or Fetch code is not covered
+      # (docs/performance.md, section 2).
+      - name: Baseline and start-up profiles
+        run: |
+          (cd scripts && python3 -m unittest tests.test_check_baseline_profiles)
+          python3 scripts/check_baseline_profiles.py
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

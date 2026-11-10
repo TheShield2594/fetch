@@ -12,7 +12,9 @@ Usage: $0 <command> [args]
 Commands:
   generate-profile      Regenerate app/src/main/generated/baselineProfiles from a Fetch build
                         (connected device or emulator, API 28+, first-run onboarding reachable)
+  check-profile         Check the committed profiles: start-up differs from baseline, Fetch code covered
   benchmark             Run the cold-start Macrobenchmark (StartupBenchmark) on a connected device
+  benchmark-emulator    The same on an emulator, where the numbers only show profile against no profile
   frames                Run the frame-timing Macrobenchmark (FrameTimingBenchmark): Home scrolling
                         and opening a detail page, on a connected device
   cold-start [runs]     Measure cold start with 'am start -W' on the installed app (default 10 runs)
@@ -28,11 +30,23 @@ case "$cmd" in
   generate-profile)
     ./gradlew :app:generateBaselineProfile
     ;;
+  check-profile)
+    python3 "$(dirname "$0")/check_baseline_profiles.py"
+    ;;
   benchmark)
     ./gradlew \
       :baselineprofile:connectedBenchmarkReleaseAndroidTest \
       -Pandroid.testInstrumentationRunnerArguments.class=com.fetch.tv.baselineprofile.StartupBenchmark \
       -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=Macrobenchmark
+    ;;
+  benchmark-emulator)
+    # Macrobenchmark refuses to run on an emulator unless told the numbers are not for the record.
+    ./gradlew \
+      :baselineprofile:connectedBenchmarkReleaseAndroidTest \
+      -Pandroid.testInstrumentationRunnerArguments.class=com.fetch.tv.baselineprofile.StartupBenchmark \
+      -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=Macrobenchmark \
+      -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.suppressErrors=EMULATOR
+    python3 "$(dirname "$0")/summarise_benchmark.py" baselineprofile/build/outputs
     ;;
   frames)
     ./gradlew \

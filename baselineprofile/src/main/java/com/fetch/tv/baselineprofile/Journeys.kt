@@ -1,7 +1,9 @@
 package com.fetch.tv.baselineprofile
 
+import android.util.Log
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Configurator
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
@@ -9,9 +11,43 @@ import java.util.regex.Pattern
 
 internal const val TARGET_PACKAGE = "com.fetch.tv"
 
+private const val LOG_TAG = "FetchJourney"
+private const val SCREENSHOT_DIR = "/sdcard/Download/fetch-journey"
+private val ANY_TEXT = Pattern.compile(".+", Pattern.DOTALL)
+private const val MAX_SCREENSHOTS = 20
+private var snapshotCount = 0
+
+// Home is never idle for long (hero rotation, image loads), and waitForIdle's default timeout
+// is 10 seconds per call, which turns one journey into several minutes of waiting.
+private const val WAIT_FOR_IDLE_TIMEOUT_MS = 1_500L
+
+// Records where the journey is: the focused control and the texts on screen go to logcat under
+// FetchJourney, and a screenshot goes to /sdcard/Download/fetch-journey. A journey that stalls
+// (a renamed label, a new onboarding step) can then be read back without watching the device:
+// `adb logcat -d -s FetchJourney` and `adb pull /sdcard/Download/fetch-journey`.
+internal fun UiDevice.snapshot(step: String) {
+    val number = ++snapshotCount
+    runCatching {
+        val focused = findObject(By.focused(true))
+        val focusedLabel = focused?.let { it.text ?: it.findObject(By.text(ANY_TEXT))?.text ?: it.className }
+        val texts = findObjects(By.pkg(TARGET_PACKAGE).text(ANY_TEXT)).take(30).mapNotNull {
+            runCatching { it.text?.take(40) }.getOrNull()
+        }
+        Log.i(LOG_TAG, "#$number $step | focused=$focusedLabel | pkg=$currentPackageName | $texts")
+    }.onFailure { Log.i(LOG_TAG, "#$number $step | could not read the screen: $it") }
+    runCatching {
+        executeShellCommand("mkdir -p $SCREENSHOT_DIR")
+        if (number <= MAX_SCREENSHOTS) {
+            val name = "%03d-%s.png".format(number, step.replace(Regex("[^A-Za-z0-9]+"), "-"))
+            executeShellCommand("screencap -p $SCREENSHOT_DIR/$name")
+        }
+    }
+}
+
 // English labels from strings.xml / strings_setup.xml; inEnglish keeps them predictable.
 private val SIGN_IN_SKIP = labelPattern("Continue without account")
-private val WIZARD_STEP_INDICATOR = labelPattern("1  Server")
+// first_run_step_label is "%1$d  %2$s", but resource whitespace collapses, so match any gap.
+private val WIZARD_STEP_INDICATOR = Pattern.compile("1\\s+Server", Pattern.CASE_INSENSITIVE)
 private val WIZARD_EXPERIENCE_TITLE = labelPattern("Choose your Fetch experience")
 private val WIZARD_SKIP = labelPattern("Skip for now")
 private val WIZARD_CONTINUE = labelPattern("Continue")
@@ -37,21 +73,33 @@ internal inline fun MacrobenchmarkScope.inEnglish(block: () -> Unit) {
 }
 
 // Cold launches the app and waits for Home, stepping through first-run onboarding when a fresh
-// install shows it: sign-in, then the first-run wizard, whose last step (Advanced) opens Home.
-internal fun MacrobenchmarkScope.launchToHome() {
+// install shows it: sign-in, then the first-run wizard, whose last step (Advanced, or Skip for now) opens Home.
+// With onboardingDone the caller knows an earlier launch finished onboarding, so this only
+// glances for the sign-in screen and returns once Home has drawn, without the settling time.
+internal fun MacrobenchmarkScope.launchToHome(onboardingDone: Boolean = false) {
+    Configurator.getInstance().waitForIdleTimeout = WAIT_FOR_IDLE_TIMEOUT_MS
     pressHome()
     startActivityAndWait()
     device.wait(Until.hasObject(By.pkg(TARGET_PACKAGE)), 5_000)
     device.waitForIdle()
+    device.snapshot("launched")
 
-    if (device.wait(Until.hasObject(By.text(SIGN_IN_SKIP)), 8_000) == true) {
+    val signInWaitMs = if (onboardingDone) 1_500L else 8_000L
+    if (device.wait(Until.hasObject(By.text(SIGN_IN_SKIP)), signInWaitMs) == true) {
+        device.snapshot("sign-in")
         device.focusAndSelect(SIGN_IN_SKIP)
         device.wait(Until.hasObject(By.text(WIZARD_SKIP)), 10_000)
     }
     // Also covers a wizard left half-done by an earlier run that stopped after sign-in.
     device.completeFirstRunWizard()
+    // The wizard closes a moment after its last press. If it is still up the journey would
+    // record the wizard as Home, so stop the run instead.
+    check(device.wait(Until.gone(By.text(WIZARD_EXPERIENCE_TITLE)), 10_000) == true) {
+        "The first-run wizard did not close; see the FetchJourney log and update Journeys.kt."
+    }
     device.waitForIdle()
-    Thread.sleep(3_000)
+    Thread.sleep(if (onboardingDone) 1_000 else 3_000)
+    device.snapshot("after-onboarding")
 }
 
 // Scrolls across the focused Home row, then down through the rows, then back up toward a title,
@@ -81,9 +129,17 @@ internal fun UiDevice.scrollHome() {
 // step indicator. Anything else is not the wizard (Home can have its own Continue), so it stops.
 private fun UiDevice.completeFirstRunWizard() {
     repeat(WIZARD_MAX_STEPS) {
+        snapshot("wizard-step")
         when {
             hasObject(By.text(WIZARD_EXPERIENCE_TITLE)) -> {
-                focusAndSelect(WIZARD_ADVANCED)
+                // Focus starts on Essential, with Advanced the card below it. On the CI emulator
+                // the script has not managed to select Advanced (the log shows
+                // advanced-not-selected), so this normally ends on Skip for now, which takes
+                // Essential and opens Home just the same.
+                if (!focusAndSelect(WIZARD_ADVANCED, maxSteps = 6, rightFirst = true)) {
+                    snapshot("advanced-not-selected")
+                    focusAndSelect(WIZARD_SKIP)
+                }
                 return
             }
             !hasObject(By.text(WIZARD_STEP_INDICATOR)) -> return
@@ -97,9 +153,15 @@ private fun UiDevice.completeFirstRunWizard() {
 // Moves D-pad focus until the control carrying the label is focused and then selects it, since TV
 // devices have no touch input. With awaitGone, the step only counts once the label disappears, so a
 // mis-selection keeps searching; without it (a label every wizard step repeats) one press is enough.
-private fun UiDevice.focusAndSelect(pattern: Pattern, awaitGone: Boolean = true, maxSteps: Int = 24): Boolean {
+private fun UiDevice.focusAndSelect(
+    pattern: Pattern,
+    awaitGone: Boolean = true,
+    maxSteps: Int = 24,
+    rightFirst: Boolean = false
+): Boolean {
     if (wait(Until.hasObject(By.text(pattern)), 10_000) != true) return false
     repeat(maxSteps) { step ->
+        if (step == maxSteps - 1) snapshot("still-looking-for-$pattern")
         if (isFocusedLabel(pattern)) {
             pressDPadCenter()
             waitForIdle()
@@ -107,7 +169,7 @@ private fun UiDevice.focusAndSelect(pattern: Pattern, awaitGone: Boolean = true,
             if (!awaitGone || wait(Until.gone(By.text(pattern)), 5_000) == true) return true
         }
         // Alternate directions so both vertical lists and side-by-side cards are reachable.
-        if (step % 2 == 0) pressDPadDown() else pressDPadRight()
+        if ((step % 2 == 0) == rightFirst) pressDPadRight() else pressDPadDown()
         waitForIdle()
         Thread.sleep(250)
     }

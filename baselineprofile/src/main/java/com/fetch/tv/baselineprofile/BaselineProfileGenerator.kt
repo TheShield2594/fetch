@@ -35,11 +35,13 @@ class BaselineProfileGenerator {
                 device.waitForIdle()
 
                 device.scrollHome()
+                device.snapshot("home-scrolled")
 
                 // Open a title to compile the detail screen render path.
                 device.pressDPadCenter()
                 device.waitForIdle()
                 Thread.sleep(2_500)
+                device.snapshot("detail")
 
                 // Return to the home screen.
                 device.pressBack()
@@ -52,7 +54,8 @@ class BaselineProfileGenerator {
     @Test
     fun generateStartup() {
         rule.collect(packageName = TARGET_PACKAGE, includeInStartupProfile = true) {
-            inEnglish { launchToHome() }
+            // The journey above has finished onboarding, so this is launch and the first Home frames.
+            inEnglish { launchToHome(onboardingDone = true) }
         }
     }
 }

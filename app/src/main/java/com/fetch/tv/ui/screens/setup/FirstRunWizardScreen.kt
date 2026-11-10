@@ -80,8 +80,11 @@ fun FirstRunWizardScreen(
         }
     }
 
+    // Reads the step when pressed, not when composed: a remembered reference to this function
+    // otherwise keeps the first step's index and Skip stops advancing after Sources.
     fun next() {
-        val following = steps.getOrNull(index + 1)
+        val current = steps.indexOf(FirstRunStep.valueOf(stepName)).coerceAtLeast(0)
+        val following = steps.getOrNull(current + 1)
         if (following != null) stepName = following.name else finish(ExperienceMode.ESSENTIAL)
     }
 
@@ -97,14 +100,14 @@ fun FirstRunWizardScreen(
             FetchWebsitePairingContent(
                 viewModel = websiteViewModel,
                 onCancel = null,
-                onDone = ::next,
+                onDone = { next() },
                 firstFocus = firstFocus
             )
         },
         onBack = { steps.getOrNull(index - 1)?.let { stepName = it.name } },
-        onNext = ::next,
+        onNext = { next() },
         onToggleTmdb = { viewModel.setTmdbEnabled(!status.tmdbEnabled) },
-        onChoose = ::finish
+        onChoose = { finish(it) }
     )
 
     if (showPhoneSetup) PhoneAddonConfirmDialog(phoneHubViewModel)

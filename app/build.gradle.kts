@@ -348,9 +348,8 @@ baselineProfile {
     saveInSrc = true
     mergeIntoMain = true
     baselineProfileOutputDir = "generated/baselineProfiles"
-    filter {
-        include("com.fetch.tv.**")
-    }
+    // No filter: the profiles also cover the library code the journey runs (Kotlin, coroutines,
+    // OkHttp, Media3), most of which ships no profile of its own.
 }
 
 

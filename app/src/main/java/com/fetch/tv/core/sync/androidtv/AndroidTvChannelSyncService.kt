@@ -21,6 +21,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -100,6 +101,19 @@ class AndroidTvChannelSyncService @Inject constructor(
                     // background transition (onForegroundChanged) + periodic job cover it.
                     if (appInForeground) return@collect
                     reconcileFromCache(settings)
+                }
+        }
+
+        scope.launch {
+            // A PIN or parental limit can arrive with no cache or settings change (a website sync
+            // while Fetch is in the background), so the exposure policy triggers its own
+            // reconcile: that clears the rows when it turns to "don't show", and restores them
+            // when it turns back. The first value is the starting state, not a change.
+            launcherExposureGate.exposureChanges
+                .drop(1)
+                .collect {
+                    if (appInForeground) return@collect
+                    reconcileFromCache()
                 }
         }
     }

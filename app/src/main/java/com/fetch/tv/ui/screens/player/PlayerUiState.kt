@@ -203,6 +203,8 @@ data class PlayerUiState(
     val streamBadgePlacement: StreamBadgePlacement = StreamBadgePlacement.BOTTOM,
     val error: String? = null,
     val showSwitchToMpvErrorAction: Boolean = false,
+    /** The error is a mid-playback failure that recovery couldn't fix: Retry, Try next source, All sources. */
+    val showErrorRecoveryActions: Boolean = false,
     val playbackIssueReportStatus: PlaybackIssueReportStatus = PlaybackIssueReportStatus.Idle,
     val playbackIssueReportId: String? = null,
     val playbackIssueReportError: String? = null,
@@ -380,6 +382,8 @@ sealed class PlayerEvent {
     data class OnSourceStreamSelected(val stream: Stream) : PlayerEvent()
     data object OnDismissTransientOverlay : PlayerEvent()
     data object OnRetry : PlayerEvent()
+    data object OnErrorTryNextSource : PlayerEvent()
+    data object OnErrorShowAllSources : PlayerEvent()
     data object OnReportPlaybackIssue : PlayerEvent()
     data object OnParentalGuideHide : PlayerEvent()
     data class OnShowDisplayModeInfo(val info: DisplayModeInfo) : PlayerEvent()

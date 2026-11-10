@@ -87,6 +87,11 @@ interface PhoneHubActions {
     suspend fun proposeAddon(url: String): PhoneHubAddonProposal
     /** The state of a proposal from [proposeAddon], or null once the TV no longer knows it. */
     fun addonProposal(id: String): PhoneHubAddonProposal?
+    /**
+     * Why settings can't be changed from the phone right now (a restricted profile with the TV
+     * locked), or null when they can. Checked before any change through a section page.
+     */
+    fun settingsChangeBlocked(): String? = null
 }
 
 /**
@@ -354,6 +359,11 @@ class PhoneHubServer(
 
     /** Serves an existing phone page under `/<prefix>/`, pointing its links at the prefix. */
     private fun serveSection(prefix: String, server: NanoHTTPD, session: IHTTPSession): Response {
+        // Section pages write straight to settings (and badge import fetches a URL on the TV), so
+        // every change goes through the same parental check as the hub's own pages.
+        if (session.method != Method.GET) {
+            actions.settingsChangeBlocked()?.let { return forbidden(it) }
+        }
         val innerUri = session.uri.removePrefix("/$prefix").ifEmpty { "/" }
         val response = server.serve(PrefixedSession(session, innerUri))
         if (response.mimeType?.startsWith("text/html") != true) return response
@@ -413,6 +423,12 @@ class PhoneHubServer(
             bytes.size.toLong()
         ).apply { addHeader("Cache-Control", "no-store") }
     }
+
+    private fun forbidden(message: String): Response = newFixedLengthResponse(
+        Response.Status.FORBIDDEN,
+        "application/json; charset=utf-8",
+        buildJsonObject { put("error", message) }.toString()
+    )
 
     private fun errorResponse(message: String): Response = newFixedLengthResponse(
         Response.Status.BAD_REQUEST,

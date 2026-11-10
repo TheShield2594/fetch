@@ -3,6 +3,8 @@ package com.fetch.desktop.playback
 import com.fetch.desktop.data.AutoPlayMode
 import com.fetch.desktop.pickSource
 import com.fetch.desktop.player.ExternalPlayer
+import com.fetch.tv.core.player.StreamAutoPlaySelection
+import com.fetch.tv.data.local.StreamAutoPlayMode
 import com.fetch.tv.core.player.FilenameEpisodeMatcher
 import com.fetch.tv.core.streams.ranking.RankedStream
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
@@ -33,78 +35,61 @@ sealed interface AutoPlayDecision {
     data object ShowSources : AutoPlayDecision
 }
 
-/** The TV's `StreamAutoPlaySelector` and its waiting rules, over the desktop's ranked sources. */
-object AutoPlayPicker {
+/** The shared [StreamAutoPlaySelection] (the TV's rules) with what mpv can open. */
+object DesktopAutoPlaySelection : StreamAutoPlaySelection(isPlayable = ExternalPlayer::canPlay)
 
-    /**
-     * "Allowed addons for autoplay" (the TV's `candidates`): with addons chosen, auto-play only
-     * picks their sources. Your own media servers always count, and so do sources from addons
-     * that aren't installed (YouTube). Nothing chosen means every addon. Choosing a source by
-     * hand isn't limited.
-     */
+/** The setting as the shared rules know it. */
+fun AutoPlayMode.toShared(): StreamAutoPlayMode = when (this) {
+    AutoPlayMode.BEST_MATCH -> StreamAutoPlayMode.BEST_MATCH
+    AutoPlayMode.FIRST_STREAM -> StreamAutoPlayMode.FIRST_STREAM
+    AutoPlayMode.REGEX_MATCH -> StreamAutoPlayMode.REGEX_MATCH
+    AutoPlayMode.MANUAL -> StreamAutoPlayMode.MANUAL
+}
+
+/**
+ * Auto-play's waiting rules over the desktop's ranked sources. Which sources it may take, the
+ * pick for each mode and the binge-group and same-release matches are the shared
+ * [StreamAutoPlaySelection] the TV uses.
+ */
+object AutoPlayPicker {
+    private val selection = DesktopAutoPlaySelection
+
+    /** "Allowed addons for autoplay": see [StreamAutoPlaySelection.isCandidate]. */
     fun allowed(ranked: List<RankedStream>, installedAddonNames: Set<String>, allowedAddons: Set<String>): List<RankedStream> {
         if (allowedAddons.isEmpty()) return ranked
-        return ranked.filter { r ->
-            r.stream.serverTarget != null || r.stream.addonName !in installedAddonNames || r.stream.addonName in allowedAddons
-        }
+        return ranked.filter { selection.isCandidate(it.stream, installedAddonNames, allowedAddons) }
     }
 
     /**
-     * The TV's `sourcesNeededForPick`: with addons chosen, auto-play needs only their answers
-     * (and the media servers'), not every addon's. Null when it waits for all of them: nothing
-     * chosen, or none of the chosen addons was asked.
+     * With addons chosen, auto-play needs only their answers, not every addon's. Null when it
+     * waits for all of them: nothing chosen, or none of the chosen addons was asked.
      */
-    fun addonsNeededForPick(askedAddonNames: Collection<String>, allowedAddons: Set<String>): Set<String>? {
-        if (allowedAddons.isEmpty()) return null
-        return askedAddonNames.filter { it in allowedAddons }.toSet().takeIf { it.isNotEmpty() }
-    }
+    fun addonsNeededForPick(askedAddonNames: Collection<String>, allowedAddons: Set<String>): Set<String>? =
+        selection.sourcesNeededForPick(allowedAddons, askedAddonNames, serverSourceNames = emptyList())
 
-    /**
-     * "Start without waiting": the best so far reaches the preferred quality (never above the
-     * maximum) and, when cached debrid is preferred, isn't marked as still downloading
-     * ("[RD download]", ⏳). Unmarked links play as they are; a bare torrent never qualifies.
-     */
-    fun isGoodEnoughToStartEarly(stream: Stream, rules: StreamRankingRules): Boolean {
-        if (stream.isTorrent()) return false
-        val descriptor = StreamTitleParser.parse(stream)
-        val target = minOf(rules.preferredResolution.height, rules.maxResolution.height)
-        if (descriptor.resolution.height == 0 || descriptor.resolution.height < target) return false
-        if (stream.serverTarget != null) return true
-        return !rules.preferCachedDebrid || !descriptor.isDebridUncached
-    }
+    /** "Start without waiting": see [StreamAutoPlaySelection.isGoodEnoughToStartEarly]. */
+    fun isGoodEnoughToStartEarly(stream: Stream, rules: StreamRankingRules): Boolean =
+        selection.isGoodEnoughToStartEarly(stream, rules)
 
     /**
      * The source in [hint]'s binge group, in addon order: the same release for the next episode
-     * (file name with the episode number moved on) first, then the same torrent, then any in
-     * the group. [current] and [next] are (season, episode) of the episode that played and the
-     * one wanted; with no [current] the season and episode are read from the file name.
+     * first, then the same torrent, then any in the group. [current] and [next] are (season,
+     * episode) of the episode that played and the one wanted; with no [current] the season and
+     * episode are read from the file name.
      */
     fun bingeMatch(ranked: List<RankedStream>, hint: BingeHint, current: Pair<Int?, Int>?, next: Pair<Int?, Int>?): RankedStream? {
-        val inGroup = ranked.filter { it.stream.behaviorHints?.bingeGroup == hint.group && ExternalPlayer.canPlay(it.stream) }
-            .sortedBy { it.originalIndex }
-        if (inGroup.isEmpty()) return null
-        val nextFilename = nextFilename(hint.filename, current, next)
-        if (nextFilename != null) {
-            inGroup.firstOrNull { FilenameEpisodeMatcher.matches(it.stream.behaviorHints?.filename, nextFilename) }?.let { return it }
-        }
-        if (!hint.infoHash.isNullOrBlank()) {
-            inGroup.firstOrNull { it.stream.infoHash?.equals(hint.infoHash, ignoreCase = true) == true }?.let { return it }
-        }
-        return inGroup.first()
+        val inOrder = ranked.sortedBy { it.originalIndex }
+        val nextFilename = FilenameEpisodeMatcher.nextEpisodeFilename(hint.filename, current, next)
+        val match = selection.bingeGroupMatch(inOrder.map { it.stream }, hint.group, nextFilename, hint.infoHash) ?: return null
+        return inOrder.firstOrNull { it.stream === match }
     }
 
-    /** The same release in any group, by the next episode's file name (the TV's filename-only match). */
+    /** The same release in any group, by the next episode's file name. */
     fun filenameMatch(ranked: List<RankedStream>, filename: String?, current: Pair<Int?, Int>?, next: Pair<Int?, Int>?): RankedStream? {
-        val expected = nextFilename(filename, current, next) ?: return null
-        return ranked.filter { ExternalPlayer.canPlay(it.stream) }.sortedBy { it.originalIndex }
-            .firstOrNull { FilenameEpisodeMatcher.matches(it.stream.behaviorHints?.filename, expected) }
-    }
-
-    private fun nextFilename(filename: String?, current: Pair<Int?, Int>?, next: Pair<Int?, Int>?): String? {
-        val name = filename?.takeIf { it.isNotBlank() } ?: return null
-        if (next == null) return name
-        val playing = current ?: FilenameEpisodeMatcher.extractSeasonEpisode(name) ?: return name
-        return FilenameEpisodeMatcher.buildNextFilename(name, playing.first, playing.second, next.first, next.second) ?: name
+        val inOrder = ranked.sortedBy { it.originalIndex }
+        val expected = FilenameEpisodeMatcher.nextEpisodeFilename(filename, current, next)
+        val match = selection.filenameMatch(inOrder.map { it.stream }, expected) ?: return null
+        return inOrder.firstOrNull { it.stream === match }
     }
 
     /**

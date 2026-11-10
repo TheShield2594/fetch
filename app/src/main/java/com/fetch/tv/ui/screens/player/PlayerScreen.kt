@@ -1418,7 +1418,11 @@ fun PlayerScreen(
                 reportId = uiState.playbackIssueReportId,
                 reportError = uiState.playbackIssueReportError,
                 onReport = { viewModel.onEvent(PlayerEvent.OnReportPlaybackIssue) },
-                onBack = exitPlayerFromError
+                onBack = exitPlayerFromError,
+                showRecoveryActions = uiState.showErrorRecoveryActions,
+                onRetry = { viewModel.onEvent(PlayerEvent.OnRetry) },
+                onTryNextSource = { viewModel.onEvent(PlayerEvent.OnErrorTryNextSource) },
+                onAllSources = { viewModel.onEvent(PlayerEvent.OnErrorShowAllSources) }
             )
         }
 
@@ -4185,21 +4189,33 @@ private fun ErrorOverlay(
     reportId: String?,
     reportError: String?,
     onReport: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    showRecoveryActions: Boolean = false,
+    onRetry: () -> Unit = {},
+    onTryNextSource: () -> Unit = {},
+    onAllSources: () -> Unit = {}
 ) {
     val exitFocusRequester = remember { FocusRequester() }
     val reportFocusRequester = remember { FocusRequester() }
     val mpvFocusRequester = remember { FocusRequester() }
-    val onSwitchMpvAction = onSwitchToMpv.takeIf { showSwitchToMpvAction }
-    val targetFocusRequester = if (onSwitchMpvAction != null) mpvFocusRequester else exitFocusRequester
+    val retryFocusRequester = remember { FocusRequester() }
+    // A stream that failed mid-playback offers Retry, Try next source and All sources instead.
+    val onSwitchMpvAction = onSwitchToMpv.takeIf { showSwitchToMpvAction && !showRecoveryActions }
+    val targetFocusRequester = when {
+        showRecoveryActions -> retryFocusRequester
+        onSwitchMpvAction != null -> mpvFocusRequester
+        else -> exitFocusRequester
+    }
+    val focusKey = Pair(onSwitchMpvAction != null, showRecoveryActions)
 
-    var targetButtonPlaced by remember(onSwitchMpvAction != null) { mutableStateOf(false) }
-    var mpvFocused by remember(onSwitchMpvAction != null) { mutableStateOf(false) }
-    var reportFocused by remember(onSwitchMpvAction != null) { mutableStateOf(false) }
-    var exitFocused by remember(onSwitchMpvAction != null) { mutableStateOf(false) }
-    val hasOverlayFocus = mpvFocused || reportFocused || exitFocused
+    var targetButtonPlaced by remember(focusKey) { mutableStateOf(false) }
+    var mpvFocused by remember(focusKey) { mutableStateOf(false) }
+    var reportFocused by remember(focusKey) { mutableStateOf(false) }
+    var exitFocused by remember(focusKey) { mutableStateOf(false) }
+    var recoveryFocused by remember(focusKey) { mutableStateOf(false) }
+    val hasOverlayFocus = mpvFocused || reportFocused || exitFocused || recoveryFocused
 
-    LaunchedEffect(targetButtonPlaced, onSwitchMpvAction != null) {
+    LaunchedEffect(targetButtonPlaced, focusKey) {
         if (!targetButtonPlaced) return@LaunchedEffect
         val focused = targetFocusRequester.requestFocusAfterFrames(frames = 0)
         if (!focused) {
@@ -4269,64 +4285,104 @@ private fun ErrorOverlay(
                 )
             }
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (onSwitchMpvAction != null) {
+            if (showRecoveryActions) {
+                Row(
+                    modifier = Modifier.onFocusChanged { recoveryFocused = it.hasFocus },
+                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     PlayerOverlayButton(
-                        text = stringResource(R.string.player_switch_to_mpv),
-                        onClick = onSwitchMpvAction,
+                        text = stringResource(R.string.action_retry),
+                        onClick = onRetry,
                         primary = true,
                         modifier = Modifier
-                            .focusRequester(mpvFocusRequester)
+                            .focusRequester(retryFocusRequester)
                             .onPlaced { targetButtonPlaced = true }
-                            .onFocusChanged { mpvFocused = it.isFocused }
-                            .focusProperties {
-                                right = if (showReportAction) reportFocusRequester else exitFocusRequester
-                            }
                     )
-                }
-                if (showReportAction) {
                     PlayerOverlayButton(
-                        text = when (reportStatus) {
-                            PlaybackIssueReportStatus.Sending -> stringResource(R.string.player_report_issue_sending_button)
-                            PlaybackIssueReportStatus.Sent -> stringResource(R.string.player_report_issue_sent_button)
-                            else -> stringResource(R.string.player_report_issue)
-                        },
-                        onClick = onReport,
-                        primary = false,
-                        enabled = reportStatus != PlaybackIssueReportStatus.Sending &&
-                            reportStatus != PlaybackIssueReportStatus.Sent,
+                        text = stringResource(R.string.player_error_try_next_source),
+                        onClick = onTryNextSource,
+                        primary = false
+                    )
+                    PlayerOverlayButton(
+                        text = stringResource(R.string.player_error_all_sources),
+                        onClick = onAllSources,
+                        primary = false
+                    )
+                    if (showReportAction) {
+                        PlayerOverlayButton(
+                            text = when (reportStatus) {
+                                PlaybackIssueReportStatus.Sending -> stringResource(R.string.player_report_issue_sending_button)
+                                PlaybackIssueReportStatus.Sent -> stringResource(R.string.player_report_issue_sent_button)
+                                else -> stringResource(R.string.player_report_issue)
+                            },
+                            onClick = onReport,
+                            primary = false,
+                            enabled = reportStatus != PlaybackIssueReportStatus.Sending &&
+                                reportStatus != PlaybackIssueReportStatus.Sent
+                        )
+                    }
+                }
+            } else {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (onSwitchMpvAction != null) {
+                        PlayerOverlayButton(
+                            text = stringResource(R.string.player_switch_to_mpv),
+                            onClick = onSwitchMpvAction,
+                            primary = true,
+                            modifier = Modifier
+                                .focusRequester(mpvFocusRequester)
+                                .onPlaced { targetButtonPlaced = true }
+                                .onFocusChanged { mpvFocused = it.isFocused }
+                                .focusProperties {
+                                    right = if (showReportAction) reportFocusRequester else exitFocusRequester
+                                }
+                        )
+                    }
+                    if (showReportAction) {
+                        PlayerOverlayButton(
+                            text = when (reportStatus) {
+                                PlaybackIssueReportStatus.Sending -> stringResource(R.string.player_report_issue_sending_button)
+                                PlaybackIssueReportStatus.Sent -> stringResource(R.string.player_report_issue_sent_button)
+                                else -> stringResource(R.string.player_report_issue)
+                            },
+                            onClick = onReport,
+                            primary = false,
+                            enabled = reportStatus != PlaybackIssueReportStatus.Sending &&
+                                reportStatus != PlaybackIssueReportStatus.Sent,
+                            modifier = Modifier
+                                .focusRequester(reportFocusRequester)
+                                .onFocusChanged { reportFocused = it.isFocused }
+                                .focusProperties {
+                                    if (onSwitchMpvAction != null) left = mpvFocusRequester
+                                    right = exitFocusRequester
+                                }
+                        )
+                    }
+                    PlayerOverlayButton(
+                        text = stringResource(R.string.player_error_choose_source),
+                        onClick = onBack,
+                        primary = onSwitchMpvAction == null,
                         modifier = Modifier
-                            .focusRequester(reportFocusRequester)
-                            .onFocusChanged { reportFocused = it.isFocused }
+                            .focusRequester(exitFocusRequester)
+                            .onPlaced {
+                                if (onSwitchMpvAction == null) targetButtonPlaced = true
+                            }
+                            .onFocusChanged { exitFocused = it.isFocused }
                             .focusProperties {
-                                if (onSwitchMpvAction != null) left = mpvFocusRequester
-                                right = exitFocusRequester
+                                left = if (showReportAction) {
+                                    reportFocusRequester
+                                } else if (onSwitchMpvAction != null) {
+                                    mpvFocusRequester
+                                } else {
+                                    FocusRequester.Default
+                                }
                             }
                     )
                 }
-                PlayerOverlayButton(
-                    text = stringResource(R.string.player_error_choose_source),
-                    onClick = onBack,
-                    primary = onSwitchMpvAction == null,
-                    modifier = Modifier
-                        .focusRequester(exitFocusRequester)
-                        .onPlaced {
-                            if (onSwitchMpvAction == null) targetButtonPlaced = true
-                        }
-                        .onFocusChanged { exitFocused = it.isFocused }
-                        .focusProperties {
-                            left = if (showReportAction) {
-                                reportFocusRequester
-                            } else if (onSwitchMpvAction != null) {
-                                mpvFocusRequester
-                            } else {
-                                FocusRequester.Default
-                            }
-                        }
-                )
             }
         }
     }

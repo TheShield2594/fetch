@@ -107,16 +107,21 @@ class PhoneHubServerTest {
 
         override fun addonProposal(id: String) =
             if (id == "req-1") PhoneHubAddonProposal(PhoneHubAddonStatus.INSTALLED, id = id, name = "Streams") else null
+
+        var blockedMessage: String? = null
+
+        override fun settingsChangeBlocked(): String? = blockedMessage
     }
 
     private val actions = FakeActions()
+    private val savedPatterns = mutableListOf<String>()
     private val server = PhoneHubServer(
         actions = actions,
         resources = { RuntimeEnvironment.getApplication().resources },
         sections = mapOf(
             PhoneHubServer.SECTION_POSTERS to CustomPosterConfigServer(
                 currentPatternProvider = { "https://img/{imdb}.jpg" },
-                onPatternChanged = {}
+                onPatternChanged = { savedPatterns += it }
             )
         )
     )
@@ -209,6 +214,23 @@ class PhoneHubServerTest {
         val api = server.serve(FakeHttpSession("/posters/api/pattern"))
         assertEquals(NanoHTTPD.Response.Status.OK, api.status)
         assertTrue(body(api).contains("{imdb}"))
+    }
+
+    @Test
+    fun `section changes are refused while the profile needs the parental gate`() {
+        actions.blockedMessage = "Unlock the TV first."
+
+        val refused = post("/posters/api/pattern", """{"pattern":"https://evil/{imdb}.jpg"}""")
+        assertEquals(NanoHTTPD.Response.Status.FORBIDDEN, refused.status)
+        assertTrue(body(refused).contains("Unlock the TV first."))
+        assertEquals(NanoHTTPD.Response.Status.FORBIDDEN, post("/posters/api/clear", "").status)
+        assertTrue(savedPatterns.isEmpty())
+        // Reading the page and the current value still works.
+        assertEquals(NanoHTTPD.Response.Status.OK, server.serve(FakeHttpSession("/posters/api/pattern")).status)
+
+        actions.blockedMessage = null
+        assertEquals(NanoHTTPD.Response.Status.OK, post("/posters/api/pattern", """{"pattern":"https://img/{imdb}.png"}""").status)
+        assertEquals(listOf("https://img/{imdb}.png"), savedPatterns)
     }
 
     @Test

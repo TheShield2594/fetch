@@ -431,12 +431,6 @@ data class PlayerSettings(
     }
 }
 
-enum class StreamAutoPlayMode {
-    MANUAL, FIRST_STREAM, REGEX_MATCH,
-    /** Parse every result, rank it against [StreamRankingRules] and the device, play the winner. */
-    BEST_MATCH
-}
-
 enum class VodCacheSizeMode {
     AUTO, MANUAL
 }

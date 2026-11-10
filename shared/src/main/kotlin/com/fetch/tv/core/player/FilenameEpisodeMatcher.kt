@@ -157,4 +157,17 @@ object FilenameEpisodeMatcher {
     }
 
     private val patterns = listOf(sXeY, seasonXepisode, episodeOnly)
+
+    /**
+     * The file name the same release would have for the next episode: [filename] with the
+     * episode moved from [current] to [next] (season, episode). With no [current] they are read
+     * from the name; when the name has none (a movie) or [next] is unknown, the name itself.
+     * Null without a name.
+     */
+    fun nextEpisodeFilename(filename: String?, current: Pair<Int?, Int>?, next: Pair<Int?, Int>?): String? {
+        val name = filename?.takeIf { it.isNotBlank() } ?: return null
+        if (next == null) return name
+        val playing = current ?: extractSeasonEpisode(name) ?: return name
+        return buildNextFilename(name, playing.first, playing.second, next.first, next.second) ?: name
+    }
 }

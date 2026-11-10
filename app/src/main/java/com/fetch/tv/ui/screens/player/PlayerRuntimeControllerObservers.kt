@@ -364,6 +364,9 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
             stillWatchingEnabledSetting = settings.stillWatchingEnabled
             stillWatchingEpisodeThresholdSetting = settings.stillWatchingEpisodeThreshold
             autoPlayCountdownSecondsSetting = settings.autoPlayCountdownSeconds
+            val seekSteps = SeekSteps.fromSeconds(settings.seekBackSeconds, settings.seekForwardSeconds)
+            seekStepsSetting = seekSteps
+            if (_uiState.value.seekSteps != seekSteps) _uiState.update { it.copy(seekSteps = seekSteps) }
 
             // VOD cache config is gated by the "Custom Playback Buffers" master.
             // When the master is off the cache is disabled at player build time, so

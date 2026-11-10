@@ -920,6 +920,12 @@
     <string name="autoplay_post_play_movie_threshold_sub">Choose when movie recommendations appear. Episodes follow the Next Episode Threshold setting.</string>
     <string name="autoplay_next_episode">Auto-play Next Episode</string>
     <string name="autoplay_next_episode_sub">Start next episode automatically when prompt appears.</string>
+    <string name="playback_seek_back_step">Skip back</string>
+    <string name="playback_seek_forward_step">Skip forward</string>
+    <string name="playback_seek_step_sub">One press of the remote\'s arrows, its rewind and fast-forward keys, or the on-screen buttons.</string>
+    <string name="playback_seek_step_value">%1$d s</string>
+    <string name="player_seek_back_seconds">Back %1$d seconds</string>
+    <string name="player_seek_forward_seconds">Forward %1$d seconds</string>
     <string name="autoplay_countdown_title">Countdown</string>
     <string name="autoplay_countdown_sub">How long the up-next card counts down before the next episode starts.</string>
     <string name="autoplay_countdown_value">%1$d s</string>

@@ -128,6 +128,14 @@ class PlaybackSettingsViewModel @Inject constructor(
         playerSettingsDataStore.setOsdClockEnabled(enabled)
     }
 
+    suspend fun setSeekBackSeconds(seconds: Int) {
+        playerSettingsDataStore.setSeekBackSeconds(seconds)
+    }
+
+    suspend fun setSeekForwardSeconds(seconds: Int) {
+        playerSettingsDataStore.setSeekForwardSeconds(seconds)
+    }
+
     suspend fun setTransparentLetterbox(enabled: Boolean) {
         deviceLocalPlayerPreferences.setTransparentLetterbox(enabled)
     }

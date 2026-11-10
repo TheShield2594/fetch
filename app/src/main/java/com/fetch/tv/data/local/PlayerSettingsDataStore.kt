@@ -288,6 +288,10 @@ data class PlayerSettings(
     val playbackIssueReportsEnabled: Boolean = false,
     val pauseOverlayEnabled: Boolean = true,
     val osdClockEnabled: Boolean = true,
+    /** How far one press of Back / rewind goes, in seconds; keys and buttons share it (#407). */
+    val seekBackSeconds: Int = DEFAULT_SEEK_BACK_SECONDS,
+    /** How far one press of Forward / fast-forward goes, in seconds. */
+    val seekForwardSeconds: Int = DEFAULT_SEEK_FORWARD_SECONDS,
     val skipIntroEnabled: Boolean = true,
     // Off until asked for: the lookup sends each title's IMDb id to a third party (api.tiffara.com).
     val parentalGuideEnabled: Boolean = false,
@@ -403,6 +407,17 @@ data class PlayerSettings(
         val LEGACY_NEXT_EPISODE_THRESHOLD_MODE = NextEpisodeThresholdMode.PERCENTAGE
 
         const val DEFAULT_AUTO_PLAY_COUNTDOWN_SECONDS = 8
+
+        const val DEFAULT_SEEK_BACK_SECONDS = 10
+        const val DEFAULT_SEEK_FORWARD_SECONDS = 30
+        val SEEK_BACK_SECONDS_VALUES: List<Int> = listOf(5, 10, 15, 20, 30, 45, 60)
+        val SEEK_FORWARD_SECONDS_VALUES: List<Int> = listOf(5, 10, 15, 20, 30, 45, 60, 90, 120)
+
+        /** The stored value if it is one of [values], else the nearest one. */
+        fun normalizeSeekSeconds(stored: Int?, values: List<Int>, default: Int): Int {
+            val value = stored ?: return default
+            return values.minByOrNull { kotlin.math.abs(it - value) } ?: default
+        }
         const val MIN_AUTO_PLAY_COUNTDOWN_SECONDS = 3
         const val MAX_AUTO_PLAY_COUNTDOWN_SECONDS = 15
 
@@ -616,6 +631,8 @@ class PlayerSettingsDataStore @Inject constructor(
     private val playbackIssueReportsEnabledKey = booleanPreferencesKey("playback_issue_reports_enabled")
     private val pauseOverlayEnabledKey = booleanPreferencesKey("pause_overlay_enabled")
     private val osdClockEnabledKey = booleanPreferencesKey("osd_clock_enabled")
+    private val seekBackSecondsKey = intPreferencesKey("seek_back_seconds")
+    private val seekForwardSecondsKey = intPreferencesKey("seek_forward_seconds")
     private val skipIntroEnabledKey = booleanPreferencesKey("skip_intro_enabled")
     private val parentalGuideEnabledKey = booleanPreferencesKey("parental_guide_enabled")
     private val autoSkipSegmentTypesKey = stringSetPreferencesKey("auto_skip_segment_types")
@@ -1043,6 +1060,16 @@ class PlayerSettingsDataStore @Inject constructor(
                     (prefs[playbackIssueReportsEnabledKey] ?: false),
                 pauseOverlayEnabled = prefs[pauseOverlayEnabledKey] ?: true,
                 osdClockEnabled = prefs[osdClockEnabledKey] ?: true,
+                seekBackSeconds = PlayerSettings.normalizeSeekSeconds(
+                    prefs[seekBackSecondsKey],
+                    PlayerSettings.SEEK_BACK_SECONDS_VALUES,
+                    PlayerSettings.DEFAULT_SEEK_BACK_SECONDS
+                ),
+                seekForwardSeconds = PlayerSettings.normalizeSeekSeconds(
+                    prefs[seekForwardSecondsKey],
+                    PlayerSettings.SEEK_FORWARD_SECONDS_VALUES,
+                    PlayerSettings.DEFAULT_SEEK_FORWARD_SECONDS
+                ),
                 skipIntroEnabled = prefs[skipIntroEnabledKey] ?: true,
                 parentalGuideEnabled = prefs[parentalGuideEnabledKey] ?: false,
                 autoSkipSegmentTypes = prefs[autoSkipSegmentTypesKey]
@@ -1364,6 +1391,26 @@ class PlayerSettingsDataStore @Inject constructor(
     suspend fun setOsdClockEnabled(enabled: Boolean) {
         store().edit { prefs ->
             prefs[osdClockEnabledKey] = enabled
+        }
+    }
+
+    suspend fun setSeekBackSeconds(seconds: Int) {
+        store().edit { prefs ->
+            prefs[seekBackSecondsKey] = PlayerSettings.normalizeSeekSeconds(
+                seconds,
+                PlayerSettings.SEEK_BACK_SECONDS_VALUES,
+                PlayerSettings.DEFAULT_SEEK_BACK_SECONDS
+            )
+        }
+    }
+
+    suspend fun setSeekForwardSeconds(seconds: Int) {
+        store().edit { prefs ->
+            prefs[seekForwardSecondsKey] = PlayerSettings.normalizeSeekSeconds(
+                seconds,
+                PlayerSettings.SEEK_FORWARD_SECONDS_VALUES,
+                PlayerSettings.DEFAULT_SEEK_FORWARD_SECONDS
+            )
         }
     }
 

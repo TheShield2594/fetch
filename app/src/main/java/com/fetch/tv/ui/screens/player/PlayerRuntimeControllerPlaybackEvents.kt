@@ -1256,11 +1256,11 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
         }
         PlayerEvent.OnSeekForward -> {
             if (isLiveSeekBlocked()) return
-            onEvent(PlayerEvent.OnSeekBy(deltaMs = PlayerScrubRates.STEP_SHORT_MS))
+            onEvent(PlayerEvent.OnSeekBy(deltaMs = seekStepsSetting.deltaMs(forward = true)))
         }
         PlayerEvent.OnSeekBackward -> {
             if (isLiveSeekBlocked()) return
-            onEvent(PlayerEvent.OnSeekBy(deltaMs = -PlayerScrubRates.STEP_SHORT_MS))
+            onEvent(PlayerEvent.OnSeekBy(deltaMs = seekStepsSetting.deltaMs(forward = false)))
         }
         is PlayerEvent.OnSeekBy -> {
             if (isLiveSeekBlocked()) return
@@ -1279,6 +1279,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             }
             seekPlaybackTo(target, seekParameters)
             updatePlaybackTimeline(currentPosition = target)
+            updateSeekFeedback(originMs = current, targetMs = target, committed = true)
             scheduleProgressSyncAfterSeek()
             publishPartyPlayback(positionMs = target)
             if (_uiState.value.showControls) {
@@ -1291,16 +1292,18 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             if (isLiveSeekBlocked()) return
             // mpv reports 0 until the duration is known; treat that as unknown, not as a 0 ms cap.
             val maxDuration = currentPlaybackDurationMs().takeIf { it > 0 } ?: Long.MAX_VALUE
-            val basePosition = pendingPreviewSeekPosition ?: currentPlaybackPositionMs()?.coerceAtLeast(0L) ?: 0L
+            val playingPosition = currentPlaybackPositionMs()?.coerceAtLeast(0L) ?: 0L
+            val basePosition = pendingPreviewSeekPosition ?: playingPosition
             val target = (basePosition + event.deltaMs)
                 .coerceAtLeast(0L)
                 .coerceAtMost(maxDuration)
             pendingPreviewSeekPosition = target
             updatePlaybackTimeline(currentPosition = target)
+            updateSeekFeedback(originMs = playingPosition, targetMs = target, committed = false)
             if (_uiState.value.showControls) {
                 showControlsTemporarily()
             } else {
-                showSeekOverlayTemporarily()
+                showSeekOverlayUntilCommit()
             }
         }
         PlayerEvent.OnCommitPreviewSeek -> {
@@ -1311,10 +1314,12 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 if (target == null) {
                     pendingPreviewSeekPosition = null
                     updatePlaybackTimeline(currentPosition = currentPlaybackPositionMs() ?: 0L)
+                    clearSeekFeedback()
                     return
                 }
                 seekPlaybackTo(target, SeekParameters.CLOSEST_SYNC)
                 updatePlaybackTimeline(currentPosition = target)
+                updateSeekFeedback(originMs = target, targetMs = target, committed = true)
                 pendingPreviewSeekPosition = null
                 scheduleProgressSyncAfterSeek()
                 publishPartyPlayback(positionMs = target)
@@ -1328,9 +1333,11 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
         is PlayerEvent.OnSeekTo -> {
             if (isLiveSeekBlocked()) return
             pendingPreviewSeekPosition = null
+            val origin = currentPlaybackPositionMs()?.coerceAtLeast(0L) ?: 0L
             val target = if (isPartyControlLocked) ownSeekTarget(event.position) ?: return else event.position
             seekPlaybackTo(target, SeekParameters.CLOSEST_SYNC)
             updatePlaybackTimeline(currentPosition = target)
+            updateSeekFeedback(originMs = origin, targetMs = target, committed = true)
             scheduleProgressSyncAfterSeek()
             publishPartyPlayback(positionMs = target)
             if (_uiState.value.showControls) {

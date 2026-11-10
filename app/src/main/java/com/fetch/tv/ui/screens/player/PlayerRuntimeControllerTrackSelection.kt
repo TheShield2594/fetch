@@ -33,13 +33,52 @@ internal fun PlayerRuntimeController.showControlsTemporarily() {
     scheduleHideControls()
 }
 
+/** How long the seek overlay and its feedback stay up once a seek commits. */
+internal const val SEEK_FEEDBACK_LINGER_MS = 1_500L
+
+/** Hides a preview seek's overlay if its commit never arrives (a lost key-up). */
+private const val SEEK_PREVIEW_FALLBACK_HIDE_MS = 5_000L
+
 internal fun PlayerRuntimeController.showSeekOverlayTemporarily() {
     hideSeekOverlayJob?.cancel()
     _uiState.update { it.copy(showSeekOverlay = true) }
     hideSeekOverlayJob = scope.launch {
-        delay(1500)
+        delay(SEEK_FEEDBACK_LINGER_MS)
         _uiState.update { it.copy(showSeekOverlay = false) }
     }
+}
+
+/** The overlay while a preview seek is pending: it stays up until the seek commits (#407). */
+internal fun PlayerRuntimeController.showSeekOverlayUntilCommit() {
+    hideSeekOverlayJob?.cancel()
+    _uiState.update { it.copy(showSeekOverlay = true) }
+    hideSeekOverlayJob = scope.launch {
+        delay(SEEK_PREVIEW_FALLBACK_HIDE_MS)
+        _uiState.update { it.copy(showSeekOverlay = false) }
+    }
+}
+
+/**
+ * Records where a seek is heading. Successive seeks keep the first one's origin, so the delta
+ * adds up across presses. A pending preview keeps the feedback up; a committed seek clears it
+ * [SEEK_FEEDBACK_LINGER_MS] later, unless another seek comes first.
+ */
+internal fun PlayerRuntimeController.updateSeekFeedback(originMs: Long, targetMs: Long, committed: Boolean) {
+    seekFeedbackJob?.cancel()
+    _uiState.update {
+        val origin = it.seekFeedback?.originMs ?: originMs
+        it.copy(seekFeedback = SeekFeedback(originMs = origin, targetMs = targetMs))
+    }
+    seekFeedbackJob = scope.launch {
+        delay(if (committed) SEEK_FEEDBACK_LINGER_MS else SEEK_PREVIEW_FALLBACK_HIDE_MS)
+        _uiState.update { it.copy(seekFeedback = null) }
+    }
+}
+
+internal fun PlayerRuntimeController.clearSeekFeedback() {
+    seekFeedbackJob?.cancel()
+    seekFeedbackJob = null
+    if (_uiState.value.seekFeedback != null) _uiState.update { it.copy(seekFeedback = null) }
 }
 
 internal fun PlayerRuntimeController.selectAudioTrack(trackIndex: Int) {

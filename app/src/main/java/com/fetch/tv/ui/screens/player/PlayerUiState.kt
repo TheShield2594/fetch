@@ -104,6 +104,10 @@ data class PlayerUiState(
     val episodeGuestStars: List<MetaCastMember> = emptyList(),
     val showControls: Boolean = true,
     val showSeekOverlay: Boolean = false,
+    /** Where a seek will land and how far from its start; null when no seek is in progress. */
+    val seekFeedback: SeekFeedback? = null,
+    /** The one pair of seek steps the keys and on-screen buttons use (#407). */
+    val seekSteps: SeekSteps = SeekSteps(),
     val pendingPreviewSeekPosition: Long? = null,
     val playbackSpeed: Float = 1f,
     val loadingOverlayEnabled: Boolean = true,

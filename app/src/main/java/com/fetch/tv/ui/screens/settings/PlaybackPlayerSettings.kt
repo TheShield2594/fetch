@@ -172,6 +172,25 @@ internal fun PlaybackPlayerInterfaceSection(
         onToggle = { onUpdate { setOsdClockEnabled(!settings.osdClockEnabled) } },
         enabled = internalPlayer
     )
+    // One pair of seek steps for the D-pad, the remote's media keys and the on-screen buttons.
+    SliderSettingsItem(
+        title = stringResource(R.string.playback_seek_back_step),
+        subtitle = stringResource(R.string.playback_seek_step_sub),
+        values = PlayerSettings.SEEK_BACK_SECONDS_VALUES,
+        selected = settings.seekBackSeconds,
+        valueText = stringResource(R.string.playback_seek_step_value, settings.seekBackSeconds),
+        onValueChange = { seconds -> onUpdate { setSeekBackSeconds(seconds) } },
+        enabled = internalPlayer
+    )
+    SliderSettingsItem(
+        title = stringResource(R.string.playback_seek_forward_step),
+        subtitle = stringResource(R.string.playback_seek_step_sub),
+        values = PlayerSettings.SEEK_FORWARD_SECONDS_VALUES,
+        selected = settings.seekForwardSeconds,
+        valueText = stringResource(R.string.playback_seek_step_value, settings.seekForwardSeconds),
+        onValueChange = { seconds -> onUpdate { setSeekForwardSeconds(seconds) } },
+        enabled = internalPlayer
+    )
     SettingsToggleRow(
         title = stringResource(R.string.playback_parental_guide),
         subtitle = stringResource(R.string.playback_parental_guide_sub),

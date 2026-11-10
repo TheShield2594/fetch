@@ -920,6 +920,9 @@
     <string name="autoplay_post_play_movie_threshold_sub">Choose when movie recommendations appear. Episodes follow the Next Episode Threshold setting.</string>
     <string name="autoplay_next_episode">Auto-play Next Episode</string>
     <string name="autoplay_next_episode_sub">Start next episode automatically when prompt appears.</string>
+    <string name="autoplay_countdown_title">Countdown</string>
+    <string name="autoplay_countdown_sub">How long the up-next card counts down before the next episode starts.</string>
+    <string name="autoplay_countdown_value">%1$d s</string>
     <string name="autoplay_next_episode_fallback">Fallback when binge group fails</string>
     <string name="autoplay_next_episode_fallback_sub">Auto-select first available stream if binge group is not found. When off, shows the stream picker instead.</string>
     <string name="autoplay_prefer_binge_group">Prefer Binge Group (Next Episode)</string>

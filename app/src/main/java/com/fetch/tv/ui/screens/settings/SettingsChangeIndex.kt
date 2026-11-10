@@ -88,6 +88,7 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     val upNext = SettingsCategory.PLAYBACK_UP_NEXT
     add(rule(upNext, R.string.autoplay_next_episode) { it.streamAutoPlayNextEpisodeEnabled })
     add(rule(upNext, R.string.autoplay_next_episode_fallback) { it.streamAutoPlayNextEpisodeFallbackEnabled })
+    add(rule(upNext, R.string.autoplay_countdown_title) { it.autoPlayCountdownSeconds })
     add(rule(upNext, R.string.autoplay_threshold_mode) { it.nextEpisodeThresholdMode })
     add(rule(upNext, R.string.autoplay_threshold_pct_title) { it.nextEpisodeThresholdPercent })
     add(rule(upNext, R.string.autoplay_threshold_min_title) { it.nextEpisodeThresholdMinutesBeforeEnd })

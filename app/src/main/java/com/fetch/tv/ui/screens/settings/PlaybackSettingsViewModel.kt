@@ -478,6 +478,10 @@ class PlaybackSettingsViewModel @Inject constructor(
         playerSettingsDataStore.setStillWatchingEnabled(enabled)
     }
 
+    suspend fun setAutoPlayCountdownSeconds(seconds: Int) {
+        playerSettingsDataStore.setAutoPlayCountdownSeconds(seconds)
+    }
+
     suspend fun setStillWatchingEpisodeThreshold(threshold: Int) {
         playerSettingsDataStore.setStillWatchingEpisodeThreshold(threshold)
     }

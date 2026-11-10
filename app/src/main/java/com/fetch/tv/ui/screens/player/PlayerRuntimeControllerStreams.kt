@@ -1629,7 +1629,8 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
             val streamToPlay = selectedStream
             if (streamToPlay != null) {
                 val sourceName = (streamToPlay.name?.takeIf { it.isNotBlank() } ?: streamToPlay.addonName).trim()
-                for (remaining in AUTO_PLAY_COUNTDOWN_SECONDS downTo 1) {
+                val countdownTotal = autoPlayCountdownSecondsSetting.coerceAtLeast(1)
+                for (remaining in countdownTotal downTo 1) {
                     _uiState.update { current ->
                         val episodeForMode = current.nextEpisode ?: nextInfo
                         current.copy(
@@ -1638,6 +1639,7 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
                                 searching = false,
                                 sourceName = sourceName,
                                 countdownSec = remaining,
+                                countdownTotalSec = countdownTotal,
                             ),
                         )
                     }

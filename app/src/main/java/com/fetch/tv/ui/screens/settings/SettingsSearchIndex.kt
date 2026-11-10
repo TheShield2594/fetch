@@ -79,6 +79,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.playback_section_up_next,
         R.string.autoplay_next_episode,
         R.string.autoplay_next_episode_fallback,
+        R.string.autoplay_countdown_title,
         R.string.autoplay_threshold_mode,
         R.string.autoplay_threshold_pct_title,
         R.string.autoplay_threshold_min_title,

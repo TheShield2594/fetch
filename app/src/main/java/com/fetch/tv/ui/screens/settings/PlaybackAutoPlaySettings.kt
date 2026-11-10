@@ -184,6 +184,19 @@ internal fun PlaybackUpNextSection(
         onToggle = { onUpdate { setStreamAutoPlayNextEpisodeEnabled(!settings.streamAutoPlayNextEpisodeEnabled) } }
     )
 
+    if (settings.streamAutoPlayNextEpisodeEnabled) {
+        SliderSettingsItem(
+            title = stringResource(R.string.autoplay_countdown_title),
+            subtitle = stringResource(R.string.autoplay_countdown_sub),
+            value = settings.autoPlayCountdownSeconds,
+            valueText = stringResource(R.string.autoplay_countdown_value, settings.autoPlayCountdownSeconds),
+            minValue = PlayerSettings.MIN_AUTO_PLAY_COUNTDOWN_SECONDS,
+            maxValue = PlayerSettings.MAX_AUTO_PLAY_COUNTDOWN_SECONDS,
+            step = 1,
+            onValueChange = { seconds -> onUpdate { setAutoPlayCountdownSeconds(seconds) } }
+        )
+    }
+
     if (settings.streamAutoPlayNextEpisodeEnabled && settings.streamAutoPlayMode == StreamAutoPlayMode.MANUAL) {
         SettingsToggleRow(
             title = stringResource(R.string.autoplay_next_episode_fallback),

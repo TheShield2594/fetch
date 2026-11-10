@@ -315,15 +315,17 @@ data class PlayerSettings(
     val streamAutoPlayRegex: String = "",
     val postPlayRecommendationsEnabled: Boolean = true,
     val postPlayMovieThresholdPercent: Int = DEFAULT_POST_PLAY_MOVIE_THRESHOLD_PERCENT,
-    val streamAutoPlayNextEpisodeEnabled: Boolean = false,
+    val streamAutoPlayNextEpisodeEnabled: Boolean = DEFAULT_AUTO_PLAY_NEXT_EPISODE_ENABLED,
     val streamAutoPlayNextEpisodeFallbackEnabled: Boolean = true,
     val streamAutoPlayPreferBingeGroupForNextEpisode: Boolean = true,
     val streamAutoPlayReuseBingeGroup: Boolean = false,
     val streamAutoPlayTimeoutSeconds: Int = 10,
     val preloadNextEpisodeSources: Boolean = false,
-    val stillWatchingEnabled: Boolean = false,
+    val stillWatchingEnabled: Boolean = DEFAULT_STILL_WATCHING_ENABLED,
     val stillWatchingEpisodeThreshold: Int = DEFAULT_STILL_WATCHING_EPISODE_THRESHOLD,
-    val nextEpisodeThresholdMode: NextEpisodeThresholdMode = NextEpisodeThresholdMode.PERCENTAGE,
+    /** Seconds the up-next card counts down before the next episode starts on its own. */
+    val autoPlayCountdownSeconds: Int = DEFAULT_AUTO_PLAY_COUNTDOWN_SECONDS,
+    val nextEpisodeThresholdMode: NextEpisodeThresholdMode = DEFAULT_NEXT_EPISODE_THRESHOLD_MODE,
     val nextEpisodeThresholdPercent: Float = 99f,
     val nextEpisodeThresholdMinutesBeforeEnd: Float = 2f,
     val streamReuseLastLinkEnabled: Boolean = true,
@@ -387,6 +389,23 @@ data class PlayerSettings(
         get() = tunnelingEnabled && isTunnelingCompatible
 
     companion object {
+        /*
+         * Binge defaults (#408): a fresh profile chains episodes, with the "Still watching?"
+         * prompt keeping that safe, and without outro markers the up-next card shows a fixed
+         * time before the end rather than at 99%. Profiles that existed before keep the
+         * LEGACY_* values unless they chose otherwise (see the binge-defaults migration).
+         */
+        const val DEFAULT_AUTO_PLAY_NEXT_EPISODE_ENABLED = true
+        const val DEFAULT_STILL_WATCHING_ENABLED = true
+        val DEFAULT_NEXT_EPISODE_THRESHOLD_MODE = NextEpisodeThresholdMode.MINUTES_BEFORE_END
+        const val LEGACY_AUTO_PLAY_NEXT_EPISODE_ENABLED = false
+        const val LEGACY_STILL_WATCHING_ENABLED = false
+        val LEGACY_NEXT_EPISODE_THRESHOLD_MODE = NextEpisodeThresholdMode.PERCENTAGE
+
+        const val DEFAULT_AUTO_PLAY_COUNTDOWN_SECONDS = 8
+        const val MIN_AUTO_PLAY_COUNTDOWN_SECONDS = 3
+        const val MAX_AUTO_PLAY_COUNTDOWN_SECONDS = 15
+
         const val DEFAULT_STILL_WATCHING_EPISODE_THRESHOLD = 3
         const val MIN_STILL_WATCHING_EPISODE_THRESHOLD = 2
         const val MAX_STILL_WATCHING_EPISODE_THRESHOLD = 6
@@ -633,6 +652,7 @@ class PlayerSettingsDataStore @Inject constructor(
     private val preloadNextEpisodeSourcesKey = booleanPreferencesKey("preload_next_episode_sources")
     private val stillWatchingEnabledKey = booleanPreferencesKey("still_watching_enabled")
     private val stillWatchingEpisodeThresholdKey = intPreferencesKey("still_watching_episode_threshold")
+    private val autoPlayCountdownSecondsKey = intPreferencesKey("auto_play_countdown_seconds")
     private val nextEpisodeThresholdModeKey = stringPreferencesKey("next_episode_threshold_mode")
     private val nextEpisodeThresholdPercentLegacyKey = intPreferencesKey("next_episode_threshold_percent")
     private val nextEpisodeThresholdMinutesBeforeEndLegacyKey = intPreferencesKey("next_episode_threshold_minutes_before_end")
@@ -707,6 +727,7 @@ class PlayerSettingsDataStore @Inject constructor(
     private val migrationAllowLargeTargetBufferOffDoneKey = booleanPreferencesKey("migration_allow_large_target_buffer_off_done")
     private val migrationBufferBudgetManagedExoDoneKey = booleanPreferencesKey("migration_buffer_budget_managed_exo_done")
     private val migrationVodCacheBackBufferZeroedDoneKey = booleanPreferencesKey("migration_vod_cache_back_buffer_zeroed_done")
+    private val migrationBingeDefaultsDoneKey = booleanPreferencesKey("migration_binge_defaults_done")
     init {
         ioScope.launch {
             profileManager.activeProfileId.collect { pid ->
@@ -717,6 +738,28 @@ class PlayerSettingsDataStore @Inject constructor(
 
     private suspend fun migrateProfile(profileId: Int) {
         factory.get(profileId, FEATURE).edit { prefs ->
+                // Binge defaults (#408). A profile with anything stored already existed before
+                // the defaults changed (every activation writes this file's migration flags),
+                // so it keeps what it played with: the old values are written for the settings
+                // it never chose. An empty store is a new profile and gets the new defaults.
+                // Runs first, before the migrations below write their flags.
+                if (prefs[migrationBingeDefaultsDoneKey] != true) {
+                    if (prefs.asMap().isNotEmpty()) {
+                        if (prefs[streamAutoPlayNextEpisodeEnabledKey] == null) {
+                            prefs[streamAutoPlayNextEpisodeEnabledKey] =
+                                PlayerSettings.LEGACY_AUTO_PLAY_NEXT_EPISODE_ENABLED
+                        }
+                        if (prefs[stillWatchingEnabledKey] == null) {
+                            prefs[stillWatchingEnabledKey] = PlayerSettings.LEGACY_STILL_WATCHING_ENABLED
+                        }
+                        if (prefs[nextEpisodeThresholdModeKey] == null) {
+                            prefs[nextEpisodeThresholdModeKey] =
+                                PlayerSettings.LEGACY_NEXT_EPISODE_THRESHOLD_MODE.name
+                        }
+                    }
+                    prefs[migrationBingeDefaultsDoneKey] = true
+                }
+
                 val loadControlMigrated = prefs[migrationLoadControlDefaultsAlignedDoneKey] ?: false
                 if (!loadControlMigrated) {
                     val currentMin = prefs[minBufferMsKey]
@@ -1039,7 +1082,8 @@ class PlayerSettingsDataStore @Inject constructor(
                     PlayerSettings.MIN_POST_PLAY_MOVIE_THRESHOLD_PERCENT,
                     PlayerSettings.MAX_POST_PLAY_MOVIE_THRESHOLD_PERCENT
                 ),
-                streamAutoPlayNextEpisodeEnabled = prefs[streamAutoPlayNextEpisodeEnabledKey] ?: false,
+                streamAutoPlayNextEpisodeEnabled = prefs[streamAutoPlayNextEpisodeEnabledKey]
+                    ?: PlayerSettings.DEFAULT_AUTO_PLAY_NEXT_EPISODE_ENABLED,
                 streamAutoPlayNextEpisodeFallbackEnabled = prefs[streamAutoPlayNextEpisodeFallbackEnabledKey] ?: true,
                 streamAutoPlayPreferBingeGroupForNextEpisode =
                     prefs[streamAutoPlayPreferBingeGroupForNextEpisodeKey] ?: true,
@@ -1049,16 +1093,23 @@ class PlayerSettingsDataStore @Inject constructor(
                     prefs[streamAutoPlayTimeoutSecondsKey]
                 ),
                 preloadNextEpisodeSources = prefs[preloadNextEpisodeSourcesKey] ?: false,
-                stillWatchingEnabled = prefs[stillWatchingEnabledKey] ?: false,
+                stillWatchingEnabled = prefs[stillWatchingEnabledKey]
+                    ?: PlayerSettings.DEFAULT_STILL_WATCHING_ENABLED,
                 stillWatchingEpisodeThreshold = prefs[stillWatchingEpisodeThresholdKey]
                     ?.coerceIn(
                         PlayerSettings.MIN_STILL_WATCHING_EPISODE_THRESHOLD,
                         PlayerSettings.MAX_STILL_WATCHING_EPISODE_THRESHOLD
                     )
                     ?: PlayerSettings.DEFAULT_STILL_WATCHING_EPISODE_THRESHOLD,
+                autoPlayCountdownSeconds = (prefs[autoPlayCountdownSecondsKey]
+                    ?: PlayerSettings.DEFAULT_AUTO_PLAY_COUNTDOWN_SECONDS).coerceIn(
+                    PlayerSettings.MIN_AUTO_PLAY_COUNTDOWN_SECONDS,
+                    PlayerSettings.MAX_AUTO_PLAY_COUNTDOWN_SECONDS
+                ),
                 nextEpisodeThresholdMode = prefs[nextEpisodeThresholdModeKey]?.let {
-                    runCatching { NextEpisodeThresholdMode.valueOf(it) }.getOrDefault(NextEpisodeThresholdMode.PERCENTAGE)
-                } ?: NextEpisodeThresholdMode.PERCENTAGE,
+                    runCatching { NextEpisodeThresholdMode.valueOf(it) }
+                        .getOrDefault(PlayerSettings.DEFAULT_NEXT_EPISODE_THRESHOLD_MODE)
+                } ?: PlayerSettings.DEFAULT_NEXT_EPISODE_THRESHOLD_MODE,
                 nextEpisodeThresholdPercent = normalizeHalfStep(
                     value = prefs[nextEpisodeThresholdPercentKey]
                         ?: prefs[nextEpisodeThresholdPercentLegacyKey]?.toFloat()
@@ -1471,6 +1522,15 @@ class PlayerSettingsDataStore @Inject constructor(
             prefs[stillWatchingEpisodeThresholdKey] = threshold.coerceIn(
                 PlayerSettings.MIN_STILL_WATCHING_EPISODE_THRESHOLD,
                 PlayerSettings.MAX_STILL_WATCHING_EPISODE_THRESHOLD
+            )
+        }
+    }
+
+    suspend fun setAutoPlayCountdownSeconds(seconds: Int) {
+        store().edit { prefs ->
+            prefs[autoPlayCountdownSecondsKey] = seconds.coerceIn(
+                PlayerSettings.MIN_AUTO_PLAY_COUNTDOWN_SECONDS,
+                PlayerSettings.MAX_AUTO_PLAY_COUNTDOWN_SECONDS
             )
         }
     }

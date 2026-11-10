@@ -11,9 +11,6 @@ on:
         description: "Also run StartupBenchmark (profile against no profile) on the emulator"
         type: boolean
         default: true
-  # Temporary: records the first Fetch profiles from this branch. Removed before merge.
-  push:
-    branches: [claude/github-issue-401-q87wva]
 
 permissions:
   contents: read

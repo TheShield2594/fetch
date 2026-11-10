@@ -66,27 +66,85 @@ someone measures on real hardware. They are not estimates.
 
 ## 2. Baseline profile
 
-The committed profile (`app/src/main/generated/baselineProfiles/baseline-prof.txt`) was
-recorded on upstream NuvioTV and path-renamed to `com/fetch/tv`. It misses code that is new
-in Fetch: stream ranking, the fetching panel, the phone hub, and the removal of
-Sentry and membership. To regenerate it you need an emulator or device on API 33+, or a rooted
-(`userdebug`) one on API 28–32, with a fresh install:
+The committed profiles (`app/src/main/generated/baselineProfiles/`) were recorded on Fetch
+itself, on an Android TV 14 (API 34) emulator in CI, at commit `0351159` on 2026-11-10:
+
+| File | Rules | For `com/fetch/tv` | Holds |
+|---|---|---|---|
+| `baseline-prof.txt` | 45,550 | 14,799 | Onboarding, Home, Home scrolling, a detail page |
+| `startup-prof.txt` | 38,617 | 11,797 | Cold launch to the first Home frames |
+
+The start-up profile is 85 % of the baseline profile, not a small fraction of it: launch to
+Home runs most of the code the journey runs. What it leaves out is the detail page (9 rules
+against 1,144), onboarding and scrolling. The profiles have no filter, so they also cover the
+library code on those paths (Kotlin, coroutines, OkHttp, Compose).
+
+The journey does not press Play, because a fresh install has no stream addon, so the fetching
+panel and the player are not in the profile. Stream ranking and the phone hub are, as far as
+launch and the first-run wizard run them.
+
+### Regenerating
+
+Run the **Baseline profile** workflow (Actions → Baseline profile → Run workflow) on your
+branch. It records both profiles on the emulator, runs the check below, and uploads:
+
+- `baseline-profiles`: the two files to commit under `app/src/main/generated/baselineProfiles/`.
+- `journey-diagnostics`: one log line and up to 20 screenshots of where the journey went.
+- `benchmark-results`: `StartupBenchmark` on the same emulator, summarised on the run page.
+
+Or record on your own device or emulator (API 33+, or a rooted `userdebug` one on API 28–32,
+with a fresh install):
 
 ```sh
 scripts/perf_baseline.sh generate-profile   # runs :app:generateBaselineProfile
+scripts/perf_baseline.sh check-profile
 git add app/src/main/generated/baselineProfiles/
 ```
+
+Regenerate after a change to start-up, Home or the detail page, and before a release.
+
+### The check
+
+`scripts/check_baseline_profiles.py` runs in CI on every pull request and fails when:
+
+- `startup-prof.txt` is identical to `baseline-prof.txt`, or more than 90 % of its size;
+- either file has too few rules for the screens the journey visits (Home, detail, the
+  wizard, navigation), which is what a journey stuck in onboarding produces;
+- more than 2 % of the Fetch rules name packages that are not in the source tree, which is
+  what a profile recorded on other code looks like.
+
+### The journey
 
 The generator (`BaselineProfileGenerator.kt`) runs in English and records two profiles. The
 app journey goes through first-run onboarding with the D-pad ("Continue without account", then
 "Skip for now" or "Continue" on each first-run wizard step, then "Advanced", which opens Home),
 scrolls Home and opens a title; it feeds the baseline profile only. The onboarding steps live in
 `Journeys.kt`, shared with the benchmarks. Startup then records a cold launch to Home on its
-own, which is all the startup profile should hold, so `startup-prof.txt` comes out much smaller than `baseline-prof.txt`. If the two
-files are identical, the startup run is recording more than launch. If onboarding labels or
-wizard steps change, update `Journeys.kt`. After
-regenerating, run `scripts/perf_baseline.sh benchmark` and check that the "profile" column
-beats "no profile".
+own, which is all the start-up profile should hold.
+
+Each step logs the focused control and the texts on screen under the `FetchJourney` tag and
+saves a screenshot to `/sdcard/Download/fetch-journey`. If onboarding labels or wizard steps
+change and the check starts failing, read those first, then update `Journeys.kt`:
+
+```sh
+adb logcat -d -s FetchJourney
+adb pull /sdcard/Download/fetch-journey
+```
+
+### Profile against no profile
+
+`StartupBenchmark` on the CI emulator, release build with R8, 10 cold starts each. An x86
+emulator on a shared runner is noisy, so this only shows the direction. The device rows in
+section 1 are still empty.
+
+| Compilation | TTID min | TTID median | TTID max |
+|---|---|---|---|
+| `None` | 806 ms | 1,111 ms | 1,197 ms |
+| `Partial(Require)` (baseline profile) | 894 ms | 1,007 ms | 1,581 ms |
+
+The median is 9 % lower with the profile; the minimum and maximum are not, so this run does
+not prove a gain. Measure on a device with `scripts/perf_baseline.sh benchmark`, or on an
+emulator with `scripts/perf_baseline.sh benchmark-emulator`.
 
 ## 3. Heap with Custom Network / Custom Buffers
 

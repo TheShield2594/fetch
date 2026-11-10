@@ -117,7 +117,8 @@ Regenerate after a change to start-up, Home or the detail page, and before a rel
 
 The generator (`BaselineProfileGenerator.kt`) runs in English and records two profiles. The
 app journey goes through first-run onboarding with the D-pad ("Continue without account", then
-"Skip for now" or "Continue" on each first-run wizard step, then "Advanced", which opens Home),
+"Skip for now" or "Continue" on each first-run wizard step, then "Advanced", or "Skip for now"
+if that card can't be reached, either of which opens Home),
 scrolls Home and opens a title; it feeds the baseline profile only. The onboarding steps live in
 `Journeys.kt`, shared with the benchmarks. Startup then records a cold launch to Home on its
 own, which is all the start-up profile should hold.
@@ -145,6 +146,12 @@ section 1 are still empty.
 The median is 9 % lower with the profile; the minimum and maximum are not, so this run does
 not prove a gain. Measure on a device with `scripts/perf_baseline.sh benchmark`, or on an
 emulator with `scripts/perf_baseline.sh benchmark-emulator`.
+
+On an unrooted device below API 34, Macrobenchmark reinstalls the app to reset its
+compilation, which erases the app's data. `StartupBenchmark` then times a fresh install's
+first screen (sign-in), not Home, and the set-up from "Before every run" in section 1 is gone
+afterwards. Use a device you don't mind setting up again, or one on API 34+, and note in the
+results which first screen was timed.
 
 ## 3. Heap with Custom Network / Custom Buffers
 

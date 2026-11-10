@@ -152,7 +152,7 @@ def check_profiles(
         thin = thin_packages(fetch_rules, required)
         if thin:
             problems.append(f"{name} barely covers: {', '.join(thin)}.")
-        if known_packages:
+        if known_packages is not None:
             stale = [rule for rule in fetch_rules if rule_package(rule) not in known_packages]
             if len(stale) > len(fetch_rules) * MAX_STALE_RULE_SHARE:
                 stale_packages = sorted({rule_package(rule) or "" for rule in stale})

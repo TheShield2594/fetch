@@ -16,10 +16,12 @@ def summarise(directory: Path) -> list[str]:
     lines = []
     for path in sorted(directory.rglob("*benchmarkData.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
+        # Results from an earlier run can still be in the directory; say which file each is from.
+        lines.append(f"{path.relative_to(directory)}:")
         for benchmark in data.get("benchmarks", []):
             for metric, values in sorted(benchmark.get("metrics", {}).items()):
                 lines.append(
-                    f"{benchmark.get('name', '?'):<32} {metric:<28} "
+                    f"  {benchmark.get('name', '?'):<32} {metric:<28} "
                     f"min {values.get('minimum', float('nan')):8.1f}  "
                     f"median {values.get('median', float('nan')):8.1f}  "
                     f"max {values.get('maximum', float('nan')):8.1f}"

@@ -73,7 +73,7 @@ internal inline fun MacrobenchmarkScope.inEnglish(block: () -> Unit) {
 }
 
 // Cold launches the app and waits for Home, stepping through first-run onboarding when a fresh
-// install shows it: sign-in, then the first-run wizard, whose last step (Advanced) opens Home.
+// install shows it: sign-in, then the first-run wizard, whose last step (Advanced, or Skip for now) opens Home.
 // With onboardingDone the caller knows an earlier launch finished onboarding, so this only
 // glances for the sign-in screen and returns once Home has drawn, without the settling time.
 internal fun MacrobenchmarkScope.launchToHome(onboardingDone: Boolean = false) {
@@ -92,8 +92,11 @@ internal fun MacrobenchmarkScope.launchToHome(onboardingDone: Boolean = false) {
     }
     // Also covers a wizard left half-done by an earlier run that stopped after sign-in.
     device.completeFirstRunWizard()
-    // The wizard closes a moment after its last press; don't start on Home while it is still up.
-    device.wait(Until.gone(By.text(WIZARD_EXPERIENCE_TITLE)), 10_000)
+    // The wizard closes a moment after its last press. If it is still up the journey would
+    // record the wizard as Home, so stop the run instead.
+    check(device.wait(Until.gone(By.text(WIZARD_EXPERIENCE_TITLE)), 10_000) == true) {
+        "The first-run wizard did not close; see the FetchJourney log and update Journeys.kt."
+    }
     device.waitForIdle()
     Thread.sleep(if (onboardingDone) 1_000 else 3_000)
     device.snapshot("after-onboarding")
@@ -129,7 +132,12 @@ private fun UiDevice.completeFirstRunWizard() {
         snapshot("wizard-step")
         when {
             hasObject(By.text(WIZARD_EXPERIENCE_TITLE)) -> {
-                focusAndSelect(WIZARD_ADVANCED)
+                // Focus starts on Essential with Advanced to its right. If that card can't be
+                // reached, Skip for now (which takes Essential) still opens Home.
+                if (!focusAndSelect(WIZARD_ADVANCED, maxSteps = 6, rightFirst = true)) {
+                    snapshot("advanced-not-selected")
+                    focusAndSelect(WIZARD_SKIP)
+                }
                 return
             }
             !hasObject(By.text(WIZARD_STEP_INDICATOR)) -> return
@@ -143,7 +151,12 @@ private fun UiDevice.completeFirstRunWizard() {
 // Moves D-pad focus until the control carrying the label is focused and then selects it, since TV
 // devices have no touch input. With awaitGone, the step only counts once the label disappears, so a
 // mis-selection keeps searching; without it (a label every wizard step repeats) one press is enough.
-private fun UiDevice.focusAndSelect(pattern: Pattern, awaitGone: Boolean = true, maxSteps: Int = 24): Boolean {
+private fun UiDevice.focusAndSelect(
+    pattern: Pattern,
+    awaitGone: Boolean = true,
+    maxSteps: Int = 24,
+    rightFirst: Boolean = false
+): Boolean {
     if (wait(Until.hasObject(By.text(pattern)), 10_000) != true) return false
     repeat(maxSteps) { step ->
         if (step == maxSteps - 1) snapshot("still-looking-for-$pattern")
@@ -154,7 +167,7 @@ private fun UiDevice.focusAndSelect(pattern: Pattern, awaitGone: Boolean = true,
             if (!awaitGone || wait(Until.gone(By.text(pattern)), 5_000) == true) return true
         }
         // Alternate directions so both vertical lists and side-by-side cards are reachable.
-        if (step % 2 == 0) pressDPadDown() else pressDPadRight()
+        if ((step % 2 == 0) == rightFirst) pressDPadRight() else pressDPadDown()
         waitForIdle()
         Thread.sleep(250)
     }

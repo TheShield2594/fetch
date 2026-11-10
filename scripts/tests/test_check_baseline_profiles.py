@@ -79,6 +79,10 @@ class CheckProfilesTests(unittest.TestCase):
         problems = check_profiles(baseline, STARTUP, known)
         self.assertTrue(any("not in the source tree" in problem for problem in problems))
 
+    def test_no_source_packages_found_fails_rather_than_skips(self) -> None:
+        problems = check_profiles(BASELINE, STARTUP, set())
+        self.assertTrue(any("not in the source tree" in problem for problem in problems))
+
 
 if __name__ == "__main__":
     unittest.main()

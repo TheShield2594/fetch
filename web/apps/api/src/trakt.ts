@@ -4,6 +4,8 @@ import { SECRET_CONTEXT, decryptSecret, encryptSecret } from "./lib/secret-box.j
 import { fetchWithPolicy } from "./lib/http.js";
 
 const TRAKT_API_BASE = "https://api.trakt.tv";
+/** Trakt's sign-in host: authorize, code exchange and token refresh all live here. */
+export const TRAKT_AUTH_BASE = "https://auth.trakt.tv";
 const MAX_PAGES = 100;
 const DEFAULT_POLL_MAX_PAGES = 20;
 // A backfill walks every play the account has ever recorded, so it needs a far
@@ -222,7 +224,6 @@ export type TraktWatchlistMutationPayload = {
 
 export class TraktClient {
   private readonly clientId: string;
-  private readonly clientSecret: string;
   private readonly prisma: PrismaClient;
   /** The TraktToken row these tokens live in: the owning account's id. */
   private readonly tokenRowId: string;
@@ -231,14 +232,12 @@ export class TraktClient {
 
   private constructor(options: {
     clientId: string;
-    clientSecret: string;
     accessToken: string;
     refreshToken: string;
     prisma: PrismaClient;
     tokenRowId: string;
   }) {
     this.clientId = options.clientId;
-    this.clientSecret = options.clientSecret;
     this.accessToken = options.accessToken;
     this.refreshToken = options.refreshToken;
     this.prisma = options.prisma;
@@ -248,10 +247,9 @@ export class TraktClient {
   /** A client for the Trakt account connected by `tokenRowId` (see lib/integration-owner.ts). */
   static async create(prisma: PrismaClient, tokenRowId: string): Promise<TraktClient> {
     const clientId = process.env.TRAKT_CLIENT_ID;
-    const clientSecret = process.env.TRAKT_CLIENT_SECRET;
 
-    if (!clientId || !clientSecret) {
-      throw new Error("Trakt credentials are incomplete. Set TRAKT_CLIENT_ID and TRAKT_CLIENT_SECRET.");
+    if (!clientId) {
+      throw new Error("Trakt is not configured. Set TRAKT_CLIENT_ID.");
     }
 
     const persistedToken = await prisma.traktToken.findUnique({ where: { id: tokenRowId } });
@@ -272,7 +270,6 @@ export class TraktClient {
 
     return new TraktClient({
       clientId,
-      clientSecret,
       accessToken,
       refreshToken,
       prisma,
@@ -664,7 +661,9 @@ export class TraktClient {
   }
 
   private async refreshAccessToken(logger: FastifyBaseLogger) {
-    const response = await fetch(new URL("/oauth/token", TRAKT_API_BASE), {
+    // No client secret: Trakt deprecated it for user sign-in. Refresh tokens
+    // are single-use, so the pair in the response replaces the stored one.
+    const response = await fetch(new URL("/oauth/token", TRAKT_AUTH_BASE), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -673,7 +672,6 @@ export class TraktClient {
       body: JSON.stringify({
         refresh_token: this.refreshToken,
         client_id: this.clientId,
-        client_secret: this.clientSecret,
         grant_type: "refresh_token"
       }),
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
@@ -681,7 +679,10 @@ export class TraktClient {
 
     if (!response.ok) {
       const body = await response.text();
-      throw new Error(`Failed to refresh Trakt token (${response.status}): ${body}`);
+      // A refresh token that is spent, revoked or from before Trakt's move to
+      // auth.trakt.tv cannot be exchanged again; only signing in again helps.
+      const hint = body.includes("invalid_grant") ? " Reconnect Trakt from Settings." : "";
+      throw new Error(`Failed to refresh Trakt token (${response.status}): ${body}${hint}`);
     }
 
     const tokenResponse = (await response.json()) as TraktTokenResponse;

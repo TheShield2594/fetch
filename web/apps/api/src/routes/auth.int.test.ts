@@ -488,7 +488,6 @@ const seedTrakt = (profileId: string) =>
 describe("Trakt and Stremio connections", () => {
   it("are each profile's own, even within one account", async () => {
     process.env.TRAKT_CLIENT_ID = "id";
-    process.env.TRAKT_CLIENT_SECRET = "secret";
     const admin = await bootstrapAdmin();
     const first = (await call(admin.token, { method: "POST", url: "/profiles", payload: { name: "Me" } })).json().profile as { id: string };
     const second = (await call(admin.token, { method: "POST", url: "/profiles", payload: { name: "Kid" } })).json().profile as { id: string };

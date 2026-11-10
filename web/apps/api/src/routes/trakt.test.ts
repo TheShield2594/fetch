@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance } from "fastify";
 import { buildRouteApp } from "../lib/test-fixtures/route-app.js";
@@ -21,6 +22,7 @@ const traktClientMock = {
   syncTraktWatchlist: vi.fn(),
   syncTraktPlayback: vi.fn(),
   computeTokenExpiresAt: () => new Date("2026-01-01T00:00:00Z"),
+  isTraktConfigured: () => !!process.env.TRAKT_CLIENT_ID?.trim(),
 };
 vi.mock("../lib/trakt-client.js", () => traktClientMock);
 
@@ -38,17 +40,18 @@ const buildApp = (): Promise<FastifyInstance> =>
   buildRouteApp(() => import("./trakt.js"));
 
 const STATE = "a".repeat(64);
+const VERIFIER = "v".repeat(43);
+const FLOW = JSON.stringify({ owner: PROFILE_ID, codeVerifier: VERIFIER });
 const originalEnv = { ...process.env };
 
 describe("trakt OAuth — the callback is bound to the flow that started it", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.TRAKT_CLIENT_ID = "client-id";
-    process.env.TRAKT_CLIENT_SECRET = "client-secret";
     prismaMock.kV.create.mockResolvedValue({});
     prismaMock.kV.deleteMany.mockResolvedValue({ count: 0 });
     prismaMock.traktToken.upsert.mockResolvedValue({});
-    prismaMock.kV.findFirst.mockResolvedValue({ value: PROFILE_ID });
+    prismaMock.kV.findFirst.mockResolvedValue({ value: FLOW });
     prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID });
     vi.spyOn(globalThis, "fetch");
   });
@@ -65,9 +68,50 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
 
     const state = new URL(response.json().url).searchParams.get("state");
     expect(state).toMatch(/^[0-9a-f]{64}$/);
-    expect(prismaMock.kV.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ key: `trakt:oauth:state:${state}`, value: PROFILE_ID }) })
+    const { data } = first(prismaMock.kV.create.mock.calls, "prismaMock.kV.create call")[0];
+    expect(data.key).toBe(`trakt:oauth:state:${state}`);
+    expect(JSON.parse(data.value).owner).toBe(PROFILE_ID);
+  });
+
+  it("signs in on auth.trakt.tv with a PKCE S256 challenge of the stored verifier", async () => {
+    const app = await buildApp();
+
+    const response = await app.inject({ method: "GET", url: "/trakt/oauth/authorize" });
+
+    const url = new URL(response.json().url);
+    expect(`${url.origin}${url.pathname}`).toBe("https://auth.trakt.tv/oauth/authorize");
+    expect(url.searchParams.get("response_type")).toBe("code");
+    expect(url.searchParams.get("client_id")).toBe("client-id");
+    expect(url.searchParams.get("code_challenge_method")).toBe("S256");
+    const { codeVerifier } = JSON.parse(first(prismaMock.kV.create.mock.calls, "prismaMock.kV.create call")[0].data.value);
+    expect(codeVerifier).toMatch(/^[A-Za-z0-9\-._~]{43,128}$/);
+    expect(url.searchParams.get("code_challenge")).toBe(
+      createHash("sha256").update(codeVerifier).digest("base64url")
     );
+    // The verifier is what makes the code useless to anyone else: it stays here.
+    expect(url.toString()).not.toContain(codeVerifier);
+  });
+
+  it("works with only TRAKT_CLIENT_ID set", async () => {
+    prismaMock.traktToken.findUnique.mockResolvedValue(null);
+    const app = await buildApp();
+
+    const status = await app.inject({ method: "GET", url: "/trakt/status" });
+    const authorize = await app.inject({ method: "GET", url: "/trakt/oauth/authorize" });
+
+    expect(status.json().configured).toBe(true);
+    expect(authorize.statusCode).toBe(200);
+  });
+
+  it("refuses a state minted before PKCE, which has no verifier to exchange with", async () => {
+    prismaMock.kV.findFirst.mockResolvedValue({ value: PROFILE_ID });
+    prismaMock.kV.deleteMany.mockResolvedValue({ count: 1 });
+    const app = await buildApp();
+
+    const response = await app.inject({ method: "GET", url: `/trakt/oauth/callback?code=real-code&state=${STATE}` });
+
+    expect(response.statusCode).toBe(403);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
   it("rejects a callback with no state at all, without exchanging the code", async () => {
@@ -111,7 +155,16 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
     });
 
     expect(response.statusCode).toBe(200);
-    expect(globalThis.fetch).toHaveBeenCalledWith("https://api.trakt.tv/oauth/token", expect.anything());
+    const [tokenUrl, init] = first(vi.mocked(globalThis.fetch).mock.calls, "token exchange call");
+    expect(tokenUrl).toEqual(new URL("https://auth.trakt.tv/oauth/token"));
+    // The verifier stands in for the client secret, which is never sent.
+    expect(JSON.parse(init!.body as string)).toEqual({
+      code: "real-code",
+      client_id: "client-id",
+      code_verifier: VERIFIER,
+      redirect_uri: expect.stringContaining("/trakt/oauth/callback"),
+      grant_type: "authorization_code",
+    });
     // Under the profile that started the flow, named by its state.
     expect(prismaMock.traktToken.upsert).toHaveBeenCalledWith(
       expect.objectContaining({ where: { id: PROFILE_ID }, update: expect.objectContaining({ accessToken: "access" }) })

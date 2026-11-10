@@ -37,7 +37,9 @@ vi.mock("../components/tv/TvSettingsForm", () => ({ TvSettingsForm: () => <p>tv 
 // The hook reads a provider now — the rail shows the same six answers, and two
 // callers on this route would otherwise ask twice — so the mock returns the
 // pair, `refresh` included: the page re-asks on mount.
-const health = vi.hoisted(() => ({ value: {} as Record<string, { tone: "ok" | "warn" | "bad" | "idle"; label: string }> }));
+const health = vi.hoisted(() => ({
+  value: {} as Record<string, { tone: "ok" | "warn" | "bad" | "idle"; label: string; setByServer?: true }>,
+}));
 const refresh = vi.hoisted(() => vi.fn());
 vi.mock("../hooks/useSettingsHealth", () => ({
   useSettingsHealth: () => ({ sections: health.value, refresh }),
@@ -110,9 +112,9 @@ describe("settings sections", () => {
   });
 });
 
-const renderPage = () =>
+const renderPage = (tab?: SettingsTab) =>
   render(
-    <MemoryRouter initialEntries={["/settings"]}>
+    <MemoryRouter initialEntries={[tab ? `/settings?tab=${tab}` : "/settings"]}>
       <SettingsPage />
     </MemoryRouter>
   );
@@ -254,6 +256,26 @@ describe("SettingsPage", () => {
     expect(searchBox()).toHaveValue("");
     expect(tabBar()).toBeInTheDocument();
     expect(onScreen()).toEqual(byTab("preferences").map((s) => s.title));
+  });
+
+  it("leaves out TMDB Metadata when the key comes from the server's environment", async () => {
+    health.value = { tmdb: { tone: "ok", label: "Key set (env)", setByServer: true } };
+    renderPage("integrations");
+
+    expect(screen.queryByRole("button", { name: /^TMDB Metadata/ })).not.toBeInTheDocument();
+    // The other keys are still the admin's to set here.
+    expect(onScreen()).toEqual(expect.arrayContaining(["OMDB Ratings", "Ratings from MDBList", "RPDB Posters"]));
+
+    await userEvent.type(searchBox(), "tmdb metadata");
+    expect(screen.queryByRole("button", { name: /^TMDB Metadata/ })).not.toBeInTheDocument();
+  });
+
+  it("keeps TMDB Metadata when the key was saved here, or is missing", () => {
+    health.value = { tmdb: { tone: "ok", label: "Key set" } };
+    renderPage("integrations");
+
+    // By its header, whose name carries the health label beside the title.
+    expect(screen.getByRole("button", { name: /^TMDB Metadata/ })).toBeInTheDocument();
   });
 
   it("leads with a count of what is healthy, so the page answers before it is read", async () => {

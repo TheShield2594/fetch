@@ -7,7 +7,7 @@ import {
   type TvSettingsDocument,
 } from "@fetch/shared/tv-settings";
 import { deleteConnection, getConnection, saveConnection } from "./connections.js";
-import { accessTokenFor, mdbRequest, MdbListError } from "./mdblist.js";
+import { accessTokenFor, isMdbListConfigured, mdbRequest, MdbListError } from "./mdblist.js";
 import { getProfileDocument } from "./profile-document.js";
 
 // MDBList ratings on detail pages, as the TV shows them (data/mdblist/
@@ -31,7 +31,9 @@ export const getMdbListKeyStatus = async (profileId: string) => {
     getConnection<MdbListKeyCredentials, MdbListKeyDetails>(profileId, "mdblist-key"),
     getConnection(profileId, "mdblist"),
   ]);
-  return { hasKey: !!key?.credentials?.apiKey, signedIn: !!account };
+  // With MDBLIST_CLIENT_ID set, a profile's MDBList sign-in reads the ratings,
+  // and there is no reason to ask it for a key as well.
+  return { hasKey: !!key?.credentials?.apiKey, signedIn: !!account, signInAvailable: isMdbListConfigured() };
 };
 
 /** Checks the key with MDBList's `/user`, as the TV does, and keeps it encrypted. */

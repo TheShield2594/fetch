@@ -138,7 +138,6 @@ services:
       # Leaving them unset is safe; the API validates at startup/request time
       # and returns clear error messages if they are missing when needed.
       TRAKT_CLIENT_ID: ${TRAKT_CLIENT_ID}
-      TRAKT_CLIENT_SECRET: ${TRAKT_CLIENT_SECRET}
       TRAKT_REDIRECT_URI: ${TRAKT_REDIRECT_URI:-http://192.168.1.25:7000/trakt/oauth/callback}
       TRAKT_POLL_INTERVAL_SEC: ${TRAKT_POLL_INTERVAL_SEC:-300}
       TRAKT_POLL_MAX_PAGES: ${TRAKT_POLL_MAX_PAGES:-20}

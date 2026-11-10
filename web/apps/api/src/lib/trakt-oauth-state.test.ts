@@ -8,6 +8,8 @@ const prismaMock = {
 vi.mock("./prisma.js", () => ({ prisma: prismaMock }));
 
 const STATE_PREFIX = "trakt:oauth:state:";
+const VERIFIER = "v".repeat(43);
+const FLOW = JSON.stringify({ owner: "acct-1", codeVerifier: VERIFIER });
 
 describe("trakt OAuth state", () => {
   beforeEach(() => {
@@ -19,18 +21,41 @@ describe("trakt OAuth state", () => {
   it("mints a 256-bit state and persists it under its own key", async () => {
     const { createOAuthState } = await import("./trakt-oauth-state.js");
 
-    const state = await createOAuthState("acct-1");
+    const { state } = await createOAuthState("acct-1");
 
     expect(state).toMatch(/^[0-9a-f]{64}$/);
-    expect(prismaMock.kV.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ key: `${STATE_PREFIX}${state}`, value: "acct-1" }) })
+    const { data } = first(prismaMock.kV.create.mock.calls, "prismaMock.kV.create call")[0];
+    expect(data.key).toBe(`${STATE_PREFIX}${state}`);
+    expect(JSON.parse(data.value).owner).toBe("acct-1");
+  });
+
+  it("mints a PKCE verifier with it and returns only the S256 challenge", async () => {
+    const { createOAuthState, codeChallengeFor } = await import("./trakt-oauth-state.js");
+
+    const { codeChallenge } = await createOAuthState("acct-1");
+
+    const { codeVerifier } = JSON.parse(first(prismaMock.kV.create.mock.calls, "prismaMock.kV.create call")[0].data.value);
+    expect(codeVerifier).toMatch(/^[A-Za-z0-9\-._~]{43,128}$/);
+    expect(codeChallenge).toBe(codeChallengeFor(codeVerifier));
+    expect(codeChallenge).not.toBe(codeVerifier);
+  });
+
+  it("derives the challenge as RFC 7636 does", async () => {
+    const { codeChallengeFor } = await import("./trakt-oauth-state.js");
+
+    // The worked example from RFC 7636, appendix B.
+    expect(codeChallengeFor("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk")).toBe(
+      "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
     );
   });
 
   it("does not reuse a state between calls", async () => {
     const { createOAuthState } = await import("./trakt-oauth-state.js");
 
-    expect(await createOAuthState("acct-1")).not.toBe(await createOAuthState("acct-1"));
+    const one = await createOAuthState("acct-1");
+    const two = await createOAuthState("acct-1");
+    expect(one.state).not.toBe(two.state);
+    expect(one.codeChallenge).not.toBe(two.codeChallenge);
   });
 
   it("sweeps states older than the TTL when a new flow starts", async () => {
@@ -46,12 +71,12 @@ describe("trakt OAuth state", () => {
   });
 
   it("accepts a known, unexpired state, deletes it and says whose it was", async () => {
-    prismaMock.kV.findFirst.mockResolvedValue({ value: "acct-1" });
+    prismaMock.kV.findFirst.mockResolvedValue({ value: FLOW });
     prismaMock.kV.deleteMany.mockResolvedValue({ count: 1 });
     const { consumeOAuthState, OAUTH_STATE_TTL_MS } = await import("./trakt-oauth-state.js");
     const state = "a".repeat(64);
 
-    await expect(consumeOAuthState(state)).resolves.toBe("acct-1");
+    await expect(consumeOAuthState(state)).resolves.toEqual({ owner: "acct-1", codeVerifier: VERIFIER });
 
     const call = first(prismaMock.kV.deleteMany.mock.calls, "prismaMock.kV.deleteMany call")[0];
     expect(call.where.key).toBe(`${STATE_PREFIX}${state}`);
@@ -65,8 +90,18 @@ describe("trakt OAuth state", () => {
     await expect(consumeOAuthState("b".repeat(64))).resolves.toBeNull();
   });
 
+  it("refuses a state stored without a usable PKCE verifier", async () => {
+    prismaMock.kV.deleteMany.mockResolvedValue({ count: 1 });
+    const { consumeOAuthState } = await import("./trakt-oauth-state.js");
+
+    for (const value of ["acct-1", "", "{}", JSON.stringify({ owner: "acct-1" }), JSON.stringify({ owner: "acct-1", codeVerifier: "short" })]) {
+      prismaMock.kV.findFirst.mockResolvedValue({ value });
+      await expect(consumeOAuthState("d".repeat(64))).resolves.toBeNull();
+    }
+  });
+
   it("refuses a state a concurrent callback consumed first", async () => {
-    prismaMock.kV.findFirst.mockResolvedValue({ value: "acct-1" });
+    prismaMock.kV.findFirst.mockResolvedValue({ value: FLOW });
     prismaMock.kV.deleteMany.mockResolvedValue({ count: 0 });
     const { consumeOAuthState } = await import("./trakt-oauth-state.js");
 

@@ -44,7 +44,7 @@ export const resetTraktClient = (profileId?: string) => {
 };
 
 export const isTraktConfigured = (): boolean =>
-  !!process.env.TRAKT_CLIENT_ID?.trim() && !!process.env.TRAKT_CLIENT_SECRET?.trim();
+  !!process.env.TRAKT_CLIENT_ID?.trim();
 
 export const isTraktConnected = async (profileId: string): Promise<boolean> => {
   if (!isTraktConfigured()) return false;

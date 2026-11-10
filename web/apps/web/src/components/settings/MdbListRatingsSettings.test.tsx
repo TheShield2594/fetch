@@ -85,6 +85,31 @@ describe("MdbListRatingsSettings", () => {
     expect(screen.getByText("Using your MDBList sign-in")).toBeInTheDocument();
   });
 
+  it("asks for no key where the server has MDBList sign-in set up", async () => {
+    vi.mocked(api.getMdbListKeyStatus).mockResolvedValue({ hasKey: false, signedIn: true, signInAvailable: true });
+    await renderSettings();
+
+    expect(screen.queryByLabelText("MDBList API key")).not.toBeInTheDocument();
+    expect(screen.getByText("Using your MDBList sign-in")).toBeInTheDocument();
+    // What the ratings look like is still this profile's to choose.
+    expect(screen.getByRole("switch", { name: "Show MDBList ratings on detail pages" })).toBeInTheDocument();
+  });
+
+  it("points a profile that hasn't signed in at the sign-in, not at a key", async () => {
+    vi.mocked(api.getMdbListKeyStatus).mockResolvedValue({ hasKey: false, signedIn: false, signInAvailable: true });
+    await renderSettings();
+
+    expect(screen.queryByLabelText("MDBList API key")).not.toBeInTheDocument();
+    expect(screen.getByText(/Sign in to MDBList under Where history comes from to show/)).toBeInTheDocument();
+  });
+
+  it("still lets a key saved earlier be removed", async () => {
+    vi.mocked(api.getMdbListKeyStatus).mockResolvedValue({ hasKey: true, signedIn: true, signInAvailable: true });
+    await renderSettings();
+
+    expect(screen.getByRole("button", { name: /remove key/i })).toBeInTheDocument();
+  });
+
   it("saves a pasted key, and shows MDBList's refusal of a bad one", async () => {
     vi.mocked(api.setMdbListKey)
       .mockRejectedValueOnce(new ApiError("MDBList didn't accept that API key", 400))

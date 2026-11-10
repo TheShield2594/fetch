@@ -404,9 +404,11 @@ export function SettingsPage() {
 
   const { isAdmin } = useAccount();
   const visible = useMemo(() => {
-    const allowed = SETTINGS_SECTIONS.filter((s) => isAdmin || !s.adminOnly);
+    // A section whose answer the server's environment already holds (a TMDB
+    // key in TMDB_API_KEY) has nothing to ask, so it isn't listed.
+    const allowed = SETTINGS_SECTIONS.filter((s) => (isAdmin || !s.adminOnly) && !health[s.id]?.setByServer);
     return searching ? allowed.filter((s) => matchesSearch(s, query)) : allowed.filter((s) => s.tab === tab);
-  }, [isAdmin, query, searching, tab]);
+  }, [health, isAdmin, query, searching, tab]);
 
   // Empty until the status requests land, and empty again if every one of them
   // failed — in which case saying nothing is right, because the alternative is

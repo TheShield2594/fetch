@@ -106,7 +106,7 @@ export function TraktSettings() {
       <div className="flex items-center gap-3">
         <StatusBadge ok={!!status?.connected} label={status?.connected ? "Connected" : "Not connected"} />
         {status && !status.configured && (
-          <span className="text-xs text-warning">Trakt credentials not configured on the server</span>
+          <span className="text-xs text-warning">Trakt isn't set up on the server (TRAKT_CLIENT_ID)</span>
         )}
       </div>
 
@@ -117,7 +117,7 @@ export function TraktSettings() {
           </p>
           <code className="block text-sm text-claw-text break-all select-all">{status.redirectUri}</code>
           <p className="text-xs" style={{ color: "var(--text-dim)" }}>
-            Set this at trakt.tv under Settings &gt; Your API Apps &gt; Edit. A mismatch causes an OAuth error.
+            Set this at trakt.tv under Settings &gt; Your API Apps &gt; Edit. A mismatch causes an OAuth error. Only the app's Client ID is needed; no Client Secret.
           </p>
         </div>
       )}

@@ -44,7 +44,6 @@ describe("trakt-client", () => {
   beforeEach(() => {
     resetMocks();
     process.env.TRAKT_CLIENT_ID = "client-id";
-    process.env.TRAKT_CLIENT_SECRET = "client-secret";
   });
 
   afterEach(() => {
@@ -158,10 +157,17 @@ describe("trakt-client", () => {
       prismaMock.traktToken.updateMany.mockResolvedValue({ count: 1 });
 
       let callCount = 0;
-      const fetchMock = vi.fn().mockImplementation(async (url: URL | string) => {
+      const fetchMock = vi.fn().mockImplementation(async (url: URL | string, init?: RequestInit) => {
         const href = url.toString();
         callCount += 1;
         if (href.includes("/oauth/token")) {
+          // On Trakt's sign-in host, and without a client secret.
+          expect(href).toBe("https://auth.trakt.tv/oauth/token");
+          expect(JSON.parse(init!.body as string)).toEqual({
+            refresh_token: "refresh-token",
+            client_id: "client-id",
+            grant_type: "refresh_token",
+          });
           return {
             ok: true,
             status: 200,

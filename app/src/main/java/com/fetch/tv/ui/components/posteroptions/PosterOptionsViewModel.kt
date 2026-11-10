@@ -41,7 +41,11 @@ class PosterOptionsViewModel @Inject constructor(
             if (runCatching { layoutPreferenceDataStore.posterOptionsHintSeen.first() }.getOrDefault(true)) {
                 return@launch
             }
-            layoutPreferenceDataStore.setPosterOptionsHintSeen()
+            // A failed write must not crash Home; the hint stays due for the next card focus.
+            if (runCatching { layoutPreferenceDataStore.setPosterOptionsHintSeen() }.isFailure) {
+                holdHintChecked = false
+                return@launch
+            }
             _showHoldHint.value = true
         }
     }

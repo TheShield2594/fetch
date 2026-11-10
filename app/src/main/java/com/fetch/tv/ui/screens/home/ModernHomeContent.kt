@@ -1075,7 +1075,13 @@ fun ModernHomeContent(
             // size do): the rows grow into the hero up to MODERN_ROWS_VIEWPORT_MAX_FRACTION, and
             // the hero's text block is shortened to match (compactHeroText below).
             val entryRowCardHeight = if (useLandscapePosters) landscapeCatalogCardHeight else portraitCatalogCardHeight
-            val firstRowCardHeight = maxOf(entryRowCardHeight, continueWatchingCardHeight)
+            // Continue Watching leads Home only while it is on and has something in it.
+            val continueWatchingLeads = uiState.continueWatchingEnabled && uiState.continueWatchingItems.isNotEmpty()
+            val firstRowCardHeight = if (continueWatchingLeads) {
+                maxOf(entryRowCardHeight, continueWatchingCardHeight)
+            } else {
+                entryRowCardHeight
+            }
             val rowSpacing = FetchTheme.spacing.xl
             val rowsViewportHeight = remember(
                 screenHeight,

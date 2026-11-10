@@ -224,12 +224,14 @@ fun MoreLikeThisSection(
             sourceLabel
                 ?.takeIf { it.isNotBlank() }
                 ?.let { label ->
+                    // Bounded, so a long label can't push the hint off the row.
                     Text(
                         text = label,
                         style = MaterialTheme.typography.bodySmall,
                         color = FetchTheme.colors.TextTertiary,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
                     )
                 }
         }

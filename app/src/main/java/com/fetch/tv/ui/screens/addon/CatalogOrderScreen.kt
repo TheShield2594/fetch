@@ -211,6 +211,12 @@ private fun CatalogOrderCard(
     onToggleEnabled: () -> Unit,
     onTogglePinned: () -> Unit
 ) {
+    // The first control that can take focus: a disabled button can't hold the requester.
+    val firstControl = when {
+        item.canMoveUp -> FirstControl.UP
+        item.canMoveDown -> FirstControl.DOWN
+        else -> FirstControl.PIN
+    }
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = FetchTheme.colors.BackgroundCard),
@@ -260,7 +266,7 @@ private fun CatalogOrderCard(
                 Button(
                     onClick = onMoveUp,
                     enabled = item.canMoveUp,
-                    modifier = if (item.canMoveUp) firstControlModifier else Modifier,
+                    modifier = if (firstControl == FirstControl.UP) firstControlModifier else Modifier,
                     colors = ButtonDefaults.colors(
                         containerColor = FetchTheme.colors.BackgroundCard,
                         contentColor = FetchTheme.colors.TextSecondary,
@@ -284,7 +290,7 @@ private fun CatalogOrderCard(
                 Button(
                     onClick = onMoveDown,
                     enabled = item.canMoveDown,
-                    modifier = if (!item.canMoveUp && item.canMoveDown) firstControlModifier else Modifier,
+                    modifier = if (firstControl == FirstControl.DOWN) firstControlModifier else Modifier,
                     colors = ButtonDefaults.colors(
                         containerColor = FetchTheme.colors.BackgroundCard,
                         contentColor = FetchTheme.colors.TextSecondary,
@@ -307,7 +313,7 @@ private fun CatalogOrderCard(
 
                 Button(
                     onClick = onTogglePinned,
-                    modifier = if (!item.canMoveUp && !item.canMoveDown) firstControlModifier else Modifier,
+                    modifier = if (firstControl == FirstControl.PIN) firstControlModifier else Modifier,
                     colors = ButtonDefaults.colors(
                         containerColor = FetchTheme.colors.BackgroundCard,
                         contentColor = if (item.isPinned) FetchTheme.colors.Primary else FetchTheme.colors.TextSecondary,
@@ -352,6 +358,8 @@ private fun CatalogOrderCard(
         }
     }
 }
+
+private enum class FirstControl { UP, DOWN, PIN }
 
 /** A label, then a row of buttons that each lead off the screen. */
 @Composable

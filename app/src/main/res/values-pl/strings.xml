@@ -2076,7 +2076,7 @@
     <string name="playback_cache_vod_size_sub">Maksymalne użycie dysku dla progresywnego cache VOD (usuwanie LRU).</string>
     <string name="playback_cache_auto_size">Automatyczny rozmiar</string>
     <string name="playback_cache_auto_size_sub">Gdy włączony, rozmiar cache jest obliczany z wolnego miejsca na dysku. Wyłącz, aby wybrać rozmiar ręcznie.</string>
-    <string name="playback_cache_info_auto">Tryb automatyczny celuje w ok. 10% wolnego miejsca.</string>
+    <string name="playback_cache_info_auto" formatted="false">Tryb automatyczny celuje w ok. 10% wolnego miejsca.</string>
     <string name="playback_cache_info_free_disk">Wolne miejsce na dysku: %1$s.</string>
     <string name="playback_cache_info_manual_headroom">Tryb ręczny zachowuje ok. %1$dMB zapasu.</string>
     <string name="playback_cache_info_range">Zakres: %1$d–%2$d MB.</string>

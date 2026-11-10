@@ -1907,7 +1907,7 @@
     <string name="playback_cache_vod_size">Розмір кешу VOD</string>
     <string name="playback_cache_vod_size_sub">Максимальне використання диску для прогресивного кешу VOD (з витісненням LRU).</string>
     <string name="playback_cache_info_range">Діапазон: %1$d–%2$d МБ.</string>
-    <string name="playback_cache_info_auto">Автоматичний режим займає приблизно 10% вільного місця.</string>
+    <string name="playback_cache_info_auto" formatted="false">Автоматичний режим займає приблизно 10% вільного місця.</string>
     <string name="playback_cache_info_manual_headroom">Ручний режим залишає ~%1$dМБ резерву.</string>
     <string name="playback_cache_info_free_disk">Доступно вільного місця: %1$s.</string>
     <string name="playback_cache_info_restart">Новий ліміт кешу застосовується після перезапуску застосунку при зміні режиму/розміру.</string>

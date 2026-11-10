@@ -2304,7 +2304,7 @@
     <string name="playback_cache_vod_size">VOD gyorsítótár mérete</string>
     <string name="playback_cache_vod_size_sub">A progresszív VOD-tartalmak gyorsítótárának maximális tárhelyhasználata. Ha megtelik, a legrégebben használt adatok törlődnek (LRU).</string>
     <string name="playback_cache_info_range">Tartomány: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">Az automatikus mód a szabad terület körülbelül 10%-át célozza meg.</string>
+    <string name="playback_cache_info_auto" formatted="false">Az automatikus mód a szabad terület körülbelül 10%-át célozza meg.</string>
     <string name="playback_cache_info_manual_headroom">A kézi mód körülbelül %1$d MB szabad helyet tart fenn.</string>
     <string name="playback_cache_info_free_disk">Szabad lemezterület: %1$s.</string>
     <string name="playback_cache_info_restart">A gyorsítótár módjának vagy méretének módosítása az alkalmazás újraindítása után lép érvénybe.</string>

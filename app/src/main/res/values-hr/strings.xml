@@ -2262,7 +2262,7 @@
     <string name="playback_cache_vod_size">Veličina VOD predmemorije</string>
     <string name="playback_cache_vod_size_sub">Maksimalna potrošnja diska za progresivnu VOD predmemoriju (LRU uklanjanje).</string>
     <string name="playback_cache_info_range">Raspon: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">Automatski način cilja oko 10 posto slobodnog prostora.</string>
+    <string name="playback_cache_info_auto" formatted="false">Automatski način cilja oko 10 posto slobodnog prostora.</string>
     <string name="playback_cache_info_manual_headroom">Ručni način ostavlja oko %1$dMB rezerve.</string>
     <string name="playback_cache_info_free_disk">Slobodno na disku: %1$s.</string>
     <string name="playback_cache_info_restart">Novo ograničenje predmemorije primjenjuje se nakon ponovnog pokretanja aplikacije pri promjeni načina/veličine.</string>

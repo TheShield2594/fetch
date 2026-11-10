@@ -2880,7 +2880,7 @@
     <string name="playback_cache_vod_size">VOD Cache Size</string>
     <string name="playback_cache_vod_size_sub">Maximum disk usage for progressive VOD cache (LRU-evicted).</string>
     <string name="playback_cache_info_range">Range: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">Auto mode targets about 10% of free space.</string>
+    <string name="playback_cache_info_auto" formatted="false">Auto mode targets about 10% of free space.</string>
     <string name="playback_cache_info_manual_headroom">Manual mode keeps about %1$dMB headroom.</string>
     <string name="playback_cache_info_free_disk">Free disk available: %1$s.</string>
     <string name="playback_cache_info_restart">New cache cap applies after app restart when changing between modes/sizes.</string>

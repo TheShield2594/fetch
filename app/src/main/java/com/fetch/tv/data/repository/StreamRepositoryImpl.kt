@@ -7,6 +7,7 @@ import com.fetch.tv.core.streams.AddonRequestKind
 import com.fetch.tv.core.streams.AddonRequestOutcome
 import com.fetch.tv.core.streams.metaIdForVideoId
 import com.fetch.tv.core.streams.withoutUnplayableStreams
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import com.fetch.tv.R
@@ -544,6 +545,7 @@ class StreamRepositoryImpl @Inject constructor(
      * arguments of the detail strings so existing translations keep working, but the default
      * text doesn't show them.
      */
+    @SuppressLint("StringFormatMatches") // See above: the extra arguments are for the translations.
     private fun buildAggregateFailureMessage(
         type: String,
         id: String,

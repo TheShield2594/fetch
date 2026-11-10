@@ -288,6 +288,57 @@ class CollectionManagementViewModel @Inject constructor(
         return collectionsDataStore.exportToJson(_uiState.value.collections)
     }
 
+    /**
+     * Writes the collections to fetch-collections.json in Downloads, replacing any earlier export,
+     * and returns whether it was saved. MediaStore.Downloads only exists from Android 10, so older
+     * versions write the file directly, the same place [loadFromFile] reads it from.
+     */
+    suspend fun exportToDownloads(context: android.content.Context): Boolean {
+        val json = getExportJson()
+        return withContext(Dispatchers.IO) {
+            try {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    saveToMediaStoreDownloads(context, json)
+                } else {
+                    saveToDownloadsDirectory(json)
+                }
+            } catch (_: Exception) {
+                false
+            }
+        }
+    }
+
+    @androidx.annotation.RequiresApi(android.os.Build.VERSION_CODES.Q)
+    private fun saveToMediaStoreDownloads(context: android.content.Context, json: String): Boolean {
+        val resolver = context.contentResolver
+        val uri = android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI
+        // Delete existing file first
+        resolver.delete(
+            uri,
+            "${android.provider.MediaStore.Downloads.DISPLAY_NAME} = ?",
+            arrayOf("fetch-collections.json")
+        )
+        val values = android.content.ContentValues().apply {
+            put(android.provider.MediaStore.Downloads.DISPLAY_NAME, "fetch-collections.json")
+            put(android.provider.MediaStore.Downloads.MIME_TYPE, "application/json")
+        }
+        // Saved only once the bytes are written; a null insert or stream is a failure.
+        val fileUri = resolver.insert(uri, values) ?: return false
+        return resolver.openOutputStream(fileUri)?.use { os ->
+            os.write(json.toByteArray())
+            true
+        } ?: false
+    }
+
+    private fun saveToDownloadsDirectory(json: String): Boolean {
+        val downloadsDir = android.os.Environment.getExternalStoragePublicDirectory(
+            android.os.Environment.DIRECTORY_DOWNLOADS
+        )
+        if (!downloadsDir.exists() && !downloadsDir.mkdirs()) return false
+        java.io.File(downloadsDir, "fetch-collections.json").writeText(json)
+        return true
+    }
+
     @androidx.annotation.RequiresApi(android.os.Build.VERSION_CODES.Q)
     private fun loadFromMediaStoreDownloads(context: android.content.Context): String? {
         val resolver = context.contentResolver

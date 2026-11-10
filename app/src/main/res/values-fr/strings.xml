@@ -2319,7 +2319,7 @@
     <string name="playback_cache_vod_size">Taille du cache VOD</string>
     <string name="playback_cache_vod_size_sub">Utilisation maximale du disque pour le cache VOD progressif (éviction LRU).</string>
     <string name="playback_cache_info_range">Plage&#160;: %1$d-%2$d Mo.</string>
-    <string name="playback_cache_info_auto">Le mode automatique vise environ 10 pour cent de l’espace libre.</string>
+    <string name="playback_cache_info_auto" formatted="false">Le mode automatique vise environ 10 pour cent de l’espace libre.</string>
     <string name="playback_cache_info_manual_headroom">Le mode manuel conserve environ %1$d Mo de marge.</string>
     <string name="playback_cache_info_free_disk">Espace disque libre&#160;: %1$s.</string>
     <string name="playback_cache_info_restart">Le nouveau plafond du cache s’applique après le redémarrage de l’application lors d’un changement de mode ou de taille.</string>

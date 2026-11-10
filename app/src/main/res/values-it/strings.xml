@@ -2149,7 +2149,7 @@
 <string name="playback_cache_vod_size">Dimensione cache VOD</string>
 <string name="playback_cache_vod_size_sub">Utilizzo massimo su disco per la cache VOD progressiva (evict LRU).</string>
 <string name="playback_cache_info_range">Intervallo: %1$d-%2$d MB.</string>
-<string name="playback_cache_info_auto">La modalità automatica usa circa un decimo dello spazio libero (10%).</string>
+<string name="playback_cache_info_auto" formatted="false">La modalità automatica usa circa un decimo dello spazio libero (10%).</string>
 <string name="playback_cache_info_manual_headroom">La modalità manuale mantiene circa %1$dMB di margine.</string>
 <string name="playback_cache_info_free_disk">Spazio libero disponibile: %1$s.</string>
 <string name="playback_cache_info_restart">Il nuovo limite cache si applica dopo il riavvio dell\'app quando si cambia modalità o dimensione.</string>

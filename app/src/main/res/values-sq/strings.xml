@@ -1934,7 +1934,7 @@
     <string name="playback_cache_vod_size">Madhësia e cache-it VOD</string>
     <string name="playback_cache_vod_size_sub">Përdorimi maksimal i diskut për cache-in progresiv VOD (hiqet me LRU).</string>
     <string name="playback_cache_info_range">Diapazoni: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">Modaliteti automatik synon rreth 10% të hapësirës së lirë.</string>
+    <string name="playback_cache_info_auto" formatted="false">Modaliteti automatik synon rreth 10% të hapësirës së lirë.</string>
     <string name="playback_cache_info_manual_headroom">Modaliteti manual mban rreth %1$dMB hapësirë rezervë.</string>
     <string name="playback_cache_info_free_disk">Hapësira e lirë në disk: %1$s.</string>
     <string name="playback_cache_info_restart">Kufiri i ri i cache-it zbatohet pas rinisjes së aplikacionit kur ndryshohet modaliteti/madhësia.</string>

@@ -2010,7 +2010,7 @@
     <string name="playback_cache_auto_size">حجم تلقائي</string>
     <string name="playback_cache_auto_size_sub">عند التفعيل، يُحسب حجم الذاكرة المؤقتة من المساحة الحرة على القرص. أطفئه لاختيار الحجم يدويًا.</string>
     <string name="playback_cache_header">الذاكرة المؤقتة على القرص</string>
-    <string name="playback_cache_info_auto">يستهدف الوضع التلقائي حوالي 10% من المساحة الحرة.</string>
+    <string name="playback_cache_info_auto" formatted="false">يستهدف الوضع التلقائي حوالي 10% من المساحة الحرة.</string>
     <string name="playback_cache_info_free_disk">المساحة الحرة المتوفرة: %1$s.</string>
     <string name="playback_cache_info_manual_headroom">يحافظ الوضع اليدوي على حوالي %1$d م.ب مساحة احتياطية.</string>
     <string name="playback_cache_info_range">النطاق: %1$d-%2$d م.ب.</string>

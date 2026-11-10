@@ -2139,7 +2139,7 @@
     <string name="playback_cache_vod_size">Размер кэша VOD</string>
     <string name="playback_cache_vod_size_sub">Максимальный объём диска для прогрессивного кэша VOD (вытеснение по LRU).</string>
     <string name="playback_cache_info_range">Диапазон: %1$d–%2$d МБ.</string>
-    <string name="playback_cache_info_auto">Автоматический режим ориентируется примерно на 10% свободного места.</string>
+    <string name="playback_cache_info_auto" formatted="false">Автоматический режим ориентируется примерно на 10% свободного места.</string>
     <string name="playback_cache_info_manual_headroom">Ручной режим оставляет примерно %1$d МБ запаса.</string>
     <string name="playback_cache_info_free_disk">Доступно свободного места на диске: %1$s.</string>
     <string name="playback_cache_info_restart">Новый лимит кэша применяется после перезапуска приложения при смене режима или размера.</string>

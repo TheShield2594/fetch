@@ -1912,7 +1912,7 @@
     <string name="playback_cache_vod_size">VODキャッシュサイズ</string>
     <string name="playback_cache_vod_size_sub">プログレッシブVODキャッシュの最大ディスク使用量（LRU削除）。</string>
     <string name="playback_cache_info_range">範囲: %1$d-%2$d MB。</string>
-    <string name="playback_cache_info_auto">自動モードは空き容量の約10%を目標とします。</string>
+    <string name="playback_cache_info_auto" formatted="false">自動モードは空き容量の約10%を目標とします。</string>
     <string name="playback_cache_info_manual_headroom">手動モードは約%1$dMBの余裕を確保します。</string>
     <string name="playback_cache_info_free_disk">利用可能な空きディスク: %1$s。</string>
     <string name="playback_cache_info_restart">新しいキャッシュ上限はモード/サイズ変更後にアプリ再起動で適用されます。</string>

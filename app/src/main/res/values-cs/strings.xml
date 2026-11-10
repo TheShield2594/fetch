@@ -1937,7 +1937,7 @@
     <string name="playback_cache_vod_size">Velikost cache VOD</string>
     <string name="playback_cache_vod_size_sub">Maximální využití disku pro progresivní cache VOD (mazáno metodou LRU).</string>
     <string name="playback_cache_info_range">Rozsah: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">Automatický režim cílí přibližně na 10 % volného místa.</string>
+    <string name="playback_cache_info_auto" formatted="false">Automatický režim cílí přibližně na 10 % volného místa.</string>
     <string name="playback_cache_info_manual_headroom">Ruční režim ponechává přibližně %1$dMB rezervy.</string>
     <string name="playback_cache_info_free_disk">Dostupné volné místo na disku: %1$s.</string>
     <string name="playback_cache_info_restart">Nový limit cache se uplatní po restartu aplikace při změně mezi režimy/velikostmi.</string>

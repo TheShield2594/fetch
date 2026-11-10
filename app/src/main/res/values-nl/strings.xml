@@ -2154,7 +2154,7 @@
     <string name="playback_cache_vod_size">Grootte van VOD-cache</string>
     <string name="playback_cache_vod_size_sub">Maximaal schijfgebruik voor de progressieve VOD-cache (LRU-verwijdering).</string>
     <string name="playback_cache_info_range">Bereik: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">De automatische modus streeft naar ongeveer 10% van de vrije ruimte.</string>
+    <string name="playback_cache_info_auto" formatted="false">De automatische modus streeft naar ongeveer 10% van de vrije ruimte.</string>
     <string name="playback_cache_info_manual_headroom">De handmatige modus houdt ongeveer %1$d MB speling vrij.</string>
     <string name="playback_cache_info_free_disk">Beschikbare vrije schijfruimte: %1$s.</string>
     <string name="playback_cache_info_restart">Bij het wisselen tussen modi/groottes geldt de nieuwe cachelimiet pas na het opnieuw starten van de app.</string>

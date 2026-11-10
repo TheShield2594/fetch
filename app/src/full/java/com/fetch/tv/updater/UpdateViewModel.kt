@@ -1,6 +1,7 @@
 package com.fetch.tv.updater
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.BuildConfig
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -46,6 +48,10 @@ class UpdateViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UpdateUiState())
     val uiState: StateFlow<UpdateUiState> = _uiState.asStateFlow()
     private var updateCheckJob: Job? = null
+    // What the running check was asked for; a request made while it runs joins it.
+    private var checkForced = false
+    private var checkShowsFeedback = false
+    private var downloadJob: Job? = null
 
     private val updatesDir: File
         get() = File(context.cacheDir, UpdateCacheCleaner.DIRECTORY)
@@ -72,7 +78,14 @@ class UpdateViewModel @Inject constructor(
     fun checkForUpdates(force: Boolean, showNoUpdateFeedback: Boolean) {
         if (!force && !_uiState.value.updateBannerEnabled) return
 
-        updateCheckJob?.cancel()
+        // Pressing "Check for updates" again while a check runs joins it instead of starting over.
+        if (updateCheckJob?.isActive == true) {
+            checkForced = checkForced || force
+            checkShowsFeedback = checkShowsFeedback || showNoUpdateFeedback
+            return
+        }
+        checkForced = force
+        checkShowsFeedback = showNoUpdateFeedback
         updateCheckJob = viewModelScope.launch {
             val channel = _uiState.value.updateChannel
             _uiState.update {
@@ -93,7 +106,7 @@ class UpdateViewModel @Inject constructor(
                     val remoteNewer = VersionUtils.isRemoteNewer(update.tag, BuildConfig.VERSION_NAME)
                     val shouldShow = UpdateBannerPolicy.shouldShow(
                         isRemoteNewer = remoteNewer,
-                        force = force,
+                        force = checkForced,
                         bannerEnabled = _uiState.value.updateBannerEnabled,
                         dismissedTag = dismissedTag,
                         updateTag = update.tag
@@ -112,7 +125,7 @@ class UpdateViewModel @Inject constructor(
                             showBanner = shouldShow,
                             showUnknownSourcesDialog = false,
                             errorMessage = null,
-                            feedbackMessage = if (showNoUpdateFeedback && !remoteNewer) {
+                            feedbackMessage = if (checkShowsFeedback && !remoteNewer) {
                                 noUpdateFeedback(channel)
                             } else {
                                 null
@@ -132,11 +145,14 @@ class UpdateViewModel @Inject constructor(
                             showBanner = false,
                             showUnknownSourcesDialog = false,
                             errorMessage = null,
-                            feedbackMessage = if (showNoUpdateFeedback) {
+                            feedbackMessage = if (checkShowsFeedback) {
                                 if (error is NoEligibleUpdateException) {
                                     noUpdateFeedback(channel)
                                 } else {
-                                    error.message ?: context.getString(R.string.update_error_check_failed)
+                                    // The raw message (an HTTP code, a parser error) means
+                                    // nothing on a TV; it goes to the log instead.
+                                    Log.w(TAG, "Update check failed", error)
+                                    context.getString(R.string.update_error_check_failed)
                                 }
                             } else {
                                 null
@@ -201,6 +217,7 @@ class UpdateViewModel @Inject constructor(
         if (state.updateChannel == channel) return
 
         updateCheckJob?.cancel()
+        downloadJob?.cancel()
         state.downloadedApkPath?.let { File(it).delete() }
         _uiState.update {
             it.copy(
@@ -230,14 +247,18 @@ class UpdateViewModel @Inject constructor(
         // A second download would clean the first one's file out from under it.
         if (_uiState.value.isDownloading) return
 
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    isDownloading = true,
-                    downloadProgress = 0f,
-                    errorMessage = null
-                )
-            }
+        _uiState.update {
+            it.copy(
+                isDownloading = true,
+                downloadProgress = 0f,
+                errorMessage = null
+            )
+        }
+        val previous = downloadJob
+        downloadJob = viewModelScope.launch {
+            // A cancelled download may still be finishing its last read; let it clean up its
+            // partial file before this one writes to the same path.
+            previous?.cancelAndJoin()
 
             val safeName = update.assetName.replace(Regex("[^a-zA-Z0-9._-]"), "_")
             val destination = File(updatesDir, safeName)
@@ -267,16 +288,33 @@ class UpdateViewModel @Inject constructor(
                     installUpdateOrRequestPermission()
                 }
                 .onFailure { error ->
+                    Log.w(TAG, "Update download failed", error)
                     _uiState.update {
                         it.copy(
                             isDownloading = false,
                             downloadProgress = null,
                             downloadedApkPath = null,
-                            errorMessage = error.message ?: context.getString(R.string.update_error_download_failed),
+                            errorMessage = context.getString(R.string.update_error_download_failed),
                             showBanner = true
                         )
                     }
                 }
+        }
+    }
+
+    /** Stops a running download; the banner goes back to offering the download. */
+    fun cancelDownload() {
+        if (!_uiState.value.isDownloading) return
+        // The downloader stops at its next read and deletes the partial file.
+        downloadJob?.cancel()
+        downloadJob = null
+        _uiState.update {
+            it.copy(
+                isDownloading = false,
+                downloadProgress = null,
+                downloadedApkPath = null,
+                errorMessage = null
+            )
         }
     }
 
@@ -321,3 +359,5 @@ class UpdateViewModel @Inject constructor(
         }
     }
 }
+
+private const val TAG = "UpdateViewModel"

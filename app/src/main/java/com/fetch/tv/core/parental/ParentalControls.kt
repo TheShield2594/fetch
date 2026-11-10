@@ -254,9 +254,24 @@ class ParentalControls @Inject constructor(
     @Volatile
     private var gateUnlockedForProfileId: Int? = null
 
-    /** True when the parent PIN was entered recently in this profile, so it isn't asked again. */
+    @Volatile
+    private var gateHeldOpen = false
+
+    /**
+     * True when the parent PIN was entered recently in this profile, so it isn't asked again.
+     * While a guarded screen is open (see [holdGateOpen]) the unlock doesn't time out.
+     */
     fun isGateUnlocked(nowMs: Long = System.currentTimeMillis()): Boolean =
-        gateUnlockedForProfileId == profileManager.activeProfileId.value && nowMs < gateUnlockedUntilMs
+        gateUnlockedForProfileId == profileManager.activeProfileId.value &&
+            (gateHeldOpen || nowMs < gateUnlockedUntilMs)
+
+    /**
+     * Keeps an unlocked gate open past [GATE_UNLOCK_WINDOW_MS] while [held] (a guarded screen
+     * is on display). It never unlocks a locked gate: [lockGate] still locks it.
+     */
+    fun holdGateOpen(held: Boolean) {
+        gateHeldOpen = held
+    }
 
     fun markGateUnlocked(nowMs: Long = System.currentTimeMillis()) {
         gateUnlockedForProfileId = profileManager.activeProfileId.value

@@ -33,6 +33,7 @@ class ParentalGateViewModelTest {
     private val kid = UserProfile(id = 2, name = "Kid", avatarColorHex = "#000000")
 
     private var unlocked = false
+    private var held = false
     private var locks = 0
     private val profiles = MutableStateFlow(listOf(parent, kid))
 
@@ -41,6 +42,7 @@ class ParentalGateViewModelTest {
         every { parentPinProfileId() } returns 1
         every { isGateUnlocked(any()) } answers { unlocked }
         every { markGateUnlocked(any()) } answers { unlocked = true }
+        every { holdGateOpen(any()) } answers { held = firstArg() }
         every { lockGate() } answers {
             if (unlocked) locks++
             unlocked = false
@@ -123,12 +125,15 @@ class ParentalGateViewModelTest {
         gate.openGuardedScreen("addons")
         gate.closeGuardedScreen("addons")
         assertTrue(unlocked)
+        // Keeps the unlock from timing out while a guarded screen is still up.
+        assertTrue(held)
 
         var ranWithoutPin = false
         gate.runGuarded { ranWithoutPin = true }
         assertTrue(ranWithoutPin)
 
         gate.closeGuardedScreen("settings")
+        assertFalse(held)
         assertFalse(unlocked)
         assertEquals(1, locks)
 

@@ -2,6 +2,8 @@ package com.fetch.tv.updater.ui
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -24,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.updater.UpdateUiState
 
 @Composable
@@ -31,6 +34,7 @@ fun UpdateBannerHost(
     state: UpdateUiState,
     onDismissBanner: () -> Unit,
     onDownload: () -> Unit,
+    onCancelDownload: () -> Unit,
     onInstall: () -> Unit,
     onDismissUnknownSources: () -> Unit,
     onOpenUnknownSources: () -> Unit,
@@ -63,24 +67,35 @@ fun UpdateBannerHost(
 
     val update = state.update
     val showBanner = state.showBanner && update != null
+    val fullMotion = FetchTheme.fullMotion
 
     Column(modifier = Modifier.fillMaxSize()) {
         AnimatedVisibility(
             visible = showBanner,
-            enter = expandVertically(
-                expandFrom = Alignment.Top,
-                animationSpec = tween(durationMillis = 300)
-            ) + fadeIn(animationSpec = tween(durationMillis = 180)),
-            exit = shrinkVertically(
-                shrinkTowards = Alignment.Top,
-                animationSpec = tween(durationMillis = 240)
-            ) + fadeOut(animationSpec = tween(durationMillis = 150))
+            // Reduced motion: the banner appears and goes without sliding or fading.
+            enter = if (fullMotion) {
+                expandVertically(
+                    expandFrom = Alignment.Top,
+                    animationSpec = tween(durationMillis = 300)
+                ) + fadeIn(animationSpec = tween(durationMillis = 180))
+            } else {
+                EnterTransition.None
+            },
+            exit = if (fullMotion) {
+                shrinkVertically(
+                    shrinkTowards = Alignment.Top,
+                    animationSpec = tween(durationMillis = 240)
+                ) + fadeOut(animationSpec = tween(durationMillis = 150))
+            } else {
+                ExitTransition.None
+            }
         ) {
             update?.let {
                 UpdateBanner(
                     state = state,
                     update = it,
                     onDownload = onDownload,
+                    onCancelDownload = onCancelDownload,
                     onInstall = onInstall,
                     onShowReleaseNotes = { showReleaseNotes = true },
                     onDismiss = onDismissBanner

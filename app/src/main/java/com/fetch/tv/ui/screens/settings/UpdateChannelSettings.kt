@@ -62,9 +62,13 @@ internal fun UpdateChannelSettings(
 
     SettingsActionRow(
         title = stringResource(R.string.about_check_updates),
-        subtitle = stringResource(R.string.about_check_updates_subtitle),
+        subtitle = stringResource(
+            if (state.isChecking) R.string.update_checking else R.string.about_check_updates_subtitle
+        ),
         trailingIcon = Icons.AutoMirrored.Filled.OpenInNew,
         modifier = if (essentialMode) firstRowModifier else Modifier,
+        // Disabled while a check runs, so pressing again doesn't start it over.
+        enabled = !state.isChecking,
         onClick = {
             viewModel.checkForUpdates(force = true, showNoUpdateFeedback = true)
         }

@@ -68,7 +68,8 @@ turn on **Playback issue reports** in Settings → Advanced. With it on:
   you set up yourself.
 
 With it off, sign-in diagnostics are discarded. Either way none are stored on the device: a
-report that can't be sent straight away is dropped, not kept to retry.
+report that can't be sent straight away is dropped, not kept to retry. Reports that older
+versions queued on the device are deleted when the app starts.
 
 ## Phone configuration
 

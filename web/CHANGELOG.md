@@ -11,6 +11,10 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+### Added
+
+- **Email addresses on accounts.** An account can have an email address, given when signing up or later under Settings → Account, and sign in with it instead of its username. With an SMTP server set (`SMTP_HOST` and friends, see the README's Email section), Fetch confirms the address by mail, offers "Forgot your password?" on the sign-in screen, mails invites, and can send notifications by email. Without SMTP nothing is sent and the rest works as before.
+
 ### Changed
 
 - **Settings no longer asks for keys the server already has.** With `TMDB_API_KEY` set and no key saved in Settings, the TMDB Metadata section is left out of Settings. With `MDBLIST_CLIENT_ID` set, Ratings from MDBList no longer asks for an API key, since the profile's MDBList sign-in reads the ratings; which ratings show and in what order stays there.

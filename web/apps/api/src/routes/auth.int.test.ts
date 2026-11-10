@@ -84,9 +84,9 @@ const profilesOf = async (token: string) =>
 
 describe("first-run setup", () => {
   it("reports setup as required until the admin exists", async () => {
-    expect((await call(null, { method: "GET", url: "/auth/status" })).json()).toEqual({ setupRequired: true });
+    expect((await call(null, { method: "GET", url: "/auth/status" })).json()).toEqual({ setupRequired: true, emailEnabled: false });
     await bootstrapAdmin();
-    expect((await call(null, { method: "GET", url: "/auth/status" })).json()).toEqual({ setupRequired: false });
+    expect((await call(null, { method: "GET", url: "/auth/status" })).json()).toEqual({ setupRequired: false, emailEnabled: false });
   });
 
   it("makes the admin with API_TOKEN, lowercases the name and hands over existing profiles", async () => {

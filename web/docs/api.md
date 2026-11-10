@@ -519,21 +519,29 @@ and a browser can't overwrite each other; re-read, merge and retry. A missing
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/auth/status` | Public. `{ setupRequired }`: true until the admin account exists. |
-| `POST` | `/auth/bootstrap` | `API_TOKEN` only. `{ username, password }` → `{ token, account }`. Creates the admin, which takes every profile that existed before accounts. `409` once an account exists. |
-| `POST` | `/auth/login` | Public. `{ username, password }` → `{ token, account }`. `401` for a wrong password or an unknown name alike; `429 { retryAfterSec }` after repeated failures, with the same escalating lockout as profile PINs. |
+| `GET` | `/auth/status` | Public. `{ setupRequired, emailEnabled }`: `setupRequired` is true until the admin account exists; `emailEnabled` is true when SMTP and `FETCH_WEB_PUBLIC` are both set, so mail can be sent. |
+| `POST` | `/auth/bootstrap` | `API_TOKEN` only. `{ username, password, email? }` → `{ token, account, verificationSent }`. Creates the admin, which takes every profile that existed before accounts. `409` once an account exists. |
+| `POST` | `/auth/login` | Public. `{ username, password }` → `{ token, account }`. `username` may be the account's email address instead. `401` for a wrong password or an unknown name alike; `429 { retryAfterSec }` after repeated failures, with the same escalating lockout as profile PINs. |
 | `POST` | `/auth/logout` | Ends this session. `204`. |
-| `GET` | `/auth/me` | `{ account: { id, username, isAdmin } \| null, isAdmin }`. `account` is null for `API_TOKEN`. |
+| `GET` | `/auth/me` | `{ account: { id, username, isAdmin, email, emailVerified, emailNotifications } \| null, isAdmin }`. `account` is null for `API_TOKEN`. |
 | `POST` | `/auth/password` | `{ currentPassword, newPassword }`. Signs out every other session. `204`. |
-| `POST` | `/auth/invites` | Admin. `{ expiresInDays? }` (1–30, default 7) → `{ invite: { id, code, expiresAt }, url }`. The code is shown only here; only its hash is stored. `url` is built from `FETCH_WEB_PUBLIC`, or null when that is unset. |
-| `GET` | `/auth/invites` | Admin. `{ invites: [{ id, createdAt, expiresAt, usedAt, usedBy }] }`. |
+| `PUT` | `/auth/email` | `{ email, currentPassword }` → `{ account, verificationSent }`. Sets or changes the address (`email: null` removes it, and turns email notifications off). A new address is unconfirmed until its mailed link is opened. `401` for a wrong password, `409 email_taken` when another account has it. |
+| `POST` | `/auth/email/resend` | Mails the confirmation link again. `204`; `409 email_unavailable` without SMTP. |
+| `POST` | `/auth/email/verify` | Public. `{ token }` from the `/verify-email/<token>` link (valid 48 hours, once). `204`; `400 link_invalid`. |
+| `PUT` | `/auth/email/notifications` | `{ enabled }` → `{ account }`. Mails this account's notifications (every profile's) to its address. Needs a confirmed address (`400 email_unverified`) and SMTP. |
+| `POST` | `/auth/password/forgot` | Public. `{ email }` → `202`, whether or not the address has an account, and mails a `/reset-password/<token>` link (valid one hour, once) only to a confirmed address. `409 email_unavailable` without SMTP. |
+| `POST` | `/auth/password/reset` | Public. `{ token, password }` → `{ token, account }`. Sets the password, signs out every session, and signs this one in. `400 link_invalid`. |
+| `POST` | `/auth/invites` | Admin. `{ expiresInDays?, email? }` (1–30, default 7) → `{ invite: { id, code, expiresAt, email }, url, emailed }`. The code is shown only here; only its hash is stored. `url` is built from `FETCH_WEB_PUBLIC`, or null when that is unset. With `email`, the link is also mailed there (`emailed` says whether it went); signing up with that address confirms it. |
+| `GET` | `/auth/invites` | Admin. `{ invites: [{ id, createdAt, expiresAt, usedAt, usedBy, email }] }`. |
 | `DELETE` | `/auth/invites/:id` | Admin. Revokes an invite. |
-| `POST` | `/auth/register` | Public. `{ inviteCode, username, password }` → `{ token, account }`. Creates the account and a first profile named after it. `400 invite_invalid` for a used, expired or unknown code; `409` for a taken name, which leaves the invite usable. |
-| `GET` | `/auth/accounts` | Admin. `{ accounts: [{ id, username, isAdmin, createdAt, profileCount }] }`. |
+| `POST` | `/auth/register` | Public. `{ inviteCode, username, password, email? }` → `{ token, account, verificationSent }`. Creates the account and a first profile named after it. `400 invite_invalid` for a used, expired or unknown code; `409` for a taken name or `409 email_taken` for a taken address, either of which leaves the invite usable. |
+| `GET` | `/auth/accounts` | Admin. `{ accounts: [{ id, username, isAdmin, email, emailVerified, emailNotifications, createdAt, profileCount }] }`. |
 | `DELETE` | `/auth/accounts/:id` | Admin. Deletes the account and everything its profiles own. The admin account can't be deleted. |
 
 Usernames are 3–32 characters of letters, numbers, `.`, `-` and `_`, and are
-case-insensitive. Passwords are 8–256 characters, hashed with scrypt.
+case-insensitive. Passwords are 8–256 characters, hashed with scrypt. Email
+addresses are optional, case-insensitive and unique across accounts; the links
+mailed for confirming one or resetting a password are stored only as hashes.
 
 `GET /profiles` lists the caller's own profiles (every profile, for
 `API_TOKEN`), and a new profile belongs to the caller's account. An account

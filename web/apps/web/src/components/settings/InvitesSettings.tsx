@@ -22,7 +22,7 @@ const describeInvite = (invite: Invite, now: number): ListedInvite => {
 };
 
 /** A link made just now. Its code is never shown again, so this is the only chance to copy it. */
-function NewInvite({ url }: { url: string }) {
+function NewInvite({ url, emailedTo }: { url: string; emailedTo: string | null }) {
   const [copied, setCopied] = useTransientFlag();
   const [copyError, setCopyError] = useTransientFlag(3000);
 
@@ -33,7 +33,9 @@ function NewInvite({ url }: { url: string }) {
   return (
     <div className="space-y-2 rounded-xl p-3" style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}>
       <p className="text-sm" style={{ color: "var(--text-dim)" }}>
-        Send this link to the person you're inviting. It works once, and it won't be shown again.
+        {emailedTo
+          ? `We emailed this link to ${emailedTo}. You can also send it yourself. It works once, and it won't be shown again.`
+          : "Send this link to the person you're inviting. It works once, and it won't be shown again."}
       </p>
       <div className="flex items-center gap-2">
         <input
@@ -58,6 +60,9 @@ export function InvitesSettings() {
   const [invites, setInvites] = useState<ListedInvite[] | null>(null);
   const [accounts, setAccounts] = useState<AccountSummary[] | null>(null);
   const [newUrl, setNewUrl] = useState<string | null>(null);
+  const [emailedTo, setEmailedTo] = useState<string | null>(null);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [emailEnabled, setEmailEnabled] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,14 +81,31 @@ export function InvitesSettings() {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getAuthStatus()
+      .then((status) => {
+        if (!cancelled) setEmailEnabled(status.emailEnabled === true);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const createInvite = async () => {
     setCreating(true);
     setError(null);
     try {
-      const { invite, url } = await api.createInvite();
+      const address = emailEnabled ? inviteEmail.trim() : "";
+      const { invite, url, emailed } = await api.createInvite(undefined, address || undefined);
       // The server builds the link from FETCH_WEB_PUBLIC. Without it, this
       // page's own address is the next best guess.
       setNewUrl(url ?? `${window.location.origin}/invite/${invite.code}`);
+      setEmailedTo(emailed ? address : null);
+      if (address && !emailed) setError("The invite was made, but the email couldn't be sent. Copy the link below instead.");
+      setInviteEmail("");
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create an invite.");
@@ -124,10 +146,26 @@ export function InvitesSettings() {
         history.
       </p>
 
-      <button type="button" onClick={() => void createInvite()} disabled={creating} className="btn-primary">
-        {creating ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />} Create invite link
-      </button>
-      {newUrl && <NewInvite url={newUrl} />}
+      <div className="flex flex-wrap gap-2">
+        {emailEnabled && (
+          <input
+            type="email"
+            value={inviteEmail}
+            onChange={(e) => setInviteEmail(e.target.value)}
+            aria-label="Email the invite to (optional)"
+            placeholder="Email it to (optional)"
+            autoComplete="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            className="min-w-0 flex-1 rounded-xl border border-[var(--border-field)] bg-[var(--bg-0)] px-4 py-2 text-sm text-[var(--text)] field-control"
+          />
+        )}
+        <button type="button" onClick={() => void createInvite()} disabled={creating} className="btn-primary">
+          {creating ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}{" "}
+          {inviteEmail.trim() ? "Email invite" : "Create invite link"}
+        </button>
+      </div>
+      {newUrl && <NewInvite url={newUrl} emailedTo={emailedTo} />}
       {error && (
         <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
       )}
@@ -141,6 +179,7 @@ export function InvitesSettings() {
                 <span>
                   <strong style={{ color: "var(--text)" }}>{account.username}</strong>
                   {account.isAdmin && <span className="ml-2 text-xs text-claw-text">Admin</span>}
+                  {account.email && <span className="ml-2 text-xs">{account.email}</span>}
                   <span className="ml-2 text-xs">
                     {account.profileCount} {account.profileCount === 1 ? "profile" : "profiles"}
                   </span>
@@ -169,7 +208,8 @@ export function InvitesSettings() {
               return (
                 <li key={invite.id} className="flex items-center justify-between gap-3 text-sm" style={{ color: "var(--text-dim)" }}>
                   <span>
-                    Created {formatDate(invite.createdAt)} · {invite.state}
+                    Created {formatDate(invite.createdAt)}
+                    {invite.email ? ` for ${invite.email}` : ""} · {invite.state}
                   </span>
                   {invite.open && (
                     <button

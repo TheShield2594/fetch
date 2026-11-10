@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Route, Routes, useLocation } from "react-router";
 import { Search, User } from "lucide-react";
-import { api, inviteCodeFromPath, type Profile, runtimeConfig } from "./api";
+import { api, emailLinkFromPath, inviteCodeFromPath, type Profile, runtimeConfig } from "./api";
 import { useCommandPalette } from "./hooks/useCommandPalette";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { GhostLoader } from "./components/GhostLoader";
@@ -49,6 +49,7 @@ const SHORTCUT_HINT = paletteShortcutHint();
 // on hover, before the click that renders it.
 const ProfileSwitcher = lazy(() => loadProfileSwitcher().then((m) => ({ default: m.ProfileSwitcher })));
 const SetupWizard = lazy(() => loadSetupWizard().then((m) => ({ default: m.SetupWizard })));
+const EmailLinkPage = lazy(() => loadSetupWizard().then((m) => ({ default: m.EmailLinkPage })));
 
 // Closed on every cold start, and plenty of sessions never open it — but once
 // it has been opened it stays mounted, because it keeps rendering a detail panel
@@ -131,6 +132,9 @@ export function App() {
     () => !runtimeConfig.hasSession() || inviteCodeFromPath(window.location.pathname) !== null
   );
   const [needsProfile, setNeedsProfile] = useState(() => !runtimeConfig.getProfileId());
+  // A link from an account mail (confirm an address, reset a password) is
+  // handled before anything else, signed in or not.
+  const [emailLink, setEmailLink] = useState(() => emailLinkFromPath(window.location.pathname));
   const { theme, setTheme } = useTheme();
   const { open: paletteOpen, setOpen: setPaletteOpen } = useCommandPalette();
   const [sidebarPinned, setSidebarPinned] = useState(() => localStorage.getItem(PIN_KEY) === "1");
@@ -154,6 +158,22 @@ export function App() {
     window.addEventListener("fetch:profile-locked", handleProfileLocked);
     return () => window.removeEventListener("fetch:profile-locked", handleProfileLocked);
   }, []);
+
+  if (emailLink) {
+    return (
+      <Suspense fallback={<LoadingFallback />}>
+        <EmailLinkPage
+          link={emailLink}
+          onDone={() => {
+            setEmailLink(null);
+            // A reset signs this device in; a confirmation leaves it as it was.
+            setNeedsSetup(!runtimeConfig.hasSession());
+            setNeedsProfile(!runtimeConfig.getProfileId());
+          }}
+        />
+      </Suspense>
+    );
+  }
 
   if (needsSetup) {
     return (

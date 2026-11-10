@@ -2,8 +2,19 @@ import type { FastifyInstance } from "fastify";
 import { verifyToken } from "./auth.js";
 import { isStremioSecretPath } from "./stremio-secret.js";
 
-/** The sign-in routes, which are how a browser gets a bearer token at all. */
-const SIGN_IN_PATHS = new Set(["/auth/status", "/auth/login", "/auth/register"]);
+/**
+ * The sign-in routes, which are how a browser gets a bearer token at all, and
+ * the mailed links (confirming an address, resetting a forgotten password),
+ * which are opened by someone who may not be signed in.
+ */
+const SIGN_IN_PATHS = new Set([
+  "/auth/status",
+  "/auth/login",
+  "/auth/register",
+  "/auth/email/verify",
+  "/auth/password/forgot",
+  "/auth/password/reset",
+]);
 
 /**
  * Routes that cannot carry a bearer token by construction: the sign-in routes,

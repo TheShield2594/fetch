@@ -16,11 +16,25 @@ vi.mock("../../api", async (importOriginal) => {
       getAccounts: vi.fn(),
       revokeInvite: vi.fn(),
       deleteAccount: vi.fn(),
+      getAuthStatus: vi.fn(),
+      setEmail: vi.fn(),
+      resendEmailVerification: vi.fn(),
+      setEmailNotifications: vi.fn(),
     },
   };
 });
 
-const me = vi.hoisted(() => ({ account: { id: "a1", username: "owner", isAdmin: true } }));
+type MeAccount = {
+  id: string;
+  username: string;
+  isAdmin: boolean;
+  email?: string | null;
+  emailVerified?: boolean;
+  emailNotifications?: boolean;
+};
+const me = vi.hoisted(() => ({
+  account: { id: "a1", username: "owner", isAdmin: true } as MeAccount,
+}));
 vi.mock("../../hooks/useAccount", () => ({
   useAccount: () => ({ account: me.account, isAdmin: me.account.isAdmin, refresh: () => {} }),
 }));
@@ -42,6 +56,58 @@ beforeEach(() => {
     url: "https://watchfetch.tv/invite/the-code",
   });
   vi.mocked(api.deleteAccount).mockReset().mockResolvedValue(undefined);
+  vi.mocked(api.getAuthStatus).mockReset().mockResolvedValue({ setupRequired: false, emailEnabled: true });
+  vi.mocked(api.setEmail).mockReset().mockImplementation(async (email: string) => ({
+    account: { ...me.account, email: email || null, emailVerified: false },
+    verificationSent: Boolean(email),
+  }));
+  vi.mocked(api.resendEmailVerification).mockReset().mockResolvedValue(undefined);
+  vi.mocked(api.setEmailNotifications).mockReset().mockResolvedValue({ account: me.account });
+  me.account = { id: "a1", username: "owner", isAdmin: true };
+});
+
+describe("AccountSettings, email", () => {
+  it("adds an address with the current password and says a confirmation link went out", async () => {
+    const user = userEvent.setup();
+    render(<AccountSettings />);
+
+    await user.click(screen.getByRole("button", { name: /add email/i }));
+    await user.type(screen.getByLabelText("Email address"), "owner@example.com");
+    const passwords = screen.getAllByLabelText("Current password");
+    await user.type(passwords[0]!, "owner-password");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent(/sent a link to owner@example\.com/i);
+    expect(api.setEmail).toHaveBeenCalledWith("owner@example.com", "owner-password");
+  });
+
+  it("only lets a confirmed address turn on email notifications", async () => {
+    me.account = { ...me.account, email: "owner@example.com", emailVerified: false, emailNotifications: false };
+    render(<AccountSettings />);
+
+    const toggle = await screen.findByRole("checkbox", { name: /email me notifications/i });
+    expect(toggle).toBeDisabled();
+    expect(screen.getByRole("button", { name: /resend link/i })).toBeInTheDocument();
+  });
+
+  it("turns email notifications on for a confirmed address", async () => {
+    me.account = { ...me.account, email: "owner@example.com", emailVerified: true, emailNotifications: false };
+    const user = userEvent.setup();
+    render(<AccountSettings />);
+
+    await user.click(await screen.findByRole("checkbox", { name: /email me notifications/i }));
+
+    await waitFor(() => expect(api.setEmailNotifications).toHaveBeenCalledWith(true));
+  });
+
+  it("explains that the server can't send mail yet", async () => {
+    vi.mocked(api.getAuthStatus).mockResolvedValue({ setupRequired: false, emailEnabled: false });
+    me.account = { ...me.account, email: "owner@example.com" };
+    render(<AccountSettings />);
+
+    expect(await screen.findByText(/isn't set up to send email/i)).toBeInTheDocument();
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+  });
 });
 
 describe("AccountSettings", () => {
@@ -66,7 +132,7 @@ describe("AccountSettings", () => {
   it("changes the password, and refuses new passwords that don't match", async () => {
     const user = userEvent.setup();
     render(<AccountSettings />);
-    await user.type(screen.getByLabelText("Current password"), "old-password");
+    await user.type(screen.getAllByLabelText("Current password").at(-1)!, "old-password");
     await user.type(screen.getByLabelText("New password"), "new-password");
     await user.type(screen.getByLabelText("Confirm new password"), "typo-password");
     await user.click(screen.getByRole("button", { name: /change password/i }));
@@ -91,6 +157,22 @@ describe("InvitesSettings", () => {
     await user.click(screen.getByRole("button", { name: /create invite link/i }));
 
     expect(await screen.findByLabelText("Invite link")).toHaveValue("https://watchfetch.tv/invite/the-code");
+  });
+
+  it("emails an invite when an address is given", async () => {
+    vi.mocked(api.createInvite).mockResolvedValue({
+      invite: { id: "i1", code: "the-code", expiresAt: "2026-11-02T00:00:00Z" },
+      url: "https://watchfetch.tv/invite/the-code",
+      emailed: true,
+    });
+    const user = userEvent.setup();
+    render(<InvitesSettings />);
+
+    await user.type(await screen.findByLabelText("Email the invite to (optional)"), "friend@example.com");
+    await user.click(screen.getByRole("button", { name: /email invite/i }));
+
+    expect(await screen.findByText(/we emailed this link to friend@example\.com/i)).toBeInTheDocument();
+    expect(api.createInvite).toHaveBeenCalledWith(undefined, "friend@example.com");
   });
 
   it("lists the accounts and removes one after confirming, never the admin", async () => {

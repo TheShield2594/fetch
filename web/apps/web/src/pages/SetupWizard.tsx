@@ -1,6 +1,6 @@
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { Check, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, ArrowRight } from "lucide-react";
-import { type Account, api, ApiError, inviteCodeFromPath, runtimeConfig } from "../api";
+import { type Account, api, ApiError, type EmailLink, inviteCodeFromPath, runtimeConfig } from "../api";
 import { BrandLockup } from "../components/BrandMark";
 import { TmdbSettings } from "../components/settings/TmdbSettings";
 import { TraktSettings } from "../components/settings/TraktSettings";
@@ -195,7 +195,16 @@ function PasswordInput({
   );
 }
 
-type AccountField = "apiToken" | "username" | "password" | "confirm";
+type AccountField = "apiToken" | "username" | "email" | "password" | "confirm";
+
+/** Enough to catch a username typed into the email field; the server checks properly. */
+const looksLikeEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+
+/** Under the optional email field: what it is for, and whether this server can confirm it. */
+const emailHint = (emailEnabled: boolean) =>
+  emailEnabled
+    ? "Optional. Sign in with it, reset a forgotten password, and get notifications. We'll send a link to confirm it."
+    : "Optional. You can sign in with it. This server isn't set up to send email yet, so resets and email notifications come later.";
 
 const ACCOUNT_COPY: Record<AccountMode, { title: string; body: string; submit: string }> = {
   bootstrap: {
@@ -205,7 +214,7 @@ const ACCOUNT_COPY: Record<AccountMode, { title: string; body: string; submit: s
   },
   login: {
     title: "Sign in",
-    body: "Sign in with the username and password for your Fetch account.",
+    body: "Sign in with the username or email address and the password for your Fetch account.",
     submit: "Sign in",
   },
   register: {
@@ -215,19 +224,110 @@ const ACCOUNT_COPY: Record<AccountMode, { title: string; body: string; submit: s
   },
 };
 
+/** Asks for a reset link. Shown in place of the sign-in form. */
+function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!looksLikeEmail(email)) {
+      setError("Enter the email address on your account.");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      await api.forgotPassword(email.trim());
+      setSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not reach the Fetch server.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} noValidate className="space-y-4">
+      <div>
+        <h1 className={SECTION_TITLE}>Reset your password</h1>
+        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
+          Enter the confirmed email address on your account and we'll send a link to choose a new password.
+        </p>
+      </div>
+      {sent ? (
+        <p role="status" className="flex items-start gap-2 text-sm text-success">
+          <Check size={16} className="mt-0.5 flex-none" /> If that address belongs to an account and has been confirmed,
+          a reset link is on its way. It works for one hour.
+        </p>
+      ) : (
+        <>
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            autoComplete="email"
+            autoCapitalize="none"
+            spellCheck={false}
+          />
+          {error && (
+            <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
+          )}
+          <button type="submit" disabled={submitting} className="btn-primary btn-lg w-full">
+            {submitting ? <><Loader2 size={16} className="animate-spin" /> Sending…</> : <>Send reset link <ArrowRight size={16} /></>}
+          </button>
+        </>
+      )}
+      <BackButton onBack={onBack} />
+    </form>
+  );
+}
+
 function AccountStep({
   mode,
   inviteCode,
+  emailEnabled,
   onSignedIn,
 }: {
   mode: AccountMode;
   inviteCode: string | null;
+  emailEnabled: boolean;
   onSignedIn: (account: Account) => void;
+}) {
+  const [forgot, setForgot] = useState(false);
+  if (forgot) return <ForgotPasswordForm onBack={() => setForgot(false)} />;
+  return (
+    <AccountForm
+      mode={mode}
+      inviteCode={inviteCode}
+      emailEnabled={emailEnabled}
+      onSignedIn={onSignedIn}
+      onForgot={() => setForgot(true)}
+    />
+  );
+}
+
+function AccountForm({
+  mode,
+  inviteCode,
+  emailEnabled,
+  onSignedIn,
+  onForgot,
+}: {
+  mode: AccountMode;
+  inviteCode: string | null;
+  emailEnabled: boolean;
+  onSignedIn: (account: Account) => void;
+  onForgot: () => void;
 }) {
   // A token already on this device from before accounts existed is the API
   // token, so it fills in the first-run form rather than being asked for again.
   const [apiToken, setApiToken] = useState(() => (runtimeConfig.hasSession() ? "" : runtimeConfig.getToken()));
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -237,6 +337,7 @@ function AccountStep({
   const creating = mode !== "login";
   const apiTokenRef = useRef<HTMLInputElement>(null);
   const usernameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmRef = useRef<HTMLInputElement>(null);
 
@@ -249,7 +350,8 @@ function AccountStep({
   const validate = (): Partial<Record<AccountField, string>> => {
     const errors: Partial<Record<AccountField, string>> = {};
     if (mode === "bootstrap" && !apiToken.trim()) errors.apiToken = "Enter the API token your server was configured with.";
-    if (!username.trim()) errors.username = "Enter a username.";
+    if (!username.trim()) errors.username = creating ? "Enter a username." : "Enter your username or email.";
+    if (creating && email.trim() && !looksLikeEmail(email)) errors.email = "Enter a valid email address, or leave it empty.";
     if (!password) errors.password = "Enter a password.";
     if (creating) {
       if (!confirm) errors.confirm = "Enter the password again.";
@@ -262,10 +364,16 @@ function AccountStep({
     e.preventDefault();
     const errors = validate();
     setFieldErrors(errors);
-    const first = (["apiToken", "username", "password", "confirm"] as const).find((f) => errors[f]);
+    const first = (["apiToken", "username", "email", "password", "confirm"] as const).find((f) => errors[f]);
     if (first) {
       setError(null);
-      const refs = { apiToken: apiTokenRef, username: usernameRef, password: passwordRef, confirm: confirmRef };
+      const refs = {
+        apiToken: apiTokenRef,
+        username: usernameRef,
+        email: emailRef,
+        password: passwordRef,
+        confirm: confirmRef,
+      };
       refs[first].current?.focus();
       return;
     }
@@ -275,9 +383,9 @@ function AccountStep({
     try {
       const account =
         mode === "bootstrap"
-          ? await api.bootstrapAdmin(apiToken.trim(), username.trim(), password)
+          ? await api.bootstrapAdmin(apiToken.trim(), username.trim(), password, email.trim())
           : mode === "register"
-            ? await api.register(inviteCode ?? "", username.trim(), password)
+            ? await api.register(inviteCode ?? "", username.trim(), password, email.trim())
             : await api.login(username.trim(), password);
       onSignedIn(account);
     } catch (err) {
@@ -312,7 +420,7 @@ function AccountStep({
         />
       )}
       <TextField
-        label="Username"
+        label={creating ? "Username" : "Username or email"}
         autoFocus={mode !== "bootstrap"}
         type="text"
         value={username}
@@ -323,6 +431,26 @@ function AccountStep({
         error={fieldErrors.username}
         inputRef={usernameRef}
       />
+      {creating && (
+        <div>
+          <TextField
+            label="Email (optional)"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            autoComplete="email"
+            autoCapitalize="none"
+            spellCheck={false}
+            error={fieldErrors.email}
+            inputRef={emailRef}
+          />
+          {!fieldErrors.email && (
+            <p className="mt-1.5 text-xs leading-relaxed" style={{ color: "var(--text-mute)" }}>
+              {emailHint(emailEnabled)}
+            </p>
+          )}
+        </div>
+      )}
       <PasswordInput
         label="Password"
         value={password}
@@ -347,6 +475,11 @@ function AccountStep({
       <button type="submit" disabled={submitting} className="btn-primary btn-lg w-full">
         {submitting ? <><Loader2 size={16} className="animate-spin" /> Working…</> : <>{copy.submit} <ArrowRight size={16} /></>}
       </button>
+      {mode === "login" && emailEnabled && (
+        <button type="button" onClick={onForgot} className="mx-auto block text-sm text-claw-text underline underline-offset-2 hover:decoration-2">
+          Forgot your password?
+        </button>
+      )}
     </form>
   );
 }
@@ -448,18 +581,24 @@ export function SetupWizard({ onComplete }: { onComplete: () => void }) {
   const [mode, setMode] = useState<AccountMode | null>(inviteCode ? "register" : null);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [account, setAccount] = useState<Account | null>(null);
+  const [emailEnabled, setEmailEnabled] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    if (inviteCode) return;
     let cancelled = false;
     api
       .getAuthStatus()
       .then((status) => {
-        if (!cancelled) setMode(status.setupRequired ? "bootstrap" : "login");
+        if (cancelled) return;
+        setEmailEnabled(status.emailEnabled === true);
+        if (!inviteCode) setMode(status.setupRequired ? "bootstrap" : "login");
       })
       .catch((err: unknown) => {
-        if (!cancelled) setStatusError(err instanceof Error ? err.message : "Could not reach the Fetch server.");
+        // An invite already says which form to show; only the email hint
+        // depends on the answer, and it falls back to "can't send yet".
+        if (!cancelled && !inviteCode) {
+          setStatusError(err instanceof Error ? err.message : "Could not reach the Fetch server.");
+        }
       });
     return () => {
       cancelled = true;
@@ -488,7 +627,7 @@ export function SetupWizard({ onComplete }: { onComplete: () => void }) {
     <WizardShell step={step} showProgress={mode === "bootstrap"}>
       {step === "account" && account && <SignedInStep account={account} onContinue={() => setStep("tmdb")} />}
       {step === "account" && !account && mode && (
-        <AccountStep mode={mode} inviteCode={inviteCode} onSignedIn={signedIn} />
+        <AccountStep mode={mode} inviteCode={inviteCode} emailEnabled={emailEnabled} onSignedIn={signedIn} />
       )}
       {step === "account" && !account && !mode && (
         <div className="space-y-4">
@@ -517,5 +656,135 @@ export function SetupWizard({ onComplete }: { onComplete: () => void }) {
       {step === "trakt" && <TraktStep onContinue={() => setStep("done")} onBack={goBack} />}
       {step === "done" && <DoneStep onFinish={finish} onBack={goBack} />}
     </WizardShell>
+  );
+}
+
+/**
+ * Where the links in account mails land: `/verify-email/<token>` confirms an
+ * address, `/reset-password/<token>` sets a new password. Shown on its own,
+ * signed in or not, since a mail is often opened on another device.
+ */
+export function EmailLinkPage({ link, onDone }: { link: EmailLink; onDone: () => void }) {
+  const leave = () => {
+    window.history.replaceState(null, "", "/");
+    onDone();
+  };
+  return (
+    <div className="flex min-h-screen items-center justify-center px-6 py-12">
+      <div className="w-full max-w-md space-y-6">
+        <BrandLockup />
+        {link.kind === "verify" ? (
+          <VerifyEmail token={link.token} onContinue={leave} />
+        ) : (
+          <ResetPassword token={link.token} onContinue={leave} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function VerifyEmail({ token, onContinue }: { token: string; onContinue: () => void }) {
+  const [state, setState] = useState<"working" | "done" | { error: string }>("working");
+  // The link is single-use, so React's development double-run of effects
+  // must not spend it twice.
+  const started = useRef(false);
+
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    api
+      .verifyEmail(token)
+      .then(() => setState("done"))
+      .catch((err: unknown) =>
+        setState({ error: err instanceof Error ? err.message : "Could not reach the Fetch server." })
+      );
+  }, [token]);
+
+  return (
+    <div className="space-y-4">
+      <h1 className={SECTION_TITLE}>Confirm your email</h1>
+      {state === "working" && (
+        <p className="flex items-center gap-2 text-sm" style={{ color: "var(--text-mute)" }}>
+          <Loader2 size={16} className="animate-spin" /> Confirming…
+        </p>
+      )}
+      {state === "done" && (
+        <p role="status" className="flex items-center gap-2 text-sm text-success">
+          <Check size={16} /> Your email address is confirmed.
+        </p>
+      )}
+      {typeof state === "object" && (
+        <p role="alert" className="flex items-center gap-2 text-sm text-danger">
+          <AlertCircle size={16} /> {state.error} You can send a new link from Settings → Account.
+        </p>
+      )}
+      {state !== "working" && (
+        <button type="button" onClick={onContinue} className="btn-primary btn-lg w-full">
+          Continue to Fetch <ArrowRight size={16} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ResetPassword({ token, onContinue }: { token: string; onContinue: () => void }) {
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [signedInAs, setSignedInAs] = useState<Account | null>(null);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!password) {
+      setError("Enter a new password.");
+      return;
+    }
+    if (password !== confirm) {
+      setError("The passwords don't match.");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      setSignedInAs(await api.resetPassword(token, password));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not reach the Fetch server.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (signedInAs) {
+    return (
+      <div className="space-y-4">
+        <h1 className={SECTION_TITLE}>Password changed</h1>
+        <p role="status" className="text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
+          You're signed in as <strong>{signedInAs.username}</strong>. Every other device has been signed out.
+        </p>
+        <button type="button" onClick={onContinue} className="btn-primary btn-lg w-full">
+          Continue to Fetch <ArrowRight size={16} />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={submit} noValidate className="space-y-4">
+      <div>
+        <h1 className={SECTION_TITLE}>Choose a new password</h1>
+        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
+          This signs out every device that's signed in to your account.
+        </p>
+      </div>
+      <PasswordInput label="New password" value={password} onChange={setPassword} autoComplete="new-password" />
+      <PasswordInput label="Confirm password" value={confirm} onChange={setConfirm} autoComplete="new-password" />
+      {error && (
+        <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
+      )}
+      <button type="submit" disabled={submitting} className="btn-primary btn-lg w-full">
+        {submitting ? <><Loader2 size={16} className="animate-spin" /> Working…</> : <>Set password <ArrowRight size={16} /></>}
+      </button>
+    </form>
   );
 }

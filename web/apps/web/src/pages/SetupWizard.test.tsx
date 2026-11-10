@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { SetupWizard, WIZARD_STEPS, previousStep } from "./SetupWizard";
+import { EmailLinkPage, SetupWizard, WIZARD_STEPS, previousStep } from "./SetupWizard";
 
 vi.mock("../api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../api")>();
@@ -12,6 +12,9 @@ vi.mock("../api", async (importOriginal) => {
       bootstrapAdmin: vi.fn(),
       login: vi.fn(),
       register: vi.fn(),
+      forgotPassword: vi.fn(),
+      verifyEmail: vi.fn(),
+      resetPassword: vi.fn(),
       getTmdbStatus: vi.fn(),
       setTmdbKey: vi.fn(),
       removeTmdbKey: vi.fn(),
@@ -27,6 +30,9 @@ const getAuthStatus = vi.mocked(api.getAuthStatus);
 const bootstrapAdmin = vi.mocked(api.bootstrapAdmin);
 const login = vi.mocked(api.login);
 const register = vi.mocked(api.register);
+const forgotPassword = vi.mocked(api.forgotPassword);
+const verifyEmail = vi.mocked(api.verifyEmail);
+const resetPassword = vi.mocked(api.resetPassword);
 const getTmdbStatus = vi.mocked(api.getTmdbStatus);
 const setTmdbKey = vi.mocked(api.setTmdbKey);
 
@@ -38,6 +44,9 @@ beforeEach(() => {
   bootstrapAdmin.mockReset().mockResolvedValue(ADMIN);
   login.mockReset().mockResolvedValue(FRIEND);
   register.mockReset().mockResolvedValue(FRIEND);
+  forgotPassword.mockReset().mockResolvedValue({ ok: true });
+  verifyEmail.mockReset().mockResolvedValue(undefined);
+  resetPassword.mockReset().mockResolvedValue(FRIEND);
   getTmdbStatus.mockReset().mockResolvedValue({ configured: true, source: "env" });
   setTmdbKey.mockReset().mockResolvedValue({ configured: true, source: "db" });
 });
@@ -80,7 +89,7 @@ describe("SetupWizard, first run", () => {
     expect(await screen.findByText(/create the admin account/i)).toBeInTheDocument();
     await createAdmin(user);
 
-    expect(bootstrapAdmin).toHaveBeenCalledWith("secret-token", "Owner", "a-good-password");
+    expect(bootstrapAdmin).toHaveBeenCalledWith("secret-token", "Owner", "a-good-password", "");
   });
 
   it("labels the progress indicator with the step it is on", async () => {
@@ -197,7 +206,8 @@ describe("SetupWizard, an install that is already set up", () => {
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("API token")).not.toBeInTheDocument();
 
-    await user.type(screen.getByLabelText("Username"), "friend");
+    expect(screen.queryByLabelText("Email (optional)")).not.toBeInTheDocument();
+    await user.type(screen.getByLabelText("Username or email"), "friend");
     await user.type(screen.getByLabelText("Password"), "friend-password");
     await user.click(screen.getByRole("button", { name: /sign in/i }));
 
@@ -225,12 +235,107 @@ describe("SetupWizard, an invite link", () => {
     render(<SetupWizard onComplete={onComplete} />);
 
     expect(await screen.findByText(/you've been invited/i)).toBeInTheDocument();
-    expect(getAuthStatus).not.toHaveBeenCalled();
     await fillNewAccount(user);
     await user.click(screen.getByRole("button", { name: /create account/i }));
 
     await waitFor(() => expect(onComplete).toHaveBeenCalled());
-    expect(register).toHaveBeenCalledWith("abc_DEF-123", "Owner", "a-good-password");
+    expect(register).toHaveBeenCalledWith("abc_DEF-123", "Owner", "a-good-password", "");
     expect(window.location.pathname).toBe("/");
+  });
+
+  it("shows the invite form even when the server's status can't be read", async () => {
+    getAuthStatus.mockRejectedValue(new Error("Network error"));
+    window.history.replaceState(null, "", "/invite/abc_DEF-123");
+    render(<SetupWizard onComplete={vi.fn()} />);
+
+    expect(await screen.findByText(/you've been invited/i)).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+});
+
+describe("SetupWizard, email", () => {
+  it("passes an email given at sign-up, and says it will be confirmed when the server can send mail", async () => {
+    getAuthStatus.mockResolvedValue({ setupRequired: false, emailEnabled: true });
+    window.history.replaceState(null, "", "/invite/abc_DEF-123");
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+
+    expect(await screen.findByText(/send a link to confirm it/i)).toBeInTheDocument();
+    await user.type(screen.getByLabelText("Username"), "Owner");
+    await user.type(screen.getByLabelText("Email (optional)"), "owner@example.com");
+    await user.type(screen.getByLabelText("Password"), "a-good-password");
+    await user.type(screen.getByLabelText("Confirm password"), "a-good-password");
+    await user.click(screen.getByRole("button", { name: /create account/i }));
+
+    await waitFor(() =>
+      expect(register).toHaveBeenCalledWith("abc_DEF-123", "Owner", "a-good-password", "owner@example.com")
+    );
+  });
+
+  it("refuses something that isn't an address", async () => {
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+
+    await user.type(await screen.findByLabelText("API token"), "secret-token");
+    await fillNewAccount(user);
+    await user.type(screen.getByLabelText("Email (optional)"), "owner");
+    await user.click(screen.getByRole("button", { name: /create account/i }));
+
+    expect(await screen.findByText(/valid email address/i)).toBeInTheDocument();
+    expect(bootstrapAdmin).not.toHaveBeenCalled();
+  });
+
+  it("offers a reset link on the sign-in form only when the server can send mail", async () => {
+    getAuthStatus.mockResolvedValue({ setupRequired: false, emailEnabled: true });
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+
+    await user.click(await screen.findByRole("button", { name: /forgot your password/i }));
+    await user.type(screen.getByLabelText("Email"), "friend@example.com");
+    await user.click(screen.getByRole("button", { name: /send reset link/i }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent(/reset link is on its way/i);
+    expect(forgotPassword).toHaveBeenCalledWith("friend@example.com");
+  });
+
+  it("hides the reset link when the server can't send mail", async () => {
+    getAuthStatus.mockResolvedValue({ setupRequired: false, emailEnabled: false });
+    render(<SetupWizard onComplete={vi.fn()} />);
+
+    expect(await screen.findByRole("heading", { name: /sign in/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /forgot your password/i })).not.toBeInTheDocument();
+  });
+});
+
+describe("EmailLinkPage", () => {
+  it("confirms an address from the link, once", async () => {
+    const onDone = vi.fn();
+    const user = userEvent.setup();
+    render(<EmailLinkPage link={{ kind: "verify", token: "tok" }} onDone={onDone} />);
+
+    expect(await screen.findByRole("status")).toHaveTextContent(/confirmed/i);
+    expect(verifyEmail).toHaveBeenCalledTimes(1);
+    expect(verifyEmail).toHaveBeenCalledWith("tok");
+    await user.click(screen.getByRole("button", { name: /continue to fetch/i }));
+    expect(onDone).toHaveBeenCalled();
+  });
+
+  it("says when a confirmation link has expired", async () => {
+    verifyEmail.mockRejectedValue(new Error("This confirmation link is invalid or has expired"));
+    render(<EmailLinkPage link={{ kind: "verify", token: "tok" }} onDone={vi.fn()} />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/expired/i);
+  });
+
+  it("sets a new password from a reset link", async () => {
+    const user = userEvent.setup();
+    render(<EmailLinkPage link={{ kind: "reset", token: "tok" }} onDone={vi.fn()} />);
+
+    await user.type(screen.getByLabelText("New password"), "brand-new-password");
+    await user.type(screen.getByLabelText("Confirm password"), "brand-new-password");
+    await user.click(screen.getByRole("button", { name: /set password/i }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent(/signed in as friend/i);
+    expect(resetPassword).toHaveBeenCalledWith("tok", "brand-new-password");
   });
 });

@@ -4,14 +4,16 @@ import type { NotificationEvent } from "./notification-channels.js";
 
 // Hoisted so the vi.mock factories below — which run before this file's own
 // imports — can close over them.
-const { prismaMock, sendPushToAllSubscriptions, listEnabledChannels, sendToChannel } = vi.hoisted(() => ({
+const { prismaMock, sendPushToAllSubscriptions, listEnabledChannels, sendToChannel, mailer } = vi.hoisted(() => ({
   prismaMock: {
     pushSubscription: { count: vi.fn(), findMany: vi.fn() },
     notificationChannel: { findMany: vi.fn() },
+    profile: { findFirst: vi.fn(), findMany: vi.fn() },
   },
   sendPushToAllSubscriptions: vi.fn(),
   listEnabledChannels: vi.fn(),
   sendToChannel: vi.fn(),
+  mailer: { configured: false, sendMail: vi.fn() },
 }));
 
 vi.mock("./prisma.js", () => ({ prisma: prismaMock }));
@@ -20,6 +22,11 @@ vi.mock("./integration-owner.js", () => ({
 }));
 vi.mock("./push.js", () => ({
   sendPushToAllSubscriptions: (...args: unknown[]) => sendPushToAllSubscriptions(...args),
+}));
+vi.mock("./mailer.js", () => ({
+  isMailConfigured: () => mailer.configured,
+  sendMail: (...args: unknown[]) => mailer.sendMail(...args),
+  webLink: (path: string) => `https://fetch.test${path}`,
 }));
 vi.mock("./notification-channels.js", () => ({
   listEnabledChannels: (...args: unknown[]) => listEnabledChannels(...args),
@@ -120,5 +127,57 @@ describe("deliverNotification", () => {
     sendPushToAllSubscriptions.mockRejectedValue(new Error("boom"));
 
     expect(await deliverNotification(EVENT, PROFILE)).toMatchObject({ attempted: 1, delivered: 0 });
+  });
+});
+
+describe("email notifications", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mailer.configured = true;
+    prismaMock.pushSubscription.count.mockResolvedValue(0);
+    prismaMock.pushSubscription.findMany.mockResolvedValue([]);
+    prismaMock.notificationChannel.findMany.mockResolvedValue([]);
+    listEnabledChannels.mockResolvedValue([]);
+    mailer.sendMail.mockResolvedValue(undefined);
+  });
+
+  it("counts profiles whose account opted in to email", async () => {
+    prismaMock.profile.findMany.mockResolvedValue([{ id: "e" }]);
+    expect(await getNotifiableProfileIds()).toEqual(["e"]);
+  });
+
+  it("ignores email entirely when the server has no SMTP", async () => {
+    mailer.configured = false;
+    expect(await getNotifiableProfileIds()).toEqual([]);
+    expect(prismaMock.profile.findMany).not.toHaveBeenCalled();
+    expect(await deliverNotification(EVENT, PROFILE)).toMatchObject({ attempted: 0 });
+  });
+
+  it("mails the account's confirmed address, linking into the website", async () => {
+    prismaMock.profile.findFirst.mockResolvedValue({ account: { email: "me@example.com" } });
+
+    const result = await deliverNotification(EVENT, PROFILE);
+
+    expect(result).toEqual({ attempted: 1, delivered: 1, failures: [] });
+    expect(mailer.sendMail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "me@example.com",
+        subject: EVENT.title,
+        action: { label: "Open Fetch", url: "https://fetch.test/calendar" },
+      })
+    );
+  });
+
+  it("reports a refused mail as a failure without stopping the rest", async () => {
+    prismaMock.profile.findFirst.mockResolvedValue({ account: { email: "me@example.com" } });
+    listEnabledChannels.mockResolvedValue([channel("c1")]);
+    sendToChannel.mockResolvedValue(undefined);
+    mailer.sendMail.mockRejectedValue(new Error("550 mailbox unavailable"));
+
+    const result = await deliverNotification(EVENT, PROFILE);
+
+    expect(result.attempted).toBe(2);
+    expect(result.delivered).toBe(1);
+    expect(result.failures[0]?.message).toContain("email: 550");
   });
 });

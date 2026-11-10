@@ -15,7 +15,15 @@
 
 export * from "./api/types";
 export type * from "./api/tv";
-export { inviteCodeFromPath, type Account, type AccountSummary, type Invite } from "./api/auth";
+export {
+  emailLinkFromPath,
+  inviteCodeFromPath,
+  type Account,
+  type AccountSummary,
+  type AuthStatus,
+  type EmailLink,
+  type Invite,
+} from "./api/auth";
 export { ApiContractError } from "@fetch/shared/contracts";
 export { ApiError, OfflineWriteQueuedError } from "./api/client";
 export {

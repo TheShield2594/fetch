@@ -25,11 +25,13 @@
     "@prisma/client": "^7.10.1",
     "fastify": "^5.12.8",
     "lru-cache": "^11.5.3",
+    "nodemailer": "^10.4.0",
     "pg": "^8.23.1",
     "undici": "^8.12.4",
     "web-push": "^3.6.7"
   },
   "devDependencies": {
+    "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.23.1",
     "@types/web-push": "^3.6.4",
     "prisma": "^7.10.1",

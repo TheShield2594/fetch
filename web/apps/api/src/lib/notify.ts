@@ -1,5 +1,7 @@
-// Fan-out across every notification target a profile has configured: web push
-// plus whatever channels (ntfy, Gotify, Discord, generic webhook) it has added.
+// Fan-out across every notification target a profile has configured: web push,
+// whatever channels (ntfy, Gotify, Discord, generic webhook) it has added, and
+// email when its account has a confirmed address with notifications turned on
+// and the server has SMTP (lib/mailer.ts).
 //
 // The channels exist because web push has prerequisites a LAN self-host often
 // can't meet (VAPID keys, https, an installed home-screen app on iOS), so the
@@ -11,6 +13,20 @@ import { sendPushToAllSubscriptions } from "./push.js";
 import { listEnabledChannels, sendToChannel } from "./notification-channels.js";
 import type { NotificationEvent } from "./notification-channels.js";
 import { outboundScopeForProfile } from "./integration-owner.js";
+import { isMailConfigured, sendMail, webLink } from "./mailer.js";
+
+/** Accounts whose notifications go by email: a confirmed address, opted in. */
+const EMAIL_NOTIFIABLE_ACCOUNT = { emailNotifications: true, emailVerifiedAt: { not: null }, email: { not: null } };
+
+/** The address a profile's notifications are mailed to, or null for none. */
+const emailTargetForProfile = async (profileId: string): Promise<string | null> => {
+  if (!isMailConfigured()) return null;
+  const profile = await prisma.profile.findFirst({
+    where: { id: profileId, account: EMAIL_NOTIFIABLE_ACCOUNT },
+    select: { account: { select: { email: true } } },
+  });
+  return profile?.account?.email ?? null;
+};
 
 export type DeliveryResult = {
   /** Targets that were tried: web push counts as one, plus one per channel. */
@@ -30,16 +46,25 @@ const asError = (error: unknown, label: string): Error =>
  * could be sent to is wasted work.
  */
 export const getNotifiableProfileIds = async (): Promise<string[]> => {
-  const [pushProfiles, channelProfiles] = await Promise.all([
+  const [pushProfiles, channelProfiles, emailProfiles] = await Promise.all([
     prisma.pushSubscription.findMany({ select: { profileId: true }, distinct: ["profileId"] }),
     prisma.notificationChannel.findMany({
       where: { enabled: true },
       select: { profileId: true },
       distinct: ["profileId"],
     }),
+    isMailConfigured()
+      ? prisma.profile.findMany({ where: { account: EMAIL_NOTIFIABLE_ACCOUNT }, select: { id: true } })
+      : Promise.resolve([]),
   ]);
 
-  return [...new Set([...pushProfiles.map((p) => p.profileId), ...channelProfiles.map((c) => c.profileId)])];
+  return [
+    ...new Set([
+      ...pushProfiles.map((p) => p.profileId),
+      ...channelProfiles.map((c) => c.profileId),
+      ...emailProfiles.map((p) => p.id),
+    ]),
+  ];
 };
 
 /**
@@ -51,11 +76,12 @@ export const deliverNotification = async (
   event: NotificationEvent,
   profileId: string
 ): Promise<DeliveryResult> => {
-  const [pushCount, channels, scope] = await Promise.all([
+  const [pushCount, channels, scope, email] = await Promise.all([
     prisma.pushSubscription.count({ where: { profileId } }),
     listEnabledChannels(profileId),
     // A channel may be on the LAN only if the profile is the admin's.
     outboundScopeForProfile(profileId),
+    emailTargetForProfile(profileId),
   ]);
 
   const failures: Error[] = [];
@@ -95,6 +121,22 @@ export const deliverNotification = async (
     attempted += 1;
     if (failure) failures.push(failure);
     else delivered += 1;
+  }
+
+  if (email) {
+    attempted += 1;
+    const link = event.path ? webLink(event.path) : null;
+    try {
+      await sendMail({
+        to: email,
+        subject: event.title,
+        text: `${event.body}\n\nYou get these because email notifications are on for your Fetch account. Turn them off under Settings → Account.`,
+        ...(link ? { action: { label: "Open Fetch", url: link } } : {}),
+      });
+      delivered += 1;
+    } catch (error) {
+      failures.push(asError(error, "email"));
+    }
   }
 
   return { attempted, delivered, failures };

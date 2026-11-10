@@ -125,6 +125,16 @@ services:
       # empty, because an empty VAPID subject is rejected by the push library
       # where an absent one falls back to this same value.
       VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:admin@fetch.local}
+      # Outgoing email (optional): confirming account addresses, password
+      # resets, emailed invites and email notifications. Unset SMTP_HOST leaves
+      # email off; an address can still be saved and used to sign in. Links in
+      # the mails are built from FETCH_WEB_PUBLIC, which must be set too.
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_SECURE: ${SMTP_SECURE}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
       # Shared secret for the Plex/Jellyfin webhook endpoints. Unset leaves
       # them rejecting every request; the API warns about it at startup. See
       # README.md "Webhook secret placement" before choosing how to send it.

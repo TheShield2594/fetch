@@ -72,6 +72,7 @@ web/
    - **Recommended for LAN devices** (phone/Apple TV): update the URLs in `api`, `addon`, and `web` services to use your LAN IP instead of `localhost`
    - **Optional integrations:** `TMDB_API_KEY`, `TRAKT_CLIENT_ID` (in `api` service). Trakt needs only the app's Client ID: sign-in uses PKCE, so there is no Client Secret to set. `TMDB_API_KEY` can also be set from the app instead: the setup wizard asks for it, and **Settings → TMDB Metadata** changes it later. A key saved there takes precedence over this variable. When the variable is the key in use (none is saved in Settings), that Settings section is left out, since there is nothing to enter.
    - **Optional (Games section):** `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET` (IGDB game search/metadata), `STEAM_API_KEY`, `STEAM_ID` (Steam library import) — in `api` service. Leaving these unset is safe, but the Games tab needs at least one pair configured to be useful: adding a game is done by searching IGDB, so it requires `TWITCH_CLIENT_ID`/`TWITCH_CLIENT_SECRET`; automatic library/playtime sync requires `STEAM_API_KEY`/`STEAM_ID`. With neither set, the Games tab has no way to populate itself.
+   - **Optional (email):** `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD` (plus `SMTP_PORT`, `SMTP_SECURE`, `SMTP_FROM` if your provider needs them) — in `api` service. Turns on confirming account email addresses, "Forgot your password?", emailed invites and email notifications. See [Email](#email).
    - **Optional:** `SENTRY_DSN` — reports unhandled errors from the `api`, `addon`, and `web` services to a Sentry project (or compatible service). Leave unset to disable; no error data leaves your server by default.
    - **Optional:** `CSP_CONNECT_SRC_EXTRA` (in `web` service) — comma-separated extra origins the browser may connect to, on top of `VITE_API_BASE`, `VITE_ADDON_BASE` and `SENTRY_DSN`, which the web server's `Content-Security-Policy` already allows. Only needed if some browsers reach the API at a different address than `VITE_API_BASE` — e.g. one set per-browser under Settings → "API base URL", or a domain used alongside the LAN IP.
 
@@ -433,7 +434,7 @@ Everything Fetch knows can be exported as a single JSON file (lists, watch histo
 ## Notifications
 
 Fetch can tell you when the next episode of something you're watching airs.
-Two ways to receive that, set up under **Settings → Notifications**:
+Three ways to receive that. The first two are set up under **Settings → Notifications**:
 
 - **Browser push** — needs no other software, but has prerequisites a LAN
   install often can't meet: browsers refuse service-worker push over plain
@@ -448,6 +449,10 @@ Two ways to receive that, set up under **Settings → Notifications**:
   - **Webhook** — any URL, which receives a JSON POST (`event`, `title`,
     `message`, `url`, and the episode's details) — enough for Home Assistant,
     Slack, n8n or a script of your own.
+
+- **Email** — under **Settings → Account**, once the account has a confirmed
+  email address and the server has SMTP set (see [Email](#email)). It covers
+  every profile on the account.
 
 Channels belong to a profile, so a household can point each one somewhere
 different, and a profile can have several. **Send a test notification** on a
@@ -467,6 +472,8 @@ Fetch is invite-only. There is no public sign-up page: the first account (create
 
 - **Inviting someone:** **Settings → Invites & Accounts → Create invite link**. Send them the link. It works once and expires after 7 days, and it is shown only when it is made. Lost it? Revoke it and make another. Links are built from `FETCH_WEB_PUBLIC`, so set that to the address people actually open (your domain).
 - **What they get:** their own account and profile, with their own lists, watch history, ratings and games. They can make more profiles inside their account. Nobody else's profiles are visible to them, and theirs aren't visible to you in the app either.
+- **Inviting by email:** with [email](#email) set up, type their address next to the button and Fetch mails the link. Signing up with that address confirms it.
+- **Email addresses:** optional for everyone. Add one when signing up or later under **Settings → Account** and you can sign in with it instead of your username. Once it's confirmed (Fetch mails a link), it's where "Forgot your password?" sends a reset link, and it can receive notifications.
 - **What stays shared:** the server's own setup is the admin's to change and applies to everyone: the TMDB, OMDb and RPDB keys, the metadata language (titles are fetched once and shared, so they are in one language), play detection and the Steam library. Other accounts don't see those sections in Settings.
 - **Their own preferences and AI:** each account has its own streaming region and spoiler protection, and can connect its own AI provider for recommendations, with its own API key. Only the admin's AI provider and notification channels may point at an address on your home network; everyone else's must be a public service, so an account can't make your server send requests into your LAN.
 - **Their own connections:** each profile connects its own Trakt and Stremio accounts under **Settings → Integrations & Data**, as on the TV, and each account makes its own Plex/Jellyfin/Emby webhook link. What those bring in lands in that profile, and what they watch goes to their own Trakt, never yours. The Trakt app itself (`TRAKT_CLIENT_ID`) is the server's and is shared; each person signs in to their own Trakt account through it. A connection made before connections were per profile moved to its account's first profile.
@@ -474,6 +481,25 @@ Fetch is invite-only. There is no public sign-up page: the first account (create
 - **Removing someone:** **Settings → Invites & Accounts** deletes their account and everything in it.
 - **Locked out of the admin account:** `API_TOKEN` still works against the API directly (see [docs/api.md](docs/api.md)), for example to make an invite for a new account.
 
+
+## Email
+
+Email is optional. Without it, accounts can still have an address and sign in with it; nothing is sent. To send mail, give the `api` service an SMTP server in `.env`:
+
+```bash
+SMTP_HOST=smtp.fastmail.com
+SMTP_USER=you@example.com
+SMTP_PASSWORD=an-app-password
+# SMTP_PORT=587        # default; 465 means implicit TLS
+# SMTP_FROM="Fetch <fetch@example.com>"
+```
+
+`FETCH_WEB_PUBLIC` must be set as well, since every mail links back to the website. With both set, Fetch mails:
+
+- a link to **confirm** an address when one is added or changed (valid 48 hours),
+- a **password reset** link from "Forgot your password?" on the sign-in screen, to confirmed addresses only (valid one hour; it signs out every device),
+- **invites** typed into Settings → Invites & Accounts,
+- **notifications** for accounts that turn them on under Settings → Account.
 ## Nginx Proxy Manager Setup
 
 Configure Nginx Proxy Manager with one Proxy Host for your domain (for example, `fetch.example.com`):

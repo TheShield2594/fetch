@@ -67,6 +67,18 @@ model Account {
   // The key itself is shown once when it is made; a new one replaces it.
   webhookKeyHash      String?   @unique
   webhookKeyCreatedAt DateTime? @db.Timestamptz(6)
+  // Optional, stored lowercased. Signs in in place of the username, and is
+  // where password resets and (when emailNotifications is on) notifications
+  // go once it has been confirmed. Sending needs SMTP (lib/mailer.ts).
+  email               String?   @unique
+  emailVerifiedAt     DateTime? @db.Timestamptz(6)
+  emailNotifications  Boolean   @default(false)
+  // SHA-256 of the single-use links mailed to the account, with their expiry.
+  // One of each is live at a time: asking again replaces it.
+  emailVerifyTokenHash   String?   @unique
+  emailVerifyExpiresAt   DateTime? @db.Timestamptz(6)
+  passwordResetTokenHash String?   @unique
+  passwordResetExpiresAt DateTime? @db.Timestamptz(6)
 
   profiles        Profile[]
   sessions        Session[]
@@ -98,6 +110,9 @@ model Invite {
   createdAt DateTime  @default(now()) @db.Timestamptz(6)
   expiresAt DateTime  @db.Timestamptz(6)
   usedAt    DateTime? @db.Timestamptz(6)
+  // Where the invite was emailed, if it was. Signing up with that address
+  // confirms it, since the link could only have been read there.
+  email     String?
 
   createdById    String?  @db.Uuid
   createdBy      Account? @relation("InviteCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)

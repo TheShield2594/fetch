@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { CheckIn, Game, ListItemWithMeta, PlaybackProgress, SeriesProgress } from "../api";
+import type { CheckIn, ListItemWithMeta, PlaybackProgress, SeriesProgress } from "../api";
 import {
   applyShelfFilter,
   buildShelf,
@@ -7,12 +7,9 @@ import {
   checkinProgress,
   checkinTitleId,
   countByKind,
-  isGameInProgress,
   isResumedNextEpisode,
   metaLine,
   playbackMinutesLeft,
-  shelfEntryFromGame,
-  shelfEntryFromGameInProgress,
   shelfEntryFromListItem,
   shelfEntryFromPlayback,
   shelfEntryFromSeriesProgress,
@@ -26,25 +23,6 @@ const listItem = (over: Partial<ListItemWithMeta> = {}): ListItemWithMeta => ({
   imdbId: "tt1",
   addedAt: "2026-03-01T00:00:00.000Z",
   metadata: { name: "Understudy", poster: "p.jpg", year: 2019, genres: [], rating: null },
-  ...over,
-});
-
-const game = (over: Partial<Game> = {}): Game => ({
-  id: "g1",
-  igdbId: null,
-  steamAppId: null,
-  title: "Hollow Signal",
-  coverUrl: null,
-  releaseDate: null,
-  genres: [],
-  playtimeMinutes: 0,
-  lastPlayedAt: null,
-  rating: null,
-  notes: null,
-  finished: false,
-  finishedAt: null,
-  createdAt: "2026-02-01T00:00:00.000Z",
-  updatedAt: "2026-02-01T00:00:00.000Z",
   ...over,
 });
 
@@ -77,22 +55,6 @@ describe("shelfEntryFromListItem", () => {
 
   it("draws no ruler — a list row knows nothing about how far in you are", () => {
     expect(shelfEntryFromListItem(listItem({ type: "series" })).ruler).toBeNull();
-  });
-});
-
-describe("shelfEntryFromGame", () => {
-  it("measures a game in hours, which is the unit it actually has", () => {
-    expect(shelfEntryFromGame(game({ playtimeMinutes: 504 })).meta).toBe("Game · 8.4h");
-    // Past ten hours the decimal stops saying anything and goes — see formatPlaytime.
-    expect(shelfEntryFromGame(game({ playtimeMinutes: 1104 })).meta).toBe("Game · 18h");
-  });
-
-  it("says so when a game has been finished rather than showing a total that stopped moving", () => {
-    expect(shelfEntryFromGame(game({ playtimeMinutes: 504, finished: true })).meta).toBe("Game · Finished");
-  });
-
-  it("gives hours no bar, because there is no denominator to draw one against", () => {
-    expect(shelfEntryFromGame(game({ playtimeMinutes: 504 })).ruler).toBeNull();
   });
 });
 
@@ -235,36 +197,13 @@ describe("shelfEntryFromSeriesProgress", () => {
   });
 });
 
-describe("isGameInProgress", () => {
-  it("is played but not done — the only thing the schema can actually say", () => {
-    expect(isGameInProgress(game({ playtimeMinutes: 600 }))).toBe(true);
-    expect(isGameInProgress(game({ playtimeMinutes: 0 }))).toBe(false);
-    expect(isGameInProgress(game({ playtimeMinutes: 600, finished: true }))).toBe(false);
-  });
-});
-
-describe("shelfEntryFromGameInProgress", () => {
-  it("carries hours on the right and where it was last touched underneath", () => {
-    const entry = shelfEntryFromGameInProgress(
-      game({ playtimeMinutes: 504, lastPlayedAt: "2026-09-08T00:00:00.000Z" }),
-      () => "1d ago"
-    );
-
-    expect(entry.trailing).toBe("8.4h");
-    expect(entry.meta).toBe("Game · Played 1d ago");
-  });
-});
-
 describe("buildShelf", () => {
   it("collapses a title that is in three lists into one thing on the shelf", () => {
-    const shelf = buildShelf(
-      [
-        listItem({ listId: "a", addedAt: "2026-03-05T00:00:00.000Z" }),
-        listItem({ listId: "b", addedAt: "2026-03-01T00:00:00.000Z" }),
-        listItem({ listId: "c", addedAt: "2026-03-09T00:00:00.000Z" }),
-      ],
-      []
-    );
+    const shelf = buildShelf([
+      listItem({ listId: "a", addedAt: "2026-03-05T00:00:00.000Z" }),
+      listItem({ listId: "b", addedAt: "2026-03-01T00:00:00.000Z" }),
+      listItem({ listId: "c", addedAt: "2026-03-09T00:00:00.000Z" }),
+    ]);
 
     expect(shelf).toHaveLength(1);
     // The earliest add is when it actually arrived, whatever a later list says.
@@ -272,60 +211,54 @@ describe("buildShelf", () => {
   });
 
   it("keeps a film and a series with the same id apart", () => {
-    const shelf = buildShelf([listItem(), listItem({ type: "series" })], []);
+    const shelf = buildShelf([listItem(), listItem({ type: "series" })]);
 
     expect(shelf.map((entry) => entry.kind).sort()).toEqual(["film", "show"]);
   });
 
   it("puts everything in one order, newest first, across kinds", () => {
-    const shelf = buildShelf(
-      [listItem({ imdbId: "tt1", addedAt: "2026-01-01T00:00:00.000Z" })],
-      [game({ id: "g1", createdAt: "2026-05-01T00:00:00.000Z" })]
-    );
+    const shelf = buildShelf([
+      listItem({ imdbId: "tt1", addedAt: "2026-01-01T00:00:00.000Z" }),
+      listItem({ imdbId: "tt2", type: "series", addedAt: "2026-05-01T00:00:00.000Z" }),
+    ]);
 
-    expect(shelf.map((entry) => entry.kind)).toEqual(["game", "film"]);
+    expect(shelf.map((entry) => entry.kind)).toEqual(["show", "film"]);
   });
 
   it("files a row with no usable timestamp last, rather than at the epoch", () => {
-    const shelf = buildShelf(
-      [
-        listItem({ imdbId: "tt-broken", addedAt: "not a date" }),
-        listItem({ imdbId: "tt-real", addedAt: "2020-01-01T00:00:00.000Z" }),
-      ],
-      []
-    );
+    const shelf = buildShelf([
+      listItem({ imdbId: "tt-broken", addedAt: "not a date" }),
+      listItem({ imdbId: "tt-real", addedAt: "2020-01-01T00:00:00.000Z" }),
+    ]);
 
     expect(shelf.map((entry) => entry.key)).toEqual(["movie:tt-real", "movie:tt-broken"]);
   });
 });
 
 describe("countByKind and applyShelfFilter", () => {
-  const shelf = buildShelf(
-    [listItem({ imdbId: "tt1" }), listItem({ imdbId: "tt2", type: "series" })],
-    [game()]
-  );
+  const shelf = buildShelf([listItem({ imdbId: "tt1" }), listItem({ imdbId: "tt2", type: "series" })]);
 
   it("counts what each filter would show, including the one that shows everything", () => {
-    expect(countByKind(shelf)).toEqual({ all: 3, show: 1, film: 1, game: 1 });
+    expect(countByKind(shelf)).toEqual({ all: 2, show: 1, film: 1 });
   });
 
   it("narrows to one kind, and `all` narrows to nothing", () => {
-    expect(applyShelfFilter(shelf, "game").map((entry) => entry.title)).toEqual(["Hollow Signal"]);
-    expect(applyShelfFilter(shelf, "all")).toHaveLength(3);
+    expect(applyShelfFilter(shelf, "show").map((entry) => entry.key)).toEqual(["series:tt2"]);
+    expect(applyShelfFilter(shelf, "all")).toHaveLength(2);
   });
 });
 
 describe("shelfSummary", () => {
   it("counts the kinds on this shelf, not the kinds the app supports", () => {
-    const shelf = buildShelf([listItem()], []);
+    const shelf = buildShelf([listItem()]);
 
     expect(shelfSummary(shelf, null)).toBe("1 title · 1 kind");
   });
 
   it("appends how recently anything moved, when there is anything to say", () => {
-    const shelf = buildShelf([listItem({ imdbId: "tt1" }), listItem({ imdbId: "tt2" })], [game()]);
+    const shelf = buildShelf([listItem({ imdbId: "tt1" }), listItem({ imdbId: "tt2", type: "series" })]);
 
-    expect(shelfSummary(shelf, "Last watched 2h ago")).toBe("3 titles · 2 kinds · Last watched 2h ago");
+    expect(shelfSummary(shelf, "Last watched 2h ago")).toBe("2 titles · 2 kinds · Last watched 2h ago");
   });
 });
 

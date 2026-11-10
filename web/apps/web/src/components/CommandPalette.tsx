@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { BarChart3, CalendarDays, Compass, Film, Gamepad2, History, Library, List, Search, Settings, Tv } from "lucide-react";
+import { BarChart3, CalendarDays, Compass, Film, History, Library, List, Search, Settings, Tv } from "lucide-react";
 import { api, type SearchResult } from "../api";
 import { Poster } from "./Poster";
 import { DetailPanel, useDetailPanel } from "./MediaDetailPanel";
@@ -164,7 +164,6 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     // and typing "list" or "history" is how someone who used to have a tab for
     // them will look.
     { id: "nav-lists", label: "Go to Lists", icon: List, run: () => { requestClose(); navigate("/lists"); } },
-    { id: "nav-games", label: "Go to Games", icon: Gamepad2, run: () => { requestClose(); navigate("/games"); } },
     { id: "nav-history", label: "Go to History", icon: History, run: () => { requestClose(); navigate("/history"); } },
   ];
 

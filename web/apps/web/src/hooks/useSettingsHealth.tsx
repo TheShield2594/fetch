@@ -5,7 +5,6 @@ import { timeAgo } from "../utils/timeAgo";
 import {
   jobsHealth,
   optionalKeyHealth,
-  stremioHealth,
   tmdbHealth,
   traktHealth,
   type JobStatus,
@@ -16,7 +15,7 @@ import {
  * The state of every integration the app can report on, keyed by the Settings
  * section id it belongs to.
  *
- * Six requests, all of them a single row or a config read. That is more than
+ * Five requests, all of them a single row or a config read. That is more than
  * the Settings page used to make, and the trade is deliberate: only one section
  * is expanded on a first visit, so the panels that would otherwise answer these
  * questions never run — which is exactly why the answers weren't on screen.
@@ -32,7 +31,7 @@ import {
  *
  * It used to be a plain hook, called once, by the Settings page. The rail now
  * puts the same dots against its Sources rows, and two independent callers on
- * one screen would mean twelve requests for six answers — on the Settings
+ * one screen would mean ten requests for five answers — on the Settings
  * route, where both are mounted at once.
  *
  * So one fetch lives above both of them, in the shell, and both read it.
@@ -68,7 +67,7 @@ export function SettingsHealthProvider({ children }: { children: ReactNode }) {
      * Opening /settings directly mounts the page *inside* this provider, and
      * React runs a child's effect before its parent's — so the page asks for a
      * refresh before the provider has started its own first load. Honouring
-     * that sent six requests, then six more, for the same six answers; nothing
+     * that sent five requests, then five more, for the same five answers; nothing
      * aborts the first set, so both were on the wire together.
      *
      * Until a load has landed there is nothing to refresh: the one already
@@ -92,24 +91,22 @@ export function SettingsHealthProvider({ children }: { children: ReactNode }) {
     void (async () => {
       // `null` here means "the request failed", which is why every mapper below
       // is guarded rather than being handed the null. `undefined` never occurs.
-      const [jobs, trakt, tmdb, omdb, rpdb, stremio] = await Promise.all([
+      const [jobs, trakt, tmdb, omdb, rpdb] = await Promise.all([
         api.getJobStatus().catch(() => null as JobStatus | null),
         api.getTraktStatus().catch(() => null),
         api.getTmdbStatus().catch(() => null),
         api.getOmdbStatus().catch(() => null),
         api.getRpdbStatus().catch(() => null),
-        api.getStremioLibraryStatus().catch(() => null),
       ]);
       if (cancelled) return;
 
       const next: Record<string, SectionHealth> = {};
       if (tmdb) next.tmdb = tmdbHealth(tmdb);
       if (trakt) next.trakt = traktHealth(trakt, jobs, timeAgo);
-      if (stremio) next["stremio-sync"] = stremioHealth(stremio, jobs, timeAgo);
       if (omdb) next.omdb = optionalKeyHealth(omdb.configured);
       if (rpdb) next.rpdb = optionalKeyHealth(rpdb.configured);
-      // The two sync rows above still read `jobs` for their timestamps, and
-      // cope with it being null — a missing "synced 4m ago" is a smaller loss
+      // The Trakt row above still reads `jobs` for its timestamp, and copes
+      // with it being null — a missing "synced 4m ago" is a smaller loss
       // than a wrong one. Only the row that is *about* the jobs needs them.
       if (jobs) next["job-status"] = jobsHealth(jobs);
 
@@ -130,7 +127,7 @@ export function SettingsHealthProvider({ children }: { children: ReactNode }) {
  * Falls back to an empty report outside a provider rather than throwing, unlike
  * `useProfile`: a missing profile makes a component wrong, whereas a missing
  * health report makes it quiet — no dots, no summary — which is exactly what
- * this hook already renders while the first six requests are in flight, and
+ * this hook already renders while the first five requests are in flight, and
  * what it renders forever if they all fail. A test that mounts one panel should
  * not have to stand up a provider to say nothing.
  */

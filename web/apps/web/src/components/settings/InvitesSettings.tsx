@@ -104,7 +104,7 @@ export function InvitesSettings() {
   const remove = async (account: AccountSummary) => {
     if (
       !window.confirm(
-        `Remove ${account.username}? This deletes their profiles and everything in them: lists, watch history, ratings and games.`
+        `Remove ${account.username}? This deletes their profiles and everything in them: lists, watch history and ratings.`
       )
     ) {
       return;

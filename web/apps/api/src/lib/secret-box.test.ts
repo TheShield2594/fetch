@@ -30,12 +30,12 @@ describe("encryptSecret", () => {
   });
 
   it("uses a fresh IV each time, so the same secret twice gives two ciphertexts", () => {
-    const a = encryptSecret(SECRET_CONTEXT.stremioAuthKey, "same-key");
-    const b = encryptSecret(SECRET_CONTEXT.stremioAuthKey, "same-key");
+    const a = encryptSecret(SECRET_CONTEXT.traktAccessToken, "same-key");
+    const b = encryptSecret(SECRET_CONTEXT.traktAccessToken, "same-key");
 
     expect(a).not.toBe(b);
-    expect(decryptSecret(SECRET_CONTEXT.stremioAuthKey, a)).toBe("same-key");
-    expect(decryptSecret(SECRET_CONTEXT.stremioAuthKey, b)).toBe("same-key");
+    expect(decryptSecret(SECRET_CONTEXT.traktAccessToken, a)).toBe("same-key");
+    expect(decryptSecret(SECRET_CONTEXT.traktAccessToken, b)).toBe("same-key");
   });
 
   it("round-trips the values actually stored — JSON blobs, unicode, empty strings", () => {
@@ -49,7 +49,7 @@ describe("encryptSecret", () => {
     delete process.env.API_TOKEN;
 
     expect(isSecretEncryptionAvailable()).toBe(false);
-    expect(encryptSecret(SECRET_CONTEXT.stremioAuthKey, "plain")).toBe("plain");
+    expect(encryptSecret(SECRET_CONTEXT.traktAccessToken, "plain")).toBe("plain");
   });
 });
 
@@ -64,24 +64,24 @@ describe("decryptSecret", () => {
     const stored = encryptSecret(SECRET_CONTEXT.traktAccessToken, "access");
 
     expect(decryptSecret(SECRET_CONTEXT.traktRefreshToken, stored)).toBeNull();
-    expect(decryptSecret(SECRET_CONTEXT.stremioAuthKey, stored)).toBeNull();
+    expect(decryptSecret(SECRET_CONTEXT.notificationChannelToken, stored)).toBeNull();
     expect(decryptSecret(SECRET_CONTEXT.traktAccessToken, stored)).toBe("access");
   });
 
   it("refuses a ciphertext written under a different API_TOKEN", () => {
-    const stored = encryptSecret(SECRET_CONTEXT.stremioAuthKey, "authkey");
+    const stored = encryptSecret(SECRET_CONTEXT.traktAccessToken, "authkey");
 
     process.env.API_TOKEN = "rotated-api-token";
 
-    expect(decryptSecret(SECRET_CONTEXT.stremioAuthKey, stored)).toBeNull();
+    expect(decryptSecret(SECRET_CONTEXT.traktAccessToken, stored)).toBeNull();
   });
 
   it("refuses a ciphertext when there is no API_TOKEN at all", () => {
-    const stored = encryptSecret(SECRET_CONTEXT.stremioAuthKey, "authkey");
+    const stored = encryptSecret(SECRET_CONTEXT.traktAccessToken, "authkey");
 
     delete process.env.API_TOKEN;
 
-    expect(decryptSecret(SECRET_CONTEXT.stremioAuthKey, stored)).toBeNull();
+    expect(decryptSecret(SECRET_CONTEXT.traktAccessToken, stored)).toBeNull();
   });
 
   it("refuses a tampered ciphertext rather than returning corrupted output", () => {
@@ -113,7 +113,7 @@ describe("decryptSecret", () => {
   });
 
   it("returns null rather than throwing on a value it can't parse at all", () => {
-    const context = SECRET_CONTEXT.stremioAuthKey;
+    const context = SECRET_CONTEXT.traktAccessToken;
 
     expect(decryptSecret(context, "cgy1...")).toBeNull();
     expect(decryptSecret(context, "cgy1.!!!.!!!.!!!")).toBeNull();

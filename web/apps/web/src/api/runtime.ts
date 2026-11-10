@@ -24,7 +24,7 @@ const API_BASE_DEFAULT = stripTrailingSlash(
   window.__FETCH_API_BASE__ || import.meta.env.VITE_API_BASE || "http://localhost:7000"
 );
 // Base URL of the dedicated apps/addon service (the full-featured Stremio
-// addon with meta/subtitles/search/genre support) — distinct from the API
+// addon with meta/search/genre support) — distinct from the API
 // server above, which only hosts a thinner catalog-only manifest.
 const ADDON_BASE_DEFAULT = stripTrailingSlash(
   window.__FETCH_ADDON_BASE__ || import.meta.env.VITE_ADDON_BASE || "http://localhost:7001"
@@ -377,8 +377,8 @@ export function notifyServiceWorkerToInvalidateApiCache(): Promise<void> {
  * "no idea — drop everything".
  *
  * Every mutation used to take the second branch. `invalidateAll()` is correct
- * but blunt: rating one episode dropped the lists page's rows, the games
- * library's and the calendar's along with the stats it actually moved, so the
+ * but blunt: rating one episode dropped the lists page's rows and the
+ * calendar's along with the stats it actually moved, so the
  * next visit to any of them was a full refetch behind a skeleton — precisely
  * the wait `useCachedState` exists to remove.
  *
@@ -391,10 +391,6 @@ export function invalidatedCachePrefixes(path: string): string[] | null {
   const queryAt = path.search(/[?#]/);
   const route = queryAt === -1 ? path : path.slice(0, queryAt);
   const under = (prefix: string) => route === prefix || route.startsWith(`${prefix}/`);
-
-  // Nothing outside the games library reads a game: the watch stats, the
-  // calendar and the dashboard rails are all built from watch events.
-  if (under("/games")) return ["games:"];
 
   // List membership is read by the lists page, by the Shelf (whose grid is the
   // union of every list) and by the detail panel, which fetches on open rather

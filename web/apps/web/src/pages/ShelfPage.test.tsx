@@ -2,7 +2,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
-import { type CatalogList, type Game, type ListItemWithMeta, OfflineWriteQueuedError, type PlaybackProgress, type SeriesProgress } from "../api";
+import { type CatalogList, type ListItemWithMeta, OfflineWriteQueuedError, type PlaybackProgress, type SeriesProgress } from "../api";
 import { ToastProvider } from "../hooks/useToast";
 import { ShelfPage } from "./ShelfPage";
 
@@ -13,7 +13,6 @@ vi.mock("../api", async (importOriginal) => {
     api: {
       getLists: vi.fn(),
       getListItems: vi.fn(),
-      listGames: vi.fn(),
       getSeriesProgress: vi.fn(),
       getCheckin: vi.fn(),
       getWatchHistory: vi.fn(),
@@ -26,20 +25,16 @@ vi.mock("../api", async (importOriginal) => {
   };
 });
 
-// Both panels have their own suites' worth of behaviour; this file is about the
-// page that opens them.
+// The panel has its own suites' worth of behaviour; this file is about the
+// page that opens it.
 vi.mock("../components/MediaDetailPanel", async () => ({
   useDetailPanel: (await import("../components/media-detail/useDetailPanel")).useDetailPanel,
   DetailPanel: ({ item }: { item: { name: string } }) => <p>Detail panel: {item.name}</p>,
-}));
-vi.mock("../components/GameDetailPanel", () => ({
-  GameDetailPanel: ({ game }: { game: Game }) => <p>Game panel: {game.title}</p>,
 }));
 
 const { api } = await import("../api");
 const getLists = vi.mocked(api.getLists);
 const getListItems = vi.mocked(api.getListItems);
-const listGames = vi.mocked(api.listGames);
 const getSeriesProgress = vi.mocked(api.getSeriesProgress);
 const getCheckin = vi.mocked(api.getCheckin);
 const getWatchHistory = vi.mocked(api.getWatchHistory);
@@ -75,25 +70,6 @@ const item = (imdbId: string, name: string, over: Partial<ListItemWithMeta> = {}
   ...over,
 });
 
-const game = (title: string, over: Partial<Game> = {}): Game => ({
-  id: `g-${title}`,
-  igdbId: null,
-  steamAppId: null,
-  title,
-  coverUrl: null,
-  releaseDate: null,
-  genres: [],
-  playtimeMinutes: 0,
-  lastPlayedAt: null,
-  rating: null,
-  notes: null,
-  finished: false,
-  finishedAt: null,
-  createdAt: "2026-01-01T00:00:00.000Z",
-  updatedAt: "2026-01-01T00:00:00.000Z",
-  ...over,
-});
-
 const series = (over: Partial<SeriesProgress> = {}): SeriesProgress => ({
   imdbId: "tt9",
   name: "The Long Shore",
@@ -119,7 +95,6 @@ function renderShelf(path = "/") {
 beforeEach(() => {
   getLists.mockResolvedValue({ lists: [list("l1", "Watchlist")] });
   getListItems.mockResolvedValue({ items: [] });
-  listGames.mockResolvedValue([]);
   getSeriesProgress.mockResolvedValue([]);
   getCheckin.mockResolvedValue({ checkin: null });
   getWatchHistory.mockResolvedValue([]);
@@ -129,14 +104,13 @@ beforeEach(() => {
 });
 
 describe("ShelfPage", () => {
-  it("puts shows, films and games in one grid rather than three destinations", async () => {
+  it("puts shows and films in one grid rather than separate destinations", async () => {
     getListItems.mockResolvedValue({
       items: [item("tt1", "Understudy"), item("tt2", "Cold Harbour", { type: "series" })],
     });
-    listGames.mockResolvedValue([game("Terra Nine")]);
     renderShelf();
 
-    for (const title of ["Understudy", "Cold Harbour", "Terra Nine"]) {
+    for (const title of ["Understudy", "Cold Harbour"]) {
       expect(await screen.findByText(title)).toBeInTheDocument();
     }
   });
@@ -165,7 +139,7 @@ describe("ShelfPage", () => {
 
   /*
    * The counts live in the announced name rather than in the label. A segmented
-   * control is a row of equal-width peers, and four labels each carrying a
+   * control is a row of equal-width peers, and labels each carrying a
    * variable number is how that row starts wrapping on a 320px phone — but the
    * count is the reason an empty kind can be disabled rather than hidden, so it
    * has to still be *said*.
@@ -174,18 +148,16 @@ describe("ShelfPage", () => {
     getListItems.mockResolvedValue({
       items: [item("tt1", "Understudy"), item("tt2", "Cold Harbour", { type: "series" })],
     });
-    listGames.mockResolvedValue([game("Terra Nine")]);
     renderShelf();
 
     const filters = within(await screen.findByRole("group", { name: "Filter the shelf by kind" })).getAllByRole("button");
     expect(filters.map((button) => button.getAttribute("aria-label"))).toEqual([
-      "All, 3 titles",
+      "All, 2 titles",
       "Shows, 1 title",
       "Films, 1 title",
-      "Games, 1 title",
     ]);
     // The visible label leads the announced name, which is what SC 2.5.3 asks.
-    expect(filters.map((button) => button.textContent)).toEqual(["All", "Shows", "Films", "Games"]);
+    expect(filters.map((button) => button.textContent)).toEqual(["All", "Shows", "Films"]);
   });
 
   /*
@@ -196,16 +168,17 @@ describe("ShelfPage", () => {
    */
   it("says which filter is on with aria-pressed, not with a role it doesn't honour", async () => {
     const user = userEvent.setup();
-    getListItems.mockResolvedValue({ items: [item("tt1", "Understudy")] });
-    listGames.mockResolvedValue([game("Terra Nine")]);
+    getListItems.mockResolvedValue({
+      items: [item("tt1", "Understudy"), item("tt2", "Cold Harbour", { type: "series" })],
+    });
     renderShelf();
 
     expect(screen.queryAllByRole("tab")).toHaveLength(0);
     expect(await screen.findByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
 
-    await user.click(screen.getByRole("button", { name: /^Games/ }));
+    await user.click(screen.getByRole("button", { name: /^Shows/ }));
 
-    expect(screen.getByRole("button", { name: /^Games/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /^Shows/ })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "false");
   });
 
@@ -227,22 +200,24 @@ describe("ShelfPage", () => {
 
   it("narrows the grid to one kind, and says so in the URL so the view can be linked", async () => {
     const user = userEvent.setup();
-    getListItems.mockResolvedValue({ items: [item("tt1", "Understudy")] });
-    listGames.mockResolvedValue([game("Terra Nine")]);
+    getListItems.mockResolvedValue({
+      items: [item("tt1", "Understudy"), item("tt2", "Cold Harbour", { type: "series" })],
+    });
     renderShelf();
 
-    await user.click(await screen.findByRole("button", { name: /^Games/ }));
+    await user.click(await screen.findByRole("button", { name: /^Shows/ }));
 
     expect(screen.queryByText("Understudy")).not.toBeInTheDocument();
-    expect(screen.getByText("Terra Nine")).toBeInTheDocument();
+    expect(screen.getByText("Cold Harbour")).toBeInTheDocument();
   });
 
   it("opens on the kind the URL names", async () => {
-    getListItems.mockResolvedValue({ items: [item("tt1", "Understudy")] });
-    listGames.mockResolvedValue([game("Terra Nine")]);
-    renderShelf("/?kind=game");
+    getListItems.mockResolvedValue({
+      items: [item("tt1", "Understudy"), item("tt2", "Cold Harbour", { type: "series" })],
+    });
+    renderShelf("/?kind=show");
 
-    expect(await screen.findByText("Terra Nine")).toBeInTheDocument();
+    expect(await screen.findByText("Cold Harbour")).toBeInTheDocument();
     expect(screen.queryByText("Understudy")).not.toBeInTheDocument();
   });
 
@@ -250,7 +225,7 @@ describe("ShelfPage", () => {
     getListItems.mockResolvedValue({ items: [item("tt1", "Understudy")] });
     renderShelf();
 
-    expect(await screen.findByRole("button", { name: /^Games/ })).toBeDisabled();
+    expect(await screen.findByRole("button", { name: /^Shows/ })).toBeDisabled();
     expect(screen.getByRole("button", { name: /^Films/ })).toBeEnabled();
   });
 
@@ -265,15 +240,6 @@ describe("ShelfPage", () => {
     // Nothing on the card writes the count out in words — the ticks are the
     // count — so the ruler is the only thing that can say it.
     expect(screen.getByRole("progressbar")).toHaveAccessibleName("Season 3: 3 of 8 episodes watched");
-  });
-
-  it("measures a game in hours and draws it no ruler, because hours have no total", async () => {
-    listGames.mockResolvedValue([game("Hollow Signal", { playtimeMinutes: 504, lastPlayedAt: "2026-09-01T00:00:00.000Z" })]);
-    const { container } = renderShelf();
-
-    expect(await screen.findByText("8.4h")).toBeInTheDocument();
-    expect(container.querySelectorAll('[aria-hidden="true"] > span.flex-1')).toHaveLength(0);
-    expect(screen.queryByRole("progressbar")).toBeNull();
   });
 
   it("does not repeat what is in progress down in the grid below it", async () => {
@@ -296,25 +262,13 @@ describe("ShelfPage", () => {
     await waitFor(() => expect(getSeriesProgress).toHaveBeenCalledTimes(2));
   });
 
-  it("offers no resume button on a game, which has no next unit to mark", async () => {
-    listGames.mockResolvedValue([game("Hollow Signal", { playtimeMinutes: 504 })]);
-    renderShelf();
-
-    await screen.findByText("Up Next");
-    expect(screen.queryByRole("button", { name: /mark/i })).toBeNull();
-  });
-
-  it("opens the media panel for a title and the game panel for a game", async () => {
+  it("opens the media panel for a title", async () => {
     const user = userEvent.setup();
     getListItems.mockResolvedValue({ items: [item("tt1", "Understudy")] });
-    listGames.mockResolvedValue([game("Terra Nine")]);
     renderShelf();
 
     await user.click(await screen.findByRole("button", { name: "Open details for Understudy" }));
     expect(await screen.findByText("Detail panel: Understudy")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "Open details for Terra Nine" }));
-    expect(await screen.findByText("Game panel: Terra Nine")).toBeInTheDocument();
   });
 
   it("summarises the shelf in its own terms, counting only the kinds that are on it", async () => {
@@ -349,7 +303,7 @@ describe("ShelfPage", () => {
   });
 
   /*
-   * Lists, Games and History used to be a row of links in this header, level
+   * Lists and History used to be a row of links in this header, level
    * with the subtitle and on one screen out of nine. They are the rail's
    * "Manage" group now, and the tab bar's "More" sheet on a phone — see
    * SIDEBAR_MANAGE_ITEMS. The page keeps no nav of its own.

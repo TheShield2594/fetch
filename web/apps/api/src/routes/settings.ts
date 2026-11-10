@@ -229,7 +229,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
   });
 
   // ─── Background job status ───
-  // Surfaces scheduled-job failures (Steam sync, Trakt poll, episode
+  // Surfaces scheduled-job failures (Trakt poll, Simkl sync, episode
   // notifications, AI recs) that would otherwise only be visible in server
   // logs or Sentry (opt-in, off by default) — see lib/job-status.ts.
   //

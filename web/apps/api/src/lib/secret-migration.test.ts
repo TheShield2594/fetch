@@ -4,7 +4,6 @@ import { first } from "./test-fixtures/present.js";
 const prismaMock = {
   kV: { findMany: vi.fn(), update: vi.fn() },
   traktToken: { findMany: vi.fn(), update: vi.fn() },
-  stremioAuth: { findMany: vi.fn(), update: vi.fn() },
   profileConnection: { findMany: vi.fn(async () => []), update: vi.fn() },
   notificationChannel: { findMany: vi.fn(), update: vi.fn() },
 };
@@ -25,10 +24,9 @@ beforeEach(() => {
   process.env.API_TOKEN = "migration-token";
   prismaMock.kV.findMany.mockResolvedValue([]);
   prismaMock.traktToken.findMany.mockResolvedValue([]);
-  prismaMock.stremioAuth.findMany.mockResolvedValue([]);
   prismaMock.notificationChannel.findMany.mockResolvedValue([]);
   prismaMock.profileConnection.findMany.mockResolvedValue([]);
-  for (const model of [prismaMock.kV, prismaMock.traktToken, prismaMock.stremioAuth, prismaMock.notificationChannel]) {
+  for (const model of [prismaMock.kV, prismaMock.traktToken, prismaMock.notificationChannel]) {
     model.update.mockResolvedValue({});
   }
 });
@@ -44,14 +42,13 @@ describe("encryptStoredSecrets", () => {
     prismaMock.traktToken.findMany.mockResolvedValue([
       { id: "default", accessToken: "access-plain", refreshToken: "refresh-plain" },
     ]);
-    prismaMock.stremioAuth.findMany.mockResolvedValue([{ id: "default", authKey: "authkey-plain" }]);
     prismaMock.notificationChannel.findMany.mockResolvedValue([
       { id: "chan-1", name: "Gotify", token: "gotify-plain" },
     ]);
 
     const sweep = await run();
 
-    expect(sweep).toEqual({ encrypted: 5, unreadable: [] });
+    expect(sweep).toEqual({ encrypted: 4, unreadable: [] });
 
     const kvWrite = first(prismaMock.kV.update.mock.calls, "prismaMock.kV.update call")[0];
     expect(decryptSecret(kvSecretContext("tmdb:apiKey"), kvWrite.data.value)).toBe("tmdb-plain");
@@ -59,9 +56,6 @@ describe("encryptStoredSecrets", () => {
     const [accessWrite, refreshWrite] = prismaMock.traktToken.update.mock.calls.map((c) => c[0]);
     expect(decryptSecret(SECRET_CONTEXT.traktAccessToken, accessWrite.data.accessToken)).toBe("access-plain");
     expect(decryptSecret(SECRET_CONTEXT.traktRefreshToken, refreshWrite.data.refreshToken)).toBe("refresh-plain");
-
-    const stremioWrite = first(prismaMock.stremioAuth.update.mock.calls, "prismaMock.stremioAuth.update call")[0];
-    expect(decryptSecret(SECRET_CONTEXT.stremioAuthKey, stremioWrite.data.authKey)).toBe("authkey-plain");
 
     const channelWrite = first(prismaMock.notificationChannel.update.mock.calls, "prismaMock.notificationChannel.update call")[0];
     expect(channelWrite.where).toEqual({ id: "chan-1" });
@@ -83,19 +77,19 @@ describe("encryptStoredSecrets", () => {
     prismaMock.kV.findMany.mockResolvedValue([
       { key: "tmdb:apiKey", value: encryptSecret(kvSecretContext("tmdb:apiKey"), "tmdb-key") },
     ]);
-    prismaMock.stremioAuth.findMany.mockResolvedValue([
-      { id: "default", authKey: encryptSecret(SECRET_CONTEXT.stremioAuthKey, "authkey") },
+    prismaMock.notificationChannel.findMany.mockResolvedValue([
+      { id: "chan-1", name: "Gotify", token: encryptSecret(SECRET_CONTEXT.notificationChannelToken, "gotify") },
     ]);
     process.env.API_TOKEN = "rotated-token";
 
     const sweep = await run();
 
     expect(sweep.encrypted).toBe(0);
-    expect(sweep.unreadable).toEqual(["tmdb:apiKey", "Stremio access key"]);
+    expect(sweep.unreadable).toEqual(["tmdb:apiKey", "Notification channel token (Gotify)"]);
     expect(prismaMock.kV.update).not.toHaveBeenCalled();
-    expect(prismaMock.stremioAuth.update).not.toHaveBeenCalled();
+    expect(prismaMock.notificationChannel.update).not.toHaveBeenCalled();
     expect(logger.error).toHaveBeenCalledWith(
-      { credentials: ["tmdb:apiKey", "Stremio access key"] },
+      { credentials: ["tmdb:apiKey", "Notification channel token (Gotify)"] },
       expect.stringContaining("API_TOKEN has changed")
     );
   });

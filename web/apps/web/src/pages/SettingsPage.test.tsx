@@ -17,8 +17,6 @@ vi.mock("../components/settings/AccountSettings", () => ({ AccountSettings: () =
 vi.mock("../components/settings/InvitesSettings", () => ({ InvitesSettings: () => <p>invites body</p> }));
 vi.mock("../components/settings/TraktSettings", () => ({ TraktSettings: () => <p>trakt body</p> }));
 vi.mock("../components/settings/AddonSettings", () => ({ AddonSettings: () => <p>addon body</p> }));
-vi.mock("../components/settings/StremioSyncSettings", () => ({ StremioSyncSettings: () => <p>stremio sync body</p> }));
-vi.mock("../components/settings/PlayDetectionSettings", () => ({ PlayDetectionSettings: () => <p>play detection body</p> }));
 vi.mock("../components/settings/OmdbSettings", () => ({ OmdbSettings: () => <p>omdb body</p> }));
 vi.mock("../components/settings/RpdbSettings", () => ({ RpdbSettings: () => <p>rpdb body</p> }));
 vi.mock("../components/settings/MdbListRatingsSettings", () => ({ MdbListRatingsSettings: () => <p>mdblist ratings body</p> }));
@@ -86,9 +84,7 @@ describe("settings sections", () => {
 
   it("finds a section by a word in its title, ignoring case", () => {
     expect(find("region")).toEqual(["preferences"]);
-    // In list order, which is now grouped by what a thing does: the two that
-    // bring history in, then the addon this server publishes.
-    expect(find("STREMIO")).toEqual(["stremio-sync", "play-detection", "addon"]);
+    expect(find("STREMIO")).toEqual(["addon"]);
   });
 
   it("finds a section by what it does, not only by what it is called", () => {
@@ -377,11 +373,11 @@ describe("SettingsPage for an account that isn't the admin", () => {
     signedIn.isAdmin = false;
     renderPage("integrations");
 
-    // Each account connects its own Trakt and Stremio, and has its own webhook link.
-    for (const title of ["Data", "Trakt Integration", "Stremio Watched Sync", "Plex, Jellyfin & Emby Webhooks", "Media Servers", "Simkl", "MDBList", "Ratings from MDBList", "AI Recommendations"]) {
+    // Each account connects its own Trakt, and has its own webhook link.
+    for (const title of ["Data", "Trakt Integration", "Plex, Jellyfin & Emby Webhooks", "Media Servers", "Simkl", "MDBList", "Ratings from MDBList", "AI Recommendations"]) {
       expect(screen.getByRole("button", { name: new RegExp(`^${title}`) })).toBeInTheDocument();
     }
-    for (const title of ["TMDB Metadata", "Invites & Accounts", "Play Detection"]) {
+    for (const title of ["TMDB Metadata", "Invites & Accounts", "Stremio Addon"]) {
       expect(screen.queryByRole("button", { name: new RegExp(`^${title}`) })).not.toBeInTheDocument();
     }
   });

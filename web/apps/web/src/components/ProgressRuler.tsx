@@ -1,11 +1,10 @@
 /*
  * One grid, four rulers.
  *
- * Merging shows, films and games onto a single shelf costs precision unless
- * each kind keeps its own unit. A show is watched in episodes — discrete,
- * countable, and "4 of 8" is a fact the viewer can act on. A game is played in
- * hours, which are continuous and have no natural total. A film has no parts at
- * all. Drawing all three as the same percentage bar is what makes a unified
+ * Merging shows and films onto a single shelf costs precision unless each
+ * kind keeps its own unit. A show is watched in episodes — discrete,
+ * countable, and "4 of 8" is a fact the viewer can act on. A film has no parts
+ * at all. Drawing both as the same percentage bar is what makes a unified
  * list read as a flattening: the bar says "62%" for a show whose real state is
  * "two episodes left this season", and says nothing at all for a film.
  *

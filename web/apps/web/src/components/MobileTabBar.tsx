@@ -4,7 +4,6 @@ import {
   BarChart3,
   CalendarDays,
   Compass,
-  Gamepad2,
   History,
   LayoutGrid,
   Library,
@@ -29,9 +28,9 @@ type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean };
 // body, which cost Settings its label and half its hit area. Everything past
 // the fifth slot lives behind "More".
 //
-// The Shelf is what made this fit rather than merely survive. Lists, Games and
-// History used to take three of the eight slots to say three versions of "the
-// things you track"; now the first tab is all three, and the pages behind them
+// The Shelf is what made this fit rather than merely survive. Lists and History
+// used to take slots of their own to say versions of "the things you track";
+// now the first tab is both, and the pages behind them
 // are the surfaces where you manage rather than browse, reached from the
 // Shelf's own header — kept here in "More" as well, because a habit of tapping
 // More → History shouldn't break on the day the redesign ships.
@@ -55,7 +54,6 @@ export const SEARCH_ITEM: NavItem = { to: "/search", label: "Search", icon: Sear
 export const MORE_NAV_ITEMS: NavItem[] = [
   { to: "/lists", label: "Lists", icon: List },
   { to: "/collections", label: "Collections", icon: LayoutGrid },
-  { to: "/games", label: "Games", icon: Gamepad2 },
   { to: "/history", label: "History", icon: History },
   { to: "/profiles", label: "Profiles", icon: Users },
   { to: "/settings", label: "Settings", icon: Settings },

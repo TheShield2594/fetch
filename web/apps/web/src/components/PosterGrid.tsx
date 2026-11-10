@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 /**
  * The grid a page of posters sits in.
  *
- * The column counts were a class string copied seven times across Search,
- * Games, Lists, the Shelf and Stats, which is seven places for a breakpoint to
+ * The column counts were a class string copied across Search, Lists, the
+ * Shelf and Stats, which is that many places for a breakpoint to
  * drift — and they had already drifted into three different densities with
  * nothing recording that any of it was deliberate. The three are kept, and
  * named for what each is actually for.

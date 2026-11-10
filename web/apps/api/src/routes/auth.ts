@@ -101,7 +101,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
       // TVs paired before accounts existed see the profiles they always did.
       await tx.device.updateMany({ where: { accountId: null }, data: { accountId: created.id } });
       await tx.devicePairing.updateMany({ where: { accountId: null }, data: { accountId: created.id } });
-      // So do the Trakt and Stremio accounts the install had connected.
+      // So do the Trakt accounts the install had connected.
       await claimLegacyIntegrations(tx, created.id);
       return created;
     });

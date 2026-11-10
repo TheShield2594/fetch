@@ -15,12 +15,9 @@ export type JobName =
   | "mdblist-sync"
   | "mdblist-list-sync"
   | "media-server-sync"
-  | "stremio-library-sync"
-  | "stremio-play-signals"
   | "scrobble-cleanup"
   | "episode-notifications"
-  | "ai-recommendations"
-  | "steam-sync";
+  | "ai-recommendations";
 
 const MAX_MESSAGE_LENGTH = 2000;
 

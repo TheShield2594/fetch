@@ -15,7 +15,7 @@ process.env.WEBHOOK_SECRET = WEBHOOK_SECRET;
 let app: FastifyInstance;
 
 beforeAll(async () => {
-  const [{ registerAuthGate }, auth, profiles, lists, settings, devices, syncOverview, profileAddons, webhookKey, jellyfin, trakt, stremio, ai, notifications] =
+  const [{ registerAuthGate }, auth, profiles, lists, settings, devices, syncOverview, profileAddons, webhookKey, jellyfin, trakt, ai, notifications] =
     await Promise.all([
       import("../lib/auth-gate.js"),
       import("./auth.js"),
@@ -28,7 +28,6 @@ beforeAll(async () => {
       import("./webhook-key.js"),
       import("./webhooks/jellyfin.js"),
       import("./trakt.js"),
-      import("./stremio-library.js"),
       import("./ai.js"),
       import("./notifications.js"),
     ]);
@@ -44,7 +43,6 @@ beforeAll(async () => {
     await instance.register(webhookKey.default);
     await instance.register(jellyfin.default);
     await instance.register(trakt.default);
-    await instance.register(stremio.default);
     await instance.register(ai.default);
     await instance.register(notifications.default);
   });
@@ -542,7 +540,7 @@ const seedTrakt = (profileId: string) =>
     data: { id: profileId, profileId, accessToken: "a", refreshToken: "r", expiresAt: new Date(Date.now() + 86_400_000) },
   });
 
-describe("Trakt and Stremio connections", () => {
+describe("Trakt connections", () => {
   it("are each profile's own, even within one account", async () => {
     process.env.TRAKT_CLIENT_ID = "id";
     const admin = await bootstrapAdmin();
@@ -567,9 +565,6 @@ describe("Trakt and Stremio connections", () => {
     const disconnect = await call(admin.token, { method: "POST", url: "/trakt/disconnect", headers: { "x-profile-id": second.id } });
     expect(disconnect.statusCode).toBe(200);
     expect(await prisma.traktToken.count({ where: { id: first.id } })).toBe(1);
-
-    const stremioStatus = (await call(friend.token, { method: "GET", url: "/stremio/library/status" })).json();
-    expect(stremioStatus).toMatchObject({ connected: false });
   });
 
   it("go with their profile when it is deleted", async () => {
@@ -578,7 +573,6 @@ describe("Trakt and Stremio connections", () => {
     const gone = (await call(admin.token, { method: "POST", url: "/profiles", payload: { name: "Gone" } })).json().profile as { id: string };
     await seedTrakt(keep.id);
     await seedTrakt(gone.id);
-    await prisma.stremioAuth.create({ data: { id: gone.id, profileId: gone.id, authKey: "k" } });
     const { saveConnection } = await import("../lib/connections.js");
     await saveConnection({ profileId: gone.id, provider: "simkl", credentials: { accessToken: "t" }, details: {} });
     await saveConnection({ profileId: keep.id, provider: "plex", externalKey: "srv|1", credentials: { token: "t" }, details: {} });
@@ -588,7 +582,6 @@ describe("Trakt and Stremio connections", () => {
     expect(deleted.statusCode).toBe(204);
 
     expect((await prisma.traktToken.findMany()).map((row) => row.id)).toEqual([keep.id]);
-    expect(await prisma.stremioAuth.count()).toBe(0);
     expect((await prisma.profileConnection.findMany()).map((row) => row.profileId)).toEqual([keep.id]);
     expect(await prisma.kV.count({ where: { key: { endsWith: gone.id } } })).toBe(0);
   });

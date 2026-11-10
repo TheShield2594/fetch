@@ -11,6 +11,10 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+### Removed
+
+- **Games, Stremio Watched Sync, Play Detection and the add-on's "Mark Watched" entry are gone.** Fetch is no longer a Stremio client and tracks watches itself (or through Trakt, Simkl, MDBList and your media servers), so the Games tab with its Steam and IGDB sync, connecting a Stremio account to read its library, and inferring watches from the add-on's `stream`/`subtitles` requests were all removed. Their tables (`Game`, `StremioAuth`, `PlaySignal`) are dropped by a migration, and the data in them is deleted for good (the data export never included games). `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`, `STEAM_API_KEY`, `STEAM_ID`, `STEAM_SYNC_INTERVAL_SEC`, `STREMIO_POLL_INTERVAL_SEC`, `STREMIO_API_BASE` and `STREMIO_PLAY_DETECTION` are no longer read and can be removed from `.env`. The add-on no longer declares the `stream` or `subtitles` resources, so the "Fetch: Mark Watched" subtitle entry and its `/mark-watched` links are gone too; its catalogs and metadata are unchanged.
+
 ### Changed
 
 - **Settings no longer asks for keys the server already has.** With `TMDB_API_KEY` set and no key saved in Settings, the TMDB Metadata section is left out of Settings. With `MDBLIST_CLIENT_ID` set, Ratings from MDBList no longer asks for an API key, since the profile's MDBList sign-in reads the ratings; which ratings show and in what order stays there.

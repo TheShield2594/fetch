@@ -431,9 +431,9 @@ describe("settings routes", () => {
     it("reports failing background jobs", async () => {
       getJobRuns.mockResolvedValue([
         {
-          job: "steam-sync",
+          job: "trakt-history-poll",
           status: "failed",
-          message: "Steam API returned 503",
+          message: "Trakt API returned 503",
           durationMs: 120,
           overran: false,
           at: "2026-01-01T00:00:00.000Z",
@@ -445,7 +445,7 @@ describe("settings routes", () => {
 
       expect(res.statusCode).toBe(200);
       expect(res.json().failures).toEqual([
-        { job: "steam-sync", message: "Steam API returned 503", failedAt: "2026-01-01T00:00:00.000Z" },
+        { job: "trakt-history-poll", message: "Trakt API returned 503", failedAt: "2026-01-01T00:00:00.000Z" },
       ]);
     });
 

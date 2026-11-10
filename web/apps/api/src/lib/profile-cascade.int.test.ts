@@ -3,10 +3,9 @@ import { prisma } from "./prisma.js";
 import { createProfile } from "./test-fixtures/int-db.js";
 
 // Deleting a profile is meant to take everything that belonged to it: watch
-// history, lists and their items, ratings, tags and their tagged items, games,
+// history, lists and their items, ratings, tags and their tagged items,
 // scrobble sessions, the check-in, push subscriptions, notification channels,
-// notified-episode records, play signals, playback resume points and series
-// progress.
+// notified-episode records, playback resume points and series progress.
 //
 // All of that is `onDelete: Cascade` on a foreign key — enforced entirely by
 // Postgres, so a mocked client cannot tell the difference between a schema that
@@ -59,9 +58,6 @@ const seedFullProfile = async (name: string) => {
   await prisma.checkIn.create({
     data: { profileId, type: "movie", imdbId: SHAWSHANK, name: "Shawshank", startedAt: new Date() },
   });
-  // `Game_igdbId_or_steamAppId_check` requires one of the two ids — another
-  // constraint that lives only in migration SQL.
-  await prisma.game.create({ data: { profileId, title: `${name}'s game`, steamAppId: 620 } });
   await prisma.scrobbleSession.create({
     data: { profileId, type: "movie", imdbId: SHAWSHANK, updatedAt: new Date() },
   });
@@ -73,17 +69,6 @@ const seedFullProfile = async (name: string) => {
   });
   await prisma.notifiedEpisode.create({
     data: { profileId, seriesImdbId: SOPRANOS, season: 2, episode: 8 },
-  });
-  await prisma.playSignal.create({
-    data: {
-      profileId,
-      key: `movie:${SHAWSHANK}`,
-      type: "movie",
-      imdbId: SHAWSHANK,
-      resource: "stream",
-      lastSeenAt: new Date(),
-      dueAt: new Date(),
-    },
   });
 
   await prisma.playbackProgress.create({
@@ -103,12 +88,10 @@ const countsFor = async (profileId: string, listId: string, tagId: string) => ({
   seriesProgress: await prisma.seriesProgress.count({ where: { profileId } }),
   ratings: await prisma.rating.count({ where: { profileId } }),
   checkIns: await prisma.checkIn.count({ where: { profileId } }),
-  games: await prisma.game.count({ where: { profileId } }),
   scrobbleSessions: await prisma.scrobbleSession.count({ where: { profileId } }),
   pushSubscriptions: await prisma.pushSubscription.count({ where: { profileId } }),
   notificationChannels: await prisma.notificationChannel.count({ where: { profileId } }),
   notifiedEpisodes: await prisma.notifiedEpisode.count({ where: { profileId } }),
-  playSignals: await prisma.playSignal.count({ where: { profileId } }),
   playbackProgress: await prisma.playbackProgress.count({ where: { profileId } }),
 });
 
@@ -131,12 +114,10 @@ describe("deleting a profile", () => {
       seriesProgress: 0,
       ratings: 0,
       checkIns: 0,
-      games: 0,
       scrobbleSessions: 0,
       pushSubscriptions: 0,
       notificationChannels: 0,
       notifiedEpisodes: 0,
-      playSignals: 0,
       playbackProgress: 0,
     });
   });

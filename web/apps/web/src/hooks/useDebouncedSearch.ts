@@ -4,12 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * A search box's results: debounced, cancelled on the next keystroke, and
  * guarded so only the newest answer is ever shown.
  *
- * The Lists and Games add-dialogs had this written out twice — a timer ref, an
+ * Written once here rather than inline in the Lists add-dialog: a timer ref, an
  * AbortController ref, a request-id counter, and the same four `if this isn't
- * the newest request, return` checks — and the copies had already drifted in
- * ways nobody chose: one aborted on unmount and the other also cleared its
- * pending timer, one cleared the spinner by request id and the other by
- * controller identity. The search page's own guard is a third variant again.
+ * the newest request, return` checks, which drift in ways nobody chose when
+ * copied. The search page's own guard is a separate variant.
  *
  * Both halves of the guard are needed and neither is enough alone: the abort
  * stops a superseded request that hasn't answered yet, and the id check stops

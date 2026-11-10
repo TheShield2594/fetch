@@ -4,8 +4,8 @@ import { Poster, POSTER_GRID_SIZES } from "./Poster";
 /**
  * The frame a poster sits in, and the one action a poster card has.
  *
- * Seven of these were written separately — Discover, Search, Games, Lists,
- * Stats, and two on the Shelf — and they had drifted on every axis the markup
+ * Six of these were written separately — Discover, Search, Lists, Stats,
+ * and two on the Shelf — and they had drifted on every axis the markup
  * has: the aspect ratio came from `var(--poster-ratio)` in some and a literal
  * `"2/3"` in others, the hover was `card-lift` or `group-hover:scale-[1.03]` or
  * nothing, and three of them rendered a raw `<img>`, which meant no shimmer

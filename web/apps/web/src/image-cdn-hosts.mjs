@@ -24,8 +24,6 @@
 /** Origins, for the CSP — a `connect-src` source is an origin, not a hostname. */
 export const IMAGE_CDN_ORIGINS = [
   "https://image.tmdb.org",
-  "https://images.igdb.com",
-  "https://media.steampowered.com",
   "https://api.ratingposterdb.com",
 ];
 

@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SettingsHealthProvider, useSettingsHealth } from "./useSettingsHealth";
 
 /*
- * The six status reads the report is built from. Each resolves to a shape its
+ * The five status reads the report is built from. Each resolves to a shape its
  * own mapper accepts; the mapping itself is settings/health.test.ts's subject,
  * so this file is only about how many times they are asked and who hears back.
  */
@@ -16,7 +16,6 @@ vi.mock("../api", () => ({
     getTmdbStatus: vi.fn(async () => ({ configured: true, source: "db" })),
     getOmdbStatus: vi.fn(async () => ({ configured: false })),
     getRpdbStatus: vi.fn(async () => ({ configured: false, hasKey: false })),
-    getStremioLibraryStatus: vi.fn(async () => ({ connected: false })),
   },
 }));
 

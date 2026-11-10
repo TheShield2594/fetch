@@ -1,26 +1,25 @@
-import type { CheckIn, Game, ListItemWithMeta, PlaybackProgress, SearchResult, SeriesProgress } from "../api";
-import { formatPlaytime } from "../utils/playtime";
+import type { CheckIn, ListItemWithMeta, PlaybackProgress, SearchResult, SeriesProgress } from "../api";
 
 /*
  * The Shelf's data model: one row shape for everything the app tracks.
  *
- * Lists, Games and History were three destinations holding one idea — things
- * you are keeping track of — split by the storage they happened to land in. A
- * show in a list and a game in the library are the same kind of object to the
+ * Lists and History were separate destinations holding one idea — things you
+ * are keeping track of — split by the storage they happened to land in. A show
+ * in a list and a show in your history are the same kind of object to the
  * person looking at them, and the tabs were a filter wearing a costume.
  *
  * Unifying them is only an improvement if it costs no precision, which is the
  * whole reason this file exists rather than a `toCard()` in the page. A show is
- * counted in episodes, a game in hours, a film in one number and nothing else.
- * Every builder below produces the same `ShelfEntry`, but each one fills
- * `meta`, `ruler` and `trailing` in its own unit — one grid, three rulers.
+ * counted in episodes, a film in one number and nothing else. Every builder
+ * below produces the same `ShelfEntry`, but each one fills `meta`, `ruler` and
+ * `trailing` in its own unit.
  *
  * Kept out of ShelfPage.tsx so the unit choices can be tested as facts rather
  * than asserted against rendered markup.
  */
 
-/** Books are in the redesign but not in the schema, so there are three. */
-export type ShelfKind = "show" | "film" | "game";
+/** Books are in the redesign but not in the schema, so there are two. */
+export type ShelfKind = "show" | "film";
 
 export type ShelfFilter = "all" | ShelfKind;
 
@@ -28,7 +27,6 @@ export const SHELF_FILTERS: readonly { value: ShelfFilter; label: string }[] = [
   { value: "all", label: "All" },
   { value: "show", label: "Shows" },
   { value: "film", label: "Films" },
-  { value: "game", label: "Games" },
 ] as const;
 
 /** What `<ProgressRuler>` needs, or null where the kind has no total to measure. */
@@ -41,7 +39,7 @@ export type ShelfRuler = {
 };
 
 export type ShelfEntry = {
-  /** Unique across kinds — a game and a film could otherwise collide on an id. */
+  /** Unique across kinds — a show and a film could otherwise collide on an id. */
   key: string;
   kind: ShelfKind;
   title: string;
@@ -58,15 +56,13 @@ export type ShelfEntry = {
   ruler: ShelfRuler | null;
   /** The right-hand mono value on an in-progress row — "42 min left", "18.4 h". */
   trailing: string | null;
-  /** Set on game rows, so the page knows to open the game panel instead. */
-  game?: Game;
   /** Set on show and film rows, so the page can open the media detail panel. */
   item?: SearchResult;
   /** Set on Continue Watching rows: the resume point the card is drawn from. */
   playback?: PlaybackProgress;
 };
 
-const KIND_LABEL: Record<ShelfKind, string> = { show: "Show", film: "Film", game: "Game" };
+const KIND_LABEL: Record<ShelfKind, string> = { show: "Show", film: "Film" };
 
 /** Joined with the separator the whole redesign uses for metadata runs. */
 export const metaLine = (...parts: (string | null | undefined | false)[]): string =>
@@ -139,32 +135,6 @@ export function shelfEntryFromListItem(item: ListItemWithMeta): ShelfEntry {
     ruler: null,
     trailing: null,
     item: listItemToSearchResult(item),
-  };
-}
-
-/**
- * A shelf row for a game, measured in hours rather than in parts.
- *
- * A finished game says so instead of showing a total that has stopped moving,
- * which is the only completion signal the schema has.
- */
-export function shelfEntryFromGame(game: Game): ShelfEntry {
-  return {
-    key: `game:${game.id}`,
-    kind: "game",
-    title: game.title,
-    art: game.coverUrl,
-    addedAt: parseTime(game.createdAt),
-    meta: metaLine(
-      KIND_LABEL.game,
-      game.finished ? "Finished" : formatPlaytime(game.playtimeMinutes, "Unplayed")
-    ),
-    // Hours have no denominator. A game's playtime is a running total, not a
-    // fraction of anything the app knows, so it gets a number and no bar —
-    // which is the point of per-kind units rather than a shortcoming of them.
-    ruler: null,
-    trailing: null,
-    game,
   };
 }
 
@@ -372,24 +342,6 @@ export const isResumedNextEpisode = (s: SeriesProgress, playback: PlaybackProgre
     (p) => p.type === "episode" && p.imdbId === s.imdbId && p.season === s.nextSeason && p.episode === s.nextEpisode
   );
 
-/** An in-progress game row: hours played, where it was last touched, no bar. */
-export function shelfEntryFromGameInProgress(game: Game, timeAgo: (iso: string) => string): ShelfEntry {
-  const base = shelfEntryFromGame(game);
-  return {
-    ...base,
-    meta: metaLine(KIND_LABEL.game, game.lastPlayedAt ? `Played ${timeAgo(game.lastPlayedAt)}` : null),
-    trailing: formatPlaytime(game.playtimeMinutes, "Unplayed"),
-  };
-}
-
-/**
- * Started but not finished — which for a game is the only thing the schema can
- * say. There is no chapter count and no completion percentage, so "in progress"
- * is "has been played and hasn't been marked done", and the row shows hours
- * rather than pretending to a fraction.
- */
-export const isGameInProgress = (game: Game): boolean => !game.finished && game.playtimeMinutes > 0;
-
 /**
  * The union, deduplicated and ordered.
  *
@@ -399,7 +351,7 @@ export const isGameInProgress = (game: Game): boolean => !game.finished && game.
  * timestamp sort last rather than to the epoch, which would file every
  * metadata-less import above everything the user added deliberately.
  */
-export function buildShelf(items: ListItemWithMeta[], games: Game[]): ShelfEntry[] {
+export function buildShelf(items: ListItemWithMeta[]): ShelfEntry[] {
   const byKey = new Map<string, ShelfEntry>();
 
   for (const item of items) {
@@ -414,11 +366,6 @@ export function buildShelf(items: ListItemWithMeta[], games: Game[]): ShelfEntry
     }
   }
 
-  for (const game of games) {
-    const entry = shelfEntryFromGame(game);
-    byKey.set(entry.key, entry);
-  }
-
   return [...byKey.values()].sort((a, b) => {
     if (a.addedAt === b.addedAt) return a.title.localeCompare(b.title);
     if (a.addedAt === null) return 1;
@@ -429,7 +376,7 @@ export function buildShelf(items: ListItemWithMeta[], games: Game[]): ShelfEntry
 
 /** How many entries each filter would show, for the counts on the filter row. */
 export function countByKind(entries: ShelfEntry[]): Record<ShelfFilter, number> {
-  const counts: Record<ShelfFilter, number> = { all: entries.length, show: 0, film: 0, game: 0 };
+  const counts: Record<ShelfFilter, number> = { all: entries.length, show: 0, film: 0 };
   for (const entry of entries) counts[entry.kind] += 1;
   return counts;
 }
@@ -442,8 +389,8 @@ export const applyShelfFilter = (entries: ShelfEntry[], filter: ShelfFilter): Sh
  * The line under the page title: what is on the shelf, and how recently any of
  * it moved.
  *
- * "3 kinds" counts the kinds actually present, not the three the app supports —
- * a library with no games says "2 kinds", because the third is a claim about
+ * "2 kinds" counts the kinds actually present, not the two the app supports —
+ * a library with no films says "1 kind", because the second is a claim about
  * this shelf rather than about the schema.
  */
 export function shelfSummary(entries: ShelfEntry[], lastActivity: string | null): string {

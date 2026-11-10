@@ -39,7 +39,7 @@ What makes a report quick to act on:
 - Steps to reproduce, and what you were able to read, write or reach.
 
 Redact secrets from anything you paste — `API_TOKEN`, `WEBHOOK_SECRET`,
-`POSTGRES_PASSWORD`, OAuth tokens, a Stremio access key — and rotate anything
+`POSTGRES_PASSWORD`, OAuth tokens — and rotate anything
 already exposed. Note that rotating `API_TOKEN` invalidates every stored
 credential, every add-on URL and every profile access token; the README's
 [Secrets at rest](../README.md#secrets-at-rest) section covers what that costs.
@@ -74,17 +74,14 @@ the port on your LAN.
 - Reaching data or an endpoint without the credential it's supposed to need —
   including using one profile's credential to read or write another's.
 - Bypassing `API_TOKEN`, a profile PIN, the derived add-on URL secret, the
-  add-on service's scrobble token, or a "Mark Watched" capability URL (forging
-  one, or widening one beyond the single title and twelve hours it was signed
-  for).
+  add-on service's scrobble token.
 - Reading stored credentials out of a database copy without `API_TOKEN` — a
   weakness in the AES-256-GCM/HKDF scheme or its per-column binding.
 - SSRF through any user-supplied URL — an AI provider endpoint, a notification
   channel — including a way past the cloud-metadata and link-local checks, or
   a DNS-rebinding window between the check and the request.
 - Webhook authentication bypass on `/webhooks/plex` or `/webhooks/jellyfin`.
-- OAuth CSRF or account-binding problems in the Trakt or Stremio Watched Sync
-  flows.
+- OAuth CSRF or account-binding problems in the Trakt sign-in flow.
 - XSS, CSP bypass, or any route that gets the browser's bearer token off the
   page.
 - SQL injection, path traversal, unauthenticated writes, or a bypass of the

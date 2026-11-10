@@ -5,7 +5,7 @@
  * "true" inline, which quietly means `1`, `TRUE` and `yes` are all "off".
  * Every one of those variables is an opt-in switch documented as `=true`, so
  * the failure mode was the bad one: a self-hoster who wrote
- * `STREMIO_PLAY_DETECTION=1`, restarted, and got no error and no feature —
+ * `TRAKT_WATCHLIST_MIRROR_DELETES=1`, restarted, and got no error and no feature —
  * nothing to search for, and nothing in the logs to search with.
  *
  * The example above is spelled out in prose rather than as code, deliberately:

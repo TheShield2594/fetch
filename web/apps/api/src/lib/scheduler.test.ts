@@ -48,8 +48,8 @@ describe("parseIntervalSec", () => {
   it("refuses a negative interval and one past the timer ceiling", () => {
     // Beyond a 32-bit signed millisecond delay, setInterval fires immediately —
     // a hammering loop rather than the long wait that was asked for.
-    expect(() => parseIntervalSec("STEAM_SYNC_INTERVAL_SEC", "-1", 86400)).toThrow();
-    expect(() => parseIntervalSec("STEAM_SYNC_INTERVAL_SEC", "2147484", 86400)).toThrow();
+    expect(() => parseIntervalSec("AI_REFRESH_INTERVAL_SEC", "-1", 86400)).toThrow();
+    expect(() => parseIntervalSec("AI_REFRESH_INTERVAL_SEC", "2147484", 86400)).toThrow();
   });
 
   it("takes 0 as the documented way to disable a job", () => {
@@ -115,7 +115,7 @@ describe("everyInterval", () => {
     it("defers the first run, then settles onto the interval", async () => {
       const tick = vi.fn(async () => undefined);
       const job = everyInterval({
-        label: "Steam library sync",
+        label: "Trakt history poll",
         intervalMs: 1000,
         startAfterMs: 5000,
         tick,
@@ -137,7 +137,7 @@ describe("everyInterval", () => {
 
     it("cancels a deferred first run that never happened", async () => {
       const tick = vi.fn(async () => undefined);
-      const job = everyInterval({ label: "Steam library sync", intervalMs: 1000, startAfterMs: 5000, tick, log, onError });
+      const job = everyInterval({ label: "Trakt history poll", intervalMs: 1000, startAfterMs: 5000, tick, log, onError });
 
       job.stop();
       await vi.advanceTimersByTimeAsync(10_000);

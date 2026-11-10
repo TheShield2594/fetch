@@ -1,4 +1,4 @@
-import { parseProxyPathPrefixes, parseTrustProxy, parseBool, parseBoolStrict } from "@fetch/shared";
+import { parseProxyPathPrefixes, parseTrustProxy, parseBoolStrict } from "@fetch/shared";
 
 /**
  * Everything this service reads out of its environment, read once.
@@ -47,8 +47,6 @@ export const parseSignedUrlMode = (value: string | undefined): SignedUrlMode => 
 
 export const SIGNED_URL_MODE = parseSignedUrlMode(process.env.ADDON_REQUIRE_SIGNED_URLS);
 
-/** Whether a `stream`/`subtitles` request is forwarded to the API as a play signal. */
-export const PLAY_DETECTION = parseBool(process.env.STREMIO_PLAY_DETECTION);
 
 export const LOG_LEVEL = process.env.LOG_LEVEL ?? "info";
 

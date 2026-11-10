@@ -6,7 +6,7 @@
  * config and the service-worker plumbing — imported wholesale by every page.
  * The shape callers want is exactly what it always was, so that is what it
  * still exports: one `api` object and the types. What changed is where the
- * pieces live — `api/lists.ts`, `api/watch.ts`, `api/games.ts` and the rest,
+ * pieces live — `api/lists.ts`, `api/watch.ts`, `api/tv.ts` and the rest,
  * each a plain object of calls over the one `request` in `api/client.ts`.
  *
  * A new call goes in the domain module it belongs to. The only thing that
@@ -36,7 +36,6 @@ import { authApi } from "./api/auth";
 import { dataApi } from "./api/data";
 import { devicesApi } from "./api/devices";
 import { discoverApi } from "./api/discover";
-import { gamesApi } from "./api/games";
 import { integrationsApi } from "./api/integrations";
 export type {
   MdbListKeyStatus,
@@ -73,7 +72,6 @@ export const api = {
   ...dataApi,
   ...devicesApi,
   ...discoverApi,
-  ...gamesApi,
   ...integrationsApi,
   ...listsApi,
   ...metadataApi,

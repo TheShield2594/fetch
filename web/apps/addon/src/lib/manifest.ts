@@ -87,13 +87,7 @@ export const buildManifest = (lists: FetchList[], genres: string[], config: Addo
     // Stremio fetches this itself, so it can only be offered once the web UI
     // has a public address; without one the addon keeps Stremio's generic tile.
     ...(WEB_PUBLIC_BASE ? { logo: `${WEB_PUBLIC_BASE}/icons/icon-192.png` } : {}),
-    // `stream` is declared without Fetch ever providing a stream: the
-    // request itself is the point. A client asks every installed addon for
-    // streams the moment a user opens a title to watch it, and that request is
-    // the only "about to play this" signal the protocol offers an addon that
-    // isn't a stream provider. The reply is always an empty list, so nothing
-    // extra appears in the client. See `lib/play-signal.ts`.
-    resources: ["catalog", "meta", "subtitles", "stream"],
+    resources: ["catalog", "meta"],
     types: ["movie", "series"],
     idPrefixes: ["tt"],
     catalogs,

@@ -11,11 +11,10 @@ import { SECTION_TITLE } from "./typography";
  * The chrome around a search-to-add dialog: the scrim, the dialog, the focus
  * trap, the search box, and the scrolling results area.
  *
- * Lists ("add a title to this list") and Games ("add a game") are the same
- * dialog with different rows in it, and were written twice — down to the
+ * The Lists page's "add a title to this list" dialog is built on it. The
  * keyboard handling, the exit animation and the `min-h-0 flex-auto` that keeps
- * the list clear of a phone's on-screen keyboard. What differs between them is
- * the query itself and what a result looks like, so that is what they pass in.
+ * the list clear of a phone's on-screen keyboard live here; the query itself
+ * and what a result looks like are what a caller passes in.
  */
 export function SearchAddDialog({
   title,

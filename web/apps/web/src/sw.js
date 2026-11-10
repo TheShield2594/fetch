@@ -142,7 +142,7 @@ registerRoute(
 // decides which `Cache-Control` the API sends for each of these routes. Kept
 // here by hand it had drifted both ways — it caught `meta/.../bundle` and the
 // personal recommendation feeds through blanket `(/.*)?` prefixes, and had
-// never heard of `collection`, `games`, `tags` or `anime`, so four sets of
+// never heard of `collection`, `tags` or `anime`, so three sets of
 // read-only routes the API declares cacheable did not work offline.
 //
 // This worker ignores the tier and caches every route in the table. The tier

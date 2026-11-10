@@ -4,7 +4,6 @@ import { Check, Play, RotateCw, X } from "lucide-react";
 import {
   api,
   type CheckIn,
-  type Game,
   type ListItemWithMeta,
   OfflineWriteQueuedError,
   type PlaybackProgress,
@@ -12,7 +11,6 @@ import {
   type WatchEvent,
 } from "../api";
 import { DetailPanel, useDetailPanel } from "../components/MediaDetailPanel";
-import { GameDetailPanel } from "../components/GameDetailPanel";
 import { GhostLoader } from "../components/GhostLoader";
 import { Poster } from "../components/Poster";
 import { ProgressRuler } from "../components/ProgressRuler";
@@ -25,9 +23,7 @@ import {
   applyShelfFilter,
   buildShelf,
   countByKind,
-  isGameInProgress,
   isResumedNextEpisode,
-  shelfEntryFromGameInProgress,
   shelfEntryFromPlayback,
   shelfEntryFromSeriesProgress,
   shelfSummary,
@@ -41,20 +37,19 @@ import { PosterCard } from "../components/PosterCard";
 /*
  * The Shelf.
  *
- * Lists, Games and History were three destinations for one idea, separated by
- * the table each thing happened to be stored in. This page is that idea with
+ * Lists and History were separate destinations for one idea, separated by the
+ * table each thing happened to be stored in. This page is that idea with
  * the tabs removed: everything you track, in one grid, behind one filter, with
  * whatever you are part-way through pinned above it.
  *
  * The unification is only worth doing if it costs no precision, so nothing here
- * flattens a show and a game into a shared percentage — see `shelf.ts`, where
+ * flattens a show and a film into a shared percentage — see `shelf.ts`, where
  * each kind's units are chosen, and `ProgressRuler`, which draws episodes as
  * ticks and continuous quantities as a bar. A grid of forty tells you what is
  * part-watched, and in what unit, with no badge and no hover.
  *
  * The pages this replaces as a *browsing* surface still exist as the places you
- * manage things: /lists creates and edits lists, /games adds a game and runs a
- * Steam sync, /history is the full log. They are reachable from the rail's
+ * manage things: /lists creates and edits lists, /history is the full log. They are reachable from the rail's
  * "Manage" group, and from the tab bar's "More" sheet.
  */
 
@@ -65,11 +60,9 @@ import { PosterCard } from "../components/PosterCard";
 const RENDER_PAGE_SIZE = 60;
 
 /**
- * Shared with the Games page's `games:recent` and the dashboard's
- * `dash:progress`. Two surfaces asking the same question should not each pay
+ * Shared with the dashboard's `dash:progress`. Two surfaces asking the same question should not each pay
  * for it, and arriving on either from the other then paints in the first frame.
  */
-const GAMES_CACHE_KEY = "games:recent";
 const PROGRESS_CACHE_KEY = "dash:progress";
 /** The Shelf's own union. The per-list rows behind it stay under the Lists page's key. */
 const SHELF_ITEMS_CACHE_KEY = "shelf:items";
@@ -83,7 +76,7 @@ const PLAYBACK_CACHE_KEY = "shelf:playback";
  * The counts moved out of the labels and into the accessible names. They were
  * carried as a second number inside each button — "Shows 12" — which is a
  * useful fact and the wrong place for it: a segmented control is a row of peers
- * whose widths are fixed and equal, and four labels each carrying a variable
+ * whose widths are fixed and equal, and labels each carrying a variable
  * number is how that row starts wrapping on a 320px phone. The page already
  * writes the totals out under its title, and the Library header repeats the
  * count for whatever filter is on.
@@ -104,7 +97,7 @@ function kindOptions(counts: Record<ShelfFilter, number>): SegmentedOption<Shelf
       ariaLabel: `${filter.label}, ${count} ${count === 1 ? "title" : "titles"}`,
       // A kind with nothing in it is still shown, but disabled — hiding it
       // would make the row change length as a library grows, and a viewer who
-      // has learned where "Games" sits would find "Films" there instead.
+      // has learned where "Films" sits would find "Shows" there instead.
       disabled: count === 0,
     };
   });
@@ -125,7 +118,7 @@ function kindOptions(counts: Record<ShelfFilter, number>): SegmentedOption<Shelf
  * A 16:9 card is what the platform gives the same content: the still is the
  * subject, the caption is over it, and the episode ruler runs along the bottom
  * where a scrubber would. The unit the row was protecting is all still here —
- * ticks for a season, a caption for hours, nothing for a film.
+ * ticks for a season, nothing for a film.
  *
  * Two buttons rather than one: the card body opens the title, and the trailing
  * circle marks the next unit. They cannot be nested, so the body's hit area is
@@ -317,7 +310,6 @@ export function ShelfPage() {
     : "all";
 
   const [items, setItems, itemsMeta] = useCachedState<ListItemWithMeta[]>(SHELF_ITEMS_CACHE_KEY, []);
-  const [games, setGames] = useCachedState<Game[]>(GAMES_CACHE_KEY, []);
   const [progress, setProgress] = useCachedState<SeriesProgress[]>(PROGRESS_CACHE_KEY, []);
   const [playback, setPlayback] = useCachedState<PlaybackProgress[]>(PLAYBACK_CACHE_KEY, []);
   const [checkin, setCheckin] = useState<CheckIn | null>(null);
@@ -332,7 +324,6 @@ export function ShelfPage() {
   const loadAbortRef = useRef<AbortController | null>(null);
 
   const { showToast } = useToast();
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const {
     selectedItem,
     setSelectedItem,
@@ -351,12 +342,11 @@ export function ShelfPage() {
     setError(null);
 
     try {
-      // The six questions the page opens with, asked at once. Each one that
+      // The five questions the page opens with, asked at once. Each one that
       // isn't the shelf itself is allowed to fail on its own: a broken check-in
       // should cost the row its "42 min left", not the whole grid.
-      const [lists, gamesRes, progressRes, checkinRes, historyRes, playbackRes] = await Promise.all([
+      const [lists, progressRes, checkinRes, historyRes, playbackRes] = await Promise.all([
         api.getLists(signal),
-        api.listGames("recent", signal).catch(() => [] as Game[]),
         api.getSeriesProgress(signal).catch(() => [] as SeriesProgress[]),
         api.getCheckin(signal).catch(() => ({ checkin: null })),
         api.getWatchHistory(1, 0, { signal }).catch(() => [] as WatchEvent[]),
@@ -376,7 +366,6 @@ export function ShelfPage() {
 
       if (loadAbortRef.current !== controller) return;
       setItems(itemPages.flat());
-      setGames(gamesRes ?? []);
       setProgress(progressRes ?? []);
       setCheckin(checkinRes.checkin);
       setLastEvent(historyRes[0] ?? null);
@@ -388,7 +377,7 @@ export function ShelfPage() {
     } finally {
       if (loadAbortRef.current === controller) setLoading(false);
     }
-  }, [setItems, setGames, setProgress, setPlayback]);
+  }, [setItems, setProgress, setPlayback]);
 
   useEffect(() => {
     void load();
@@ -404,27 +393,22 @@ export function ShelfPage() {
   /* ── In progress ── */
 
   const inProgress = useMemo(() => {
-    const shows = progress
+    // The series progress feed is already ordered by recency at the API.
+    return progress
       .filter((s) => !isResumedNextEpisode(s, playback))
       .map((s) => shelfEntryFromSeriesProgress(s, checkin));
-    const playing = games.filter(isGameInProgress).map((g) => shelfEntryFromGameInProgress(g, timeAgo));
-    // Shows first, then games by how recently they were touched. A show in
-    // flight is the thing most likely to be resumed tonight, and the series
-    // progress feed is already ordered by recency at the API.
-    playing.sort((a, b) => (b.game?.lastPlayedAt ?? "").localeCompare(a.game?.lastPlayedAt ?? ""));
-    return [...shows, ...playing];
-  }, [progress, games, checkin, playback]);
+  }, [progress, checkin, playback]);
 
   const visibleInProgress = useMemo(() => applyShelfFilter(inProgress, filter), [inProgress, filter]);
 
   /* ── Everything else ── */
 
-  const shelf = useMemo(() => buildShelf(items, games), [items, games]);
+  const shelf = useMemo(() => buildShelf(items), [items]);
 
   /*
    * Everything the page can render, which is not the same as `shelf`.
    *
-   * The grid is built from lists and the game library; the in-progress block is
+   * The grid is built from lists; the in-progress block is
    * built from the series-progress feed, and a show you watch through a Plex
    * webhook without ever adding it to a list appears only in the second. Counting
    * `shelf` alone therefore undercounts the page — and worse, a library whose
@@ -476,8 +460,7 @@ export function ShelfPage() {
   /* ── Actions ── */
 
   const openEntry = (entry: ShelfEntry) => {
-    if (entry.game) setSelectedGame(entry.game);
-    else if (entry.item) setSelectedItem(entry.item);
+    if (entry.item) setSelectedItem(entry.item);
   };
 
   const markNext = async (s: SeriesProgress) => {
@@ -627,7 +610,7 @@ export function ShelfPage() {
               },
               // Replace rather than push: flicking along the filter row is one
               // act of looking, and Back should leave the Shelf rather than
-              // walk back through four filters to get there.
+              // walk back through every filter to get there.
               { replace: true }
             )
           }
@@ -782,21 +765,6 @@ export function ShelfPage() {
         />
       )}
 
-      {selectedGame && (
-        <GameDetailPanel
-          game={selectedGame}
-          onClose={() => setSelectedGame(null)}
-          onUpdated={(updated) => {
-            setGames((prev) => prev.map((g) => (g.id === updated.id ? updated : g)));
-            setSelectedGame(updated);
-          }}
-          onDeleted={(id) => {
-            setGames((prev) => prev.filter((g) => g.id !== id));
-            setSelectedGame(null);
-          }}
-          onShowToast={showToast}
-        />
-      )}
     </div>
   );
 }

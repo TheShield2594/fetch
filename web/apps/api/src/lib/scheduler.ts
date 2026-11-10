@@ -10,8 +10,8 @@ export const MAX_TIMER_DELAY_SEC = 2_147_483_647 / 1000;
  * Reads a scheduled job's interval out of the environment, refusing to start on
  * a value that isn't one.
  *
- * Reading one as `Number(raw ?? fallback)` — what every interval but the Steam
- * one used to do — yields `NaN` for a typo, and `NaN > 0` is false, so a
+ * Reading one as `Number(raw ?? fallback)` — what most intervals used to do —
+ * yields `NaN` for a typo, and `NaN > 0` is false, so a
  * mistyped value silently disabled the job while the startup log claimed the
  * variable had been "set to 0". A misconfigured interval is now a startup error
  * that names it.
@@ -71,9 +71,7 @@ export type ScheduledJob = { stop: () => void };
  * A tick that arrives while the previous one is still running is dropped rather
  * than queued. These are all polls — the next tick covers the same ground —
  * so queueing a second pass behind one that is already too slow only compounds
- * the overrun. (`stremio-library.ts` queues instead, and is right to: a manual
- * "Sync now" or an import must not be silently skipped. That lock stays where
- * it is, guarding the pass itself against callers other than this scheduler.)
+ * the overrun.
  */
 export function everyInterval({
   label,

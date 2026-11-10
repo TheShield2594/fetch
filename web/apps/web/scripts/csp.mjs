@@ -91,7 +91,7 @@ export const buildConnectSrc = ({ apiBase, addonBase, sentryDsn, extra } = {}) =
  * `img-src` open left that door on the latch.
  *
  * Every picture the app renders — posters, backdrops, provider logos, cast
- * photos, game covers — comes from one of the four artwork CDNs, so naming them
+ * photos — comes from one of the artwork CDNs, so naming them
  * costs nothing. `data:` stays for the inline placeholders; `'self'` for the
  * icons and the logo shipped with the build.
  *

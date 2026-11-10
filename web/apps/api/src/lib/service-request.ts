@@ -10,7 +10,7 @@ import { deriveServiceToken, matchesServiceToken, SERVICE_TOKEN_HEADER } from "@
 // request carrying it is the addon service rather than any token holder.
 //
 // That distinction is what lets routes exist for the addon alone — reading the
-// RPDB key, writing play signals — without those routes also being reachable by
+// RPDB key — without those routes also being reachable by
 // every holder of the shared token or a session, an XSS'd tab included.
 //
 // Derived on demand rather than at import so a test (or a rotation) that

@@ -2,7 +2,7 @@
 
 The self-hosted half of Fetch: the server and web app that sit next to the
 [Android TV app](../README.md). It is where profiles, addons, lists and settings
-live, and it is your own personal home page for everything you watch and play. It opens on one shelf — your shows, films and games together, with whatever you're part-way through at the top — instead of making you jump between five different apps to find it.
+live, and it is your own personal home page for everything you watch. It opens on one shelf — your shows and films together, with whatever you're part-way through at the top — instead of making you jump between five different apps to find it.
 
 This was a separate project called Cataloggy until it moved into the Fetch
 repository. Its environment variables (`FETCH_*`), addon ID, catalog IDs,
@@ -16,10 +16,10 @@ Self-host it on your home server, open it on your phone or computer, and keep tr
 
 ## Why you might like it
 
-- **One shelf for everything** — shows, films and games in one grid, each measured in its own units: episodes for a season, hours for a game
+- **One shelf for everything** — shows and films in one grid, with whatever you're part-way through at the top
 - **Discovery when you want it, not in the way** — trending, recommendations and upcoming episodes live on their own page
 - **Works with the tools you already use** — pairs with Stremio, Plex, Jellyfin, Emby, Trakt, and Stremio/Omni add-ons
-- **No account you can't walk away from** — watch history comes straight from Stremio, Plex, Jellyfin or Emby, and every third-party service is optional and replaceable
+- **No account you can't walk away from** — watch history comes straight from Fetch's own apps, Plex, Jellyfin or Emby, and every third-party service is optional and replaceable
 - **Yours, not the cloud's** — runs on your own hardware, your data stays on your network
 - **Phone friendly** — installs as an app on your phone (PWA; needs an HTTPS address, see [Install as a PWA](#install-as-a-pwa))
 - **Works with your TV** — a Stremio add-on puts your catalogs on Apple TV (via Omni) and Android TV
@@ -71,7 +71,6 @@ web/
    - **Required:** `API_TOKEN` and `POSTGRES_PASSWORD` — `docker compose up` will refuse to start without them (used by both `api` and `addon` services — they share the same `API_TOKEN`). Generate a token with `openssl rand -hex 32`.
    - **Recommended for LAN devices** (phone/Apple TV): update the URLs in `api`, `addon`, and `web` services to use your LAN IP instead of `localhost`
    - **Optional integrations:** `TMDB_API_KEY`, `TRAKT_CLIENT_ID` (in `api` service). Trakt needs only the app's Client ID: sign-in uses PKCE, so there is no Client Secret to set. `TMDB_API_KEY` can also be set from the app instead: the setup wizard asks for it, and **Settings → TMDB Metadata** changes it later. A key saved there takes precedence over this variable. When the variable is the key in use (none is saved in Settings), that Settings section is left out, since there is nothing to enter.
-   - **Optional (Games section):** `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET` (IGDB game search/metadata), `STEAM_API_KEY`, `STEAM_ID` (Steam library import) — in `api` service. Leaving these unset is safe, but the Games tab needs at least one pair configured to be useful: adding a game is done by searching IGDB, so it requires `TWITCH_CLIENT_ID`/`TWITCH_CLIENT_SECRET`; automatic library/playtime sync requires `STEAM_API_KEY`/`STEAM_ID`. With neither set, the Games tab has no way to populate itself.
    - **Optional:** `SENTRY_DSN` — reports unhandled errors from the `api`, `addon`, and `web` services to a Sentry project (or compatible service). Leave unset to disable; no error data leaves your server by default.
    - **Optional:** `CSP_CONNECT_SRC_EXTRA` (in `web` service) — comma-separated extra origins the browser may connect to, on top of `VITE_API_BASE`, `VITE_ADDON_BASE` and `SENTRY_DSN`, which the web server's `Content-Security-Policy` already allows. Only needed if some browsers reach the API at a different address than `VITE_API_BASE` — e.g. one set per-browser under Settings → "API base URL", or a domain used alongside the LAN IP.
 
@@ -112,7 +111,7 @@ web/
    pnpm smoke
    ```
 
-   This validates the API health endpoints, picks the first profile without a PIN from `/profiles` (sent as `x-profile-id` on the profile-scoped checks), fetches the add-on's manifest at that profile's signed URL from `/addon/config` and verifies a catalog response contains a `metas` array, checks `/trakt/status` (and, when `TRAKT_CLIENT_ID` is set, that the API reports Trakt as configured), and (when `STEAM_API_KEY`/`STEAM_ID` are configured) runs `/games/steam/sync` and verifies it returns a sync summary.
+   This validates the API health endpoints, picks the first profile without a PIN from `/profiles` (sent as `x-profile-id` on the profile-scoped checks), fetches the add-on's manifest at that profile's signed URL from `/addon/config` and verifies a catalog response contains a `metas` array, and checks `/trakt/status` (and, when `TRAKT_CLIENT_ID` is set, that the API reports Trakt as configured).
 
    The authenticated checks need the same `API_TOKEN` the stack is running with, so the script reads `.env` from `web/` — the file Compose already uses — rather than expecting you to export it. Anything set in your shell takes precedence, which is how you point it at another host: `API_BASE=http://nas.lan:7000 ADDON_BASE=http://nas.lan:7001 pnpm smoke`.
 
@@ -168,7 +167,7 @@ curl -H "Authorization: Bearer $API_TOKEN" http://localhost:7000/metrics
   total/max/average duration and how many answered 5xx. Routes are counted by
   their template (`GET /meta/:type/:id`), not by URL.
 - `upstream` — the same counts and timings per outbound host (TMDB, Trakt,
-  Stremio, IGDB, Steam, your AI provider, your notification channels),
+  Simkl, MDBList, your AI provider, your notification channels),
   which is what makes "which integration is slow or failing today" answerable.
   Hostnames only — several of these APIs take their key in the query string.
 - `database` — the same probe `/health/ready` runs, with its error when it fails.
@@ -296,7 +295,7 @@ Stremio and Omni have no way to say *who* is watching — the installed URL is t
 http://LAN-IP:7001/u/PROFILE-ID/PROFILE-KEY/manifest.json
 ```
 
-`PROFILE-KEY` is a 64-character key derived from `API_TOKEN`, one per profile, so knowing a profile's ID is not enough to read its lists or mark things watched on it. Behind a reverse proxy (see the Nginx section below), the `/u/…` part sits after the proxy path, not before it:
+`PROFILE-KEY` is a 64-character key derived from `API_TOKEN`, one per profile, so knowing a profile's ID is not enough to read its lists. Behind a reverse proxy (see the Nginx section below), the `/u/…` part sits after the proxy path, not before it:
 
 ```text
 https://fetch.example.com/addon/u/PROFILE-ID/PROFILE-KEY/manifest.json
@@ -346,49 +345,12 @@ Fetch records what you've watched from whichever of these you set up — none is
 
 | Source | How it reaches Fetch |
 | --- | --- |
-| **Any Stremio-add-on app** | Play detection — see below |
-| **Stremio** | Reads your Stremio account library directly — see below |
 | **Plex** | Webhook, as it happens |
 | **Jellyfin** | Webhook, as it happens |
 | **Emby** | Webhook, as it happens |
 | **The web app** | Marking watched by hand, check-ins, the scrobble API |
-| **Stremio add-on** | The "Fetch: Mark Watched" entry in the subtitle menu |
 | **Trakt** | Optional — see [Trakt is optional](#trakt-is-optional) |
 | **Other trackers** | One-off CSV/JSON imports (Letterboxd, IMDb, Simkl) — see [Export / import your data](#export--import-your-data) |
-
-### Play detection (any app that supports Stremio add-ons)
-
-Stremio add-ons are strictly read-only: a client *asks* an add-on for catalogs, metadata, streams and subtitles, and is never able to report back what was watched. There is no callback and no webhook in the protocol. That's why marking watched from an add-on app has always meant picking the fake "Fetch: Mark Watched" subtitle by hand.
-
-But the asking itself leaks intent. Two requests mean "the user is about to watch this":
-
-- **`stream`** — they opened a title's stream list
-- **`subtitles`** — a player actually loaded
-
-Fetch's add-on now declares the `stream` resource purely to receive that request (it always answers with an empty list, so nothing extra shows up in your client) and forwards both signals to the API. This is the only automatic mechanism available for apps that keep their library entirely to themselves — **Vidi, Omni, Nuvio** and other add-on-consuming clients that never sync to a Stremio account.
-
-Because it infers completion rather than observing it, it's **off by default**. Set `STREMIO_PLAY_DETECTION=true` on **both** the `api` and `addon` services — the add-on observes, the API decides.
-
-How a signal becomes a watch:
-
-1. A signal opens a **pending play**, due once 80% of the title's runtime has passed (the same threshold a real scrobble uses).
-2. It's promoted to a watch when that time elapses, **or** immediately when the next episode of the same series starts — moving on is the strongest completion evidence the protocol can offer.
-3. It's discarded if a different title is opened within two minutes. That's browsing, not watching.
-
-Nothing pending is user-visible history; only what survives becomes a watch event. **Settings → Play Detection** lists what's pending, which resource produced each signal, and which client sent it — so you can confirm your apps actually signal, and see what's about to be counted, before trusting it.
-
-### Stremio watched sync
-
-Stremio's add-on protocol is read-only: an add-on serves catalogs and metadata, and is never told what you watched. But every Stremio client signed in to a **Stremio account** syncs its library — including watched state — to Stremio's servers, and Fetch can read that directly.
-
-Connect the account under **Settings → Stremio Watched Sync**. Each Fetch profile connects its own, as on the TV, and it syncs into that profile. One connection covers every client on that account: desktop, mobile, Android TV, the web app, and third-party clients that sign in with a Stremio account. There's nothing to install per device.
-
-- Your password is exchanged for an access key once and **never stored** — only the key is.
-- Connecting starts tracking from that moment. Use **Import watch history** once to pull in what the account already has marked as watched, dated from Stremio's own watch history rather than from today. Play detection can't do this — it only ever sees things going forward — so this import is the way to bring existing history across without routing through Trakt.
-- The scheduled poll is **off by default** (`STREMIO_POLL_INTERVAL_SEC=0`). Nothing syncs on its own until you enable it — set it to `120`, or enable play detection above, or use **Sync now** in Settings by hand. Turn the poll on if you'd rather have Stremio's own exact watched state than an inference; a check costs a single small request when nothing has been watched.
-- Only IMDb-keyed content is matched. Items from add-ons using their own ID schemes, and live-TV entries, are skipped rather than guessed at.
-- Stremio reports the episode you're *on*, not a full play log, so episodes finished within a single poll interval collapse into the most recent one. At a 120-second interval that needs you to clear an episode in under two minutes.
-- Guest mode has no synced library, so there's nothing to read — the account is what makes this work.
 
 ### Simkl
 
@@ -423,7 +385,7 @@ Trakt is supported but is not a system of record, and nothing depends on it. Eac
   - **Watchlist**, **collection** (into the Collection list) and **personal lists** (each becoming a custom list of the same name — a list already here under that name is filled rather than duplicated, so re-running is safe).
 
   Anything Trakt knows only by its own or TMDB's id is skipped and counted, never guessed at. On a large library the import can take several minutes; afterwards the scheduled poll only fetches what is new. `TRAKT_BACKFILL_MAX_PAGES` caps how far back a single import walks: 100 plays per page, default `500` pages (50,000 plays), hard ceiling `1000` pages (100,000 plays) — a larger value is clamped to that, and a value that isn't a positive whole number falls back to the default.
-- **Ongoing polling** (`TRAKT_POLL_INTERVAL_SEC`) is off-switchable: set it to `0`. With Stremio watched sync connected, the poll is no longer the only thing catching what you watch in Stremio.
+- **Ongoing polling** (`TRAKT_POLL_INTERVAL_SEC`) is off-switchable: set it to `0`.
 - **Resume points** come in with each poll too. Something paused in another Trakt app (or on the TV) shows up in Continue Watching here, unless Fetch already holds a later pause of it or it has been watched since. A title finished in Fetch has its Trakt resume point removed on the next poll, as the TV does, so Trakt's own apps stop offering to resume it.
 - **Removals on Trakt never remove anything locally** unless you opt in with `TRAKT_WATCHLIST_MIRROR_DELETES=true`. Even then, a Trakt watchlist that has gone entirely empty is treated as a fault and never mirrored — so a broken or discontinued Trakt cannot empty your library.
 - **Scrobbles and watchlist changes still push out to Trakt** when it's connected. That direction is a mirror: if Trakt stops answering, the pushes fail quietly and nothing local is affected.
@@ -466,10 +428,10 @@ under **Settings → Sync Status**.
 Fetch is invite-only. There is no public sign-up page: the first account (created with `API_TOKEN`, see step 4 of the install) is the admin, and the admin invites everyone else.
 
 - **Inviting someone:** **Settings → Invites & Accounts → Create invite link**. Send them the link. It works once and expires after 7 days, and it is shown only when it is made. Lost it? Revoke it and make another. Links are built from `FETCH_WEB_PUBLIC`, so set that to the address people actually open (your domain).
-- **What they get:** their own account and profile, with their own lists, watch history, ratings and games. They can make more profiles inside their account. Nobody else's profiles are visible to them, and theirs aren't visible to you in the app either.
-- **What stays shared:** the server's own setup is the admin's to change and applies to everyone: the TMDB, OMDb and RPDB keys, the metadata language (titles are fetched once and shared, so they are in one language), play detection and the Steam library. Other accounts don't see those sections in Settings.
+- **What they get:** their own account and profile, with their own lists, watch history and ratings. They can make more profiles inside their account. Nobody else's profiles are visible to them, and theirs aren't visible to you in the app either.
+- **What stays shared:** the server's own setup is the admin's to change and applies to everyone: the TMDB, OMDb and RPDB keys and the metadata language (titles are fetched once and shared, so they are in one language). Other accounts don't see those sections in Settings.
 - **Their own preferences and AI:** each account has its own streaming region and spoiler protection, and can connect its own AI provider for recommendations, with its own API key. Only the admin's AI provider and notification channels may point at an address on your home network; everyone else's must be a public service, so an account can't make your server send requests into your LAN.
-- **Their own connections:** each profile connects its own Trakt and Stremio accounts under **Settings → Integrations & Data**, as on the TV, and each account makes its own Plex/Jellyfin/Emby webhook link. What those bring in lands in that profile, and what they watch goes to their own Trakt, never yours. The Trakt app itself (`TRAKT_CLIENT_ID`) is the server's and is shared; each person signs in to their own Trakt account through it. A connection made before connections were per profile moved to its account's first profile.
+- **Their own connections:** each profile connects its own Trakt account under **Settings → Integrations & Data**, as on the TV, and each account makes its own Plex/Jellyfin/Emby webhook link. What those bring in lands in that profile, and what they watch goes to their own Trakt, never yours. The Trakt app itself (`TRAKT_CLIENT_ID`) is the server's and is shared; each person signs in to their own Trakt account through it. A connection made before connections were per profile moved to its account's first profile.
 - **Signing out, passwords:** **Settings → Account**. Changing your password signs out your other devices. A sign-in lasts 30 days from when it was last used. Five wrong passwords lock the account for a few minutes, longer each time.
 - **Removing someone:** **Settings → Invites & Accounts** deletes their account and everything in it.
 - **Locked out of the admin account:** `API_TOKEN` still works against the API directly (see [docs/api.md](docs/api.md)), for example to make an invite for a new account.
@@ -566,8 +528,7 @@ Fetch is designed for self-hosting on a trusted local network (LAN), not for dir
 - People sign in with a username and password, and the web client stores the resulting session token in `localStorage`; `API_TOKEN` itself never reaches the browser. A session can only reach its own account's profiles, and only the admin's can change install-wide settings. Session tokens and invite codes are stored only as SHA-256 hashes, and passwords with scrypt. Any JavaScript running on the page (e.g. via an XSS vulnerability in a dependency) could still read the session token, which is the tradeoff the rest of this bullet is about. If exposing it via a reverse proxy, both the API and web client now send a restrictive `Content-Security-Policy` (no framing, and no inline script beyond the one the page itself ships, which is allowed by the SHA-256 hash of its exact contents rather than by `'unsafe-inline'`) plus `X-Content-Type-Options`/`X-Frame-Options`/`Referrer-Policy` headers to reduce the impact of a dependency-introduced XSS bug, but migrating to httpOnly session cookies would be a stronger fix if you need this on the internet.
 - That CSP's `connect-src` names only the origins this deployment actually talks to — `'self'`, plus `VITE_API_BASE`, `VITE_ADDON_BASE`, (if set) the `SENTRY_DSN` host, and the artwork CDNs the service worker caches posters from — rather than allowing every host, so script injected into the page cannot post your token to an arbitrary server. `img-src` names the same artwork CDNs (plus `'self'` and `data:`) for the same reason: an `<img>` is a request too, and pointing one at `https://attacker.example/?t=<token>` would carry the token out just as well as a `fetch` would, so leaving that directive open to every host would have undone the rest. `form-action 'self'` closes the third route out — `default-src` does not cover it, so without it injected markup could auto-submit a form off-origin. The header is rendered from `apps/web/serve.template.json` when the `web` container starts, since those origins are only known then. If some browser needs to reach an origin the container doesn't know about (most likely a per-browser API base set in Settings), add it to `CSP_CONNECT_SRC_EXTRA` — otherwise the browser will block the request. `style-src` still allows `'unsafe-inline'`, which the app's inline React styles require; style injection is far lower-risk than script injection, so that one is an accepted weakening.
 - The Stremio add-on protocol sends no credentials, so the API's built-in catalog manifest (`/addon/stremio/...`) cannot sit behind `API_TOKEN`. It is instead gated by an unguessable per-profile secret in the URL path (`/addon/stremio/<secret>/manifest.json`), derived from `API_TOKEN` and served to that profile from `GET /addon/config`; requests without a valid secret get the token check like any other route, and the secret decides which profile's lists are served, so one add-on URL cannot read another profile's library. Rotating `API_TOKEN` invalidates every add-on URL — reinstall from Settings afterwards.
-- The separate add-on service (port `7001`, the full-featured one Settings links to) can't take a login either, so Settings gives it the same kind of per-profile key in the path: `/u/<profileId>/<key>/`. With `ADDON_REQUIRE_SIGNED_URLS=true` it serves nothing else, and a wrong key gets a 404. Under the default `auto` it also answers the older keyless `/p/<profileId>/` and prefix-less URLs while the install has one account, and refuses them once there is a second (if the API can't be asked, it refuses). Those URLs let anyone who can reach the port read the profile named in the URL (or the oldest profile), so set `true` before the port leaves your LAN. Its write endpoints are separately protected. The scrobble endpoint takes a bearer token derived from `API_TOKEN`, which the service never emits. "Mark Watched" cannot use that token — Stremio can only fetch a plain URL, so the credential has to be in the URL, and the subtitles response carrying it is served to anyone who asks — so each of those URLs carries a capability signed for the one profile and the one title or episode it was built for, expiring after twelve hours. Reading one out of a subtitles response (or a proxy log) therefore allows re-marking that single title, not writing arbitrary history.
-- Connecting a Stremio account stores only the access key Stremio issues, never your password — the password is sent once to Stremio's login endpoint, exchanged for the key, and discarded. The key is not scoped: it grants the same library access a signed-in Stremio client has. It is encrypted at rest along with the other stored credentials (see below). Disconnecting from Settings deletes it. `POST /stremio/library/connect` is rate-limited to 10/min/IP like the other credential-accepting routes.
+- The separate add-on service (port `7001`, the full-featured one Settings links to) can't take a login either, so Settings gives it the same kind of per-profile key in the path: `/u/<profileId>/<key>/`. With `ADDON_REQUIRE_SIGNED_URLS=true` it serves nothing else, and a wrong key gets a 404. Under the default `auto` it also answers the older keyless `/p/<profileId>/` and prefix-less URLs while the install has one account, and refuses them once there is a second (if the API can't be asked, it refuses). Those URLs let anyone who can reach the port read the profile named in the URL (or the oldest profile), so set `true` before the port leaves your LAN. Its one write endpoint, scrobble, is separately protected: it takes a bearer token derived from `API_TOKEN`, which the service never emits.
 - Linking a Trakt account is CSRF-protected: `GET /trakt/oauth/authorize` (which requires the API token) mints a single-use `state` that expires in 10 minutes, and the callback rejects anything else — so a link someone else sends you cannot silently bind your install to their Trakt account. Sign-in is the Authorization Code flow with PKCE on `auth.trakt.tv`: the code Trakt returns is only exchangeable with a one-time verifier that never leaves the server, and no Client Secret is used.
 - If you do expose Fetch beyond your LAN, put it behind a reverse proxy with TLS (e.g. Nginx Proxy Manager, see [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup)), set `ADDON_REQUIRE_SIGNED_URLS=true` before proxying the add-on service, and use account webhook links rather than `WEBHOOK_SECRET` for any media server outside your LAN.
 - All API routes are rate-limited globally (200 req/min/IP), with tighter per-route limits on sensitive endpoints: PIN verification (`POST /profiles/:id/verify`, 10/min/IP), the Trakt OAuth authorize/callback routes (10/min/IP), the Plex/Jellyfin/Emby webhooks (60/min/IP) and the built-in Stremio manifest/catalog routes (240/min/IP — they answer unauthenticated callers, but a Stremio home screen fetches one request per catalog, so the budget covers several refreshes a minute rather than a single request). The add-on service itself allows 300 req/min per signed install URL, or per client address for the keyless URLs; one Stremio home screen asks for every catalog at once, and only list catalogs take part in search. Calls from the Stremio addon service get their own 1000 req/min bucket rather than sharing the browser's — every Stremio client reaches the API from that one container's IP. The addon identifies itself with a token derived from `API_TOKEN` (never the raw token, which the browser also holds), so nothing extra needs configuring and a leaked browser token cannot drain the addon's budget. The limiter's counters are in-memory and per-process, so they assume the documented single-`api`-container deployment; running multiple API replicas would give each its own independent budget.
@@ -581,7 +542,6 @@ Every credential Fetch stores on your behalf is encrypted in the database with A
 | What | Where it lives |
 | --- | --- |
 | Trakt access + refresh tokens | `TraktToken` |
-| Stremio account access key | `StremioAuth.authKey` |
 | ntfy / Gotify / webhook tokens | `NotificationChannel.token` |
 | TMDB, OMDB and RPDB API keys | `KV` |
 | AI provider config, including its `Authorization` header (one per account) | `KV` |
@@ -596,7 +556,7 @@ The key is derived from `API_TOKEN` with HKDF-SHA256 — the same "derive from t
 **Rotating `API_TOKEN` invalidates every stored credential.** This is the real cost of deriving the key from it. Nothing is lost that can't be re-entered, but it is re-entry, not a restart:
 
 1. On the next start the API logs an error naming each credential it can no longer decrypt.
-2. Reconnect Trakt and Stremio, and re-enter the API keys and notification tokens, from Settings.
+2. Reconnect Trakt, and re-enter the API keys and notification tokens, from Settings.
 3. Web push is the exception worth planning around: the VAPID keypair identifies this server to every browser that ever subscribed, so it cannot be regenerated without silently unsubscribing all of them. Rather than do that quietly, the API refuses to send push at all and says why. Restore the old `API_TOKEN` if you have it; otherwise delete the `push:vapidKeys` row and have each browser re-subscribe.
 
 Rotating also invalidates every add-on URL and every profile access token, as it did before this — so plan a rotation as a maintenance task, not a config edit.

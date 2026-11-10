@@ -1,11 +1,10 @@
 /**
  * One outbound HTTP policy for every integration this service talks to.
  *
- * Each client grew its own posture: Steam retried 429/503 with a backoff, IGDB
- * queued behind a rate limiter, and TMDB — the busiest of them by an order of
- * magnitude — had a timeout and nothing else. So a TMDB throttle surfaced to
+ * Each client grew its own posture, and TMDB — the busiest of them by an order
+ * of magnitude — had a timeout and nothing else. So a TMDB throttle surfaced to
  * whoever was looking at the app as an empty catalog, while the same throttle
- * from Steam cleared itself.
+ * from a client with a backoff cleared itself.
  *
  * What this adds over a bare `fetch`:
  *

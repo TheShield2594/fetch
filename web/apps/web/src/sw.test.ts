@@ -200,15 +200,14 @@ describe("API response caching", () => {
 
   it("caches every read-only route the API declares cacheable, not a subset of them", async () => {
     // The worker's list used to be maintained by hand alongside the API's, and
-    // had never been told about these four — so `collection`, the games
-    // library, tags and the anime catalog were all read-only routes the API
+    // had never been told about these three — so `collection`, tags and the
+    // anime catalog were all read-only routes the API
     // tiers for caching that nonetheless did nothing offline. Both sides now
     // read one table (@fetch/shared/api-cache-routes).
     await loadWorker("https://fetch.example/api");
     const matches = apiRoute();
 
     expect(matches(apiRequest("https://fetch.example/api/collection"))).toBeTruthy();
-    expect(matches(apiRequest("https://fetch.example/api/games"))).toBeTruthy();
     expect(matches(apiRequest("https://fetch.example/api/tags"))).toBeTruthy();
     expect(matches(apiRequest("https://fetch.example/api/anime"))).toBeTruthy();
   });
@@ -418,12 +417,11 @@ describe("poster cache keys", () => {
   });
 
   it("leaves artwork that isn't width-addressed alone", async () => {
-    // The other three CDNs serve one URL per image — there is no size segment
-    // to reason about.
+    // RPDB serves one URL per image — there is no size segment to reason about.
     await loadWorker("https://fetch.example/api");
-    const steam = "https://media.steampowered.com/steam/apps/1/header.jpg";
+    const rpdb = "https://api.ratingposterdb.com/key/imdb/poster-default/tt1.jpg";
 
-    await expect(readKey(steam)).resolves.toBe(steam);
+    await expect(readKey(rpdb)).resolves.toBe(rpdb);
   });
 });
 

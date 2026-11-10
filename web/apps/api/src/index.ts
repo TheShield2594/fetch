@@ -20,15 +20,12 @@ import { listSimklProfiles, syncSimkl } from "./lib/simkl.js";
 import { listMdbListProfiles, syncMdbList } from "./lib/mdblist.js";
 import { listOtherLinkedProfiles, syncProfileListLinks } from "./lib/list-links.js";
 import { listAllMediaServerConnections, syncMediaServer } from "./lib/media-servers.js";
-import { listStremioProfiles, syncStremioLibrary } from "./lib/stremio-library.js";
 import { accountOfOwner, adoptLegacyAiConfig } from "./lib/integration-owner.js";
-import { isPlayDetectionEnabled, settleDuePlaySignals } from "./lib/play-signal.js";
 import { ensureDefaultWatchlist } from "./lib/watchlist.js";
 import { ensureDefaultCollection } from "./lib/collection.js";
 import { getDefaultProfileId } from "./lib/profile.js";
 import { encryptStoredSecrets } from "./lib/secret-migration.js";
 import { checkUpcomingEpisodesAndNotify } from "./lib/notify-episodes.js";
-import { isSteamSyncConfigured, syncSteamLibrary } from "./lib/steam-sync.js";
 import { cleanupStaleSessions, SCROBBLE_CLEANUP_INTERVAL_MS } from "./routes/scrobble.js";
 import { everyInterval, parseIntervalSec } from "./lib/scheduler.js";
 import { bodyTooLargeMessage, isBodyTooLargeError, mbToBytes, parseMaxBodySizeMb } from "./lib/body-limit.js";
@@ -61,7 +58,6 @@ import streamingRoutes from "./routes/streaming.js";
 import settingsRoutes from "./routes/settings.js";
 import aiRoutes from "./routes/ai.js";
 import stremioRoutes from "./routes/stremio.js";
-import stremioLibraryRoutes from "./routes/stremio-library.js";
 import traktRoutes from "./routes/trakt.js";
 import simklRoutes from "./routes/simkl.js";
 import mdbListRoutes from "./routes/mdblist.js";
@@ -75,9 +71,6 @@ import importRoutes from "./routes/import.js";
 import plexWebhookRoutes from "./routes/webhooks/plex.js";
 import jellyfinWebhookRoutes from "./routes/webhooks/jellyfin.js";
 import embyWebhookRoutes from "./routes/webhooks/emby.js";
-import gamesRoutes from "./routes/games.js";
-import gamesSteamRoutes from "./routes/games-steam.js";
-import gamesIgdbRoutes from "./routes/games-igdb.js";
 import profileAddonsRoutes from "./routes/profile-addons.js";
 import profileDocumentsRoutes from "./routes/profile-documents.js";
 import syncOverviewRoutes from "./routes/sync-overview.js";
@@ -99,31 +92,14 @@ const MEDIA_SERVER_SYNC_INTERVAL_SEC = parseIntervalSec(
   3600
 );
 
-// Shorter than the Trakt poll because it costs far less: when nothing has been
-// watched, a sync is a single small `datastoreMeta` call that fetches no items
-// at all. The interval also bounds the one real gap in this sync — Stremio
-// reports the episode you are *on*, so episodes finished within a single
-// interval collapse into the latest one. Two minutes is well under any real
-// episode length.
-// Off by default: with play detection covering every addon-consuming client,
-// the library poll is for people who want Stremio's own exact watched state
-// rather than an inference. The one-time import stays available either way.
-const STREMIO_POLL_INTERVAL_SEC = parseIntervalSec(
-  "STREMIO_POLL_INTERVAL_SEC",
-  process.env.STREMIO_POLL_INTERVAL_SEC,
-  0
-);
-
-const PLAY_SIGNAL_SETTLE_INTERVAL_MS = 60 * 1000;
 const AI_REFRESH_INTERVAL_SEC = parseIntervalSec("AI_REFRESH_INTERVAL_SEC", process.env.AI_REFRESH_INTERVAL_SEC, 86400);
 const NOTIFICATION_CHECK_INTERVAL_SEC = parseIntervalSec(
   "NOTIFICATION_CHECK_INTERVAL_SEC",
   process.env.NOTIFICATION_CHECK_INTERVAL_SEC,
   3600
 );
-const STEAM_SYNC_INTERVAL_SEC = parseIntervalSec("STEAM_SYNC_INTERVAL_SEC", process.env.STEAM_SYNC_INTERVAL_SEC, 86400);
 
-// The two jobs that would otherwise hammer a cold start wait this long before
+// The jobs that would otherwise hammer a cold start wait this long before
 // their first run, then settle onto their interval.
 const DEFERRED_FIRST_RUN_MS = 2 * 60 * 1000;
 
@@ -298,7 +274,6 @@ app.register(streamingRoutes);
 app.register(settingsRoutes);
 app.register(aiRoutes);
 app.register(stremioRoutes);
-app.register(stremioLibraryRoutes);
 app.register(traktRoutes);
 app.register(simklRoutes);
 app.register(mdbListRoutes);
@@ -312,9 +287,6 @@ app.register(importRoutes);
 app.register(plexWebhookRoutes);
 app.register(jellyfinWebhookRoutes);
 app.register(embyWebhookRoutes);
-app.register(gamesRoutes);
-app.register(gamesSteamRoutes);
-app.register(gamesIgdbRoutes);
 app.register(profileAddonsRoutes);
 app.register(profileDocumentsRoutes);
 app.register(syncOverviewRoutes);
@@ -447,35 +419,6 @@ const start = async () => {
     app.log.info("Scheduled media server sync disabled because MEDIA_SERVER_SYNC_INTERVAL_SEC is set to 0");
   }
 
-  if (STREMIO_POLL_INTERVAL_SEC > 0) {
-    everyInterval({
-      ...scheduler,
-      label: "Stremio library sync",
-      intervalMs: STREMIO_POLL_INTERVAL_SEC * 1000,
-      tick: async ({ runJob }) => {
-        // Read every tick rather than at boot, so connecting an account from
-        // Settings starts syncing without a restart. One pass per connected
-        // profile, into that profile.
-        for (const profileId of await listStremioProfiles()) {
-          await runJob("stremio-library-sync", () => syncStremioLibrary(app.log, profileId, "incremental"));
-        }
-      },
-    });
-  } else {
-    app.log.info("Scheduled Stremio library sync disabled because STREMIO_POLL_INTERVAL_SEC is set to 0");
-  }
-
-  // A pending play signal becomes a watch once its title's runtime has elapsed,
-  // so this only needs to run often enough to keep that promotion punctual.
-  if (isPlayDetectionEnabled()) {
-    everyInterval({
-      ...scheduler,
-      label: "Stremio play signal settling",
-      intervalMs: PLAY_SIGNAL_SETTLE_INTERVAL_MS,
-      tick: ({ runJob }) => runJob("stremio-play-signals", () => settleDuePlaySignals(app.log)),
-    });
-  }
-
   everyInterval({
     ...scheduler,
     label: "scrobble session cleanup",
@@ -522,26 +465,6 @@ const start = async () => {
   } else {
     app.log.info(
       "Scheduled AI recommendations refresh disabled because AI_REFRESH_INTERVAL_SEC is set to 0"
-    );
-  }
-
-  const refreshSteamLibrary = async () => {
-    if (!isSteamSyncConfigured()) return;
-    const profileId = await getDefaultProfileId();
-    await syncSteamLibrary(app.log, profileId);
-  };
-
-  if (STEAM_SYNC_INTERVAL_SEC > 0) {
-    everyInterval({
-      ...scheduler,
-      label: "Steam library sync",
-      intervalMs: STEAM_SYNC_INTERVAL_SEC * 1000,
-      startAfterMs: DEFERRED_FIRST_RUN_MS,
-      tick: ({ runJob }) => runJob("steam-sync", refreshSteamLibrary),
-    });
-  } else {
-    app.log.info(
-      "Scheduled Steam library sync disabled because STEAM_SYNC_INTERVAL_SEC is set to 0"
     );
   }
 

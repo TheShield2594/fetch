@@ -21,7 +21,6 @@ describe("cacheTierForPath", () => {
     expect(cacheTierForPath("/watch/stats/detailed")).toBe("revalidate");
     expect(cacheTierForPath("/lists/abc/items")).toBe("revalidate");
     expect(cacheTierForPath("/collection")).toBe("revalidate");
-    expect(cacheTierForPath("/games/igdb/status")).toBe("revalidate");
     expect(cacheTierForPath("/tags")).toBe("revalidate");
     expect(cacheTierForPath("/playback")).toBe("revalidate");
   });
@@ -91,7 +90,6 @@ describe("API_CACHE_PATH_RE", () => {
       "/meta/movie/tt1/bundle",
       "/recommendations",
       "/recommendations/personal",
-      "/games/search",
       "/search",
       "/metadata/sync",
     ]) {

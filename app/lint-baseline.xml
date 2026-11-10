@@ -233,22 +233,6 @@
     </issue>
 
     <issue
-        id="SuspiciousIndentation"
-        message="Suspicious indentation: This is indented but is not continuing the previous expression (`var firstFrameReady `...)"
-        errorLine1="                        if (!firstFrameReady) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerRuntimeControllerPlaybackEvents.kt"
-            line="274"
-            column="25"/>
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerRuntimeControllerPlaybackEvents.kt"
-            line="273"
-            column="21"
-            message="Previous statement here"/>
-    </issue>
-
-    <issue
         id="TrimLambda"
         message="The lambda argument (`{ it &lt;= &apos; &apos; }`) is unnecessary"
         errorLine1="        val matcher = SSA_TIMECODE_PATTERN.matcher(timeString.trim { it &lt;= &apos; &apos; })"
@@ -57426,17 +57410,6 @@
             file="src/main/res/layout/exo_player_view.xml"
             line="21"
             column="10"/>
-    </issue>
-
-    <issue
-        id="ByteOrderMark"
-        message="Found byte-order-mark in the middle of a file"
-        errorLine1="            .replace(&quot;﻿&quot;, &quot;&quot;)"
-        errorLine2="                      ~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/autosync/AutoSyncSubtitleTextRetimer.kt"
-            line="25"
-            column="23"/>
     </issue>
 
 </issues>

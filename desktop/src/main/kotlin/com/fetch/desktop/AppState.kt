@@ -84,7 +84,9 @@ import com.fetch.desktop.party.SyncPartyBackend
 import com.fetch.desktop.party.partyMediaKey
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.transformWhile
+import com.fetch.desktop.playback.DesktopAutoPlaySelection
 import com.fetch.desktop.playback.NextEpisodeRules
+import com.fetch.desktop.playback.toShared
 import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.desktop.tracking.TrackingStore
 import com.fetch.tv.core.addon.AddonUrls
@@ -3336,22 +3338,12 @@ class AppState(
 }
 
 /**
- * The source Play starts in [mode]: the best match, the first playable source in addon order, or
- * the first whose name or release matches [regex] (any case). Null for manual or no match.
+ * The source Play starts in [mode], by the TV's rules (shared): the best match, the first source
+ * the stream rules allow in addon order, or the first of those whose addon, name, title,
+ * description or link matches [regex] (any case). Null for manual or no match.
  */
-fun pickSource(ranked: List<RankedStream>, mode: AutoPlayMode, regex: String): RankedStream? = when (mode) {
-    AutoPlayMode.BEST_MATCH -> ranked.firstOrNull { it.isEligible }
-    AutoPlayMode.FIRST_STREAM -> ranked.filter { ExternalPlayer.canPlay(it.stream) }.minByOrNull { it.originalIndex }
-    AutoPlayMode.REGEX_MATCH -> {
-        val pattern = regex.takeIf { it.isNotBlank() }?.let { runCatching { Regex(it, RegexOption.IGNORE_CASE) }.getOrNull() }
-        if (pattern == null) null
-        else ranked.filter { ExternalPlayer.canPlay(it.stream) }.sortedBy { it.originalIndex }.firstOrNull { r ->
-            listOfNotNull(r.stream.name, r.stream.title, r.stream.description, r.stream.behaviorHints?.filename, r.stream.addonName)
-                .any { pattern.containsMatchIn(it) }
-        }
-    }
-    AutoPlayMode.MANUAL -> null
-}
+fun pickSource(ranked: List<RankedStream>, mode: AutoPlayMode, regex: String): RankedStream? =
+    DesktopAutoPlaySelection.pickFromRanked(ranked, mode.toShared(), regex)
 
 /** Whether [preview] comes out later: a release date after today, or a year after this one. */
 fun isUnreleased(preview: MetaPreview, today: LocalDate = LocalDate.now()): Boolean {

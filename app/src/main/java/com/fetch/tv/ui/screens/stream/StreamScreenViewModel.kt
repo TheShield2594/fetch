@@ -657,49 +657,16 @@ class StreamScreenViewModel @Inject constructor(
                 // match it immediately on every emission without waiting for all addons.
                 // When a persisted filename is available, prefer binge group + filename first.
                 val earlyBingeGroupMatch = if (!autoPlayHandledForSession && !resolvedAutoPlayTarget && persistedBingeGroup != null) {
-                    val nextFilename = if (persistedFilename != null) {
-                        val extracted = com.fetch.tv.core.player.FilenameEpisodeMatcher.extractSeasonEpisode(persistedFilename)
-                        if (extracted != null) {
-                            com.fetch.tv.core.player.FilenameEpisodeMatcher.buildNextFilename(
-                                filename = persistedFilename,
-                                currentSeason = extracted.first,
-                                currentEpisode = extracted.second,
-                                nextSeason = season,
-                                nextEpisode = episode ?: 0
-                            ) ?: persistedFilename
-                        } else {
-                            // No episode pattern (e.g. movie) — match the exact filename.
-                            persistedFilename
-                        }
-                    } else null
-                    // Try binge group + filename first
-                    val bingeAndFilename = if (nextFilename != null) {
-                        allStreams.firstOrNull { stream ->
-                            !stream.isExternal() &&
-                                stream.behaviorHints?.bingeGroup == persistedBingeGroup &&
-                                com.fetch.tv.core.player.FilenameEpisodeMatcher.matches(
-                                    stream.behaviorHints?.filename, nextFilename
-                                )
-                        }
-                    } else null
-                    // Try binge group + infoHash when filename match failed or was unavailable
-                    val bingeAndInfoHash = if (bingeAndFilename == null && persistedInfoHash != null) {
-                        allStreams.firstOrNull { stream ->
-                            !stream.isExternal() &&
-                                stream.behaviorHints?.bingeGroup == persistedBingeGroup &&
-                                stream.infoHash?.equals(persistedInfoHash, ignoreCase = true) == true
-                        }
-                    } else null
-                    // Fall back to binge group alone
-                    bingeAndFilename ?: bingeAndInfoHash ?: StreamAutoPlaySelector.selectAutoPlayStream(
+                    StreamAutoPlaySelector.bingeGroupMatch(
                         streams = allStreams,
-                        mode = playerSettings.streamAutoPlayMode,
-                        regexPattern = playerSettings.streamAutoPlayRegex,
-                        installedAddonNames = installedAddonOrder.toSet(),
-                        selectedAddons = playerSettings.streamAutoPlaySelectedAddons,
-                        preferredBingeGroup = persistedBingeGroup,
-                        preferBingeGroupInSelection = true,
-                        bingeGroupOnly = true
+                        bingeGroup = persistedBingeGroup,
+                        // Read from the persisted name; a name with no episode in it (a movie) matches as it is.
+                        nextFilename = com.fetch.tv.core.player.FilenameEpisodeMatcher.nextEpisodeFilename(
+                            filename = persistedFilename,
+                            current = null,
+                            next = (episode ?: 0).let { season to it }
+                        ),
+                        infoHash = persistedInfoHash
                     )
                 } else null
 

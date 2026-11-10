@@ -5,6 +5,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchMotion
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
@@ -200,7 +201,7 @@ private fun EpisodeStreamsView(
             add(refreshFocusRequester)
             add(allFocusRequester)
             orderedAddonNames.forEach { addon ->
-                add(addonFocusRequesters.getOrPut(addon) { FocusRequester() })
+                add(addonFocusRequesters.focusRequesterFor(addon))
             }
         }
     }
@@ -217,7 +218,7 @@ private fun EpisodeStreamsView(
     val firstStreamKey = streamKeys.firstOrNull()
     val streamFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     streamKeys.forEach { key ->
-        streamFocusRequesters.getOrPut(key) { FocusRequester() }
+        streamFocusRequesters.focusRequesterFor(key)
     }
     var firstCardHasFocus by remember(firstStreamKey) { mutableStateOf(false) }
 

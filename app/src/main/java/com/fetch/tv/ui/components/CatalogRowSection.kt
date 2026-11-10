@@ -236,7 +236,7 @@ fun CatalogRowSection(
             val targetItem = catalogRow.items[focusedItemIndex]
             val targetItemKey = rowItemFocusKey(focusedItemIndex, targetItem)
             if (lastRequestedFocusItemKey == targetItemKey) return@LaunchedEffect
-            val requester = itemFocusRequestersByKey.getOrPut(targetItemKey) { FocusRequester() }
+            val requester = itemFocusRequestersByKey.focusRequesterFor(targetItemKey)
             if (!listState.isScrollInProgress) {
                 runCatching { listState.scrollToItem(focusedItemIndex) }
             }
@@ -401,9 +401,9 @@ fun CatalogRowSection(
                         entryFocusRequester != null && index == targetIndex
                     }
                 }
-                val cardFocusRequester = itemFocusRequestersByKey.getOrPut(
+                val cardFocusRequester = itemFocusRequestersByKey.focusRequesterFor(
                     rowItemFocusKey(index, item)
-                ) { FocusRequester() }
+                )
 
                 val isPlaceholder = item.id.startsWith("__placeholder_")
                 val isNonFirstPlaceholder = isPlaceholder && index > 0

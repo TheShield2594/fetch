@@ -8,6 +8,7 @@ import com.fetch.tv.ui.components.StateActionButton
 import com.fetch.tv.ui.components.StateAction
 import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.EmptyScreenState
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.components.PlayLaunchOrigin
 import androidx.compose.animation.core.Animatable
@@ -854,7 +855,7 @@ private fun RightStreamSection(
             add(refreshFocusRequester)
             add(allFocusRequester)
             orderedAddonNames.forEach { addon ->
-                add(addonFocusRequesters.getOrPut(addon) { FocusRequester() })
+                add(addonFocusRequesters.focusRequesterFor(addon))
             }
         }
     }
@@ -1306,7 +1307,7 @@ internal fun StreamsList(
                     hasLongPressOptions = { sourceRuleOptions(stream).isNotEmpty() },
                     focusRequester = when {
                         shouldRestoreFocusedStream && index == focusedStreamIndex.coerceIn(0, (streams.lastIndex).coerceAtLeast(0)) -> restoreFocusRequester
-                        else -> streamFocusRequesters.getOrPut(streamKeys[index]) { FocusRequester() }
+                        else -> streamFocusRequesters.focusRequesterFor(streamKeys[index])
                     },
                     onFocusChanged = { focused ->
                         if (focused) {

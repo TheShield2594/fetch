@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.home
 
 import com.fetch.tv.domain.model.catalogRowLegacyKey
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -430,7 +431,7 @@ internal fun ModernHomeRowsList(
                 ModernRowSection(
                     row = row,
                     isActiveRow = isActiveRowLambda,
-                    rowFocusRequester = rowFocusRequesters.getOrPut(row.key) { FocusRequester() },
+                    rowFocusRequester = rowFocusRequesters.focusRequesterFor(row.key),
                     rowTitleBottom = MODERN_ROW_TITLE_BOTTOM,
                     defaultBringIntoViewSpec = defaultBringIntoViewSpec,
                     focusStateCatalogRowScrollIndex = focusState.catalogRowScrollStates[row.key] ?: 0,

@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import com.fetch.tv.ui.components.SourceChipItem
 import com.fetch.tv.ui.components.SourceChipStatus
 import com.fetch.tv.ui.components.SourceStatusFilterChip
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.rememberCoroutineScope
@@ -70,7 +71,7 @@ internal fun AddonFilterChips(
             if (hasRefresh) add(refreshFocusRequester)
             add(allFocusRequester)
             orderedNames.forEach { addon ->
-                add(addonFocusRequesters.getOrPut(addon) { FocusRequester() })
+                add(addonFocusRequesters.focusRequesterFor(addon))
             }
         }
     }

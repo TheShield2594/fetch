@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.search
 
 import com.fetch.tv.ui.components.FetchMediaCard
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 
@@ -617,7 +618,7 @@ internal fun DiscoverGrid(
     // even before the grid items are composed (first return from navigation).
     val itemFocusRequesters = remember { mutableMapOf<Int, FocusRequester>() }
     val focusedItemRequester = remember(focusedItemIndex) {
-        itemFocusRequesters.getOrPut(focusedItemIndex) { FocusRequester() }
+        itemFocusRequesters.focusRequesterFor(focusedItemIndex)
     }
 
     // A load that ends without new items (failed or empty) drops the pending hand-off. When the
@@ -661,7 +662,7 @@ internal fun DiscoverGrid(
             val firstCard = when {
                 effectiveShouldRestoreFocusedItem && effectiveFocusedItemIndex == 0 -> restoreFocusRequester
                 focusResults -> firstItemFocusRequester
-                else -> itemFocusRequesters.getOrPut(0) { FocusRequester() }
+                else -> itemFocusRequesters.focusRequesterFor(0)
             }
             firstCard.requestFocusAfterFrames()
         }
@@ -739,7 +740,7 @@ internal fun DiscoverGrid(
             key = { _, item -> discoverItemKey(item) },
             contentType = { _, _ -> "content_card" }
         ) { index, item ->
-            val itemFocusReq = remember(index) { itemFocusRequesters.getOrPut(index) { FocusRequester() } }
+            val itemFocusReq = remember(index) { itemFocusRequesters.focusRequesterFor(index) }
             val focusReq = when {
                 effectiveShouldRestoreFocusedItem && index == effectiveFocusedItemIndex -> restoreFocusRequester
                 focusResults && index == 0 -> firstItemFocusRequester

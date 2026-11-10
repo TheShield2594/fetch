@@ -5,6 +5,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchMotion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -98,7 +99,7 @@ internal fun StreamSourcesSidePanel(
             add(refreshFocusRequester)
             add(allFocusRequester)
             orderedAddonNames.forEach { addon ->
-                add(addonFocusRequesters.getOrPut(addon) { FocusRequester() })
+                add(addonFocusRequesters.focusRequesterFor(addon))
             }
         }
     }
@@ -115,7 +116,7 @@ internal fun StreamSourcesSidePanel(
     val firstStreamKey = streamKeys.firstOrNull()
     val streamFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     streamKeys.forEach { key ->
-        streamFocusRequesters.getOrPut(key) { FocusRequester() }
+        streamFocusRequesters.focusRequesterFor(key)
     }
     var firstCardHasFocus by remember(firstStreamKey) { mutableStateOf(false) }
 

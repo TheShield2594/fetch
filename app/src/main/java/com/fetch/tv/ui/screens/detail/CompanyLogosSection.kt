@@ -62,6 +62,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.fetch.tv.domain.model.MetaCompany
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -100,7 +101,7 @@ fun CompanyLogosSection(
             lastFocusedCompanyId == null -> firstItemFocusRequester
             lastFocusedCompanyId == restoreCompanyId -> restoreFocusRequester
             lastFocusedCompanyId == companies.firstOrNull()?.tmdbId -> firstItemFocusRequester
-            else -> itemFocusRequesters.getOrPut(lastFocusedCompanyId) { FocusRequester() }
+            else -> itemFocusRequesters.focusRequesterFor(lastFocusedCompanyId)
         }
     }
     LaunchedEffect(companies) {
@@ -190,7 +191,7 @@ fun CompanyLogosSection(
                     isRestoreTarget -> restoreFocusRequester
                     isFirstItem -> firstItemFocusRequester
                     companyId != null -> remember(companyId) {
-                        itemFocusRequesters.getOrPut(companyId) { FocusRequester() }
+                        itemFocusRequesters.focusRequesterFor(companyId)
                     }
                     else -> null
                 }

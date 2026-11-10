@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import com.fetch.tv.ui.components.LocalPlaybackAvailability

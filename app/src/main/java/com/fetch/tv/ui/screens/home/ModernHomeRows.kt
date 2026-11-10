@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.components.FetchCardDefaults
 import com.fetch.tv.ui.theme.FetchTheme
@@ -504,7 +505,7 @@ internal fun ModernRowSection(
     onBackdropInteraction: () -> Unit,
     onExpandedCatalogFocusKeyChange: (String?) -> Unit,
     sharedPlaceholderShimmerOffsetState: State<Float>?,
-    itemFocusRequesters: StableRef<MutableMap<Int, FocusRequester>> = StableRef(mutableMapOf())
+    itemFocusRequesters: StableRef<MutableMap<Int, FocusRequester>>
 ) {
     // Unwrap StableRef wrappers
     @Suppress("NAME_SHADOWING") val focusedItemByRow = focusedItemByRow.value
@@ -991,7 +992,7 @@ internal fun ModernRowSection(
                         }
                     }
                 ) { index, item ->
-                    val requester = itemFocusRequesters.getOrPut(index) { FocusRequester() }
+                    val requester = itemFocusRequesters.focusRequesterFor(index)
                     val isContinueWatchingRow = isContinueWatchingStyleRow(row.key)
                     val onFocused = remember(row.key, index, isContinueWatchingRow) {
                         {

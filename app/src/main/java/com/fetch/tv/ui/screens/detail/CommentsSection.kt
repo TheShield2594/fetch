@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -164,7 +165,7 @@ fun CommentsSection(
         hasFocusableCommentContent
     ) {
         if (!hasFocusableCommentContent) return@remember null
-        commentsFocusTargetId?.let { commentFocusRequesters.getOrPut(it) { FocusRequester() } }
+        commentsFocusTargetId?.let { commentFocusRequesters.focusRequesterFor(it) }
             ?: firstItemFocusRequester
     }
     val pickerDefaultSeason = selectedEpisode?.season
@@ -412,7 +413,7 @@ fun CommentsSection(
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
                 ) {
                     items(comments, key = { it.id }) { review ->
-                        val commentFocusRequester = commentFocusRequesters.getOrPut(review.id) { FocusRequester() }
+                        val commentFocusRequester = commentFocusRequesters.focusRequesterFor(review.id)
                         CommentCard(
                             review = review,
                             shape = cardShape,

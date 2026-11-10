@@ -321,270 +321,6 @@
     </issue>
 
     <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                ) { FocusRequester() }"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/components/CatalogRowSection.kt"
-            line="406"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                val removeFocusRequester = catalogFocusRequesters.getOrPut(sourceKey) { FocusRequester() }"
-        errorLine2="                                                                                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/collection/CollectionEditorFolderContent.kt"
-            line="627"
-            column="89"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="    val addFolderFocusRequester = folderFocusRequesters.getOrPut(&quot;add_folder&quot;) { FocusRequester() }"
-        errorLine2="                                                                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/collection/CollectionEditorScreen.kt"
-            line="112"
-            column="82"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="            val editFocusRequester = folderFocusRequesters.getOrPut(folder.id) { FocusRequester() }"
-        errorLine2="                                                                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/collection/CollectionEditorScreen.kt"
-            line="403"
-            column="82"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                    val editFocusRequester = itemFocusRequesters.getOrPut(collection.id) { FocusRequester() }"
-        errorLine2="                                                                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/collection/CollectionManagementScreen.kt"
-            line="258"
-            column="92"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                        val commentFocusRequester = commentFocusRequesters.getOrPut(review.id) { FocusRequester() }"
-        errorLine2="                                                                                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/detail/CommentsSection.kt"
-            line="415"
-            column="98"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="        streamFocusRequesters.getOrPut(key) { FocusRequester() }"
-        errorLine2="                                              ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/EpisodesSidePanel.kt"
-            line="219"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                    val focusReq = itemFocusRequesters.getOrPut(itemKey) { FocusRequester() }"
-        errorLine2="                                                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/collection/FolderDetailScreen.kt"
-            line="536"
-            column="76"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                        val rowFocusRequester = rowFocusRequesters.getOrPut(rowKey) { FocusRequester() }"
-        errorLine2="                                                                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/collection/FolderDetailScreen.kt"
-            line="882"
-            column="87"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                            entryFocusRequester = rowEntryFocusRequesters.getOrPut(rowKey) { FocusRequester() },"
-        errorLine2="                                                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/collection/FolderDetailScreen.kt"
-            line="910"
-            column="94"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="    val upNextFocusRequester = upNextEpisodeId?.let { id -> upNextFocusRequesters.getOrPut(id) { FocusRequester() } }"
-        errorLine2="                                                                                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="1361"
-            column="98"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                    val requester = itemFocusRequesters.getOrPut(index) { FocusRequester() }"
-        errorLine2="                                                                          ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/home/ModernHomeRows.kt"
-            line="971"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                    rowFocusRequester = rowFocusRequesters.getOrPut(row.key) { FocusRequester() },"
-        errorLine2="                                                                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/home/ModernHomeRowsList.kt"
-            line="432"
-            column="80"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                            val rowFocusRequester = searchRowFocusRequesters.getOrPut(catalogKey) { FocusRequester() }"
-        errorLine2="                                                                                                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/search/SearchScreen.kt"
-            line="842"
-            column="101"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                            val entryFocusRequester = searchRowEntryFocusRequesters.getOrPut(catalogKey) { FocusRequester() }"
-        errorLine2="                                                                                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/search/SearchScreen.kt"
-            line="843"
-            column="108"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="        FocusRequester()"
-        errorLine2="        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/search/SearchScreen.kt"
-            line="1096"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                    FocusRequester()"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/search/SearchScreen.kt"
-            line="1156"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                    FocusRequester()"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/search/SearchScreen.kt"
-            line="1159"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                    removeFocusRequesters.getOrPut(recentSearches[index - 1]) { FocusRequester() }"
-        errorLine2="                                                                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/search/SearchScreen.kt"
-            line="1164"
-            column="81"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                    removeFocusRequesters.getOrPut(it) { FocusRequester() }"
-        errorLine2="                                                         ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/search/SearchScreen.kt"
-            line="1167"
-            column="58"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                        else -> streamFocusRequesters.getOrPut(streamKeys[index]) { FocusRequester() }"
-        errorLine2="                                                                                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/stream/StreamScreen.kt"
-            line="1339"
-            column="85"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="        streamFocusRequesters.getOrPut(key) { FocusRequester() }"
-        errorLine2="                                              ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/StreamSourcesSidePanel.kt"
-            line="117"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="        ?: itemFocusRequesters.getOrPut(0) { FocusRequester() }"
-        errorLine2="                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/tmdb/TmdbEntityBrowseScreen.kt"
-            line="482"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="RememberInComposition"
-        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
-        errorLine1="                        else -> itemFocusRequesters.getOrPut(itemIndex) { FocusRequester() }"
-        errorLine2="                                                                          ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/tmdb/TmdbEntityBrowseScreen.kt"
-            line="596"
-            column="75"/>
-    </issue>
-
-    <issue
         id="GradleDependency"
         message="A newer version of com.android.tools:desugar_jdk_libs than 2.1.4 is available: 2.1.5"
         errorLine1="    coreLibraryDesugaring(&quot;com.android.tools:desugar_jdk_libs:2.1.4&quot;)"
@@ -14561,7 +14297,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/EpisodesSection.kt"
-            line="771"
+            line="772"
             column="25"/>
     </issue>
 
@@ -14572,7 +14308,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/EpisodesSection.kt"
-            line="774"
+            line="775"
             column="25"/>
     </issue>
 
@@ -14583,7 +14319,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/EpisodesSection.kt"
-            line="1190"
+            line="1191"
             column="25"/>
     </issue>
 
@@ -14660,7 +14396,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="683"
+            line="684"
             column="50"/>
     </issue>
 
@@ -14671,7 +14407,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="686"
+            line="687"
             column="50"/>
     </issue>
 
@@ -14682,7 +14418,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="2258"
+            line="2259"
             column="51"/>
     </issue>
 
@@ -14693,7 +14429,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="2259"
+            line="2260"
             column="52"/>
     </issue>
 
@@ -14704,7 +14440,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="3350"
+            line="3351"
             column="33"/>
     </issue>
 
@@ -14715,7 +14451,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="3353"
+            line="3354"
             column="33"/>
     </issue>
 
@@ -14770,7 +14506,7 @@
         errorLine2="                                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/EpisodesSidePanel.kt"
-            line="776"
+            line="777"
             column="78"/>
     </issue>
 
@@ -14781,7 +14517,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/EpisodesSidePanel.kt"
-            line="784"
+            line="785"
             column="13"/>
     </issue>
 
@@ -15518,7 +15254,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/CommentsSection.kt"
-            line="124"
+            line="125"
             column="5"/>
     </issue>
 
@@ -15617,7 +15353,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/home/ModernHomeRows.kt"
-            line="175"
+            line="176"
             column="5"/>
     </issue>
 
@@ -15628,7 +15364,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/home/ModernHomeRows.kt"
-            line="264"
+            line="265"
             column="5"/>
     </issue>
 
@@ -15639,7 +15375,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/home/ModernHomeRows.kt"
-            line="1127"
+            line="1128"
             column="5"/>
     </issue>
 
@@ -15650,7 +15386,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/home/ModernHomeRowsList.kt"
-            line="150"
+            line="151"
             column="5"/>
     </issue>
 
@@ -15727,7 +15463,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/search/SearchDiscoverSection.kt"
-            line="113"
+            line="114"
             column="5"/>
     </issue>
 
@@ -15837,7 +15573,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/stream/StreamScreen.kt"
-            line="827"
+            line="828"
             column="5"/>
     </issue>
 
@@ -15848,7 +15584,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/StreamSourcesSidePanel.kt"
-            line="72"
+            line="73"
             column="5"/>
     </issue>
 
@@ -47908,7 +47644,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/CommentsSection.kt"
-            line="152"
+            line="153"
             column="45"/>
     </issue>
 
@@ -47930,7 +47666,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/search/SearchDiscoverSection.kt"
-            line="617"
+            line="618"
             column="30"/>
     </issue>
 
@@ -47952,7 +47688,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/collection/CollectionEditorFolderContent.kt"
-            line="292"
+            line="293"
             column="45"/>
     </issue>
 
@@ -47985,7 +47721,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/EpisodesSection.kt"
-            line="156"
+            line="157"
             column="41"/>
     </issue>
 
@@ -47996,7 +47732,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/EpisodesSection.kt"
-            line="157"
+            line="158"
             column="41"/>
     </issue>
 
@@ -48007,7 +47743,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/EpisodesSection.kt"
-            line="441"
+            line="442"
             column="51"/>
     </issue>
 
@@ -48018,7 +47754,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/EpisodesSidePanel.kt"
-            line="180"
+            line="181"
             column="49"/>
     </issue>
 
@@ -48073,7 +47809,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/search/SearchDiscoverSection.kt"
-            line="546"
+            line="547"
             column="52"/>
     </issue>
 
@@ -48084,7 +47820,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/search/SearchScreen.kt"
-            line="179"
+            line="180"
             column="37"/>
     </issue>
 
@@ -48095,7 +47831,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/search/SearchScreen.kt"
-            line="180"
+            line="181"
             column="56"/>
     </issue>
 
@@ -48106,7 +47842,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/StreamComponents.kt"
-            line="79"
+            line="80"
             column="40"/>
     </issue>
 
@@ -48117,7 +47853,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/stream/StreamScreen.kt"
-            line="164"
+            line="165"
             column="50"/>
     </issue>
 
@@ -48128,7 +47864,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/stream/StreamScreen.kt"
-            line="832"
+            line="833"
             column="49"/>
     </issue>
 
@@ -48139,7 +47875,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/StreamSourcesSidePanel.kt"
-            line="78"
+            line="79"
             column="49"/>
     </issue>
 
@@ -54901,7 +54637,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="2309"
+            line="2310"
             column="19"/>
     </issue>
 
@@ -54912,7 +54648,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt"
-            line="2356"
+            line="2357"
             column="19"/>
     </issue>
 
@@ -55220,7 +54956,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/stream/StreamScreen.kt"
-            line="197"
+            line="198"
             column="56"/>
     </issue>
 
@@ -55275,7 +55011,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/tmdb/TmdbEntityBrowseScreen.kt"
-            line="661"
+            line="662"
             column="25"/>
     </issue>
 
@@ -55319,7 +55055,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/home/ModernHomeRows.kt"
-            line="1613"
+            line="1614"
             column="20"/>
     </issue>
 

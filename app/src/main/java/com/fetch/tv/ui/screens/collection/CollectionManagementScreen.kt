@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.collection
 
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.BorderStroke
@@ -255,7 +256,7 @@ fun CollectionManagementScreen(
                     items = uiState.collections,
                     key = { _, item -> item.id }
                 ) { index, collection ->
-                    val editFocusRequester = itemFocusRequesters.getOrPut(collection.id) { FocusRequester() }
+                    val editFocusRequester = itemFocusRequesters.focusRequesterFor(collection.id)
                     CollectionListItem(
                         collection = collection,
                         isFirst = index == 0,

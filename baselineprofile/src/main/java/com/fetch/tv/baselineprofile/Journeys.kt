@@ -38,7 +38,8 @@ internal fun UiDevice.snapshot(step: String) {
 
 // English labels from strings.xml / strings_setup.xml; inEnglish keeps them predictable.
 private val SIGN_IN_SKIP = labelPattern("Continue without account")
-private val WIZARD_STEP_INDICATOR = labelPattern("1  Server")
+// first_run_step_label is "%1$d  %2$s", but resource whitespace collapses, so match any gap.
+private val WIZARD_STEP_INDICATOR = Pattern.compile("1\\s+Server", Pattern.CASE_INSENSITIVE)
 private val WIZARD_EXPERIENCE_TITLE = labelPattern("Choose your Fetch experience")
 private val WIZARD_SKIP = labelPattern("Skip for now")
 private val WIZARD_CONTINUE = labelPattern("Continue")

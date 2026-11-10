@@ -3090,7 +3090,11 @@ internal fun PlayerControlsOverlay(
                             onDownKey = onHideControls,
                             onFocused = onResetHideTimer,
                             // A step without its own numbered icon names its length on focus.
-                            focusLabel = if (backIcon == null) "\u2212$backSeconds s" else null,
+                            focusLabel = if (backIcon == null) {
+                                "\u2212" + stringResource(R.string.playback_seek_step_value, backSeconds)
+                            } else {
+                                null
+                            },
                             labelAbove = true,
                             size = TRANSPORT_SKIP_SIZE,
                             iconSize = 32.dp
@@ -3119,7 +3123,11 @@ internal fun PlayerControlsOverlay(
                             upFocusRequester = progressUpTarget,
                             onDownKey = onHideControls,
                             onFocused = onResetHideTimer,
-                            focusLabel = if (forwardIcon == null) "+$forwardSeconds s" else null,
+                            focusLabel = if (forwardIcon == null) {
+                                "+" + stringResource(R.string.playback_seek_step_value, forwardSeconds)
+                            } else {
+                                null
+                            },
                             labelAbove = true,
                             size = TRANSPORT_SKIP_SIZE,
                             iconSize = 32.dp

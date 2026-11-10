@@ -1629,7 +1629,9 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
             val streamToPlay = selectedStream
             if (streamToPlay != null) {
                 val sourceName = (streamToPlay.name?.takeIf { it.isNotBlank() } ?: streamToPlay.addonName).trim()
-                val countdownTotal = autoPlayCountdownSecondsSetting.coerceAtLeast(1)
+                // The countdown is a chance to cancel an automatic start; a start the user asked
+                // for (Next, the card's Play, the remote's Next key) begins at once.
+                val countdownTotal = if (userInitiated) 0 else autoPlayCountdownSecondsSetting.coerceAtLeast(1)
                 for (remaining in countdownTotal downTo 1) {
                     _uiState.update { current ->
                         val episodeForMode = current.nextEpisode ?: nextInfo

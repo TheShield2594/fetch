@@ -277,8 +277,9 @@ internal fun PlayerRuntimeController.handleMpvPlaybackError(
         }
         if (attemptMpvAutoRetry(detailedError = detailedError, savedPosition = savedPosition)) return
 
+        // An override describes its own failure: a stale HTTP status in the log must not name it.
         val mpvErrorKind = mpvPlayerErrorKind(
-            httpCode = httpCode,
+            httpCode = httpCode.takeIf { detailedErrorOverride == null },
             nonHttpKind = if (httpCode == null && detailedErrorOverride == null) {
                 mpvNonHttpExplanationKind(mpvLastFileError, mpvLastErrorLogLine)
             } else {

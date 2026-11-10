@@ -588,6 +588,19 @@ class PlayerSettingsDataStore @Inject constructor(
     private fun store(profileId: Int = profileManager.activeProfileId.value) =
         factory.get(profileId, FEATURE)
 
+    /**
+     * [profileId]'s store after its migrations. The setters that can write to a profile other
+     * than the active one use it, so a new profile's first write can't make the binge-defaults
+     * migration take it for an existing profile (#408).
+     */
+    private suspend fun migratedStore(profileId: Int) = store(profileId).also { migrateProfile(profileId) }
+
+    /**
+     * Runs [profileId]'s migrations now. Called when a profile is created, before anything is
+     * written or copied into it, so it is recognised as new and gets the current defaults.
+     */
+    suspend fun prepareNewProfile(profileId: Int) = migrateProfile(profileId)
+
     private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /**
@@ -1371,7 +1384,7 @@ class PlayerSettingsDataStore @Inject constructor(
         language: String,
         profileId: Int = profileManager.activeProfileId.value
     ) {
-        store(profileId).edit { it[preferredAudioLanguageKey] = normalizeSelectableLanguageCode(language.ifBlank { AudioLanguageOption.DEVICE }) }
+        migratedStore(profileId).edit { it[preferredAudioLanguageKey] = normalizeSelectableLanguageCode(language.ifBlank { AudioLanguageOption.DEVICE }) }
     }
 
     suspend fun setSecondaryPreferredAudioLanguage(language: String?) {
@@ -1523,7 +1536,7 @@ class PlayerSettingsDataStore @Inject constructor(
         enabled: Boolean,
         profileId: Int = profileManager.activeProfileId.value
     ) {
-        store(profileId).edit { prefs ->
+        migratedStore(profileId).edit { prefs ->
             prefs[streamAutoPlayNextEpisodeEnabledKey] = enabled
         }
     }
@@ -1801,7 +1814,7 @@ class PlayerSettingsDataStore @Inject constructor(
     suspend fun setSubtitlePreferredLanguage(
         language: String,
         profileId: Int = profileManager.activeProfileId.value
-    ) { store(profileId).edit { it[subtitlePreferredLanguageKey] = normalizeSelectableLanguageCode(language.ifBlank { SubtitleLanguageOption.DEVICE }) } }
+    ) { migratedStore(profileId).edit { it[subtitlePreferredLanguageKey] = normalizeSelectableLanguageCode(language.ifBlank { SubtitleLanguageOption.DEVICE }) } }
     suspend fun setSubtitleSecondaryLanguage(language: String?) {
         store().edit { prefs ->
             val normalizedLanguage = language?.takeIf { it.isNotBlank() }?.let(::normalizeSelectableLanguageCode)

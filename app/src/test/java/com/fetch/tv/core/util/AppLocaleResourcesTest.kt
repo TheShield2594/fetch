@@ -32,6 +32,8 @@ class AppLocaleResourcesTest {
         assertSame(app.resources, resolver.resolve(app.resources, ""))
         assertSame(app.resources, resolver.resolve(app.resources, LocaleCache.UNSET))
         assertSame(app.resources, resolver.resolve(app.resources, null))
+        // Ill-formed: Locale.forLanguageTag gives a locale with no language.
+        assertSame(app.resources, resolver.resolve(app.resources, "-"))
     }
 
     @Test

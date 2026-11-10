@@ -263,6 +263,9 @@ class ProfileSelectionViewModel @Inject constructor(
                     avatarId = avatarId
                 )
                 if (profile != null) {
+                    // Before anything is written or copied into it: a new profile gets the
+                    // current player defaults, not the ones kept for existing profiles.
+                    playerSettingsDataStore.prepareNewProfile(profile.id)
                     if (isKidsProfile) {
                         parentalControls.setRestrictions(profile.id, com.fetch.tv.data.local.ProfileRestrictions.KidsPreset)
                     }

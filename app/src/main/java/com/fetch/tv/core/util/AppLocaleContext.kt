@@ -39,7 +39,11 @@ class AppLocaleResources(
     @Volatile
     private var cached: Entry? = null
 
-    /** [base] in the language [tag] names; [base] itself when [tag] is unset, empty or invalid. */
+    /**
+     * [base] in the language [tag] names; [base] itself when [tag] is unset, empty or invalid.
+     * Unsynchronized on purpose: two concurrent misses build equivalent Resources and the
+     * later one wins, which costs one extra context creation and nothing else.
+     */
     fun resolve(base: Resources, tag: String?): Resources {
         val languageTag = tag?.takeIf { it != LocaleCache.UNSET && it.isNotEmpty() } ?: return base
         val baseConfiguration = base.configuration

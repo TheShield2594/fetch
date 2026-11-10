@@ -2,8 +2,10 @@ package com.fetch.tv.core.parental
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.preferencesOf
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.fetch.tv.core.profile.ProfileManager
@@ -24,13 +26,23 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Local date (`yyyy-MM-dd`) on which the file was found corrupt and replaced. That day's usage
+ * is unknown, so for the rest of it a daily allowance counts as used up; see [ScreenTimeStore.resetDate].
+ */
+private val screenTimeCorruptionResetDateKey = stringPreferencesKey("corruption_reset_date")
+
 private val Context.screenTimeDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "screen_time",
-    corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler { androidx.datastore.preferences.core.emptyPreferences() }
+    // Fail closed: a corrupt file must not hand out a fresh allowance.
+    corruptionHandler = ReplaceFileCorruptionHandler {
+        preferencesOf(screenTimeCorruptionResetDateKey to LocalDate.now().toString())
+    }
 )
 
 /** One profile's screen time for one local day. A new day starts from nothing. */
@@ -68,9 +80,18 @@ internal fun screenTimeStatus(rules: KidsRules?, day: ScreenTimeDay, now: LocalD
     return if (remaining > 0) ScreenTimeStatus.Allowed(remaining) else ScreenTimeStatus.DailyLimitReached
 }
 
-/** Today's record for a profile, or a fresh one when the stored one is from another day. */
+/**
+ * Today's record for a profile, or a fresh one when the stored one is from an earlier day.
+ *
+ * A record from a *later* day than [date] means the wall clock went backwards (dates are
+ * `yyyy-MM-dd`, so they compare as strings). Starting a fresh day then would let setting the
+ * clock back hand out a new allowance, so the later record is kept and counted against instead.
+ */
 internal fun ScreenTimeDay?.forDate(date: String): ScreenTimeDay =
-    this?.takeIf { it.date == date } ?: ScreenTimeDay(date)
+    this?.takeIf { it.date >= date } ?: ScreenTimeDay(date)
+
+/** Watched time standing in for a day whose usage was lost: past any allowance, without overflowing a sum. */
+internal const val LOST_DAY_WATCHED_MS = Long.MAX_VALUE / 4
 
 /**
  * A kid's day across the account's TVs: [local] plus what each other TV recorded for the same
@@ -98,7 +119,11 @@ class ScreenTimeStore internal constructor(private val dataStore: DataStore<Pref
     private val daysKey = stringPreferencesKey("days")
     // Other TVs' records per profile, keyed by their sync client id, as last read from the account.
     private val otherDevicesKey = stringPreferencesKey("other_devices")
+    private val resetDateKey = screenTimeCorruptionResetDateKey
     private val json = Json { ignoreUnknownKeys = true }
+
+    /** The local date the file was lost to corruption, if it was; see [ScreenTimeManager]. */
+    val resetDate: Flow<String?> = dataStore.data.map { prefs -> prefs[resetDateKey] }
 
     suspend fun days(): Map<Int, ScreenTimeDay> = decode(dataStore.data.first()[daysKey])
 
@@ -207,6 +232,7 @@ class ScreenTimeManager internal constructor(
     private val mutex = Mutex()
     private val days = MutableStateFlow<Map<Int, ScreenTimeDay>>(emptyMap())
     private val otherDevices = MutableStateFlow<Map<Int, Map<String, ScreenTimeDay>>>(emptyMap())
+    private val corruptionResetDate = MutableStateFlow<String?>(null)
     // Playback counted but not saved yet, per profile; saved every SAVE_INTERVAL_MS.
     private val unsavedMs = mutableMapOf<Int, Long>()
     private var lastSaveMs = 0L
@@ -218,12 +244,19 @@ class ScreenTimeManager internal constructor(
     init {
         scope.launch { store.daysFlow.collect { days.value = it } }
         scope.launch { store.otherDevices.collect { otherDevices.value = it } }
+        scope.launch { store.resetDate.collect { corruptionResetDate.value = it } }
     }
 
     private fun today(): String = clock().toLocalDate().toString()
 
     private fun dayFor(profileId: Int): ScreenTimeDay {
-        val stored = days.value[profileId].forDate(today())
+        val today = today()
+        val record = days.value[profileId].forDate(today)
+        // The file was lost to corruption today, so today's usage before that is unknown: the
+        // allowance counts as used until a parent adds time or unlocks the day. Only in memory;
+        // nothing of it is saved or shared with other TVs.
+        val lostToday = corruptionResetDate.value == today && record.extraMinutes == 0 && !record.unlockedForDay
+        val stored = if (lostToday) record.copy(watchedMs = record.watchedMs + LOST_DAY_WATCHED_MS) else record
         val unsaved = synchronized(unsavedMs) { unsavedMs[profileId] ?: 0L }
         val local = stored.copy(watchedMs = stored.watchedMs + unsaved)
         return mergeScreenTimeDays(local, otherDevices.value[profileId].orEmpty().values)

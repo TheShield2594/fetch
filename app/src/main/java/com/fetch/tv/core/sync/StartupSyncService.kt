@@ -24,6 +24,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -67,43 +69,39 @@ class StartupSyncService @Inject constructor(
     private val cwEnrichmentCache: com.fetch.tv.data.local.ContinueWatchingEnrichmentCache
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    // The pull bookkeeping below is read and written from the main thread (requests from the UI)
+    // and from pull jobs on IO threads, so every access holds [stateMutex]. Public entry points
+    // that the UI calls without suspending hop onto [scope] to take it. The mutex isn't
+    // reentrant: functions named *Locked expect the caller to hold it already.
+    private val stateMutex = Mutex()
     private var startupPullJob: Job? = null
     private var activityPullJob: Job? = null
-    private var periodicSurfacePullJob: Job? = null
     private var lastPulledKey: String? = null
     private var lastPulledIncludedProfileSettings: Boolean = false
     private var lastPulledAtMs: Long = 0L
     private var activityPullFreshness = SurfacePullFreshness()
-    @Volatile
     private var forceSyncRequested: Boolean = false
-    @Volatile
     private var forceSyncIncludesProfileSettings: Boolean = true
-    @Volatile
     private var pendingResyncKey: String? = null
-    @Volatile
     private var pendingResyncIncludesProfileSettings: Boolean = false
+
+    // Started and stopped from the main thread by the activity lifecycle; guarded by its own lock
+    // so start/stop stay synchronous and ordered.
+    private val periodicLock = Any()
+    private var periodicSurfacePullJob: Job? = null
 
     init {
         scope.launch {
             authManager.authState.collect { state ->
                 when (state) {
-                    is AuthState.FullAccount -> {
-                        val force = forceSyncRequested
-                        val includeProfileSettings = if (force) forceSyncIncludesProfileSettings else true
-                        val started = scheduleStartupPull(
-                            userId = state.userId,
-                            force = force,
-                            includeProfileSettings = includeProfileSettings
-                        )
-                        if (force && started) forceSyncRequested = false
-                    }
-                    is AuthState.SignedOut -> {
+                    is AuthState.FullAccount -> stateMutex.withLock { onSignedInLocked(state.userId) }
+                    is AuthState.SignedOut -> stateMutex.withLock {
                         startupPullJob?.cancel()
                         startupPullJob = null
                         activityPullJob?.cancel()
                         activityPullJob = null
-                        periodicSurfacePullJob?.cancel()
-                        periodicSurfacePullJob = null
+                        stopPeriodicSurfacePulls()
                         lastPulledKey = null
                         lastPulledIncludedProfileSettings = false
                         lastPulledAtMs = 0L
@@ -119,43 +117,66 @@ class StartupSyncService @Inject constructor(
         }
     }
 
+    /** Expects [stateMutex] to be held. */
+    private fun onSignedInLocked(userId: String) {
+        val force = forceSyncRequested
+        val includeProfileSettings = if (force) forceSyncIncludesProfileSettings else true
+        val started = scheduleStartupPullLocked(
+            userId = userId,
+            force = force,
+            includeProfileSettings = includeProfileSettings
+        )
+        if (force && started) forceSyncRequested = false
+    }
+
     fun startPeriodicSurfacePulls() {
-        if (periodicSurfacePullJob?.isActive == true) return
-        periodicSurfacePullJob = scope.launch {
-            while (true) {
-                delay(PERIODIC_SURFACE_PULL_INTERVAL_MS)
-                scheduleActivityPull(reason = "periodic")
+        synchronized(periodicLock) {
+            if (periodicSurfacePullJob?.isActive == true) return
+            periodicSurfacePullJob = scope.launch {
+                while (true) {
+                    delay(PERIODIC_SURFACE_PULL_INTERVAL_MS)
+                    stateMutex.withLock { scheduleActivityPullLocked(reason = "periodic") }
+                }
             }
         }
     }
 
     fun stopPeriodicSurfacePulls() {
-        periodicSurfacePullJob?.cancel()
-        periodicSurfacePullJob = null
-    }
-
-    fun requestSyncNow(includeProfileSettings: Boolean = true) {
-        forceSyncRequested = true
-        forceSyncIncludesProfileSettings = forceSyncIncludesProfileSettings || includeProfileSettings
-        when (val state = authManager.authState.value) {
-            is AuthState.FullAccount -> {
-                val started = scheduleStartupPull(
-                    userId = state.userId,
-                    force = true,
-                    includeProfileSettings = includeProfileSettings
-                )
-                if (started) forceSyncRequested = false
-            }
-            else -> Unit
+        synchronized(periodicLock) {
+            periodicSurfacePullJob?.cancel()
+            periodicSurfacePullJob = null
         }
     }
 
-    fun requestForegroundSync() {
-        scheduleActivityPull(
-            reason = "foreground",
-            delayMs = FOREGROUND_ACTIVITY_PULL_DELAY_MS,
-            minIntervalMs = FOREGROUND_ACTIVITY_PULL_MIN_INTERVAL_MS
+    fun requestSyncNow(includeProfileSettings: Boolean = true) {
+        scope.launch {
+            stateMutex.withLock { requestSyncNowLocked(includeProfileSettings) }
+        }
+    }
+
+    /** Expects [stateMutex] to be held. */
+    private fun requestSyncNowLocked(includeProfileSettings: Boolean) {
+        forceSyncRequested = true
+        forceSyncIncludesProfileSettings = forceSyncIncludesProfileSettings || includeProfileSettings
+        val state = authManager.authState.value as? AuthState.FullAccount ?: return
+        val started = scheduleStartupPullLocked(
+            userId = state.userId,
+            force = true,
+            includeProfileSettings = includeProfileSettings
         )
+        if (started) forceSyncRequested = false
+    }
+
+    fun requestForegroundSync() {
+        scope.launch {
+            stateMutex.withLock {
+                scheduleActivityPullLocked(
+                    reason = "foreground",
+                    delayMs = FOREGROUND_ACTIVITY_PULL_DELAY_MS,
+                    minIntervalMs = FOREGROUND_ACTIVITY_PULL_MIN_INTERVAL_MS
+                )
+            }
+        }
     }
 
     private val _manualAddonRefreshes = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -266,13 +287,15 @@ class StartupSyncService @Inject constructor(
         }
     }
 
-    private fun scheduleActivityPull(
+    /** Expects [stateMutex] to be held. */
+    private fun scheduleActivityPullLocked(
         reason: String,
         delayMs: Long = 0L,
         minIntervalMs: Long = 0L
     ): Boolean {
         val state = authManager.authState.value as? AuthState.FullAccount ?: return false
-        val key = pullKey(state.userId)
+        val profileId = profileManager.activeProfileId.value
+        val key = pullKey(state.userId, profileId)
         val now = SystemClock.elapsedRealtime()
         if (startupPullJob?.isActive == true || activityPullJob?.isActive == true) return false
         if (activityPullFreshness.isRecent(key, now, minIntervalMs)) return false
@@ -280,29 +303,31 @@ class StartupSyncService @Inject constructor(
         activityPullJob = scope.launch {
             if (delayMs > 0L) delay(delayMs)
             val currentState = authManager.authState.value as? AuthState.FullAccount ?: return@launch
-            if (pullKey(currentState.userId) != key || startupPullJob?.isActive == true) return@launch
-            val profileId = profileManager.activeProfileId.value
+            val startupActive = stateMutex.withLock { startupPullJob?.isActive == true }
+            val currentKey = pullKey(currentState.userId, profileManager.activeProfileId.value)
+            if (currentKey != key || startupActive) return@launch
             Log.d(TAG, "Activity sync started profile=$profileId reason=$reason")
             val succeeded = coroutineScope {
-                val watchState = async { pullPeriodicWatchState() }
-                val library = async { pullPeriodicLibrary() }
+                val watchState = async { pullPeriodicWatchState(profileId) }
+                val library = async { pullPeriodicLibrary(profileId) }
                 watchState.await() && library.await()
             }
             if (succeeded) {
-                activityPullFreshness = SurfacePullFreshness(
-                    key = key,
-                    pulledAtMs = SystemClock.elapsedRealtime()
-                )
+                stateMutex.withLock {
+                    activityPullFreshness = SurfacePullFreshness(
+                        key = key,
+                        pulledAtMs = SystemClock.elapsedRealtime()
+                    )
+                }
             }
             Log.d(TAG, "Activity sync completed profile=$profileId reason=$reason succeeded=$succeeded")
         }
         return true
     }
 
-    private suspend fun pullPeriodicWatchState(): Boolean {
+    private suspend fun pullPeriodicWatchState(profileId: Int): Boolean {
         if (authManager.authState.value !is AuthState.FullAccount) return false
 
-        val profileId = profileManager.activeProfileId.value
         val shouldUseSupabaseWatchProgressSync = watchProgressSyncService.shouldUseSupabaseWatchProgressSync(profileId)
         Log.d(
             TAG,
@@ -325,25 +350,23 @@ class StartupSyncService @Inject constructor(
         }
     }
 
-    private suspend fun pullPeriodicLibrary(): Boolean {
+    private suspend fun pullPeriodicLibrary(profileId: Int): Boolean {
         if (authManager.authState.value !is AuthState.FullAccount) return false
 
-        val profileId = profileManager.activeProfileId.value
         Log.d(TAG, "Periodic library pull requested profile=$profileId")
         return pullFetchLibrary(profileId)
     }
 
-    private fun pullKey(userId: String): String {
-        val profileId = profileManager.activeProfileId.value
-        return "${userId}_p${profileId}"
-    }
+    private fun pullKey(userId: String, profileId: Int): String = "${userId}_p${profileId}"
 
-    private fun scheduleStartupPull(
+    /** Expects [stateMutex] to be held. The pull is for the profile active now, named in its key. */
+    private fun scheduleStartupPullLocked(
         userId: String,
         force: Boolean = false,
         includeProfileSettings: Boolean = true
     ): Boolean {
-        val key = pullKey(userId)
+        val profileId = profileManager.activeProfileId.value
+        val key = pullKey(userId, profileId)
         val now = SystemClock.elapsedRealtime()
         val sameKey = lastPulledKey == key
         val coversProfileSettings = !includeProfileSettings || lastPulledIncludedProfileSettings
@@ -378,17 +401,21 @@ class StartupSyncService @Inject constructor(
             for (attempt in 1..maxAttempts) {
                 val result = pullRemoteData(
                     userId = userId,
+                    profileId = profileId,
+                    key = key,
                     force = force,
                     includeProfileSettings = includeProfileSettings
                 )
                 if (result.isSuccess) {
-                    lastPulledKey = key
-                    lastPulledIncludedProfileSettings = includeProfileSettings
-                    lastPulledAtMs = SystemClock.elapsedRealtime()
-                    activityPullFreshness = SurfacePullFreshness(
-                        key = key,
-                        pulledAtMs = lastPulledAtMs
-                    )
+                    stateMutex.withLock {
+                        lastPulledKey = key
+                        lastPulledIncludedProfileSettings = includeProfileSettings
+                        lastPulledAtMs = SystemClock.elapsedRealtime()
+                        activityPullFreshness = SurfacePullFreshness(
+                            key = key,
+                            pulledAtMs = lastPulledAtMs
+                        )
+                    }
                     syncCompleted = true
                     break
                 }
@@ -398,39 +425,47 @@ class StartupSyncService @Inject constructor(
                     delay(3000)
                 }
             }
-            
-            val resyncKey = pendingResyncKey
-            if (resyncKey != null) {
-                val resyncIncludesProfileSettings = pendingResyncIncludesProfileSettings
-                pendingResyncKey = null
-                pendingResyncIncludesProfileSettings = false
-                if (
-                    !syncCompleted ||
-                    resyncKey != lastPulledKey ||
-                    (resyncIncludesProfileSettings && !lastPulledIncludedProfileSettings)
-                ) {
-                    scheduleStartupPull(
-                        userId = userId,
-                        force = true,
-                        includeProfileSettings = resyncIncludesProfileSettings
-                    )
+
+            stateMutex.withLock {
+                val resyncKey = pendingResyncKey
+                if (resyncKey != null) {
+                    val resyncIncludesProfileSettings = pendingResyncIncludesProfileSettings
+                    pendingResyncKey = null
+                    pendingResyncIncludesProfileSettings = false
+                    if (
+                        !syncCompleted ||
+                        resyncKey != lastPulledKey ||
+                        (resyncIncludesProfileSettings && !lastPulledIncludedProfileSettings)
+                    ) {
+                        // This job is still active while it holds the lock, so mark it done
+                        // first or the follow-up would just be queued behind it again.
+                        startupPullJob = null
+                        scheduleStartupPullLocked(
+                            userId = userId,
+                            force = true,
+                            includeProfileSettings = resyncIncludesProfileSettings
+                        )
+                    }
                 }
             }
         }
         return true
     }
 
+    /** Pulls for [profileId], the profile named in [key]; never re-reads the active profile. */
     private suspend fun pullRemoteData(
         userId: String,
+        profileId: Int,
+        key: String,
         force: Boolean,
         includeProfileSettings: Boolean
     ): Result<Unit> {
         try {
-            val profileId = profileManager.activeProfileId.value
+            val (previousKey, previousPulledAtMs) = stateMutex.withLock { lastPulledKey to lastPulledAtMs }
             val syncState = startupSyncPreferences.getState(profileId)
             val canUseWarmSync = !force &&
-                lastPulledKey == pullKey(userId) &&
-                lastPulledAtMs > 0L &&
+                previousKey == key &&
+                previousPulledAtMs > 0L &&
                 syncState.lastFullPullUserId == userId &&
                 syncState.lastFullPullAtMs > 0L &&
                 System.currentTimeMillis() - syncState.lastFullPullAtMs < FULL_STARTUP_PULL_TTL_MS &&
@@ -755,8 +790,10 @@ class StartupSyncService @Inject constructor(
             if (syncResult.deletedEntries > 0 && snapshotOrigin.profileId == profileId) {
                 val currentContentIds = watchProgressPreferences.getAllRawEntries(profileId)
                     .values.mapTo(mutableSetOf()) { it.contentId }
-                val cachedInProgress = cwEnrichmentCache.getInProgressSnapshot()
-                val cachedNextUp = cwEnrichmentCache.getNextUpSnapshot()
+                // Read the captured profile's cache, not whichever profile is active by now; the
+                // saves below are bound to the same origin and skip if it is no longer current.
+                val cachedInProgress = cwEnrichmentCache.getInProgressSnapshot(snapshotOrigin.profileId)
+                val cachedNextUp = cwEnrichmentCache.getNextUpSnapshot(snapshotOrigin.profileId)
                 val filteredInProgress = cachedInProgress.filter { it.contentId in currentContentIds }
                 val filteredNextUp = cachedNextUp.filter { it.contentId in currentContentIds }
                 if (filteredInProgress.size != cachedInProgress.size) {

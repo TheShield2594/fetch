@@ -140,3 +140,10 @@
 
 -dontwarn java.beans.ConstructorProperties
 -dontwarn java.beans.Transient
+# ── Logging ───────────────────────────────────────────────────────────────────
+# Strip debug and verbose logging from minified builds. Those lines carry request details that
+# have no place in a release logcat; warnings and errors are kept for field diagnostics.
+-assumenosideeffects class android.util.Log {
+    public static int d(...);
+    public static int v(...);
+}

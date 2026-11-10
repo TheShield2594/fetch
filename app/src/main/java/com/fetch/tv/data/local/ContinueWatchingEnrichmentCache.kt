@@ -132,10 +132,13 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         return File(dir, "nextup_${profileId}.json")
     }
 
-    suspend fun getNextUpSnapshot(): List<CachedNextUpItem> = withContext(Dispatchers.IO) {
+    /** [profileId]'s next-up snapshot; the active profile's unless one is named. */
+    suspend fun getNextUpSnapshot(
+        profileId: Int = profileManager.activeProfileId.value
+    ): List<CachedNextUpItem> = withContext(Dispatchers.IO) {
         mutex.withLock {
             try {
-                val file = nextUpFile()
+                val file = nextUpFile(profileId)
                 if (!file.exists()) return@withContext emptyList()
                 gson.fromJson<List<CachedNextUpItem?>>(
                     file.readText(),
@@ -196,10 +199,13 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         return File(dir, "inprogress_${profileId}.json")
     }
 
-    suspend fun getInProgressSnapshot(): List<CachedInProgressItem> = withContext(Dispatchers.IO) {
+    /** [profileId]'s in-progress snapshot; the active profile's unless one is named. */
+    suspend fun getInProgressSnapshot(
+        profileId: Int = profileManager.activeProfileId.value
+    ): List<CachedInProgressItem> = withContext(Dispatchers.IO) {
         mutex.withLock {
             try {
-                val file = inProgressFile()
+                val file = inProgressFile(profileId)
                 if (!file.exists()) return@withContext emptyList()
                 gson.fromJson<List<CachedInProgressItem?>>(
                     file.readText(),

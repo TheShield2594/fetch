@@ -1,5 +1,7 @@
 package com.fetch.tv.core.parental
 
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.preferencesOf
 import com.fetch.tv.TestPreferencesStore
 import com.fetch.tv.data.local.ParentalTitle
 import com.fetch.tv.data.local.ProfileRestrictions
@@ -24,6 +26,39 @@ class ProfileRestrictionsDataStoreTest {
         val all = store.restrictions.first()
         assertEquals(ProfileRestrictions.KidsPreset, all[2])
         assertEquals(teen, all[3])
+    }
+
+    private fun corruptedStore() = ProfileRestrictionsDataStore(
+        TestPreferencesStore(preferencesOf(booleanPreferencesKey("corruption_reset") to true))
+    )
+
+    @Test
+    fun `after the file was lost every profile but the main one reads as a kids profile`() = runTest {
+        val corrupted = corruptedStore()
+
+        val all = corrupted.restrictions.first()
+        assertEquals(ProfileRestrictions.KidsPreset, all[2])
+        assertEquals(ProfileRestrictions.KidsPreset, all[7])
+        assertEquals(null, all[1])
+        assertTrue(corrupted.parentalControlsConfigured.first())
+    }
+
+    @Test
+    fun `after the file was lost a parent can still lift a profile's limits`() = runTest {
+        val corrupted = corruptedStore()
+
+        corrupted.setRestrictions(2, ProfileRestrictions.None)
+
+        val all = corrupted.restrictions.first()
+        assertEquals(ProfileRestrictions.None, all[2])
+        assertEquals(ProfileRestrictions.KidsPreset, all[3])
+    }
+
+    @Test
+    fun `parental controls count as configured only when something is set`() = runTest {
+        assertFalse(store.parentalControlsConfigured.first())
+        store.setRestrictions(2, ProfileRestrictions.KidsPreset)
+        assertTrue(store.parentalControlsConfigured.first())
     }
 
     @Test

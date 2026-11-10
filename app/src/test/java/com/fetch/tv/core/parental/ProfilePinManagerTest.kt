@@ -2,7 +2,11 @@ package com.fetch.tv.core.parental
 
 import com.fetch.tv.TestPreferencesStore
 import com.fetch.tv.core.sync.SetProfilePinResult
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.preferencesOf
+import com.fetch.tv.data.local.PinAttemptState
 import com.fetch.tv.data.local.ProfileLockStateDataStore
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -40,9 +44,17 @@ class ProfilePinManagerTest {
     }
 
     private var now = 1_000_000L
-    private val store = ProfileLockStateDataStore(TestPreferencesStore())
+    private var elapsed = 50_000L
+    private var store = ProfileLockStateDataStore(TestPreferencesStore())
+    private val parentalConfigured = MutableStateFlow(false)
 
-    private fun manager(remote: RemoteProfilePins = FakeRemote()) = ProfilePinManager(store, remote) { now }
+    private fun manager(remote: RemoteProfilePins = FakeRemote()) =
+        ProfilePinManager(store, remote, { now }, { elapsed }, parentalConfigured)
+
+    private fun advance(ms: Long) {
+        now += ms
+        elapsed += ms
+    }
 
     @Test
     fun `sets and verifies a PIN with no sync server`() = runTest {
@@ -89,9 +101,104 @@ class ProfilePinManagerTest {
         // Even the right PIN is refused while locked.
         assertFalse(pins.verifyPin(2, "1111").getOrThrow().unlocked)
 
-        now += PinAttemptPolicy.BASE_LOCKOUT_MS
+        advance(PinAttemptPolicy.BASE_LOCKOUT_MS)
         assertTrue(pins.verifyPin(2, "1111").getOrThrow().unlocked)
         assertEquals(0, store.attemptState(2).failures)
+    }
+
+    private suspend fun lockOut(pins: ProfilePinManager) {
+        pins.setPin(2, "1111")
+        repeat(PinAttemptPolicy.FREE_ATTEMPTS) { pins.verifyPin(2, "0000") }
+        assertEquals(30, pins.verifyPin(2, "1111").getOrThrow().retryAfterSeconds)
+    }
+
+    @Test
+    fun `setting the wall clock forward doesn't end a lockout`() = runTest {
+        val pins = manager()
+        lockOut(pins)
+
+        now += 24 * 60 * 60_000L
+        elapsed += 1_000L
+
+        assertFalse(pins.verifyPin(2, "1111").getOrThrow().unlocked)
+        // The clock change counts as an interruption: the lockout starts over in full.
+        elapsed += PinAttemptPolicy.BASE_LOCKOUT_MS - 1_000L
+        assertFalse(pins.verifyPin(2, "1111").getOrThrow().unlocked)
+        elapsed += 1_000L
+        assertTrue(pins.verifyPin(2, "1111").getOrThrow().unlocked)
+    }
+
+    @Test
+    fun `setting the wall clock back doesn't extend a lockout forever or end it`() = runTest {
+        val pins = manager()
+        lockOut(pins)
+
+        now -= 24 * 60 * 60_000L
+        assertFalse(pins.verifyPin(2, "1111").getOrThrow().unlocked)
+        advance(PinAttemptPolicy.BASE_LOCKOUT_MS)
+        assertTrue(pins.verifyPin(2, "1111").getOrThrow().unlocked)
+    }
+
+    @Test
+    fun `a reboot restarts the lockout rather than ending it`() = runTest {
+        val pins = manager()
+        lockOut(pins)
+
+        // Rebooted: elapsedRealtime starts again from zero while the wall clock moves on.
+        now += 5_000L
+        elapsed = 1_000L
+
+        assertEquals(30, pins.verifyPin(2, "1111").getOrThrow().retryAfterSeconds)
+        advance(PinAttemptPolicy.BASE_LOCKOUT_MS)
+        assertTrue(pins.verifyPin(2, "1111").getOrThrow().unlocked)
+    }
+
+    @Test
+    fun `a lockout whose start is unknown restarts in full`() = runTest {
+        val pins = manager()
+        pins.setPin(2, "1111")
+        val legacy = PinAttemptState(failures = PinAttemptPolicy.FREE_ATTEMPTS, lockoutMs = PinAttemptPolicy.BASE_LOCKOUT_MS, lockedAtElapsedMs = -1L)
+        store.setAttemptState(2, legacy)
+
+        assertEquals(30, pins.verifyPin(2, "1111").getOrThrow().retryAfterSeconds)
+    }
+
+    private fun corruptedStore() = ProfileLockStateDataStore(
+        TestPreferencesStore(preferencesOf(booleanPreferencesKey("corruption_reset") to true))
+    )
+
+    @Test
+    fun `after the PIN file was lost the main profile stays locked while parental controls are on`() = runTest {
+        store = corruptedStore()
+        parentalConfigured.value = true
+        val pins = manager(FakeRemote(isAvailable = false))
+
+        assertTrue(pins.hasPin(PARENT_PROFILE_ID))
+        assertTrue(pins.verifyPin(PARENT_PROFILE_ID, "0000").isFailure)
+    }
+
+    @Test
+    fun `after the PIN file was lost the remote's main PIN unlocks and is remembered`() = runTest {
+        store = corruptedStore()
+        parentalConfigured.value = true
+        val remote = FakeRemote(isAvailable = true, remotePins = mutableMapOf(PARENT_PROFILE_ID to "1111"))
+        val pins = manager(remote)
+
+        assertFalse(pins.verifyPin(PARENT_PROFILE_ID, "0000").getOrThrow().unlocked)
+        assertTrue(pins.verifyPin(PARENT_PROFILE_ID, "1111").getOrThrow().unlocked)
+        assertFalse(store.lostToCorruption.first())
+
+        remote.isAvailable = false
+        assertTrue(pins.verifyPin(PARENT_PROFILE_ID, "1111").getOrThrow().unlocked)
+    }
+
+    @Test
+    fun `a lost PIN file locks nothing when parental controls aren't in use`() = runTest {
+        store = corruptedStore()
+        val pins = manager()
+
+        assertFalse(pins.hasPin(PARENT_PROFILE_ID))
+        assertTrue(pins.verifyPin(PARENT_PROFILE_ID, "0000").getOrThrow().unlocked)
     }
 
     @Test

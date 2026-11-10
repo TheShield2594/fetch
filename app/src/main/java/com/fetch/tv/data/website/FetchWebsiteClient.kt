@@ -476,15 +476,59 @@ class FetchWebsiteClient internal constructor(
         /**
          * The API base a person typed, tidied: a scheme added when missing, trailing slashes
          * dropped. Null when it can't be a URL at all.
+         *
+         * Without a scheme, an address on the local network (see [isLocalNetworkHost]) gets
+         * `http://`, since a server at home rarely has a certificate; anything else gets
+         * `https://`, so a public address never sends the pairing code and tokens in the clear.
+         * A scheme typed explicitly is kept as it is.
          */
         fun normalizeServerUrl(raw: String): String? {
             val trimmed = raw.trim()
             if (trimmed.isEmpty()) return null
-            val withScheme = if (trimmed.contains("://")) trimmed else "http://$trimmed"
+            val withScheme = when {
+                trimmed.contains("://") -> trimmed
+                isLocalNetworkHost(hostOf(trimmed)) -> "http://$trimmed"
+                else -> "https://$trimmed"
+            }
             // Parsed before the trailing slashes go: trimmed first, "http://" became
             // "http:", which then parsed as a host named "http".
             val url = withScheme.toHttpUrlOrNull() ?: return null
             return url.toString().trimEnd('/')
+        }
+
+        /** The host part of a scheme-less address: no user info, port, path or IPv6 brackets. */
+        internal fun hostOf(address: String): String {
+            val authority = address.substringBefore('/').substringBefore('?').substringBefore('#')
+            val hostAndPort = authority.substringAfterLast('@')
+            if (hostAndPort.startsWith("[")) return hostAndPort.substring(1).substringBefore(']')
+            return hostAndPort.substringBefore(':')
+        }
+
+        /**
+         * True for hosts that can only be on the local network: loopback, private (RFC 1918)
+         * and link-local IPv4, loopback / link-local / unique-local IPv6, `.local` and `.lan`
+         * names, and single-label names such as `nas` or `localhost`.
+         */
+        internal fun isLocalNetworkHost(host: String): Boolean {
+            val name = host.trim().trimEnd('.').lowercase()
+            if (name.isEmpty()) return false
+            if (name.contains(':')) {
+                // IPv6 literal.
+                if (name == "::1") return true
+                val firstGroup = name.substringBefore(':').toIntOrNull(16) ?: return false
+                return (firstGroup and 0xffc0) == 0xfe80 || // fe80::/10 link-local
+                    (firstGroup and 0xfe00) == 0xfc00 // fc00::/7 unique local
+            }
+            val octets = name.split('.')
+            if (octets.size == 4 && octets.all { octet -> octet.toIntOrNull()?.let { it in 0..255 } == true }) {
+                val (a, b) = octets.take(2).map { it.toInt() }
+                return a == 10 ||
+                    a == 127 ||
+                    (a == 172 && b in 16..31) ||
+                    (a == 192 && b == 168) ||
+                    (a == 169 && b == 254)
+            }
+            return !name.contains('.') || name.endsWith(".local") || name.endsWith(".lan")
         }
 
         internal fun endpoint(serverUrl: String, path: String): String = "${serverUrl.trimEnd('/')}/$path"

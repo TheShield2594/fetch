@@ -12,6 +12,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.SharingStarted
@@ -85,6 +86,26 @@ class ProfileManager @Inject constructor(
 
     val canCreateProfile: Boolean
         get() = profiles.value.size < MAX_PROFILES
+
+    init {
+        // A deleted profile's stores are refused by the factory until the id is reused.
+        // createProfile says so for a profile made here; a profile that comes back another way
+        // (a sync pull re-adding the id) is noticed here: once the list has been seen without a
+        // deleted id, the id showing up again means it is a profile again.
+        scope.launch {
+            val goneDeletedIds = mutableSetOf<Int>()
+            profileDataStore.profilesList.collect { list ->
+                val ids = list.mapTo(mutableSetOf()) { it.id }
+                for (id in 2..MAX_PROFILES) {
+                    when {
+                        !factory.isProfileDeleted(id) -> goneDeletedIds.remove(id)
+                        id !in ids -> goneDeletedIds.add(id)
+                        goneDeletedIds.remove(id) -> factory.markProfileCreated(id)
+                    }
+                }
+            }
+        }
+    }
 
     suspend fun setActiveProfile(id: Int) {
         val exists = profiles.value.any { it.id == id }

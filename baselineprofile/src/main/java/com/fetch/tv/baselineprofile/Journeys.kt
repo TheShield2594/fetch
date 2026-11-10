@@ -1,5 +1,6 @@
 package com.fetch.tv.baselineprofile
 
+import android.util.Log
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.StaleObjectException
@@ -8,6 +9,32 @@ import androidx.test.uiautomator.Until
 import java.util.regex.Pattern
 
 internal const val TARGET_PACKAGE = "com.fetch.tv"
+
+private const val LOG_TAG = "FetchJourney"
+private const val SCREENSHOT_DIR = "/sdcard/Download/fetch-journey"
+private val ANY_TEXT = Pattern.compile(".+", Pattern.DOTALL)
+private var snapshotCount = 0
+
+// Records where the journey is: the focused control and the texts on screen go to logcat under
+// FetchJourney, and a screenshot goes to /sdcard/Download/fetch-journey. A journey that stalls
+// (a renamed label, a new onboarding step) can then be read back without watching the device:
+// `adb logcat -d -s FetchJourney` and `adb pull /sdcard/Download/fetch-journey`.
+internal fun UiDevice.snapshot(step: String) {
+    val number = ++snapshotCount
+    runCatching {
+        val focused = findObject(By.focused(true))
+        val focusedLabel = focused?.let { it.text ?: it.findObject(By.text(ANY_TEXT))?.text ?: it.className }
+        val texts = findObjects(By.pkg(TARGET_PACKAGE).text(ANY_TEXT)).take(30).mapNotNull {
+            runCatching { it.text?.take(40) }.getOrNull()
+        }
+        Log.i(LOG_TAG, "#$number $step | focused=$focusedLabel | pkg=$currentPackageName | $texts")
+    }.onFailure { Log.i(LOG_TAG, "#$number $step | could not read the screen: $it") }
+    runCatching {
+        executeShellCommand("mkdir -p $SCREENSHOT_DIR")
+        val name = "%03d-%s.png".format(number, step.replace(Regex("[^A-Za-z0-9]+"), "-"))
+        executeShellCommand("screencap -p $SCREENSHOT_DIR/$name")
+    }
+}
 
 // English labels from strings.xml / strings_setup.xml; inEnglish keeps them predictable.
 private val SIGN_IN_SKIP = labelPattern("Continue without account")
@@ -43,8 +70,10 @@ internal fun MacrobenchmarkScope.launchToHome() {
     startActivityAndWait()
     device.wait(Until.hasObject(By.pkg(TARGET_PACKAGE)), 5_000)
     device.waitForIdle()
+    device.snapshot("launched")
 
     if (device.wait(Until.hasObject(By.text(SIGN_IN_SKIP)), 8_000) == true) {
+        device.snapshot("sign-in")
         device.focusAndSelect(SIGN_IN_SKIP)
         device.wait(Until.hasObject(By.text(WIZARD_SKIP)), 10_000)
     }
@@ -52,6 +81,7 @@ internal fun MacrobenchmarkScope.launchToHome() {
     device.completeFirstRunWizard()
     device.waitForIdle()
     Thread.sleep(3_000)
+    device.snapshot("after-onboarding")
 }
 
 // Scrolls across the focused Home row, then down through the rows, then back up toward a title,
@@ -81,6 +111,7 @@ internal fun UiDevice.scrollHome() {
 // step indicator. Anything else is not the wizard (Home can have its own Continue), so it stops.
 private fun UiDevice.completeFirstRunWizard() {
     repeat(WIZARD_MAX_STEPS) {
+        snapshot("wizard-step")
         when {
             hasObject(By.text(WIZARD_EXPERIENCE_TITLE)) -> {
                 focusAndSelect(WIZARD_ADVANCED)
@@ -100,6 +131,7 @@ private fun UiDevice.completeFirstRunWizard() {
 private fun UiDevice.focusAndSelect(pattern: Pattern, awaitGone: Boolean = true, maxSteps: Int = 24): Boolean {
     if (wait(Until.hasObject(By.text(pattern)), 10_000) != true) return false
     repeat(maxSteps) { step ->
+        if (step == maxSteps - 1) snapshot("still-looking-for-$pattern")
         if (isFocusedLabel(pattern)) {
             pressDPadCenter()
             waitForIdle()

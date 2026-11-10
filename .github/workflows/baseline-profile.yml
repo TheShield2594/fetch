@@ -60,7 +60,7 @@ jobs:
           disable-animations: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
-            ./gradlew --no-daemon :app:generateBaselineProfile
+            ./gradlew --no-daemon :app:generateBaselineProfile; status=$?; adb logcat -d -s FetchJourney > journey-log.txt; adb pull /sdcard/Download/fetch-journey journey-screens || true; exit $status
             python3 scripts/check_baseline_profiles.py
             if [ "${{ github.event_name != 'workflow_dispatch' || inputs.benchmark }}" = "true" ]; then scripts/perf_baseline.sh benchmark-emulator || echo "::warning::StartupBenchmark failed; the profiles are still uploaded."; fi
 
@@ -84,6 +84,16 @@ jobs:
           name: baseline-profiles
           path: app/src/main/generated/baselineProfiles/*.txt
           if-no-files-found: error
+
+      # Where the scripted journey went: one log line and one screenshot per step.
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: journey-diagnostics
+          path: |
+            journey-log.txt
+            journey-screens/**
+          if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v7
         if: always()

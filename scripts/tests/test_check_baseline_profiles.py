@@ -11,13 +11,13 @@ from check_baseline_profiles import (
 )
 
 
-def rules_for(packages: tuple[str, ...], per_package: int = 1) -> list[str]:
+def rules_for(packages: dict[str, int]) -> list[str]:
     return [
-        f"HSPL{package}/Thing{i};->run()V" for package in packages for i in range(per_package)
+        f"HSPL{package}/Thing{i};->run()V" for package, count in packages.items() for i in range(count)
     ]
 
 
-LIBRARY_RULES = [f"Landroidx/compose/runtime/Thing{i};" for i in range(20)]
+LIBRARY_RULES = [f"Landroidx/compose/runtime/Thing{i};" for i in range(500)]
 STARTUP = rules_for(STARTUP_REQUIRED_PACKAGES)
 BASELINE = rules_for(BASELINE_REQUIRED_PACKAGES) + LIBRARY_RULES
 
@@ -59,7 +59,13 @@ class CheckProfilesTests(unittest.TestCase):
     def test_missing_required_package_is_named(self) -> None:
         baseline = [rule for rule in BASELINE if "ui/screens/detail" not in rule]
         problems = check_profiles(baseline, STARTUP)
-        self.assertTrue(any("com/fetch/tv/ui/screens/detail" in problem for problem in problems))
+        self.assertTrue(any("com/fetch/tv/ui/screens/detail (0 rules" in problem for problem in problems))
+
+    def test_a_handful_of_rules_does_not_count_as_covered(self) -> None:
+        home = [rule for rule in BASELINE if "ui/screens/home" in rule]
+        baseline = [rule for rule in BASELINE if rule not in set(home[8:])]
+        problems = check_profiles(baseline, STARTUP)
+        self.assertTrue(any("com/fetch/tv/ui/screens/home (8 rules" in problem for problem in problems))
 
     def test_sub_package_covers_its_parent(self) -> None:
         baseline = [
@@ -69,7 +75,7 @@ class CheckProfilesTests(unittest.TestCase):
 
     def test_rules_for_packages_missing_from_source_fail(self) -> None:
         known = set(BASELINE_REQUIRED_PACKAGES)
-        baseline = BASELINE + rules_for(("com/fetch/tv/core/gone",), per_package=5)
+        baseline = BASELINE + rules_for({"com/fetch/tv/core/gone": 100})
         problems = check_profiles(baseline, STARTUP, known)
         self.assertTrue(any("not in the source tree" in problem for problem in problems))
 

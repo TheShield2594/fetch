@@ -35,11 +35,13 @@ class BaselineProfileGenerator {
                 device.waitForIdle()
 
                 device.scrollHome()
+                device.snapshot("home-scrolled")
 
                 // Open a title to compile the detail screen render path.
                 device.pressDPadCenter()
                 device.waitForIdle()
                 Thread.sleep(2_500)
+                device.snapshot("detail")
 
                 // Return to the home screen.
                 device.pressBack()

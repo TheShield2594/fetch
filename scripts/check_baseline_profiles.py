@@ -23,23 +23,25 @@ APP_PACKAGE = "com/fetch/tv"
 # size means the start-up run recorded more than launch.
 MAX_STARTUP_TO_BASELINE_RATIO = 0.8
 
-# Screens and layers BaselineProfileGenerator's journey goes through. A profile without
-# them was not recorded on Fetch, or the journey stopped before Home.
-BASELINE_REQUIRED_PACKAGES = (
-    "com/fetch/tv/ui/screens/home",
-    "com/fetch/tv/ui/screens/detail",
-    "com/fetch/tv/ui/screens/setup",
-    "com/fetch/tv/ui/navigation",
-    "com/fetch/tv/ui/theme",
-    "com/fetch/tv/data/repository",
-    "com/fetch/tv/data/local",
-    "com/fetch/tv/core/streams/ranking",
-)
-STARTUP_REQUIRED_PACKAGES = (
-    "com/fetch/tv/ui/screens/home",
-    "com/fetch/tv/ui/navigation",
-    "com/fetch/tv/data/local",
-)
+# Screens and layers BaselineProfileGenerator's journey goes through, with the fewest rules
+# each must have. A profile below these was not recorded on Fetch, or the journey stalled
+# before Home (a handful of rules only means a view model was constructed, not that the
+# screen was drawn).
+BASELINE_REQUIRED_PACKAGES = {
+    "com/fetch/tv/ui/screens/home": 300,
+    "com/fetch/tv/ui/screens/detail": 150,
+    "com/fetch/tv/ui/screens/setup": 20,
+    "com/fetch/tv/ui/navigation": 50,
+    "com/fetch/tv/ui/theme": 50,
+    "com/fetch/tv/data/repository": 100,
+    "com/fetch/tv/data/local": 100,
+    "com/fetch/tv/core/streams/ranking": 10,
+}
+STARTUP_REQUIRED_PACKAGES = {
+    "com/fetch/tv/ui/screens/home": 300,
+    "com/fetch/tv/ui/navigation": 50,
+    "com/fetch/tv/data/local": 100,
+}
 
 # Share of Fetch rules allowed to name a package that has no source directory. Generated
 # code lives next to its sources, so anything above this is a profile from another tree.
@@ -94,14 +96,20 @@ def source_packages(repo_root: Path) -> set[str]:
     return packages
 
 
-def missing_packages(rules: list[str], required: tuple[str, ...]) -> list[str]:
-    """Returns the required packages that no rule covers, sub-packages included."""
-    covered = {rule_package(rule) for rule in rules}
-    covered.discard(None)
+def thin_packages(rules: list[str], required: dict[str, int]) -> list[str]:
+    """Returns the required packages with too few rules, sub-packages counted in."""
+    counts = dict.fromkeys(required, 0)
+    for rule in rules:
+        package = rule_package(rule)
+        if package is None:
+            continue
+        for name in required:
+            if package == name or package.startswith(name + "/"):
+                counts[name] += 1
     return [
-        package
-        for package in required
-        if not any(c == package or c.startswith(package + "/") for c in covered)
+        f"{name} ({counts[name]} rules, needs {minimum})"
+        for name, minimum in required.items()
+        if counts[name] < minimum
     ]
 
 
@@ -140,9 +148,9 @@ def check_profiles(
         if not fetch_rules:
             problems.append(f"{name} has no rules for {APP_PACKAGE}.")
             continue
-        missing = missing_packages(fetch_rules, required)
-        if missing:
-            problems.append(f"{name} has no rules for: {', '.join(missing)}.")
+        thin = thin_packages(fetch_rules, required)
+        if thin:
+            problems.append(f"{name} barely covers: {', '.join(thin)}.")
         if known_packages:
             stale = [rule for rule in fetch_rules if rule_package(rule) not in known_packages]
             if len(stale) > len(fetch_rules) * MAX_STALE_RULE_SHARE:

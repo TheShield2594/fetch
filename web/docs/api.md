@@ -583,6 +583,11 @@ profile's (`x-profile-id`). The OAuth `state` records which profile started the
 flow, so the callback, which has no session, stores the tokens under that
 profile, and refuses them if the profile was deleted in the meantime.
 
+Sign-in follows Trakt's current API: the Authorization Code flow with PKCE
+(`S256`) on `auth.trakt.tv`, with no Client Secret. The verifier is kept beside
+the `state` and sent only at the code exchange; refreshes send the client id
+and the single-use refresh token.
+
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/trakt/status` | |

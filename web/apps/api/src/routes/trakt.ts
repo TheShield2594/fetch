@@ -13,7 +13,9 @@ import {
   syncTraktPlayback,
   syncTraktWatchlist,
   computeTokenExpiresAt,
+  isTraktConfigured,
 } from "../lib/trakt-client.js";
+import { TRAKT_AUTH_BASE } from "../trakt.js";
 import {
   importTraktCollection,
   importTraktPersonalLists,
@@ -61,14 +63,17 @@ const withImportLock =
   };
 
 // Each profile connects its own Trakt account, as in the TV app, so every
-// route here acts on the requesting profile's. TRAKT_CLIENT_ID and
-// TRAKT_CLIENT_SECRET name the Fetch app to Trakt and are shared; the tokens
-// are not.
+// route here acts on the requesting profile's. TRAKT_CLIENT_ID names the Fetch
+// app to Trakt and is shared; the tokens are not.
+//
+// Sign-in is the Authorization Code flow with PKCE on auth.trakt.tv, as Trakt's
+// API docs now require: no client secret is sent, and the code is only good
+// together with the verifier minted alongside the `state`.
 
 const traktRoutes: FastifyPluginAsync = async (app) => {
   app.get("/trakt/status", { preHandler: resolveProfile }, async (request, reply) => {
     const token = await prisma.traktToken.findUnique({ where: { id: request.profileId! } });
-    const configured = !!(process.env.TRAKT_CLIENT_ID && process.env.TRAKT_CLIENT_SECRET);
+    const configured = isTraktConfigured();
     const redirectUri = traktRedirectUri();
     return reply.send({
       connected: !!token,
@@ -87,9 +92,17 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
     // This route is behind the API token gate, so a `state` minted here proves
     // the flow was started from Fetch itself — the callback below refuses
     // anything else.
-    const state = await createOAuthState(request.profileId!);
-    const url = `https://trakt.tv/oauth/authorize?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
-    return reply.send({ url, redirectUri });
+    const { state, codeChallenge } = await createOAuthState(request.profileId!);
+    const url = new URL("/oauth/authorize", TRAKT_AUTH_BASE);
+    url.search = new URLSearchParams({
+      response_type: "code",
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      state,
+      code_challenge: codeChallenge,
+      code_challenge_method: "S256",
+    }).toString();
+    return reply.send({ url: url.toString(), redirectUri });
   });
 
   app.get("/trakt/oauth/callback", OAUTH_RATE_LIMIT, async (request, reply) => {
@@ -116,9 +129,10 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
     // and the code it carries belongs to someone else's Trakt account.
     // The profile that started the flow. One deleted while its owner was on
     // trakt.tv has nowhere to keep the tokens.
-    const owner = await consumeOAuthState(state);
+    const flow = await consumeOAuthState(state);
+    const owner = flow?.owner;
     const ownerGone = !!owner && !(await prisma.profile.findUnique({ where: { id: owner }, select: { id: true } }));
-    if (!owner || ownerGone) {
+    if (!flow || !owner || ownerGone) {
       request.log.warn("Rejected Trakt OAuth callback with a missing, unknown or expired state");
       return reply
         .code(403)
@@ -136,11 +150,10 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
     }
 
     const clientId = process.env.TRAKT_CLIENT_ID;
-    const clientSecret = process.env.TRAKT_CLIENT_SECRET;
     const redirectUri = traktRedirectUri();
 
-    if (!clientId || !clientSecret) {
-      return reply.code(500).send({ error: "Trakt credentials are not configured" });
+    if (!clientId) {
+      return reply.code(500).send({ error: "TRAKT_CLIENT_ID is not configured" });
     }
 
     const tokenExchangeController = new AbortController();
@@ -148,14 +161,14 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
 
     let tokenResponse: Response;
     try {
-      tokenResponse = await fetch("https://api.trakt.tv/oauth/token", {
+      tokenResponse = await fetch(new URL("/oauth/token", TRAKT_AUTH_BASE), {
         method: "POST",
         headers: { "Content-Type": "application/json", "User-Agent": "Fetch/1.0" },
         signal: tokenExchangeController.signal,
         body: JSON.stringify({
           code,
           client_id: clientId,
-          client_secret: clientSecret,
+          code_verifier: flow.codeVerifier,
           redirect_uri: redirectUri,
           grant_type: "authorization_code",
         }),
@@ -179,7 +192,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
         detail =
           "Trakt's security service (Cloudflare) blocked this request before it reached Trakt's API. This is usually a temporary block on the server's outbound IP — wait a bit and try again.";
       } else if (tokenResponse.status === 401) {
-        detail = "Trakt client credentials are invalid. Check TRAKT_CLIENT_ID and TRAKT_CLIENT_SECRET.";
+        detail = "Trakt did not recognise this app. Check TRAKT_CLIENT_ID.";
       } else if (tokenResponse.status === 403) {
         detail = "Trakt redirect URI mismatch. Check TRAKT_REDIRECT_URI matches what is registered in your Trakt app settings.";
       }

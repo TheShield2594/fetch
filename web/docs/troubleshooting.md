@@ -262,6 +262,12 @@ hides it without deleting history, and `DELETE` on the same path undoes it.
 - **OAuth fails** — the redirect URI registered on trakt.tv has to match exactly
   what Fetch builds from `FETCH_API_PUBLIC`. A trailing slash counts as
   a mismatch.
+- **"Trakt credentials not configured"** — only `TRAKT_CLIENT_ID` is needed.
+  Trakt deprecated the Client Secret for sign-in, so `TRAKT_CLIENT_SECRET` is no
+  longer read and can be removed from `.env`.
+- **Trakt stopped syncing with `invalid_grant` / `session not found` in the
+  logs** — Trakt no longer accepts refresh tokens issued before its sign-in
+  moved to `auth.trakt.tv`. Reconnect once from **Settings → Trakt**.
 - **The callback 400s** — the `state` value expired or didn't match. Start the
   flow again; it's bound to the browser session that began it.
 - **History isn't syncing** — `TRAKT_POLL_INTERVAL_SEC=0` disables the scheduled

@@ -221,7 +221,7 @@
     <string name="playback_true_black_letterbox">Czysto czarne paski</string>
     <string name="playback_true_black_letterbox_sub">Zostaw paski wokół obrazu niemalowane, aby HDR zachował czystą czerń. Wyłącz jeśli na paskach pojawia się jasna linia.</string>
     <string name="playback_unavailable">Odtwarzanie niedostępne</string>
-    <string name="playback_unavailable_message">Żadne z Twoich źródeł nie może odtworzyć tego tytułu. Dodaj lub włącz dodatek do streamingu w Ustawienia &gt; Treści i odkrywanie &gt; Dodatki albo sprawdź połączenie z serwerem mediów.</string>
+    <string name="playback_unavailable_message">Żadne z Twoich źródeł nie może odtworzyć tego tytułu. Dodaj lub włącz dodatek do streamingu w Ustawienia &gt; Dodatki albo sprawdź połączenie z serwerem mediów.</string>
     <string name="playback_cache_write_warning">Na urządzeniach z pamięcią wbudowaną ciągły zapis może z czasem powodować zużycie nośnika.</string>
 
     <!-- PlaybackAudioSettings -->

@@ -221,7 +221,7 @@
     <string name="detail_marked_episodes_watched">Позначено епізодів як переглянуті: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Позначено епізодів як непереглянуті: %1$d</string>
     <string name="detail_marked_previous_watched">Попередні епізоди позначено як переглянуті: %1$d</string>
-    <string name="playback_unavailable_message">Жодне з налаштованих джерел не може відтворити цей контент. Додайте або увімкніть адон для стримінгу в Налаштування &gt; Контент і пошук &gt; Адони або перевірте з’єднання з медіасервером.</string>
+    <string name="playback_unavailable_message">Жодне з налаштованих джерел не може відтворити цей контент. Додайте або увімкніть адон для стримінгу в Налаштування &gt; Адони або перевірте з’єднання з медіасервером.</string>
 
     <string name="detail_btn_play">Дивитися</string>
     <string name="detail_btn_resume">Продовжити</string>

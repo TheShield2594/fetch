@@ -223,7 +223,7 @@
     <string name="detail_marked_previous_watched">Episodios anteriores marcados como vistos: %1$d</string>
 
     <string name="playback_unavailable">Reproducción no disponible</string>
-    <string name="playback_unavailable_message">Nada de lo que has configurado puede reproducir este título. Añade o activa un complemento de transmisión en Configuración &gt; Contenido &amp; descubrimiento &gt; Complementos, o comprueba la conexión con tu servidor multimedia.</string>
+    <string name="playback_unavailable_message">Nada de lo que has configurado puede reproducir este título. Añade o activa un complemento de transmisión en Configuración &gt; Complementos, o comprueba la conexión con tu servidor multimedia.</string>
     <string name="detail_btn_play">Reproducir</string>
     <string name="detail_btn_resume">Reanudar</string>
     <string name="detail_btn_play_episode">Reproducir T%1$d E%2$d</string>

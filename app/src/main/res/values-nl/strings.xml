@@ -218,7 +218,7 @@
     <string name="detail_marked_episodes_watched">Afleveringen gemarkeerd als bekeken: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Afleveringen gemarkeerd als onbekeken: %1$d</string>
     <string name="detail_marked_previous_watched">Voorgaande afleveringen gemarkeerd als bekeken: %1$d</string>
-    <string name="playback_unavailable_message">Niets wat je hebt ingesteld kan deze titel afspelen. Voeg een streaming-add-on toe of zet er een aan in Instellingen &gt; Inhoud &amp; ontdekken &gt; Add-ons, of controleer de verbinding met je mediaserver.</string>
+    <string name="playback_unavailable_message">Niets wat je hebt ingesteld kan deze titel afspelen. Voeg een streaming-add-on toe of zet er een aan in Instellingen &gt; Add-ons, of controleer de verbinding met je mediaserver.</string>
 
     <string name="detail_btn_play">Afspelen</string>
     <string name="detail_btn_resume">Hervatten</string>

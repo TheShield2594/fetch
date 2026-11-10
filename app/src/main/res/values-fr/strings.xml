@@ -220,7 +220,7 @@
     <string name="detail_marked_previous_watched">Épisodes précédents marqués comme vus&#160;: %1$d</string>
 
     <string name="playback_unavailable">Lecture indisponible</string>
-    <string name="playback_unavailable_message">Rien de ce que vous avez configuré ne peut lire ce titre. Ajoutez ou activez un addon de flux dans Paramètres &gt; Contenu et découverte &gt; Addons, ou vérifiez la connexion à votre serveur multimédia.</string>
+    <string name="playback_unavailable_message">Rien de ce que vous avez configuré ne peut lire ce titre. Ajoutez ou activez un addon de flux dans Paramètres &gt; Addons, ou vérifiez la connexion à votre serveur multimédia.</string>
     <string name="detail_btn_play">Regarder</string>
     <string name="detail_btn_resume">Reprendre</string>
     <string name="detail_btn_play_episode">Regarder S%1$d E%2$d</string>

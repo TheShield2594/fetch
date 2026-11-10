@@ -217,7 +217,7 @@
   <string name="detail_marked_episodes_unwatched">Επισημάνθηκαν ως μη προβληθέντα επεισόδια: %1$d</string>
   <string name="detail_marked_previous_watched">Επισημάνθηκαν ως προβληθέντα προηγούμενα επεισόδια: %1$d</string>
   <string name="playback_unavailable">Μη διαθέσιμη αναπαραγωγή</string>
-  <string name="playback_unavailable_message">Τίποτα από όσα έχετε ρυθμίσει δεν μπορεί να αναπαραγάγει αυτόν τον τίτλο. Προσθέστε ή ενεργοποιήστε ένα πρόσθετο ροών στις Ρυθμίσεις &gt; Περιεχόμενο &amp; Ανακάλυψη &gt; Πρόσθετα ή ελέγξτε τη σύνδεση με τον διακομιστή πολυμέσων σας.</string>
+  <string name="playback_unavailable_message">Τίποτα από όσα έχετε ρυθμίσει δεν μπορεί να αναπαραγάγει αυτόν τον τίτλο. Προσθέστε ή ενεργοποιήστε ένα πρόσθετο ροών στις Ρυθμίσεις &gt; Πρόσθετα ή ελέγξτε τη σύνδεση με τον διακομιστή πολυμέσων σας.</string>
   <!-- MetaDetailsScreen -->
   <string name="detail_btn_play">Αναπαραγωγή</string>
   <string name="detail_btn_resume">Συνέχεια</string>

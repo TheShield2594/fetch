@@ -220,7 +220,7 @@
     <string name="detail_marked_previous_watched">已标记为已观看的先前剧集：%1$d</string>
 
     <string name="playback_unavailable">无法播放</string>
-    <string name="playback_unavailable_message">您设置的所有来源均无法播放此标题。请在“设置 &gt; 内容与发现 &gt; 扩展”中添加或启用流媒体扩展，或检查媒体服务器连接。</string>
+    <string name="playback_unavailable_message">您设置的所有来源均无法播放此标题。请在“设置 &gt; 扩展”中添加或启用流媒体扩展，或检查媒体服务器连接。</string>
     <string name="detail_btn_play">播放</string>
     <string name="detail_btn_resume">继续播放</string>
     <string name="detail_btn_play_episode">播放 S%1$d E%2$d</string>

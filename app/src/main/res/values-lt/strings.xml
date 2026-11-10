@@ -111,7 +111,7 @@
     <string name="detail_marked_episodes_watched">Serijų pažymėta kaip žiūrėta: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Serijų pažymėta kaip nežiūrėta: %1$d</string>
     <string name="detail_marked_previous_watched">Ankstesnių serijų pažymėta kaip žiūrėta: %1$d</string>
-    <string name="playback_unavailable_message">Niekas iš to, ką nustatėte, negali paleisti šio pavadinimo. Pridėkite arba įjunkite srautinio perdavimo priedą skiltyje Nustatymai &gt; Turinys ir atradimai &gt; Priedai arba patikrinkite ryšį su medijos serveriu.</string>
+    <string name="playback_unavailable_message">Niekas iš to, ką nustatėte, negali paleisti šio pavadinimo. Pridėkite arba įjunkite srautinio perdavimo priedą skiltyje Nustatymai &gt; Priedai arba patikrinkite ryšį su medijos serveriu.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Leisti</string>

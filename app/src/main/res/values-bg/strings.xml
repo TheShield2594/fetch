@@ -216,7 +216,7 @@
     <string name="detail_marked_episodes_watched">Маркирани епизоди като гледани: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Маркирани епизоди като негледани: %1$d</string>
     <string name="detail_marked_previous_watched">Предишни епизоди маркирани като гледани: %1$d</string>
-    <string name="playback_unavailable_message">Нито един от настроените ти източници не може да възпроизведе това заглавие. Добави или включи добавка за стрийминг в Настройки &gt; Съдържание и откриване &gt; Добавки или провери връзката с медийния сървър.</string>
+    <string name="playback_unavailable_message">Нито един от настроените ти източници не може да възпроизведе това заглавие. Добави или включи добавка за стрийминг в Настройки &gt; Добавки или провери връзката с медийния сървър.</string>
 
     <string name="detail_btn_play">Пусни</string>
     <string name="detail_btn_resume">Продължи</string>

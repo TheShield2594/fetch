@@ -216,7 +216,7 @@
     <string name="detail_marked_episodes_watched">視聴済みにしたエピソード: %1$d</string>
     <string name="detail_marked_episodes_unwatched">未視聴にしたエピソード: %1$d</string>
     <string name="detail_marked_previous_watched">視聴済みにした前のエピソード: %1$d</string>
-    <string name="playback_unavailable_message">設定済みのどのソースでもこのタイトルを再生できません。設定 &gt; コンテンツ &amp; ディスカバー &gt; アドオンでストリーミングアドオンを追加または有効にするか、メディアサーバーの接続を確認してください。</string>
+    <string name="playback_unavailable_message">設定済みのどのソースでもこのタイトルを再生できません。設定 &gt; アドオンでストリーミングアドオンを追加または有効にするか、メディアサーバーの接続を確認してください。</string>
 
     <string name="detail_btn_play">再生</string>
     <string name="detail_btn_resume">再開</string>

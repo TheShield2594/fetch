@@ -220,7 +220,7 @@
     <string name="detail_marked_previous_watched">Đã đánh dấu %1$d tập trước đã xem</string>
 
     <string name="playback_unavailable">Không thể phát nội dung</string>
-    <string name="playback_unavailable_message">Không nguồn nào bạn đã thiết lập có thể phát nội dung này. Hãy thêm hoặc bật một tiện ích phát trực tuyến trong Cài đặt &gt; Nội dung &amp; Khám phá &gt; Tiện ích, hoặc kiểm tra kết nối máy chủ đa phương tiện.</string>
+    <string name="playback_unavailable_message">Không nguồn nào bạn đã thiết lập có thể phát nội dung này. Hãy thêm hoặc bật một tiện ích phát trực tuyến trong Cài đặt &gt; Tiện ích, hoặc kiểm tra kết nối máy chủ đa phương tiện.</string>
     <string name="detail_btn_play">Phát</string>
     <string name="detail_btn_resume">Xem tiếp</string>
     <string name="detail_btn_play_episode">Phát M%1$dT%2$d</string>

@@ -224,7 +224,7 @@
     <string name="detail_marked_episodes_watched">Episode ditandai sudah ditonton: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episode ditandai belum ditonton: %1$d</string>
     <string name="detail_marked_previous_watched">Episode sebelumnya ditandai sudah ditonton: %1$d</string>
-    <string name="playback_unavailable_message">Tidak ada yang Anda siapkan yang dapat memutar judul ini. Tambahkan atau aktifkan addon streaming di Pengaturan &gt; Konten &amp; Penemuan &gt; Addon, atau periksa koneksi server media Anda.</string>
+    <string name="playback_unavailable_message">Tidak ada yang Anda siapkan yang dapat memutar judul ini. Tambahkan atau aktifkan addon streaming di Pengaturan &gt; Addon, atau periksa koneksi server media Anda.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Putar</string>

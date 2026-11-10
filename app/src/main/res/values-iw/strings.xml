@@ -223,7 +223,7 @@
     <string name="detail_marked_previous_watched">%1$d פרקים קודמים סומנו כנצפו.</string>
 
     <string name="playback_unavailable">ההפעלה לא זמינה</string>
-    <string name="playback_unavailable_message">אף אחד מהמקורות שהוגדרו לא יכול להפעיל את הכותר הזה. אפשר להוסיף או להפעיל תוסף סטרים בהגדרות &gt; תוכן וגילוי &gt; תוספים, או לבדוק את החיבור לשרת המדיה.</string>
+    <string name="playback_unavailable_message">אף אחד מהמקורות שהוגדרו לא יכול להפעיל את הכותר הזה. אפשר להוסיף או להפעיל תוסף סטרים בהגדרות &gt; תוספים, או לבדוק את החיבור לשרת המדיה.</string>
     <string name="detail_btn_play">הפעלה</string>
     <string name="detail_btn_resume">המשך</string>
     <string name="detail_btn_play_episode">הפעלת S%1$d E%2$d</string>

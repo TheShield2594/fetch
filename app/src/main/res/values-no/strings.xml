@@ -127,7 +127,7 @@
     <string name="detail_marked_episodes_watched">Episoder markert som sett: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episoder markert som usett: %1$d</string>
     <string name="detail_marked_previous_watched">Tidligere episoder markert som sett: %1$d</string>
-    <string name="playback_unavailable_message">Ingenting du har satt opp, kan spille av denne tittelen. Legg til eller slå på et strømmetillegg under Innstillinger &gt; Innhold og oppdagelse &gt; Tillegg, eller sjekk tilkoblingen til medieserveren din.</string>
+    <string name="playback_unavailable_message">Ingenting du har satt opp, kan spille av denne tittelen. Legg til eller slå på et strømmetillegg under Innstillinger &gt; Tillegg, eller sjekk tilkoblingen til medieserveren din.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Spill av</string>

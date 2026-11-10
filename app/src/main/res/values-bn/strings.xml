@@ -203,7 +203,7 @@
     <string name="detail_marked_episodes_unwatched">এপিসোডগুলো দেখা হয়নি হিসেবে মার্ক করা হয়েছে: %1$d</string>
     <string name="detail_marked_previous_watched">আগের এপিসোডগুলো দেখা হয়েছে হিসেবে মার্ক করা হয়েছে: %1$d</string>
     <string name="playback_unavailable">প্লেব্যাক উপলব্ধ নেই</string>
-    <string name="playback_unavailable_message">আপনার সেট আপ করা কোনো কিছুই এই শিরোনামটি প্লে করতে পারে না। সেটিংস &gt; কন্টেন্ট ও ডিসকভারি &gt; অ্যাডনসমূহ-এ গিয়ে একটি স্ট্রিমিং অ্যাডন যোগ করুন বা চালু করুন, অথবা আপনার মিডিয়া সার্ভারের কানেকশন চেক করুন।</string>
+    <string name="playback_unavailable_message">আপনার সেট আপ করা কোনো কিছুই এই শিরোনামটি প্লে করতে পারে না। সেটিংস &gt; অ্যাডনসমূহ-এ গিয়ে একটি স্ট্রিমিং অ্যাডন যোগ করুন বা চালু করুন, অথবা আপনার মিডিয়া সার্ভারের কানেকশন চেক করুন।</string>
     <string name="detail_btn_play">প্লে</string>
     <string name="detail_btn_resume">আবার শুরু করুন</string>
     <string name="detail_btn_play_episode">প্লে করুন S%1$d E%2$d</string>

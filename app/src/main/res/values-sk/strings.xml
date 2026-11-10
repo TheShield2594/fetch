@@ -2454,7 +2454,7 @@
     <string name="cd_remove_recent_search">Odstrániť %1$s z nedávnych vyhľadávaní</string>
 
     <string name="playback_unavailable">Prehrávanie nie je k dispozícii</string>
-    <string name="playback_unavailable_message">Nič z toho, čo máte nastavené, nevie prehrať tento titul. Pridajte alebo zapnite streamovací doplnok v Nastavenia &gt; Obsah a objavovanie &gt; Doplnky, alebo skontrolujte pripojenie k mediálnemu serveru.</string>
+    <string name="playback_unavailable_message">Nič z toho, čo máte nastavené, nevie prehrať tento titul. Pridajte alebo zapnite streamovací doplnok v Nastavenia &gt; Doplnky, alebo skontrolujte pripojenie k mediálnemu serveru.</string>
     <string name="detail_more_like_this_powered_by_simkl">S podporou Simkl</string>
     <string name="because_you_watched_row_title">Pretože ste pozerali %1$s</string>
     <string name="because_you_watched_reason_collection">Aj z: %1$s</string>

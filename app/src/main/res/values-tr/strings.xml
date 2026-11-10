@@ -227,7 +227,7 @@
     <string name="detail_marked_episodes_unwatched">İzlenmedi olarak işaretlenen bölümler: %1$d</string>
     <string name="detail_marked_previous_watched">İzlendi olarak işaretlenen önceki bölümler: %1$d</string>
     <string name="playback_unavailable">Oynatma kullanılamıyor</string>
-    <string name="playback_unavailable_message">Kurduğunuz hiçbir kaynak bu içeriği oynatamıyor. Ayarlar &gt; İçerik ve Keşif &gt; Eklentiler bölümünden bir yayın eklentisi ekleyin veya açın ya da medya sunucusu bağlantınızı kontrol edin.</string>
+    <string name="playback_unavailable_message">Kurduğunuz hiçbir kaynak bu içeriği oynatamıyor. Ayarlar &gt; Eklentiler bölümünden bir yayın eklentisi ekleyin veya açın ya da medya sunucusu bağlantınızı kontrol edin.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Oynat</string>

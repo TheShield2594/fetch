@@ -218,7 +218,7 @@
     <string name="detail_marked_episodes_watched">Episódios marcados como assistidos: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episódios marcados como não assistidos: %1$d</string>
     <string name="detail_marked_previous_watched">Episódios anteriores marcados como assistidos: %1$d</string>
-    <string name="playback_unavailable_message">Nada do que você configurou consegue reproduzir este título. Adicione ou ative um addon de streaming em Ajustes &gt; Conteúdo e Descoberta &gt; Addons, ou verifique a conexão com seu servidor de mídia.</string>
+    <string name="playback_unavailable_message">Nada do que você configurou consegue reproduzir este título. Adicione ou ative um addon de streaming em Ajustes &gt; Addons, ou verifique a conexão com seu servidor de mídia.</string>
     
     <string name="detail_btn_play">Assistir</string>
     <string name="detail_btn_resume">Continuar</string>

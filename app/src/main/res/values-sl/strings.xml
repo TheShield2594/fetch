@@ -209,7 +209,7 @@
     <string name="detail_marked_episodes_watched">Epizode, označene kot ogledane: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Epizode, označene kot neogledane: %1$d</string>
     <string name="detail_marked_previous_watched">Prejšnje epizode, označene kot ogledane: %1$d</string>
-    <string name="playback_unavailable_message">Nič od tega, kar ste nastavili, ne more predvajati tega naslova. Dodajte ali vklopite dodatek za pretakanje v Nastavitve &gt; Vsebina in odkrivanje &gt; Dodatki ali preverite povezavo z medijskim strežnikom.</string>																		
+    <string name="playback_unavailable_message">Nič od tega, kar ste nastavili, ne more predvajati tega naslova. Dodajte ali vklopite dodatek za pretakanje v Nastavitve &gt; Dodatki ali preverite povezavo z medijskim strežnikom.</string>																		
 	<!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Predvajaj</string>
     <string name="detail_btn_resume">Nadaljuj</string>

@@ -176,7 +176,7 @@
     <string name="detail_marked_episodes_watched">Epizode označene kao odgledane: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Epizode označene kao neodgledane: %1$d</string>
     <string name="detail_marked_previous_watched">Prethodne epizode označene kao odgledane: %1$d</string>
-    <string name="playback_unavailable_message">Ništa od onoga što je postavljeno ne može reproducirati ovaj naslov. Dodaj ili uključi addon za streamove u Postavke &gt; Sadržaj i otkrivanje &gt; Addoni ili provjeri vezu s medijskim serverom.</string>
+    <string name="playback_unavailable_message">Ništa od onoga što je postavljeno ne može reproducirati ovaj naslov. Dodaj ili uključi addon za streamove u Postavke &gt; Addoni ili provjeri vezu s medijskim serverom.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Pusti</string>

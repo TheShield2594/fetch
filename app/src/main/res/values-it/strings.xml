@@ -2415,7 +2415,7 @@
 
 
     <string name="playback_unavailable">Riproduzione non disponibile</string>
-    <string name="playback_unavailable_message">Niente di ciò che hai configurato può riprodurre questo titolo. Aggiungi o attiva un addon stream in Impostazioni &gt; Contenuti e scoperta &gt; Addon, oppure controlla la connessione al server multimediale.</string>
+    <string name="playback_unavailable_message">Niente di ciò che hai configurato può riprodurre questo titolo. Aggiungi o attiva un addon stream in Impostazioni &gt; Addon, oppure controlla la connessione al server multimediale.</string>
     <string name="detail_more_like_this_powered_by_simkl">Offerto da Simkl</string>
     <string name="because_you_watched_row_title">Perché hai guardato %1$s</string>
     <string name="because_you_watched_reason_collection">Anche in %1$s</string>

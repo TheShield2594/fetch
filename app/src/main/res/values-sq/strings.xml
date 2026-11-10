@@ -210,7 +210,7 @@
     <string name="detail_marked_episodes_watched">Episode të shënuara si të shikuara: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episode të shënuara si të pashikuara: %1$d</string>
     <string name="detail_marked_previous_watched">Episode të mëparshme të shënuara si të shikuara: %1$d</string>
-    <string name="playback_unavailable_message">Asgjë nga ato që ke konfiguruar nuk mund ta luajë këtë titull. Shto ose aktivizo një shtesë transmetimi te Cilësimet &gt; Përmbajtja dhe zbulimi &gt; Shtesa, ose kontrollo lidhjen me serverin e medias.</string>
+    <string name="playback_unavailable_message">Asgjë nga ato që ke konfiguruar nuk mund ta luajë këtë titull. Shto ose aktivizo një shtesë transmetimi te Cilësimet &gt; Shtesa, ose kontrollo lidhjen me serverin e medias.</string>
     <string name="detail_btn_play">Luaj</string>
     <string name="detail_btn_resume">Vazhdo</string>
     <string name="detail_btn_play_episode">Luaj S%1$d E%2$d</string>

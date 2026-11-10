@@ -218,7 +218,7 @@
     <string name="detail_marked_episodes_unwatched">Nem látottként megjelölt epizódok: %1$d</string>
     <string name="detail_marked_previous_watched">Megnézettként megjelölt korábbi epizódok: %1$d</string>
     <string name="playback_unavailable">A lejátszás nem érhető el</string>
-    <string name="playback_unavailable_message">Semmi, amit beállítottál, nem tudja lejátszani ezt a címet. Adj hozzá vagy kapcsolj be egy stream bővítményt itt: Beállítások &gt; Tartalom és felfedezés &gt; Bővítmények, vagy ellenőrizd a médiaszerver-kapcsolatot.</string>
+    <string name="playback_unavailable_message">Semmi, amit beállítottál, nem tudja lejátszani ezt a címet. Adj hozzá vagy kapcsolj be egy stream bővítményt itt: Beállítások &gt; Bővítmények, vagy ellenőrizd a médiaszerver-kapcsolatot.</string>
 
     <string name="detail_btn_play">Lejátszás</string>
     <string name="detail_btn_resume">Folytatás</string>

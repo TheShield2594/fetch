@@ -224,7 +224,7 @@
     <string name="detail_marked_episodes_watched">الحلقات المحددة كمشاهدة: %1$d</string>
     <string name="detail_marked_episodes_unwatched">الحلقات المحددة كغير مشاهدة: %1$d</string>
     <string name="detail_marked_previous_watched">الحلقات السابقة المحددة كمشاهدة: %1$d</string>
-    <string name="playback_unavailable_message">لا يمكن لأي مما أعددته تشغيل هذا العنوان. أضف إضافة بث أو فعّلها في الإعدادات &gt; المحتوى والاكتشاف &gt; الإضافات، أو تحقق من الاتصال بخادم الوسائط.</string>
+    <string name="playback_unavailable_message">لا يمكن لأي مما أعددته تشغيل هذا العنوان. أضف إضافة بث أو فعّلها في الإعدادات &gt; الإضافات، أو تحقق من الاتصال بخادم الوسائط.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">تشغيل</string>

@@ -190,7 +190,7 @@
     <string name="detail_marked_episodes_watched">Отмечено эпизодов как просмотренные: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Отмечено эпизодов как непросмотренные: %1$d</string>
     <string name="detail_marked_previous_watched">Предыдущие эпизоды отмечены как просмотренные: %1$d</string>
-    <string name="playback_unavailable_message">Ни один из настроенных источников не может воспроизвести этот контент. Добавьте или включите аддон для стриминга в Настройки &gt; Контент и поиск &gt; Аддоны или проверьте подключение к медиасерверу.</string>
+    <string name="playback_unavailable_message">Ни один из настроенных источников не может воспроизвести этот контент. Добавьте или включите аддон для стриминга в Настройки &gt; Аддоны или проверьте подключение к медиасерверу.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Смотреть</string>

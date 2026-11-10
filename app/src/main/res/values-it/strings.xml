@@ -155,6 +155,7 @@
 <string name="cw_airs_tomorrow">In onda domani</string>
     <plurals name="cw_airs_in_days">
         <item quantity="one">In onda tra %d giorno</item>
+        <item quantity="many">In onda tra %d giorni</item>
         <item quantity="other">In onda tra %d giorni</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
@@ -163,6 +164,7 @@
 <string name="cw_airs_tomorrow_short">Domani</string>
     <plurals name="cw_airs_in_days_short">
         <item quantity="one">Tra %d giorno</item>
+        <item quantity="many">Tra %d giorni</item>
         <item quantity="other">Tra %d giorni</item>
     </plurals>
 <string name="cw_action_go_to_details">Vai ai dettagli</string>
@@ -2276,6 +2278,7 @@
     <string name="ambient_mode_timeout_subtitle">Attendi questo intervallo prima di avviare la modalità ambientale.</string>
     <plurals name="ambient_mode_timeout_minutes">
         <item quantity="one">%1$d minuto</item>
+        <item quantity="many">%1$d minuti</item>
         <item quantity="other">%1$d minuti</item>
     </plurals>
     <string name="ambient_mode_catalogs">Cataloghi</string>
@@ -2525,6 +2528,7 @@
     <string name="fetching_addons_done">Tutti i %1$d addon hanno risposto</string>
     <plurals name="fetching_addons_waiting">
         <item quantity="one">Ricerca… %1$d hanno risposto, %2$d addon sta ancora cercando</item>
+        <item quantity="many">Ricerca… %1$d hanno risposto, %2$d addon stanno ancora cercando</item>
         <item quantity="other">Ricerca… %1$d hanno risposto, %2$d addon stanno ancora cercando</item>
     </plurals>
     <string name="fetching_best_so_far">Il migliore finora</string>
@@ -2532,6 +2536,7 @@
     <string name="fetching_see_all_sources">Vedi tutte le sorgenti</string>
     <plurals name="fetching_starting_in">
         <item quantity="one">Avvio tra %1$d secondo</item>
+        <item quantity="many">Avvio tra %1$d secondi</item>
         <item quantity="other">Avvio tra %1$d secondi</item>
     </plurals>
     <string name="filter_row_addon_note">I cataloghi degli addon si possono filtrare solo per genere.</string>
@@ -2645,6 +2650,7 @@
     <string name="ranking_preferred_size_sub">I file più grandi hanno priorità più bassa</string>
     <plurals name="ranking_selected_count">
         <item quantity="one">%1$d selezionato</item>
+        <item quantity="many">%1$d selezionati</item>
         <item quantity="other">%1$d selezionati</item>
     </plurals>
     <string name="ranking_size_gb">%1$d GB</string>

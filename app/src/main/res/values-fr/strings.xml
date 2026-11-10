@@ -155,6 +155,7 @@
     <string name="cw_airs_tomorrow">Diffusion demain</string>
     <plurals name="cw_airs_in_days">
         <item quantity="one">Diffusion dans %d jour</item>
+        <item quantity="many">Diffusion dans %d jours</item>
         <item quantity="other">Diffusion dans %d jours</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
@@ -163,6 +164,7 @@
     <string name="cw_airs_tomorrow_short">Demain</string>
     <plurals name="cw_airs_in_days_short">
         <item quantity="one">Dans %d jour</item>
+        <item quantity="many">Dans %d jours</item>
         <item quantity="other">Dans %d jours</item>
     </plurals>
     <string name="cw_action_go_to_details">Voir les détails</string>
@@ -376,6 +378,7 @@
     <string name="ambient_mode_timeout_subtitle">Délai d’attente avant le démarrage du mode ambiance</string>
     <plurals name="ambient_mode_timeout_minutes">
         <item quantity="one">%1$d minute</item>
+        <item quantity="many">%1$d minutes</item>
         <item quantity="other">%1$d minutes</item>
     </plurals>
     <string name="ambient_mode_catalogs">Catalogues</string>

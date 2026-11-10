@@ -155,6 +155,7 @@
     <string name="cw_airs_tomorrow">Estreia amanhã</string>
     <plurals name="cw_airs_in_days">
         <item quantity="one">Estreia em %d dia</item>
+        <item quantity="many">Estreia em %d dias</item>
         <item quantity="other">Estreia em %d dias</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
@@ -163,6 +164,7 @@
     <string name="cw_airs_tomorrow_short">Amanhã</string>
     <plurals name="cw_airs_in_days_short">
         <item quantity="one">Em %d dia</item>
+        <item quantity="many">Em %d dias</item>
         <item quantity="other">Em %d dias</item>
     </plurals>
     <string name="cw_action_go_to_details">Ver detalhes</string>
@@ -2353,6 +2355,7 @@
     <string name="fetching_addons_done">Todos os %1$d addons responderam</string>
     <plurals name="fetching_addons_waiting">
         <item quantity="one">Buscando… %1$d responderam, %2$d addon ainda procurando</item>
+        <item quantity="many">Buscando… %1$d responderam, %2$d addons ainda procurando</item>
         <item quantity="other">Buscando… %1$d responderam, %2$d addons ainda procurando</item>
     </plurals>
     <string name="fetching_best_so_far">Melhor até agora</string>
@@ -2360,6 +2363,7 @@
     <string name="fetching_see_all_sources">Ver todas as fontes</string>
     <plurals name="fetching_starting_in">
         <item quantity="one">Começando em %1$d segundo</item>
+        <item quantity="many">Começando em %1$d segundos</item>
         <item quantity="other">Começando em %1$d segundos</item>
     </plurals>
     <string name="filter_row_addon_note">Catálogos de addons só podem ser filtrados por gênero.</string>
@@ -2473,6 +2477,7 @@
     <string name="ranking_preferred_size_sub">Arquivos maiores ficam mais abaixo</string>
     <plurals name="ranking_selected_count">
         <item quantity="one">%1$d selecionado</item>
+        <item quantity="many">%1$d selecionados</item>
         <item quantity="other">%1$d selecionados</item>
     </plurals>
     <string name="ranking_size_gb">%1$d GB</string>

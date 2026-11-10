@@ -151,6 +151,7 @@
     <string name="cw_airs_tomorrow">Estreia amanhã</string>
     <plurals name="cw_airs_in_days">
         <item quantity="one">Estreia daqui a %d dia</item>
+        <item quantity="many">Estreia daqui a %d dias</item>
         <item quantity="other">Estreia daqui a %d dias</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
@@ -159,6 +160,7 @@
     <string name="cw_airs_tomorrow_short">Amanhã</string>
     <plurals name="cw_airs_in_days_short">
         <item quantity="one">Em %d dia</item>
+        <item quantity="many">Em %d dias</item>
         <item quantity="other">Em %d dias</item>
     </plurals>
     <string name="cw_action_go_to_details">Ir para os detalhes</string>
@@ -1940,6 +1942,7 @@
     <string name="fetching_addons_done">Todos os %1$d addons responderam</string>
     <plurals name="fetching_addons_waiting">
         <item quantity="one">A procurar… %1$d responderam, %2$d addon ainda a procurar</item>
+        <item quantity="many">A procurar… %1$d responderam, %2$d addons ainda a procurar</item>
         <item quantity="other">A procurar… %1$d responderam, %2$d addons ainda a procurar</item>
     </plurals>
     <string name="fetching_best_so_far">Melhor até agora</string>
@@ -1947,6 +1950,7 @@
     <string name="fetching_see_all_sources">Ver todas as fontes</string>
     <plurals name="fetching_starting_in">
         <item quantity="one">A iniciar em %1$d segundo</item>
+        <item quantity="many">A iniciar em %1$d segundos</item>
         <item quantity="other">A iniciar em %1$d segundos</item>
     </plurals>
     <string name="filter_row_addon_note">Os catálogos de addons só podem ser filtrados por género.</string>
@@ -2060,6 +2064,7 @@
     <string name="ranking_preferred_size_sub">Ficheiros maiores ficam mais abaixo</string>
     <plurals name="ranking_selected_count">
         <item quantity="one">%1$d selecionado</item>
+        <item quantity="many">%1$d selecionados</item>
         <item quantity="other">%1$d selecionados</item>
     </plurals>
     <string name="ranking_size_gb">%1$d GB</string>

@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.core.util.readWordmarkPngBytes
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import android.content.Context
 import android.graphics.Bitmap
@@ -462,11 +463,7 @@ class LayoutSettingsViewModel @Inject constructor(
     }
 
     private fun loadLogoBytes() {
-        try {
-            val inputStream = context.resources.openRawResource(R.drawable.app_logo_wordmark)
-            logoBytes = inputStream.use { it.readBytes() }
-        } catch (_: Exception) {
-        }
+        logoBytes = context.readWordmarkPngBytes()
     }
 
     private fun stopStreamBadgeServer() {

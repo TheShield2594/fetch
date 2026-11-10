@@ -12,6 +12,7 @@
     <string name="phone_hub_open_description">Seu celular precisa estar na mesma rede desta TV.</string>
     <plurals name="phone_hub_paired">
         <item quantity="one">%d celular conectado. O controle continua funcionando por 10 minutos depois que você fechar esta tela.</item>
+        <item quantity="many">%d celulares conectados. O controle continua funcionando por 10 minutos depois que você fechar esta tela.</item>
         <item quantity="other">%d celulares conectados. O controle continua funcionando por 10 minutos depois que você fechar esta tela.</item>
     </plurals>
     <string name="phone_hub_parental_blocked">Este perfil tem controle dos pais. Desbloqueie as configurações na TV primeiro.</string>

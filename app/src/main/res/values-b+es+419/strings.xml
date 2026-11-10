@@ -155,6 +155,7 @@
     <string name="cw_airs_tomorrow">Se emite mañana</string>
     <plurals name="cw_airs_in_days">
         <item quantity="one">Se emite en %d día</item>
+        <item quantity="many">Se emite en %d días</item>
         <item quantity="other">Se emite en %d días</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
@@ -163,6 +164,7 @@
     <string name="cw_airs_tomorrow_short">Mañana</string>
     <plurals name="cw_airs_in_days_short">
     <item quantity="one">En %d día</item>
+    <item quantity="many">En %d días</item>
     <item quantity="other">En %d días</item>
     </plurals>
     <string name="cw_action_go_to_details">Ir a los detalles</string>
@@ -376,6 +378,7 @@
     <string name="ambient_mode_timeout_subtitle">Cuánto tiempo esperar antes de iniciar el modo ambiente</string>
     <plurals name="ambient_mode_timeout_minutes">
         <item quantity="one">%1$d minuto</item>
+        <item quantity="many">%1$d minutos</item>
         <item quantity="other">%1$d minutos</item>
     </plurals>
     <string name="ambient_mode_catalogs">Catálogos</string>

@@ -13,39 +13,6 @@
     </issue>
 
     <issue
-        id="ResourceType"
-        message="Expected resource of type raw"
-        errorLine1="            val inputStream = context.resources.openRawResource(R.drawable.app_logo_wordmark)"
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/addon/AddonManagerViewModel.kt"
-            line="136"
-            column="65"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type raw"
-        errorLine1="            val inputStream = context.resources.openRawResource(R.drawable.app_logo_wordmark)"
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/settings/LayoutSettingsViewModel.kt"
-            line="481"
-            column="65"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type raw"
-        errorLine1="        runCatching { context.resources.openRawResource(R.drawable.app_logo_wordmark).use { it.readBytes() } }.getOrNull()"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/server/PhoneHubController.kt"
-            line="148"
-            column="57"/>
-    </issue>
-
-    <issue
         id="DefaultLocale"
         message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
         errorLine1="        String.format(&quot;%.3f&quot;, rounded)"
@@ -16037,358 +16004,6 @@
         message="The native library `arm64-v8a/libiamf.so` (from `__local_aars__:/home/user/fetch/app/libs/lib-decoder-iamf-release.aar:unspecified`) is not 16 KB aligned">
         <location
             file="$GRADLE_USER_HOME/caches/8.13/transforms/0e7b07a8f20b5a829e48c022ae7d1787/transformed/lib-decoder-iamf-release/jni/arm64-v8a/libiamf.so"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-pt-rPT/strings.xml"
-            line="153"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="157"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-fr/strings.xml"
-            line="157"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="157"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="157"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;ar&quot; (Arabic) the following quantities should also be defined: `few` (e.g. &quot;3&quot;), `many` (e.g. &quot;11&quot;), `two` (e.g. &quot;2&quot;), `zero` (e.g. &quot;0&quot;)"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="161"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days_short&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-pt-rPT/strings.xml"
-            line="161"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days_short&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="165"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days_short&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-fr/strings.xml"
-            line="165"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days_short&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="165"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days_short&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="165"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;ar&quot; (Arabic) the following quantities should also be defined: `few` (e.g. &quot;3&quot;), `many` (e.g. &quot;11&quot;), `two` (e.g. &quot;2&quot;), `zero` (e.g. &quot;0&quot;)"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days_short&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="169"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;ambient_mode_timeout_minutes&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="378"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
-        errorLine1="    &lt;plurals name=&quot;ambient_mode_timeout_minutes&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-fr/strings.xml"
-            line="378"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;player_report_loading_issue_prompt&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="1267"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;player_report_loading_issue_prompt&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="1299"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;player_report_loading_issue_prompt&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-es/strings.xml"
-            line="1355"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;player_report_loading_issue_prompt&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="1435"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
-        errorLine1="    &lt;plurals name=&quot;player_report_loading_issue_prompt&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-fr/strings.xml"
-            line="1435"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;fetching_addons_waiting&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-pt-rPT/strings.xml"
-            line="2059"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;fetching_starting_in&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-pt-rPT/strings.xml"
-            line="2066"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;ranking_selected_count&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-pt-rPT/strings.xml"
-            line="2182"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;ambient_mode_timeout_minutes&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="2461"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;fetching_addons_waiting&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="2541"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;fetching_starting_in&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="2548"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;ranking_selected_count&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="2664"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;fetching_addons_waiting&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="2716"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;fetching_starting_in&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="2723"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;ranking_selected_count&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="2839"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;phone_hub_paired&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-pt-rPT/strings_phone.xml"
-            line="12"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;phone_hub_paired&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-it/strings_phone.xml"
-            line="13"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="MissingQuantity"
-        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
-        errorLine1="    &lt;plurals name=&quot;phone_hub_paired&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-pt-rBR/strings_phone.xml"
-            line="13"
-            column="5"/>
     </issue>
 
     <issue
@@ -43095,7 +42710,7 @@
         errorLine2="                                                                                                                                                                                                                      ~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="468"
+            line="471"
             column="215"/>
     </issue>
 
@@ -43106,7 +42721,7 @@
         errorLine2="                                                         ~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="469"
+            line="472"
             column="58"/>
     </issue>
 
@@ -43117,7 +42732,7 @@
         errorLine2="                                                                                      ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="619"
+            line="622"
             column="87"/>
     </issue>
 
@@ -43139,7 +42754,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="623"
+            line="626"
             column="48"/>
     </issue>
 
@@ -43194,7 +42809,7 @@
         errorLine2="                                                       ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="719"
+            line="722"
             column="56"/>
     </issue>
 
@@ -43205,7 +42820,7 @@
         errorLine2="                                                                                         ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="720"
+            line="723"
             column="90"/>
     </issue>
 
@@ -43216,7 +42831,7 @@
         errorLine2="                                                                        ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="724"
+            line="727"
             column="73"/>
     </issue>
 
@@ -43227,7 +42842,7 @@
         errorLine2="                                                                                                                                 ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="726"
+            line="729"
             column="130"/>
     </issue>
 
@@ -43238,7 +42853,7 @@
         errorLine2="                                                                                                                                          ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="728"
+            line="731"
             column="139"/>
     </issue>
 
@@ -43249,7 +42864,7 @@
         errorLine2="                                                                       ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="730"
+            line="733"
             column="72"/>
     </issue>
 
@@ -43392,7 +43007,7 @@
         errorLine2="                                                         ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="1063"
+            line="1066"
             column="58"/>
     </issue>
 
@@ -43403,7 +43018,7 @@
         errorLine2="                                                                                        ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="1070"
+            line="1073"
             column="89"/>
     </issue>
 
@@ -43414,7 +43029,7 @@
         errorLine2="                                                                             ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="1075"
+            line="1078"
             column="78"/>
     </issue>
 
@@ -43425,7 +43040,7 @@
         errorLine2="                                                                                                                      ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="1076"
+            line="1079"
             column="119"/>
     </issue>
 
@@ -43436,30 +43051,8 @@
         errorLine2="                                                                                 ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="1077"
+            line="1080"
             column="82"/>
-    </issue>
-
-    <issue
-        id="Typos"
-        message="&quot;Fusion&quot; is a common misspelling; did you mean &quot;Fusión&quot;?"
-        errorLine1="    &lt;string name=&quot;settings_fusion_badges_empty&quot;>No se han importado URLs de insignias Fusion.&lt;/string>"
-        errorLine2="                                                                                      ~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="1078"
-            column="87"/>
-    </issue>
-
-    <issue
-        id="Typos"
-        message="&quot;Fusion&quot; is a common misspelling; did you mean &quot;Fusión&quot;?"
-        errorLine1="    &lt;string name=&quot;settings_fusion_badge_url_label&quot;>URL JSON de insignias Fusion&lt;/string>"
-        errorLine2="                                                                         ~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="1079"
-            column="74"/>
     </issue>
 
     <issue
@@ -43476,11 +43069,33 @@
     <issue
         id="Typos"
         message="&quot;Fusion&quot; is a common misspelling; did you mean &quot;Fusión&quot;?"
+        errorLine1="    &lt;string name=&quot;settings_fusion_badges_empty&quot;>No se han importado URLs de insignias Fusion.&lt;/string>"
+        errorLine2="                                                                                      ~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="1081"
+            column="87"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="&quot;Fusion&quot; is a common misspelling; did you mean &quot;Fusión&quot;?"
+        errorLine1="    &lt;string name=&quot;settings_fusion_badge_url_label&quot;>URL JSON de insignias Fusion&lt;/string>"
+        errorLine2="                                                                         ~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="1082"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="Typos"
+        message="&quot;Fusion&quot; is a common misspelling; did you mean &quot;Fusión&quot;?"
         errorLine1="    &lt;string name=&quot;settings_fusion_badge_preview_title&quot;>Vista previa de insignias Fusion&lt;/string>"
         errorLine2="                                                                                 ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="1084"
+            line="1087"
             column="82"/>
     </issue>
 
@@ -43491,7 +43106,7 @@
         errorLine2="                                                                             ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="1085"
+            line="1088"
             column="78"/>
     </issue>
 
@@ -43502,7 +43117,7 @@
         errorLine2="                                                                                           ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="1086"
+            line="1089"
             column="92"/>
     </issue>
 
@@ -43513,7 +43128,7 @@
         errorLine2="                                                                           ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="1088"
+            line="1091"
             column="76"/>
     </issue>
 
@@ -43524,7 +43139,7 @@
         errorLine2="                                                                                                                            ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="1089"
+            line="1092"
             column="125"/>
     </issue>
 
@@ -43546,7 +43161,7 @@
         errorLine2="                                                                          ~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="1653"
+            line="1655"
             column="75"/>
     </issue>
 
@@ -43557,7 +43172,7 @@
         errorLine2="                                                                      ~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2174"
+            line="2175"
             column="71"/>
     </issue>
 
@@ -43568,7 +43183,7 @@
         errorLine2="                                                                      ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="2257"
+            line="2261"
             column="71"/>
     </issue>
 
@@ -43579,7 +43194,7 @@
         errorLine2="                                                                                   ~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2544"
+            line="2545"
             column="84"/>
     </issue>
 
@@ -43590,7 +43205,7 @@
         errorLine2="                                                            ~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2545"
+            line="2546"
             column="61"/>
     </issue>
 
@@ -43601,7 +43216,7 @@
         errorLine2="                                                    ~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2580"
+            line="2581"
             column="53"/>
     </issue>
 
@@ -43612,7 +43227,7 @@
         errorLine2="                                                                                                                           ~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2581"
+            line="2582"
             column="124"/>
     </issue>
 
@@ -43623,7 +43238,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2678"
+            line="2679"
             column="65"/>
     </issue>
 
@@ -43634,7 +43249,7 @@
         errorLine2="                                                            ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="2706"
+            line="2710"
             column="61"/>
     </issue>
 
@@ -43645,7 +43260,7 @@
         errorLine2="                                                                                   ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="2707"
+            line="2711"
             column="84"/>
     </issue>
 
@@ -43656,7 +43271,7 @@
         errorLine2="                                                                ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="2855"
+            line="2859"
             column="65"/>
     </issue>
 
@@ -43667,7 +43282,7 @@
         errorLine2="                                                                  ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="2864"
+            line="2868"
             column="67"/>
     </issue>
 
@@ -43678,7 +43293,7 @@
         errorLine2="                                                                                                                            ~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="2865"
+            line="2869"
             column="125"/>
     </issue>
 
@@ -43722,7 +43337,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="442"
+            line="444"
             column="52"/>
     </issue>
 
@@ -43772,23 +43387,23 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;advanced_section_dv_diagnostics&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;advanced_section_dv_diagnostics&quot; translatable=&quot;false&quot;>DV Diagnostics&lt;/string>"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="464"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;advanced_section_dv_diagnostics&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;cs&quot; (Czech) here"
         errorLine1="    &lt;string name=&quot;advanced_section_dv_diagnostics&quot; translatable=&quot;false&quot;>DV Diagnostics&lt;/string>"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-cs/strings.xml"
             line="464"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;advanced_section_dv_diagnostics&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;advanced_section_dv_diagnostics&quot; translatable=&quot;false&quot;>DV Diagnostics&lt;/string>"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="472"
             column="52"/>
     </issue>
 
@@ -43810,7 +43425,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="520"
+            line="522"
             column="48"/>
     </issue>
 
@@ -43832,7 +43447,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="544"
+            line="546"
             column="13"/>
     </issue>
 
@@ -43876,7 +43491,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="564"
+            line="566"
             column="45"/>
     </issue>
 
@@ -43887,7 +43502,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="565"
+            line="567"
             column="47"/>
     </issue>
 
@@ -43898,7 +43513,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="566"
+            line="568"
             column="48"/>
     </issue>
 
@@ -43909,30 +43524,8 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="567"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Modo 0 — Copiar (sem converter)&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rPT/strings.xml"
-            line="568"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Analisa o RPU e volta a escrevê-lo sem alterações. Sem conversão de perfil.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rPT/strings.xml"
             line="569"
-            column="43"/>
+            column="46"/>
     </issue>
 
     <issue
@@ -43948,24 +43541,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Modo 1 — MEL&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Modo 0 — Copiar (sem converter)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
             line="570"
             column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;advanced_section_dv_diagnostics&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;advanced_section_dv_diagnostics&quot; translatable=&quot;false&quot;>DV Diagnostics&lt;/string>"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="571"
-            column="52"/>
     </issue>
 
     <issue
@@ -43981,8 +43563,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Converte o RPU para ser compatível com MEL (Minimum Enhancement Layer).&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Analisa o RPU e volta a escrevê-lo sem alterações. Sem conversão de perfil.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
@@ -43992,8 +43574,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Modo 2 — 8.1 (mapeamento no-op)&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Modo 1 — MEL&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
@@ -44003,8 +43585,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Converte para Profile 8.1 com mapeamento de luma e croma definido como no-op. É a conversão predefinida.&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Converte o RPU para ser compatível com MEL (Minimum Enhancement Layer).&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
@@ -44014,8 +43596,19 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Modo 3 — Profile 5 para 8.1&lt;/string>"
+        message="The resource string &quot;advanced_section_dv_diagnostics&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;advanced_section_dv_diagnostics&quot; translatable=&quot;false&quot;>DV Diagnostics&lt;/string>"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="574"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Modo 2 — 8.1 (mapeamento no-op)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
@@ -44036,8 +43629,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Converte streams Profile 5 (DV5) para Profile 8.1. É a mesma conversão utilizada pela opção Converter DV5 para DV8.1.&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Converte para Profile 8.1 com mapeamento de luma e croma definido como no-op. É a conversão predefinida.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
@@ -44058,12 +43651,34 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Modo 3 — Profile 5 para 8.1&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rPT/strings.xml"
+            line="576"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Converte streams Profile 5 (DV5) para Profile 8.1. É a mesma conversão utilizada pela opção Converter DV5 para DV8.1.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rPT/strings.xml"
+            line="577"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_4_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;pt&quot; (Portuguese) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot; translatable=&quot;false&quot;>Modo 4 — 8.4 (estático)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="576"
+            line="578"
             column="45"/>
     </issue>
 
@@ -44074,7 +43689,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="577"
+            line="579"
             column="43"/>
     </issue>
 
@@ -44234,17 +43849,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="587"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;uk&quot; (Ukrainian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
@@ -44322,17 +43926,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Conversion mode&lt;/string>"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="588"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;uk&quot; (Ukrainian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
@@ -44373,17 +43966,6 @@
             file="src/main/res/values-ja/strings.xml"
             line="589"
             column="46"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>None&lt;/string>"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="589"
-            column="48"/>
     </issue>
 
     <issue
@@ -44432,17 +44014,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="590"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;da&quot; (Danish) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
@@ -44465,17 +44036,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="591"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;uk&quot; (Ukrainian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
@@ -44494,17 +44054,6 @@
             file="src/main/res/values-bg/strings.xml"
             line="591"
             column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="592"
-            column="43"/>
     </issue>
 
     <issue
@@ -44575,34 +44124,12 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Mode 1 — MEL&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="593"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;uk&quot; (Ukrainian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-uk/strings.xml"
             line="593"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="594"
             column="43"/>
     </issue>
 
@@ -44663,17 +44190,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Mode 2 — 8.1 (no-op mapping)&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="595"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;uk&quot; (Ukrainian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
@@ -44685,13 +44201,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="596"
-            column="43"/>
+            line="595"
+            column="45"/>
     </issue>
 
     <issue
@@ -44740,6 +44256,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Conversion mode&lt;/string>"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="596"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;da&quot; (Danish) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
@@ -44762,17 +44289,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Mode 3 — Profile 5 to 8.1&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="597"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;uk&quot; (Ukrainian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot; translatable=&quot;false&quot;>Convert to static profile 8.4.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
@@ -44784,6 +44300,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>None&lt;/string>"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="597"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;cs&quot; (Czech) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Conversion mode&lt;/string>"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
@@ -44791,17 +44318,6 @@
             file="src/main/res/values-cs/strings.xml"
             line="597"
             column="47"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="598"
-            column="43"/>
     </issue>
 
     <issue
@@ -44828,6 +44344,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="598"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;cs&quot; (Czech) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>None&lt;/string>"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
@@ -44835,6 +44362,17 @@
             file="src/main/res/values-cs/strings.xml"
             line="598"
             column="48"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="599"
+            column="45"/>
     </issue>
 
     <issue
@@ -44861,17 +44399,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot; translatable=&quot;false&quot;>Mode 4 — 8.4 (static)&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="599"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;cs&quot; (Czech) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
@@ -44879,6 +44406,17 @@
             file="src/main/res/values-cs/strings.xml"
             line="599"
             column="46"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="600"
+            column="43"/>
     </issue>
 
     <issue
@@ -44894,23 +44432,34 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot; translatable=&quot;false&quot;>Convert to static profile 8.4.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="600"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;cs&quot; (Czech) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-cs/strings.xml"
             line="601"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Mode 1 — MEL&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="601"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="602"
             column="43"/>
     </issue>
 
@@ -44938,6 +44487,28 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Mode 2 — 8.1 (no-op mapping)&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="603"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="604"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;cs&quot; (Czech) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Mode 2 — 8.1 (no-op mapping)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
@@ -44960,6 +44531,28 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Mode 3 — Profile 5 to 8.1&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="605"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="606"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;cs&quot; (Czech) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Mode 3 — Profile 5 to 8.1&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
@@ -44977,6 +44570,28 @@
         <location
             file="src/main/res/values-cs/strings.xml"
             line="607"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot; translatable=&quot;false&quot;>Mode 4 — 8.4 (static)&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="607"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot; translatable=&quot;false&quot;>Convert to static profile 8.4.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="608"
             column="43"/>
     </issue>
 
@@ -45163,7 +44778,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="659"
+            line="661"
             column="41"/>
     </issue>
 
@@ -45174,7 +44789,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="660"
+            line="662"
             column="43"/>
     </issue>
 
@@ -45185,7 +44800,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="661"
+            line="663"
             column="44"/>
     </issue>
 
@@ -45196,7 +44811,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="662"
+            line="664"
             column="42"/>
     </issue>
 
@@ -45207,7 +44822,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="663"
+            line="665"
             column="41"/>
     </issue>
 
@@ -45218,7 +44833,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="664"
+            line="666"
             column="39"/>
     </issue>
 
@@ -45229,7 +44844,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="665"
+            line="667"
             column="41"/>
     </issue>
 
@@ -45240,7 +44855,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="666"
+            line="668"
             column="39"/>
     </issue>
 
@@ -45251,7 +44866,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="667"
+            line="669"
             column="41"/>
     </issue>
 
@@ -45262,7 +44877,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="668"
+            line="670"
             column="39"/>
     </issue>
 
@@ -45273,7 +44888,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="669"
+            line="671"
             column="41"/>
     </issue>
 
@@ -45284,7 +44899,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="670"
+            line="672"
             column="39"/>
     </issue>
 
@@ -45295,7 +44910,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="671"
+            line="673"
             column="41"/>
     </issue>
 
@@ -45306,7 +44921,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="672"
+            line="674"
             column="39"/>
     </issue>
 
@@ -45315,28 +44930,6 @@
         message="The resource string &quot;dv7_libdovi_mode_caption&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot;>Modo de conversão (Automático). Não altere a menos que seja instruído. Escolha uma opção para forçá-la ou \&quot;Nenhum\&quot; para o padrão. Funciona apenas se a conversão para DV 8.1 estiver ativa.&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="682"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot;>Modo de conversão&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="683"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot;>Nenhum&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
             line="684"
@@ -45356,9 +44949,9 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot;>Sem alterações forçadas. Usa o modo de conversão escolhido automaticamente pelo sistema.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot;>Modo de conversão&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
             line="685"
@@ -45367,9 +44960,9 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot;>Modo 0 — Copiar (Sem conversão)&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot;>Nenhum&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
             line="686"
@@ -45389,9 +44982,9 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot;>Apenas repassa os dados originais de cor (RPU) sem converter o perfil.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot;>Sem alterações forçadas. Usa o modo de conversão escolhido automaticamente pelo sistema.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
             line="687"
@@ -45411,8 +45004,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot;>Modo 1 — MEL&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot;>Modo 0 — Copiar (Sem conversão)&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
@@ -45433,6 +45026,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot;>Apenas repassa os dados originais de cor (RPU) sem converter o perfil.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="689"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;sr&quot; (Serbian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
@@ -45440,17 +45044,6 @@
             file="src/main/res/values-b+sr+Latn/strings.xml"
             line="689"
             column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot;>Converte os dados para o formato MEL (Camada Mínima de Aprimoramento).&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="689"
-            column="13"/>
     </issue>
 
     <issue
@@ -45466,12 +45059,23 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot;>Modo 2 — Perfil 8.1 (Padrão)&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot;>Modo 1 — MEL&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
             line="690"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot;>Converte os dados para o formato MEL (Camada Mínima de Aprimoramento).&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="691"
             column="13"/>
     </issue>
 
@@ -45484,17 +45088,6 @@
             file="src/main/res/values-b+sr+Latn/strings.xml"
             line="691"
             column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot;>Converte para o perfil 8.1 com mapeamento de luz e cor neutro. Esta é a conversão padrão.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="691"
-            column="13"/>
     </issue>
 
     <issue
@@ -45532,8 +45125,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot;>Modo 3 — Perfil 5 para 8.1&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot;>Modo 2 — Perfil 8.1 (Padrão)&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
@@ -45576,6 +45169,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot;>Converte para o perfil 8.1 com mapeamento de luz e cor neutro. Esta é a conversão padrão.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="693"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;sr&quot; (Serbian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Mode 2 — 8.1 (no-op mapping)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
@@ -45583,17 +45187,6 @@
             file="src/main/res/values-b+sr+Latn/strings.xml"
             line="693"
             column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot;>Converte vídeos do Perfil 5 para o 8.1. Tem a mesma função do botão de conversão principal.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="693"
-            column="13"/>
     </issue>
 
     <issue
@@ -45642,8 +45235,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot;>Modo 4 — Perfil 8.4 (Estático)&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot;>Modo 3 — Perfil 5 para 8.1&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
@@ -45708,6 +45301,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot;>Converte vídeos do Perfil 5 para o 8.1. Tem a mesma função do botão de conversão principal.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="695"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;sr&quot; (Serbian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Mode 3 — Profile 5 to 8.1&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
@@ -45715,17 +45319,6 @@
             file="src/main/res/values-b+sr+Latn/strings.xml"
             line="695"
             column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot;>Converte os dados de imagem para o perfil estático 8.4.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="695"
-            column="13"/>
     </issue>
 
     <issue
@@ -45785,6 +45378,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot;>Modo 4 — Perfil 8.4 (Estático)&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="696"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;bn&quot; (Bangla) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot;>RPU পার্স করুন এবং অপরিবর্তিত অবস্থায় আবার লিখুন। কোনো প্রোফাইল কনভার্সন নেই।&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -45814,6 +45418,17 @@
             file="src/main/res/values-zh-rTW/strings.xml"
             line="697"
             column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;pt&quot; (Portuguese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot;>Converte os dados de imagem para o perfil estático 8.4.&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="697"
+            column="13"/>
     </issue>
 
     <issue
@@ -46093,17 +45708,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Modo de conversión (seleccionado automáticamente; no lo cambies salvo que se te indique). Selecciona uno para forzarlo; Ninguno utiliza el modo automático. Solo está activo cuando la gestión de DV7 está configurada en Convertir a DV8.1.&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="737"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
@@ -46137,17 +45741,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Modo de conversión&lt;/string>"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="738"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Conversion mode&lt;/string>"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
@@ -46166,17 +45759,6 @@
             file="src/main/res/values-hu/strings.xml"
             line="739"
             column="46"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>Ninguno&lt;/string>"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="739"
-            column="48"/>
     </issue>
 
     <issue
@@ -46203,13 +45785,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>Sin sobrescritura. Utiliza el modo de conversión seleccionado automáticamente.&lt;/string>"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Modo de conversión (seleccionado automáticamente; no lo cambies salvo que se te indique). Selecciona uno para forzarlo; Ninguno utiliza el modo automático. Solo está activo cuando la gestión de DV7 está configurada en Convertir a DV8.1.&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
             line="740"
-            column="46"/>
+            column="45"/>
     </issue>
 
     <issue
@@ -46236,17 +45818,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Modo 0 — Copiar (sin convertir)&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="741"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
@@ -46269,13 +45840,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Analiza el RPU y lo vuelve a escribir sin modificaciones. Sin conversión de perfil.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Modo de conversión&lt;/string>"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="742"
-            column="43"/>
+            line="741"
+            column="47"/>
     </issue>
 
     <issue
@@ -46302,6 +45873,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>Ninguno&lt;/string>"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="742"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_row_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;iw&quot; (Hebrew) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot;>מצב המרה&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -46324,17 +45906,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Modo 1 — MEL&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="743"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Mode 1 — MEL&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
@@ -46342,6 +45913,17 @@
             file="src/main/res/values-vi/strings.xml"
             line="743"
             column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>Sin sobrescritura. Utiliza el modo de conversión seleccionado automáticamente.&lt;/string>"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="743"
+            column="46"/>
     </issue>
 
     <issue
@@ -46357,13 +45939,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Convierte el RPU para que sea compatible con MEL (Minimum Enhancement Layer).&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Modo 0 — Copiar (sin convertir)&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
             line="744"
-            column="43"/>
+            column="45"/>
     </issue>
 
     <issue
@@ -46401,6 +45983,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Analiza el RPU y lo vuelve a escribir sin modificaciones. Sin conversión de perfil.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="745"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_0_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;iw&quot; (Hebrew) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot;>מצב 0 — העתקה (ללא המרה)&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -46419,17 +46012,6 @@
             file="src/main/res/values-hu/strings.xml"
             line="745"
             column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Modo 2 — 8.1 (mapeo sin cambios)&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="745"
-            column="45"/>
     </issue>
 
     <issue
@@ -46456,13 +46038,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Convierte al perfil 8.1 con el mapeo de luminancia y crominancia sin modificaciones. Es la conversión estándar.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Modo 1 — MEL&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
             line="746"
-            column="43"/>
+            column="45"/>
     </issue>
 
     <issue
@@ -46489,6 +46071,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Convierte el RPU para que sea compatible con MEL (Minimum Enhancement Layer).&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="747"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_1_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;iw&quot; (Hebrew) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot;>מצב 1 — MEL&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -46507,17 +46100,6 @@
             file="src/main/res/values-hu/strings.xml"
             line="747"
             column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Modo 3 — Perfil 5 a 8.1&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="747"
-            column="45"/>
     </issue>
 
     <issue
@@ -46555,13 +46137,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convierte streams Perfil 5 (DV5) a Perfil 8.1. Es la misma conversión utilizada por la opción Convertir DV5 a DV8.1.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Modo 2 — 8.1 (mapeo sin cambios)&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
             line="748"
-            column="43"/>
+            column="45"/>
     </issue>
 
     <issue
@@ -46599,6 +46181,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Convierte al perfil 8.1 con el mapeo de luminancia y crominancia sin modificaciones. Es la conversión estándar.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="749"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_2_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;iw&quot; (Hebrew) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot;>מצב 2 — 8.1 (מיפוי ללא שינוי)&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -46617,17 +46210,6 @@
             file="src/main/res/values-hu/strings.xml"
             line="749"
             column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot; translatable=&quot;false&quot;>Modo 4 — 8.4 (estático)&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="749"
-            column="45"/>
     </issue>
 
     <issue
@@ -46665,13 +46247,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot; translatable=&quot;false&quot;>Convierte al perfil estático 8.4.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Modo 3 — Perfil 5 a 8.1&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
             line="750"
-            column="43"/>
+            column="45"/>
     </issue>
 
     <issue
@@ -46709,6 +46291,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convierte streams Perfil 5 (DV5) a Perfil 8.1. Es la misma conversión utilizada por la opción Convertir DV5 a DV8.1.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="751"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_3_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;iw&quot; (Hebrew) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot;>מצב 3 — פרופיל 5 ל-8.1&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -46742,6 +46335,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot; translatable=&quot;false&quot;>Modo 4 — 8.4 (estático)&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="752"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_1_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;tr&quot; (Turkish) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot;>Mod 1 — MEL&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -46749,6 +46353,17 @@
             file="src/main/res/values-tr/strings.xml"
             line="753"
             column="13"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;es&quot; (Spanish) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot; translatable=&quot;false&quot;>Convierte al perfil estático 8.4.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="753"
+            column="43"/>
     </issue>
 
     <issue
@@ -50493,21 +50108,21 @@
     <issue
         id="TypographyDashes"
         message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_watch_region_helper&quot;>Código de país ISO 3166-1 onde o título está disponível. Exemplo: PT, BR, US.&lt;/string>"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_watch_region_helper&quot;>ISO 3166-1 দেশের কোড যেখানে শিরোনাম পাওয়া যায়। উদাহরণ: US, GB।&lt;/string>"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-pt-rPT/strings.xml"
-            line="252"
+            file="src/main/res/values-bn/strings.xml"
+            line="254"
             column="64"/>
     </issue>
 
     <issue
         id="TypographyDashes"
         message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_watch_region_helper&quot;>ISO 3166-1 দেশের কোড যেখানে শিরোনাম পাওয়া যায়। উদাহরণ: US, GB।&lt;/string>"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_watch_region_helper&quot;>Código de país ISO 3166-1 onde o título está disponível. Exemplo: PT, BR, US.&lt;/string>"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-bn/strings.xml"
+            file="src/main/res/values-pt-rPT/strings.xml"
             line="254"
             column="64"/>
     </issue>
@@ -50570,17 +50185,6 @@
     <issue
         id="TypographyDashes"
         message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
-        errorLine1="&lt;string name=&quot;collections_editor_tmdb_watch_region_helper&quot;>Codice paese ISO 3166-1 in cui il titolo è disponibile. Esempio: US, IT.&lt;/string>"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="262"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="TypographyDashes"
-        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
         errorLine1="    &lt;string name=&quot;collections_editor_tmdb_watch_region_helper&quot;>ISO 3166-1-landcode waar de titel beschikbaar is. Bijvoorbeeld: NL, BE.&lt;/string>"
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -50592,12 +50196,12 @@
     <issue
         id="TypographyDashes"
         message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_watch_region_helper&quot;>Código do país (ISO 3166-1) onde o título está disponível. Exemplo: BR, US.&lt;/string>"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="&lt;string name=&quot;collections_editor_tmdb_watch_region_helper&quot;>Codice paese ISO 3166-1 in cui il titolo è disponibile. Esempio: US, IT.&lt;/string>"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="263"
-            column="64"/>
+            file="src/main/res/values-it/strings.xml"
+            line="264"
+            column="60"/>
     </issue>
 
     <issue
@@ -50619,6 +50223,17 @@
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
             line="264"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="TypographyDashes"
+        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_watch_region_helper&quot;>Código do país (ISO 3166-1) onde o título está disponível. Exemplo: BR, US.&lt;/string>"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="265"
             column="64"/>
     </issue>
 
@@ -50702,11 +50317,22 @@
     <issue
         id="TypographyDashes"
         message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_watch_region_helper&quot;>Mã quốc gia ISO 3166-1 nơi nội dung có sẵn. Ví dụ: US, GB.&lt;/string>"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-vi/strings.xml"
+            line="271"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="TypographyDashes"
+        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
         errorLine1="    &lt;string name=&quot;collections_editor_tmdb_watch_region_helper&quot;>Código de país ISO 3166-1 donde está disponible el título. Ejemplo: US, GB.&lt;/string>"
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
-            line="271"
+            line="273"
             column="64"/>
     </issue>
 
@@ -50717,18 +50343,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="271"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="TypographyDashes"
-        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_watch_region_helper&quot;>Mã quốc gia ISO 3166-1 nơi nội dung có sẵn. Ví dụ: US, GB.&lt;/string>"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="271"
+            line="273"
             column="64"/>
     </issue>
 
@@ -50849,7 +50464,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="1574"
+            line="1576"
             column="56"/>
     </issue>
 
@@ -50882,19 +50497,8 @@
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="1624"
+            line="1626"
             column="66"/>
-    </issue>
-
-    <issue
-        id="TypographyDashes"
-        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_to_placeholder&quot;>2024-12-31&lt;/string>"
-        errorLine2="                                                               ~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rPT/strings.xml"
-            line="1625"
-            column="64"/>
     </issue>
 
     <issue
@@ -50906,6 +50510,17 @@
             file="src/main/res/values-in/strings.xml"
             line="1627"
             column="56"/>
+    </issue>
+
+    <issue
+        id="TypographyDashes"
+        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_to_placeholder&quot;>2024-12-31&lt;/string>"
+        errorLine2="                                                               ~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rPT/strings.xml"
+            line="1627"
+            column="64"/>
     </issue>
 
     <issue
@@ -51036,7 +50651,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="1669"
+            line="1677"
             column="56"/>
     </issue>
 
@@ -51201,7 +50816,7 @@
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="1719"
+            line="1727"
             column="66"/>
     </issue>
 
@@ -51212,7 +50827,7 @@
         errorLine2="                                                               ~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="1720"
+            line="1728"
             column="64"/>
     </issue>
 
@@ -51289,7 +50904,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="1916"
+            line="1919"
             column="52"/>
     </issue>
 
@@ -51333,7 +50948,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="1951"
+            line="1954"
             column="56"/>
     </issue>
 
@@ -51377,7 +50992,7 @@
         errorLine2="                                                             ~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="1971"
+            line="1974"
             column="62"/>
     </issue>
 
@@ -51388,7 +51003,7 @@
         errorLine2="                                                           ~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="1972"
+            line="1975"
             column="60"/>
     </issue>
 
@@ -51487,7 +51102,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2006"
+            line="2007"
             column="56"/>
     </issue>
 
@@ -51498,7 +51113,7 @@
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="2006"
+            line="2009"
             column="66"/>
     </issue>
 
@@ -51509,7 +51124,7 @@
         errorLine2="                                                               ~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="2007"
+            line="2010"
             column="64"/>
     </issue>
 
@@ -51597,7 +51212,7 @@
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2061"
+            line="2062"
             column="66"/>
     </issue>
 
@@ -51608,7 +51223,7 @@
         errorLine2="                                                               ~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2062"
+            line="2063"
             column="64"/>
     </issue>
 
@@ -51632,28 +51247,6 @@
             file="src/main/res/values-hr/strings.xml"
             line="2088"
             column="66"/>
-    </issue>
-
-    <issue
-        id="TypographyDashes"
-        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_helper&quot;>Usa AAAA-MM-DD, por ejemplo 2024-01-01.&lt;/string>"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="2089"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="TypographyDashes"
-        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_helper&quot;>Utilisez le format AAAA-MM-JJ, par exemple 2024-01-01.&lt;/string>"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-fr/strings.xml"
-            line="2089"
-            column="56"/>
     </issue>
 
     <issue
@@ -51692,6 +51285,28 @@
     <issue
         id="TypographyDashes"
         message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_helper&quot;>Usa AAAA-MM-DD, por ejemplo 2024-01-01.&lt;/string>"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="2093"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="TypographyDashes"
+        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_helper&quot;>Utilisez le format AAAA-MM-JJ, par exemple 2024-01-01.&lt;/string>"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="2093"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="TypographyDashes"
+        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
         errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_from_placeholder&quot;>2020-01-01&lt;/string>"
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
@@ -51717,53 +51332,9 @@
         errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_from_placeholder&quot;>2020-01-01&lt;/string>"
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="2144"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="TypographyDashes"
-        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_from_placeholder&quot;>2020-01-01&lt;/string>"
-        errorLine2="                                                                 ~~~~~~~~~~">
-        <location
-            file="src/main/res/values-fr/strings.xml"
-            line="2144"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="TypographyDashes"
-        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_from_placeholder&quot;>2020-01-01&lt;/string>"
-        errorLine2="                                                                 ~~~~~~~~~~">
-        <location
             file="src/main/res/values-vi/strings.xml"
             line="2144"
             column="66"/>
-    </issue>
-
-    <issue
-        id="TypographyDashes"
-        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_to_placeholder&quot;>2024-12-31&lt;/string>"
-        errorLine2="                                                               ~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="2145"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="TypographyDashes"
-        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_to_placeholder&quot;>2024-12-31&lt;/string>"
-        errorLine2="                                                               ~~~~~~~~~~">
-        <location
-            file="src/main/res/values-fr/strings.xml"
-            line="2145"
-            column="64"/>
     </issue>
 
     <issue
@@ -51796,6 +51367,50 @@
         <location
             file="src/main/res/values-iw/strings.xml"
             line="2147"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="TypographyDashes"
+        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_from_placeholder&quot;>2020-01-01&lt;/string>"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="2148"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="TypographyDashes"
+        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_from_placeholder&quot;>2020-01-01&lt;/string>"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="2148"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="TypographyDashes"
+        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_to_placeholder&quot;>2024-12-31&lt;/string>"
+        errorLine2="                                                               ~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="2149"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="TypographyDashes"
+        message="Replace &quot;-&quot; with an &quot;en dash&quot; character (–, &amp;#8211;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_tmdb_date_to_placeholder&quot;>2024-12-31&lt;/string>"
+        errorLine2="                                                               ~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/strings.xml"
+            line="2149"
             column="64"/>
     </issue>
 
@@ -52290,7 +51905,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="849"
+            line="851"
             column="39"/>
     </issue>
 
@@ -52341,22 +51956,22 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;qr_login_preparing&quot;>جاري تجهيز رمز QR للدخول...&lt;/string>"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    &lt;string name=&quot;qr_login_preparing&quot;>Forbereder QR-login...&lt;/string>"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-ar/strings.xml"
-            line="875"
+            file="src/main/res/values-da/strings.xml"
+            line="877"
             column="39"/>
     </issue>
 
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;qr_login_preparing&quot;>Forbereder QR-login...&lt;/string>"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    &lt;string name=&quot;qr_login_preparing&quot;>جاري تجهيز رمز QR للدخول...&lt;/string>"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-da/strings.xml"
-            line="877"
+            file="src/main/res/values-ar/strings.xml"
+            line="883"
             column="39"/>
     </issue>
 
@@ -52422,7 +52037,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="983"
+            line="985"
             column="35"/>
     </issue>
 
@@ -52510,7 +52125,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="1014"
+            line="1016"
             column="39"/>
     </issue>
 
@@ -52543,7 +52158,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="1037"
+            line="1039"
             column="59"/>
     </issue>
 
@@ -52587,7 +52202,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="1074"
+            line="1082"
             column="59"/>
     </issue>
 
@@ -52682,10 +52297,10 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;qr_login_preparing&quot;>Preparando inicio de sesión con QR...&lt;/string>"
+        errorLine1="    &lt;string name=&quot;qr_login_preparing&quot;>Đang chuẩn bị đăng nhập bằng mã QR...&lt;/string>"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-b+es+419/strings.xml"
+            file="src/main/res/values-vi/strings.xml"
             line="1147"
             column="39"/>
     </issue>
@@ -52693,11 +52308,11 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;qr_login_preparing&quot;>Đang chuẩn bị đăng nhập bằng mã QR...&lt;/string>"
+        errorLine1="    &lt;string name=&quot;qr_login_preparing&quot;>Preparando inicio de sesión con QR...&lt;/string>"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-vi/strings.xml"
-            line="1147"
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="1150"
             column="39"/>
     </issue>
 
@@ -52763,7 +52378,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="1219"
+            line="1221"
             column="55"/>
     </issue>
 
@@ -52818,7 +52433,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="1261"
+            line="1263"
             column="44"/>
     </issue>
 
@@ -52829,7 +52444,7 @@
         errorLine2="                                                  ~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="1262"
+            line="1264"
             column="51"/>
     </issue>
 
@@ -52891,17 +52506,6 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;player_report_issue_sending&quot;>Enviando relatório de reprodução...&lt;/string>"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="1293"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="  &lt;string name=&quot;player_engine_switching_manual_message&quot;>Εναλλαγή σε %1$s...&lt;/string>"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -52913,11 +52517,22 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;player_report_issue_sending&quot;>Enviando relatório de reprodução...&lt;/string>"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="1295"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;player_report_issue_sending_button&quot;>Enviando...&lt;/string>"
         errorLine2="                                                      ~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="1294"
+            line="1296"
             column="55"/>
     </issue>
 
@@ -52928,7 +52543,7 @@
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="1297"
+            line="1299"
             column="35"/>
     </issue>
 
@@ -52994,7 +52609,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="1314"
+            line="1316"
             column="36"/>
     </issue>
 
@@ -53016,7 +52631,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="1321"
+            line="1323"
             column="37"/>
     </issue>
 
@@ -53287,17 +52902,6 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;trakt_status_syncing&quot;>A sincronizar...&lt;/string>"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rPT/strings.xml"
-            line="1380"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;discover_loading&quot;>Indlæser...&lt;/string>"
         errorLine2="                                    ~~~~~~~~~~~">
         <location
@@ -53326,6 +52930,17 @@
             file="src/main/res/values-tr/strings.xml"
             line="1381"
             column="44"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;trakt_status_syncing&quot;>A sincronizar...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rPT/strings.xml"
+            line="1382"
+            column="41"/>
     </issue>
 
     <issue
@@ -53364,17 +52979,6 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;trakt_status_rate_limited_slowing_polling&quot;>Taxa limite atingida, a abrandar a verificação...&lt;/string>"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rPT/strings.xml"
-            line="1384"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;player_report_issue_sending_button&quot;>Slanje...&lt;/string>"
         errorLine2="                                                      ~~~~~~~~~">
         <location
@@ -53397,12 +53001,12 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;player_engine_switching_manual_message&quot;>Cambiando a %1$s...&lt;/string>"
-        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    &lt;string name=&quot;trakt_status_rate_limited_slowing_polling&quot;>Taxa limite atingida, a abrandar a verificação...&lt;/string>"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-b+es+419/strings.xml"
+            file="src/main/res/values-pt-rPT/strings.xml"
             line="1386"
-            column="59"/>
+            column="62"/>
     </issue>
 
     <issue
@@ -53430,12 +53034,12 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;ratings_loading&quot;>جاري تحميل تقييمات الحلقة...&lt;/string>"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    &lt;string name=&quot;player_engine_switching_manual_message&quot;>Cambiando a %1$s...&lt;/string>"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-ar/strings.xml"
-            line="1393"
-            column="36"/>
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="1389"
+            column="59"/>
     </issue>
 
     <issue
@@ -53463,11 +53067,22 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;ratings_loading&quot;>جاري تحميل تقييمات الحلقة...&lt;/string>"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="1401"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;discover_loading&quot;>جاري التحميل...&lt;/string>"
         errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="1401"
+            line="1409"
             column="37"/>
     </issue>
 
@@ -53573,34 +53188,12 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;player_report_issue_sending&quot;>Enviando reporte de reproducción...&lt;/string>"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="1429"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;player_report_issue_sending&quot;>Đang gửi báo cáo phát lại...&lt;/string>"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-vi/strings.xml"
             line="1429"
             column="48"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;player_report_issue_sending_button&quot;>Enviando...&lt;/string>"
-        errorLine2="                                                      ~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="1430"
-            column="55"/>
     </issue>
 
     <issue
@@ -53633,6 +53226,28 @@
         <location
             file="src/main/res/values-tr/strings.xml"
             line="1431"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;player_report_issue_sending&quot;>Enviando reporte de reproducción...&lt;/string>"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="1432"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;player_report_issue_sending_button&quot;>Enviando...&lt;/string>"
+        errorLine2="                                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="1433"
             column="55"/>
     </issue>
 
@@ -53738,11 +53353,22 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;ratings_loading&quot;>Duke ngarkuar vlerësimet e episodeve...&lt;/string>"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sq/strings.xml"
+            line="1470"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;trakt_status_syncing&quot;>جاري المزامنة...&lt;/string>"
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="1465"
+            line="1473"
             column="41"/>
     </issue>
 
@@ -53753,19 +53379,8 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="1469"
+            line="1477"
             column="62"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;ratings_loading&quot;>Duke ngarkuar vlerësimet e episodeve...&lt;/string>"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-sq/strings.xml"
-            line="1470"
-            column="36"/>
     </issue>
 
     <issue
@@ -53874,7 +53489,7 @@
         errorLine2="                                                            ~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="1621"
+            line="1623"
             column="61"/>
     </issue>
 
@@ -53951,7 +53566,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="1657"
+            line="1659"
             column="64"/>
     </issue>
 
@@ -53962,7 +53577,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="1658"
+            line="1660"
             column="73"/>
     </issue>
 
@@ -53973,7 +53588,7 @@
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rPT/strings.xml"
-            line="1659"
+            line="1661"
             column="67"/>
     </issue>
 
@@ -54178,22 +53793,11 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_url_short_placeholder&quot;>https://...&lt;/string>"
-        errorLine2="                                                            ~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="1716"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;ratings_loading&quot;>Cargando calificaciones de episodios...&lt;/string>"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="1716"
+            line="1717"
             column="36"/>
     </issue>
 
@@ -54244,11 +53848,22 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_url_short_placeholder&quot;>https://...&lt;/string>"
+        errorLine2="                                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="1724"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;discover_loading&quot;>Cargando...&lt;/string>"
         errorLine2="                                    ~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="1724"
+            line="1725"
             column="37"/>
     </issue>
 
@@ -54387,23 +54002,23 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;trakt_status_syncing&quot;>Sincronizando...&lt;/string>"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="1743"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;collections_editor_search_catalogs_placeholder&quot;>Søg kataloger...&lt;/string>"
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-da/strings.xml"
             line="1744"
             column="67"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;trakt_status_syncing&quot;>Sincronizando...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="1746"
+            column="41"/>
     </issue>
 
     <issue
@@ -54420,17 +54035,6 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;trakt_status_rate_limited_slowing_polling&quot;>Limite de taxa atingido, reduzindo frequência de verificação...&lt;/string>"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-pt-rBR/strings.xml"
-            line="1747"
-            column="62"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;collections_editor_url_short_placeholder&quot;>https://...&lt;/string>"
         errorLine2="                                                            ~~~~~~~~~~~">
         <location
@@ -54442,23 +54046,12 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_search_emoji_placeholder&quot;>ابحث عن رمز تعبيري...&lt;/string>"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    &lt;string name=&quot;trakt_status_rate_limited_slowing_polling&quot;>Limite de taxa atingido, reduzindo frequência de verificação...&lt;/string>"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-ar/strings.xml"
-            line="1752"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_filter_active_sources_placeholder&quot;>تصفية المصادر النشطة...&lt;/string>"
-        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="1753"
-            column="73"/>
+            file="src/main/res/values-pt-rBR/strings.xml"
+            line="1750"
+            column="62"/>
     </issue>
 
     <issue
@@ -54475,17 +54068,6 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_search_catalogs_placeholder&quot;>البحث في الفهارس...&lt;/string>"
-        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ar/strings.xml"
-            line="1754"
-            column="67"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;qr_login_preparing&quot;>Подготовка QR-входа...&lt;/string>"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -54497,12 +54079,45 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_search_emoji_placeholder&quot;>ابحث عن رمز تعبيري...&lt;/string>"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="1760"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_filter_active_sources_placeholder&quot;>تصفية المصادر النشطة...&lt;/string>"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="1761"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;discover_loading&quot;>Učitavanje...&lt;/string>"
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hr/strings.xml"
             line="1761"
             column="37"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_search_catalogs_placeholder&quot;>البحث في الفهارس...&lt;/string>"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ar/strings.xml"
+            line="1762"
+            column="67"/>
     </issue>
 
     <issue
@@ -54574,28 +54189,6 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;ratings_loading&quot;>Cargando calificaciones del episodio...&lt;/string>"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="1798"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;trakt_status_syncing&quot;>Sincronizando...&lt;/string>"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-es/strings.xml"
-            line="1798"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;ratings_loading&quot;>Đang tải điểm đánh giá các tập phim...&lt;/string>"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -54607,11 +54200,33 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;trakt_status_syncing&quot;>Sincronizando...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-es/strings.xml"
+            line="1799"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;ratings_loading&quot;>Cargando calificaciones del episodio...&lt;/string>"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="1802"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;trakt_status_rate_limited_slowing_polling&quot;>Límite de solicitudes alcanzado, ralentizando las consultas...&lt;/string>"
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="1802"
+            line="1803"
             column="62"/>
     </issue>
 
@@ -54624,17 +54239,6 @@
             file="src/main/res/values-tr/strings.xml"
             line="1805"
             column="36"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;discover_loading&quot;>Cargando...&lt;/string>"
-        errorLine2="                                    ~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="1806"
-            column="37"/>
     </issue>
 
     <issue
@@ -54657,6 +54261,17 @@
             file="src/main/res/values-pl/strings.xml"
             line="1807"
             column="49"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;discover_loading&quot;>Cargando...&lt;/string>"
+        errorLine2="                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="1810"
+            column="37"/>
     </issue>
 
     <issue
@@ -54783,17 +54398,6 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;trakt_status_syncing&quot;>Sincronizando...&lt;/string>"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="1880"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;trakt_status_syncing&quot;>Đang đồng bộ...&lt;/string>"
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
@@ -54805,12 +54409,12 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;trakt_status_rate_limited_slowing_polling&quot;>Límite alcanzado, reduciendo velocidad de verificación...&lt;/string>"
-        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    &lt;string name=&quot;trakt_status_syncing&quot;>Sincronizando...&lt;/string>"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
             line="1884"
-            column="62"/>
+            column="41"/>
     </issue>
 
     <issue
@@ -54821,6 +54425,17 @@
         <location
             file="src/main/res/values-vi/strings.xml"
             line="1884"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;trakt_status_rate_limited_slowing_polling&quot;>Límite alcanzado, reduciendo velocidad de verificación...&lt;/string>"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="1888"
             column="62"/>
     </issue>
 
@@ -54864,41 +54479,8 @@
         errorLine2="                                                            ~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="2002"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="&lt;string name=&quot;collections_editor_search_emoji_placeholder&quot;>Cerca emoji...&lt;/string>"
-        errorLine2="                                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="2004"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="&lt;string name=&quot;collections_editor_filter_active_sources_placeholder&quot;>Filtra sorgenti attive...&lt;/string>"
-        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-it/strings.xml"
             line="2005"
-            column="69"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="&lt;string name=&quot;collections_editor_search_catalogs_placeholder&quot;>Cerca cataloghi...&lt;/string>"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="2006"
-            column="63"/>
+            column="61"/>
     </issue>
 
     <issue
@@ -54910,6 +54492,39 @@
             file="src/main/res/values-tr/strings.xml"
             line="2006"
             column="40"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="&lt;string name=&quot;collections_editor_search_emoji_placeholder&quot;>Cerca emoji...&lt;/string>"
+        errorLine2="                                                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="2007"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="&lt;string name=&quot;collections_editor_filter_active_sources_placeholder&quot;>Filtra sorgenti attive...&lt;/string>"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="2008"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="&lt;string name=&quot;collections_editor_search_catalogs_placeholder&quot;>Cerca cataloghi...&lt;/string>"
+        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="2009"
+            column="63"/>
     </issue>
 
     <issue
@@ -55051,7 +54666,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="2039"
+            line="2042"
             column="64"/>
     </issue>
 
@@ -55062,7 +54677,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="2040"
+            line="2043"
             column="73"/>
     </issue>
 
@@ -55073,7 +54688,7 @@
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="2041"
+            line="2044"
             column="67"/>
     </issue>
 
@@ -55139,7 +54754,7 @@
         errorLine2="                                                            ~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2057"
+            line="2058"
             column="61"/>
     </issue>
 
@@ -55161,7 +54776,7 @@
         errorLine2="                                                               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2094"
+            line="2095"
             column="64"/>
     </issue>
 
@@ -55172,7 +54787,7 @@
         errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2095"
+            line="2096"
             column="73"/>
     </issue>
 
@@ -55183,7 +54798,7 @@
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2096"
+            line="2097"
             column="67"/>
     </issue>
 
@@ -55237,8 +54852,19 @@
         errorLine1="    &lt;string name=&quot;collections_editor_url_short_placeholder&quot;>https://...&lt;/string>"
         errorLine2="                                                            ~~~~~~~~~~~">
         <location
-            file="src/main/res/values-b+es+419/strings.xml"
+            file="src/main/res/values-vi/strings.xml"
             line="2140"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_url_short_placeholder&quot;>https://...&lt;/string>"
+        errorLine2="                                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="2144"
             column="61"/>
     </issue>
 
@@ -55249,18 +54875,7 @@
         errorLine2="                                                            ~~~~~~~~~~~">
         <location
             file="src/main/res/values-fr/strings.xml"
-            line="2140"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_url_short_placeholder&quot;>https://...&lt;/string>"
-        errorLine2="                                                            ~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="2140"
+            line="2144"
             column="61"/>
     </issue>
 
@@ -55366,34 +54981,12 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_search_emoji_placeholder&quot;>Buscar emoji...&lt;/string>"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="2177"
-            column="64"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;collections_editor_search_emoji_placeholder&quot;>Tìm kiếm biểu tượng cảm xúc...&lt;/string>"
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-vi/strings.xml"
             line="2177"
             column="64"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_filter_active_sources_placeholder&quot;>Filtrar fuentes activas...&lt;/string>"
-        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="2178"
-            column="73"/>
     </issue>
 
     <issue
@@ -55410,10 +55003,10 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_search_catalogs_placeholder&quot;>Buscar catálogos...&lt;/string>"
-        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    &lt;string name=&quot;collections_editor_search_catalogs_placeholder&quot;>Tìm kiếm danh mục...&lt;/string>"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-b+es+419/strings.xml"
+            file="src/main/res/values-vi/strings.xml"
             line="2179"
             column="67"/>
     </issue>
@@ -55421,11 +55014,33 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;collections_editor_search_catalogs_placeholder&quot;>Tìm kiếm danh mục...&lt;/string>"
-        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    &lt;string name=&quot;collections_editor_search_emoji_placeholder&quot;>Buscar emoji...&lt;/string>"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/values-vi/strings.xml"
-            line="2179"
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="2181"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_filter_active_sources_placeholder&quot;>Filtrar fuentes activas...&lt;/string>"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="2182"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;collections_editor_search_catalogs_placeholder&quot;>Buscar catálogos...&lt;/string>"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="2183"
             column="67"/>
     </issue>
 
@@ -55502,7 +55117,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="2213"
+            line="2221"
             column="48"/>
     </issue>
 
@@ -55513,7 +55128,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="2214"
+            line="2222"
             column="55"/>
     </issue>
 
@@ -55524,7 +55139,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="2269"
+            line="2277"
             column="55"/>
     </issue>
 
@@ -55535,7 +55150,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="2270"
+            line="2278"
             column="56"/>
     </issue>
 
@@ -55546,7 +55161,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="2271"
+            line="2279"
             column="57"/>
     </issue>
 
@@ -55557,7 +55172,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="2272"
+            line="2280"
             column="56"/>
     </issue>
 
@@ -55568,7 +55183,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="2273"
+            line="2281"
             column="56"/>
     </issue>
 
@@ -55579,7 +55194,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ar/strings.xml"
-            line="2274"
+            line="2282"
             column="44"/>
     </issue>
 
@@ -55590,7 +55205,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="2287"
+            line="2290"
             column="43"/>
     </issue>
 
@@ -55744,7 +55359,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="2409"
+            line="2412"
             column="51"/>
     </issue>
 
@@ -55755,7 +55370,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="2410"
+            line="2413"
             column="52"/>
     </issue>
 
@@ -55766,41 +55381,8 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-it/strings.xml"
-            line="2411"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="&lt;string name=&quot;stream_test_btn_measuring_parallel8&quot;>Misurazione parallela (8MB)...&lt;/string>"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="2412"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="&lt;string name=&quot;stream_test_btn_measuring_parallel16&quot;>Misurazione parallela (16MB)...&lt;/string>"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-it/strings.xml"
-            line="2413"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="&lt;string name=&quot;stream_test_btn_running&quot;>In esecuzione...&lt;/string>"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-it/strings.xml"
             line="2414"
-            column="40"/>
+            column="52"/>
     </issue>
 
     <issue
@@ -55817,6 +55399,17 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="&lt;string name=&quot;stream_test_btn_measuring_parallel8&quot;>Misurazione parallela (8MB)...&lt;/string>"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="2415"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_parallel1&quot;>Parallel meten (1MB)...&lt;/string>"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -55828,12 +55421,34 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="&lt;string name=&quot;stream_test_btn_measuring_parallel16&quot;>Misurazione parallela (16MB)...&lt;/string>"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="2416"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_parallel4&quot;>Parallel meten (4MB)...&lt;/string>"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-nl/strings.xml"
             line="2416"
             column="56"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="&lt;string name=&quot;stream_test_btn_running&quot;>In esecuzione...&lt;/string>"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-it/strings.xml"
+            line="2417"
+            column="40"/>
     </issue>
 
     <issue
@@ -55964,7 +55579,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="2443"
+            line="2446"
             column="55"/>
     </issue>
 
@@ -55975,7 +55590,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="2444"
+            line="2447"
             column="56"/>
     </issue>
 
@@ -55986,7 +55601,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="2445"
+            line="2448"
             column="56"/>
     </issue>
 
@@ -55997,7 +55612,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="2446"
+            line="2449"
             column="56"/>
     </issue>
 
@@ -56008,7 +55623,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="2447"
+            line="2450"
             column="57"/>
     </issue>
 
@@ -56019,7 +55634,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-pt-rBR/strings.xml"
-            line="2448"
+            line="2451"
             column="44"/>
     </issue>
 
@@ -56030,7 +55645,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2507"
+            line="2508"
             column="55"/>
     </issue>
 
@@ -56041,7 +55656,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2508"
+            line="2509"
             column="56"/>
     </issue>
 
@@ -56052,7 +55667,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2509"
+            line="2510"
             column="56"/>
     </issue>
 
@@ -56063,7 +55678,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2510"
+            line="2511"
             column="56"/>
     </issue>
 
@@ -56074,7 +55689,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2511"
+            line="2512"
             column="57"/>
     </issue>
 
@@ -56085,7 +55700,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-es/strings.xml"
-            line="2512"
+            line="2513"
             column="44"/>
     </issue>
 
@@ -56224,17 +55839,6 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_baseline&quot;>Midiendo línea base...&lt;/string>"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="2590"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_baseline&quot;>Đang đo mức tham chiếu...&lt;/string>"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -56246,33 +55850,11 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_parallel1&quot;>Midiendo conexión paralela (1 MB)...&lt;/string>"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="2591"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_parallel1&quot;>Đang đo kết nối đồng thời (1MB)...&lt;/string>"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-vi/strings.xml"
             line="2591"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_parallel4&quot;>Midiendo conexión paralela (4 MB)...&lt;/string>"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="2592"
             column="56"/>
     </issue>
 
@@ -56290,17 +55872,6 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_parallel8&quot;>Midiendo conexión paralela (8 MB)...&lt;/string>"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-b+es+419/strings.xml"
-            line="2593"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="TypographyEllipsis"
-        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
         errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_parallel8&quot;>Đang đo kết nối đồng thời (8MB)...&lt;/string>"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -56312,12 +55883,12 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_parallel16&quot;>Midiendo conexión paralela (16 MB)...&lt;/string>"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_baseline&quot;>Midiendo línea base...&lt;/string>"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
             line="2594"
-            column="57"/>
+            column="55"/>
     </issue>
 
     <issue
@@ -56334,12 +55905,12 @@
     <issue
         id="TypographyEllipsis"
         message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
-        errorLine1="    &lt;string name=&quot;stream_test_btn_running&quot;>Ejecutando...&lt;/string>"
-        errorLine2="                                           ~~~~~~~~~~~~~">
+        errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_parallel1&quot;>Midiendo conexión paralela (1 MB)...&lt;/string>"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-b+es+419/strings.xml"
             line="2595"
-            column="44"/>
+            column="56"/>
     </issue>
 
     <issue
@@ -56350,6 +55921,50 @@
         <location
             file="src/main/res/values-vi/strings.xml"
             line="2595"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_parallel4&quot;>Midiendo conexión paralela (4 MB)...&lt;/string>"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="2596"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_parallel8&quot;>Midiendo conexión paralela (8 MB)...&lt;/string>"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="2597"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;stream_test_btn_measuring_parallel16&quot;>Midiendo conexión paralela (16 MB)...&lt;/string>"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="2598"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="TypographyEllipsis"
+        message="Replace &quot;...&quot; with ellipsis character (…, &amp;#8230;) ?"
+        errorLine1="    &lt;string name=&quot;stream_test_btn_running&quot;>Ejecutando...&lt;/string>"
+        errorLine2="                                           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-b+es+419/strings.xml"
+            line="2599"
             column="44"/>
     </issue>
 

@@ -11,6 +11,7 @@
     <string name="phone_hub_open_description">O teu telemóvel tem de estar na mesma rede que esta TV.</string>
     <plurals name="phone_hub_paired">
         <item quantity="one">%d telemóvel ligado. O comando continua a funcionar durante 10 minutos depois de fechares este ecrã.</item>
+        <item quantity="many">%d telemóveis ligados. O comando continua a funcionar durante 10 minutos depois de fechares este ecrã.</item>
         <item quantity="other">%d telemóveis ligados. O comando continua a funcionar durante 10 minutos depois de fechares este ecrã.</item>
     </plurals>
     <string name="phone_hub_parental_blocked">Este perfil tem limites parentais. Desbloqueia primeiro as definições na TV.</string>

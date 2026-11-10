@@ -158,7 +158,11 @@
     <string name="cw_airs_today">يُعرض اليوم</string>
     <string name="cw_airs_tomorrow">يُعرض غداً</string>
     <plurals name="cw_airs_in_days">
+        <item quantity="zero">يُعرض بعد %d يوم</item>
         <item quantity="one">يُعرض بعد يوم</item>
+        <item quantity="two">يُعرض بعد يومين</item>
+        <item quantity="few">يُعرض بعد %d أيام</item>
+        <item quantity="many">يُعرض بعد %d يومًا</item>
         <item quantity="other">يُعرض بعد %d يوم</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
@@ -166,7 +170,11 @@
     <string name="cw_airs_today_short">اليوم</string>
     <string name="cw_airs_tomorrow_short">غداً</string>
     <plurals name="cw_airs_in_days_short">
+        <item quantity="zero">بعد %d يوم</item>
         <item quantity="one">بعد يوم</item>
+        <item quantity="two">بعد يومين</item>
+        <item quantity="few">بعد %d أيام</item>
+        <item quantity="many">بعد %d يومًا</item>
         <item quantity="other">بعد %d يوم</item>
     </plurals>
     <string name="cw_action_go_to_details">التفاصيل</string>

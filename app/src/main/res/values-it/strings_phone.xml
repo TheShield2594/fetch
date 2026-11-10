@@ -12,6 +12,7 @@
     <string name="phone_hub_open_description">Il telefono deve essere sulla stessa rete di questa TV.</string>
     <plurals name="phone_hub_paired">
         <item quantity="one">%d telefono connesso. Il telecomando continua a funzionare per 10 minuti dopo aver chiuso questa schermata.</item>
+        <item quantity="many">%d telefoni connessi. Il telecomando continua a funzionare per 10 minuti dopo aver chiuso questa schermata.</item>
         <item quantity="other">%d telefoni connessi. Il telecomando continua a funzionare per 10 minuti dopo aver chiuso questa schermata.</item>
     </plurals>
     <string name="phone_hub_parental_blocked">Questo profilo ha limiti per il controllo genitori. Sblocca prima le impostazioni sulla TV.</string>

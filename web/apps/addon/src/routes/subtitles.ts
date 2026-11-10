@@ -44,7 +44,8 @@ export const registerSubtitlesRoute = (routes: AddonRouter): void => {
     // Only a request that arrived on a signed URL is handed the signed form back:
     // the signed key unlocks PIN-protected profiles, so minting it for an unsigned
     // /p/ or bare request would let anyone who knows a profile id skip its PIN.
-    // When ADDON_REQUIRE_SIGNED_URLS is on, every request here is signed anyway.
+    // When unsigned URLs are refused (ADDON_REQUIRE_SIGNED_URLS, or a second
+    // account under its default), every request here is signed anyway.
     const profileSegment = scope.profileId
       ? (scope.profileKey ? signedProfilePath(scope.profileId) : null) ?? `/p/${scope.profileId}`
       : "";

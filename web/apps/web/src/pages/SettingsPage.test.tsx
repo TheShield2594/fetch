@@ -141,6 +141,26 @@ describe("SettingsPage", () => {
     expect(refresh).toHaveBeenCalledTimes(1);
   });
 
+  // Where Stremio's "Configure" button lands (see the addon's /configure).
+  it("opens the section a link names, on the tab that holds it", () => {
+    const scrolled = vi.fn();
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scrolled;
+    try {
+      render(
+        <MemoryRouter initialEntries={["/settings?section=addon"]}>
+          <SettingsPage />
+        </MemoryRouter>
+      );
+
+      expect(screen.getByRole("tab", { name: "Integrations & Data" })).toHaveAttribute("aria-selected", "true");
+      expect(screen.getByRole("button", { name: /stremio addon/i })).toHaveAttribute("aria-expanded", "true");
+      expect(scrolled).toHaveBeenCalledTimes(1);
+    } finally {
+      Element.prototype.scrollIntoView = original;
+    }
+  });
+
   // The tab strip is a real tablist, which is a promise of arrow-key navigation
   // and a roving tabindex — announcing the role without implementing them is the
   // mistake the list panel's `role="menu"` made.

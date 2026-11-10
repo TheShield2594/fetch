@@ -93,8 +93,45 @@ describe("device routes", () => {
       expect(new Date(stored.expiresAt).getTime() - Date.now()).toBeLessThanOrEqual(5 * 60 * 1000);
     });
 
-    it("refuses when too many pairings are already waiting", async () => {
-      prismaMock.devicePairing.count.mockResolvedValue(20);
+    it("records the requesting address on the pairing", async () => {
+      prismaMock.devicePairing.create.mockResolvedValue({});
+      const app = await buildApp();
+
+      await app.inject({ method: "POST", url: "/devices/pair/start", payload: {}, remoteAddress: "10.0.0.7" });
+
+      expect(prismaMock.devicePairing.count).toHaveBeenCalledWith({
+        where: { requesterIp: "10.0.0.7", confirmedAt: null },
+      });
+      expect(prismaMock.devicePairing.create.mock.calls[0]![0].data.requesterIp).toBe("10.0.0.7");
+    });
+
+    it("refuses when one address already holds its share of pending pairings", async () => {
+      // Per-address count first, then the global one.
+      prismaMock.devicePairing.count.mockResolvedValueOnce(3).mockResolvedValueOnce(3);
+      const app = await buildApp();
+
+      const response = await app.inject({ method: "POST", url: "/devices/pair/start", payload: {} });
+
+      expect(response.statusCode).toBe(429);
+      expect(prismaMock.devicePairing.create).not.toHaveBeenCalled();
+    });
+
+    it("lets another address pair while one is at its cap", async () => {
+      prismaMock.devicePairing.count.mockImplementation(async (args?: { where?: { requesterIp?: string } }) =>
+        args?.where?.requesterIp === "10.0.0.66" ? 3 : 2
+      );
+      prismaMock.devicePairing.create.mockResolvedValue({});
+      const app = await buildApp();
+
+      const blocked = await app.inject({ method: "POST", url: "/devices/pair/start", payload: {}, remoteAddress: "10.0.0.66" });
+      const allowed = await app.inject({ method: "POST", url: "/devices/pair/start", payload: {}, remoteAddress: "10.0.0.8" });
+
+      expect(blocked.statusCode).toBe(429);
+      expect(allowed.statusCode).toBe(201);
+    });
+
+    it("refuses when too many pairings are already waiting overall", async () => {
+      prismaMock.devicePairing.count.mockResolvedValueOnce(0).mockResolvedValueOnce(200);
       const app = await buildApp();
 
       const response = await app.inject({ method: "POST", url: "/devices/pair/start", payload: {} });

@@ -31,6 +31,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
+- **Rename a TV from Settings → TVs & Devices.** Each signed-in device now has a rename button beside Revoke, using the `PATCH /devices/:id` route that had no screen of its own ([#364](https://github.com/TheShield2594/fetch/issues/364)).
+
 - **Watch state and lists on the Fetch TV app.** A paired TV now scrobbles to the website and sends its watched marks and exact resume points, so what it plays shows up here within a minute. Choosing **Fetch website** as the TV's watch progress or library source makes Continue Watching, watched badges and the Library read from here, and lists can be edited from either side. New for it: `GET /watch/state` (everything a profile has watched, once per title) and `DELETE /watch/movie/:imdbId`. See README.md, "Watch state and lists on the Fetch TV app".
 
 - **Trakt resume points in Continue Watching.** The scheduled Trakt poll (and **Sync now**) now reads each connected profile's Trakt playback progress, so something paused in another Trakt app shows up here, only ever moving a resume point forward and skipping titles watched since. A title finished in Fetch has its Trakt resume point deleted, as the TV does.
@@ -115,6 +117,9 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Security
 
+- **Signing out drops writes held while offline.** Watches and list changes the service worker queued while the connection was down carried the signed-in person's token, and on a shared device they were sent as that person after someone else signed out. Signing out, or a different person signing in, now empties the queue ([#364](https://github.com/TheShield2594/fetch/issues/364)).
+- **Keyless Stremio add-on URLs stop working once a second account exists.** The add-on service's bare `/manifest.json` (the oldest profile) and `/p/<profileId>/` URLs prove nothing, so on a multi-account install they handed anyone the admin's lists and a way to mark watches in their history. `ADDON_REQUIRE_SIGNED_URLS` now defaults to `auto`: those URLs keep working while one account owns every profile and are refused once there are two, and `true`/`false` still force either way. If you copied `ADDON_REQUIRE_SIGNED_URLS=false` from an older `.env.example`, change it to `auto` or remove it; anyone refused reinstalls from **Settings → Stremio Addon** ([#339](https://github.com/TheShield2594/fetch/issues/339)).
+- **One host can no longer block every TV from pairing.** Unconfirmed pairing codes are capped at three per client address, and the overall cap rises from 20 to 200, so filling the slots from one machine no longer turns every real TV away with "Too many pairings in progress" ([#337](https://github.com/TheShield2594/fetch/issues/337)).
 - **A profile PIN guards the whole profile, and a kids profile can't lift its own limits.** Renaming a PIN-protected profile, changing its picture or parental limits, or reading its delete summary now needs its profile token or its PIN, as opening it does. Loosening parental limits or adding a profile takes a grown-up's profile (not a kids one, unlocked if it has a PIN), on the website and from a TV's profile sync alike; tightening never needs it. Setting a first PIN on another profile by naming it in `x-profile-id` no longer works without that profile's token ([#335](https://github.com/TheShield2594/fetch/issues/335)).
 - **Addon manifests are fetched under the account's outbound policy.** Only the admin's profiles may point an addon at a private or loopback address, the connection is pinned to the checked addresses so DNS rebinding can't move it, and a failure says only whether the address was refused, unreachable or not a manifest — not the status code, which made a list of addon URLs a LAN port scanner ([#334](https://github.com/TheShield2594/fetch/issues/334)).
 
@@ -140,6 +145,19 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Fixed
 
+- **Closing the profile switcher mid-request no longer switches profiles anyway.** Creating a profile, unlocking one with its PIN or picking one, then closing the switcher (or going back) before the answer came, still switched to that profile and replaced the stored profile token. A late answer now changes nothing ([#391](https://github.com/TheShield2594/fetch/issues/391)).
+- **Settings → Stremio Addon says when profile details didn't load.** A failed profile lookup used to drop the profile name and the "each profile has its own URL" hint without a word; the panel now says so and offers a Retry that reloads only the profiles ([#392](https://github.com/TheShield2594/fetch/issues/392)).
+- **Small fixes from the web and add-on review** ([#364](https://github.com/TheShield2594/fetch/issues/364)):
+  - The add-on's meta route answers an API timeout with a 502 instead of a 500.
+  - Stremio's Configure button opens Settings at the Stremio Addon section (`/settings?section=addon`) instead of Preferences.
+  - The profile switcher keeps its list when a pick fails, and offers Try again when the profiles can't be loaded.
+  - A TV's QR code (`/pair`) signs the TV in without first asking for a profile and its PIN.
+  - Escape runs the topmost overlay's handler once, rather than once per open overlay.
+  - Discarding an unsaved new collection goes back to a saved one instead of "No collections yet".
+  - Read-only requests (collection previews, the AI connection test, signing in) no longer empty the service worker's cache.
+  - Toggling one TV addon while another is saving no longer re-enables the first one's controls early.
+- **Addon catalogs in the Collections builder work in the Docker image.** Loading an addon's manifest and previewing its catalog went straight from the browser to the addon, which the production Content-Security-Policy blocks, so both failed with "Failed to fetch". The API now reads them (`POST /collections/addon-manifest`, and `POST /collections/preview` for addon sources) under the same outbound rules as installing an addon. Addon logos in Settings → TV addons fall back to the puzzle icon when they can't load ([#340](https://github.com/TheShield2594/fetch/issues/340)).
+- **The Stremio add-on's rate limit holds up to a household, and is actually applied.** The limit was registered after the routes and never reached them. It now covers every route, at 300 requests a minute per signed install URL (or per client address for the keyless ones), and only list catalogs declare search, so one Stremio search no longer fans out to every discovery row ([#344](https://github.com/TheShield2594/fetch/issues/344)).
 - **Spoiler protection and streaming region follow the profile in Stremio.** The addon calls the API with `API_TOKEN`, so every account's Stremio read the admin's settings, and the addon cached one answer for everyone. The API now takes the account from the profile the addon names, and the addon caches per profile ([#338](https://github.com/TheShield2594/fetch/issues/338)).
 
 - **The Stremio addon works for PIN-protected profiles.** Stremio cannot unlock a PIN, so every API call the addon made for such a profile was refused: the manifest failed to install, catalogs came back empty and Mark Watched failed. A signed `/u/<id>/<key>` install URL already proves its holder got past the PIN, so the addon now forwards that key and the API accepts it from the addon service in place of a profile token. Unsigned `/p/<id>` URLs carry no key and still stop at the PIN.

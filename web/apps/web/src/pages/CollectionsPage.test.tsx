@@ -115,11 +115,22 @@ describe("CollectionsPage", () => {
     expect(screen.getByLabelText("Folder title")).toHaveValue("New folder");
   });
 
-  it("previews an addon source straight from the address it carries", async () => {
+  it("goes back to a saved collection when Discard drops the unsaved one that was open", async () => {
     const user = userEvent.setup();
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify({ metas: [{ id: "tt9", type: "movie", name: "Alien" }] }), { status: 200 })
-    );
+    await renderPage();
+
+    await user.click(screen.getAllByRole("button", { name: "New collection" })[0]!);
+    expect(screen.getByLabelText("Collection title")).toHaveValue("New collection");
+    await user.click(screen.getByRole("button", { name: /discard/i }));
+
+    expect(screen.getByLabelText("Collection title")).toHaveValue("Weekend");
+    expect(screen.queryByText("No collections yet")).not.toBeInTheDocument();
+  });
+
+  it("previews an addon source through the server, from the address it carries", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    previewCollectionSource.mockResolvedValue({ metas: [{ id: "tt9", type: "movie", name: "Alien" }] });
     getCollections.mockResolvedValue({
       collections: [
         {
@@ -143,7 +154,11 @@ describe("CollectionsPage", () => {
 
     const preview = await screen.findByRole("region", { name: "Preview" });
     expect(await within(preview).findByText("Alien")).toBeInTheDocument();
-    expect(fetchMock).toHaveBeenCalledWith("https://addon.example/catalog/movie/top.json");
+    // The site's CSP only lets the browser reach this deployment, so the server asks the addon.
+    expect(previewCollectionSource).toHaveBeenCalledWith(
+      expect.objectContaining({ provider: "addon", addonUrl: "https://addon.example", catalogId: "top" })
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
     expect(screen.queryByLabelText("Addon manifest URL")).not.toBeInTheDocument();
     fetchMock.mockRestore();
   });

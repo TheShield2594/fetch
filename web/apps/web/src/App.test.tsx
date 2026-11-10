@@ -132,3 +132,21 @@ describe("focus on route change", () => {
     await waitFor(() => expect(focusSpy).toHaveBeenCalled());
   });
 });
+
+describe("the profile gate", () => {
+  it("lets a TV's QR code sign the TV in without picking a profile first", async () => {
+    window.localStorage.removeItem(runtimeConfig.profileIdKey);
+    renderAt("/pair?code=ABCD-EFGH");
+
+    expect(await screen.findByRole("heading", { name: "Sign in a TV" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Code shown on the TV")).toHaveValue("ABCD-EFGH");
+    expect(screen.queryByText(/who's watching/i)).not.toBeInTheDocument();
+  });
+
+  it("still asks for a profile everywhere else", async () => {
+    window.localStorage.removeItem(runtimeConfig.profileIdKey);
+    renderAt("/settings");
+
+    expect(await screen.findByText(/create your first profile/i)).toBeInTheDocument();
+  });
+});

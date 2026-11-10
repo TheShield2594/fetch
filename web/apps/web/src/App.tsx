@@ -168,6 +168,22 @@ export function App() {
     );
   }
 
+  // Signing a TV in is the account's business: `/devices/pair/confirm` takes no
+  // profile, so a TV's QR code shouldn't first demand one (and its PIN). The
+  // page stands alone here, without the shell, whose rail and status board are
+  // all profile-scoped; leaving it for anywhere else brings the picker back.
+  // (An invite link needs no such exception: it opens the setup wizard, which
+  // is checked first.)
+  if (needsProfile && location.pathname === "/pair") {
+    return (
+      <Suspense fallback={<LoadingFallback />}>
+        <main className="px-6">
+          <PairPage />
+        </main>
+      </Suspense>
+    );
+  }
+
   if (needsProfile) {
     return (
       <Suspense fallback={<LoadingFallback />}>

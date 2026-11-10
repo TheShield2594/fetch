@@ -67,6 +67,8 @@ let addonConfig: AddonConfigStub;
 let addonConfigStatus = 200;
 let lists: { id: string; name: string; kind: string }[];
 let genresBody: unknown;
+/** What `GET /auth/status` says to the API token: a status, or the field's value. */
+let multipleAccounts: boolean | "error" = false;
 
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -83,6 +85,10 @@ const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
 
   const { pathname, searchParams } = new URL(url);
 
+  if (pathname === "/auth/status") {
+    if (multipleAccounts === "error") return jsonResponse({ error: "boom" }, 500);
+    return jsonResponse({ setupRequired: false, multipleAccounts });
+  }
   if (pathname === "/profiles") {
     return jsonResponse({ profiles: [{ id: DEFAULT_PROFILE_ID }, { id: OTHER_PROFILE_ID }] });
   }
@@ -144,6 +150,7 @@ beforeEach(async () => {
   addonConfigStatus = 200;
   lists = [{ id: WATCHLIST_ID, name: "Watchlist", kind: "watchlist" }];
   genresBody = { genres: ["Drama"] };
+  multipleAccounts = false;
   fetchMock.mockClear();
   vi.stubGlobal("fetch", fetchMock);
   app = await buildApp();
@@ -482,6 +489,35 @@ describe("profile scoping", () => {
       expect(JSON.parse(response.body).logo).toBe("https://fetch.example/icons/icon-192.png");
     } finally {
       delete process.env.FETCH_WEB_PUBLIC;
+    }
+  });
+
+  it("sends Stremio's Configure button to the addon's own section of Settings", async () => {
+    process.env.FETCH_WEB_PUBLIC = "https://fetch.example/";
+    try {
+      const configured = await buildApp();
+      const response = await configured.inject({ method: "GET", url: "/configure" });
+      expect(response.statusCode).toBe(302);
+      expect(response.headers.location).toBe("https://fetch.example/settings?tab=integrations&section=addon");
+    } finally {
+      delete process.env.FETCH_WEB_PUBLIC;
+    }
+  });
+
+  it("answers a meta request the API couldn't serve with a 502, not a 500", async () => {
+    const stub = fetchMock.getMockImplementation()!;
+    fetchMock.mockImplementation(async (input, init) => {
+      if (new URL(String(input)).pathname.startsWith("/meta/")) {
+        throw new Error("Request to the API timed out after 10000ms");
+      }
+      return stub(input, init);
+    });
+    try {
+      const response = await app.inject({ method: "GET", url: "/meta/movie/tt0111161.json" });
+      expect(response.statusCode).toBe(502);
+      expect(response.json()).toEqual({ meta: null });
+    } finally {
+      fetchMock.mockImplementation(stub);
     }
   });
 
@@ -933,6 +969,55 @@ describe("signed addon URLs", () => {
     });
   });
 
+  describe("by default, once a second account exists", () => {
+    beforeEach(async () => {
+      multipleAccounts = true;
+      app = await buildApp();
+    });
+
+    it("turns away the URLs that carry no key, including their mark-watched links", async () => {
+      expect((await app.inject({ method: "GET", url: "/manifest.json" })).statusCode).toBe(404);
+      expect((await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/manifest.json` })).statusCode).toBe(404);
+      const marked = await app.inject({
+        method: "GET",
+        url: `/mark-watched/movie/tt0111161.srt?token=${capability({ type: "movie", imdbId: "tt0111161" }, DEFAULT_PROFILE_ID)}`,
+      });
+      expect(marked.body).not.toContain("Marked as watched");
+      expect(callsTo("/watch")).toHaveLength(0);
+    });
+
+    it("still serves the signed URL", async () => {
+      expect((await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json` })).statusCode).toBe(200);
+    });
+  });
+
+  describe("by default, when the account check fails", () => {
+    beforeEach(async () => {
+      multipleAccounts = "error";
+      app = await buildApp();
+    });
+
+    it("refuses the keyless URLs rather than guessing", async () => {
+      expect((await app.inject({ method: "GET", url: "/manifest.json" })).statusCode).toBe(404);
+    });
+  });
+
+  describe("with ADDON_REQUIRE_SIGNED_URLS=false", () => {
+    beforeEach(async () => {
+      vi.stubEnv("ADDON_REQUIRE_SIGNED_URLS", "false");
+      multipleAccounts = true;
+      app = await buildApp();
+    });
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it("keeps serving the keyless URLs, as it was told to", async () => {
+      expect((await app.inject({ method: "GET", url: "/manifest.json" })).statusCode).toBe(200);
+      expect(callsTo("/auth/status")).toHaveLength(0);
+    });
+  });
+
   describe("with ADDON_REQUIRE_SIGNED_URLS", () => {
     beforeEach(async () => {
       vi.stubEnv("ADDON_REQUIRE_SIGNED_URLS", "true");
@@ -957,5 +1042,36 @@ describe("signed addon URLs", () => {
       expect(marked.body).toContain("Marked as watched");
       expect(callsTo("/watch")).toHaveLength(1);
     });
+  });
+});
+
+describe("rate limiting", () => {
+  it("gives each signed install its own budget, apart from the address's", async () => {
+    // Spend the address's whole budget on the keyless URL…
+    for (let i = 0; i < 300; i += 1) await app.inject({ method: "GET", url: "/health" });
+    expect((await app.inject({ method: "GET", url: "/manifest.json" })).statusCode).toBe(429);
+
+    // …and a signed install from the same address is still served.
+    expect((await app.inject({ method: "GET", url: `${signedPrefix(DEFAULT_PROFILE_ID)}/manifest.json` })).statusCode).toBe(200);
+  });
+
+  it("counts a wrong key against the address, so ids can't be invented for fresh buckets", async () => {
+    for (let i = 0; i < 300; i += 1) await app.inject({ method: "GET", url: "/health" });
+    const wrongKey = `/u/${DEFAULT_PROFILE_ID}/${"0".repeat(64)}/manifest.json`;
+    expect((await app.inject({ method: "GET", url: wrongKey })).statusCode).toBe(429);
+  });
+});
+
+describe("manifest search", () => {
+  it("declares search on list catalogs only", async () => {
+    // An unreadable config advertises every non-AI discovery row, so there are some to check.
+    addonConfigStatus = 500;
+    const manifest = (await app.inject({ method: "GET", url: "/manifest.json" })).json<{
+      catalogs: { id: string; extra: { name: string }[] }[];
+    }>();
+    const searchable = manifest.catalogs.filter((c) => c.extra.some((e) => e.name === "search")).map((c) => c.id);
+    expect(searchable.length).toBeGreaterThan(0);
+    expect(searchable.every((id) => id.startsWith(`fetch-${WATCHLIST_ID}-`))).toBe(true);
+    expect(manifest.catalogs.length).toBeGreaterThan(searchable.length);
   });
 });

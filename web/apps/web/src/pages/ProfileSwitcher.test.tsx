@@ -54,6 +54,16 @@ describe("ProfileSwitcher", () => {
     expect(await screen.findByText(/cannot reach api/i)).toBeInTheDocument();
   });
 
+  it("offers a retry after a failed profile fetch", async () => {
+    getProfiles.mockRejectedValueOnce(new Error("Network error – cannot reach API"));
+
+    renderSwitcher();
+    await userEvent.click(await screen.findByRole("button", { name: /try again/i }));
+
+    expect(await screen.findByRole("button", { name: /ben/i })).toBeInTheDocument();
+    expect(getProfiles).toHaveBeenCalledTimes(2);
+  });
+
   it("goes straight to profile creation when the install has no profiles yet", async () => {
     getProfiles.mockResolvedValue({ profiles: [] });
 
@@ -72,7 +82,7 @@ describe("ProfileSwitcher", () => {
       await userEvent.click(await screen.findByRole("button", { name: /ben/i }));
 
       await waitFor(() => expect(onSelected).toHaveBeenCalledWith(BEN));
-      expect(verifyProfile).toHaveBeenCalledWith(BEN.id);
+      expect(verifyProfile).toHaveBeenCalledWith(BEN.id, undefined, { persist: false });
       expect(runtimeConfig.getProfileId()).toBe(BEN.id);
     });
 
@@ -86,6 +96,8 @@ describe("ProfileSwitcher", () => {
       expect(await screen.findByText(/profile not found/i)).toBeInTheDocument();
       expect(onSelected).not.toHaveBeenCalled();
       expect(runtimeConfig.getProfileId()).toBe("p-previous");
+      // The list stays, so another profile is one click away.
+      expect(screen.getByRole("button", { name: /kid/i })).toBeInTheDocument();
     });
   });
 
@@ -120,7 +132,8 @@ describe("ProfileSwitcher", () => {
       await userEvent.click(screen.getByRole("button", { name: /unlock/i }));
 
       await waitFor(() => expect(onSelected).toHaveBeenCalledWith(LOCKED));
-      expect(verifyProfile).toHaveBeenCalledWith(LOCKED.id, "1234");
+      expect(verifyProfile).toHaveBeenCalledWith(LOCKED.id, "1234", { persist: false });
+      expect(runtimeConfig.getProfileToken()).toBe("signed");
       expect(runtimeConfig.getProfileId()).toBe(LOCKED.id);
     });
 
@@ -197,7 +210,55 @@ describe("ProfileSwitcher", () => {
       await userEvent.click(screen.getByRole("button", { name: /create/i }));
 
       await waitFor(() => expect(onSelected).toHaveBeenCalledWith(created));
-      expect(verifyProfile).toHaveBeenCalledWith("p-new", "4321");
+      expect(verifyProfile).toHaveBeenCalledWith("p-new", "4321", { persist: false });
+      expect(runtimeConfig.getProfileToken()).toBe("signed");
+    });
+
+    // #391: the switcher was closed while the create was in flight.
+    it("changes nothing when the switcher closes before the new profile is ready", async () => {
+      const created: Profile = { id: "p-new", name: "Sam", hasPin: true };
+      let finishCreate!: (value: { profile: Profile }) => void;
+      createProfile.mockReturnValue(new Promise((resolve) => { finishCreate = resolve; }));
+      verifyProfile.mockResolvedValue({ id: created.id, name: created.name, profileToken: "signed" });
+      runtimeConfig.setProfileId("p-previous");
+      runtimeConfig.setProfileToken("previous-profile-token");
+      const onClose = vi.fn();
+      const { onSelected } = renderSwitcher({ onClose });
+
+      await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
+      await userEvent.type(screen.getByLabelText("Profile name"), "Sam");
+      await userEvent.type(screen.getByLabelText("PIN (optional)"), "4321");
+      await userEvent.click(screen.getByRole("button", { name: /create/i }));
+      await userEvent.keyboard("{Escape}");
+      finishCreate({ profile: created });
+
+      await waitFor(() => expect(onClose).toHaveBeenCalledOnce(), { timeout: 1000 });
+      await waitFor(() => expect(verifyProfile).toHaveBeenCalled());
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(onSelected).not.toHaveBeenCalled();
+      expect(runtimeConfig.getProfileId()).toBe("p-previous");
+      expect(runtimeConfig.getProfileToken()).toBe("previous-profile-token");
+    });
+
+    it("changes nothing when the form is cancelled before the new profile is ready", async () => {
+      const created: Profile = { id: "p-new", name: "Sam", hasPin: false };
+      let finishCreate!: (value: { profile: Profile }) => void;
+      createProfile.mockReturnValue(new Promise((resolve) => { finishCreate = resolve; }));
+      verifyProfile.mockResolvedValue({ id: created.id, name: created.name, profileToken: "" });
+      runtimeConfig.setProfileToken("previous-profile-token");
+      const { onSelected } = renderSwitcher();
+
+      await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
+      await userEvent.type(screen.getByLabelText("Profile name"), "Sam");
+      await userEvent.click(screen.getByRole("button", { name: /create/i }));
+      await userEvent.click(screen.getByRole("button", { name: /cancel/i }));
+      finishCreate({ profile: created });
+
+      await waitFor(() => expect(verifyProfile).toHaveBeenCalled());
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(onSelected).not.toHaveBeenCalled();
+      expect(runtimeConfig.getProfileToken()).toBe("previous-profile-token");
+      expect(screen.getByText(/who's watching/i)).toBeInTheDocument();
     });
 
     it("drops the previous profile's token and still enters the new profile if verifying fails", async () => {

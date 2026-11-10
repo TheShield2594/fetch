@@ -408,6 +408,12 @@ const drainQueuedWrites = async ({ queue }) => {
   }
 };
 
+const clearWriteQueue = async () => {
+  while (await writeQueue.shiftRequest()) {
+    // Dropped: each entry holds the signed-out session's Authorization header.
+  }
+};
+
 const writeQueue = new Queue(WRITE_QUEUE_NAME, {
   onSync: replayQueuedWrites,
   // A watch logged over a week ago and never sent is not worth replaying into a
@@ -469,6 +475,13 @@ self.addEventListener("message", (event) => {
     // Ack on the reply port (if the caller sent one) so it can await
     // completion instead of firing-and-forgetting the postMessage.
     done.then(() => event.ports[0]?.postMessage({ done: true }));
+    return;
+  }
+
+  // Sent by the page on sign-out: the queued writes carry the signed-out
+  // person's token, and must not go out as them later.
+  if (event.data?.type === "CLEAR_WRITE_QUEUE") {
+    event.waitUntil(clearWriteQueue());
     return;
   }
 

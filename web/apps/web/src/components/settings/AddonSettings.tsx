@@ -101,7 +101,20 @@ export function AddonSettings() {
   const [aiConfigured, setAiConfigured] = useState(false);
   const [profileName, setProfileName] = useState<string | null>(null);
   const [multiProfile, setMultiProfile] = useState(false);
+  // The profile list only names the install URL and adds the "each profile has
+  // its own" hint; the URL itself is right without it. So a failed lookup keeps
+  // the panel working, but says so instead of quietly dropping both.
+  const [profilesFailed, setProfilesFailed] = useState(false);
+  const [retryingProfiles, setRetryingProfiles] = useState(false);
   const [profileKey, setProfileKey] = useState<string | null>(null);
+
+  const applyProfiles = (profiles: { id: string; name: string }[] | null) => {
+    setProfilesFailed(profiles === null);
+    if (profiles === null) return;
+    const activeProfileId = runtimeConfig.getProfileId();
+    setProfileName(profiles.find((p) => p.id === activeProfileId)?.name ?? null);
+    setMultiProfile(profiles.length > 1);
+  };
 
   // State changes only after the await, so the mount effect doesn't set state
   // synchronously; Retry resets loading/error itself before calling this.
@@ -110,16 +123,14 @@ export function AddonSettings() {
       const [res, aiRes, profilesRes] = await Promise.all([
         api.getAddonConfig(),
         api.getAiConfig().catch(() => ({ configured: false, config: null, lastGeneratedAt: null })),
-        api.getProfiles().catch(() => ({ profiles: [] })),
+        api.getProfiles().then((r) => r.profiles, () => null),
       ]);
       setEnabled(res.config.enabledCatalogs);
       setAvailable(res.availableCatalogs);
       setAvailableLists(res.availableLists ?? []);
       setAiConfigured(res.aiConfigured ?? aiRes.configured);
       setProfileKey(res.stremioProfileKey ?? null);
-      const activeProfileId = runtimeConfig.getProfileId();
-      setProfileName(profilesRes.profiles.find((p) => p.id === activeProfileId)?.name ?? null);
-      setMultiProfile(profilesRes.profiles.length > 1);
+      applyProfiles(profilesRes);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Failed to load config");
     } finally {
@@ -130,6 +141,15 @@ export function AddonSettings() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const retryProfiles = async () => {
+    setRetryingProfiles(true);
+    try {
+      applyProfiles(await api.getProfiles().then((r) => r.profiles, () => null));
+    } finally {
+      setRetryingProfiles(false);
+    }
+  };
 
   const toggle = (catalog: string) => {
     setEnabled((prev) =>
@@ -182,6 +202,17 @@ export function AddonSettings() {
   return (
     <div className="space-y-4">
       <AddonManifestUrl profileName={profileName} multiProfile={multiProfile} profileKey={profileKey} />
+      {profilesFailed && (
+        <div role="status" className="flex flex-wrap items-center gap-2 text-xs" style={{ color: "var(--text-mute)" }}>
+          <AlertCircle size={14} className="flex-none text-warning" aria-hidden="true" />
+          <span className="flex-1">
+            Couldn't load profile details, so this can't say which profile the URL belongs to. Each profile has its own URL.
+          </span>
+          <button type="button" onClick={() => void retryProfiles()} disabled={retryingProfiles} className="btn-secondary btn-sm">
+            {retryingProfiles ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />} Retry
+          </button>
+        </div>
+      )}
       <p className="text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
         Choose which catalogs appear in Stremio
         {multiProfile && profileName ? <> for <strong style={{ color: "var(--text-dim)" }}>{profileName}</strong> — each profile picks its own</> : null}.

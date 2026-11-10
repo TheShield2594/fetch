@@ -78,7 +78,7 @@ These paths are exempt, because they cannot carry a bearer token by construction
 | `/addon/stremio/<secret>/*` | Stremio sends no credentials | The unguessable per-profile secret in the path. The same routes without a secret need a token. |
 | `/trakt/oauth/callback` | Browser redirect from trakt.tv | The `state` value that started the flow |
 | `/webhooks/*` | Plex, Jellyfin and Emby post directly | An account's webhook key, or `WEBHOOK_SECRET` plus optional `WEBHOOK_ALLOWED_IPS` |
-| `POST /devices/pair/start` | A TV has no credential yet | A code someone signed in must confirm; rate-limited, and capped at 20 pending |
+| `POST /devices/pair/start` | A TV has no credential yet | A code someone signed in must confirm; rate-limited, and capped at 3 pending per client address and 200 overall |
 | `GET /devices/pair/poll` | As above | The poll secret `start` returned, in `x-pairing-secret` |
 
 ### Accounts
@@ -519,7 +519,7 @@ and a browser can't overwrite each other; re-read, merge and retry. A missing
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/auth/status` | Public. `{ setupRequired }`: true until the admin account exists. |
+| `GET` | `/auth/status` | Public. `{ setupRequired }`: true until the admin account exists. Called with `API_TOKEN`, it also returns `multipleAccounts`, which the add-on service uses to decide whether keyless add-on URLs are safe. |
 | `POST` | `/auth/bootstrap` | `API_TOKEN` only. `{ username, password }` → `{ token, account }`. Creates the admin, which takes every profile that existed before accounts. `409` once an account exists. |
 | `POST` | `/auth/login` | Public. `{ username, password }` → `{ token, account }`. `401` for a wrong password or an unknown name alike; `429 { retryAfterSec }` after repeated failures, with the same escalating lockout as profile PINs. |
 | `POST` | `/auth/logout` | Ends this session. `204`. |
@@ -677,7 +677,9 @@ path is both the credential and the profile selector.
 `stremioProfileKey`, the same per-profile key, which the website puts in the
 addon service's install URL: `<ADDON_PUBLIC_BASE>/u/<profileId>/<key>/manifest.json`.
 With `ADDON_REQUIRE_SIGNED_URLS=true` that is the only URL form the addon
-service serves.
+service serves; under the default `auto` it is the only one once a second
+account exists, which the addon learns from `GET /auth/status` (called with
+`API_TOKEN`, it adds `multipleAccounts`).
 
 A custom list's catalog is also served as plain JSON at
 `/stremio/list/:listId?type=&limit=&profileId=`, which the TV and desktop apps

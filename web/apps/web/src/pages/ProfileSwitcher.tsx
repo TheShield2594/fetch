@@ -1,5 +1,5 @@
-import { type FormEvent, useEffect, useId, useState } from "react";
-import { AlertCircle, ArrowRight, Loader2, Lock, Plus, X } from "lucide-react";
+import { type FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
+import { AlertCircle, ArrowRight, Loader2, Lock, Plus, RotateCw, X } from "lucide-react";
 import { isValidPinFormat, MAX_PIN_LENGTH, MIN_PIN_LENGTH, PIN_FORMAT_ERROR } from "@fetch/shared/pin";
 import { api, ApiError, type Profile, runtimeConfig } from "../api";
 import { BrandLockup, BrandMark, BrandWordmark } from "../components/BrandMark";
@@ -19,7 +19,23 @@ const INPUT_STYLE = { borderColor: "var(--border-field)", color: "var(--text)", 
 // h1, so the same title drops a level.
 type HeadingTag = "h1" | "h2";
 
-function Shell({ children, onClose }: { children: React.ReactNode; onClose?: (() => void) | undefined }) {
+/**
+ * Starts a request flow and returns whether it is still the one that counts.
+ * A flow is overtaken by the next one, by closing the switcher, or by leaving
+ * the form it started from; its late answer must then change nothing.
+ */
+type StartFlow = () => () => boolean;
+
+function Shell({
+  children,
+  onClose,
+  onExiting,
+}: {
+  children: React.ReactNode;
+  onClose?: (() => void) | undefined;
+  /** Called as the close animation starts, before `onClose`: the user has left. */
+  onExiting?: (() => void) | undefined;
+}) {
   // All three gated on `onClose`: without it this renders as a full page
   // (first-run profile setup), not a modal, and must not lock scroll or
   // swallow Escape.
@@ -28,6 +44,9 @@ function Shell({ children, onClose }: { children: React.ReactNode; onClose?: (()
   const { exiting, requestClose, onExitAnimationEnd } = useExitAnimation(() => onClose?.());
   useScrollLock(isModal);
   useEscapeKey(requestClose, isModal);
+  useEffect(() => {
+    if (exiting) onExiting?.();
+  }, [exiting, onExiting]);
 
   if (onClose) {
     return (
@@ -85,12 +104,14 @@ function CreateProfileForm({
   title,
   subtitle,
   headingTag: Heading,
+  startFlow,
   onCreated,
   onCancel,
 }: {
   title: string;
   subtitle: string;
   headingTag: HeadingTag;
+  startFlow: StartFlow;
   onCreated: (profile: Profile) => void;
   onCancel?: (() => void) | undefined;
 }) {
@@ -112,6 +133,7 @@ function CreateProfileForm({
       return;
     }
 
+    const isCurrent = startFlow();
     setCreating(true);
     setError(null);
     try {
@@ -124,16 +146,22 @@ function CreateProfileForm({
       // as a PIN-protected profile 401s and drops the user straight back to
       // "Who's watching?" to type the PIN they set a second ago. Verifying with
       // no PIN also clears the stale token for an unprotected profile.
+      let profileToken: string | null;
       try {
-        await api.verifyProfile(profile.id, trimmedPin || undefined);
+        profileToken = (await api.verifyProfile(profile.id, trimmedPin || undefined, { persist: false })).profileToken ?? "";
       } catch {
         // The profile exists either way; worst case the shell asks for the
         // PIN once, which is what happened before. Don't send a stale token.
-        runtimeConfig.clearProfileToken();
+        profileToken = null;
       }
+      // Closed, cancelled or overtaken meanwhile: the profile exists, but the
+      // user has moved on, so the active profile and its token stay as they are.
+      if (!isCurrent()) return;
+      if (profileToken === null) runtimeConfig.clearProfileToken();
+      else runtimeConfig.setProfileToken(profileToken);
       onCreated(profile);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not create profile.");
+      if (isCurrent()) setError(err instanceof Error ? err.message : "Could not create profile.");
     } finally {
       setCreating(false);
     }
@@ -209,11 +237,13 @@ function CreateProfileForm({
 function PinPrompt({
   profile,
   headingTag: Heading,
+  startFlow,
   onVerified,
   onBack,
 }: {
   profile: Profile;
   headingTag: HeadingTag;
+  startFlow: StartFlow;
   onVerified: (profile: Profile) => void;
   onBack: () => void;
 }) {
@@ -224,12 +254,16 @@ function PinPrompt({
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    const isCurrent = startFlow();
     setVerifying(true);
     setError(null);
     try {
-      const result = await api.verifyProfile(profile.id, pin.trim());
+      const result = await api.verifyProfile(profile.id, pin.trim(), { persist: false });
+      if (!isCurrent()) return;
+      runtimeConfig.setProfileToken(result.profileToken ?? "");
       onVerified({ id: result.id, name: result.name, hasPin: true });
     } catch (err) {
+      if (!isCurrent()) return;
       if (err instanceof ApiError && err.status === 401) {
         setError("Incorrect PIN.");
       } else {
@@ -285,11 +319,14 @@ function PinPrompt({
 function ProfilePicker({
   profiles,
   headingTag: Heading,
+  error,
   onSelect,
   onCreateNew,
 }: {
   profiles: Profile[];
   headingTag: HeadingTag;
+  /** Why the last pick didn't go through; the list stays, so another try is one click. */
+  error: string | null;
   onSelect: (profile: Profile) => void;
   onCreateNew: () => void;
 }) {
@@ -299,6 +336,9 @@ function ProfilePicker({
         <Heading className={SECTION_TITLE} style={{ color: "var(--text)" }}>Who's watching?</Heading>
         <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>Choose a profile to continue.</p>
       </div>
+      {error && (
+        <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
+      )}
       <div className="space-y-2">
         {profiles.map((profile) => (
           <button
@@ -328,10 +368,33 @@ function ProfilePicker({
 export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile: Profile) => void; onClose?: (() => void) | undefined }) {
   const [loading, setLoading] = useState(true);
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"picker" | "create" | "pin">("picker");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [selectError, setSelectError] = useState<string | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [mode, setModeState] = useState<"picker" | "create" | "pin">("picker");
   const [pinTarget, setPinTarget] = useState<Profile | null>(null);
   const headingTag: HeadingTag = onClose ? "h2" : "h1";
+
+  // Which request flow (a pick, a create, a PIN check) is current. Bumped by
+  // every new flow, every change of screen, closing, and unmounting, so a
+  // request that comes back after any of those changes nothing: no profile
+  // token written or cleared, no switch to a profile the user walked away from.
+  const flow = useRef(0);
+  const cancelFlows = useCallback(() => {
+    flow.current += 1;
+  }, []);
+  const startFlow = useCallback<StartFlow>(() => {
+    flow.current += 1;
+    const id = flow.current;
+    return () => flow.current === id;
+  }, []);
+  useEffect(() => cancelFlows, [cancelFlows]);
+
+  const setMode = (next: "picker" | "create" | "pin") => {
+    cancelFlows();
+    setSelectError(null);
+    setModeState(next);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -340,9 +403,10 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
         const { profiles: fetched } = await api.getProfiles();
         if (cancelled) return;
         setProfiles(fetched);
-        setMode(fetched.length === 0 ? "create" : "picker");
+        setLoadError(null);
+        setModeState(fetched.length === 0 ? "create" : "picker");
       } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Could not load profiles.");
+        if (!cancelled) setLoadError(err instanceof Error ? err.message : "Could not load profiles.");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -350,7 +414,13 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [loadAttempt]);
+
+  const retryLoad = () => {
+    setLoading(true);
+    setLoadError(null);
+    setLoadAttempt((n) => n + 1);
+  };
 
   const selectProfile = async (profile: Profile) => {
     if (profile.hasPin) {
@@ -358,12 +428,16 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
       setMode("pin");
       return;
     }
+    const isCurrent = startFlow();
+    setSelectError(null);
     try {
-      const result = await api.verifyProfile(profile.id);
+      const result = await api.verifyProfile(profile.id, undefined, { persist: false });
+      if (!isCurrent()) return;
+      runtimeConfig.setProfileToken(result.profileToken ?? "");
       runtimeConfig.setProfileId(result.id);
       onSelected({ id: result.id, name: result.name, hasPin: profile.hasPin });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not select profile.");
+      if (isCurrent()) setSelectError(err instanceof Error ? err.message : "Could not select profile.");
     }
   };
 
@@ -373,7 +447,7 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
 
   if (loading) {
     return (
-      <Shell onClose={onClose}>
+      <Shell onClose={onClose} onExiting={cancelFlows}>
         <Heading className="sr-only">Profiles</Heading>
         <div className="flex items-center justify-center gap-2 py-6 text-sm" style={{ color: "var(--text-mute)" }}>
           <Loader2 size={16} className="animate-spin" /> Loading profiles...
@@ -382,25 +456,39 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
     );
   }
 
-  if (error) {
+  // Only a failed load takes the whole surface, since there is no list to show;
+  // it keeps a way forward (on /pair from a TV's QR code there is no other).
+  if (loadError) {
     return (
-      <Shell onClose={onClose}>
+      <Shell onClose={onClose} onExiting={cancelFlows}>
         <Heading className="sr-only">Profiles</Heading>
-        <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
+        <div className="space-y-4">
+          <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {loadError}</p>
+          <button type="button" onClick={retryLoad} className="btn-secondary btn-lg w-full">
+            <RotateCw size={16} /> Try again
+          </button>
+        </div>
       </Shell>
     );
   }
 
   return (
-    <Shell onClose={onClose}>
+    <Shell onClose={onClose} onExiting={cancelFlows}>
       {mode === "picker" && (
-        <ProfilePicker profiles={profiles} headingTag={headingTag} onSelect={selectProfile} onCreateNew={() => setMode("create")} />
+        <ProfilePicker
+          profiles={profiles}
+          headingTag={headingTag}
+          error={selectError}
+          onSelect={selectProfile}
+          onCreateNew={() => setMode("create")}
+        />
       )}
       {mode === "create" && (
         <CreateProfileForm
           title={profiles.length === 0 ? "Create your first profile" : "New Profile"}
           subtitle="Each profile gets its own watch history, lists, and stats."
           headingTag={headingTag}
+          startFlow={startFlow}
           onCreated={(profile) => {
             runtimeConfig.setProfileId(profile.id);
             onSelected(profile);
@@ -412,6 +500,7 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
         <PinPrompt
           profile={pinTarget}
           headingTag={headingTag}
+          startFlow={startFlow}
           onVerified={(profile) => {
             runtimeConfig.setProfileId(profile.id);
             onSelected(profile);

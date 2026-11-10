@@ -32,8 +32,12 @@ const POLL_INTERVAL_SEC = 3;
 /**
  * Unconfirmed pairings allowed at once. Starting one needs no credential, so
  * without a ceiling the table is something anyone on the network can fill.
+ * The rows are tiny, so the global ceiling is generous; the per-address one is
+ * what stops a single host from holding every slot and locking real TVs out.
  */
-const MAX_PENDING_PAIRINGS = 20;
+const MAX_PENDING_PAIRINGS = 200;
+/** Unconfirmed pairings one client address may hold at once. */
+const MAX_PENDING_PAIRINGS_PER_IP = 3;
 const MAX_DEVICE_NAME_LENGTH = 80;
 const PAIRING_SECRET_HEADER = "x-pairing-secret";
 
@@ -89,7 +93,16 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
       const now = new Date();
       await prisma.devicePairing.deleteMany({ where: { expiresAt: { lte: now } } });
 
-      const pending = await prisma.devicePairing.count();
+      // Unconfirmed only: a confirmed code is just waiting for its TV's next poll.
+      const fromThisAddress = await prisma.devicePairing.count({
+        where: { requesterIp: request.ip, confirmedAt: null },
+      });
+      if (fromThisAddress >= MAX_PENDING_PAIRINGS_PER_IP) {
+        return reply
+          .code(429)
+          .send({ error: "Too many pairings in progress from this device. Try again in a few minutes." });
+      }
+      const pending = await prisma.devicePairing.count({ where: { confirmedAt: null } });
       if (pending >= MAX_PENDING_PAIRINGS) {
         return reply.code(429).send({ error: "Too many pairings in progress. Try again in a few minutes." });
       }
@@ -106,6 +119,7 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
               code,
               pollSecretHash: hashSecret(pollSecret),
               deviceName: deviceNameFrom(body.name, "TV"),
+              requesterIp: request.ip,
               expiresAt,
             },
           });

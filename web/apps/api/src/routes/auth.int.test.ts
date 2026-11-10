@@ -89,6 +89,22 @@ describe("first-run setup", () => {
     expect((await call(null, { method: "GET", url: "/auth/status" })).json()).toEqual({ setupRequired: false });
   });
 
+  it("tells only API_TOKEN whether a second account exists", async () => {
+    const { token } = await bootstrapAdmin();
+    expect((await call(API_TOKEN, { method: "GET", url: "/auth/status" })).json()).toEqual({
+      setupRequired: false,
+      multipleAccounts: false,
+    });
+
+    await inviteFriend(token);
+    expect((await call(API_TOKEN, { method: "GET", url: "/auth/status" })).json()).toEqual({
+      setupRequired: false,
+      multipleAccounts: true,
+    });
+    expect((await call(null, { method: "GET", url: "/auth/status" })).json()).toEqual({ setupRequired: false });
+    expect((await call(token, { method: "GET", url: "/auth/status" })).json()).toEqual({ setupRequired: false });
+  });
+
   it("makes the admin with API_TOKEN, lowercases the name and hands over existing profiles", async () => {
     const legacy = await createProfile("Living room");
     const { account } = await bootstrapAdmin();

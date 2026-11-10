@@ -8,6 +8,9 @@ import { getTraktClient, isTraktConnected } from "../lib/trakt-client.js";
 import { buildMetasFromIds, getCustomListMetas } from "../lib/stremio-helpers.js";
 import type { TmdbCollectionSourceQuery } from "../tmdb.js";
 import type { StremioMetaPreview } from "../lib/types.js";
+import { outboundScopeForProfile } from "../lib/integration-owner.js";
+import { fetchManifest, manifestUrlForLog, normalizeManifestUrl } from "../lib/addon-manifest.js";
+import { addonBase, fetchAddonCatalog } from "../lib/addon-catalog.js";
 
 const PREVIEW_LIMIT = 20;
 
@@ -59,9 +62,33 @@ const collectionsRoutes: FastifyPluginAsync = async (app) => {
     return { collections: result.value, updatedAt: updatedAt.toISOString() };
   });
 
+  // An addon's manifest, for the builder's "Addon catalog" picker. Read here
+  // rather than by the browser, whose Content-Security-Policy can't name every
+  // host a community addon lives on; installing an addon on the TV list
+  // (`POST /profiles/:id/addons`) reads it the same way, under the same rules.
+  app.post<{ Body: unknown }>(
+    "/collections/addon-manifest",
+    { config: { rateLimit: { max: 30, timeWindow: "1 minute" } } },
+    async (request, reply) => {
+      const raw = ((request.body ?? {}) as { manifestUrl?: unknown }).manifestUrl;
+      const base = typeof raw === "string" && raw.length <= 2048 ? addonBase(raw) : null;
+      const manifestUrl = base ? normalizeManifestUrl(`${base}/manifest.json`) : null;
+      if (!base || !manifestUrl) {
+        return reply.code(400).send({ error: "That isn't an addon address. It should start with https:// (or stremio://)." });
+      }
+      const result = await fetchManifest(manifestUrl, await outboundScopeForProfile(request.profileId!));
+      if (!result.ok) {
+        if (result.detail) request.log.info({ addon: manifestUrlForLog(manifestUrl), detail: result.detail }, "Addon manifest refused");
+        return reply.code(400).send({ error: result.reason, code: "manifest_invalid" });
+      }
+      const { id, name, catalogs } = result.manifest;
+      return { manifest: { id, name, transportUrl: base, catalogs } };
+    }
+  );
+
   // The first page of one source, so the website's builder can show what a row
-  // will hold before it is saved. Addon catalogs are previewed by the browser
-  // itself, straight from the addon — the server doesn't know the TV's addons.
+  // will hold before it is saved. An addon catalog is read from the address the
+  // source carries (`addonUrl`): the server doesn't know the TV's addons.
   app.post<{ Body: unknown }>(
     "/collections/preview",
     { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } },
@@ -137,10 +164,30 @@ const collectionsRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(422).send({ error: "This list is kept on the TV, so only the TV can show it.", code: "preview_on_tv" });
       }
 
-      return reply.code(422).send({
-        error: "Addon catalogs are previewed from the addon itself.",
-        code: "preview_in_browser",
-      });
+      const base = typeof source.addonUrl === "string" ? addonBase(source.addonUrl) : null;
+      if (!base) {
+        return reply.code(422).send({
+          error: "Enter the addon's manifest address to preview its catalog.",
+          code: "addon_url_required",
+        });
+      }
+      const result = await fetchAddonCatalog(
+        base,
+        {
+          type: source.type as string,
+          catalogId: source.catalogId as string,
+          genre: typeof source.genre === "string" ? source.genre : null,
+        },
+        await outboundScopeForProfile(profileId),
+        PREVIEW_LIMIT
+      );
+      if (!result.ok) {
+        if (result.detail) {
+          request.log.info({ addon: manifestUrlForLog(`${base}/manifest.json`), detail: result.detail }, "Addon catalog preview failed");
+        }
+        return reply.code(502).send({ error: result.reason, code: "addon_unreachable" });
+      }
+      return { metas: result.metas };
     }
   );
 };

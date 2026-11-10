@@ -627,10 +627,15 @@ model DevicePairing {
   expiresAt      DateTime  @db.Timestamptz(6)
   confirmedAt    DateTime? @db.Timestamptz(6)
   createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+  // The address that asked for the code, so one host can't hold every
+  // pending slot. Only kept for the code's five minutes.
+  requesterIp    String?
 
   // Who confirmed the code, so the device it becomes belongs to them.
   accountId String?  @db.Uuid
   account   Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([requesterIp])
 }
 
 // The TV numbers its profiles 1..6 and treats 1 as the primary; the website

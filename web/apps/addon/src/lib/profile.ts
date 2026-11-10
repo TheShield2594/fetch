@@ -1,7 +1,13 @@
 import type { FastifyBaseLogger, FastifyRequest } from "fastify";
-import { deriveStremioProfileKey, matchesStremioProfileKey, parseProfilesResponse, UUID_V4_PATTERN } from "@fetch/shared";
-import { type ApiProfile, apiGet } from "./api-client.js";
-import { FETCH_API_TOKEN, REQUIRE_SIGNED_URLS } from "./config.js";
+import {
+  deriveStremioProfileKey,
+  matchesStremioProfileKey,
+  parseAuthStatusResponse,
+  parseProfilesResponse,
+  UUID_V4_PATTERN,
+} from "@fetch/shared";
+import { type ApiProfile, apiGet, NO_PROFILE } from "./api-client.js";
+import { FETCH_API_TOKEN, SIGNED_URL_MODE } from "./config.js";
 
 /**
  * Which profile a request is acting as.
@@ -32,7 +38,8 @@ export const PROFILE_ROUTE_PREFIX = "/p/:profileId";
  * an HMAC of the profile id under `API_TOKEN` (`deriveStremioProfileKey`), so it
  * can only have come from someone signed in as that profile — Settings shows
  * it — and is checked here with no lookup. These are the URLs that are safe to
- * put on the internet; `ADDON_REQUIRE_SIGNED_URLS` turns the other two off.
+ * put on the internet. `ADDON_REQUIRE_SIGNED_URLS` turns the other two off, and
+ * by default they are off as soon as the install has a second account.
  */
 export const SIGNED_PROFILE_ROUTE_PREFIX = "/u/:profileId/:profileKey";
 
@@ -75,6 +82,35 @@ const fetchDefaultProfileId = async (logger: FastifyBaseLogger): Promise<string 
   }
 };
 
+// Whether the install has more than one account, for `SIGNED_URL_MODE=auto`.
+// Cached like the default profile; a failed lookup with nothing cached counts
+// as "yes", so an API hiccup can't open the keyless URLs.
+let cachedMultipleAccounts: { value: boolean; expiry: number } | null = null;
+const ACCOUNTS_CACHE_TTL_MS = 60_000;
+
+const hasMultipleAccounts = async (logger: FastifyBaseLogger): Promise<boolean> => {
+  const now = Date.now();
+  if (cachedMultipleAccounts && now < cachedMultipleAccounts.expiry) return cachedMultipleAccounts.value;
+
+  try {
+    const { multipleAccounts } = await apiGet("/auth/status", NO_PROFILE, parseAuthStatusResponse);
+    // An API from before the field was added has no accounts to tell apart.
+    const value = multipleAccounts ?? false;
+    cachedMultipleAccounts = { value, expiry: now + ACCOUNTS_CACHE_TTL_MS };
+    return value;
+  } catch (error) {
+    logger.warn(error, "Failed to check the account count; refusing unsigned addon URLs until it answers");
+    return cachedMultipleAccounts?.value ?? true;
+  }
+};
+
+/** Whether this request may use a keyless (`/p/<uuid>` or bare) URL. */
+const unsignedUrlsAllowed = async (request: FastifyRequest): Promise<boolean> => {
+  if (SIGNED_URL_MODE === "always") return false;
+  if (SIGNED_URL_MODE === "never") return true;
+  return !(await hasMultipleAccounts(request.log));
+};
+
 export const resolveProfileScope = async (request: FastifyRequest): Promise<ProfileScope> => {
   const raw = profilePathParam(request);
   const params = request.params as Record<string, unknown> | null;
@@ -87,7 +123,7 @@ export const resolveProfileScope = async (request: FastifyRequest): Promise<Prof
     // service) in place of the profile's PIN token.
     return { ok: true, profileId: raw, profileKey: key };
   }
-  if (REQUIRE_SIGNED_URLS) return { ok: false };
+  if (!(await unsignedUrlsAllowed(request))) return { ok: false };
   if (raw !== undefined) {
     // A malformed id is never silently swapped for the default profile —
     // serving one profile's data under another's URL is exactly the kind of

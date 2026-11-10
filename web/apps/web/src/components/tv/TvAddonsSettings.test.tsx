@@ -145,6 +145,28 @@ describe("TvAddonsSettings", () => {
     await waitFor(() => expect(screen.getByRole("switch", { name: "Torrentio enabled" })).not.toBeChecked());
   });
 
+  it("keeps each addon busy until its own save lands", async () => {
+    const torrentio = addon();
+    const cinemeta = addon({ id: "a2", name: "Cinemeta", addonId: "com.cinemeta", manifestUrl: "https://cinemeta.example/manifest.json" });
+    getTvAddons.mockResolvedValue({ addons: [torrentio, cinemeta], updatedAt: null });
+    const pending = new Map<string, (value: { addon: TvAddon }) => void>();
+    updateTvAddon.mockImplementation((_profile, id) => new Promise((resolve) => { pending.set(id, resolve); }));
+    await renderAddons();
+
+    await userEvent.click(screen.getByRole("switch", { name: "Torrentio enabled" }));
+    await userEvent.click(screen.getByRole("switch", { name: "Cinemeta enabled" }));
+    expect(screen.getByRole("switch", { name: "Torrentio enabled" })).toBeDisabled();
+    expect(screen.getByRole("switch", { name: "Cinemeta enabled" })).toBeDisabled();
+
+    // Torrentio finishing must not hand Cinemeta's switch back while it is still saving.
+    pending.get("a1")!({ addon: { ...torrentio, enabled: false } });
+    await waitFor(() => expect(screen.getByRole("switch", { name: "Torrentio enabled" })).toBeEnabled());
+    expect(screen.getByRole("switch", { name: "Cinemeta enabled" })).toBeDisabled();
+
+    pending.get("a2")!({ addon: { ...cinemeta, enabled: false } });
+    await waitFor(() => expect(screen.getByRole("switch", { name: "Cinemeta enabled" })).toBeEnabled());
+  });
+
   it("offers this server's addon until it is installed", async () => {
     await renderAddons();
     expect(screen.getByRole("button", { name: /Add this server's addon/ })).toBeInTheDocument();

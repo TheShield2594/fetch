@@ -6,6 +6,15 @@
 import { request } from "./client";
 import type { CatalogMeta, Collection, CollectionSource, CollectionsDocument } from "./types";
 
+/** An addon's manifest as the server read it: what the builder's catalog picker needs. */
+export type AddonManifestSummary = {
+  id: string;
+  name: string;
+  /** The addon's base address, with no `/manifest.json`. */
+  transportUrl: string;
+  catalogs: { type: string; id: string; name: string }[];
+};
+
 export const collectionsApi = {
   getCollections() {
     return request<CollectionsDocument>("/collections");
@@ -16,6 +25,14 @@ export const collectionsApi = {
     return request<CollectionsDocument>("/collections", {
       method: "PUT",
       body: JSON.stringify({ collections, baseUpdatedAt }),
+    });
+  },
+  // Both go through the server: the site's Content-Security-Policy only lets
+  // the browser reach this deployment's own origins, and an addon can be anywhere.
+  readAddonManifest(manifestUrl: string) {
+    return request<{ manifest: AddonManifestSummary }>("/collections/addon-manifest", {
+      method: "POST",
+      body: JSON.stringify({ manifestUrl }),
     });
   },
   previewCollectionSource(source: CollectionSource) {

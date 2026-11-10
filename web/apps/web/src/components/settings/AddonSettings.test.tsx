@@ -63,4 +63,25 @@ describe("AddonSettings", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     expect(api.updateAddonConfig).not.toHaveBeenCalled();
   });
+
+  it("says when profile details didn't load, keeps the form, and retries just the profiles", async () => {
+    getAddonConfig.mockResolvedValue(config(KEY));
+    vi.mocked(api.getProfiles).mockRejectedValueOnce(new Error("Request timed out"));
+    render(<AddonSettings />);
+
+    expect(await screen.findByText(/couldn't load profile details/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /save configuration/i })).toBeInTheDocument();
+
+    vi.mocked(api.getProfiles).mockResolvedValue({
+      profiles: [
+        { id: PROFILE_ID, name: "Alex", hasPin: false },
+        { id: "22222222-2222-4222-8222-222222222222", name: "Sam", hasPin: false },
+      ],
+    } as never);
+    await userEvent.click(screen.getByRole("button", { name: /retry/i }));
+
+    expect(await screen.findByText(/each profile has its own\./i)).toBeInTheDocument();
+    expect(screen.queryByText(/couldn't load profile details/i)).not.toBeInTheDocument();
+    expect(getAddonConfig).toHaveBeenCalledTimes(1);
+  });
 });

@@ -27,6 +27,7 @@ export function Section({
   defaultOpen,
   storageKey,
   alwaysOpen = false,
+  requested = false,
   health,
   children,
 }: {
@@ -38,6 +39,12 @@ export function Section({
   /** Renders the section expanded and without a toggle (search results). */
   alwaysOpen?: boolean | undefined;
   /**
+   * The section a link asked for (`/settings?section=<id>`, which is where
+   * Stremio's Configure button lands): opened and scrolled to on arrival,
+   * without overwriting the stored open/closed choice.
+   */
+  requested?: boolean | undefined;
+  /**
    * What this integration is currently doing, shown on the header row. Absent
    * for sections that aren't integrations, and for one whose status could not
    * be read — a missing dot is honest, an alarming one would not be.
@@ -45,7 +52,8 @@ export function Section({
   health?: SectionHealth | undefined;
   children: ReactNode;
 }) {
-  const [storedOpen, setStoredOpen] = useState(() => readStoredOpen(storageKey, defaultOpen ?? false));
+  const [storedOpen, setStoredOpen] = useState(() => requested || readStoredOpen(storageKey, defaultOpen ?? false));
+  const rootRef = useRef<HTMLDivElement>(null);
   const open = alwaysOpen || storedOpen;
   const contentRef = useRef<HTMLDivElement>(null);
   const id = useId();
@@ -55,6 +63,10 @@ export function Section({
   useEffect(() => {
     if (contentRef.current) contentRef.current.inert = !open;
   }, [open]);
+
+  useEffect(() => {
+    if (requested) rootRef.current?.scrollIntoView?.({ block: "start" });
+  }, [requested]);
 
   const toggle = () => {
     const next = !storedOpen;
@@ -108,7 +120,7 @@ export function Section({
   );
 
   return (
-    <div className="glass-panel rounded-2xl border shadow-e1 overflow-hidden" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+    <div ref={rootRef} className="glass-panel rounded-2xl border shadow-e1 overflow-hidden scroll-mt-20" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
       {/* The disclosure pattern, wrapped in a real heading.
 
           These sections are what the Settings page is made of — a dozen and a

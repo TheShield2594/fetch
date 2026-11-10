@@ -1528,7 +1528,7 @@
     <string name="collections_editor_placeholder_gif">URL do GIF animado (reproduz apenas quando destacado)</string>
     <string name="collections_editor_hero_backdrop">Fundo de Destaque / Hero Backdrop (Início Moderno)</string>
     <string name="collections_editor_placeholder_hero_backdrop">URL do fundo de destaque personalizado (opcional)</string>
-    <string name="collections_editor_hero_video">Vídeo de Destaque / Hero Video (Início Moderno)</string>
+    <string name="collections_editor_hero_video" tools:ignore="Typos">Vídeo de Destaque / Hero Video (Início Moderno)</string>
     <string name="collections_editor_placeholder_hero_video">URL do vídeo de destaque personalizado (opcional)</string>
     <string name="collections_editor_title_logo">Logótipo do Título (Início Moderno)</string>
     <string name="collections_editor_placeholder_title_logo">URL do logótipo do título personalizado (opcional)</string>

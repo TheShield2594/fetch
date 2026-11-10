@@ -570,7 +570,7 @@
 
     <!-- PlaybackAutoPlaySettings -->
     <string name="autoplay_reuse_last_link">Letzten Link wiederverwenden</string>
-    <string name="autoplay_reuse_last_link_sub">Automatisch den letzen funktionierenden Stream wiederverwenden. (Cache)</string>
+    <string name="autoplay_reuse_last_link_sub">Automatisch den letzten funktionierenden Stream wiederverwenden. (Cache)</string>
     <string name="autoplay_last_link_cache">Cache-Dauer des letzten Links</string>
     <string name="cache_duration_hour_one">%1$d Stunde</string>
     <string name="cache_duration_hour_other">%1$d Stunden</string>

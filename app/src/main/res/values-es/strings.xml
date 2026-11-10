@@ -444,8 +444,8 @@
     <string name="tracking_simkl_features_title">Funciones de Simkl</string>
     <string name="tracking_simkl_features_subtitle">Ajustes específicos de Simkl</string>
     <string name="tracking_simkl_anime_id_title">Preferencia de ID de anime</string>
-    <string name="tracking_simkl_anime_id_subtitle">Controla cómo se identifican las series de anime. Elegir MAL o Kitsu da a cada temporada su propia entrada en lugar de agruparlas bajo un mismo ID de IMDB.</string>
-    <string name="tracking_simkl_anime_id_imdb">Preferir IMDB</string>
+    <string name="tracking_simkl_anime_id_subtitle">Controla cómo se identifican las series de anime. Elegir MAL o Kitsu da a cada temporada su propia entrada en lugar de agruparlas bajo un mismo ID de IMDb.</string>
+    <string name="tracking_simkl_anime_id_imdb">Preferir IMDb</string>
     <string name="tracking_simkl_anime_id_mal">Preferir MyAnimeList</string>
     <string name="tracking_simkl_anime_id_kitsu">Preferir Kitsu</string>
     <string name="tracking_simkl_anime_id_tvdb">Preferir TVDB</string>
@@ -621,18 +621,18 @@
     <string name="audio_force_optical_passthrough">Forzar transcodificación a AC-3 (Óptico/SPDIF)</string>
     <string name="audio_force_optical_passthrough_sub">Transcodifica formatos multicanal (TrueHD, DTS, AAC, etc.) a Dolby Digital 5.1 en tiempo real para conexiones Óptica/SPDIF.</string>
     <!-- DV7 Handling Mode -->
-    <string name="dv7_handling_title">Gestión de Dolby Vision</string>
+    <string name="dv7_handling_title" tools:ignore="Typos">Gestión de Dolby Vision</string>
     <string name="dv7_handling_dialog_subtitle">Elige cómo se procesan las transmisiones DV durante la reproducción.</string>
     <string name="dv7_mode_auto">Automático (recomendado)</string>
     <string name="dv7_mode_auto_desc">Detecta tu pantalla y elige el mejor modo. Si ocurren problemas de reproducción, prueba con la capa base HDR10.</string>
     <string name="dv7_mode_hdr10_base_layer">Capa base HDR10</string>
-    <string name="dv7_mode_hdr10_base_layer_desc">Ignora los datos de mejora de Dolby Vision. Puede ayudar en dispositivos compatibles con HDR que tienen problemas con el perfil 7 de DV.</string>
+    <string name="dv7_mode_hdr10_base_layer_desc" tools:ignore="Typos">Ignora los datos de mejora de Dolby Vision. Puede ayudar en dispositivos compatibles con HDR que tienen problemas con el perfil 7 de DV.</string>
     <string name="dv7_mode_dv81_libdovi">Convertir a DV8.1</string>
-    <string name="dv7_mode_dv81_libdovi_desc">Convierte DV7 a DV8.1 de una sola capa. Requiere una pantalla compatible con Dolby Vision.</string>
+    <string name="dv7_mode_dv81_libdovi_desc" tools:ignore="Typos">Convierte DV7 a DV8.1 de una sola capa. Requiere una pantalla compatible con Dolby Vision.</string>
     <string name="dv7_mode_off">Desactivado (nativo)</string>
     <string name="dv7_mode_off_desc">Deja pasar DV7 sin modificar. Puede fallar en hardware que no admite DV Profile 7.</string>
     <string name="dv7_mode_strip_dv">Eliminar siempre DV</string>
-    <string name="dv7_mode_strip_dv_desc">Elimina la capa RPU de Dolby Vision de todas las transmisiones.</string>
+    <string name="dv7_mode_strip_dv_desc" tools:ignore="Typos">Elimina la capa RPU de Dolby Vision de todas las transmisiones.</string>
     <string name="audio_dv5_to_dv81_title">Convertir DV5 a DV8.1</string>
     <string name="audio_dv5_to_dv81_sub">Señala las transmisiones de Profile 5 como Profile 8.1 para salida compatible con HDR10. Ayuda en dispositivos que no tienen un decodificador DV5 nativo.</string>
     <string name="audio_strip_hdr10plus_title">Eliminar metadatos HDR10+</string>
@@ -904,33 +904,33 @@
 
 
 
-    <string name="settings_stream_badges_section">Estilo Fusion</string>
+    <string name="settings_stream_badges_section" tools:ignore="Typos">Estilo Fusion</string>
     <string name="settings_stream_size_badges_title">Insignias de tamaño</string>
     <string name="settings_stream_size_badges_description">Muestra insignias de tamaño de archivo en los resultados de transmisiones y en los paneles de fuentes del reproductor.</string>
     <string name="settings_stream_addon_logo_title">Logotipo del complemento</string>
     <string name="settings_stream_addon_logo_description">Muestra el logotipo y el nombre del complemento junto a las fuentes de transmisión.</string>
     <string name="settings_stream_display_section">Visualización</string>
     <string name="settings_stream_badge_position_title">Posición de la insignia</string>
-    <string name="settings_stream_badge_position_description">Elige si las insignias de Fusion y de tamaño aparecen encima o debajo de las tarjetas de transmisión.</string>
+    <string name="settings_stream_badge_position_description" tools:ignore="Typos">Elige si las insignias de Fusion y de tamaño aparecen encima o debajo de las tarjetas de transmisión.</string>
     <string name="settings_stream_badge_position_dialog_title">Posición de la insignia</string>
     <string name="settings_stream_badge_position_dialog_description">Selecciona dónde aparecen las insignias en las tarjetas de transmisión.</string>
     <string name="settings_stream_badge_position_top">Arriba</string>
     <string name="settings_stream_badge_position_bottom">Abajo</string>
-    <string name="settings_stream_badge_urls_title">URLs de insignias Fusion</string>
-    <string name="settings_stream_badge_urls_description">Importa hasta %1$d URLs JSON de insignias de transmisión estilo Fusion. Cada URL se puede actualizar o eliminar por separado.</string>
-    <string name="settings_fusion_badges_summary">%1$d/%2$d URLs, %3$d insignias Fusion activas</string>
-    <string name="settings_fusion_badges_empty">No se han importado URLs de insignias Fusion.</string>
-    <string name="settings_fusion_badge_url_label">URL JSON de insignia Fusion</string>
+    <string name="settings_stream_badge_urls_title" tools:ignore="Typos">URLs de insignias Fusion</string>
+    <string name="settings_stream_badge_urls_description" tools:ignore="Typos">Importa hasta %1$d URLs JSON de insignias de transmisión estilo Fusion. Cada URL se puede actualizar o eliminar por separado.</string>
+    <string name="settings_fusion_badges_summary" tools:ignore="Typos">%1$d/%2$d URLs, %3$d insignias Fusion activas</string>
+    <string name="settings_fusion_badges_empty" tools:ignore="Typos">No se han importado URLs de insignias Fusion.</string>
+    <string name="settings_fusion_badge_url_label" tools:ignore="Typos">URL JSON de insignia Fusion</string>
     <string name="settings_fusion_badge_url_active">Activo</string>
     <string name="settings_fusion_badge_url_inactive">Inactivo</string>
     <string name="settings_fusion_badge_url_status_summary">%1$s, %2$d insignias habilitadas, %3$d grupos</string>
     <string name="settings_fusion_badge_preview_action">Vista previa</string>
-    <string name="settings_fusion_badge_preview_title">Vista previa de insignias Fusion</string>
-    <string name="settings_fusion_badge_preview_count">%1$d insignias estilo Fusion de esta URL</string>
-    <string name="settings_fusion_badge_preview_empty">No hay imágenes de insignias estilo Fusion en esta URL.</string>
+    <string name="settings_fusion_badge_preview_title" tools:ignore="Typos">Vista previa de insignias Fusion</string>
+    <string name="settings_fusion_badge_preview_count" tools:ignore="Typos">%1$d insignias estilo Fusion de esta URL</string>
+    <string name="settings_fusion_badge_preview_empty" tools:ignore="Typos">No hay imágenes de insignias estilo Fusion en esta URL.</string>
     <string name="settings_fusion_badge_group_title">Grupo %1$d</string>
-    <string name="settings_fusion_badge_other_group_title">Otras insignias Fusion</string>
-    <string name="stream_badge_qr_instruction">Escanea este código QR con tu teléfono para administrar las URLs de insignias Fusion.</string>
+    <string name="settings_fusion_badge_other_group_title" tools:ignore="Typos">Otras insignias Fusion</string>
+    <string name="stream_badge_qr_instruction" tools:ignore="Typos">Escanea este código QR con tu teléfono para administrar las URLs de insignias Fusion.</string>
     <string name="streams_size">TAMAÑO %1$s</string>
     <string name="action_import">Importar</string>
     <string name="action_delete">Eliminar</string>
@@ -1967,7 +1967,7 @@
     <string name="autoplay_regex_preset_bluray_quality">Calidad BluRay</string>
     <string name="autoplay_regex_preset_hevc_x265">HEVC / x265</string>
     <string name="autoplay_regex_preset_avc_x264">AVC / x264</string>
-    <string name="autoplay_regex_preset_hdr_dolby_vision">HDR / Dolby Vision</string>
+    <string name="autoplay_regex_preset_hdr_dolby_vision" tools:ignore="Typos">HDR / Dolby Vision</string>
     <string name="autoplay_regex_preset_dolby_atmos_dts">Dolby Atmos / DTS</string>
     <string name="autoplay_regex_preset_english">Inglés</string>
     <string name="autoplay_regex_preset_no_cam_ts">Sin CAM/TS</string>
@@ -2335,8 +2335,8 @@
     <string name="exclusion_language">omites %1$s</string>
     <string name="exclusion_release_group">omites el grupo %1$s</string>
     <string name="exclusion_result_limit">supera tu límite de resultados</string>
-    <string name="exclusion_dv_profile_excluded">desactivaste este perfil de Dolby Vision</string>
-    <string name="exclusion_dv_excluded">desactivaste Dolby Vision</string>
+    <string name="exclusion_dv_profile_excluded" tools:ignore="Typos">desactivaste este perfil de Dolby Vision</string>
+    <string name="exclusion_dv_excluded" tools:ignore="Typos">desactivaste Dolby Vision</string>
     <string name="exclusion_hdr_excluded">desactivaste HDR</string>
     <string name="exclusion_cam">copia CAM o telesync</string>
     <string name="exclusion_3d">versión 3D</string>
@@ -2371,8 +2371,8 @@
     <string name="advanced_introdb_api_key">Clave de API de IntroDB</string>
     <string name="advanced_introdb_api_key_subtitle">Te permite marcar intros y créditos finales desde el reproductor y enviarlos a IntroDB</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Crea una clave en introdb.app. Empieza por idb_.</string>
-    <string name="sub_hdr_style">Estilo HDR / Dolby Vision separado</string>
-    <string name="sub_hdr_style_sub">Usa otro color de texto y un brillo más bajo para los subtítulos en vídeo HDR y Dolby Vision</string>
+    <string name="sub_hdr_style" tools:ignore="Typos">Estilo HDR / Dolby Vision separado</string>
+    <string name="sub_hdr_style_sub" tools:ignore="Typos">Usa otro color de texto y un brillo más bajo para los subtítulos en vídeo HDR y Dolby Vision</string>
     <string name="sub_hdr_text_color">Color del texto HDR</string>
     <string name="sub_hdr_brightness">Brillo de subtítulos HDR</string>
     <string name="best_match_preview_title">Mostrar la elección en el botón Reproducir</string>
@@ -2463,7 +2463,7 @@
     <string name="ranking_preferred_size_sub">Los archivos más grandes tienen menor prioridad</string>
     <string name="ranking_max_size">Tamaño máximo de archivo</string>
     <string name="ranking_max_size_sub">Los archivos más grandes nunca se reproducen automáticamente</string>
-    <string name="ranking_skip_dv5">Omitir el perfil 5 de Dolby Vision</string>
+    <string name="ranking_skip_dv5" tools:ignore="Typos">Omitir el perfil 5 de Dolby Vision</string>
     <string name="ranking_skip_dv5_sub">El perfil 5 no tiene respaldo HDR10. Siempre se omite si esta TV no puede mostrarlo</string>
     <string name="ranking_prefer_cached">Preferir resultados debrid en caché</string>
     <string name="ranking_prefer_cached_sub">Los archivos en caché empiezan al instante</string>

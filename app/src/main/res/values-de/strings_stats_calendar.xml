@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="library_open_stats">Statistik</string>
     <string name="library_open_calendar">Kalender</string>
 
@@ -17,7 +17,7 @@
     <string name="stats_not_paired_title">Ihre Statistik liegt auf der Fetch-Website</string>
     <string name="stats_failed">Ihre Statistik konnte nicht von der Fetch-Website geladen werden.</string>
     <string name="stats_empty_title">Noch nichts gesehen, also gibt es noch nichts zu zählen</string>
-    <string name="stats_empty_subtitle">Alle Werte hier – Tage in Folge, Genres, Abzeichen, Ihr Jahresrückblick – stammen aus Ihrem Wiedergabeverlauf.</string>
+    <string name="stats_empty_subtitle" tools:ignore="Typos">Alle Werte hier – Tage in Folge, Genres, Abzeichen, Ihr Jahresrückblick – stammen aus Ihrem Wiedergabeverlauf.</string>
     <string name="stats_watch_history_note">Aus Ihrem Wiedergabeverlauf berechnet. Jeder Film und jede Folge zählt einmal, am Tag, an dem Sie sie zuletzt gesehen haben.</string>
     <string name="stats_watch_history_partial">Genres und Bewertungen beziehen sich auf Ihre 300 zuletzt gesehenen Titel.</string>
     <string name="stats_failed_watch_history">Ihr Wiedergabeverlauf konnte nicht gelesen werden.</string>
@@ -39,7 +39,7 @@
         <item quantity="one">%d Folge</item>
         <item quantity="other">%d Folgen</item>
     </plurals>
-    <plurals name="stats_badge_streak">
+    <plurals name="stats_badge_streak" tools:ignore="Typos">
         <item quantity="one">%d Tag in Folge</item>
         <item quantity="other">%d Tage in Folge</item>
     </plurals>

@@ -1001,7 +1001,7 @@
     <string name="settings_stream_badge_position_top">Üst</string>
     <string name="settings_stream_badge_position_bottom">Alt</string>
     <string name="settings_stream_badge_urls_title">Fusion etiket URL\'leri</string>
-    <string name="settings_stream_badge_urls_description">En fazla %1$d Fusion tarzı yayın etiketi JSON URL\'si içe aktarabilirsiniz. Her URL ayrı ayrı güncellenebilir veya silinebilir.</string>
+    <string name="settings_stream_badge_urls_description" tools:ignore="Typos">En fazla %1$d Fusion tarzı yayın etiketi JSON URL\'si içe aktarabilirsiniz. Her URL ayrı ayrı güncellenebilir veya silinebilir.</string>
     <string name="settings_fusion_badges_summary">%1$d/%2$d URL, %3$d aktif Fusion etiketi</string>
     <string name="settings_fusion_badges_empty">İçe aktarılan Fusion etiket URL\'si yok.</string>
     <string name="settings_fusion_badge_url_label">Fusion etiket JSON URL\'si</string>
@@ -1278,7 +1278,7 @@
     <string name="player_engine_switching_message">Başlatma başarısız oldu. %1$s motoruna geçiliyor…</string>
     <string name="player_engine_switching_manual_message">%1$s motoruna geçiliyor…</string>
     <string name="playback_show_loading_status">Yükleme durumunu göster</string>
-    <string name="playback_show_loading_status_sub">Oynatıcı başlatılırken adım adım ilerlemeyi göster.</string>
+    <string name="playback_show_loading_status_sub" tools:ignore="Typos">Oynatıcı başlatılırken adım adım ilerlemeyi göster.</string>
     <string name="player_sync_line">Satırı Senkronize Et</string>
     <string name="subtitle_delay_reset">Sıfırla</string>
     <string name="subtitle_timing_press_sync">Bir replik duyduğunuzda Senkronize Et\'e basın.</string>

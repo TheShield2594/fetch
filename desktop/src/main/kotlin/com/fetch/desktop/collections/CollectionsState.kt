@@ -3,7 +3,6 @@ package com.fetch.desktop.collections
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.fetch.desktop.sync.SyncClient
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.Collection
 import com.fetch.tv.domain.model.CollectionFolder
@@ -35,7 +34,7 @@ data class FolderTab(
     val isAll: Boolean get() = source == null
 }
 
-/** Where a profile's collections are pulled from and pushed to: the sync server or the Fetch website. */
+/** Where a profile's collections are pulled from and pushed to: the Fetch website. */
 interface CollectionsRemote {
     /** The profile's collections there, or null when it has none yet. Throws when it can't be read. */
     suspend fun pull(): JsonArray?
@@ -51,21 +50,17 @@ data class FolderView(val collection: Collection, val folder: CollectionFolder, 
 
 /**
  * The profile's collections (the TV's Collections: rows of folders on Home, each folder a page of
- * sources), saved per profile in the TV's JSON and synced with the sync server (or, while paired,
- * the Fetch website) as the TV syncs them; and the folder page that's open.
+ * sources), saved per profile in the TV's JSON and synced with the Fetch website while paired,
+ * as the TV syncs them; and the folder page that's open.
  */
 class CollectionsState(
     private val scope: CoroutineScope,
     private val store: CollectionsStore,
     private val resolver: CollectionSourceResolver,
     private val addons: () -> List<Addon>,
-    /** The sync server, while signed in. */
-    private val remote: () -> SyncClient? = { null },
-    /** The server's profile number for this profile. */
-    private val profileId: Int = 1,
     private val onMessage: (String) -> Unit = {},
     private val pushDelayMs: Long = 500,
-    /** The Fetch website, while paired; it takes the place of the sync server, as on TV. */
+    /** The Fetch website, while paired, as on TV. */
     private val website: () -> CollectionsRemote? = { null }
 ) {
     var collections: List<Collection> by mutableStateOf(store.load())
@@ -138,24 +133,12 @@ class CollectionsState(
 
     /** Pushes the whole list shortly after the last change, as the TV's `triggerPush` does. */
     private fun queuePush() {
-        val target = website() ?: remote()?.let(::serverRemote) ?: return
+        val target = website() ?: return
         pushJob?.cancel()
         pushJob = scope.launch {
             delay(pushDelayMs)
             runCatching { target.push(CollectionsCodec.encodeElement(collections) as JsonArray) }
         }
-    }
-
-    private fun serverRemote(client: SyncClient): CollectionsRemote = object : CollectionsRemote {
-        override suspend fun pull(): JsonArray? = client.pullCollections(profileId)
-        override suspend fun push(collections: JsonArray) {
-            client.pushCollections(profileId, collections)
-        }
-    }
-
-    /** Pulls the server's collections for this profile and merges them (see [CollectionsSyncMerge]). */
-    suspend fun sync(client: SyncClient) {
-        sync(serverRemote(client))
     }
 
     /** Pulls [remote]'s collections for this profile and merges them (see [CollectionsSyncMerge]). */

@@ -268,7 +268,6 @@ fun YouTubePlayerButtons(session: PlayerSession) {
     val chapters = playerChapters(session, extras)
     fun toggle(panel: YouTubePlayerPanel) {
         session.panel = null
-        session.partyPanelOpen = false
         extras.panel = if (extras.panel == panel) null else panel
     }
     if (chapters.isNotEmpty()) SecondaryButton("Chapters", onClick = { toggle(YouTubePlayerPanel.CHAPTERS) })
@@ -283,9 +282,9 @@ fun YouTubePlayerButtons(session: PlayerSession) {
 fun BoxScope.YouTubePlayerLayer(state: AppState, session: PlayerSession, controlsVisible: Boolean) {
     val extras = session.youTubeExtras() ?: return
     val yt = state.youtube
-    // The player's own panels and the party's take the right side; this one makes way.
-    LaunchedEffect(session.panel, session.partyPanelOpen) {
-        if (session.panel != null || session.partyPanelOpen) extras.panel = null
+    // The player's own panels take the right side; this one makes way.
+    LaunchedEffect(session.panel) {
+        if (session.panel != null) extras.panel = null
     }
     // Picking another subtitle in the player's own menu turns Fetch's caption off, including one
     // still downloading (so it can't land over the pick). mpv showing the caption itself (its
@@ -315,7 +314,6 @@ fun BoxScope.YouTubePlayerLayer(state: AppState, session: PlayerSession, control
             onSubscribe = yt::togglePlayingSubscription,
             onSave = {
                 session.panel = null
-                session.partyPanelOpen = false
                 extras.panel = YouTubePlayerPanel.SAVE
             },
             onChannel = yt::openPlayingChannel
@@ -331,7 +329,7 @@ fun BoxScope.YouTubePlayerLayer(state: AppState, session: PlayerSession, control
             session.controls.seekTo(notice.startSec)
         }, modifier = Modifier.align(Alignment.TopEnd).padding(top = 96.dp, end = 32.dp))
     }
-    extras.panel?.takeIf { session.panel == null && !session.partyPanelOpen }?.let { panel ->
+    extras.panel?.takeIf { session.panel == null }?.let { panel ->
         YouTubeSidePanel(state, session, extras, panel, Modifier.align(Alignment.CenterEnd))
     }
 }

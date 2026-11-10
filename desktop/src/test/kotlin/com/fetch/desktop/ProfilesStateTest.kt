@@ -53,7 +53,7 @@ class ProfilesStateTest {
     }
 
     @Test
-    fun `six profiles at most, as the sync server allows, reusing freed ids`() {
+    fun `six profiles at most, as the TV allows, reusing freed ids`() {
         val root = Files.createTempDirectory("profiles").toFile()
         val state = ProfilesState(JsonFile(File(root, "profiles.json"), ProfilesFile.serializer()) { ProfilesFile() }, root)
         val added = (1..5).map { state.add("P$it")!! }
@@ -93,18 +93,5 @@ class ProfilesStateTest {
         )
         assertNull(ProfilesState.initialProfile(file))
         assertEquals(3, ProfilesState.initialProfile(file.copy(lockUnrestrictedProfiles = false))?.id)
-    }
-
-    @Test
-    fun `limits owed after a settings copy are kept until they land, and replaced by new limits`() {
-        val dir = Files.createTempDirectory("profiles").toFile()
-        val state = ProfilesState(profilesFile(dir), dir)
-        val kid = state.add("Kid")!!
-        val owed = com.fetch.desktop.data.KidsLimits
-        state.setPendingLimits(kid.id, owed)
-        assertEquals(owed, ProfilesState(profilesFile(dir), dir).file.pendingLimitsPush[kid.id])
-
-        state.setLimits(kid, com.fetch.desktop.data.ProfileLimits(dailyMinutes = 60))
-        assertTrue("new limits supersede the owed ones", state.file.pendingLimitsPush.isEmpty())
     }
 }

@@ -217,7 +217,7 @@ data class PlayerSettings(
     /** Anime skip sources, subtitle extras, audio extras, stats overlay and trailers (data/PlayerExtras.kt). */
     val extras: PlayerExtras = PlayerExtras(),
 
-    // --- Added for TV parity ---
+    // --- More player settings ---
     /** "Default Player: Ask every time": choose the built-in player or mpv's window on Play. */
     val askPlayer: Boolean = false,
     /** A second audio language, used when the first isn't in the file. */

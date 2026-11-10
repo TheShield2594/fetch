@@ -25,7 +25,7 @@ import kotlinx.serialization.json.JsonElement
 /**
  * Collections as JSON, in the TV app's format (`CollectionsDataStore`): the same field names,
  * `provider` tags (`addon`, `tmdb`, `trakt`, `fetch`, `local`) and the legacy `catalogSources`
- * list beside `sources`, so the file, the sync server's `collections_json` and the TV's
+ * list beside `sources`, so the file, the Fetch website's collections and the TV's
  * import/export all read the same. Nulls are left out, as Gson does.
  */
 object CollectionsCodec {

@@ -20,17 +20,14 @@ enum class PlayerPanel(val label: String) {
     EPISODES("Episodes")
 }
 
-/**
- * What the player's buttons and keys do: straight to mpv ([MpvControls]), or through the watch
- * party while one follows this player ([com.fetch.desktop.party.PartyPlayerSync]).
- */
+/** What the player's buttons and keys do: straight to mpv ([MpvControls]). */
 interface PlayerControls {
     val speed: Double
     fun togglePause()
     fun seekTo(seconds: Double)
     fun seekBy(seconds: Double)
     fun changeSpeed(value: Double)
-    /** False when a watch party's host-only control keeps this player on the party's episode. */
+    /** False when something else keeps this player on what it is playing. */
     fun mayChangeMedia(userInitiated: Boolean = true): Boolean = true
 }
 
@@ -71,12 +68,8 @@ class PlayerSession(val mpv: EmbeddedMpv) {
     var skipButton by mutableStateOf(true)
     var description: String? by mutableStateOf(null)
 
-    /** Pause, seek and speed for the buttons and keys; the watch party's while it follows this player. */
+    /** Pause, seek and speed for the buttons and keys. */
     var controls: PlayerControls by mutableStateOf(MpvControls(mpv))
-    /** The watch party following this player, if any. */
-    var party: com.fetch.desktop.party.PartyPlayerSync? by mutableStateOf(null)
-    /** The Watch party panel is open (beside [panel], which closes while it is). */
-    var partyPanelOpen by mutableStateOf(false)
     /** A YouTube video's seek bar marks, actions and menus; see [com.fetch.desktop.youtube.youTubeExtras]. */
     var youTube: com.fetch.desktop.youtube.YouTubePlayerExtras? by mutableStateOf(null)
 

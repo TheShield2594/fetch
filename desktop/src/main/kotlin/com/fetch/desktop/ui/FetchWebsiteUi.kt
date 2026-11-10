@@ -43,13 +43,6 @@ import com.fetch.desktop.website.WebsitePairing
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.put
 
 @Composable
 private fun Field(value: String, onChange: (String) -> Unit, placeholder: String, secret: Boolean = false, width: Int = 420) {
@@ -194,76 +187,6 @@ private fun PairingCode(pairing: WebsitePairing.ShowingCode, onCancel: () -> Uni
     }
 }
 
-/** The first `code` in an RPC's list answer (`generate_sync_code`, `get_sync_code`). */
-internal fun syncCodeOf(body: String): String? = runCatching {
-    val root = Json.parseToJsonElement(body)
-    val row = (root as? JsonArray)?.firstOrNull() ?: root
-    ((row as? JsonObject)?.get("code") as? JsonPrimitive)?.contentOrNull
-}.getOrNull()?.takeIf { it.isNotBlank() }
-
-/**
- * "Sync code" while signed in, as the TV's Generate Sync Code: protect a code with a PIN, then
- * enter the code and PIN on another device to link it to this account (`generate_sync_code`;
- * "Show my code" reads the current one with `get_sync_code`).
- */
-@Composable
-fun SyncCodeSection(state: AppState) {
-    val account = state.account ?: return
-    val scope = rememberCoroutineScope()
-    var pin by remember { mutableStateOf("") }
-    var code by remember { mutableStateOf<String?>(null) }
-    var busy by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-    val clipboard = LocalClipboardManager.current
-    fun run(rpc: String) {
-        val client = account.client() ?: return
-        busy = true
-        error = null
-        scope.launch {
-            try {
-                // What the other device will pull should be up to date, as on TV.
-                if (rpc == "generate_sync_code") state.syncAccount()
-                code = syncCodeOf(client.callRpc(rpc, buildJsonObject { put("p_pin", pin) }))
-                    ?: error(tr(if (rpc == "get_sync_code") "There's no sync code yet. Generate one." else "The server gave no code."))
-            } catch (e: kotlinx.coroutines.CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                val message = e.message.orEmpty().lowercase()
-                error = when {
-                    "pin" in message && ("invalid" in message || "incorrect" in message) -> tr("That PIN doesn't match your sync code.")
-                    "not found" in message || "no sync code" in message -> tr("There's no sync code yet. Generate one.")
-                    else -> e.message ?: tr("Couldn't reach the server")
-                }
-            } finally {
-                busy = false
-            }
-        }
-    }
-    SettingsSection("Sync code") {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(20.dp)) {
-            val shown = code
-            if (shown != null) {
-                Text(tr("Your sync code"), color = FetchPalette.TextSecondary)
-                BigCode(shown)
-                Text(tr("Enter this code and your PIN on your other device to link it."), color = FetchPalette.TextMuted)
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    SecondaryButton("Copy code", onClick = { clipboard.setText(AnnotatedString(shown)) })
-                    SecondaryButton("Done", onClick = { code = null; pin = "" })
-                }
-            } else {
-                Text(tr("Link another device to this account without signing in there: choose a PIN (4 to 8 characters) to protect the code."), color = FetchPalette.TextSecondary)
-                Field(pin, { pin = it.take(8) }, "PIN", secret = true, width = 220)
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    PrimaryButton("Generate code", icon = null, enabled = pin.length in 4..8 && !busy, onClick = { run("generate_sync_code") })
-                    SecondaryButton("Show my code", enabled = pin.length in 4..8 && !busy, onClick = { run("get_sync_code") })
-                    if (busy) CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                }
-            }
-            error?.let { Text(it, color = FetchPalette.Error) }
-        }
-    }
-}
-
 /**
  * The PIN of a website profile that is locked there, asked where one of its lists couldn't load.
  * The website checks it and hands back a profile token, kept for a few hours as on TV; then
@@ -302,41 +225,5 @@ fun WebsiteProfileUnlock(slot: Int, onUnlocked: () -> Unit) {
             if (busy) CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
         }
         error?.let { Text(it, color = FetchPalette.Error) }
-    }
-}
-
-/**
- * "Enter sync code", as on TV: links this computer to the account that generated the code, with
- * its PIN (`claim_sync_code`). Signed out of the sync server, an anonymous sign-in is made first
- * on the server found above, so nothing else needs signing in to.
- */
-@Composable
-fun ClaimSyncCodeSection(state: AppState) {
-    val account = state.account ?: return
-    var code by remember { mutableStateOf("") }
-    var pin by remember { mutableStateOf("") }
-    var linked by remember { mutableStateOf(false) }
-    SettingsSection("Enter a sync code") {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(20.dp)) {
-            if (linked) {
-                Text(tr("This computer is linked. The account's data is syncing now."), color = Color.White)
-                return@Column
-            }
-            Text(
-                "Generated a sync code on another device? Enter it and its PIN to link this computer to that account.",
-                color = FetchPalette.TextSecondary
-            )
-            Field(code, { code = it.uppercase().take(20) }, "Sync code", width = 260)
-            Field(pin, { pin = it.take(8) }, "PIN", secret = true, width = 220)
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                PrimaryButton("Link", icon = null, enabled = code.isNotBlank() && pin.length >= 4 && !account.busy, onClick = {
-                    account.claimSyncCode(code, pin) {
-                        linked = true
-                        state.syncAccount()
-                    }
-                })
-                if (account.busy) CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-            }
-        }
     }
 }

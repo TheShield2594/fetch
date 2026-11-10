@@ -45,7 +45,7 @@ class QrCodeTest {
 
     @Test
     fun `picks the smallest version and a mask, with finder patterns in the corners`() {
-        val qr = QrCode.encode("fetch://party/ABC234")!!
+        val qr = QrCode.encode("fetch://movie/tt0111")!!
         assertEquals(2, qr.version)
         assertEquals(25, qr.size)
         assertTrue(qr.mask in 0..7)

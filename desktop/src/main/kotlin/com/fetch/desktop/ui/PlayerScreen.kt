@@ -94,10 +94,8 @@ private val HiddenCursor: PointerIcon by lazy {
 @Composable
 fun PlayerScreen(state: AppState, session: PlayerSession) {
     val mpv = session.mpv
-    // Pause, seek and speed: mpv's, or the watch party's while one follows this player.
+    // Pause, seek and speed.
     val controls = session.controls
-    val partyAvailable by state.party.available.collectAsState()
-    val inParty = state.party.state.collectAsState().value.party != null
     val window = LocalWindowState.current
     var controlsVisible by remember { mutableStateOf(true) }
     var lastActivity by remember { mutableStateOf(System.currentTimeMillis()) }
@@ -157,7 +155,6 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                     Key.F -> toggleFullscreen()
                     Key.Escape -> when {
                         closeExtraPanels(session) -> Unit
-                        session.partyPanelOpen -> session.partyPanelOpen = false
                         state.extras.queuePanelOpen -> state.extras.queuePanelOpen = false
                         session.panel != null -> session.panel = null
                         window?.placement == WindowPlacement.Fullscreen -> toggleFullscreen()
@@ -315,21 +312,13 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
                         YouTubePlayerButtons(session)
                         PlayerPanel.entries.filter { panelAvailable(session, it) }.forEach { panel ->
                             SecondaryButton(panel.label, onClick = {
-                                session.partyPanelOpen = false
                                 session.panel = if (session.panel == panel) null else panel
                             })
                         }
                         SecondaryButton("Queue", icon = FetchIcons.List, onClick = {
                             session.panel = null
-                            session.partyPanelOpen = false
                             state.extras.queuePanelOpen = !state.extras.queuePanelOpen
                         })
-                        if (partyAvailable || inParty) {
-                            SecondaryButton("Watch party", icon = PartyIcon, onClick = {
-                                session.panel = null
-                                session.partyPanelOpen = !session.partyPanelOpen
-                            })
-                        }
                         // Mark an intro (or a movie's credits) for IntroDB: start, then end (the TV's flag button).
                         session.extras.markerTarget?.let { marker ->
                             val marking = session.extras.markerStartSec != null
@@ -345,13 +334,11 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
             }
         }
 
-        PartyPlayerPill(state, session, controlsVisible || mpv.paused, Modifier.align(Alignment.TopCenter).padding(top = 28.dp))
         YouTubePlayerLayer(state, session, controlsVisible || mpv.paused)
         session.panel?.let { panel ->
             PlayerSidePanel(state, session, panel, Modifier.align(Alignment.CenterEnd))
         }
         PlayerExtrasPanels(state, session)
-        if (session.partyPanelOpen) PartyPlayerPanel(state, session, Modifier.align(Alignment.CenterEnd))
         // Content warnings, the Queue panel and "Up next in queue", the movie's recommendation.
         PlayerExtrasLayer(state, session)
         state.stillWatching?.let { prompt ->

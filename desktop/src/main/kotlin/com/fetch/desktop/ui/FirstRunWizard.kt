@@ -90,7 +90,7 @@ data class FirstRunStatus(
 )
 
 private fun AppState.firstRunStatus() = FirstRunStatus(
-    serverSignedIn = account?.signedIn == true,
+    serverSignedIn = website?.isPaired == true,
     streamAddons = addons.count { it.givesStreams() },
     mediaServers = servers.accounts.map { it.name },
     tmdbEnabled = settings.tmdb.enabled,
@@ -235,9 +235,9 @@ private fun ServerStep(state: AppState, status: FirstRunStatus) {
             Modifier.weight(1f)
         )
         Column(verticalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier.weight(1.2f)) {
-            val account = state.account
-            if (status.serverSignedIn && account != null) {
-                StatusLine(tr("Fetch server"), listOfNotNull(account.state.session?.email, account.state.server?.url).joinToString(" · "), done = true)
+            val session = state.website?.session
+            if (status.serverSignedIn && session != null) {
+                StatusLine(tr("Fetch website"), "${session.deviceName} · ${session.serverUrl}", done = true)
             } else {
                 AccountPage(state, header = false)
             }

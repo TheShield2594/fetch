@@ -62,17 +62,6 @@ class ProfileSetupTest {
     }
 
     @Test
-    fun `the server catalog's images live in its public avatars bucket`() {
-        val body = """[{"id":"a1","display_name":"Neo","storage_path":"movie/neo.webp","category":"Movie","sort_order":2},
-            {"id":"a0","display_name":"Ext","storage_path":"https://cdn.example/x.png","category":"fun","sort_order":1,"bg_color":"#112233"}]"""
-        val items = parseAvatarCatalog(body, "https://sync.example/")
-        assertEquals(listOf("a0", "a1"), items.map { it.id })
-        assertEquals("https://cdn.example/x.png", items[0].imageUrl)
-        assertEquals("https://sync.example/storage/v1/object/public/avatars/movie/neo.webp", items[1].imageUrl)
-        assertEquals("movie", items[1].category)
-    }
-
-    @Test
     fun `bundled avatars match the TV's ids`() {
         assertEquals(40, BundledAvatars.catalog.size)
         assertEquals("/avatars/space_invader.webp", BundledAvatars.resource("fetch:space_invader"))

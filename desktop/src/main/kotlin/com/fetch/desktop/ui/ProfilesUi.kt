@@ -60,9 +60,6 @@ import com.fetch.tv.core.parental.ProfilePinHasher
 import com.fetch.desktop.AppState
 import com.fetch.desktop.ProfilesState
 import com.fetch.desktop.data.DesktopProfile
-import com.fetch.desktop.data.ProfileBackgrounds
-import com.fetch.desktop.SyncAccountState
-import com.fetch.desktop.sync.copyProfileSetupKeepingLimits
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
 
@@ -78,17 +75,15 @@ fun ProfileAvatar(profile: DesktopProfile, size: Dp, modifier: Modifier = Modifi
  * does one locked behind the main profile's PIN. The profile pointed at shows its background.
  */
 @Composable
-fun ProfilePicker(profiles: ProfilesState, account: SyncAccountState? = null) {
+fun ProfilePicker(profiles: ProfilesState) {
     val scope = rememberCoroutineScope()
     var notice by remember { mutableStateOf<String?>(null) }
     var creating by remember { mutableStateOf(false) }
     var pin by remember { mutableStateOf<PinStep?>(null) }
     var nudgeFor by remember { mutableStateOf<DesktopProfile?>(null) }
     var hovered by remember { mutableStateOf<DesktopProfile?>(null) }
-    // Backgrounds for a fresh install, or ones added since: the picker can open before any profile.
-    LaunchedEffect(account?.signedIn) { account?.let { ProfileBackgrounds.refresh(it) } }
     Box(Modifier.fillMaxSize().background(FetchPalette.Background), contentAlignment = Alignment.Center) {
-        val background = hovered?.let(ProfileBackgrounds::imageFor)
+        val background = hovered?.profileBackgroundUrl?.takeIf { it.isNotBlank() }
         if (background != null) {
             AsyncImage(background, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
             Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.55f)))
@@ -135,18 +130,6 @@ fun ProfilePicker(profiles: ProfilesState, account: SyncAccountState? = null) {
     if (creating) {
         ProfileSetupEditorDialog(profiles, initial = null, state = null, onDismiss = { creating = false }, onCreated = { created ->
             if (created.limits.isRestricted) nudgeFor = created
-        }, onCopiedLocally = { source, target, copyKeys ->
-            // No profile is open here; the copy pushes the profile list first, so the new one exists.
-            val remote = account?.client() ?: return@ProfileSetupEditorDialog
-            scope.launch {
-                try {
-                    remote.copyProfileSetupKeepingLimits(profiles, source, target, copyKeys)
-                } catch (e: kotlinx.coroutines.CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    notice = "Settings copied on this computer, but the sync server didn't copy them: ${e.message}"
-                }
-            }
         })
     }
     nudgeFor?.let { restricted -> ParentalNudge(profiles, restricted, onSetPin = { pin = it }, onDismiss = { nudgeFor = null }) }
@@ -252,12 +235,6 @@ fun ProfilesSettingsPage(state: AppState) {
     var activity by remember { mutableStateOf<DesktopProfile?>(null) }
     var copyingTo by remember { mutableStateOf<DesktopProfile?>(null) }
     var nudgeFor by remember { mutableStateOf<DesktopProfile?>(null) }
-    LaunchedEffect(state.account?.signedIn) {
-        state.account?.let {
-            com.fetch.desktop.data.AvatarCatalog.refresh(it)
-            ProfileBackgrounds.refresh(it)
-        }
-    }
     PageHeader("Profiles", subtitle = "Each profile has its own Library, Continue Watching, settings and accounts.")
     SettingsSection(null) {
         profiles.profiles.forEach { profile ->
@@ -383,7 +360,7 @@ fun PinFlow(profiles: ProfilesState, step: PinStep, onStep: (PinStep?) -> Unit) 
     val scope = rememberCoroutineScope()
     when (step) {
         is PinStep.Unlock -> PinDialog(step.heading, step.support, error, onDismiss = { onStep(null) }) { entered ->
-            // A PIN set on another device is checked with the sync server.
+            // A PIN set on another device is checked with the Fetch website.
             scope.launch {
                 when (val result = profiles.checkPin(step.profile, entered)) {
                     PinGate.Result.Ok -> {

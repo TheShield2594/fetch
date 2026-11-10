@@ -270,8 +270,6 @@ class EmbeddedMpv private constructor(
 
     fun togglePause() = set("pause", if (paused) "no" else "yes")
     fun pause(value: Boolean) = set("pause", if (value) "yes" else "no")
-    /** A frame-exact seek, for keeping a watch party in step. */
-    fun seekExact(seconds: Double) = command("seek", seconds.coerceAtLeast(0.0).toString(), "absolute+exact")
     fun seekTo(seconds: Double) = command("seek", seconds.coerceAtLeast(0.0).toString(), "absolute")
     fun seekBy(seconds: Double) = command("seek", seconds.toString(), "relative")
     fun changeVolume(value: Double) = set("volume", value.coerceIn(0.0, 130.0).toString())

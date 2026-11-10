@@ -3,8 +3,6 @@ package com.fetch.desktop.mdblist
 import com.fetch.desktop.data.LibraryEntry
 import com.fetch.desktop.data.LibrarySort
 import com.fetch.desktop.data.PlaybackTarget
-import com.fetch.desktop.sync.ProviderCredentialSync
-import com.fetch.desktop.sync.providerCredentialBaseFile
 import com.fetch.desktop.tracking.ScrobbleAction
 import com.fetch.tv.domain.model.Video
 import kotlinx.coroutines.runBlocking
@@ -95,39 +93,5 @@ class MdbListSyncTest {
         fun entry(id: String) = LibraryEntry(id = id, type = "movie", name = id)
         val ordered = LibrarySort.byOrder(listOf(entry("a"), entry("b"), entry("c")), listOf("c", "a")) { it.id }
         assertEquals(listOf("c", "a", "b"), ordered.map { it.id })
-    }
-
-    @Test
-    fun `provider credentials - the account's key comes down, a change here goes up`() = runBlocking {
-        val base = providerCredentialBaseFile(Files.createTempDirectory("pc").toFile())
-        val calls = mutableListOf<Pair<String, JsonObject>>()
-        var remoteKey: String? = null
-        val rpc: suspend (String, JsonObject) -> String = { name, params ->
-            calls += name to params
-            when (name) {
-                "sync_pull_provider_credentials" -> remoteKey?.let {
-                    """[{"provider":"mdblist","credential_json":{"api_key":"$it"}},{"provider":"animeskip","credential_json":{"client_id":"as-1"}}]"""
-                } ?: "[]"
-                else -> "null"
-            }
-        }
-        // An empty account is seeded with this device's key.
-        assertEquals("local", ProviderCredentialSync.sync(rpc, 2, "local", base, "origin"))
-        assertEquals(listOf("sync_pull_provider_credentials", "sync_seed_provider_credentials"), calls.map { it.first })
-        assertEquals(json("""{"p_profile_id":2,"p_credentials":[{"provider":"mdblist","credential_json":{"api_key":"local"}},
-            {"provider":"animeskip","credential_json":{"client_id":""}}],"p_origin_client_id":"origin"}"""), calls[1].second)
-
-        // The TV's key wins on the next pull.
-        calls.clear()
-        remoteKey = "from-tv"
-        assertEquals("from-tv", ProviderCredentialSync.sync(rpc, 2, "local", base, null))
-        assertEquals(listOf("sync_pull_provider_credentials"), calls.map { it.first })
-
-        // A key changed here goes up, keeping the account's AnimeSkip id.
-        calls.clear()
-        remoteKey = "mine"
-        assertEquals("mine", ProviderCredentialSync.sync(rpc, 2, "mine", base, null))
-        assertEquals("sync_push_provider_credentials", calls.first().first)
-        assertTrue(calls.first().second.toString().contains("as-1"))
     }
 }

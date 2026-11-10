@@ -153,39 +153,6 @@ class SyncMergeProfilesTest {
         assertEquals("Me", merge.push!!.single().name)
     }
 
-    @Test
-    fun `profiles locked only on the account need a server check`() {
-        val guest = DesktopProfile(3, "Guest", "#000000")
-        val locks = listOf(RemoteProfileLock(1, true), RemoteProfileLock(3, true), RemoteProfileLock(2, false))
-        assertEquals(listOf(3), SyncMerge.lockedOnlyRemotely(listOf(me, kids, guest), locks))
-    }
-
-    // --- Parental limits ---
-
-    @Test
-    fun `account limits only ever tighten the local ones`() {
-        val local = ProfileLimits(maxRating = "TEENS", allowUnrated = true, dailyMinutes = 90)
-        val tighter = SyncMerge.parentalLimits(local, RemoteParentalLimits(maxRating = "PARENTAL_GUIDANCE", allowUnrated = false))
-        assertEquals(ProfileLimits(maxRating = "PARENTAL_GUIDANCE", allowUnrated = false, dailyMinutes = 90), tighter)
-
-        val looser = SyncMerge.parentalLimits(local, RemoteParentalLimits(maxRating = null))
-        assertEquals(local, looser)
-        assertEquals(local, SyncMerge.parentalLimits(local, null))
-
-        val fromNone = SyncMerge.parentalLimits(ProfileLimits(), RemoteParentalLimits(maxRating = "MATURE", allowUnrated = false))
-        assertEquals("MATURE", fromNone.maxRating)
-        assertFalse(fromNone.allowUnrated)
-    }
-
-    @Test
-    fun `limits to push carry this profile's kids flag`() {
-        val push = SyncMerge.parentalLimitsToPush(ProfileLimits(maxRating = "TEENS", allowUnrated = false, kidsProfile = true), RemoteParentalLimits(isKidsProfile = false))
-        assertEquals(RemoteParentalLimits(true, "TEENS", false), push)
-        // The account's flag arrives with the pull.
-        assertEquals(true, SyncMerge.parentalLimits(ProfileLimits(), RemoteParentalLimits(isKidsProfile = true)).kidsProfile)
-        assertEquals(RemoteParentalLimits(false, null, true), SyncMerge.parentalLimitsToPush(ProfileLimits(allowUnrated = false), null))
-    }
-
     // --- Settings blob ---
 
     @Test

@@ -112,7 +112,7 @@ fun CollectionsSettingsPage(state: AppState, onBack: () -> Unit) {
     }
     Text(
         "Collections are Home rows of folders; each folder opens a page of catalogs, TMDB, Trakt and your lists. " +
-            "Pinned ones lead Home, the rest follow its catalog rows. They sync with your TV through your sync server.",
+            "Pinned ones lead Home, the rest follow its catalog rows. They sync with your TV through the Fetch website.",
         color = FetchPalette.TextSecondary
     )
     if (collections.collections.isEmpty()) {

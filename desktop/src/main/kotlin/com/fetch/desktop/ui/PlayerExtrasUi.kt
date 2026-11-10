@@ -76,7 +76,7 @@ import java.util.Locale
 
 // --- State kept per player session, beside PlayerSession ---
 
-/** What the TV-parity extras remember while one built-in player is open. */
+/** What the TV-style extras remember while one built-in player is open. */
 class PlayerSessionExtras {
     /** The live subtitle style panel is open. */
     var stylePanelOpen by mutableStateOf(false)
@@ -130,7 +130,7 @@ private fun preferredSubtitleKeys(p: PlayerSettings): List<String> =
 // --- Over the picture: Skip button, stats overlay, and the work behind subtitles and audio ---
 
 /**
- * The built-in player's TV-parity extras under its controls: the Skip button with the TV's
+ * The built-in player's TV-style extras under its controls: the Skip button with the TV's
  * wording and timing, the stats overlay, and (with no UI) the live subtitle style with HDR and
  * lift, dialogue boost, skip silence, the audio delay per output and automatic subtitle sync.
  */
@@ -319,12 +319,10 @@ private fun SkipSegmentButton(
 private fun SkipSilenceEffect(state: AppState, session: PlayerSession) {
     val mpv = session.mpv
     val enabled = state.settings.player.extras.skipSilence
-    // A watch party keeps everyone at one speed.
-    val inParty = state.party.state.collectAsState().value.party != null
     // Per file too: loading one with a volume boost replaces the filter list.
-    LaunchedEffect(enabled, inParty, session.title, session.stream?.url) {
+    LaunchedEffect(enabled, session.title, session.stream?.url) {
         mpv.runCommand("af", "remove", "@${AudioExtras.SILENCE_FILTER_LABEL}")
-        if (!enabled || inParty) return@LaunchedEffect
+        if (!enabled) return@LaunchedEffect
         mpv.runCommand("af", "add", AudioExtras.SILENCE_FILTER)
         val skipper = SilenceSkipper()
         var base = mpv.speed

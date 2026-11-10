@@ -1480,7 +1480,7 @@ private fun FetchSidebarScaffold(
     var pendingSidebarFocusRequest by remember { mutableStateOf(false) }
     // Bumped on every key event the drawer sees so the auto-collapse timer
     // resets while the user navigates between drawer items.
-    var legacyDrawerInteractionVersion by remember { mutableStateOf(0) }
+    var legacyDrawerInteractionVersion by remember { mutableIntStateOf(0) }
 
 
     // Back on a sidebar page: see rootBackAction. Only Home with the sidebar open leaves the app.

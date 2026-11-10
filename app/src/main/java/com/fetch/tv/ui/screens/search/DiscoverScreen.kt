@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.theme.FetchTheme
@@ -46,7 +47,7 @@ fun DiscoverScreen(
     val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val discoverFirstItemFocusRequester = remember { FocusRequester() }
-    var discoverFocusedItemIndex by rememberSaveable { mutableStateOf(0) }
+    var discoverFocusedItemIndex by rememberSaveable { mutableIntStateOf(0) }
     var restoreDiscoverFocus by rememberSaveable { mutableStateOf(false) }
     var pendingDiscoverRestoreOnResume by rememberSaveable { mutableStateOf(false) }
     // Not saved: each time Discover is entered (from the rail too) it takes focus, unless it is

@@ -7,6 +7,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import androidx.compose.runtime.mutableLongStateOf
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
 import com.fetch.tv.ui.screens.detail.formatPlaybackTime
@@ -3667,7 +3668,7 @@ private fun PlayerClockOverlay(
     playbackSpeed: Float,
     isLive: Boolean = false
 ) {
-    var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }
+    var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
     val context = LocalContext.current
     val timeFormatter = remember(context) { DateFormat.getTimeFormat(context) }
 

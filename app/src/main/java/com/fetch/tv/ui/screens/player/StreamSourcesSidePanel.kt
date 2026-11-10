@@ -5,6 +5,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import androidx.compose.runtime.mutableIntStateOf
 import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchMotion
 import androidx.compose.animation.AnimatedVisibility
@@ -77,7 +78,7 @@ internal fun StreamSourcesSidePanel(
     val streamListState = rememberLazyListState()
     var userMovedFromFirstResult by remember { mutableStateOf(false) }
     var firstResultFocusAssigned by remember { mutableStateOf(false) }
-    var firstStreamFocusRequestId by remember { mutableStateOf(0) }
+    var firstStreamFocusRequestId by remember { mutableIntStateOf(0) }
     var listHasFocus by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var focusJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }

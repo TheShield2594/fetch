@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -97,7 +98,7 @@ internal fun CustomThemeEditor(
 ) {
     var draftColors by remember { mutableStateOf(initialColors) }
     val colors = if (gradientEnabled) draftColors else CustomThemeColors.solid(draftColors.second)
-    var selectedIndex by remember(gradientEnabled) { mutableStateOf(0) }
+    var selectedIndex by remember(gradientEnabled) { mutableIntStateOf(0) }
     var showHexEditor by remember(gradientEnabled) { mutableStateOf(false) }
     var restoreHexFocus by remember(gradientEnabled) { mutableStateOf(false) }
     val firstColorFocusRequester = remember { FocusRequester() }

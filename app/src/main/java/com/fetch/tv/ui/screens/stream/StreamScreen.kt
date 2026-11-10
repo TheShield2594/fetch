@@ -3,6 +3,7 @@
 package com.fetch.tv.ui.screens.stream
 
 import androidx.compose.material.icons.filled.Extension
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.core.net.toUri
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.StateActionButton
@@ -163,7 +164,7 @@ fun StreamScreen(
     )
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
-    var focusedStreamIndex by rememberSaveable { mutableStateOf(0) }
+    var focusedStreamIndex by rememberSaveable { mutableIntStateOf(0) }
     var restoreFocusedStream by rememberSaveable { mutableStateOf(false) }
     var pendingRestoreOnResume by rememberSaveable { mutableStateOf(false) }
     var showPlayerChoiceDialog by remember { mutableStateOf(false) }
@@ -820,7 +821,7 @@ private fun RightStreamSection(
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     var enter by remember { mutableStateOf(false) }
     val fullMotion = FetchTheme.fullMotion
-    var firstStreamFocusRequestId by remember { mutableStateOf(0) }
+    var firstStreamFocusRequestId by remember { mutableIntStateOf(0) }
     var listHasFocus by remember { mutableStateOf(false) }
     var focusedStreamKeyInList by remember { mutableStateOf<String?>(null) }
     var userMovedFromFirstResult by remember { mutableStateOf(shouldRestoreFocusedStream) }

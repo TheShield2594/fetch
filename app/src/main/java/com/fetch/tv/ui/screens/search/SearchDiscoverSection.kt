@@ -559,7 +559,7 @@ internal fun DiscoverGrid(
             previousFilterKey = filterKey
         }
     }
-    var localRestoreFocusedItemIndex by remember { mutableStateOf(-1) }
+    var localRestoreFocusedItemIndex by remember { mutableIntStateOf(-1) }
     var localShouldRestoreFocusedItem by remember { mutableStateOf(false) }
     val effectiveFocusedItemIndex = if (localShouldRestoreFocusedItem) {
         localRestoreFocusedItemIndex

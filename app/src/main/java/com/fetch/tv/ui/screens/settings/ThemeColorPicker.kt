@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -62,7 +63,7 @@ internal fun ThemeColorPicker(
     modifier: Modifier = Modifier
 ) {
     var hsv by remember(colorIndex) { mutableStateOf(color.toHsv()) }
-    var emittedColor by remember(colorIndex) { mutableStateOf(color) }
+    var emittedColor by remember(colorIndex) { mutableIntStateOf(color) }
 
     LaunchedEffect(color, colorIndex) {
         if (color != emittedColor) {

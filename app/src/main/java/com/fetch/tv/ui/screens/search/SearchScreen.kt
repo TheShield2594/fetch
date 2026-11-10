@@ -180,8 +180,8 @@ fun SearchScreen(
     var pendingFocusMoveSawSearching by remember { mutableStateOf(false) }
     var pendingFocusMoveHadExistingSearchRows by remember { mutableStateOf(false) }
     var isVoiceListening by remember { mutableStateOf(false) }
-    var voiceRmsLevel by remember { mutableStateOf(0f) }
-    var discoverFocusedItemIndex by rememberSaveable { mutableStateOf(0) }
+    var voiceRmsLevel by remember { mutableFloatStateOf(0f) }
+    var discoverFocusedItemIndex by rememberSaveable { mutableIntStateOf(0) }
     var restoreDiscoverFocus by rememberSaveable { mutableStateOf(false) }
     var pendingDiscoverRestoreOnResume by rememberSaveable { mutableStateOf(false) }
     val restoringSearchFocus = remember { mutableStateOf(viewModel.hasSavedSearchFocus) }

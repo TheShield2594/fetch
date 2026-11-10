@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import androidx.compose.runtime.mutableIntStateOf
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.FetchMotion
 
@@ -212,9 +213,9 @@ internal fun SubtitleSelectionOverlay(
     var revealStyleRail by remember(visible) {
         mutableStateOf(sessionInitialSelectedOptionId != null)
     }
-    var languageFocusToken by remember(visible) { mutableStateOf(0) }
-    var optionFocusToken by remember(visible) { mutableStateOf(0) }
-    var styleFocusToken by remember(visible) { mutableStateOf(0) }
+    var languageFocusToken by remember(visible) { mutableIntStateOf(0) }
+    var optionFocusToken by remember(visible) { mutableIntStateOf(0) }
+    var styleFocusToken by remember(visible) { mutableIntStateOf(0) }
     var pendingLanguageFocusKey by remember(visible) { mutableStateOf<String?>(null) }
     var pendingOptionFocusId by remember(visible) { mutableStateOf<String?>(null) }
     var pendingOptionFocusLanguageKey by remember(visible) { mutableStateOf<String?>(null) }

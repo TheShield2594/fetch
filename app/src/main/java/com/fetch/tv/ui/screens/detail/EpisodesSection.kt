@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.detail
 
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
@@ -155,8 +157,8 @@ fun SeasonTabs(
     val lazyListState = rememberLazyListState(initialFirstVisibleItemIndex = initialSeasonIndex)
 
     var suppressFocusSwitch by remember { mutableStateOf(false) }
-    var lastAppliedSeason by remember { mutableStateOf(selectedSeason) }
-    var lastFocusedSeason by remember { mutableStateOf(selectedSeason) }
+    var lastAppliedSeason by remember { mutableIntStateOf(selectedSeason) }
+    var lastFocusedSeason by remember { mutableIntStateOf(selectedSeason) }
     val seasonFocusRequesters = remember { mutableMapOf<Int, FocusRequester>() }
     // Clear suppress whenever selectedSeason actually settles (composition runs
     // with the new value). This guarantees reset even if the scroll coroutine is cancelled.

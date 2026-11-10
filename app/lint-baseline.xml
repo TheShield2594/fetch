@@ -162,7 +162,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="4546"
+            line="4547"
             column="9"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="4548"
+            line="4549"
             column="9"/>
     </issue>
 
@@ -547,7 +547,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/EpisodesSection.kt"
-            line="772"
+            line="774"
             column="25"/>
     </issue>
 
@@ -558,7 +558,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/EpisodesSection.kt"
-            line="775"
+            line="777"
             column="25"/>
     </issue>
 
@@ -569,7 +569,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/detail/EpisodesSection.kt"
-            line="1191"
+            line="1193"
             column="25"/>
     </issue>
 
@@ -734,7 +734,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="4149"
+            line="4150"
             column="17"/>
     </issue>
 
@@ -27899,261 +27899,8 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/fetch/tv/ui/screens/search/SearchDiscoverSection.kt"
-            line="618"
+            line="619"
             column="30"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var missingCatalogRetries by remember(catalogKey) { mutableStateOf(0) }"
-        errorLine2="                                                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/CatalogSeeAllScreen.kt"
-            line="135"
-            column="57"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="        var pendingFocusIndex by remember { mutableStateOf(-1) }"
-        errorLine2="                                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/collection/CollectionEditorFolderContent.kt"
-            line="293"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var selectedIndex by remember(gradientEnabled) { mutableStateOf(0) }"
-        errorLine2="                                                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/settings/CustomThemeEditor.kt"
-            line="101"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var discoverFocusedItemIndex by rememberSaveable { mutableStateOf(0) }"
-        errorLine2="                                                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/search/DiscoverScreen.kt"
-            line="50"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var lastAppliedSeason by remember { mutableStateOf(selectedSeason) }"
-        errorLine2="                                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/detail/EpisodesSection.kt"
-            line="157"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var lastFocusedSeason by remember { mutableStateOf(selectedSeason) }"
-        errorLine2="                                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/detail/EpisodesSection.kt"
-            line="158"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableLongStateOf` instead of `mutableStateOf`"
-        errorLine1="    var lastHorizontalKeyRepeatTime by remember { mutableStateOf(0L) }"
-        errorLine2="                                                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/detail/EpisodesSection.kt"
-            line="442"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var firstStreamFocusRequestId by remember { mutableStateOf(0) }"
-        errorLine2="                                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/EpisodesSidePanel.kt"
-            line="182"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var legacyDrawerInteractionVersion by remember { mutableStateOf(0) }"
-        errorLine2="                                                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/MainActivity.kt"
-            line="1592"
-            column="54"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableLongStateOf` instead of `mutableStateOf`"
-        errorLine1="        var lastBehindMs by remember { mutableStateOf(0L) }"
-        errorLine2="                                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/party/PartyPanel.kt"
-            line="261"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableLongStateOf` instead of `mutableStateOf`"
-        errorLine1="    var nowMillis by remember { mutableStateOf(System.currentTimeMillis()) }"
-        errorLine2="                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PauseOverlay.kt"
-            line="109"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableLongStateOf` instead of `mutableStateOf`"
-        errorLine1="    var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }"
-        errorLine2="                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt"
-            line="3751"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var localRestoreFocusedItemIndex by remember { mutableStateOf(-1) }"
-        errorLine2="                                                   ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/search/SearchDiscoverSection.kt"
-            line="547"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
-        errorLine1="    var voiceRmsLevel by remember { mutableStateOf(0f) }"
-        errorLine2="                                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/search/SearchScreen.kt"
-            line="180"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var discoverFocusedItemIndex by rememberSaveable { mutableStateOf(0) }"
-        errorLine2="                                                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/search/SearchScreen.kt"
-            line="181"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var focusedChipIndex by remember { mutableStateOf("
-        errorLine2="                                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/StreamComponents.kt"
-            line="80"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var focusedStreamIndex by rememberSaveable { mutableStateOf(0) }"
-        errorLine2="                                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/stream/StreamScreen.kt"
-            line="165"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var firstStreamFocusRequestId by remember { mutableStateOf(0) }"
-        errorLine2="                                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/stream/StreamScreen.kt"
-            line="833"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var firstStreamFocusRequestId by remember { mutableStateOf(0) }"
-        errorLine2="                                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/StreamSourcesSidePanel.kt"
-            line="79"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var languageFocusToken by remember(visible) { mutableStateOf(0) }"
-        errorLine2="                                                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/SubtitleSelectionOverlay.kt"
-            line="215"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var optionFocusToken by remember(visible) { mutableStateOf(0) }"
-        errorLine2="                                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/SubtitleSelectionOverlay.kt"
-            line="216"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var styleFocusToken by remember(visible) { mutableStateOf(0) }"
-        errorLine2="                                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/SubtitleSelectionOverlay.kt"
-            line="217"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var emittedColor by remember(colorIndex) { mutableStateOf(color) }"
-        errorLine2="                                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/ui/screens/settings/ThemeColorPicker.kt"
-            line="65"
-            column="48"/>
     </issue>
 
     <issue

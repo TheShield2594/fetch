@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.player
 
+import androidx.compose.runtime.mutableLongStateOf
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.background
@@ -106,7 +107,7 @@ fun PauseOverlay(
 
 @Composable
 private fun PauseOverlayClock(modifier: Modifier = Modifier) {
-    var nowMillis by remember { mutableStateOf(System.currentTimeMillis()) }
+    var nowMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     val context = LocalContext.current
     val formatter = remember(context) { DateFormat.getTimeFormat(context) }
 

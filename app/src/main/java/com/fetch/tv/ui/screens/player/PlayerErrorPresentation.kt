@@ -44,6 +44,7 @@ internal fun playerErrorKindForHttpStatus(code: Int): PlayerErrorKind? = when (c
     else -> null
 }
 
+@androidx.annotation.OptIn(UnstableApi::class)
 internal fun playerErrorKindForErrorCode(errorCode: Int): PlayerErrorKind = when (errorCode) {
     PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS -> PlayerErrorKind.SERVER_UNAVAILABLE
     PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED -> PlayerErrorKind.NETWORK

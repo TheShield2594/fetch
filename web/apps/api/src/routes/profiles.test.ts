@@ -12,7 +12,7 @@ const OTHER_PROFILE_ID = "22222222-2222-4222-8222-222222222222";
  * Headers of a caller acting as `PROFILE_ID`, the way the web client sends
  * them: the id, and the token switching to it handed out.
  */
-const ownProfile = () => ({ "x-profile-id": PROFILE_ID, "x-profile-token": mintProfileToken(PROFILE_ID) });
+const ownProfile = () => ({ "x-profile-id": PROFILE_ID, "x-profile-token": mintProfileToken(PROFILE_ID, null) });
 /**
  * How PINs were stored before the salted KDF. Fixtures still use it, because
  * an existing install's PINs are in exactly this shape and have to keep
@@ -598,7 +598,7 @@ describe("profiles routes", () => {
         const response = await app.inject({
           method: "PATCH",
           url: `/profiles/${PROFILE_ID}`,
-          headers: { "x-profile-id": PROFILE_ID, "x-profile-token": mintProfileToken(OTHER_PROFILE_ID) },
+          headers: { "x-profile-id": PROFILE_ID, "x-profile-token": mintProfileToken(OTHER_PROFILE_ID, null) },
           payload: { pin: "9999" },
         });
 
@@ -679,7 +679,7 @@ describe("profiles routes", () => {
       const response = await app.inject({
         method: "PATCH",
         url: `/profiles/${PROFILE_ID}`,
-        headers: { "x-profile-token": mintProfileToken(PROFILE_ID) },
+        headers: { "x-profile-token": mintProfileToken(PROFILE_ID, hashPin("1234")) },
         payload: { name: "Alicia" },
       });
 
@@ -715,7 +715,7 @@ describe("profiles routes", () => {
       const response = await app.inject({
         method: "PATCH",
         url: `/profiles/${PROFILE_ID}`,
-        headers: { "x-profile-token": mintProfileToken(OTHER_PROFILE_ID) },
+        headers: { "x-profile-token": mintProfileToken(OTHER_PROFILE_ID, hashPin("1234")) },
         payload: { avatarColorHex: "#112233" },
       });
 
@@ -764,7 +764,7 @@ describe("profiles routes", () => {
       household(null);
       const app = await buildApp(SESSION);
 
-      const asKid = { "x-profile-id": KIDS_ID, "x-profile-token": mintProfileToken(KIDS_ID) };
+      const asKid = { "x-profile-id": KIDS_ID, "x-profile-token": mintProfileToken(KIDS_ID, null) };
       for (const parental of [{ isKidsProfile: false }, { maxRating: "ADULTS_ONLY" }, { maxRating: null }, { allowUnrated: true }]) {
         const response = await patchKids(app, asKid, parental);
         expect(response.statusCode).toBe(403);
@@ -800,7 +800,7 @@ describe("profiles routes", () => {
 
       const unlocked = await patchKids(
         app,
-        { "x-profile-id": PARENT_ID, "x-profile-token": mintProfileToken(PARENT_ID) },
+        { "x-profile-id": PARENT_ID, "x-profile-token": mintProfileToken(PARENT_ID, hashPin("4321")) },
         { maxRating: "ADULTS_ONLY" }
       );
       expect(unlocked.statusCode).toBe(200);
@@ -922,7 +922,7 @@ describe("profiles routes", () => {
         const response = await app.inject({
           method: "DELETE",
           url: `/profiles/${PROFILE_ID}`,
-          headers: { "x-profile-token": mintProfileToken(PROFILE_ID) },
+          headers: { "x-profile-token": mintProfileToken(PROFILE_ID, lockedProfile.pinHash) },
         });
 
         expect(response.statusCode).toBe(204);
@@ -935,7 +935,7 @@ describe("profiles routes", () => {
         const response = await app.inject({
           method: "DELETE",
           url: `/profiles/${PROFILE_ID}`,
-          headers: { "x-profile-token": mintProfileToken("22222222-2222-4222-8222-222222222222") },
+          headers: { "x-profile-token": mintProfileToken("22222222-2222-4222-8222-222222222222", lockedProfile.pinHash) },
         });
 
         expect(response.statusCode).toBe(401);

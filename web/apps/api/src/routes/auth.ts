@@ -39,7 +39,14 @@ const CREDENTIAL_RATE_LIMIT = { config: { rateLimit: { max: 10, timeWindow: "1 m
  */
 const DUMMY_PASSWORD_HASH = await hashPin("not-a-real-password");
 
-const loginAttemptKey = (username: string) => `loginattempts:${username}`;
+/**
+ * Wrong passwords are counted per (username, client IP). Keyed on the name
+ * alone, anyone could keep an account — the admin's included — locked out
+ * indefinitely from one address by guessing badly every so often; per IP, a
+ * guesser locks out only themselves. The route's rate limit already bounds how
+ * fast any one address can guess.
+ */
+const loginAttemptKey = (username: string, request: FastifyRequest) => `loginattempts:${username}:${request.ip}`;
 
 const normalizeUsername = (value: unknown): string | null => {
   if (typeof value !== "string") return null;
@@ -115,25 +122,32 @@ const authRoutes: FastifyPluginAsync = async (app) => {
       typeof body.password === "string" && body.password.length <= MAX_PASSWORD_LENGTH ? body.password : "";
     const failed = () => reply.code(401).send({ error: "Incorrect username or password" });
 
-    const account = username ? await prisma.account.findUnique({ where: { username } }) : null;
-    if (!account || !username) {
+    // A name that can't be valid can't exist either, so refusing it reveals
+    // nothing and needs no attempt record.
+    if (!username) {
       await pinMatches(password || "x", DUMMY_PASSWORD_HASH);
       return failed();
     }
 
-    const lockout = await getLockout(loginAttemptKey(username));
+    // The lockout is checked, and a failure recorded, the same way whether or
+    // not the account exists: a 429 that only real names could earn would say
+    // which names are real.
+    const attemptKey = loginAttemptKey(username, request);
+    const lockout = await getLockout(attemptKey);
     if (lockout.locked) {
       return reply
         .code(429)
         .send({ error: "Too many incorrect attempts. Try again later.", retryAfterSec: lockout.retryAfterSec });
     }
 
-    if (!password || !(await pinMatches(password, account.passwordHash))) {
-      await recordFailure(loginAttemptKey(username));
+    const account = await prisma.account.findUnique({ where: { username } });
+    if (!account) await pinMatches(password || "x", DUMMY_PASSWORD_HASH);
+    if (!account || !password || !(await pinMatches(password, account.passwordHash))) {
+      await recordFailure(attemptKey);
       return failed();
     }
 
-    await clearAttempts(loginAttemptKey(username));
+    await clearAttempts(attemptKey);
     const token = await createSession(account.id);
     return { token, account: publicAccount(account) };
   });
@@ -162,7 +176,8 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     const account = await prisma.account.findUnique({ where: { id: request.auth.accountId } });
     if (!account) return reply.code(404).send({ error: "Account not found" });
 
-    const lockout = await getLockout(loginAttemptKey(account.username));
+    const attemptKey = loginAttemptKey(account.username, request);
+    const lockout = await getLockout(attemptKey);
     if (lockout.locked) {
       return reply
         .code(429)
@@ -170,7 +185,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     }
     const current = typeof body.currentPassword === "string" ? body.currentPassword : "";
     if (!current || !(await pinMatches(current, account.passwordHash))) {
-      await recordFailure(loginAttemptKey(account.username));
+      await recordFailure(attemptKey);
       return reply.code(401).send({ error: "Incorrect current password" });
     }
 
@@ -179,7 +194,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
       prisma.account.update({ where: { id: account.id }, data: { passwordHash: await hashPin(body.newPassword) } }),
       prisma.session.deleteMany({ where: { accountId: account.id, id: { not: sessionId } } }),
     ]);
-    await clearAttempts(loginAttemptKey(account.username));
+    await clearAttempts(attemptKey);
     return reply.code(204).send();
   });
 

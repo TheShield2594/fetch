@@ -17,6 +17,7 @@ const prismaMock = {
   watchEvent: { findMany: vi.fn() },
   seriesProgress: { findMany: vi.fn() },
   metadata: { findMany: vi.fn() },
+  profile: { findMany: vi.fn() },
 };
 
 const trending = vi.fn();
@@ -27,7 +28,7 @@ const upsertMetadata = vi.fn();
 const getRpdbApiKey = vi.fn();
 const trendingCacheGet = vi.fn();
 const trendingCacheSet = vi.fn();
-const trendingCacheDeletePrefix = vi.fn();
+const aiRecsCacheDeleteForProfiles = vi.fn();
 const getAiConfig = vi.fn();
 const isAiConfigured = vi.fn();
 const getAiRecommendations = vi.fn();
@@ -50,7 +51,7 @@ vi.mock("../lib/cache.js", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../lib/cache.js")>()),
   trendingCacheGet: (...a: unknown[]) => trendingCacheGet(...a),
   trendingCacheSet: (...a: unknown[]) => trendingCacheSet(...a),
-  trendingCacheDeletePrefix: (...a: unknown[]) => trendingCacheDeletePrefix(...a),
+  aiRecsCacheDeleteForProfiles: (ids: Iterable<string>) => aiRecsCacheDeleteForProfiles([...ids]),
 }));
 // Only the three functions that reach the database or an AI provider are
 // stubbed. The KV keys, the max-tokens floor and `redactAiConfig` come from the
@@ -68,6 +69,8 @@ vi.mock("../lib/recommendations.js", () => ({
 vi.mock("../lib/ssrf.js", () => ({
   validateAiProviderUrl: (...a: unknown[]) => validateAiProviderUrl(...a),
   resolveAiProviderUrl: (...a: unknown[]) => resolveAiProviderUrl(...a),
+  // The global fetch with redirects refused: what these tests can see of it.
+  guardedFetch: (url: string, _scope: unknown, init: RequestInit) => fetch(url, { ...init, redirect: "error" }),
 }));
 vi.mock("../lib/profile.js", () => ({
   resolveProfile: async (request: { profileId?: string }) => {
@@ -106,6 +109,7 @@ describe("ai routes", () => {
     upsertMetadata.mockResolvedValue(undefined);
     getRpdbApiKey.mockResolvedValue(null);
     trendingCacheGet.mockReturnValue(undefined);
+    prismaMock.profile.findMany.mockResolvedValue([{ id: PROFILE_ID }, { id: "22222222-2222-4222-8222-222222222222" }]);
     isAiConfigured.mockResolvedValue(false);
     getAiConfig.mockResolvedValue(null);
     loadRecommendations.mockResolvedValue({ metas: [] });
@@ -390,7 +394,11 @@ describe("ai routes", () => {
 
       expect(res.statusCode).toBe(200);
       expect(prismaMock.kV.upsert).toHaveBeenCalled();
-      expect(trendingCacheDeletePrefix).toHaveBeenCalledWith("ai-recs:");
+      // The caller's account's profiles, and no one else's.
+      expect(prismaMock.profile.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { accountId: "owner-1" } })
+      );
+      expect(aiRecsCacheDeleteForProfiles).toHaveBeenCalledWith([PROFILE_ID, "22222222-2222-4222-8222-222222222222"]);
     });
 
     it("rejects a URL the SSRF guard refuses", async () => {
@@ -486,7 +494,7 @@ describe("ai routes", () => {
   });
 
   describe("POST /ai/test", () => {
-    it("reports the provider's reply on success", async () => {
+    it("reports success when the provider replies", async () => {
       vi.stubGlobal(
         "fetch",
         vi.fn().mockResolvedValue({
@@ -498,7 +506,25 @@ describe("ai routes", () => {
 
       const res = await app.inject({ method: "POST", url: "/ai/test", payload: { config: validConfig } });
 
-      expect(res.json()).toEqual({ success: true, response: "OK" });
+      expect(res.json()).toEqual({ success: true });
+    });
+
+    it("never reflects what the endpoint answered", async () => {
+      // A LAN service that answers 200 with JSON would otherwise have its first
+      // bytes read back through this endpoint.
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({ choices: [{ message: { content: "db password is hunter2" } }] }),
+        })
+      );
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "POST", url: "/ai/test", payload: { config: validConfig } });
+
+      expect(res.json()).toEqual({ success: true });
+      expect(res.body).not.toContain("hunter2");
     });
 
     it("does not follow redirects, so an allowed host cannot bounce the request inward", async () => {
@@ -596,7 +622,8 @@ describe("ai routes", () => {
       const res = await app.inject({ method: "POST", url: "/recommendations/ai/refresh" });
 
       expect(res.json()).toEqual({ refreshed: true });
-      expect(trendingCacheDeletePrefix).toHaveBeenCalledWith("ai-recs:");
+      // Only the requesting profile's: any account could call this.
+      expect(aiRecsCacheDeleteForProfiles).toHaveBeenCalledWith([PROFILE_ID]);
     });
   });
 });

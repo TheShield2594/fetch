@@ -152,6 +152,68 @@ describe("validatePushEndpoint", () => {
   });
 });
 
+describe("the private-range check behind the push and public-only policies", () => {
+  const blockedForPublicOnly = async (host: string) => {
+    const { PUBLIC_ONLY } = await import("./ssrf.js");
+    return validateAiProviderUrl(`https://${host}/x`, PUBLIC_ONLY) === null;
+  };
+
+  it.each([
+    ["100.64.0.1", "carrier-grade NAT"],
+    ["100.127.255.254", "carrier-grade NAT, top of the range"],
+    ["198.18.0.1", "benchmarking"],
+    ["198.19.255.255", "benchmarking, top of the range"],
+    ["0.1.2.3", "this network"],
+    ["224.0.0.1", "multicast"],
+    ["239.255.255.250", "multicast (SSDP)"],
+    ["240.0.0.1", "reserved"],
+    ["255.255.255.255", "broadcast"],
+    ["[ff02::1]", "IPv6 multicast"],
+    ["[febf::1]", "the top of fe80::/10"],
+  ])("blocks %s (%s)", async (host) => {
+    expect(validatePushEndpoint(`https://${host}/push`)).toBeNull();
+    expect(await blockedForPublicOnly(host)).toBe(true);
+  });
+
+  it.each([
+    ["[64:ff9b::7f00:1]", "NAT64 of 127.0.0.1"],
+    ["[64:ff9b::10.0.0.5]", "NAT64 of 10.0.0.5, dotted"],
+    ["[::7f00:1]", "IPv4-compatible 127.0.0.1"],
+    ["[::192.168.1.5]", "IPv4-compatible 192.168.1.5"],
+    ["[::ffff:a00:5]", "IPv4-mapped 10.0.0.5"],
+    ["[::ffff:0:a00:5]", "IPv4-translated 10.0.0.5"],
+    ["[::ffff:100.64.0.1]", "IPv4-mapped carrier-grade NAT"],
+  ])("blocks a private IPv4 address written as IPv6: %s (%s)", async (host) => {
+    expect(validatePushEndpoint(`https://${host}/push`)).toBeNull();
+    expect(await blockedForPublicOnly(host)).toBe(true);
+  });
+
+  it("blocks the metadata address in NAT64 and IPv4-compatible form even for the admin", () => {
+    expect(validateAiProviderUrl("http://[64:ff9b::a9fe:a9fe]/")).toBeNull();
+    expect(validateAiProviderUrl("http://[::169.254.169.254]/")).toBeNull();
+  });
+
+  it("blocks addresses that resolve into the new ranges", async () => {
+    for (const address of ["100.64.0.1", "198.18.0.1", "224.0.0.1", "64:ff9b::a00:5", "::ffff:10.0.0.5"]) {
+      expect(await resolvePushEndpoint("https://push.example.com/x", resolvesTo(address))).toBeNull();
+    }
+  });
+
+  it.each(["8.8.8.8", "100.63.255.255", "100.128.0.1", "198.17.255.255", "198.20.0.1", "223.255.255.255", "[2606:4700::1111]", "[64:ff9b::808:808]"])(
+    "still allows the public address %s",
+    async (host) => {
+      expect(validatePushEndpoint(`https://${host}/push`)).not.toBeNull();
+      expect(await blockedForPublicOnly(host)).toBe(false);
+    }
+  );
+
+  it("leaves the admin's LAN and loopback targets alone", () => {
+    for (const url of ["http://100.64.0.1/", "http://127.0.0.1/", "http://[::1]/", "http://10.0.0.5/"]) {
+      expect(validateAiProviderUrl(url)).not.toBeNull();
+    }
+  });
+});
+
 describe("resolvePushEndpoint", () => {
   it("allows a push service resolving to a public address", async () => {
     expect(

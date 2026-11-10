@@ -13,6 +13,14 @@ export const ALLOWED_ORIGINS = IS_DEVELOPMENT ? ["*"] : Array.from(new Set(FETCH
 const CORS_METHODS = "GET,POST,PUT,DELETE,PATCH,OPTIONS";
 const CORS_HEADERS = "Authorization,Content-Type,If-Match,X-Profile-Id,X-Profile-Token";
 
+// The one route a cross-origin web app calls with credentials: starting Trakt
+// sign-in sets a cookie naming the browser that started it (see
+// `routes/trakt.ts`), which the browser only keeps from a credentialed request.
+// No other route reads a cookie — every credential is a header — so nothing
+// else is offered them. Matched on the path alone, preflight included.
+const allowsCredentials = (request: FastifyRequest): boolean =>
+  (request.url ?? "").split("?", 1)[0] === "/trakt/oauth/authorize";
+
 export const applyCorsHeaders = (request: FastifyRequest, reply: FastifyReply) => {
   const origin = request.headers.origin;
 
@@ -20,6 +28,7 @@ export const applyCorsHeaders = (request: FastifyRequest, reply: FastifyReply) =
     reply.header("Access-Control-Allow-Origin", origin ?? "*");
     reply.header("Access-Control-Allow-Methods", CORS_METHODS);
     reply.header("Access-Control-Allow-Headers", CORS_HEADERS);
+    if (origin && allowsCredentials(request)) reply.header("Access-Control-Allow-Credentials", "true");
     appendVary(reply, "Origin");
     return;
   }
@@ -29,6 +38,7 @@ export const applyCorsHeaders = (request: FastifyRequest, reply: FastifyReply) =
   reply.header("Access-Control-Allow-Origin", origin);
   reply.header("Access-Control-Allow-Methods", CORS_METHODS);
   reply.header("Access-Control-Allow-Headers", CORS_HEADERS);
+  if (allowsCredentials(request)) reply.header("Access-Control-Allow-Credentials", "true");
   // Appended rather than set: the HTTP-caching hook writes `Vary` too, later
   // in the lifecycle, and a plain `reply.header` from either side drops the
   // other's fields.

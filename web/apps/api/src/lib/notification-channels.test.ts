@@ -3,7 +3,12 @@ import type { ChannelTarget, NotificationEvent } from "./notification-channels.j
 import { first } from "./test-fixtures/present.js";
 
 const resolveNotificationUrl = vi.fn();
-vi.mock("./ssrf.js", () => ({ resolveNotificationUrl: (...args: unknown[]) => resolveNotificationUrl(...args) }));
+// `guardedFetch` stands in as the global fetch with redirects refused, which is
+// the part of it these tests can see; its pinning is ssrf-guarded-fetch.test.ts's.
+vi.mock("./ssrf.js", () => ({
+  resolveNotificationUrl: (...args: unknown[]) => resolveNotificationUrl(...args),
+  guardedFetch: (url: string, _scope: unknown, init: RequestInit) => fetch(url, { ...init, redirect: "error" }),
+}));
 vi.mock("./prisma.js", () => ({ prisma: { notificationChannel: { findMany: vi.fn() } } }));
 
 /** The admin's scope: LAN targets allowed. */

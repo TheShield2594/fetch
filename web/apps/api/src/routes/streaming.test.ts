@@ -119,6 +119,30 @@ describe("streaming routes", () => {
       expect(trendingCacheSet).toHaveBeenCalledWith("streaming:netflix:series:GB", expect.anything());
     });
 
+    it("normalizes a lowercase region before using it as a key", async () => {
+      const app = await buildApp();
+
+      await app.inject({ method: "GET", url: "/streaming?provider=netflix&region=gb" });
+
+      expect(trendingCacheSet).toHaveBeenCalledWith("streaming:netflix:movie:GB", expect.anything());
+    });
+
+    // Every distinct region is a cache entry in the shared catalog cache, so
+    // free text would let one caller evict everyone else's.
+    it.each(["", "USA", "1A", "U", "us-east", "%00"])("rejects the region %j without touching the cache", async (region) => {
+      const app = await buildApp();
+
+      const res = await app.inject({
+        method: "GET",
+        url: `/streaming?provider=netflix&region=${encodeURIComponent(region)}`,
+      });
+
+      expect(res.statusCode).toBe(400);
+      expect(trendingCacheGet).not.toHaveBeenCalled();
+      expect(trendingCacheSet).not.toHaveBeenCalled();
+      expect(discoverByProvider).not.toHaveBeenCalled();
+    });
+
     it("serves a cache hit without calling TMDB", async () => {
       trendingCacheGet.mockReturnValue({ data: [{ id: "tt9", type: "movie", name: "Cached" }] });
       const app = await buildApp();

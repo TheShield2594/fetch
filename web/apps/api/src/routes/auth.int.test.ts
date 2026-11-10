@@ -176,6 +176,47 @@ describe("sign-in", () => {
     expect(locked.statusCode).toBe(429);
   });
 
+  it("locks only the address that guessed, so one client can't keep the owner out", async () => {
+    await bootstrapAdmin();
+    const attacker = { remoteAddress: "203.0.113.7" };
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await call(null, {
+        method: "POST",
+        url: "/auth/login",
+        payload: { username: "owner", password: "wrong-wrong" },
+        ...attacker,
+      });
+    }
+    const blocked = await call(null, {
+      method: "POST",
+      url: "/auth/login",
+      payload: { username: "owner", password: "owner-password" },
+      ...attacker,
+    });
+    expect(blocked.statusCode).toBe(429);
+
+    const owner = await call(null, {
+      method: "POST",
+      url: "/auth/login",
+      payload: { username: "owner", password: "owner-password" },
+      remoteAddress: "198.51.100.20",
+    });
+    expect(owner.statusCode).toBe(200);
+  });
+
+  it("locks an unknown username exactly as it locks a real one", async () => {
+    await bootstrapAdmin();
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await call(null, { method: "POST", url: "/auth/login", payload: { username: "nobody", password: "wrong-wrong" } });
+    }
+    const locked = await call(null, {
+      method: "POST",
+      url: "/auth/login",
+      payload: { username: "nobody", password: "wrong-wrong" },
+    });
+    expect(locked.statusCode).toBe(429);
+  });
+
   it("ends the session on sign-out", async () => {
     const { token } = await bootstrapAdmin();
     expect((await call(token, { method: "POST", url: "/auth/logout" })).statusCode).toBe(204);

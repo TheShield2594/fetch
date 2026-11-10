@@ -191,7 +191,9 @@ describe("isProfileLocked", () => {
     // The token actually off this request, checked against the profile being
     // opened — reading the wrong header, or verifying against some other id,
     // would still have returned false above.
-    expect(verifyProfileToken).toHaveBeenCalledWith("signed-profile-token", PROFILE_ID);
+    // A token is only good for the PIN it was minted under, so the stored hash
+    // is passed along too.
+    expect(verifyProfileToken).toHaveBeenCalledWith("signed-profile-token", PROFILE_ID, "scrypt$...");
   });
 
   it("treats an unknown profile as unlocked, leaving the 404 to the caller", async () => {

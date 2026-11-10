@@ -29,19 +29,25 @@ const clearPinAttempts = (profileId: string) => clearAttempts(pinAttemptKey(prof
  * hash, so existing PINs move to the salted KDF the first time they're used
  * instead of every household having to set theirs again. Best-effort: a failed
  * write must not turn a correct PIN into a rejected one.
+ *
+ * Resolves to the hash now stored, which is what a profile token has to be
+ * minted under.
  */
 const upgradePinHashIfNeeded = async (
   app: FastifyInstance,
   profileId: string,
   pin: string,
   pinHash: string
-): Promise<void> => {
-  if (!needsRehash(pinHash)) return;
+): Promise<string> => {
+  if (!needsRehash(pinHash)) return pinHash;
   try {
-    await prisma.profile.update({ where: { id: profileId }, data: { pinHash: await hashPin(pin) } });
+    const upgraded = await hashPin(pin);
+    await prisma.profile.update({ where: { id: profileId }, data: { pinHash: upgraded } });
     invalidateProfileCache();
+    return upgraded;
   } catch (error) {
     app.log.warn({ err: error, profileId }, "Failed to upgrade a legacy PIN hash");
+    return pinHash;
   }
 };
 
@@ -156,7 +162,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       if (!profile.pinHash) {
         return reply
           .code(200)
-          .send({ id: profile.id, name: profile.name, profileToken: mintProfileToken(profile.id) });
+          .send({ id: profile.id, name: profile.name, profileToken: mintProfileToken(profile.id, null) });
       }
 
       const lockout = await getPinLockout(profile.id);
@@ -173,11 +179,11 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(401).send({ error: "Incorrect PIN" });
       }
 
-      await upgradePinHashIfNeeded(app, profile.id, pin, profile.pinHash);
+      const storedPinHash = await upgradePinHashIfNeeded(app, profile.id, pin, profile.pinHash);
       await clearPinAttempts(profile.id);
       return reply
         .code(200)
-        .send({ id: profile.id, name: profile.name, profileToken: mintProfileToken(profile.id) });
+        .send({ id: profile.id, name: profile.name, profileToken: mintProfileToken(profile.id, storedPinHash) });
     },
   );
 
@@ -261,7 +267,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     // Any other change to a PIN-protected profile — its name, picture or
     // parental fields — needs the same proof that opening it does: its profile
     // token, or its PIN. (A PIN change has just checked `currentPin` above.)
-    if (profile.pinHash && body.pin === undefined && !hasValidProfileToken(request, profile.id)) {
+    if (profile.pinHash && body.pin === undefined && !hasValidProfileToken(request, profile)) {
       const proof = await verifyCurrentPin(profile.id, profile.pinHash, body.currentPin);
       if (proof === "locked_out") return reply.code(429).send(await lockedOutBody(profile.id));
       if (proof === "missing") return reply.code(401).send(TARGET_PROFILE_LOCKED_RESPONSE);
@@ -290,7 +296,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     const profile = await findOwnedProfileRow(request, profileId);
     if (!profile) return reply.code(404).send({ error: "Profile not found" });
     // What a locked profile holds is its own business until it is unlocked.
-    if (profile.pinHash && !hasValidProfileToken(request, profile.id)) {
+    if (profile.pinHash && !hasValidProfileToken(request, profile)) {
       return reply.code(401).send(TARGET_PROFILE_LOCKED_RESPONSE);
     }
 
@@ -336,7 +342,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     // An `x-profile-token` minted for *this* profile already proves the caller
     // cleared the PIN gate, so deleting the profile you are currently in does
     // not re-prompt; deleting someone else's locked profile needs its PIN.
-    if (profile.pinHash && !hasValidProfileToken(request, profile.id)) {
+    if (profile.pinHash && !hasValidProfileToken(request, profile)) {
       const lockout = await getPinLockout(profile.id);
       if (lockout.locked) {
         return reply

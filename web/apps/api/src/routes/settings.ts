@@ -13,7 +13,7 @@ import {
 import { OMDB_API_KEY_KV, getOmdbApiKey } from "../lib/omdb.js";
 import { TMDB_API_KEY_KV, getTmdbApiKey } from "../lib/tmdb-client.js";
 import { RPDB_API_KEY_KV, getRpdbApiKey } from "../lib/rpdb.js";
-import { trendingCache } from "../lib/cache.js";
+import { aiRecsCacheClear, trendingCache } from "../lib/cache.js";
 import { deleteSecretKv, writeSecretKv } from "../lib/secret-store.js";
 import { isServiceRequest } from "../lib/service-request.js";
 import { failuresFrom, getJobRuns } from "../lib/job-status.js";
@@ -67,6 +67,12 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
           return reply.code(403).send({ error: "Only the admin can change the metadata language", code: "admin_required" });
         }
         await setLanguageSetting(normalizedLang);
+        // Every cached catalog and recommendation is in the old language. Only
+        // the admin gets here; the account settings below change nothing that
+        // is cached (the region is part of the streaming catalog's key), so they
+        // no longer throw away every account's cache.
+        trendingCache.clear();
+        aiRecsCacheClear();
       }
     }
 
@@ -83,8 +89,6 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     if (typeof body.spoilerProtection === "boolean") {
       await setSpoilerProtection(body.spoilerProtection, owner);
     }
-
-    trendingCache.clear();
 
     const [language, region, spoilerProtection] = await Promise.all([
       getLanguageSetting(),
@@ -210,9 +214,11 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
   // URLs — which is what this route is for.
   //
   // It is the one place a stored third-party key is handed back out, so it is
-  // restricted to the add-on service rather than to `API_TOKEN`: the browser
-  // holds that token too, and has no use for the key. `/rpdb/status` is what
-  // Settings reads, and says only whether one is configured.
+  // restricted to the add-on service rather than to `API_TOKEN`: anything else
+  // holding that token (the operator's scripts, a browser still carrying the
+  // one it stored before accounts) has no use for the key, and neither does a
+  // signed-in session. `/rpdb/status` is what Settings reads, and says only
+  // whether one is configured.
   //
   // 404 rather than 401 — to anything that isn't the add-on, this route does
   // not exist.

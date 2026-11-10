@@ -133,10 +133,16 @@ export const findOwnedProfile = async (
 // (minted by POST /profiles/:id/verify on correct PIN). This is what makes the
 // PIN a real server-side boundary rather than a client-side prompt: a token
 // holder can't reach a locked profile's data just by naming its UUID.
-export const hasValidProfileToken = (request: FastifyRequest, profileId: string): boolean => {
+//
+// Takes the profile row rather than its id: a token is only good for the PIN
+// it was minted under, so the check needs the profile's current `pinHash`.
+export const hasValidProfileToken = (
+  request: FastifyRequest,
+  profile: { id: string; pinHash: string | null }
+): boolean => {
   const headerValue = request.headers[PROFILE_TOKEN_HEADER];
   const token = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-  return verifyProfileToken(token, profileId);
+  return verifyProfileToken(token, profile.id, profile.pinHash);
 };
 
 /**
@@ -182,7 +188,7 @@ export const isProfileLocked = async (
   profileId: string
 ): Promise<boolean> => {
   const profile = await findProfileById(profileId);
-  return Boolean(profile?.pinHash) && !hasValidProfileToken(request, profileId);
+  return profile !== null && Boolean(profile.pinHash) && !hasValidProfileToken(request, profile);
 };
 
 /**
@@ -208,7 +214,11 @@ export const isActingAsProfile = async (
 ): Promise<boolean> => {
   const headerValue = request.headers[PROFILE_HEADER];
   const rawProfileId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-  if (rawProfileId) return rawProfileId === profileId && hasValidProfileToken(request, profileId);
+  if (rawProfileId) {
+    if (rawProfileId !== profileId) return false;
+    const profile = await findProfileById(profileId);
+    return profile !== null && hasValidProfileToken(request, profile);
+  }
 
   // No header is the single-profile install, where the one profile is implied.
   const profiles = await findProfileCandidates(request);
@@ -277,7 +287,7 @@ export const hasParentalAuthority = async (request: FastifyRequest): Promise<boo
       select: { id: true, accountId: true, pinHash: true, isKidsProfile: true },
     });
     if (acting && ownsProfile(request, acting)) {
-      return !acting.isKidsProfile && (!acting.pinHash || hasValidProfileToken(request, acting.id));
+      return !acting.isKidsProfile && (!acting.pinHash || hasValidProfileToken(request, acting));
     }
   }
 
@@ -301,7 +311,7 @@ export const resolveProfile = async (request: FastifyRequest, reply: FastifyRepl
     }
     if (
       profile.pinHash &&
-      !hasValidProfileToken(request, profile.id) &&
+      !hasValidProfileToken(request, profile) &&
       !isSignedAddonRequestFor(request, profile.id)
     ) {
       return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
@@ -313,7 +323,7 @@ export const resolveProfile = async (request: FastifyRequest, reply: FastifyRepl
   const profiles = await findProfileCandidates(request);
   const [only, ...rest] = profiles;
   if (only && rest.length === 0) {
-    if (only.pinHash && !hasValidProfileToken(request, only.id)) {
+    if (only.pinHash && !hasValidProfileToken(request, only)) {
       return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
     }
     request.profileId = only.id;
@@ -339,7 +349,7 @@ export const resolveProfileParam = async (request: FastifyRequest, reply: Fastif
   if (!profile) {
     return reply.code(404).send({ error: "Profile not found" });
   }
-  if (profile.pinHash && !hasValidProfileToken(request, profile.id)) {
+  if (profile.pinHash && !hasValidProfileToken(request, profile)) {
     return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
   }
   request.profileId = id;

@@ -32,55 +32,106 @@
 
 import { type LookupAddress, lookup as dnsLookup } from "node:dns";
 import { lookup } from "node:dns/promises";
-import { isIP, type LookupFunction } from "node:net";
+import { BlockList, isIP, type LookupFunction } from "node:net";
 import { Agent, fetch as undiciFetch } from "undici";
 
-// Canonicalize an IPv4-mapped IPv6 literal (e.g. "::ffff:a9fe:a9fe", the form
-// Node normalizes "[::ffff:169.254.169.254]" into, or the dotted-quad form
-// dns.lookup can hand back) to its dotted-quad IPv4 address, so the IPv4
-// blocklist rules below can't be bypassed by expressing a blocked address in
-// IPv6 mapped notation.
+// Each IPv6 form that carries an IPv4 address in its low 32 bits, and the
+// prefix that marks it: written that way, a blocked IPv4 address must not get
+// past the IPv4 rules below. "::ffff:a9fe:a9fe" is the form Node normalizes
+// "[::ffff:169.254.169.254]" into; NAT64 (64:ff9b::/96) is translated to the
+// embedded address by the network, so it reaches it just the same.
+const EMBEDDED_IPV4_PREFIXES: readonly (readonly number[])[] = [
+  [0, 0, 0, 0, 0, 0xffff], // IPv4-mapped, ::ffff:0:0/96
+  [0, 0, 0, 0, 0xffff, 0], // IPv4-translated (SIIT), ::ffff:0:0:0/96
+  [0, 0, 0, 0, 0, 0], // IPv4-compatible, ::/96 (deprecated, but parsed)
+  [0x64, 0xff9b, 0, 0, 0, 0], // NAT64 well-known prefix, 64:ff9b::/96
+];
+
+/** The eight 16-bit groups of an IPv6 literal, or null when it is not one. */
+const ipv6Groups = (host: string): number[] | null => {
+  if (isIP(host) !== 6) return null;
+  let text = host;
+  // A trailing dotted quad is the last two groups.
+  const dotted = text.match(/^(.*:)(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (dotted) {
+    const [, head = "", a, b, c, d] = dotted;
+    const octets = [a, b, c, d].map(Number) as [number, number, number, number];
+    text = `${head}${((octets[0] << 8) | octets[1]).toString(16)}:${((octets[2] << 8) | octets[3]).toString(16)}`;
+  }
+  const parse = (part: string | undefined): number[] =>
+    part ? part.split(":").map((group) => Number.parseInt(group, 16)) : [];
+  const [headText, tailText] = text.split("::");
+  const head = parse(headText);
+  if (tailText === undefined) return head;
+  const tail = parse(tailText);
+  return [...head, ...new Array<number>(8 - head.length - tail.length).fill(0), ...tail];
+};
+
+// Lowercases and strips brackets and any zone id; an IPv6 literal that embeds
+// an IPv4 address (see above) becomes that address in dotted-quad form, so it
+// is judged by the IPv4 rules.
 const normalizeHostname = (hostname: string): string => {
-  const host = hostname.toLowerCase().replace(/^\[/, "").replace(/\]$/, "");
-
-  const dotted = host.match(/^::ffff:(?:0:)?(\d{1,3}(?:\.\d{1,3}){3})$/)?.[1];
-  if (dotted !== undefined) return dotted;
-
-  const mapped = host.match(/^::ffff:(?:0:)?([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
-  // Both halves are required by the pattern. Falling back to the hostname
-  // unchanged is the same answer a non-match gets, which is the safe direction:
-  // an address this cannot canonicalize is checked as it was written.
-  const [, highRaw, lowRaw] = mapped ?? [];
-  if (highRaw === undefined || lowRaw === undefined) return host;
-
-  const high = Number.parseInt(highRaw, 16);
-  const low = Number.parseInt(lowRaw, 16);
+  const host = hostname.toLowerCase().replace(/^\[/, "").replace(/\]$/, "").replace(/%.*$/, "");
+  const groups = ipv6Groups(host);
+  if (!groups) return host;
+  const embedded = EMBEDDED_IPV4_PREFIXES.some((prefix) => prefix.every((group, index) => groups[index] === group));
+  if (!embedded) return host;
+  const [high = 0, low = 0] = groups.slice(6);
   return [high >> 8, high & 0xff, low >> 8, low & 0xff].join(".");
 };
 
-const isBlockedAiHostname = (hostname: string): boolean => {
-  const host = normalizeHostname(hostname);
-  return (
-    host === "0.0.0.0" ||
-    host === "::" ||
-    /^169\.254\./.test(host) || // IPv4 link-local, incl. 169.254.169.254 (cloud metadata)
-    /^fe80:/.test(host) || // IPv6 link-local
-    host === "fd00:ec2::254" // AWS IMDS over IPv6
-  );
+/** An address-range blocklist, from CIDR strings of either family. */
+const rangeBlockList = (ranges: readonly string[]): BlockList => {
+  const list = new BlockList();
+  for (const range of ranges) {
+    const [network = "", prefix] = range.split("/");
+    const family = isIP(network) === 6 ? "ipv6" : "ipv4";
+    list.addSubnet(network, Number(prefix), family);
+  }
+  return list;
 };
+
+const isInRanges = (list: BlockList, host: string): boolean => {
+  const family = isIP(host);
+  if (family === 4) return list.check(host, "ipv4");
+  if (family === 6) return list.check(host, "ipv6");
+  return false;
+};
+
+// Never a legitimate LLM or notification host, wherever it is configured from.
+const AI_BLOCKED_RANGES = rangeBlockList([
+  "0.0.0.0/32", // unspecified
+  "169.254.0.0/16", // IPv4 link-local, incl. 169.254.169.254 (cloud metadata)
+  "::/128", // unspecified
+  "fe80::/10", // IPv6 link-local
+  "fd00:ec2::254/128", // AWS IMDS over IPv6
+]);
+
+// Everything that is not a public unicast address.
+const PUSH_BLOCKED_RANGES = rangeBlockList([
+  "0.0.0.0/8", // "this network"; 0.x connects to the local host on Linux
+  "10.0.0.0/8",
+  "100.64.0.0/10", // carrier-grade NAT, Tailscale
+  "127.0.0.0/8",
+  "169.254.0.0/16",
+  "172.16.0.0/12",
+  "192.168.0.0/16",
+  "198.18.0.0/15", // benchmarking, used internally by some networks
+  "224.0.0.0/4", // multicast
+  "240.0.0.0/4", // reserved, incl. 255.255.255.255 broadcast
+  "::/128",
+  "::1/128",
+  "fc00::/7", // unique-local
+  "fe80::/10",
+  "ff00::/8", // multicast
+]);
+
+const isBlockedAiHostname = (hostname: string): boolean =>
+  isInRanges(AI_BLOCKED_RANGES, normalizeHostname(hostname));
 
 const isBlockedPushHostname = (hostname: string): boolean => {
   const host = normalizeHostname(hostname);
-  return (
-    isBlockedAiHostname(host) ||
-    host === "localhost" ||
-    host === "::1" ||
-    /^127\./.test(host) ||
-    /^10\./.test(host) ||
-    /^192\.168\./.test(host) ||
-    /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
-    /^f[cd][0-9a-f]{2}:/.test(host) // IPv6 unique-local (fc00::/7)
-  );
+  return isBlockedAiHostname(host) || host === "localhost" || isInRanges(PUSH_BLOCKED_RANGES, host);
 };
 
 /** Whether an outbound target may be on a private network: see the top of this file. */

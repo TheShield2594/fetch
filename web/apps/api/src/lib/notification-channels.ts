@@ -20,7 +20,7 @@
 import type { NotificationChannelKind } from "@prisma/client";
 import { prisma } from "./prisma.js";
 import { SECRET_CONTEXT, decryptSecret } from "./secret-box.js";
-import { type OutboundScope, resolveNotificationUrl } from "./ssrf.js";
+import { type GuardedRequest, type OutboundScope, guardedFetch, resolveNotificationUrl } from "./ssrf.js";
 import { OUTBOUND_FAILURE_MESSAGE } from "./outbound-test.js";
 import type { OutboundFailure } from "./outbound-test.js";
 
@@ -107,7 +107,7 @@ const gotifyMessageUrl = (raw: string): string => {
   return trimmed.endsWith("/message") ? trimmed : `${trimmed}/message`;
 };
 
-export type ChannelRequest = { url: string; init: RequestInit };
+export type ChannelRequest = { url: string; init: GuardedRequest };
 
 /**
  * The HTTP request that delivers `event` over `channel`. Pure — no network, no
@@ -234,14 +234,15 @@ export const sendToChannel = async (
     );
   }
 
-  let response: Response;
+  let response: Response | null;
   try {
-    response = await fetch(request.url, {
+    // Pinned to addresses that pass the same check, so the name cannot be
+    // re-pointed between the check above and the connect (DNS rebinding); and
+    // refusing redirects, so an allowed host cannot bounce this request to an
+    // internal address the validator would have rejected.
+    response = await guardedFetch(request.url, scope, {
       ...request.init,
       signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
-      // An allowed host must not be able to bounce this request to an internal
-      // address the validator would have rejected.
-      redirect: "error",
     });
   } catch (cause) {
     // The socket error names the address and says whether the port was closed
@@ -249,6 +250,12 @@ export const sendToChannel = async (
     // the caller.
     const detail = cause instanceof Error ? cause.message : String(cause);
     throw new ChannelSendError("unreachable", `${channel.name}: ${detail}`, { cause });
+  }
+  if (!response) {
+    throw new ChannelSendError(
+      "blocked",
+      `${channel.name}: URL resolves to an address that is not an allowed outbound target`
+    );
   }
 
   if (!response.ok) {

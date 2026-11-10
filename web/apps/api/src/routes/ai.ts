@@ -5,7 +5,7 @@ import { invalidateKv } from "../lib/kv.js";
 import { getTmdb } from "../lib/tmdb-client.js";
 import { upsertMetadata } from "../lib/metadata.js";
 import { getRpdbApiKey, applyRpdbToMetaList } from "../lib/rpdb.js";
-import { trendingCacheDeletePrefix, trendingCacheGet, trendingCacheSet } from "../lib/cache.js";
+import { aiRecsCacheDeleteForProfiles, trendingCacheGet, trendingCacheSet } from "../lib/cache.js";
 import {
   AI_CONFIG_KEY,
   AI_LAST_RECS_GENERATED_AT_KEY,
@@ -14,12 +14,13 @@ import {
   isAiConfiguredForProfile,
   redactAiConfig,
   getAiRecommendations,
+  invalidateAiRecsForOwner,
 } from "../lib/ai.js";
 import { resolveProfile } from "../lib/profile.js";
 import { outboundScopeForOwner, ownerForRequest, ownerKvKey } from "../lib/integration-owner.js";
 import { writeSecretKv } from "../lib/secret-store.js";
 import { loadRecommendations } from "../lib/recommendations.js";
-import { resolveAiProviderUrl, validateAiProviderUrl } from "../lib/ssrf.js";
+import { guardedFetch, resolveAiProviderUrl, validateAiProviderUrl } from "../lib/ssrf.js";
 import { outboundFailure } from "../lib/outbound-test.js";
 import { getMetadataType } from "../lib/types.js";
 import type { StremioMetaPreview, StremioMetaType } from "../lib/types.js";
@@ -244,8 +245,9 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
-  app.post("/recommendations/ai/refresh", async () => {
-    trendingCacheDeletePrefix("ai-recs:");
+  // The requesting profile's own, not every account's.
+  app.post("/recommendations/ai/refresh", async (request) => {
+    aiRecsCacheDeleteForProfiles([request.profileId!]);
     return { refreshed: true };
   });
 
@@ -413,7 +415,7 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
 
     await writeSecretKv(ownerKvKey(AI_CONFIG_KEY, owner), JSON.stringify(validConfig));
 
-    trendingCacheDeletePrefix("ai-recs:");
+    await invalidateAiRecsForOwner(owner);
 
     return { configured: true };
   });
@@ -426,7 +428,7 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
     });
     // The config is read through the KV cache; the watermark beside it is not.
     invalidateKv(configKey);
-    trendingCacheDeletePrefix("ai-recs:");
+    await invalidateAiRecsForOwner(owner);
     return { configured: false };
   });
 
@@ -480,19 +482,19 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
       },
     };
 
-    let response: Response;
+    let response: Response | null;
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15_000);
       try {
-        response = await fetch(testConfig.url, {
+        // Pinned to checked addresses (no DNS rebinding past the check above)
+        // and refusing redirects, so an allowed host cannot bounce this request
+        // to an internal address the validator would reject.
+        response = await guardedFetch(testConfig.url, scope, {
           method: "POST",
           headers: { "Content-Type": "application/json", ...testConfig.headers },
           body: JSON.stringify(testConfig.payload),
           signal: controller.signal,
-          // Don't follow redirects — an allowed host must not be able to bounce
-          // this request to an internal address the validator would reject.
-          redirect: "error",
         });
       } finally {
         clearTimeout(timeoutId);
@@ -503,6 +505,12 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
       // response.
       request.log.warn(err, "AI provider test could not reach the endpoint");
       return outboundFailure("unreachable");
+    }
+    if (!response) {
+      return outboundFailure(
+        "blocked",
+        "Invalid config: url resolves to an address that is not an allowed outbound target"
+      );
     }
 
     if (!response.ok) {
@@ -516,8 +524,11 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
       const data = await response.json() as {
         choices?: Array<{ message?: { content?: string } }>;
       };
-      const content = (data.choices?.[0]?.message?.content ?? "").trim().slice(0, 100);
-      return { success: true, response: content };
+      // Checked for shape, never repeated: whatever the endpoint said is not
+      // the caller's to read back, or a LAN service answering 200 with JSON
+      // would have its first bytes reflected.
+      if (!Array.isArray(data.choices)) throw new Error("Response has no choices array");
+      return { success: true };
     } catch (err) {
       // A 200 that isn't the JSON an OpenAI-compatible endpoint returns: the
       // request got somewhere, but not to a usable provider. Same verdict as a

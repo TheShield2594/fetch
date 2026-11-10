@@ -1,10 +1,10 @@
 /**
  * The pure half of the collection builder: making new collections, folders and
- * sources in the TV's own shape, describing a source in a line, and reading an
- * addon's manifest. Kept out of the page so it can be tested without a DOM.
+ * sources in the TV's own shape, describing a source in a line, and finding an
+ * addon's base address. Kept out of the page so it can be tested without a DOM.
  */
 
-import type { CatalogMeta, Collection, CollectionFolder, CollectionSource, TmdbSourceType } from "../api";
+import type { Collection, CollectionFolder, CollectionSource, TmdbSourceType } from "../api";
 
 const newId = (): string =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -92,7 +92,7 @@ export function describeSource(source: CollectionSource): string {
   }
 }
 
-// ─── Addon catalogs, read from the addon directly ───
+// ─── Addon catalogs (the server reads the addon; see `api.readAddonManifest`) ───
 
 export type AddonCatalog = { type: string; id: string; name: string };
 export type AddonManifest = { id: string; name: string; transportUrl: string; catalogs: AddonCatalog[] };
@@ -101,49 +101,6 @@ export type AddonManifest = { id: string; name: string; transportUrl: string; ca
 export function addonBaseUrl(raw: string): string {
   const trimmed = raw.trim().replace(/^stremio:\/\//i, "https://");
   return trimmed.replace(/\/manifest\.json(?:\?.*)?$/i, "").replace(/\/+$/, "");
-}
-
-export function parseAddonManifest(body: unknown, transportUrl: string): AddonManifest {
-  if (!body || typeof body !== "object") throw new Error("That address didn't return an addon manifest.");
-  const manifest = body as { id?: unknown; name?: unknown; catalogs?: unknown };
-  if (typeof manifest.id !== "string" || !manifest.id) throw new Error("The manifest has no addon id.");
-  const catalogs = Array.isArray(manifest.catalogs)
-    ? manifest.catalogs
-        .filter((c): c is { type: string; id: string; name?: unknown } =>
-          Boolean(c) && typeof c.type === "string" && typeof c.id === "string")
-        .map((c) => ({ type: c.type, id: c.id, name: typeof c.name === "string" && c.name ? c.name : c.id }))
-    : [];
-  return {
-    id: manifest.id,
-    name: typeof manifest.name === "string" ? manifest.name : manifest.id,
-    transportUrl,
-    catalogs,
-  };
-}
-
-export async function fetchAddonManifest(url: string): Promise<AddonManifest> {
-  const base = addonBaseUrl(url);
-  const response = await fetch(`${base}/manifest.json`);
-  if (!response.ok) throw new Error(`The addon answered ${response.status}.`);
-  return parseAddonManifest(await response.json(), base);
-}
-
-export async function fetchAddonCatalogPage(base: string, source: CollectionSource): Promise<CatalogMeta[]> {
-  const extra = source.genre ? `/genre=${encodeURIComponent(source.genre)}` : "";
-  const response = await fetch(
-    `${base}/catalog/${encodeURIComponent(source.type ?? "movie")}/${encodeURIComponent(source.catalogId ?? "")}${extra}.json`
-  );
-  if (!response.ok) throw new Error(`The addon answered ${response.status}.`);
-  const body = (await response.json()) as { metas?: { id?: unknown; type?: unknown; name?: unknown; poster?: unknown }[] };
-  return (body.metas ?? [])
-    .filter((meta) => typeof meta.id === "string" && typeof meta.name === "string")
-    .slice(0, 20)
-    .map((meta) => ({
-      id: meta.id as string,
-      type: meta.type === "series" ? "series" : "movie",
-      name: meta.name as string,
-      poster: typeof meta.poster === "string" ? meta.poster : undefined,
-    }));
 }
 
 // The website only learns an addon's address when someone types it into the

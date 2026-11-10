@@ -43,6 +43,33 @@ async function fetchManifestInBrowser(manifestUrl: string): Promise<unknown> {
 }
 
 /**
+ * An addon's logo, or the puzzle piece when it has none or it won't load. Logos
+ * live on whatever host the addon chose, and the production CSP's `img-src`
+ * names only the artwork CDNs, so the fallback is the common case there rather
+ * than an edge one.
+ *
+ * Keyed by `src` where it is used, so a new logo address gets a fresh attempt.
+ */
+function AddonLogo({ src }: { src: string | null }) {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) {
+    return <Puzzle size={20} className="flex-none" style={{ color: "var(--text-mute)" }} aria-hidden="true" />;
+  }
+  return (
+    // onError is a load event, not a user interaction.
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+    <img
+      src={src}
+      alt=""
+      className="h-8 w-8 flex-none rounded-lg object-contain"
+      loading="lazy"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
+
+/**
  * The addons a profile's TV runs, in the order it lists them. Each change is
  * saved as it is made; the TV picks the list up on its next sync.
  */
@@ -234,11 +261,7 @@ export function TvAddonsSettings() {
                   disabled={busyId !== null || reordering}
                   onMove={move}
                 />
-                {addon.logo ? (
-                  <img src={addon.logo} alt="" className="h-8 w-8 flex-none rounded-lg object-contain" loading="lazy" />
-                ) : (
-                  <Puzzle size={20} className="flex-none" style={{ color: "var(--text-mute)" }} aria-hidden="true" />
-                )}
+                <AddonLogo key={addon.logo ?? ""} src={addon.logo} />
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-medium" style={{ color: "var(--text)" }}>
                     {addon.name}

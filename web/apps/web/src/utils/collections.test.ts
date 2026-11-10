@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addonBaseUrl, describeSource, newCollection, parseAddonManifest } from "./collections";
+import { addonBaseUrl, describeSource, newCollection } from "./collections";
 
 describe("newCollection", () => {
   it("starts with one empty folder, in the TV's shape", () => {
@@ -36,26 +36,5 @@ describe("addon manifests", () => {
     ["https://addon.example/", "https://addon.example"],
   ])("finds the base of %s", (input, expected) => {
     expect(addonBaseUrl(input)).toBe(expected);
-  });
-
-  it("reads the id and catalogs", () => {
-    expect(
-      parseAddonManifest(
-        { id: "org.example", name: "Example", catalogs: [{ type: "movie", id: "top", name: "Top" }, { type: "series", id: "new" }, { bad: true }] },
-        "https://addon.example"
-      )
-    ).toEqual({
-      id: "org.example",
-      name: "Example",
-      transportUrl: "https://addon.example",
-      catalogs: [
-        { type: "movie", id: "top", name: "Top" },
-        { type: "series", id: "new", name: "new" },
-      ],
-    });
-  });
-
-  it("rejects something that isn't a manifest", () => {
-    expect(() => parseAddonManifest({ name: "x" }, "u")).toThrow(/no addon id/);
   });
 });

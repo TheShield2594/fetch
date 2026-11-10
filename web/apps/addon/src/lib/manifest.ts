@@ -64,14 +64,15 @@ export const buildManifest = (lists: FetchList[], genres: string[], config: Addo
     ? selectDiscoveryCatalogs(config.enabledCatalogs, { aiConfigured: config.aiConfigured })
     : DISCOVERY_CATALOGS.filter((catalog) => !catalogRequiresAi(catalog));
 
+  // No `search` here: Stremio sends a search to every catalog that declares
+  // it, and filtering a 20-item trending row by name finds next to nothing
+  // while costing a request per row. Lists, which hold what the profile
+  // actually saved, keep it.
   const discoveryCatalogs = selected.map((catalog) => ({
     type: catalog.type,
     id: catalog.id,
     name: catalog.label,
-    extra: [
-      { name: "search", isRequired: false },
-      ...genreExtra,
-    ],
+    extra: genreExtra,
   }));
 
   const catalogs = [...listCatalogs, ...discoveryCatalogs];

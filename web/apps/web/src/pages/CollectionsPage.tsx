@@ -31,8 +31,6 @@ import {
   type AddonManifest,
   addonBaseUrl,
   describeSource,
-  fetchAddonCatalogPage,
-  fetchAddonManifest,
   newCollection,
   newFolder,
   rememberAddonUrl,
@@ -94,7 +92,8 @@ function SourcePreview({ source, onClose }: { source: CollectionSource; onClose:
     let cancelled = false;
     const load =
       source.provider === "addon"
-        ? fetchAddonCatalogPage(knownAddonUrl!, source)
+        ? // Read by the server: the site's CSP keeps the browser off the addon's host.
+          api.previewCollectionSource({ ...source, addonUrl: knownAddonUrl! }).then((result) => result.metas)
         : api.previewCollectionSource(source).then((result) => result.metas);
     load.then(
       (result) => { if (!cancelled) setMetas(result); },
@@ -266,7 +265,7 @@ function SourceBuilder({
     setLoadingManifest(true);
     setManifestError(null);
     try {
-      const loaded = await fetchAddonManifest(manifestUrl);
+      const { manifest: loaded } = await api.readAddonManifest(manifestUrl);
       if (loaded.catalogs.length === 0) throw new Error("This addon has no catalogs.");
       rememberAddonUrl(loaded.id, loaded.transportUrl);
       setManifest(loaded);

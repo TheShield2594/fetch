@@ -21,6 +21,16 @@ vi.mock("../lib/stremio-helpers.js", () => ({
 }));
 vi.mock("../lib/tmdb-client.js", () => ({ getTmdb: async () => ({ collectionSourcePage: tmdbPage }) }));
 vi.mock("../lib/trakt-client.js", () => ({ isTraktConnected: async () => false, getTraktClient: vi.fn() }));
+vi.mock("../lib/integration-owner.js", () => ({ outboundScopeForProfile: async () => ({ allowPrivateNetwork: false }) }));
+
+// The addon's side of the conversation: what the server fetched, and what it answers.
+const guardedFetch = vi.fn();
+vi.mock("../lib/ssrf.js", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../lib/ssrf.js")>()),
+  guardedFetch: (...args: unknown[]) => guardedFetch(...args),
+}));
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
 const buildApp = (): Promise<FastifyInstance> => buildRouteApp(() => import("./collections.js"));
 
@@ -146,7 +156,7 @@ describe("collections routes", () => {
       expect(response.statusCode).toBe(409);
     });
 
-    it("leaves addon catalogs to the browser", async () => {
+    it("asks for the addon's address when the source has none", async () => {
       const app = await buildApp();
       const response = await app.inject({
         method: "POST",
@@ -155,6 +165,123 @@ describe("collections routes", () => {
         payload: { source: { provider: "addon", addonId: "a", type: "movie", catalogId: "top" } },
       });
       expect(response.statusCode).toBe(422);
+      expect(response.json().code).toBe("addon_url_required");
+      expect(guardedFetch).not.toHaveBeenCalled();
+    });
+
+    it("reads an addon catalog itself, so the browser's CSP doesn't stand in the way", async () => {
+      guardedFetch.mockResolvedValue(
+        json({
+          metas: [
+            { id: "tt1", type: "movie", name: "Up", poster: "https://images.metahub.space/poster/tt1.jpg" },
+            { id: "tt2", name: "No type", poster: "javascript:alert(1)" },
+            { name: "No id" },
+          ],
+        })
+      );
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/collections/preview",
+        headers,
+        payload: {
+          source: {
+            provider: "addon",
+            addonId: "a",
+            addonUrl: "https://addon.example/key=secret",
+            type: "movie",
+            catalogId: "top",
+            genre: "Sci-Fi",
+          },
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(guardedFetch).toHaveBeenCalledWith(
+        "https://addon.example/key=secret/catalog/movie/top/genre=Sci-Fi.json",
+        { allowPrivateNetwork: false },
+        expect.any(Object)
+      );
+      expect(response.json().metas).toEqual([
+        { id: "tt1", type: "movie", name: "Up", poster: "https://images.metahub.space/poster/tt1.jpg" },
+        { id: "tt2", type: "movie", name: "No type" },
+      ]);
+    });
+
+    it("says the addon didn't answer, without repeating its address", async () => {
+      guardedFetch.mockRejectedValue(new Error("connect ECONNREFUSED"));
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/collections/preview",
+        headers,
+        payload: {
+          source: { provider: "addon", addonId: "a", addonUrl: "https://addon.example/key=secret", type: "movie", catalogId: "top" },
+        },
+      });
+
+      expect(response.statusCode).toBe(502);
+      expect(response.body).not.toContain("secret");
+    });
+  });
+
+  describe("POST /collections/addon-manifest", () => {
+    it("reads the manifest server-side and hands back its catalogs and base address", async () => {
+      guardedFetch.mockResolvedValue(
+        json({
+          id: "org.example",
+          name: "Example",
+          version: "1.0.0",
+          resources: ["catalog"],
+          catalogs: [{ type: "movie", id: "top", name: "Top" }],
+        })
+      );
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/collections/addon-manifest",
+        headers,
+        payload: { manifestUrl: "stremio://addon.example/cfg/manifest.json" },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(guardedFetch.mock.calls[0]![0]).toBe("https://addon.example/cfg/manifest.json");
+      expect(response.json()).toEqual({
+        manifest: {
+          id: "org.example",
+          name: "Example",
+          transportUrl: "https://addon.example/cfg",
+          catalogs: [{ type: "movie", id: "top", name: "Top" }],
+        },
+      });
+    });
+
+    it("refuses something that isn't an http(s) address", async () => {
+      const app = await buildApp();
+      const response = await app.inject({
+        method: "POST",
+        url: "/collections/addon-manifest",
+        headers,
+        payload: { manifestUrl: "file:///etc/passwd" },
+      });
+      expect(response.statusCode).toBe(400);
+      expect(guardedFetch).not.toHaveBeenCalled();
+    });
+
+    it("passes on a blocked address as a refusal", async () => {
+      guardedFetch.mockResolvedValue(null);
+      const app = await buildApp();
+      const response = await app.inject({
+        method: "POST",
+        url: "/collections/addon-manifest",
+        headers,
+        payload: { manifestUrl: "http://169.254.169.254/manifest.json" },
+      });
+      expect(response.statusCode).toBe(400);
+      expect(response.json().code).toBe("manifest_invalid");
     });
   });
 });

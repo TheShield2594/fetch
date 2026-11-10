@@ -115,11 +115,10 @@ describe("CollectionsPage", () => {
     expect(screen.getByLabelText("Folder title")).toHaveValue("New folder");
   });
 
-  it("previews an addon source straight from the address it carries", async () => {
+  it("previews an addon source through the server, from the address it carries", async () => {
     const user = userEvent.setup();
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify({ metas: [{ id: "tt9", type: "movie", name: "Alien" }] }), { status: 200 })
-    );
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    previewCollectionSource.mockResolvedValue({ metas: [{ id: "tt9", type: "movie", name: "Alien" }] });
     getCollections.mockResolvedValue({
       collections: [
         {
@@ -143,7 +142,11 @@ describe("CollectionsPage", () => {
 
     const preview = await screen.findByRole("region", { name: "Preview" });
     expect(await within(preview).findByText("Alien")).toBeInTheDocument();
-    expect(fetchMock).toHaveBeenCalledWith("https://addon.example/catalog/movie/top.json");
+    // The site's CSP only lets the browser reach this deployment, so the server asks the addon.
+    expect(previewCollectionSource).toHaveBeenCalledWith(
+      expect.objectContaining({ provider: "addon", addonUrl: "https://addon.example", catalogId: "top" })
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
     expect(screen.queryByLabelText("Addon manifest URL")).not.toBeInTheDocument();
     fetchMock.mockRestore();
   });

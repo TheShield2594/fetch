@@ -4,6 +4,7 @@ import { normalizeProxyPath, redactedRequestSerializer } from "@fetch/shared";
 import { Sentry } from "./lib/sentry.js";
 import { LOG_LEVEL, PROXY_PATH_PREFIXES, trustProxy } from "./lib/config.js";
 import { addonRouter } from "./lib/router.js";
+import { rateLimitKey } from "./lib/rate-limit-key.js";
 import { registerCatalogRoutes } from "./routes/catalog.js";
 import { registerManifestRoute } from "./routes/manifest.js";
 import { registerMarkWatchedRoutes } from "./routes/mark-watched.js";
@@ -41,12 +42,19 @@ export const app = Fastify({
 
 // ─── Rate limiting ───
 // All routes here are unauthenticated (Stremio doesn't send credentials), so apply a global limit.
+//
+// One Stremio home screen asks for every advertised catalog at once (two per
+// list plus each discovery row), and a search asks again for each list
+// catalog, so the budget covers a few home loads and searches a minute per
+// installation. A signed install URL gets its own bucket (see `rateLimitKey`),
+// so a household behind one address, or every user behind a reverse proxy
+// without `TRUST_PROXY`, doesn't share a single one.
 
 app.register(rateLimit, {
   global: true,
-  max: 100,
+  max: 300,
   timeWindow: "1 minute",
-  keyGenerator: (request) => request.ip,
+  keyGenerator: rateLimitKey,
 });
 
 // ─── Error tracking (opt-in via SENTRY_DSN) ───
@@ -59,14 +67,21 @@ Sentry.setupFastifyErrorHandler(app);
 // both bare and under the per-profile prefix — see `lib/profile.ts`. `/health`
 // is the exception: it is this container's own, not part of the addon protocol.
 
-const routes = addonRouter(app);
+//
+// They go in a plugin rather than straight onto `app`: `@fastify/rate-limit`
+// attaches itself to routes through an `onRoute` hook that only exists once the
+// plugin has loaded, which happens after this file has run. Routes declared on
+// the root here were registered before that and were never limited at all.
+app.register(async (scope) => {
+  const routes = addonRouter(scope);
 
-registerHealthRoute(app);
-registerManifestRoute(routes);
-registerCatalogRoutes(routes);
-registerMetaRoute(routes);
-registerStreamRoute(routes);
-registerSubtitlesRoute(routes);
-registerMarkWatchedRoutes(routes);
-registerScrobbleRoute(routes);
-registerConfigureRoute(routes);
+  registerHealthRoute(scope);
+  registerManifestRoute(routes);
+  registerCatalogRoutes(routes);
+  registerMetaRoute(routes);
+  registerStreamRoute(routes);
+  registerSubtitlesRoute(routes);
+  registerMarkWatchedRoutes(routes);
+  registerScrobbleRoute(routes);
+  registerConfigureRoute(routes);
+});

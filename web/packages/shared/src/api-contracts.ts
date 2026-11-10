@@ -217,6 +217,19 @@ export const parseProfilesResponse = (value: unknown): { profiles: { id: string 
   return { profiles };
 };
 
+// ─── Auth status ───
+
+/**
+ * `GET /auth/status` as `API_TOKEN` sees it. `multipleAccounts` is only sent to
+ * that token; read as absent (false would claim something the API didn't say).
+ */
+export const parseAuthStatusResponse = (value: unknown): { multipleAccounts: boolean | null } => {
+  const body = asObject(value, "response");
+  return {
+    multipleAccounts: body.multipleAccounts === undefined ? null : asBoolean(body.multipleAccounts, "multipleAccounts"),
+  };
+};
+
 // ─── Addon config ───
 
 export type AddonConfig = { enabledCatalogs: string[] };

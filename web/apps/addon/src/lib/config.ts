@@ -1,4 +1,4 @@
-import { parseProxyPathPrefixes, parseTrustProxy, parseBool } from "@fetch/shared";
+import { parseProxyPathPrefixes, parseTrustProxy, parseBool, parseBoolStrict } from "@fetch/shared";
 
 /**
  * Everything this service reads out of its environment, read once.
@@ -22,14 +22,30 @@ export const PROXY_PATH_PREFIXES = parseProxyPathPrefixes(process.env.PROXY_PATH
 export const trustProxy = parseTrustProxy(process.env.TRUST_PROXY);
 
 /**
- * Answer only the signed `/u/<profileId>/<key>/` URLs, and turn away the bare
- * and `/p/<profileId>/` ones. Those carry no secret: anyone who can reach this
- * service and knows (or guesses) a profile id could read that profile's lists
- * and record watches for it. Off by default so addons already installed on a
- * home network keep working; turn it on before this service is reachable from
- * the internet.
+ * When to answer only the signed `/u/<profileId>/<key>/` URLs and turn away the
+ * bare and `/p/<profileId>/` ones. Those carry no secret: anyone who can reach
+ * this service and knows (or guesses) a profile id could read that profile's
+ * lists and record watches for it, and the bare form serves the oldest profile.
+ *
+ * - `always` (`true`): signed only. Set it before this service faces the internet.
+ * - `never` (`false`): the old forms keep working whatever the install looks like.
+ * - `auto` (unset, the default): the old forms keep working while one account
+ *   owns every profile, and stop the moment a second account exists. Their
+ *   only users are installs from before the signed URL, and those are always
+ *   single-account; once friends have accounts, the bare URL would hand them
+ *   (or anyone else) the admin's lists.
  */
-export const REQUIRE_SIGNED_URLS = parseBool(process.env.ADDON_REQUIRE_SIGNED_URLS);
+export type SignedUrlMode = "always" | "never" | "auto";
+
+export const parseSignedUrlMode = (value: string | undefined): SignedUrlMode => {
+  const normalized = value?.trim().toLowerCase() ?? "";
+  if (normalized === "" || normalized === "auto") return "auto";
+  const flag = parseBoolStrict(normalized);
+  // A typo lands on `auto`, which refuses when it matters, rather than on `never`.
+  return flag === null ? "auto" : flag ? "always" : "never";
+};
+
+export const SIGNED_URL_MODE = parseSignedUrlMode(process.env.ADDON_REQUIRE_SIGNED_URLS);
 
 /** Whether a `stream`/`subtitles` request is forwarded to the API as a play signal. */
 export const PLAY_DETECTION = parseBool(process.env.STREMIO_PLAY_DETECTION);

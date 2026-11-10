@@ -122,6 +122,8 @@ describe("tmdbHealth", () => {
       tone: "ok",
       label: "Key set (env)",
       short: "Key set",
+      // Nothing to enter in Settings, so the section is left out there.
+      setByServer: true,
     });
     expect(tmdbHealth({ configured: true, source: "db" })).toEqual({
       tone: "ok",

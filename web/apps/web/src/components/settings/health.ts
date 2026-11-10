@@ -38,6 +38,12 @@ export type SectionHealth = {
    * falls back to `label`, which is short enough almost everywhere.
    */
   short?: string;
+  /**
+   * The deployment's environment already supplies this, so there is nothing to
+   * set here: Settings leaves the section out, while the status board still
+   * reports it.
+   */
+  setByServer?: true;
 };
 
 /*
@@ -134,7 +140,8 @@ export function stremioHealth(
  */
 export function tmdbHealth(status: TmdbStatus): SectionHealth {
   if (!status.configured) return { tone: "warn", label: "No key — artwork is off", short: "No key" };
-  return { tone: "ok", label: status.source === "env" ? "Key set (env)" : "Key set", short: "Key set" };
+  if (status.source === "env") return { tone: "ok", label: "Key set (env)", short: "Key set", setByServer: true };
+  return { tone: "ok", label: "Key set", short: "Key set" };
 }
 
 /** OMDB, RPDB: extra ratings and prettier posters. Nice to have, never a fault. */

@@ -32,7 +32,12 @@ export type MdbListPending = {
 export type MdbListStatus = Omit<SimklStatus, "pending"> & { pending: MdbListPending | null };
 
 /** The profile's MDBList API key for ratings, and whether its MDBList sign-in can stand in for one. */
-export type MdbListKeyStatus = { hasKey: boolean; signedIn: boolean };
+export type MdbListKeyStatus = {
+  hasKey: boolean;
+  signedIn: boolean;
+  /** The server has MDBList sign-in set up (MDBLIST_CLIENT_ID), so no key needs pasting. */
+  signInAvailable?: boolean;
+};
 
 export type MdbListRating = { source: MdbListRatingSource; value: number; certified: boolean };
 

@@ -86,12 +86,28 @@ function ApiKeyForm() {
         <div className="flex flex-wrap items-center gap-3">
           <StatusBadge
             ok={status.hasKey || status.signedIn}
-            label={status.hasKey ? "API key saved" : status.signedIn ? "Using your MDBList sign-in" : "No API key"}
+            label={
+              status.hasKey
+                ? "API key saved"
+                : status.signedIn
+                  ? "Using your MDBList sign-in"
+                  : status.signInAvailable
+                    ? "Not signed in to MDBList"
+                    : "No API key"
+            }
           />
         </div>
       )}
 
-      {status?.hasKey ? (
+      {/* Where the server has MDBList sign-in set up, the sign-in reads the
+          ratings and no key is asked for. One saved earlier can still be removed. */}
+      {status?.signInAvailable && !status.hasKey ? (
+        !status.signedIn && (
+          <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
+            Sign in to MDBList under Where history comes from to show these ratings.
+          </p>
+        )
+      ) : status?.hasKey ? (
         <button type="button" onClick={() => void remove()} className="btn-secondary hover:bg-rose-600 hover:text-white">
           <Unplug size={16} /> Remove key
         </button>
@@ -334,7 +350,8 @@ export function MdbListRatingsSettings() {
     <div className="space-y-6">
       <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
         Ratings from IMDb, Trakt, TMDB, Rotten Tomatoes, Letterboxd, Metacritic and MyAnimeList on this profile&apos;s
-        detail pages, read through MDBList. Paste an API key from{" "}
+        detail pages, read through MDBList with this profile&apos;s MDBList sign-in (under Where history comes from),
+        or with an API key from{" "}
         <a
           href="https://mdblist.com/preferences/"
           target="_blank"
@@ -342,8 +359,8 @@ export function MdbListRatingsSettings() {
           className="text-claw-text underline underline-offset-2 hover:decoration-2"
         >
           mdblist.com
-        </a>
-        , or sign in to MDBList under Where history comes from and that sign-in is used instead.
+        </a>{" "}
+        where the server has no MDBList sign-in set up.
       </p>
       {/* Keyed by profile: each holds state that belongs to the profile it loaded for. */}
       <ApiKeyForm key={`key-${profileId}`} />

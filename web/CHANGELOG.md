@@ -13,6 +13,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Changed
 
+- **Settings no longer asks for keys the server already has.** With `TMDB_API_KEY` set, the TMDB Metadata section is left out of Settings. With `MDBLIST_CLIENT_ID` set, Ratings from MDBList no longer asks for an API key, since the profile's MDBList sign-in reads the ratings; which ratings show and in what order stays there.
+
 - **Trakt sign-in no longer uses a Client Secret.** Connecting Trakt now follows Trakt's current API: the Authorization Code flow with PKCE on `auth.trakt.tv`, which Trakt enforces for sign-in from February 1, 2027. Only `TRAKT_CLIENT_ID` is needed; `TRAKT_CLIENT_SECRET` is no longer read and can be removed from `.env`. Existing connections keep working; one Trakt refuses with `invalid_grant` needs reconnecting once from Settings.
 
 - **Unused routes are gone.** `/watchlist`, `/continue`, `/recent`, the four `/stremio/catalog/my_*` routes, `/metadata/anime-search` (and the AniList client behind it), and the unprefixed `/addon/stremio/{manifest.json,catalog,configure}` had no caller left; the per-profile `/addon/stremio/:secret/…` routes and `/stremio/list/:listId` stay ([#372](https://github.com/TheShield2594/fetch/issues/372)).

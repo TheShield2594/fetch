@@ -37,9 +37,9 @@ data class StateAction(
 @Composable
 fun EmptyScreenState(
     title: String,
+    modifier: Modifier = Modifier,
     subtitle: String? = null,
     icon: ImageVector? = null,
-    modifier: Modifier = Modifier,
     height: Dp = 400.dp,
     action: StateAction? = null
 ) {

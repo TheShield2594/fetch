@@ -558,10 +558,10 @@ private fun SourcesButton(
 @Composable
 internal fun PlayButton(
     text: String?,
+    modifier: Modifier = Modifier,
     bestMatch: com.fetch.tv.core.streams.BestMatchPreview? = null,
     enabled: Boolean = true,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
     onLongPress: (() -> Unit)? = null,
     focusRequester: FocusRequester? = null,
     restoreFocusToken: Int = 0,

@@ -70,8 +70,8 @@ internal fun StreamSourcesSidePanel(
     onReload: () -> Unit,
     onAddonFilterSelected: (String?) -> Unit,
     onStreamSelected: (Stream) -> Unit,
+    modifier: Modifier = Modifier,
     onExpandStreams: () -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     val streamListState = rememberLazyListState()

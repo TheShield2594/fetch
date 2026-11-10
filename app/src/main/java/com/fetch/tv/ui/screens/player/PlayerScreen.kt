@@ -2092,8 +2092,8 @@ private fun ExoPlayerSurface(
     libassRenderType: LibassRenderType,
     subtitleStyle: SubtitleStyleSettings,
     subtitleLiftPx: Float,
+    modifier: Modifier = Modifier,
     onBindSubtitleView: (androidx.media3.ui.SubtitleView?) -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val latestAspectMode by rememberUpdatedState(aspectMode)
@@ -4472,8 +4472,8 @@ internal fun DialogButton(
     text: String,
     onClick: () -> Unit,
     isPrimary: Boolean,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,

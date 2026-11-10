@@ -88,6 +88,7 @@ internal fun SubtitleSelectionOverlay(
     addonSubtitles: List<Subtitle>,
     selectedAddonSubtitle: Subtitle?,
     subtitleStyle: SubtitleStyleSettings,
+    modifier: Modifier = Modifier,
     isEditingHdrStyle: Boolean = false,
     subtitleDelayMs: Int,
     installedSubtitleAddonOrder: List<String>,
@@ -99,7 +100,6 @@ internal fun SubtitleSelectionOverlay(
     onDisableSubtitles: () -> Unit,
     onEvent: (PlayerEvent) -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val noneLabel = stringResource(R.string.subtitle_none)
     val unknownLabel = stringResource(R.string.subtitle_language_unknown)

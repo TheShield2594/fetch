@@ -68,6 +68,7 @@ fun SkipIntroButton(
     interval: SkipInterval?,
     dismissed: Boolean,
     controlsVisible: Boolean,
+    modifier: Modifier = Modifier,
     targetsPostCredits: Boolean = false,
     suppressFocus: Boolean = false,
     canFocus: Boolean = true,
@@ -81,7 +82,6 @@ fun SkipIntroButton(
     downFocusRequester: FocusRequester? = null,
     upFocusRequester: FocusRequester? = null,
     rightFocusRequester: FocusRequester? = null,
-    modifier: Modifier = Modifier
 ) {
 
     var lastType by remember { mutableStateOf(interval?.type) }

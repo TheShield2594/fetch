@@ -787,6 +787,7 @@ internal fun LeftContentSection(
 private fun RightStreamSection(
     isLoading: Boolean,
     error: String?,
+    modifier: Modifier = Modifier,
     /** Why the last stream picked didn't start; stays until another stream is picked. */
     playbackError: String? = null,
     streams: List<Stream>,

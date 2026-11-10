@@ -149,7 +149,6 @@ internal fun ModernHomeRowsList(
     onFocusedHeroMediaNonceChange: (Int) -> Unit,
     onExpansionInteractionNonceChange: (Int) -> Unit,
     blockLeftOnFirstExpandedItem: Boolean = false,
-    modifier: Modifier = Modifier
 ) {
     // Unwrap StableRef wrappers for internal use (not passed to child composables)
     val focusedItemByRowMap = focusedItemByRow.value

@@ -81,6 +81,7 @@ import androidx.compose.ui.platform.LocalContext
 fun CatalogRowSection(
     catalogRow: CatalogRow,
     onItemClick: (String, String, String) -> Unit,
+    modifier: Modifier = Modifier,
     onSeeAll: () -> Unit = {},
     showSeeAll: Boolean = catalogRow.hasMore || catalogRow.items.size >= 15,
     seeAllLabel: String? = null,
@@ -99,7 +100,6 @@ fun CatalogRowSection(
     onItemFocus: (MetaPreview) -> Unit = {},
     isItemWatched: (MetaPreview) -> Boolean = { false },
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
-    modifier: Modifier = Modifier,
     enableRowFocusRestorer: Boolean = true,
     initialScrollIndex: Int = 0,
     /** Used only for initial focus restore (e.g. returning from detail screen). */

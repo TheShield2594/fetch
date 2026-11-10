@@ -102,6 +102,7 @@ private const val DISCOVER_PREFETCH_DISTANCE = 12
 internal fun DiscoverSection(
     uiState: SearchUiState,
     posterCardStyle: PosterCardStyle,
+    modifier: Modifier = Modifier,
     watchedMovieIds: Set<String> = emptySet(),
     watchedSeriesIds: Set<String> = emptySet(),
     focusResults: Boolean,
@@ -125,7 +126,6 @@ internal fun DiscoverSection(
     onLoadMore: () -> Unit,
     onRetry: () -> Unit,
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
-    modifier: Modifier = Modifier
 ) {
     val localContext = LocalContext.current
     val types = remember(uiState.discoverCatalogs) { discoverTypes(uiState.discoverCatalogs) }

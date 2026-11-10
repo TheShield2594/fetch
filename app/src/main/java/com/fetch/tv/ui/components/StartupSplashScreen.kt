@@ -32,9 +32,9 @@ import com.fetch.tv.ui.theme.FetchTheme
 fun StartupSplashScreen(
     profileColorHex: String?,
     profileBackgroundUrl: String?,
+    modifier: Modifier = Modifier,
     backgroundCacheKey: String? = null,
     brandWordmarkRes: Int? = null,
-    modifier: Modifier = Modifier
 ) {
     val avatarColor = remember(profileColorHex) {
         profileColorHex?.let {

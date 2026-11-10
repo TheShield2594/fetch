@@ -83,6 +83,7 @@ private val YEAR_REGEX = Regex("""\b\d{4}\b""")
 fun HeroCarousel(
     items: StableList<MetaPreview>,
     onItemClick: (MetaPreview) -> Unit,
+    modifier: Modifier = Modifier,
     onItemFocus: (MetaPreview) -> Unit = {},
     onActiveItemChanged: (MetaPreview) -> Unit = {},
     focusRequester: FocusRequester? = null,
@@ -92,7 +93,6 @@ fun HeroCarousel(
     initialActiveIndex: Int = 0,
     mdbListShowOnHero: Boolean = false,
     mdbListRatingOrder: List<String> = com.fetch.tv.domain.model.MDBListSettings.DEFAULT_RATING_ORDER,
-    modifier: Modifier = Modifier
 ) {
     if (items.isEmpty()) return
 

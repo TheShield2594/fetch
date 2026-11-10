@@ -77,8 +77,8 @@ fun AvatarPickerGrid(
     avatars: List<AvatarCatalogItem>,
     selectedAvatarId: String?,
     onAvatarSelected: (AvatarCatalogItem) -> Unit,
+    modifier: Modifier = Modifier,
     onAvatarFocused: ((AvatarCatalogItem?) -> Unit)? = null,
-    modifier: Modifier = Modifier
 ) {
     val categories = remember(avatars) {
         buildList {

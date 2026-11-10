@@ -325,6 +325,7 @@ internal fun ModernHeroGradientLayer(
 @Composable
 internal fun HeroTitleBlock(
     previewProvider: () -> HeroPreview?,
+    modifier: Modifier = Modifier,
     bestMatchFor: (String) -> com.fetch.tv.data.local.CachedBestMatch? = { null },
     portraitMode: Boolean,
     showImdbRatings: Boolean,

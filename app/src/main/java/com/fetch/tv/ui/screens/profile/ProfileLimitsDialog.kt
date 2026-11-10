@@ -89,6 +89,7 @@ internal fun ProfileLimitsDialog(
     parentPinSet: Boolean,
     onDismiss: () -> Unit,
     onSave: (ProfileRestrictions, KidsRules) -> Unit,
+    modifier: Modifier = Modifier,
     initialKidsRules: KidsRules = KidsRules.Default,
     /** Titles hidden from or allowed on the profile from a poster's long-press menu. */
     titleLists: ProfileTitleLists = ProfileTitleLists.Empty,
@@ -96,7 +97,6 @@ internal fun ProfileLimitsDialog(
     onClearTitle: (ParentalTitle) -> Unit = {},
     /** The parent profile's own lists (id to name), offered as sources of approved titles. */
     parentLists: List<Pair<String, String>> = emptyList(),
-    modifier: Modifier = Modifier
 ) {
     var restrictions by remember(profile.id) { mutableStateOf(initial) }
     var kidsRules by remember(profile.id) { mutableStateOf(initialKidsRules) }

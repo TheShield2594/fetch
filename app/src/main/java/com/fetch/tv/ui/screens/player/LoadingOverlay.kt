@@ -66,10 +66,10 @@ fun LoadingOverlay(
     visible: Boolean,
     backdropUrl: String?,
     logoUrl: String?,
+    modifier: Modifier = Modifier,
     title: String? = null,
     message: String? = null,
     progress: Float? = null,
-    modifier: Modifier = Modifier,
     /** Height of a panel drawn over the bottom of the overlay; the logo centres above it. */
     bottomInset: Dp = 0.dp
 ) {

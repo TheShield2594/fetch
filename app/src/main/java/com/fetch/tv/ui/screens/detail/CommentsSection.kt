@@ -102,6 +102,7 @@ fun CommentsSection(
     comments: List<TraktCommentReview>,
     commentsMode: CommentsMode,
     canToggleEpisodeComments: Boolean,
+    modifier: Modifier = Modifier,
     titleModeFocusRequester: FocusRequester? = null,
     episodeModeFocusRequester: FocusRequester? = null,
     selectedEpisode: Video?,
@@ -122,7 +123,6 @@ fun CommentsSection(
     onCommentClick: (TraktCommentReview) -> Unit,
     listState: LazyListState,
     rowEntryFocusRequester: FocusRequester? = null,
-    modifier: Modifier = Modifier,
     windowResetKey: String? = null
 ) {
     val cardShape = RoundedCornerShape(FetchTheme.radii.xl)

@@ -63,7 +63,7 @@
 <string name="web_import_tab_paste">Incolla</string>
 <string name="web_import_tab_file">File</string>
 <string name="web_import_tab_url">URL</string>
-<string name="web_import_paste_placeholder">Incolla qui il JSON delle collezioni...</string>
+<string name="web_import_paste_placeholder">Incolla qui il JSON delle collezioni…</string>
 <string name="web_import_file_select">Tocca per selezionare un file .json</string>
 <string name="web_order_send_to_top">Sposta in cima</string>
 <string name="web_order_send_to_bottom">Sposta in fondo</string>
@@ -1113,7 +1113,7 @@
 <string name="player_loading_buffering">Caricamento…</string>
 <string name="player_engine_switching_title">Cambio motore player</string>
 <string name="player_engine_switching_message">Avvio fallito. Passaggio a %1$s…</string>
-<string name="player_engine_switching_manual_message">Passaggio a %1$s...</string>
+<string name="player_engine_switching_manual_message">Passaggio a %1$s…</string>
 <string name="playback_show_loading_status">Mostra stato caricamento</string>
 <string name="playback_show_loading_status_sub">Visualizza i progressi passo dopo passo durante l\'inizializzazione del player.</string>
 <string name="player_sync_line">Sincronizzazione riga</string>
@@ -1806,9 +1806,9 @@
 <string name="collections_editor_placeholder_hero_video">URL video hero personalizzato (opzionale)</string>
 <string name="collections_editor_title_logo">Logo titolo (Home Moderna)</string>
 <string name="collections_editor_placeholder_title_logo">URL logo titolo personalizzato (opzionale)</string>
-<string name="collections_editor_search_emoji_placeholder">Cerca emoji...</string>
-<string name="collections_editor_filter_active_sources_placeholder">Filtra sorgenti attive...</string>
-<string name="collections_editor_search_catalogs_placeholder">Cerca cataloghi...</string>
+<string name="collections_editor_search_emoji_placeholder">Cerca emoji…</string>
+<string name="collections_editor_filter_active_sources_placeholder">Filtra sorgenti attive…</string>
+<string name="collections_editor_search_catalogs_placeholder">Cerca cataloghi…</string>
 <string name="collections_editor_genre_filter">Filtro generi</string>
 <string name="collections_editor_choose_genre">Scegli</string>
 <string name="collections_editor_select_genre">Seleziona genere</string>
@@ -2085,7 +2085,7 @@
 <string name="web_status_could_not_save">Impossibile salvare</string>
 
     <!-- Web config page: stream badge import status -->
-<string name="web_stream_badge_importing">Importazione...</string>
+<string name="web_stream_badge_importing">Importazione…</string>
 <string name="web_stream_badge_imported">URL badge importato.</string>
 <string name="web_stream_badge_import_error">Importazione badge fallita.</string>
 <string name="web_stream_badge_deleted">URL badge eliminato.</string>
@@ -2207,12 +2207,12 @@
 <string name="stream_test_card_title">Esegui il test di velocità dell\'ultimo stream riprodotto</string>
 <string name="stream_test_server_label">Server: %1$s</string>
 <string name="stream_test_no_stream">Nessuna riproduzione registrata. Riproduci un video per eseguire i test diagnostici sul suo host.</string>
-<string name="stream_test_btn_measuring_baseline">Misurazione baseline...</string>
-<string name="stream_test_btn_measuring_parallel1">Misurazione parallela (1MB)...</string>
-<string name="stream_test_btn_measuring_parallel4">Misurazione parallela (4MB)...</string>
-<string name="stream_test_btn_measuring_parallel8">Misurazione parallela (8MB)...</string>
-<string name="stream_test_btn_measuring_parallel16">Misurazione parallela (16MB)...</string>
-<string name="stream_test_btn_running">In esecuzione...</string>
+<string name="stream_test_btn_measuring_baseline">Misurazione baseline…</string>
+<string name="stream_test_btn_measuring_parallel1">Misurazione parallela (1MB)…</string>
+<string name="stream_test_btn_measuring_parallel4">Misurazione parallela (4MB)…</string>
+<string name="stream_test_btn_measuring_parallel8">Misurazione parallela (8MB)…</string>
+<string name="stream_test_btn_measuring_parallel16">Misurazione parallela (16MB)…</string>
+<string name="stream_test_btn_running">In esecuzione…</string>
 <string name="stream_test_label_baseline">Connessione singola standard (baseline)</string>
 <string name="stream_test_label_parallel1">Connessione parallela (chunk da 1 MB)</string>
 <string name="stream_test_label_parallel4">Connessione parallela (chunk da 4 MB)</string>

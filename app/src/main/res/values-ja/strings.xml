@@ -1260,7 +1260,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">エピソード評価を読み込み中...</string>
+    <string name="ratings_loading">エピソード評価を読み込み中…</string>
     <string name="ratings_unavailable">エピソード評価は利用できません</string>
     <string name="ratings_load_error">エピソード評価を読み込めませんでした</string>
     <string name="ratings_season_summary">シーズン%1$d - %2$dエピソード</string>
@@ -1268,7 +1268,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">ディスカバー</string>
     <string name="discover_load_more">さらに読み込む</string>
-    <string name="discover_loading">読み込み中...</string>
+    <string name="discover_loading">読み込み中…</string>
     <string name="discover_filter_genre">ジャンル</string>
     <string name="discover_empty_no_content_title">コンテンツが見つかりません</string>
     <string name="discover_empty_no_content_subtitle">別のジャンルやカタログを試してください</string>
@@ -1336,11 +1336,11 @@
     <string name="trakt_error_list_not_found_or_private">Traktリストが見つからないか非公開です</string>
     <string name="trakt_error_rate_limit_reached">Traktのレート制限に達しました</string>
     <string name="trakt_status_enter_activation_code">trakt.tv/activate でコードを入力してください</string>
-    <string name="trakt_status_syncing">同期中...</string>
+    <string name="trakt_status_syncing">同期中…</string>
     <string name="trakt_status_sync_completed">同期完了</string>
     <string name="trakt_status_disconnected">Traktから切断されました</string>
     <string name="trakt_status_cw_window_updated">視聴継続ウィンドウを更新しました</string>
-    <string name="trakt_status_rate_limited_slowing_polling">レート制限中、ポーリング速度を低下させます...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">レート制限中、ポーリング速度を低下させます…</string>
     <string name="trakt_user_fallback">Traktユーザー</string>
     <string name="trakt_error_failed_start">Trakt認証の開始に失敗しました</string>
 
@@ -1581,7 +1581,7 @@
     <string name="collections_editor_tmdb_placeholder_network">213 for Netflix, 49 for HBO, 2739 for Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 for Tom Hanks, または人物URL</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 または 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>

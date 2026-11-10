@@ -786,7 +786,7 @@
     <string name="player_loading_buffering">Буферизация…</string>
     <string name="player_engine_switching_title">Переключение движка плеера</string>
     <string name="player_engine_switching_message">Ошибка запуска. Переключение на %1$s…</string>
-    <string name="player_engine_switching_manual_message">Переключение на %1$s...</string>
+    <string name="player_engine_switching_manual_message">Переключение на %1$s…</string>
     <string name="playback_show_loading_status">Показывать статус загрузки</string>
     <string name="playback_show_loading_status_sub">Отображать пошаговый прогресс во время инициализации плеера.</string>
 
@@ -1063,7 +1063,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Загрузка рейтингов эпизода...</string>
+    <string name="ratings_loading">Загрузка рейтингов эпизода…</string>
     <string name="ratings_unavailable">Рейтинги эпизода недоступны.</string>
     <string name="ratings_load_error">Не удалось загрузить рейтинги эпизода.</string>
     <string name="ratings_season_summary">Сезон %1$d - %2$d эпизодов</string>
@@ -1071,7 +1071,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Навигатор</string>
     <string name="discover_load_more">Загрузить еще</string>
-    <string name="discover_loading">Загрузка...</string>
+    <string name="discover_loading">Загрузка…</string>
     <string name="discover_filter_genre">Жанр</string>
     <string name="discover_empty_no_content_title">Контент не найден</string>
     <string name="discover_empty_no_content_subtitle">Попробуйте другой жанр или каталог</string>
@@ -1274,7 +1274,7 @@
     <string name="type_movies">Фильмы</string>
     <string name="type_series_plural">Сериалы</string>
     <string name="web_manage_addons_only_subtitle">Установить или удалить аддоны</string>
-    <string name="web_import_paste_placeholder">Вставьте JSON коллекций сюда...</string>
+    <string name="web_import_paste_placeholder">Вставьте JSON коллекций сюда…</string>
     <string name="web_import_file_select">Нажмите, чтобы выбрать .json файл</string>
     <string name="web_order_send_to_top">Переместить в начало</string>
     <string name="web_order_send_to_bottom">Переместить в конец</string>
@@ -1667,7 +1667,7 @@
     <string name="profile_pin_current_required">У этого профиля уже есть PIN. Введите текущий PIN для изменения.</string>
     <string name="trakt_error_missing_credentials">Отсутствуют учётные данные Trakt</string>
     <string name="trakt_error_network_retry">Ошибка сети, попробуйте ещё раз</string>
-    <string name="trakt_error_network_will_retry">Ошибка сети, повтор...</string>
+    <string name="trakt_error_network_will_retry">Ошибка сети, повтор…</string>
     <string name="trakt_error_rate_limited_minutes">Trakt ограничивает запросы. Попробуйте через ~%1$d мин</string>
     <string name="trakt_error_failed_start_code">Не удалось запустить авторизацию Trakt (%1$d)</string>
     <string name="trakt_error_no_active_device_code">Нет активного кода устройства Trakt</string>
@@ -1677,11 +1677,11 @@
     <string name="trakt_error_list_not_found_or_private">Список Trakt не найден или не публичный</string>
     <string name="trakt_error_rate_limit_reached">Достигнут лимит запросов Trakt</string>
     <string name="trakt_status_enter_activation_code">Введите код на trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Синхронизация...</string>
+    <string name="trakt_status_syncing">Синхронизация…</string>
     <string name="trakt_status_sync_completed">Синхронизация завершена</string>
     <string name="trakt_status_disconnected">Отключено от Trakt</string>
     <string name="trakt_status_cw_window_updated">Окно «Продолжить просмотр» обновлено</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Ограничение запросов, замедление опроса...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Ограничение запросов, замедление опроса…</string>
     <string name="trakt_user_fallback">Пользователь Trakt</string>
     <string name="trakt_error_failed_start">Не удалось запустить авторизацию Trakt</string>
     <string name="error_unknown">Неизвестная ошибка</string>
@@ -1815,7 +1815,7 @@
     <string name="collections_editor_tmdb_placeholder_network">213 для Netflix, 49 для HBO, 2739 для Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 для Tom Hanks или URL персоны</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 или 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 для «Анимация»</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
@@ -1844,9 +1844,9 @@
     <string name="collections_editor_placeholder_hero_video">URL пользовательского видео Hero (необязательно)</string>
     <string name="collections_editor_title_logo">Логотип тайтла (Современный главный экран)</string>
     <string name="collections_editor_placeholder_title_logo">URL пользовательского логотипа тайтла (необязательно)</string>
-    <string name="collections_editor_search_emoji_placeholder">Поиск эмодзи...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Фильтр активных источников...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Поиск каталогов...</string>
+    <string name="collections_editor_search_emoji_placeholder">Поиск эмодзи…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Фильтр активных источников…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Поиск каталогов…</string>
     <string name="collections_editor_genre_filter">Фильтр жанра</string>
     <string name="collections_editor_choose_genre">Выбрать</string>
     <string name="collections_editor_select_genre">Выберите жанр</string>

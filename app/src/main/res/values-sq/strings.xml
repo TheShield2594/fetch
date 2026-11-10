@@ -62,7 +62,7 @@
     <string name="web_import_tab_paste">Ngjit</string>
     <string name="web_import_tab_file">Skedar</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Ngjit JSON-in e koleksioneve këtu...</string>
+    <string name="web_import_paste_placeholder">Ngjit JSON-in e koleksioneve këtu…</string>
     <string name="web_import_file_select">Prek për të zgjedhur një skedar .json</string>
     <string name="web_order_send_to_top">Dërgo në krye</string>
     <string name="web_order_send_to_bottom">Dërgo në fund</string>
@@ -1008,7 +1008,7 @@
     <string name="player_loading_buffering">Duke bërë buffer…</string>
     <string name="player_engine_switching_title">Duke ndërruar motorin e luajtësit</string>
     <string name="player_engine_switching_message">Nisja dështoi. Duke kaluar te %1$s…</string>
-    <string name="player_engine_switching_manual_message">Duke kaluar te %1$s...</string>
+    <string name="player_engine_switching_manual_message">Duke kaluar te %1$s…</string>
     <string name="playback_show_loading_status">Shfaq statusin e ngarkimit</string>
     <string name="playback_show_loading_status_sub">Shfaq progresin hap pas hapi ndërsa luajtësi po inicializohet.</string>
     <string name="player_sync_line">Rreshti i sinkronizimit</string>
@@ -1285,14 +1285,14 @@
     <string name="update_unknown_sources">Lejo instalimet nga burime të panjohura për të vazhduar.</string>
     <!-- AccountScreen -->
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Duke ngarkuar vlerësimet e episodeve...</string>
+    <string name="ratings_loading">Duke ngarkuar vlerësimet e episodeve…</string>
     <string name="ratings_unavailable">Vlerësimet e episodeve nuk janë të disponueshme.</string>
     <string name="ratings_load_error">Nuk mund të ngarkohen vlerësimet e episodeve.</string>
     <string name="ratings_season_summary">Sezoni %1$d - %2$d episode</string>
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Zbulo</string>
     <string name="discover_load_more">Ngarko më shumë</string>
-    <string name="discover_loading">Duke ngarkuar...</string>
+    <string name="discover_loading">Duke ngarkuar…</string>
     <string name="discover_filter_genre">Zhanri</string>
     <string name="discover_empty_no_content_title">Nuk u gjet përmbajtje</string>
     <string name="discover_empty_no_content_subtitle">Provo një zhanër ose katalog tjetër</string>
@@ -1346,11 +1346,11 @@
     <string name="trakt_error_list_not_found_or_private">Lista Trakt nuk u gjet ose nuk është publike</string>
     <string name="trakt_error_rate_limit_reached">U arrit kufiri i kërkesave Trakt</string>
     <string name="trakt_status_enter_activation_code">Shkruaj kodin në trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Duke sinkronizuar...</string>
+    <string name="trakt_status_syncing">Duke sinkronizuar…</string>
     <string name="trakt_status_sync_completed">Sinkronizimi përfundoi</string>
     <string name="trakt_status_disconnected">U shkëput nga Trakt</string>
     <string name="trakt_status_cw_window_updated">Dritarja e Vazhdo shikimin u përditësua</string>
-    <string name="trakt_status_rate_limited_slowing_polling">U arrit kufiri i kërkesave, duke ngadalësuar kontrollimin...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">U arrit kufiri i kërkesave, duke ngadalësuar kontrollimin…</string>
     <string name="trakt_user_fallback">Përdorues Trakt</string>
     <string name="trakt_error_failed_start">Nisja e autentifikimit Trakt dështoi</string>
     <!-- General errors -->
@@ -1590,7 +1590,7 @@
     <string name="collections_editor_tmdb_placeholder_network">213 për Netflix, 49 për HBO, 2739 për Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 për Tom Hanks, ose URL e personit</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ose 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 për Animacion</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
@@ -1622,9 +1622,9 @@
     <string name="collections_editor_placeholder_hero_video">URL e personalizuar e videos hero (opsionale)</string>
     <string name="collections_editor_title_logo">Logoja e titullit (Faqja kryesore Moderne)</string>
     <string name="collections_editor_placeholder_title_logo">URL e personalizuar e logos së titullit (opsionale)</string>
-    <string name="collections_editor_search_emoji_placeholder">Kërko emoji...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Filtro burimet aktive...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Kërko katalogët...</string>
+    <string name="collections_editor_search_emoji_placeholder">Kërko emoji…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Filtro burimet aktive…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Kërko katalogët…</string>
     <string name="collections_editor_genre_filter">Filtri i zhanrit</string>
     <string name="collections_editor_choose_genre">Zgjidh</string>
     <string name="collections_editor_select_genre">Zgjidh zhanrin</string>
@@ -1985,12 +1985,12 @@
     <string name="stream_test_card_title">Nis testin e shpejtësisë për transmetimin e luajtur së fundi</string>
     <string name="stream_test_server_label">Serveri: %1$s</string>
     <string name="stream_test_no_stream">Nuk është regjistruar riprodhim. Luaj një video për të kryer teste diagnostikuese në host-in e saj.</string>
-    <string name="stream_test_btn_measuring_baseline">Duke matur bazën...</string>
-    <string name="stream_test_btn_measuring_parallel1">Duke matur paralelisht (1MB)...</string>
-    <string name="stream_test_btn_measuring_parallel4">Duke matur paralelisht (4MB)...</string>
-    <string name="stream_test_btn_measuring_parallel8">Duke matur paralelisht (8MB)...</string>
-    <string name="stream_test_btn_measuring_parallel16">Duke matur paralelisht (16MB)...</string>
-    <string name="stream_test_btn_running">Duke ekzekutuar...</string>
+    <string name="stream_test_btn_measuring_baseline">Duke matur bazën…</string>
+    <string name="stream_test_btn_measuring_parallel1">Duke matur paralelisht (1MB)…</string>
+    <string name="stream_test_btn_measuring_parallel4">Duke matur paralelisht (4MB)…</string>
+    <string name="stream_test_btn_measuring_parallel8">Duke matur paralelisht (8MB)…</string>
+    <string name="stream_test_btn_measuring_parallel16">Duke matur paralelisht (16MB)…</string>
+    <string name="stream_test_btn_running">Duke ekzekutuar…</string>
     <string name="stream_test_label_baseline">Lidhje standarde e vetme (bazë)</string>
     <string name="stream_test_label_parallel1">Lidhje paralele (segmente 1 MB)</string>
     <string name="stream_test_label_parallel4">Lidhje paralele (segmente 4 MB)</string>

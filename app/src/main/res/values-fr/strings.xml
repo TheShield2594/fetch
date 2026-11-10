@@ -1943,7 +1943,7 @@
     <string name="collections_editor_tmdb_placeholder_network">213 pour Netflix, 49 pour HBO, 2739 pour Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 pour Tom Hanks, ou URL de la personne</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ou 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 pour Animation</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>

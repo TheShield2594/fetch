@@ -64,7 +64,7 @@
     <string name="web_import_tab_paste">Вставити</string>
     <string name="web_import_tab_file">Файл</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Вставте JSON колекцій сюди...</string>
+    <string name="web_import_paste_placeholder">Вставте JSON колекцій сюди…</string>
     <string name="web_import_file_select">Натисніть, щоб обрати .json файл</string>
     <string name="web_order_send_to_top">Перемістити на початок</string>
     <string name="web_order_send_to_bottom">Перемістити в кінець</string>
@@ -975,7 +975,7 @@
     <string name="player_loading_buffering">Буферизація…</string>
     <string name="player_engine_switching_title">Перемикання рушія плеєра</string>
     <string name="player_engine_switching_message">Помилка запуску. Перемикання на %1$s…</string>
-    <string name="player_engine_switching_manual_message">Перемикання на %1$s...</string>
+    <string name="player_engine_switching_manual_message">Перемикання на %1$s…</string>
     <string name="playback_show_loading_status">Показувати статус завантаження</string>
     <string name="playback_show_loading_status_sub">Відображати покроковий прогрес під час ініціалізації плеєра.</string>
     <string name="player_sync_line">Рядок синхронізації</string>
@@ -1255,7 +1255,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Завантаження рейтингів епізоду...</string>
+    <string name="ratings_loading">Завантаження рейтингів епізоду…</string>
     <string name="ratings_unavailable">Рейтинги епізоду недоступні.</string>
     <string name="ratings_load_error">Не вдалося завантажити рейтинги епізоду.</string>
     <string name="ratings_season_summary">Сезон %1$d - %2$d епізодів</string>
@@ -1263,7 +1263,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Навігатор</string>
     <string name="discover_load_more">Завантажити ще</string>
-    <string name="discover_loading">Завантаження...</string>
+    <string name="discover_loading">Завантаження…</string>
     <string name="discover_filter_genre">Жанр</string>
     <string name="discover_empty_no_content_title">Контент не знайдено</string>
     <string name="discover_empty_no_content_subtitle">Спробуйте інший жанр або каталог</string>
@@ -1321,7 +1321,7 @@
     <string name="trakt_error_denied">Авторизацію відхилено в Trakt.</string>
     <string name="trakt_error_missing_credentials">Відсутні облікові дані Trakt</string>
     <string name="trakt_error_network_retry">Помилка мережі, спробуйте ще раз</string>
-    <string name="trakt_error_network_will_retry">Помилка мережі, повтор...</string>
+    <string name="trakt_error_network_will_retry">Помилка мережі, повтор…</string>
     <string name="trakt_error_rate_limited_minutes">Trakt обмежує запити. Спробуйте через ~%1$d хв</string>
     <string name="trakt_error_failed_start_code">Не вдалося запустити авторизацію Trakt (%1$d)</string>
     <string name="trakt_error_no_active_device_code">Немає активного коду пристрою Trakt</string>
@@ -1331,11 +1331,11 @@
     <string name="trakt_error_list_not_found_or_private">Список Trakt не знайдено або він не публічний</string>
     <string name="trakt_error_rate_limit_reached">Досягнуто ліміту запитів Trakt</string>
     <string name="trakt_status_enter_activation_code">Введіть код на trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Синхронізація...</string>
+    <string name="trakt_status_syncing">Синхронізація…</string>
     <string name="trakt_status_sync_completed">Синхронізацію завершено</string>
     <string name="trakt_status_disconnected">Відключено від Trakt</string>
     <string name="trakt_status_cw_window_updated">Вікно «Продовжити перегляд» оновлено</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Обмеження запитів, уповільнення опитування...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Обмеження запитів, уповільнення опитування…</string>
     <string name="trakt_user_fallback">Користувач Trakt</string>
     <string name="trakt_error_failed_start">Не вдалося запустити авторизацію Trakt</string>
 
@@ -1579,7 +1579,7 @@
     <string name="collections_editor_tmdb_placeholder_network">213 для Netflix, 49 для HBO, 2739 для Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 для Tom Hanks або URL персони</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 або 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
@@ -1610,9 +1610,9 @@
     <string name="collections_editor_placeholder_hero_video">URL користувацького відео Hero (необов\'язково)</string>
     <string name="collections_editor_title_logo">Логотип тайтлу (Сучасний головний екран)</string>
     <string name="collections_editor_placeholder_title_logo">URL користувацького логотипу тайтлу (необов\'язково)</string>
-    <string name="collections_editor_search_emoji_placeholder">Пошук емодзі...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Фільтр активних джерел...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Пошук каталогів...</string>
+    <string name="collections_editor_search_emoji_placeholder">Пошук емодзі…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Фільтр активних джерел…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Пошук каталогів…</string>
     <string name="collections_editor_genre_filter">Фільтр жанру</string>
     <string name="collections_editor_choose_genre">Обрати</string>
     <string name="collections_editor_select_genre">Оберіть жанр</string>

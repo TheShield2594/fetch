@@ -747,7 +747,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Laddar avsnittsbetyg...</string>
+    <string name="ratings_loading">Laddar avsnittsbetyg…</string>
     <string name="ratings_unavailable">Avsnittsbetyg är inte tillgängliga.</string>
     <string name="ratings_load_error">Kunde inte ladda avsnittsbetyg.</string>
     <string name="ratings_season_summary">Säsong %1$d - %2$d avsnitt</string>
@@ -755,7 +755,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Utforska</string>
     <string name="discover_load_more">Ladda fler</string>
-    <string name="discover_loading">Laddar...</string>
+    <string name="discover_loading">Laddar…</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_empty_no_content_title">Inget innehåll hittades</string>
     <string name="discover_empty_no_content_subtitle">Prova en annan genre eller katalog</string>

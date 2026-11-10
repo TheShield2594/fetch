@@ -63,7 +63,7 @@
     <string name="web_import_tab_paste">Dán</string>
     <string name="web_import_tab_file">Tệp</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Dán JSON bộ sưu tập vào đây...</string>
+    <string name="web_import_paste_placeholder">Dán JSON bộ sưu tập vào đây…</string>
     <string name="web_import_file_select">Chạm để chọn tệp .json</string>
     <string name="web_order_send_to_top">Đưa lên trên cùng</string>
     <string name="web_order_send_to_bottom">Đưa xuống dưới cùng</string>
@@ -656,7 +656,7 @@
     <string name="audio_tunneled">Phát trực tiếp qua phần cứng</string>
     <string name="audio_tunneled_sub">Đồng bộ âm thanh/video ở cấp phần cứng. Có thể cải thiện việc phát lại trên một số thiết bị Android TV</string>
     <string name="audio_force_optical_passthrough">Buộc chuyển mã AC-3 (Cổng quang/SPDIF)</string>
-    <string name="audio_force_optical_passthrough_sub">Chuyển mã các định dạng đa kênh (TrueHD, DTS, AAC...) sang Dolby Digital 5.1 theo thời gian thực cho kết nối Cổng quang/SPDIF.</string>
+    <string name="audio_force_optical_passthrough_sub">Chuyển mã các định dạng đa kênh (TrueHD, DTS, AAC…) sang Dolby Digital 5.1 theo thời gian thực cho kết nối Cổng quang/SPDIF.</string>
     <!-- DV7 Handling Mode -->
     <string name="dv7_handling_title">Xử lý Dolby Vision</string>
     <string name="dv7_handling_dialog_subtitle">Chọn cách xử lý luồng DV khi phát</string>
@@ -768,7 +768,7 @@
     <string name="autoplay_prefer_binge_group">Ưu tiên nhóm phát liên tục (Tập tiếp theo)</string>
     <string name="autoplay_prefer_binge_group_sub">Ưu tiên cùng cấu hình nguồn (cùng tiện ích/nhóm chất lượng) trước các quy tắc tự động phát thông thường.</string>
     <string name="autoplay_reuse_binge_group">Dùng lại nhóm phát liên tục</string>
-    <string name="autoplay_reuse_binge_group_sub">Ghi nhớ và dùng lại nhóm phát liên tục gần nhất giữa các phiên (Tiếp tục xem, Chi tiết...).</string>
+    <string name="autoplay_reuse_binge_group_sub">Ghi nhớ và dùng lại nhóm phát liên tục gần nhất giữa các phiên (Tiếp tục xem, Chi tiết…).</string>
     <string name="autoplay_threshold_pct">Phần trăm</string>
     <string name="autoplay_threshold_min">Số phút trước khi kết thúc</string>
     <string name="autoplay_threshold_mode">Chế độ Ngưỡng tập tiếp theo</string>
@@ -1273,7 +1273,7 @@
     <string name="player_loading_buffering">Đang tải bộ đệm…</string>
     <string name="player_engine_switching_title">Đang chuyển lõi trình phát</string>
     <string name="player_engine_switching_message">Không thể khởi động. Đang chuyển sang %1$s…</string>
-    <string name="player_engine_switching_manual_message">Đang chuyển sang %1$s...</string>
+    <string name="player_engine_switching_manual_message">Đang chuyển sang %1$s…</string>
     <string name="playback_show_loading_status">Hiển thị trạng thái tải</string>
     <string name="playback_show_loading_status_sub">Hiển thị tiến trình từng bước trong khi trình phát đang khởi tạo.</string>
     <string name="player_sync_line">Đồng bộ dòng</string>
@@ -1607,7 +1607,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Đang tải điểm đánh giá các tập phim...</string>
+    <string name="ratings_loading">Đang tải điểm đánh giá các tập phim…</string>
     <string name="ratings_unavailable">Điểm đánh giá tập phim không có sẵn.</string>
     <string name="ratings_load_error">Không thể tải điểm đánh giá các tập phim.</string>
     <string name="ratings_season_summary">Mùa %1$d - %2$d tập</string>
@@ -1615,7 +1615,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Khám phá</string>
     <string name="discover_load_more">Tải thêm</string>
-    <string name="discover_loading">Đang tải...</string>
+    <string name="discover_loading">Đang tải…</string>
     <string name="discover_filter_genre">Thể loại</string>
     <string name="discover_empty_no_content_title">Không tìm thấy nội dung</string>
     <string name="discover_empty_no_content_subtitle">Thử thể loại hoặc danh mục khác</string>
@@ -1625,7 +1625,7 @@
     <!-- ProfileSettingsContent -->
 
     <!-- PlaybackAudioSettings -->
-    <string name="audio_passthrough_info">Truyền tải âm thanh trực tiếp (TrueHD, DTS, AC-3...) được tự động bật. Khi kết nối với bộ thu AV hoặc loa thanh tương thích qua HDMI, âm thanh không nén sẽ được truyền nguyên dạng mà không cần qua giải mã.</string>
+    <string name="audio_passthrough_info">Truyền tải âm thanh trực tiếp (TrueHD, DTS, AC-3…) được tự động bật. Khi kết nối với bộ thu AV hoặc loa thanh tương thích qua HDMI, âm thanh không nén sẽ được truyền nguyên dạng mà không cần qua giải mã.</string>
 
     <!-- SidebarNavigation / MainActivity -->
     <string name="nav_home">Trang chủ</string>
@@ -1684,11 +1684,11 @@
     <string name="trakt_error_list_not_found_or_private">Không tìm thấy danh sách Trakt hoặc danh sách không công khai</string>
     <string name="trakt_error_rate_limit_reached">Đã đạt giới hạn yêu cầu của Trakt</string>
     <string name="trakt_status_enter_activation_code">Nhập mã tại trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Đang đồng bộ...</string>
+    <string name="trakt_status_syncing">Đang đồng bộ…</string>
     <string name="trakt_status_sync_completed">Đồng bộ đã hoàn tất</string>
     <string name="trakt_status_disconnected">Đã ngắt kết nối từ Trakt</string>
     <string name="trakt_status_cw_window_updated">Cửa sổ tiếp tục xem đã được cập nhật</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Bị giới hạn tần suất, đang giảm tốc độ vấn tin...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Bị giới hạn tần suất, đang giảm tốc độ vấn tin…</string>
     <string name="trakt_user_fallback">Người dùng Trakt</string>
     <string name="trakt_error_failed_start">Không thể bắt đầu xác thực Trakt</string>
 
@@ -1940,7 +1940,7 @@
     <string name="collections_editor_tmdb_placeholder_network">213 cho Netflix, 49 cho HBO, 2739 cho Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 cho Tom Hanks hoặc URL cá nhân</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 or 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 cho Hoạt hình</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
@@ -1972,9 +1972,9 @@
     <string name="collections_editor_placeholder_hero_video">URL video phông nền tùy chỉnh Khu vực Nổi bật (tùy chọn)</string>
     <string name="collections_editor_title_logo">Logo tiêu đề (Trang chủ Hiện đại)</string>
     <string name="collections_editor_placeholder_title_logo">URL logo tiêu đề tùy chỉnh (tùy chọn)</string>
-    <string name="collections_editor_search_emoji_placeholder">Tìm kiếm biểu tượng cảm xúc...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Lọc các nguồn đang hoạt động...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Tìm kiếm danh mục...</string>
+    <string name="collections_editor_search_emoji_placeholder">Tìm kiếm biểu tượng cảm xúc…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Lọc các nguồn đang hoạt động…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Tìm kiếm danh mục…</string>
     <string name="collections_editor_genre_filter">Lọc theo thể loại</string>
     <string name="collections_editor_choose_genre">Chọn</string>
     <string name="collections_editor_select_genre">Chọn thể loại</string>
@@ -2381,12 +2381,12 @@
     <string name="stream_test_card_title">Chạy kiểm tra tốc độ luồng đã phát gần nhất</string>
     <string name="stream_test_server_label">Máy chủ: %1$s</string>
     <string name="stream_test_no_stream">Chưa ghi nhận phát lại nào. Vui lòng phát một video để chạy các bài kiểm tra chẩn đoán trên máy chủ lưu trữ video đó.</string>
-    <string name="stream_test_btn_measuring_baseline">Đang đo mức tham chiếu...</string>
-    <string name="stream_test_btn_measuring_parallel1">Đang đo kết nối đồng thời (1MB)...</string>
-    <string name="stream_test_btn_measuring_parallel4">Đang đo kết nối đồng thời (4MB)...</string>
-    <string name="stream_test_btn_measuring_parallel8">Đang đo kết nối đồng thời (8MB)...</string>
-    <string name="stream_test_btn_measuring_parallel16">Đang đo kết nối đồng thời (16MB)...</string>
-    <string name="stream_test_btn_running">Đang chạy...</string>
+    <string name="stream_test_btn_measuring_baseline">Đang đo mức tham chiếu…</string>
+    <string name="stream_test_btn_measuring_parallel1">Đang đo kết nối đồng thời (1MB)…</string>
+    <string name="stream_test_btn_measuring_parallel4">Đang đo kết nối đồng thời (4MB)…</string>
+    <string name="stream_test_btn_measuring_parallel8">Đang đo kết nối đồng thời (8MB)…</string>
+    <string name="stream_test_btn_measuring_parallel16">Đang đo kết nối đồng thời (16MB)…</string>
+    <string name="stream_test_btn_running">Đang chạy…</string>
     <string name="stream_test_label_baseline">Kết nối đơn tiêu chuẩn (tham chiếu)</string>
     <string name="stream_test_label_parallel1">Kết nối đồng thời (phân đoạn 1 MB)</string>
     <string name="stream_test_label_parallel4">Kết nối đồng thời (phân đoạn 4 MB)</string>

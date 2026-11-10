@@ -63,7 +63,7 @@
   <string name="web_import_tab_paste">Επικόλληση</string>
   <string name="web_import_tab_file">Αρχείο</string>
   <string name="web_import_tab_url">URL</string>
-  <string name="web_import_paste_placeholder">Επικολλήστε εδώ το JSON των συλλογών...</string>
+  <string name="web_import_paste_placeholder">Επικολλήστε εδώ το JSON των συλλογών…</string>
   <string name="web_import_file_select">Πατήστε για επιλογή αρχείου .json</string>
   <string name="web_order_send_to_top">Μεταφορά στην κορυφή</string>
   <string name="web_order_send_to_bottom">Μεταφορά στο τέλος</string>
@@ -1181,7 +1181,7 @@
   <string name="player_loading_buffering">Αποθήκευση στην προσωρινή μνήμη…</string>
   <string name="player_engine_switching_title">Αλλαγή μηχανής αναπαραγωγής</string>
   <string name="player_engine_switching_message">Η εκκίνηση απέτυχε. Εναλλαγή σε %1$s…</string>
-  <string name="player_engine_switching_manual_message">Εναλλαγή σε %1$s...</string>
+  <string name="player_engine_switching_manual_message">Εναλλαγή σε %1$s…</string>
   <string name="playback_show_loading_status">Εμφάνιση κατάστασης φόρτωσης</string>
   <string name="playback_show_loading_status_sub">Εμφάνιση προόδου βήμα προς βήμα ενώ γίνεται αρχικοποίηση του προγράμματος αναπαραγωγής.</string>
   <string name="player_sync_line">Συγχρονισμός γραμμής</string>
@@ -1563,11 +1563,11 @@
   <string name="trakt_error_list_not_found_or_private">Η λίστα Trakt δεν βρέθηκε ή δεν είναι δημόσια</string>
   <string name="trakt_error_rate_limit_reached">Έφτασε το όριο αιτημάτων Trakt</string>
   <string name="trakt_status_enter_activation_code">Εισαγάγετε τον κωδικό στο trakt.tv/activate</string>
-  <string name="trakt_status_syncing">Συγχρονισμός...</string>
+  <string name="trakt_status_syncing">Συγχρονισμός…</string>
   <string name="trakt_status_sync_completed">Ο συγχρονισμός ολοκληρώθηκε</string>
   <string name="trakt_status_disconnected">Αποσυνδέθηκε από το Trakt</string>
   <string name="trakt_status_cw_window_updated">Το παράθυρο συνέχειας παρακολούθησης ενημερώθηκε</string>
-  <string name="trakt_status_rate_limited_slowing_polling">Υπάρχει περιορισμός αιτημάτων, η συχνότητα ελέγχου μειώνεται...</string>
+  <string name="trakt_status_rate_limited_slowing_polling">Υπάρχει περιορισμός αιτημάτων, η συχνότητα ελέγχου μειώνεται…</string>
   <string name="trakt_user_fallback">Χρήστης Trakt</string>
   <string name="trakt_error_failed_start">Αποτυχία έναρξης εξουσιοδότησης Trakt</string>
   <!-- General errors -->
@@ -1813,7 +1813,7 @@
   <string name="collections_editor_tmdb_placeholder_network">213 για Netflix, 49 για HBO, 2739 για Disney+</string>
   <string name="collections_editor_tmdb_person_placeholder">31 για Tom Hanks, ή URL προσώπου</string>
   <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ή 123456</string>
-  <string name="collections_editor_url_short_placeholder">https://...</string>
+  <string name="collections_editor_url_short_placeholder">https://…</string>
   <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
   <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
   <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
@@ -1844,9 +1844,9 @@
   <string name="collections_editor_placeholder_hero_video">Προσαρμοσμένο URL βίντεο ήρωα (προαιρετικό)</string>
   <string name="collections_editor_title_logo">Λογότυπο τίτλου (Μοντέρνα αρχική)</string>
   <string name="collections_editor_placeholder_title_logo">Προσαρμοσμένο URL λογότυπου τίτλου (προαιρετικό)</string>
-  <string name="collections_editor_search_emoji_placeholder">Αναζήτηση emoji...</string>
-  <string name="collections_editor_filter_active_sources_placeholder">Φιλτράρισμα ενεργών πηγών...</string>
-  <string name="collections_editor_search_catalogs_placeholder">Αναζήτηση καταλόγων...</string>
+  <string name="collections_editor_search_emoji_placeholder">Αναζήτηση emoji…</string>
+  <string name="collections_editor_filter_active_sources_placeholder">Φιλτράρισμα ενεργών πηγών…</string>
+  <string name="collections_editor_search_catalogs_placeholder">Αναζήτηση καταλόγων…</string>
   <string name="collections_editor_genre_filter">Φίλτρο είδους</string>
   <string name="collections_editor_choose_genre">Επιλογή</string>
   <string name="collections_editor_select_genre">Επιλέξτε είδος</string>
@@ -2168,7 +2168,7 @@
   <string name="advanced_player_stats_hud">Οθόνη στατιστικών αναπαραγωγής</string>
   <string name="advanced_player_stats_hud_subtitle">Εμφάνιση κουμπιού στις πληροφορίες ροής για εναλλαγή ζωντανών ενδείξεων CPU, μνήμης, buffer, ρυθμού μετάδοσης και θερμοκρασίας κατά την αναπαραγωγή</string>
   <string name="settings_stream_badge_position_top">Πάνω</string>
-  <string name="stream_test_btn_measuring_parallel8">Μέτρηση παράλληλης (8MB)...</string>
+  <string name="stream_test_btn_measuring_parallel8">Μέτρηση παράλληλης (8MB)…</string>
   <string name="diag_value_not_ready">Μη έτοιμο</string>
   <string name="web_stream_badge_error_import_limit">Μπορείτε να εισαγάγετε έως %1$d URL διακριτικών.</string>
   <string name="dv7_libdovi_mode_4_sub">Μετατροπή σε στατικό προφίλ 8.4.</string>
@@ -2176,9 +2176,9 @@
   <string name="dv7_libdovi_mode_4_title">Λειτουργία 4 — 8.4 (στατικό)</string>
   <string name="diag_label_conversions">Μετατροπές</string>
   <string name="stream_test_label_parallel16">Παράλληλη σύνδεση (τμήματα 16 MB)</string>
-  <string name="stream_test_btn_measuring_parallel16">Μέτρηση παράλληλης (16MB)...</string>
+  <string name="stream_test_btn_measuring_parallel16">Μέτρηση παράλληλης (16MB)…</string>
   <string name="dv7_libdovi_mode_1_sub">Μετατρέπει το RPU ώστε να είναι συμβατό με MEL (Minimum Enhancement Layer).</string>
-  <string name="stream_test_btn_measuring_parallel4">Μέτρηση παράλληλης (4MB)...</string>
+  <string name="stream_test_btn_measuring_parallel4">Μέτρηση παράλληλης (4MB)…</string>
   <string name="diag_label_source_profile">Προφίλ πηγής</string>
   <string name="diag_value_on">Ενεργό</string>
   <string name="hero_synopsis_dismiss_hint">Πατήστε πίσω για κλείσιμο</string>
@@ -2192,7 +2192,7 @@
   <string name="diag_label_signal_rewrites">Επανεγγραφές σήματος</string>
   <string name="unit_size_mb">%1$s MB</string>
   <string name="stream_test_no_stream">Δεν έχει καταγραφεί αναπαραγωγή. Αναπαράγετε ένα βίντεο για να εκτελέσετε διαγνωστικές δοκιμές στον διακομιστή του.</string>
-  <string name="stream_test_btn_measuring_baseline">Μέτρηση βάσης αναφοράς...</string>
+  <string name="stream_test_btn_measuring_baseline">Μέτρηση βάσης αναφοράς…</string>
   <string name="web_status_saved_streams">Αποθηκεύτηκε. Οι νέες ροές θα χρησιμοποιούν αυτές τις ρυθμίσεις.</string>
   <string name="diag_label_disk_cache">Προσωρινή μνήμη δίσκου</string>
   <string name="diag_label_disk_cache_usage">Χρήση προσωρινής μνήμης δίσκου</string>
@@ -2233,8 +2233,8 @@
   <string name="diag_label_custom_buffers">Προσαρμοσμένα buffer</string>
   <string name="diag_label_rebuffers">Επαναφορτίσεις buffer</string>
   <string name="unit_size_gb">%1$s GB</string>
-  <string name="stream_test_btn_measuring_parallel1">Μέτρηση παράλληλης (1MB)...</string>
-  <string name="stream_test_btn_running">Εκτελείται...</string>
+  <string name="stream_test_btn_measuring_parallel1">Μέτρηση παράλληλης (1MB)…</string>
+  <string name="stream_test_btn_running">Εκτελείται…</string>
   <string name="diag_value_none">Καμία</string>
   <string name="diag_label_display">Οθόνη</string>
   <string name="diag_label_auto_decision">Αυτόματη απόφαση</string>

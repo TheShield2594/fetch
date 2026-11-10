@@ -783,7 +783,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Laster episodevurderinger...</string>
+    <string name="ratings_loading">Laster episodevurderinger…</string>
     <string name="ratings_unavailable">Episodevurderinger er utilgjengelige.</string>
     <string name="ratings_load_error">Kunne ikke laste episodevurderinger.</string>
     <string name="ratings_season_summary">Sesong %1$d - %2$d episoder</string>
@@ -791,7 +791,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Oppdagelse</string>
     <string name="discover_load_more">Last mer</string>
-    <string name="discover_loading">Laster...</string>
+    <string name="discover_loading">Laster…</string>
     <string name="discover_filter_genre">Sjanger</string>
     <string name="discover_empty_no_content_title">Ingen innhold funnet</string>
     <string name="discover_empty_no_content_subtitle">Prøv en annen sjanger eller katalog</string>

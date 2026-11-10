@@ -64,7 +64,7 @@
     <string name="web_import_tab_paste">Paste</string>
     <string name="web_import_tab_file">File</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Paste collections JSON here...</string>
+    <string name="web_import_paste_placeholder">Paste collections JSON here…</string>
     <string name="web_import_file_select">Tap to select a .json file</string>
     <string name="web_order_send_to_top">Send to top</string>
     <string name="web_order_send_to_bottom">Send to bottom</string>
@@ -918,7 +918,7 @@
     <string name="player_loading_buffering">Puffern…</string>
     <string name="player_engine_switching_title">Switching Player Engine</string>
     <string name="player_engine_switching_message">Start fehlgeschlagen. Wechsle zu %1$s…</string>
-    <string name="player_engine_switching_manual_message">Wechsle zu %1$s...</string>
+    <string name="player_engine_switching_manual_message">Wechsle zu %1$s…</string>
     <string name="playback_show_loading_status">Zeige Lade-Status</string>
     <string name="playback_show_loading_status_sub">Zeige Schritt-für-Schritt Fortschritt während sich der Player initialisiert.</string>
     <string name="player_sync_line">Sync Line</string>
@@ -1018,7 +1018,7 @@
 
     <!-- SubtitleDialog / SubtitleStyleSidePanel -->
     <string name="subtitle_dialog_title">Untertitel</string>
-    <string name="subtitle_loading_addon">Untertitel werden aus Add-ons geladen ...</string>
+    <string name="subtitle_loading_addon">Untertitel werden aus Add-ons geladen …</string>
     <string name="subtitle_no_addon">Keine Untertitel aus Add-ons verfügbar</string>
     <string name="subtitle_reset_defaults">Standardeinstellungen zurücksetzen</string>
     <string name="subtitle_tab_languages">Sprachen</string>
@@ -1197,7 +1197,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Episodenbewertungen werden geladen...</string>
+    <string name="ratings_loading">Episodenbewertungen werden geladen…</string>
     <string name="ratings_unavailable">Episodenbewertungen sind nicht verfügbar.</string>
     <string name="ratings_load_error">Episodenbewertungen können nicht geladen werden.</string>
     <string name="ratings_season_summary">Staffel %1$d – %2$d Episoden</string>
@@ -1205,7 +1205,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Entdecken</string>
     <string name="discover_load_more">Mehr laden</string>
-    <string name="discover_loading">Wird geladen...</string>
+    <string name="discover_loading">Wird geladen…</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_empty_no_content_title">Kein Inhalt gefunden</string>
     <string name="discover_empty_no_content_subtitle">Versuchen Sie es mit einem anderen Genre oder Katalog</string>
@@ -1275,11 +1275,11 @@
     <string name="trakt_error_list_not_found_or_private">Trakt list not found or not public</string>
     <string name="trakt_error_rate_limit_reached">Trakt rate limit reached</string>
     <string name="trakt_status_enter_activation_code">Enter code on trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Syncing...</string>
+    <string name="trakt_status_syncing">Syncing…</string>
     <string name="trakt_status_sync_completed">Sync completed</string>
     <string name="trakt_status_disconnected">Disconnected from Trakt</string>
     <string name="trakt_status_cw_window_updated">Continue watching window updated</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Rate limited, slowing down polling...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Rate limited, slowing down polling…</string>
     <string name="trakt_user_fallback">Trakt user</string>
     <string name="trakt_error_failed_start">Failed to start Trakt auth</string>
 
@@ -1535,7 +1535,7 @@
     <string name="collections_editor_tmdb_placeholder_network">213 for Netflix, 49 for HBO, 2739 for Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 for Tom Hanks, or person URL</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 or 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
@@ -1566,9 +1566,9 @@
     <string name="collections_editor_placeholder_hero_video">Custom hero video URL (optional)</string>
     <string name="collections_editor_title_logo">Title Logo (Modern Home)</string>
     <string name="collections_editor_placeholder_title_logo">Custom title logo URL (optional)</string>
-    <string name="collections_editor_search_emoji_placeholder">Search emoji...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Filter active sources...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Search catalogs...</string>
+    <string name="collections_editor_search_emoji_placeholder">Search emoji…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Filter active sources…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Search catalogs…</string>
     <string name="collections_editor_genre_filter">Genre Filter</string>
     <string name="collections_editor_choose_genre">Choose</string>
     <string name="collections_editor_select_genre">Select genre</string>

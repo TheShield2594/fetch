@@ -64,7 +64,7 @@
     <string name="web_import_tab_paste">ஒட்டு</string>
     <string name="web_import_tab_file">கோப்பு</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">தொகுப்புகளின் JSON ஐ இங்கே ஒட்டவும்...</string>
+    <string name="web_import_paste_placeholder">தொகுப்புகளின் JSON ஐ இங்கே ஒட்டவும்…</string>
     <string name="web_import_file_select">ஒரு .json கோப்பை தேர்ந்தெடுக்க தட்டவும்</string>
     <string name="web_order_send_to_top">மேலே அனுப்பு</string>
     <string name="web_order_send_to_bottom">கீழே அனுப்பு</string>
@@ -900,7 +900,7 @@
     <string name="player_loading_buffering">பஃபரிங்…</string>
     <string name="player_engine_switching_title">பிளேயர் என்ஜின் மாற்றப்படுகிறது</string>
     <string name="player_engine_switching_message">தொடக்கம் தோல்வியடைந்தது. %1$s க்கு மாறுகிறது…</string>
-    <string name="player_engine_switching_manual_message">%1$s க்கு மாறுகிறது...</string>
+    <string name="player_engine_switching_manual_message">%1$s க்கு மாறுகிறது…</string>
     <string name="playback_show_loading_status">ஏற்ற நிலையை காட்டு</string>
     <string name="playback_show_loading_status_sub">பிளேயர் தொடங்கும் போது படிப்படியான முன்னேற்றத்தை காட்டு.</string>
     <string name="player_sync_line">ஒத்திசை வரி</string>
@@ -1179,7 +1179,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">எபிசோட் மதிப்பீடுகள் ஏற்றப்படுகின்றன...</string>
+    <string name="ratings_loading">எபிசோட் மதிப்பீடுகள் ஏற்றப்படுகின்றன…</string>
     <string name="ratings_unavailable">எபிசோட் மதிப்பீடுகள் கிடைக்கவில்லை.</string>
     <string name="ratings_load_error">எபிசோட் மதிப்பீடுகளை ஏற்ற முடியவில்லை.</string>
     <string name="ratings_season_summary">சீசன் %1$d - %2$d எபிசோட்கள்</string>
@@ -1187,7 +1187,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">கண்டறிதல்</string>
     <string name="discover_load_more">மேலும் ஏற்று</string>
-    <string name="discover_loading">ஏற்றப்படுகிறது...</string>
+    <string name="discover_loading">ஏற்றப்படுகிறது…</string>
     <string name="discover_filter_genre">வகைப்பாடு</string>
     <string name="discover_empty_no_content_title">உள்ளடக்கம் எதுவும் இல்லை</string>
     <string name="discover_empty_no_content_subtitle">வேறு வகைப்பாடு அல்லது கேட்டலாக் முயற்சிக்கவும்</string>
@@ -1257,11 +1257,11 @@
     <string name="trakt_error_list_not_found_or_private">டிராக்ட் பட்டியல் கிடைக்கவில்லை அல்லது பொதுவானது அல்ல</string>
     <string name="trakt_error_rate_limit_reached">டிராக்ட் வரம்பு எட்டப்பட்டது</string>
     <string name="trakt_status_enter_activation_code">trakt.tv/activate இல் குறியீட்டை உள்ளிடவும்</string>
-    <string name="trakt_status_syncing">ஒத்திசைக்கப்படுகிறது...</string>
+    <string name="trakt_status_syncing">ஒத்திசைக்கப்படுகிறது…</string>
     <string name="trakt_status_sync_completed">ஒத்திசைவு முடிந்தது</string>
     <string name="trakt_status_disconnected">டிராக்டிலிருந்து துண்டிக்கப்பட்டது</string>
     <string name="trakt_status_cw_window_updated">தொடர்ந்து பார்ப்பது சாளரம் புதுப்பிக்கப்பட்டது</string>
-    <string name="trakt_status_rate_limited_slowing_polling">வரம்பு விதிக்கப்பட்டது, சரிபார்ப்பு மெதுவாக்கப்படுகிறது...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">வரம்பு விதிக்கப்பட்டது, சரிபார்ப்பு மெதுவாக்கப்படுகிறது…</string>
     <string name="trakt_user_fallback">டிராக்ட் பயனர்</string>
     <string name="trakt_error_failed_start">டிராக்ட் அங்கீகாரத்தை தொடங்க முடியவில்லை</string>
 
@@ -1518,7 +1518,7 @@
     <string name="collections_editor_tmdb_placeholder_network">நெட்ப்ளிக்ஸுக்கு 213, எச்பிஓக்கு 49, டிஸ்னி+க்கு 2739</string>
     <string name="collections_editor_tmdb_person_placeholder">டாம் ஹாங்க்ஸுக்கு 31, அல்லது நபர் யுஆர்எல்</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 அல்லது 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
@@ -1549,9 +1549,9 @@
     <string name="collections_editor_placeholder_hero_video">தனிப்பயன் ஹீரோ வீடியோ யுஆர்எல் (விருப்பம்)</string>
     <string name="collections_editor_title_logo">தலைப்பு லோகோ (மாடர்ன் முகப்பு)</string>
     <string name="collections_editor_placeholder_title_logo">தனிப்பயன் தலைப்பு லோகோ யுஆர்எல் (விருப்பம்)</string>
-    <string name="collections_editor_search_emoji_placeholder">ஈமோஜி தேடு...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">செயலில் உள்ள மூலங்களை வடிகட்டு...</string>
-    <string name="collections_editor_search_catalogs_placeholder">கேட்டலாக்கள் தேடு...</string>
+    <string name="collections_editor_search_emoji_placeholder">ஈமோஜி தேடு…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">செயலில் உள்ள மூலங்களை வடிகட்டு…</string>
+    <string name="collections_editor_search_catalogs_placeholder">கேட்டலாக்கள் தேடு…</string>
     <string name="collections_editor_genre_filter">வகை வடிகட்டி</string>
     <string name="collections_editor_choose_genre">தேர்வு செய்</string>
     <string name="collections_editor_select_genre">வகையைத் தேர்ந்தெடு</string>

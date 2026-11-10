@@ -861,7 +861,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Ladowanie ocen odcinkow...</string>
+    <string name="ratings_loading">Ladowanie ocen odcinkow…</string>
     <string name="ratings_unavailable">Oceny odcinkow sa niedostepne.</string>
     <string name="ratings_load_error">Nie udało się załadować ocen odcinków.</string>
     <string name="ratings_season_summary">Sezon %1$d - %2$d odcinkow</string>
@@ -869,7 +869,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Odkrywaj</string>
     <string name="discover_load_more">Zaladuj wiecej</string>
-    <string name="discover_loading">Ladowanie...</string>
+    <string name="discover_loading">Ladowanie…</string>
     <string name="discover_filter_genre">Gatunek</string>
     <string name="discover_empty_no_content_title">Brak treści</string>
     <string name="discover_empty_no_content_subtitle">Spróbuj innego gatunku lub katalogu</string>
@@ -1533,7 +1533,7 @@
     <string name="collections_editor_error_trakt_list_name_id_or_url">Podaj nazwę, URL lub ID listy Trakt</string>
     <string name="collections_editor_error_trakt_list_not_found">Nie znaleziono listy Trakt</string>
     <string name="collections_editor_error_valid_tmdb_id_or_url">Podaj prawidłowe ID lub URL TMDB</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Filtruj aktywne źródła...</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Filtruj aktywne źródła…</string>
     <string name="collections_editor_hero_video">Wideo główne (Modern Home)</string>
     <string name="collections_editor_keyword_based_on_novel">Na podstawie powieści</string>
     <string name="collections_editor_keyword_space">Kosmos</string>
@@ -1547,8 +1547,8 @@
     <string name="collections_editor_new_folder">Nowy folder</string>
     <string name="collections_editor_placeholder_cover_image">URL obrazu okładki</string>
     <string name="collections_editor_placeholder_hero_video">Niestandardowy URL wideo głównego (opcjonalnie)</string>
-    <string name="collections_editor_search_catalogs_placeholder">Szukaj katalogów...</string>
-    <string name="collections_editor_search_emoji_placeholder">Szukaj emoji...</string>
+    <string name="collections_editor_search_catalogs_placeholder">Szukaj katalogów…</string>
+    <string name="collections_editor_search_emoji_placeholder">Szukaj emoji…</string>
     <string name="collections_editor_sort_list_order">Kolejność listy</string>
     <string name="collections_editor_sort_original">Oryginalna</string>
     <string name="collections_editor_sort_recently_added">Ostatnio dodane</string>
@@ -1606,7 +1606,7 @@
     <string name="collections_editor_trakt_series_list">Lista seriali Trakt</string>
     <string name="collections_editor_trakt_sources">Listy Trakt</string>
     <string name="collections_editor_trakt_trending">Popularne teraz</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_import_failed_fetch_http">Nie udało się pobrać: HTTP %1$d</string>
     <string name="collections_import_failed_fetch_url">Nie udało się pobrać URL: %1$s</string>
     <string name="collections_import_failed_read_file">Nie udało się odczytać pliku: %1$s</string>
@@ -1680,9 +1680,9 @@
     <string name="trakt_status_cw_window_updated">Okno kontynuowania oglądania zaktualizowane</string>
     <string name="trakt_status_disconnected">Rozłączono z Trakt</string>
     <string name="trakt_status_enter_activation_code">Wprowadź kod na trakt.tv/activate</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Limit zapytań, spowalnianie odpytywania...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Limit zapytań, spowalnianie odpytywania…</string>
     <string name="trakt_status_sync_completed">Synchronizacja zakończona</string>
-    <string name="trakt_status_syncing">Synchronizowanie...</string>
+    <string name="trakt_status_syncing">Synchronizowanie…</string>
     <string name="trakt_user_fallback">Użytkownik Trakt</string>
     <string name="type_movies">Filmy</string>
     <string name="type_series_plural">Seriale</string>
@@ -1705,7 +1705,7 @@
     <string name="web_import_file_select">Dotknij, aby wybrać plik .json</string>
     <string name="web_import_invalid_json">Nieprawidłowy JSON</string>
     <string name="web_import_no_json">Nie podano JSON</string>
-    <string name="web_import_paste_placeholder">Wklej JSON kolekcji tutaj...</string>
+    <string name="web_import_paste_placeholder">Wklej JSON kolekcji tutaj…</string>
     <string name="web_import_select_file_first">Najpierw wybierz plik</string>
     <string name="web_import_success">Zaimportowano {count} kolekcji. Sprawdź i naciśnij Zapisz zmiany, aby zastosować.</string>
     <string name="web_issue_plural">problemów</string>
@@ -2225,12 +2225,12 @@
     <!-- Stream test -->
     <string name="stream_test_section_header">Diagnostyka przepustowości strumienia</string>
     <string name="stream_test_card_title">Uruchom test prędkości ostatniego strumienia</string>
-    <string name="stream_test_btn_running">Trwa test...</string>
-    <string name="stream_test_btn_measuring_baseline">Pomiar bazowy...</string>
-    <string name="stream_test_btn_measuring_parallel1">Pomiar równoległy (1 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel4">Pomiar równoległy (4 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel8">Pomiar równoległy (8 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel16">Pomiar równoległy (16 MB)...</string>
+    <string name="stream_test_btn_running">Trwa test…</string>
+    <string name="stream_test_btn_measuring_baseline">Pomiar bazowy…</string>
+    <string name="stream_test_btn_measuring_parallel1">Pomiar równoległy (1 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel4">Pomiar równoległy (4 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel8">Pomiar równoległy (8 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel16">Pomiar równoległy (16 MB)…</string>
     <string name="stream_test_label_baseline">Standardowe pojedyncze połączenie (bazowe)</string>
     <string name="stream_test_label_parallel1">Połączenie równoległe (fragmenty 1 MB)</string>
     <string name="stream_test_label_parallel4">Połączenie równoległe (fragmenty 4 MB)</string>

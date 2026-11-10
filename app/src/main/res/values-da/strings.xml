@@ -63,7 +63,7 @@
     <string name="web_import_tab_paste">Indsæt</string>
     <string name="web_import_tab_file">Fil</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Indsæt samlinger JSON her...</string>
+    <string name="web_import_paste_placeholder">Indsæt samlinger JSON her…</string>
     <string name="web_import_file_select">Tryk for at vælge en .json-fil</string>
     <string name="web_order_send_to_top">Flyt til toppen</string>
     <string name="web_order_send_to_bottom">Flyt til bunden</string>
@@ -980,7 +980,7 @@
     <string name="player_loading_buffering">Bufferer…</string>
     <string name="player_engine_switching_title">Skifter afspillermotor</string>
     <string name="player_engine_switching_message">Opstart mislykkedes. Skifter til %1$s…</string>
-    <string name="player_engine_switching_manual_message">Skifter til %1$s...</string>
+    <string name="player_engine_switching_manual_message">Skifter til %1$s…</string>
     <string name="playback_show_loading_status">Vis indlæsningsstatus</string>
     <string name="playback_show_loading_status_sub">Vis trin-for-trin-fremskridt mens afspilleren initialiserer.</string>
     <string name="player_sync_line">Synkronisér linje</string>
@@ -1260,7 +1260,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Indlæser episodebedømmelser...</string>
+    <string name="ratings_loading">Indlæser episodebedømmelser…</string>
     <string name="ratings_unavailable">Episodebedømmelser er ikke tilgængelige.</string>
     <string name="ratings_load_error">Kan ikke indlæse episodebedømmelser.</string>
     <string name="ratings_season_summary">Sæson %1$d - %2$d episoder</string>
@@ -1268,7 +1268,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Opdag</string>
     <string name="discover_load_more">Indlæs mere</string>
-    <string name="discover_loading">Indlæser...</string>
+    <string name="discover_loading">Indlæser…</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_empty_no_content_title">Intet indhold fundet</string>
     <string name="discover_empty_no_content_subtitle">Prøv en anden genre eller et andet katalog</string>
@@ -1336,11 +1336,11 @@
     <string name="trakt_error_list_not_found_or_private">Trakt-liste ikke fundet eller ikke offentlig</string>
     <string name="trakt_error_rate_limit_reached">Trakt-hastighedsgrænse nået</string>
     <string name="trakt_status_enter_activation_code">Indtast kode på trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Synkroniserer...</string>
+    <string name="trakt_status_syncing">Synkroniserer…</string>
     <string name="trakt_status_sync_completed">Synkronisering fuldført</string>
     <string name="trakt_status_disconnected">Afbrudt fra Trakt</string>
     <string name="trakt_status_cw_window_updated">Fortsæt-med-at-se-vindue opdateret</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Hastighedsbegrænset, nedsætter polling-hastighed...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Hastighedsbegrænset, nedsætter polling-hastighed…</string>
     <string name="trakt_user_fallback">Trakt-bruger</string>
     <string name="trakt_error_failed_start">Kunne ikke starte Trakt-godkendelse</string>
 
@@ -1584,7 +1584,7 @@
     <string name="collections_editor_tmdb_placeholder_network">213 for Netflix, 49 for HBO, 2739 for Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 for Tom Hanks, or person URL</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 or 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
@@ -1615,9 +1615,9 @@
     <string name="collections_editor_placeholder_hero_video">Brugerdefineret hero-video-URL (valgfri)</string>
     <string name="collections_editor_title_logo">Titellogo (moderne hjemskærm)</string>
     <string name="collections_editor_placeholder_title_logo">Brugerdefineret titellogo-URL (valgfri)</string>
-    <string name="collections_editor_search_emoji_placeholder">Søg emoji...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Filtrer aktive kilder...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Søg kataloger...</string>
+    <string name="collections_editor_search_emoji_placeholder">Søg emoji…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Filtrer aktive kilder…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Søg kataloger…</string>
     <string name="collections_editor_genre_filter">Genrefilter</string>
     <string name="collections_editor_choose_genre">Vælg</string>
     <string name="collections_editor_select_genre">Vælg genre</string>

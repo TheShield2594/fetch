@@ -63,7 +63,7 @@
     <string name="web_import_tab_paste">Pegar</string>
     <string name="web_import_tab_file">Archivo</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Pega aquí el JSON de las colecciones...</string>
+    <string name="web_import_paste_placeholder">Pega aquí el JSON de las colecciones…</string>
     <string name="web_import_file_select">Toca para seleccionar un archivo .json</string>
     <string name="web_order_send_to_top">Mover al inicio</string>
     <string name="web_order_send_to_bottom">Mover al final</string>
@@ -1276,7 +1276,7 @@
     <string name="player_loading_buffering">Cargando buffer…</string>
     <string name="player_engine_switching_title">Cambiando motor del reproductor</string>
     <string name="player_engine_switching_message">Fallo al iniciar. Cambiando a %1$s…</string>
-    <string name="player_engine_switching_manual_message">Cambiando a %1$s...</string>
+    <string name="player_engine_switching_manual_message">Cambiando a %1$s…</string>
     <string name="playback_show_loading_status">Mostrar estado de carga</string>
     <string name="playback_show_loading_status_sub">Muestra el progreso paso a paso mientras se inicializa el reproductor.</string>
     <string name="player_sync_line">Sincronizar línea</string>
@@ -1610,7 +1610,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Cargando calificaciones del episodio...</string>
+    <string name="ratings_loading">Cargando calificaciones del episodio…</string>
     <string name="ratings_unavailable">Las calificaciones del episodio no están disponibles.</string>
     <string name="ratings_load_error">No se pudieron cargar las calificaciones del episodio.</string>
     <string name="ratings_season_summary">Temporada %1$d - %2$d episodios</string>
@@ -1618,7 +1618,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Descubrir</string>
     <string name="discover_load_more">Cargar más</string>
-    <string name="discover_loading">Cargando...</string>
+    <string name="discover_loading">Cargando…</string>
     <string name="discover_filter_genre">Género</string>
     <string name="discover_empty_no_content_title">No se encontró contenido</string>
     <string name="discover_empty_no_content_subtitle">Prueba con un género o catálogo diferente</string>
@@ -1687,11 +1687,11 @@
     <string name="trakt_error_list_not_found_or_private">La lista de Trakt no se encontró o no es pública</string>
     <string name="trakt_error_rate_limit_reached">Se alcanzó el límite de solicitudes de Trakt</string>
     <string name="trakt_status_enter_activation_code">Ingresa el código en trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Sincronizando...</string>
+    <string name="trakt_status_syncing">Sincronizando…</string>
     <string name="trakt_status_sync_completed">Sincronización completada</string>
     <string name="trakt_status_disconnected">Desconectado de Trakt</string>
     <string name="trakt_status_cw_window_updated">Ventana de Continuar viendo actualizada</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Límite alcanzado, reduciendo velocidad de verificación...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Límite alcanzado, reduciendo velocidad de verificación…</string>
     <string name="trakt_user_fallback">Usuario de Trakt</string>
     <string name="trakt_error_failed_start">No se pudo iniciar la autenticación de Trakt</string>
 
@@ -1943,7 +1943,7 @@
     <string name="collections_editor_tmdb_placeholder_network">213 para Netflix, 49 para HBO, 2739 para Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 para Tom Hanks o URL de la persona</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 o 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 para Animación</string>
     <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
     <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
@@ -1975,9 +1975,9 @@
     <string name="collections_editor_placeholder_hero_video">URL personalizada del video principal (opcional)</string>
     <string name="collections_editor_title_logo">Logotipo del título (Inicio moderno)</string>
     <string name="collections_editor_placeholder_title_logo">URL personalizada del logotipo del título (opcional)</string>
-    <string name="collections_editor_search_emoji_placeholder">Buscar emoji...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Filtrar fuentes activas...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Buscar catálogos...</string>
+    <string name="collections_editor_search_emoji_placeholder">Buscar emoji…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Filtrar fuentes activas…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Buscar catálogos…</string>
     <string name="collections_editor_genre_filter">Filtro de género</string>
     <string name="collections_editor_choose_genre">Elegir</string>
     <string name="collections_editor_select_genre">Seleccionar género</string>
@@ -2384,12 +2384,12 @@
     <string name="stream_test_card_title">Ejecutar prueba de velocidad de la última transmisión reproducida</string>
     <string name="stream_test_server_label">Servidor: %1$s</string>
     <string name="stream_test_no_stream">No hay reproducciones registradas. Reproduce un video para ejecutar pruebas de diagnóstico en su servidor.</string>
-    <string name="stream_test_btn_measuring_baseline">Midiendo línea base...</string>
-    <string name="stream_test_btn_measuring_parallel1">Midiendo conexión paralela (1 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel4">Midiendo conexión paralela (4 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel8">Midiendo conexión paralela (8 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel16">Midiendo conexión paralela (16 MB)...</string>
-    <string name="stream_test_btn_running">Ejecutando...</string>
+    <string name="stream_test_btn_measuring_baseline">Midiendo línea base…</string>
+    <string name="stream_test_btn_measuring_parallel1">Midiendo conexión paralela (1 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel4">Midiendo conexión paralela (4 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel8">Midiendo conexión paralela (8 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel16">Midiendo conexión paralela (16 MB)…</string>
+    <string name="stream_test_btn_running">Ejecutando…</string>
     <string name="stream_test_label_baseline">Conexión única estándar (línea base)</string>
     <string name="stream_test_label_parallel1">Conexión paralela (fragmentos de 1 MB)</string>
     <string name="stream_test_label_parallel4">Conexión paralela (fragmentos de 4 MB)</string>

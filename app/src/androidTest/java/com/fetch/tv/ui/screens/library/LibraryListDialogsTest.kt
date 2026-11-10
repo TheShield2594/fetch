@@ -76,9 +76,9 @@ class LibraryListDialogsTest {
             }
         }
         composeRule.onNodeWithText(context.getString(R.string.library_list_description_label)).assertIsDisplayed()
-        // The editor scrolls; the last privacy rows sit below the fold on a 1080p TV screen.
-        composeRule.onNodeWithText("Friends").performScrollTo().assertIsDisplayed()
-        composeRule.onNodeWithText("Link").performScrollTo().assertIsDisplayed()
+        // The editor scrolls; the privacy row sits below the fold on a 1080p TV screen.
+        composeRule.onNodeWithText(context.getString(R.string.library_list_privacy_friends)).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.library_list_privacy_link)).performScrollTo().assertIsDisplayed()
     }
 
     @Test

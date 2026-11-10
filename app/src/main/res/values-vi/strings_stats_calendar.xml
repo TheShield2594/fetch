@@ -24,21 +24,17 @@
     <string name="stats_current_streak">Chuỗi hiện tại</string>
     <string name="stats_longest_streak">Chuỗi dài nhất</string>
     <plurals name="stats_days_value">
-        <item quantity="one">%d ngày</item>
         <item quantity="other">%d ngày</item>
     </plurals>
     <string name="stats_achievements">Thành tích</string>
     <string name="stats_no_badges">Chưa có huy hiệu nào — hãy tiếp tục xem nhé!</string>
     <plurals name="stats_badge_movies">
-        <item quantity="one">%d phim</item>
         <item quantity="other">%d phim</item>
     </plurals>
     <plurals name="stats_badge_episodes">
-        <item quantity="one">%d tập</item>
         <item quantity="other">%d tập</item>
     </plurals>
     <plurals name="stats_badge_streak">
-        <item quantity="one">Chuỗi %d ngày</item>
         <item quantity="other">Chuỗi %d ngày</item>
     </plurals>
     <string name="stats_earned_badges_label">Đã đạt: %s</string>
@@ -64,11 +60,9 @@
     <string name="calendar_not_paired_title">Lịch của bạn nằm trên trang web Fetch</string>
     <string name="calendar_failed">Không thể tải lịch từ trang web Fetch.</string>
     <plurals name="calendar_range_days">
-        <item quantity="one">%d ngày</item>
         <item quantity="other">%d ngày</item>
     </plurals>
     <plurals name="calendar_empty_title">
-        <item quantity="one">Không có tập nào sắp phát trong %d ngày tới</item>
         <item quantity="other">Không có tập nào sắp phát trong %d ngày tới</item>
     </plurals>
     <string name="calendar_empty_subtitle">Lịch chỉ theo dõi các loạt phim bạn đã bắt đầu xem.</string>
@@ -76,7 +70,6 @@
     <string name="calendar_empty_subtitle_watch_history">Lịch theo dõi 30 loạt phim bạn xem gần đây nhất, dựa trên lịch sử xem từ phương thức đồng bộ hoặc dịch vụ theo dõi của bạn.</string>
     <string name="calendar_failed_watch_history">Không thể tra cứu các tập sắp phát trên TMDB.</string>
     <plurals name="calendar_failed_series">
-        <item quantity="one">TMDB không phản hồi cho %d loạt phim nên có thể thiếu một số tập.</item>
         <item quantity="other">TMDB không phản hồi cho %d loạt phim nên có thể thiếu một số tập.</item>
     </plurals>
     <string name="calendar_find_series">Tìm loạt phim để theo dõi</string>
@@ -84,7 +77,6 @@
     <string name="calendar_tomorrow">Ngày mai</string>
     <string name="calendar_unknown_date">Chưa công bố ngày</string>
     <plurals name="calendar_day_count">
-        <item quantity="one">%d tập</item>
         <item quantity="other">%d tập</item>
     </plurals>
 </resources>

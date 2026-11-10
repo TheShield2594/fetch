@@ -27564,22 +27564,22 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;advanced_section_dv_diagnostics&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;da&quot; (Danish) here"
-        errorLine1="    &lt;string name=&quot;advanced_section_dv_diagnostics&quot; translatable=&quot;false&quot;>DV Diagnostics&lt;/string>"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-da/strings.xml"
-            line="452"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;advanced_section_dv_diagnostics&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
         errorLine1="    &lt;string name=&quot;advanced_section_dv_diagnostics&quot; translatable=&quot;false&quot;>DV Diagnostics&lt;/string>"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
+            line="450"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;advanced_section_dv_diagnostics&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;da&quot; (Danish) here"
+        errorLine1="    &lt;string name=&quot;advanced_section_dv_diagnostics&quot; translatable=&quot;false&quot;>DV Diagnostics&lt;/string>"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-da/strings.xml"
             line="452"
             column="52"/>
     </issue>
@@ -27679,7 +27679,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rCN/strings.xml"
-            line="540"
+            line="538"
             column="52"/>
     </issue>
 
@@ -27690,7 +27690,18 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
-            line="540"
+            line="538"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;advanced_section_dv_diagnostics&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;advanced_section_dv_diagnostics&quot; translatable=&quot;false&quot;>DV Diagnostics&lt;/string>"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-vi/strings.xml"
+            line="560"
             column="52"/>
     </issue>
 
@@ -27725,17 +27736,6 @@
             file="src/main/res/values-pt-rPT/strings.xml"
             line="562"
             column="47"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;advanced_section_dv_diagnostics&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;advanced_section_dv_diagnostics&quot; translatable=&quot;false&quot;>DV Diagnostics&lt;/string>"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="563"
-            column="52"/>
     </issue>
 
     <issue
@@ -27971,6 +27971,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ja/strings.xml"
+            line="579"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;uk&quot; (Ukrainian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
@@ -27989,6 +28000,17 @@
             file="src/main/res/values-bg/strings.xml"
             line="580"
             column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Conversion mode&lt;/string>"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ja/strings.xml"
+            line="580"
+            column="47"/>
     </issue>
 
     <issue
@@ -28026,13 +28048,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>None&lt;/string>"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
             line="581"
-            column="45"/>
+            column="48"/>
     </issue>
 
     <issue
@@ -28059,6 +28081,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ja/strings.xml"
+            line="582"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;uk&quot; (Ukrainian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
@@ -28081,13 +28114,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Conversion mode&lt;/string>"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
-            line="582"
-            column="47"/>
+            line="583"
+            column="45"/>
     </issue>
 
     <issue
@@ -28125,13 +28158,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>None&lt;/string>"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
-            line="583"
-            column="48"/>
+            line="584"
+            column="43"/>
     </issue>
 
     <issue
@@ -28169,17 +28202,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ja/strings.xml"
-            line="584"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;da&quot; (Danish) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
@@ -28191,8 +28213,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Mode 1 — MEL&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
@@ -28235,8 +28257,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
@@ -28279,8 +28301,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Mode 1 — MEL&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Mode 2 — 8.1 (no-op mapping)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
@@ -28323,8 +28345,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
@@ -28356,8 +28378,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Mode 2 — 8.1 (no-op mapping)&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Mode 3 — Profile 5 to 8.1&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
@@ -28389,8 +28411,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
@@ -28433,8 +28455,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Mode 3 — Profile 5 to 8.1&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot; translatable=&quot;false&quot;>Mode 4 — 8.4 (static)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
@@ -28488,8 +28510,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot; translatable=&quot;false&quot;>Convert to static profile 8.4.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
@@ -28543,17 +28565,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot; translatable=&quot;false&quot;>Mode 4 — 8.4 (static)&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ja/strings.xml"
-            line="593"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ar&quot; (Arabic) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
@@ -28592,17 +28603,6 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-da/strings.xml"
-            line="594"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;ja&quot; (Japanese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot; translatable=&quot;false&quot;>Convert to static profile 8.4.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-ja/strings.xml"
             line="594"
             column="43"/>
     </issue>
@@ -29258,6 +29258,28 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rCN/strings.xml"
+            line="680"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rTW/strings.xml"
+            line="680"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;sr&quot; (Serbian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
@@ -29276,6 +29298,28 @@
             file="src/main/res/values-pt-rBR/strings.xml"
             line="681"
             column="13"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Conversion mode&lt;/string>"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rCN/strings.xml"
+            line="681"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Conversion mode&lt;/string>"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rTW/strings.xml"
+            line="681"
+            column="47"/>
     </issue>
 
     <issue
@@ -29302,24 +29346,24 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>None&lt;/string>"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rCN/strings.xml"
             line="682"
-            column="45"/>
+            column="48"/>
     </issue>
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>None&lt;/string>"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
             line="682"
-            column="45"/>
+            column="48"/>
     </issue>
 
     <issue
@@ -29357,24 +29401,46 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Conversion mode&lt;/string>"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rCN/strings.xml"
             line="683"
-            column="47"/>
+            column="46"/>
     </issue>
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Conversion mode&lt;/string>"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
             line="683"
-            column="47"/>
+            column="46"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rCN/strings.xml"
+            line="684"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rTW/strings.xml"
+            line="684"
+            column="45"/>
     </issue>
 
     <issue
@@ -29401,28 +29467,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>None&lt;/string>"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-zh-rCN/strings.xml"
-            line="684"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>None&lt;/string>"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-zh-rTW/strings.xml"
-            line="684"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_row_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;bn&quot; (Bangla) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot;>কনভার্সন মোড&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -29430,6 +29474,28 @@
             file="src/main/res/values-bn/strings.xml"
             line="684"
             column="13"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rCN/strings.xml"
+            line="685"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rTW/strings.xml"
+            line="685"
+            column="43"/>
     </issue>
 
     <issue
@@ -29456,28 +29522,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-zh-rCN/strings.xml"
-            line="685"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-zh-rTW/strings.xml"
-            line="685"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_none_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;bn&quot; (Bangla) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot;>কোনোটিই নয়&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -29489,8 +29533,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Mode 1 — MEL&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rCN/strings.xml"
@@ -29500,8 +29544,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Mode 1 — MEL&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
@@ -29544,8 +29588,19 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;bn&quot; (Bangla) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot;>মোড 0 — কপি (কনভার্ট নয়)&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="687"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rCN/strings.xml"
@@ -29555,24 +29610,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
             line="687"
             column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;bn&quot; (Bangla) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot;>মোড 0 — কপি (কনভার্ট নয়)&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-bn/strings.xml"
-            line="687"
-            column="13"/>
     </issue>
 
     <issue
@@ -29610,8 +29654,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Mode 1 — MEL&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Mode 2 — 8.1 (no-op mapping)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rCN/strings.xml"
@@ -29621,8 +29665,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Mode 1 — MEL&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Mode 2 — 8.1 (no-op mapping)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
@@ -29654,8 +29698,19 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;bn&quot; (Bangla) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot;>মোড 1 — MEL&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bn/strings.xml"
+            line="689"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rCN/strings.xml"
@@ -29665,24 +29720,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
             line="689"
             column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;bn&quot; (Bangla) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot;>মোড 1 — MEL&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-bn/strings.xml"
-            line="689"
-            column="13"/>
     </issue>
 
     <issue
@@ -29709,8 +29753,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Mode 2 — 8.1 (no-op mapping)&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Mode 3 — Profile 5 to 8.1&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rCN/strings.xml"
@@ -29720,35 +29764,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Mode 2 — 8.1 (no-op mapping)&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Mode 3 — Profile 5 to 8.1&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
             line="690"
             column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-zh-rCN/strings.xml"
-            line="691"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-zh-rTW/strings.xml"
-            line="691"
-            column="43"/>
     </issue>
 
     <issue
@@ -29764,6 +29786,28 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rCN/strings.xml"
+            line="691"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rTW/strings.xml"
+            line="691"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;bn&quot; (Bangla) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot;>লুমা এবং ক্রোমা ম্যাপিং নো-অপ হিসেবে সেট করে প্রোফাইল 8.1-এ কনভার্ট করুন। স্ট্যান্ডার্ড কনভার্সন।&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -29775,8 +29819,8 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Mode 3 — Profile 5 to 8.1&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot; translatable=&quot;false&quot;>Mode 4 — 8.4 (static)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rCN/strings.xml"
@@ -29786,35 +29830,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Mode 3 — Profile 5 to 8.1&lt;/string>"
+        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot; translatable=&quot;false&quot;>Mode 4 — 8.4 (static)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-zh-rTW/strings.xml"
             line="692"
             column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-zh-rCN/strings.xml"
-            line="693"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-zh-rTW/strings.xml"
-            line="693"
-            column="43"/>
     </issue>
 
     <issue
@@ -29830,6 +29852,28 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot; translatable=&quot;false&quot;>Convert to static profile 8.4.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rCN/strings.xml"
+            line="693"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot; translatable=&quot;false&quot;>Convert to static profile 8.4.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rTW/strings.xml"
+            line="693"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;bn&quot; (Bangla) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot;>Profile 5 (DV5) স্ট্রিমকে Profile 8.1-এ কনভার্ট করুন। DV5-কে DV8.1-এ কনভার্ট করার টগলটি যে কনভার্সন ব্যবহার করে।&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -29837,50 +29881,6 @@
             file="src/main/res/values-bn/strings.xml"
             line="694"
             column="13"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot; translatable=&quot;false&quot;>Mode 4 — 8.4 (static)&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-zh-rCN/strings.xml"
-            line="694"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot; translatable=&quot;false&quot;>Mode 4 — 8.4 (static)&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-zh-rTW/strings.xml"
-            line="694"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot; translatable=&quot;false&quot;>Convert to static profile 8.4.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-zh-rCN/strings.xml"
-            line="695"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;zh&quot; (Chinese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot; translatable=&quot;false&quot;>Convert to static profile 8.4.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-zh-rTW/strings.xml"
-            line="695"
-            column="43"/>
     </issue>
 
     <issue
@@ -29907,6 +29907,28 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-vi/strings.xml"
+            line="725"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Conversion mode&lt;/string>"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-vi/strings.xml"
+            line="726"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;hu&quot; (Hungarian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
@@ -29918,13 +29940,24 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_caption&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot; translatable=&quot;false&quot;>Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>None&lt;/string>"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-vi/strings.xml"
+            line="727"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-vi/strings.xml"
             line="728"
-            column="45"/>
+            column="46"/>
     </issue>
 
     <issue
@@ -29940,6 +29973,17 @@
 
     <issue
         id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-vi/strings.xml"
+            line="729"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;hu&quot; (Hungarian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>None&lt;/string>"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
@@ -29951,13 +29995,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_row_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_row_title&quot; translatable=&quot;false&quot;>Conversion mode&lt;/string>"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-vi/strings.xml"
-            line="729"
-            column="47"/>
+            line="730"
+            column="43"/>
     </issue>
 
     <issue
@@ -29973,22 +30017,22 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_title&quot; translatable=&quot;false&quot;>None&lt;/string>"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="730"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;hu&quot; (Hungarian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hu/strings.xml"
+            line="731"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Mode 1 — MEL&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-vi/strings.xml"
             line="731"
             column="45"/>
     </issue>
@@ -30006,17 +30050,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_none_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_none_sub&quot; translatable=&quot;false&quot;>No override. Uses the automatically selected conversion mode.&lt;/string>"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="731"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;hu&quot; (Hungarian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
@@ -30028,13 +30061,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_title&quot; translatable=&quot;false&quot;>Mode 0 — Copy (no convert)&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-vi/strings.xml"
             line="732"
-            column="45"/>
+            column="43"/>
     </issue>
 
     <issue
@@ -30061,22 +30094,22 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_0_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_0_sub&quot; translatable=&quot;false&quot;>Parse the RPU and write it back untouched. No profile conversion.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="733"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;hu&quot; (Hungarian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Mode 1 — MEL&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hu/strings.xml"
+            line="733"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Mode 2 — 8.1 (no-op mapping)&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-vi/strings.xml"
             line="733"
             column="45"/>
     </issue>
@@ -30116,13 +30149,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_title&quot; translatable=&quot;false&quot;>Mode 1 — MEL&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-vi/strings.xml"
             line="734"
-            column="45"/>
+            column="43"/>
     </issue>
 
     <issue
@@ -30160,22 +30193,22 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_1_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_1_sub&quot; translatable=&quot;false&quot;>Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="735"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;hu&quot; (Hungarian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Mode 2 — 8.1 (no-op mapping)&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hu/strings.xml"
+            line="735"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Mode 3 — Profile 5 to 8.1&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-vi/strings.xml"
             line="735"
             column="45"/>
     </issue>
@@ -30226,13 +30259,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_title&quot; translatable=&quot;false&quot;>Mode 2 — 8.1 (no-op mapping)&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-vi/strings.xml"
             line="736"
-            column="45"/>
+            column="43"/>
     </issue>
 
     <issue
@@ -30259,22 +30292,22 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_2_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_2_sub&quot; translatable=&quot;false&quot;>Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="737"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;hu&quot; (Hungarian) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Mode 3 — Profile 5 to 8.1&lt;/string>"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-hu/strings.xml"
+            line="737"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="Untranslatable"
+        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot; translatable=&quot;false&quot;>Mode 4 — 8.4 (static)&lt;/string>"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-vi/strings.xml"
             line="737"
             column="45"/>
     </issue>
@@ -30314,13 +30347,13 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_title&quot; translatable=&quot;false&quot;>Mode 3 — Profile 5 to 8.1&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
+        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot; translatable=&quot;false&quot;>Convert to static profile 8.4.&lt;/string>"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-vi/strings.xml"
             line="738"
-            column="45"/>
+            column="43"/>
     </issue>
 
     <issue
@@ -30343,17 +30376,6 @@
             file="src/main/res/values-b+es+419/strings.xml"
             line="739"
             column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_3_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_3_sub&quot; translatable=&quot;false&quot;>Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="739"
-            column="43"/>
     </issue>
 
     <issue
@@ -30402,17 +30424,6 @@
 
     <issue
         id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_title&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_title&quot; translatable=&quot;false&quot;>Mode 4 — 8.4 (static)&lt;/string>"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="740"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
         message="The resource string &quot;dv7_libdovi_mode_caption&quot; has been marked as translatable=&quot;false&quot; elsewhere (usually in the `values` folder), but is translated to &quot;tr&quot; (Turkish) here"
         errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_caption&quot;>Dönüştürme modu (otomatik seçilir, gerekmedikçe değiştirmeyin). Zorlamak için birini seçin; Yok seçeneği otomatiği kullanır. Yalnızca DV7 İşleme DV8.1\&apos;e Dönüştür olarak ayarlandığında etkindir.&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -30442,17 +30453,6 @@
             file="src/main/res/values-b+es+419/strings.xml"
             line="741"
             column="45"/>
-    </issue>
-
-    <issue
-        id="Untranslatable"
-        message="The resource string &quot;dv7_libdovi_mode_4_sub&quot; is marked as translatable=&quot;false&quot;, but is translated to &quot;vi&quot; (Vietnamese) here"
-        errorLine1="    &lt;string name=&quot;dv7_libdovi_mode_4_sub&quot; translatable=&quot;false&quot;>Convert to static profile 8.4.&lt;/string>"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="741"
-            column="43"/>
     </issue>
 
     <issue
@@ -31651,600 +31651,6 @@
         <location
             file="src/main/res/values/strings_stats_calendar.xml"
             line="60"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ja/strings.xml"
-            line="157"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="157"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rCN/strings.xml"
-            line="157"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rTW/strings.xml"
-            line="157"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-in/strings.xml"
-            line="161"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days_short&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ja/strings.xml"
-            line="164"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days_short&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="164"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days_short&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rCN/strings.xml"
-            line="164"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days_short&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rTW/strings.xml"
-            line="164"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;cw_airs_in_days_short&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-in/strings.xml"
-            line="168"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;ambient_mode_timeout_minutes&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="374"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;player_report_loading_issue_prompt&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rCN/strings.xml"
-            line="1341"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;player_report_loading_issue_prompt&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rTW/strings.xml"
-            line="1341"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;player_report_loading_issue_prompt&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-vi/strings.xml"
-            line="1424"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_days_value&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-in/strings_stats_calendar.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_days_value&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ja/strings_stats_calendar.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_days_value&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-vi/strings_stats_calendar.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_days_value&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rCN/strings_stats_calendar.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_days_value&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rTW/strings_stats_calendar.xml"
-            line="26"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_movies&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-in/strings_stats_calendar.xml"
-            line="32"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_movies&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ja/strings_stats_calendar.xml"
-            line="32"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_movies&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-vi/strings_stats_calendar.xml"
-            line="32"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_movies&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rCN/strings_stats_calendar.xml"
-            line="32"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_movies&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rTW/strings_stats_calendar.xml"
-            line="32"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_episodes&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-in/strings_stats_calendar.xml"
-            line="36"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_episodes&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ja/strings_stats_calendar.xml"
-            line="36"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_episodes&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-vi/strings_stats_calendar.xml"
-            line="36"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_episodes&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rCN/strings_stats_calendar.xml"
-            line="36"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_episodes&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rTW/strings_stats_calendar.xml"
-            line="36"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_streak&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-in/strings_stats_calendar.xml"
-            line="40"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_streak&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ja/strings_stats_calendar.xml"
-            line="40"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_streak&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-vi/strings_stats_calendar.xml"
-            line="40"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_streak&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rCN/strings_stats_calendar.xml"
-            line="40"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;stats_badge_streak&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rTW/strings_stats_calendar.xml"
-            line="40"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_range_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-in/strings_stats_calendar.xml"
-            line="66"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_range_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ja/strings_stats_calendar.xml"
-            line="66"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_range_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-vi/strings_stats_calendar.xml"
-            line="66"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_range_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rCN/strings_stats_calendar.xml"
-            line="66"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_range_days&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rTW/strings_stats_calendar.xml"
-            line="66"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_empty_title&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-in/strings_stats_calendar.xml"
-            line="70"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_empty_title&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ja/strings_stats_calendar.xml"
-            line="70"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_empty_title&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-vi/strings_stats_calendar.xml"
-            line="70"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_empty_title&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rCN/strings_stats_calendar.xml"
-            line="70"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_empty_title&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rTW/strings_stats_calendar.xml"
-            line="70"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_failed_series&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-in/strings_stats_calendar.xml"
-            line="78"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_failed_series&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ja/strings_stats_calendar.xml"
-            line="78"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_failed_series&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-vi/strings_stats_calendar.xml"
-            line="78"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_failed_series&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rCN/strings_stats_calendar.xml"
-            line="78"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_failed_series&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rTW/strings_stats_calendar.xml"
-            line="78"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;in&quot; (Indonesian) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_day_count&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-in/strings_stats_calendar.xml"
-            line="86"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;ja&quot; (Japanese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_day_count&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-ja/strings_stats_calendar.xml"
-            line="86"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;vi&quot; (Vietnamese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_day_count&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-vi/strings_stats_calendar.xml"
-            line="86"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_day_count&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rCN/strings_stats_calendar.xml"
-            line="86"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedQuantity"
-        message="For language &quot;zh&quot; (Chinese) the following quantities are not relevant: `one`"
-        errorLine1="    &lt;plurals name=&quot;calendar_day_count&quot;>"
-        errorLine2="    ^">
-        <location
-            file="src/main/res/values-zh-rTW/strings_stats_calendar.xml"
-            line="86"
             column="5"/>
     </issue>
 

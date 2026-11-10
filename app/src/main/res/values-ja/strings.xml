@@ -154,14 +154,12 @@
     <string name="cw_airs_today">本日放送</string>
     <string name="cw_airs_tomorrow">明日放送</string>
     <plurals name="cw_airs_in_days">
-        <item quantity="one">%d日後に放送</item>
         <item quantity="other">%d日後に放送</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
     <string name="cw_airs_today_short">今日</string>
     <string name="cw_airs_tomorrow_short">明日</string>
     <plurals name="cw_airs_in_days_short">
-        <item quantity="one">%d日後</item>
         <item quantity="other">%d日後</item>
     </plurals>
     <string name="cw_action_go_to_details">詳細へ</string>

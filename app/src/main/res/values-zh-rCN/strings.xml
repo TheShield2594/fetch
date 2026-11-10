@@ -154,14 +154,12 @@
     <string name="cw_airs_today">今日播出</string>
     <string name="cw_airs_tomorrow">明日播出</string>
     <plurals name="cw_airs_in_days">
-        <item quantity="one">%d 天后播出</item>
         <item quantity="other">%d 天后播出</item>
     </plurals>
     <!-- 紧凑卡片样式的简短版本（宽卡/海报） -->
     <string name="cw_airs_today_short">今天</string>
     <string name="cw_airs_tomorrow_short">明天</string>
     <plurals name="cw_airs_in_days_short">
-        <item quantity="one">%d 天后</item>
         <item quantity="other">%d 天后</item>
     </plurals>
     <string name="cw_action_go_to_details">前往详情</string>

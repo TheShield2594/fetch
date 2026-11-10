@@ -24,21 +24,17 @@
     <string name="stats_current_streak">Hari beruntun saat ini</string>
     <string name="stats_longest_streak">Hari beruntun terlama</string>
     <plurals name="stats_days_value">
-        <item quantity="one">%d hari</item>
         <item quantity="other">%d hari</item>
     </plurals>
     <string name="stats_achievements">Pencapaian</string>
     <string name="stats_no_badges">Belum ada lencana — terus menonton!</string>
     <plurals name="stats_badge_movies">
-        <item quantity="one">%d film</item>
         <item quantity="other">%d film</item>
     </plurals>
     <plurals name="stats_badge_episodes">
-        <item quantity="one">%d episode</item>
         <item quantity="other">%d episode</item>
     </plurals>
     <plurals name="stats_badge_streak">
-        <item quantity="one">%d hari beruntun</item>
         <item quantity="other">%d hari beruntun</item>
     </plurals>
     <string name="stats_earned_badges_label">Diraih: %s</string>
@@ -64,11 +60,9 @@
     <string name="calendar_not_paired_title">Kalender Anda ada di situs web Fetch</string>
     <string name="calendar_failed">Tidak dapat memuat kalender dari situs web Fetch.</string>
     <plurals name="calendar_range_days">
-        <item quantity="one">%d hari</item>
         <item quantity="other">%d hari</item>
     </plurals>
     <plurals name="calendar_empty_title">
-        <item quantity="one">Tidak ada episode baru dalam %d hari ke depan</item>
         <item quantity="other">Tidak ada episode baru dalam %d hari ke depan</item>
     </plurals>
     <string name="calendar_empty_subtitle">Kalender hanya melacak serial yang sudah mulai Anda tonton.</string>
@@ -76,7 +70,6 @@
     <string name="calendar_empty_subtitle_watch_history">Kalender mengikuti 30 serial yang terakhir Anda tonton, berdasarkan riwayat tontonan dari metode sinkronisasi atau layanan pelacakan Anda.</string>
     <string name="calendar_failed_watch_history">Tidak dapat mencari episode mendatang di TMDB.</string>
     <plurals name="calendar_failed_series">
-        <item quantity="one">TMDB tidak merespons untuk %d serial, jadi beberapa episode mungkin tidak muncul.</item>
         <item quantity="other">TMDB tidak merespons untuk %d serial, jadi beberapa episode mungkin tidak muncul.</item>
     </plurals>
     <string name="calendar_find_series">Cari serial untuk diikuti</string>
@@ -84,7 +77,6 @@
     <string name="calendar_tomorrow">Besok</string>
     <string name="calendar_unknown_date">Tanggal belum diumumkan</string>
     <plurals name="calendar_day_count">
-        <item quantity="one">%d episode</item>
         <item quantity="other">%d episode</item>
     </plurals>
 </resources>

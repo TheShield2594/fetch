@@ -154,14 +154,12 @@
     <string name="cw_airs_today">Phát sóng hôm nay</string>
     <string name="cw_airs_tomorrow">Phát sóng ngày mai</string>
     <plurals name="cw_airs_in_days">
-    	<item quantity="one">Phát sóng sau %d ngày nữa</item>
         <item quantity="other">Phát sóng sau %d ngày nữa</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
     <string name="cw_airs_today_short">Hôm nay</string>
     <string name="cw_airs_tomorrow_short">Ngày mai</string>
     <plurals name="cw_airs_in_days_short">
-        <item quantity="one">Sau %1$d ngày</item>
         <item quantity="other">Sau %1$d ngày</item>
     </plurals>
     <string name="cw_action_go_to_details">Xem chi tiết</string>
@@ -371,7 +369,6 @@
     <string name="ambient_mode_timeout">Bắt đầu sau</string>
     <string name="ambient_mode_timeout_subtitle">Thời gian chờ trước khi Chế độ môi trường xung quanh bắt đầu</string>
     <plurals name="ambient_mode_timeout_minutes">
-        <item quantity="one">%1$d phút</item>
         <item quantity="other">%1$d phút</item>
     </plurals>
     <string name="ambient_mode_catalogs">Danh mục</string>

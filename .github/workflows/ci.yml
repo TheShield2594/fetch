@@ -7,10 +7,10 @@ on:
     paths-ignore:
       - "web/**"
       - ".github/workflows/web-*.yml"
+  # No path filter on pull requests: the app jobs are required checks on `main`, and a check
+  # that never reports blocks the merge. The `changes` job skips them instead when a pull
+  # request only touches the website, and a skipped job counts as passing.
   pull_request:
-    paths-ignore:
-      - "web/**"
-      - ".github/workflows/web-*.yml"
   workflow_dispatch:
 
 permissions:
@@ -24,8 +24,42 @@ concurrency:
 # The job names below are the required status checks on `main`; renaming one means updating
 # the branch protection rule too.
 jobs:
+  # Decides whether the app jobs need to run. Only a pull request whose files are all under web/
+  # (or are the website's own workflows) answers "false"; pushes, manual runs and any failure
+  # here leave the app jobs running.
+  changes:
+    name: Detect app changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+    steps:
+      - id: filter
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          app=true
+          # grep without -q reads all of its input: an early exit would make printf fail with
+          # SIGPIPE, and under pipefail that would read as "only web files".
+          if [ "$EVENT" = "pull_request" ] &&
+            files=$(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[].filename') &&
+            [ -n "$files" ] &&
+            ! printf '%s\n' "$files" | grep -Ev '^(web/|\.github/workflows/web-[^/]*\.yml$)' > /dev/null; then
+            app=false
+          fi
+          echo "app=$app" >> "$GITHUB_OUTPUT"
+          echo "App jobs needed: $app"
+
   build:
     name: Unit tests and debug APK
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.app != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -59,6 +93,8 @@ jobs:
 
   lint:
     name: Lint
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.app != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -83,6 +119,8 @@ jobs:
 
   release:
     name: Release APK (R8)
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.app != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -111,6 +149,8 @@ jobs:
 
   instrumented:
     name: Instrumented tests (emulator)
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.app != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:

@@ -37,7 +37,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
+import com.fetch.tv.ui.screens.home.bestMatchKey
+import com.fetch.tv.ui.screens.home.readinessTicks
+import com.fetch.tv.ui.screens.home.readyBestMatchKeys
 import kotlinx.coroutines.launch
 import com.fetch.tv.R
 import java.util.Locale
@@ -80,8 +84,27 @@ enum class LibrarySortOption(
 enum class LibraryWatchedFilter(val key: String, val labelResId: Int) {
     ALL("all", R.string.library_watched_filter_all),
     WATCHED("watched", R.string.library_watched_filter_watched),
-    UNWATCHED("unwatched", R.string.library_watched_filter_unwatched);
+    UNWATCHED("unwatched", R.string.library_watched_filter_unwatched),
+
+    /**
+     * Movies whose Best match is saved and fresh, so Play starts them at once: the same check as
+     * Home's ready dot and "Ready tonight". Offered only while at least one title is ready.
+     */
+    READY("ready", R.string.library_watched_filter_ready);
 }
+
+/** The watched filters to offer: Ready to play only while something is ready, or it's chosen. */
+internal fun libraryWatchedFilterOptions(
+    anythingReady: Boolean,
+    selected: LibraryWatchedFilter
+): List<LibraryWatchedFilter> = LibraryWatchedFilter.entries.filter {
+    it != LibraryWatchedFilter.READY || anythingReady || selected == LibraryWatchedFilter.READY
+}
+
+/** Whether [entry] starts at once: a movie whose Best match is in [readyKeys]. */
+internal fun libraryEntryReady(entry: LibraryEntry, readyKeys: Set<String>): Boolean =
+    entry.type.equals("movie", ignoreCase = true) &&
+        entry.bestMatchKey() in readyKeys
 
 data class FilterOption(
     val key: String,
@@ -128,6 +151,8 @@ data class LibraryUiState(
     val filtersHideAllItems: Boolean = false,
     val watchedMovieIds: Set<String> = emptySet(),
     val watchedSeriesIds: Set<String> = emptySet(),
+    // Best match keys that are ready right now, for the Ready to play filter.
+    val readyBestMatchKeys: Set<String> = emptySet(),
     val isTrackingAuthenticated: Boolean = false,
     val posterCardWidthDp: Int = 126,
     val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
@@ -182,6 +207,7 @@ class LibraryViewModel @Inject constructor(
     private val profileManager: com.fetch.tv.core.profile.ProfileManager,
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     val posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController,
+    private val bestMatchCacheDataStore: com.fetch.tv.data.local.BestMatchCacheDataStore,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -251,6 +277,22 @@ class LibraryViewModel @Inject constructor(
             parentalControls.filterRevision
                 .drop(1)
                 .collect { _uiState.update { current -> current.withVisibleItems() } }
+        }
+        viewModelScope.launch {
+            // Re-read on a timer as well, so a pick past its window drops out of Ready to play.
+            // The timer runs on Default, off the screen's dispatcher (and a test's virtual clock).
+            val ticks = readinessTicks()
+                .flowOn(kotlinx.coroutines.Dispatchers.Default)
+                .onStart { emit(System.currentTimeMillis()) }
+            // The clock is read here rather than taken from the tick: a pick saved after the last
+            // tick would otherwise look like it was saved in the future, and not count as ready.
+            combine(bestMatchCacheDataStore.entries, ticks) { entries, _ ->
+                readyBestMatchKeys(entries, System.currentTimeMillis())
+            }
+                .distinctUntilChanged()
+                .collect { keys ->
+                    _uiState.update { current -> current.copy(readyBestMatchKeys = keys).withVisibleItems() }
+                }
         }
         viewModelScope.launch {
             watchedSeriesStateHolder.fullyWatchedSeriesIds
@@ -867,6 +909,7 @@ class LibraryViewModel @Inject constructor(
                 if (isMovie) !watchedMovieIds.contains(entry.id)
                 else !watchedSeriesIds.contains(entry.id)
             }
+            LibraryWatchedFilter.READY -> yearFiltered.filter { entry -> libraryEntryReady(entry, readyBestMatchKeys) }
         }
 
         // Faceted counts — each filter counts items matching all OTHER active filters

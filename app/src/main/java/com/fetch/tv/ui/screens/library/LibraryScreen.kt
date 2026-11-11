@@ -387,6 +387,7 @@ fun LibraryScreen(
                     selectedGenre = uiState.selectedGenre,
                     selectedYear = uiState.selectedYear,
                     selectedWatchedFilter = uiState.selectedWatchedFilter,
+                    anythingReady = uiState.readyBestMatchKeys.isNotEmpty(),
                     primaryFocusRequester = selectorFocusRequester,
                     upFocusRequester = primaryFocusRequester,
                     expandedPicker = expandedPicker,
@@ -716,6 +717,7 @@ private fun LibrarySelectorsRow(
     selectedGenre: String?,
     selectedYear: String?,
     selectedWatchedFilter: LibraryWatchedFilter,
+    anythingReady: Boolean,
     primaryFocusRequester: FocusRequester,
     upFocusRequester: FocusRequester,
     expandedPicker: String?,
@@ -852,7 +854,7 @@ private fun LibrarySelectorsRow(
                 value = watchedFilterLabel,
                 selectedValue = selectedWatchedFilter.key,
                 expanded = expandedPicker == "watched",
-                options = LibraryWatchedFilter.entries.map {
+                options = libraryWatchedFilterOptions(anythingReady, selectedWatchedFilter).map {
                     LibraryOption(stringResource(it.labelResId), it.key)
                 },
                 onExpandedChange = { onExpandedChange("watched", it) },

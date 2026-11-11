@@ -7,6 +7,8 @@ import com.fetch.tv.core.tracking.TrackingLibraryProviderRegistry
 import com.fetch.tv.core.tracking.TrackingListManagementCapabilities
 import com.fetch.tv.core.tracking.TrackingListManager
 import com.fetch.tv.core.tracking.TrackingProviderId
+import com.fetch.tv.data.local.BestMatchCacheDataStore
+import com.fetch.tv.data.local.CachedBestMatch
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.LibraryViewPreferences
 import com.fetch.tv.data.local.WatchedSeriesStateHolder
@@ -31,6 +33,7 @@ internal class LibraryViewModelTestFixture(sorter: TrackingLibrarySorter? = null
     val tabs = MutableStateFlow(listOf(tab))
     val items = MutableStateFlow(emptyList<LibraryEntry>())
     val persistedSort = MutableStateFlow<String?>(null)
+    val bestMatches = MutableStateFlow<Map<String, CachedBestMatch>>(emptyMap())
     val repository = mockk<LibraryRepository>(relaxed = true) {
         every { sourceMode } returns source
         every { isSyncing } returns flowOf(false)
@@ -65,6 +68,8 @@ internal class LibraryViewModelTestFixture(sorter: TrackingLibrarySorter? = null
         watchedSeriesStateHolder = mockk<WatchedSeriesStateHolder> { every { fullyWatchedSeriesIds } returns MutableStateFlow(emptySet()) },
         profileManager = mockk<ProfileManager> { every { activeProfileId } returns profile },
         parentalControls = com.fetch.tv.unrestrictedParentalControls(),
-        posterOptions = mockk(relaxed = true), context = mockk(relaxed = true)
+        posterOptions = mockk(relaxed = true),
+        bestMatchCacheDataStore = mockk<BestMatchCacheDataStore> { every { entries } returns bestMatches },
+        context = mockk(relaxed = true)
     )
 }

@@ -1830,6 +1830,7 @@
     <string name="library_watched_filter_all">All</string>
     <string name="library_watched_filter_watched">Watched</string>
     <string name="library_watched_filter_unwatched">Unwatched</string>
+    <string name="library_watched_filter_ready">Ready to play</string>
     <string name="genre_action">Action</string>
     <string name="genre_adventure">Adventure</string>
     <string name="genre_animation">Animation</string>

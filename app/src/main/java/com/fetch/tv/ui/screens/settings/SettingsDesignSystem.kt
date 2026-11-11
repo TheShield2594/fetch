@@ -189,31 +189,6 @@ internal data class SettingsPickerOption<T>(
 )
 
 @Composable
-internal fun SettingsStandaloneScaffold(
-    classicContainer: Boolean = true,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.screen.vertical)
-    ) {
-        SettingsWorkspaceSurface(
-            modifier = Modifier
-                .fillMaxSize(),
-            classicContainer = classicContainer
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
-            ) {
-                content()
-            }
-        }
-    }
-}
-
-@Composable
 internal fun SettingsWorkspaceSurface(
     modifier: Modifier = Modifier,
     classicContainer: Boolean = true,

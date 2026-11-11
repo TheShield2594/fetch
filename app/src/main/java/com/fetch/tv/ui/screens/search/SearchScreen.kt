@@ -30,6 +30,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -56,8 +57,7 @@ import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -72,6 +72,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
@@ -1547,7 +1548,10 @@ private fun SearchInputField(
             Spacer(modifier = Modifier.width(FetchTheme.spacing.md))
         }
 
-        OutlinedTextField(
+        // A plain text field with the app's own border and focus ring, not Material's touch field.
+        var searchFieldFocused by remember { mutableStateOf(false) }
+        val searchFieldShape = RoundedCornerShape(FetchTheme.radii.md)
+        BasicTextField(
             value = query,
             onValueChange = onQueryChanged,
             modifier = Modifier
@@ -1557,6 +1561,7 @@ private fun SearchInputField(
                     canFocus = isScreenActive
                 }
                 .onFocusChanged { focusState ->
+                    searchFieldFocused = focusState.isFocused
                     onSearchFieldFocusChanged(focusState.isFocused)
                 }
                 .onPreviewKeyEvent { keyEvent ->
@@ -1605,30 +1610,39 @@ private fun SearchInputField(
                 }
             ),
             singleLine = true,
-            shape = RoundedCornerShape(FetchTheme.radii.md),
-            placeholder = {
-                Text(
-                    // While voice search is listening, say so in text, not only with the accent.
-                    text = stringResource(
-                        if (isVoiceListening) R.string.search_voice_listening else R.string.search_placeholder
-                    ),
-                    style = androidx.tv.material3.MaterialTheme.typography.bodyLarge,
-                    color = FetchTheme.colors.TextTertiary
-                )
-            },
             // Copy the app type scale so the typed query keeps the selected app font.
             textStyle = androidx.tv.material3.MaterialTheme.typography.bodyLarge.copy(
+                color = FetchTheme.colors.TextPrimary,
                 textDirection = TextDirection.Content
             ),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = FetchTheme.colors.BackgroundCard,
-                unfocusedContainerColor = FetchTheme.colors.BackgroundCard,
-                focusedIndicatorColor = FetchTheme.colors.FocusRing,
-                unfocusedIndicatorColor = FetchTheme.colors.Border,
-                focusedTextColor = FetchTheme.colors.TextPrimary,
-                unfocusedTextColor = FetchTheme.colors.TextPrimary,
-                cursorColor = FetchTheme.colors.FocusRing
-            )
+            cursorBrush = SolidColor(FetchTheme.colors.FocusRing),
+            decorationBox = { innerTextField ->
+                Box(
+                    modifier = Modifier
+                        .heightIn(min = FetchTheme.spacing.huge)
+                        .background(FetchTheme.colors.BackgroundCard, searchFieldShape)
+                        .border(
+                            width = if (searchFieldFocused) FetchTheme.spacing.xxs else FetchTheme.spacing.hairline,
+                            color = if (searchFieldFocused) FetchTheme.colors.FocusRing else FetchTheme.colors.Border,
+                            shape = searchFieldShape
+                        )
+                        .padding(horizontal = FetchTheme.spacing.lg),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    if (query.isEmpty()) {
+                        Text(
+                            // While voice search is listening, say so in text, not only with the accent.
+                            text = stringResource(
+                                if (isVoiceListening) R.string.search_voice_listening else R.string.search_placeholder
+                            ),
+                            style = androidx.tv.material3.MaterialTheme.typography.bodyLarge,
+                            color = FetchTheme.colors.TextTertiary,
+                            maxLines = 1
+                        )
+                    }
+                    innerTextField()
+                }
+            }
         )
 
         // Clear button, requested in review. Placed beside the field rather than as a trailing

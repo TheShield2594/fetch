@@ -16,6 +16,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -37,7 +38,6 @@ import com.fetch.tv.ui.screens.search.DiscoverScreen
 import com.fetch.tv.ui.screens.search.SearchScreen
 import com.fetch.tv.ui.screens.settings.LicensesAttributionsScreen
 import com.fetch.tv.ui.screens.settings.SettingsScreen
-import com.fetch.tv.ui.screens.settings.TrackingSettingsScreen
 import com.fetch.tv.ui.screens.setup.FirstRunWizardScreen
 import com.fetch.tv.ui.screens.stream.StreamScreen
 import com.fetch.tv.ui.screens.home.ContinueWatchingItem
@@ -1197,7 +1197,14 @@ private fun PlaybackNavHost(
                 },
                 onNavigateToSearch = { navController.navigate(Screen.Search.route) { launchSingleTop = true } },
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } },
-                onNavigateToTrackingSettings = { navController.navigate(Screen.Tracking.route) { launchSingleTop = true } },
+                onNavigateToTrackingSettings = {
+                    // Settings opens on its Tracking tab; there is no separate tracking screen.
+                    navController.navigate(Screen.Settings.route) { launchSingleTop = true }
+                    runCatching {
+                        navController.getBackStackEntry(Screen.Settings.route)
+                            .savedStateHandle[SETTINGS_OPEN_PAGE_KEY] = com.fetch.tv.ui.screens.settings.SettingsCategory.TRACKING.name
+                    }
+                },
                 onNavigateToStats = { navController.navigate(Screen.Stats.route) { launchSingleTop = true } },
                 onNavigateToCalendar = { navController.navigate(Screen.Calendar.route) { launchSingleTop = true } }
             )
@@ -1241,10 +1248,18 @@ private fun PlaybackNavHost(
             }
         }
 
-        composable(Screen.Settings.route) {
+        composable(Screen.Settings.route) { entry ->
+            // A page another screen asked Settings to open on, read once.
+            val openPage by entry.savedStateHandle
+                .getStateFlow<String?>(SETTINGS_OPEN_PAGE_KEY, null)
+                .collectAsStateWithLifecycle()
             ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
                 SettingsScreen(
                     showBuiltInHeader = !hideBuiltInHeaders,
+                    openPage = openPage?.let { name ->
+                        com.fetch.tv.ui.screens.settings.SettingsCategory.entries.firstOrNull { it.name == name }
+                    },
+                    onOpenPageHandled = { entry.savedStateHandle[SETTINGS_OPEN_PAGE_KEY] = null },
                     onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
                     customiseHomeActions = com.fetch.tv.ui.screens.settings.CustomiseHomeActions(
                         openCustomiseHome = { navController.navigate(Screen.CatalogOrder.createRoute()) },
@@ -1275,14 +1290,6 @@ private fun PlaybackNavHost(
                 ProfileSelectionScreen(
                     onProfileSelected = {},
                     screenMode = ProfileSelectionMode.Management,
-                    onBackPress = { navController.popBackStack() }
-                )
-            }
-        }
-
-        composable(Screen.Tracking.route) {
-            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
-                TrackingSettingsScreen(
                     onBackPress = { navController.popBackStack() }
                 )
             }
@@ -1499,3 +1506,6 @@ private fun PlaybackNavHost(
         }
     }
 }
+
+/** Saved-state key on the Settings entry naming the [com.fetch.tv.ui.screens.settings.SettingsCategory] to open. */
+private const val SETTINGS_OPEN_PAGE_KEY = "settings_open_page"

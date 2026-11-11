@@ -225,8 +225,11 @@ data class CustomiseHomeActions(
 )
 
 @Composable
-fun SettingsScreen(
+internal fun SettingsScreen(
     showBuiltInHeader: Boolean = true,
+    /** A page to open on arrival, such as Tracking from the Library's "Connect" button. */
+    openPage: SettingsCategory? = null,
+    onOpenPageHandled: () -> Unit = {},
     onNavigateToAddons: () -> Unit = {},
     customiseHomeActions: CustomiseHomeActions = CustomiseHomeActions(),
     onNavigateToManageProfiles: () -> Unit = {},
@@ -527,6 +530,18 @@ fun SettingsScreen(
                 selectedCategory = section.category
                 pendingContentFocusCategory = section.category
                 pendingContentFocusRequestId += 1L
+            }
+
+            LaunchedEffect(openPage) {
+                val page = openPage ?: return@LaunchedEffect
+                if (page in visibleCategories) {
+                    val entry = visibleCategories.railEntryFor(page)
+                    visibleSections.firstOrNull { it.category == entry }?.let { section ->
+                        onSectionClick(section)
+                        selectedPageName = page.name
+                    }
+                }
+                onOpenPageHandled()
             }
 
             var focusedTabCategory by remember { mutableStateOf<SettingsCategory?>(null) }

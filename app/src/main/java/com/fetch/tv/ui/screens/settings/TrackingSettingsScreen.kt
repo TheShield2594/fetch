@@ -3,7 +3,6 @@
 package com.fetch.tv.ui.screens.settings
 
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,23 +38,6 @@ import com.fetch.tv.data.simkl.SimklConnectionMode
 import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.theme.FetchTheme
-
-@Composable
-fun TrackingSettingsScreen(
-    onBackPress: () -> Unit
-) {
-    val initialFocusRequester = remember { FocusRequester() }
-
-    BackHandler { onBackPress() }
-
-    LaunchedEffect(Unit) {
-        initialFocusRequester.requestFocusAfterFrames(frames = 0)
-    }
-
-    SettingsStandaloneScaffold(classicContainer = false) {
-        TrackingSettingsContent(initialFocusRequester = initialFocusRequester)
-    }
-}
 
 @Composable
 fun TrackingSettingsContent(

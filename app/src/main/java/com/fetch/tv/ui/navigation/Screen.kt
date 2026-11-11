@@ -143,7 +143,6 @@ sealed class Screen(val route: String) {
     data object YouTube : Screen("youtube")
     data object Settings : Screen("settings")
     data object PhoneHub : Screen("phone_hub")
-    data object Tracking : Screen("trakt")
     data object LicensesAttributions : Screen("licenses_attributions")
     data object AddonManager : Screen("addon_manager")
     /** Customise Home: every Home row, to reorder, hide or pin, and the ways to add one. */

@@ -169,7 +169,7 @@ com/fetch/tv/ui/screens/detail/SharedTrailerOverlay.kt|WHITE_BLACK|6
 com/fetch/tv/ui/screens/detail/ShuffleButton.kt|DP|2
 com/fetch/tv/ui/screens/detail/TrailerSection.kt|DP|3
 com/fetch/tv/ui/screens/filterrows/FilterRowsScreen.kt|DP|1
-com/fetch/tv/ui/screens/home/ModernHomeContent.kt|DP|2
+com/fetch/tv/ui/screens/home/ModernHomeContent.kt|DP|1
 com/fetch/tv/ui/screens/home/ModernHomeHero.kt|ALPHA|14
 com/fetch/tv/ui/screens/home/ModernHomeHero.kt|DP|7
 com/fetch/tv/ui/screens/home/ModernHomeHero.kt|PERCENT_RADIUS|1
@@ -177,7 +177,7 @@ com/fetch/tv/ui/screens/home/ModernHomeHero.kt|SPACING_AS_STROKE|2
 com/fetch/tv/ui/screens/home/ModernHomeModels.kt|ALPHA|1
 com/fetch/tv/ui/screens/home/ModernHomeModels.kt|DP|3
 com/fetch/tv/ui/screens/home/ModernHomeModels.kt|WHITE_BLACK|1
-com/fetch/tv/ui/screens/home/ModernHomeRows.kt|DP|4
+com/fetch/tv/ui/screens/home/ModernHomeRows.kt|DP|1
 com/fetch/tv/ui/screens/home/ModernHomeRows.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/library/LibraryActivityContent.kt|DP|2
 com/fetch/tv/ui/screens/library/LibraryListDialogs.kt|DP|4
@@ -208,7 +208,7 @@ com/fetch/tv/ui/screens/player/PlayerDebugStatsOverlay.kt|DP|2
 com/fetch/tv/ui/screens/player/PlayerProgressFill.kt|ALPHA|1
 com/fetch/tv/ui/screens/player/PlayerProgressFill.kt|DP|4
 com/fetch/tv/ui/screens/player/PlayerScreen.kt|ALPHA|5
-com/fetch/tv/ui/screens/player/PlayerScreen.kt|DP|43
+com/fetch/tv/ui/screens/player/PlayerScreen.kt|DP|42
 com/fetch/tv/ui/screens/player/PlayerScreen.kt|FOCUS_SCALE|2
 com/fetch/tv/ui/screens/player/PlayerScreen.kt|SPACING_AS_STROKE|3
 com/fetch/tv/ui/screens/player/PlayerSidePanel.kt|DP|3
@@ -272,8 +272,6 @@ com/fetch/tv/ui/screens/settings/AppIconPicker.kt|FOCUS_SCALE|1
 com/fetch/tv/ui/screens/settings/AppIconPicker.kt|SPACING_AS_STROKE|1
 com/fetch/tv/ui/screens/settings/CustomThemeEditor.kt|DP|15
 com/fetch/tv/ui/screens/settings/CustomThemeEditor.kt|FOCUS_SCALE|2
-com/fetch/tv/ui/screens/settings/DebugMemberTierCard.kt|ALPHA|1
-com/fetch/tv/ui/screens/settings/DebugMemberTierCard.kt|FOCUS_SCALE|1
 com/fetch/tv/ui/screens/settings/DebugSettingsScreen.kt|DP|5
 com/fetch/tv/ui/screens/settings/DebugSettingsScreen.kt|FOCUS_SCALE|3
 com/fetch/tv/ui/screens/settings/DiagnosticsCard.kt|DP|2
@@ -295,8 +293,7 @@ com/fetch/tv/ui/screens/settings/MdbListAccountDialog.kt|DP|2
 com/fetch/tv/ui/screens/settings/MdbListLibraryListsDialog.kt|DP|3
 com/fetch/tv/ui/screens/settings/MediaServerSettingsScreen.kt|DP|2
 com/fetch/tv/ui/screens/settings/MediaServersSettingsScreen.kt|DP|2
-com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt|ALPHA|2
-com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt|DP|7
+com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt|DP|3
 com/fetch/tv/ui/screens/settings/PlaybackAudioSettings.kt|DP|6
 com/fetch/tv/ui/screens/settings/PlaybackAutoPlaySettings.kt|DP|14
 com/fetch/tv/ui/screens/settings/PlaybackAutoPlaySettings.kt|FOCUS_SCALE|4

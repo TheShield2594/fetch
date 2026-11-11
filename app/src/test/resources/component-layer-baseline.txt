@@ -19,7 +19,7 @@ player|BUTTON|7
 player|CARD|24
 profile|BUTTON|33
 settings|BUTTON|29
-settings|CARD|30
+settings|CARD|29
 stats|BUTTON|1
 stats|CARD|1
 stream|BUTTON|1

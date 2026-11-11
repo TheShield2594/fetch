@@ -290,6 +290,10 @@ class TraktProgressService @Inject constructor(
         }
         scope.launch {
             refreshEvents().collectLatest {
+                // Nothing reaches the network while the app is off screen (roadmap G2): a process
+                // woken by the boot receiver or the launcher channel job would otherwise fetch at
+                // once. Events that arrive in the background collapse into one refresh on return.
+                AppForeground.awaitForeground()
                 val success = try {
                     refreshRemoteSnapshot()
                     true
@@ -1022,7 +1026,7 @@ class TraktProgressService @Inject constructor(
         while (true) {
             delay(refreshIntervalMs)
             // No polling while the app is off screen. A tick that came due in the background
-            // fires as soon as the app returns.
+            // fires as soon as the app returns (the collector waits for the foreground too).
             AppForeground.awaitForeground()
             emit(Unit)
         }

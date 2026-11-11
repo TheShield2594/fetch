@@ -22694,7 +22694,7 @@ HSPLcom/fetch/tv/core/sync/androidtv/TvChannelRefreshJobService;->onStartJob(Lan
 Lcom/fetch/tv/core/sync/androidtv/TvChannelRefreshJobService$Companion;
 HSPLcom/fetch/tv/core/sync/androidtv/TvChannelRefreshJobService$Companion;-><init>()V
 HSPLcom/fetch/tv/core/sync/androidtv/TvChannelRefreshJobService$Companion;-><init>(Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-HSPLcom/fetch/tv/core/sync/androidtv/TvChannelRefreshJobService$Companion;->schedulePeriodic(Landroid/content/Context;)V
+HSPLcom/fetch/tv/core/sync/androidtv/TvChannelRefreshJobService$Companion;->cancelPeriodic(Landroid/content/Context;)V
 Lcom/fetch/tv/core/sync/androidtv/TvChannelRefreshJobService$TvChannelJobEntryPoint;
 Lcom/fetch/tv/core/sync/androidtv/TvChannelRefreshJobService$onStartJob$1;
 HSPLcom/fetch/tv/core/sync/androidtv/TvChannelRefreshJobService$onStartJob$1;-><init>(Lcom/fetch/tv/core/sync/androidtv/AndroidTvChannelSyncService;Lcom/fetch/tv/core/sync/androidtv/TvChannelRefreshJobService;Landroid/app/job/JobParameters;Lkotlin/coroutines/Continuation;)V

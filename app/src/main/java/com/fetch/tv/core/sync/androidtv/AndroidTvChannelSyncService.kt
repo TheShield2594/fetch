@@ -73,11 +73,13 @@ class AndroidTvChannelSyncService @Inject constructor(
 
     @OptIn(FlowPreview::class)
     fun start() {
+        // Also on non-leanback devices: an install that was moved between devices by backup
+        // could carry the old persisted job.
+        TvChannelRefreshJobService.cancelPeriodic(context)
         if (!manager.isSupported()) {
             Log.d(TAG, "Non-leanback device; channel sync skipped")
             return
         }
-        TvChannelRefreshJobService.schedulePeriodic(context)
 
         scope.launch {
             // Observe cache snapshot updates and settings changes to trigger reconciliation.
@@ -98,7 +100,7 @@ class AndroidTvChannelSyncService @Inject constructor(
                     // Skip while the app is foregrounded — the launcher channel isn't visible
                     // then, and reconciling on every ~10s in-playback cache bump thrashes the
                     // provider (and stops launchers like Projectivy from repainting). The
-                    // background transition (onForegroundChanged) + periodic job cover it.
+                    // background transition (onForegroundChanged) covers it.
                     if (appInForeground) return@collect
                     reconcileFromCache(settings)
                 }

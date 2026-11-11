@@ -98,6 +98,15 @@ internal fun PlaybackSubtitlesSection(
     )
 
     SettingsSectionLabel(text = stringResource(R.string.sub_style_label))
+    SettingsToggleRow(
+        title = stringResource(R.string.sub_use_system_caption_style),
+        subtitle = stringResource(R.string.sub_use_system_caption_style_sub),
+        checked = style.useSystemCaptionStyle,
+        onToggle = { onUpdate { setSubtitleUseSystemCaptionStyle(!style.useSystemCaptionStyle) } },
+        enabled = enabled
+    )
+    // The system style replaces these; position below still applies.
+    val styleEnabled = enabled && !style.useSystemCaptionStyle
     SliderSettingsItem(
         title = stringResource(R.string.sub_size),
         value = style.size,
@@ -106,7 +115,7 @@ internal fun PlaybackSubtitlesSection(
         maxValue = 200,
         step = 10,
         onValueChange = { size -> onUpdate { setSubtitleSize(size) } },
-        enabled = enabled
+        enabled = styleEnabled
     )
     SliderSettingsItem(
         title = stringResource(R.string.sub_vertical_offset),
@@ -123,34 +132,34 @@ internal fun PlaybackSubtitlesSection(
         subtitle = stringResource(R.string.sub_bold_sub),
         checked = style.bold,
         onToggle = { onUpdate { setSubtitleBold(!style.bold) } },
-        enabled = enabled
+        enabled = styleEnabled
     )
     ColorSettingsItem(
         title = stringResource(R.string.sub_text_color),
         currentColor = Color(style.textColor),
         onClick = { onOpenDialog(PlaybackDialog.SUBTITLE_TEXT_COLOR) },
-        enabled = enabled
+        enabled = styleEnabled
     )
     ColorSettingsItem(
         title = stringResource(R.string.sub_bg_color),
         currentColor = Color(style.backgroundColor),
         showTransparent = style.backgroundColor == Color.Transparent.toArgb(),
         onClick = { onOpenDialog(PlaybackDialog.SUBTITLE_BACKGROUND_COLOR) },
-        enabled = enabled
+        enabled = styleEnabled
     )
     SettingsToggleRow(
         title = stringResource(R.string.sub_outline),
         subtitle = stringResource(R.string.sub_outline_sub),
         checked = style.outlineEnabled,
         onToggle = { onUpdate { setSubtitleOutlineEnabled(!style.outlineEnabled) } },
-        enabled = enabled
+        enabled = styleEnabled
     )
     if (style.outlineEnabled) {
         ColorSettingsItem(
             title = stringResource(R.string.sub_outline_color),
             currentColor = Color(style.outlineColor),
             onClick = { onOpenDialog(PlaybackDialog.SUBTITLE_OUTLINE_COLOR) },
-            enabled = enabled
+            enabled = styleEnabled
         )
     }
     SettingsToggleRow(

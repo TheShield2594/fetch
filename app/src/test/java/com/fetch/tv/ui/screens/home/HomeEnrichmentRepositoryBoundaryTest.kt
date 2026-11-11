@@ -217,6 +217,11 @@ class HomeEnrichmentRepositoryBoundaryTest {
             readyChecker = mockk(relaxed = true),
             youTubeRow = mockk(relaxed = true) {
                 io.mockk.every { videos } returns kotlinx.coroutines.flow.flowOf(emptyList())
+            },
+            connectivityMonitor = mockk(relaxed = true) {
+                io.mockk.every { reach } returns kotlinx.coroutines.flow.flowOf(
+                    com.fetch.tv.core.network.NetworkReach.ONLINE
+                )
             }
         )
         viewModel.startupGracePeriodActive = false

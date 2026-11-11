@@ -93,6 +93,7 @@ class SettingsChangedViewModel @Inject constructor(
         layoutRow(home, R.string.layout_poster_labels, layout.posterLabelsEnabled)
         layoutRow(home, R.string.layout_addon_name, layout.catalogAddonNameEnabled)
         layoutRow(home, R.string.layout_catalog_type, layout.catalogTypeSuffixEnabled)
+        layoutRow(home, R.string.layout_search_system_keyboard, layout.searchSystemKeyboard)
         layoutRow(home, R.string.layout_hide_unreleased, layout.hideUnreleasedContent)
         layoutRow(home, R.string.layout_overall_ratings, layout.homeImdbRatingsVisibility)
         layoutRow(home, R.string.layout_collapse_sidebar, layout.sidebarCollapsedByDefault)

@@ -2364,41 +2364,53 @@ private fun PlayerView.applySubtitleStyleIfNeeded(
         return
     }
     setTag(R.id.player_view_subtitle_style_tag, config)
+    // The system caption style (Accessibility › Captions) when the user chose to follow it and
+    // captions are on there (#453). Position below stays the app's.
+    val captioning = context.getSystemService(android.content.Context.CAPTIONING_SERVICE)
+        as? android.view.accessibility.CaptioningManager
+    val useSystemStyle = subtitleStyle.useSystemCaptionStyle && captioning?.isEnabled == true
     subView.apply {
-        val baseFontSize = 24f
-        val scaledFontSize = baseFontSize * (subtitleStyle.size / 100f)
-        setFixedTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, scaledFontSize)
-        setApplyEmbeddedFontSizes(false)
-
-        val typeface = if (subtitleStyle.bold) {
-            android.graphics.Typeface.DEFAULT_BOLD
+        if (useSystemStyle) {
+            setUserDefaultTextSize()
+            setUserDefaultStyle()
+            setApplyEmbeddedFontSizes(false)
+            alpha = 1f
         } else {
-            android.graphics.Typeface.DEFAULT
-        }
+            val baseFontSize = 24f
+            val scaledFontSize = baseFontSize * (subtitleStyle.size / 100f)
+            setFixedTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, scaledFontSize)
+            setApplyEmbeddedFontSizes(false)
 
-        val edgeType = if (subtitleStyle.outlineEnabled) {
-            androidx.media3.ui.CaptionStyleCompat.EDGE_TYPE_OUTLINE
-        } else {
-            androidx.media3.ui.CaptionStyleCompat.EDGE_TYPE_NONE
-        }
+            val typeface = if (subtitleStyle.bold) {
+                android.graphics.Typeface.DEFAULT_BOLD
+            } else {
+                android.graphics.Typeface.DEFAULT
+            }
 
-        val layerColors = subtitleLayerColors(
-            textColor = subtitleStyle.textColor,
-            backgroundColor = subtitleStyle.backgroundColor,
-            outlineColor = subtitleStyle.outlineColor,
-            outlineEnabled = subtitleStyle.outlineEnabled
-        )
-        setStyle(
-            androidx.media3.ui.CaptionStyleCompat(
-                layerColors.text,
-                layerColors.background,
-                android.graphics.Color.TRANSPARENT,
-                edgeType,
-                layerColors.outline,
-                typeface
+            val edgeType = if (subtitleStyle.outlineEnabled) {
+                androidx.media3.ui.CaptionStyleCompat.EDGE_TYPE_OUTLINE
+            } else {
+                androidx.media3.ui.CaptionStyleCompat.EDGE_TYPE_NONE
+            }
+
+            val layerColors = subtitleLayerColors(
+                textColor = subtitleStyle.textColor,
+                backgroundColor = subtitleStyle.backgroundColor,
+                outlineColor = subtitleStyle.outlineColor,
+                outlineEnabled = subtitleStyle.outlineEnabled
             )
-        )
-        alpha = layerColors.layerAlpha
+            setStyle(
+                androidx.media3.ui.CaptionStyleCompat(
+                    layerColors.text,
+                    layerColors.background,
+                    android.graphics.Color.TRANSPARENT,
+                    edgeType,
+                    layerColors.outline,
+                    typeface
+                )
+            )
+            alpha = layerColors.layerAlpha
+        }
 
         setApplyEmbeddedStyles(!isAss)
 

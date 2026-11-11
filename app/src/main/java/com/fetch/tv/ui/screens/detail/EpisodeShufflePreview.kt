@@ -137,10 +137,17 @@ internal fun EpisodeShufflePreview(
                         color = FetchTheme.colors.Primary)
                     Text(stringResource(R.string.season_episode_format, episode.season ?: 0, episode.episode ?: 0),
                         style = MaterialTheme.typography.titleMedium, color = FetchTheme.colors.TextSecondary)
-                    Text(episode.title.localizeEpisodeTitle(LocalContext.current),
+                    val spoilerText = episodeSpoilerText(
+                        title = episode.title.localizeEpisodeTitle(LocalContext.current),
+                        overview = episode.overview,
+                        hideSpoilers = blurUnwatchedEpisodes,
+                        isWatched = isWatched,
+                        hiddenTitle = neutralEpisodeTitle(stringResource(R.string.episodes_episode), episode.episode)
+                    )
+                    Text(spoilerText.title,
                         style = if (compact) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineLarge,
                         color = FetchTheme.colors.TextPrimary, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    episode.overview?.takeIf { it.isNotBlank() }?.let {
+                    spoilerText.overview.takeIf { it.isNotBlank() }?.let {
                         Text(it, style = MaterialTheme.typography.bodyMedium, color = FetchTheme.colors.TextSecondary,
                             maxLines = if (compact) 3 else 4, overflow = TextOverflow.Ellipsis)
                     }

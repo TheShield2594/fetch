@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
+import com.fetch.tv.core.tracking.TrackingExternalIds
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.MetaPreview
@@ -238,6 +239,78 @@ class SearchResultMergeTest {
         )
     }
 
+    @Test
+    fun `a title an addon and a server both return appears once, from the server`() {
+        val serverItem = movie(id = "srv1:plex:42", name = "The Matrix", year = "1999", poster = null)
+        val rows = listOf(
+            row("Cinemeta", "movie", movie(id = "tt0133093", name = "The Matrix", year = "1999", poster = "addon")),
+            serverRow("Plex", serverItem)
+        )
+
+        val merged = SearchResultMerger.merge(
+            rows,
+            query = "matrix",
+            externalIds = { item -> if (item.id == serverItem.id) TrackingExternalIds(imdb = "tt0133093") else null }
+        )
+
+        val item = merged.rows.single().items.single()
+        assertEquals("srv1:plex:42", item.id)
+        assertEquals(SERVER_URL, item.sourceAddonBaseUrl)
+        // The server had no artwork; the addon's is kept.
+        assertEquals("addon", item.poster)
+        assertEquals(listOf("Cinemeta", "Plex"), merged.topResult?.addonNames)
+    }
+
+    @Test
+    fun `server titles merge on the TMDB id`() {
+        val serverItem = movie(id = "srv1:jf:7", name = "Matrix", year = null)
+        val rows = listOf(
+            row("TMDB", "movie", movie(id = "tmdb:603", name = "The Matrix", year = "1999")),
+            serverRow("Jellyfin", serverItem)
+        )
+
+        val merged = SearchResultMerger.merge(
+            rows,
+            query = "matrix",
+            externalIds = { item -> if (item.id == serverItem.id) TrackingExternalIds(tmdb = 603) else null }
+        )
+
+        assertEquals(listOf("srv1:jf:7"), merged.rows.single().items.map { it.id })
+    }
+
+    @Test
+    fun `server titles without ids merge on title and year, server first`() {
+        val rows = listOf(
+            serverRow("Plex", movie(id = "srv1:plex:1", name = "Dune", year = "2021")),
+            row("Cinemeta", "movie", movie(id = "tt1160419", name = "Dune", year = "2021"))
+        )
+
+        val item = SearchResultMerger.merge(rows, query = "dune").rows.single().items.single()
+        assertEquals("srv1:plex:1", item.id)
+        assertEquals(SERVER_URL, item.sourceAddonBaseUrl)
+    }
+
+    @Test
+    fun `a server title another addon lacks stays on its own`() {
+        val rows = listOf(
+            row("Cinemeta", "movie", movie(id = "tt1160419", name = "Dune", year = "2021")),
+            serverRow("Plex", movie(id = "srv1:plex:9", name = "Dune", year = "1984"))
+        )
+
+        assertEquals(2, SearchResultMerger.merge(rows, query = "dune").rows.single().items.size)
+    }
+
+    private fun serverRow(name: String, vararg items: MetaPreview) = CatalogRow(
+        addonId = "server.${name.lowercase()}",
+        addonName = name,
+        addonBaseUrl = SERVER_URL,
+        catalogId = "search.movie",
+        catalogName = "Search",
+        type = ContentType.MOVIE,
+        rawType = "movie",
+        items = items.toList()
+    )
+
     private fun row(addon: String, type: String, vararg items: MetaPreview) = CatalogRow(
         addonId = addon.lowercase(),
         addonName = addon,
@@ -262,4 +335,8 @@ class SearchResultMergeTest {
             posterShape = PosterShape.POSTER, background = null, logo = null, description = null,
             releaseInfo = year, imdbRating = null, genres = emptyList()
         )
+
+    private companion object {
+        const val SERVER_URL = "fetch-server://plex"
+    }
 }

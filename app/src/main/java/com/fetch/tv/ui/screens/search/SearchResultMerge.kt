@@ -1,6 +1,8 @@
 package com.fetch.tv.ui.screens.search
 
 import androidx.compose.runtime.Immutable
+import com.fetch.tv.core.tracking.TrackingExternalIds
+import com.fetch.tv.data.mediaserver.ServerCatalog
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.MetaPreview
 import java.text.Normalizer
@@ -53,15 +55,21 @@ internal object SearchResultMerger {
     /**
      * Merges [rows] (in addon order) into ranked per-type rows. [rowTitle] names a type's row.
      * [isInLibrary] and [filter] narrow the result; the top result is chosen after filtering.
+     *
+     * Media-server rows ([isServerRow]) fold in on the same keys. A server title's own id names
+     * the server item, so its IMDb and TMDB ids come from [externalIds]. When a server has a
+     * title, the server's copy is the one shown and opened, so it plays from the server.
      */
     fun merge(
         rows: List<CatalogRow>,
         query: String,
         filter: SearchTypeFilter = SearchTypeFilter.ALL,
         isInLibrary: (MetaPreview) -> Boolean = { false },
-        rowTitle: (String) -> String = { it }
+        rowTitle: (String) -> String = { it },
+        isServerRow: (CatalogRow) -> Boolean = { ServerCatalog.isServerAddon(it.addonBaseUrl) },
+        externalIds: (MetaPreview) -> TrackingExternalIds? = { null }
     ): MergedSearchResults {
-        val groups = group(rows)
+        val groups = group(rows, isServerRow, externalIds)
         if (groups.isEmpty()) return MergedSearchResults()
         val normalizedQuery = normalizeTitle(query)
         val ranked = groups
@@ -102,10 +110,12 @@ internal object SearchResultMerger {
      * The key a title is merged on: its IMDb id, else its TMDB id, else null (the title-and-year
      * fallback in [group] takes over).
      */
-    fun idKey(item: MetaPreview): String? {
+    fun idKey(item: MetaPreview, externalIds: TrackingExternalIds? = null): String? {
         item.imdbId?.let { IMDB_ID.find(it) }?.let { return "imdb:${it.value}" }
         IMDB_ID.find(item.id)?.let { return "imdb:${it.value}" }
+        externalIds?.imdb?.let { IMDB_ID.find(it) }?.let { return "imdb:${it.value}" }
         TMDB_ID.find(item.id.trim())?.let { return "tmdb:${typeKey(item)}:${it.groupValues[1]}" }
+        externalIds?.tmdb?.let { return "tmdb:${typeKey(item)}:$it" }
         return null
     }
 
@@ -142,6 +152,8 @@ internal object SearchResultMerger {
         var idKey: String? = null
         var matchTier = 0
         var sourceUrl: String? = null
+        /** The shown copy is a media server's, which nothing else replaces. */
+        var fromServer = false
         val addonNames = mutableListOf<String>()
         val addonUrls = LinkedHashSet<String>()
 
@@ -149,14 +161,19 @@ internal object SearchResultMerger {
             if (item.sourceAddonBaseUrl == null && sourceUrl != null) item.copy(sourceAddonBaseUrl = sourceUrl) else item
     }
 
-    private fun group(rows: List<CatalogRow>): List<Group> {
+    private fun group(
+        rows: List<CatalogRow>,
+        isServerRow: (CatalogRow) -> Boolean,
+        externalIds: (MetaPreview) -> TrackingExternalIds?
+    ): List<Group> {
         val groups = mutableListOf<Group>()
         val byId = HashMap<String, Group>()
         val byTitleYear = HashMap<String, Group>()
         rows.forEachIndexed { rowIndex, row ->
+            val serverRow = isServerRow(row)
             row.items.forEachIndexed { itemIndex, item ->
                 if (item.id.startsWith(PLACEHOLDER_PREFIX) || item.id.isBlank()) return@forEachIndexed
-                val idKey = idKey(item)
+                val idKey = idKey(item, if (serverRow) externalIds(item) else null)
                 val titleYear = titleYearKey(item)
                 val existing = idKey?.let(byId::get)
                     ?: titleYear?.let(byTitleYear::get)?.takeIf { candidate ->
@@ -169,11 +186,36 @@ internal object SearchResultMerger {
                     item = item,
                     firstRow = rowIndex,
                     bestIndex = itemIndex
-                ).also(groups::add)
+                ).also { created ->
+                    groups.add(created)
+                    if (serverRow) {
+                        created.fromServer = true
+                        created.sourceUrl = row.addonBaseUrl.takeIf { it.isNotBlank() }
+                    }
+                }
                 if (existing != null) {
                     group.bestIndex = minOf(group.bestIndex, itemIndex)
-                    // Keep the richest copy on screen: one with artwork beats one without.
-                    if (group.item.poster.isNullOrBlank() && !item.poster.isNullOrBlank()) group.item = item
+                    when {
+                        // The server has this title: show and open its copy, keeping any artwork
+                        // an addon had that the server lacks.
+                        serverRow && !group.fromServer -> {
+                            val addonCopy = group.item
+                            group.item = item.copy(
+                                poster = item.poster?.takeIf { it.isNotBlank() } ?: addonCopy.poster,
+                                background = item.background?.takeIf { it.isNotBlank() } ?: addonCopy.background,
+                                imdbId = item.imdbId ?: addonCopy.imdbId
+                            )
+                            group.fromServer = true
+                            group.sourceUrl = row.addonBaseUrl.takeIf { it.isNotBlank() } ?: group.sourceUrl
+                        }
+                        group.fromServer -> {
+                            if (group.item.poster.isNullOrBlank() && !item.poster.isNullOrBlank()) {
+                                group.item = group.item.copy(poster = item.poster)
+                            }
+                        }
+                        // Keep the richest copy on screen: one with artwork beats one without.
+                        group.item.poster.isNullOrBlank() && !item.poster.isNullOrBlank() -> group.item = item
+                    }
                 }
                 if (group.addonUrls.add(row.addonBaseUrl.ifBlank { row.addonId })) {
                     group.addonNames += row.addonName

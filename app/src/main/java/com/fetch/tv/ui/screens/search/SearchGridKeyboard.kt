@@ -1,0 +1,175 @@
+package com.fetch.tv.ui.screens.search
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material.icons.filled.SpaceBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Icon
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
+import com.fetch.tv.R
+import com.fetch.tv.ui.components.FetchButton
+
+/** The characters on the grid, row by row: letters, then digits. */
+internal val SEARCH_KEYBOARD_ROWS: List<String> = listOf(
+    "abcdef",
+    "ghijkl",
+    "mnopqr",
+    "stuvwx",
+    "yz1234",
+    "567890"
+)
+
+/** What a key of the grid does to the query. */
+internal sealed interface SearchKey {
+    data class Character(val char: Char) : SearchKey
+    data object Space : SearchKey
+    data object Delete : SearchKey
+    data object Clear : SearchKey
+}
+
+/** The query after [key] is pressed. A space is never typed first or twice in a row. */
+internal fun applySearchKey(query: String, key: SearchKey): String = when (key) {
+    is SearchKey.Character -> query + key.char
+    SearchKey.Space -> if (query.isEmpty() || query.endsWith(' ')) query else "$query "
+    SearchKey.Delete -> query.dropLast(1)
+    SearchKey.Clear -> ""
+}
+
+private val KEY_SIZE = 44.dp
+private val KEY_GAP = 6.dp
+private val ROW_WIDTH: Dp = KEY_SIZE * 6 + KEY_GAP * 5
+
+/** How wide the grid is, so the results beside it can start after it. */
+internal val SEARCH_KEYBOARD_WIDTH: Dp = ROW_WIDTH
+
+/**
+ * An on-screen grid keyboard for Search (#484), shown beside the results so the merged rows and
+ * the top result stay visible while typing, which the system IME covers on most TVs.
+ *
+ * [focusRequester] lands on the key used last, so Back from the results returns to it. Right from
+ * the last column goes to [rightFocusRequester] (the top result) when there is one, so it is one
+ * press away; Up from the first row goes to [upFocusRequester] (the input row).
+ */
+@Composable
+internal fun SearchGridKeyboard(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    focusRequester: FocusRequester,
+    modifier: Modifier = Modifier,
+    rightFocusRequester: FocusRequester? = null,
+    upFocusRequester: FocusRequester? = null
+) {
+    val firstKey = remember { FocusRequester() }
+    val press: (SearchKey) -> Unit = { key -> onQueryChange(applySearchKey(query, key)) }
+    val keyboardDescription = stringResource(R.string.search_keyboard_cd)
+    Column(
+        modifier = modifier
+            .width(ROW_WIDTH)
+            .semantics { contentDescription = keyboardDescription }
+            .focusRequester(focusRequester)
+            .focusRestorer(firstKey),
+        verticalArrangement = Arrangement.spacedBy(KEY_GAP)
+    ) {
+        SEARCH_KEYBOARD_ROWS.forEachIndexed { rowIndex, row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(KEY_GAP)) {
+                row.forEachIndexed { columnIndex, char ->
+                    KeyboardKey(
+                        onClick = { press(SearchKey.Character(char)) },
+                        modifier = Modifier
+                            .size(KEY_SIZE)
+                            .then(if (rowIndex == 0 && columnIndex == 0) Modifier.focusRequester(firstKey) else Modifier)
+                            .focusProperties {
+                                if (columnIndex == row.lastIndex && rightFocusRequester != null) {
+                                    right = rightFocusRequester
+                                }
+                                if (rowIndex == 0 && upFocusRequester != null) up = upFocusRequester
+                            }
+                    ) {
+                        Text(
+                            text = char.toString(),
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(KEY_GAP)) {
+            val wideKey = (ROW_WIDTH - KEY_GAP * 2) / 3
+            val spaceLabel = stringResource(R.string.search_keyboard_space)
+            KeyboardKey(
+                onClick = { press(SearchKey.Space) },
+                modifier = Modifier
+                    .width(wideKey)
+                    .height(KEY_SIZE)
+                    .semantics { contentDescription = spaceLabel }
+            ) {
+                Icon(Icons.Default.SpaceBar, contentDescription = null, modifier = Modifier.size(20.dp))
+            }
+            val deleteLabel = stringResource(R.string.search_keyboard_delete)
+            KeyboardKey(
+                onClick = { press(SearchKey.Delete) },
+                modifier = Modifier
+                    .width(wideKey)
+                    .height(KEY_SIZE)
+                    .semantics { contentDescription = deleteLabel }
+            ) {
+                Icon(Icons.AutoMirrored.Filled.Backspace, contentDescription = null, modifier = Modifier.size(20.dp))
+            }
+            KeyboardKey(
+                onClick = { press(SearchKey.Clear) },
+                modifier = Modifier
+                    .width(wideKey)
+                    .height(KEY_SIZE)
+                    .focusProperties { if (rightFocusRequester != null) right = rightFocusRequester }
+            ) {
+                Text(
+                    text = stringResource(R.string.search_keyboard_clear),
+                    style = MaterialTheme.typography.labelLarge,
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun KeyboardKey(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    // Delete and Clear stay enabled on an empty query: disabling the focused key would throw
+    // focus off the keyboard.
+    FetchButton(
+        onClick = onClick,
+        modifier = modifier,
+        // Keys sit 6dp apart; a growing key would cover its neighbours.
+        focusedScale = 1f,
+        contentPadding = PaddingValues(0.dp)
+    ) {
+        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) { content() }
+    }
+}

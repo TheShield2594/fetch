@@ -171,6 +171,10 @@ fun SearchScreen(
     val recentClearHistoryFocusRequester = remember { FocusRequester() }
     val discoverButtonFocusRequester = remember { FocusRequester() }
     val topResultFocusRequester = remember { FocusRequester() }
+    // The on-screen grid keyboard (#484) unless the profile chose the system keyboard.
+    val useGridKeyboard = !uiState.useSystemKeyboard
+    val gridKeyboardFocusRequester = remember { FocusRequester() }
+    var gridKeyboardHasFocus by remember { mutableStateOf(false) }
     var isSearchFieldFocused by remember { mutableStateOf(false) }
     // Track the whole input row, including voice and Discover.
     var inputRowHasFocus by remember { mutableStateOf(false) }
@@ -541,7 +545,7 @@ fun SearchScreen(
         runCatching { topResultFocusRequester.requestFocus() }
     }
 
-    val initialFocusRequester = topInputFocusRequester
+    val initialFocusRequester = if (useGridKeyboard) gridKeyboardFocusRequester else topInputFocusRequester
 
     LaunchedEffect(Unit) {
         if (viewModel.hasSavedSearchFocus) return@LaunchedEffect
@@ -625,7 +629,8 @@ fun SearchScreen(
         val focusedRowKey = lastFocusedRowKey
         val focusedItemIndex = focusedResultItemIndex.intValue
         BackHandler(
-            enabled = !inputRowHasFocus && !backToFieldLatched &&
+            // Back on the grid keyboard leaves Search, like Back on the field.
+            enabled = !inputRowHasFocus && !gridKeyboardHasFocus && !backToFieldLatched &&
                 (isRecentSearchSectionFocused || (!isDiscoverMode && focusedRowKey != null))
         ) {
             if (!isRecentSearchSectionFocused && focusedItemIndex > 0 && focusedRowKey != null) {
@@ -644,7 +649,11 @@ fun SearchScreen(
                 backToFieldLatched = true
                 coroutineScope.launch {
                     listState.scrollToItem(0)
-                    runCatching { searchFocusRequester.requestFocus() }
+                    // Back from the results returns to whatever is typed with: the grid
+                    // keyboard's last key, or the field.
+                    runCatching {
+                        (if (useGridKeyboard) gridKeyboardFocusRequester else searchFocusRequester).requestFocus()
+                    }
                     // The focus request can start an input session and show the keyboard.
                     keyboardController?.hide()
                 }
@@ -669,6 +678,8 @@ fun SearchScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                // The grid keyboard sits at the left; the results start after it.
+                .padding(start = if (useGridKeyboard) SEARCH_KEYBOARD_WIDTH + FetchTheme.spacing.screen.horizontal else 0.dp)
                 .recompositionHighlighter()
                 .dpadRepeatThrottle(),
             state = listState,
@@ -710,7 +721,8 @@ fun SearchScreen(
                     showDiscoverButton = uiState.discoverLocation == DiscoverLocation.IN_SEARCH,
                     keyboardController = keyboardController,
                     clearHistoryFocusRequester = if (showRecentSearches) recentClearHistoryFocusRequester else null,
-                    isScreenActive = isScreenActive
+                    isScreenActive = isScreenActive,
+                    readOnly = useGridKeyboard
                 )
             }
 
@@ -1096,6 +1108,24 @@ fun SearchScreen(
                 }
             }
         }
+
+        if (useGridKeyboard) {
+            // Beside the results, not over them: the rows and the top result stay in view
+            // while typing. Right from the last column is the top result.
+            SearchGridKeyboard(
+                query = uiState.query,
+                onQueryChange = handleQueryChanged,
+                focusRequester = gridKeyboardFocusRequester,
+                rightFocusRequester = if (!isDiscoverMode && topResult != null) topResultFocusRequester else null,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .onFocusChanged { gridKeyboardHasFocus = it.hasFocus }
+                    .padding(
+                        start = FetchTheme.spacing.screen.horizontal,
+                        top = FetchTheme.spacing.lg
+                    )
+            )
+        }
     }
 
     val posterOptionsState by viewModel.posterOptions.state.collectAsStateWithLifecycle()
@@ -1385,7 +1415,9 @@ private fun SearchInputField(
     showDiscoverButton: Boolean,
     keyboardController: androidx.compose.ui.platform.SoftwareKeyboardController?,
     clearHistoryFocusRequester: FocusRequester?,
-    isScreenActive: Boolean = true
+    isScreenActive: Boolean = true,
+    /** Typing goes through the grid keyboard, so focusing the field must not raise the IME. */
+    readOnly: Boolean = false
 ) {
     var isDiscoverButtonFocused by remember { mutableStateOf(false) }
     var isVoiceButtonFocused by remember { mutableStateOf(false) }
@@ -1550,6 +1582,7 @@ private fun SearchInputField(
         BasicTextField(
             value = query,
             onValueChange = onQueryChanged,
+            readOnly = readOnly,
             modifier = Modifier
                 .weight(1f)
                 .focusRequester(searchFocusRequester)

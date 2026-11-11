@@ -92,6 +92,7 @@ class LayoutPreferenceDataStore @Inject constructor(
     private val posterCardHeightDpKey = intPreferencesKey("poster_card_height_dp")
     private val posterCardCornerRadiusDpKey = intPreferencesKey("poster_card_corner_radius_dp")
     private val blurUnwatchedEpisodesKey = booleanPreferencesKey("blur_unwatched_episodes")
+    private val searchSystemKeyboardKey = booleanPreferencesKey("search_system_keyboard")
     private val randomEpisodeEnabledKey = booleanPreferencesKey("random_episode_enabled")
     private val startupSplashEnabledKey = booleanPreferencesKey("startup_splash_enabled")
     private val alwaysShowLandscapeClearlogoKey = booleanPreferencesKey("always_show_landscape_clearlogo")
@@ -318,6 +319,11 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     val blurUnwatchedEpisodes: Flow<Boolean> = profileFlow { prefs ->
         prefs[blurUnwatchedEpisodesKey] ?: false
+    }
+
+    /** Search types with the system keyboard instead of the on-screen grid (#484). */
+    val searchSystemKeyboard: Flow<Boolean> = profileFlow { prefs ->
+        prefs[searchSystemKeyboardKey] ?: false
     }
 
     val randomEpisodeEnabled: Flow<Boolean> = profileFlow { prefs ->
@@ -683,6 +689,12 @@ class LayoutPreferenceDataStore @Inject constructor(
     suspend fun setBlurUnwatchedEpisodes(enabled: Boolean) {
         store().edit { prefs ->
             prefs[blurUnwatchedEpisodesKey] = enabled
+        }
+    }
+
+    suspend fun setSearchSystemKeyboard(enabled: Boolean) {
+        store().edit { prefs ->
+            prefs[searchSystemKeyboardKey] = enabled
         }
     }
 

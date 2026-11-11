@@ -65,7 +65,7 @@ fun FilterRowsScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = FetchTheme.spacing.xxxl, vertical = FetchTheme.spacing.xl),
+            .padding(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.screen.vertical),
         contentPadding = PaddingValues(bottom = FetchTheme.spacing.xl),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
     ) {
@@ -168,7 +168,7 @@ fun FilterRowEditorScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = FetchTheme.spacing.xxxl, vertical = FetchTheme.spacing.xl),
+            .padding(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.screen.vertical),
         contentPadding = PaddingValues(bottom = FetchTheme.spacing.xl),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
     ) {

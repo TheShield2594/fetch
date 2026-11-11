@@ -136,6 +136,7 @@ import com.fetch.tv.core.addon.needsConfiguration
 import com.fetch.tv.core.addon.isConfigurable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
+import com.fetch.tv.ui.util.dpadRepeatThrottle
 
 private sealed interface AddonExperienceModeState {
     data object Loading : AddonExperienceModeState
@@ -273,8 +274,8 @@ fun AddonManagerScreen(
             .fillMaxSize()
     ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 36.dp, vertical = 28.dp),
+            modifier = Modifier.fillMaxSize().dpadRepeatThrottle(),
+            contentPadding = PaddingValues(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.screen.vertical),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             // Left out entirely when the host draws its own header, so there's no blank band and

@@ -175,7 +175,7 @@ fun CollectionManagementScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = FetchTheme.spacing.xxxl, start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl)
+            .padding(top = FetchTheme.spacing.xxxl, start = FetchTheme.spacing.screen.horizontal, end = FetchTheme.spacing.screen.horizontal)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -356,7 +356,7 @@ private fun ImportContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = FetchTheme.spacing.xxxl, start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl)
+            .padding(top = FetchTheme.spacing.xxxl, start = FetchTheme.spacing.screen.horizontal, end = FetchTheme.spacing.screen.horizontal)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

@@ -130,6 +130,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import android.util.Log
+import com.fetch.tv.ui.util.dpadRepeatThrottle
 
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -1095,7 +1096,6 @@ internal fun StreamsList(
     sourceRuleOptions: (Stream) -> List<SourceRule> = { emptyList() },
     onSourceOptions: (Stream, List<SourceRule>) -> Unit = { _, _ -> }
 ) {
-    val lastKeyRepeatDispatchRef = remember { java.util.concurrent.atomic.AtomicLong(0L) }
     val restoreFocusRequester = remember { FocusRequester() }
     val streamListState = rememberLazyListState()
     val streamKeys = remember(streams) {
@@ -1219,15 +1219,10 @@ internal fun StreamsList(
             .fillMaxSize()
             .padding(FetchTheme.spacing.lg)
             .onFocusChanged { onFocusChanged(it.hasFocus) }
+            .dpadRepeatThrottle(moveFocusOnRepeat = false)
             .onKeyEvent { event ->
                 if (event.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) return@onKeyEvent false
 
-                // Throttle rapid key repeats (long-press)
-                if (event.nativeKeyEvent.repeatCount > 0) {
-                    val now = android.os.SystemClock.uptimeMillis()
-                    if (now - lastKeyRepeatDispatchRef.get() < 112L) return@onKeyEvent true
-                    lastKeyRepeatDispatchRef.set(now)
-                }
                 if (event.key == Key.DirectionDown) {
                     onUserNavigatedFromFirstResult()
                 }

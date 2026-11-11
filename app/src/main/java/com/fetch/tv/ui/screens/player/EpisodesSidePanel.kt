@@ -87,6 +87,7 @@ import kotlinx.coroutines.launch as coroutineLaunch
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import com.fetch.tv.ui.screens.stream.StreamCard
+import com.fetch.tv.ui.util.dpadRepeatThrottle
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -412,7 +413,6 @@ private fun EpisodeStreamsView(
         }
 
         else -> {
-            val lastKeyRepeatDispatchRef = remember { java.util.concurrent.atomic.AtomicLong(0L) }
 
             LazyColumn(
                 state = streamListState,
@@ -421,14 +421,9 @@ private fun EpisodeStreamsView(
                 modifier = Modifier
                     .fillMaxHeight()
                     .onFocusChanged { listHasFocus = it.hasFocus }
+                    .dpadRepeatThrottle(moveFocusOnRepeat = false)
                     .onKeyEvent { event ->
                         if (event.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) return@onKeyEvent false
-
-                        if (event.nativeKeyEvent.repeatCount > 0) {
-                            val now = android.os.SystemClock.uptimeMillis()
-                            if (now - lastKeyRepeatDispatchRef.get() < 112L) return@onKeyEvent true
-                            lastKeyRepeatDispatchRef.set(now)
-                        }
 
                         if (event.key == androidx.compose.ui.input.key.Key.DirectionDown) {
                             userMovedFromFirstResult = true

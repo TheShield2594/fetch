@@ -52,6 +52,7 @@ import com.fetch.tv.ui.screens.stats.WebsiteReadState
 import com.fetch.tv.ui.screens.stats.WebsiteUnavailable
 import com.fetch.tv.ui.theme.FetchTheme
 import java.time.format.DateTimeFormatter
+import com.fetch.tv.ui.util.dpadRepeatThrottle
 
 /**
  * Upcoming episodes of the series the active profile has started: the Fetch website's calendar
@@ -73,11 +74,12 @@ fun CalendarScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(FetchTheme.colors.Background),
+            .background(FetchTheme.colors.Background)
+            .dpadRepeatThrottle(),
         contentPadding = PaddingValues(
-            start = FetchTheme.spacing.xxxl,
-            end = FetchTheme.spacing.xxxl,
-            top = FetchTheme.spacing.xl,
+            start = FetchTheme.spacing.screen.horizontal,
+            end = FetchTheme.spacing.screen.horizontal,
+            top = FetchTheme.spacing.screen.vertical,
             bottom = FetchTheme.spacing.xxl
         ),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)

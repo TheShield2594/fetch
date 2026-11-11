@@ -340,7 +340,7 @@ private fun HeroSection(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl, top = FetchTheme.spacing.xxl, bottom = FetchTheme.spacing.sm),
+            .padding(start = FetchTheme.spacing.screen.horizontal, end = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.xxl, bottom = FetchTheme.spacing.sm),
         verticalAlignment = Alignment.Top
     ) {
         // Avatar / Profile Photo
@@ -545,7 +545,7 @@ private fun SectionHeader(title: String, count: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl, top = FetchTheme.spacing.md, bottom = FetchTheme.spacing.sm),
+            .padding(start = FetchTheme.spacing.screen.horizontal, end = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.md, bottom = FetchTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -607,7 +607,7 @@ private fun FilmographyRow(
             .fillMaxWidth()
             .focusRestorer { if (restorePending) restoreFocusRequester else firstItemFocusRequester },
         state = lazyListState,
-        contentPadding = PaddingValues(horizontal = FetchTheme.spacing.xxxl, vertical = FetchTheme.spacing.xs),
+        contentPadding = PaddingValues(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.xs),
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
     ) {
         itemsIndexed(
@@ -680,7 +680,7 @@ private fun CastDetailSkeleton(personName: String) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl, top = FetchTheme.spacing.xxl, bottom = FetchTheme.spacing.sm),
+                    .padding(start = FetchTheme.spacing.screen.horizontal, end = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.xxl, bottom = FetchTheme.spacing.sm),
                 verticalAlignment = Alignment.Top
             ) {
                 Box(
@@ -733,7 +733,7 @@ private fun CastDetailSkeleton(personName: String) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl, top = FetchTheme.spacing.md, bottom = FetchTheme.spacing.sm),
+                    .padding(start = FetchTheme.spacing.screen.horizontal, end = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.md, bottom = FetchTheme.spacing.sm),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
@@ -757,7 +757,7 @@ private fun CastDetailSkeleton(personName: String) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl, top = FetchTheme.spacing.xs),
+                    .padding(start = FetchTheme.spacing.screen.horizontal, end = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.xs),
                 horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
             ) {
                 repeat(7) {

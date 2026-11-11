@@ -154,7 +154,7 @@ fun LicensesAttributionsScreen(
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = FetchTheme.spacing.xxxl, vertical = 28.dp),
+            .padding(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.screen.vertical),
         horizontalArrangement = Arrangement.spacedBy(36.dp)
     ) {
         LicensesAttributionsBrandPanel(

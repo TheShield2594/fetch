@@ -161,7 +161,7 @@ internal fun FirstRunWizardContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = FetchTheme.spacing.huge, vertical = FetchTheme.spacing.xxxl),
+            .padding(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.xxxl),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)
     ) {
         if (steps.size > 1) StepIndicator(steps = steps, current = step)

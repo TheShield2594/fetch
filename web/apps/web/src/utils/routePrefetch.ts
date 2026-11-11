@@ -33,6 +33,7 @@ export const loadSettingsPage = () => import("../pages/SettingsPage");
 export const loadCollectionsPage = () => import("../pages/CollectionsPage");
 export const loadProfilesPage = () => import("../pages/ProfilesPage");
 export const loadPairPage = () => import("../pages/PairPage");
+export const loadLinkPage = () => import("../pages/LinkPage");
 export const loadNotFoundPage = () => import("../pages/NotFoundPage");
 export const loadProfileSwitcher = () => import("../pages/ProfileSwitcher");
 export const loadSetupWizard = () => import("../pages/SetupWizard");

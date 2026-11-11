@@ -116,30 +116,58 @@ fun FetchWebsiteSection(state: AppState) {
                 }
                 return@Column
             }
+            // Typing the address was chosen over a code from the pairing hub.
+            var manual by remember { mutableStateOf(false) }
+            // Paired: the website's profiles, addons and settings come down now.
+            val onPaired = { java.awt.EventQueue.invokeLater(state::syncAccount) }
+            LaunchedEffect(manual) {
+                if (!manual && website.pairing == WebsitePairing.EnterAddress) website.startHubPairing(onPaired)
+            }
             when (val pairing = website.pairing) {
                 WebsitePairing.EnterAddress, is WebsitePairing.Failed -> {
+                    if (!manual && pairing !is WebsitePairing.Failed) {
+                        Waiting(tr("Getting a code…"))
+                        return@Column
+                    }
                     var address by remember { mutableStateOf(website.file.lastServerUrl.orEmpty()) }
+                    if (pairing is WebsitePairing.Failed && pairing.hubUnavailable) {
+                        Text(tr("Couldn’t reach watchfetch.tv to get a code. Enter your Fetch website’s address instead."), color = FetchPalette.TextSecondary)
+                    }
                     Text(
-                        "Pair this computer with your Fetch website by a code. Enter the address you open the website at, such as fetch.example.com or 192.168.1.25:7002.",
+                        tr("Enter the address you open your Fetch website at, such as fetch.example.com or 192.168.1.25:7002."),
                         color = FetchPalette.TextSecondary
                     )
                     Field(address, { address = it }, "fetch.example.com")
-                    PrimaryButton("Continue", icon = null, enabled = address.isNotBlank(), onClick = {
-                        // Paired: the website's profiles, addons and settings come down now.
-                        website.startPairing(address, onPaired = { java.awt.EventQueue.invokeLater(state::syncAccount) })
-                    })
-                    if (pairing is WebsitePairing.Failed) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        PrimaryButton("Continue", icon = null, enabled = address.isNotBlank(), onClick = {
+                            manual = true
+                            website.startPairing(address, onPaired = onPaired)
+                        })
+                        SecondaryButton("Use a code instead", onClick = {
+                            manual = false
+                            website.startHubPairing(onPaired)
+                        })
+                    }
+                    if (pairing is WebsitePairing.Failed && !pairing.hubUnavailable) {
                         Text(tr("Couldn’t reach the website: %1\$s", pairing.message ?: tr("check the address")), color = FetchPalette.Error)
                     }
                 }
-                WebsitePairing.Starting -> Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                    Text(tr("Finding your Fetch website…"), color = FetchPalette.TextSecondary)
-                }
-                is WebsitePairing.ShowingCode -> PairingCode(pairing, onOpen = state::openInBrowser, onCancel = website::cancelPairing)
+                WebsitePairing.Starting -> Waiting(tr(if (manual) "Finding your Fetch website…" else "Getting a code…"))
+                is WebsitePairing.Connecting -> Waiting(tr("Code confirmed. Signing in to %1\$s…", pairing.serverUrl))
+                is WebsitePairing.ShowingCode -> PairingCode(
+                    pairing,
+                    onOpen = state::openInBrowser,
+                    onCancel = website::cancelPairing,
+                    onTypeAddress = {
+                        manual = true
+                        website.cancelPairing()
+                    }
+                )
                 WebsitePairing.Expired -> {
                     Text(tr("The code expired before it was confirmed."), color = FetchPalette.TextSecondary)
-                    SecondaryButton("Get a new code", onClick = website::resetPairing)
+                    SecondaryButton("Get a new code", onClick = {
+                        if (manual) website.resetPairing() else website.startHubPairing(onPaired)
+                    })
                 }
                 is WebsitePairing.Paired -> Text(tr("Signed in as %1\$s.", pairing.deviceName), color = Color.White)
             }
@@ -148,7 +176,20 @@ fun FetchWebsiteSection(state: AppState) {
 }
 
 @Composable
-private fun PairingCode(pairing: WebsitePairing.ShowingCode, onOpen: (String) -> Unit, onCancel: () -> Unit) {
+private fun Waiting(text: String) {
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
+        Text(text, color = FetchPalette.TextSecondary)
+    }
+}
+
+@Composable
+private fun PairingCode(
+    pairing: WebsitePairing.ShowingCode,
+    onOpen: (String) -> Unit,
+    onCancel: () -> Unit,
+    onTypeAddress: () -> Unit
+) {
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(pairing) {
         while (true) {
@@ -162,8 +203,11 @@ private fun PairingCode(pairing: WebsitePairing.ShowingCode, onOpen: (String) ->
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(
                 tr(
-                    if (pairing.confirmUrl != null) "Scan the code with your phone, or open the website and enter the code under Settings → TVs & Devices."
-                    else "Open the website and enter this code under Settings → TVs & Devices."
+                    when {
+                        pairing.viaHub -> "Open your Fetch website and enter this code under Settings → TVs & Devices, or scan the QR code with your phone. No address needed."
+                        pairing.confirmUrl != null -> "Scan the code with your phone, or open the website and enter the code under Settings → TVs & Devices."
+                        else -> "Open the website and enter this code under Settings → TVs & Devices."
+                    }
                 ),
                 color = FetchPalette.TextSecondary
             )
@@ -173,11 +217,14 @@ private fun PairingCode(pairing: WebsitePairing.ShowingCode, onOpen: (String) ->
                 Text(tr("Waiting for the code to be confirmed… Expires in %1\$s", "%d:%02d".format(left / 60, left % 60)), color = FetchPalette.TextMuted)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                // On a computer the website is one click away, usually already signed in.
+                // On a computer the website is one click away, usually already signed in. For a
+                // hub code the link opens watchfetch.tv, which goes on to the website.
                 pairing.confirmUrl?.let { url ->
                     PrimaryButton("Confirm in your browser", icon = null, onClick = { onOpen(url) })
                 }
-                SecondaryButton("Cancel", onClick = onCancel)
+                // A hub code has nothing to cancel back to: stopping it is choosing the address.
+                if (pairing.viaHub) SecondaryButton("Enter the address instead", onClick = onTypeAddress)
+                else SecondaryButton("Cancel", onClick = onCancel)
             }
         }
     }

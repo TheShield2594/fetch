@@ -3,7 +3,7 @@
     <!-- Fetch website: pairing this TV with a self-hosted Fetch website (Settings → Account). -->
     <string name="website_name">Fetch website</string>
     <string name="website_sign_in_title">Sign in to a Fetch website</string>
-    <string name="website_sign_in_subtitle">Pair this TV with your Fetch website by a code. Profiles, parental limits and collections are then managed there.</string>
+    <string name="website_sign_in_subtitle">Pair this TV with your Fetch website by a code, with no address to type. Profiles, parental limits and collections are then managed there.</string>
     <string name="website_signed_in_subtitle">Signed in as %1$s · %2$s</string>
     <string name="website_signed_out_notice">This TV was signed out from the Fetch website. Sign in again to keep syncing profiles and collections.</string>
     <string name="website_manage_body">Profiles, parental limits and collections sync with this website. Signing out keeps everything on this TV as it is now.</string>
@@ -32,6 +32,16 @@
     <string name="website_pairing_retry">Get a new code</string>
     <string name="website_pairing_done">Signed in as %1$s. Profiles and collections are syncing now.</string>
     <string name="website_done">Done</string>
+    <string name="website_hub_starting">Getting a code…</string>
+    <string name="website_hub_code_instruction">On your phone or computer, open your Fetch website and enter this code. You don’t need to type anything on the TV.</string>
+    <string name="website_hub_scan">Or scan the QR code with your phone.</string>
+    <string name="website_hub_qr">QR code that opens watchfetch.tv on your phone, which takes you to your Fetch website to confirm this TV</string>
+    <string name="website_hub_connecting">Code confirmed. Signing in to %1$s…</string>
+    <string name="website_hub_handoff_failed">The code was confirmed, but this TV couldn’t reach %1$s to finish signing in. Check the TV can reach that address, or pick or enter another one.</string>
+    <string name="website_hub_unavailable">Couldn’t reach watchfetch.tv to get a code. Pick your Fetch website below, or enter its address.</string>
+    <string name="website_discovered_or">Or pick a Fetch website on your network</string>
+    <string name="website_type_address">Enter the address instead</string>
+    <string name="website_use_code">Use a code instead</string>
     <string name="website_list_source_default_title">Website list</string>
     <string name="website_list_source_label">Fetch website list</string>
     <string name="website_list_source_not_signed_in">Sign in to the Fetch website in Settings → Account to show this list.</string>

@@ -31,6 +31,15 @@ Fetch connects to services you add or turn on yourself:
   type to YouTube's suggestion service, signed in or not.
 - **Your Fetch website**, only if you pair with one. Fetch has no hosted backend; sync is
   off until you pair the TV with a website you run.
+- **The pairing hub at `watchfetch.tv`**, only while the TV is showing a code to sign in to a
+  Fetch website. It receives the device's name (on a TV its model, such as "NVIDIA SHIELD
+  Android TV"; in the desktop app "Fetch Desktop" and the computer's network name, which can
+  identify you or your organization) and hands out the code. When you confirm the code, your
+  website tells the hub its address, and the hub passes that address to the TV. The hub never
+  receives your sign-in: the TV collects that from your website directly. Codes are kept in
+  memory only and deleted within about twelve minutes: ten for the code, up to a minute more
+  for the TV to collect the address when it was confirmed at the last moment, and up to a
+  minute until the next clean-up. Choosing "Enter the address instead" on the TV skips the hub.
 - **GitHub Releases** for the in-app update check (`full` builds only). It is an
   anonymous request to `api.github.com` and carries no personal data.
 

@@ -6,7 +6,9 @@ import androidx.compose.runtime.setValue
 import com.fetch.desktop.data.AppDirs
 import com.fetch.desktop.data.PrivateFiles
 import com.fetch.desktop.parental.PinGate
+import com.fetch.tv.data.website.FetchPairingHub
 import com.fetch.tv.data.website.FetchServerAddress
+import com.fetch.tv.data.website.HubPairingPoll
 import com.fetch.tv.data.website.ResolvedFetchServer
 import com.fetch.tv.data.website.WebsiteList
 import com.fetch.tv.data.website.WebsiteListItem
@@ -20,6 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -558,10 +561,22 @@ sealed interface WebsitePairing {
     data object EnterAddress : WebsitePairing
     data object Starting : WebsitePairing
     /** Showing the code (and a QR code of [confirmUrl]) until someone confirms it on the website. */
-    data class ShowingCode(val code: String, val confirmUrl: String?, val serverUrl: String, val expiresAtMs: Long) : WebsitePairing
+    /** [viaHub]: a code from the pairing hub, which any Fetch website confirms, so there is no [serverUrl] yet. */
+    data class ShowingCode(
+        val code: String,
+        val confirmUrl: String?,
+        val serverUrl: String?,
+        val expiresAtMs: Long,
+        val viaHub: Boolean = false
+    ) : WebsitePairing
+
+    /** A hub code was confirmed by the website at [serverUrl]; collecting this computer's sign-in from it. */
+    data class Connecting(val serverUrl: String) : WebsitePairing
     data object Expired : WebsitePairing
     data class Paired(val deviceName: String) : WebsitePairing
-    data class Failed(val message: String?) : WebsitePairing
+
+    /** [hubUnavailable]: the pairing hub couldn't be reached, so the address has to be typed. */
+    data class Failed(val message: String?, val hubUnavailable: Boolean = false) : WebsitePairing
 }
 
 /**
@@ -615,6 +630,19 @@ class FetchWebsiteState(
         }
     }
 
+    /**
+     * Gets a code from the pairing hub (watchfetch.tv, see [FetchPairingHub]) in the background,
+     * replacing a pairing already running: any Fetch website confirms it, so no address is
+     * needed. [onPaired] runs once this computer is signed in.
+     */
+    fun startHubPairing(onPaired: () -> Unit = {}) {
+        pairingJob?.cancel()
+        pairingJob = scope.launch {
+            pairViaHub()
+            if (isPaired) onPaired()
+        }
+    }
+
     fun cancelPairing() {
         pairingJob?.cancel()
         pairingJob = null
@@ -656,20 +684,99 @@ class FetchWebsiteState(
                         return
                     }
                     is WebsitePairingPoll.Approved -> {
-                        val name = poll.deviceName.ifBlank { deviceName }
-                        save(WebsiteFile(WebsiteSession(serverUrl, poll.token, name), serverUrl, signedOutByWebsite = false, initialProfilePush = true))
-                        forgetProfiles()
-                        pairing = WebsitePairing.Paired(name)
+                        approve(serverUrl, poll, deviceName)
                         return
                     }
                 }
             }
         } catch (e: CancellationException) {
-            if (pairing !is WebsitePairing.Paired) pairing = WebsitePairing.EnterAddress
+            if (pairing !is WebsitePairing.Paired && ownsPairing()) pairing = WebsitePairing.EnterAddress
             throw e
         } catch (e: Exception) {
             pairing = WebsitePairing.Failed(e.message)
         }
+    }
+
+    private fun approve(serverUrl: String, poll: WebsitePairingPoll.Approved, deviceName: String) {
+        val name = poll.deviceName.ifBlank { deviceName }
+        save(WebsiteFile(WebsiteSession(serverUrl, poll.token, name), serverUrl, signedOutByWebsite = false, initialProfilePush = true))
+        forgetProfiles()
+        pairing = WebsitePairing.Paired(name)
+    }
+
+    private val hub = FetchPairingHub(http)
+
+    /**
+     * Pairs through the pairing hub: shows the hub's code, waits for a website to confirm it,
+     * then collects this computer's sign-in from that website with the handoff secret only this
+     * computer knows. The website stores the pairing a moment after it tells the hub, so not
+     * finding it straight away is waited out.
+     */
+    suspend fun pairViaHub(deviceName: String = defaultDeviceName()) {
+        pairing = WebsitePairing.Starting
+        try {
+            val secret = FetchPairingHub.newHandoffSecret()
+            val start = try {
+                withContext(Dispatchers.IO) { hub.start(deviceName, FetchPairingHub.hash(secret)) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                pairing = WebsitePairing.Failed(e.message, hubUnavailable = true)
+                return
+            }
+            val expiresAt = runCatching { Instant.parse(start.expiresAt).toEpochMilli() }.getOrDefault(now() + 10 * 60_000L)
+            pairing = WebsitePairing.ShowingCode(start.code, start.linkUrl ?: FetchPairingHub.linkUrl(start.code), null, expiresAt, viaHub = true)
+            val interval = start.intervalSec.coerceIn(1, 30) * 1000L
+            var failures = 0
+            while (true) {
+                delay(interval)
+                val poll = try {
+                    withContext(Dispatchers.IO) { hub.poll(start.pollSecret) }.also { failures = 0 }
+                } catch (e: java.io.IOException) {
+                    if (++failures >= 10) throw e
+                    continue
+                }
+                when (poll) {
+                    HubPairingPoll.Pending -> if (now() > expiresAt) {
+                        pairing = WebsitePairing.Expired
+                        return
+                    }
+                    HubPairingPoll.Expired -> {
+                        pairing = WebsitePairing.Expired
+                        return
+                    }
+                    is HubPairingPoll.Linked -> {
+                        pairing = WebsitePairing.Connecting(poll.apiUrl)
+                        val deadline = now() + 30_000L
+                        while (now() < deadline) {
+                            val answer = runCatching { client.pollPairing(poll.apiUrl, secret) }.getOrNull()
+                            if (answer is WebsitePairingPoll.Approved) {
+                                approve(poll.apiUrl, answer, deviceName)
+                                return
+                            }
+                            delay(1_500L)
+                        }
+                        pairing = WebsitePairing.Failed(poll.apiUrl)
+                        return
+                    }
+                }
+            }
+        } catch (e: CancellationException) {
+            if (pairing !is WebsitePairing.Paired && ownsPairing()) pairing = WebsitePairing.EnterAddress
+            throw e
+        } catch (e: Exception) {
+            pairing = WebsitePairing.Failed(e.message)
+        }
+    }
+
+    /**
+     * Whether the calling pairing may still write [pairing]: it is the running [pairingJob], or
+     * was called directly with none running. A job cancelled because another replaced it must
+     * not overwrite the replacement's state as it unwinds.
+     */
+    private suspend fun ownsPairing(): Boolean {
+        val running = pairingJob ?: return true
+        return running === currentCoroutineContext()[Job]
     }
 
     fun resetPairing() {

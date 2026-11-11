@@ -104,6 +104,17 @@ class FetchWebsiteClient internal constructor(
         }
     }
 
+    // ─── The pairing hub (watchfetch.tv) ───
+
+    private val hub: FetchPairingHub by lazy { FetchPairingHub(resolver) }
+
+    /** A code from the pairing hub, for a TV that doesn't know its website's address. */
+    suspend fun startHubPairing(deviceName: String, handoffHash: String): HubPairingStart = call {
+        hub.start(deviceName, handoffHash)
+    }
+
+    suspend fun pollHubPairing(pollSecret: String): HubPairingPoll = call { hub.poll(pollSecret) }
+
     /** Whether a Fetch website's API answers at [serverUrl]; a quick check before offering it. */
     suspend fun answers(serverUrl: String): Boolean = call {
         val request = Request.Builder().url(endpoint(serverUrl, "health")).get().build()

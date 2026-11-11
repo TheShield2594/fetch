@@ -212,6 +212,130 @@ describe("device routes", () => {
     });
   });
 
+  describe("POST /devices/pair/confirm with a code from the pairing hub", () => {
+    const handoffSecret = "the-tvs-handoff-secret";
+
+    beforeEach(() => {
+      // This install is the hub, so the claim goes to the in-memory store
+      // rather than over the network.
+      vi.stubEnv("FETCH_PAIRING_HUB_SERVE", "true");
+      prismaMock.devicePairing.findUnique.mockResolvedValue(null);
+      prismaMock.devicePairing.create.mockResolvedValue({});
+    });
+
+    const startAtHub = async () => {
+      const { startHubPairing } = await import("../lib/pairing-hub.js");
+      const started = startHubPairing({ name: "Shield TV", handoffHash: hashSecret(handoffSecret), ip: "203.0.113.9" });
+      if (!started.ok) throw new Error("hub start failed");
+      return started;
+    };
+
+    it("claims the code at the hub with the browser's addresses and stores a confirmed pairing for the handoff secret", async () => {
+      // The app first: building it reloads modules, and the hub's store must
+      // be the one the routes see.
+      const app = await buildApp();
+      const started = await startAtHub();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/devices/pair/confirm",
+        payload: { code: started.code, apiBase: "https://fetch.home.example/api/", webBase: "https://fetch.home.example" },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual({ deviceName: "Shield TV" });
+      expect(prismaMock.devicePairing.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          code: started.code.replace("-", ""),
+          pollSecretHash: hashSecret(handoffSecret),
+          deviceName: "Shield TV",
+          confirmedAt: expect.any(Date),
+          requesterIp: null,
+        }),
+      });
+      const { pollHubPairing } = await import("../lib/pairing-hub.js");
+      expect(pollHubPairing(started.pollSecret)).toEqual({
+        status: "linked",
+        link: { api: "https://fetch.home.example/api", web: "https://fetch.home.example" },
+      });
+    });
+
+    it("answers 409 for a hub code another website already claimed", async () => {
+      const app = await buildApp();
+      const started = await startAtHub();
+      const confirm = (apiBase: string) =>
+        app.inject({ method: "POST", url: "/devices/pair/confirm", payload: { code: started.code, apiBase } });
+
+      expect((await confirm("https://fetch.home.example/api")).statusCode).toBe(200);
+      expect((await confirm("https://elsewhere.example/api")).statusCode).toBe(409);
+    });
+
+    it("can retry a claim whose pairing failed to save", async () => {
+      const app = await buildApp();
+      const started = await startAtHub();
+      const confirm = () =>
+        app.inject({
+          method: "POST",
+          url: "/devices/pair/confirm",
+          payload: { code: started.code, apiBase: "https://fetch.home.example/api" },
+        });
+      prismaMock.devicePairing.create.mockRejectedValueOnce(new Error("database went away"));
+
+      expect((await confirm()).statusCode).toBe(500);
+      expect((await confirm()).statusCode).toBe(200);
+      expect(prismaMock.devicePairing.create).toHaveBeenLastCalledWith({
+        data: expect.objectContaining({ pollSecretHash: hashSecret(handoffSecret) }),
+      });
+    });
+
+    it("refuses to give the TV a loopback address, before using the code up", async () => {
+      const app = await buildApp();
+      const started = await startAtHub();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/devices/pair/confirm",
+        payload: { code: started.code, apiBase: "http://localhost:7000" },
+      });
+
+      expect(response.statusCode).toBe(422);
+      expect(response.json().code).toBe("pairing_address_loopback");
+      const { pollHubPairing } = await import("../lib/pairing-hub.js");
+      expect(pollHubPairing(started.pollSecret).status).toBe("pending");
+    });
+
+    it("answers 404 when the hub doesn't know the code either", async () => {
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/devices/pair/confirm",
+        payload: { code: "WXYZ-2345", apiBase: "https://fetch.home.example/api" },
+      });
+
+      expect(response.statusCode).toBe(404);
+      expect(prismaMock.devicePairing.create).not.toHaveBeenCalled();
+    });
+
+    it("gives the TV FETCH_API_PUBLIC rather than a loopback address the browser used", async () => {
+      vi.stubEnv("FETCH_API_PUBLIC", "http://192.168.1.25:7000/");
+      // The app first: building it reloads modules, and the hub's store must
+      // be the one the routes see.
+      const app = await buildApp();
+      const started = await startAtHub();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/devices/pair/confirm",
+        payload: { code: started.code, apiBase: "http://localhost:7000" },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const { pollHubPairing } = await import("../lib/pairing-hub.js");
+      expect(pollHubPairing(started.pollSecret)).toMatchObject({ status: "linked", link: { api: "http://192.168.1.25:7000" } });
+    });
+  });
+
   describe("GET /devices/pair/poll", () => {
     const poll = (app: FastifyInstance) =>
       app.inject({ method: "GET", url: "/devices/pair/poll", headers: { "x-pairing-secret": "the-secret" } });

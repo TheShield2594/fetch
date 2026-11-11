@@ -317,7 +317,7 @@ class PhoneHubController @Inject constructor(
 
     private fun websiteStatusOf(state: WebsitePairingState): PhoneHubWebsiteStatus = when (state) {
         WebsitePairingState.EnterAddress -> PhoneHubWebsiteStatus(state = "idle")
-        WebsitePairingState.Starting -> PhoneHubWebsiteStatus(state = "starting")
+        WebsitePairingState.Starting, is WebsitePairingState.Connecting -> PhoneHubWebsiteStatus(state = "starting")
         is WebsitePairingState.ShowingCode -> PhoneHubWebsiteStatus(state = "code", code = state.code, confirmUrl = state.confirmUrl)
         WebsitePairingState.Expired -> PhoneHubWebsiteStatus(state = "expired")
         is WebsitePairingState.Paired -> PhoneHubWebsiteStatus(state = "paired")

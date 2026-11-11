@@ -14,10 +14,17 @@ const SIGN_IN_PATHS = new Set(["/auth/status", "/auth/login", "/auth/register"])
  * started it by its `state`), and the Plex/Jellyfin webhooks (their own shared
  * secret), and the two halves of device pairing a TV calls before it has any
  * credential (starting a pairing, and polling it with the secret that start
- * returned). Everything else needs `API_TOKEN`, a signed-in session or a
- * paired device's token.
+ * returned), and the pairing hub's routes, which exist only on an install that
+ * serves the hub (`FETCH_PAIRING_HUB_SERVE`). Everything else needs
+ * `API_TOKEN`, a signed-in session or a paired device's token.
  */
-const PUBLIC_PAIRING_PATHS = new Set(["/devices/pair/start", "/devices/pair/poll"]);
+const PUBLIC_PAIRING_PATHS = new Set([
+  "/devices/pair/start",
+  "/devices/pair/poll",
+  "/hub/pair/start",
+  "/hub/pair/poll",
+  "/hub/pair/claim",
+]);
 
 export const isPublicPath = (url: string): boolean =>
   SIGN_IN_PATHS.has(url) ||

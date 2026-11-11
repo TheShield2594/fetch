@@ -29,6 +29,9 @@ import com.fetch.tv.ui.theme.FetchTheme
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
+/** The height of the Library's empty and loading states, on every tab. */
+internal val LibraryEmptyStateHeight = 300.dp
+
 /** Focus keys of the activity tabs, kept apart from the Saved grid's "type:id" keys. */
 internal fun inProgressFocusKey(item: LibraryActivityItem) = "progress:${item.key}"
 internal fun historyFocusKey(item: LibraryActivityItem) = "history:${item.key}"
@@ -57,7 +60,7 @@ internal fun LazyGridScope.libraryInProgressContent(
                 title = stringResource(R.string.library_in_progress_empty_title),
                 subtitle = stringResource(R.string.library_in_progress_empty_subtitle),
                 icon = Icons.Default.PlayCircleOutline,
-                height = 300.dp,
+                height = LibraryEmptyStateHeight,
                 modifier = Modifier.padding(bottom = FetchTheme.spacing.xxl),
                 action = com.fetch.tv.ui.components.StateAction(
                     stringResource(R.string.library_action_search_titles),
@@ -87,7 +90,7 @@ internal fun LazyGridScope.libraryHistoryContent(
                 title = stringResource(R.string.library_history_empty_title),
                 subtitle = stringResource(R.string.library_history_empty_subtitle),
                 icon = Icons.Default.History,
-                height = 300.dp,
+                height = LibraryEmptyStateHeight,
                 modifier = Modifier.padding(bottom = FetchTheme.spacing.xxl),
                 action = com.fetch.tv.ui.components.StateAction(
                     stringResource(R.string.library_action_search_titles),

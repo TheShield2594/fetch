@@ -93,6 +93,37 @@ enum class LibraryWatchedFilter(val key: String, val labelResId: Int) {
     READY("ready", R.string.library_watched_filter_ready);
 }
 
+/**
+ * Which of the source's lists the grid offers: its watchlist (the Watchlist tab), or every other
+ * list, the profile's own lists on this TV included (the Lists tab).
+ */
+enum class LibraryListScope {
+    WATCHLIST,
+    LISTS;
+
+    fun includes(tab: LibraryListTab): Boolean =
+        (tab.type == LibraryListTab.Type.WATCHLIST) == (this == WATCHLIST)
+}
+
+/** The list tabs [scope] offers, in the source's order. */
+internal fun List<LibraryListTab>.inScope(scope: LibraryListScope): List<LibraryListTab> = filter(scope::includes)
+
+/**
+ * The list the grid shows in [scope]: the current one while the scope still has it, else the one
+ * remembered, else the scope's first. Null when the scope has no lists.
+ */
+internal fun libraryListSelection(
+    tabs: List<LibraryListTab>,
+    scope: LibraryListScope,
+    current: String?,
+    remembered: String?
+): String? {
+    val scoped = tabs.inScope(scope)
+    return current?.takeIf { key -> scoped.any { it.key == key } }
+        ?: remembered?.takeIf { key -> scoped.any { it.key == key } }
+        ?: scoped.firstOrNull()?.key
+}
+
 /** The watched filters to offer: Ready to play only while something is ready, or it's chosen. */
 internal fun libraryWatchedFilterOptions(
     anythingReady: Boolean,
@@ -137,6 +168,8 @@ data class LibraryUiState(
     val availableTypeTabs: List<LibraryTypeTab> = emptyList(),
     val availableSortOptions: List<LibrarySortOption> = emptyList(),
     val selectedListKey: String? = null,
+    // The Watchlist or Lists tab; [listTabs] is every list, [scopedListTabs] those it offers.
+    val listScope: LibraryListScope = LibraryListScope.WATCHLIST,
     val selectedTypeTab: LibraryTypeTab? = null,
     val selectedSortOption: LibrarySortOption = LibrarySortOption.DEFAULT,
     val sortSelectionVersion: Long = 0L,
@@ -171,7 +204,10 @@ data class LibraryUiState(
     val customPosterUrlPattern: String = "",
     val customPosterEnabledScreens: Set<com.fetch.tv.core.poster.CustomPosterScreen> =
         com.fetch.tv.core.poster.CustomPosterScreen.ALL
-)
+) {
+    /** The lists the list picker offers on the current tab. */
+    val scopedListTabs: List<LibraryListTab> get() = listTabs.inScope(listScope)
+}
 
 internal fun LibraryEntry.certificationQuery() = com.fetch.tv.core.parental.CertificationQuery(
     contentId = id,
@@ -341,6 +377,7 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun onSelectListTab(listKey: String) {
+        rememberedListKeys[_uiState.value.listScope] = listKey
         _uiState.update { current ->
             val updated = current.copy(selectedListKey = listKey)
             updated.withVisibleItems()
@@ -349,6 +386,24 @@ class LibraryViewModel @Inject constructor(
             libraryViewPreferences.setLastSelectedList(listKey)
         }
     }
+
+    /** The Watchlist or Lists tab was chosen: the grid shows that scope's list. */
+    fun onSelectListScope(scope: LibraryListScope) {
+        if (_uiState.value.listScope == scope) return
+        _uiState.update { current ->
+            current.copy(
+                listScope = scope,
+                selectedListKey = if (current.isTrackingAuthenticated) {
+                    libraryListSelection(current.listTabs, scope, current = null, remembered = rememberedListKeys[scope])
+                } else {
+                    null
+                }
+            ).withVisibleItems()
+        }
+    }
+
+    /** The list last shown in each scope this session, so switching tabs comes back to it. */
+    private val rememberedListKeys = mutableMapOf<LibraryListScope, String>()
 
     fun onSelectGenre(key: String?) {
         _uiState.update { current ->
@@ -657,12 +712,8 @@ class LibraryViewModel @Inject constructor(
                 _uiState.update { current ->
                     // The local library has tabs only once the profile has a list of its own.
                     val nextSelectedList = when {
-                        isTrackingAuthenticated -> {
-                            current.selectedListKey
-                                ?.takeIf { key -> listTabs.any { it.key == key } }
-                                ?: persistedListKey?.takeIf { key -> listTabs.any { it.key == key } }
-                                ?: listTabs.firstOrNull()?.key
-                        }
+                        isTrackingAuthenticated ->
+                            libraryListSelection(listTabs, current.listScope, current.selectedListKey, persistedListKey)
                         else -> null
                     }
 
@@ -865,11 +916,14 @@ class LibraryViewModel @Inject constructor(
         // Facets and counts come from what the profile may see, so a kids profile isn't offered
         // "Horror (4)" that opens an empty grid.
         val profileItems = parentalControls.filterAllowed(allItems) { it.certificationQuery() }
-        val listFiltered = if (sourceMode.providerId != null || selectedListKey != null) {
-            val listKey = selectedListKey ?: ""
-            profileItems.filter { entry -> entry.listKeys.contains(listKey) }
-        } else {
-            profileItems
+        val listFiltered = when {
+            // The Lists tab with no list to show: not the saved titles, which are the Watchlist's.
+            listScope == LibraryListScope.LISTS && selectedListKey == null -> emptyList()
+            sourceMode.providerId != null || selectedListKey != null -> {
+                val listKey = selectedListKey ?: ""
+                profileItems.filter { entry -> entry.listKeys.contains(listKey) }
+            }
+            else -> profileItems
         }
 
         // Step 2: Type filter

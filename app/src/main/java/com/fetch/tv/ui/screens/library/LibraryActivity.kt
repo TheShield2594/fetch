@@ -10,21 +10,31 @@ import java.time.YearMonth
 import java.time.ZoneId
 
 /**
- * The Library's tabs (audit C3). Saved holds the watchlist and lists of the connected provider
- * (or this TV's own); In progress and History are this profile's watch activity; Servers is the
- * connected media servers. Upcoming and Stats open their own pages from the same row, so the
- * Library is the one place for "my things".
+ * The Library's tabs (audit C3), in the order the row shows them. Watchlist and Lists split the
+ * connected provider's lists (or this TV's own) in two: its watchlist, and every other list,
+ * the profile's lists on this TV shown beside the provider's. In progress and History are this
+ * profile's watch activity; Servers is the connected media servers. Upcoming and Stats open their
+ * own pages from the same row, so the Library is the one place for "my things".
  */
 enum class LibraryTab {
-    SAVED,
+    WATCHLIST,
     IN_PROGRESS,
     HISTORY,
-    SERVERS,
     UPCOMING,
+    LISTS,
+    SERVERS,
     STATS;
 
     /** Tabs that open another page instead of switching the grid. */
     val opensPage: Boolean get() = this == UPCOMING || this == STATS
+
+    /** The lists the tab's grid offers, for the tabs that show the saved-titles grid. */
+    val listScope: LibraryListScope?
+        get() = when (this) {
+            WATCHLIST -> LibraryListScope.WATCHLIST
+            LISTS -> LibraryListScope.LISTS
+            else -> null
+        }
 }
 
 /** One title on the In progress or History tab: the latest activity for that title. */

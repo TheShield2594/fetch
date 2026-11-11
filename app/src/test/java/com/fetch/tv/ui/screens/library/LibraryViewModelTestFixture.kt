@@ -24,7 +24,11 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 
-internal class LibraryViewModelTestFixture(sorter: TrackingLibrarySorter? = null) {
+// [scope] defaults to the Lists tab: the fixture's provider list is a personal list.
+internal class LibraryViewModelTestFixture(
+    sorter: TrackingLibrarySorter? = null,
+    scope: LibraryListScope = LibraryListScope.LISTS
+) {
     val profile = MutableStateFlow(1)
     val source = MutableStateFlow(LibrarySourceMode.MDBLIST)
     val authenticated = MutableStateFlow(true)
@@ -72,4 +76,8 @@ internal class LibraryViewModelTestFixture(sorter: TrackingLibrarySorter? = null
         bestMatchCacheDataStore = mockk<BestMatchCacheDataStore> { every { entries } returns bestMatches },
         context = mockk(relaxed = true)
     )
+
+    init {
+        viewModel.onSelectListScope(scope)
+    }
 }

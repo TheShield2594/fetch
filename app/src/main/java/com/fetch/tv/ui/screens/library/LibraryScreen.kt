@@ -118,12 +118,12 @@ fun LibraryScreen(
     val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()
     var showDeleteConfirm by remember(uiState.showManageDialog) { mutableStateOf(false) }
     var expandedPicker by remember { mutableStateOf<String?>(null) }
-    var selectedTab by rememberSaveable { mutableStateOf(LibraryTab.SAVED) }
+    var selectedTab by rememberSaveable { mutableStateOf(LibraryTab.WATCHLIST) }
     val servers by serversViewModel.servers.collectAsStateWithLifecycle()
     val serverShelves by serversViewModel.shelves.collectAsStateWithLifecycle()
     val hasServers = servers.enabledConnections.isNotEmpty()
     val tabs = LibraryTab.entries.filter { it != LibraryTab.SERVERS || hasServers }
-    val tab = selectedTab.takeIf { it in tabs } ?: LibraryTab.SAVED
+    val tab = selectedTab.takeIf { it in tabs } ?: LibraryTab.WATCHLIST
     // The activity tabs are collected only while shown (the flows stop 5 s after the last
     // collector), so the Saved grid doesn't keep the full watch history decoded behind it.
     val historyMonths = if (tab == LibraryTab.HISTORY) {
@@ -177,6 +177,11 @@ fun LibraryScreen(
         showRestingBorder = true
     )
 
+    // Watchlist and Lists share the grid; the view model shows the tab's lists in it.
+    LaunchedEffect(tab) {
+        tab.listScope?.let(viewModel::onSelectListScope)
+    }
+
     LaunchedEffect(tab, servers.revision) {
         if (tab == LibraryTab.SERVERS) serversViewModel.load()
     }
@@ -205,7 +210,7 @@ fun LibraryScreen(
             val restoreKey = lastFocusedPosterKey
             // Only the Saved grid restores here; the activity tabs restore through focusRestorer
             // once their items have loaded.
-            val restoreIndex = restoreKey?.takeIf { tab == LibraryTab.SAVED }?.let { visibleItemIndexByKey[it] }
+            val restoreIndex = restoreKey?.takeIf { tab.listScope != null }?.let { visibleItemIndexByKey[it] }
             val restoreRequester = restoreKey?.let { posterFocusRequesters[it] }
 
             // requestFocus() reports false while the target is not laid out yet, so each try
@@ -237,7 +242,7 @@ fun LibraryScreen(
         backScope.launch {
             runCatching { gridState.scrollToItem(0) }
             // Give the selectors row (Saved) or the tab row a frame to compose before focusing it.
-            val target = if (tab == LibraryTab.SAVED) selectorFocusRequester else primaryFocusRequester
+            val target = if (tab.listScope != null) selectorFocusRequester else primaryFocusRequester
             target.requestFocusAfterFrames(frames = 0)
         }
     }
@@ -372,11 +377,11 @@ fun LibraryScreen(
             )
         }
 
-        if (tab == LibraryTab.SAVED) {
+        if (tab.listScope != null) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 LibrarySelectorsRow(
                     sourceMode = uiState.sourceMode,
-                    listTabs = uiState.listTabs,
+                    listTabs = uiState.scopedListTabs,
                     typeTabs = uiState.availableTypeTabs,
                     sortOptions = uiState.availableSortOptions,
                     genres = uiState.availableGenres,
@@ -440,11 +445,27 @@ fun LibraryScreen(
                         title = stringResource(R.string.library_empty_filtered_title),
                         subtitle = stringResource(R.string.library_empty_filtered_subtitle),
                         icon = Icons.Default.BookmarkBorder,
-                        height = 300.dp,
+                        height = LibraryEmptyStateHeight,
                         modifier = Modifier.padding(bottom = FetchTheme.spacing.xxl),
                         action = StateAction(stringResource(R.string.library_action_clear_filters)) {
                             expandedPicker = null
                             viewModel.onClearFilters()
+                        }
+                    )
+                }
+            } else if (uiState.visibleItems.isEmpty() && tab == LibraryTab.LISTS && uiState.scopedListTabs.isEmpty()) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    val canManage = uiState.listManagement != null && uiState.isTrackingAuthenticated
+                    EmptyScreenState(
+                        title = stringResource(R.string.library_lists_empty_title),
+                        subtitle = stringResource(R.string.library_lists_empty_subtitle),
+                        icon = Icons.Default.BookmarkBorder,
+                        height = LibraryEmptyStateHeight,
+                        modifier = Modifier.padding(bottom = FetchTheme.spacing.xxl),
+                        action = if (canManage) {
+                            StateAction(stringResource(R.string.library_manage_lists), viewModel::onOpenManageLists)
+                        } else {
+                            StateAction(stringResource(R.string.library_action_search_titles), onNavigateToSearch)
                         }
                     )
                 }
@@ -479,7 +500,7 @@ fun LibraryScreen(
                         title = title,
                         subtitle = subtitle,
                         icon = Icons.Default.BookmarkBorder,
-                        height = 300.dp,
+                        height = LibraryEmptyStateHeight,
                         modifier = Modifier.padding(bottom = FetchTheme.spacing.xxl),
                         action = if (signedOut) {
                             val providerName = stringResource(
@@ -689,7 +710,8 @@ private fun LibraryTabRow(
                 }
                 Text(
                     text = when (tab) {
-                        LibraryTab.SAVED -> stringResource(R.string.library_source_saved)
+                        LibraryTab.WATCHLIST -> stringResource(R.string.library_tab_watchlist)
+                        LibraryTab.LISTS -> stringResource(R.string.library_tab_lists)
                         LibraryTab.IN_PROGRESS -> stringResource(R.string.library_tab_in_progress)
                         LibraryTab.HISTORY -> stringResource(R.string.library_tab_history)
                         LibraryTab.SERVERS -> stringResource(R.string.library_source_servers)

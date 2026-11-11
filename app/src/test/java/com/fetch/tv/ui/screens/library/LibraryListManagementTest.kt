@@ -43,7 +43,7 @@ class LibraryListManagementTest {
 
     @Test
     fun `the local library manages lists with no account and filters by its list tabs`() = runTest {
-        val f = LibraryViewModelTestFixture()
+        val f = LibraryViewModelTestFixture(scope = LibraryListScope.WATCHLIST)
         f.source.value = LibrarySourceMode.LOCAL
         f.tabs.value = listOf(
             com.fetch.tv.domain.model.LibraryListTab("local", "Fetch Library", com.fetch.tv.domain.model.LibraryListTab.Type.WATCHLIST),
@@ -52,8 +52,10 @@ class LibraryListManagementTest {
         f.items.value = listOf(entry("tt1", setOf("local")), entry("tt2", setOf("local:list:a")))
         runCurrent()
 
+        // The Watchlist tab shows the saved titles; the Lists tab the profile's lists.
         assertEquals(listOf("tt1"), f.viewModel.uiState.value.visibleItems.map { it.id })
-        f.viewModel.onSelectListTab("local:list:a")
+        f.viewModel.onSelectListScope(LibraryListScope.LISTS)
+        assertEquals("local:list:a", f.viewModel.uiState.value.selectedListKey)
         assertEquals(listOf("tt2"), f.viewModel.uiState.value.visibleItems.map { it.id })
 
         f.viewModel.onOpenManageLists()

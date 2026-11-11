@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Library tabs (Saved, Servers and Stats reuse library_source_saved, library_source_servers and library_open_stats) -->
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Watchlist</string>
+    <string name="library_tab_lists">Lists</string>
     <string name="library_tab_in_progress">In progress</string>
     <string name="library_tab_history">History</string>
     <string name="library_tab_upcoming">Upcoming</string>
     <string name="library_tabs_description">Library sections</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">No lists yet</string>
+    <string name="library_lists_empty_subtitle">Lists you make here or on your tracking service show up on this tab. Your watchlist has its own tab.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (this TV)</string>
 
     <!-- In progress tab -->
     <string name="library_in_progress_percent">%1$d%% watched</string>

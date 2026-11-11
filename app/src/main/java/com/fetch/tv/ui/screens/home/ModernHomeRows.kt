@@ -561,8 +561,9 @@ internal fun ModernRowSection(
         }
         val rowTitle = row.title
         val textColor = FetchTheme.colors.TextPrimary
-        val textModifier = remember(rowTitleBottom) {
-            Modifier.padding(start = 52.dp, end = 52.dp, bottom = rowTitleBottom)
+        val screenHorizontal = FetchTheme.spacing.screen.horizontal
+        val textModifier = remember(rowTitleBottom, screenHorizontal) {
+            Modifier.padding(start = screenHorizontal, end = screenHorizontal, bottom = rowTitleBottom)
         }
         // One line, because the hero backdrop height reserves a single title line for each row.
         val rowSubtitle = row.subtitle
@@ -692,7 +693,7 @@ internal fun ModernRowSection(
         }
 
         val density = LocalDensity.current
-        val rowStartPadding = 52.dp
+        val rowStartPadding = FetchTheme.spacing.screen.horizontal
         val context = LocalContext.current
         val imageLoader = context.imageLoader
 

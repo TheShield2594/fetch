@@ -138,7 +138,7 @@ internal fun SampleHome() {
                 isLoading = false,
                 layoutPreferencesReady = true,
                 modernLandscapePostersEnabled = true,
-                heroSectionEnabled = false,
+                heroSectionEnabled = true,
                 posterLabelsEnabled = false
             ),
             modernPresentation = presentation,

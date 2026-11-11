@@ -494,22 +494,8 @@
     <string name="experience_mode_confirm_advanced_title">切换到高级模式？</string>
     <string name="experience_mode_confirm_essential_subtitle">高级设置界面将被隐藏，但您的已保存设置保持不变。您随时可以切换回来。</string>
     <string name="experience_mode_confirm_advanced_subtitle">这将显示完整的设置界面，包括高级设置、目录、收藏和调校控件。</string>
-    <string name="network_speed_test_run">运行速度测试</string>
-    <string name="network_speed_test_running">正在运行速度测试</string>
-    <string name="network_speed_test_subtitle">测量下载速度和延迟</string>
-    <string name="network_testing_latency">正在测量延迟</string>
-    <string name="network_testing_download">正在测量下载速度</string>
-    <string name="network_results_title">结果</string>
-    <string name="network_latency_label">延迟</string>
-    <string name="network_download_label">下载</string>
-    <string name="network_error_prefix">错误：%1$s</string>
-    <string name="network_powered_by_fast">由 fast.com 提供</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">有线网络</string>
-    <string name="network_connection_offline">离线</string>
     <string name="advanced_section_performance">性能与导航</string>
     <string name="advanced_section_diagnostics">诊断</string>
-    <string name="advanced_playback_issue_reports">播放问题报告</string>
     <string name="advanced_player_stats_hud">播放统计覆盖层</string>
     <string name="advanced_player_stats_hud_subtitle">在流信息中显示一个按钮，用于在播放期间切换实时 CPU、内存、缓冲、比特率和温度读数</string>
     <string name="advanced_section_cache">缓存</string>
@@ -555,6 +541,7 @@
     <string name="playback_skip_intro">跳过片头</string>
     <string name="playback_skip_intro_sub">使用 introdb.app 检测片头和前情提要。</string>
     <string name="playback_parental_guide">内容警告</string>
+    <string name="playback_parental_guide_sub">开始播放时显示内容警告。会将每部作品的 IMDb ID 发送到 api.tiffara.com 以查询警告。</string>
     <string name="playback_auto_skip_segments">自动跳过</string>
     <string name="playback_auto_skip_segments_sub">选择要自动跳过的片段类型。</string>
     <string name="auto_skip_intro">片头／开场</string>
@@ -1057,11 +1044,6 @@
     <string name="debug_account_tab_subtitle">在设置导航中显示账户标签</string>
     <string name="debug_sync_code_title">同步码功能</string>
     <string name="debug_sync_code_subtitle">在账户设置中显示「生成/输入同步码」按钮</string>
-    <string name="debug_member_tier_title">模拟支持者等级</string>
-    <string name="debug_member_tier_subtitle">选择此调试版本中返回的已验证支持者等级</string>
-    <string name="debug_member_tier_none">无</string>
-    <string name="debug_member_tier_one">支持者</string>
-    <string name="debug_member_tier_two">支持者+</string>
     <string name="debug_buffer_logs_title">启用 BUFFER 日志</string>
     <string name="debug_buffer_logs_subtitle">将周期性播放器缓冲诊断输出到 logcat (默认禁用)</string>
     <string name="debug_error_dialog_title">播放错误</string>
@@ -1264,17 +1246,6 @@
     <string name="player_error_title">播放错误</string>
     <string name="player_error_choose_source">选择其他来源</string>
     <string name="player_switch_to_mpv">切换到 MPV 播放器</string>
-    <string name="player_report_issue">报告问题</string>
-    <string name="player_report_issue_sending">正在发送播放报告...</string>
-    <string name="player_report_issue_sending_button">发送中...</string>
-    <string name="player_report_issue_sent">报告已发送：%1$s</string>
-    <string name="player_report_issue_sent_button">已发送</string>
-    <string name="player_report_issue_failed">无法发送报告</string>
-    <string name="player_report_loading_issue">报告加载问题</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">已加载 %1$d 秒</item>
-        <item quantity="other">已加载 %1$d 秒</item>
-    </plurals>
     <string name="player_speed_title">播放速度</string>
     <string name="player_error_no_stream_url">此来源没有流链接。请选择其他来源。</string>
 
@@ -2167,8 +2138,6 @@
     <string name="network_error_unknown">发生未知错误</string>
 
     <!-- 网络设置：fast.com 错误 -->
-    <string name="network_fast_error_script_path_missing">fast.com：找不到脚本路径</string>
-    <string name="network_fast_error_token_missing">fast.com：在 bundle 中找不到令牌</string>
 
     <!-- Torrent 服务 / TorrServer 二进制错误 -->
 

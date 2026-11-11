@@ -39,6 +39,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.core.player.DisplayCapabilities
+import com.fetch.tv.core.player.DoviBridge
 import com.fetch.tv.data.local.Dv7HandlingMode
 import com.fetch.tv.data.local.FrameRateMatchingMode
 import com.fetch.tv.data.local.MpvHardwareDecodeMode
@@ -107,7 +108,11 @@ internal fun PlaybackVideoSection(
         SettingsSectionLabel(text = stringResource(R.string.playback_dv_hdr_label))
         SettingsActionRow(
             title = stringResource(R.string.dv7_handling_title),
-            subtitle = null,
+            subtitle = if (dv81Conversion && !DoviBridge.isNativeEnabledInBuild) {
+                stringResource(R.string.dv7_mode_dv81_libdovi_unavailable_desc)
+            } else {
+                null
+            },
             value = dv7HandlingModeLabel(settings.dv7HandlingMode),
             enabled = enabled,
             onClick = { onOpenDialog(PlaybackDialog.DV7_HANDLING_MODE) }
@@ -380,7 +385,13 @@ private fun Dv7HandlingModeDialog(
         SettingsPickerOption(
             Dv7HandlingMode.DV81_LIBDOVI,
             stringResource(R.string.dv7_mode_dv81_libdovi),
-            stringResource(R.string.dv7_mode_dv81_libdovi_desc)
+            // Release builds ship without libdovi; say so rather than offer a conversion that
+            // never runs.
+            if (DoviBridge.isNativeEnabledInBuild) {
+                stringResource(R.string.dv7_mode_dv81_libdovi_desc)
+            } else {
+                stringResource(R.string.dv7_mode_dv81_libdovi_unavailable_desc)
+            }
         ),
         SettingsPickerOption(
             Dv7HandlingMode.STRIP_DV,

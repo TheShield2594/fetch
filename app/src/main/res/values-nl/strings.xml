@@ -486,22 +486,8 @@
     <string name="experience_mode_confirm_advanced_title">Overschakelen naar Geavanceerd?</string>
     <string name="experience_mode_confirm_essential_subtitle">Geavanceerde instelschermen worden verborgen, maar je opgeslagen instellingen blijven ongewijzigd. Je kunt altijd terugschakelen.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Hiermee worden alle instellingen zichtbaar, inclusief geavanceerde installatie-, catalogus-, collectie- en afstemopties.</string>
-    <string name="network_speed_test_run">Snelheidstest uitvoeren</string>
-    <string name="network_speed_test_running">Snelheidstest wordt uitgevoerd</string>
-    <string name="network_speed_test_subtitle">Meet downloadsnelheid en latentie</string>
-    <string name="network_testing_latency">Latentie meten</string>
-    <string name="network_testing_download">Downloadsnelheid meten</string>
-    <string name="network_results_title">Resultaten</string>
-    <string name="network_latency_label">Latentie</string>
-    <string name="network_download_label">Download</string>
-    <string name="network_error_prefix">Fout: %1$s</string>
-    <string name="network_powered_by_fast">Mogelijk gemaakt door fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
     <string name="advanced_section_performance">Prestaties &amp; navigatie</string>
     <string name="advanced_section_diagnostics">Diagnostiek</string>
-    <string name="advanced_playback_issue_reports">Rapporten over afspeelproblemen</string>
     <string name="advanced_player_stats_hud">Overlay met afspeelstatistieken</string>
     <string name="advanced_player_stats_hud_subtitle">Toon een knop in de streaminfo om live cpu-, geheugen-, buffer-, bitrate- en temperatuurwaarden tijdens het afspelen in of uit te schakelen</string>
     <string name="advanced_section_cache">Cache</string>
@@ -546,6 +532,7 @@
     <string name="playback_skip_intro">Intro overslaan</string>
     <string name="playback_skip_intro_sub">Gebruik introdb.app om intro\'s en samenvattingen te detecteren.</string>
     <string name="playback_parental_guide">Inhoudswaarschuwingen</string>
+    <string name="playback_parental_guide_sub">Toont inhoudswaarschuwingen wanneer het afspelen begint. Stuurt de IMDb-ID van elke titel naar api.tiffara.com om ze op te zoeken.</string>
     <string name="playback_auto_skip_segments">Automatisch overslaan</string>
     <string name="playback_auto_skip_segments_sub">Kies welke segmenten automatisch worden overgeslagen.</string>
     <string name="auto_skip_intro">Intro / opening</string>
@@ -981,11 +968,6 @@
     <string name="debug_account_tab_subtitle">Toon het tabblad Account in de instellingennavigatie</string>
     <string name="debug_sync_code_title">Functies voor synchronisatiecode</string>
     <string name="debug_sync_code_subtitle">Toon de knoppen Synchronisatiecode genereren en invoeren in de accountinstellingen</string>
-    <string name="debug_member_tier_title">Ondersteunersniveau simuleren</string>
-    <string name="debug_member_tier_subtitle">Kies het geverifieerde ondersteunersniveau dat in deze debugbuild wordt geretourneerd</string>
-    <string name="debug_member_tier_none">Geen</string>
-    <string name="debug_member_tier_one">Ondersteuner</string>
-    <string name="debug_member_tier_two">Ondersteuner+</string>
     <string name="debug_buffer_logs_title">BUFFER-logs inschakelen</string>
     <string name="debug_buffer_logs_subtitle">Stuur periodiek bufferdiagnostiek van de speler naar logcat (standaard uitgeschakeld)</string>
     <string name="debug_error_dialog_title">Afspeelfout</string>
@@ -1187,17 +1169,6 @@
     <string name="player_subtitle_delay">Ondertitelvertraging</string>
     <string name="player_error_title">Afspeelfout</string>
     <string name="player_error_choose_source">Kies een andere bron</string>
-    <string name="player_report_issue">Probleem melden</string>
-    <string name="player_report_issue_sending">Afspeelrapport verzenden...</string>
-    <string name="player_report_issue_sending_button">Verzenden...</string>
-    <string name="player_report_issue_sent">Rapport verzonden: %1$s</string>
-    <string name="player_report_issue_sent_button">Rapport verzonden</string>
-    <string name="player_report_issue_failed">Kan het rapport niet verzenden</string>
-    <string name="player_report_loading_issue">Laadprobleem melden</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">Nog steeds aan het laden na %1$d seconde</item>
-        <item quantity="other">Nog steeds aan het laden na %1$d seconden</item>
-    </plurals>
     <string name="player_speed_title">Afspeelsnelheid</string>
     <string name="player_error_no_stream_url">Deze bron heeft geen streamlink. Kies een andere bron.</string>
 
@@ -2087,8 +2058,6 @@
     <string name="network_error_unknown">Er is een onbekende fout opgetreden</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: scriptpad niet gevonden</string>
-    <string name="network_fast_error_token_missing">fast.com: token niet gevonden in de bundel</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 

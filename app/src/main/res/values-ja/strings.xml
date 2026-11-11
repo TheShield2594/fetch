@@ -409,19 +409,6 @@
     <string name="experience_mode_confirm_advanced_title">詳細に切り替えますか？</string>
     <string name="experience_mode_confirm_essential_subtitle">詳細設定は非表示になりますが、保存された設定はそのままです。いつでも切り替えられます。</string>
     <string name="experience_mode_confirm_advanced_subtitle">これにより、詳細設定、カタログ、コレクション、チューニングコントロールを含むすべての設定が表示されます。</string>
-    <string name="network_speed_test_run">速度テストを実行</string>
-    <string name="network_speed_test_running">速度テスト実行中</string>
-    <string name="network_speed_test_subtitle">ダウンロード速度とレイテンシを計測</string>
-    <string name="network_testing_latency">レイテンシを計測中</string>
-    <string name="network_testing_download">ダウンロード速度を計測中</string>
-    <string name="network_results_title">結果</string>
-    <string name="network_latency_label">レイテンシ</string>
-    <string name="network_download_label">ダウンロード</string>
-    <string name="network_error_prefix">エラー: %1$s</string>
-    <string name="network_powered_by_fast">Powered by fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">有線LAN</string>
-    <string name="network_connection_offline">オフライン</string>
     <string name="advanced_section_performance">パフォーマンス &amp; ナビゲーション</string>
     <string name="advanced_section_diagnostics">診断</string>
     <string name="advanced_section_cache">キャッシュ</string>
@@ -461,6 +448,7 @@
     <string name="playback_skip_intro">イントロスキップ</string>
     <string name="playback_skip_intro_sub">introdb.appを使用してイントロとリキャップを検出</string>
     <string name="playback_parental_guide">コンテンツ警告</string>
+    <string name="playback_parental_guide_sub">再生開始時にコンテンツ警告を表示します。検索のため、各タイトルの IMDb ID を api.tiffara.com に送信します。</string>
     <string name="playback_auto_skip_segments">自動スキップ</string>
     <string name="playback_auto_skip_segments_sub">自動でスキップするセグメントを選択</string>
     <string name="auto_skip_intro">イントロ / オープニング</string>
@@ -1833,8 +1821,6 @@
     <string name="network_error_unknown">不明なエラーが発生しました</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: スクリプトパスが見つかりません</string>
-    <string name="network_fast_error_token_missing">fast.com: トークンがバンドルに見つかりません</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 

@@ -131,13 +131,12 @@ import com.fetch.tv.domain.model.PROFILE_AVATAR_COLORS
 import com.fetch.tv.domain.model.UserProfile
 import com.fetch.tv.ui.components.AvatarPickerGrid
 import com.fetch.tv.ui.components.CustomProfileBackgroundImage
-import com.fetch.tv.ui.components.MemberBrandWordmark
+import com.fetch.tv.ui.components.CrossfadingBrandWordmark
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.ProfileBackgroundPicker
 import com.fetch.tv.ui.components.ProfileAvatarCircle
 import com.fetch.tv.ui.components.ProfileEditorTab
 import com.fetch.tv.ui.components.ProfileEditorTabs
-import com.fetch.tv.ui.membership.Membership
 import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import com.fetch.tv.domain.model.ProfileBackgroundSelection
 import com.fetch.tv.domain.model.resolveProfileBackgroundSelection
@@ -309,7 +308,6 @@ fun ProfileSelectionScreen(
     val profiles by viewModel.profiles.collectAsState()
     val activeProfileId by viewModel.activeProfileId.collectAsState()
     val avatarCatalog by viewModel.avatarCatalog.collectAsState()
-    val hasProfileBackgroundAccess by viewModel.hasProfileBackgroundAccess.collectAsState()
     val isCreating by viewModel.isCreating.collectAsState()
     val isSaving by viewModel.isSaving.collectAsState()
     val isCopyingSettings by viewModel.isCopyingSettings.collectAsState()
@@ -327,7 +325,6 @@ fun ProfileSelectionScreen(
             }
         }
     }
-    val memberAccess = Membership.access
     var focusedAvatarColor by remember { mutableStateOf(FetchPrimitives.blue500) }
     var focusedProfileId by remember { mutableStateOf<Int?>(null) }
     var showCreateProfile by remember { mutableStateOf(false) }
@@ -502,10 +499,7 @@ fun ProfileSelectionScreen(
     ) {
         val overlayProfileColor = pinOverlayState?.profile?.avatarColorHex?.let(::parseProfileColor)
         val backgroundProfile = pinOverlayState?.profile ?: focusedProfile
-        val backgroundSelection = resolveProfileBackgroundSelection(
-            profile = backgroundProfile,
-            entitlements = memberAccess.entitlements
-        )
+        val backgroundSelection = resolveProfileBackgroundSelection(backgroundProfile)
         // Only a custom picture: the catalog of backgrounds came from the sync server, which is gone.
         val profileBackground = (backgroundSelection as? ProfileBackgroundSelection.Custom)?.url
 
@@ -844,7 +838,6 @@ fun ProfileSelectionScreen(
                     EditProfileOverlay(
                         profile = profile,
                         avatarCatalog = avatarCatalog,
-                        hasProfileBackgroundAccess = hasProfileBackgroundAccess,
                         preferences = editorPreferences,
                         isSaving = isSaving,
                         avatarUrlResolver = { avatarId -> viewModel.getAvatarImageUrl(avatarId) },
@@ -1474,7 +1467,7 @@ private fun ProfileSelectionMainContent(
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MemberBrandWordmark(
+            CrossfadingBrandWordmark(
                 height = ProfileSelectionSpacing.LogoHeight,
                 contentDescription = stringResource(R.string.cd_fetch_logo),
                 drawableOverride = brandWordmarkRes
@@ -2357,7 +2350,6 @@ private fun rememberKeyboardVisibilityState(): KeyboardVisibilityState {
 private fun EditProfileOverlay(
     profile: UserProfile,
     avatarCatalog: List<AvatarCatalogItem>,
-    hasProfileBackgroundAccess: Boolean,
     preferences: ProfileEditorPreferences?,
     isSaving: Boolean,
     avatarUrlResolver: (String?) -> String?,
@@ -2399,7 +2391,7 @@ private fun EditProfileOverlay(
     }
 
     // The only background besides "Normal" is a custom picture set on the website.
-    val showBackgroundTab = hasProfileBackgroundAccess && !profile.profileBackgroundUrl.isNullOrBlank()
+    val showBackgroundTab = !profile.profileBackgroundUrl.isNullOrBlank()
     LaunchedEffect(showBackgroundTab) {
         if (!showBackgroundTab && selectedEditorTab == ProfileEditorTab.Background) {
             selectedEditorTab = ProfileEditorTab.Avatar

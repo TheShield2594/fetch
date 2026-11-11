@@ -411,19 +411,6 @@
     <string name="experience_mode_confirm_advanced_title">Перейти на Розширений?</string>
     <string name="experience_mode_confirm_essential_subtitle">Розширені налаштування будуть приховані, але збережені значення не зміняться. Можна перейти назад в будь-який час.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Відкриє повний набір налаштувань, включаючи розширену конфігурацію, каталоги, колекції та елементи тонкого налаштування.</string>
-    <string name="network_speed_test_run">Запустити тест швидкості</string>
-    <string name="network_speed_test_running">Тест швидкості виконується</string>
-    <string name="network_speed_test_subtitle">Виміряйте швидкість завантаження та затримку</string>
-    <string name="network_testing_latency">Вимірювання затримки</string>
-    <string name="network_testing_download">Вимірювання швидкості завантаження</string>
-    <string name="network_results_title">Результати</string>
-    <string name="network_latency_label">Пінг</string>
-    <string name="network_download_label">Завантаження</string>
-    <string name="network_error_prefix">Помилка: %1$s</string>
-    <string name="network_powered_by_fast">Працює на fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Не в мережі</string>
     <string name="advanced_section_performance">Продуктивність та навігація</string>
     <string name="advanced_section_diagnostics">Діагностика</string>
     <string name="advanced_section_cache">Кеш</string>
@@ -463,6 +450,7 @@
     <string name="playback_skip_intro">Пропуск заставки</string>
     <string name="playback_skip_intro_sub">Використовувати introdb.app для виявлення заставок та рекапів.</string>
     <string name="playback_parental_guide">Попередження про контент</string>
+    <string name="playback_parental_guide_sub">Показувати попередження про вміст на початку відтворення. Для їх пошуку IMDb ID кожного заголовка надсилається на api.tiffara.com.</string>
     <string name="playback_auto_skip_segments">Автоматичний пропуск</string>
     <string name="playback_auto_skip_segments_sub">Оберіть, які сегменти пропускати автоматично.</string>
     <string name="auto_skip_intro">Вступ / Опенінг</string>
@@ -1831,8 +1819,6 @@
     <string name="network_error_unknown">Невідома помилка мережі</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">Відсутній шлях скрипту fast.com</string>
-    <string name="network_fast_error_token_missing">Відсутній токен fast.com</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 
@@ -1942,7 +1928,6 @@
     <string name="settings_content_discovery">Контент і пошук</string>
     <string name="settings_content_discovery_subtitle">Адони, каталоги та джерела пошуку</string>
     <string name="settings_content_discovery_addons_subtitle">Керуйте адонами, порядком каталогів і колекціями</string>
-    <string name="advanced_playback_issue_reports">Звіти про проблеми відтворення</string>
     <string name="audio_force_optical_passthrough">Примусове транскодування AC-3 (Optical/SPDIF)</string>
     <string name="audio_force_optical_passthrough_sub">Транскодує багатоканальні формати (TrueHD, DTS, AAC тощо) у Dolby Digital 5.1 в реальному часі для підключень Optical/SPDIF.</string>
     <string name="audio_strip_hdr10plus_title">Видаляти метадані HDR10+</string>
@@ -1950,19 +1935,6 @@
     <string name="settings_stream_addon_logo_title">Логотип адона</string>
     <string name="settings_stream_addon_logo_description">Показувати логотип і назву адона поруч із джерелами потоків.</string>
     <string name="settings_stream_display_section">Відображення</string>
-    <string name="player_report_issue">Повідомити про проблему</string>
-    <string name="player_report_issue_sending">Надсилання звіту про відтворення...</string>
-    <string name="player_report_issue_sending_button">Надсилання...</string>
-    <string name="player_report_issue_sent">Звіт надіслано: %1$s</string>
-    <string name="player_report_issue_sent_button">Звіт надіслано</string>
-    <string name="player_report_issue_failed">Не вдалося надіслати звіт</string>
-    <string name="player_report_loading_issue">Повідомити про проблему завантаження</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">Все ще завантажується після %1$d секунди</item>
-        <item quantity="few">Все ще завантажується після %1$d секунд</item>
-        <item quantity="many">Все ще завантажується після %1$d секунд</item>
-        <item quantity="other">Все ще завантажується після %1$d секунди</item>
-    </plurals>
     <string name="web_stream_badge_error_url_required">Введіть URL JSON значка.</string>
     <string name="web_stream_badge_error_url_scheme">URL значка має починатися з http:// або https://.</string>
     <string name="web_stream_badge_error_import_limit">Можна імпортувати до %1$d URL значків.</string>

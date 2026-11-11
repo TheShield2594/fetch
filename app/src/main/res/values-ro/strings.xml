@@ -1112,4 +1112,5 @@
     <string name="screen_time_rest_of_day">Fără limită tot restul zilei</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="playback_parental_guide_sub">Afișează avertismente despre conținut la pornirea redării. Trimite ID-ul IMDb al fiecărui titlu către api.tiffara.com pentru a le căuta.</string>
 </resources>

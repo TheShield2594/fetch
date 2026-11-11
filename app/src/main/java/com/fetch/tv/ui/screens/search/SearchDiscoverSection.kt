@@ -47,6 +47,9 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
@@ -647,6 +650,23 @@ internal fun DiscoverGrid(
         }
     }
 
+    // Back deep in the grid returns to its first card; only Back from the top rows goes on to the
+    // filters (the section's own handler), so one press never throws away a long scroll.
+    var gridHasFocus by remember { mutableStateOf(false) }
+    val scrolledPastTop by remember { derivedStateOf { gridState.firstVisibleItemIndex > 0 } }
+    val backScope = rememberCoroutineScope()
+    androidx.activity.compose.BackHandler(enabled = gridHasFocus && scrolledPastTop) {
+        backScope.launch {
+            gridState.scrollToItem(0)
+            val firstCard = when {
+                effectiveShouldRestoreFocusedItem && effectiveFocusedItemIndex == 0 -> restoreFocusRequester
+                focusResults -> firstItemFocusRequester
+                else -> itemFocusRequesters.getOrPut(0) { FocusRequester() }
+            }
+            firstCard.requestFocusAfterFrames()
+        }
+    }
+
     // Column the user was navigating in at the moment fast-scroll engaged.
     // Captured on drag-start (see onFastScrollingChanged below) because the
     // originally-focused card will have scrolled out of visibleItemsInfo by
@@ -660,6 +680,7 @@ internal fun DiscoverGrid(
             minSize = if (globalLandscape) posterCardStyle.height else adaptiveStyle.width
         ),
         modifier = Modifier.fillMaxSize()
+            .onFocusChanged { gridHasFocus = it.hasFocus }
             .focusRestorer { focusedItemRequester }
             .dpadVerticalFastScroll(
                 scrollableState = gridState,

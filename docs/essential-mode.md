@@ -25,18 +25,20 @@ This spec is based on the current app structure in:
 
 Current first launch flow:
 
-1. `MainActivity` shows the Fetch account QR sign-in flow if the first-launch auth prompt has not been completed.
-2. If multiple profiles or a PIN are present, `ProfileSelectionScreen` is shown.
-3. If no experience mode is stored, `ExperienceModeSelectionScreen` is shown: a phone setup code next to the Essential / Advanced choice. Picking either calls `LayoutPreferenceDataStore.markHomeSetUp()`, which sets `hasChosenLayout`.
-4. Main app shell loads with root routes for Home, Search, Library, Add-ons, and Settings.
+1. If multiple profiles or a PIN are present, `ProfileSelectionScreen` is shown.
+2. If no experience mode is stored, the `ExperienceModeSelection` route opens the first-run wizard (`FirstRunWizardScreen`, see "Essential Onboarding Flow"), which carries the one phone setup code a fresh install shows. Finishing or skipping it calls `LayoutPreferenceDataStore.markHomeSetUp()`, which sets `hasChosenLayout`. There is no separate account sign-in screen before it any more: the Fetch account QR prompt went with the Supabase backend (#427), and pairing with a Fetch website is the wizard's Server step.
+3. Main app shell loads with root routes for Home, Search, Discover, Library and Settings.
 
-Current root navigation:
+Current root navigation (the same in both modes; `drawerItems` in `MainActivity.kt`):
 
 - Home
 - Search
+- Discover
 - Library
-- Add-ons
+- YouTube, only when it is turned on for the sidebar
 - Settings
+
+Add-ons are not a root destination: they live in Settings › Sources › Addons.
 
 Current settings rail, after Search, by heading. Pages joined by "+" share one rail entry and are picked between with tabs at the top of the pane; Advanced mode has at most 14 entries (SettingsCatalogTest):
 
@@ -148,15 +150,15 @@ A profile behind a parent PIN sees only the Experience step, since it can't chan
 
 ## Essential Navigation
 
-Keep the root drawer simple:
+Keep the root drawer simple, and the same as in Advanced mode:
 
 - Home
 - Search
+- Discover
 - Library
-- Add-ons
 - Settings
 
-Do not add a separate "Setup" root item. Setup should be represented inside Add-ons and Settings so the root navigation stays stable.
+Add-ons are reached from Settings › Sources › Addons, not from the drawer. Do not add a separate "Setup" root item. Setup should be represented inside Add-ons and Settings so the root navigation stays stable.
 
 ### Home
 
@@ -314,7 +316,7 @@ Advanced settings should continue to use the existing `SettingsScreen` rail.
 | Trakt connection | Show as optional account integration or hide under Advanced | Show full | For Essential, prefer Fetch account sync first. |
 | Trakt library/progress/comment settings | Hide | Show | Advanced integration. |
 | Advanced performance settings | Hide | Show | Advanced only. |
-| Network speed test | Hide | Show | Diagnostics. |
+| Stream server speed test | Hide | Show | Diagnostics. |
 | Clear Continue Watching cache | Hide | Show | Diagnostics/recovery. |
 | Debug settings | Hide | Show in debug builds | Developer-only. |
 | Player play/pause/seek | Show | Show | Core playback. |

@@ -42,7 +42,7 @@ import androidx.tv.material3.Text
 import com.fetch.tv.BuildConfig
 import com.fetch.tv.R
 import com.fetch.tv.core.build.AppFeaturePolicy
-import com.fetch.tv.ui.components.MemberBrandWordmark
+import com.fetch.tv.ui.components.CrossfadingBrandWordmark
 
 @Composable
 fun AboutSettingsContent(
@@ -97,7 +97,7 @@ fun AboutSettingsContent(
                         CompositionLocalProvider(LocalBringIntoViewSpec provides defaultBringIntoViewSpec) {
                             Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
 
-                            MemberBrandWordmark(
+                            CrossfadingBrandWordmark(
                                 height = 40.dp,
                                 contentDescription = stringResource(R.string.cd_fetch_logo)
                             )

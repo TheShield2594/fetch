@@ -172,6 +172,7 @@
     <string name="playback_skip_intro">Pomiń intro</string>
     <string name="playback_skip_intro_sub">Używaj introdb.app do wykrywania intro i podsumowań.</string>
     <string name="playback_parental_guide">Ostrzeżenie o charakterze treści</string>
+    <string name="playback_parental_guide_sub">Pokazuje ostrzeżenia o treści po rozpoczęciu odtwarzania. Aby je wyszukać, wysyła identyfikator IMDb każdego tytułu do api.tiffara.com.</string>
     <string name="playback_auto_frame_rate">Auto częstotliwość odświeżania</string>
     <string name="playback_player_internal">Wbudowany</string>
     <string name="playback_player_external">Zewnętrzny</string>
@@ -1006,19 +1007,6 @@
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
     <string name="trakt_more_like_this_source_simkl">Simkl</string>
 
-    <string name="network_speed_test_run">Uruchom test prędkości</string>
-    <string name="network_speed_test_running">Trwa test prędkości</string>
-    <string name="network_speed_test_subtitle">Zmierz prędkość pobierania i opóźnienie</string>
-    <string name="network_testing_latency">Mierzenie opóźnienia</string>
-    <string name="network_testing_download">Mierzenie prędkości pobierania</string>
-    <string name="network_results_title">Wyniki</string>
-    <string name="network_latency_label">Opóźnienie</string>
-    <string name="network_download_label">Pobieranie</string>
-    <string name="network_error_prefix">Błąd: %1$s</string>
-    <string name="network_powered_by_fast">Obsługiwane przez fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
     <string name="settings_advanced">Zaawansowane</string>
     <string name="settings_advanced_subtitle">Uruchom diagnostykę prędkości sieci</string>
 
@@ -1953,8 +1941,6 @@
     <string name="network_error_empty_response_body">Pusta treść odpowiedzi</string>
     <string name="network_error_unknown">Wystąpił nieznany błąd</string>
 
-    <string name="network_fast_error_script_path_missing">fast.com: nie znaleziono ścieżki skryptu</string>
-    <string name="network_fast_error_token_missing">fast.com: nie znaleziono tokenu w pakiecie</string>
 
 
     <string name="player_stream_error_invalid_external_url">Nieprawidłowy zewnętrzny URL</string>
@@ -2225,7 +2211,6 @@
     <string name="audio_strip_hdr10plus_sub">Usuwa dynamiczne metadane HDR10+ ze strumieni. Gdy włączono również Konwertuj do DV8.1, usuwanie następuje po konwersji.</string>
 
     <!-- Advanced settings -->
-    <string name="advanced_playback_issue_reports">Raporty problemów z odtwarzaniem</string>
     <string name="advanced_player_stats_hud">Nakładka statystyk odtwarzania</string>
 
     <!-- Buffer -->
@@ -2251,19 +2236,6 @@
     <string name="playback_net_fetch_performance_mode_sub">Włącz natywny alokator pamięci poza stertą i optymalizacje przewijania.</string>
 
     <!-- Player report issue -->
-    <string name="player_report_issue">Zgłoś problem</string>
-    <string name="player_report_issue_sending">Wysyłanie raportu odtwarzania...</string>
-    <string name="player_report_issue_sending_button">Wysyłanie...</string>
-    <string name="player_report_issue_sent">Raport wysłany: %1$s</string>
-    <string name="player_report_issue_sent_button">Raport wysłany</string>
-    <string name="player_report_issue_failed">Nie udało się wysłać raportu</string>
-    <string name="player_report_loading_issue">Zgłoś problem z ładowaniem</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">Wciąż ładuje po %1$d sekundzie</item>
-        <item quantity="few">Wciąż ładuje po %1$d sekundach</item>
-        <item quantity="many">Wciąż ładuje po %1$d sekundach</item>
-        <item quantity="other">Wciąż ładuje po %1$d sekundach</item>
-    </plurals>
 
     <!-- Sentry -->
 
@@ -2396,11 +2368,6 @@
     <string name="profile_background_custom">Niestandardowe</string>
 
 
-    <string name="debug_member_tier_title">Symuluj poziom Supportera</string>
-    <string name="debug_member_tier_subtitle">Wybierz zweryfikowany poziom supportera zwracany w tym buildzie debug</string>
-    <string name="debug_member_tier_none">Brak</string>
-    <string name="debug_member_tier_one">Supporter</string>
-    <string name="debug_member_tier_two">Supporter+</string>
 
     <!-- Post-play recommendations -->
     <string name="autoplay_post_play_recommendations">Rekomendacje po odtwarzaniu</string>

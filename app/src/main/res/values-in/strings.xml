@@ -418,19 +418,6 @@
     <string name="experience_mode_confirm_advanced_title">Beralih ke Lanjutan?</string>
     <string name="experience_mode_confirm_essential_subtitle">Tampilan pengaturan lanjutan akan disembunyikan, tetapi pengaturan yang disimpan tidak berubah. Anda bisa beralih kembali kapan saja.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Ini memunculkan tampilan pengaturan penuh, termasuk pengaturan lanjutan, katalog, koleksi, dan kontrol penyetelan.</string>
-    <string name="network_speed_test_run">Jalankan Tes Kecepatan</string>
-    <string name="network_speed_test_running">Menjalankan Tes Kecepatan</string>
-    <string name="network_speed_test_subtitle">Ukur kecepatan unduhan dan latensi</string>
-    <string name="network_testing_latency">Mengukur latensi</string>
-    <string name="network_testing_download">Mengukur kecepatan unduhan</string>
-    <string name="network_results_title">Hasil</string>
-    <string name="network_latency_label">Latensi</string>
-    <string name="network_download_label">Unduhan</string>
-    <string name="network_error_prefix">Kesalahan: %1$s</string>
-    <string name="network_powered_by_fast">Didukung oleh fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
     <string name="advanced_section_performance">Performa &amp; navigasi</string>
     <string name="advanced_section_diagnostics">Diagnostik</string>
     <string name="advanced_section_cache">Cache</string>
@@ -472,6 +459,7 @@
     <string name="playback_skip_intro">Lewati Intro</string>
     <string name="playback_skip_intro_sub">Gunakan introdb.app untuk mendeteksi intro dan rekap.</string>
     <string name="playback_parental_guide">Peringatan Konten</string>
+    <string name="playback_parental_guide_sub">Tampilkan peringatan konten saat pemutaran dimulai. Mengirim ID IMDb setiap judul ke api.tiffara.com untuk mencarinya.</string>
     <string name="playback_auto_skip_segments">Lewati Otomatis</string>
     <string name="playback_auto_skip_segments_sub">Pilih segmen mana yang dilewati secara otomatis.</string>
     <string name="auto_skip_intro">Intro / Pembuka</string>
@@ -1804,8 +1792,6 @@
     <string name="network_error_unknown">Terjadi error tidak diketahui</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: jalur skrip tidak ditemukan</string>
-    <string name="network_fast_error_token_missing">fast.com: token tidak ditemukan dalam bundel</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 

@@ -2,7 +2,6 @@ package com.fetch.tv.ui.screens.player
 
 import android.util.Log
 import com.fetch.tv.R
-import com.fetch.tv.data.repository.PlaybackIssueErrorInput
 import `is`.xyz.mpv.MPV
 import `is`.xyz.mpv.MPVNode
 import kotlinx.coroutines.delay
@@ -248,15 +247,6 @@ internal fun PlayerRuntimeController.handleMpvPlaybackError(
             "MPV_PLAYBACK_ERROR: source=$source mpvErrorCode=$mpvErrorCode " +
                 "httpStatus=${mpvHttpStatusCodeFromLog()} detail=${detailedError.take(200)}"
         )
-        lastPlaybackIssueError = PlaybackIssueErrorInput(
-            displayMessage = detailedError,
-            errorCode = mpvErrorCode,
-            errorCodeName = mpvErrorCodeName(mpvErrorCode),
-            exceptionClass = "libmpv",
-            causeClass = source,
-            causeMessage = detailedError.takeIf { it.isNotBlank() },
-            httpStatus = mpvHttpStatusCodeFromLog()
-        )
         lastPlaybackDiagnosticsForReport =
             lastPlaybackDiagnosticsForReport.copy(result = "Error: $detailedError")
 
@@ -298,8 +288,6 @@ internal fun PlayerRuntimeController.handleMpvPlaybackError(
                     showLoadingOverlay = false,
                     showPauseOverlay = false,
                     isBuffering = false,
-                    loadingIssueReportVisible = false,
-                    loadingIssueElapsedMs = 0L,
                     playbackEnded = false,
                     postPlayMode = null
                 )
@@ -685,29 +673,4 @@ internal fun prependMpvStatusExplanation(statusExplanation: String, technical: S
     if (explanation.isEmpty()) return detail
     if (detail.isBlank() || detail.equals(fallback, ignoreCase = true)) return explanation
     return "$explanation\n\n$detail"
-}
-
-private fun mpvErrorCodeName(code: Int): String = when (code) {
-    0 -> "MPV_ERROR_SUCCESS"
-    1 -> "MPV_ERROR_EVENT_QUEUE_FULL"
-    2 -> "MPV_ERROR_NOMEM"
-    3 -> "MPV_ERROR_UNINITIALIZED"
-    4 -> "MPV_ERROR_INVALID_PARAMETER"
-    5 -> "MPV_ERROR_OPTION_NOT_FOUND"
-    6 -> "MPV_ERROR_OPTION_FORMAT"
-    7 -> "MPV_ERROR_OPTION_ERROR"
-    8 -> "MPV_ERROR_PROPERTY_NOT_FOUND"
-    9 -> "MPV_ERROR_PROPERTY_FORMAT"
-    10 -> "MPV_ERROR_PROPERTY_UNAVAILABLE"
-    11 -> "MPV_ERROR_PROPERTY_ERROR"
-    12 -> "MPV_ERROR_COMMAND"
-    MPV_ERROR_LOADING_FAILED -> "MPV_ERROR_LOADING_FAILED"
-    MPV_ERROR_AO_INIT_FAILED -> "MPV_ERROR_AO_INIT_FAILED"
-    MPV_ERROR_VO_INIT_FAILED -> "MPV_ERROR_VO_INIT_FAILED"
-    MPV_ERROR_NOTHING_TO_PLAY -> "MPV_ERROR_NOTHING_TO_PLAY"
-    MPV_ERROR_UNKNOWN_FORMAT -> "MPV_ERROR_UNKNOWN_FORMAT"
-    18 -> "MPV_ERROR_UNSUPPORTED"
-    19 -> "MPV_ERROR_NOT_IMPLEMENTED"
-    MPV_ERROR_GENERIC -> "MPV_ERROR_GENERIC"
-    else -> "MPV_ERROR_$code"
 }

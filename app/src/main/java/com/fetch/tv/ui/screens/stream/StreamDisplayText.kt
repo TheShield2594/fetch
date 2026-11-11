@@ -27,3 +27,17 @@ internal fun withoutSpecOnlyLines(text: String): String {
     }
     return if (kept.isEmpty()) text else kept.joinToString("\n")
 }
+
+/** A run of 24+ characters with no space: a release file name such as `Movie.2024.2160p.WEB-DL.mkv`. */
+private val LONG_TOKEN = Regex("\\S{24,}")
+
+/** Characters release names separate their parts with; a line may break after any of them. */
+private val TOKEN_SEPARATOR = Regex("([._\\-+\\]\\)])(?=\\S)")
+
+/**
+ * Lets a release file name wrap between its parts ("Movie.2024." / "2160p.WEB-DL") instead of
+ * mid-token ("Movie.2024.21" / "60p"), by putting a zero-width space after each separator inside
+ * long unbroken runs. Ordinary words are left alone.
+ */
+internal fun wrappableReleaseName(text: String): String =
+    LONG_TOKEN.replace(text) { match -> TOKEN_SEPARATOR.replace(match.value, "$1​") }

@@ -7,8 +7,10 @@ Target devices:
 
 | Device | RAM | Android | Why |
 |---|---|---|---|
-| Fire TV Stick (2nd gen) or Fire TV Stick Lite | 1 GB / 1 GB | Fire OS 5–7 (API 22–28) | The weakest common device |
+| Fire TV Stick Lite, or a Fire TV Stick (2nd gen) updated to Fire OS 6 | 1 GB / 1 GB | Fire OS 6–7 (API 25–28) | The weakest common device Fetch installs on |
 | Chromecast with Google TV HD | 1.5 GB | Android TV 12 (API 31) | The weakest Google TV device |
+
+Fire OS 5 (API 22) cannot install Fetch: `minSdk` is 24 (`app/build.gradle.kts`).
 
 ## What is already in place
 
@@ -40,7 +42,7 @@ scripts/perf_baseline.sh benchmark
 ```
 
 The Macrobenchmark is `baselineprofile/src/main/java/com/fetch/tv/baselineprofile/StartupBenchmark.kt`.
-Fire OS 5/6 sticks are below API 28, so on those only `cold-start` works.
+Fire OS 6 sticks are below API 28, so on those only `cold-start` works.
 
 To show what #44's startup deferral bought, measure a build of the commit before #44 and a
 build of the current `main`, on the same device, back to back.
@@ -206,7 +208,7 @@ adb shell dumpsys gfxinfo com.fetch.tv reset
 adb shell dumpsys gfxinfo com.fetch.tv | grep -E "Total frames|Janky frames|percentile"
 ```
 
-On Fire OS 5/6 sticks (below API 28) use the `dumpsys gfxinfo` route for all three.
+On Fire OS 6 sticks (below API 28) use the `dumpsys gfxinfo` route for all three.
 
 Record the numbers here:
 

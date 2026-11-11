@@ -520,22 +520,8 @@
     <string name="experience_mode_confirm_advanced_title">Gelişmiş\'e geçilsin mi?</string>
     <string name="experience_mode_confirm_essential_subtitle">Gelişmiş kurulum ekranları gizlenir ama kaydedilen ayarlarınız korunur. İstediğiniz zaman geri dönebilirsiniz.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Bu, gelişmiş kurulum, katalog, koleksiyon ve ayar kontrollerini gösterir.</string>
-    <string name="network_speed_test_run">Hız Testi Başlat</string>
-    <string name="network_speed_test_running">Hız Testi Çalışıyor</string>
-    <string name="network_speed_test_subtitle">İndirme hızını ve gecikmeyi ölç</string>
-    <string name="network_testing_latency">Gecikme ölçülüyor</string>
-    <string name="network_testing_download">İndirme hızı ölçülüyor</string>
-    <string name="network_results_title">Sonuçlar</string>
-    <string name="network_latency_label">Gecikme</string>
-    <string name="network_download_label">İndirme</string>
-    <string name="network_error_prefix">Hata: %1$s</string>
-    <string name="network_powered_by_fast">fast.com tarafından desteklenmektedir</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Çevrimdışı</string>
     <string name="advanced_section_performance">Performans</string>
     <string name="advanced_section_diagnostics">Teşhis</string>
-    <string name="advanced_playback_issue_reports">Oynatma sorunu raporları</string>
     <string name="advanced_player_stats_hud">Oynatma istatistikleri katmanı</string>
     <string name="advanced_player_stats_hud_subtitle">Oynatma sırasında canlı CPU, bellek, tampon, bit hızı ve sıcaklık okumalarını açıp kapatmak için yayın bilgisine bir düğme ekler</string>
     <string name="advanced_section_cache">Önbellek</string>
@@ -607,6 +593,7 @@
     <string name="playback_skip_intro">İntroyu Atla</string>
     <string name="playback_skip_intro_sub">İntro ve özetleri algılamak için introdb.app kullan.</string>
     <string name="playback_parental_guide">İçerik Uyarıları</string>
+    <string name="playback_parental_guide_sub">Oynatma başladığında içerik uyarılarını gösterir. Bunları bulmak için her başlığın IMDb kimliğini api.tiffara.com adresine gönderir.</string>
     <string name="playback_auto_skip_segments">Otomatik Atlama</string>
     <string name="playback_auto_skip_segments_sub">Hangi bölümlerin otomatik atlanacağını seçin.</string>
     <string name="auto_skip_intro">Jenerik / Açılış</string>
@@ -1139,11 +1126,6 @@
     <string name="debug_account_tab_subtitle">Ayarlar gezintisinde Hesap sekmesini göster</string>
     <string name="debug_sync_code_title">Senkronizasyon Kodu Özellikleri</string>
     <string name="debug_sync_code_subtitle">Hesap ayarlarında Senkronizasyon Kodu Oluştur/Gir düğmelerini göster</string>
-    <string name="debug_member_tier_title">Destekçi Seviyesini Simüle Et</string>
-    <string name="debug_member_tier_subtitle">Bu hata ayıklama sürümünde döndürülen doğrulanmış destekçi seviyesini seçin</string>
-    <string name="debug_member_tier_none">Yok</string>
-    <string name="debug_member_tier_one">Destekçi</string>
-    <string name="debug_member_tier_two">Destekçi+</string>
     <string name="debug_buffer_logs_title">BUFFER Günlüklerini Etkinleştir</string>
     <string name="debug_buffer_logs_subtitle">Oynatıcı arabellek tanılamalarını düzenli olarak logcat\'e yazar (varsayılan olarak kapalıdır)</string>
     <string name="debug_error_dialog_title">Oynatma Hatası</string>
@@ -1349,17 +1331,6 @@
     <string name="player_error_title">Oynatma hatası</string>
     <string name="player_error_choose_source">Başka bir kaynak seçin</string>
     <string name="player_switch_to_mpv">MPV oynatıcıya geç</string>
-    <string name="player_report_issue">Sorun bildir</string>
-    <string name="player_report_issue_sending">Oynatma raporu gönderiliyor...</string>
-    <string name="player_report_issue_sending_button">Gönderiliyor...</string>
-    <string name="player_report_issue_sent">Rapor gönderildi: %1$s</string>
-    <string name="player_report_issue_sent_button">Rapor gönderildi</string>
-    <string name="player_report_issue_failed">Rapor gönderilemedi</string>
-    <string name="player_report_loading_issue">Yükleme sorununu bildir</string>
-    <plurals name="player_report_loading_issue_prompt">
-            <item quantity="one">%1$d saniye geçmesine rağmen hala yükleniyor</item>
-            <item quantity="other">%1$d saniye geçmesine rağmen hala yükleniyor</item>
-        </plurals>
     <string name="player_speed_title">Oynatma Hızı</string>
 
     <!-- StreamInfoOverlay -->
@@ -2436,8 +2407,6 @@
     <string name="stream_error_fetch_failed">Yayınlar yüklenemedi</string>
     <string name="network_error_empty_response_body">Sunucu boş yanıt döndürdü</string>
     <string name="network_error_unknown">Bilinmeyen bir hata oluştu</string>
-    <string name="network_fast_error_script_path_missing">fast.com: betik yolu bulunamadı</string>
-    <string name="network_fast_error_token_missing">fast.com: pakette token bulunamadı</string>
 
     <!-- Subtitle preferred language fallback -->
 

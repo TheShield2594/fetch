@@ -218,19 +218,6 @@
     <string name="settings_playback">Avspilling</string>
     <string name="settings_advanced">Avansert</string>
     <string name="settings_advanced_subtitle">Kjør nettverkshastighetsdiagnostikk</string>
-    <string name="network_speed_test_run">Kjør hastighetstest</string>
-    <string name="network_speed_test_running">Kjører hastighetstest</string>
-    <string name="network_speed_test_subtitle">Mål nedlastingshastighet og ventetid</string>
-    <string name="network_testing_latency">Måler ventetid</string>
-    <string name="network_testing_download">Måler nedlastingshastighet</string>
-    <string name="network_results_title">Resultater</string>
-    <string name="network_latency_label">Ventetid</string>
-    <string name="network_download_label">Nedlasting</string>
-    <string name="network_error_prefix">Feil: %1$s</string>
-    <string name="network_powered_by_fast">Drevet av fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Frakoblet</string>
     <string name="settings_debug">Feilsøking</string>
     <string name="settings_account_section_subtitle">Kontostatus og synkroniseringsstatus</string>
 
@@ -1327,4 +1314,5 @@
     <string name="screen_time_rest_of_day">Ingen grense resten av dagen</string>
     <string name="kids_hours">%1$d t</string>
     <string name="kids_hours_minutes">%1$d t %2$d min</string>
+    <string name="playback_parental_guide_sub">Vis innholdsadvarsler når avspillingen starter. Sender hver tittels IMDb-ID til api.tiffara.com for å slå dem opp.</string>
 </resources>

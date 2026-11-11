@@ -59,11 +59,10 @@ import com.fetch.tv.ui.theme.toColorPalette
 @Composable
 internal fun CustomThemeDialog(
     initialColors: CustomThemeColors,
-    allowGradient: Boolean,
     onSave: (CustomThemeColors) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var gradientEnabled by remember(allowGradient) { mutableStateOf(allowGradient && !initialColors.isSolid) }
+    var gradientEnabled by remember { mutableStateOf(!initialColors.isSolid) }
     FetchDialog(
         onDismiss = onDismiss,
         title = stringResource(
@@ -83,7 +82,7 @@ internal fun CustomThemeDialog(
             gradientEnabled = gradientEnabled,
             onSave = onSave,
             onDismiss = onDismiss,
-            onGradientChanged = if (allowGradient) { { gradientEnabled = it } } else null
+            onGradientChanged = { gradientEnabled = it }
         )
     }
 }

@@ -1244,4 +1244,5 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="screen_time_rest_of_day">Be ribos iki dienos pabaigos</string>
     <string name="kids_hours">%1$d val.</string>
     <string name="kids_hours_minutes">%1$d val. %2$d min.</string>
+    <string name="playback_parental_guide_sub">Pradėjus atkūrimą rodo turinio įspėjimus. Jiems rasti kiekvieno pavadinimo IMDb ID siunčiamas į api.tiffara.com.</string>
 </resources>

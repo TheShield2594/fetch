@@ -5,13 +5,8 @@ sealed interface ProfileBackgroundSelection {
     data class Custom(val url: String) : ProfileBackgroundSelection
 }
 
-fun resolveProfileBackgroundSelection(
-    profile: UserProfile?,
-    entitlements: CosmeticEntitlements
-): ProfileBackgroundSelection? {
-    if (profile == null || !entitlements.includes(CosmeticEntitlement.PROFILE_BACKGROUNDS)) {
-        return null
-    }
+fun resolveProfileBackgroundSelection(profile: UserProfile?): ProfileBackgroundSelection? {
+    if (profile == null) return null
     profile.profileBackgroundUrl?.trim()?.takeIf { it.isNotEmpty() }?.let {
         return ProfileBackgroundSelection.Custom(it)
     }

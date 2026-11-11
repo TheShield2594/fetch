@@ -504,22 +504,8 @@
     <string name="experience_mode_confirm_advanced_title">Prebaciti na Napredno?</string>
     <string name="experience_mode_confirm_essential_subtitle">Napredne postavke bit će skrivene, ali tvoje spremljene postavke ostaju nepromijenjene. Možeš se vratiti bilo kada.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Ovo prikazuje sve postavke, uključujući napredno postavljanje, kataloge, kolekcije i fino podešavanje.</string>
-    <string name="network_speed_test_run">Pokreni test brzine</string>
-    <string name="network_speed_test_running">Test brzine u tijeku</string>
-    <string name="network_speed_test_subtitle">Izmjeri brzinu preuzimanja i latenciju</string>
-    <string name="network_testing_latency">Mjerenje latencije</string>
-    <string name="network_testing_download">Mjerenje brzine preuzimanja</string>
-    <string name="network_results_title">Rezultati</string>
-    <string name="network_latency_label">Latencija</string>
-    <string name="network_download_label">Preuzimanje</string>
-    <string name="network_error_prefix">Pogreška: %1$s</string>
-    <string name="network_powered_by_fast">Pokreće fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Izvan mreže</string>
     <string name="advanced_section_performance">Performanse i navigacija</string>
     <string name="advanced_section_diagnostics">Dijagnostika</string>
-    <string name="advanced_playback_issue_reports">Izvješća o problemima s reprodukcijom</string>
     <string name="advanced_player_stats_hud">Prikaz statistike reprodukcije</string>
     <string name="advanced_player_stats_hud_subtitle">Prikaži gumb u informacijama o streamu za uključivanje prikaza CPU-a, memorije, međuspremnika, bitratea i temperature uživo tijekom reprodukcije</string>
     <string name="advanced_section_cache">Predmemorija</string>
@@ -587,6 +573,7 @@
     <string name="playback_skip_intro">Preskoči uvod</string>
     <string name="playback_skip_intro_sub">Koristi introdb.app za otkrivanje uvoda i sažetaka.</string>
     <string name="playback_parental_guide">Upozorenja o sadržaju</string>
+    <string name="playback_parental_guide_sub">Prikazuje upozorenja o sadržaju kada reprodukcija započne. Šalje IMDb ID svakog naslova na api.tiffara.com radi pretraživanja.</string>
     <string name="playback_auto_skip_segments">Automatsko preskakanje</string>
     <string name="playback_auto_skip_segments_sub">Odaberi koji se segmenti automatski preskaču.</string>
     <string name="auto_skip_intro">Uvod / Opening</string>
@@ -1094,11 +1081,6 @@
     <string name="debug_account_tab_subtitle">Prikaži karticu Račun u navigaciji postavki</string>
     <string name="debug_sync_code_title">Značajke koda za sinkronizaciju</string>
     <string name="debug_sync_code_subtitle">Prikaži gumbe Generiraj/Unesi kôd za sinkronizaciju u postavkama računa</string>
-    <string name="debug_member_tier_title">Simuliraj razinu podupiratelja</string>
-    <string name="debug_member_tier_subtitle">Odaberi potvrđenu razinu podupiratelja koja se vraća u ovom debug buildu</string>
-    <string name="debug_member_tier_none">Nijedna</string>
-    <string name="debug_member_tier_one">Podupiratelj</string>
-    <string name="debug_member_tier_two">Podupiratelj+</string>
     <string name="debug_buffer_logs_title">Omogući BUFFER zapise</string>
     <string name="debug_buffer_logs_subtitle">Periodički ispisuj dijagnostiku međuspremnika playera u logcat (isključeno prema zadanim postavkama)</string>
     <string name="debug_error_dialog_title">Pogreška reprodukcije</string>
@@ -1303,18 +1285,6 @@
     <string name="player_error_title">Pogreška reprodukcije</string>
     <string name="player_error_choose_source">Odaberi drugi izvor</string>
     <string name="player_switch_to_mpv">Prebaci na MPV player</string>
-    <string name="player_report_issue">Prijavi problem</string>
-    <string name="player_report_issue_sending">Slanje izvješća o reprodukciji...</string>
-    <string name="player_report_issue_sending_button">Slanje...</string>
-    <string name="player_report_issue_sent">Izvješće poslano: %1$s</string>
-    <string name="player_report_issue_sent_button">Izvješće poslano</string>
-    <string name="player_report_issue_failed">Nije moguće poslati izvješće</string>
-    <string name="player_report_loading_issue">Prijavi problem s učitavanjem</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">Još se učitava nakon %1$d sekunde</item>
-        <item quantity="few">Još se učitava nakon %1$d sekunde</item>
-        <item quantity="other">Još se učitava nakon %1$d sekundi</item>
-    </plurals>
     <string name="player_speed_title">Brzina reprodukcije</string>
     <string name="player_error_no_stream_url">Ovaj izvor nema poveznicu streama. Odaberi drugi izvor.</string>
 
@@ -2196,8 +2166,6 @@
     <string name="network_error_unknown">Došlo je do nepoznate pogreške</string>
 
     <!-- Mrežne postavke: fast.com pogreške -->
-    <string name="network_fast_error_script_path_missing">fast.com: putanja skripte nije pronađena</string>
-    <string name="network_fast_error_token_missing">fast.com: token nije pronađen u paketu</string>
 
     <!-- Pogreške torrent usluge -->
 

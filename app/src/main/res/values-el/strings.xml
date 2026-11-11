@@ -461,19 +461,6 @@
   <string name="experience_mode_confirm_advanced_title">Μετάβαση σε Προχωρημένη;</string>
   <string name="experience_mode_confirm_essential_subtitle">Οι προχωρημένες επιλογές θα κρυφτούν, αλλά οι αποθηκευμένες ρυθμίσεις σας θα παραμείνουν ίδιες. Μπορείτε να επιστρέψετε ανά πάσα στιγμή.</string>
   <string name="experience_mode_confirm_advanced_subtitle">Αυτό εμφανίζει το πλήρες σύνολο ρυθμίσεων, συμπεριλαμβανομένων προχωρημένων επιλογών, καταλόγων, συλλογών και ελέγχων βελτιστοποίησης.</string>
-  <string name="network_speed_test_run">Εκτέλεση τεστ ταχύτητας</string>
-  <string name="network_speed_test_running">Εκτέλεση τεστ ταχύτητας</string>
-  <string name="network_speed_test_subtitle">Μέτρηση ταχύτητας λήψης και καθυστέρησης</string>
-  <string name="network_testing_latency">Μέτρηση καθυστέρησης</string>
-  <string name="network_testing_download">Μέτρηση ταχύτητας λήψης</string>
-  <string name="network_results_title">Αποτελέσματα</string>
-  <string name="network_latency_label">Καθυστέρηση</string>
-  <string name="network_download_label">Λήψη</string>
-  <string name="network_error_prefix">Σφάλμα: %1$s</string>
-  <string name="network_powered_by_fast">Με την υποστήριξη του fast.com</string>
-  <string name="network_connection_wifi">Wi-Fi</string>
-  <string name="network_connection_ethernet">Ethernet</string>
-  <string name="network_connection_offline">Εκτός σύνδεσης</string>
   <string name="advanced_section_performance">Απόδοση &amp; πλοήγηση</string>
   <string name="advanced_section_diagnostics">Διαγνωστικά</string>
   <string name="advanced_section_cache">Προσωρινή μνήμη</string>
@@ -540,6 +527,7 @@
   <string name="playback_skip_intro">Παράλειψη εισαγωγής</string>
   <string name="playback_skip_intro_sub">Χρήση του introdb.app για ανίχνευση εισαγωγής και ανασκόπησης.</string>
   <string name="playback_parental_guide">Προειδοποιήσεις περιεχομένου</string>
+    <string name="playback_parental_guide_sub">Εμφανίζει προειδοποιήσεις περιεχομένου όταν ξεκινά η αναπαραγωγή. Στέλνει το IMDb ID κάθε τίτλου στο api.tiffara.com για την αναζήτησή τους.</string>
   <string name="playback_auto_skip_segments">Αυτόματη παράλειψη</string>
   <string name="playback_auto_skip_segments_sub">Επιλέξτε ποια τμήματα θα παραλείπονται αυτόματα.</string>
   <string name="auto_skip_intro">Εισαγωγή / Άνοιγμα</string>
@@ -1058,11 +1046,6 @@
   <string name="debug_account_tab_subtitle">Εμφάνιση καρτέλας Λογαριασμός στην πλοήγηση Ρυθμίσεων</string>
   <string name="debug_sync_code_title">Λειτουργίες Sync Code</string>
   <string name="debug_sync_code_subtitle">Εμφάνιση κουμπιών Generate/Enter Sync Code στις Ρυθμίσεις λογαριασμού</string>
-  <string name="debug_member_tier_title">Προσομοίωση βαθμίδας υποστηρικτή</string>
-  <string name="debug_member_tier_subtitle">Επιλέξτε την επαληθευμένη βαθμίδα υποστηρικτή που επιστρέφεται σε αυτό το debug build</string>
-  <string name="debug_member_tier_none">Κανένα</string>
-  <string name="debug_member_tier_one">Υποστηρικτής</string>
-  <string name="debug_member_tier_two">Υποστηρικτής+</string>
   <string name="debug_error_dialog_title">Σφάλμα αναπαραγωγής</string>
   <string name="debug_error_dialog_subtitle">Προέκυψε σφάλμα κατά την αναπαραγωγή.\n\nΣφάλμα: Προσομοιωμένο σφάλμα δοκιμής – δεν είναι πραγματικό σφάλμα. Η πηγή επέστρεψε HTTP 503 (Service Unavailable).</string>
   <string name="debug_dismiss">Κλείσιμο</string>
@@ -2062,8 +2045,6 @@
   <string name="network_error_empty_response_body">Κενό σώμα απάντησης</string>
   <string name="network_error_unknown">Προέκυψε άγνωστο σφάλμα</string>
   <!-- Network settings: fast.com errors -->
-  <string name="network_fast_error_script_path_missing">fast.com: δεν βρέθηκε διαδρομή script</string>
-  <string name="network_fast_error_token_missing">fast.com: δεν βρέθηκε διακριτικό στο bundle</string>
   <!-- Torrent service / TorrServer binary errors -->
   <!-- Player runtime: stream / external link errors -->
   <string name="player_stream_error_invalid_external_url">Μη έγκυρη εξωτερική URL</string>
@@ -2201,18 +2182,12 @@
   <string name="web_stream_badge_error_url_scheme">Το URL διακριτικού πρέπει να ξεκινά με http:// ή https://.</string>
   <string name="diag_label_first_frame">Πρώτο καρέ</string>
   <string name="audio_force_optical_passthrough_sub">Μετακωδικοποιεί πολυκάναλες μορφές (TrueHD, DTS, AAC κ.λπ.) σε Dolby Digital 5.1 σε πραγματικό χρόνο για συνδέσεις Οπτικής/SPDIF.</string>
-  <string name="player_report_issue_sending_button">Αποστολή...</string>
   <string name="settings_stream_badge_position_bottom">Κάτω</string>
   <string name="web_stream_badge_deleted">Το URL διακριτικού διαγράφηκε.</string>
   <string name="dv7_libdovi_mode_none_sub">Καμία παράκαμψη. Χρησιμοποιεί την αυτόματα επιλεγμένη λειτουργία μετατροπής.</string>
   <string name="diag_label_bridge_version">Έκδοση γέφυρας</string>
   <string name="settings_stream_addon_logo_title">Λογότυπο πρόσθετου</string>
   <string name="diag_value_not_available">Μη διαθέσιμο</string>
-  <string name="player_report_loading_issue">Αναφορά προβλήματος φόρτωσης</string>
-  <plurals name="player_report_loading_issue_prompt">
-    <item quantity="one">Ακόμα φορτώνει μετά από %1$d δευτερόλεπτο</item>
-    <item quantity="other">Ακόμα φορτώνει μετά από %1$d δευτερόλεπτα</item>
-  </plurals>
   <string name="advanced_player_stats_hud">Οθόνη στατιστικών αναπαραγωγής</string>
   <string name="advanced_player_stats_hud_subtitle">Εμφάνιση κουμπιού στις πληροφορίες ροής για εναλλαγή ζωντανών ενδείξεων CPU, μνήμης, buffer, ρυθμού μετάδοσης και θερμοκρασίας κατά την αναπαραγωγή</string>
   <string name="settings_stream_badge_position_top">Πάνω</string>
@@ -2221,8 +2196,6 @@
   <string name="web_stream_badge_error_import_limit">Μπορείτε να εισαγάγετε έως %1$d URL διακριτικών.</string>
   <string name="dv7_libdovi_mode_4_sub">Μετατροπή σε στατικό προφίλ 8.4.</string>
   <string name="diag_value_decoder_hidden">%1$s (κρυφό)</string>
-  <string name="player_report_issue_sending">Αποστολή αναφοράς αναπαραγωγής...</string>
-  <string name="player_report_issue_sent_button">Η αναφορά στάλθηκε</string>
   <string name="dv7_libdovi_mode_4_title">Λειτουργία 4 — 8.4 (στατικό)</string>
   <string name="diag_label_conversions">Μετατροπές</string>
   <string name="stream_test_label_parallel16">Παράλληλη σύνδεση (τμήματα 16 MB)</string>
@@ -2230,9 +2203,7 @@
   <string name="dv7_libdovi_mode_1_sub">Μετατρέπει το RPU ώστε να είναι συμβατό με MEL (Minimum Enhancement Layer).</string>
   <string name="stream_test_btn_measuring_parallel4">Μέτρηση παράλληλης (4MB)...</string>
   <string name="diag_label_source_profile">Προφίλ πηγής</string>
-  <string name="advanced_playback_issue_reports">Αναφορές προβλημάτων αναπαραγωγής</string>
   <string name="diag_value_on">Ενεργό</string>
-  <string name="player_report_issue_sent">Η αναφορά στάλθηκε: %1$s</string>
   <string name="hero_synopsis_dismiss_hint">Πατήστε πίσω για κλείσιμο</string>
   <string name="player_error_play_stream_failed">Δεν είναι δυνατή η αναπαραγωγή της επιλεγμένης ροής. Επιλέξτε άλλη πηγή.</string>
   <string name="stream_test_section_header">Διαγνωστικά ταχύτητας ροής</string>
@@ -2284,7 +2255,6 @@
   <string name="diag_label_last_convert">Τελευταία μετατροπή</string>
   <string name="diag_label_custom_buffers">Προσαρμοσμένα buffer</string>
   <string name="diag_label_rebuffers">Επαναφορτίσεις buffer</string>
-  <string name="player_report_issue">Αναφορά προβλήματος</string>
   <string name="unit_size_gb">%1$s GB</string>
   <string name="stream_test_btn_measuring_parallel1">Μέτρηση παράλληλης (1MB)...</string>
   <string name="stream_test_btn_running">Εκτελείται...</string>
@@ -2297,7 +2267,6 @@
   <string name="diag_value_never_rendered">Δεν αποδόθηκε ποτέ</string>
   <string name="audio_strip_hdr10plus_title">Αφαίρεση μεταδεδομένων HDR10+</string>
   <string name="diag_label_dv7_decoder">Αποκωδικοποιητής DV7</string>
-  <string name="player_report_issue_failed">Δεν ήταν δυνατή η αποστολή αναφοράς</string>
   <string name="dv7_libdovi_mode_1_title">Λειτουργία 1 — MEL</string>
   <string name="dv7_libdovi_mode_row_title">Λειτουργία μετατροπής</string>
   <string name="external_auto_next_loading">Φόρτωση επόμενου επεισοδίου…</string>

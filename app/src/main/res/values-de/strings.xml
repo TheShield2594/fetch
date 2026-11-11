@@ -418,19 +418,6 @@
     <string name="experience_mode_confirm_advanced_title">Switch to Advanced?</string>
     <string name="experience_mode_confirm_essential_subtitle">Advanced setup surfaces will be hidden, but your saved settings stay unchanged. You can switch back anytime.</string>
     <string name="experience_mode_confirm_advanced_subtitle">This reveals the full settings surface, including advanced setup, catalog, collection, and tuning controls.</string>
-    <string name="network_speed_test_run">Geschwindigkeitstest starten</string>
-    <string name="network_speed_test_running">Geschwindigkeitstest läuft</string>
-    <string name="network_speed_test_subtitle">Downloadgeschwindigkeit und Latenz messen</string>
-    <string name="network_testing_latency">Latenz wird gemessen</string>
-    <string name="network_testing_download">Downloadgeschwindigkeit wird gemessen</string>
-    <string name="network_results_title">Ergebnisse</string>
-    <string name="network_latency_label">Latenz</string>
-    <string name="network_download_label">Download</string>
-    <string name="network_error_prefix">Fehler: %1$s</string>
-    <string name="network_powered_by_fast">Bereitgestellt von fast.com</string>
-    <string name="network_connection_wifi">WLAN</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
     <string name="advanced_section_performance">Performance &amp; navigation</string>
     <string name="advanced_section_diagnostics">Diagnostics</string>
     <string name="advanced_section_cache">Cache</string>
@@ -472,6 +459,7 @@
     <string name="playback_skip_intro">Intro überspringen</string>
     <string name="playback_skip_intro_sub">introdb.app verwenden, um Intros und Zusammenfassungen zu erkennen.</string>
     <string name="playback_parental_guide">Inhaltswarnungen</string>
+    <string name="playback_parental_guide_sub">Zeigt beim Start der Wiedergabe Inhaltswarnungen an. Sendet dazu die IMDb-ID jedes Titels an api.tiffara.com.</string>
     <string name="playback_auto_skip_segments">Automatisches Überspringen</string>
     <string name="playback_auto_skip_segments_sub">Wähle, welche Segemente automatisch übersprungen werden sollen.</string>
     <string name="auto_skip_intro">Intro / Opening</string>
@@ -1786,8 +1774,6 @@
     <string name="network_error_unknown">Unknown error occurred</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: script path not found</string>
-    <string name="network_fast_error_token_missing">fast.com: token not found in bundle</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 

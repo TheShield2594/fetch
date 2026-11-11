@@ -2,12 +2,9 @@ package com.fetch.tv.ui.screens.settings
 
 import com.fetch.tv.MainDispatcherRule
 import com.fetch.tv.data.local.ThemeDataStore
-import com.fetch.tv.data.repository.MemberAccessRepository
 import com.fetch.tv.domain.model.AppFont
 import com.fetch.tv.domain.model.AppTheme
 import com.fetch.tv.domain.model.CustomThemeColors
-import com.fetch.tv.domain.model.MemberAccess
-import com.fetch.tv.domain.model.MemberTier
 import com.fetch.tv.domain.model.ThemeSelection
 import com.fetch.tv.launcher.AppIconManager
 import com.fetch.tv.launcher.AppIconSettingsState
@@ -20,7 +17,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -33,7 +29,6 @@ class ThemeSettingsViewModelTest {
     private val gradient = CustomThemeColors(0x112233, 0x445566, 0x778899)
     private val solid = CustomThemeColors.solid(0x445566)
     private val selection = MutableStateFlow(ThemeSelection(AppTheme.CUSTOM, gradient))
-    private val access = MutableStateFlow(MemberAccess.None)
     private val store = mockk<ThemeDataStore> {
         every { themeSelection } returns selection
         every { selectedFont } returns flowOf(AppFont.INTER)
@@ -47,40 +42,41 @@ class ThemeSettingsViewModelTest {
     }
 
     @Test
-    fun bothMemberTiersCanSaveAllGradientStops() = runTest {
+    fun savingACustomThemePersistsTheColorsUnchanged() = runTest {
         val viewModel = createViewModel()
+        runCurrent()
 
-        MemberTier.entries.forEach { tier ->
-            access.value = MemberAccess.preview(tier)
-            runCurrent()
+        assertEquals(gradient, viewModel.uiState.value.customThemeColors)
+        viewModel.onEvent(ThemeSettingsEvent.SaveCustomTheme(gradient))
+        runCurrent()
 
-            assertTrue(viewModel.uiState.value.customThemeGradientEnabled)
-            assertEquals(gradient, viewModel.uiState.value.customThemeColors)
-            viewModel.onEvent(ThemeSettingsEvent.SaveCustomTheme(gradient))
-            runCurrent()
-        }
-
-        coVerify(exactly = MemberTier.entries.size) { store.setCustomTheme(gradient) }
+        coVerify(exactly = 1) { store.setCustomTheme(gradient) }
+        assertEquals(gradient, viewModel.uiState.value.customThemeColors)
     }
 
     @Test
-    fun membershipChangesUpdateEditorModeEvenWhenColorsAndEntitlementsStayTheSame() = runTest {
+    fun everyThemeIsAvailable() = runTest {
         selection.value = ThemeSelection(AppTheme.CUSTOM, solid)
         val viewModel = createViewModel()
         runCurrent()
-        val availableThemes = viewModel.uiState.value.availableThemes
 
-        access.value = MemberAccess(tier = MemberTier.SUPPORTER)
-        runCurrent()
-
-        assertTrue(viewModel.uiState.value.customThemeGradientEnabled)
-        assertEquals(availableThemes, viewModel.uiState.value.availableThemes)
+        assertTrue(viewModel.uiState.value.themesLoaded)
+        assertEquals(AppTheme.CUSTOM, viewModel.uiState.value.selectedTheme)
+        assertEquals(AppTheme.entries.toSet(), viewModel.uiState.value.availableThemes.toSet())
         assertEquals(solid, viewModel.uiState.value.customThemeColors)
     }
 
+    @Test
+    fun unsetThemeResolvesToGold() = runTest {
+        selection.value = ThemeSelection(null, solid)
+        val viewModel = createViewModel()
+        runCurrent()
+
+        assertEquals(AppTheme.GOLD, viewModel.uiState.value.selectedTheme)
+    }
+
     private fun createViewModel(): ThemeSettingsViewModel {
-        val members = mockk<MemberAccessRepository> { every { access } returns this@ThemeSettingsViewModelTest.access }
         val icons = mockk<AppIconManager> { every { state } returns MutableStateFlow(AppIconSettingsState()) }
-        return ThemeSettingsViewModel(store, members, icons)
+        return ThemeSettingsViewModel(store, icons)
     }
 }

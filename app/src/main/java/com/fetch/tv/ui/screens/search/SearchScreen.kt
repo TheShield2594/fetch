@@ -323,8 +323,11 @@ fun SearchScreen(
     }
 
     val cardRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp)
-    val posterCardStyle = remember(cardRadius) {
+    // The card-width preference applies here as on Home and Discover.
+    val posterCardStyle = remember(uiState.posterCardWidthDp, cardRadius) {
         PosterCardStyle(
+            width = uiState.posterCardWidthDp.dp,
+            height = (uiState.posterCardWidthDp * 1.5f).roundToInt().dp,
             cornerRadius = cardRadius,
             focusedScale = PosterCardDefaults.Style.focusedScale,
             showRestingBorder = true

@@ -515,22 +515,8 @@
     <string name="experience_mode_confirm_advanced_title">¿Cambiar a Avanzado?</string>
     <string name="experience_mode_confirm_essential_subtitle">Las superficies de configuración avanzada se ocultarán, pero tus ajustes guardados permanecerán intactos. Puedes volver cuando quieras.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Esto revela toda la configuración, incluyendo controles avanzados, catálogos, colecciones y ajustes.</string>
-    <string name="network_speed_test_run">Ejecutar prueba de velocidad</string>
-    <string name="network_speed_test_running">Ejecutando prueba de velocidad</string>
-    <string name="network_speed_test_subtitle">Medir velocidad de descarga y latencia</string>
-    <string name="network_testing_latency">Midiendo latencia</string>
-    <string name="network_testing_download">Midiendo velocidad de descarga</string>
-    <string name="network_results_title">Resultados</string>
-    <string name="network_latency_label">Latencia</string>
-    <string name="network_download_label">Descarga</string>
-    <string name="network_error_prefix">Error: %1$s</string>
-    <string name="network_powered_by_fast">Impulsado por fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Sin conexión</string>
     <string name="advanced_section_performance">Rendimiento y navegación</string>
     <string name="advanced_section_diagnostics">Diagnósticos</string>
-    <string name="advanced_playback_issue_reports">Reportes de problemas de reproducción</string>
     <string name="advanced_player_stats_hud">Superposición de estadísticas de reproducción</string>
     <string name="advanced_player_stats_hud_subtitle">Muestra un botón en la información del stream para activar o desactivar las lecturas en tiempo real de CPU, memoria, búfer, bitrate y temperatura durante la reproducción</string>
     <string name="advanced_section_cache">Caché</string>
@@ -599,6 +585,7 @@
     <string name="playback_skip_intro">Omitir Intro</string>
     <string name="playback_skip_intro_sub">Usar introdb.app para detectar intros y resúmenes.</string>
     <string name="playback_parental_guide">Advertencias de contenido</string>
+    <string name="playback_parental_guide_sub">Muestra advertencias de contenido al iniciar la reproducción. Envía el ID de IMDb de cada título a api.tiffara.com para buscarlas.</string>
     <string name="playback_auto_skip_segments">Omisión automática</string>
     <string name="playback_auto_skip_segments_sub">Elige qué segmentos se omiten automáticamente.</string>
     <string name="auto_skip_intro">Intro / Opening</string>
@@ -1139,11 +1126,6 @@
     <string name="debug_account_tab_subtitle">Mostrar la pestaña de Cuenta en la navegación de Ajustes</string>
     <string name="debug_sync_code_title">Funciones del Código de Sincronización</string>
     <string name="debug_sync_code_subtitle">Mostrar botones de Generar/Ingresar Código de Sincronización en los ajustes de cuenta</string>
-    <string name="debug_member_tier_title">Simular nivel de colaborador</string>
-    <string name="debug_member_tier_subtitle">Elige el nivel de colaborador verificado que se devuelve en esta compilación de depuración</string>
-    <string name="debug_member_tier_none">Ninguno</string>
-    <string name="debug_member_tier_one">Colaborador</string>
-    <string name="debug_member_tier_two">Colaborador+</string>
     <string name="debug_buffer_logs_title">Activar registros BUFFER</string>
     <string name="debug_buffer_logs_subtitle">Genera diagnósticos periódicos del búfer del reproductor en logcat (desactivado de forma predeterminada)</string>
     <string name="debug_error_dialog_title">Error de Reproducción</string>
@@ -1348,17 +1330,6 @@
     <string name="player_error_title">Error de reproducción</string>
     <string name="player_error_choose_source">Elige otra fuente</string>
     <string name="player_switch_to_mpv">Cambiar al reproductor MPV</string>
-    <string name="player_report_issue">Reportar problema</string>
-    <string name="player_report_issue_sending">Enviando reporte de reproducción...</string>
-    <string name="player_report_issue_sending_button">Enviando...</string>
-    <string name="player_report_issue_sent">Reporte enviado: %1$s</string>
-    <string name="player_report_issue_sent_button">Reporte enviado</string>
-    <string name="player_report_issue_failed">No se pudo enviar el reporte</string>
-    <string name="player_report_loading_issue">Reportar problema de carga</string>
-    <plurals name="player_report_loading_issue_prompt">
-    <item quantity="one">Sigue cargando después de %1$d segundo</item>
-    <item quantity="other">Sigue cargando después de %1$d segundos</item>
-</plurals>
     <string name="player_speed_title">Velocidad de Reproducción</string>
     <string name="player_error_no_stream_url">Esta fuente no tiene enlace de stream. Elige otra fuente.</string>
     
@@ -2252,8 +2223,6 @@
     <string name="network_error_unknown">Ocurrió un error desconocido</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: ruta del script no encontrada</string>
-    <string name="network_fast_error_token_missing">fast.com: token no encontrado en el paquete</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 

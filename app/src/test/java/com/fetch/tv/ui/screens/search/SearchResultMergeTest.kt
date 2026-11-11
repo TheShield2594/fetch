@@ -213,6 +213,14 @@ class SearchResultMergeTest {
     }
 
     @Test
+    fun `a saved raw TMDB id only matches the same type`() {
+        val library = libraryIdSet(listOf(LibraryIds("tmdb:603", "movie")))
+
+        assertTrue(isLibraryItem(movie(id = "tmdb:603", name = "x", year = null), library))
+        assertFalse(isLibraryItem(series(id = "tmdb:603", name = "x", year = null), library))
+    }
+
+    @Test
     fun `other types are named as acronyms when short`() {
         assertEquals("TV", addonTypeDisplayName("tv"))
         assertEquals("Anime", addonTypeDisplayName("anime"))

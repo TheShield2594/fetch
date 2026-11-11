@@ -248,10 +248,11 @@ internal data class LibraryIds(
 internal fun libraryIdSet(entries: Collection<LibraryIds>): Set<String> = buildSet {
     entries.forEach { entry ->
         val trimmed = entry.id.trim()
-        if (trimmed.isNotEmpty()) add(trimmed)
+        val type = entry.type.trim().lowercase(java.util.Locale.ROOT)
+        // Raw ids are per type: "tmdb:603" names a movie and a show alike.
+        if (trimmed.isNotEmpty()) add("$type|$trimmed")
         sequenceOf(entry.imdbId, trimmed).firstNotNullOfOrNull { value -> value?.let(LIBRARY_IMDB_ID::find) }
             ?.let { add("imdb:${it.value}") }
-        val type = entry.type.trim().lowercase(java.util.Locale.ROOT)
         entry.tmdbId?.let { add("tmdb:$type:$it") }
         LIBRARY_TMDB_ID.find(trimmed)?.let { add("tmdb:$type:${it.groupValues[1]}") }
     }
@@ -264,7 +265,7 @@ internal fun addonTypeDisplayName(typeKey: String): String =
 /** Whether [item] is in the library whose keys are [libraryIds] (see [libraryIdSet]). */
 internal fun isLibraryItem(item: MetaPreview, libraryIds: Set<String>): Boolean {
     if (libraryIds.isEmpty()) return false
-    if (item.id.trim() in libraryIds) return true
+    if ("${SearchResultMerger.typeKey(item)}|${item.id.trim()}" in libraryIds) return true
     val key = SearchResultMerger.idKey(item) ?: return false
     return key in libraryIds
 }

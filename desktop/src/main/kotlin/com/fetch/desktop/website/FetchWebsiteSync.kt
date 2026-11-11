@@ -53,6 +53,11 @@ class FetchWebsiteSync(private val website: FetchWebsiteState) {
         website.profiles = (remote.filter { r -> saved.none { it.slot == r.slot } } + saved).sortedBy { it.slot }
     }
 
+    /** Whether this is the first sync since pairing, which adds this computer's profiles to the account. */
+    val needsInitialProfilePush: Boolean get() = website.file.initialProfilePush
+
+    fun markInitialProfilePushDone() = website.markInitialProfilePushDone()
+
     /** Deletes the website profile in [slot], with everything it holds there. */
     suspend fun deleteProfile(slot: Int) {
         val remote = website.profileFor(slot) ?: return

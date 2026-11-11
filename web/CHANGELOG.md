@@ -11,6 +11,16 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-11
+
+### Added
+
+- **Apps can pair from the website's own address.** The `web` container now writes `fetch-server.json` with its API base, so the TV and desktop apps take the address you open the website at (for example `fetch.example.com`) and find the API themselves. Settings → TVs & Devices names that address.
+
+### Changed
+
+- **AI recommendations are off by default.** Turn them on per device in Settings › Preferences › Show AI Recommendations; nothing saved is deleted while they're off ([#473](https://github.com/TheShield2594/fetch/pull/473)).
+
 ## [0.2.0] - 2026-11-10
 
 ### Removed
@@ -460,6 +470,7 @@ name.
 - The addon's mutation-token check no longer assumes the incoming token is a string — a repeated query param (`?token=a&token=b`) would have thrown instead of being rejected cleanly.
 - `dockerpublish.yml` reads the git ref type/name from the runner's `GITHUB_REF_TYPE`/`GITHUB_REF_NAME` environment variables instead of interpolating `github.ref_type`/`github.ref_name` into a shell script.
 
-[Unreleased]: https://github.com/TheShield2594/fetch/compare/web-v0.2.0...HEAD
+[Unreleased]: https://github.com/TheShield2594/fetch/compare/web-v0.3.0...HEAD
+[0.3.0]: https://github.com/TheShield2594/fetch/compare/web-v0.2.0...web-v0.3.0
 [0.2.0]: https://github.com/TheShield2594/fetch/releases/tag/web-v0.2.0
 [0.1.0]: https://github.com/TheShield2594/cataloggy/releases/tag/v0.1.0

@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import com.fetch.desktop.data.AppDirs
 import com.fetch.desktop.data.PrivateFiles
 import com.fetch.desktop.parental.PinGate
+import com.fetch.tv.data.website.FetchServerAddress
+import com.fetch.tv.data.website.ResolvedFetchServer
 import com.fetch.tv.data.website.WebsiteList
 import com.fetch.tv.data.website.WebsiteListItem
 import com.fetch.tv.data.website.WebsitePlayback
@@ -14,8 +16,12 @@ import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.PosterShape
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
@@ -25,7 +31,6 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -47,7 +52,13 @@ data class WebsiteSession(val serverUrl: String, val deviceToken: String, val de
 data class WebsiteFile(
     val session: WebsiteSession? = null,
     val lastServerUrl: String? = null,
-    val signedOutByWebsite: Boolean = false
+    val signedOutByWebsite: Boolean = false,
+    /**
+     * Set by pairing until the first sync has added this computer's profiles to the website,
+     * so pairing adds them to the account instead of the pull replacing them. Once per pairing,
+     * so a profile deleted on the website later isn't brought back.
+     */
+    val initialProfilePush: Boolean = false
 )
 
 /** The website's answer to `devices/pair/start`. */
@@ -219,6 +230,21 @@ class FetchWebsiteClient(
                     else WebsitePairingPoll.Pending
                 }
             }
+        }
+    }
+
+    /**
+     * The API behind whatever someone typed: the API's own address, or the address they open
+     * the website at (see [FetchServerAddress]). Null when nothing there answers as a Fetch API.
+     */
+    suspend fun resolveServer(address: String): ResolvedFetchServer? = io {
+        val probe = http.newBuilder().connectTimeout(4, TimeUnit.SECONDS).readTimeout(5, TimeUnit.SECONDS).build()
+        FetchServerAddress.resolve(address) { url ->
+            runCatching {
+                probe.newCall(Request.Builder().url(url).get().build()).execute().use { response ->
+                    if (response.isSuccessful) response.body?.string() else null
+                }
+            }.getOrNull()
         }
     }
 
@@ -505,14 +531,11 @@ class FetchWebsiteClient(
         private const val LIST_PAGE_SIZE = 500
         private const val MAX_LIST_PAGES = 20
 
-        /** The API address someone typed, tidied: a scheme added when missing, trailing slashes dropped. */
-        fun normalizeServerUrl(raw: String): String? {
-            val trimmed = raw.trim()
-            if (trimmed.isEmpty()) return null
-            val withScheme = if (trimmed.contains("://")) trimmed else "http://$trimmed"
-            val url = withScheme.toHttpUrlOrNull() ?: return null
-            return url.toString().trimEnd('/')
-        }
+        /**
+         * An address someone typed, tidied: a scheme added when missing (`http://` for a host
+         * on the local network, `https://` for any other, as on TV), trailing slashes dropped.
+         */
+        fun normalizeServerUrl(raw: String): String? = FetchServerAddress.normalize(raw)
 
         internal fun endpoint(serverUrl: String, path: String): String = "${serverUrl.trimEnd('/')}/$path"
     }
@@ -550,7 +573,9 @@ sealed interface WebsitePairing {
  */
 class FetchWebsiteState(
     private val store: WebsiteStore = WebsiteStore(),
-    http: OkHttpClient = OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).readTimeout(20, TimeUnit.SECONDS).build(),
+    // No following an https:// redirect to http://: the pairing secret and token would go along in the clear.
+    http: OkHttpClient = OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).readTimeout(20, TimeUnit.SECONDS)
+        .followSslRedirects(false).build(),
     private val now: () -> Long = System::currentTimeMillis
 ) {
     var file: WebsiteFile by mutableStateOf(store.load())
@@ -574,17 +599,50 @@ class FetchWebsiteState(
     /** Profile tokens by website profile id, with when each stops being trusted here. */
     private val profileTokens = ConcurrentHashMap<String, Pair<String, Long>>()
 
-    /** Pairs with the website at [address]: shows its code and polls until it's confirmed there. */
+    // Pairing outlives the Settings page it starts on: leaving the page mid-code must not cancel it.
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var pairingJob: Job? = null
+
+    /**
+     * Starts [pair] in the background, replacing one already running; [onPaired] runs once the
+     * code is confirmed.
+     */
+    fun startPairing(address: String, onPaired: () -> Unit = {}) {
+        pairingJob?.cancel()
+        pairingJob = scope.launch {
+            pair(address)
+            if (isPaired) onPaired()
+        }
+    }
+
+    fun cancelPairing() {
+        pairingJob?.cancel()
+        pairingJob = null
+        resetPairing()
+    }
+
+    /**
+     * Pairs with the website at [address] (the address it opens at in a browser, or its API's):
+     * shows its code and polls until it's confirmed there.
+     */
     suspend fun pair(address: String, deviceName: String = defaultDeviceName()) {
-        val serverUrl = FetchWebsiteClient.normalizeServerUrl(address) ?: run {
+        if (FetchWebsiteClient.normalizeServerUrl(address) == null) {
             pairing = WebsitePairing.Failed("That doesn’t look like a web address.")
             return
         }
         pairing = WebsitePairing.Starting
         try {
+            val server = client.resolveServer(address) ?: run {
+                pairing = WebsitePairing.Failed("No Fetch website answered at that address. Check it opens in a browser.")
+                return
+            }
+            val serverUrl = server.apiUrl
             val start = client.startPairing(serverUrl, deviceName)
             val expiresAt = runCatching { Instant.parse(start.expiresAt).toEpochMilli() }.getOrDefault(System.currentTimeMillis() + 5 * 60_000L)
-            pairing = WebsitePairing.ShowingCode(start.code, start.confirmUrl, serverUrl, expiresAt)
+            // The website address that just worked beats the server's own idea of it, which
+            // compose leaves at an example IP until someone sets FETCH_WEB_PUBLIC.
+            val confirmUrl = server.webUrl?.let { FetchServerAddress.confirmUrl(it, start.code) } ?: start.confirmUrl
+            pairing = WebsitePairing.ShowingCode(start.code, confirmUrl, serverUrl, expiresAt)
             val interval = start.intervalSec.coerceIn(1, 30) * 1000L
             while (true) {
                 delay(interval)
@@ -599,7 +657,7 @@ class FetchWebsiteState(
                     }
                     is WebsitePairingPoll.Approved -> {
                         val name = poll.deviceName.ifBlank { deviceName }
-                        save(WebsiteFile(WebsiteSession(serverUrl, poll.token, name), serverUrl, signedOutByWebsite = false))
+                        save(WebsiteFile(WebsiteSession(serverUrl, poll.token, name), serverUrl, signedOutByWebsite = false, initialProfilePush = true))
                         forgetProfiles()
                         pairing = WebsitePairing.Paired(name)
                         return
@@ -626,6 +684,10 @@ class FetchWebsiteState(
     }
 
     fun dismissSignedOutNotice() = save(file.copy(signedOutByWebsite = false))
+
+    fun markInitialProfilePushDone() {
+        if (file.initialProfilePush) save(file.copy(initialProfilePush = false))
+    }
 
     /** Asks the website whether this computer is still signed in (when Settings › Account opens). */
     suspend fun checkSession() {

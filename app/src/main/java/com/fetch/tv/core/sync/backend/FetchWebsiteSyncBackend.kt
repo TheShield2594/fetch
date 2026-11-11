@@ -32,7 +32,7 @@ class FetchWebsiteSyncBackend @Inject constructor(
     // tells one account from the next.
     override val accountKey: String? get() = store.session.value?.serverUrl?.let { "website:$it" }
 
-    override suspend fun pushProfiles(): Result<Unit> = call { website.get().pushProfiles().getOrThrow() }
+    override suspend fun pushProfiles(): Result<Unit> = call { website.get().pushProfilesNow().getOrThrow() }
 
     override suspend fun pullProfiles(force: Boolean): Result<Boolean> = call { website.get().pullProfiles() }
 

@@ -33,6 +33,9 @@ import com.fetch.tv.data.repository.TraktProgressService
 import com.fetch.tv.data.repository.TraktTokenPollResult
 import com.fetch.tv.data.simkl.SimklAuthRepository
 import com.fetch.tv.data.simkl.SimklPinPollResult
+import com.fetch.tv.data.website.FetchWebsitePairing
+import com.fetch.tv.data.website.FetchWebsiteStore
+import com.fetch.tv.data.website.WebsitePairingState
 import com.fetch.tv.domain.repository.AddonRepository
 import com.fetch.tv.ui.screens.addon.AddonManagementAccess
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -96,7 +99,19 @@ data class PhoneHubState(
     val running: Boolean = false,
     val pairedPhones: Int = 0,
     val error: String? = null
-)
+) {
+    /**
+     * [url] opening [path] instead of the landing page: the pairing token goes along, and
+     * [PairingGuard] redirects to the path once it has set the phone's cookie.
+     */
+    fun urlFor(path: String): String? {
+        val base = url ?: return null
+        val queryStart = base.indexOf('?')
+        val origin = (if (queryStart >= 0) base.substring(0, queryStart) else base).trimEnd('/')
+        val query = if (queryStart >= 0) base.substring(queryStart) else ""
+        return origin + "/" + path.trimStart('/') + query
+    }
+}
 
 /**
  * Owns the phone hub server. It starts when the "Configure from phone" screen opens. When
@@ -121,7 +136,9 @@ class PhoneHubController @Inject constructor(
     private val profileTransfer: ProfileTransfer,
     private val tvBackup: TvBackup,
     private val addonRepository: AddonRepository,
-    private val profileManager: ProfileManager
+    private val profileManager: ProfileManager,
+    private val websiteStore: FetchWebsiteStore,
+    private val websitePairing: dagger.Lazy<FetchWebsitePairing>
 ) : PhoneHubActions {
     private val scope = CoroutineScope(
         SupervisorJob() + Dispatchers.IO + CoroutineExceptionHandler { _, error ->
@@ -151,8 +168,24 @@ class PhoneHubController @Inject constructor(
     /** A message for the phone, in the app's language rather than the system's. */
     private fun text(@StringRes id: Int, vararg args: Any): String = context.withAppLocale().getString(id, *args)
 
+    /**
+     * How many screens are showing the hub right now. Two can overlap (the first-run wizard
+     * holds it throughout, and its Server step's website address QR code opens it too), so it
+     * closes only when the last one does.
+     */
+    private var openScreens = 0
+
     @Synchronized
     fun onScreenOpened() {
+        openScreens += 1
+        start()
+    }
+
+    /** Tries again to start a hub that failed to (no network, no free port), without opening another screen. */
+    @Synchronized
+    fun retry() = start()
+
+    private fun start() {
         screenOpen = true
         idleJob?.cancel()
         if (server != null) {
@@ -187,6 +220,8 @@ class PhoneHubController @Inject constructor(
 
     @Synchronized
     fun onScreenClosed() {
+        openScreens = (openScreens - 1).coerceAtLeast(0)
+        if (openScreens > 0) return
         screenOpen = false
         // Nobody is left to answer it.
         rejectPendingAddon()
@@ -265,6 +300,29 @@ class PhoneHubController @Inject constructor(
         if (parentalControls.needsGate()) PhoneHubResult(false, text(R.string.phone_hub_parental_blocked)) else null
 
     override fun settingsChangeBlocked(): String? = settingsBlocked()?.message
+
+    override suspend fun websiteStatus(): PhoneHubWebsiteStatus {
+        val pairing = websitePairing.get()
+        return websiteStatusOf(pairing.state.value).copy(
+            signedIn = websiteStore.session.value?.serverUrl,
+            lastAddress = pairing.lastAddress
+        )
+    }
+
+    override suspend fun connectWebsite(address: String): PhoneHubWebsiteStatus {
+        settingsBlocked()?.let { return PhoneHubWebsiteStatus(state = "failed", message = it.message) }
+        val pairing = websitePairing.get()
+        return websiteStatusOf(pairing.startAndAwaitCode(address)).copy(lastAddress = pairing.lastAddress)
+    }
+
+    private fun websiteStatusOf(state: WebsitePairingState): PhoneHubWebsiteStatus = when (state) {
+        WebsitePairingState.EnterAddress -> PhoneHubWebsiteStatus(state = "idle")
+        WebsitePairingState.Starting -> PhoneHubWebsiteStatus(state = "starting")
+        is WebsitePairingState.ShowingCode -> PhoneHubWebsiteStatus(state = "code", code = state.code, confirmUrl = state.confirmUrl)
+        WebsitePairingState.Expired -> PhoneHubWebsiteStatus(state = "expired")
+        is WebsitePairingState.Paired -> PhoneHubWebsiteStatus(state = "paired")
+        is WebsitePairingState.Failed -> PhoneHubWebsiteStatus(state = "failed", message = state.message, notFound = state.notFound)
+    }
 
     override suspend fun saveMdbListKey(apiKey: String): PhoneHubResult {
         settingsBlocked()?.let { return it }

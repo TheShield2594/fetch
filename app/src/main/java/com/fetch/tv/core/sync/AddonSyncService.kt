@@ -60,9 +60,9 @@ class AddonSyncService @Inject constructor(
             ?: return@withContext Result.failure(IllegalStateException("No sync backend is connected"))
         backend.pullAddons(ownerProfileId()).map { remote ->
             if (!remote.isNullOrEmpty()) {
-                addonPreferences.setUserSetNames(
-                    remote.mapNotNull { addon -> addon.name?.let { canonicalizeUrl(addon.url) to it } }.toMap()
-                )
+                // A backend that keeps no custom names (the website) leaves the TV's own alone.
+                val names = remote.mapNotNull { addon -> addon.name?.let { canonicalizeUrl(addon.url) to it } }.toMap()
+                if (names.isNotEmpty()) addonPreferences.setUserSetNames(names)
                 addonPreferences.setAddonEnabledStates(remote.associate { canonicalizeUrl(it.url) to it.enabled })
             }
             remote?.map { it.url }

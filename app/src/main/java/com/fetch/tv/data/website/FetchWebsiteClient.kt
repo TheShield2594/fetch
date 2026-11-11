@@ -10,7 +10,6 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -48,6 +47,9 @@ class FetchWebsiteClient internal constructor(
         SharedHttpClient.root.newBuilder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)
+            // An https:// website redirecting to http:// would carry the pairing secret and
+            // device token along in the clear; the probe and resolver clients inherit this.
+            .followSslRedirects(false)
             .build()
     )
 
@@ -56,6 +58,12 @@ class FetchWebsiteClient internal constructor(
     // An address that doesn't answer quickly isn't the one to pair with.
     private val probe: OkHttpClient by lazy {
         http.newBuilder().connectTimeout(2, TimeUnit.SECONDS).readTimeout(2, TimeUnit.SECONDS).build()
+    }
+
+    // Finding the API behind a typed address may cross the internet, so it waits a little
+    // longer than the LAN probe, but not so long that a wrong guess stalls the TV.
+    private val resolver: OkHttpClient by lazy {
+        http.newBuilder().connectTimeout(4, TimeUnit.SECONDS).readTimeout(5, TimeUnit.SECONDS).build()
     }
 
     // ─── Pairing ───
@@ -100,6 +108,21 @@ class FetchWebsiteClient internal constructor(
     suspend fun answers(serverUrl: String): Boolean = call {
         val request = Request.Builder().url(endpoint(serverUrl, "health")).get().build()
         runCatching { probe.newCall(request).execute().use { it.isSuccessful } }.getOrDefault(false)
+    }
+
+    /**
+     * The API behind whatever someone typed: the API's own address, or the address they open
+     * the website at (see [FetchServerAddress]). Null when nothing there answers as a Fetch API.
+     */
+    suspend fun resolveServer(address: String): ResolvedFetchServer? = call {
+        FetchServerAddress.resolve(address) { url ->
+            runCatching {
+                val request = Request.Builder().url(url).get().build()
+                resolver.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) response.body?.string() else null
+                }
+            }.getOrNull()
+        }
     }
 
     // ─── Signed in ───
@@ -482,54 +505,13 @@ class FetchWebsiteClient internal constructor(
          * `https://`, so a public address never sends the pairing code and tokens in the clear.
          * A scheme typed explicitly is kept as it is.
          */
-        fun normalizeServerUrl(raw: String): String? {
-            val trimmed = raw.trim()
-            if (trimmed.isEmpty()) return null
-            val withScheme = when {
-                trimmed.contains("://") -> trimmed
-                isLocalNetworkHost(hostOf(trimmed)) -> "http://$trimmed"
-                else -> "https://$trimmed"
-            }
-            // Parsed before the trailing slashes go: trimmed first, "http://" became
-            // "http:", which then parsed as a host named "http".
-            val url = withScheme.toHttpUrlOrNull() ?: return null
-            return url.toString().trimEnd('/')
-        }
+        fun normalizeServerUrl(raw: String): String? = FetchServerAddress.normalize(raw)
 
         /** The host part of a scheme-less address: no user info, port, path or IPv6 brackets. */
-        internal fun hostOf(address: String): String {
-            val authority = address.substringBefore('/').substringBefore('?').substringBefore('#')
-            val hostAndPort = authority.substringAfterLast('@')
-            if (hostAndPort.startsWith("[")) return hostAndPort.substring(1).substringBefore(']')
-            return hostAndPort.substringBefore(':')
-        }
+        internal fun hostOf(address: String): String = FetchServerAddress.hostOf(address)
 
-        /**
-         * True for hosts that can only be on the local network: loopback, private (RFC 1918)
-         * and link-local IPv4, loopback / link-local / unique-local IPv6, `.local` and `.lan`
-         * names, and single-label names such as `nas` or `localhost`.
-         */
-        internal fun isLocalNetworkHost(host: String): Boolean {
-            val name = host.trim().trimEnd('.').lowercase()
-            if (name.isEmpty()) return false
-            if (name.contains(':')) {
-                // IPv6 literal.
-                if (name == "::1") return true
-                val firstGroup = name.substringBefore(':').toIntOrNull(16) ?: return false
-                return (firstGroup and 0xffc0) == 0xfe80 || // fe80::/10 link-local
-                    (firstGroup and 0xfe00) == 0xfc00 // fc00::/7 unique local
-            }
-            val octets = name.split('.')
-            if (octets.size == 4 && octets.all { octet -> octet.toIntOrNull()?.let { it in 0..255 } == true }) {
-                val (a, b) = octets.take(2).map { it.toInt() }
-                return a == 10 ||
-                    a == 127 ||
-                    (a == 172 && b in 16..31) ||
-                    (a == 192 && b == 168) ||
-                    (a == 169 && b == 254)
-            }
-            return !name.contains('.') || name.endsWith(".local") || name.endsWith(".lan")
-        }
+        /** See [FetchServerAddress.isLocalNetworkHost]. */
+        internal fun isLocalNetworkHost(host: String): Boolean = FetchServerAddress.isLocalNetworkHost(host)
 
         internal fun endpoint(serverUrl: String, path: String): String = "${serverUrl.trimEnd('/')}/$path"
     }

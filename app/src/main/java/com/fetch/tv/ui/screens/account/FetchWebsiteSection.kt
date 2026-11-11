@@ -36,6 +36,7 @@ import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.core.qr.QrCodeGenerator
 import com.fetch.tv.data.website.DiscoveredFetchServer
+import com.fetch.tv.data.website.WebsitePairingState
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.screens.settings.SettingsActionRow
@@ -164,6 +165,7 @@ internal fun FetchWebsitePairingContent(
                         viewModel.startPairing(server.apiUrl)
                     }
                 )
+                PhoneEntry(viewModel)
                 Message(stringResource(if (servers.isEmpty()) R.string.website_enter_address else R.string.website_enter_address_other))
                 InputField(
                     value = address,
@@ -177,8 +179,11 @@ internal fun FetchWebsitePairingContent(
                 )
                 if (current is WebsitePairingState.Failed) {
                     Text(
-                        text = current.message?.let { stringResource(R.string.website_pairing_failed, it) }
-                            ?: stringResource(R.string.website_address_invalid),
+                        text = when {
+                            current.notFound -> stringResource(R.string.website_not_found)
+                            current.message != null -> stringResource(R.string.website_pairing_failed, current.message)
+                            else -> stringResource(R.string.website_address_invalid)
+                        },
                         style = MaterialTheme.typography.bodySmall,
                         color = FetchTheme.colors.Error
                     )
@@ -215,7 +220,7 @@ internal fun FetchWebsitePairingContent(
                     SettingsDialogActionButton(
                         text = stringResource(R.string.website_pairing_retry),
                         primary = true,
-                        onClick = { viewModel.startPairing(address) }
+                        onClick = { viewModel.retryPairing() }
                     )
                 }
             }
@@ -251,6 +256,49 @@ private fun DiscoveredServers(
                 subtitle = server.apiUrl,
                 onClick = { onPick(server) },
                 modifier = if (index == 0 && firstFocus != null) Modifier.focusRequester(firstFocus) else Modifier
+            )
+        }
+    }
+}
+
+/**
+ * A QR code for typing the address on a phone instead of with the remote. While it shows,
+ * the TV serves its phone page; the phone starts the same pairing this dialog then shows.
+ */
+@Composable
+private fun PhoneEntry(viewModel: FetchWebsiteViewModel) {
+    DisposableEffect(viewModel) {
+        viewModel.onPhoneEntryShown()
+        onDispose { viewModel.onPhoneEntryHidden() }
+    }
+    val url by viewModel.phoneEntryUrl.collectAsStateWithLifecycle()
+    val qrBitmap = remember(url) {
+        url?.let { runCatching { QrCodeGenerator.generate(it, 360, margin = 1) }.getOrNull() }
+    } ?: return
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            bitmap = qrBitmap.asImageBitmap(),
+            contentDescription = stringResource(R.string.website_phone_qr),
+            modifier = Modifier.size(120.dp),
+            contentScale = ContentScale.Fit
+        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+        ) {
+            Text(
+                text = stringResource(R.string.website_phone_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = FetchTheme.colors.TextPrimary
+            )
+            Text(
+                text = stringResource(R.string.website_phone_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = FetchTheme.colors.TextSecondary
             )
         }
     }

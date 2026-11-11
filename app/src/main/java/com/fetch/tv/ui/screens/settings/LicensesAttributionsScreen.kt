@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import androidx.compose.ui.platform.LocalResources
 import androidx.core.net.toUri
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -374,10 +375,10 @@ private fun AttributionDetailRow(
  */
 @Composable
 private fun LicenseText(@RawRes resId: Int) {
-    val context = LocalContext.current
-    val paragraphs = remember(resId) {
+    val resources = LocalResources.current
+    val paragraphs = remember(resources, resId) {
         runCatching {
-            context.resources.openRawResource(resId).bufferedReader().use { it.readText() }
+            resources.openRawResource(resId).bufferedReader().use { it.readText() }
         }.getOrDefault("")
             .split(Regex("\\n\\s*\\n"))
             .map { it.trim() }

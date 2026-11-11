@@ -10,6 +10,7 @@ import android.view.accessibility.AccessibilityManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,7 +43,7 @@ fun isLowRamDevice(context: Context): Boolean =
 @Composable
 fun rememberFullMotionAllowed(reduceMotionSetting: Boolean = false): Boolean {
     val context = LocalContext.current
-    var animatorScale by remember(context) { mutableStateOf(systemAnimatorScale(context)) }
+    var animatorScale by remember(context) { mutableFloatStateOf(systemAnimatorScale(context)) }
     DisposableEffect(context) {
         val resolver = context.contentResolver
         val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {

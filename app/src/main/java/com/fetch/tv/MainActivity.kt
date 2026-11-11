@@ -578,13 +578,9 @@ open class MainActivity : ComponentActivity() {
                         splashPrefs.edit { putString("color_$activeProfileId", colorHex) }
                     }
                     if (splashPreferencesReady && bgUrl != null) {
-                        splashPrefs.edit()
-                            .putString("bg_url_$activeProfileId", bgUrl)
-                            .apply()
+                        splashPrefs.edit { putString("bg_url_$activeProfileId", bgUrl) }
                     } else if (splashPreferencesReady && activeProfile != null) {
-                        splashPrefs.edit()
-                            .remove("bg_url_$activeProfileId")
-                            .apply()
+                        splashPrefs.edit { remove("bg_url_$activeProfileId") }
                     }
                     val activeTheme = mainUiPrefs.theme
                     if (splashPreferencesReady && activeTheme != com.fetch.tv.domain.model.DEFAULT_APP_THEME) {

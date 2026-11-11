@@ -44,13 +44,13 @@ class FetchWebsiteStore internal constructor(
 
     fun save(session: FetchWebsiteSession) {
         clearSettingsBases()
-        prefs.edit()
-            .putString(KEY_SERVER_URL, session.serverUrl)
-            .putString(KEY_TOKEN, session.deviceToken)
-            .putString(KEY_DEVICE_NAME, session.deviceName)
-            .putBoolean(KEY_SIGNED_OUT, false)
-            .putBoolean(KEY_INITIAL_PROFILE_PUSH, true)
-            .apply()
+        prefs.edit {
+            putString(KEY_SERVER_URL, session.serverUrl)
+            putString(KEY_TOKEN, session.deviceToken)
+            putString(KEY_DEVICE_NAME, session.deviceName)
+            putBoolean(KEY_SIGNED_OUT, false)
+            putBoolean(KEY_INITIAL_PROFILE_PUSH, true)
+        }
         _signedOutByWebsite.value = false
         _session.value = session
     }
@@ -62,7 +62,7 @@ class FetchWebsiteStore internal constructor(
     val needsInitialProfilePush: Boolean get() = prefs.getBoolean(KEY_INITIAL_PROFILE_PUSH, false)
 
     fun markInitialProfilePushDone() {
-        prefs.edit().putBoolean(KEY_INITIAL_PROFILE_PUSH, false).apply()
+        prefs.edit { putBoolean(KEY_INITIAL_PROFILE_PUSH, false) }
     }
 
     /** Signing out on the TV: forget the token, keep the address for next time. */

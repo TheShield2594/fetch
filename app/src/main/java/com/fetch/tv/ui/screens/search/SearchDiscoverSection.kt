@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.search
 
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.platform.LocalResources
 import com.fetch.tv.ui.components.FetchMediaCard
 import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
@@ -129,6 +130,7 @@ internal fun DiscoverSection(
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
 ) {
     val localContext = LocalContext.current
+    val resources = LocalResources.current
     val types = remember(uiState.discoverCatalogs) { discoverTypes(uiState.discoverCatalogs) }
     val genres = remember(uiState.discoverCatalogs, uiState.selectedDiscoverType) {
         discoverGenres(uiState.discoverCatalogs, uiState.selectedDiscoverType)
@@ -163,18 +165,18 @@ internal fun DiscoverSection(
     }
 
     fun yearLabel(range: DiscoverYearRange?): String = when {
-        range == null -> localContext.getString(R.string.discover_year_any)
+        range == null -> resources.getString(R.string.discover_year_any)
         range.from != null && range.from == range.to -> range.from.toString()
-        range.from == null && range.to != null -> localContext.getString(R.string.discover_year_before, range.to + 1)
-        else -> localContext.getString(R.string.discover_year_decade, range.from ?: 0)
+        range.from == null && range.to != null -> resources.getString(R.string.discover_year_before, range.to + 1)
+        else -> resources.getString(R.string.discover_year_decade, range.from ?: 0)
     }
     fun ratingLabel(minRating: Int?): String =
         if (minRating == null) {
-            localContext.getString(R.string.discover_rating_any)
+            resources.getString(R.string.discover_rating_any)
         } else {
-            localContext.getString(R.string.discover_rating_min, minRating)
+            resources.getString(R.string.discover_rating_min, minRating)
         }
-    fun sortLabel(sort: DiscoverSort): String = localContext.getString(
+    fun sortLabel(sort: DiscoverSort): String = resources.getString(
         when (sort) {
             DiscoverSort.CATALOG -> R.string.discover_sort_catalog
             DiscoverSort.RATING -> R.string.discover_sort_rating

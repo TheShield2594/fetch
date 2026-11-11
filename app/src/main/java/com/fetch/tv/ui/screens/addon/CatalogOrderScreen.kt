@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.addon
 
+import android.annotation.SuppressLint
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.activity.compose.BackHandler
@@ -203,6 +204,9 @@ fun CatalogOrderScreen(
     }
 }
 
+// firstControlModifier goes on the card's first focusable control, not its outer layout, so it
+// keeps a name that says where it goes.
+@SuppressLint("ModifierParameter")
 @Composable
 private fun CatalogOrderCard(
     item: CatalogOrderItem,

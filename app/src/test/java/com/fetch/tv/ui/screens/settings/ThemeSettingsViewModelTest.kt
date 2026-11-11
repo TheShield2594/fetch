@@ -40,6 +40,7 @@ class ThemeSettingsViewModelTest {
         every { amoledMode } returns flowOf(false)
         every { amoledSurfacesMode } returns flowOf(false)
         every { highContrast } returns flowOf(false)
+        every { reduceMotion } returns flowOf(false)
         coEvery { setCustomTheme(any()) } coAnswers {
             selection.value = ThemeSelection(AppTheme.CUSTOM, firstArg())
         }

@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.util.Log
+import com.fetch.tv.core.util.runSuspendCatching
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -74,11 +75,11 @@ class ConnectivityMonitor @Inject constructor(
             }
         }
         trySend(reachNow())
-        val registered = runCatching { manager.registerDefaultNetworkCallback(callback) }
+        val registered = runSuspendCatching { manager.registerDefaultNetworkCallback(callback) }
             .onFailure { Log.w(TAG, "Could not watch connectivity", it) }
             .isSuccess
         awaitClose {
-            if (registered) runCatching { manager.unregisterNetworkCallback(callback) }
+            if (registered) runSuspendCatching { manager.unregisterNetworkCallback(callback) }
         }
     }.conflate().distinctUntilChanged()
 

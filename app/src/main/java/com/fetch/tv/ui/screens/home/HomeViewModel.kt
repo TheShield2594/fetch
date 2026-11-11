@@ -934,7 +934,7 @@ class HomeViewModel @Inject constructor(
                 val serverLibrary = if (reach == com.fetch.tv.core.network.NetworkReach.ONLINE) {
                     null
                 } else {
-                    runCatching { serverCatalog.titleLibraries().firstOrNull() }.getOrNull()?.let { ref ->
+                    com.fetch.tv.core.util.runSuspendCatching { serverCatalog.titleLibraries().firstOrNull() }.getOrNull()?.let { ref ->
                         HomeServerLibraryLink(
                             title = ref.title,
                             catalogId = ref.library.id,

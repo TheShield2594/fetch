@@ -20,7 +20,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -104,7 +103,7 @@ internal fun HomeOfflineState(
         Icon(
             imageVector = Icons.Default.WifiOff,
             contentDescription = null,
-            modifier = Modifier.size(80.dp),
+            modifier = Modifier.size(FetchTheme.spacing.xxxl),
             tint = FetchTheme.colors.TextTertiary
         )
         Spacer(modifier = Modifier.height(FetchTheme.spacing.xl))

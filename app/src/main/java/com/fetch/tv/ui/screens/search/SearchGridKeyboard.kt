@@ -24,12 +24,14 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.ui.components.FetchButton
+import com.fetch.tv.ui.theme.FetchSizes
+import com.fetch.tv.ui.theme.FetchSpacing
+import com.fetch.tv.ui.theme.FetchTheme
 
 /** The characters on the grid, row by row: letters, then digits. */
 internal val SEARCH_KEYBOARD_ROWS: List<String> = listOf(
@@ -57,8 +59,8 @@ internal fun applySearchKey(query: String, key: SearchKey): String = when (key) 
     SearchKey.Clear -> ""
 }
 
-private val KEY_SIZE = 44.dp
-private val KEY_GAP = 6.dp
+private val KEY_SIZE: Dp = FetchSizes.tokens.controls.icon
+private val KEY_GAP: Dp = FetchSpacing.tokens.sm
 private val ROW_WIDTH: Dp = KEY_SIZE * 6 + KEY_GAP * 5
 
 /** How wide the grid is, so the results beside it can start after it. */
@@ -126,7 +128,7 @@ internal fun SearchGridKeyboard(
                     .height(KEY_SIZE)
                     .semantics { contentDescription = spaceLabel }
             ) {
-                Icon(Icons.Default.SpaceBar, contentDescription = null, modifier = Modifier.size(20.dp))
+                Icon(Icons.Default.SpaceBar, contentDescription = null, modifier = Modifier.size(FetchSizes.tokens.icons.sm))
             }
             val deleteLabel = stringResource(R.string.search_keyboard_delete)
             KeyboardKey(
@@ -136,7 +138,7 @@ internal fun SearchGridKeyboard(
                     .height(KEY_SIZE)
                     .semantics { contentDescription = deleteLabel }
             ) {
-                Icon(Icons.AutoMirrored.Filled.Backspace, contentDescription = null, modifier = Modifier.size(20.dp))
+                Icon(Icons.AutoMirrored.Filled.Backspace, contentDescription = null, modifier = Modifier.size(FetchSizes.tokens.icons.sm))
             }
             KeyboardKey(
                 onClick = { press(SearchKey.Clear) },
@@ -166,9 +168,9 @@ private fun KeyboardKey(
     FetchButton(
         onClick = onClick,
         modifier = modifier,
-        // Keys sit 6dp apart; a growing key would cover its neighbours.
-        focusedScale = 1f,
-        contentPadding = PaddingValues(0.dp)
+        // Keys sit close together; a key that grows much would cover its neighbours.
+        focusedScale = FetchTheme.focus.subtleScale,
+        contentPadding = PaddingValues(FetchSpacing.tokens.none)
     ) {
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) { content() }
     }

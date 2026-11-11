@@ -679,7 +679,7 @@ fun SearchScreen(
             modifier = Modifier
                 .fillMaxSize()
                 // The grid keyboard sits at the left; the results start after it.
-                .padding(start = if (useGridKeyboard) SEARCH_KEYBOARD_WIDTH + FetchTheme.spacing.screen.horizontal else 0.dp)
+                .padding(start = if (useGridKeyboard) SEARCH_KEYBOARD_WIDTH + FetchTheme.spacing.screen.horizontal else FetchTheme.spacing.none)
                 .recompositionHighlighter()
                 .dpadRepeatThrottle(),
             state = listState,

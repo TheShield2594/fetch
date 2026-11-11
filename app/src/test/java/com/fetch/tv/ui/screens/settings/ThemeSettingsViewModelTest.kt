@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -56,7 +55,7 @@ class ThemeSettingsViewModelTest {
     }
 
     @Test
-    fun everyThemeIsAvailableAndTheEditorStaysSolid() = runTest {
+    fun everyThemeIsAvailable() = runTest {
         selection.value = ThemeSelection(AppTheme.CUSTOM, solid)
         val viewModel = createViewModel()
         runCurrent()
@@ -64,7 +63,6 @@ class ThemeSettingsViewModelTest {
         assertTrue(viewModel.uiState.value.themesLoaded)
         assertEquals(AppTheme.CUSTOM, viewModel.uiState.value.selectedTheme)
         assertEquals(AppTheme.entries.toSet(), viewModel.uiState.value.availableThemes.toSet())
-        assertFalse(viewModel.uiState.value.customThemeGradientEnabled)
         assertEquals(solid, viewModel.uiState.value.customThemeColors)
     }
 

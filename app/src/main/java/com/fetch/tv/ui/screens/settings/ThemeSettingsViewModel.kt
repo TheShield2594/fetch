@@ -25,9 +25,6 @@ data class ThemeSettingsUiState(
     val themesLoaded: Boolean = false,
     val selectedTheme: AppTheme = com.fetch.tv.domain.model.DEFAULT_APP_THEME,
     val customThemeColors: CustomThemeColors = CustomThemeColors.solid(CustomThemeColors.Default.second),
-    // Multi-stop gradients in the custom theme editor have never been enabled in Fetch (the
-    // fork only allowed them for paid tiers, which Fetch does not have), so the editor stays solid.
-    val customThemeGradientEnabled: Boolean = false,
     val availableThemes: List<AppTheme> = availableAppThemes(),
     val selectedFont: AppFont = AppFont.SCHIBSTED_GROTESK,
     val availableFonts: List<AppFont> = AppFont.entries.toList(),

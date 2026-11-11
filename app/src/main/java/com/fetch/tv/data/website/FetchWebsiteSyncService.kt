@@ -120,8 +120,14 @@ class FetchWebsiteSyncService @Inject constructor(
                 Result.success(Unit)
             }
             if (initialPush.isSuccess) pullProfiles()
-            pullActiveProfileState()
-            initialPush.getOrThrow()
+            val pulled = runCatchingNonCancel { pullActiveProfileState() }
+            // Both can fail: the push is the one the website's report names, since it is what
+            // keeps the TV's profiles off the account; the pull's error is in the log.
+            initialPush.exceptionOrNull()?.let { pushError ->
+                pulled.exceptionOrNull()?.let { Log.w(TAG, "Website sync step failed", it) }
+                throw pushError
+            }
+            pulled.getOrThrow()
         }.onFailure { Log.w(TAG, "Website sync failed", it) }
         if (signedIn) report(result)
         return result

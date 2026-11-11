@@ -17,12 +17,12 @@ class AudioDelayRouteDataStore @Inject constructor(
         private const val DELAY_MS = "delay_ms"
     }
 
-    private fun store() = factory.get(profileManager.activeProfileId.value, FEATURE)
+    private fun store(profileId: Int) = factory.get(profileId, FEATURE)
 
     private fun key(routeKey: String) = intPreferencesKey("$DELAY_MS|$routeKey")
 
     suspend fun saveDelayMs(routeKey: String, delayMs: Int?) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val key = key(routeKey)
             if (delayMs != null && delayMs != 0) {
                 prefs[key] = delayMs
@@ -33,6 +33,6 @@ class AudioDelayRouteDataStore @Inject constructor(
     }
 
     suspend fun loadDelayMs(routeKey: String): Int? {
-        return store().data.first()[key(routeKey)]
+        return store(profileManager.currentProfileId()).data.first()[key(routeKey)]
     }
 }

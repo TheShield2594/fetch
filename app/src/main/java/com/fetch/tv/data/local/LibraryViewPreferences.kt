@@ -37,7 +37,7 @@ class LibraryViewPreferences @Inject constructor(
     private val migratedProfiles = ConcurrentHashMap.newKeySet<Int>()
     private val migrationLock = Mutex()
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     val sortOption: Flow<String?> = observe(sortOptionKey)

@@ -22,7 +22,7 @@ class MDBListSettingsDataStore @Inject constructor(
         private const val FEATURE = "mdblist_settings"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     private val enabledKey = booleanPreferencesKey("mdblist_enabled")
@@ -63,50 +63,50 @@ class MDBListSettingsDataStore @Inject constructor(
         )
 
     suspend fun setEnabled(enabled: Boolean) {
-        store().edit { it[enabledKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[enabledKey] = enabled }
     }
 
     suspend fun setApiKey(apiKey: String) {
-        store().edit { it[apiKeyKey] = apiKey.trim() }
+        store(profileManager.currentProfileId()).edit { it[apiKeyKey] = apiKey.trim() }
     }
 
     suspend fun setShowTrakt(enabled: Boolean) {
-        store().edit { it[showTraktKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[showTraktKey] = enabled }
     }
 
     suspend fun setShowImdb(enabled: Boolean) {
-        store().edit { it[showImdbKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[showImdbKey] = enabled }
     }
 
     suspend fun setShowTmdb(enabled: Boolean) {
-        store().edit { it[showTmdbKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[showTmdbKey] = enabled }
     }
 
     suspend fun setShowLetterboxd(enabled: Boolean) {
-        store().edit { it[showLetterboxdKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[showLetterboxdKey] = enabled }
     }
 
     suspend fun setShowTomatoes(enabled: Boolean) {
-        store().edit { it[showTomatoesKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[showTomatoesKey] = enabled }
     }
 
     suspend fun setShowAudience(enabled: Boolean) {
-        store().edit { it[showAudienceKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[showAudienceKey] = enabled }
     }
 
     suspend fun setShowMetacritic(enabled: Boolean) {
-        store().edit { it[showMetacriticKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[showMetacriticKey] = enabled }
     }
 
     suspend fun setShowMal(enabled: Boolean) {
-        store().edit { it[showMalKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[showMalKey] = enabled }
     }
 
     suspend fun setShowOnHero(enabled: Boolean) {
-        store().edit { it[showOnHeroKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[showOnHeroKey] = enabled }
     }
 
     suspend fun setRatingOrder(order: List<String>) {
-        store().edit { it[ratingOrderKey] = order.joinToString(",") }
+        store(profileManager.currentProfileId()).edit { it[ratingOrderKey] = order.joinToString(",") }
     }
 }

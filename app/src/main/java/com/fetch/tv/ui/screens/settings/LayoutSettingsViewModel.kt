@@ -137,7 +137,8 @@ class LayoutSettingsViewModel @Inject constructor(
     private val traktSettingsDataStore: TraktSettingsDataStore,
     private val trailerSettingsDataStore: TrailerSettingsDataStore,
     private val addonRepository: AddonRepository,
-    private val metaRepository: com.fetch.tv.domain.repository.MetaRepository
+    private val metaRepository: com.fetch.tv.domain.repository.MetaRepository,
+    private val profileManager: com.fetch.tv.core.profile.ProfileManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LayoutSettingsUiState())
@@ -538,7 +539,7 @@ class LayoutSettingsViewModel @Inject constructor(
     private fun setFocusedPosterBackdropTrailerEnabled(enabled: Boolean) {
         if (_uiState.value.focusedPosterBackdropTrailerEnabled == enabled) return
         viewModelScope.launch {
-            layoutPreferenceDataStore.setFocusedPosterBackdropTrailerEnabled(enabled)
+            layoutPreferenceDataStore.setFocusedPosterBackdropTrailerEnabled(enabled, profileManager.currentProfileId())
         }
     }
 

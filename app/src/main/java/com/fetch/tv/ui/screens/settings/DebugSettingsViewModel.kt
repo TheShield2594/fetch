@@ -25,7 +25,8 @@ class DebugSettingsViewModel @Inject constructor(
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
     private val playerSettingsDataStore: PlayerSettingsDataStore,
     private val libraryPreferences: LibraryPreferences,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val profileManager: com.fetch.tv.core.profile.ProfileManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DebugSettingsUiState())
@@ -101,6 +102,8 @@ class DebugSettingsViewModel @Inject constructor(
         val genres = listOf("Action", "Drama", "Comedy", "Thriller", "Sci-Fi", "Horror", "Romance", "Adventure", "Crime", "Fantasy")
         val years = (1990..2025).toList()
 
+        // Every generated item goes to the profile that asked for them.
+        val profileId = profileManager.currentProfileId()
         for (i in 1..count) {
             val isMovie = Random.nextBoolean()
             val titles = if (isMovie) movieTitles else showTitles
@@ -119,7 +122,7 @@ class DebugSettingsViewModel @Inject constructor(
                 genres = genres.shuffled().take(Random.nextInt(1, 4)),
                 addonBaseUrl = null
             )
-            libraryPreferences.addItem(item)
+            libraryPreferences.addItem(item, profileId)
         }
     }
 }

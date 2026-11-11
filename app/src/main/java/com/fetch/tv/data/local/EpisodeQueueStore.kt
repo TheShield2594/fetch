@@ -55,7 +55,7 @@ class EpisodeQueueStore @Inject constructor(
         internal const val MAX_ITEMS = 100
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -84,7 +84,7 @@ class EpisodeQueueStore @Inject constructor(
     private fun QueueItem.stamped() = if (addedAtMs > 0L) this else copy(addedAtMs = System.currentTimeMillis())
 
     private suspend fun update(transform: (List<QueueItem>) -> List<QueueItem>) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val current = decodeQueueItems(prefs[ITEMS_KEY])
             val next = transform(current).take(MAX_ITEMS)
             if (next == current) return@edit

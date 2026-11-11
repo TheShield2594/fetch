@@ -72,7 +72,7 @@ class YouTubeAuthDataStore @Inject constructor(
     private val clientSecretKey = stringPreferencesKey("client_secret")
     private val pageIdKey = stringPreferencesKey("page_id")
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     val state: Flow<YouTubeAuthState> = profileManager.activeProfileId.flatMapLatest { profileId ->
@@ -125,7 +125,7 @@ class YouTubeAuthDataStore @Inject constructor(
     }
 
     suspend fun saveAccount(account: YouTubeAccount) {
-        store().edit { preferences ->
+        store(profileManager.currentProfileId()).edit { preferences ->
             account.pageId?.let { preferences[pageIdKey] = it } ?: preferences.remove(pageIdKey)
             account.name?.let { preferences[accountNameKey] = it } ?: preferences.remove(accountNameKey)
             account.handle?.let { preferences[accountHandleKey] = it } ?: preferences.remove(accountHandleKey)
@@ -139,7 +139,7 @@ class YouTubeAuthDataStore @Inject constructor(
         clientSecret: String,
         nowMillis: Long = System.currentTimeMillis()
     ) {
-        store().edit { preferences ->
+        store(profileManager.currentProfileId()).edit { preferences ->
             preferences[clientIdKey] = clientId
             preferences[clientSecretKey] = clientSecret
             preferences[deviceCodeKey] = code.deviceCode
@@ -151,11 +151,11 @@ class YouTubeAuthDataStore @Inject constructor(
     }
 
     suspend fun updatePollInterval(seconds: Int) {
-        store().edit { preferences -> preferences[pollIntervalKey] = seconds }
+        store(profileManager.currentProfileId()).edit { preferences -> preferences[pollIntervalKey] = seconds }
     }
 
     suspend fun clearDeviceFlow() {
-        store().edit { preferences ->
+        store(profileManager.currentProfileId()).edit { preferences ->
             preferences.remove(deviceCodeKey)
             preferences.remove(userCodeKey)
             preferences.remove(verificationUrlKey)

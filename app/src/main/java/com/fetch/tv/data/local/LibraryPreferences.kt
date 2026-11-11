@@ -76,7 +76,7 @@ class LibraryPreferences @Inject constructor(
     private val migratedProfiles: MutableSet<Int> = ConcurrentHashMap.newKeySet()
     private val migrationMutex = Mutex()
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     private fun isDeleted(profileId: Int) = store(profileId) is DeletedProfileDataStore
@@ -125,7 +125,7 @@ class LibraryPreferences @Inject constructor(
     suspend fun containsItem(
         itemId: String,
         itemType: String,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ): Boolean {
         return getSyncState(profileId).items.any { item ->
             item.id == itemId && item.type.equals(itemType, ignoreCase = true)
@@ -134,7 +134,7 @@ class LibraryPreferences @Inject constructor(
 
     suspend fun addItem(
         item: SavedLibraryItem,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) = edit(profileId) { state ->
         LibrarySyncReducer.upsertLocal(state = state, item = item, nowEpochMs = System.currentTimeMillis())
     }
@@ -142,13 +142,13 @@ class LibraryPreferences @Inject constructor(
     suspend fun removeItem(
         itemId: String,
         itemType: String,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) = edit(profileId) { state ->
         LibrarySyncReducer.deleteLocal(state = state, contentId = itemId, contentType = itemType)
     }
 
     suspend fun getAllItems(
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ): List<SavedLibraryItem> {
         return getSyncState(profileId).items
     }
@@ -157,7 +157,7 @@ class LibraryPreferences @Inject constructor(
         id: String,
         type: String,
         logo: String,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) = edit(profileId) { state ->
         state.copy(
             items = state.items.map { item ->
@@ -167,7 +167,7 @@ class LibraryPreferences @Inject constructor(
     }
 
     /** The whole sync state: items, queued changes and counters. */
-    internal suspend fun getSyncState(profileId: Int = profileManager.activeProfileId.value): LibrarySyncState {
+    internal suspend fun getSyncState(profileId: Int): LibrarySyncState {
         if (isDeleted(profileId)) return LibrarySyncState()
         ensureMigrated(profileId)
         return entries.all(profileId).toSyncState(profileId)

@@ -63,8 +63,6 @@ class LibraryRepositoryImpl @Inject constructor(
     private val localListManager: LocalTrackingListManager,
 ) : LibraryRepository {
 
-    private val hydratedLogoIds = mutableSetOf<String>()
-
     // combine() over no flows never emits, so with no providers say so directly.
     private val providerConnections = trackingProviders.providers()
         .takeIf { it.isNotEmpty() }
@@ -383,20 +381,6 @@ class LibraryRepositoryImpl @Inject constructor(
             addonBaseUrl = addonBaseUrl,
             logo = logo
         )
-    }
-
-    private suspend fun hydrateLibraryLogos(items: List<LibraryEntry>) {
-        items.take(20).forEach { entry ->
-            hydratedLogoIds.add(entry.id)
-            runSuspendCatching {
-                val result = metaRepository.getMetaFromPrimaryAddon(entry.type, entry.id)
-                    .firstOrNull { it is NetworkResult.Success }
-                val logo = (result as? NetworkResult.Success)?.data?.logo
-                if (logo != null) {
-                    libraryPreferences.updateLogo(entry.id, entry.type, logo)
-                }
-            }.onFailure { Log.w("LibraryRepo", "Logo hydration failed for ${entry.id}", it) }
-        }
     }
 }
 

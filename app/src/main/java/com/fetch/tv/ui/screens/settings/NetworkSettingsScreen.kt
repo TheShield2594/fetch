@@ -55,6 +55,7 @@ import org.json.JSONObject
 @dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
 private interface ClearCwCacheEntryPoint {
     fun cwEnrichmentCache(): com.fetch.tv.data.local.ContinueWatchingEnrichmentCache
+    fun profileManager(): com.fetch.tv.core.profile.ProfileManager
 }
 
 @dagger.hilt.EntryPoint
@@ -532,7 +533,7 @@ fun AdvancedSettingsContent(
                                         context.applicationContext,
                                         ClearCwCacheEntryPoint::class.java
                                     )
-                                entryPoint.cwEnrichmentCache().clearAll()
+                                entryPoint.cwEnrichmentCache().clearAll(entryPoint.profileManager().currentProfileId())
                                 cleared = true
                             }
                         }

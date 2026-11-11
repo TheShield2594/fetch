@@ -41,7 +41,7 @@ class BestMatchCacheDataStore @Inject constructor(
         fun contentKey(type: String, videoId: String): String = "${type.lowercase()}|$videoId"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     /** Every cached pick for the active profile, keyed by [contentKey]. */
@@ -55,7 +55,7 @@ class BestMatchCacheDataStore @Inject constructor(
         if (type.isBlank() || videoId.isBlank()) return
         if (labels.isEmpty() && !isCached) return
         val key = contentKey(type, videoId)
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val current = decodeBestMatchEntries(prefs[ENTRIES_KEY])
             val entry = CachedBestMatch(labels = labels, isCached = isCached, savedAtMs = System.currentTimeMillis())
             val merged = mergeBestMatchEntry(current, key, entry) ?: return@edit

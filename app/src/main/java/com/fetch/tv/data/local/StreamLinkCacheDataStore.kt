@@ -38,7 +38,7 @@ class StreamLinkCacheDataStore @Inject constructor(
         private const val FEATURE = "stream_link_cache"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     suspend fun save(
@@ -74,16 +74,18 @@ class StreamLinkCacheDataStore @Inject constructor(
             audioDelayMs?.let { put("audioDelayMs", it) }
         }.toString()
 
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[cachePrefKey(contentKey)] = payload
         }
     }
 
     suspend fun getValid(contentKey: String, maxAgeMs: Long): CachedStreamLink? {
+        // One profile for the whole operation, even if the active one changes part way.
+        val profileId = profileManager.currentProfileId()
         if (maxAgeMs <= 0L) return null
 
         val key = cachePrefKey(contentKey)
-        val raw = store().data.first()[key] ?: return null
+        val raw = store(profileId).data.first()[key] ?: return null
 
         val parsed = runSuspendCatching {
             val json = JSONObject(raw)
@@ -130,7 +132,7 @@ class StreamLinkCacheDataStore @Inject constructor(
         }.getOrNull()
 
         if (parsed == null) {
-            store().edit { mutablePrefs ->
+            store(profileId).edit { mutablePrefs ->
                 mutablePrefs.remove(key)
             }
         }

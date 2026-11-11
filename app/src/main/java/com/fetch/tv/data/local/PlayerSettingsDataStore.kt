@@ -596,7 +596,7 @@ class PlayerSettingsDataStore @Inject constructor(
         private const val CENTER_MIX_LEVEL_DB_MAX = 30
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     /**
@@ -1286,19 +1286,19 @@ class PlayerSettingsDataStore @Inject constructor(
     // Player preference setter
 
     suspend fun setPlayerPreference(preference: PlayerPreference) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[playerPreferenceKey] = preference.name
         }
     }
 
     suspend fun setInternalPlayerEngine(engine: InternalPlayerEngine) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[internalPlayerEngineKey] = engine.name
         }
     }
 
     suspend fun setAutoSwitchInternalPlayerOnError(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[autoSwitchInternalPlayerOnErrorKey] = enabled
         }
     }
@@ -1306,51 +1306,51 @@ class PlayerSettingsDataStore @Inject constructor(
     // Audio settings setters
 
     suspend fun setDecoderPriority(priority: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[decoderPriorityKey] = priority.coerceIn(0, 2)
         }
     }
 
     suspend fun setDownmixEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[downmixEnabledKey] = enabled
         }
     }
 
     suspend fun setAudioOutputChannels(channels: AudioOutputChannels) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[downmixEnabledKey] = true
             prefs[audioOutputChannelsKey] = channels.settingValue
         }
     }
 
     suspend fun setMaintainOriginalAudioOnDownmix(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[downmixEnabledKey] = true
             prefs[maintainOriginalAudioOnDownmixKey] = enabled
         }
     }
 
     suspend fun setTunnelingEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[tunnelingEnabledKey] = enabled
         }
     }
 
     suspend fun setForceOpticalPassthrough(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[forceOpticalPassthroughKey] = enabled
         }
     }
 
     suspend fun setSkipSilence(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[skipSilenceKey] = enabled
         }
     }
 
     suspend fun setAudioAmplificationDb(db: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[audioAmplificationDbKey] = db.coerceIn(
                 AUDIO_AMPLIFICATION_DB_MIN,
                 AUDIO_AMPLIFICATION_DB_MAX
@@ -1359,7 +1359,7 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setCenterMixLevelDb(db: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[centerMixLevelDbKey] = db.coerceIn(
                 CENTER_MIX_LEVEL_DB_MIN,
                 CENTER_MIX_LEVEL_DB_MAX
@@ -1372,7 +1372,7 @@ class PlayerSettingsDataStore @Inject constructor(
         dbToPersist: Int? = null,
         centerMixDbToPersist: Int? = null
     ) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[persistAudioAmplificationKey] = enabled
             if (enabled && dbToPersist != null) {
                 prefs[audioAmplificationDbKey] = dbToPersist.coerceIn(
@@ -1390,20 +1390,20 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setRememberAudioDelayPerDevice(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[rememberAudioDelayPerDeviceKey] = enabled
         }
     }
 
     suspend fun setPreferredAudioLanguage(
         language: String,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) {
         migratedStore(profileId).edit { it[preferredAudioLanguageKey] = normalizeSelectableLanguageCode(language.ifBlank { AudioLanguageOption.DEVICE }) }
     }
 
     suspend fun setSecondaryPreferredAudioLanguage(language: String?) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val normalizedLanguage = language?.takeIf { it.isNotBlank() }?.let(::normalizeSecondaryAudioLanguageCode)
             if (normalizedLanguage != null) prefs[secondaryPreferredAudioLanguageKey] = normalizedLanguage
             else prefs.remove(secondaryPreferredAudioLanguageKey)
@@ -1411,19 +1411,19 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setPauseOverlayEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[pauseOverlayEnabledKey] = enabled
         }
     }
 
     suspend fun setOsdClockEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[osdClockEnabledKey] = enabled
         }
     }
 
     suspend fun setSeekBackSeconds(seconds: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[seekBackSecondsKey] = PlayerSettings.normalizeSeekSeconds(
                 seconds,
                 PlayerSettings.SEEK_BACK_SECONDS_VALUES,
@@ -1433,7 +1433,7 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setSeekForwardSeconds(seconds: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[seekForwardSecondsKey] = PlayerSettings.normalizeSeekSeconds(
                 seconds,
                 PlayerSettings.SEEK_FORWARD_SECONDS_VALUES,
@@ -1443,7 +1443,7 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setControlsAutoHideSeconds(seconds: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[controlsAutoHideSecondsKey] = PlayerSettings.normalizeSeekSeconds(
                 seconds,
                 PlayerSettings.CONTROLS_AUTO_HIDE_SECONDS_VALUES,
@@ -1453,19 +1453,19 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setSkipIntroEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[skipIntroEnabledKey] = enabled
         }
     }
 
     suspend fun setParentalGuideEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[parentalGuideEnabledKey] = enabled
         }
     }
 
     suspend fun setAutoSkipSegmentTypeEnabled(segmentType: AutoSkipSegmentType, enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val current = prefs[autoSkipSegmentTypesKey]
                 ?.mapNotNull(AutoSkipSegmentType::fromStoredValue)
                 ?.toSet()
@@ -1476,32 +1476,32 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setLoadingOverlayEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[loadingOverlayEnabledKey] = enabled
         }
     }
 
     suspend fun setShowPlayerLoadingStatus(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[showPlayerLoadingStatusKey] = enabled
         }
     }
 
     suspend fun setFrameRateMatchingMode(mode: FrameRateMatchingMode) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[frameRateMatchingModeKey] = mode.name
             prefs[frameRateMatchingKey] = mode != FrameRateMatchingMode.OFF
         }
     }
 
     suspend fun setEnableBufferLogs(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[enableBufferLogsKey] = enabled
         }
     }
 
     suspend fun setResolutionMatchingEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[resolutionMatchingEnabledKey] = enabled
         }
     }
@@ -1513,37 +1513,37 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setStreamAutoPlayMode(mode: StreamAutoPlayMode) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[streamAutoPlayModeKey] = mode.name
         }
     }
 
     suspend fun setStreamRankingRules(rules: StreamRankingRules) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[streamRankingRulesKey] = rankingRulesJson.encodeToString(StreamRankingRules.serializer(), rules)
         }
     }
 
     suspend fun setStreamAutoPlaySelectedAddons(addons: Set<String>) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[streamAutoPlaySelectedAddonsKey] = addons
         }
     }
 
     suspend fun setStreamAutoPlayRegex(regex: String) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[streamAutoPlayRegexKey] = regex.trim()
         }
     }
 
     suspend fun setPostPlayRecommendationsEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[postPlayRecommendationsEnabledKey] = enabled
         }
     }
 
     suspend fun setPostPlayMovieThresholdPercent(percent: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[postPlayMovieThresholdPercentKey] = percent.coerceIn(
                 PlayerSettings.MIN_POST_PLAY_MOVIE_THRESHOLD_PERCENT,
                 PlayerSettings.MAX_POST_PLAY_MOVIE_THRESHOLD_PERCENT
@@ -1553,7 +1553,7 @@ class PlayerSettingsDataStore @Inject constructor(
 
     suspend fun setStreamAutoPlayNextEpisodeEnabled(
         enabled: Boolean,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) {
         migratedStore(profileId).edit { prefs ->
             prefs[streamAutoPlayNextEpisodeEnabledKey] = enabled
@@ -1561,43 +1561,43 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setStreamAutoPlayNextEpisodeFallbackEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[streamAutoPlayNextEpisodeFallbackEnabledKey] = enabled
         }
     }
 
     suspend fun setStreamAutoPlayPreferBingeGroupForNextEpisode(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[streamAutoPlayPreferBingeGroupForNextEpisodeKey] = enabled
         }
     }
 
     suspend fun setStreamAutoPlayReuseBingeGroup(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[streamAutoPlayReuseBingeGroupKey] = enabled
         }
     }
 
     suspend fun setStreamAutoPlayTimeoutSeconds(seconds: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[streamAutoPlayTimeoutSecondsKey] = PlayerSettings.applyLegacyTimeoutSentinelMigration(seconds)
         }
     }
 
     suspend fun setPreloadNextEpisodeSources(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[preloadNextEpisodeSourcesKey] = enabled
         }
     }
 
     suspend fun setStillWatchingEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[stillWatchingEnabledKey] = enabled
         }
     }
 
     suspend fun setStillWatchingEpisodeThreshold(threshold: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[stillWatchingEpisodeThresholdKey] = threshold.coerceIn(
                 PlayerSettings.MIN_STILL_WATCHING_EPISODE_THRESHOLD,
                 PlayerSettings.MAX_STILL_WATCHING_EPISODE_THRESHOLD
@@ -1606,7 +1606,7 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setAutoPlayCountdownSeconds(seconds: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[autoPlayCountdownSecondsKey] = seconds.coerceIn(
                 PlayerSettings.MIN_AUTO_PLAY_COUNTDOWN_SECONDS,
                 PlayerSettings.MAX_AUTO_PLAY_COUNTDOWN_SECONDS
@@ -1615,13 +1615,13 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setNextEpisodeThresholdMode(mode: NextEpisodeThresholdMode) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[nextEpisodeThresholdModeKey] = mode.name
         }
     }
 
     suspend fun setNextEpisodeThresholdPercent(percent: Float) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[nextEpisodeThresholdPercentKey] = normalizeHalfStep(
                 value = percent,
                 min = 97f,
@@ -1631,7 +1631,7 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setNextEpisodeThresholdMinutesBeforeEnd(minutes: Float) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[nextEpisodeThresholdMinutesBeforeEndKey] = normalizeHalfStep(
                 value = minutes,
                 min = 0f,
@@ -1645,60 +1645,60 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setStreamReuseLastLinkEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[streamReuseLastLinkEnabledKey] = enabled
         }
     }
 
     suspend fun setBestMatchPreviewEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[bestMatchPreviewEnabledKey] = enabled
         }
     }
 
     suspend fun setReadyCheckEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[readyCheckEnabledKey] = enabled
         }
     }
 
     suspend fun setStreamAutoPlayStartEarly(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[streamAutoPlayStartEarlyKey] = enabled
         }
     }
 
     suspend fun setStreamAutoPlayNextSourceOnFailure(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[streamAutoPlayNextSourceOnFailureKey] = enabled
         }
     }
 
     suspend fun setStreamReuseLastLinkCacheHours(hours: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[streamReuseLastLinkCacheHoursKey] = hours.coerceIn(1, 168)
         }
     }
 
     suspend fun setExternalPlayerForwardSubtitles(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[externalPlayerForwardSubtitlesKey] = enabled
         }
     }
 
     suspend fun setExternalPlayerSendSkipSegments(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[externalPlayerSendSkipSegmentsKey] = enabled
         }
     }
 
     suspend fun setSubtitleOrganizationMode(mode: SubtitleOrganizationMode) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[subtitleOrganizationModeKey] = mode.name
         }
     }
     suspend fun setResizeMode(mode: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[resizeModeKey] = mode.coerceIn(0, 4)
         }
     }
@@ -1788,13 +1788,13 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setMpvHardwareDecodeMode(mode: MpvHardwareDecodeMode) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[mpvHardwareDecodeModeKey] = mode.name
         }
     }
 
     suspend fun setMpvHi10pGnextSoftwareFallbackEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[mpvHi10pGnextSoftwareFallbackEnabledKey] = enabled
         }
     }
@@ -1803,7 +1803,7 @@ class PlayerSettingsDataStore @Inject constructor(
      * Set whether to use libass for ASS/SSA subtitle rendering
      */
     suspend fun setUseLibass(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[useLibassKey] = enabled
         }
     }
@@ -1812,45 +1812,45 @@ class PlayerSettingsDataStore @Inject constructor(
      * Set the libass render type
      */
     suspend fun setLibassRenderType(renderType: LibassRenderType) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[libassRenderTypeKey] = renderType.name
         }
     }
 
     // Dolby Vision setters (libdovi conversion)
-    suspend fun setDv5ToDv81Enabled(enabled: Boolean) { store().edit { it[dv5ToDv81EnabledKey] = enabled } }
-    suspend fun setDv7ToDv81PreserveMappingEnabled(enabled: Boolean) { store().edit { it[dv7ToDv81PreserveMappingEnabledKey] = enabled } }
-    suspend fun setDv7HandlingMode(mode: Dv7HandlingMode) { store().edit { it[dv7HandlingModeKey] = mode.name } }
-    suspend fun setDv7LibdoviModeOverride(mode: Int) { store().edit { it[dv7LibdoviModeOverrideKey] = mode.coerceIn(-1, 4) } }
-    suspend fun setStripHdr10PlusSei(enabled: Boolean) { store().edit { it[stripHdr10PlusSeiKey] = enabled } }
+    suspend fun setDv5ToDv81Enabled(enabled: Boolean) { store(profileManager.currentProfileId()).edit { it[dv5ToDv81EnabledKey] = enabled } }
+    suspend fun setDv7ToDv81PreserveMappingEnabled(enabled: Boolean) { store(profileManager.currentProfileId()).edit { it[dv7ToDv81PreserveMappingEnabledKey] = enabled } }
+    suspend fun setDv7HandlingMode(mode: Dv7HandlingMode) { store(profileManager.currentProfileId()).edit { it[dv7HandlingModeKey] = mode.name } }
+    suspend fun setDv7LibdoviModeOverride(mode: Int) { store(profileManager.currentProfileId()).edit { it[dv7LibdoviModeOverrideKey] = mode.coerceIn(-1, 4) } }
+    suspend fun setStripHdr10PlusSei(enabled: Boolean) { store(profileManager.currentProfileId()).edit { it[stripHdr10PlusSeiKey] = enabled } }
 
     // Subtitle styles
     suspend fun setSubtitlePreferredLanguage(
         language: String,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) { migratedStore(profileId).edit { it[subtitlePreferredLanguageKey] = normalizeSelectableLanguageCode(language.ifBlank { SubtitleLanguageOption.DEVICE }) } }
     suspend fun setSubtitleSecondaryLanguage(language: String?) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val normalizedLanguage = language?.takeIf { it.isNotBlank() }?.let(::normalizeSelectableLanguageCode)
             if (normalizedLanguage != null) prefs[subtitleSecondaryLanguageKey] = normalizedLanguage
             else prefs.remove(subtitleSecondaryLanguageKey)
         }
     }
-    suspend fun setSubtitleSize(size: Int) { store().edit { it[subtitleSizeKey] = size.coerceIn(50, 200) } }
-    suspend fun setSubtitleVerticalOffset(offset: Int) { store().edit { it[subtitleVerticalOffsetKey] = offset.coerceIn(-20, 50) } }
-    suspend fun setSubtitleBold(bold: Boolean) { store().edit { it[subtitleBoldKey] = bold } }
-    suspend fun setSubtitleTextColor(color: Int) { store().edit { it[subtitleTextColorKey] = color } }
-    suspend fun setSubtitleBackgroundColor(color: Int) { store().edit { it[subtitleBackgroundColorKey] = color } }
-    suspend fun setSubtitleOutlineEnabled(enabled: Boolean) { store().edit { it[subtitleOutlineEnabledKey] = enabled } }
+    suspend fun setSubtitleSize(size: Int) { store(profileManager.currentProfileId()).edit { it[subtitleSizeKey] = size.coerceIn(50, 200) } }
+    suspend fun setSubtitleVerticalOffset(offset: Int) { store(profileManager.currentProfileId()).edit { it[subtitleVerticalOffsetKey] = offset.coerceIn(-20, 50) } }
+    suspend fun setSubtitleBold(bold: Boolean) { store(profileManager.currentProfileId()).edit { it[subtitleBoldKey] = bold } }
+    suspend fun setSubtitleTextColor(color: Int) { store(profileManager.currentProfileId()).edit { it[subtitleTextColorKey] = color } }
+    suspend fun setSubtitleBackgroundColor(color: Int) { store(profileManager.currentProfileId()).edit { it[subtitleBackgroundColorKey] = color } }
+    suspend fun setSubtitleOutlineEnabled(enabled: Boolean) { store(profileManager.currentProfileId()).edit { it[subtitleOutlineEnabledKey] = enabled } }
     suspend fun setSubtitleUseSystemCaptionStyle(enabled: Boolean) {
-        store().edit { it[subtitleUseSystemCaptionStyleKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[subtitleUseSystemCaptionStyleKey] = enabled }
     }
-    suspend fun setSubtitleOutlineColor(color: Int) { store().edit { it[subtitleOutlineColorKey] = color } }
-    suspend fun setSubtitleOutlineWidth(width: Int) { store().edit { it[subtitleOutlineWidthKey] = width.coerceIn(1, 5) } }
-    suspend fun setSubtitleHdrStyleEnabled(enabled: Boolean) { store().edit { it[subtitleHdrStyleEnabledKey] = enabled } }
-    suspend fun setSubtitleHdrTextColor(color: Int) { store().edit { it[subtitleHdrTextColorKey] = color } }
+    suspend fun setSubtitleOutlineColor(color: Int) { store(profileManager.currentProfileId()).edit { it[subtitleOutlineColorKey] = color } }
+    suspend fun setSubtitleOutlineWidth(width: Int) { store(profileManager.currentProfileId()).edit { it[subtitleOutlineWidthKey] = width.coerceIn(1, 5) } }
+    suspend fun setSubtitleHdrStyleEnabled(enabled: Boolean) { store(profileManager.currentProfileId()).edit { it[subtitleHdrStyleEnabledKey] = enabled } }
+    suspend fun setSubtitleHdrTextColor(color: Int) { store(profileManager.currentProfileId()).edit { it[subtitleHdrTextColorKey] = color } }
     suspend fun setSubtitleHdrBrightness(brightness: Int) {
-        store().edit {
+        store(profileManager.currentProfileId()).edit {
             it[subtitleHdrBrightnessKey] = brightness.coerceIn(
                 SubtitleStyleSettings.HDR_BRIGHTNESS_MIN,
                 SubtitleStyleSettings.HDR_BRIGHTNESS_MAX
@@ -1859,19 +1859,19 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setUseForcedSubtitles(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[subtitleUseForcedSubtitlesKey] = enabled
         }
     }
 
     suspend fun setSubtitleShowOnlyPreferredLanguages(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[subtitleShowOnlyPreferredLanguagesKey] = enabled
         }
     }
 
     suspend fun setSubtitleStripSdh(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[subtitleStripSdhKey] = enabled
         }
     }
@@ -1879,7 +1879,7 @@ class PlayerSettingsDataStore @Inject constructor(
     // Buffer settings functions
 
     suspend fun setBufferMinBufferMs(ms: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val isNativeMemory = isNativeMemoryActive(prefs)
             val maxLimit = if (isNativeMemory) 1_200_000 else 120_000
             val newMin = ms.coerceIn(5_000, maxLimit)
@@ -1889,27 +1889,27 @@ class PlayerSettingsDataStore @Inject constructor(
         }
     }
     suspend fun setBufferMaxBufferMs(ms: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val isNativeMemory = isNativeMemoryActive(prefs)
             val maxLimit = if (isNativeMemory) 1_200_000 else 120_000
             val currentMin = prefs[minBufferMsKey] ?: BufferSettings.DEFAULT_MIN_BUFFER_MS
             prefs[maxBufferMsKey] = ms.coerceIn(currentMin, maxLimit)
         }
     }
-    suspend fun setBufferForPlaybackMs(ms: Int) { store().edit { it[bufferForPlaybackMsKey] = ms.coerceIn(1_000, 30_000) } }
-    suspend fun setBufferForPlaybackAfterRebufferMs(ms: Int) { store().edit { it[bufferForPlaybackAfterRebufferMsKey] = ms.coerceIn(1_000, 60_000) } }
-    suspend fun setBufferTargetSizeMb(mb: Int) { store().edit { it[targetBufferSizeMbKey] = mb.coerceAtLeast(0) } }
+    suspend fun setBufferForPlaybackMs(ms: Int) { store(profileManager.currentProfileId()).edit { it[bufferForPlaybackMsKey] = ms.coerceIn(1_000, 30_000) } }
+    suspend fun setBufferForPlaybackAfterRebufferMs(ms: Int) { store(profileManager.currentProfileId()).edit { it[bufferForPlaybackAfterRebufferMsKey] = ms.coerceIn(1_000, 60_000) } }
+    suspend fun setBufferTargetSizeMb(mb: Int) { store(profileManager.currentProfileId()).edit { it[targetBufferSizeMbKey] = mb.coerceAtLeast(0) } }
     suspend fun setBufferBackBufferDurationMs(ms: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val isNativeMemory = isNativeMemoryActive(prefs)
             val maxLimit = if (isNativeMemory) 240_000 else 120_000
             prefs[backBufferDurationMsKey] = ms.coerceIn(0, maxLimit)
         }
     }
-    suspend fun setBufferRetainBackBufferFromKeyframe(retain: Boolean) { store().edit { it[retainBackBufferFromKeyframeKey] = retain } }
+    suspend fun setBufferRetainBackBufferFromKeyframe(retain: Boolean) { store(profileManager.currentProfileId()).edit { it[retainBackBufferFromKeyframeKey] = retain } }
 
     suspend fun resetBufferSettingsToDefaults() {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             // Native exo installs its own buffer profile when it is turned on, so resetting to the
             // exo custom values here would leave the mode running on settings it never chose.
             val nativeEnabled = prefs[fetchPerformanceModeEnabledKey] ?: false
@@ -1942,7 +1942,7 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun resetNetworkSettingsToDefaults() {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[useParallelConnectionsKey] = PlayerSettings.DEFAULT_USE_PARALLEL_CONNECTIONS
             prefs.remove(parallelConnectionCountKey)
             prefs[parallelChunkSizeKbKey] = PlayerSettings.DEFAULT_PARALLEL_CHUNK_SIZE_KB
@@ -1952,25 +1952,25 @@ class PlayerSettingsDataStore @Inject constructor(
     }
 
     suspend fun setVodCacheEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[vodCacheEnabledKey] = enabled
             if (enabled) prefs[backBufferDurationMsKey] = 0
         }
     }
-    suspend fun setVodCacheSizeMode(mode: VodCacheSizeMode) { store().edit { it[vodCacheSizeModeKey] = mode.name } }
-    suspend fun setVodCacheSizeMb(mb: Int) { store().edit { it[vodCacheSizeMbKey] = mb.coerceIn(PlayerSettings.MIN_VOD_CACHE_SIZE_MB, PlayerSettings.MAX_VOD_CACHE_SIZE_MB) } }
-    suspend fun setUseParallelConnections(enabled: Boolean) { store().edit { it[useParallelConnectionsKey] = enabled } }
+    suspend fun setVodCacheSizeMode(mode: VodCacheSizeMode) { store(profileManager.currentProfileId()).edit { it[vodCacheSizeModeKey] = mode.name } }
+    suspend fun setVodCacheSizeMb(mb: Int) { store(profileManager.currentProfileId()).edit { it[vodCacheSizeMbKey] = mb.coerceIn(PlayerSettings.MIN_VOD_CACHE_SIZE_MB, PlayerSettings.MAX_VOD_CACHE_SIZE_MB) } }
+    suspend fun setUseParallelConnections(enabled: Boolean) { store(profileManager.currentProfileId()).edit { it[useParallelConnectionsKey] = enabled } }
     suspend fun setBufferEngineEnabled(enabled: Boolean) {
-        store().edit { it[bufferEngineEnabledKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[bufferEngineEnabledKey] = enabled }
     }
 
     suspend fun setParallelNetworkEnabled(enabled: Boolean) {
-        store().edit { it[parallelNetworkEnabledKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[parallelNetworkEnabledKey] = enabled }
     }
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     suspend fun setAllowLargeTargetBuffer(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[allowLargeTargetBufferKey] = enabled
             if (!enabled) {
                 val isNativeMemory = isNativeMemoryActive(prefs)
@@ -1997,19 +1997,19 @@ class PlayerSettingsDataStore @Inject constructor(
         }
     }
     suspend fun setBufferBudgetManaged(enabled: Boolean) {
-        store().edit { it[bufferBudgetManagedKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[bufferBudgetManagedKey] = enabled }
     }
     suspend fun setLastPlaybackDiagnostics(diagnostics: LastPlaybackDiagnostics) {
-        store().edit { it[lastPlaybackDiagnosticsKey] = diagnostics.toJson() }
+        store(profileManager.currentProfileId()).edit { it[lastPlaybackDiagnosticsKey] = diagnostics.toJson() }
     }
     suspend fun setParallelConnectionCount(count: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val isNativeMemory = isNativeMemoryActive(prefs)
             val maxCount = if (isNativeMemory) 16 else PlayerSettings.MAX_PARALLEL_CONNECTION_COUNT
             prefs[parallelConnectionCountKey] = count.coerceIn(PlayerSettings.MIN_PARALLEL_CONNECTION_COUNT, maxCount)
         }
     }
-    suspend fun setParallelChunkSizeKb(kb: Int) { store().edit { prefs -> prefs[parallelChunkSizeKbKey] = kb.coerceIn(PlayerSettings.MIN_PARALLEL_CHUNK_SIZE_KB, PlayerSettings.MAX_PARALLEL_CHUNK_SIZE_KB); prefs.remove(parallelChunkSizeMbKey) } }
+    suspend fun setParallelChunkSizeKb(kb: Int) { store(profileManager.currentProfileId()).edit { prefs -> prefs[parallelChunkSizeKbKey] = kb.coerceIn(PlayerSettings.MIN_PARALLEL_CHUNK_SIZE_KB, PlayerSettings.MAX_PARALLEL_CHUNK_SIZE_KB); prefs.remove(parallelChunkSizeMbKey) } }
 
     suspend fun updateMemorySettings(
         targetBufferSizeMb: Int? = null,
@@ -2017,7 +2017,7 @@ class PlayerSettingsDataStore @Inject constructor(
         parallelConnectionCount: Int? = null,
         parallelChunkSizeKb: Int? = null
     ) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             targetBufferSizeMb?.let { prefs[targetBufferSizeMbKey] = it.coerceAtLeast(0) }
             useParallelConnections?.let { prefs[useParallelConnectionsKey] = it }
             parallelConnectionCount?.let {
@@ -2043,7 +2043,7 @@ class PlayerSettingsDataStore @Inject constructor(
 
     suspend fun setFetchPerformanceModeEnabled(enabled: Boolean) {
         val actualEnabled = enabled && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[fetchPerformanceModeEnabledKey] = actualEnabled
             if (actualEnabled) {
                 val safeLimitMb = FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb(context)

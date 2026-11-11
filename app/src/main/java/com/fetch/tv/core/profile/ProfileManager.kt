@@ -79,6 +79,31 @@ class ProfileManager @Inject constructor(
     val loadedActiveProfileId: StateFlow<Int?> = profileDataStore.activeProfileId
         .stateIn(scope, SharingStarted.Eagerly, null)
 
+    private val sessionRef = java.util.concurrent.atomic.AtomicReference(ProfileSession(activeProfileId.value))
+
+    /**
+     * The active profile's [ProfileSession]. A new session (with empty caches) replaces the old
+     * one as soon as [activeProfileId] changes, so per-profile in-memory state is dropped with
+     * the profile it belongs to rather than cleared by hand on each switch.
+     */
+    val activeSession: ProfileSession
+        get() {
+            val id = activeProfileId.value
+            while (true) {
+                val current = sessionRef.get()
+                if (current.profileId == id) return current
+                val next = ProfileSession(id)
+                if (sessionRef.compareAndSet(current, next)) return next
+            }
+        }
+
+    /**
+     * The active profile id, read once by the caller at the start of an operation and passed
+     * down explicitly. Stores and repositories take the id as a parameter instead of reading
+     * the active profile themselves part way through.
+     */
+    fun currentProfileId(): Int = activeProfileId.value
+
     val activeProfile: UserProfile?
         get() = profiles.value.find { it.id == activeProfileId.value }
 

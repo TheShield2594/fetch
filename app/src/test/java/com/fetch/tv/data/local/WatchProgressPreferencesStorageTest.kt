@@ -29,7 +29,7 @@ class WatchProgressPreferencesStorageTest {
     fun `empty legacy storage moves nothing and writes no file`() = runTest {
         val harness = harness(emptyMap())
 
-        val result = harness.preferences.getAllRawEntries()
+        val result = harness.preferences.getAllRawEntries(profileId = 1)
 
         assertTrue(result.isEmpty())
         assertEquals(0, harness.recent.updateCount)
@@ -42,7 +42,7 @@ class WatchProgressPreferencesStorageTest {
     fun `a legacy single map moves to the database and leaves the file`() = runTest {
         val harness = harness(legacyEntries())
 
-        val result = harness.preferences.getAllRawEntries()
+        val result = harness.preferences.getAllRawEntries(profileId = 1)
 
         assertEquals(250, result.size)
         assertEquals(legacyEntries(), result)
@@ -59,7 +59,7 @@ class WatchProgressPreferencesStorageTest {
             archive = mapOf("item" to archived, "old" to progress("old", 0L))
         )
 
-        val result = harness.preferences.getAllRawEntries()
+        val result = harness.preferences.getAllRawEntries(profileId = 1)
 
         assertEquals(setOf("item", "new", "old"), result.keys)
         assertEquals(recent, result["item"])
@@ -70,11 +70,11 @@ class WatchProgressPreferencesStorageTest {
     @Test
     fun `the move runs once`() = runTest {
         val harness = harness(legacyEntries())
-        harness.preferences.getAllRawEntries()
+        harness.preferences.getAllRawEntries(profileId = 1)
         harness.resetUpdateCounts()
         val second = WatchProgressPreferences(harness.factory, harness.profileManager, harness.rows)
 
-        val result = second.getAllRawEntries()
+        val result = second.getAllRawEntries(profileId = 1)
 
         assertEquals(250, result.size)
         assertEquals(0, harness.rows.entriesWritten)
@@ -86,14 +86,14 @@ class WatchProgressPreferencesStorageTest {
         for (size in listOf(100, 1_000, 15_000)) {
             val entries = (0 until size).associate { "large$it" to progress("large$it", lastWatched = it.toLong()) }
             val harness = harness(entries)
-            harness.preferences.getAllRawEntries()
+            harness.preferences.getAllRawEntries(profileId = 1)
             harness.resetUpdateCounts()
 
-            harness.preferences.saveProgress(entries.getValue("large0").copy(position = 5_000L, lastWatched = 20_000L))
+            harness.preferences.saveProgress(entries.getValue("large0").copy(position = 5_000L, lastWatched = 20_000L), profileId = 1)
 
             assertEquals("entries written by one save with $size entries", 1, harness.rows.entriesWritten)
             assertEquals(0, harness.recent.updateCount + harness.archive.updateCount + harness.metadata.updateCount)
-            assertEquals(5_000L, harness.preferences.getAllRawEntries().getValue("large0").position)
+            assertEquals(5_000L, harness.preferences.getAllRawEntries(profileId = 1).getValue("large0").position)
         }
     }
 
@@ -101,12 +101,12 @@ class WatchProgressPreferencesStorageTest {
     fun `an episode save replaces the series-level entry`() = runTest {
         val seriesLevel = progress("show", 1L).copy(contentType = "series")
         val harness = harness(mapOf("show" to seriesLevel))
-        harness.preferences.getAllRawEntries()
+        harness.preferences.getAllRawEntries(profileId = 1)
         harness.resetUpdateCounts()
 
-        harness.preferences.saveProgress(seriesLevel.copy(season = 1, episode = 2, lastWatched = 2L))
+        harness.preferences.saveProgress(seriesLevel.copy(season = 1, episode = 2, lastWatched = 2L), profileId = 1)
 
-        assertEquals(setOf("show_s1e2"), harness.preferences.getAllRawEntries().keys)
+        assertEquals(setOf("show_s1e2"), harness.preferences.getAllRawEntries(profileId = 1).keys)
         assertEquals(2, harness.rows.entriesWritten)
     }
 
@@ -115,9 +115,9 @@ class WatchProgressPreferencesStorageTest {
         val first = progress("item", 1L).copy(poster = "poster.jpg", name = "Name")
         val harness = harness(mapOf("item" to first))
 
-        harness.preferences.saveProgress(first.copy(poster = null, name = "", position = 2_000L, lastWatched = 2L))
+        harness.preferences.saveProgress(first.copy(poster = null, name = "", position = 2_000L, lastWatched = 2L), profileId = 1)
 
-        val saved = harness.preferences.getAllRawEntries().getValue("item")
+        val saved = harness.preferences.getAllRawEntries(profileId = 1).getValue("item")
         assertEquals("poster.jpg", saved.poster)
         assertEquals("Name", saved.name)
         assertEquals(2_000L, saved.position)
@@ -126,14 +126,14 @@ class WatchProgressPreferencesStorageTest {
     @Test
     fun `removing a title removes its entries and nothing else`() = runTest {
         val harness = harness(legacyEntries())
-        harness.preferences.getAllRawEntries()
+        harness.preferences.getAllRawEntries(profileId = 1)
         harness.resetUpdateCounts()
 
-        harness.preferences.removeProgress("item0")
+        harness.preferences.removeProgress("item0", profileId = 1)
 
         assertEquals(1, harness.rows.entriesWritten)
-        assertFalse("item0" in harness.preferences.getAllRawEntries())
-        assertEquals(249, harness.preferences.getAllRawEntries().size)
+        assertFalse("item0" in harness.preferences.getAllRawEntries(profileId = 1))
+        assertEquals(249, harness.preferences.getAllRawEntries(profileId = 1).size)
     }
 
     @Test
@@ -143,40 +143,41 @@ class WatchProgressPreferencesStorageTest {
             mapOf("show_s1e1" to episode(1, 1), "show_s1e2" to episode(1, 2), "other" to progress("other", 1L))
         )
 
-        harness.preferences.removeProgress("show")
+        harness.preferences.removeProgress("show", profileId = 1)
 
-        assertEquals(setOf("other"), harness.preferences.getAllRawEntries().keys)
+        assertEquals(setOf("other"), harness.preferences.getAllRawEntries(profileId = 1).keys)
     }
 
     @Test
     fun `batch saves write only the entries they save`() = runTest {
         val entries = legacyEntries()
         val harness = harness(entries)
-        harness.preferences.getAllRawEntries()
+        harness.preferences.getAllRawEntries(profileId = 1)
         harness.resetUpdateCounts()
         val updates = (0 until 5).map { index ->
             entries.getValue("item$index").copy(lastWatched = 2_000L + index)
         }
 
-        harness.preferences.saveProgressBatch(updates)
+        harness.preferences.saveProgressBatch(updates, profileId = 1)
 
         assertEquals(5, harness.rows.entriesWritten)
-        assertEquals(250, harness.preferences.getAllRawEntries().size)
+        assertEquals(250, harness.preferences.getAllRawEntries(profileId = 1).size)
     }
 
     @Test
     fun `remote merge adds the new entry and writes nothing else`() = runTest {
         val harness = harness(legacyEntries())
-        harness.preferences.getAllRawEntries()
+        harness.preferences.getAllRawEntries(profileId = 1)
         harness.resetUpdateCounts()
         val remote = progress("remote", lastWatched = 2_000L)
 
         harness.preferences.mergeRemoteEntries(
             remoteEntries = mapOf("remote" to remote),
-            removeMissingRemoteEntries = false
+            removeMissingRemoteEntries = false,
+            profileId = 1
         )
 
-        val result = harness.preferences.getAllRawEntries()
+        val result = harness.preferences.getAllRawEntries(profileId = 1)
         assertEquals(251, result.size)
         assertEquals(remote, result["remote"])
         assertEquals(1, harness.rows.entriesWritten)
@@ -185,16 +186,17 @@ class WatchProgressPreferencesStorageTest {
     @Test
     fun `remote delta deletes and adds entries`() = runTest {
         val harness = harness(legacyEntries())
-        harness.preferences.getAllRawEntries()
+        harness.preferences.getAllRawEntries(profileId = 1)
         harness.resetUpdateCounts()
         val remote = progress("remote", lastWatched = 2_000L)
 
         harness.preferences.applyRemoteChanges(
             upserts = mapOf("remote" to remote),
-            deletes = listOf("item0")
+            deletes = listOf("item0"),
+            profileId = 1
         )
 
-        val result = harness.preferences.getAllRawEntries()
+        val result = harness.preferences.getAllRawEntries(profileId = 1)
         assertEquals(250, result.size)
         assertFalse("item0" in result)
         assertEquals(remote, result["remote"])
@@ -215,26 +217,27 @@ class WatchProgressPreferencesStorageTest {
     @Test
     fun `empty remote replacement clears non-pending local progress`() = runTest {
         val harness = harness(legacyEntries())
-        harness.preferences.getAllRawEntries()
+        harness.preferences.getAllRawEntries(profileId = 1)
         harness.resetUpdateCounts()
 
-        harness.preferences.replaceWithRemoteEntries(emptyMap())
+        harness.preferences.replaceWithRemoteEntries(emptyMap(), profileId = 1)
 
-        assertTrue(harness.preferences.getAllRawEntries().isEmpty())
+        assertTrue(harness.preferences.getAllRawEntries(profileId = 1).isEmpty())
     }
 
     @Test
     fun `pending progress upsert survives an empty snapshot`() = runTest {
         val harness = harness(mapOf("item" to progress("item", 100L)))
-        harness.preferences.getAllRawEntries()
+        harness.preferences.getAllRawEntries(profileId = 1)
 
         val preserved = harness.preferences.replaceWithRemoteEntries(
             remoteEntries = emptyMap(),
-            pendingUpsertKeys = setOf("item")
+            pendingUpsertKeys = setOf("item"),
+            profileId = 1
         )
 
         assertTrue(preserved)
-        assertEquals(setOf("item"), harness.preferences.getAllRawEntries().keys)
+        assertEquals(setOf("item"), harness.preferences.getAllRawEntries(profileId = 1).keys)
     }
 
     @Test
@@ -244,26 +247,28 @@ class WatchProgressPreferencesStorageTest {
 
         harness.preferences.replaceWithRemoteEntries(
             remoteEntries = mapOf("item" to remote),
-            pendingDeleteKeys = setOf("item")
+            pendingDeleteKeys = setOf("item"),
+            profileId = 1
         )
 
-        assertTrue(harness.preferences.getAllRawEntries().isEmpty())
+        assertTrue(harness.preferences.getAllRawEntries(profileId = 1).isEmpty())
     }
 
     @Test
     fun `remote delta delete cannot remove a pending progress upsert`() = runTest {
         val local = progress("item", 100L)
         val harness = harness(mapOf("item" to local))
-        harness.preferences.getAllRawEntries()
+        harness.preferences.getAllRawEntries(profileId = 1)
 
         val preserved = harness.preferences.applyRemoteChanges(
             upserts = emptyMap(),
             deletes = listOf("item"),
-            pendingUpsertKeys = setOf("item")
+            pendingUpsertKeys = setOf("item"),
+            profileId = 1
         )
 
         assertTrue(preserved)
-        assertEquals(local, harness.preferences.getAllRawEntries()["item"])
+        assertEquals(local, harness.preferences.getAllRawEntries(profileId = 1)["item"])
     }
 
     @Test
@@ -273,10 +278,11 @@ class WatchProgressPreferencesStorageTest {
         harness.preferences.applyRemoteChanges(
             upserts = mapOf("item" to progress("item", 100L)),
             deletes = emptyList(),
-            pendingDeleteKeys = setOf("item")
+            pendingDeleteKeys = setOf("item"),
+            profileId = 1
         )
 
-        assertTrue(harness.preferences.getAllRawEntries().isEmpty())
+        assertTrue(harness.preferences.getAllRawEntries(profileId = 1).isEmpty())
     }
 
     @Test
@@ -300,11 +306,11 @@ class WatchProgressPreferencesStorageTest {
             this["custom:archive"] = progress("custom:archive", lastWatched = -1L)
         }
         val harness = harness(entries)
-        harness.preferences.getAllRawEntries()
+        harness.preferences.getAllRawEntries(profileId = 1)
 
-        harness.preferences.clearAllPreservingNonTraktIds { it.startsWith("custom:") }
+        harness.preferences.clearAllPreservingNonTraktIds(profileId = 1) { it.startsWith("custom:") }
 
-        val result = harness.preferences.getAllRawEntries()
+        val result = harness.preferences.getAllRawEntries(profileId = 1)
         assertEquals(setOf("custom:recent", "custom:archive"), result.keys)
     }
 
@@ -340,7 +346,8 @@ class WatchProgressPreferencesStorageTest {
         initialEmission.await()
 
         harness.preferences.saveProgress(
-            entries.getValue("item0").copy(position = 5_000L, lastWatched = 1_000L)
+            entries.getValue("item0").copy(position = 5_000L, lastWatched = 1_000L),
+            profileId = 1
         )
         val result = nextEmission.await()
 
@@ -355,40 +362,43 @@ class WatchProgressPreferencesStorageTest {
     @Test
     fun `progress saved after the sync point survives a pull that omits it`() = runTest {
         val harness = harness(emptyMap())
-        harness.preferences.saveProgress(progress("unsynced", lastWatched = 200L))
+        harness.preferences.saveProgress(progress("unsynced", lastWatched = 200L), profileId = 1)
 
         harness.preferences.mergeRemoteEntries(
             remoteEntries = mapOf("remote" to progress("remote", lastWatched = 50L)),
-            lastSuccessfulPushMs = 100L
+            lastSuccessfulPushMs = 100L,
+            profileId = 1
         )
 
-        assertTrue(harness.preferences.getAllRawEntries().containsKey("unsynced"))
+        assertTrue(harness.preferences.getAllRawEntries(profileId = 1).containsKey("unsynced"))
     }
 
     @Test
     fun `progress older than the sync point is dropped when the remote omits it`() = runTest {
         val harness = harness(emptyMap())
-        harness.preferences.saveProgress(progress("synced", lastWatched = 50L))
+        harness.preferences.saveProgress(progress("synced", lastWatched = 50L), profileId = 1)
 
         harness.preferences.mergeRemoteEntries(
             remoteEntries = mapOf("remote" to progress("remote", lastWatched = 50L)),
-            lastSuccessfulPushMs = 100L
+            lastSuccessfulPushMs = 100L,
+            profileId = 1
         )
 
-        assertFalse(harness.preferences.getAllRawEntries().containsKey("synced"))
+        assertFalse(harness.preferences.getAllRawEntries(profileId = 1).containsKey("synced"))
     }
 
     @Test
     fun `an entry saved exactly at the sync point counts as pushed`() = runTest {
         val harness = harness(emptyMap())
-        harness.preferences.saveProgress(progress("boundary", lastWatched = 100L))
+        harness.preferences.saveProgress(progress("boundary", lastWatched = 100L), profileId = 1)
 
         harness.preferences.mergeRemoteEntries(
             remoteEntries = mapOf("remote" to progress("remote", lastWatched = 50L)),
-            lastSuccessfulPushMs = 100L
+            lastSuccessfulPushMs = 100L,
+            profileId = 1
         )
 
-        assertFalse(harness.preferences.getAllRawEntries().containsKey("boundary"))
+        assertFalse(harness.preferences.getAllRawEntries(profileId = 1).containsKey("boundary"))
     }
 
     private fun harness(

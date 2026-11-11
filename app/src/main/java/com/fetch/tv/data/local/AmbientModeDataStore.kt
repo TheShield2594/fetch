@@ -28,7 +28,7 @@ class AmbientModeDataStore @Inject constructor(
         const val FEATURE = "ambient_mode_settings"
     }
 
-    private fun store() = factory.get(profileManager.activeProfileId.value, FEATURE)
+    private fun store(profileId: Int) = factory.get(profileId, FEATURE)
 
     private val enabledKey = booleanPreferencesKey("ambient_enabled")
     private val timeoutMinutesKey = intPreferencesKey("ambient_timeout_minutes")
@@ -51,20 +51,20 @@ class AmbientModeDataStore @Inject constructor(
         )
 
     suspend fun setEnabled(enabled: Boolean) {
-        store().edit { it[enabledKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[enabledKey] = enabled }
     }
 
     suspend fun setTimeoutMinutes(minutes: Int) {
-        store().edit { it[timeoutMinutesKey] = minutes }
+        store(profileManager.currentProfileId()).edit { it[timeoutMinutesKey] = minutes }
     }
 
     suspend fun setFace(face: AmbientFace) {
-        store().edit { it[faceKey] = face.name }
+        store(profileManager.currentProfileId()).edit { it[faceKey] = face.name }
     }
 
     suspend fun setCatalogKeys(keys: List<String>) {
         val limited = keys.distinct().take(AmbientModeSettings.MAX_CATALOGS)
-        store().edit { it[catalogKeysKey] = JSONArray(limited).toString() }
+        store(profileManager.currentProfileId()).edit { it[catalogKeysKey] = JSONArray(limited).toString() }
     }
 
     private fun decodeKeys(raw: String?): List<String> {

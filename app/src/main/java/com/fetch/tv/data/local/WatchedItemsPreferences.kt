@@ -43,7 +43,7 @@ class WatchedItemsPreferences @Inject constructor(
         private const val TAG = "WatchedItemsPrefs"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     private val gson = Gson()
@@ -100,7 +100,7 @@ class WatchedItemsPreferences @Inject constructor(
         block()
     }
 
-    suspend fun getLastSuccessfulPushMs(profileId: Int = profileManager.activeProfileId.value): Long {
+    suspend fun getLastSuccessfulPushMs(profileId: Int): Long {
         val prefs = store(profileId).data.first()
         return prefs[lastSuccessfulPushMsKey] ?: 0L
     }
@@ -110,24 +110,24 @@ class WatchedItemsPreferences @Inject constructor(
      * the edit, so two pushes finishing out of order cannot leave the older one on disk.
      * Nothing needs to lower it: deleting a profile removes the whole store.
      */
-    suspend fun advanceLastSuccessfulPushMs(timestampMs: Long, profileId: Int = profileManager.activeProfileId.value) {
+    suspend fun advanceLastSuccessfulPushMs(timestampMs: Long, profileId: Int) {
         store(profileId).edit { prefs ->
             val stored = prefs[lastSuccessfulPushMsKey] ?: 0L
             prefs[lastSuccessfulPushMsKey] = maxOf(stored, timestampMs)
         }
     }
 
-    suspend fun getDeltaCursor(profileId: Int = profileManager.activeProfileId.value): Long {
+    suspend fun getDeltaCursor(profileId: Int): Long {
         val prefs = store(profileId).data.first()
         return prefs[deltaCursorKey] ?: 0L
     }
 
-    suspend fun isDeltaInitialized(profileId: Int = profileManager.activeProfileId.value): Boolean {
+    suspend fun isDeltaInitialized(profileId: Int): Boolean {
         val prefs = store(profileId).data.first()
         return prefs[deltaInitializedKey] ?: false
     }
 
-    suspend fun setDeltaState(cursor: Long, initialized: Boolean = true, profileId: Int = profileManager.activeProfileId.value) {
+    suspend fun setDeltaState(cursor: Long, initialized: Boolean = true, profileId: Int) {
         store(profileId).edit { prefs ->
             prefs[deltaCursorKey] = cursor.coerceAtLeast(0L)
             prefs[deltaInitializedKey] = initialized
@@ -165,7 +165,7 @@ class WatchedItemsPreferences @Inject constructor(
 
     fun getWatchedEpisodesForContent(
         contentId: String,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ): Flow<Set<Pair<Int, Int>>> {
         return observeContent(profileId, contentId).map { entries ->
             entries.filter { it.season != null && it.episode != null }
@@ -183,12 +183,12 @@ class WatchedItemsPreferences @Inject constructor(
 
     suspend fun markAsWatched(
         item: WatchedItem,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) = write(profileId) { items.upsert(profileId, listOf(item)) }
 
     suspend fun markAsWatchedBatch(
         items: List<WatchedItem>,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) {
         if (items.isEmpty()) return
         // The last entry for a key wins, as it did when the set was rewritten.
@@ -200,27 +200,27 @@ class WatchedItemsPreferences @Inject constructor(
         contentId: String,
         season: Int? = null,
         episode: Int? = null,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) = write(profileId) { items.delete(profileId, listOf(WatchedMutationKey(contentId, season, episode))) }
 
     suspend fun unmarkAsWatchedBatch(
         contentId: String,
         episodes: List<Pair<Int, Int>>,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) {
         if (episodes.isEmpty()) return
         val keys = episodes.map { (s, e) -> WatchedMutationKey(contentId, s, e) }.toSet()
         write(profileId) { items.delete(profileId, keys) }
     }
 
-    suspend fun getAllItems(profileId: Int = profileManager.activeProfileId.value): List<WatchedItem> {
+    suspend fun getAllItems(profileId: Int): List<WatchedItem> {
         if (store(profileId) is DeletedProfileDataStore) return emptyList()
         ensureMigrated(profileId)
         return items.all(profileId)
     }
 
     /** Adds the remote entries this TV doesn't have; local entries win. */
-    suspend fun mergeRemoteItems(remoteItems: List<WatchedItem>, profileId: Int = profileManager.activeProfileId.value) {
+    suspend fun mergeRemoteItems(remoteItems: List<WatchedItem>, profileId: Int) {
         if (remoteItems.isEmpty()) return
         write(profileId) { items.insertMissing(profileId, remoteItems) }
     }
@@ -230,7 +230,7 @@ class WatchedItemsPreferences @Inject constructor(
         deletes: List<Triple<String, Int?, Int?>>,
         pendingUpsertKeys: Set<WatchedMutationKey> = emptySet(),
         pendingDeleteKeys: Set<WatchedMutationKey> = emptySet(),
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) {
         if (upserts.isEmpty() && deletes.isEmpty()) {
             Log.d(TAG, "applyRemoteChanges: no changes for profile $profileId")
@@ -267,7 +267,7 @@ class WatchedItemsPreferences @Inject constructor(
         pendingUpsertKeys: Set<WatchedMutationKey> = emptySet(),
         pendingDeleteKeys: Set<WatchedMutationKey> = emptySet(),
         lastSuccessfulPushMs: Long? = null,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ): Boolean {
         var preservedLocalItems = false
         write(profileId) {
@@ -300,7 +300,7 @@ class WatchedItemsPreferences @Inject constructor(
         return preservedLocalItems
     }
 
-    suspend fun clearAll(profileId: Int = profileManager.activeProfileId.value) {
+    suspend fun clearAll(profileId: Int) {
         write(profileId) { items.clear(profileId) }
         store(profileId).edit { preferences ->
             preferences.remove(legacyWatchedItemsKey)

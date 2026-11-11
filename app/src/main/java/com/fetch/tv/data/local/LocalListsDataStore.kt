@@ -45,11 +45,11 @@ class LocalListsDataStore @Inject constructor(
     fun listsFor(profileId: Int): Flow<List<LocalList>> =
         store(profileId).data.map { preferences -> preferences.decodeLists() }.distinctUntilChanged()
 
-    suspend fun getLists(profileId: Int = profileManager.activeProfileId.value): List<LocalList> =
+    suspend fun getLists(profileId: Int): List<LocalList> =
         store(profileId).data.first().decodeLists()
 
     suspend fun update(
-        profileId: Int = profileManager.activeProfileId.value,
+        profileId: Int,
         transform: (List<LocalList>) -> List<LocalList>
     ) {
         store(profileId).edit { preferences ->

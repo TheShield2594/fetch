@@ -54,7 +54,7 @@ class WatchProgressPreferences @Inject constructor(
         internal const val KIND = "progress"
     }
 
-    private fun metadataStore(profileId: Int = profileManager.activeProfileId.value) =
+    private fun metadataStore(profileId: Int) =
         factory.get(profileId, WATCH_PROGRESS_METADATA_FEATURE)
 
     private fun recentStore(profileId: Int) = factory.get(profileId, WATCH_PROGRESS_RECENT_FEATURE)
@@ -164,7 +164,7 @@ class WatchProgressPreferences @Inject constructor(
     private fun Map<String, KeyedEntry>.decoded(profileId: Int): Map<String, WatchProgress> = decode(profileId, values.toList())
 
     /** Persisted timestamp of the last successful push to remote. */
-    suspend fun getLastSuccessfulPushMs(profileId: Int = profileManager.activeProfileId.value): Long {
+    suspend fun getLastSuccessfulPushMs(profileId: Int): Long {
         val prefs = metadataStore(profileId).data.first()
         return prefs[lastSuccessfulPushMsKey] ?: 0L
     }
@@ -174,24 +174,24 @@ class WatchProgressPreferences @Inject constructor(
      * the edit, so two pushes finishing out of order cannot leave the older one on disk.
      * Nothing needs to lower it: deleting a profile removes the whole store.
      */
-    suspend fun advanceLastSuccessfulPushMs(timestampMs: Long, profileId: Int = profileManager.activeProfileId.value) {
+    suspend fun advanceLastSuccessfulPushMs(timestampMs: Long, profileId: Int) {
         metadataStore(profileId).edit { prefs ->
             val stored = prefs[lastSuccessfulPushMsKey] ?: 0L
             prefs[lastSuccessfulPushMsKey] = maxOf(stored, timestampMs)
         }
     }
 
-    suspend fun getDeltaCursor(profileId: Int = profileManager.activeProfileId.value): Long {
+    suspend fun getDeltaCursor(profileId: Int): Long {
         val prefs = metadataStore(profileId).data.first()
         return prefs[deltaCursorKey] ?: 0L
     }
 
-    suspend fun isDeltaInitialized(profileId: Int = profileManager.activeProfileId.value): Boolean {
+    suspend fun isDeltaInitialized(profileId: Int): Boolean {
         val prefs = metadataStore(profileId).data.first()
         return prefs[deltaInitializedKey] ?: false
     }
 
-    suspend fun setDeltaState(cursor: Long, initialized: Boolean = true, profileId: Int = profileManager.activeProfileId.value) {
+    suspend fun setDeltaState(cursor: Long, initialized: Boolean = true, profileId: Int) {
         metadataStore(profileId).edit { prefs ->
             prefs[deltaCursorKey] = cursor.coerceAtLeast(0L)
             prefs[deltaInitializedKey] = initialized
@@ -253,7 +253,7 @@ class WatchProgressPreferences @Inject constructor(
     /**
      * Get watch progress for a specific content item
      */
-    fun getProgress(contentId: String, profileId: Int = profileManager.activeProfileId.value): Flow<WatchProgress?> {
+    fun getProgress(contentId: String, profileId: Int): Flow<WatchProgress?> {
         return observeContentEntries(contentId, profileId).map { map ->
             // Try direct key first (movies), then find latest episode entry (series).
             map[contentId] ?: map.values
@@ -265,7 +265,7 @@ class WatchProgressPreferences @Inject constructor(
     /**
      * Get watch progress for a specific episode
      */
-    fun getEpisodeProgress(contentId: String, season: Int, episode: Int, profileId: Int = profileManager.activeProfileId.value): Flow<WatchProgress?> {
+    fun getEpisodeProgress(contentId: String, season: Int, episode: Int, profileId: Int): Flow<WatchProgress?> {
         val key = "${contentId}_s${season}e${episode}"
         return observeContentEntries(contentId, profileId).map { map -> map[key] }
     }
@@ -273,7 +273,7 @@ class WatchProgressPreferences @Inject constructor(
     /**
      * Get all episode progress for a series
      */
-    fun getAllEpisodeProgress(contentId: String, profileId: Int = profileManager.activeProfileId.value): Flow<Map<Pair<Int, Int>, WatchProgress>> {
+    fun getAllEpisodeProgress(contentId: String, profileId: Int): Flow<Map<Pair<Int, Int>, WatchProgress>> {
         return observeContentEntries(contentId, profileId).map { map ->
             map.values
                 .filter { it.contentId == contentId && it.season != null && it.episode != null }
@@ -287,12 +287,12 @@ class WatchProgressPreferences @Inject constructor(
      */
     suspend fun saveProgress(
         progress: WatchProgress,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) = saveProgressBatch(listOf(progress), profileId)
 
     suspend fun saveProgressBatch(
         progressList: List<WatchProgress>,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) {
         if (progressList.isEmpty()) return
         write(profileId) {
@@ -314,7 +314,7 @@ class WatchProgressPreferences @Inject constructor(
         contentId: String,
         season: Int? = null,
         episode: Int? = null,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) {
         write(profileId) {
             entries.transaction {
@@ -339,7 +339,7 @@ class WatchProgressPreferences @Inject constructor(
     suspend fun removeProgressBatch(
         contentId: String,
         episodes: List<Pair<Int, Int>>,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) {
         if (episodes.isEmpty()) return
         val keys = episodes.map { (season, episode) -> "${contentId}_s${season}e${episode}" } + contentId
@@ -352,7 +352,7 @@ class WatchProgressPreferences @Inject constructor(
      */
     suspend fun markAsCompleted(
         progress: WatchProgress,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) = markAsCompletedBatch(listOf(progress), profileId)
 
     /**
@@ -360,7 +360,7 @@ class WatchProgressPreferences @Inject constructor(
      */
     suspend fun markAsCompletedBatch(
         progressList: List<WatchProgress>,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) {
         if (progressList.isEmpty()) return
         // If the incoming duration is a dummy sentinel (≤ 1ms), use the duration of an existing
@@ -388,7 +388,7 @@ class WatchProgressPreferences @Inject constructor(
      * @param profileId Explicit profile to read from. Prevents race conditions
      *   when the active profile changes between scheduling and execution of a sync.
      */
-    suspend fun getAllRawEntries(profileId: Int = profileManager.activeProfileId.value): Map<String, WatchProgress> {
+    suspend fun getAllRawEntries(profileId: Int): Map<String, WatchProgress> {
         if (isDeleted(profileId)) return emptyMap()
         ensureMigrated(profileId)
         return decode(profileId, entries.all(profileId))
@@ -423,7 +423,7 @@ class WatchProgressPreferences @Inject constructor(
         pendingUpsertKeys: Set<String> = emptySet(),
         pendingDeleteKeys: Set<String> = emptySet(),
         lastSuccessfulPushMs: Long? = null,
-        profileId: Int = profileManager.activeProfileId.value,
+        profileId: Int,
         removeMissingRemoteEntries: Boolean = true,
         isNonTraktId: ((String) -> Boolean)? = null
     ): Boolean {
@@ -479,7 +479,7 @@ class WatchProgressPreferences @Inject constructor(
         pendingUpsertKeys: Set<String> = emptySet(),
         pendingDeleteKeys: Set<String> = emptySet(),
         lastSuccessfulPushMs: Long? = null,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ): Boolean {
         if (upserts.isEmpty() && deletes.isEmpty()) {
             Log.d(TAG, "applyRemoteChanges: no changes for profile $profileId")
@@ -523,7 +523,7 @@ class WatchProgressPreferences @Inject constructor(
         remoteEntries: Map<String, WatchProgress>,
         pendingUpsertKeys: Set<String> = emptySet(),
         pendingDeleteKeys: Set<String> = emptySet(),
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ): Boolean = mergeRemoteEntries(
         remoteEntries = remoteEntries,
         pendingUpsertKeys = pendingUpsertKeys,
@@ -535,7 +535,7 @@ class WatchProgressPreferences @Inject constructor(
     /**
      * Clear all watch progress
      */
-    suspend fun clearAll(profileId: Int = profileManager.activeProfileId.value) {
+    suspend fun clearAll(profileId: Int) {
         write(profileId) { entries.clearKind(profileId, KIND) }
         clearSyncState(profileId)
     }
@@ -544,7 +544,7 @@ class WatchProgressPreferences @Inject constructor(
      * Clear all watch progress entries EXCEPT those with non-Trakt-compatible IDs
      */
     suspend fun clearAllPreservingNonTraktIds(
-        profileId: Int = profileManager.activeProfileId.value,
+        profileId: Int,
         isNonTraktId: (String) -> Boolean
     ) {
         var preserved = 0

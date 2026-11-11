@@ -29,11 +29,11 @@ class LibraryPreferencesDecodeTest {
     @Test
     fun `adding one title reuses every already decoded entry`() = runBlocking {
         val preferences = LibraryPreferences(factoryOf(TestPreferencesStore()), profileManager, InMemoryKeyedEntryStore())
-        (0 until LIBRARY_SIZE).forEach { preferences.addItem(item(it)) }
-        val before = preferences.getAllItems().associateBy { it.id }
+        (0 until LIBRARY_SIZE).forEach { preferences.addItem(item(it), profileId = 1) }
+        val before = preferences.getAllItems(profileId = 1).associateBy { it.id }
 
-        preferences.addItem(item(LIBRARY_SIZE))
-        val after = preferences.getAllItems()
+        preferences.addItem(item(LIBRARY_SIZE), profileId = 1)
+        val after = preferences.getAllItems(profileId = 1)
 
         assertEquals(LIBRARY_SIZE + 1, after.size)
         val redecoded = after.count { item -> before[item.id]?.let { it !== item } ?: false }
@@ -43,7 +43,7 @@ class LibraryPreferencesDecodeTest {
     @Test
     fun `observers share one decode`() = runBlocking {
         val preferences = LibraryPreferences(factoryOf(TestPreferencesStore()), profileManager, InMemoryKeyedEntryStore())
-        (0 until 50).forEach { preferences.addItem(item(it)) }
+        (0 until 50).forEach { preferences.addItem(item(it), profileId = 1) }
 
         val first = withTimeout(TIMEOUT_MS) { preferences.libraryItems.first { it.size == 50 } }
         val second = withTimeout(TIMEOUT_MS) { preferences.libraryItems.first() }
@@ -54,7 +54,7 @@ class LibraryPreferencesDecodeTest {
     @Test
     fun `in library follows the shared list`() = runBlocking {
         val preferences = LibraryPreferences(factoryOf(TestPreferencesStore()), profileManager, InMemoryKeyedEntryStore())
-        preferences.addItem(item(7))
+        preferences.addItem(item(7), profileId = 1)
 
         assertTrue(withTimeout(TIMEOUT_MS) { preferences.isInLibrary("tt7", "MOVIE").first() })
         assertEquals(false, withTimeout(TIMEOUT_MS) { preferences.isInLibrary("tt8", "movie").first() })

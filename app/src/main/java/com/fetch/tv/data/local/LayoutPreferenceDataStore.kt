@@ -60,7 +60,7 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     private val gson = Gson()
@@ -433,37 +433,37 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     suspend fun setMemoryOnlyVerticalScroll(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[memoryOnlyVerticalScrollKey] = enabled
         }
     }
 
     suspend fun setSmoothBringIntoViewEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[smoothBringIntoViewEnabledKey] = enabled
         }
     }
 
     suspend fun setFastHorizontalNavigationEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[fastHorizontalNavigationEnabledKey] = enabled
         }
     }
 
     suspend fun setFollowAddonsOrder(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[followAddonsOrderKey] = enabled
         }
     }
 
     suspend fun setComposeHighlighterEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[composeHighlighterEnabledKey] = enabled
         }
     }
 
     suspend fun setCustomPosterUrlPattern(pattern: String) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             if (pattern.isBlank()) {
                 prefs.remove(customPosterUrlPatternKey)
             } else {
@@ -473,14 +473,14 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     suspend fun clearCustomPosterSettings() {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs.remove(customPosterUrlPatternKey)
             prefs.remove(customPosterEnabledScreensKey)
         }
     }
 
     suspend fun setCustomPosterEnabledScreens(screens: Set<com.fetch.tv.core.poster.CustomPosterScreen>) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val stored = com.fetch.tv.core.poster.CustomPosterScreen.toStorageValue(screens)
             if (stored == null) {
                 prefs.remove(customPosterEnabledScreensKey)
@@ -495,7 +495,7 @@ class LayoutPreferenceDataStore @Inject constructor(
      * the Home layout is designed around.
      */
     suspend fun markHomeSetUp() {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val wasSetUp = prefs[hasChosenKey] ?: false
             if (!wasSetUp) {
                 if (prefs[focusedPosterBackdropTrailerPlaybackTargetKey] == null) {
@@ -512,7 +512,7 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     suspend fun setHeroCatalogKeys(catalogKeys: List<String>) {
         val normalizedKeys = normalizeCatalogOrderKeys(catalogKeys)
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             if (normalizedKeys.isEmpty()) {
                 prefs.remove(heroCatalogKeysKey)
                 prefs.remove(heroCatalogKey)
@@ -529,7 +529,7 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     suspend fun setHomeCatalogOrderKeys(keys: List<String>) {
         val normalizedKeys = normalizeCatalogOrderKeys(keys)
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             if (normalizedKeys.isEmpty()) {
                 prefs.remove(homeCatalogOrderKeysKey)
             } else {
@@ -540,7 +540,7 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     suspend fun setDisabledHomeCatalogKeys(keys: List<String>) {
         val normalizedKeys = normalizeCatalogOrderKeys(keys)
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             if (normalizedKeys.isEmpty()) {
                 prefs.remove(disabledHomeCatalogKeysKey)
             } else {
@@ -578,55 +578,55 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     suspend fun setSidebarCollapsedByDefault(collapsed: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[sidebarCollapsedKey] = collapsed
         }
     }
 
     suspend fun setModernLandscapePostersEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[modernLandscapePostersEnabledKey] = enabled
         }
     }
 
     suspend fun setModernHeroFullScreenBackdropEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[modernHeroFullScreenBackdropKey] = enabled
         }
     }
 
     suspend fun setPosterOptionsHintSeen() {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[posterOptionsHintSeenKey] = true
         }
     }
 
     suspend fun setHeroSectionEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[heroSectionEnabledKey] = enabled
         }
     }
 
     suspend fun setPosterLabelsEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[posterLabelsEnabledKey] = enabled
         }
     }
 
     suspend fun setCatalogAddonNameEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[catalogAddonNameEnabledKey] = enabled
         }
     }
 
     suspend fun setCatalogTypeSuffixEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[catalogTypeSuffixEnabledKey] = enabled
         }
     }
 
     suspend fun setFocusedPosterBackdropExpandEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[focusedPosterBackdropExpandEnabledKey] = enabled
             if (!enabled) {
                 prefs[focusedPosterBackdropTrailerEnabledKey] = false
@@ -636,7 +636,7 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     suspend fun setFocusedPosterBackdropExpandDelaySeconds(seconds: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[focusedPosterBackdropExpandDelaySecondsKey] =
                 seconds.coerceAtLeast(MIN_FOCUSED_POSTER_BACKDROP_EXPAND_DELAY_SECONDS)
         }
@@ -644,7 +644,7 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     suspend fun setFocusedPosterBackdropTrailerEnabled(
         enabled: Boolean,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) {
         store(profileId).edit { prefs ->
             prefs[focusedPosterBackdropTrailerEnabledKey] = enabled
@@ -655,7 +655,7 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     suspend fun setFocusedPosterBackdropTrailerMuted(muted: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[focusedPosterBackdropTrailerMutedKey] = muted
         }
     }
@@ -663,145 +663,145 @@ class LayoutPreferenceDataStore @Inject constructor(
     suspend fun setFocusedPosterBackdropTrailerPlaybackTarget(
         target: FocusedPosterTrailerPlaybackTarget
     ) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[focusedPosterBackdropTrailerPlaybackTargetKey] = target.name
         }
     }
 
     suspend fun setPosterCardWidthDp(widthDp: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[posterCardWidthDpKey] = positiveOrDefault(widthDp, DEFAULT_POSTER_CARD_WIDTH_DP)
         }
     }
 
     suspend fun setPosterCardHeightDp(heightDp: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[posterCardHeightDpKey] = positiveOrDefault(heightDp, DEFAULT_POSTER_CARD_HEIGHT_DP)
         }
     }
 
     suspend fun setPosterCardCornerRadiusDp(cornerRadiusDp: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[posterCardCornerRadiusDpKey] = cornerRadiusDp
         }
     }
 
     suspend fun setBlurUnwatchedEpisodes(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[blurUnwatchedEpisodesKey] = enabled
         }
     }
 
     suspend fun setSearchSystemKeyboard(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[searchSystemKeyboardKey] = enabled
         }
     }
 
     suspend fun setRandomEpisodeEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[randomEpisodeEnabledKey] = enabled
         }
     }
 
     suspend fun setStartupSplashEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[startupSplashEnabledKey] = enabled
         }
     }
 
     suspend fun setTrailerCropToFill(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[trailerCropToFillKey] = enabled
         }
     }
 
     suspend fun setAlwaysShowLandscapeClearlogo(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[alwaysShowLandscapeClearlogoKey] = enabled
         }
     }
 
     suspend fun setEpisodeOptionsOverlayStyle(style: EpisodeOptionsOverlayStyle) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[episodeOptionsOverlayStyleKey] = style.name
         }
     }
 
     suspend fun setHomeImdbRatingsVisibility(visibility: HomeImdbRatingsVisibility) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[homeImdbRatingsVisibilityKey] = visibility.name
         }
     }
 
     suspend fun setDetailImdbRatingsVisibility(visibility: DetailImdbRatingsVisibility) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[detailImdbRatingsVisibilityKey] = visibility.asEpisodeVisibility().name
         }
     }
 
     suspend fun setUseEpisodeThumbnailsInCw(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[useEpisodeThumbnailsInCwKey] = enabled
         }
     }
 
     suspend fun setContinueWatchingEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[continueWatchingEnabledKey] = enabled
         }
     }
 
     suspend fun setContinueWatchingCardStyle(style: ContinueWatchingCardStyle) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[continueWatchingCardStyleKey] = style.name
         }
     }
 
     suspend fun setShowUnairedNextUp(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[showUnairedNextUpKey] = enabled
         }
     }
 
     suspend fun setNextUpFromFurthestEpisode(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[nextUpFromFurthestEpisodeKey] = enabled
         }
     }
 
     suspend fun setBlurContinueWatchingNextUp(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[blurContinueWatchingNextUpKey] = enabled
         }
     }
 
     suspend fun setContinueWatchingSortMode(mode: ContinueWatchingSortMode) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[continueWatchingSortModeKey] = mode.name
         }
     }
 
     suspend fun setDetailPageTrailerButtonEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[detailPageTrailerButtonEnabledKey] = enabled
         }
     }
 
     suspend fun setPreferExternalMetaAddonDetail(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[preferExternalMetaAddonDetailKey] = enabled
         }
     }
 
     suspend fun setHideUnreleasedContent(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[hideUnreleasedContentKey] = enabled
         }
     }
 
     suspend fun setShowFullReleaseDate(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[showFullReleaseDateKey] = enabled
         }
     }
@@ -836,7 +836,7 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     suspend fun setCustomCatalogTitles(titles: Map<String, String>) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val filtered = titles.filterValues { it.isNotBlank() }
             if (filtered.isEmpty()) {
                 prefs.remove(customCatalogTitlesKey)
@@ -847,7 +847,7 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     internal suspend fun getHomeCatalogSettingsState(): LocalHomeCatalogSettingsState {
-        return readHomeCatalogSettingsState(store().data.first())
+        return readHomeCatalogSettingsState(store(profileManager.currentProfileId()).data.first())
     }
 
     internal suspend fun exportCatalogSettingsToSyncPayload(
@@ -877,7 +877,7 @@ class LayoutPreferenceDataStore @Inject constructor(
             key to item.customTitle
         }.filterValues { it.isNotBlank() }
 
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val local = readHomeCatalogSettingsState(prefs)
             val orderKeys = remoteOrderKeys.withLocalServerKeys(local.orderKeys)
             val disabledKeys = remoteDisabledKeys + local.disabledKeys.filter(ServerCatalog::isServerKey)

@@ -387,10 +387,10 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                 // Load cached CW snapshots for instant render before Trakt responds
                 val (cachedNextUp, cachedInProgress) = coroutineScope {
                     val nextUpDeferred = async(Dispatchers.IO) {
-                        runCatching { cwEnrichmentCache.getNextUpSnapshot() }.getOrDefault(emptyList())
+                        runCatching { cwEnrichmentCache.getNextUpSnapshot(pipelineProfileId) }.getOrDefault(emptyList())
                     }
                     val inProgressDeferred = async(Dispatchers.IO) {
-                        runCatching { cwEnrichmentCache.getInProgressSnapshot() }.getOrDefault(emptyList())
+                        runCatching { cwEnrichmentCache.getInProgressSnapshot(pipelineProfileId) }.getOrDefault(emptyList())
                     }
                     nextUpDeferred.await() to inProgressDeferred.await()
                 }
@@ -629,6 +629,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                 val partialPublishMutex = Mutex()
                 val nextUpItems = buildLightweightNextUpItems(
                     allProgress = recentItems,
+                    profileId = pipelineProfileId,
                     nextUpSeeds = recentNextUpSeeds,
                     inProgressItems = inProgressOnly,
                     dismissedNextUp = dismissedNextUp,
@@ -708,7 +709,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                     if (currentKeys == cwLastBadgeEpisodeKeys) {
                         // Keys unchanged — just re-run publishBadgeUpdate with cached data
                         // in case in-memory badge episode cache was populated by a prior cycle.
-                        publishBadgeUpdate(allWatchedEpisodes)
+                        publishBadgeUpdate(allWatchedEpisodes, pipelineProfileId)
                         return@launch
                     }
                     cwLastBadgeEpisodeKeys = currentKeys.toSet()
@@ -781,7 +782,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                     }
 
                     // Single badge evaluation after all meta is resolved.
-                    publishBadgeUpdate(allWatchedEpisodes)
+                    publishBadgeUpdate(allWatchedEpisodes, pipelineProfileId)
                 }
 
                 // --- CW next-up injection ---
@@ -883,6 +884,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                     }
                                     val item = buildNextUpItem(
                                         progress = seed,
+                                        profileId = pipelineProfileId,
                                         showUnairedNextUp = showUnairedNextUp
                                     ).also { resolved ->
                                         logSimklAsyncNextUpResolution(
@@ -907,6 +909,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                         ) {
                                             clearStaleFullyWatchedForAiredNextUp(
                                                 contentId = seed.contentId,
+                                                profileId = pipelineProfileId,
                                                 nextSeason = item.info.season,
                                                 nextEpisode = item.info.episode
                                             )
@@ -978,7 +981,8 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                             fullyWatchedSeriesIds.updateWithValidation(
                                                 fullyWatchedSeriesIds.fullyWatchedSeriesIds.value,
                                                 setOf(seed.contentId),
-                                                mapOf(seed.contentId to deadline)
+                                                mapOf(seed.contentId to deadline),
+                                                pipelineProfileId
                                             )
                                         }
                                     }
@@ -990,7 +994,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                 // discovered during async inject and persists their
                                 // deadlines so they're skipped on next launch.
                                 val asyncWatchedEpisodes = watchProgressRepository.getWatchedShowEpisodes()
-                                publishBadgeUpdate(asyncWatchedEpisodes)
+                                publishBadgeUpdate(asyncWatchedEpisodes, pipelineProfileId)
                                 // Seeds checked above have new deadlines.
                                 scheduleOlderSeedRecheck()
 
@@ -1442,6 +1446,7 @@ private fun resolveVideoForProgress(progress: WatchProgress, meta: CwMetaSummary
 
 private suspend fun HomeViewModel.buildLightweightNextUpItems(
     allProgress: List<WatchProgress>,
+    profileId: Int,
     nextUpSeeds: List<WatchProgress>,
     inProgressItems: List<ContinueWatchingItem.InProgress>,
     dismissedNextUp: Set<String>,
@@ -1554,6 +1559,7 @@ private suspend fun HomeViewModel.buildLightweightNextUpItems(
                 val remappedProgress = watchProgressRepository.prepareNextUpSeed(progress)
                 val nextUp = buildNextUpItem(
                     progress = remappedProgress,
+                    profileId = profileId,
                     showUnairedNextUp = showUnairedNextUp,
                     debug = debug
                 ) ?: run {
@@ -1579,6 +1585,7 @@ private suspend fun HomeViewModel.buildLightweightNextUpItems(
                         FullyWatchedNextUpAction.KEEP_AND_CLEAR_BADGE -> {
                             clearStaleFullyWatchedForAiredNextUp(
                                 contentId = progress.contentId,
+                                profileId = profileId,
                                 nextSeason = nextUp.info.season,
                                 nextEpisode = nextUp.info.episode
                             )
@@ -1879,6 +1886,7 @@ internal fun splitUpcomingItems(
 
 private suspend fun HomeViewModel.buildNextUpItem(
     progress: WatchProgress,
+    profileId: Int,
     showUnairedNextUp: Boolean,
     debug: CwDebugSession? = null
 ): ContinueWatchingItem.NextUp? {
@@ -1927,7 +1935,8 @@ private suspend fun HomeViewModel.buildNextUpItem(
             fullyWatchedSeriesIds.updateWithValidation(
                 fullyWatchedSeriesIds.fullyWatchedSeriesIds.value,
                 setOf(progress.contentId),
-                mapOf(progress.contentId to deadline)
+                mapOf(progress.contentId to deadline),
+                profileId
             )
         }
         return null
@@ -2963,6 +2972,7 @@ private suspend fun HomeViewModel.applyContinueWatchingEnrichmentOverlay(
  */
 private fun HomeViewModel.clearStaleFullyWatchedForAiredNextUp(
     contentId: String,
+    profileId: Int,
     nextSeason: Int?,
     nextEpisode: Int?
 ) {
@@ -2979,7 +2989,8 @@ private fun HomeViewModel.clearStaleFullyWatchedForAiredNextUp(
         fullyWatchedSeriesIds.updateWithValidation(
             ids = current - toRemove,
             validatedIds = toRemove,
-            revalidateAt = toRemove.associateWith { Long.MAX_VALUE }
+            revalidateAt = toRemove.associateWith { Long.MAX_VALUE },
+            profileId = profileId
         )
     }
     synchronized(cwBadgeEpisodeCache) {
@@ -3001,7 +3012,8 @@ private fun HomeViewModel.clearStaleFullyWatchedForAiredNextUp(
 }
 
 private fun HomeViewModel.publishBadgeUpdate(
-    allWatchedEpisodes: Map<String, Set<Pair<Int, Int>>>
+    allWatchedEpisodes: Map<String, Set<Pair<Int, Int>>>,
+    profileId: Int
 ) {
     val validatedNotFullyWatched = mutableSetOf<String>()
     val updatedFullyWatched = allWatchedEpisodes.keys
@@ -3068,7 +3080,7 @@ private fun HomeViewModel.publishBadgeUpdate(
             put(contentId, Long.MAX_VALUE)
         }
     }
-    fullyWatchedSeriesIds.updateWithValidation(merged, allValidatedIds, revalidateAt)
+    fullyWatchedSeriesIds.updateWithValidation(merged, allValidatedIds, revalidateAt, profileId)
 }
 
 /**

@@ -96,7 +96,7 @@ class FetchWebsiteTrackingRepository @Inject constructor(
             return
         }
         refreshMutex.withLock {
-            val slot = profileManager.activeProfileId.value
+            val slot = activeSlot()
             val now = System.currentTimeMillis()
             if (intent == TrackingRefreshIntent.AUTOMATIC) {
                 val current = currentSnapshot()
@@ -150,9 +150,12 @@ class FetchWebsiteTrackingRepository @Inject constructor(
         refreshAsync()
     }
 
+    /** The active TV profile slot, read once at the start of an operation and passed to [asProfile]. */
+    fun activeSlot(): Int = profileManager.currentProfileId()
+
     /** Runs [block] as the website profile in TV slot [slot]; null when this TV can't reach one. */
     suspend fun <T> asProfile(
-        slot: Int = profileManager.activeProfileId.value,
+        slot: Int,
         block: suspend (profileId: String, profileToken: String?) -> T
     ): T? {
         if (!store.isPaired) return null

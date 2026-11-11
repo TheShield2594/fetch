@@ -27,7 +27,7 @@ class TrailerSettingsDataStore @Inject constructor(
 
     private val default4kTrailers = TrailerVideoPolicy.default4kTrailers(context)
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     private val enabledKey = booleanPreferencesKey("trailer_enabled")
@@ -53,23 +53,23 @@ class TrailerSettingsDataStore @Inject constructor(
         )
 
     suspend fun setEnabled(enabled: Boolean) {
-        store().edit { it[enabledKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[enabledKey] = enabled }
     }
 
     suspend fun setDelaySeconds(seconds: Int) {
-        store().edit { it[delaySecondsKey] = seconds }
+        store(profileManager.currentProfileId()).edit { it[delaySecondsKey] = seconds }
     }
 
     suspend fun setPlayInBackground(enabled: Boolean) {
-        store().edit { it[playInBackgroundKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[playInBackgroundKey] = enabled }
     }
 
     suspend fun setPauseOnScroll(enabled: Boolean) {
-        store().edit { it[pauseOnScrollKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[pauseOnScrollKey] = enabled }
     }
 
     suspend fun setAllow4k(enabled: Boolean) {
-        store().edit { it[allow4kKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[allow4kKey] = enabled }
     }
 }
 

@@ -328,6 +328,9 @@ private fun AddressStep(
     }
 }
 
+/** The QR code beside a pairing code, hub or website, so both read the same from the sofa. */
+private val CODE_QR_SIZE = 152.dp
+
 /** The host of [url] for a message, or [url] itself when it doesn't parse. */
 private fun hostOf(url: String): String = url.toHttpUrlOrNull()?.let { parsed ->
     if (parsed.port == HttpUrl.defaultPort(parsed.scheme)) parsed.host else "${parsed.host}:${parsed.port}"
@@ -425,7 +428,7 @@ private fun HubCodeContent(state: WebsitePairingState.ShowingCode) {
             Image(
                 bitmap = qrBitmap.asImageBitmap(),
                 contentDescription = stringResource(R.string.website_hub_qr),
-                modifier = Modifier.size(160.dp),
+                modifier = Modifier.size(CODE_QR_SIZE),
                 contentScale = ContentScale.Fit
             )
         }
@@ -487,7 +490,7 @@ private fun CodeContent(state: WebsitePairingState.ShowingCode) {
             Image(
                 bitmap = qrBitmap.asImageBitmap(),
                 contentDescription = stringResource(R.string.website_code_qr),
-                modifier = Modifier.size(144.dp),
+                modifier = Modifier.size(CODE_QR_SIZE),
                 contentScale = ContentScale.Fit
             )
         }

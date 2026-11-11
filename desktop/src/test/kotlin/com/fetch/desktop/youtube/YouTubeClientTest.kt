@@ -1,5 +1,15 @@
 package com.fetch.desktop.youtube
 
+import com.fetch.tv.data.youtube.YouTubeBrowseTarget
+import com.fetch.tv.data.youtube.YouTubeFeed
+import com.fetch.tv.data.youtube.YouTubeInnerTube
+import com.fetch.tv.data.youtube.YouTubeLinkKind
+import com.fetch.tv.data.youtube.YouTubePlayerInfo
+import com.fetch.tv.data.youtube.YouTubePlaylistPrivacy
+import com.fetch.tv.data.youtube.YouTubeSignedOutException
+import com.fetch.tv.data.youtube.YouTubeToken
+import com.fetch.tv.data.youtube.YouTubeTokenPollResult
+import com.fetch.tv.data.youtube.YouTubeWatchSession
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -44,10 +54,10 @@ class YouTubeClientTest {
         val code = client(http, InMemoryYouTubeAuthStore()).startDeviceAuth()
         assertEquals("ABC-DEF", code.userCode)
         assertEquals("https://www.youtube.com/activate", code.verificationUrl)
-        assertEquals(YouTubeClient.CLIENT_ID, code.clientId)
+        assertEquals(YouTubeInnerTube.CLIENT_ID, code.clientId)
         val body = bodyOf(http.sent.single { it.path == "/o/oauth2/device/code" })
-        assertEquals(YouTubeClient.CLIENT_ID, body["client_id"]!!.jsonPrimitive.content)
-        assertEquals(YouTubeClient.SCOPE, body["scope"]!!.jsonPrimitive.content)
+        assertEquals(YouTubeInnerTube.CLIENT_ID, body["client_id"]!!.jsonPrimitive.content)
+        assertEquals(YouTubeInnerTube.SCOPE, body["scope"]!!.jsonPrimitive.content)
         assertEquals("ytlr::", body["model_name"]!!.jsonPrimitive.content)
     }
 
@@ -66,12 +76,12 @@ class YouTubeClientTest {
         val saved = auth.load()
         assertEquals("RT1", saved.refreshToken)
         assertEquals(clock + 3_600_000L, saved.accessTokenExpiresAt)
-        assertEquals(YouTubeClient.CLIENT_ID, saved.clientId)
+        assertEquals(YouTubeInnerTube.CLIENT_ID, saved.clientId)
         assertEquals("Ada", saved.accountName)
         assertEquals("@ada", saved.accountHandle)
         assertNull("the Google account's own channel", saved.pageId)
         val poll = bodyOf(http.sent.last { it.path == "/o/oauth2/token" })
-        assertEquals(YouTubeClient.DEVICE_GRANT_TYPE, poll["grant_type"]!!.jsonPrimitive.content)
+        assertEquals(YouTubeInnerTube.DEVICE_GRANT_TYPE, poll["grant_type"]!!.jsonPrimitive.content)
         assertEquals("DEV", poll["code"]!!.jsonPrimitive.content)
     }
 
@@ -154,7 +164,7 @@ class YouTubeClientTest {
 
         val sent = http.innertube("browse").single()
         val body = bodyOf(sent)
-        assertEquals(YouTubeClient.SUBSCRIPTIONS_BROWSE_ID, body["browseId"]!!.jsonPrimitive.content)
+        assertEquals(YouTubeInnerTube.SUBSCRIPTIONS_BROWSE_ID, body["browseId"]!!.jsonPrimitive.content)
         val clientContext = body["context"]!!.jsonObject["client"]!!.jsonObject
         assertEquals("TVHTML5", clientContext["clientName"]!!.jsonPrimitive.content)
         assertEquals("en", clientContext["hl"]!!.jsonPrimitive.content)
@@ -170,7 +180,7 @@ class YouTubeClientTest {
         val first = page.shelves.flatMap { it.videos }.first()
         assertEquals("FB_aaaaaaaaaaa", first.removeFromHistoryToken)
         assertNull(first.notInterestedToken)
-        assertEquals(YouTubeClient.HISTORY_BROWSE_ID, bodyOf(http.innertube("browse").single())["browseId"]!!.jsonPrimitive.content)
+        assertEquals(YouTubeInnerTube.HISTORY_BROWSE_ID, bodyOf(http.innertube("browse").single())["browseId"]!!.jsonPrimitive.content)
     }
 
     @Test
@@ -209,7 +219,7 @@ class YouTubeClientTest {
         val page = client(routes(innertube = { _, _ -> YouTubeFakeHttp.fixture("channel_tab_playlists") })).loadFeed(YouTubeFeed.LIBRARY)
         val links = page.shelves.first().links
         assertEquals(YouTubeLinkKind.WATCH_LATER, links[0].kind)
-        assertEquals(YouTubeClient.WATCH_LATER_BROWSE_ID, links[0].target.browseId)
+        assertEquals(YouTubeInnerTube.WATCH_LATER_BROWSE_ID, links[0].target.browseId)
         assertEquals(YouTubeLinkKind.LIKED, links[1].kind)
         assertTrue("the playlists follow", page.shelves.flatMap { it.links }.any { it.kind == YouTubeLinkKind.PLAYLIST })
     }
@@ -342,7 +352,7 @@ class YouTubeClientTest {
     @Test
     fun `device code and token responses are read`() {
         val youtube = client(routes())
-        assertEquals(YouTubeClient.ACTIVATION_URL, youtube.parseDeviceCode(json("""{"device_code":"d","user_code":"C"}"""))?.verificationUrl)
+        assertEquals(YouTubeInnerTube.ACTIVATION_URL, youtube.parseDeviceCode(json("""{"device_code":"d","user_code":"C"}"""))?.verificationUrl)
         assertNull(youtube.parseDeviceCode(json("""{"error":"invalid_client"}""")))
         assertEquals(YouTubeToken("new", null, 3600), youtube.parseToken(json("""{"access_token":"new","expires_in":3600}""")))
         assertTrue((youtube.parseTokenPoll(json("""{"error":"server_error"}""")) as YouTubeClient.TokenPoll.Status).status is YouTubeTokenPollResult.Failed)

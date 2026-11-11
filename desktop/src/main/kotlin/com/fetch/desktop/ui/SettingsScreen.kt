@@ -837,8 +837,8 @@ private fun ContentDiscoveryPage(state: AppState) {
             onClick = { state.navigate(Screen.Settings(SettingsPage.HOME_CATALOGS)) }
         ) { Chevron() }
         SettingsRow(
-            "Collections",
-            "Home rows of folders, each a page of catalogs, TMDB, Trakt and your lists. ${state.collections.collections.size} made.",
+            "Home folders",
+            "Rows of folders on Home, each folder a page of catalogs, TMDB, Trakt and your lists. ${state.collections.collections.size} made.",
             onClick = { state.navigate(Screen.Settings(SettingsPage.COLLECTIONS)) }
         ) { Chevron() }
         SettingsRow(
@@ -858,7 +858,7 @@ private fun Chevron() {
 private fun HomeCatalogsPage(state: AppState) {
     SubPageHeader(tr("Home catalogs"), onBack = state::back)
     Text(
-        tr("Pinned rows lead Home in the order you pin them; move rows and collections to place them, rename or hide them."),
+        tr("Pinned rows lead Home in the order you pin them; move rows and folder rows to place them, rename or hide them."),
         color = FetchPalette.TextSecondary
     )
     if (state.rows.isEmpty() && state.collections.collections.isEmpty()) {

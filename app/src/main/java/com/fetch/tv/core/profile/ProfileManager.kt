@@ -32,6 +32,7 @@ class ProfileManager @Inject constructor(
     private val profileLockStateDataStore: ProfileLockStateDataStore,
     private val profileRestrictionsDataStore: ProfileRestrictionsDataStore,
     private val screenTimeStore: com.fetch.tv.core.parental.ScreenTimeStore,
+    private val profileDatabaseData: com.fetch.tv.data.local.db.ProfileDatabaseData,
     @ApplicationContext private val context: Context
 ) {
     companion object {
@@ -184,6 +185,9 @@ class ProfileManager @Inject constructor(
 
         factory.clearProfile(profileId)
         factory.deleteProfileFiles(profileId)
+        // Its watched items, kept in the database rather than DataStore. After clearProfile, so a
+        // sync still running for the profile is already refused and can't add rows back.
+        profileDatabaseData.deleteProfile(profileId)
 
         // Continue Watching snapshots are keyed by profile id too. A new profile
         // that reuses this id must not show the deleted profile's titles on Home

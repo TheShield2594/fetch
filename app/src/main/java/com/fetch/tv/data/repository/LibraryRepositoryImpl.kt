@@ -97,7 +97,10 @@ class LibraryRepositoryImpl @Inject constructor(
         .flatMapLatest { mode ->
             val provider = mode.providerId?.let(trackingProviders::provider)
             if (provider != null) {
-                provider.items
+                // The profile's lists on this TV are shown beside the provider's (audit C3).
+                combine(provider.items, localLists.lists) { providerItems, lists ->
+                    withLocalListEntries(providerItems, lists)
+                }
             } else {
                 combine(libraryPreferences.libraryItems, localLists.lists) { saved, lists ->
                     localLibraryEntries(saved, lists)
@@ -124,10 +127,14 @@ class LibraryRepositoryImpl @Inject constructor(
 
     override val listTabs: Flow<List<LibraryListTab>> = sourceMode
         .flatMapLatest { mode ->
-            mode.providerId
-                ?.let(trackingProviders::provider)
-                ?.tabs
-                ?: localListTabs
+            val provider = mode.providerId?.let(trackingProviders::provider)
+            if (provider != null) {
+                combine(provider.tabs, localLists.lists) { providerTabs, lists ->
+                    providerTabs + lists.map { list -> list.toProviderSideTab(appContext.getString(R.string.library_local_list_on_tv, list.name)) }
+                }
+            } else {
+                localListTabs
+            }
         }
         .distinctUntilChanged()
 
@@ -401,6 +408,40 @@ private val LibraryEntryInput.isServerItem: Boolean
  * a title on local lists carries each list's key, so the Library screen filters by tab the same
  * way it does for a tracking service.
  */
+/**
+ * A list on this TV as a tab beside a tracking provider's lists, named [title]. It's EXTERNAL to
+ * the provider: its Manage lists dialog edits the provider's own lists only, and this list stays
+ * editable from the local library.
+ */
+internal fun LocalList.toProviderSideTab(title: String): LibraryListTab =
+    toListTab().copy(title = title, type = LibraryListTab.Type.EXTERNAL)
+
+/**
+ * [providerItems] with the titles of the profile's lists on this TV added under those lists'
+ * keys, a title on both keeping the provider's entry and gaining the local list's key.
+ */
+internal fun withLocalListEntries(
+    providerItems: List<LibraryEntry>,
+    lists: List<LocalList>
+): List<LibraryEntry> {
+    if (lists.isEmpty()) return providerItems
+    val entries = LinkedHashMap<String, LibraryEntry>()
+    providerItems.forEach { entry -> entries["${entry.type.lowercase()}:${entry.id}"] = entry }
+    localLibraryEntries(saved = emptyList(), lists = lists).forEach { local ->
+        val key = "${local.type.lowercase()}:${local.id}"
+        val existing = entries[key]
+        entries[key] = if (existing == null) {
+            local
+        } else {
+            existing.copy(
+                listKeys = existing.listKeys + local.listKeys,
+                listAddedAt = existing.listAddedAt + local.listAddedAt
+            )
+        }
+    }
+    return entries.values.toList()
+}
+
 internal fun localLibraryEntries(
     saved: List<SavedLibraryItem>,
     lists: List<LocalList>

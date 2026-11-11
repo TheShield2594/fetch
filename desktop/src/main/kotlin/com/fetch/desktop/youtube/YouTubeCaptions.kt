@@ -2,6 +2,7 @@ package com.fetch.desktop.youtube
 
 import com.fetch.desktop.player.autosync.Cue
 import com.fetch.desktop.player.autosync.CueParser
+import com.fetch.tv.data.youtube.YouTubeResponseParser
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray

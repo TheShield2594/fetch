@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Listă de vizionare</string>
+    <string name="library_tab_lists">Liste</string>
+    <string name="library_tab_in_progress">În curs</string>
+    <string name="library_tab_history">Istoric</string>
+    <string name="library_tab_upcoming">În curând</string>
+    <string name="library_tabs_description">Secțiunile bibliotecii</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Încă nu există liste</string>
+    <string name="library_lists_empty_subtitle">Listele create aici sau în serviciul tău de urmărire apar în această filă. Lista de vizionare are propria filă.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (acest TV)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% vizionat</string>
+    <string name="library_in_progress_empty_title">Nimic în curs</string>
+    <string name="library_in_progress_empty_subtitle">Filmele și episoadele începute și neterminate apar aici.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Încă nimic vizionat</string>
+    <string name="library_history_empty_subtitle">Ce termini de vizionat și ce marchează serviciul tău de urmărire ca vizionat apar aici, grupate pe luni.</string>
+
+    <string name="library_watched_filter_ready">Gata de redare</string>
+</resources>

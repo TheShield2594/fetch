@@ -41,7 +41,7 @@
     <string name="phone_web_card_posters">Custom posters</string>
     <string name="phone_web_card_posters_sub">Poster URL pattern</string>
     <string name="phone_web_on_tv_heading">On the TV</string>
-    <string name="phone_web_on_tv_body">Removing and reordering addons, catalog order and collections change what the TV loads, so they have screens of their own. Open them on the TV and use their own phone code.</string>
+    <string name="phone_web_on_tv_body">Removing and reordering addons, catalog order and Home folders change what the TV loads, so they have screens of their own. Open them on the TV and use their own phone code.</string>
 
     <!-- Remote -->
     <string name="phone_web_remote_title">Remote</string>

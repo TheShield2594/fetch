@@ -7,6 +7,8 @@ import com.fetch.tv.core.tracking.TrackingLibraryProviderRegistry
 import com.fetch.tv.core.tracking.TrackingListManagementCapabilities
 import com.fetch.tv.core.tracking.TrackingListManager
 import com.fetch.tv.core.tracking.TrackingProviderId
+import com.fetch.tv.data.local.BestMatchCacheDataStore
+import com.fetch.tv.data.local.CachedBestMatch
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.LibraryViewPreferences
 import com.fetch.tv.data.local.WatchedSeriesStateHolder
@@ -22,7 +24,14 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 
-internal class LibraryViewModelTestFixture(sorter: TrackingLibrarySorter? = null) {
+// [scope] defaults to the Lists tab: the fixture's provider list is a personal list.
+internal class LibraryViewModelTestFixture(
+    sorter: TrackingLibrarySorter? = null,
+    scope: LibraryListScope = LibraryListScope.LISTS
+) {
+    /** What the History and In progress tabs read. */
+    val watched = MutableStateFlow(emptyList<com.fetch.tv.domain.model.WatchedItem>())
+    val inProgress = MutableStateFlow(emptyList<com.fetch.tv.domain.model.WatchProgress>())
     val profile = MutableStateFlow(1)
     val source = MutableStateFlow(LibrarySourceMode.MDBLIST)
     val authenticated = MutableStateFlow(true)
@@ -31,6 +40,7 @@ internal class LibraryViewModelTestFixture(sorter: TrackingLibrarySorter? = null
     val tabs = MutableStateFlow(listOf(tab))
     val items = MutableStateFlow(emptyList<LibraryEntry>())
     val persistedSort = MutableStateFlow<String?>(null)
+    val bestMatches = MutableStateFlow<Map<String, CachedBestMatch>>(emptyMap())
     val repository = mockk<LibraryRepository>(relaxed = true) {
         every { sourceMode } returns source
         every { isSyncing } returns flowOf(false)
@@ -47,7 +57,10 @@ internal class LibraryViewModelTestFixture(sorter: TrackingLibrarySorter? = null
         every { listSorter } returns sorter
     }
     val viewModel = LibraryViewModel(
-        libraryRepository = repository, metaRepository = mockk(),
+        libraryRepository = repository,
+        metaRepository = mockk(relaxed = true) {
+            every { getMetaFromAllAddons(any(), any(), any()) } returns flowOf(com.fetch.tv.core.network.NetworkResult.Error("offline"))
+        },
         layoutPreferenceDataStore = mockk<LayoutPreferenceDataStore> {
             every { posterCardWidthDp } returns flowOf(126)
             every { posterCardCornerRadiusDp } returns flowOf(12)
@@ -61,10 +74,23 @@ internal class LibraryViewModelTestFixture(sorter: TrackingLibrarySorter? = null
             every { lastSelectedType } returns flowOf(null)
         },
         trackingProviderRegistry = TrackingLibraryProviderRegistry(setOf(provider)),
-        watchProgressRepository = mockk<WatchProgressRepository> { every { observeWatchedMovieIds() } returns flowOf(emptySet()) },
+        watchProgressRepository = mockk<WatchProgressRepository> {
+            every { observeWatchedMovieIds() } returns flowOf(emptySet())
+            every { watchedItems } returns watched
+            every { continueWatching } returns inProgress
+            every { getAllEpisodeProgress(any()) } returns flowOf(emptyMap())
+        },
         watchedSeriesStateHolder = mockk<WatchedSeriesStateHolder> { every { fullyWatchedSeriesIds } returns MutableStateFlow(emptySet()) },
         profileManager = mockk<ProfileManager> { every { activeProfileId } returns profile },
         parentalControls = com.fetch.tv.unrestrictedParentalControls(),
-        posterOptions = mockk(relaxed = true), context = mockk(relaxed = true)
+        posterOptions = mockk(relaxed = true) {
+            every { state } returns MutableStateFlow(com.fetch.tv.ui.components.posteroptions.PosterOptionsState())
+        },
+        bestMatchCacheDataStore = mockk<BestMatchCacheDataStore> { every { entries } returns bestMatches },
+        context = mockk(relaxed = true)
     )
+
+    init {
+        viewModel.onSelectListScope(scope)
+    }
 }

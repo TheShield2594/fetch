@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Lista e shikimit</string>
+    <string name="library_tab_lists">Listat</string>
+    <string name="library_tab_in_progress">Në vazhdim</string>
+    <string name="library_tab_history">Historiku</string>
+    <string name="library_tab_upcoming">Së shpejti</string>
+    <string name="library_tabs_description">Seksionet e bibliotekës</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Ende nuk ka lista</string>
+    <string name="library_lists_empty_subtitle">Listat që krijon këtu ose në shërbimin tënd të gjurmimit shfaqen në këtë skedë. Lista e shikimit ka skedën e vet.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (ky televizor)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% e shikuar</string>
+    <string name="library_in_progress_empty_title">Asgjë në vazhdim</string>
+    <string name="library_in_progress_empty_subtitle">Filmat dhe episodet që ke nisur dhe nuk i ke përfunduar shfaqen këtu.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Ende nuk ke parë asgjë</string>
+    <string name="library_history_empty_subtitle">Çfarë përfundon, dhe çfarë shërbimi yt i gjurmimit shënon si të parë, shfaqet këtu sipas muajve.</string>
+</resources>

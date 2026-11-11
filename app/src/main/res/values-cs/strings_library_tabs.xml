@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Watchlist</string>
+    <string name="library_tab_lists">Seznamy</string>
+    <string name="library_tab_in_progress">Rozkoukané</string>
+    <string name="library_tab_history">Historie</string>
+    <string name="library_tab_upcoming">Nadcházející</string>
+    <string name="library_tabs_description">Sekce knihovny</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Zatím žádné seznamy</string>
+    <string name="library_lists_empty_subtitle">Seznamy, které vytvoříte zde nebo ve sledovací službě, se zobrazí na této kartě. Váš watchlist má vlastní kartu.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (tato TV)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">Zhlédnuto %1$d%%</string>
+    <string name="library_in_progress_empty_title">Nic rozkoukaného</string>
+    <string name="library_in_progress_empty_subtitle">Zde se zobrazí filmy a díly, které jste začali sledovat a nedokončili.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Zatím nic zhlédnuto</string>
+    <string name="library_history_empty_subtitle">Co dokoukáte a co vaše sledovací služba označí jako zhlédnuté, se tu zobrazí po měsících.</string>
+
+    <!-- Library watched filter -->
+    <string name="library_watched_filter_ready">Připraveno k přehrání</string>
+</resources>

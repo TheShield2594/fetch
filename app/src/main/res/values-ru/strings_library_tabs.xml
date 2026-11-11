@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Список для просмотра</string>
+    <string name="library_tab_lists">Списки</string>
+    <string name="library_tab_in_progress">В процессе</string>
+    <string name="library_tab_history">История</string>
+    <string name="library_tab_upcoming">Скоро</string>
+    <string name="library_tabs_description">Разделы библиотеки</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Пока нет списков</string>
+    <string name="library_lists_empty_subtitle">Списки, созданные здесь или в вашем сервисе отслеживания, появляются на этой вкладке. У списка для просмотра своя вкладка.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (этот ТВ)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">Просмотрено %1$d%%</string>
+    <string name="library_in_progress_empty_title">Нет начатого</string>
+    <string name="library_in_progress_empty_subtitle">Здесь появляются фильмы и эпизоды, которые вы начали, но не досмотрели.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Пока ничего не просмотрено</string>
+    <string name="library_history_empty_subtitle">Здесь по месяцам появляется то, что вы досмотрели, и то, что ваш сервис отслеживания отметил как просмотренное.</string>
+</resources>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Žiūrėjimo sąrašas</string>
+    <string name="library_tab_lists">Sąrašai</string>
+    <string name="library_tab_in_progress">Žiūrimi</string>
+    <string name="library_tab_history">Istorija</string>
+    <string name="library_tab_upcoming">Būsimi</string>
+    <string name="library_tabs_description">Bibliotekos skiltys</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Sąrašų dar nėra</string>
+    <string name="library_lists_empty_subtitle">Čia rodomi sąrašai, kuriuos sukuriate čia arba savo stebėjimo paslaugoje. Žiūrėjimo sąrašas turi savo skirtuką.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (šis televizorius)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">Peržiūrėta %1$d%%</string>
+    <string name="library_in_progress_empty_title">Nėra žiūrimų</string>
+    <string name="library_in_progress_empty_subtitle">Čia rodomi filmai ir serijos, kuriuos pradėjote, bet nebaigėte žiūrėti.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Dar nieko nežiūrėta</string>
+    <string name="library_history_empty_subtitle">Čia pagal mėnesius rodoma tai, ką baigėte žiūrėti, ir tai, ką jūsų stebėjimo paslauga pažymėjo kaip žiūrėtą.</string>
+
+    <string name="library_watched_filter_ready">Paruošti paleisti</string>
+</resources>

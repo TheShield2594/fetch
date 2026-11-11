@@ -20,6 +20,8 @@ coroutines = "1.10.2"
 coil = "3.3.0"
 navigationCompose = "2.8.8"
 datastore = "1.1.7"
+# Watched items, progress and the library live in SQLite; settings stay in DataStore.
+room = "2.8.4"
 lifecycleViewModelCompose = "2.9.4"
 ksp = "2.3.0"
 media3 = "1.8.0"
@@ -53,6 +55,9 @@ mockk = "1.13.12"
 robolectric = "4.17"
 
 [libraries]
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }

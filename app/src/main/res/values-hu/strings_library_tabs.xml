@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Várólista</string>
+    <string name="library_tab_lists">Listák</string>
+    <string name="library_tab_in_progress">Folyamatban</string>
+    <string name="library_tab_history">Előzmények</string>
+    <string name="library_tab_upcoming">Hamarosan</string>
+    <string name="library_tabs_description">Könyvtár szakaszai</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Még nincsenek listák</string>
+    <string name="library_lists_empty_subtitle">Az itt vagy a követőszolgáltatásodban létrehozott listák ezen a lapon jelennek meg. A várólistádnak saját lapja van.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (ez a TV)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% megnézve</string>
+    <string name="library_in_progress_empty_title">Nincs folyamatban lévő tartalom</string>
+    <string name="library_in_progress_empty_subtitle">Itt jelennek meg az elkezdett, de be nem fejezett filmek és epizódok.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Még nincs megnézett tartalom</string>
+    <string name="library_history_empty_subtitle">Itt jelenik meg havonta csoportosítva, amit befejeztél, és amit a követőszolgáltatásod megnézettként jelölt.</string>
+</resources>

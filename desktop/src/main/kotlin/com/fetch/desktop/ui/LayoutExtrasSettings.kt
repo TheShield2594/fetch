@@ -286,7 +286,7 @@ fun HomeCatalogsList(state: AppState) {
     SettingsSection(null) {
         SettingsToggle(
             "Follow addons order",
-            "Catalogs follow addon manifest order. Collections can still be moved between addons.",
+            "Catalogs follow addon manifest order. Folder rows can still be moved between addons.",
             l.followAddonsOrder
         ) { v -> state.updateLayout { it.copy(followAddonsOrder = v) } }
     }
@@ -295,7 +295,7 @@ fun HomeCatalogsList(state: AppState) {
         collections.filter { it.pinToTop }.forEach { c ->
             val key = HomeLayout.collectionKey(c.id)
             val on = key !in disabled
-            SettingsRow(c.title, listOfNotNull("Collection · pinned to the top", "Hidden from Home".takeIf { !on }).joinToString(" · ")) {
+            SettingsRow(c.title, listOfNotNull("Folder row · pinned to the top", "Hidden from Home".takeIf { !on }).joinToString(" · ")) {
                 SecondaryButton(if (on) "Hide" else "Show", onClick = { state.setCatalogEnabled(key, !on) })
             }
         }
@@ -334,7 +334,7 @@ fun HomeCatalogsList(state: AppState) {
                         }
                     }
                 }
-                collection != null -> SettingsRow(collection.title, "Collection · ${collection.folders.size} folder${if (collection.folders.size == 1) "" else "s"}") {
+                collection != null -> SettingsRow(collection.title, "Folder row · ${collection.folders.size} folder${if (collection.folders.size == 1) "" else "s"}") {
                     RowButtons(movable, index, current.size, move) {
                         SecondaryButton("Hide", onClick = { state.setCatalogEnabled(key, false) })
                     }
@@ -353,7 +353,7 @@ fun HomeCatalogsList(state: AppState) {
                 }
             }
             hiddenCollections.forEach { c ->
-                SettingsRow(c.title, "Collection") {
+                SettingsRow(c.title, "Folder row") {
                     SecondaryButton("Show", onClick = { state.setCatalogEnabled(HomeLayout.collectionKey(c.id), true) })
                 }
             }

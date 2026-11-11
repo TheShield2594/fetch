@@ -70,23 +70,24 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.fetch.desktop.AppState
 import com.fetch.desktop.PlayerSession
-import com.fetch.desktop.youtube.SponsorBlockCategory
-import com.fetch.desktop.youtube.YouTubeChapter
 import com.fetch.desktop.youtube.YouTubeChapters
-import com.fetch.desktop.youtube.YouTubeLikeStatus
 import com.fetch.desktop.youtube.YouTubePlayback
 import com.fetch.desktop.youtube.YouTubePlayerExtras
 import com.fetch.desktop.youtube.YouTubePlayerPanel
-import com.fetch.desktop.youtube.YouTubePlaylistOption
-import com.fetch.desktop.youtube.YouTubePlaylistPrivacy
-import com.fetch.desktop.youtube.YouTubeSkipSegment
-import com.fetch.desktop.youtube.YouTubeStoryboard
 import com.fetch.desktop.youtube.YouTubeUpNextPrompt
-import com.fetch.desktop.youtube.YouTubeVideo
-import com.fetch.desktop.youtube.YouTubeVideoActions
-import com.fetch.desktop.youtube.YouTubeVoteCounts
 import com.fetch.desktop.youtube.YouTubeCaptions
+import com.fetch.desktop.youtube.label
 import com.fetch.desktop.youtube.youTubeExtras
+import com.fetch.tv.data.youtube.SponsorBlockCategory
+import com.fetch.tv.data.youtube.YouTubeChapter
+import com.fetch.tv.data.youtube.YouTubeLikeStatus
+import com.fetch.tv.data.youtube.YouTubePlaylistOption
+import com.fetch.tv.data.youtube.YouTubePlaylistPrivacy
+import com.fetch.tv.data.youtube.YouTubeSkipSegment
+import com.fetch.tv.data.youtube.YouTubeStoryboard
+import com.fetch.tv.data.youtube.YouTubeVideo
+import com.fetch.tv.data.youtube.YouTubeVideoActions
+import com.fetch.tv.data.youtube.YouTubeVoteCounts
 import kotlinx.coroutines.delay
 
 // The built-in player's YouTube parts, as the TV's YouTube player overlay has them: SponsorBlock

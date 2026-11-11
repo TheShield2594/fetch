@@ -67,7 +67,11 @@ class ProfilePinManagerTest {
         assertTrue(pins.verifyPin(2, "4321").getOrThrow().unlocked)
         assertFalse(pins.verifyPin(2, "0000").getOrThrow().unlocked)
         assertTrue(remote.calls.isEmpty())
-        assertFalse(store.localPinHash(2).orEmpty().contains("4321"))
+        // Stored as "v1:<iterations>:<saltHex>:<hashHex>", never the PIN itself. A substring check
+        // fails about once in 700 runs, when the random hex happens to contain the digits.
+        val stored = store.localPinHash(2).orEmpty()
+        assertTrue(stored.startsWith("v1:"))
+        assertFalse(stored.split(":").any { it == "4321" })
     }
 
     @Test

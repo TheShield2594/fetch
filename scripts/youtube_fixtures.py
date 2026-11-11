@@ -5,7 +5,7 @@ Signed out, this saves search, a search continuation, a channel page and its tab
 playlist, `next`, and `next` for a video played from that playlist. With YT_ACCESS_TOKEN set to a signed-in TV access token it also saves the
 home, subscriptions and history feeds.
 
-    scripts/youtube_fixtures.py                        # write to app/src/test/resources/youtube
+    scripts/youtube_fixtures.py                        # write to shared/src/test/resources/youtube
     scripts/youtube_fixtures.py --out /tmp/youtube     # write elsewhere (the scheduled check does)
 
 The trim keeps every key YouTubeResponseParser reads. It drops tracking, logging, styling and
@@ -195,7 +195,7 @@ def fetch_all(token=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    parser.add_argument("--out", default=os.path.join(root, "app/src/test/resources/youtube"))
+    parser.add_argument("--out", default=os.path.join(root, "shared/src/test/resources/youtube"))
     args = parser.parse_args()
     os.makedirs(args.out, exist_ok=True)
     responses = fetch_all(os.environ.get("YT_ACCESS_TOKEN"))

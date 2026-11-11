@@ -25,11 +25,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fetch.desktop.AppState
-import com.fetch.desktop.youtube.SponsorBlockCategory
-import com.fetch.desktop.youtube.SponsorBlockMode
-import com.fetch.desktop.youtube.YouTubeDeviceCode
 import com.fetch.desktop.youtube.YouTubePlayback
 import com.fetch.desktop.youtube.YouTubeSettings
+import com.fetch.desktop.youtube.label
+import com.fetch.tv.data.youtube.SponsorBlockCategory
+import com.fetch.tv.data.youtube.SponsorBlockMode
+import com.fetch.tv.data.youtube.YouTubeDeviceCode
 import java.io.File
 
 /**

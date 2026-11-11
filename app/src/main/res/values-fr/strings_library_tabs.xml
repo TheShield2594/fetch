@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Liste de suivi</string>
+    <string name="library_tab_lists">Listes</string>
+    <string name="library_tab_in_progress">En cours</string>
+    <string name="library_tab_history">Historique</string>
+    <string name="library_tab_upcoming">À venir</string>
+    <string name="library_tabs_description">Sections de la bibliothèque</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Aucune liste pour le moment</string>
+    <string name="library_lists_empty_subtitle">Les listes que vous créez ici ou sur votre service de suivi apparaissent dans cet onglet. Votre liste de suivi a son propre onglet.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (cette TV)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d&#160;%% vu</string>
+    <string name="library_in_progress_empty_title">Rien en cours</string>
+    <string name="library_in_progress_empty_subtitle">Les films et épisodes que vous avez commencés sans les terminer apparaissent ici.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Aucun visionnage pour le moment</string>
+    <string name="library_history_empty_subtitle">Ce que vous terminez, et ce que votre service de suivi marque comme vu, apparaît ici par mois.</string>
+</resources>

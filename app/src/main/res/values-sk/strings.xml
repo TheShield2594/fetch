@@ -9,14 +9,14 @@
 
     
     <string name="web_manage_addons_title">Spravovať doplnky</string>
-    <string name="web_manage_addons_subtitle">Spravovať doplnky, katalógy a kolekcie</string>
+    <string name="web_manage_addons_subtitle">Spravovať doplnky, katalógy a domovské priečinky</string>
     <string name="web_manage_addons_only_subtitle">Inštalovať alebo odstrániť doplnky</string>
     <string name="web_add_addon_url">Pridať doplnok pomocou URL</string>
     <string name="web_placeholder_url">https://example.com/manifest.json</string>
     <string name="web_btn_add">Pridať</string>
     <string name="web_installed_addons">Nainštalované doplnky</string>
     <string name="web_no_addons">Žiadne doplnky nie sú nainštalované</string>
-    <string name="web_home_catalogs">Domáce katalógy a kolekcie</string>
+    <string name="web_home_catalogs">Domovské katalógy a priečinky</string>
     <string name="web_no_catalogs">Žiadne domáce katalógy nie sú dostupné</string>
     <string name="web_btn_save">Uložiť zmeny</string>
     <string name="web_connection_lost">Spojenie s TV bolo stratené</string>
@@ -45,26 +45,26 @@
     <string name="web_installed">Nainštalované</string>
     <string name="web_no_repos">Žiadne repozitáre nie sú nainštalované</string>
     <string name="web_error_repo_exists">Tento repozitár je už v zozname</string>
-    <string name="web_manage_collections_title">Spravovať kolekcie</string>
-    <string name="web_manage_collections_subtitle">Vytvoriť a spravovať vlastné kolekcie</string>
-    <string name="web_status_msg_collections_updated">Vaše kolekcie boli na TV aktualizované.</string>
+    <string name="web_manage_collections_title">Spravovať domovské priečinky</string>
+    <string name="web_manage_collections_subtitle">Vytvoriť a spravovať riadky priečinkov na domovskej obrazovke</string>
+    <string name="web_status_msg_collections_updated">Vaše domovské priečinky boli na TV aktualizované.</string>
     <string name="web_tab_addons">Doplnky</string>
     <string name="web_tab_home_layout">Rozloženie domovskej obrazovky</string>
-    <string name="web_tab_collections">Kolekcie</string>
+    <string name="web_tab_collections">Domovské priečinky</string>
     <string name="web_btn_enable_all">Povoliť všetko</string>
     <string name="web_btn_disable_all">Zakázať všetko</string>
     <string name="web_btn_show_all">Zobraziť všetko</string>
     <string name="web_btn_hide_all">Skryť všetko</string>
-    <string name="web_btn_new_collection">+ Nová kolekcia</string>
+    <string name="web_btn_new_collection">+ Nový riadok priečinkov</string>
     <string name="web_btn_export">Exportovať</string>
     <string name="web_btn_import">Importovať</string>
-    <string name="web_no_collections">Zatiaľ žiadne kolekcie</string>
-    <string name="web_badge_collection">Kolekcia</string>
-    <string name="web_import_collections_title">Importovať kolekcie</string>
+    <string name="web_no_collections">Zatiaľ žiadne riadky priečinkov</string>
+    <string name="web_badge_collection">Riadok priečinkov</string>
+    <string name="web_import_collections_title">Importovať domovské priečinky</string>
     <string name="web_import_tab_paste">Vložiť</string>
     <string name="web_import_tab_file">Súbor</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Sem vložte JSON kolekcií…</string>
+    <string name="web_import_paste_placeholder">Sem vložte JSON domovských priečinkov…</string>
     <string name="web_import_file_select">Klepnutím vyberte súbor .json</string>
     <string name="web_order_send_to_top">Presunúť na začiatok</string>
     <string name="web_order_send_to_bottom">Presunúť na koniec</string>
@@ -80,21 +80,21 @@
     <string name="web_import_enter_url">Zadajte URL</string>
     <string name="web_import_failed_fetch_url">Nepodarilo sa načítať URL</string>
     <string name="web_import_no_json">Nebol poskytnutý žiadny JSON</string>
-    <string name="web_import_expected_array">Očakávané pole JSON kolekcií</string>
-    <string name="web_import_empty_array">Prázdne pole: nenašli sa žiadne kolekcie</string>
-    <string name="web_import_error_collection_invalid_id">Kolekcia {index}: chýba alebo neplatné \"id\"</string>
-    <string name="web_import_error_collection_invalid_title">Kolekcia \"{collection}\": chýba alebo neplatný \"title\"</string>
-    <string name="web_import_error_collection_folders_array">Kolekcia \"{collection}\": \"folders\" musí byť pole</string>
-    <string name="web_import_error_folder_invalid_format">Kolekcia \"{collection}\", priečinok {index}: neplatný formát</string>
-    <string name="web_import_error_folder_missing_id">Kolekcia \"{collection}\", priečinok {index}: chýba \"id\"</string>
-    <string name="web_import_error_folder_missing_title">Kolekcia \"{collection}\", priečinok \"{folder}\": chýba \"title\"</string>
-    <string name="web_import_error_sources_array">Kolekcia \"{collection}\", priečinok \"{folder}\": \"sources\" musí byť pole</string>
-    <string name="web_import_error_invalid_tile_shape">Kolekcia \"{collection}\", priečinok \"{folder}\": neplatný tileShape \"{shape}\"</string>
-    <string name="web_import_error_source_invalid_format">Kolekcia \"{collection}\", priečinok \"{folder}\", zdroj {index}: neplatný formát</string>
-    <string name="web_import_error_source_missing_addon_fields">Kolekcia \"{collection}\", priečinok \"{folder}\", zdroj {index}: chýbajú povinné polia (addonId, type, catalogId)</string>
+    <string name="web_import_expected_array">Očakávané pole JSON riadkov priečinkov</string>
+    <string name="web_import_empty_array">Prázdne pole: nenašli sa žiadne riadky priečinkov</string>
+    <string name="web_import_error_collection_invalid_id">Riadok priečinkov {index}: chýba alebo neplatné \"id\"</string>
+    <string name="web_import_error_collection_invalid_title">Riadok priečinkov \"{collection}\": chýba alebo neplatný \"title\"</string>
+    <string name="web_import_error_collection_folders_array">Riadok priečinkov \"{collection}\": \"folders\" musí byť pole</string>
+    <string name="web_import_error_folder_invalid_format">Riadok priečinkov \"{collection}\", priečinok {index}: neplatný formát</string>
+    <string name="web_import_error_folder_missing_id">Riadok priečinkov \"{collection}\", priečinok {index}: chýba \"id\"</string>
+    <string name="web_import_error_folder_missing_title">Riadok priečinkov \"{collection}\", priečinok \"{folder}\": chýba \"title\"</string>
+    <string name="web_import_error_sources_array">Riadok priečinkov \"{collection}\", priečinok \"{folder}\": \"sources\" musí byť pole</string>
+    <string name="web_import_error_invalid_tile_shape">Riadok priečinkov \"{collection}\", priečinok \"{folder}\": neplatný tileShape \"{shape}\"</string>
+    <string name="web_import_error_source_invalid_format">Riadok priečinkov \"{collection}\", priečinok \"{folder}\", zdroj {index}: neplatný formát</string>
+    <string name="web_import_error_source_missing_addon_fields">Riadok priečinkov \"{collection}\", priečinok \"{folder}\", zdroj {index}: chýbajú povinné polia (addonId, type, catalogId)</string>
     <string name="web_import_error_source_missing_tmdb_type">Kolekcia \"{collection}\", priečinok \"{folder}\", zdroj {index}: chýba typ TMDB zdroja</string>
-    <string name="web_import_error_source_missing_trakt_id">Kolekcia \"{collection}\", priečinok \"{folder}\", zdroj {index}: chýba ID Trakt zoznamu</string>
-    <string name="web_import_success">Importovaných {count} kolekcií. Skontrolujte a stlačte Uložiť zmeny pre použitie.</string>
+    <string name="web_import_error_source_missing_trakt_id">Riadok priečinkov \"{collection}\", priečinok \"{folder}\", zdroj {index}: chýba ID Trakt zoznamu</string>
+    <string name="web_import_success">Importované riadky priečinkov: {count}. Skontrolujte a stlačte Uložiť zmeny pre použitie.</string>
     <string name="web_import_invalid_json">Neplatný JSON</string>
 
     
@@ -387,7 +387,7 @@
     <string name="experience_mode_choose_title">Vyberte svoju skúsenosť s aplikáciou Fetch</string>
     <string name="experience_mode_choose_subtitle">Začnite jednoducho alebo odomknite každé prispôsobenie. Môžete prepínať kedykoľvek.</string>
     <string name="experience_mode_essential_card_subtitle">Zameraná konfigurácia, doplnky, základy prehrávania, Trakt a nastavenia účtu.</string>
-    <string name="experience_mode_advanced_card_subtitle">Úplné nastavenia, ovládanie rozloženia, poradie katalógov, kolekcie, pluginy a diagnostika.</string>
+    <string name="experience_mode_advanced_card_subtitle">Úplné nastavenia, ovládanie rozloženia, poradie katalógov, domovské priečinky, pluginy a diagnostika.</string>
     <string name="experience_mode_group_title">Režim skúsenosti</string>
     <string name="essential_addon_continue_for_now">Pokračovať zatiaľ</string>
     <string name="essential_playback_basics">Základy prehrávania</string>
@@ -412,11 +412,11 @@
     <string name="experience_mode_switch_to_essential_subtitle">Skryť pokročilé nastavenia bez zmeny uložených hodnôt.</string>
     <string name="experience_mode_switch_to_advanced">Prepnúť na Pokročilú</string>
     <string name="experience_mode_switch_to_advanced_header_subtitle">Prepnite na Pokročilú pre úplné nastavenia.</string>
-    <string name="experience_mode_switch_to_advanced_subtitle">Zobraziť úplné rozloženie, pluginy, integrácie, katalóg, kolekcie a nastavenia ladenia.</string>
+    <string name="experience_mode_switch_to_advanced_subtitle">Zobraziť úplné rozloženie, pluginy, integrácie, katalóg, domovské priečinky a nastavenia ladenia.</string>
     <string name="experience_mode_confirm_essential_title">Prepnúť na Základnú?</string>
     <string name="experience_mode_confirm_advanced_title">Prepnúť na Pokročilú?</string>
     <string name="experience_mode_confirm_essential_subtitle">Pokročilé nastavenia budú skryté, ale uložené nastavenia zostanú nezmenené. Môžete sa kedykoľvek vrátiť.</string>
-    <string name="experience_mode_confirm_advanced_subtitle">Toto odhalí úplné nastavenia vrátane pokročilej konfigurácie, katalógu, kolekcií a ovládacích prvkov ladenia.</string>
+    <string name="experience_mode_confirm_advanced_subtitle">Toto odhalí úplné nastavenia vrátane pokročilej konfigurácie, katalógu, domovských priečinkov a ovládacích prvkov ladenia.</string>
     <string name="advanced_section_performance">Výkon a navigácia</string>
     <string name="advanced_section_diagnostics">Diagnostika</string>
     <string name="advanced_section_cache">Cache</string>
@@ -858,7 +858,7 @@
     
     <string name="collection_editor_no_trakt_lists_found">Nenašli sa žiadne Trakt zoznamy</string>
     <string name="collection_editor_untitled_folder">Bez názvu</string>
-    <string name="collection_editor_untitled_collection">Kolekcia bez názvu</string>
+    <string name="collection_editor_untitled_collection">Riadok priečinkov bez názvu</string>
     
     <string name="addon_title">Doplnky</string>
     <string name="addon_readonly_notice">Používajú sa doplnky hlavného profilu a nemožno ich meniť</string>
@@ -877,14 +877,14 @@
     <string name="addon_remove_confirm_message">Jeho katalógy a streamy sa na tomto televízore prestanú zobrazovať.</string>
     <string name="addons_badge_disabled">Zakázané</string>
     <string name="addon_manage_from_phone_title">Spravovať z telefónu</string>
-    <string name="addon_manage_from_phone_subtitle">Naskenujte QR kód a spravujte doplnky, katalógy a kolekcie z telefónu</string>
+    <string name="addon_manage_from_phone_subtitle">Naskenujte QR kód a spravujte doplnky, katalógy a domovské priečinky z telefónu</string>
     <string name="addon_manage_addons_only_from_phone_subtitle">Naskenujte QR kód pre inštaláciu alebo odstránenie doplnkov z telefónu</string>
-    <string name="addon_manage_collections_from_phone_subtitle">Naskenujte QR kód a spravujte kolekcie z telefónu</string>
+    <string name="addon_manage_collections_from_phone_subtitle">Naskenujte QR kód a spravujte domovské priečinky z telefónu</string>
     <string name="addon_reorder_title">Zmeniť poradie katalógov</string>
-    <string name="addon_reorder_subtitle">Ovláda poradie katalógov a kolekcií na domovskej obrazovke (Klasické + Moderné + Mriežka)</string>
-    <string name="addon_qr_scan_instruction">Naskenujte telefónom pre správu doplnkov, katalógov a kolekcií</string>
+    <string name="addon_reorder_subtitle">Ovláda poradie riadkov katalógov a riadkov priečinkov na domovskej obrazovke (Klasické + Moderné + Mriežka)</string>
+    <string name="addon_qr_scan_instruction">Naskenujte telefónom pre správu doplnkov, katalógov a domovských priečinkov</string>
     <string name="addon_qr_addons_only_scan_instruction">Naskenujte telefónom pre inštaláciu alebo odstránenie doplnkov</string>
-    <string name="addon_qr_collections_scan_instruction">Naskenujte telefónom pre správu kolekcií</string>
+    <string name="addon_qr_collections_scan_instruction">Naskenujte telefónom pre správu domovských priečinkov</string>
     <string name="addon_qr_close">Zavrieť</string>
     <string name="addon_confirm_title">Potvrdiť zmeny doplnkov a katalógov</string>
     <string name="addon_confirm_subtitle">Nasledujúce zmeny boli vykonané z vášho telefónu:</string>
@@ -899,14 +899,14 @@
     <string name="addon_refresh_action">Obnoviť doplnky</string>
     <string name="addon_refresh_default_subtitle">Načítať najnovšie zmeny doplnkov pre aktuálny profil</string>
     <string name="addon_refresh_done_subtitle">Doplnky boli práve obnovené</string>
-    <string name="addon_pending_collections_updated">Kolekcie aktualizované</string>
-    <string name="addon_pending_collections_replace">%1$d kolekcií nahradí aktuálne kolekcie</string>
+    <string name="addon_pending_collections_updated">Domovské priečinky aktualizované</string>
+    <string name="addon_pending_collections_replace">Riadky priečinkov (%1$d) nahradia vaše aktuálne domovské priečinky</string>
 
     
     <string name="catalog_order_title">Zmeniť poradie katalógov</string>
     <string name="catalog_order_subtitle">Ovláda poradie katalógov na domovskej obrazovke (Klasické + Moderné + Mriežka).</string>
     <string name="catalog_order_follow_addons">Sledovať poradie doplnkov</string>
-    <string name="catalog_order_follow_addons_desc">Katalógy sledujú poradie manifestu doplnkov. Kolekcie je stále možné presúvať medzi doplnkami.</string>
+    <string name="catalog_order_follow_addons_desc">Katalógy sledujú poradie manifestu doplnkov. Riadky priečinkov je stále možné presúvať medzi doplnkami.</string>
     <string name="catalog_order_empty">Zatiaľ nie sú dostupné žiadne katalógy.</string>
     <string name="catalog_order_disabled_on_home">Vypnuté na domovskej obrazovke</string>
     <string name="catalog_order_enable">Zapnúť</string>
@@ -1159,7 +1159,6 @@
     <string name="library_delete_subtitle_provider">Týmto sa zoznam a jeho položky odstránia zo služby %1$s. Túto akciu nemožno vrátiť späť.</string>
     <string name="library_delete_subtitle_local">Týmto sa zoznam a jeho položky odstránia z vašej knižnice. Túto akciu nemožno vrátiť späť.</string>
     <string name="library_source_local">LOKÁLNE</string>
-    <string name="library_source_saved">Uložené</string>
     <string name="library_watchlist">Watchlist</string>
     <string name="library_syncing_library">Synchronizuje sa knižnica…</string>
     <string name="library_type_all">Všetko</string>
@@ -1380,24 +1379,24 @@
     <string name="debug_generate_library_result_added">Do knižnice bolo pridaných %1$d položiek</string>
 
     
-    <string name="collections_header">Kolekcie</string>
-    <string name="collections_delete_confirm_title">Odstrániť kolekciu?</string>
+    <string name="collections_header">Domovské priečinky</string>
+    <string name="collections_delete_confirm_title">Odstrániť riadok priečinkov?</string>
     <string name="collections_delete_confirm_subtitle">Týmto sa natrvalo odstráni „%1$s“. Túto akciu nemožno vrátiť späť.</string>
-    <string name="collections_empty">Zatiaľ žiadne kolekcie. Vytvorte jednu, aby ste si usporiadali katalógy.</string>
-    <string name="collections_new">Nová kolekcia</string>
+    <string name="collections_empty">Zatiaľ žiadne riadky priečinkov. Vytvorte jeden a zoskupte svoje katalógy do priečinkov na domovskej obrazovke.</string>
+    <string name="collections_new">Nový riadok priečinkov</string>
     <string name="collections_import">Importovať</string>
     <string name="collections_export_file">Exportovať súbor</string>
     <string name="collections_saved_downloads">Uložené do Stiahnutých súborov</string>
     <string name="collections_export_failed">Nepodarilo sa uložiť do priečinka Stiahnuté súbory. Skontrolujte povolenie úložiska a voľné miesto a skúste to znova.</string>
-    <string name="collections_import_header">Importovať kolekcie</string>
-    <string name="collections_import_description">Importujte kolekcie z JSON. Katalógy z doplnkov, ktoré nemáte nainštalované, zobrazia upozornenie.</string>
+    <string name="collections_import_header">Importovať domovské priečinky</string>
+    <string name="collections_import_description">Importujte riadky priečinkov z JSON. Katalógy z doplnkov, ktoré nemáte nainštalované, zobrazia upozornenie.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
     <string name="collections_import_failed_fetch_http">Nepodarilo sa načítať: HTTP %1$d</string>
     <string name="collections_import_failed_fetch_url">Nepodarilo sa načítať URL: %1$s</string>
-    <string name="collections_import_paste_json_required">Vložte JSON kolekcií na import</string>
+    <string name="collections_import_paste_json_required">Vložte JSON domovských priečinkov na import</string>
     <string name="collections_import_no_data">Žiadne údaje na import</string>
-    <string name="collections_import_invalid_or_empty">Neplatný formát alebo prázdne kolekcie</string>
-    <string name="collections_import_file_not_found_downloads">Súbor sa nenašiel v priečinku Stiahnuté.\nNajprv exportujte kolekcie, aby sa vytvoril.</string>
+    <string name="collections_import_invalid_or_empty">Neplatný formát alebo žiadne riadky priečinkov</string>
+    <string name="collections_import_file_not_found_downloads">Súbor sa nenašiel v priečinku Stiahnuté.\nNajprv exportujte domovské priečinky, aby sa vytvoril.</string>
     <string name="collections_import_failed_read_file">Nepodarilo sa prečítať súbor: %1$s</string>
     <string name="collections_cancel">Zrušiť</string>
     <string name="collections_mode_paste">Vložiť JSON</string>
@@ -1405,7 +1404,7 @@
     <string name="collections_mode_url">Z URL</string>
     <string name="collections_paste_clipboard">Vložiť zo schránky</string>
     <string name="collections_validate">Overiť</string>
-    <string name="collections_paste_hint">Sem vložte JSON kolekcií…</string>
+    <string name="collections_paste_hint">Sem vložte JSON domovských priečinkov…</string>
     <string name="collections_file_description">Načíta fetch-collections.json z priečinka Stiahnuté.</string>
     <string name="collections_load_file">Načítať súbor</string>
     <string name="collections_file_loaded">Súbor načítaný (%1$d znakov)</string>
@@ -1419,7 +1418,7 @@
     <string name="collections_editor_save">Uložiť</string>
     <string name="collections_editor_backdrop">Obrázok pozadia</string>
     <string name="collections_editor_pin_above">Pripnúť nad katalógy</string>
-    <string name="collections_editor_pin_above_desc">Zobraziť túto kolekciu nad všetkými bežnými domácimi katalógmi. Viaceré pripnuté kolekcie sledujú poradie vytvorenia kolekcie.</string>
+    <string name="collections_editor_pin_above_desc">Zobraziť tento riadok priečinkov nad všetkými bežnými katalógmi na domovskej obrazovke. Pripnuté riadky priečinkov sa zoradia podľa toho, kedy boli vytvorené.</string>
     <string name="collections_editor_view_mode">Režim zobrazenia</string>
     <string name="collections_editor_show_all_tab">Zobraziť kartu „Všetko“</string>
     <string name="collections_editor_show_all_tab_desc">Skombinovať všetky katalógy do jednej karty</string>
@@ -1443,7 +1442,7 @@
     <string name="collections_editor_select_catalogs">Vybrať katalógy</string>
     <string name="collections_editor_done">Hotovo</string>
     <string name="collections_editor_choose_emoji">Vybrať emoji</string>
-    <string name="collections_editor_edit_collection">Upraviť kolekciu</string>
+    <string name="collections_editor_edit_collection">Upraviť riadok priečinkov</string>
     <string name="collections_editor_source">Zdroj</string>
     <string name="collections_editor_view_mode_tabs">Karty</string>
     <string name="collections_editor_view_mode_rows">Riadky</string>
@@ -1582,7 +1581,7 @@
     <string name="collections_editor_keyword_based_on_novel">Podľa románu</string>
     <string name="collections_editor_keyword_time_travel">Cestovanie v čase</string>
     <string name="collections_editor_keyword_space">Vesmír</string>
-    <string name="collections_editor_placeholder_name">Názov kolekcie</string>
+    <string name="collections_editor_placeholder_name">Názov riadka priečinkov</string>
     <string name="collections_editor_placeholder_backdrop">URL obrázka pozadia (voliteľné)</string>
     <string name="collections_editor_placeholder_cover_image">URL obrázka obalu</string>
     <string name="collections_editor_placeholder_folder">Názov priečinka</string>
@@ -1602,7 +1601,7 @@
     <string name="collections_editor_all_genres">Všetky žánre</string>
     <string name="collections_editor_genre_required">Žáner je povinný</string>
     <string name="collections_editor_genre_optional">Filter žánru je dostupný</string>
-    <string name="collections_card_title">Kolekcie</string>
+    <string name="collections_card_title">Domovské priečinky</string>
     <string name="collections_card_subtitle">Zoskupte katalógy do priečinkov na domovskej obrazovke</string>
     <string name="collections_tab_all">Všetky</string>
     <string name="collections_tab_combined">Kombinované</string>
@@ -1617,7 +1616,7 @@
     <string name="folder_error_trakt_source">Tento zoznam Trakt sa nepodarilo načítať. Skontrolujte pripojenie a či je zoznam stále verejný, a skúste to znova.</string>
     <string name="folder_error_list_source">Tento zoznam sa nepodarilo načítať. Skontrolujte pripojenie a skúste to znova.</string>
     <string name="collections_editor_discard_title">Zahodiť zmeny?</string>
-    <string name="collections_editor_discard_collection_subtitle">Zmeny v tejto kolekcii neboli uložené.</string>
+    <string name="collections_editor_discard_collection_subtitle">Zmeny v tomto riadku priečinkov neboli uložené.</string>
     <string name="collections_editor_discard_folder_subtitle">Zmeny v tomto priečinku neboli uložené.</string>
     <string name="collections_editor_keep_editing">Pokračovať v úpravách</string>
     <string name="collections_editor_discard">Zahodiť</string>
@@ -1705,19 +1704,19 @@
     
     <string name="collections_import_error_empty_input">Prázdny vstup</string>
     <string name="collections_import_error_expected_array">Neplatný formát: očakávalo sa pole</string>
-    <string name="collections_import_error_empty_array">Prázdne pole: nenašli sa žiadne kolekcie</string>
-    <string name="collections_import_error_missing_id">Kolekcia %1$d: chýba alebo je neplatné „id“</string>
-    <string name="collections_import_error_missing_title">Kolekcia „%1$s“: chýba alebo je neplatný „title“</string>
-    <string name="collections_import_error_folders_array">Kolekcia „%1$s“: „folders“ musí byť pole</string>
-    <string name="collections_import_error_folder_invalid">Kolekcia „%1$s“, priečinok %2$d: neplatný formát</string>
-    <string name="collections_import_error_folder_missing_id">Kolekcia „%1$s“, priečinok %2$d: chýba „id“</string>
-    <string name="collections_import_error_folder_missing_title">Kolekcia „%1$s“, priečinok „%2$s“: chýba „title“</string>
-    <string name="collections_import_error_sources_array">Kolekcia „%1$s“, priečinok „%2$s“: „sources“ musí byť pole</string>
-    <string name="collections_import_error_invalid_tile_shape">Kolekcia „%1$s“, priečinok „%2$s“: neplatný tileShape „%3$s“</string>
-    <string name="collections_import_error_source_invalid">Kolekcia „%1$s“, priečinok „%2$s“, zdroj %3$d: neplatný formát</string>
-    <string name="collections_import_error_source_required_fields">Kolekcia „%1$s“, priečinok „%2$s“, zdroj %3$d: chýbajú povinné polia</string>
-    <string name="collections_import_error_missing_tmdb_type">Kolekcia „%1$s“, priečinok „%2$s“, zdroj %3$d: chýba typ zdroja TMDB</string>
-    <string name="collections_import_error_missing_trakt_list_id">Kolekcia „%1$s“, priečinok „%2$s“, zdroj %3$d: chýba ID Trakt zoznamu</string>
+    <string name="collections_import_error_empty_array">Prázdne pole: nenašli sa žiadne riadky priečinkov</string>
+    <string name="collections_import_error_missing_id">Riadok priečinkov %1$d: chýba alebo je neplatné „id“</string>
+    <string name="collections_import_error_missing_title">Riadok priečinkov „%1$s“: chýba alebo je neplatný „title“</string>
+    <string name="collections_import_error_folders_array">Riadok priečinkov „%1$s“: „folders“ musí byť pole</string>
+    <string name="collections_import_error_folder_invalid">Riadok priečinkov „%1$s“, priečinok %2$d: neplatný formát</string>
+    <string name="collections_import_error_folder_missing_id">Riadok priečinkov „%1$s“, priečinok %2$d: chýba „id“</string>
+    <string name="collections_import_error_folder_missing_title">Riadok priečinkov „%1$s“, priečinok „%2$s“: chýba „title“</string>
+    <string name="collections_import_error_sources_array">Riadok priečinkov „%1$s“, priečinok „%2$s“: „sources“ musí byť pole</string>
+    <string name="collections_import_error_invalid_tile_shape">Riadok priečinkov „%1$s“, priečinok „%2$s“: neplatný tileShape „%3$s“</string>
+    <string name="collections_import_error_source_invalid">Riadok priečinkov „%1$s“, priečinok „%2$s“, zdroj %3$d: neplatný formát</string>
+    <string name="collections_import_error_source_required_fields">Riadok priečinkov „%1$s“, priečinok „%2$s“, zdroj %3$d: chýbajú povinné polia</string>
+    <string name="collections_import_error_missing_tmdb_type">Riadok priečinkov „%1$s“, priečinok „%2$s“, zdroj %3$d: chýba typ zdroja TMDB</string>
+    <string name="collections_import_error_missing_trakt_list_id">Riadok priečinkov „%1$s“, priečinok „%2$s“, zdroj %3$d: chýba ID Trakt zoznamu</string>
     <string name="collections_import_error_json_parse">Chyba spracovania JSON: %1$s</string>
 
     
@@ -1826,7 +1825,7 @@
 <string name="hero_synopsis_dismiss_hint">Stlačiť Späť na zatvorenie</string>
 <string name="settings_content_discovery">Obsah a objavovanie</string>
 <string name="settings_content_discovery_subtitle">Doplnky, katalógy a zdroje objavovania</string>
-<string name="settings_content_discovery_addons_subtitle">Spravovať doplnky, poradie katalógu a kolekcie</string>
+<string name="settings_content_discovery_addons_subtitle">Spravovať doplnky, poradie katalógu a domovské priečinky</string>
 <string name="external_auto_next_loading">Načítavanie ďalšej epizódy…</string>
 <string name="advanced_section_dv_diagnostics">Diagnostika DV</string>
 <string name="playback_external_forward_subtitles">Posielaj titulky do externého prehrávača</string>
@@ -2156,6 +2155,7 @@
     <string name="library_watched_filter_all">Všetko</string>
     <string name="library_watched_filter_watched">Pozrené</string>
     <string name="library_watched_filter_unwatched">Nepozrené</string>
+    <string name="library_watched_filter_ready">Pripravené na prehranie</string>
     <string name="genre_anime">Anime</string>
     <string name="genre_biography">Biografické</string>
     <string name="genre_children">Detské</string>
@@ -2308,7 +2308,7 @@
     <string name="custom_poster_qr_instruction">Naskenujte QR kód telefónom pre vloženie vzoru URL adresy plagátu</string>
     <string name="layout_custom_poster_screen_home">Domov</string>
     <string name="layout_custom_poster_screen_continue_watching">Pokračovať v sledovaní</string>
-    <string name="layout_custom_poster_screen_collections">Kolekcie</string>
+    <string name="layout_custom_poster_screen_collections">Domovské priečinky</string>
     <string name="layout_custom_poster_screen_library">Knižnica</string>
     <string name="layout_custom_poster_screen_search">Hľadať</string>
     <string name="layout_custom_poster_screen_details">Obrazovka podrobností</string>

@@ -87,6 +87,12 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 }
 
+// The saved YouTube responses live with the shared parser (shared/src/test/resources/youtube);
+// the desktop client's tests replay them too.
+sourceSets.test {
+    resources.srcDir(rootProject.file("shared/src/test/resources"))
+}
+
 compose.desktop {
     application {
         mainClass = "com.fetch.desktop.MainKt"

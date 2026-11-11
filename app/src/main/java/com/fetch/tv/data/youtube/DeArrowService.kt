@@ -120,9 +120,3 @@ class DeArrowService @Inject constructor() {
         return YouTubeBranding(title, thumbnail)
     }
 }
-
-/** [video] with DeArrow's title and thumbnail where it has them. */
-fun YouTubeVideo.withBranding(branding: YouTubeBranding?): YouTubeVideo {
-    if (branding == null) return this
-    return copy(title = branding.title ?: title, thumbnailUrl = branding.thumbnailUrl ?: thumbnailUrl)
-}

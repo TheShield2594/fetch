@@ -1,0 +1,95 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "b7a0ef887263978afbaeacd9d736619d",
+    "entities": [
+      {
+        "tableName": "watched_items",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`profileId` INTEGER NOT NULL, `contentId` TEXT NOT NULL, `season` INTEGER NOT NULL, `episode` INTEGER NOT NULL, `contentType` TEXT NOT NULL, `title` TEXT NOT NULL, `watchedAt` INTEGER NOT NULL, `poster` TEXT, `releaseInfo` TEXT, `trackingProviderId` TEXT, `trackingProviderItemId` TEXT, `trackingSourceUrl` TEXT, PRIMARY KEY(`profileId`, `contentId`, `season`, `episode`))",
+        "fields": [
+          {
+            "fieldPath": "profileId",
+            "columnName": "profileId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentId",
+            "columnName": "contentId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "season",
+            "columnName": "season",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "episode",
+            "columnName": "episode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentType",
+            "columnName": "contentType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "watchedAt",
+            "columnName": "watchedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "poster",
+            "columnName": "poster",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "releaseInfo",
+            "columnName": "releaseInfo",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "trackingProviderId",
+            "columnName": "trackingProviderId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "trackingProviderItemId",
+            "columnName": "trackingProviderItemId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "trackingSourceUrl",
+            "columnName": "trackingSourceUrl",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "profileId",
+            "contentId",
+            "season",
+            "episode"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b7a0ef887263978afbaeacd9d736619d')"
+    ]
+  }
+}

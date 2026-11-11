@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">ウォッチリスト</string>
+    <string name="library_tab_lists">リスト</string>
+    <string name="library_tab_in_progress">視聴中</string>
+    <string name="library_tab_history">履歴</string>
+    <string name="library_tab_upcoming">近日公開</string>
+    <string name="library_tabs_description">ライブラリのセクション</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">リストはまだありません</string>
+    <string name="library_lists_empty_subtitle">ここやトラッキングサービスで作成したリストはこのタブに表示されます。ウォッチリストには専用のタブがあります。</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s（このテレビ）</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% 視聴済み</string>
+    <string name="library_in_progress_empty_title">視聴中の作品はありません</string>
+    <string name="library_in_progress_empty_subtitle">見始めてまだ見終わっていない映画やエピソードがここに表示されます。</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">まだ視聴した作品はありません</string>
+    <string name="library_history_empty_subtitle">見終わった作品と、トラッキングサービスで視聴済みになった作品が、月ごとにここに表示されます。</string>
+
+    <!-- Library watched filter -->
+    <string name="library_watched_filter_ready">すぐに再生可能</string>
+</resources>

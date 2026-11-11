@@ -13,6 +13,7 @@ import com.fetch.tv.data.youtube.SponsorBlockCategory
 import com.fetch.tv.data.youtube.SponsorBlockMode
 import com.fetch.tv.data.youtube.YouTubeBranding
 import com.fetch.tv.data.youtube.YouTubeChapter
+import com.fetch.tv.data.youtube.YouTubeInnerTube
 import com.fetch.tv.data.youtube.YouTubePlayRequests
 import com.fetch.tv.data.youtube.YouTubePlaylistContext
 import com.fetch.tv.data.youtube.YouTubeStoryboard
@@ -128,17 +129,17 @@ data class YouTubeVideoMenuState(
 
     /** The video is in Watch Later; before the playlists load, only known on Watch Later's own page. */
     val inWatchLater: Boolean
-        get() = watchLater?.containsVideo ?: (openPlaylist?.browseId == YouTubeService.WATCH_LATER_BROWSE_ID)
+        get() = watchLater?.containsVideo ?: (openPlaylist?.browseId == YouTubeInnerTube.WATCH_LATER_BROWSE_ID)
 
     /** The open playlist, when it's one of the channel's own: only those can be edited. */
     val editablePlaylist: YouTubePlaylistOption?
         get() = openPlaylist?.let { page ->
-            playlists?.firstOrNull { YouTubeService.PLAYLIST_BROWSE_PREFIX + it.playlistId == page.browseId }
+            playlists?.firstOrNull { YouTubeInnerTube.PLAYLIST_BROWSE_PREFIX + it.playlistId == page.browseId }
         }
 
     /** The open page is Liked videos, which the video leaves by being unliked. */
     val inLikedVideos: Boolean
-        get() = openPlaylist?.browseId == YouTubeService.LIKED_BROWSE_ID
+        get() = openPlaylist?.browseId == YouTubeInnerTube.LIKED_BROWSE_ID
 }
 
 /** Where a list of playlists to save a video to shows: the long-press menu, or the player. */
@@ -655,7 +656,7 @@ class YouTubeViewModel @Inject constructor(
     fun openMenu(video: YouTubeVideo) {
         menuJob?.cancel()
         val openPlaylist = _uiState.value.browse.lastOrNull()?.target
-            ?.takeIf { it.browseId.startsWith(YouTubeService.PLAYLIST_BROWSE_PREFIX) }
+            ?.takeIf { it.browseId.startsWith(YouTubeInnerTube.PLAYLIST_BROWSE_PREFIX) }
         _uiState.update { it.copy(menu = YouTubeVideoMenuState(video, openPlaylist)) }
         menuJob = viewModelScope.launch {
             val actions = async { orNull { youTubeService.loadWatchNext(video.videoId).actions } }
@@ -706,7 +707,7 @@ class YouTubeViewModel @Inject constructor(
                 notify(YouTubeNotice.Failed)
                 return@launch
             }
-            if (!add) removeFromPage(YouTubeService.PLAYLIST_BROWSE_PREFIX + option.playlistId, video.videoId)
+            if (!add) removeFromPage(YouTubeInnerTube.PLAYLIST_BROWSE_PREFIX + option.playlistId, video.videoId)
             notify(if (add) YouTubeNotice.Saved(option.title) else YouTubeNotice.Removed(option.title))
         }
     }
@@ -750,7 +751,7 @@ class YouTubeViewModel @Inject constructor(
         val menu = _uiState.value.menu ?: return
         // Before the playlists load, untitled: the screen names it.
         val option = menu.watchLater
-            ?: YouTubePlaylistOption(YouTubeService.WATCH_LATER_PLAYLIST_ID, title = "", containsVideo = menu.inWatchLater)
+            ?: YouTubePlaylistOption(YouTubeInnerTube.WATCH_LATER_PLAYLIST_ID, title = "", containsVideo = menu.inWatchLater)
         togglePlaylist(option, closeMenu = true)
     }
 
@@ -760,7 +761,7 @@ class YouTubeViewModel @Inject constructor(
         closeMenu()
         viewModelScope.launch {
             val done = orNull { youTubeService.setLikeStatus(video.videoId, YouTubeLikeStatus.INDIFFERENT) } != null
-            if (done) removeFromPage(YouTubeService.LIKED_BROWSE_ID, video.videoId)
+            if (done) removeFromPage(YouTubeInnerTube.LIKED_BROWSE_ID, video.videoId)
             notify(if (done) YouTubeNotice.RemovedFromLiked else YouTubeNotice.Failed)
         }
     }

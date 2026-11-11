@@ -2,6 +2,10 @@ package com.fetch.desktop.youtube
 
 import com.fetch.desktop.data.JsonFile
 import com.fetch.desktop.data.PrivateFiles
+import com.fetch.tv.data.youtube.SponsorBlockCategory
+import com.fetch.tv.data.youtube.SponsorBlockMode
+import com.fetch.tv.data.youtube.YouTubeAccount
+import com.fetch.tv.data.youtube.YouTubeFeedFilter
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File

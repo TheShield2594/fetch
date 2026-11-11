@@ -4,7 +4,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.domain.model.WatchProgress
 import io.mockk.every
@@ -27,7 +26,7 @@ class WatchProgressPreferencesStorageTest {
     private val gson = Gson()
 
     @Test
-    fun `empty legacy storage initializes without writing bucket files`() = runTest {
+    fun `empty legacy storage moves nothing and writes no file`() = runTest {
         val harness = harness(emptyMap())
 
         val result = harness.preferences.getAllRawEntries()
@@ -35,135 +34,122 @@ class WatchProgressPreferencesStorageTest {
         assertTrue(result.isEmpty())
         assertEquals(0, harness.recent.updateCount)
         assertEquals(0, harness.archive.updateCount)
-        assertEquals(1, harness.metadata.updateCount)
+        assertEquals(0, harness.metadata.updateCount)
+        assertEquals(0, harness.rows.entriesWritten)
     }
 
     @Test
-    fun `first save writes only the recent store`() = runTest {
-        val harness = harness(emptyMap())
-        harness.preferences.getAllRawEntries()
-        harness.resetUpdateCounts()
-
-        harness.preferences.saveProgress(progress("item", lastWatched = 1L))
-
-        assertEquals(setOf("item"), harness.recent.keys())
-        assertTrue(harness.archive.keys().isEmpty())
-        assertEquals(1, harness.recent.updateCount)
-        assertEquals(0, harness.archive.updateCount)
-    }
-
-    @Test
-    fun `legacy snapshot migrates into recent and archive stores`() = runTest {
+    fun `a legacy single map moves to the database and leaves the file`() = runTest {
         val harness = harness(legacyEntries())
 
         val result = harness.preferences.getAllRawEntries()
 
         assertEquals(250, result.size)
-        assertEquals(200, harness.recent.keys().size)
-        assertEquals(50, harness.archive.keys().size)
+        assertEquals(legacyEntries(), result)
         assertNull(harness.metadata.value[watchProgressEntriesKey])
-        assertEquals(
-            WATCH_PROGRESS_STORAGE_VERSION,
-            harness.metadata.value[watchProgressStorageVersionKey]
-        )
-        assertEquals(1, harness.recent.updateCount)
-        assertEquals(1, harness.archive.updateCount)
-        assertEquals(1, harness.metadata.updateCount)
     }
 
     @Test
-    fun `migration preserves a fifteen thousand item library`() = runTest {
-        val entries = (0 until 15_000).associate { index ->
-            "large$index" to progress("large$index", lastWatched = index.toLong())
-        }
-        val harness = harness(entries)
+    fun `recent and archive buckets move together, the recent one winning a shared key`() = runTest {
+        val archived = progress("item", lastWatched = 1L)
+        val recent = archived.copy(position = 9_000L, lastWatched = 2L)
+        val harness = harness(
+            entries = emptyMap(),
+            recent = mapOf("item" to recent, "new" to progress("new", 3L)),
+            archive = mapOf("item" to archived, "old" to progress("old", 0L))
+        )
 
         val result = harness.preferences.getAllRawEntries()
 
-        assertEquals(15_000, result.size)
-        assertEquals(WATCH_PROGRESS_RECENT_LIMIT, harness.recent.keys().size)
-        assertEquals(14_800, harness.archive.keys().size)
-        assertTrue("large14999" in harness.recent.keys())
-        assertTrue("large0" in harness.archive.keys())
-        harness.resetUpdateCounts()
-
-        harness.preferences.saveProgress(
-            entries.getValue("large14999").copy(position = 5_000L, lastWatched = 20_000L)
-        )
-
-        assertEquals(1, harness.recent.updateCount)
-        assertEquals(0, harness.archive.updateCount)
+        assertEquals(setOf("item", "new", "old"), result.keys)
+        assertEquals(recent, result["item"])
+        assertNull(harness.recent.value[watchProgressEntriesKey])
+        assertNull(harness.archive.value[watchProgressEntriesKey])
     }
 
     @Test
-    fun `migration is idempotent after storage version is recorded`() = runTest {
+    fun `the move runs once`() = runTest {
         val harness = harness(legacyEntries())
         harness.preferences.getAllRawEntries()
         harness.resetUpdateCounts()
-        val second = WatchProgressPreferences(harness.factory, harness.profileManager)
+        val second = WatchProgressPreferences(harness.factory, harness.profileManager, harness.rows)
 
         val result = second.getAllRawEntries()
 
         assertEquals(250, result.size)
-        assertEquals(0, harness.recent.updateCount)
-        assertEquals(0, harness.archive.updateCount)
+        assertEquals(0, harness.rows.entriesWritten)
         assertEquals(0, harness.metadata.updateCount)
     }
 
     @Test
-    fun `saving an existing recent item writes only the recent store`() = runTest {
-        val entries = legacyEntries()
-        val harness = harness(entries)
-        harness.preferences.getAllRawEntries()
-        harness.resetUpdateCounts()
+    fun `saving progress writes one entry at 100, 1,000 and 15,000 entries`() = runTest {
+        for (size in listOf(100, 1_000, 15_000)) {
+            val entries = (0 until size).associate { "large$it" to progress("large$it", lastWatched = it.toLong()) }
+            val harness = harness(entries)
+            harness.preferences.getAllRawEntries()
+            harness.resetUpdateCounts()
 
-        harness.preferences.saveProgress(
-            entries.getValue("item249").copy(position = 5_000L, lastWatched = 1_000L)
-        )
+            harness.preferences.saveProgress(entries.getValue("large0").copy(position = 5_000L, lastWatched = 20_000L))
 
-        assertEquals(1, harness.recent.updateCount)
-        assertEquals(0, harness.archive.updateCount)
-        assertEquals(0, harness.metadata.updateCount)
-        assertEquals(5_000L, harness.preferences.getAllRawEntries().getValue("item249").position)
+            assertEquals("entries written by one save with $size entries", 1, harness.rows.entriesWritten)
+            assertEquals(0, harness.recent.updateCount + harness.archive.updateCount + harness.metadata.updateCount)
+            assertEquals(5_000L, harness.preferences.getAllRawEntries().getValue("large0").position)
+        }
     }
 
     @Test
-    fun `saving an archived item promotes it and evicts the oldest recent item`() = runTest {
-        val entries = legacyEntries()
-        val harness = harness(entries)
+    fun `an episode save replaces the series-level entry`() = runTest {
+        val seriesLevel = progress("show", 1L).copy(contentType = "series")
+        val harness = harness(mapOf("show" to seriesLevel))
         harness.preferences.getAllRawEntries()
         harness.resetUpdateCounts()
 
-        harness.preferences.saveProgress(
-            entries.getValue("item0").copy(position = 5_000L, lastWatched = 1_000L)
-        )
+        harness.preferences.saveProgress(seriesLevel.copy(season = 1, episode = 2, lastWatched = 2L))
 
-        val recentKeys = harness.recent.keys()
-        val archiveKeys = harness.archive.keys()
-        assertEquals(200, recentKeys.size)
-        assertEquals(50, archiveKeys.size)
-        assertTrue("item0" in recentKeys)
-        assertTrue("item50" in archiveKeys)
-        assertFalse("item0" in archiveKeys)
-        assertEquals(1, harness.recent.updateCount)
-        assertEquals(1, harness.archive.updateCount)
+        assertEquals(setOf("show_s1e2"), harness.preferences.getAllRawEntries().keys)
+        assertEquals(2, harness.rows.entriesWritten)
     }
 
     @Test
-    fun `removing an archived item does not rewrite the recent store`() = runTest {
+    fun `a save keeps artwork the saved entry has and the new one lacks`() = runTest {
+        val first = progress("item", 1L).copy(poster = "poster.jpg", name = "Name")
+        val harness = harness(mapOf("item" to first))
+
+        harness.preferences.saveProgress(first.copy(poster = null, name = "", position = 2_000L, lastWatched = 2L))
+
+        val saved = harness.preferences.getAllRawEntries().getValue("item")
+        assertEquals("poster.jpg", saved.poster)
+        assertEquals("Name", saved.name)
+        assertEquals(2_000L, saved.position)
+    }
+
+    @Test
+    fun `removing a title removes its entries and nothing else`() = runTest {
         val harness = harness(legacyEntries())
         harness.preferences.getAllRawEntries()
         harness.resetUpdateCounts()
 
         harness.preferences.removeProgress("item0")
 
-        assertEquals(0, harness.recent.updateCount)
-        assertEquals(1, harness.archive.updateCount)
+        assertEquals(1, harness.rows.entriesWritten)
         assertFalse("item0" in harness.preferences.getAllRawEntries())
+        assertEquals(249, harness.preferences.getAllRawEntries().size)
     }
 
     @Test
-    fun `batch saves preserve the recent limit and merged reads`() = runTest {
+    fun `removing a series removes every episode entry`() = runTest {
+        val episode = { s: Int, e: Int -> progress("show", 1L).copy(contentType = "series", season = s, episode = e) }
+        val harness = harness(
+            mapOf("show_s1e1" to episode(1, 1), "show_s1e2" to episode(1, 2), "other" to progress("other", 1L))
+        )
+
+        harness.preferences.removeProgress("show")
+
+        assertEquals(setOf("other"), harness.preferences.getAllRawEntries().keys)
+    }
+
+    @Test
+    fun `batch saves write only the entries they save`() = runTest {
         val entries = legacyEntries()
         val harness = harness(entries)
         harness.preferences.getAllRawEntries()
@@ -174,17 +160,12 @@ class WatchProgressPreferencesStorageTest {
 
         harness.preferences.saveProgressBatch(updates)
 
-        assertEquals(WATCH_PROGRESS_RECENT_LIMIT, harness.recent.keys().size)
+        assertEquals(5, harness.rows.entriesWritten)
         assertEquals(250, harness.preferences.getAllRawEntries().size)
-        updates.forEach { update ->
-            assertTrue(update.contentId in harness.recent.keys())
-        }
-        assertEquals(1, harness.recent.updateCount)
-        assertEquals(1, harness.archive.updateCount)
     }
 
     @Test
-    fun `remote merge rebalances new entries across both buckets`() = runTest {
+    fun `remote merge adds the new entry and writes nothing else`() = runTest {
         val harness = harness(legacyEntries())
         harness.preferences.getAllRawEntries()
         harness.resetUpdateCounts()
@@ -198,15 +179,11 @@ class WatchProgressPreferencesStorageTest {
         val result = harness.preferences.getAllRawEntries()
         assertEquals(251, result.size)
         assertEquals(remote, result["remote"])
-        assertTrue("remote" in harness.recent.keys())
-        assertEquals(WATCH_PROGRESS_RECENT_LIMIT, harness.recent.keys().size)
-        assertEquals(51, harness.archive.keys().size)
-        assertEquals(1, harness.recent.updateCount)
-        assertEquals(1, harness.archive.updateCount)
+        assertEquals(1, harness.rows.entriesWritten)
     }
 
     @Test
-    fun `remote delta deletes archived entries and promotes new progress`() = runTest {
+    fun `remote delta deletes and adds entries`() = runTest {
         val harness = harness(legacyEntries())
         harness.preferences.getAllRawEntries()
         harness.resetUpdateCounts()
@@ -221,8 +198,18 @@ class WatchProgressPreferencesStorageTest {
         assertEquals(250, result.size)
         assertFalse("item0" in result)
         assertEquals(remote, result["remote"])
-        assertTrue("remote" in harness.recent.keys())
-        assertEquals(WATCH_PROGRESS_RECENT_LIMIT, harness.recent.keys().size)
+        assertEquals(2, harness.rows.entriesWritten)
+    }
+
+    @Test
+    fun `a deleted profile refuses writes and reads as empty`() = runTest {
+        val harness = harness(emptyMap())
+        every { harness.factory.get(2, any()) } returns DeletedProfileDataStore("deleted")
+
+        assertTrue(harness.preferences.getAllRawEntries(profileId = 2).isEmpty())
+        val refused = runCatching { harness.preferences.saveProgress(progress("x", 1L), profileId = 2) }
+        assertTrue(refused.exceptionOrNull() is kotlinx.coroutines.CancellationException)
+        assertEquals(0, harness.rows.entriesWritten)
     }
 
     @Test
@@ -307,7 +294,7 @@ class WatchProgressPreferencesStorageTest {
     }
 
     @Test
-    fun `clear preserving non trakt ids filters both buckets`() = runTest {
+    fun `clear preserving non trakt ids keeps only those entries`() = runTest {
         val entries = legacyEntries().toMutableMap().apply {
             this["custom:recent"] = progress("custom:recent", lastWatched = 2_000L)
             this["custom:archive"] = progress("custom:archive", lastWatched = -1L)
@@ -319,12 +306,10 @@ class WatchProgressPreferencesStorageTest {
 
         val result = harness.preferences.getAllRawEntries()
         assertEquals(setOf("custom:recent", "custom:archive"), result.keys)
-        assertEquals(setOf("custom:recent", "custom:archive"), harness.recent.keys())
-        assertTrue(harness.archive.keys().isEmpty())
     }
 
     @Test
-    fun `progress flow merges both stores after migration`() = runTest {
+    fun `progress flow lists every moved entry, latest first`() = runTest {
         val harness = harness(legacyEntries())
 
         val result = harness.preferences.allRawProgress.first()
@@ -406,14 +391,18 @@ class WatchProgressPreferencesStorageTest {
         assertFalse(harness.preferences.getAllRawEntries().containsKey("boundary"))
     }
 
-    private fun harness(entries: Map<String, WatchProgress>): Harness {
-        val metadata = TestPreferencesDataStore(preferences(entries = entries))
-        val recent = TestPreferencesDataStore()
-        val archive = TestPreferencesDataStore()
+    private fun harness(
+        entries: Map<String, WatchProgress>,
+        recent: Map<String, WatchProgress> = emptyMap(),
+        archive: Map<String, WatchProgress> = emptyMap()
+    ): Harness {
+        val metadata = TestPreferencesDataStore(if (entries.isEmpty()) emptyPreferences() else preferences(entries))
+        val recentStore = TestPreferencesDataStore(if (recent.isEmpty()) emptyPreferences() else preferences(recent))
+        val archiveStore = TestPreferencesDataStore(if (archive.isEmpty()) emptyPreferences() else preferences(archive))
         val stores = mapOf(
             WATCH_PROGRESS_METADATA_FEATURE to metadata,
-            WATCH_PROGRESS_RECENT_FEATURE to recent,
-            WATCH_PROGRESS_ARCHIVE_FEATURE to archive
+            WATCH_PROGRESS_RECENT_FEATURE to recentStore,
+            WATCH_PROGRESS_ARCHIVE_FEATURE to archiveStore
         )
         val factory = mockk<ProfileDataStoreFactory>()
         every { factory.get(any(), any()) } answers {
@@ -421,13 +410,15 @@ class WatchProgressPreferencesStorageTest {
         }
         val profileManager = mockk<ProfileManager>()
         every { profileManager.activeProfileId } returns MutableStateFlow(1)
+        val rows = InMemoryKeyedEntryStore()
         return Harness(
-            preferences = WatchProgressPreferences(factory, profileManager),
+            preferences = WatchProgressPreferences(factory, profileManager, rows),
             factory = factory,
             profileManager = profileManager,
             metadata = metadata,
-            recent = recent,
-            archive = archive
+            recent = recentStore,
+            archive = archiveStore,
+            rows = rows
         )
     }
 
@@ -443,7 +434,7 @@ class WatchProgressPreferencesStorageTest {
         val profileManager = mockk<ProfileManager>()
         every { profileManager.activeProfileId } returns activeProfile
         return MultiProfileHarness(
-            preferences = WatchProgressPreferences(factory, profileManager),
+            preferences = WatchProgressPreferences(factory, profileManager, InMemoryKeyedEntryStore()),
             activeProfile = activeProfile
         )
     }
@@ -476,23 +467,20 @@ class WatchProgressPreferencesStorageTest {
         }.toPreferences()
     }
 
-    private fun TestPreferencesDataStore.keys(): Set<String> {
-        val json = value[watchProgressEntriesKey] ?: "{}"
-        return gson.fromJson(json, JsonObject::class.java).keySet()
-    }
-
     private data class Harness(
         val preferences: WatchProgressPreferences,
         val factory: ProfileDataStoreFactory,
         val profileManager: ProfileManager,
         val metadata: TestPreferencesDataStore,
         val recent: TestPreferencesDataStore,
-        val archive: TestPreferencesDataStore
+        val archive: TestPreferencesDataStore,
+        val rows: InMemoryKeyedEntryStore
     ) {
         fun resetUpdateCounts() {
             metadata.resetUpdateCount()
             recent.resetUpdateCount()
             archive.resetUpdateCount()
+            rows.resetWriteCount()
         }
     }
 

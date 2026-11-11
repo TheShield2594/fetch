@@ -130,7 +130,7 @@ object CollectionEditing {
     )
 
     fun cleanCollection(collection: Collection): Collection = collection.copy(
-        title = collection.title.trim().ifBlank { "Untitled collection" },
+        title = collection.title.trim().ifBlank { "Untitled folder row" },
         backdropImageUrl = collection.backdropImageUrl?.trim()?.ifBlank { null }
     )
 

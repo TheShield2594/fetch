@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Списък за гледане</string>
+    <string name="library_tab_lists">Списъци</string>
+    <string name="library_tab_in_progress">В процес</string>
+    <string name="library_tab_history">История</string>
+    <string name="library_tab_upcoming">Предстоящи</string>
+    <string name="library_tabs_description">Раздели на библиотеката</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Все още няма списъци</string>
+    <string name="library_lists_empty_subtitle">Списъците, които създадеш тук или в услугата си за проследяване, се показват в този раздел. Списъкът за гледане има собствен раздел.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (този телевизор)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% гледано</string>
+    <string name="library_in_progress_empty_title">Няма нищо в процес</string>
+    <string name="library_in_progress_empty_subtitle">Тук се показват филми и епизоди, които си започнал и не си довършил.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Все още нищо не е гледано</string>
+    <string name="library_history_empty_subtitle">Това, което догледаш, и това, което услугата ти за проследяване отбележи като гледано, се показва тук по месеци.</string>
+    <string name="library_watched_filter_ready">Готово за пускане</string>
+</resources>

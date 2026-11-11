@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Kijklijst</string>
+    <string name="library_tab_lists">Lijsten</string>
+    <string name="library_tab_in_progress">Bezig</string>
+    <string name="library_tab_history">Geschiedenis</string>
+    <string name="library_tab_upcoming">Aankomend</string>
+    <string name="library_tabs_description">Bibliotheekonderdelen</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Nog geen lijsten</string>
+    <string name="library_lists_empty_subtitle">Lijsten die je hier of bij je trackingservice maakt, verschijnen op dit tabblad. Je kijklijst heeft een eigen tabblad.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (deze tv)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% bekeken</string>
+    <string name="library_in_progress_empty_title">Niets bezig</string>
+    <string name="library_in_progress_empty_subtitle">Films en afleveringen die je bent begonnen maar nog niet hebt afgekeken, verschijnen hier.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Nog niets bekeken</string>
+    <string name="library_history_empty_subtitle">Wat je afkijkt, en wat je trackingservice als bekeken markeert, verschijnt hier per maand.</string>
+</resources>

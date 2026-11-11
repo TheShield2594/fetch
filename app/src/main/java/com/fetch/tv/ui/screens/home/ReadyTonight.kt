@@ -52,6 +52,12 @@ internal fun readinessTicks(periodMs: Long = READY_REFRESH_MS): Flow<Long> = flo
     }
 }
 
+/**
+ * The time to judge readiness at: now, never earlier than [lastTickMs]. A tick's own time is
+ * already past for a pick saved after it, which would read as saved in the future and not ready.
+ */
+internal fun readinessClock(lastTickMs: Long, nowMs: Long = System.currentTimeMillis()): Long = maxOf(lastTickMs, nowMs)
+
 /** The Best match keys that are ready right now, provided by Home for its cards. */
 internal val LocalReadyBestMatchKeys = compositionLocalOf<Set<String>> { emptySet() }
 

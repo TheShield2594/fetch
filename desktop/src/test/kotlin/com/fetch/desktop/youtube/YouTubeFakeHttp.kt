@@ -43,7 +43,7 @@ class YouTubeFakeHttp(private val respond: (SentRequest) -> Pair<Int, String>) :
     fun innertube(endpoint: String): List<SentRequest> = sent.filter { it.path == "/youtubei/v1/$endpoint" }
 
     companion object {
-        /** A saved TV response from src/test/resources/youtube. */
+        /** A saved TV response from shared/src/test/resources/youtube. */
         fun fixture(name: String): String =
             YouTubeFakeHttp::class.java.getResourceAsStream("/youtube/$name.json")!!.bufferedReader().use { it.readText() }
     }

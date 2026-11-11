@@ -397,10 +397,10 @@
     <string name="addon_remove_confirm_title">Înlături %1$s?</string>
     <string name="addon_remove_confirm_message">Cataloagele și fluxurile sale nu vor mai apărea pe acest televizor.</string>
     <string name="addon_manage_from_phone_title">Gestionează de pe telefon</string>
-    <string name="addon_manage_from_phone_subtitle">Scanează un cod QR pentru a gestiona complementele și cataloagele Home de pe telefon</string>
+    <string name="addon_manage_from_phone_subtitle">Scanează un cod QR pentru a gestiona de pe telefon complementele, cataloagele și dosarele Acasă</string>
     <string name="addon_reorder_title">Rearanjează cataloagele Home</string>
-    <string name="addon_reorder_subtitle">Controlează ordinea rândurilor din catalog pe Home (Clasic + Modern + Grilă)</string>
-    <string name="addon_qr_scan_instruction">Scanează cu telefonul pentru a gestiona complementele și cataloagele</string>
+    <string name="addon_reorder_subtitle">Controlează ordinea rândurilor de catalog și a rândurilor de dosare pe Acasă (Clasic + Modern + Grilă)</string>
+    <string name="addon_qr_scan_instruction">Scanează cu telefonul pentru a gestiona complementele, cataloagele și dosarele Acasă</string>
     <string name="addon_qr_close">Închide</string>
     <string name="addon_confirm_title">Confirmă modificările de complement și catalog</string>
     <string name="addon_confirm_subtitle">Următoarele modificări au fost făcute de pe telefon:</string>
@@ -677,7 +677,7 @@
     <string name="folder_error_trakt_source">Nu s-a putut încărca această listă Trakt. Verifică conexiunea și dacă lista este încă publică, apoi încearcă din nou.</string>
     <string name="folder_error_list_source">Nu s-a putut încărca această listă. Verifică conexiunea, apoi încearcă din nou.</string>
     <string name="collections_editor_discard_title">Renunți la modificări?</string>
-    <string name="collections_editor_discard_collection_subtitle">Modificările aduse acestei colecții nu au fost salvate.</string>
+    <string name="collections_editor_discard_collection_subtitle">Modificările aduse acestui rând de dosare nu au fost salvate.</string>
     <string name="collections_editor_discard_folder_subtitle">Modificările aduse acestui dosar nu au fost salvate.</string>
     <string name="collections_editor_keep_editing">Continuă editarea</string>
     <string name="collections_editor_discard">Renunță</string>

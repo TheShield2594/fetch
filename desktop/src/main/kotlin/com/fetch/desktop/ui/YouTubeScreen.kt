@@ -89,14 +89,16 @@ import com.fetch.desktop.SettingsPage
 import com.fetch.desktop.YouTubeFeedKey
 import com.fetch.desktop.YouTubeFeedState
 import com.fetch.desktop.YouTubeState
-import com.fetch.desktop.youtube.YouTubeBrowseTarget
 import com.fetch.desktop.youtube.YouTubeClient
-import com.fetch.desktop.youtube.YouTubeFeed
-import com.fetch.desktop.youtube.YouTubeLink
-import com.fetch.desktop.youtube.YouTubeLinkKind
-import com.fetch.desktop.youtube.YouTubePlaylistPrivacy
-import com.fetch.desktop.youtube.YouTubeShelf
-import com.fetch.desktop.youtube.YouTubeVideo
+import com.fetch.desktop.youtube.label
+import com.fetch.tv.data.youtube.YouTubeBrowseTarget
+import com.fetch.tv.data.youtube.YouTubeFeed
+import com.fetch.tv.data.youtube.YouTubeInnerTube
+import com.fetch.tv.data.youtube.YouTubeLink
+import com.fetch.tv.data.youtube.YouTubeLinkKind
+import com.fetch.tv.data.youtube.YouTubePlaylistPrivacy
+import com.fetch.tv.data.youtube.YouTubeShelf
+import com.fetch.tv.data.youtube.YouTubeVideo
 import kotlinx.coroutines.launch
 
 /** Material Symbols' "smart_display" (Apache 2.0), for the sidebar entry. */
@@ -186,8 +188,8 @@ fun YouTubeBrowseScreen(state: AppState, target: YouTubeBrowseTarget) {
 }
 
 private fun browseTitle(target: YouTubeBrowseTarget): String = when (target.browseId) {
-    YouTubeClient.WATCH_LATER_BROWSE_ID -> "Watch later"
-    YouTubeClient.LIKED_BROWSE_ID -> "Liked videos"
+    YouTubeInnerTube.WATCH_LATER_BROWSE_ID -> "Watch later"
+    YouTubeInnerTube.LIKED_BROWSE_ID -> "Liked videos"
     else -> "YouTube"
 }
 
@@ -612,14 +614,14 @@ private fun openLink(state: AppState, link: YouTubeLink) {
 private fun videoMenu(state: AppState, video: YouTubeVideo, key: YouTubeFeedKey?): List<ContextMenuItem> = buildList {
     val yt = state.youtube
     add(ContextMenuItem(tr("Play")) { yt.play(video) })
-    val channels = video.channels.ifEmpty { listOfNotNull(video.channelId?.let { com.fetch.desktop.youtube.YouTubeChannelRef(it, video.channelName) }) }
+    val channels = video.channels.ifEmpty { listOfNotNull(video.channelId?.let { com.fetch.tv.data.youtube.YouTubeChannelRef(it, video.channelName) }) }
     channels.forEach { channel ->
         val name = channel.name ?: video.channelName
         add(ContextMenuItem(if (name != null && channels.size > 1) tr("Go to %1\$s", name) else tr("Go to channel")) {
             state.navigate(Screen.YouTubeBrowse(YouTubeBrowseTarget(channel.channelId, title = name)))
         })
     }
-    val onWatchLater = (key as? YouTubeFeedKey.Browse)?.target?.browseId == YouTubeClient.WATCH_LATER_BROWSE_ID
+    val onWatchLater = (key as? YouTubeFeedKey.Browse)?.target?.browseId == YouTubeInnerTube.WATCH_LATER_BROWSE_ID
     add(ContextMenuItem(if (onWatchLater) tr("Remove from Watch later") else tr("Save to Watch later")) { yt.setWatchLater(video, save = !onWatchLater) })
     add(ContextMenuItem(tr("Save to playlist…")) { yt.openPlaylistPicker(video) })
     video.removeFromHistoryToken?.let { add(ContextMenuItem(tr("Remove from watch history")) { yt.removeFromHistory(video) }) }

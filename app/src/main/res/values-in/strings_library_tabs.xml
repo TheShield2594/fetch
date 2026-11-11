@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Daftar Tonton</string>
+    <string name="library_tab_lists">Daftar</string>
+    <string name="library_tab_in_progress">Sedang Ditonton</string>
+    <string name="library_tab_history">Riwayat</string>
+    <string name="library_tab_upcoming">Akan Datang</string>
+    <string name="library_tabs_description">Bagian pustaka</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Belum ada daftar</string>
+    <string name="library_lists_empty_subtitle">Daftar yang Anda buat di sini atau di layanan pelacakan Anda muncul di tab ini. Daftar Tonton Anda punya tab sendiri.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (TV ini)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% ditonton</string>
+    <string name="library_in_progress_empty_title">Tidak ada yang sedang ditonton</string>
+    <string name="library_in_progress_empty_subtitle">Film dan episode yang sudah Anda mulai tetapi belum selesai muncul di sini.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Belum ada yang ditonton</string>
+    <string name="library_history_empty_subtitle">Yang Anda selesaikan, dan yang ditandai sudah ditonton oleh layanan pelacakan Anda, muncul di sini per bulan.</string>
+
+    <!-- Watched filter -->
+    <string name="library_watched_filter_ready">Siap diputar</string>
+</resources>

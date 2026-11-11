@@ -497,7 +497,7 @@ internal class ShadowCopyDataStore(
  * Reads see no data and touch no file; writes are refused with a [CancellationException], which
  * stops the coroutine doing them (an edit for a deleted profile is work that should no longer run).
  */
-private class DeletedProfileDataStore(private val fileName: String) : DataStore<Preferences> {
+internal class DeletedProfileDataStore(private val fileName: String) : DataStore<Preferences> {
     override val data: Flow<Preferences> = flowOf(emptyPreferences())
 
     override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences =

@@ -9,14 +9,14 @@
     <string name="type_unknown">Nepoznato</string>
 
     <string name="web_manage_addons_title">Upravljanje dodacima</string>
-    <string name="web_manage_addons_subtitle">Upravljaj dodacima, katalozima i kolekcijama</string>
+    <string name="web_manage_addons_subtitle">Upravljaj dodacima, katalozima i mapama na početnoj</string>
     <string name="web_manage_addons_only_subtitle">Instaliraj ili ukloni dodatke</string>
     <string name="web_add_addon_url">Dodaj dodatak putem URL-a</string>
     <string name="web_placeholder_url">https://example.com/manifest.json</string>
     <string name="web_btn_add">Dodaj</string>
     <string name="web_installed_addons">Instalirani dodaci</string>
     <string name="web_no_addons">Nema instaliranih dodataka</string>
-    <string name="web_home_catalogs">Katalozi i kolekcije na početnom zaslonu</string>
+    <string name="web_home_catalogs">Katalozi i mape na početnom zaslonu</string>
     <string name="web_no_catalogs">Nema dostupnih kataloga za početni zaslon</string>
     <string name="web_btn_save">Spremi promjene</string>
     <string name="web_connection_lost">Veza s TV-om je izgubljena</string>
@@ -45,26 +45,26 @@
     <string name="web_installed">Instalirano</string>
     <string name="web_no_repos">Nema instaliranih repozitorija</string>
     <string name="web_error_repo_exists">Ovaj repozitorij je već na popisu</string>
-    <string name="web_manage_collections_title">Upravljanje kolekcijama</string>
-    <string name="web_manage_collections_subtitle">Stvori i upravljaj vlastitim kolekcijama</string>
-    <string name="web_status_msg_collections_updated">Kolekcije su ažurirane na TV-u.</string>
+    <string name="web_manage_collections_title">Upravljanje mapama na početnoj</string>
+    <string name="web_manage_collections_subtitle">Stvori i upravljaj redovima mapa na početnom zaslonu</string>
+    <string name="web_status_msg_collections_updated">Tvoje mape na početnoj ažurirane su na TV-u.</string>
     <string name="web_tab_addons">Dodaci</string>
     <string name="web_tab_home_layout">Izgled početnog zaslona</string>
-    <string name="web_tab_collections">Kolekcije</string>
+    <string name="web_tab_collections">Mape na početnoj</string>
     <string name="web_btn_enable_all">Omogući sve</string>
     <string name="web_btn_disable_all">Onemogući sve</string>
     <string name="web_btn_show_all">Prikaži sve</string>
     <string name="web_btn_hide_all">Sakrij sve</string>
-    <string name="web_btn_new_collection">+ Nova kolekcija</string>
+    <string name="web_btn_new_collection">+ Novi red mapa</string>
     <string name="web_btn_export">Izvezi</string>
     <string name="web_btn_import">Uvezi</string>
-    <string name="web_no_collections">Još nema kolekcija</string>
-    <string name="web_badge_collection">Kolekcija</string>
-    <string name="web_import_collections_title">Uvoz kolekcija</string>
+    <string name="web_no_collections">Još nema redova mapa</string>
+    <string name="web_badge_collection">Red mapa</string>
+    <string name="web_import_collections_title">Uvoz mapa na početnoj</string>
     <string name="web_import_tab_paste">Zalijepi</string>
     <string name="web_import_tab_file">Datoteka</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Ovdje zalijepi JSON kolekcija…</string>
+    <string name="web_import_paste_placeholder">Ovdje zalijepi JSON mapa na početnoj…</string>
     <string name="web_import_file_select">Dodirni za odabir .json datoteke</string>
     <string name="web_order_send_to_top">Pomakni na vrh</string>
     <string name="web_order_send_to_bottom">Pomakni na dno</string>
@@ -80,21 +80,21 @@
     <string name="web_import_enter_url">Unesi URL</string>
     <string name="web_import_failed_fetch_url">Dohvaćanje URL-a nije uspjelo</string>
     <string name="web_import_no_json">JSON nije unesen</string>
-    <string name="web_import_expected_array">Očekivan je JSON niz kolekcija</string>
-    <string name="web_import_empty_array">Prazan niz: nisu pronađene kolekcije</string>
-    <string name="web_import_error_collection_invalid_id">Kolekcija {index}: nedostaje ili je neispravan \"id\"</string>
-    <string name="web_import_error_collection_invalid_title">Kolekcija \"{collection}\": nedostaje ili je neispravan \"title\"</string>
-    <string name="web_import_error_collection_folders_array">Kolekcija \"{collection}\": \"folders\" mora biti niz</string>
-    <string name="web_import_error_folder_invalid_format">Kolekcija \"{collection}\", mapa {index}: neispravan format</string>
-    <string name="web_import_error_folder_missing_id">Kolekcija \"{collection}\", mapa {index}: nedostaje \"id\"</string>
-    <string name="web_import_error_folder_missing_title">Kolekcija \"{collection}\", mapa \"{folder}\": nedostaje \"title\"</string>
-    <string name="web_import_error_sources_array">Kolekcija \"{collection}\", mapa \"{folder}\": \"sources\" mora biti niz</string>
-    <string name="web_import_error_invalid_tile_shape">Kolekcija \"{collection}\", mapa \"{folder}\": neispravan tileShape \"{shape}\"</string>
-    <string name="web_import_error_source_invalid_format">Kolekcija \"{collection}\", mapa \"{folder}\", izvor {index}: neispravan format</string>
-    <string name="web_import_error_source_missing_addon_fields">Kolekcija \"{collection}\", mapa \"{folder}\", izvor {index}: nedostaju obavezna polja (addonId, type, catalogId)</string>
+    <string name="web_import_expected_array">Očekivan je JSON niz redova mapa</string>
+    <string name="web_import_empty_array">Prazan niz: nisu pronađeni redovi mapa</string>
+    <string name="web_import_error_collection_invalid_id">Red mapa {index}: nedostaje ili je neispravan \"id\"</string>
+    <string name="web_import_error_collection_invalid_title">Red mapa \"{collection}\": nedostaje ili je neispravan \"title\"</string>
+    <string name="web_import_error_collection_folders_array">Red mapa \"{collection}\": \"folders\" mora biti niz</string>
+    <string name="web_import_error_folder_invalid_format">Red mapa \"{collection}\", mapa {index}: neispravan format</string>
+    <string name="web_import_error_folder_missing_id">Red mapa \"{collection}\", mapa {index}: nedostaje \"id\"</string>
+    <string name="web_import_error_folder_missing_title">Red mapa \"{collection}\", mapa \"{folder}\": nedostaje \"title\"</string>
+    <string name="web_import_error_sources_array">Red mapa \"{collection}\", mapa \"{folder}\": \"sources\" mora biti niz</string>
+    <string name="web_import_error_invalid_tile_shape">Red mapa \"{collection}\", mapa \"{folder}\": neispravan tileShape \"{shape}\"</string>
+    <string name="web_import_error_source_invalid_format">Red mapa \"{collection}\", mapa \"{folder}\", izvor {index}: neispravan format</string>
+    <string name="web_import_error_source_missing_addon_fields">Red mapa \"{collection}\", mapa \"{folder}\", izvor {index}: nedostaju obavezna polja (addonId, type, catalogId)</string>
     <string name="web_import_error_source_missing_tmdb_type">Kolekcija \"{collection}\", mapa \"{folder}\", izvor {index}: nedostaje vrsta TMDB izvora</string>
-    <string name="web_import_error_source_missing_trakt_id">Kolekcija \"{collection}\", mapa \"{folder}\", izvor {index}: nedostaje ID Trakt popisa</string>
-    <string name="web_import_success">Uvezeno kolekcija: {count}. Pregledaj ih i pritisni Spremi promjene za primjenu.</string>
+    <string name="web_import_error_source_missing_trakt_id">Red mapa \"{collection}\", mapa \"{folder}\", izvor {index}: nedostaje ID Trakt popisa</string>
+    <string name="web_import_success">Uvezeno redova mapa: {count}. Pregledaj ih i pritisni Spremi promjene za primjenu.</string>
     <string name="web_import_invalid_json">Neispravan JSON</string>
 
     <string name="home_empty_no_addons_title">Još nema dodataka</string>
@@ -431,7 +431,7 @@
     <string name="settings_layout">Izgled</string>
     <string name="settings_content_discovery">Sadržaj i otkrivanje</string>
     <string name="settings_content_discovery_subtitle">Dodaci, katalozi i izvori za otkrivanje</string>
-    <string name="settings_content_discovery_addons_subtitle">Upravljaj dodacima, redoslijedom kataloga i kolekcijama</string>
+    <string name="settings_content_discovery_addons_subtitle">Upravljaj dodacima, redoslijedom kataloga i mapama na početnoj</string>
     <string name="settings_playback">Reprodukcija</string>
     <string name="settings_tracking_title">Praćenje</string>
     <string name="settings_tracking_description">Poveži usluge praćenja i odaberi koja pokreće tvoju biblioteku i Nastavi gledati.</string>
@@ -465,7 +465,7 @@
     <string name="experience_mode_choose_title">Odaberi svoje Fetch iskustvo</string>
     <string name="experience_mode_choose_subtitle">Kreni jednostavno ili otključaj sve prilagodbe. Možeš promijeniti bilo kada.</string>
     <string name="experience_mode_essential_card_subtitle">Usmjereno postavljanje, dodaci, osnove reprodukcije, Trakt i postavke računa.</string>
-    <string name="experience_mode_advanced_card_subtitle">Sve postavke, kontrole izgleda, redoslijed kataloga, kolekcije, pluginovi i dijagnostika.</string>
+    <string name="experience_mode_advanced_card_subtitle">Sve postavke, kontrole izgleda, redoslijed kataloga, mape na početnoj, pluginovi i dijagnostika.</string>
     <string name="experience_mode_group_title">Način iskustva</string>
     <string name="essential_addon_continue_for_now">Nastavi za sada</string>
     <string name="essential_playback_basics">Osnove reprodukcije</string>
@@ -491,11 +491,11 @@
     <string name="experience_mode_switch_to_essential_subtitle">Sakrij napredne postavke bez mijenjanja spremljenih vrijednosti.</string>
     <string name="experience_mode_switch_to_advanced">Prebaci na Napredno</string>
     <string name="experience_mode_switch_to_advanced_header_subtitle">Prebaci na Napredno za sve postavke.</string>
-    <string name="experience_mode_switch_to_advanced_subtitle">Prikaži sve postavke izgleda, pluginova, integracija, kataloga, kolekcija i finog podešavanja.</string>
+    <string name="experience_mode_switch_to_advanced_subtitle">Prikaži sve postavke izgleda, pluginova, integracija, kataloga, mapa na početnoj i finog podešavanja.</string>
     <string name="experience_mode_confirm_essential_title">Prebaciti na Osnovno?</string>
     <string name="experience_mode_confirm_advanced_title">Prebaciti na Napredno?</string>
     <string name="experience_mode_confirm_essential_subtitle">Napredne postavke bit će skrivene, ali tvoje spremljene postavke ostaju nepromijenjene. Možeš se vratiti bilo kada.</string>
-    <string name="experience_mode_confirm_advanced_subtitle">Ovo prikazuje sve postavke, uključujući napredno postavljanje, kataloge, kolekcije i fino podešavanje.</string>
+    <string name="experience_mode_confirm_advanced_subtitle">Ovo prikazuje sve postavke, uključujući napredno postavljanje, kataloge, mape na početnoj i fino podešavanje.</string>
     <string name="advanced_section_performance">Performanse i navigacija</string>
     <string name="advanced_section_diagnostics">Dijagnostika</string>
     <string name="advanced_player_stats_hud">Prikaz statistike reprodukcije</string>
@@ -874,7 +874,7 @@
     <!-- Prilagođeni URL postera - prekidači zaslona -->
     <string name="layout_custom_poster_screen_home">Početna</string>
     <string name="layout_custom_poster_screen_continue_watching">Nastavi gledati</string>
-    <string name="layout_custom_poster_screen_collections">Kolekcije</string>
+    <string name="layout_custom_poster_screen_collections">Mape na početnoj</string>
     <string name="layout_custom_poster_screen_library">Biblioteka</string>
     <string name="layout_custom_poster_screen_search">Pretraživanje</string>
     <string name="layout_custom_poster_screen_details">Zaslon detalja</string>
@@ -1151,7 +1151,7 @@
     <!-- Zamjenske vrijednosti uređivača kolekcija -->
     <string name="collection_editor_no_trakt_lists_found">Nisu pronađeni Trakt popisi</string>
     <string name="collection_editor_untitled_folder">Bez naslova</string>
-    <string name="collection_editor_untitled_collection">Kolekcija bez naslova</string>
+    <string name="collection_editor_untitled_collection">Red mapa bez naslova</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Dodaci</string>
     <string name="addon_readonly_notice">Koriste se dodaci glavnog profila i ne mogu se mijenjati</string>
@@ -1170,14 +1170,14 @@
     <string name="addon_remove_confirm_message">Njegovi katalozi i streamovi više se neće prikazivati na ovom TV-u.</string>
     <string name="addons_badge_disabled">Onemogućeno</string>
     <string name="addon_manage_from_phone_title">Upravljaj s mobitela</string>
-    <string name="addon_manage_from_phone_subtitle">Skeniraj QR kôd za upravljanje dodacima, katalozima i kolekcijama s mobitela</string>
+    <string name="addon_manage_from_phone_subtitle">Skeniraj QR kôd za upravljanje dodacima, katalozima i mapama na početnoj s mobitela</string>
     <string name="addon_manage_addons_only_from_phone_subtitle">Skeniraj QR kôd za instaliranje ili uklanjanje dodataka s mobitela</string>
-    <string name="addon_manage_collections_from_phone_subtitle">Skeniraj QR kôd za upravljanje kolekcijama s mobitela</string>
+    <string name="addon_manage_collections_from_phone_subtitle">Skeniraj QR kôd za upravljanje mapama na početnoj s mobitela</string>
     <string name="addon_reorder_title">Promijeni redoslijed kataloga na početnom zaslonu</string>
-    <string name="addon_reorder_subtitle">Određuje redoslijed redova kataloga i kolekcija na početnom zaslonu (Klasični + Moderni + Mrežni)</string>
-    <string name="addon_qr_scan_instruction">Skeniraj mobitelom za upravljanje dodacima, katalozima i kolekcijama</string>
+    <string name="addon_reorder_subtitle">Određuje redoslijed redova kataloga i redova mapa na početnom zaslonu (Klasični + Moderni + Mrežni)</string>
+    <string name="addon_qr_scan_instruction">Skeniraj mobitelom za upravljanje dodacima, katalozima i mapama na početnoj</string>
     <string name="addon_qr_addons_only_scan_instruction">Skeniraj mobitelom za instaliranje ili uklanjanje dodataka</string>
-    <string name="addon_qr_collections_scan_instruction">Skeniraj mobitelom za upravljanje kolekcijama</string>
+    <string name="addon_qr_collections_scan_instruction">Skeniraj mobitelom za upravljanje mapama na početnoj</string>
     <string name="addon_qr_close">Zatvori</string>
     <string name="addon_confirm_title">Potvrdi promjene dodataka i kataloga</string>
     <string name="addon_confirm_subtitle">S mobitela su napravljene sljedeće promjene:</string>
@@ -1192,8 +1192,8 @@
     <string name="addon_refresh_action">Osvježi dodatke</string>
     <string name="addon_refresh_default_subtitle">Dohvati najnovije promjene dodataka za trenutni profil</string>
     <string name="addon_refresh_done_subtitle">Dodaci su upravo osvježeni</string>
-    <string name="addon_pending_collections_updated">Kolekcije ažurirane</string>
-    <string name="addon_pending_collections_replace">Kolekcija koje će zamijeniti trenutne: %1$d</string>
+    <string name="addon_pending_collections_updated">Mape na početnoj ažurirane</string>
+    <string name="addon_pending_collections_replace">Redova mapa koji će zamijeniti tvoje trenutne mape na početnoj: %1$d</string>
     <string name="addon_confirm_total_addons">Ukupno dodataka: %1$d</string>
     <string name="addon_confirm_total_catalogs">Ukupno kataloga: %1$d</string>
     <string name="addon_catalogs_types">Katalozi: %1$d - Vrste: %2$s</string>
@@ -1201,7 +1201,7 @@
     <string name="catalog_order_title">Promijeni redoslijed kataloga na početnom zaslonu</string>
     <string name="catalog_order_subtitle">Ovo određuje redoslijed redova kataloga na početnom zaslonu (Klasični + Moderni + Mrežni).</string>
     <string name="catalog_order_follow_addons">Prati redoslijed dodataka</string>
-    <string name="catalog_order_follow_addons_desc">Katalozi prate redoslijed iz manifesta dodataka. Kolekcije se i dalje mogu premještati između dodataka.</string>
+    <string name="catalog_order_follow_addons_desc">Katalozi prate redoslijed iz manifesta dodataka. Redovi mapa i dalje se mogu premještati između dodataka.</string>
     <string name="catalog_order_empty">Još nema dostupnih kataloga za početni zaslon.</string>
     <string name="catalog_order_disabled_on_home">Onemogućeno na početnom zaslonu</string>
     <string name="catalog_order_enable">Omogući</string>
@@ -1423,6 +1423,7 @@
     <string name="library_watched_filter_all">Sve</string>
     <string name="library_watched_filter_watched">Pogledano</string>
     <string name="library_watched_filter_unwatched">Nepogledano</string>
+    <string name="library_watched_filter_ready">Spremno za reprodukciju</string>
     <string name="genre_action">Akcija</string>
     <string name="genre_adventure">Avantura</string>
     <string name="genre_animation">Animacija</string>
@@ -1489,7 +1490,6 @@
     <string name="library_delete_subtitle_provider">Ovime se popis i njegove stavke uklanjaju iz usluge %1$s. Ovo se ne može poništiti.</string>
     <string name="library_delete_subtitle_local">Ovime se popis i njegove stavke uklanjaju iz tvoje biblioteke. Ovo se ne može poništiti.</string>
     <string name="library_source_local">LOKALNO</string>
-    <string name="library_source_saved">Spremljeno</string>
     <string name="library_watchlist">Popis za gledanje</string>
     <string name="library_status_watching">Gledam</string>
     <string name="library_status_plan_to_watch">Planiram gledati</string>
@@ -1694,24 +1694,24 @@
     <string name="debug_generate_library_result_added">U biblioteku dodano stavki: %1$d</string>
 
     <!-- Upravljanje kolekcijama -->
-    <string name="collections_header">Kolekcije</string>
-    <string name="collections_delete_confirm_title">Izbrisati kolekciju?</string>
+    <string name="collections_header">Mape na početnoj</string>
+    <string name="collections_delete_confirm_title">Izbrisati red mapa?</string>
     <string name="collections_delete_confirm_subtitle">Ovo će trajno izbrisati \"%1$s\". Ovo se ne može poništiti.</string>
-    <string name="collections_empty">Još nema kolekcija. Stvori jednu za organiziranje kataloga.</string>
-    <string name="collections_new">Nova kolekcija</string>
+    <string name="collections_empty">Još nema redova mapa. Stvori jedan kako bi grupirao kataloge u mape na početnoj.</string>
+    <string name="collections_new">Novi red mapa</string>
     <string name="collections_import">Uvezi</string>
     <string name="collections_export_file">Izvezi datoteku</string>
     <string name="collections_saved_downloads">Spremljeno u Preuzimanja</string>
     <string name="collections_export_failed">Nije moguće spremiti u Preuzimanja. Provjeri dopuštenje za pohranu i slobodan prostor, a zatim pokušaj ponovno.</string>
-    <string name="collections_import_header">Uvoz kolekcija</string>
-    <string name="collections_import_description">Uvezi kolekcije iz JSON-a. Za kataloge iz dodataka koje nemaš instalirane prikazat će se upozorenje.</string>
+    <string name="collections_import_header">Uvoz mapa na početnoj</string>
+    <string name="collections_import_description">Uvezi redove mapa iz JSON-a. Za kataloge iz dodataka koje nemaš instalirane prikazat će se upozorenje.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
     <string name="collections_import_failed_fetch_http">Dohvaćanje nije uspjelo: HTTP %1$d</string>
     <string name="collections_import_failed_fetch_url">Dohvaćanje URL-a nije uspjelo: %1$s</string>
-    <string name="collections_import_paste_json_required">Zalijepi JSON kolekcija za uvoz</string>
+    <string name="collections_import_paste_json_required">Zalijepi JSON mapa na početnoj za uvoz</string>
     <string name="collections_import_no_data">Nema podataka za uvoz</string>
-    <string name="collections_import_invalid_or_empty">Neispravan format ili prazne kolekcije</string>
-    <string name="collections_import_file_not_found_downloads">Datoteka nije pronađena u Preuzimanjima.\nZa njezino stvaranje najprije izvezi kolekcije.</string>
+    <string name="collections_import_invalid_or_empty">Neispravan format ili nema redova mapa</string>
+    <string name="collections_import_file_not_found_downloads">Datoteka nije pronađena u Preuzimanjima.\nZa njezino stvaranje najprije izvezi mape na početnoj.</string>
     <string name="collections_import_failed_read_file">Čitanje datoteke nije uspjelo: %1$s</string>
     <string name="collections_cancel">Odustani</string>
     <string name="collections_mode_paste">Zalijepi JSON</string>
@@ -1719,7 +1719,7 @@
     <string name="collections_mode_url">S URL-a</string>
     <string name="collections_paste_clipboard">Zalijepi iz međuspremnika</string>
     <string name="collections_validate">Provjeri</string>
-    <string name="collections_paste_hint">Ovdje zalijepi JSON kolekcija…</string>
+    <string name="collections_paste_hint">Ovdje zalijepi JSON mapa na početnoj…</string>
     <string name="collections_file_description">Čita fetch-collections.json iz mape Preuzimanja.</string>
     <string name="collections_load_file">Učitaj datoteku</string>
     <string name="collections_file_loaded">Datoteka učitana (znakova: %1$d)</string>
@@ -1733,7 +1733,7 @@
     <string name="collections_editor_save">Spremi</string>
     <string name="collections_editor_backdrop">Pozadinska slika</string>
     <string name="collections_editor_pin_above">Prikvači iznad kataloga</string>
-    <string name="collections_editor_pin_above_desc">Prikaži ovu kolekciju iznad svih uobičajenih kataloga na početnom zaslonu. Više prikvačenih kolekcija prati redoslijed stvaranja.</string>
+    <string name="collections_editor_pin_above_desc">Prikaži ovaj red mapa iznad svih uobičajenih kataloga na početnom zaslonu. Prikvačeni redovi mapa prate redoslijed kojim su stvoreni.</string>
     <string name="collections_editor_view_mode">Način prikaza</string>
     <string name="collections_editor_show_all_tab">Prikaži karticu \"Sve\"</string>
     <string name="collections_editor_show_all_tab_desc">Spoji sve kataloge u jednu karticu</string>
@@ -1757,7 +1757,7 @@
     <string name="collections_editor_select_catalogs">Odaberi kataloge</string>
     <string name="collections_editor_done">Gotovo</string>
     <string name="collections_editor_choose_emoji">Odaberi emoji</string>
-    <string name="collections_editor_edit_collection">Uredi kolekciju</string>
+    <string name="collections_editor_edit_collection">Uredi red mapa</string>
     <string name="collections_editor_source">Izvor</string>
     <string name="collections_editor_view_mode_tabs">Kartice</string>
     <string name="collections_editor_view_mode_rows">Redovi</string>
@@ -1904,7 +1904,7 @@
     <string name="collections_editor_keyword_based_on_novel">Prema romanu</string>
     <string name="collections_editor_keyword_time_travel">Putovanje kroz vrijeme</string>
     <string name="collections_editor_keyword_space">Svemir</string>
-    <string name="collections_editor_placeholder_name">Naziv kolekcije</string>
+    <string name="collections_editor_placeholder_name">Naziv reda mapa</string>
     <string name="collections_editor_placeholder_backdrop">URL pozadinske slike (neobavezno)</string>
     <string name="collections_editor_placeholder_cover_image">URL slike naslovnice</string>
     <string name="collections_editor_placeholder_folder">Naziv mape</string>
@@ -1924,7 +1924,7 @@
     <string name="collections_editor_all_genres">Svi žanrovi</string>
     <string name="collections_editor_genre_required">Žanr je obavezan</string>
     <string name="collections_editor_genre_optional">Dostupan filtar žanra</string>
-    <string name="collections_card_title">Kolekcije</string>
+    <string name="collections_card_title">Mape na početnoj</string>
     <string name="collections_card_subtitle">Grupiraj kataloge u mape na početnom zaslonu</string>
     <string name="collections_tab_all">Sve</string>
     <string name="collections_tab_combined">Kombinirano</string>
@@ -1939,7 +1939,7 @@
     <string name="folder_error_trakt_source">Nije moguće učitati ovaj Trakt popis. Provjeri vezu i je li popis još uvijek javan, a zatim pokušaj ponovno.</string>
     <string name="folder_error_list_source">Nije moguće učitati ovaj popis. Provjeri vezu, a zatim pokušaj ponovno.</string>
     <string name="collections_editor_discard_title">Odbaciti promjene?</string>
-    <string name="collections_editor_discard_collection_subtitle">Promjene ove kolekcije nisu spremljene.</string>
+    <string name="collections_editor_discard_collection_subtitle">Promjene ovog reda mapa nisu spremljene.</string>
     <string name="collections_editor_discard_folder_subtitle">Promjene ove mape nisu spremljene.</string>
     <string name="collections_editor_keep_editing">Nastavi uređivati</string>
     <string name="collections_editor_discard">Odbaci</string>
@@ -2027,19 +2027,19 @@
     <!-- Pogreške uvoza kolekcija -->
     <string name="collections_import_error_empty_input">Prazan unos</string>
     <string name="collections_import_error_expected_array">Neispravan format: očekivan je niz</string>
-    <string name="collections_import_error_empty_array">Prazan niz: nisu pronađene kolekcije</string>
-    <string name="collections_import_error_missing_id">Kolekcija %1$d: nedostaje ili je neispravan \"id\"</string>
-    <string name="collections_import_error_missing_title">Kolekcija \"%1$s\": nedostaje ili je neispravan \"title\"</string>
-    <string name="collections_import_error_folders_array">Kolekcija \"%1$s\": \"folders\" mora biti niz</string>
-    <string name="collections_import_error_folder_invalid">Kolekcija \"%1$s\", mapa %2$d: neispravan format</string>
-    <string name="collections_import_error_folder_missing_id">Kolekcija \"%1$s\", mapa %2$d: nedostaje \"id\"</string>
-    <string name="collections_import_error_folder_missing_title">Kolekcija \"%1$s\", mapa \"%2$s\": nedostaje \"title\"</string>
-    <string name="collections_import_error_sources_array">Kolekcija \"%1$s\", mapa \"%2$s\": \"sources\" mora biti niz</string>
-    <string name="collections_import_error_invalid_tile_shape">Kolekcija \"%1$s\", mapa \"%2$s\": neispravan tileShape \"%3$s\"</string>
-    <string name="collections_import_error_source_invalid">Kolekcija \"%1$s\", mapa \"%2$s\", izvor %3$d: neispravan format</string>
-    <string name="collections_import_error_source_required_fields">Kolekcija \"%1$s\", mapa \"%2$s\", izvor %3$d: nedostaju obavezna polja</string>
-    <string name="collections_import_error_missing_tmdb_type">Kolekcija \"%1$s\", mapa \"%2$s\", izvor %3$d: nedostaje vrsta TMDB izvora</string>
-    <string name="collections_import_error_missing_trakt_list_id">Kolekcija \"%1$s\", mapa \"%2$s\", izvor %3$d: nedostaje ID Trakt popisa</string>
+    <string name="collections_import_error_empty_array">Prazan niz: nisu pronađeni redovi mapa</string>
+    <string name="collections_import_error_missing_id">Red mapa %1$d: nedostaje ili je neispravan \"id\"</string>
+    <string name="collections_import_error_missing_title">Red mapa \"%1$s\": nedostaje ili je neispravan \"title\"</string>
+    <string name="collections_import_error_folders_array">Red mapa \"%1$s\": \"folders\" mora biti niz</string>
+    <string name="collections_import_error_folder_invalid">Red mapa \"%1$s\", mapa %2$d: neispravan format</string>
+    <string name="collections_import_error_folder_missing_id">Red mapa \"%1$s\", mapa %2$d: nedostaje \"id\"</string>
+    <string name="collections_import_error_folder_missing_title">Red mapa \"%1$s\", mapa \"%2$s\": nedostaje \"title\"</string>
+    <string name="collections_import_error_sources_array">Red mapa \"%1$s\", mapa \"%2$s\": \"sources\" mora biti niz</string>
+    <string name="collections_import_error_invalid_tile_shape">Red mapa \"%1$s\", mapa \"%2$s\": neispravan tileShape \"%3$s\"</string>
+    <string name="collections_import_error_source_invalid">Red mapa \"%1$s\", mapa \"%2$s\", izvor %3$d: neispravan format</string>
+    <string name="collections_import_error_source_required_fields">Red mapa \"%1$s\", mapa \"%2$s\", izvor %3$d: nedostaju obavezna polja</string>
+    <string name="collections_import_error_missing_tmdb_type">Red mapa \"%1$s\", mapa \"%2$s\", izvor %3$d: nedostaje vrsta TMDB izvora</string>
+    <string name="collections_import_error_missing_trakt_list_id">Red mapa \"%1$s\", mapa \"%2$s\", izvor %3$d: nedostaje ID Trakt popisa</string>
     <string name="collections_import_error_json_parse">Pogreška parsiranja JSON-a: %1$s</string>
 
     <!-- Poruke biblioteke -->

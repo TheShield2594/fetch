@@ -11,7 +11,7 @@ import com.fetch.desktop.AppState
 fun AccountPage(state: AppState, header: Boolean = true) {
     if (header) PageHeader(
         "Account",
-        subtitle = "Pair this computer with your Fetch website to sync profiles, addons, settings, Home rows and collections with the TV app."
+        subtitle = "Pair this computer with your Fetch website to sync profiles, addons, settings, Home rows and Home folders with the TV app."
     )
     FetchWebsiteSection(state)
 }

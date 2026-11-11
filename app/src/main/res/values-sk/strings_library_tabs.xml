@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Watchlist</string>
+    <string name="library_tab_lists">Zoznamy</string>
+    <string name="library_tab_in_progress">Rozpozerané</string>
+    <string name="library_tab_history">História</string>
+    <string name="library_tab_upcoming">Čoskoro</string>
+    <string name="library_tabs_description">Sekcie knižnice</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Zatiaľ žiadne zoznamy</string>
+    <string name="library_lists_empty_subtitle">Zoznamy, ktoré vytvoríte tu alebo vo svojej službe sledovania, sa zobrazia na tejto karte. Váš watchlist má vlastnú kartu.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (tento TV)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% videné</string>
+    <string name="library_in_progress_empty_title">Nič rozpozerané</string>
+    <string name="library_in_progress_empty_subtitle">Zobrazia sa tu filmy a epizódy, ktoré ste začali a nedopozerali.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Zatiaľ nič pozreté</string>
+    <string name="library_history_empty_subtitle">To, čo dopozeráte, a to, čo vaša služba sledovania označí ako pozreté, sa tu zobrazí podľa mesiacov.</string>
+</resources>

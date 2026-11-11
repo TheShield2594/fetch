@@ -496,10 +496,10 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="addon_remove_confirm_title">Pašalinti %1$s?</string>
     <string name="addon_remove_confirm_message">Jo katalogai ir srautai nebebus rodomi šiame televizoriuje.</string>
     <string name="addon_manage_from_phone_title">Valdyti iš telefono</string>
-    <string name="addon_manage_from_phone_subtitle">Skenuokite QR kodą, kad valdytumėte priedus ir pradinio ekrano katalogus iš savo telefono</string>
+    <string name="addon_manage_from_phone_subtitle">Skenuokite QR kodą, kad valdytumėte priedus, katalogus ir pagrindinio ekrano aplankus iš savo telefono</string>
     <string name="addon_reorder_title">Keisti pradinio ekrano katalogų tvarką</string>
-    <string name="addon_reorder_subtitle">Valdo katalogų eiliškumą pradiniame ekrane (Klasikinis + Modernus + Tinklelis)</string>
-    <string name="addon_qr_scan_instruction">Skenuokite telefonu, kad valdytumėte priedus ir katalogus</string>
+    <string name="addon_reorder_subtitle">Valdo katalogų ir aplankų eilučių eiliškumą pradiniame ekrane (Klasikinis + Modernus + Tinklelis)</string>
+    <string name="addon_qr_scan_instruction">Skenuokite telefonu, kad valdytumėte priedus, katalogus ir pagrindinio ekrano aplankus</string>
     <string name="addon_qr_close">Uždaryti</string>
     <string name="addon_confirm_title">Patvirtinti priedų ir katalogų pakeitimus</string>
     <string name="addon_confirm_subtitle">Iš jūsų telefono buvo padaryti šie pakeitimai:</string>
@@ -805,7 +805,7 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="folder_error_trakt_source">Nepavyko įkelti šio „Trakt“ sąrašo. Patikrinkite ryšį ir ar sąrašas vis dar viešas, tada bandykite dar kartą.</string>
     <string name="folder_error_list_source">Nepavyko įkelti šio sąrašo. Patikrinkite ryšį ir bandykite dar kartą.</string>
     <string name="collections_editor_discard_title">Atmesti pakeitimus?</string>
-    <string name="collections_editor_discard_collection_subtitle">Šios kolekcijos pakeitimai neišsaugoti.</string>
+    <string name="collections_editor_discard_collection_subtitle">Šios aplankų eilutės pakeitimai neišsaugoti.</string>
     <string name="collections_editor_discard_folder_subtitle">Šio aplanko pakeitimai neišsaugoti.</string>
     <string name="collections_editor_keep_editing">Toliau redaguoti</string>
     <string name="collections_editor_discard">Atmesti</string>

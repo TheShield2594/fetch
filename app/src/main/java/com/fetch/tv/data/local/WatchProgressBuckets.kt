@@ -59,3 +59,12 @@ internal fun mergeWatchProgressBuckets(
         putAll(recent)
     }
 }
+
+/**
+ * [entries] without the series-level entries of titles that have episode entries: an episode's
+ * progress replaces the series-level mirror older versions kept beside it.
+ */
+internal fun normalizeWatchProgressEntries(entries: Map<String, WatchProgress>): Map<String, WatchProgress> {
+    val buckets = splitWatchProgressEntries(entries, recentLimit = Int.MAX_VALUE)
+    return buckets.recent
+}

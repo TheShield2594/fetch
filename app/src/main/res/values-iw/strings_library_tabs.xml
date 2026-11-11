@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">רשימת צפייה</string>
+    <string name="library_tab_lists">רשימות</string>
+    <string name="library_tab_in_progress">בצפייה</string>
+    <string name="library_tab_history">היסטוריה</string>
+    <string name="library_tab_upcoming">בקרוב</string>
+    <string name="library_tabs_description">מקטעי הספרייה</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">אין עדיין רשימות</string>
+    <string name="library_lists_empty_subtitle">רשימות שיצרת כאן או בשירות המעקב שלך מופיעות בכרטיסייה הזו. לרשימת הצפייה יש כרטיסייה משלה.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (הטלוויזיה הזו)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">נצפה %1$d%%</string>
+    <string name="library_in_progress_empty_title">אין תוכן בצפייה</string>
+    <string name="library_in_progress_empty_subtitle">סרטים ופרקים שהתחלת ולא סיימת מופיעים כאן.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">עדיין לא נצפה דבר</string>
+    <string name="library_history_empty_subtitle">מה שסיימת, ומה ששירות המעקב שלך סימן כנצפה, מופיע כאן לפי חודשים.</string>
+</resources>

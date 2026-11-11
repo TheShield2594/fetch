@@ -213,7 +213,7 @@ fun FolderScreen(state: AppState, screen: Screen.Folder) {
             LaunchedEffect(screen) { state.collections.openFolder(screen.collectionId, screen.folderId) }
             CenteredProgress()
         } else {
-            EmptyState("This folder is gone", "Its collection was changed or deleted.")
+            EmptyState("This folder is gone", "Its folder row was changed or deleted.")
         }
         return
     }

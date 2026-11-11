@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Seliste</string>
+    <string name="library_tab_lists">Lister</string>
+    <string name="library_tab_in_progress">Pågående</string>
+    <string name="library_tab_history">Historikk</string>
+    <string name="library_tab_upcoming">Kommende</string>
+    <string name="library_tabs_description">Bibliotekseksjoner</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Ingen lister ennå</string>
+    <string name="library_lists_empty_subtitle">Lister du lager her eller i sporingstjenesten din, vises i denne fanen. Selisten din har sin egen fane.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (denne TV-en)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% sett</string>
+    <string name="library_in_progress_empty_title">Ingenting pågående</string>
+    <string name="library_in_progress_empty_subtitle">Filmer og episoder du har begynt på, men ikke sett ferdig, vises her.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Ingenting sett ennå</string>
+    <string name="library_history_empty_subtitle">Det du ser ferdig, og det sporingstjenesten din markerer som sett, vises her etter måned.</string>
+
+    <!-- Library watched filter -->
+    <string name="library_watched_filter_ready">Klar til avspilling</string>
+</resources>

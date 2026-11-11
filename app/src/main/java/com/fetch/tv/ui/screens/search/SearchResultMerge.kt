@@ -66,7 +66,9 @@ internal object SearchResultMerger {
         val normalizedQuery = normalizeTitle(query)
         val ranked = groups
             .filter { group -> matchesFilter(group, filter, isInLibrary) }
-            .sortedWith(rankComparator(normalizedQuery))
+            // Normalising a title is the costly part, so each group's tier is worked out once.
+            .onEach { group -> group.matchTier = matchTier(normalizeTitle(group.item.name), normalizedQuery) }
+            .sortedWith(RANK_COMPARATOR)
         if (ranked.isEmpty()) return MergedSearchResults()
 
         val byType = LinkedHashMap<String, MutableList<Group>>()
@@ -138,6 +140,7 @@ internal object SearchResultMerger {
         var bestIndex: Int
     ) {
         var idKey: String? = null
+        var matchTier = 0
         var sourceUrl: String? = null
         val addonNames = mutableListOf<String>()
         val addonUrls = LinkedHashSet<String>()
@@ -199,8 +202,8 @@ internal object SearchResultMerger {
      * (agreement is a strong signal that it's the well-known title), then where the addons put it,
      * then the order the addons answered in.
      */
-    private fun rankComparator(normalizedQuery: String): Comparator<Group> =
-        compareBy<Group> { matchTier(normalizeTitle(it.item.name), normalizedQuery) }
+    private val RANK_COMPARATOR: Comparator<Group> =
+        compareBy<Group> { it.matchTier }
             .thenByDescending { it.addonUrls.size }
             .thenBy { it.bestIndex }
             .thenBy { it.firstRow }
@@ -229,25 +232,42 @@ internal object SearchResultMerger {
 
 }
 
+/** A library title's ids, as [libraryIdSet] reads them. */
+internal data class LibraryIds(
+    val id: String,
+    val type: String,
+    val imdbId: String? = null,
+    val tmdbId: Int? = null
+)
+
 /**
- * The keys a library is matched on: each saved id as stored, plus its IMDb id when it has one, so
- * a title an addon returns under another id scheme still shows as saved.
+ * The keys a library is matched on: each saved id as stored, plus its IMDb and TMDB ids in the
+ * form [SearchResultMerger.idKey] gives, so a title an addon returns under another id scheme still
+ * shows as saved. TMDB ids are per type, as a movie and a show can share a number.
  */
-internal fun libraryIdSet(ids: Collection<String>): Set<String> = buildSet {
-    ids.forEach { id ->
-        val trimmed = id.trim()
-        if (trimmed.isEmpty()) return@forEach
-        add(trimmed)
-        LIBRARY_IMDB_ID.find(trimmed)?.let { add("imdb:${it.value}") }
+internal fun libraryIdSet(entries: Collection<LibraryIds>): Set<String> = buildSet {
+    entries.forEach { entry ->
+        val trimmed = entry.id.trim()
+        if (trimmed.isNotEmpty()) add(trimmed)
+        sequenceOf(entry.imdbId, trimmed).firstNotNullOfOrNull { value -> value?.let(LIBRARY_IMDB_ID::find) }
+            ?.let { add("imdb:${it.value}") }
+        val type = entry.type.trim().lowercase(java.util.Locale.ROOT)
+        entry.tmdbId?.let { add("tmdb:$type:$it") }
+        LIBRARY_TMDB_ID.find(trimmed)?.let { add("tmdb:$type:${it.groupValues[1]}") }
     }
 }
+
+/** How a type is named when no string resource covers it ("tv" reads "TV", "anime" "Anime"). */
+internal fun addonTypeDisplayName(typeKey: String): String =
+    if (typeKey.length <= 2) typeKey.uppercase(java.util.Locale.ROOT) else typeKey.replaceFirstChar { it.titlecase() }
 
 /** Whether [item] is in the library whose keys are [libraryIds] (see [libraryIdSet]). */
 internal fun isLibraryItem(item: MetaPreview, libraryIds: Set<String>): Boolean {
     if (libraryIds.isEmpty()) return false
     if (item.id.trim() in libraryIds) return true
     val key = SearchResultMerger.idKey(item) ?: return false
-    return key.startsWith("imdb:") && key in libraryIds
+    return key in libraryIds
 }
 
 private val LIBRARY_IMDB_ID = Regex("""tt\d{5,}""")
+private val LIBRARY_TMDB_ID = Regex("""^tmdb[:_](?:(?:movie|tv|series)[:_])?(\d+)$""", RegexOption.IGNORE_CASE)

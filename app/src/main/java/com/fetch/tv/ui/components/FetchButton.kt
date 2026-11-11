@@ -111,7 +111,12 @@ fun FetchButton(
         modifier = modifier,
         onLongClick = onLongClick,
         enabled = enabled,
-        scale = if (focusedScale != null) ButtonDefaults.scale(focusedScale = focusedScale) else ButtonDefaults.scale(),
+        scale = when {
+            focusedScale != null -> ButtonDefaults.scale(focusedScale = focusedScale)
+            // Reduced motion: focus shows by colour and the ring, without the button growing.
+            !FetchTheme.fullMotion -> ButtonDefaults.scale(focusedScale = 1f)
+            else -> ButtonDefaults.scale()
+        },
         shape = ButtonDefaults.shape(shape),
         colors = FetchButtonDefaults.colors(style, selected),
         border = ButtonDefaults.border(focusedBorder = FetchFocusSpec.border(shape)),
@@ -169,6 +174,8 @@ fun FetchIconButton(
         onLongClick = onLongClick,
         enabled = enabled,
         shape = IconButtonDefaults.shape(FetchTheme.shapes.iconButton),
+        border = IconButtonDefaults.border(focusedBorder = FetchFocusSpec.border(FetchTheme.shapes.iconButton)),
+        scale = if (FetchTheme.fullMotion) IconButtonDefaults.scale() else IconButtonDefaults.scale(focusedScale = 1f),
         colors = IconButtonDefaults.colors(
             containerColor = FetchTheme.colors.BackgroundCard,
             contentColor = FetchTheme.colors.TextPrimary,

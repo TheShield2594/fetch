@@ -57,10 +57,12 @@ internal fun SearchTopResultCard(
     modifier: Modifier = Modifier
 ) {
     val item = result.item
-    val typeLabel = when (SearchResultMerger.typeKey(item)) {
-        "movie" -> stringResource(R.string.search_filter_movies)
-        "series" -> stringResource(R.string.search_filter_series)
-        else -> item.apiType.replaceFirstChar { it.titlecase() }
+    // One title, so the singular; other types are named as their row is.
+    val typeLabel = when (val typeKey = SearchResultMerger.typeKey(item)) {
+        "movie" -> stringResource(R.string.type_movie)
+        "series" -> stringResource(R.string.type_series)
+        "other" -> stringResource(R.string.search_results_other)
+        else -> addonTypeDisplayName(typeKey)
     }
     val specLine = remember(item, typeLabel) { topResultSpecLine(item, typeLabel) }
     val sources = topResultSources(result.addonNames)

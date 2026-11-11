@@ -139,6 +139,24 @@ class TraktProgressServiceRefreshTest {
         waitUntil { playbackCalls.get() >= 1 }
     }
 
+    @Test
+    fun `a refresh running when the app leaves the screen is redone on return`() = runBlocking {
+        val service = loadedService()
+
+        playbackHangs = true
+        service.refreshNow()
+        waitUntil { playbackCalls.get() >= 1 }
+        AppForeground.set(false)
+        delay(SETTLE_MS)
+        playbackHangs = false
+        resetCounters()
+        delay(SETTLE_MS)
+        assertEquals("requests made off screen", 0, playbackCalls.get())
+
+        AppForeground.set(true)
+        waitUntil { playbackCalls.get() >= 2 }
+    }
+
     private suspend fun loadedService(): TraktProgressService {
         val service = createService()
         withTimeout(TIMEOUT_MS) {

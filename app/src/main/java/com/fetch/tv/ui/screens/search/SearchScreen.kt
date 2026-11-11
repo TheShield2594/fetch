@@ -878,6 +878,9 @@ fun SearchScreen(
                                         }
                                         pendingFocusMoveToResultsQuery = null
                                         lastFocusedRowKey = SEARCH_TOP_RESULT_KEY
+                                        // The top result is one card, so Back goes straight to the
+                                        // field rather than first to a row's start.
+                                        focusedResultItemIndex.intValue = 0
                                         viewModel.prefetchMetaOnFocus(topResult.item.id, topResult.item.apiType)
                                     },
                                     onClick = { item ->

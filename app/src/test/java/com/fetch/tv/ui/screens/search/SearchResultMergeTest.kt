@@ -143,7 +143,7 @@ class SearchResultMergeTest {
         assertEquals(listOf("tt10"), series.rows.flatMap { it.items }.map { it.id })
         assertEquals("tt10", series.topResult?.item?.id)
 
-        val library = libraryIdSet(listOf("tt11"))
+        val library = libraryIdSet(listOf(LibraryIds("tt11", "movie")))
         val saved = SearchResultMerger.merge(
             rows, "fargo",
             filter = SearchTypeFilter.IN_LIBRARY,
@@ -195,12 +195,27 @@ class SearchResultMergeTest {
 
     @Test
     fun `library keys match by id and by IMDb id`() {
-        val library = libraryIdSet(listOf("tt0133093", " "))
+        val library = libraryIdSet(listOf(LibraryIds("tt0133093", "movie"), LibraryIds(" ", "movie")))
 
         assertTrue(isLibraryItem(movie(id = "tt0133093", name = "x", year = null), library))
         assertTrue(isLibraryItem(movie(id = "tmdb:603", name = "x", year = null, imdbId = "tt0133093"), library))
         assertFalse(isLibraryItem(movie(id = "tmdb:604", name = "x", year = null), library))
         assertFalse(isLibraryItem(movie(id = "tt0133093", name = "x", year = null), emptySet()))
+    }
+
+    @Test
+    fun `a saved title matches through its alternate TMDB id, per type`() {
+        // Saved under its IMDb id, with the TMDB id alongside (as MDBList entries are).
+        val library = libraryIdSet(listOf(LibraryIds("tt0133093", "movie", tmdbId = 603)))
+
+        assertTrue(isLibraryItem(movie(id = "tmdb:603", name = "x", year = null), library))
+        assertFalse(isLibraryItem(series(id = "tmdb:603", name = "x", year = null), library))
+    }
+
+    @Test
+    fun `other types are named as acronyms when short`() {
+        assertEquals("TV", addonTypeDisplayName("tv"))
+        assertEquals("Anime", addonTypeDisplayName("anime"))
     }
 
     @Test

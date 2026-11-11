@@ -83,7 +83,7 @@ class SearchViewModel @Inject constructor(
 
     /** Ids of the titles in the library, for the "In my library" filter. */
     private val libraryIds: StateFlow<Set<String>> = libraryRepository.libraryItems
-        .map { entries -> libraryIdSet(entries.map { it.id }) }
+        .map { entries -> libraryIdSet(entries.map { LibraryIds(it.id, it.type, it.imdbId, it.tmdbId) }) }
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
 
@@ -125,8 +125,7 @@ class SearchViewModel @Inject constructor(
         "movie" -> context.getString(R.string.type_movies)
         "series" -> context.getString(R.string.type_series)
         "other" -> context.getString(R.string.search_results_other)
-        // Short addon types ("tv") read as acronyms; longer ones ("anime", "channel") as words.
-        else -> if (typeKey.length <= 2) typeKey.uppercase() else typeKey.replaceFirstChar { it.titlecase() }
+        else -> addonTypeDisplayName(typeKey)
     }
 
     /** Saved focus state for restoring scroll/focus position after returning from details. */

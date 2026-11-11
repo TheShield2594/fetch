@@ -802,10 +802,6 @@
     <string name="debug_playback_error_title">Layar Error Pemutaran</string>
     <string name="debug_playback_error_subtitle">Tampilkan popup error pemutaran yang disimulasikan</string>
     <string name="debug_section_features">Sakelar Fitur</string>
-    <string name="debug_account_tab_title">Tab Akun</string>
-    <string name="debug_account_tab_subtitle">Tampilkan tab Akun di navigasi Pengaturan</string>
-    <string name="debug_sync_code_title">Fitur Kode Sinkronisasi</string>
-    <string name="debug_sync_code_subtitle">Tampilkan tombol Buat/Masukkan Kode Sinkronisasi di pengaturan Akun</string>
     <string name="debug_error_dialog_title">Error Pemutaran</string>
     <string name="debug_error_dialog_subtitle">Terjadi error saat pemutaran.\n\nError: Error simulasi pengujian - ini bukan kegagalan nyata. Sumber menghasilkan HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">Tutup</string>

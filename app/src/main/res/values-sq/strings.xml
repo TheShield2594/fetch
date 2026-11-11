@@ -889,10 +889,6 @@
     <string name="debug_progress_indicator_default">Parazgjedhur</string>
     <string name="debug_progress_indicator_large">I madh</string>
     <string name="debug_section_features">Aktivizuesit e veçorive</string>
-    <string name="debug_account_tab_title">Skeda Llogaria</string>
-    <string name="debug_account_tab_subtitle">Shfaq skedën Llogaria në navigimin e Cilësimeve</string>
-    <string name="debug_sync_code_title">Veçoritë e kodit të sinkronizimit</string>
-    <string name="debug_sync_code_subtitle">Shfaq butonat Gjenero/Shkruaj kodin e sinkronizimit te cilësimet e Llogarisë</string>
     <string name="debug_buffer_logs_title">Aktivizo regjistrat BUFFER</string>
     <string name="debug_buffer_logs_subtitle">Shkruaj periodikisht diagnostikime të buffer-it të luajtësit në logcat (çaktivizuar si parazgjedhje)</string>
     <string name="debug_error_dialog_title">Gabim riprodhimi</string>

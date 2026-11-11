@@ -852,10 +852,6 @@
     <string name="debug_playback_error_title">شاشة خطأ التشغيل</string>
     <string name="debug_playback_error_subtitle">إظهار نافذة خطأ تشغيل وهمية</string>
     <string name="debug_section_features">مفاتيح الميزات</string>
-    <string name="debug_account_tab_title">نافذة الحساب</string>
-    <string name="debug_account_tab_subtitle">إظهار نافذة الحساب في تنقل الإعدادات</string>
-    <string name="debug_sync_code_title">ميزات رمز المزامنة</string>
-    <string name="debug_sync_code_subtitle">إظهار أزرار إنشاء/إدخال رمز المزامنة في إعدادات الحساب</string>
     <string name="debug_buffer_logs_title">تفعيل تسجيل (BUFFER)</string>
     <string name="debug_buffer_logs_subtitle">إرسال تقارير دورية لتشخيص ذاكرة تخزين المشغل إلى logcat (معطل افتراضياً)</string>
     <string name="debug_error_dialog_title">خطأ في التشغيل</string>

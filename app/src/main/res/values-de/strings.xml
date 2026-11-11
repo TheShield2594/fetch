@@ -794,10 +794,6 @@
     <string name="debug_playback_error_title">Bildschirm „Wiedergabefehler”</string>
     <string name="debug_playback_error_subtitle">Simulierten Popup-Fehler bei der Wiedergabe anzeigen</string>
     <string name="debug_section_features">Feature-Umschalter</string>
-    <string name="debug_account_tab_title">Registerkarte „Konto“</string>
-    <string name="debug_account_tab_subtitle">Registerkarte „Konto” in der Navigation „Einstellungen” anzeigen</string>
-    <string name="debug_sync_code_title">Synchronisierungscode-Funktionen</string>
-    <string name="debug_sync_code_subtitle">Schaltflächen „Synchronisierungscode generieren/eingeben“ in den Kontoeinstellungen anzeigen</string>
     <string name="debug_error_dialog_title">Wiedergabefehler</string>
     <string name="debug_error_dialog_subtitle">Während der Wiedergabe ist ein Fehler aufgetreten.\n\nFehler: Simulierter Testfehler – dies ist kein echter Fehler. Quelle hat HTTP 503 (Dienst nicht verfügbar) zurückgegeben.</string>
     <string name="debug_dismiss">Schließen</string>

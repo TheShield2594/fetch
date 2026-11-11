@@ -988,10 +988,6 @@
     <string name="debug_progress_indicator_default">Podrazumevano</string>
     <string name="debug_progress_indicator_large">Veliko</string>
     <string name="debug_section_features">Uključivanje/isključivanje funkcija</string>
-    <string name="debug_account_tab_title">Kartica Naloga</string>
-    <string name="debug_account_tab_subtitle">Prikaži karticu Nalog u navigaciji podešavanja</string>
-    <string name="debug_sync_code_title">Funkcije koda za sinhronizaciju</string>
-    <string name="debug_sync_code_subtitle">Prikaži dugmad Generiši/Unesi kod za sinhronizaciju u podešavanjima Naloga</string>
     <string name="debug_buffer_logs_title">Omogući BUFFER dnevnike</string>
     <string name="debug_buffer_logs_subtitle">Emituj povremenu dijagnostiku bafera plejera u logcat (onemogućeno po podrazumevanoj vrednosti)</string>
     <string name="debug_error_dialog_title">Greška u reprodukciji</string>

@@ -853,10 +853,6 @@
     <string name="debug_playback_error_title">Afspilningsfejl-skærm</string>
     <string name="debug_playback_error_subtitle">Vis en simuleret afspilningsfejl-popup</string>
     <string name="debug_section_features">Feature-skift</string>
-    <string name="debug_account_tab_title">Konto-fane</string>
-    <string name="debug_account_tab_subtitle">Vis konto-fanen i indstillingsnavigationen</string>
-    <string name="debug_sync_code_title">Sync-kode-funktioner</string>
-    <string name="debug_sync_code_subtitle">Vis knapper til at generere/indtaste sync-kode i kontoindstillinger</string>
     <string name="debug_buffer_logs_title">Aktivér BUFFER-logs</string>
     <string name="debug_buffer_logs_subtitle">Udsend periodiske buffer-diagnostik til logcat (deaktiveret som standard)</string>
     <string name="debug_error_dialog_title">Afspilningsfejl</string>

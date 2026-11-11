@@ -502,10 +502,6 @@
     <string name="debug_playback_error_title">Avspillingsfeilskjerm</string>
     <string name="debug_playback_error_subtitle">Vis et simulert avspillingsfeils-popup</string>
     <string name="debug_section_features">Funksjonstoggler</string>
-    <string name="debug_account_tab_title">Kontofane</string>
-    <string name="debug_account_tab_subtitle">Vis kontofanen i innstillingsnavigasjonen</string>
-    <string name="debug_sync_code_title">Synkroniser kodefunksjoner</string>
-    <string name="debug_sync_code_subtitle">Vis generer/skriv inn synkkodeknapper i kontoinnstillinger</string>
     <string name="debug_error_dialog_title">Avspillingsfeil</string>
     <string name="debug_error_dialog_subtitle">En feil oppstod under avspilling.\n\nFeil: Testsimulert feil - dette er ikke en virkelig feil. Kildereturnert HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">Avvis</string>

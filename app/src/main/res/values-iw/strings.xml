@@ -1126,10 +1126,6 @@
     <string name="debug_progress_indicator_default">ברירת מחדל</string>
     <string name="debug_progress_indicator_large">גדול</string>
     <string name="debug_section_features">הפעלת פיצ׳רים</string>
-    <string name="debug_account_tab_title">לשונית חשבון</string>
-    <string name="debug_account_tab_subtitle">הצגת לשונית החשבון בניווט הגדרות</string>
-    <string name="debug_sync_code_title">פיצ׳רי קוד סנכרון</string>
-    <string name="debug_sync_code_subtitle">הצגת כפתורי יצירה/הזנת קוד סנכרון בהגדרות חשבון</string>
     <string name="debug_buffer_logs_title">הפעלת לוגים של BUFFER</string>
     <string name="debug_buffer_logs_subtitle">שליחת אבחוני מאגר נגן תקופתיים ל-logcat (כבוי כברירת מחדל)</string>
     <string name="debug_error_dialog_title">שגיאת הפעלה</string>

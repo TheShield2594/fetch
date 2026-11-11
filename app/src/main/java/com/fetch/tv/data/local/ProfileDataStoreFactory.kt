@@ -132,7 +132,6 @@ class ProfileDataStoreFactory @Inject constructor(
     private val retainedStandaloneDataStoreNames = setOf(
         "app_onboarding",
         "auth_session_notice_store",
-        "debug_settings",
         "device_local_player_prefs",
         "profile_lock_state",
         "profile_restrictions",

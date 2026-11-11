@@ -846,10 +846,6 @@
     <string name="debug_playback_error_title">Екран за грешка при възпроизвеждане</string>
     <string name="debug_playback_error_subtitle">Покажи симулиран popup за грешка при възпроизвеждане</string>
     <string name="debug_section_features">Флагове на функции</string>
-    <string name="debug_account_tab_title">Раздел Акаунт</string>
-    <string name="debug_account_tab_subtitle">Показвай раздела Акаунт в навигацията на Настройки</string>
-    <string name="debug_sync_code_title">Функции на Sync Code</string>
-    <string name="debug_sync_code_subtitle">Показвай бутони за Генериране/Въвеждане на Sync Code в настройките на Акаунт</string>
     <string name="debug_buffer_logs_title">Включи BUFFER логове</string>
     <string name="debug_buffer_logs_subtitle">Излъчвай периодични диагностики на плейър буфера към logcat (изключено по подразбиране)</string>
     <string name="debug_error_dialog_title">Грешка при възпроизвеждане</string>

@@ -1042,10 +1042,6 @@
   <string name="debug_playback_error_title">Οθόνη σφάλματος αναπαραγωγής</string>
   <string name="debug_playback_error_subtitle">Εμφάνιση προσομοιωμένου popup σφάλματος αναπαραγωγής</string>
   <string name="debug_section_features">Εναλλαγές χαρακτηριστικών</string>
-  <string name="debug_account_tab_title">Καρτέλα Λογαριασμός</string>
-  <string name="debug_account_tab_subtitle">Εμφάνιση καρτέλας Λογαριασμός στην πλοήγηση Ρυθμίσεων</string>
-  <string name="debug_sync_code_title">Λειτουργίες Sync Code</string>
-  <string name="debug_sync_code_subtitle">Εμφάνιση κουμπιών Generate/Enter Sync Code στις Ρυθμίσεις λογαριασμού</string>
   <string name="debug_error_dialog_title">Σφάλμα αναπαραγωγής</string>
   <string name="debug_error_dialog_subtitle">Προέκυψε σφάλμα κατά την αναπαραγωγή.\n\nΣφάλμα: Προσομοιωμένο σφάλμα δοκιμής – δεν είναι πραγματικό σφάλμα. Η πηγή επέστρεψε HTTP 503 (Service Unavailable).</string>
   <string name="debug_dismiss">Κλείσιμο</string>

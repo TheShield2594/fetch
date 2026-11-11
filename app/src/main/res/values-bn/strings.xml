@@ -1038,10 +1038,6 @@
     <string name="debug_progress_indicator_default">ডিফল্ট</string>
     <string name="debug_progress_indicator_large">বড়</string>
     <string name="debug_section_features">ফিচার টগলস</string>
-    <string name="debug_account_tab_title">অ্যাকাউন্ট ট্যাব</string>
-    <string name="debug_account_tab_subtitle">সেটিংস নেভিগেশনে অ্যাকাউন্ট ট্যাবটি দেখান</string>
-    <string name="debug_sync_code_title">সিংক কোড ফিচার</string>
-    <string name="debug_sync_code_subtitle">অ্যাকাউন্ট সেটিংসে সিংক কোড জেনারেট/এন্টার করার বোতামগুলো দেখান</string>
     <string name="debug_buffer_logs_title">BUFFER লগ চালু করুন</string>
     <string name="debug_buffer_logs_subtitle">লগক্যাটে পিরিয়ডিক প্লেয়ার বাফার ডায়াগনস্টিকস এমিট করুন (ডিফল্টভাবে বন্ধ থাকে)</string>
     <string name="debug_error_dialog_title">প্লেব্যাক এরর</string>

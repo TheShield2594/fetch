@@ -806,10 +806,6 @@
     <string name="debug_playback_error_title">Obrazovka chyby prehrávania</string>
     <string name="debug_playback_error_subtitle">Zobraziť simulovaný popup chyby prehrávania</string>
     <string name="debug_section_features">Funkčné prepínače</string>
-    <string name="debug_account_tab_title">Karta Účet</string>
-    <string name="debug_account_tab_subtitle">Zobraziť kartu Účet v navigácii Nastavenia</string>
-    <string name="debug_sync_code_title">Funkcie Sync kódu</string>
-    <string name="debug_sync_code_subtitle">Zobraziť tlačidlá Generovať/Zadať Sync kód v nastaveniach účtu</string>
     <string name="debug_error_dialog_title">Chyba prehrávania</string>
     <string name="debug_error_dialog_subtitle">Počas prehrávania sa vyskytla chyba.\n\nChyba: Testovaná simulovaná chyba – nejde o reálne zlyhanie. Zdroj vrátil HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">Zavrieť</string>

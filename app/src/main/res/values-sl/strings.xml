@@ -750,10 +750,6 @@
     <string name="debug_playback_error_title">Zaslon z napako pri predvajanju</string>
     <string name="debug_playback_error_subtitle">Prikaži simulirano pojavno okno o napaki pri predvajanju</string>
     <string name="debug_section_features">Stikala za funkcije</string>
-    <string name="debug_account_tab_title">Zavihek Račun</string>
-    <string name="debug_account_tab_subtitle">Prikaži zavihek Račun v nastavitvah navigacije</string>
-    <string name="debug_sync_code_title">Funkcije kode za sinhronizacijo</string>
-    <string name="debug_sync_code_subtitle">Prikaži gumbe za generiranje/vnos kode za sinhronizacijo v nastavitvah računa</string>
     <string name="debug_error_dialog_title">Napaka pri predvajanju</string>
     <string name="debug_error_dialog_subtitle">Prišlo je do napake med predvajanjem.\n\nNapaka: Testna simulirana napaka - to ni resnična napaka. Vir je vrnil HTTP 503 (Storitev ni na voljo).</string>
     <string name="debug_dismiss">Opusti</string>

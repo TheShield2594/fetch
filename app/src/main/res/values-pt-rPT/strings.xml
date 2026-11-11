@@ -824,10 +824,6 @@
     <string name="debug_playback_error_title">Página de erro de reprodução</string>
     <string name="debug_playback_error_subtitle">Mostrar um popup simulado de erro de reprodução</string>
     <string name="debug_section_features">Alternadores de Funcionalidades (Toggles)</string>
-    <string name="debug_account_tab_title">Separador de Conta</string>
-    <string name="debug_account_tab_subtitle">Mostrar o separador Conta na navegação das Definições</string>
-    <string name="debug_sync_code_title">Funcionalidades de Código de Sincronização</string>
-    <string name="debug_sync_code_subtitle">Mostrar os botões Gerar/Introduzir código de sincronização nas definições da conta</string>
     <string name="debug_buffer_logs_title">Ativar registos BUFFER</string>
     <string name="debug_buffer_logs_subtitle">Emite diagnósticos periódicos do buffer do leitor para o logcat (desativado por predefinição).</string>
     <string name="debug_error_dialog_title">Erro de Reprodução</string>

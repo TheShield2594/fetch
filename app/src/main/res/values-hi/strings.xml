@@ -460,10 +460,6 @@
     <string name="debug_playback_error_title">प्लेबैक एरर स्क्रीन</string>
     <string name="debug_playback_error_subtitle">सिम्युलेटेड प्लेबैक एरर पॉपअप दिखाएँ</string>
     <string name="debug_section_features">फीचर टॉगल्स</string>
-    <string name="debug_account_tab_title">अकाउंट टैब</string>
-    <string name="debug_account_tab_subtitle">सेटिंग्स नेविगेशन में अकाउंट टैब दिखाएँ</string>
-    <string name="debug_sync_code_title">सिंक कोड फीचर्स</string>
-    <string name="debug_sync_code_subtitle">अकाउंट सेटिंग्स में Generate/Enter Sync Code बटन दिखाएँ</string>
     <string name="debug_error_dialog_title">प्लेबैक एरर</string>
     <string name="debug_error_dialog_subtitle">प्लेबैक के दौरान एक त्रुटि हुई.\n\nError: टेस्ट सिम्युलेटेड एरर - यह वास्तविक विफलता नहीं है. सोर्स ने HTTP 503 (Service Unavailable) लौटाया.</string>
     <string name="debug_dismiss">बंद करें</string>

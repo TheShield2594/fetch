@@ -1044,10 +1044,6 @@
     <string name="debug_progress_indicator_default">Predeterminado</string>
     <string name="debug_progress_indicator_large">Grande</string>
     <string name="debug_section_features">Alternar características</string>
-    <string name="debug_account_tab_title">Pestaña de cuenta</string>
-    <string name="debug_account_tab_subtitle">Mostrar la pestaña Cuenta en navegación de configuración</string>
-    <string name="debug_sync_code_title">Características de código de sincronización</string>
-    <string name="debug_sync_code_subtitle">Mostrar botones de generar/introducir código de sincronización en configuración de cuenta</string>
     <string name="debug_buffer_logs_title">Habilitar registros de BUFFER</string>
     <string name="debug_buffer_logs_subtitle">Emite diagnósticos periódicos del búfer del reproductor en logcat (deshabilitado por defecto)</string>
     <string name="debug_error_dialog_title">Error de reproducción</string>

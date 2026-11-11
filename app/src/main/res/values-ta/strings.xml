@@ -778,10 +778,6 @@
     <string name="debug_playback_error_title">இயக்கப் பிழை திரை</string>
     <string name="debug_playback_error_subtitle">போலி இயக்கப் பிழை பாப்அப்பை காட்டு</string>
     <string name="debug_section_features">அம்ச மாற்றிகள்</string>
-    <string name="debug_account_tab_title">கணக்கு தாவல்</string>
-    <string name="debug_account_tab_subtitle">அமைப்புகள் வழிசெலுத்தலில் கணக்கு தாவலை காட்டு</string>
-    <string name="debug_sync_code_title">ஒத்திசைவு குறியீட்டு அம்சங்கள்</string>
-    <string name="debug_sync_code_subtitle">கணக்கு அமைப்புகளில் குறியீடு உருவாக்கு/உள்ளிடு பொத்தான்களை காட்டு</string>
     <string name="debug_error_dialog_title">இயக்கப் பிழை</string>
     <string name="debug_error_dialog_subtitle">இயக்கத்தின் போது ஒரு பிழை ஏற்பட்டது.\n\nபிழை: சோதனைக்காக உருவாக்கப்பட்ட பிழை - இது உண்மையான தோல்வி அல்ல. மூலம் HTTP 503 (சேவை கிடைக்கவில்லை) என்பதை திருப்பியது.</string>
     <string name="debug_dismiss">மூடு</string>

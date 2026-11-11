@@ -964,10 +964,6 @@
     <string name="debug_progress_indicator_default">Standaard</string>
     <string name="debug_progress_indicator_large">Groot</string>
     <string name="debug_section_features">Feature-toggles</string>
-    <string name="debug_account_tab_title">Tabblad Account</string>
-    <string name="debug_account_tab_subtitle">Toon het tabblad Account in de instellingennavigatie</string>
-    <string name="debug_sync_code_title">Functies voor synchronisatiecode</string>
-    <string name="debug_sync_code_subtitle">Toon de knoppen Synchronisatiecode genereren en invoeren in de accountinstellingen</string>
     <string name="debug_buffer_logs_title">BUFFER-logs inschakelen</string>
     <string name="debug_buffer_logs_subtitle">Stuur periodiek bufferdiagnostiek van de speler naar logcat (standaard uitgeschakeld)</string>
     <string name="debug_error_dialog_title">Afspeelfout</string>

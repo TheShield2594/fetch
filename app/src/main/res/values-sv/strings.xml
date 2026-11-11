@@ -465,10 +465,6 @@
     <string name="debug_playback_error_title">Uppspelningsfelskärm</string>
     <string name="debug_playback_error_subtitle">Visa ett simulerat uppspelningsfel</string>
     <string name="debug_section_features">Funktionsväxlare</string>
-    <string name="debug_account_tab_title">Kontoflik</string>
-    <string name="debug_account_tab_subtitle">Visa kontofliken i inställningsnavigeringen</string>
-    <string name="debug_sync_code_title">Synkkodsfunktioner</string>
-    <string name="debug_sync_code_subtitle">Visa Generera/Ange synkkod-knappar i kontoinställningar</string>
     <string name="debug_error_dialog_title">Uppspelningsfel</string>
     <string name="debug_error_dialog_subtitle">Ett fel uppstod under uppspelning.\n\nFel: Testsimulerat fel – detta är inte ett riktigt fel. Källan returnerade HTTP 503 (Tjänst ej tillgänglig).</string>
     <string name="debug_dismiss">Avfärda</string>

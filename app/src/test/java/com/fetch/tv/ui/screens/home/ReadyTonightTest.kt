@@ -16,6 +16,20 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ReadyTonightTest {
+    @Test
+    fun `a pick saved after the last tick counts as ready at once`() {
+        val lastTick = 1_000_000L
+        val savedAfterTick = CachedBestMatch(labels = listOf("4K"), isCached = true, savedAtMs = lastTick + 60_000L)
+        val entries = mapOf("movie|tt1" to savedAfterTick)
+
+        // Judged at the tick's own time the pick looks saved in the future: not ready.
+        assertTrue(readyBestMatchKeys(entries, lastTick).isEmpty())
+        // Judged at the readiness clock (now), it is.
+        assertEquals(setOf("movie|tt1"), readyBestMatchKeys(entries, readinessClock(lastTick, nowMs = lastTick + 61_000L)))
+        // The clock never runs behind the tick.
+        assertEquals(lastTick, readinessClock(lastTick, nowMs = lastTick - 5L))
+    }
+
     private val now = 10L * READY_WINDOW_MS
 
     private fun inProgress(videoId: String) = ContinueWatchingItem.InProgress(

@@ -499,7 +499,9 @@ private fun ModernHomeRoute(
     val readinessNow by remember { readinessTicks() }.collectAsStateWithLifecycle(initialValue = System.currentTimeMillis())
     val shownBestMatches = if (uiState.kidsHome) emptyMap() else cachedBestMatches
     val readyBestMatchKeys = remember(shownBestMatches, readinessNow) {
-        readyBestMatchKeys(shownBestMatches, readinessNow)
+        // The tick only re-runs this as picks expire. A pick saved since the last tick (the ready
+        // check runs while Home shows) would be "in the future" of the tick's time and miss its dot.
+        readyBestMatchKeys(shownBestMatches, readinessClock(readinessNow))
     }
     CompositionLocalProvider(LocalReadyBestMatchKeys provides readyBestMatchKeys) {
         ModernHomeContent(

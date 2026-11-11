@@ -3119,6 +3119,32 @@
     <string name="source_rule_prefer_addon">Prefer %1$s</string>
     <string name="source_rule_never_group">Never play %1$s releases</string>
     <string name="source_rule_never_saved">Best match will skip %1$s releases</string>
+    <!-- Source list: why Best match ordered two sources. %1$s is a rank_factor_* phrase. -->
+    <string name="source_why_pick">Why this one: beats the next best on %1$s</string>
+    <string name="source_why_behind">Behind the source above on %1$s</string>
+    <string name="source_why_ahead">Ahead of the source above on %1$s</string>
+    <string name="rank_factor_own_library">your own library</string>
+    <string name="rank_factor_debrid_cached">debrid cache</string>
+    <string name="rank_factor_resolution">resolution</string>
+    <string name="rank_factor_codec">preferred codec</string>
+    <string name="rank_factor_hdr">HDR this TV can show</string>
+    <string name="rank_factor_audio">audio</string>
+    <string name="rank_factor_keyword">preferred keyword</string>
+    <string name="rank_factor_language">preferred language</string>
+    <string name="rank_factor_release_group">preferred release group</string>
+    <string name="rank_factor_addon">preferred addon</string>
+    <string name="rank_factor_release_source">release source</string>
+    <string name="rank_factor_size">file size</string>
+    <string name="rank_factor_seeders">seeders</string>
+    <string name="rank_factor_addon_order">addon order (otherwise a tie)</string>
+    <!-- A factor with this source's value and the other source's: "resolution (1080p vs 4K)". -->
+    <string name="rank_factor_versus">%1$s (%2$s vs %3$s)</string>
+    <!-- What Best match ranked for: the screen and audio chain. %1$s joins the parts below with " · ". -->
+    <string name="source_setup">Your setup: %1$s</string>
+    <string name="source_setup_max_resolution">up to %1$s</string>
+    <string name="source_setup_sdr">SDR only</string>
+    <string name="source_setup_passthrough">passthrough %1$s</string>
+    <string name="source_setup_no_passthrough">audio decoded on this TV</string>
     <string name="playback_details_refresh_matched">Matched %1$s</string>
     <string name="playback_details_refresh_display">Display %1$s</string>
     <string name="playback_details_audio_passthrough">Audio passthrough</string>

@@ -1,6 +1,9 @@
 package com.fetch.tv.ui.screens.stream
 
 import com.fetch.tv.core.streams.ranking.ExclusionReason
+import com.fetch.tv.core.streams.ranking.RankComparison
+import com.fetch.tv.core.streams.ranking.RankedStream
+import com.fetch.tv.core.streams.ranking.StreamRanker
 import com.fetch.tv.core.streams.ranking.StreamResolution
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.domain.model.Stream
@@ -57,3 +60,38 @@ internal fun sourceSections(
 
 /** The stream shown first, which is not always the first in ranked order. */
 internal fun List<SourceSection>.firstShownIndex(): Int? = firstOrNull()?.indices?.firstOrNull()
+
+/**
+ * Why one shown source sits where it does: [comparison] holds [self] and the source it was
+ * compared with. [isFirst] marks Best match's pick, compared with the next best.
+ */
+internal data class SourceExplanation(
+    val self: RankedStream,
+    val comparison: RankComparison,
+    val isFirst: Boolean
+)
+
+/**
+ * Each eligible source's explanation, keyed by its position in [streams], in the order
+ * [sections] show them: the pick against the next best, every other row against the eligible
+ * row shown above it. Empty when [ranked] holds no scores (addon tabs, addon order).
+ */
+internal fun sourceExplanations(
+    streams: List<Stream>,
+    sections: List<SourceSection>,
+    ranked: Map<String, RankedStream>
+): Map<Int, SourceExplanation> {
+    if (ranked.isEmpty()) return emptyMap()
+    val shown = sections.flatMap { it.indices }.mapNotNull { index ->
+        streams.getOrNull(index)?.let { ranked[it.stableKey()] }?.let { index to it }
+    }
+    val explained = StreamRanker.explainShown(shown.map { it.second })
+    val firstEligible = shown.indexOfFirst { it.second.isEligible }
+    return buildMap<Int, SourceExplanation> {
+        shown.forEachIndexed { position, (index, item) ->
+            explained[position]?.let { comparison ->
+                put(index, SourceExplanation(item, comparison, isFirst = position == firstEligible))
+            }
+        }
+    }
+}

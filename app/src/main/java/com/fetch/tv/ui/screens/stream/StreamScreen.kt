@@ -22,6 +22,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.core.streams.ranking.ExclusionReason
 import com.fetch.tv.core.streams.ranking.label
+import com.fetch.tv.core.streams.ranking.rowLine
+import com.fetch.tv.core.streams.ranking.setupSummary
+import com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities
+import com.fetch.tv.core.streams.ranking.RankedStream
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -505,6 +509,7 @@ fun StreamScreen(
                     streams = uiState.filteredStreams,
                     streamExclusions = uiState.streamExclusions,
                     bestMatchFirst = uiState.bestMatchFirst,
+                    rankedStreams = uiState.rankedStreams,
                     availableAddons = uiState.availableAddons,
                     hiddenUnplayableCounts = uiState.hiddenUnplayableCounts,
                     sourceChips = uiState.sourceChips,
@@ -806,6 +811,8 @@ private fun RightStreamSection(
     onSourceOptions: (Stream, List<SourceRule>) -> Unit = { _, _ -> },
     streamExclusions: Map<String, ExclusionReason> = emptyMap(),
     bestMatchFirst: Boolean = false,
+    /** Best match's scores on the All tab; see [StreamScreenUiState.rankedStreams]. */
+    rankedStreams: Map<String, RankedStream> = emptyMap(),
     modifier: Modifier = Modifier
 ) {
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
@@ -826,6 +833,14 @@ private fun RightStreamSection(
     }
     val sections = remember(streams, streamExclusions, bestMatchFirst, selectedAddonFilter) {
         sourceSections(streams, streamExclusions, bestMatchFirst, selectedAddonFilter)
+    }
+    val explanations = remember(streams, sections, rankedStreams) {
+        sourceExplanations(streams, sections, rankedStreams)
+    }
+    // What Best match ranked for. Read with the scores, so it is the device they were made with.
+    val setupContext = LocalContext.current
+    val setupSummary = remember(rankedStreams, setupContext) {
+        if (rankedStreams.isEmpty()) null else DeviceDecodeCapabilities.current.setupSummary(setupContext)
     }
     // The first card shown: grouping can lead with a stream that isn't first in ranked order.
     val firstStreamKey = sections.firstShownIndex()?.let { streams.getOrNull(it) }?.stableKey(0)
@@ -916,6 +931,19 @@ private fun RightStreamSection(
         }
 
         Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
+
+        // "Your setup": the screen and audio chain Best match ranked for, on the tab it orders.
+        if (setupSummary != null && selectedAddonFilter == null && streams.isNotEmpty()) {
+            Text(
+                text = setupSummary,
+                style = FetchTheme.textStyles.metadata,
+                color = FetchTheme.colors.TextSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(start = FetchTheme.spacing.xs)
+            )
+            Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
+        }
 
         if (playbackError != null) {
             PlaybackErrorBanner(message = playbackError)
@@ -1008,6 +1036,7 @@ private fun RightStreamSection(
                             streams = streams,
                             streamExclusions = streamExclusions,
                             sections = sections,
+                            explanations = explanations,
                             onStreamSelected = onStreamSelected,
                             focusedStreamIndex = focusedStreamIndex,
                             shouldRestoreFocusedStream = shouldRestoreFocusedStream,
@@ -1075,6 +1104,8 @@ internal fun StreamsList(
     streamExclusions: Map<String, ExclusionReason>,
     /** The list's quality sections, from [sourceSections]. */
     sections: List<SourceSection>,
+    /** Why each source sits where it does, by position in [streams]; from [sourceExplanations]. */
+    explanations: Map<Int, SourceExplanation> = emptyMap(),
     onStreamSelected: (Stream) -> Unit,
     focusedStreamIndex: Int = 0,
     shouldRestoreFocusedStream: Boolean = false,
@@ -1127,6 +1158,7 @@ internal fun StreamsList(
         streamFocusRequesters.keys.retainAll(validKeys)
     }
     var firstCardHasFocus by remember(firstStreamKey) { mutableStateOf(false) }
+    val context = LocalContext.current
 
     var focusedStreamKey by remember { mutableStateOf<String?>(null) }
     val prevStreamKeysRef = remember { mutableStateOf(streamKeys) }
@@ -1229,7 +1261,8 @@ internal fun StreamsList(
                 // Left/Right are left to focus search: the chip row above switches addons.
                 false
             },
-        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
+        // Rows, not cards: a tight list reads as one ranking.
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
         contentPadding = PaddingValues(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, top = FetchTheme.spacing.sm, bottom = FetchTheme.spacing.xxl)
     ) {
         sections.forEach { section ->
@@ -1240,7 +1273,23 @@ internal fun StreamsList(
         }
         items(section.indices, key = { index -> streamKeys[index] }) { index ->
             val stream = streams[index]
-            Box(modifier = Modifier.padding(vertical = FetchTheme.spacing.xs)) {
+            val explanation = explanations[index]
+            val rankLine = explanation?.let { it.comparison.rowLine(context, it.self, it.isFirst) }
+            Column(
+                modifier = Modifier.padding(vertical = FetchTheme.spacing.xxs),
+                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+            ) {
+                // Why Best match chose this one, in one line above the pick.
+                if (explanation?.isFirst == true && rankLine != null) {
+                    Text(
+                        text = rankLine,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = FetchTheme.colors.TextSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(start = FetchTheme.spacing.xs)
+                    )
+                }
                 StreamCard(
                     stream = stream,
                     showFileSizeBadges = showFileSizeBadges,
@@ -1248,6 +1297,7 @@ internal fun StreamsList(
                     badgePlacement = badgePlacement,
                     reserveBadgeSpace = hasBadgeRules && stream.badges.isEmpty(),
                     exclusion = if (streamExclusions.isEmpty()) null else streamExclusions[stream.stableKey()],
+                    rankNote = rankLine.takeIf { explanation?.isFirst != true },
                     onClick = { onStreamSelected(stream) },
                     onLongClick = {
                         val options = sourceRuleOptions(stream)
@@ -1334,6 +1384,8 @@ internal fun StreamCard(
     marked: Boolean = false,
     markedLabel: String? = null,
     exclusion: ExclusionReason? = null,
+    /** One line on what put this row behind (or ahead of) the one above it in Best match's order. */
+    rankNote: String? = null,
     onLongClick: (() -> Unit)? = null,
     /** Whether [onLongClick] has a menu to open; asked only while the card has focus. */
     hasLongPressOptions: () -> Boolean = { false }
@@ -1411,16 +1463,17 @@ internal fun StreamCard(
         ),
         scale = CardDefaults.scale(focusedScale = 1f)
     ) {
+        // A row rather than a tall card: less padding, one line per fact.
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(FetchTheme.spacing.lg),
+                .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
         ) {
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
             ) {
                 if (hasBadges && badgePlacement == StreamBadgePlacement.TOP) {
                     if (stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null)) {
@@ -1446,7 +1499,7 @@ internal fun StreamCard(
                         headline?.let { label ->
                             Text(
                                 text = label,
-                                style = MaterialTheme.typography.headlineSmall,
+                                style = MaterialTheme.typography.titleMedium,
                                 color = FetchTheme.colors.TextPrimary,
                                 modifier = Modifier.padding(end = FetchTheme.spacing.xs)
                             )
@@ -1478,9 +1531,18 @@ internal fun StreamCard(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                // Shown on every card, one line when the spec strip is there. The focused card
-                // shows it in full: the cut-off tail (group, edition, audio) is what people
-                // choose a source by. The card only grows below its top, so the list keeps its place.
+                rankNote?.let { note ->
+                    Text(
+                        text = note,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FetchTheme.colors.TextTertiary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                // The file name: always one line, cut off at the end rather than wrapped mid-token,
+                // so every row keeps its height and the list reads as one ranking. The focused
+                // row still opens the description in full below it.
                 Row(
                     modifier = Modifier.align(streamName.contentTextDirection().toAbsoluteAlignment()),
                     verticalAlignment = Alignment.CenterVertically,
@@ -1495,7 +1557,8 @@ internal fun StreamCard(
                             MaterialTheme.typography.titleMedium.copy(textDirection = streamName.contentTextDirection())
                         },
                         color = if (hasParsedSpec) FetchTheme.extendedColors.textSecondary else FetchTheme.colors.TextPrimary,
-                        maxLines = if (hasParsedSpec && !isFocused) 1 else Int.MAX_VALUE,
+                        maxLines = 1,
+                        softWrap = false,
                         overflow = TextOverflow.Ellipsis
                     )
                     if (markedLabel != null) {

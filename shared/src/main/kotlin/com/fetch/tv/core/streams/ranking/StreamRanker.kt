@@ -166,7 +166,9 @@ data class RankedStream(
     /** Non-null when rules or device limits rule this stream out; it is kept for "Other sources". */
     val exclusion: ExclusionReason? = null,
     /** Original position in the addon list, used to keep ordering stable on ties. */
-    val originalIndex: Int
+    val originalIndex: Int,
+    /** The points each [RankFactor] added to (or took from) [score]; they sum to it. */
+    val factors: Map<RankFactor, Int> = emptyMap()
 ) {
     val isEligible: Boolean get() = exclusion == null
 }
@@ -174,7 +176,12 @@ data class RankedStream(
 @Immutable
 data class RankedStreamList(
     val streams: List<Stream>,
-    val exclusions: Map<String, ExclusionReason>
+    val exclusions: Map<String, ExclusionReason>,
+    /**
+     * How each stream scored, keyed by [Stream.stableKey], so a source list can say what ordered
+     * two of them (see [StreamRanker.compare]). Filled only for a best-first list.
+     */
+    val ranked: Map<String, RankedStream> = emptyMap()
 ) {
     fun exclusionOf(stream: Stream): ExclusionReason? =
         if (exclusions.isEmpty()) null else exclusions[stream.stableKey()]
@@ -247,7 +254,8 @@ object StreamRanker {
         }
         return RankedStreamList(
             streams = ranked.map { it.stream },
-            exclusions = ranked.mapNotNull { item -> item.exclusion?.let { item.stream.stableKey() to it } }.toMap()
+            exclusions = ranked.mapNotNull { item -> item.exclusion?.let { item.stream.stableKey() to it } }.toMap(),
+            ranked = if (bestFirst) ranked.associateBy { it.stream.stableKey() } else emptyMap()
         )
     }
 
@@ -267,6 +275,52 @@ object StreamRanker {
         device: DeviceDecodeCapabilities = DeviceDecodeCapabilities.Permissive,
         isPlayable: (Stream) -> Boolean = { true }
     ): RankedStream? = rank(streams, rules, device, isPlayable).firstOrNull { it.isEligible }
+
+    /**
+     * Which of two eligible streams [rank] puts first, and the factor that decided it: the one
+     * that gave the leader the most points over the other (heavier factors win a tie, see
+     * [RankFactor]). Equal scores fall back to [RankFactor.ADDON_ORDER], as [rank] does. Null
+     * when either stream is ruled out or both are the same entry.
+     */
+    fun compare(a: RankedStream, b: RankedStream): RankComparison? {
+        if (!a.isEligible || !b.isEligible || a === b) return null
+        val aFirst = order.compare(a, b) <= 0
+        val ahead = if (aFirst) a else b
+        val behind = if (aFirst) b else a
+        if (ahead.score == behind.score) return RankComparison(ahead, behind, RankFactor.ADDON_ORDER)
+        val factor = RankFactor.entries
+            .filter { it != RankFactor.ADDON_ORDER }
+            .map { it to (ahead.factors[it] ?: 0) - (behind.factors[it] ?: 0) }
+            .filter { (_, lead) -> lead > 0 }
+            // maxByOrNull keeps the first of equal leads: the heavier factor.
+            .maxByOrNull { (_, lead) -> lead }
+            ?.first
+            ?: RankFactor.ADDON_ORDER
+        return RankComparison(ahead, behind, factor)
+    }
+
+    /** The factor that ordered two eligible streams; see [compare]. */
+    fun decidingFactor(a: RankedStream, b: RankedStream): RankFactor? = compare(a, b)?.factor
+
+    /**
+     * Why each of [shown] sits where it does in a list shown top to bottom in this order, which
+     * may group streams (by quality) rather than follow [rank] exactly. The first eligible stream
+     * is compared with the best of the other eligible ones, which is why it leads; every later
+     * eligible stream with the eligible stream shown above it. Ruled-out streams, and a lone
+     * eligible stream, get null. The result lines up with [shown].
+     */
+    fun explainShown(shown: List<RankedStream>): List<RankComparison?> {
+        val eligible = shown.withIndex().filter { it.value.isEligible }
+        val result = MutableList<RankComparison?>(shown.size) { null }
+        eligible.forEachIndexed { position, (index, item) ->
+            result[index] = if (position == 0) {
+                eligible.drop(1).map { it.value }.minWithOrNull(order)?.let { runnerUp -> compare(item, runnerUp) }
+            } else {
+                compare(item, eligible[position - 1].value)
+            }
+        }
+        return result
+    }
 
     /**
      * The ruled-out stream in [ranked] that would have looked better than [picked]: a higher
@@ -307,7 +361,10 @@ object StreamRanker {
         index: Int
     ): RankedStream {
         val reasons = mutableListOf<RankReason>()
-        var score = 0
+        val factors = linkedMapOf<RankFactor, Int>()
+        fun add(factor: RankFactor, points: Int) {
+            factors[factor] = (factors[factor] ?: 0) + points
+        }
         val ownLibrary = stream.serverTarget != null
         val searchable = listOfNotNull(stream.name, stream.title, stream.description, stream.behaviorHints?.filename)
             .joinToString(" ")
@@ -315,7 +372,7 @@ object StreamRanker {
         val exclusion = exclusionFor(stream, descriptor, rules, device, playable, ownLibrary, searchable)
 
         if (ownLibrary && rules.preferOwnLibrary) {
-            score += 10_000
+            add(RankFactor.OWN_LIBRARY, 10_000)
             reasons += RankReason.OWN_LIBRARY
         }
         // Every listed stream is already a playable link, so an unmarked one (a plain HTTP or
@@ -324,10 +381,10 @@ object StreamRanker {
         // breaks ties, so it never outweighs resolution.
         if (rules.preferCachedDebrid) {
             if (descriptor.isDebridUncached) {
-                score -= 2_000
+                add(RankFactor.DEBRID_CACHED, -2_000)
                 reasons += RankReason.DEBRID_UNCACHED
             } else if (descriptor.isDebridCached) {
-                score += 200
+                add(RankFactor.DEBRID_CACHED, 200)
                 reasons += RankReason.DEBRID_CACHED
             }
         }
@@ -335,27 +392,27 @@ object StreamRanker {
         // Resolution: full marks at the preferred height, falling off on either side.
         val resolution = descriptor.resolution
         if (resolution == StreamResolution.UNKNOWN) {
-            score += 150
+            add(RankFactor.RESOLUTION, 150)
             reasons += RankReason.UNKNOWN_QUALITY
         } else {
             val preferred = rules.preferredResolution.height.coerceAtMost(device.maxResolution.height)
             val distance = resolutionSteps(resolution.height, preferred)
-            score += when {
+            add(RankFactor.RESOLUTION, when {
                 distance == 0 -> 1_000
                 resolution.height > preferred -> 800 - 120 * (distance - 1)
                 else -> 700 - 200 * (distance - 1)
-            }.coerceAtLeast(0)
+            }.coerceAtLeast(0))
             if (distance == 0) reasons += RankReason.PREFERRED_RESOLUTION
         }
 
         val codecRank = rules.preferredCodecs.indexOf(descriptor.videoCodec)
         if (codecRank >= 0) {
-            score += 300 - 60 * codecRank
+            add(RankFactor.PREFERRED_CODEC, 300 - 60 * codecRank)
             reasons += RankReason.PREFERRED_CODEC
         }
 
         if (rules.preferHdr && descriptor.isHdr && supportsAnyHdr(descriptor, device)) {
-            score += 250
+            add(RankFactor.HDR, 250)
             reasons += RankReason.HDR
         }
 
@@ -364,14 +421,14 @@ object StreamRanker {
             .filter { it >= 0 }
             .minOrNull()
         if (audioRank != null) {
-            score += 150 - 30 * audioRank
+            add(RankFactor.AUDIO, 150 - 30 * audioRank)
             reasons += RankReason.PREFERRED_AUDIO
         } else if (descriptor.audio.any { it.isLossless && it in device.passthroughAudio }) {
-            score += 60
+            add(RankFactor.AUDIO, 60)
         }
 
         if (rules.preferredKeywords.any { searchable.contains(it, ignoreCase = true) }) {
-            score += 200
+            add(RankFactor.PREFERRED_KEYWORD, 200)
             reasons += RankReason.PREFERRED_KEYWORD
         }
 
@@ -380,24 +437,24 @@ object StreamRanker {
             .filter { it >= 0 }
             .minOrNull()
         if (languageRank != null) {
-            score += 300 - 60 * languageRank
+            add(RankFactor.LANGUAGE, 300 - 60 * languageRank)
             reasons += RankReason.PREFERRED_LANGUAGE
         }
 
         if (descriptor.releaseGroup != null &&
             rules.preferredReleaseGroups.any { it.equals(descriptor.releaseGroup, ignoreCase = true) }
         ) {
-            score += 300
+            add(RankFactor.PREFERRED_RELEASE_GROUP, 300)
             reasons += RankReason.PREFERRED_RELEASE_GROUP
         }
 
         val addonName = stream.addonName.trim()
         if (addonName.isNotEmpty() && rules.preferredAddons.any { it.trim().equals(addonName, ignoreCase = true) }) {
-            score += 300
+            add(RankFactor.PREFERRED_ADDON, 300)
             reasons += RankReason.PREFERRED_ADDON
         }
 
-        score += descriptor.source.qualityRank * 20
+        add(RankFactor.RELEASE_SOURCE, descriptor.source.qualityRank * 20)
         if (descriptor.source.qualityRank <= ReleaseSource.TELESYNC.qualityRank) {
             reasons += RankReason.LOW_QUALITY_SOURCE
         }
@@ -406,21 +463,22 @@ object StreamRanker {
         val preferredMax = rules.preferredMaxSizeGb
         if (sizeGb != null && preferredMax != null && sizeGb > preferredMax) {
             // Lose points proportionally to how far over the preference the file is.
-            score -= (((sizeGb - preferredMax) / preferredMax) * 400).toInt().coerceIn(50, 600)
+            add(RankFactor.SIZE, -(((sizeGb - preferredMax) / preferredMax) * 400).toInt().coerceIn(50, 600))
             reasons += RankReason.OVER_PREFERRED_SIZE
         }
 
         descriptor.seeders?.let { seeders ->
-            if (!descriptor.isDebridCached) score += (seeders.coerceAtMost(500) / 10)
+            if (!descriptor.isDebridCached) add(RankFactor.SEEDERS, seeders.coerceAtMost(500) / 10)
         }
 
         return RankedStream(
             stream = stream,
             descriptor = descriptor,
-            score = score,
+            score = factors.values.sum(),
             reasons = reasons,
             exclusion = exclusion,
-            originalIndex = index
+            originalIndex = index,
+            factors = factors
         )
     }
 

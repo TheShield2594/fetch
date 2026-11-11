@@ -73,6 +73,14 @@ internal fun EpisodeShufflePreview(
     onShuffleAgain: () -> Unit
 ) {
     val playFocus = remember { FocusRequester() }
+    // Shared by the preview and the play-options dialog, so neither reveals a hidden title.
+    val spoilerText = episodeSpoilerText(
+        title = episode.title.localizeEpisodeTitle(LocalContext.current),
+        overview = episode.overview,
+        hideSpoilers = blurUnwatchedEpisodes,
+        isWatched = isWatched,
+        hiddenTitle = neutralEpisodeTitle(stringResource(R.string.episodes_episode), episode.episode)
+    )
     val backFocus = remember { FocusRequester() }
     var acceptsSelectKey by remember { mutableStateOf(false) }
     var showPlayOptions by remember(episode.id) { mutableStateOf(false) }
@@ -137,13 +145,6 @@ internal fun EpisodeShufflePreview(
                         color = FetchTheme.colors.Primary)
                     Text(stringResource(R.string.season_episode_format, episode.season ?: 0, episode.episode ?: 0),
                         style = MaterialTheme.typography.titleMedium, color = FetchTheme.colors.TextSecondary)
-                    val spoilerText = episodeSpoilerText(
-                        title = episode.title.localizeEpisodeTitle(LocalContext.current),
-                        overview = episode.overview,
-                        hideSpoilers = blurUnwatchedEpisodes,
-                        isWatched = isWatched,
-                        hiddenTitle = neutralEpisodeTitle(stringResource(R.string.episodes_episode), episode.episode)
-                    )
                     Text(spoilerText.title,
                         style = if (compact) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineLarge,
                         color = FetchTheme.colors.TextPrimary, maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -186,7 +187,7 @@ internal fun EpisodeShufflePreview(
     }
     if (showPlayOptions && !starting && (showManualPlayOption || isResume)) {
         PlayManualOverrideDialog(
-            title = episode.title.localizeEpisodeTitle(LocalContext.current),
+            title = spoilerText.title,
             subtitle = stringResource(R.string.season_episode_format, episode.season ?: 0, episode.episode ?: 0),
             onDismiss = {
                 showPlayOptions = false

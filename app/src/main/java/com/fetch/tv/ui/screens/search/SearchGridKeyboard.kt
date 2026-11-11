@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +13,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.SpaceBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -72,7 +84,8 @@ internal val SEARCH_KEYBOARD_WIDTH: Dp = ROW_WIDTH
  *
  * [focusRequester] lands on the key used last, so Back from the results returns to it. Right from
  * the last column goes to [rightFocusRequester] (the top result) when there is one, so it is one
- * press away; Up from the first row goes to [upFocusRequester] (the input row).
+ * press away (the end side, so the left in RTL); Up from the first row goes to
+ * [upFocusRequester] (the input row).
  */
 @Composable
 internal fun SearchGridKeyboard(
@@ -81,8 +94,13 @@ internal fun SearchGridKeyboard(
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier,
     rightFocusRequester: FocusRequester? = null,
-    upFocusRequester: FocusRequester? = null
+    upFocusRequester: FocusRequester? = null,
+    /** Focus left the keyboard towards the results: the user accepted what they typed. */
+    onMoveToResults: () -> Unit = {}
 ) {
+    val layoutDirection = LocalLayoutDirection.current
+    // Armed by a key press towards the results; focus leaving the keyboard then means entering them.
+    var movingToResults by remember { mutableStateOf(false) }
     val firstKey = remember { FocusRequester() }
     val press: (SearchKey) -> Unit = { key -> onQueryChange(applySearchKey(query, key)) }
     val keyboardDescription = stringResource(R.string.search_keyboard_cd)
@@ -90,8 +108,20 @@ internal fun SearchGridKeyboard(
         modifier = modifier
             .width(ROW_WIDTH)
             .semantics { contentDescription = keyboardDescription }
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown) {
+                    val towardResults = if (layoutDirection == LayoutDirection.Rtl) Key.DirectionLeft else Key.DirectionRight
+                    movingToResults = event.key == towardResults
+                }
+                false
+            }
+            .onFocusChanged { state ->
+                if (!state.hasFocus && movingToResults) onMoveToResults()
+                if (!state.hasFocus) movingToResults = false
+            }
             .focusRequester(focusRequester)
-            .focusRestorer(firstKey),
+            .focusRestorer(firstKey)
+            .focusGroup(),
         verticalArrangement = Arrangement.spacedBy(KEY_GAP)
     ) {
         SEARCH_KEYBOARD_ROWS.forEachIndexed { rowIndex, row ->
@@ -103,8 +133,9 @@ internal fun SearchGridKeyboard(
                             .size(KEY_SIZE)
                             .then(if (rowIndex == 0 && columnIndex == 0) Modifier.focusRequester(firstKey) else Modifier)
                             .focusProperties {
+                                // The results sit at the end side, which is the left in RTL.
                                 if (columnIndex == row.lastIndex && rightFocusRequester != null) {
-                                    right = rightFocusRequester
+                                    end = rightFocusRequester
                                 }
                                 if (rowIndex == 0 && upFocusRequester != null) up = upFocusRequester
                             }
@@ -145,7 +176,7 @@ internal fun SearchGridKeyboard(
                 modifier = Modifier
                     .width(wideKey)
                     .height(KEY_SIZE)
-                    .focusProperties { if (rightFocusRequester != null) right = rightFocusRequester }
+                    .focusProperties { if (rightFocusRequester != null) end = rightFocusRequester }
             ) {
                 Text(
                     text = stringResource(R.string.search_keyboard_clear),

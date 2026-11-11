@@ -110,13 +110,20 @@ internal object SearchResultMerger {
      * The key a title is merged on: its IMDb id, else its TMDB id, else null (the title-and-year
      * fallback in [group] takes over).
      */
-    fun idKey(item: MetaPreview, externalIds: TrackingExternalIds? = null): String? {
-        item.imdbId?.let { IMDB_ID.find(it) }?.let { return "imdb:${it.value}" }
-        IMDB_ID.find(item.id)?.let { return "imdb:${it.value}" }
-        externalIds?.imdb?.let { IMDB_ID.find(it) }?.let { return "imdb:${it.value}" }
-        TMDB_ID.find(item.id.trim())?.let { return "tmdb:${typeKey(item)}:${it.groupValues[1]}" }
-        externalIds?.tmdb?.let { return "tmdb:${typeKey(item)}:$it" }
-        return null
+    fun idKey(item: MetaPreview, externalIds: TrackingExternalIds? = null): String? =
+        idKeys(item, externalIds).firstOrNull()
+
+    /**
+     * Every id a title is known by: its IMDb key, then its TMDB key. Merging matches on any one
+     * of them, so a server title known by both ids meets an addon title known by either.
+     */
+    fun idKeys(item: MetaPreview, externalIds: TrackingExternalIds? = null): List<String> {
+        val imdb = sequenceOf(item.imdbId, item.id, externalIds?.imdb)
+            .firstNotNullOfOrNull { value -> value?.let(IMDB_ID::find) }
+            ?.let { "imdb:${it.value}" }
+        val tmdb = TMDB_ID.find(item.id.trim())?.groupValues?.get(1)
+            ?: externalIds?.tmdb?.toString()
+        return listOfNotNull(imdb, tmdb?.let { "tmdb:${typeKey(item)}:$it" })
     }
 
     /** Type, normalised title and release year: the fallback dedupe key. */
@@ -149,7 +156,9 @@ internal object SearchResultMerger {
         val firstRow: Int,
         var bestIndex: Int
     ) {
-        var idKey: String? = null
+        val idKeys = LinkedHashSet<String>()
+        /** Every copy merged in, so "In my library" matches whichever copy is saved. */
+        val members = mutableListOf<MetaPreview>()
         var matchTier = 0
         var sourceUrl: String? = null
         /** The shown copy is a media server's, which nothing else replaces. */
@@ -173,13 +182,13 @@ internal object SearchResultMerger {
             val serverRow = isServerRow(row)
             row.items.forEachIndexed { itemIndex, item ->
                 if (item.id.startsWith(PLACEHOLDER_PREFIX) || item.id.isBlank()) return@forEachIndexed
-                val idKey = idKey(item, if (serverRow) externalIds(item) else null)
+                val idKeys = idKeys(item, if (serverRow) externalIds(item) else null)
                 val titleYear = titleYearKey(item)
-                val existing = idKey?.let(byId::get)
+                val existing = idKeys.firstNotNullOfOrNull(byId::get)
                     ?: titleYear?.let(byTitleYear::get)?.takeIf { candidate ->
                         // Two different ids with the same title and year (a remake in the same
                         // year) stay apart; the fallback only joins a title to one without an id.
-                        idKey == null || candidate.idKey == null
+                        idKeys.isEmpty() || candidate.idKeys.isEmpty()
                     }
                 val group = existing ?: Group(
                     typeKey = typeKey(item),
@@ -223,8 +232,9 @@ internal object SearchResultMerger {
                 if (group.sourceUrl == null && row.addonBaseUrl.isNotBlank() && row.addonId != MERGED_ROW_ADDON_ID) {
                     group.sourceUrl = row.addonBaseUrl
                 }
-                if (group.idKey == null && idKey != null) group.idKey = idKey
-                idKey?.let { byId.putIfAbsent(it, group) }
+                group.members += item
+                group.idKeys += idKeys
+                idKeys.forEach { byId.putIfAbsent(it, group) }
                 titleYear?.let { byTitleYear.putIfAbsent(it, group) }
             }
         }
@@ -236,7 +246,7 @@ internal object SearchResultMerger {
             SearchTypeFilter.ALL -> true
             SearchTypeFilter.MOVIES -> group.typeKey == "movie"
             SearchTypeFilter.SERIES -> group.typeKey == "series"
-            SearchTypeFilter.IN_LIBRARY -> isInLibrary(group.item)
+            SearchTypeFilter.IN_LIBRARY -> group.members.any(isInLibrary)
         }
 
     /**

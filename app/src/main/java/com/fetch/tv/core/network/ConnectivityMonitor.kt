@@ -70,8 +70,9 @@ class ConnectivityMonitor @Inject constructor(
             }
 
             override fun onLost(network: Network) {
-                // The default network went away; another may already be up.
-                trySend(reachNow())
+                // The default network went away. A synchronous query here can still report the
+                // lost network, so say offline; a replacement arrives through onAvailable.
+                trySend(NetworkReach.OFFLINE)
             }
         }
         trySend(reachNow())

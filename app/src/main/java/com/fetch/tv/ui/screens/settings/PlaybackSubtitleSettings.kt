@@ -105,8 +105,13 @@ internal fun PlaybackSubtitlesSection(
         onToggle = { onUpdate { setSubtitleUseSystemCaptionStyle(!style.useSystemCaptionStyle) } },
         enabled = enabled
     )
-    // The system style replaces these; position below still applies.
-    val styleEnabled = enabled && !style.useSystemCaptionStyle
+    // The system style replaces these only while captions are on in the system settings;
+    // otherwise (and on the mpv engine) the app style below still applies. Position always does.
+    val systemStyleApplies = com.fetch.tv.ui.screens.player.systemCaptionStyleApplies(
+        androidx.compose.ui.platform.LocalContext.current,
+        style
+    )
+    val styleEnabled = enabled && !systemStyleApplies
     SliderSettingsItem(
         title = stringResource(R.string.sub_size),
         value = style.size,

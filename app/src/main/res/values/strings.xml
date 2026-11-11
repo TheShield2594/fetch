@@ -867,7 +867,7 @@
     <string name="sub_vertical_offset">Vertical Offset</string>
     <string name="sub_bold">Bold</string>
     <string name="sub_use_system_caption_style">Use System Caption Style</string>
-    <string name="sub_use_system_caption_style_sub">Take size, colours and font from the TV’s caption settings when captions are on there. Position still follows the setting below.</string>
+    <string name="sub_use_system_caption_style_sub">Take size, colours and font from the TV’s caption settings when captions are on there (standard player). Position still follows the setting below.</string>
     <string name="sub_bold_sub">Use bold font weight for subtitles</string>
     <string name="sub_text_color">Text Color</string>
     <string name="sub_bg_color">Background Color</string>

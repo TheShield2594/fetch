@@ -930,7 +930,12 @@ class HomeViewModel @Inject constructor(
     private fun observeNetworkReach() {
         viewModelScope.launch {
             var previous: com.fetch.tv.core.network.NetworkReach? = null
-            connectivityMonitor.reach.collect { reach ->
+            // Server connections are per profile, so the link is worked out again whenever they
+            // change, not only when the network does.
+            kotlinx.coroutines.flow.combine(
+                connectivityMonitor.reach,
+                serverCatalog.addons.onStart { emit(emptyList()) }
+            ) { reach, _ -> reach }.collect { reach ->
                 val serverLibrary = if (reach == com.fetch.tv.core.network.NetworkReach.ONLINE) {
                     null
                 } else {
@@ -948,7 +953,7 @@ class HomeViewModel @Inject constructor(
                     else it.copy(networkReach = reach, offlineServerLibrary = serverLibrary)
                 }
                 val state = _uiState.value
-                if (addonsCache.isNotEmpty()) {
+                if (reach != previous && addonsCache.isNotEmpty()) {
                     when (homeReloadOnReach(previous, reach, state.catalogRows.isNotEmpty(), state.errorKind)) {
                         HomeReachReload.FULL -> {
                             android.util.Log.d(TAG, "Network back ($previous -> $reach); reloading Home catalogs")

@@ -300,6 +300,42 @@ class SearchResultMergeTest {
         assertEquals(2, SearchResultMerger.merge(rows, query = "dune").rows.single().items.size)
     }
 
+    @Test
+    fun `a server title with both ids meets an addon title known only by TMDB`() {
+        val serverItem = movie(id = "srv1:plex:42", name = "The Matrix", year = "1999")
+        val rows = listOf(
+            row("TMDB", "movie", movie(id = "tmdb:603", name = "The Matrix", year = "1999")),
+            serverRow("Plex", serverItem)
+        )
+
+        val merged = SearchResultMerger.merge(
+            rows,
+            query = "matrix",
+            externalIds = { item ->
+                if (item.id == serverItem.id) TrackingExternalIds(imdb = "tt0133093", tmdb = 603) else null
+            }
+        )
+
+        assertEquals(listOf("srv1:plex:42"), merged.rows.single().items.map { it.id })
+    }
+
+    @Test
+    fun `the library filter keeps a title saved under the addon's id when the server copy shows`() {
+        val rows = listOf(
+            row("Cinemeta", "movie", movie(id = "tt0133093", name = "The Matrix", year = "1999")),
+            serverRow("Plex", movie(id = "srv1:plex:42", name = "The Matrix", year = "1999"))
+        )
+
+        val merged = SearchResultMerger.merge(
+            rows,
+            query = "matrix",
+            filter = SearchTypeFilter.IN_LIBRARY,
+            isInLibrary = { it.id == "tt0133093" }
+        )
+
+        assertEquals(listOf("srv1:plex:42"), merged.rows.single().items.map { it.id })
+    }
+
     private fun serverRow(name: String, vararg items: MetaPreview) = CatalogRow(
         addonId = "server.${name.lowercase()}",
         addonName = name,

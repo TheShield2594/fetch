@@ -547,7 +547,9 @@ fun SearchScreen(
 
     val initialFocusRequester = if (useGridKeyboard) gridKeyboardFocusRequester else topInputFocusRequester
 
-    LaunchedEffect(Unit) {
+    // Waits for the keyboard preference, so entry focus doesn't land on a grid that then goes away.
+    LaunchedEffect(uiState.keyboardPreferenceLoaded) {
+        if (!uiState.keyboardPreferenceLoaded) return@LaunchedEffect
         if (viewModel.hasSavedSearchFocus) return@LaunchedEffect
         if (pendingDiscoverRestoreOnResume || restoreDiscoverFocus) return@LaunchedEffect
         repeat(2) { withFrameNanos { } }
@@ -577,6 +579,7 @@ fun SearchScreen(
     var isScreenActive by remember { mutableStateOf(true) }
     val latestPendingDiscoverRestore by rememberUpdatedState(pendingDiscoverRestoreOnResume)
     val latestInitialFocusRequester by rememberUpdatedState(initialFocusRequester)
+    val latestKeyboardPreferenceLoaded by rememberUpdatedState(uiState.keyboardPreferenceLoaded)
     val latestShouldKeepSearchFocus by rememberUpdatedState(
         focusResults || uiState.isSearching || isVoiceListening
     )
@@ -591,7 +594,7 @@ fun SearchScreen(
                     // Returning from details — don't steal focus, CatalogRowSection
                     // already restored it or will restore it via focusedItemIndex.
                     didRestoreSearchFocus.value = false
-                } else if (!latestShouldKeepSearchFocus) {
+                } else if (!latestShouldKeepSearchFocus && latestKeyboardPreferenceLoaded) {
                     // Keep resume and entry consistent; ON_RESUME also fires on entry.
                     coroutineScope.launch {
                         repeat(2) { withFrameNanos { } }
@@ -1117,6 +1120,9 @@ fun SearchScreen(
                 onQueryChange = handleQueryChanged,
                 focusRequester = gridKeyboardFocusRequester,
                 rightFocusRequester = if (!isDiscoverMode && topResult != null) topResultFocusRequester else null,
+                // Entering the results from the grid confirms the query, as Down from the field
+                // does, so it reaches recent searches.
+                onMoveToResults = { viewModel.onEvent(SearchEvent.RememberSearchFromTextInput) },
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .onFocusChanged { gridKeyboardHasFocus = it.hasFocus }

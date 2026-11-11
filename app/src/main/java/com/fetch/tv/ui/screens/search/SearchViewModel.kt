@@ -269,7 +269,10 @@ class SearchViewModel @Inject constructor(
         }
         viewModelScope.launch {
             layoutPreferenceDataStore.searchSystemKeyboard.distinctUntilChanged().collectLatest { enabled ->
-                _uiState.update { if (it.useSystemKeyboard == enabled) it else it.copy(useSystemKeyboard = enabled) }
+                _uiState.update {
+                    if (it.useSystemKeyboard == enabled && it.keyboardPreferenceLoaded) it
+                    else it.copy(useSystemKeyboard = enabled, keyboardPreferenceLoaded = true)
+                }
             }
         }
         viewModelScope.launch {

@@ -1893,12 +1893,15 @@ fun PlayerScreen(
                 }
                 val isUsingMpv = uiState.internalPlayerEngine == InternalPlayerEngine.MVP_PLAYER
                 val isAssDisabled = isCurrentSubtitleAss && (isUsingMpv || uiState.useLibass)
+                // The system caption style replaces these controls on the standard player.
+                val isSystemStyleActive = !isUsingMpv &&
+                    systemCaptionStyleApplies(LocalContext.current, uiState.editableSubtitleStyle)
 
                 SubtitleStyleSidePanel(
                     subtitleStyle = uiState.editableSubtitleStyle,
                     isEditingHdrStyle = uiState.isEditingHdrSubtitleStyle,
-                    onEvent = { if (!isAssDisabled) viewModel.onEvent(it) },
-                    isStyleDisabledByLibass = isAssDisabled,
+                    onEvent = { if (!isAssDisabled && !isSystemStyleActive) viewModel.onEvent(it) },
+                    isStyleDisabledByLibass = isAssDisabled || isSystemStyleActive,
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                 )
@@ -2244,6 +2247,25 @@ private fun ExoPlayerSurface(
     LaunchedEffect(playerView, subtitleStyle, subtitleLiftPx) {
         playerView.applySubtitleStyleIfNeeded(subtitleStyle, subtitleLiftPx)
     }
+
+    // A change in the system caption settings (on/off, style, size) re-applies the style, which
+    // otherwise only follows the app's own settings.
+    DisposableEffect(playerView) {
+        val captioning = playerView.context.getSystemService(android.content.Context.CAPTIONING_SERVICE)
+            as? android.view.accessibility.CaptioningManager
+        val listener = object : android.view.accessibility.CaptioningManager.CaptioningChangeListener() {
+            private fun reapply() {
+                playerView.post {
+                    playerView.applySubtitleStyleIfNeeded(latestSubtitleStyle, latestSubtitleLiftPx, force = true)
+                }
+            }
+            override fun onEnabledChanged(enabled: Boolean) = reapply()
+            override fun onUserStyleChanged(userStyle: android.view.accessibility.CaptioningManager.CaptionStyle) = reapply()
+            override fun onFontScaleChanged(fontScale: Float) = reapply()
+        }
+        captioning?.addCaptioningChangeListener(listener)
+        onDispose { captioning?.removeCaptioningChangeListener(listener) }
+    }
 }
 
 private fun PlayerView.enableComposeSurfaceSyncWorkaroundIfAvailable() {
@@ -2347,6 +2369,17 @@ private fun PlayerView.isAssOrSsaSubtitleSelected(): Boolean {
     return false
 }
 
+/**
+ * Whether subtitles take the system caption style (#453): the user chose it and captions are on
+ * in the system settings. Otherwise the app's own style applies.
+ */
+internal fun systemCaptionStyleApplies(context: android.content.Context, style: SubtitleStyleSettings): Boolean {
+    if (!style.useSystemCaptionStyle) return false
+    val captioning = context.getSystemService(android.content.Context.CAPTIONING_SERVICE)
+        as? android.view.accessibility.CaptioningManager
+    return captioning?.isEnabled == true
+}
+
 private fun PlayerView.applySubtitleStyleIfNeeded(
     subtitleStyle: SubtitleStyleSettings,
     liftPx: Float,
@@ -2366,9 +2399,7 @@ private fun PlayerView.applySubtitleStyleIfNeeded(
     setTag(R.id.player_view_subtitle_style_tag, config)
     // The system caption style (Accessibility › Captions) when the user chose to follow it and
     // captions are on there (#453). Position below stays the app's.
-    val captioning = context.getSystemService(android.content.Context.CAPTIONING_SERVICE)
-        as? android.view.accessibility.CaptioningManager
-    val useSystemStyle = subtitleStyle.useSystemCaptionStyle && captioning?.isEnabled == true
+    val useSystemStyle = systemCaptionStyleApplies(context, subtitleStyle)
     subView.apply {
         if (useSystemStyle) {
             setUserDefaultTextSize()
@@ -2412,7 +2443,8 @@ private fun PlayerView.applySubtitleStyleIfNeeded(
             alpha = layerColors.layerAlpha
         }
 
-        setApplyEmbeddedStyles(!isAss)
+        // Embedded colours and fonts would override the system style the user chose.
+        setApplyEmbeddedStyles(!isAss && !useSystemStyle)
 
         val bottomPaddingFraction =
             (0.06f + (subtitleStyle.verticalOffset / 250f)).coerceIn(0f, 0.4f)

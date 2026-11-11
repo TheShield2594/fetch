@@ -15,7 +15,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -33,7 +32,6 @@ import com.fetch.tv.ui.screens.library.LibraryScreen
 import com.fetch.tv.ui.screens.player.PlaybackRequest
 import com.fetch.tv.ui.screens.player.PlaybackRequests
 import com.fetch.tv.ui.screens.player.PlayerExitReason
-import com.fetch.tv.ui.screens.player.playerRestoreStreamRoute
 import com.fetch.tv.ui.screens.player.PlayerScreen
 import com.fetch.tv.ui.screens.player.PostPlayRecommendation
 import com.fetch.tv.ui.screens.player.playerBackOpensCurrentEpisodeStreams
@@ -803,26 +801,6 @@ private fun PlaybackNavHost(
                 }
             )
         ) { backStackEntry ->
-            // The stream URL lives in PlaybackRequests, which does not survive the process. A
-            // player restored after the system killed the app has no stream: resolve it again
-            // from the Stream screen (reuse-last-link, auto-play rules or the source list), which
-            // resumes from the saved progress, instead of replaying an old tokenised URL.
-            val needsStreamResolve = remember(backStackEntry) {
-                !PlaybackRequests.isAvailable(backStackEntry.savedStateHandle.get<String>("requestId"))
-            }
-            if (needsStreamResolve) {
-                LaunchedEffect(backStackEntry) {
-                    val route = playerRestoreStreamRoute(backStackEntry.savedStateHandle)
-                    if (route != null) {
-                        navController.navigate(route) {
-                            popUpTo(Screen.Player.route) { inclusive = true }
-                        }
-                    } else {
-                        navController.popBackStack()
-                    }
-                }
-                return@composable
-            }
             fun popBackToStream(): Boolean {
                 val autoPlayNavigation = backStackEntry.arguments
                     ?.getString("autoPlayNav")
@@ -867,6 +845,19 @@ private fun PlaybackNavHost(
             }
 
             PlayerScreen(
+                // The stream URL lives in PlaybackRequests, which does not survive the process. A
+                // player restored after the system killed the app has no stream: resolve it again
+                // from the Stream screen (reuse-last-link, auto-play rules or the source list), which
+                // resumes from saved progress, instead of replaying an old tokenised URL.
+                onStreamUnavailable = { route ->
+                    if (route != null) {
+                        navController.navigate(route) {
+                            popUpTo(Screen.Player.route) { inclusive = true }
+                        }
+                    } else {
+                        navController.popBackStack()
+                    }
+                },
                 onBackPress = { currentVideoId, currentSeason, currentEpisode, autoPlayEnabled, playbackCompleted ->
                     val args = backStackEntry.arguments
                     val initialSeason = args?.getString("season")?.toIntOrNull()

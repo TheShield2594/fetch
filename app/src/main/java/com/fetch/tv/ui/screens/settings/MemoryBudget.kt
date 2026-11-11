@@ -94,9 +94,13 @@ object MemoryBudget {
         return playbackBudgetMb(info.availMem, info.threshold, info.lowMemory)
     }
 
-    /** [playbackBudgetMb] from raw [ActivityManager.MemoryInfo] values. */
+    /**
+     * [playbackBudgetMb] from raw [ActivityManager.MemoryInfo] values. Under memory pressure it can
+     * go down to [MIN_TARGET_BUFFER_MB], in line with Google's 40-60 MB media buffer on 1 GB
+     * devices; the larger heap-derived floor would stop the cap from ever applying on small heaps.
+     */
     fun playbackBudgetMb(availMemBytes: Long, thresholdBytes: Long, lowMemory: Boolean): Int =
-        playbackBudgetMb(budgetMb, minPlaybackBudgetMb, availMemBytes, thresholdBytes, lowMemory)
+        playbackBudgetMb(budgetMb, MIN_TARGET_BUFFER_MB, availMemBytes, thresholdBytes, lowMemory)
 
     internal fun playbackBudgetMb(
         heapBudgetMb: Int,
@@ -112,6 +116,16 @@ object MemoryBudget {
         val spareMb = (availMemBytes - thresholdBytes.coerceAtLeast(0L)).coerceAtLeast(0L) / (1024L * 1024L)
         val capMb = (spareMb * AVAILABLE_MEMORY_PLAYBACK_SHARE).toInt()
         return capMb.coerceIn(floor, heapBudgetMb)
+    }
+
+    /**
+     * Chunk size for one playback session's parallel connections: [requestedChunkMb], made smaller
+     * when the chunks would leave less than [MIN_BUFFER_MB] of [sessionBudgetMb] for the buffer.
+     * Never below [MIN_CHUNK_MB].
+     */
+    fun sessionChunkMb(sessionBudgetMb: Int, connectionCount: Int, requestedChunkMb: Int): Int {
+        val fitting = (sessionBudgetMb - MIN_BUFFER_MB) / bufferCount(connectionCount)
+        return requestedChunkMb.coerceAtMost(fitting).coerceAtLeast(MIN_CHUNK_MB.coerceAtMost(requestedChunkMb))
     }
 
     val conversionBudgetMb: Int =

@@ -17,6 +17,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -83,8 +84,8 @@ class ProfileManager @Inject constructor(
 
     /**
      * The active profile's [ProfileSession]. A new session (with empty caches) replaces the old
-     * one as soon as [activeProfileId] changes, so per-profile in-memory state is dropped with
-     * the profile it belongs to rather than cleared by hand on each switch.
+     * one on every change of active profile and when the profile is deleted, so per-profile
+     * in-memory state is dropped with the profile it belongs to rather than cleared by hand.
      */
     val activeSession: ProfileSession
         get() {
@@ -114,6 +115,11 @@ class ProfileManager @Inject constructor(
         get() = profiles.value.size < MAX_PROFILES
 
     init {
+        // A fresh session on every change of active profile, including A -> B -> A, so a session
+        // never carries over from an earlier period of the same profile.
+        scope.launch {
+            profileDataStore.activeProfileId.distinctUntilChanged().collect { id -> sessionRef.set(ProfileSession(id)) }
+        }
         // A deleted profile's stores are refused by the factory until the id is reused.
         // createProfile says so for a profile made here; a profile that comes back another way
         // (a sync pull re-adding the id) is noticed here: once the list has been seen without a
@@ -181,6 +187,8 @@ class ProfileManager @Inject constructor(
         if (id == 1) return false
         if (profiles.value.none { it.id == id }) return false
         credentialStores.forEach { store -> store.removeProfile(id) }
+        // Its id can be given to a new profile: nothing cached for the old one may carry over.
+        sessionRef.updateAndGet { current -> if (current.profileId == id) ProfileSession(id) else current }
         // A new profile can reuse this id, so its PIN and limits must not survive.
         profileLockStateDataStore.removeProfile(id)
         profileRestrictionsDataStore.deleteProfile(id)

@@ -492,18 +492,25 @@ internal fun PlayerRuntimeController.initializePlayer(
             val parallelActive = playerSettings.parallelNetworkEnabled && playerSettings.useParallelConnections
             val useChunkSessionSource = parallelActive && !isHlsStream && !isDashStream
 
+            // Read once per session: what the device can spare now, not only the heap ceiling.
+            val playbackBudgetMb = MemoryBudget.playbackBudgetMb(context)
+            currentPlaybackBudgetMb = playbackBudgetMb
+            val settingsChunkMb = Math.ceil(playerSettings.parallelChunkSizeKb / 1024.0)
+                .toInt()
+                .coerceAtMost(MemoryBudget.tierMaxChunkMb)
+            // The parallel chunks come out of the same budget: smaller chunks this session when
+            // they would leave less than the minimum buffer.
+            val sessionChunkMb = if (useChunkSessionSource) {
+                MemoryBudget.sessionChunkMb(playbackBudgetMb, playerSettings.parallelConnectionCount, settingsChunkMb)
+            } else {
+                settingsChunkMb
+            }
             val parallelOverheadMb = if (useChunkSessionSource) {
-                val chunkMb = Math.ceil(playerSettings.parallelChunkSizeKb / 1024.0)
-                    .toInt()
-                    .coerceAtMost(MemoryBudget.tierMaxChunkMb)
-                MemoryBudget.parallelOverheadMb(playerSettings.parallelConnectionCount, chunkMb)
+                MemoryBudget.parallelOverheadMb(playerSettings.parallelConnectionCount, sessionChunkMb)
             } else {
                 0
             }
             currentParallelChunkOverheadMb = parallelOverheadMb
-            // Read once per session: what the device can spare now, not only the heap ceiling.
-            val playbackBudgetMb = MemoryBudget.playbackBudgetMb(context)
-            currentPlaybackBudgetMb = playbackBudgetMb
             // A user target above the budget is kept only when large buffers were allowed.
             val capUserTarget = !playerSettings.allowLargeTargetBuffer
 
@@ -609,7 +616,11 @@ internal fun PlayerRuntimeController.initializePlayer(
             if (playerSettings.parallelNetworkEnabled) {
                 mediaSourceFactory.useParallelConnections = playerSettings.useParallelConnections
                 mediaSourceFactory.parallelConnectionCount = playerSettings.parallelConnectionCount
-                mediaSourceFactory.parallelChunkSizeKb = playerSettings.parallelChunkSizeKb
+                mediaSourceFactory.parallelChunkSizeKb = if (sessionChunkMb < settingsChunkMb) {
+                    sessionChunkMb * 1024
+                } else {
+                    playerSettings.parallelChunkSizeKb
+                }
             } else {
                 // Reset each playback so the factory doesn't keep last stream's state.
                 mediaSourceFactory.useParallelConnections = false

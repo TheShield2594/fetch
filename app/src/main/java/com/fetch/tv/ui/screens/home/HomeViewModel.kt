@@ -846,7 +846,8 @@ class HomeViewModel @Inject constructor(
                 nextUpItems = nextUpItems,
                 mode = sortMode
             )
-            if (items.isNotEmpty()) {
+            // A profile switch while this ran has already cleared Home for the new profile.
+            if (items.isNotEmpty() && profileManager.currentProfileId() == profileId) {
                 val (mainItems, upcomingOnly) = splitUpcomingItems(items, sortMode)
                 _uiState.update { it.copy(continueWatchingItems = mainItems, upcomingItems = upcomingOnly) }
                 _initialCwResolved.value = true

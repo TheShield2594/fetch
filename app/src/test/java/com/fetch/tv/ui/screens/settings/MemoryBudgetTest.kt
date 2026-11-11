@@ -107,4 +107,21 @@ class MemoryBudgetTest {
     fun unknownMemoryStateKeepsTheHeapBudget() {
         assertEquals(400, MemoryBudget.playbackBudgetMb(400, 25, 0L, 0L, lowMemory = false))
     }
+
+    @Test
+    fun publicPlaybackBudgetCanGoBelowTheHeapFloorUnderPressure() {
+        // Production floor: a 1 GB class device with 200 MB to spare gets 50 MB, not the heap floor.
+        assertEquals(MemoryBudget.MIN_TARGET_BUFFER_MB, MemoryBudget.playbackBudgetMb(350 * mb, 150 * mb, lowMemory = false))
+        assertEquals(MemoryBudget.MIN_TARGET_BUFFER_MB, MemoryBudget.playbackBudgetMb(4_000 * mb, 150 * mb, lowMemory = true))
+    }
+
+    @Test
+    fun sessionChunksLeaveTheMinimumBuffer() {
+        // 100 MB session, 4 connections (6 chunks): 16 MB chunks would take 96 MB; 12 MB leaves 28.
+        assertEquals(12, MemoryBudget.sessionChunkMb(100, 4, 16))
+        // Plenty of budget: the setting stands.
+        assertEquals(16, MemoryBudget.sessionChunkMb(400, 4, 16))
+        // Never below the minimum chunk.
+        assertEquals(MemoryBudget.MIN_CHUNK_MB, MemoryBudget.sessionChunkMb(50, 4, 16))
+    }
 }

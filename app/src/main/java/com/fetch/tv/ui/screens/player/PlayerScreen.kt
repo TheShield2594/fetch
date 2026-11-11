@@ -228,8 +228,15 @@ fun PlayerScreen(
     onPlaybackEnded: ((nextVideoId: String?, nextSeason: Int?, nextEpisode: Int?, exitReason: PlayerExitReason?) -> Unit)? = null,
     onPlayRecommendation: (PostPlayRecommendation, manualSelection: Boolean) -> Unit = { _, _ -> },
     onOpenRecommendationDetails: (PostPlayRecommendation) -> Unit = {},
-    onPlayQueueItem: (com.fetch.tv.data.local.QueueItem) -> Unit = {}
+    onPlayQueueItem: (com.fetch.tv.data.local.QueueItem) -> Unit = {},
+    // Called instead of playing when the stream is gone after a process restore; the route is
+    // the Stream screen for the episode that was playing, or null when that isn't known.
+    onStreamUnavailable: (restoreStreamRoute: String?) -> Unit = { onBackPress(null, null, null, false, false) }
 ) {
+    if (viewModel.isStreamMissing) {
+        LaunchedEffect(Unit) { onStreamUnavailable(viewModel.restoreStreamRoute) }
+        return
+    }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     uiState.screenTimeBlock?.let { status ->
         com.fetch.tv.ui.screens.profile.ScreenTimeLimitDialog(
@@ -608,7 +615,10 @@ fun PlayerScreen(
     // Request focus for key events when controls visibility or panel state changes
     LaunchedEffect(
         uiState.showControls,
-        uiState.isPanelOpen,
+        // Which panel, not only whether one is open: moving from one to another (the timing
+        // dialog applying a cue opens the delay overlay) has to bring focus back too. The More
+        // row and stream info are left out so opening them doesn't take focus from them.
+        uiState.activeOverlay?.takeIf { it.isPanel },
         shouldConfirmNextEpisodeOnEnd,
         postPlayRecommendationState.isVisible,
     ) {

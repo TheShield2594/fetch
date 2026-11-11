@@ -200,8 +200,30 @@ Five Baseline profile runs in a row on PR #481's code (run 43031270892, attempts
 
 The profile's median is lower in four of five runs, but by little, and its slowest starts are
 the slowest of all; on the emulator that is noise, not a result. These runs don't show whether
-the re-kill above was needed: the `FetchBenchmark` lines go to each run's summary and
-`benchmark-results` artifact, not the job log. Check those before closing #461.
+the re-kill above was needed from the job log alone; the `FetchBenchmark` lines go to each
+run's summary and `benchmark-results` artifact.
+
+Run 5's `benchmark-process-starts.txt` (the only attempt whose artifact the API still lists)
+has no `FetchBenchmark` line, so the re-kill never ran. Every start of `com.fetch.tv` it
+records has one of two reasons:
+
+| Reason (ActivityManager "Start proc … for …") | Count | When |
+|---|---|---|
+| `next-top-activity` (the measured launch) | 20 | 10 per test, 4–5 s apart |
+| `broadcast {com.fetch.tv/androidx.profileinstaller.ProfileInstallReceiver}` | 5 | 3 before the first test, 2 before the second |
+
+Nothing in Fetch woke the process: no search provider query, boot receiver, job or service.
+Inside a test every start is a measured launch, so the app does not restart itself in the
+background, and the background wake-ups item in the audit is not involved.
+
+**Likely cause (not confirmed):** the only starts outside the measured launches are
+Macrobenchmark's own profile-installer broadcasts, sent while it sets up each test's
+compilation. Two land just before the second test (17:45:23.8 and 17:45:24.6, first launch
+at 17:45:26.1), which is where the original failure happened: the first iteration of
+`coldStartWithoutProfile`. A broadcast delivered just after the force-stop brings the process
+back before the check. That is the tooling, not Fetch, and the cold-start setup above
+absorbs it. To confirm, a run that hits it will log a `FetchBenchmark` line whose last
+"Start proc" names `ProfileInstallReceiver`.
 
 To look by hand:
 

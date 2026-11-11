@@ -340,7 +340,7 @@ private fun FieldButton(label: String, value: String, onClick: () -> Unit) {
         ),
         border = ButtonDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             )
         ),

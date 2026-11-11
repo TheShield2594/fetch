@@ -25,9 +25,6 @@ import com.fetch.tv.ui.theme.FetchTheme
  * Cards keep their own layouts and behaviour; only these visuals come from here.
  */
 object FetchCardDefaults {
-    /** Width of the accent ring on a focused card. */
-    val FocusedBorderWidth: Dp get() = FetchStrokes.tokens.focus
-
     /** How much a focused card grows. Cards that widen on focus instead don't also scale. */
     val FocusedScale: Float get() = FetchComponents.tokens.posterCard.focusedScale
 
@@ -51,7 +48,7 @@ object FetchCardDefaults {
     @Composable
     @ReadOnlyComposable
     fun focusedBorder(shape: Shape): Border = Border(
-        border = FetchTheme.focusRing.border(FocusedBorderWidth),
+        border = FetchTheme.focusRing.border(),
         shape = shape
     )
 }

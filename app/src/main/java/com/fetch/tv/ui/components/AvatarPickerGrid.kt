@@ -247,7 +247,7 @@ private fun CategoryTab(
             .background(bgColor)
             .border(
                 border = if (isFocused) {
-                    FetchTheme.focusRing.border(borderWidth)
+                    FetchTheme.focusRing.border()
                 } else {
                     BorderStroke(borderWidth, borderColor)
                 },
@@ -323,7 +323,7 @@ private fun AvatarGridItem(
             .clip(CircleShape)
             .border(
                 border = if (isSelected || isFocused) {
-                    FetchTheme.focusRing.border(borderWidth)
+                    FetchTheme.focusRing.border()
                 } else {
                     BorderStroke(borderWidth, Color.Transparent)
                 },

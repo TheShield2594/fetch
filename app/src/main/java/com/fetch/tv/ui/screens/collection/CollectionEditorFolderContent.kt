@@ -409,7 +409,7 @@ fun FolderEditorContent(
                     ),
                     border = CardDefaults.border(
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = RoundedCornerShape(FetchTheme.radii.md)
                         )
                     ),
@@ -547,7 +547,7 @@ fun FolderEditorContent(
                     ),
                     border = CardDefaults.border(
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = RoundedCornerShape(FetchTheme.radii.md)
                         )
                     ),
@@ -709,7 +709,7 @@ fun FolderEditorContent(
                                         ),
                                         border = ButtonDefaults.border(
                                             focusedBorder = Border(
-                                                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                                border = FetchTheme.focusRing.border(),
                                                 shape = RoundedCornerShape(FetchTheme.radii.md)
                                             )
                                         ),
@@ -732,7 +732,7 @@ fun FolderEditorContent(
                                     ),
                                     border = ButtonDefaults.border(
                                         focusedBorder = Border(
-                                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                            border = FetchTheme.focusRing.border(),
                                             shape = RoundedCornerShape(FetchTheme.radii.md)
                                         )
                                     ),
@@ -752,7 +752,7 @@ fun FolderEditorContent(
                                     ),
                                     border = ButtonDefaults.border(
                                         focusedBorder = Border(
-                                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                            border = FetchTheme.focusRing.border(),
                                             shape = RoundedCornerShape(FetchTheme.radii.md)
                                         )
                                     ),
@@ -776,7 +776,7 @@ fun FolderEditorContent(
                                 ),
                                 border = ButtonDefaults.border(
                                     focusedBorder = Border(
-                                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                        border = FetchTheme.focusRing.border(),
                                         shape = RoundedCornerShape(FetchTheme.radii.md)
                                     )
                                 ),
@@ -796,7 +796,7 @@ fun FolderEditorContent(
                                 ),
                                 border = ButtonDefaults.border(
                                     focusedBorder = Border(
-                                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                        border = FetchTheme.focusRing.border(),
                                         shape = RoundedCornerShape(FetchTheme.radii.md)
                                     )
                                 ),
@@ -818,7 +818,7 @@ fun FolderEditorContent(
                                 ),
                                 border = ButtonDefaults.border(
                                     focusedBorder = Border(
-                                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                        border = FetchTheme.focusRing.border(),
                                         shape = RoundedCornerShape(FetchTheme.radii.md)
                                     )
                                 ),

@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.components
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import com.fetch.tv.ui.theme.FetchMotion
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.BorderStroke
@@ -310,6 +312,8 @@ fun ContentCard(
                 }
             },
             modifier = Modifier
+                // The title once, on the card: the artwork, logo and overlay title are decoration.
+                .semantics { contentDescription = item.name }
                 .fillMaxWidth()
                 .onFocusChanged { state ->
                     val focusedNow = state.isFocused
@@ -383,7 +387,7 @@ fun ContentCard(
             border = CardDefaults.border(
                 border = if (posterCardStyle.showRestingBorder) FetchCardDefaults.restingBorder(cardShape) else Border.None,
                 focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
+                    border = FetchTheme.focusRing.border(),
                     shape = cardShape
                 )
             ),
@@ -414,7 +418,7 @@ fun ContentCard(
                 } else if (!imageUrl.isNullOrBlank()) {
                     AsyncImage(
                         model = imageModel,
-                        contentDescription = item.name,
+                        contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         placeholder = backgroundPainter,
                         error = backgroundPainter,
@@ -525,7 +529,7 @@ fun ContentCard(
                         if (showExpandedLogo) {
                             AsyncImage(
                                 model = logoModel,
-                                contentDescription = item.name,
+                                contentDescription = null,
                                 onError = { logoLoadFailed = true },
                                 modifier = Modifier
                                     .height(FetchTheme.spacing.xxxl)
@@ -570,7 +574,7 @@ fun ContentCard(
                     )
                     AsyncImage(
                         model = logoModel,
-                        contentDescription = item.name,
+                        contentDescription = null,
                         onError = { logoLoadFailed = true },
                         modifier = Modifier
                             .align(Alignment.BottomStart)

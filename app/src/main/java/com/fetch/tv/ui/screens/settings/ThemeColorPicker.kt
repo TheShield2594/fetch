@@ -95,7 +95,7 @@ internal fun ThemeColorPicker(
                         focusedContainerColor = Color(swatch or 0xFF000000.toInt())
                     ),
                     border = CardDefaults.border(
-                        focusedBorder = Border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), shape = CircleShape)
+                        focusedBorder = Border(FetchTheme.focusRing.border(), shape = CircleShape)
                     ),
                     scale = CardDefaults.scale(focusedScale = 1.15f, pressedScale = 1f)
                 ) { Box(Modifier.fillMaxSize()) }
@@ -180,7 +180,7 @@ private fun ColorChannelSlider(
         ),
         shape = CardDefaults.shape(shape),
         border = CardDefaults.border(
-            focusedBorder = Border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), shape = shape)
+            focusedBorder = Border(FetchTheme.focusRing.border(), shape = shape)
         ),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {

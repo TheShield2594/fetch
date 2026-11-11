@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Text as CoreText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Icon
+import androidx.tv.material3.Text
 import com.fetch.tv.R
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -67,7 +67,7 @@ fun ErrorState(
             tint = FetchTheme.colors.Error
         )
         Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
-        CoreText(
+        Text(
             text = displayMessage,
             style = MaterialTheme.typography.bodyLarge,
             color = FetchTheme.colors.TextSecondary,

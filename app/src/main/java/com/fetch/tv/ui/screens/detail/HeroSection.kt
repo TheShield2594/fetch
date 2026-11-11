@@ -643,10 +643,11 @@ internal fun PlayButton(
         shape = ButtonDefaults.shape(
             shape = FetchTheme.shapes.button
         ),
+        // On a light accent (White, Emerald, Amber) the ring sits a gap outside the button.
         border = ButtonDefaults.border(
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.strokes.focus),
-                shape = FetchTheme.shapes.button
+            focusedBorder = com.fetch.tv.ui.components.FetchFocusSpec.border(
+                FetchTheme.shapes.button,
+                focusedFill = FetchTheme.colors.Secondary
             )
         ),
         contentPadding = PaddingValues(horizontal = FetchTheme.spacing.xl, vertical = 14.dp)
@@ -731,7 +732,7 @@ private fun ActionIconButtonPainter(
             ),
             border = IconButtonDefaults.border(
                 focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                    border = FetchTheme.focusRing.border(),
                     shape = CircleShape
                 )
             ),
@@ -829,7 +830,7 @@ private fun ActionIconButton(
             shape = ButtonDefaults.shape(shape = FetchTheme.shapes.button),
             border = ButtonDefaults.border(
                 focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.strokes.focus),
+                    border = FetchTheme.focusRing.border(),
                     shape = FetchTheme.shapes.button
                 )
             ),
@@ -868,7 +869,7 @@ private fun ActionIconButton(
             ),
             border = IconButtonDefaults.border(
                 focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                    border = FetchTheme.focusRing.border(),
                     shape = CircleShape
                 )
             ),

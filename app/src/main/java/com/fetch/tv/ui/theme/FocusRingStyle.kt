@@ -21,9 +21,27 @@ class FetchFocusRingStyle internal constructor(
         return SolidColor(solidColor.copy(alpha = solidColor.alpha * normalizedAlpha))
     }
 
-    fun border(width: Dp, alpha: Float = 1f): BorderStroke {
-        return BorderStroke(width * widthScale, brush(alpha))
-    }
+    /**
+     * The ring, always [FetchStrokeTokens.focus] wide (scaled by "Increase contrast"). There is no
+     * width parameter on purpose: one ring width everywhere is what makes focus recognisable.
+     */
+    fun border(alpha: Float = 1f): BorderStroke = BorderStroke(width, brush(alpha))
+
+    /** The drawn ring width: [FetchStrokeTokens.focus], scaled by "Increase contrast". */
+    val width: Dp
+        get() = FetchStrokes.tokens.focus * widthScale
+
+    /**
+     * True when the ring would melt into a focused control filled with [fill]: under WCAG's 3:1
+     * for non-text contrast. The near-white ring on a white Highlight button is 1:1, and on the
+     * White, Emerald and Amber accents under 2:1. Such a control draws the ring [innerGap] outside
+     * its edge instead, so the page shows as a dark band between the two.
+     */
+    fun needsInnerGap(fill: Color): Boolean = contrastRatio(solidColor, fill) < MIN_CONTROL_CONTRAST
+
+    /** The dark band between a light control and its ring; see [needsInnerGap]. */
+    val innerGap: Dp
+        get() = FetchStrokes.tokens.focus
 }
 
 fun ThemeColorPalette.accentBrush(): Brush = createThemeBrush(accentGradient)

@@ -28,6 +28,8 @@ internal val essentialSettingsSearchIndex: Map<SettingsCategory, List<Int>> =
         SettingsCategory.APPEARANCE to listOf(
             R.string.appearance_title,
             R.string.appearance_color_theme,
+            R.string.appearance_high_contrast,
+            R.string.appearance_reduce_motion,
             R.string.ambient_mode_title,
             R.string.appearance_font_and_language,
             R.string.appearance_font,

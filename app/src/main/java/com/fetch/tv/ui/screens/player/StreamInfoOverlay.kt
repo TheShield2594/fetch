@@ -370,7 +370,7 @@ private fun StreamInfoHudButton(
                 shape = RoundedCornerShape(FetchTheme.radii.sm)
             ),
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
         )

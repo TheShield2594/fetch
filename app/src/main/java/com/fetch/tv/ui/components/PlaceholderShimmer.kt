@@ -31,7 +31,7 @@ private val PLACEHOLDER_SHIMMER_COLOR_STOPS = arrayOf(
 @Composable
 fun rememberPlaceholderShimmerOffsetState(label: String): State<Float> {
     // Parked before the card's left edge, the band never draws, which leaves the plain placeholder.
-    if (!FetchTheme.fullMotion) return remember { mutableFloatStateOf(-1f) }
+    if (!FetchTheme.fullMotion || FetchTheme.lowRamDevice) return remember { mutableFloatStateOf(-1f) }
     val shimmerTransition = rememberInfiniteTransition(label = label)
     return shimmerTransition.animateFloat(
         initialValue = -1f,

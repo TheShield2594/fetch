@@ -212,7 +212,7 @@ private fun DebugProgressIndicatorCard() {
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             )
         ),
@@ -285,7 +285,7 @@ private fun DebugActionCard(
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             )
         ),

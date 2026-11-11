@@ -446,7 +446,7 @@ private fun SubtitleStyleColorChip(
     var isFocused by remember { mutableStateOf(false) }
 
     val borderModifier = when {
-        isFocused -> Modifier.border(FetchTheme.focusRing.border(FetchTheme.spacing.xxs), CircleShape)
+        isFocused -> Modifier.border(FetchTheme.focusRing.border(), CircleShape)
         isSelected -> Modifier.border(FetchTheme.spacing.xxs, FetchTheme.colors.Player.Focus, CircleShape)
         else -> Modifier
     }

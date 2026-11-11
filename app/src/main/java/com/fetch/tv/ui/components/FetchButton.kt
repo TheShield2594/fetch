@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -11,9 +12,9 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonColors
 import androidx.tv.material3.ButtonDefaults
@@ -82,6 +83,14 @@ object FetchButtonDefaults {
                 focusedContentColor = FetchTheme.colors.OnHighlight
             )
         }
+
+    /** The fill a focused button of [style] takes, for [FetchFocusSpec.border]'s ring gap. */
+    @Composable
+    @ReadOnlyComposable
+    fun focusedContainer(style: FetchButtonStyle): Color = when (style) {
+        FetchButtonStyle.Destructive -> FetchTheme.colors.Error
+        else -> FetchTheme.colors.Highlight
+    }
 }
 
 /**
@@ -108,7 +117,8 @@ fun FetchButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier,
+        // Never shorter than a compact control, whatever the label, so a row of buttons lines up.
+        modifier = modifier.heightIn(min = FetchTheme.sizes.controls.compact),
         onLongClick = onLongClick,
         enabled = enabled,
         scale = when {
@@ -119,14 +129,16 @@ fun FetchButton(
         },
         shape = ButtonDefaults.shape(shape),
         colors = FetchButtonDefaults.colors(style, selected),
-        border = ButtonDefaults.border(focusedBorder = FetchFocusSpec.border(shape)),
+        border = ButtonDefaults.border(
+            focusedBorder = FetchFocusSpec.border(shape, FetchButtonDefaults.focusedContainer(style))
+        ),
         contentPadding = contentPadding
     ) {
         if (selected && showSelectedCheck) {
             Icon(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
-                modifier = Modifier.size(FETCH_CHECK_SIZE)
+                modifier = Modifier.size(FetchTheme.sizes.icons.sm)
             )
             Spacer(modifier = Modifier.width(FetchTheme.spacing.xs))
         }
@@ -154,7 +166,7 @@ fun FetchIconButton(
         enabled = enabled,
         onLongClick = onLongClick
     ) {
-        Icon(imageVector = icon, contentDescription = contentDescription, modifier = Modifier.size(FETCH_ICON_SIZE))
+        Icon(imageVector = icon, contentDescription = contentDescription, modifier = Modifier.size(FetchTheme.sizes.icons.md))
     }
 }
 
@@ -174,7 +186,9 @@ fun FetchIconButton(
         onLongClick = onLongClick,
         enabled = enabled,
         shape = IconButtonDefaults.shape(FetchTheme.shapes.iconButton),
-        border = IconButtonDefaults.border(focusedBorder = FetchFocusSpec.border(FetchTheme.shapes.iconButton)),
+        border = IconButtonDefaults.border(
+            focusedBorder = FetchFocusSpec.border(FetchTheme.shapes.iconButton, FetchTheme.colors.Highlight)
+        ),
         scale = if (FetchTheme.fullMotion) IconButtonDefaults.scale() else IconButtonDefaults.scale(focusedScale = 1f),
         colors = IconButtonDefaults.colors(
             containerColor = FetchTheme.colors.BackgroundCard,
@@ -185,6 +199,3 @@ fun FetchIconButton(
         content = content
     )
 }
-
-private val FETCH_ICON_SIZE = 24.dp
-private val FETCH_CHECK_SIZE = 18.dp

@@ -169,7 +169,6 @@ import com.fetch.tv.ui.membership.LocalMemberAccess
 import com.fetch.tv.ui.screens.addon.EssentialAddonSetupScreen
 import com.fetch.tv.ui.screens.profile.ProfileSelectionScreen
 import com.fetch.tv.ui.theme.FetchComponents
-import com.fetch.tv.ui.theme.FetchLayout
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.brandWordmarkResource
@@ -215,6 +214,13 @@ data class DrawerItem(
     val icon: ImageVector? = null
 )
 
+private data class SurfaceModes(
+    val amoledMode: Boolean,
+    val amoledSurfacesMode: Boolean,
+    val highContrast: Boolean,
+    val reduceMotion: Boolean
+)
+
 private data class MainUiPrefs(
     val theme: AppTheme = com.fetch.tv.domain.model.DEFAULT_APP_THEME,
     val customThemeColors: CustomThemeColors = CustomThemeColors.Default,
@@ -223,6 +229,7 @@ private data class MainUiPrefs(
     val amoledMode: Boolean = false,
     val amoledSurfacesMode: Boolean = false,
     val highContrast: Boolean = false,
+    val reduceMotion: Boolean = false,
     val hasChosenLayout: Boolean? = null,
     val experienceMode: ExperienceMode? = null,
     val experienceModeLoaded: Boolean = false,
@@ -455,14 +462,15 @@ open class MainActivity : ComponentActivity() {
                     themeDataStore.amoledMode,
                     themeDataStore.amoledSurfacesMode,
                     themeDataStore.highContrast,
-                    ::Triple
+                    themeDataStore.reduceMotion,
+                    ::SurfaceModes
                 )
                 val themeAndExperienceFlow = combine(
                     activeThemeFlow,
                     themeDataStore.selectedFont,
                     surfaceModesFlow,
                     experienceModeDataStore.mode,
-                ) { themeAndAccess, font, (amoledMode, amoledSurfacesMode, highContrast), experienceMode ->
+                ) { themeAndAccess, font, (amoledMode, amoledSurfacesMode, highContrast, reduceMotion), experienceMode ->
                     MainUiPrefs(
                         theme = themeAndAccess.first.theme ?: com.fetch.tv.domain.model.DEFAULT_APP_THEME,
                         customThemeColors = themeAndAccess.first.customColors,
@@ -471,6 +479,7 @@ open class MainActivity : ComponentActivity() {
                         amoledMode = amoledMode,
                         amoledSurfacesMode = amoledSurfacesMode,
                         highContrast = highContrast,
+                        reduceMotion = reduceMotion,
                         experienceMode = experienceMode,
                         experienceModeLoaded = true,
                     )
@@ -537,7 +546,8 @@ open class MainActivity : ComponentActivity() {
                 appFont = mainUiPrefs.font,
                 amoledMode = mainUiPrefs.amoledMode,
                 amoledSurfacesMode = mainUiPrefs.amoledSurfacesMode,
-                highContrast = mainUiPrefs.highContrast
+                highContrast = mainUiPrefs.highContrast,
+                reduceMotion = mainUiPrefs.reduceMotion
             ) {
                 val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
                 val fullMotion = FetchTheme.fullMotion
@@ -1620,7 +1630,7 @@ private fun FetchSidebarScaffold(
                                 ProfileAvatarCircle(
                                     name = activeProfileName,
                                     colorHex = activeProfileColorHex,
-                                    size = sidebarTokens.floatingButtonSize - FetchTheme.spacing.xs,
+                                    size = FetchTheme.sizes.controls.icon - FetchTheme.spacing.xs,
                                     avatarImageUrl = activeProfileAvatarImageUrl,
                                     imageCrossfade = false
                                 )
@@ -1675,7 +1685,7 @@ private fun FetchSidebarScaffold(
         // Snaps on purpose: animating this padding re-laid-out both screens of the NavHost
         // crossfade every frame, and the crossfade already covers the change.
         val contentStartPadding = if (showSidebar && !sidebarCollapsed) {
-            FetchLayout.tokens.sidebarContentOffset
+            sidebarTokens.contentOffset
         } else {
             FetchTheme.spacing.none
         }

@@ -112,9 +112,12 @@ fun HeroCarousel(
         items.getOrNull(activeIndex)?.let { currentOnActiveItemChanged(it) }
     }
 
-    // Auto-advance when not focused — delay first advance to 20s so initial GPU load settles
-    LaunchedEffect(isFocused, items.size) {
-        if (items.size <= 1) return@LaunchedEffect
+    // Auto-advance when not focused — delay first advance to 20s so initial GPU load settles.
+    // With reduced motion the carousel holds still: content that moves on its own is exactly what
+    // that preference asks to stop.
+    val autoAdvance = FetchTheme.fullMotion
+    LaunchedEffect(isFocused, items.size, autoAdvance) {
+        if (items.size <= 1 || !autoAdvance) return@LaunchedEffect
         delay(AUTO_ADVANCE_INTERVAL_MS * 2) // 20s before first advance
         while (true) {
             delay(AUTO_ADVANCE_INTERVAL_MS)

@@ -2,6 +2,7 @@ package com.fetch.tv.ui.screens.detail
 
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
+import com.fetch.tv.ui.components.cardProgressDescription
 import com.fetch.tv.ui.components.fetchCardProgress
 import com.fetch.tv.ui.components.FetchCardDefaults
 import android.view.KeyEvent as AndroidKeyEvent
@@ -138,7 +139,7 @@ fun SeasonTabs(
     val tabShape = remember(tabRadius) { RoundedCornerShape(tabRadius) }
     val tabBorder = CardDefaults.border(
         focusedBorder = Border(
-            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+            border = FetchTheme.focusRing.border(),
             shape = RoundedCornerShape(FetchTheme.radii.xl)
         )
     )
@@ -813,7 +814,11 @@ private fun EpisodeCard(
 
     val progressColor = FetchTheme.colors.Accent
     val textPrimary = FetchTheme.colors.TextPrimary
-    val focusRingBorder = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth)
+    val focusRingBorder = FetchTheme.focusRing.border()
+    val localizedEpisodeTitle = episode.title.localizeEpisodeTitle(context)
+    val episodeCardLabel = remember(episodeCode, localizedEpisodeTitle) {
+        listOf(episodeCode, localizedEpisodeTitle).filter { it.isNotBlank() }.distinct().joinToString(", ")
+    }
 
     // LightweightCard reads the focus animation only while placing the card, so moving along
     // the episodes row recomposes each card once instead of on every animation frame.
@@ -877,7 +882,14 @@ private fun EpisodeCard(
             shape = shape
         ),
         focusedScale = FetchTheme.focus.cardScale,
-        focusedShadow = FetchTheme.focus.cardShadow
+        focusedShadow = FetchTheme.focus.cardShadow,
+        // Read once: the thumbnail, the episode code and the title text would each repeat it.
+        label = episodeCardLabel,
+        stateDescription = when {
+            isWatched -> stringResource(R.string.episodes_cd_watched)
+            showProgress -> cardProgressDescription(progressPercent)
+            else -> null
+        }
     ) {
         Box(
             modifier = Modifier

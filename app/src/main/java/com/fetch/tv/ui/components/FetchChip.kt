@@ -61,12 +61,12 @@ fun FetchChip(
         ),
         border = FilterChipDefaults.border(
             border = FetchFocusSpec.restingBorder(shape),
-            focusedBorder = FetchFocusSpec.border(shape),
+            focusedBorder = FetchFocusSpec.border(shape, FetchTheme.colors.Highlight),
             selectedBorder = Border(
-                border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Primary),
+                border = BorderStroke(FetchTheme.strokes.hairline, FetchTheme.colors.Primary),
                 shape = shape
             ),
-            focusedSelectedBorder = FetchFocusSpec.border(shape)
+            focusedSelectedBorder = FetchFocusSpec.border(shape, FetchTheme.colors.Highlight)
         ),
         shape = FilterChipDefaults.shape(shape = shape)
     ) {

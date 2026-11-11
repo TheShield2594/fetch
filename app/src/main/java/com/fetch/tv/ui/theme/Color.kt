@@ -1,8 +1,6 @@
 package com.fetch.tv.ui.theme
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 
@@ -320,79 +318,4 @@ class FetchColorScheme(
             )
         }
     }
-}
-
-object FetchColors {
-    val Background: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = FetchTheme.colors.Background
-
-    val BackgroundElevated: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = FetchTheme.colors.BackgroundElevated
-
-    val BackgroundCard: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = FetchTheme.colors.BackgroundCard
-
-    val Surface: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = FetchTheme.colors.Surface
-
-    val SurfaceVariant: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = FetchTheme.colors.SurfaceVariant
-
-    val Primary = FetchPrimitives.neutral500
-    val OnPrimary = FetchPrimitives.neutral925
-    val TextPrimary = FetchPrimitives.white
-    val TextSecondary = FetchPrimitives.neutral400
-    val TextTertiary = FetchPrimitives.neutral450
-    val TextDisabled = FetchPrimitives.neutral700
-    val Rating = FetchPrimitives.rating
-    val Error = FetchPrimitives.error
-    val Success = FetchPrimitives.success
-    val Warning = FetchPrimitives.warning
-    val Info = FetchPrimitives.info
-    val Border = FetchPrimitives.neutral750
-
-    val Secondary: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = FetchTheme.colors.Secondary
-
-    val SecondaryVariant: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = FetchTheme.colors.SecondaryVariant
-
-    val OnSecondary: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = FetchTheme.colors.OnSecondary
-
-    val OnSecondaryVariant: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = FetchTheme.colors.OnSecondaryVariant
-
-    val FocusRing: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = FetchTheme.colors.FocusRing
-
-    val FocusBackground: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = FetchTheme.colors.FocusBackground
-
-    val BorderFocused: Color
-        @Composable
-        @ReadOnlyComposable
-        get() = FetchTheme.colors.BorderFocused
 }

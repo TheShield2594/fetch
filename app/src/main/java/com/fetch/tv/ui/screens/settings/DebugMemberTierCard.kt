@@ -66,14 +66,14 @@ internal fun DebugMemberTierCard(
                     border = CardDefaults.border(
                         border = if (selected) {
                             Border(
-                                border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
+                                border = FetchTheme.focusRing.border(),
                                 shape = shape
                             )
                         } else {
                             Border.None
                         },
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = shape
                         )
                     ),

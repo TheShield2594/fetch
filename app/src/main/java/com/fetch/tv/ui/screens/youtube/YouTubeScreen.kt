@@ -647,7 +647,7 @@ internal fun YouTubeVideoCard(
             colors = CardDefaults.colors(containerColor = FetchTheme.colors.BackgroundCard),
             border = CardDefaults.border(
                 focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                    border = FetchTheme.focusRing.border(),
                     shape = shape
                 )
             ),
@@ -732,7 +732,7 @@ private fun YouTubeLinkCard(
             colors = CardDefaults.colors(containerColor = FetchTheme.colors.BackgroundCard),
             border = CardDefaults.border(
                 focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                    border = FetchTheme.focusRing.border(),
                     shape = shape
                 )
             ),
@@ -808,7 +808,7 @@ private fun YouTubeViewAllCard(
         colors = CardDefaults.colors(containerColor = FetchTheme.colors.BackgroundCard),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = shape
             )
         ),
@@ -939,7 +939,7 @@ private fun YouTubeSearchField(
                 border = androidx.compose.foundation.BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
                 shape = shape
             ),
-            focusedBorder = Border(border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs), shape = shape)
+            focusedBorder = Border(border = FetchTheme.focusRing.border(), shape = shape)
         ),
         shape = CardDefaults.shape(shape),
         scale = CardDefaults.scale(focusedScale = 1f)

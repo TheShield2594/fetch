@@ -48,15 +48,15 @@ fun FetchDialog(
     title: String,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
-    width: Dp = 520.dp,
+    width: Dp = FetchTheme.components.dialog.width,
     titleTextAlign: TextAlign = TextAlign.Start,
     suppressFirstKeyUp: Boolean = true,
     usePlatformDefaultWidth: Boolean = true,
     containerBrush: Brush? = null,
     containerBorderColor: Color? = null,
     containerBorderWidth: Dp = FetchTheme.spacing.hairline,
-    containerCornerRadius: Dp = FetchTheme.radii.xl,
-    contentPadding: Dp = FetchTheme.spacing.xl,
+    containerCornerRadius: Dp = FetchTheme.components.dialog.cornerRadius,
+    contentPadding: Dp = FetchTheme.components.dialog.contentPadding,
     contentSpacing: Dp = FetchTheme.spacing.lg,
     // Scroll the content when it outgrows the height cap, so focus can reach clipped controls.
     // Off by default: content that holds an unbounded lazy list or weighted children can't scroll.

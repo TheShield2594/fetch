@@ -498,7 +498,7 @@ fun CatalogRowSection(
                         ),
                         border = CardDefaults.border(
                             focusedBorder = Border(
-                                border = FetchTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
+                                border = FetchTheme.focusRing.border(),
                                 shape = seeAllCardShape
                             )
                         ),

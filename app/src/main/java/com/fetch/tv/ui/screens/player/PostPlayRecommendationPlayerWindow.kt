@@ -60,7 +60,7 @@ internal fun PostPlayRecommendationPlayerWindow(
                 shape = shape
             ),
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xs),
+                border = FetchTheme.focusRing.border(),
                 shape = shape
             )
         ),

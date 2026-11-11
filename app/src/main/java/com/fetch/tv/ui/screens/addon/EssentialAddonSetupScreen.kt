@@ -169,7 +169,7 @@ fun EssentialAddonSetupScreen(
                                         .background(FetchTheme.colors.BackgroundElevated, urlFieldShape)
                                         .border(
                                             border = if (isUrlFieldFocused) {
-                                                FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+                                                FetchTheme.focusRing.border()
                                             } else {
                                                 BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border)
                                             },
@@ -202,7 +202,7 @@ fun EssentialAddonSetupScreen(
                             ),
                             border = ButtonDefaults.border(
                                 focusedBorder = Border(
-                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    border = FetchTheme.focusRing.border(),
                                     shape = RoundedCornerShape(50)
                                 )
                             ),
@@ -269,7 +269,7 @@ fun EssentialAddonSetupScreen(
                             ),
                             border = ButtonDefaults.border(
                                 focusedBorder = Border(
-                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    border = FetchTheme.focusRing.border(),
                                     shape = RoundedCornerShape(50)
                                 )
                             ),
@@ -292,7 +292,7 @@ fun EssentialAddonSetupScreen(
                 ),
                 border = ButtonDefaults.border(
                     focusedBorder = Border(
-                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                        border = FetchTheme.focusRing.border(),
                         shape = RoundedCornerShape(50)
                     )
                 ),

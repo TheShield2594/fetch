@@ -33,9 +33,12 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.tv.material3.Border
@@ -71,6 +74,13 @@ fun LightweightCard(
     restingBorder: Border = Border.None,
     focusedScale: Float = 1f,
     focusedShadow: Dp = 0.dp,
+    /**
+     * What TalkBack reads for the card. When set, it replaces whatever the card's artwork, logo and
+     * title text would say, so a title is announced once rather than once per layer.
+     */
+    label: String? = null,
+    /** Read after [label], such as "45% watched" from [cardProgressDescription]. */
+    stateDescription: String? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -120,13 +130,27 @@ fun LightweightCard(
                     true
                 }
                 .focusable(interactionSource = interactionSource)
-                .semantics(mergeDescendants = true) {
-                    onClick {
-                        onClick()
-                        true
+                .then(
+                    if (label != null) {
+                        Modifier.clearAndSetSemantics {
+                            contentDescription = label
+                            if (stateDescription != null) this.stateDescription = stateDescription
+                            onClick {
+                                onClick()
+                                true
+                            }
+                            onLongClick { false }
+                        }
+                    } else {
+                        Modifier.semantics(mergeDescendants = true) {
+                            onClick {
+                                onClick()
+                                true
+                            }
+                            onLongClick { false }
+                        }
                     }
-                    onLongClick { false }
-                }
+                )
                 .graphicsLayer {
                     val s = scale.value
                     scaleX = s

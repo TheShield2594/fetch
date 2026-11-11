@@ -3,8 +3,10 @@ package com.fetch.tv.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -23,12 +25,20 @@ object FetchFocusSpec {
     /** The ring as a stroke, for a modifier `border`. */
     @Composable
     @ReadOnlyComposable
-    fun stroke(): BorderStroke = FetchTheme.focusRing.border(ringWidth)
+    fun stroke(): BorderStroke = FetchTheme.focusRing.border()
 
-    /** The ring as a tv-material [Border] on [shape]. */
+    /**
+     * The ring as a tv-material [Border] on [shape]. Pass the control's [focusedFill] when it has
+     * one: on a light fill the ring is drawn a gap outside the edge (tv-material draws a positive
+     * `inset` outwards), so the dark page between them keeps the ring visible.
+     */
     @Composable
     @ReadOnlyComposable
-    fun border(shape: Shape): Border = Border(border = stroke(), shape = shape)
+    fun border(shape: Shape, focusedFill: Color? = null): Border {
+        val ring = FetchTheme.focusRing
+        val gap = if (focusedFill != null && ring.needsInnerGap(focusedFill)) ring.innerGap else 0.dp
+        return Border(border = stroke(), inset = gap, shape = shape)
+    }
 
     /** The resting hairline that keeps a control's edge visible on a matching surface. */
     @Composable

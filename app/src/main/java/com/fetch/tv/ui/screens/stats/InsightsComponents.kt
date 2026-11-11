@@ -324,7 +324,7 @@ internal fun InsightPoster(
             ),
             border = CardDefaults.border(
                 border = FetchCardDefaults.restingBorder(shape),
-                focusedBorder = Border(border = FetchTheme.focusRing.border(2.dp), shape = shape)
+                focusedBorder = Border(border = FetchTheme.focusRing.border(), shape = shape)
             )
         ) {
             Box(modifier = Modifier.fillMaxSize().clip(shape).background(FetchTheme.colors.BackgroundCard)) {

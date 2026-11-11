@@ -475,7 +475,7 @@ fun rememberSkeletonShimmer(backdropAware: Boolean = false): SkeletonShimmer {
         )
     }
     // Reduced motion keeps the placeholder's resting colour without the sweep.
-    if (!FetchTheme.fullMotion) return remember(colors) { SkeletonShimmer(colors, offset = null) }
+    if (!FetchTheme.fullMotion || FetchTheme.lowRamDevice) return remember(colors) { SkeletonShimmer(colors, offset = null) }
     val offset = rememberInfiniteTransition(label = "skeletonShimmer").animateFloat(
         initialValue = 0f,
         targetValue = SKELETON_SHIMMER_DISTANCE_PX,
@@ -514,8 +514,8 @@ fun CatalogRowsSkeleton(
     rowCount: Int = 3,
     showHero: Boolean = false,
     startPadding: Dp = FetchTheme.spacing.screen.horizontal,
-    cardWidth: Dp = FetchTheme.sizes.cards.posterWidth,
-    cardHeight: Dp = FetchTheme.sizes.cards.posterHeight
+    cardWidth: Dp = FetchTheme.components.posterCard.width,
+    cardHeight: Dp = FetchTheme.components.posterCard.height
 ) {
     val shimmer = rememberSkeletonShimmer()
     Column(
@@ -562,8 +562,8 @@ fun CatalogRowsSkeleton(
 fun PosterGridSkeleton(
     modifier: Modifier = Modifier,
     rowCount: Int = 3,
-    cardWidth: Dp = FetchTheme.sizes.cards.posterWidth,
-    cardHeight: Dp = FetchTheme.sizes.cards.posterHeight
+    cardWidth: Dp = FetchTheme.components.posterCard.width,
+    cardHeight: Dp = FetchTheme.components.posterCard.height
 ) {
     val shimmer = rememberSkeletonShimmer()
     Column(

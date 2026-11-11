@@ -135,7 +135,7 @@ fun FetchTextField(
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             ),
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             )
         ),
@@ -255,7 +255,7 @@ fun FetchButton(
         },
         border = ButtonDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             )
         ),
@@ -295,7 +295,7 @@ fun FetchChoiceButton(
             } else {
                 Border.None
             },
-            focusedBorder = Border(border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs), shape = shape)
+            focusedBorder = Border(border = FetchTheme.focusRing.border(), shape = shape)
         ),
         shape = ButtonDefaults.shape(shape),
         scale = ButtonDefaults.scale(focusedScale = 1f)

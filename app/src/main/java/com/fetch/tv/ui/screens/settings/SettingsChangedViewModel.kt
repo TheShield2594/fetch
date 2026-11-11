@@ -128,6 +128,7 @@ class SettingsChangedViewModel @Inject constructor(
         add(theme.themeSelection.map { it.theme }.changedRow(SettingsSearchKey(appearance, R.string.appearance_color_theme), null))
         add(theme.selectedFont.changedRow(SettingsSearchKey(appearance, R.string.appearance_font), AppFont.SCHIBSTED_GROTESK))
         add(theme.highContrast.changedRow(SettingsSearchKey(appearance, R.string.appearance_high_contrast), false))
+        add(theme.reduceMotion.changedRow(SettingsSearchKey(appearance, R.string.appearance_reduce_motion), false))
         add(theme.amoledMode.changedRow(SettingsSearchKey(appearance, R.string.appearance_amoled_mode), false))
         add(theme.amoledSurfacesMode.changedRow(SettingsSearchKey(appearance, R.string.appearance_amoled_surfaces_mode), false))
         add(

@@ -159,7 +159,6 @@ fun TrailerSection(
             width = 260.dp,
             height = 146.dp,
             cornerRadius = posterCardCornerRadius,
-            focusedBorderWidth = FetchCardDefaults.FocusedBorderWidth,
             focusedScale = FetchCardDefaults.FocusedScale
         )
     }

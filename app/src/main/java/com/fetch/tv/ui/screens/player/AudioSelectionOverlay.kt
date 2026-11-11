@@ -301,7 +301,7 @@ private fun AudioTrackCard(
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             ),
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             )
         ),
@@ -602,7 +602,7 @@ private fun AudioControlsContent(
                         shape = RoundedCornerShape(FetchTheme.radii.md)
                     ),
                     focusedBorder = Border(
-                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                        border = FetchTheme.focusRing.border(),
                         shape = RoundedCornerShape(FetchTheme.radii.md)
                     )
                 ),
@@ -763,10 +763,7 @@ private fun StepCard(
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             ),
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(
-                    width = FetchTheme.spacing.xxs,
-                    alpha = if (enabled) 1f else 0f
-                ),
+                border = FetchTheme.focusRing.border(alpha = if (enabled) 1f else 0f),
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             )
         ),

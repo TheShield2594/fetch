@@ -230,7 +230,7 @@ private fun DiagnosticsSectionCard(
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs, alpha = 0.5f),
+                border = FetchTheme.focusRing.border(alpha = 0.5f),
                 shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
         ),

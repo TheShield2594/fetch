@@ -349,7 +349,7 @@ private fun ExperienceModeCard(
                 shape = shape
             ),
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.strokes.focus),
+                border = FetchTheme.focusRing.border(),
                 shape = shape
             )
         ),

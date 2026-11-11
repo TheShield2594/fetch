@@ -398,7 +398,7 @@ private fun NextEpisodeThresholdModeDialog(
         selectedValue = selectedMode,
         onOptionSelected = onModeSelected,
         onDismiss = onDismiss,
-        width = 520.dp,
+        width = FetchTheme.components.dialog.width,
         maxHeight = 320.dp
     )
 }
@@ -721,7 +721,7 @@ private fun StreamRegexDialog(
                             ),
                             border = CardDefaults.border(
                                 focusedBorder = Border(
-                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    border = FetchTheme.focusRing.border(),
                                     shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.xl)
                                 )
                             ),
@@ -753,7 +753,7 @@ private fun StreamRegexDialog(
                             shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm)
                         ),
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm)
                         )
                     ),

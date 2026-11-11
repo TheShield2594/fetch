@@ -374,7 +374,7 @@ internal fun EpisodeOptionsOverlay(
                         .scrollableTextPanel(
                             scrollState = detailsScrollState,
                             focusBorder = if (detailsPanelFocused) {
-                                FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+                                FetchTheme.focusRing.border()
                             } else {
                                 null
                             },
@@ -435,7 +435,7 @@ internal fun EpisodeOptionsOverlay(
                     ) {
                         Text(
                             text = episodeLabel,
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                            style = FetchTheme.textStyles.titleStrong,
                             color = FetchTheme.colors.Primary
                         )
 

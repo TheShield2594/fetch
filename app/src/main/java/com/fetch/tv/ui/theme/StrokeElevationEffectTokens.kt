@@ -8,56 +8,19 @@ import androidx.compose.ui.unit.dp
 data class FetchStrokeTokens(
     val none: Dp,
     val hairline: Dp,
-    val thin: Dp,
     val medium: Dp,
     val focus: Dp,
     val heavy: Dp,
-    val progress: Dp,
-    val divider: Dp
-)
-
-@Immutable
-data class FetchEffectTokens(
-    val blurSoft: Dp,
-    val blurPanel: Dp,
-    val blurStrong: Dp,
-    val scrimLightAlpha: Float,
-    val scrimMediumAlpha: Float,
-    val scrimStrongAlpha: Float,
-    val glowSoftAlpha: Float,
-    val glowStrongAlpha: Float,
-    val imageOverlayAlpha: Float,
-    val disabledAlpha: Float,
-    val shimmerLowAlpha: Float,
-    val shimmerHighAlpha: Float
+    val progress: Dp
 )
 
 object FetchStrokes {
     val tokens = FetchStrokeTokens(
         none = 0.dp,
         hairline = 1.dp,
-        thin = 1.5.dp,
         medium = 2.dp,
         focus = 2.dp,
         heavy = 3.dp,
-        progress = 4.dp,
-        divider = 1.dp
-    )
-}
-
-object FetchEffects {
-    val tokens = FetchEffectTokens(
-        blurSoft = 12.dp,
-        blurPanel = 26.dp,
-        blurStrong = 40.dp,
-        scrimLightAlpha = 0.28f,
-        scrimMediumAlpha = 0.52f,
-        scrimStrongAlpha = 0.78f,
-        glowSoftAlpha = 0.18f,
-        glowStrongAlpha = 0.38f,
-        imageOverlayAlpha = 0.62f,
-        disabledAlpha = 0.42f,
-        shimmerLowAlpha = 0.08f,
-        shimmerHighAlpha = 0.18f
+        progress = 4.dp
     )
 }

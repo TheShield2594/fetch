@@ -90,8 +90,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -1353,7 +1351,7 @@ private fun ModernCarouselCard(
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
     val backgroundCardColor = FetchTheme.colors.BackgroundCard
-    val focusRingBorder = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth)
+    val focusRingBorder = FetchTheme.focusRing.border()
     val titleMedium = MaterialTheme.typography.titleMedium
     val backgroundPainter = remember(backgroundCardColor) { ColorPainter(backgroundCardColor) }
     val focusedBorder = remember(cardShape, focusRingBorder) {
@@ -1394,8 +1392,6 @@ private fun ModernCarouselCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(cardHeight)
-                // Name the card itself: the artwork can be missing, and the title sits outside it.
-                .semantics { contentDescription = item.title }
                 .focusRequester(focusRequester)
                 .onFocusChanged {
                     isFocused = it.isFocused
@@ -1442,7 +1438,11 @@ private fun ModernCarouselCard(
             // A card that widens into its backdrop on focus doesn't also grow; nor does one the
             // held D-pad is only sliding past.
             focusedScale = if (focusedPosterBackdropExpandEnabled || isFastScrolling) 1f else FetchTheme.focus.cardScale,
-            focusedShadow = FetchTheme.focus.cardShadow
+            focusedShadow = FetchTheme.focus.cardShadow,
+            // Name the card itself: the artwork can be missing, and the title sits outside it.
+            // The label replaces the logo and fallback title inside, so the title is read once.
+            label = item.title,
+            stateDescription = if (isWatched) stringResource(R.string.episodes_cd_watched) else null
         ) {
             Box(
                 modifier = Modifier

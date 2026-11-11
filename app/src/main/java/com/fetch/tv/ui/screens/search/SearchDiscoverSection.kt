@@ -503,7 +503,7 @@ private fun DiscoverChip(
                 shape = chipShape
             ),
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = chipShape
             ),
             selectedBorder = Border(
@@ -511,7 +511,7 @@ private fun DiscoverChip(
                 shape = chipShape
             ),
             focusedSelectedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = chipShape
             )
         ),

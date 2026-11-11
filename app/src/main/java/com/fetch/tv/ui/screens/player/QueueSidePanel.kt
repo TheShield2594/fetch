@@ -226,7 +226,7 @@ private fun QueueRow(
             ),
             border = CardDefaults.border(
                 focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                    border = FetchTheme.focusRing.border(),
                     shape = RoundedCornerShape(FetchTheme.radii.xl)
                 )
             ),
@@ -320,7 +320,7 @@ private fun QueueRowIconButton(
         border = if (destructive) {
             IconButtonDefaults.border(
                 focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                    border = FetchTheme.focusRing.border(),
                     shape = CircleShape
                 )
             )

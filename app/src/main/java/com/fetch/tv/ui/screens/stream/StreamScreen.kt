@@ -1457,7 +1457,7 @@ internal fun StreamCard(
         border = CardDefaults.border(
             border = markedBorder(marked, cardShape),
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.strokes.focus),
+                border = FetchTheme.focusRing.border(),
                 shape = cardShape
             )
         ),

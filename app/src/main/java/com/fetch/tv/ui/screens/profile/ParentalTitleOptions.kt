@@ -158,7 +158,7 @@ fun ParentalTitleDialogHost(viewModel: ParentalTitleViewModel = hiltViewModel())
         onDismiss = viewModel::stopEditing,
         title = editing.name,
         subtitle = stringResource(R.string.parental_title_dialog_subtitle),
-        width = 520.dp,
+        width = FetchTheme.components.dialog.width,
         suppressFirstKeyUp = false,
         scrollable = true
     ) {

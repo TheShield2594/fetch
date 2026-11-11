@@ -527,7 +527,7 @@ private fun CommentCard(
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = shape
             )
         ),
@@ -932,7 +932,7 @@ private fun CommentOverlayContent(
                     .onFocusChanged { isCommentFocused = it.hasFocus }
                     .scrollableTextPanel(
                         scrollState = commentScrollState,
-                        focusBorder = if (isCommentFocused) FetchTheme.focusRing.border(FetchTheme.spacing.xxs) else null,
+                        focusBorder = if (isCommentFocused) FetchTheme.focusRing.border() else null,
                         shape = RoundedCornerShape(FetchTheme.radii.md),
                         thumbColor = FetchTheme.colors.TextSecondary,
                         trackColor = FetchTheme.colors.Divider

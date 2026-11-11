@@ -127,7 +127,7 @@ internal fun FetchingPanel(
                 } else {
                     stringResource(R.string.fetching_addons_done, answered)
                 },
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                style = FetchTheme.textStyles.titleStrong,
                 color = FetchTheme.colors.TextPrimary,
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
             )
@@ -302,7 +302,7 @@ private fun PanelButton(
         shape = ButtonDefaults.shape(shape = shape),
         border = ButtonDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.strokes.focus),
+                border = FetchTheme.focusRing.border(),
                 shape = shape
             )
         ),

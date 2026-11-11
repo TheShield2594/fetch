@@ -57,7 +57,7 @@ internal fun PreferNextTimePrompt(
     ) {
         Text(
             text = stringResource(R.string.prefer_next_time_title),
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            style = FetchTheme.textStyles.titleStrong,
             color = FetchTheme.colors.Player.TextPrimary
         )
         Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {

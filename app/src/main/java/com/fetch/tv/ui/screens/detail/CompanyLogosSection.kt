@@ -293,7 +293,7 @@ private fun CompanyLogoCard(
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
         ),

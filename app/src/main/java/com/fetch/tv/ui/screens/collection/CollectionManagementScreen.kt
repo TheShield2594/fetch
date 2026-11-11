@@ -409,7 +409,7 @@ private fun ImportContent(
                                 ),
                                 border = ButtonDefaults.border(
                                     focusedBorder = Border(
-                                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                        border = FetchTheme.focusRing.border(),
                                         shape = RoundedCornerShape(FetchTheme.radii.md)
                                     )
                                 ),
@@ -631,7 +631,7 @@ private fun CollectionListItem(
                     ),
                     border = ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = RoundedCornerShape(FetchTheme.radii.md)
                         )
                     ),
@@ -651,7 +651,7 @@ private fun CollectionListItem(
                     ),
                     border = ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = RoundedCornerShape(FetchTheme.radii.md)
                         )
                     ),
@@ -671,7 +671,7 @@ private fun CollectionListItem(
                     ),
                     border = ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = RoundedCornerShape(FetchTheme.radii.md)
                         )
                     ),
@@ -690,7 +690,7 @@ private fun CollectionListItem(
                     ),
                     border = ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = RoundedCornerShape(FetchTheme.radii.md)
                         )
                     ),

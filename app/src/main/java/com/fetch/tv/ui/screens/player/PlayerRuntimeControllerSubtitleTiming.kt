@@ -53,14 +53,8 @@ private const val AUTO_SYNC_REACTION_COMPENSATION_MS = 300L
 internal fun PlayerRuntimeController.showSubtitleTimingDialog() {
     _uiState.update {
         it.copy(
-            showSubtitleTimingDialog = true,
-            showSubtitleOverlay = false,
-            showSubtitleStylePanel = false,
-            showSubtitleDelayOverlay = false,
-            showMoreDialog = false,
-            showSpeedDialog = false,
+            activeOverlay = PlayerOverlay.SUBTITLE_TIMING,
             choiceDialog = null,
-            showAudioOverlay = false,
             showControls = false,
             subtitleAutoSyncCapturedVideoMs = null,
             subtitleAutoSyncStatus = null
@@ -72,7 +66,7 @@ internal fun PlayerRuntimeController.showSubtitleTimingDialog() {
 internal fun PlayerRuntimeController.dismissSubtitleTimingDialog() {
     subtitleAutoSyncLoadJob?.cancel()
     subtitleAutoSyncLoadJob = null
-    _uiState.update { it.copy(showSubtitleTimingDialog = false, subtitleAutoSyncStatus = null) }
+    _uiState.update { it.copy(activeOverlay = it.activeOverlay.closing(PlayerOverlay.SUBTITLE_TIMING), subtitleAutoSyncStatus = null) }
     scheduleHideControls()
 }
 
@@ -97,9 +91,8 @@ internal fun PlayerRuntimeController.applySubtitleAutoSyncCue(cueStartTimeMs: Lo
     subtitleDelayUs.set(newDelayMs.toLong() * 1000L)
     _uiState.update {
         it.copy(
+            activeOverlay = PlayerOverlay.SUBTITLE_DELAY,
             subtitleDelayMs = newDelayMs,
-            showSubtitleTimingDialog = false,
-            showSubtitleDelayOverlay = true,
             showControls = false,
             subtitleAutoSyncStatus = context.getString(
                 R.string.subtitle_auto_sync_applied,

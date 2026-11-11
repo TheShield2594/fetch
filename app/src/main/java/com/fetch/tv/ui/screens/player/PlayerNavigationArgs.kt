@@ -1,11 +1,15 @@
 package com.fetch.tv.ui.screens.player
 
 import androidx.lifecycle.SavedStateHandle
-import org.json.JSONArray
+import com.fetch.tv.ui.navigation.Screen
+import org.json.JSONObject
 import java.net.URLDecoder
 import java.net.URLEncoder
 
 internal data class PlayerNavigationArgs(
+    /** Names this session's [PlaybackRequest] in [PlaybackRequests]. */
+    val requestId: String?,
+    /** From the [PlaybackRequest]; empty when the request is gone (process restore). */
     val streamUrl: String,
     val title: String,
     val streamName: String?,
@@ -31,7 +35,6 @@ internal data class PlayerNavigationArgs(
     val streamDescription: String?,
     val infoHash: String?,
     val fileIdx: Int?,
-    val sourcesJson: String?,
     val contentLanguage: String?,
     val rememberedAudioLanguage: String?,
     val rememberedAudioName: String?,
@@ -50,12 +53,15 @@ internal data class PlayerNavigationArgs(
                 return runCatching { URLDecoder.decode(value, "UTF-8") }.getOrDefault(value)
             }
 
+            val requestId = savedStateHandle.get<String>("requestId")?.takeIf { it.isNotEmpty() }
+            val request = PlaybackRequests.get(requestId)
             return PlayerNavigationArgs(
-                streamUrl = savedStateHandle.get<String>("streamUrl") ?: "",
+                requestId = requestId,
+                streamUrl = request?.streamUrl ?: "",
                 title = decodedOrNull("title") ?: "",
                 streamName = decodedOrNull("streamName"),
                 year = decodedOrNull("year"),
-                headersJson = decodedOrNull("headers"),
+                headersJson = request?.headers?.takeIf { it.isNotEmpty() }?.let { JSONObject(it).toString() },
                 // NavController already decodes these IDs.
                 contentId = savedStateHandle.get<String>("contentId")?.takeIf { it.isNotEmpty() },
                 contentType = savedStateHandle.get<String>("contentType")?.takeIf { it.isNotEmpty() },
@@ -77,7 +83,6 @@ internal data class PlayerNavigationArgs(
                 streamDescription = decodedOrNull("streamDescription"),
                 infoHash = savedStateHandle.get<String>("infoHash")?.takeIf { it.isNotEmpty() },
                 fileIdx = savedStateHandle.get<String>("fileIdx")?.toIntOrNull(),
-                sourcesJson = decodedOrNull("sources"),
                 contentLanguage = decodedOrNull("contentLanguage"),
                 rememberedAudioLanguage = decodedOrNull("rememberedAudioLanguage"),
                 rememberedAudioName = decodedOrNull("rememberedAudioName"),
@@ -94,10 +99,13 @@ internal data class PlayerNavigationArgs(
  * place, so without this a process restore (for example after the TV's screensaver let the
  * system kill the app) rebuilds the player from the episode the session started on
  * (NuvioTV#3502). Keys that [PlayerNavigationArgs.from] URL-decodes are stored encoded.
+ *
+ * The stream itself (URL, headers, sources) goes to [PlaybackRequests] under [requestId], never
+ * into saved state: a restore resolves the stream again (see [playerRestoreStreamRoute]).
  */
 internal fun SavedStateHandle.rememberEpisodeForRestore(
-    streamUrl: String,
-    headersJson: String?,
+    requestId: String?,
+    request: PlaybackRequest,
     videoId: String?,
     season: Int?,
     episode: Int?,
@@ -112,14 +120,12 @@ internal fun SavedStateHandle.rememberEpisodeForRestore(
     streamDescription: String?,
     infoHash: String?,
     fileIdx: Int?,
-    sources: List<String>?,
     audioDelayMs: Int?
 ) {
     fun encoded(value: String?): String =
         value?.let { URLEncoder.encode(it, "UTF-8").replace("+", "%20") } ?: ""
 
-    this["streamUrl"] = streamUrl
-    this["headers"] = encoded(headersJson)
+    PlaybackRequests.update(requestId, request)
     this["videoId"] = videoId ?: ""
     this["season"] = season?.toString() ?: ""
     this["episode"] = episode?.toString() ?: ""
@@ -132,10 +138,41 @@ internal fun SavedStateHandle.rememberEpisodeForRestore(
     this["addonName"] = encoded(addonName)
     this["infoHash"] = infoHash ?: ""
     this["fileIdx"] = fileIdx?.toString() ?: ""
-    this["sources"] = encoded(sources?.let { JSONArray(it).toString() })
     this["audioDelayMs"] = audioDelayMs?.toString() ?: ""
     this["addonLogo"] = encoded(addonLogo)
     this["streamDescription"] = encoded(streamDescription)
     // The restored episode resumes from its saved progress, not from the start.
     this["startFromBeginning"] = "false"
+}
+
+/**
+ * The Stream screen route that resolves the stream again for a player restored without its
+ * [PlaybackRequest] (the process was killed), for the episode the player was last on. Null when
+ * the saved state doesn't say what was playing.
+ */
+internal fun playerRestoreStreamRoute(savedStateHandle: SavedStateHandle): String? {
+    val args = PlayerNavigationArgs.from(savedStateHandle)
+    val contentType = args.contentType ?: return null
+    val videoId = args.videoId ?: args.contentId ?: return null
+    fun flag(key: String) = savedStateHandle.get<String>(key)?.toBooleanStrictOrNull() == true
+    return Screen.Stream.createRoute(
+        videoId = videoId,
+        contentType = contentType,
+        title = args.contentName ?: args.title,
+        poster = args.poster,
+        backdrop = args.backdrop,
+        logo = args.logo,
+        season = args.initialSeason,
+        episode = args.initialEpisode,
+        episodeName = args.initialEpisodeTitle,
+        year = args.year,
+        contentId = args.contentId,
+        contentName = args.contentName,
+        // Resume where the session left off; its progress was saved as it played.
+        startFromBeginning = false,
+        returnToDetailOnBack = flag("returnToDetailOnBack"),
+        returnToHomeOnBack = flag("returnToHomeOnBack"),
+        contentLanguage = args.contentLanguage,
+        profileId = args.profileId
+    )
 }

@@ -91,18 +91,13 @@ internal fun PlayerRuntimeController.switchToInternalPlayerEngine(
     hidePlayerEngineSwitchInfoJob?.cancel()
     _uiState.update {
         it.copy(
+            activeOverlay = it.activeOverlay.closing(PlayerOverlay.AUDIO, PlayerOverlay.SUBTITLES, PlayerOverlay.SUBTITLE_STYLE, PlayerOverlay.SUBTITLE_DELAY, PlayerOverlay.SPEED, PlayerOverlay.MORE),
             error = null,
             showSwitchToMpvErrorAction = false,
             showPauseOverlay = false,
             showLoadingOverlay = it.loadingOverlayEnabled,
             showControls = false,
-            showAudioOverlay = false,
-            showSubtitleOverlay = false,
-            showSubtitleStylePanel = false,
-            showSubtitleDelayOverlay = false,
-            showSpeedDialog = false,
             choiceDialog = null,
-            showMoreDialog = false,
             internalPlayerEngine = targetEngine,
             showPlayerEngineSwitchInfo = true,
             playerEngineSwitchInfoText = switchMessage

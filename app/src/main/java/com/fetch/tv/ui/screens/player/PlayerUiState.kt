@@ -98,6 +98,13 @@ data class PlayerUiState(
     /** Guest stars of the playing episode (TMDB), shown after [castMembers] on the pause overlay. */
     val episodeGuestStars: List<MetaCastMember> = emptyList(),
     val showControls: Boolean = true,
+    /**
+     * The one panel, dialog or row open over playback, or null. Opening one closes the others,
+     * so the screen never has to agree on lists of visibility flags.
+     */
+    val activeOverlay: PlayerOverlay? = null,
+    /** What [PlayerOverlay.STREAM_INFO] was opened over (the More row), restored when it closes. */
+    val overlayBeneathStreamInfo: PlayerOverlay? = null,
     val showSeekOverlay: Boolean = false,
     /** Where a seek will land and how far from its start; null when no seek is in progress. */
     val seekFeedback: SeekFeedback? = null,
@@ -129,11 +136,6 @@ data class PlayerUiState(
     val persistAudioAmplification: Boolean = false,
     val centerMixLevelDb: Int = 0,
     val isCenterMixAvailable: Boolean = false,
-    val showAudioOverlay: Boolean = false,
-    val showSubtitleOverlay: Boolean = false,
-    val showSubtitleStylePanel: Boolean = false,
-    val showSubtitleTimingDialog: Boolean = false,
-    val showSubtitleDelayOverlay: Boolean = false,
     val subtitleDelayMs: Int = 0,
     val subtitleAutoSyncCues: List<SubtitleSyncCue> = emptyList(),
     val subtitleAutoSyncCapturedVideoMs: Long? = null,
@@ -141,10 +143,8 @@ data class PlayerUiState(
     val subtitleAutoSyncError: String? = null,
     val subtitleAutoSyncLoading: Boolean = false,
     val subtitleAutoSyncLoadedTrackKey: String? = null,
-    val showSpeedDialog: Boolean = false,
     /** A short list opened from the More row (sleep timer or aspect), or null. */
     val choiceDialog: PlayerChoiceDialog? = null,
-    val showMoreDialog: Boolean = false,
     // Subtitle style settings
     val subtitleStyle: SubtitleStyleSettings = SubtitleStyleSettings(),
     // Current video is HDR10/HDR10+/HLG/Dolby Vision; selects the HDR subtitle style when enabled
@@ -156,7 +156,6 @@ data class PlayerUiState(
     val addonSubtitlesError: String? = null,
     val installedSubtitleAddonOrder: List<String> = emptyList(),
     // Episodes/streams side panel (for series)
-    val showEpisodesPanel: Boolean = false,
     val isLoadingEpisodes: Boolean = false,
     val episodesError: String? = null,
     val episodesAll: List<Video> = emptyList(),
@@ -184,8 +183,6 @@ data class PlayerUiState(
     val episodeStreamsEpisode: Int? = null,
     val episodeStreamsTitle: String? = null,
     // Stream sources side panel (for switching streams during playback)
-    val showSourcesPanel: Boolean = false,
-    val showQueuePanel: Boolean = false,
     /** The profile's episode queue, including the video playing now if it was queued. */
     val queueItems: List<com.fetch.tv.data.local.QueueItem> = emptyList(),
     /** A queue item the player cannot start in place; the screen hands it to navigation once. */
@@ -257,10 +254,24 @@ data class PlayerUiState(
     val showAspectRatioIndicator: Boolean = false,
     val aspectRatioIndicatorText: String = "",
     // Stream info overlay
-    val showStreamInfoOverlay: Boolean = false,
     val streamInfoData: StreamInfoData? = null,
     val isLive: Boolean = false
 ) {
+    val showAudioOverlay: Boolean get() = activeOverlay == PlayerOverlay.AUDIO
+    val showSubtitleOverlay: Boolean get() = activeOverlay == PlayerOverlay.SUBTITLES
+    val showSubtitleStylePanel: Boolean get() = activeOverlay == PlayerOverlay.SUBTITLE_STYLE
+    val showSubtitleTimingDialog: Boolean get() = activeOverlay == PlayerOverlay.SUBTITLE_TIMING
+    val showSubtitleDelayOverlay: Boolean get() = activeOverlay == PlayerOverlay.SUBTITLE_DELAY
+    val showSpeedDialog: Boolean get() = activeOverlay == PlayerOverlay.SPEED
+    val showMoreDialog: Boolean get() = activeOverlay == PlayerOverlay.MORE
+    val showEpisodesPanel: Boolean get() = activeOverlay == PlayerOverlay.EPISODES
+    val showSourcesPanel: Boolean get() = activeOverlay == PlayerOverlay.SOURCES
+    val showQueuePanel: Boolean get() = activeOverlay == PlayerOverlay.QUEUE
+    val showStreamInfoOverlay: Boolean get() = activeOverlay == PlayerOverlay.STREAM_INFO
+
+    /** A side panel or dialog has the keys: anything open except the More row and stream info. */
+    val isPanelOpen: Boolean get() = activeOverlay?.isPanel == true
+
     /** Subtitle style to render with, after applying the HDR override for the current video. */
     val effectiveSubtitleStyle: SubtitleStyleSettings
         get() = subtitleStyle.forVideo(isHdrVideo)
@@ -483,3 +494,25 @@ data class StreamInfoData(
     val playerEngine: String? = null,
     val serverPlayback: String? = null
 )
+
+/** What is open over playback; [PlayerUiState.activeOverlay] holds at most one. */
+enum class PlayerOverlay(
+    /** Takes the keys and covers the controls, unlike the More row (part of the controls) and stream info. */
+    val isPanel: Boolean = true,
+) {
+    AUDIO,
+    SUBTITLES,
+    SUBTITLE_STYLE,
+    SUBTITLE_TIMING,
+    SUBTITLE_DELAY,
+    SPEED,
+    MORE(isPanel = false),
+    EPISODES,
+    SOURCES,
+    QUEUE,
+    STREAM_INFO(isPanel = false),
+}
+
+/** This overlay, or null when it is one of [overlays] (closing those, leaving any other open). */
+fun PlayerOverlay?.closing(vararg overlays: PlayerOverlay): PlayerOverlay? =
+    if (this != null && this in overlays) null else this

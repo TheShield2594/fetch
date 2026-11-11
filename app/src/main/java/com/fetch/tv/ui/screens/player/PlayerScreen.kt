@@ -608,26 +608,13 @@ fun PlayerScreen(
     // Request focus for key events when controls visibility or panel state changes
     LaunchedEffect(
         uiState.showControls,
-        uiState.showEpisodesPanel,
-        uiState.showSourcesPanel,
-        uiState.showQueuePanel,
-        uiState.showSubtitleStylePanel,
-        uiState.showSubtitleDelayOverlay,
-        uiState.showSubtitleTimingDialog,
-        uiState.showAudioOverlay,
-        uiState.showSubtitleOverlay,
-        uiState.showSpeedDialog,
+        uiState.isPanelOpen,
         shouldConfirmNextEpisodeOnEnd,
         postPlayRecommendationState.isVisible,
     ) {
         if (shouldConfirmNextEpisodeOnEnd || postPlayRecommendationState.isVisible) return@LaunchedEffect
         if (uiState.error != null) return@LaunchedEffect
-        if (uiState.showControls && !uiState.showEpisodesPanel && !uiState.showSourcesPanel &&
-            !uiState.showQueuePanel && !uiState.showAudioOverlay && !uiState.showSubtitleOverlay &&
-            !uiState.showSubtitleStylePanel && !uiState.showSubtitleDelayOverlay &&
-            !uiState.showSubtitleTimingDialog &&
-            !uiState.showSpeedDialog
-        ) {
+        if (uiState.showControls && !uiState.isPanelOpen) {
             // Focus as soon as the controls' content is attached; it can take focus while it
             // is still fading in. A fixed wait let early D-pad presses land elsewhere first.
             val returnTo = panelReturnFocus
@@ -750,16 +737,7 @@ fun PlayerScreen(
 
                 if (uiState.showSubtitleDelayOverlay) {
                     viewModel.onEvent(PlayerEvent.OnHideSubtitleDelayOverlay)
-                } else if (
-                    !uiState.showEpisodesPanel &&
-                    !uiState.showSourcesPanel &&
-                    !uiState.showQueuePanel &&
-                    !uiState.showAudioOverlay &&
-                    !uiState.showSubtitleOverlay &&
-                    !uiState.showSubtitleStylePanel &&
-                    !uiState.showSubtitleTimingDialog &&
-                    !uiState.showSpeedDialog
-                ) {
+                } else if (!uiState.isPanelOpen) {
                     viewModel.onEvent(PlayerEvent.OnShowSubtitleOverlay)
                 }
                 true
@@ -876,11 +854,7 @@ fun PlayerScreen(
                 }
 
                 // When a side panel or dialog is open, let it handle all keys
-                val panelOrDialogOpen = uiState.showEpisodesPanel || uiState.showSourcesPanel ||
-                        uiState.showQueuePanel ||
-                        uiState.showAudioOverlay || uiState.showSubtitleOverlay ||
-                        uiState.showSubtitleStylePanel || uiState.showSpeedDialog ||
-                        uiState.showSubtitleDelayOverlay || uiState.showSubtitleTimingDialog ||
+                val panelOrDialogOpen = uiState.isPanelOpen ||
                         shouldConfirmNextEpisodeOnEnd ||
                         uiState.postPlayMode is PostPlayMode.StillWatching ||
                         postPlayRecommendationState.isVisible ||
@@ -1131,17 +1105,7 @@ fun PlayerScreen(
                 !shouldConfirmNextEpisodeOnEnd &&
                 !uiState.showLoadingOverlay &&
                 !uiState.showPauseOverlay &&
-                !uiState.showStreamInfoOverlay &&
-                !uiState.showEpisodesPanel &&
-                !uiState.showSourcesPanel &&
-                !uiState.showQueuePanel &&
-                !uiState.showAudioOverlay &&
-                !uiState.showSubtitleOverlay &&
-                !uiState.showSubtitleStylePanel &&
-                !uiState.showSubtitleDelayOverlay &&
-                !uiState.showSubtitleTimingDialog &&
-                !uiState.showSpeedDialog &&
-                !uiState.showMoreDialog
+                uiState.activeOverlay == null
         }
         val seekOverlayVisible = uiState.showSeekOverlay && !uiState.showControls && uiState.error == null &&
             !uiState.showLoadingOverlay && !uiState.showPauseOverlay &&
@@ -1150,15 +1114,10 @@ fun PlayerScreen(
             !uiState.isLive
         val playerControlsVisible = uiState.showControls && uiState.error == null &&
             !uiState.showLoadingOverlay && !uiState.showPauseOverlay &&
-            !uiState.showStreamInfoOverlay &&
-            !uiState.showSubtitleStylePanel &&
-            !uiState.showSubtitleDelayOverlay &&
-            !uiState.showEpisodesPanel &&
-            !uiState.showSourcesPanel &&
-            !uiState.showQueuePanel &&
-            !uiState.showAudioOverlay &&
-            !uiState.showSubtitleOverlay &&
-            !uiState.showSpeedDialog &&
+            // The More row is part of the controls, and the timing dialog sits above them.
+            (uiState.activeOverlay == null ||
+                uiState.activeOverlay == PlayerOverlay.MORE ||
+                uiState.activeOverlay == PlayerOverlay.SUBTITLE_TIMING) &&
             !postPlayRecommendationState.isVisible &&
             uiState.postPlayMode !is PostPlayMode.StillWatching
         val fallbackSubtitleLiftPx = with(LocalDensity.current) { SUBTITLE_CONTROLS_LIFT.toPx() }
@@ -1505,11 +1464,7 @@ fun PlayerScreen(
 
         val preferSuggestions = preferNextTimeSuggestions
         if (preferSuggestions != null &&
-            !uiState.showSourcesPanel &&
-            !uiState.showQueuePanel &&
-            !uiState.showEpisodesPanel &&
-            !uiState.showAudioOverlay &&
-            !uiState.showSubtitleOverlay &&
+            !uiState.isPanelOpen &&
             !uiState.showPauseOverlay &&
             uiState.error == null
         ) {
@@ -1582,14 +1537,7 @@ fun PlayerScreen(
             uiState.error == null &&
             !uiState.showLoadingOverlay &&
             !uiState.showPauseOverlay &&
-            !uiState.showEpisodesPanel &&
-            !uiState.showSourcesPanel &&
-            !uiState.showQueuePanel &&
-            !uiState.showAudioOverlay &&
-            !uiState.showSubtitleOverlay &&
-            !uiState.showSubtitleStylePanel &&
-            !uiState.showSpeedDialog &&
-            !uiState.showMoreDialog &&
+            uiState.activeOverlay == null &&
             !uiState.showDisplayModeInfo &&
             !postPlayRecommendationState.isVisible
 
@@ -1745,15 +1693,7 @@ fun PlayerScreen(
                 !uiState.showControls &&
                 uiState.error == null &&
                 !uiState.showLoadingOverlay &&
-                !uiState.showPauseOverlay &&
-                !uiState.showSubtitleStylePanel &&
-                !uiState.showEpisodesPanel &&
-                !uiState.showSourcesPanel &&
-                !uiState.showQueuePanel &&
-                !uiState.showAudioOverlay &&
-                !uiState.showSubtitleOverlay &&
-                !uiState.showSubtitleTimingDialog &&
-                !uiState.showSpeedDialog,
+                !uiState.showPauseOverlay,
             enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.quick)),
             exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick)),
             modifier = Modifier
@@ -1965,16 +1905,7 @@ fun PlayerScreen(
             visible = uiState.showSubtitleTimingDialog &&
                 uiState.error == null &&
                 !uiState.showLoadingOverlay &&
-                !uiState.showPauseOverlay &&
-                !uiState.showEpisodesPanel &&
-                !uiState.showSourcesPanel &&
-                !uiState.showQueuePanel &&
-                !uiState.showAudioOverlay &&
-                !uiState.showSubtitleOverlay &&
-                !uiState.showSubtitleStylePanel &&
-                !uiState.showSubtitleDelayOverlay &&
-                !uiState.showSpeedDialog &&
-                !uiState.showMoreDialog,
+                !uiState.showPauseOverlay,
             onDismiss = { viewModel.onEvent(PlayerEvent.OnDismissSubtitleTimingDialog) },
             modifier = Modifier
                 .fillMaxSize()

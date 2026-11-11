@@ -297,6 +297,8 @@ class PlayerViewModel @Inject constructor(
     override fun onCleared() {
         postPlayRecommendationController.stop()
         controller.onCleared()
+        // The screen is gone for good (not a configuration change): drop its stream.
+        PlaybackRequests.remove(controller.navigationArgs.requestId)
         // Allow the trailer player to be re-created when returning to home screen.
         trailerPlayerPool.reclaim()
         super.onCleared()

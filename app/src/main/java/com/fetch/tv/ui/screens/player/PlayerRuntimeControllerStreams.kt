@@ -112,15 +112,9 @@ private fun Stream.sourceBadgeMergeKey(): String {
 internal fun PlayerRuntimeController.showEpisodesPanel() {
     _uiState.update {
         it.copy(
-            showEpisodesPanel = true,
+            activeOverlay = PlayerOverlay.EPISODES,
             showControls = true,
-            showAudioOverlay = false,
-            showSubtitleOverlay = false,
-            showSubtitleStylePanel = false,
-            showSubtitleTimingDialog = false,
-            showSpeedDialog = false,
             choiceDialog = null,
-            showMoreDialog = false
         )
     }
 
@@ -135,16 +129,9 @@ internal fun PlayerRuntimeController.showEpisodesPanel() {
 internal fun PlayerRuntimeController.showSourcesPanel() {
     _uiState.update {
         it.copy(
-            showSourcesPanel = true,
+            activeOverlay = PlayerOverlay.SOURCES,
             showControls = true,
-            showAudioOverlay = false,
-            showSubtitleOverlay = false,
-            showSubtitleStylePanel = false,
-            showSubtitleTimingDialog = false,
-            showSpeedDialog = false,
             choiceDialog = null,
-            showMoreDialog = false,
-            showEpisodesPanel = false,
             showEpisodeStreams = false
         )
     }
@@ -343,7 +330,7 @@ internal fun PlayerRuntimeController.dismissSourcesPanel() {
     errorBeforeSourcesPanel = null
     _uiState.update {
         it.copy(
-            showSourcesPanel = false,
+            activeOverlay = it.activeOverlay.closing(PlayerOverlay.SOURCES),
             isLoadingSourceStreams = false,
             error = restoredError ?: it.error,
             showErrorRecoveryActions = if (restoredError != null) true else it.showErrorRecoveryActions
@@ -669,14 +656,14 @@ private fun PlayerRuntimeController.openExternalStreamInBrowser(
         _uiState.update {
             if (fromEpisodePanel) {
                 it.copy(
-                    showEpisodesPanel = false,
+                    activeOverlay = it.activeOverlay.closing(PlayerOverlay.EPISODES),
                     showEpisodeStreams = false,
                     isLoadingEpisodeStreams = false,
                     episodeStreamsError = null
                 )
             } else {
                 it.copy(
-                    showSourcesPanel = false,
+                    activeOverlay = it.activeOverlay.closing(PlayerOverlay.SOURCES),
                     isLoadingSourceStreams = false,
                     sourceStreamsError = null
                 )
@@ -801,7 +788,7 @@ internal fun PlayerRuntimeController.switchToSourceStream(
             subtitleTracks = emptyList(),
             selectedAudioTrackIndex = -1,
             selectedSubtitleTrackIndex = -1,
-            showSourcesPanel = false,
+            activeOverlay = it.activeOverlay.closing(PlayerOverlay.SOURCES),
             isLoadingSourceStreams = false,
             sourceStreamsError = null,
             showErrorRecoveryActions = false,
@@ -858,7 +845,7 @@ internal fun PlayerRuntimeController.dismissEpisodesPanel() {
     episodeStreamsJob = null
     _uiState.update {
         it.copy(
-            showEpisodesPanel = false,
+            activeOverlay = it.activeOverlay.closing(PlayerOverlay.EPISODES),
             showEpisodeStreams = false,
             isLoadingEpisodeStreams = false
         )
@@ -1243,7 +1230,7 @@ internal fun PlayerRuntimeController.switchToEpisodeStream(
             subtitleTracks = emptyList(),
             selectedAudioTrackIndex = -1,
             selectedSubtitleTrackIndex = -1,
-            showEpisodesPanel = false,
+            activeOverlay = it.activeOverlay.closing(PlayerOverlay.EPISODES),
             showEpisodeStreams = false,
             isLoadingEpisodeStreams = false,
             episodeStreamsError = null,
@@ -1297,9 +1284,12 @@ private fun String.safeStreamTraceHost(): String {
 
 private fun PlayerRuntimeController.rememberCurrentEpisodeForRestore(stream: Stream) {
     savedStateHandle.rememberEpisodeForRestore(
-        streamUrl = currentStreamUrl,
-        headersJson = currentHeaders.takeIf { it.isNotEmpty() }
-            ?.let { org.json.JSONObject(it).toString() },
+        requestId = navigationArgs.requestId,
+        request = PlaybackRequest(
+            streamUrl = currentStreamUrl,
+            headers = currentHeaders,
+            sources = stream.sources
+        ),
         videoId = currentVideoId,
         season = currentSeason,
         episode = currentEpisode,
@@ -1314,7 +1304,6 @@ private fun PlayerRuntimeController.rememberCurrentEpisodeForRestore(stream: Str
         streamDescription = currentStreamDescription,
         infoHash = stream.getEffectiveInfoHash(),
         fileIdx = stream.getEffectiveFileIdx(),
-        sources = stream.sources,
         audioDelayMs = stream.behaviorHints?.audioDelayMs
     )
 }
@@ -1322,17 +1311,10 @@ private fun PlayerRuntimeController.rememberCurrentEpisodeForRestore(stream: Str
 internal fun PlayerRuntimeController.showEpisodeStreamPicker(video: Video, forceRefresh: Boolean = true) {
     _uiState.update {
         it.copy(
-            showEpisodesPanel = true,
+            activeOverlay = PlayerOverlay.EPISODES,
             showEpisodeStreams = true,
-            showSourcesPanel = false,
             showControls = true,
-            showAudioOverlay = false,
-            showSubtitleOverlay = false,
-            showSubtitleStylePanel = false,
-            showSubtitleTimingDialog = false,
-            showSpeedDialog = false,
             choiceDialog = null,
-            showMoreDialog = false,
             episodesSelectedSeason = video.season ?: it.episodesSelectedSeason
         )
     }

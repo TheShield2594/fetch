@@ -15,6 +15,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -29,7 +30,10 @@ import com.fetch.tv.ui.screens.home.HomeScreen
 import com.fetch.tv.ui.screens.addon.AddonManagerScreen
 import com.fetch.tv.ui.screens.addon.CatalogOrderScreen
 import com.fetch.tv.ui.screens.library.LibraryScreen
+import com.fetch.tv.ui.screens.player.PlaybackRequest
+import com.fetch.tv.ui.screens.player.PlaybackRequests
 import com.fetch.tv.ui.screens.player.PlayerExitReason
+import com.fetch.tv.ui.screens.player.playerRestoreStreamRoute
 import com.fetch.tv.ui.screens.player.PlayerScreen
 import com.fetch.tv.ui.screens.player.PostPlayRecommendation
 import com.fetch.tv.ui.screens.player.playerBackOpensCurrentEpisodeStreams
@@ -574,11 +578,12 @@ private fun PlaybackNavHost(
                     streamUrl?.let { url ->
                         navController.navigate(
                             Screen.Player.createRoute(
-                                streamUrl = url,
+                                requestId = PlaybackRequests.put(
+                                    PlaybackRequest(url, playbackInfo.headers.orEmpty(), playbackInfo.sources)
+                                ),
                                 title = playbackInfo.title,
                                 streamName = playbackInfo.streamName,
                                 year = playbackInfo.year,
-                                headers = playbackInfo.headers,
                                 contentId = playbackInfo.contentId,
                                 contentType = playbackInfo.contentType,
                                 contentName = playbackInfo.contentName,
@@ -602,7 +607,6 @@ private fun PlaybackNavHost(
                                 streamDescription = playbackInfo.streamDescription,
                                 infoHash = playbackInfo.infoHash,
                                 fileIdx = playbackInfo.fileIdx,
-                                sources = playbackInfo.sources,
                                 contentLanguage = playbackInfo.contentLanguage,
                                 profileId = playbackInfo.profileId,
                                 audioDelayMs = playbackInfo.audioDelayMs
@@ -616,11 +620,12 @@ private fun PlaybackNavHost(
                     autoPlayUrl?.let { url ->
                         navController.navigate(
                             Screen.Player.createRoute(
-                                streamUrl = url,
+                                requestId = PlaybackRequests.put(
+                                    PlaybackRequest(url, playbackInfo.headers.orEmpty(), playbackInfo.sources)
+                                ),
                                 title = playbackInfo.title,
                                 streamName = playbackInfo.streamName,
                                 year = playbackInfo.year,
-                                headers = playbackInfo.headers,
                                 contentId = playbackInfo.contentId,
                                 contentType = playbackInfo.contentType,
                                 contentName = playbackInfo.contentName,
@@ -644,7 +649,6 @@ private fun PlaybackNavHost(
                                 streamDescription = playbackInfo.streamDescription,
                                 infoHash = playbackInfo.infoHash,
                                 fileIdx = playbackInfo.fileIdx,
-                                sources = playbackInfo.sources,
                                 contentLanguage = playbackInfo.contentLanguage,
                                 profileId = playbackInfo.profileId,
                                 audioDelayMs = playbackInfo.audioDelayMs
@@ -660,7 +664,7 @@ private fun PlaybackNavHost(
         composable(
             route = Screen.Player.route,
             arguments = listOf(
-                navArgument("streamUrl") { type = NavType.StringType },
+                navArgument("requestId") { type = NavType.StringType },
                 navArgument("title") { type = NavType.StringType },
                 navArgument("streamName") {
                     type = NavType.StringType
@@ -668,11 +672,6 @@ private fun PlaybackNavHost(
                     defaultValue = null
                 },
                 navArgument("year") {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = null
-                },
-                navArgument("headers") {
                     type = NavType.StringType
                     nullable = true
                     defaultValue = null
@@ -804,6 +803,26 @@ private fun PlaybackNavHost(
                 }
             )
         ) { backStackEntry ->
+            // The stream URL lives in PlaybackRequests, which does not survive the process. A
+            // player restored after the system killed the app has no stream: resolve it again
+            // from the Stream screen (reuse-last-link, auto-play rules or the source list), which
+            // resumes from the saved progress, instead of replaying an old tokenised URL.
+            val needsStreamResolve = remember(backStackEntry) {
+                !PlaybackRequests.isAvailable(backStackEntry.savedStateHandle.get<String>("requestId"))
+            }
+            if (needsStreamResolve) {
+                LaunchedEffect(backStackEntry) {
+                    val route = playerRestoreStreamRoute(backStackEntry.savedStateHandle)
+                    if (route != null) {
+                        navController.navigate(route) {
+                            popUpTo(Screen.Player.route) { inclusive = true }
+                        }
+                    } else {
+                        navController.popBackStack()
+                    }
+                }
+                return@composable
+            }
             fun popBackToStream(): Boolean {
                 val autoPlayNavigation = backStackEntry.arguments
                     ?.getString("autoPlayNav")

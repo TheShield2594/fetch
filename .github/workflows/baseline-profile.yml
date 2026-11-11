@@ -62,7 +62,7 @@ jobs:
           script: |
             (adb logcat -s FetchJourney > journey-log.txt &); timeout 60m ./gradlew --no-daemon -Dorg.gradle.jvmargs=-Xmx3g :app:generateBaselineProfile; status=$?; adb pull /sdcard/Download/fetch-journey journey-screens || true; exit $status
             python3 scripts/check_baseline_profiles.py
-            if [ "${{ github.event_name != 'workflow_dispatch' || inputs.benchmark }}" = "true" ]; then scripts/perf_baseline.sh benchmark-emulator || echo "::warning::StartupBenchmark failed; the profiles are still uploaded."; fi
+            if [ "${{ github.event_name != 'workflow_dispatch' || inputs.benchmark }}" = "true" ]; then (adb logcat -c; adb logcat -v time -s FetchBenchmark ActivityManager:I > benchmark-log.txt &); scripts/perf_baseline.sh benchmark-emulator || echo "::warning::StartupBenchmark failed; the profiles are still uploaded."; grep -E "FetchBenchmark|Start proc.*com\.fetch\.tv" benchmark-log.txt > benchmark-process-starts.txt || true; fi
 
       - name: Summarise
         if: always()
@@ -77,6 +77,10 @@ jobs:
             echo "### StartupBenchmark (emulator, indicative only)"
             echo '```'
             python3 scripts/summarise_benchmark.py baselineprofile/build/outputs 2>&1 || true
+            echo '```'
+            echo "### What started com.fetch.tv during StartupBenchmark (see #461)"
+            echo '```'
+            cat benchmark-process-starts.txt 2>/dev/null | tail -60 || true
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -102,6 +106,7 @@ jobs:
         with:
           name: benchmark-results
           path: |
+            benchmark-process-starts.txt
             baselineprofile/build/outputs/connected_android_test_additional_output/**/*.json
             baselineprofile/build/outputs/androidTest-results/**/*.xml
             baselineprofile/build/reports/androidTests/**

@@ -3,6 +3,7 @@ package com.fetch.tv.ui.theme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -67,46 +68,55 @@ fun FetchTheme(
     customThemeColors: CustomThemeColors = CustomThemeColors.Default,
     content: @Composable () -> Unit
 ) {
-    val palette = androidx.compose.runtime.remember(appTheme, customThemeColors) {
+    // Each value is remembered on the inputs that produce it, so a recomposition of FetchTheme
+    // for an unrelated reason publishes the same instances and does not invalidate every reader
+    // of these (static) composition locals.
+    val palette = remember(appTheme, customThemeColors) {
         ThemeColors.getColorPalette(appTheme, customThemeColors)
     }
-    val focusRingStyle = createFocusRingStyle(highContrast)
-    val colorScheme = FetchColorScheme(
-        palette = palette,
-        amoledMode = amoledMode,
-        amoledSurfacesMode = amoledSurfacesMode,
-        highContrast = highContrast
-    )
-    val typography = buildFetchTypography(getFontFamily(appFont))
-    val themeStyle = appTheme.themeStyle()
-    val textStyles = buildFetchTextStyles(typography)
+    val focusRingStyle = remember(highContrast) { createFocusRingStyle(highContrast) }
+    val colorScheme = remember(palette, amoledMode, amoledSurfacesMode, highContrast) {
+        FetchColorScheme(
+            palette = palette,
+            amoledMode = amoledMode,
+            amoledSurfacesMode = amoledSurfacesMode,
+            highContrast = highContrast
+        )
+    }
+    val typography = remember(appFont) { buildFetchTypography(getFontFamily(appFont)) }
+    val themeStyle = remember(appTheme) { appTheme.themeStyle() }
+    val textStyles = remember(typography) { buildFetchTextStyles(typography) }
     val fullMotion = rememberFullMotionAllowed(reduceMotion)
     val context = androidx.compose.ui.platform.LocalContext.current
-    val lowRamDevice = androidx.compose.runtime.remember(context) { isLowRamDevice(context) }
+    val lowRamDevice = remember(context) { isLowRamDevice(context) }
 
-    val materialColorScheme = darkColorScheme(
-        primary = colorScheme.Primary,
-        onPrimary = colorScheme.OnPrimary,
-        secondary = colorScheme.Secondary,
-        onSecondary = colorScheme.OnSecondary,
-        background = colorScheme.Background,
-        surface = colorScheme.Surface,
-        surfaceVariant = colorScheme.SurfaceVariant,
-        onBackground = colorScheme.TextPrimary,
-        onSurface = colorScheme.TextPrimary,
-        onSurfaceVariant = colorScheme.TextSecondary,
-        error = colorScheme.Error
-    )
+    val materialColorScheme = remember(colorScheme) {
+        darkColorScheme(
+            primary = colorScheme.Primary,
+            onPrimary = colorScheme.OnPrimary,
+            secondary = colorScheme.Secondary,
+            onSecondary = colorScheme.OnSecondary,
+            background = colorScheme.Background,
+            surface = colorScheme.Surface,
+            surfaceVariant = colorScheme.SurfaceVariant,
+            onBackground = colorScheme.TextPrimary,
+            onSurface = colorScheme.TextPrimary,
+            onSurfaceVariant = colorScheme.TextSecondary,
+            error = colorScheme.Error
+        )
+    }
 
-    val extendedColors = FetchExtendedColors(
-        backgroundElevated = colorScheme.BackgroundElevated,
-        backgroundCard = colorScheme.BackgroundCard,
-        textSecondary = colorScheme.TextSecondary,
-        textTertiary = colorScheme.TextTertiary,
-        focusRing = colorScheme.FocusRing,
-        focusBackground = colorScheme.FocusBackground,
-        rating = colorScheme.Rating
-    )
+    val extendedColors = remember(colorScheme) {
+        FetchExtendedColors(
+            backgroundElevated = colorScheme.BackgroundElevated,
+            backgroundCard = colorScheme.BackgroundCard,
+            textSecondary = colorScheme.TextSecondary,
+            textTertiary = colorScheme.TextTertiary,
+            focusRing = colorScheme.FocusRing,
+            focusBackground = colorScheme.FocusBackground,
+            rating = colorScheme.Rating
+        )
+    }
 
     CompositionLocalProvider(
         LocalFetchColors provides colorScheme,

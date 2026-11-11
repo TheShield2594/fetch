@@ -3,11 +3,11 @@
 Fetch has to stay smooth on 1.5–2 GB streaming sticks. This page says how to measure
 that, and holds the numbers once they are measured. Tracking issue: #13.
 
-Target devices:
+Target devices (`minSdk` is 24, so Fire OS 5, API 22, is not supported):
 
 | Device | RAM | Android | Why |
 |---|---|---|---|
-| Fire TV Stick (2nd gen) or Fire TV Stick Lite | 1 GB / 1 GB | Fire OS 5–7 (API 22–28) | The weakest common device |
+| Fire TV Stick (2nd gen) or Fire TV Stick Lite | 1 GB / 1 GB | Fire OS 6–7 (API 25–28) | The weakest common device |
 | Chromecast with Google TV HD | 1.5 GB | Android TV 12 (API 31) | The weakest Google TV device |
 
 ## What is already in place
@@ -40,7 +40,7 @@ scripts/perf_baseline.sh benchmark
 ```
 
 The Macrobenchmark is `baselineprofile/src/main/java/com/fetch/tv/baselineprofile/StartupBenchmark.kt`.
-Fire OS 5/6 sticks are below API 28, so on those only `cold-start` works.
+Fire OS 6 sticks are below API 28, so on those only `cold-start` works.
 
 To show what #44's startup deferral bought, measure a build of the commit before #44 and a
 build of the current `main`, on the same device, back to back.
@@ -153,6 +153,45 @@ first screen (sign-in), not Home, and the set-up from "Before every run" in sect
 afterwards. Use a device you don't mind setting up again, or one on API 34+, and note in the
 results which first screen was timed.
 
+### StartupBenchmark and a process that comes back
+
+On the CI emulator `StartupBenchmark` once failed with "Package com.fetch.tv must not be
+running prior to cold start!" and passed on the same code in the next run (#461).
+
+What Macrobenchmark 1.4.1 does before each `StartupMode.COLD` iteration, in order: the
+`setupBlock`, then `dropShaderCache()`, which on a user build is an explicit broadcast to the
+app's `ProfileInstallReceiver` and so starts the app's process, then `am force-stop`, then a
+page-cache drop that can take a few seconds, then the check. Anything that starts the process
+again in that window fails the whole test.
+
+What in Fetch could start a force-stopped process:
+
+- Not the boot receiver (`TvChannelBootReceiver`, `BOOT_COMPLETED` and
+  `INITIALIZE_PROGRAMS`): implicit broadcasts are not delivered to a stopped package.
+- Not the TV channel job or `AppRestarter`'s alarm: force-stop cancels jobs and alarms. The
+  legacy periodic channel job is cancelled at start-up.
+- Not `ExternalPlaybackKeepAliveService`: it only runs during external playback.
+- Possibly `GlobalSearchProvider`: it is exported for the TV's system search, and a provider
+  query does start a stopped app. Home is in front during set-up, so a search or launcher
+  query against it is the most likely outside cause.
+- Possibly the system itself: the profile-installer broadcast is the first thing that wakes
+  the app each iteration, and a late delivery after the force-stop would look the same.
+
+The cause is not confirmed: it did not reproduce in the run that passed, and it needs an
+emulator to watch. So the benchmark now prepares the cold start itself (same steps, same
+order, `startupMode = null`, which the startup metric reads as cold), checks after the
+page-cache drop, and if the process is back it logs the ActivityManager "Start proc … for …"
+line under the `FetchBenchmark` tag and kills it again, up to three times. The Baseline
+profile workflow keeps those lines as `benchmark-process-starts.txt` and in the run summary,
+so the next run that hits it names the component. Write the answer here when it does.
+
+To look by hand:
+
+```sh
+# Force-stop, wait 5 s, then report whether the process came back and what started it.
+scripts/perf_baseline.sh restart-check 5
+```
+
 ## 3. Heap with Custom Network / Custom Buffers
 
 This relates to the inherited player memory reports in NuvioMedia/NuvioTV#3945. On each device:
@@ -206,7 +245,7 @@ adb shell dumpsys gfxinfo com.fetch.tv reset
 adb shell dumpsys gfxinfo com.fetch.tv | grep -E "Total frames|Janky frames|percentile"
 ```
 
-On Fire OS 5/6 sticks (below API 28) use the `dumpsys gfxinfo` route for all three.
+On Fire OS 6 sticks (below API 28) use the `dumpsys gfxinfo` route for all three.
 
 Record the numbers here:
 

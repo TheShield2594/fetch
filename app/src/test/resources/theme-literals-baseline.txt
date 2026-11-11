@@ -369,3 +369,9 @@ com/fetch/tv/ui/screens/youtube/YouTubeScreen.kt|SPACING_AS_STROKE|1
 com/fetch/tv/ui/screens/youtube/YouTubeSeekBar.kt|ALPHA|1
 com/fetch/tv/ui/screens/youtube/YouTubeSeekBar.kt|DP|6
 com/fetch/tv/ui/util/RawSvgPainter.kt|DP|2
+com/fetch/tv/updater/ui/UpdateBanner.kt|DP|13
+com/fetch/tv/updater/ui/UpdateBanner.kt|DURATION|1
+com/fetch/tv/updater/ui/UpdateBanner.kt|PERCENT_RADIUS|1
+com/fetch/tv/updater/ui/UpdateBannerHost.kt|DURATION|4
+com/fetch/tv/updater/ui/UpdateDialogs.kt|DP|7
+com/fetch/tv/updater/ui/UpdateDialogs.kt|PERCENT_RADIUS|2

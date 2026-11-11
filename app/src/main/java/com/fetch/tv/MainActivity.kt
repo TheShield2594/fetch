@@ -403,17 +403,20 @@ open class MainActivity : ComponentActivity() {
             val activeProfile = remember(activeProfileId, profiles) {
                 profiles.firstOrNull { it.id == activeProfileId }
             }
-            // Null until read from disk, so a PIN-locked profile is never auto-entered early.
-            val profilePinStates by profilePinManager.pinEnabled.collectAsStateWithLifecycle(initialValue = null)
+            // "Lock unrestricted profiles" can also lock the remembered profile behind the parent
+            // PIN. Null until read from disk, so that profile is never auto-entered early either.
+            val profileOpenLock by remember { parentalControls.profileOpenLock }.collectAsStateWithLifecycle(initialValue = null)
+            // The PIN states come from the same snapshot as profileOpenLock, so the parent-PIN check
+            // and the profile's own PIN check can never see different versions (for example just
+            // after the activity restarts collecting). Null until read from disk, so a PIN-locked
+            // profile is never auto-entered early.
+            val profilePinStates = profileOpenLock?.pinEnabled
 
             // Judged on the loaded active id, not the placeholder default (see loadedActiveProfileId).
             val activeProfileHasPin = remember(loadedActiveProfileId, profilePinStates) {
                 loadedActiveProfileId?.let { profilePinStates?.get(it) } == true
             }
 
-            // "Lock unrestricted profiles" can also lock the remembered profile behind the parent
-            // PIN. Null until read from disk, so that profile is never auto-entered early either.
-            val profileOpenLock by remember { parentalControls.profileOpenLock }.collectAsStateWithLifecycle(initialValue = null)
             // Also null until the real profile list and active profile are read: judged against
             // the primary-only placeholder list, a restricted sibling would be missed and the
             // remembered profile auto-entered without the parent PIN.

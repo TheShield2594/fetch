@@ -32,21 +32,16 @@ data class FetchRadiusTokens(
 @Immutable
 data class FetchShapeTokens(
     val posterCard: Shape,
-    val backdropCard: Shape,
-    val collectionCard: Shape,
     val button: Shape,
     val iconButton: Shape,
     val chip: Shape,
     val badge: Shape,
     val dialog: Shape,
-    val sidePanel: Shape,
     val sidebar: Shape,
     val navItem: Shape,
     val progress: Shape,
-    val slider: Shape,
     val field: Shape,
-    val menu: Shape,
-    val circle: Shape
+    val menu: Shape
 )
 
 /**
@@ -69,21 +64,16 @@ object FetchShapes {
     /** The shape set a theme's radii give, the same rule for every theme. */
     fun from(radii: FetchRadiusTokens) = FetchShapeTokens(
         posterCard = RoundedCornerShape(radii.sm),
-        backdropCard = RoundedCornerShape(radii.sm),
-        collectionCard = RoundedCornerShape(radii.sm),
         button = RoundedCornerShape(radii.sm),
         iconButton = RoundedCornerShape(radii.sm),
         chip = RoundedCornerShape(radii.full),
         badge = RoundedCornerShape(radii.xs),
         dialog = RoundedCornerShape(radii.xl),
-        sidePanel = RoundedCornerShape(radii.xl),
         sidebar = RoundedCornerShape(radii.full),
         navItem = RoundedCornerShape(radii.full),
         progress = RoundedCornerShape(radii.xxs),
-        slider = RoundedCornerShape(radii.full),
         field = RoundedCornerShape(radii.sm),
-        menu = RoundedCornerShape(radii.md),
-        circle = CircleShape
+        menu = RoundedCornerShape(radii.md)
     )
 
     /** Buttons are pills and icon buttons circles, so an action never reads as a card. */

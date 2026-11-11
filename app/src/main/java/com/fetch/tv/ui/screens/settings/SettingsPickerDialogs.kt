@@ -195,7 +195,7 @@ internal fun ColorSelectionDialog(
                     ),
                     border = CardDefaults.border(
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = RoundedCornerShape(FetchTheme.radii.sm)
                         )
                     ),
@@ -237,7 +237,7 @@ internal fun ColorSelectionDialog(
                     ),
                     border = CardDefaults.border(
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = RoundedCornerShape(FetchTheme.radii.sm)
                         )
                     ),
@@ -293,7 +293,7 @@ private fun ColorOption(
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(3.dp),
+                border = FetchTheme.focusRing.border(),
                 shape = CircleShape
             ),
             border = if (isSelected) Border(

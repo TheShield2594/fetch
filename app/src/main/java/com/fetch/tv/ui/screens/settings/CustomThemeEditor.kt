@@ -194,7 +194,7 @@ internal fun CustomThemeEditor(
                     ),
                     shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
                     border = CardDefaults.border(
-                        focusedBorder = Border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), shape = RoundedCornerShape(FetchTheme.radii.sm))
+                        focusedBorder = Border(FetchTheme.focusRing.border(), shape = RoundedCornerShape(FetchTheme.radii.sm))
                     ),
                     scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
                 ) {
@@ -234,7 +234,7 @@ internal fun CustomThemeEditor(
             Button(
                 onClick = onDismiss,
                 modifier = Modifier
-                    .height(FetchTheme.components.buttonHeight)
+                    .height(FetchTheme.sizes.controls.default)
                     .focusRequester(cancelFocusRequester)
                     .focusProperties { up = hexFocusRequester }
             ) {
@@ -242,7 +242,7 @@ internal fun CustomThemeEditor(
             }
             Button(
                 onClick = { onSave(colors) },
-                modifier = Modifier.height(FetchTheme.components.buttonHeight).focusProperties { up = hexFocusRequester },
+                modifier = Modifier.height(FetchTheme.sizes.controls.default).focusProperties { up = hexFocusRequester },
                 // Save is the primary action: the accent, kept on focus and marked by the ring.
                 colors = ButtonDefaults.colors(
                     containerColor = FetchTheme.colors.Secondary,
@@ -251,7 +251,10 @@ internal fun CustomThemeEditor(
                     focusedContentColor = FetchTheme.colors.OnSecondary
                 ),
                 border = ButtonDefaults.border(
-                    focusedBorder = Border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), shape = FetchTheme.shapes.button)
+                    focusedBorder = com.fetch.tv.ui.components.FetchFocusSpec.border(
+                        FetchTheme.shapes.button,
+                        focusedFill = FetchTheme.colors.Secondary
+                    )
                 )
             ) { Text(stringResource(R.string.custom_theme_save)) }
         }
@@ -291,8 +294,8 @@ private fun ThemeColorSlot(
             focusedContainerColor = FetchTheme.colors.Background
         ),
         border = CardDefaults.border(
-            border = if (selected) Border(FetchTheme.focusRing.border(FetchTheme.spacing.hairline, alpha = 0.5f), shape = shape) else Border.None,
-            focusedBorder = Border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), shape = shape)
+            border = if (selected) Border(FetchTheme.focusRing.border(alpha = 0.5f), shape = shape) else Border.None,
+            focusedBorder = Border(FetchTheme.focusRing.border(), shape = shape)
         ),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {

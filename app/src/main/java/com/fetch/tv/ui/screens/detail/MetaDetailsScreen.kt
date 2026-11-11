@@ -3515,7 +3515,7 @@ private fun PeopleSectionTabButton(
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.xl)
             )
         ),
@@ -3649,7 +3649,7 @@ private fun LibraryListPickerDialog(
                     shape = ButtonDefaults.shape(shape = shape),
                     border = ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.strokes.focus),
+                            border = FetchTheme.focusRing.border(),
                             shape = shape
                         )
                     ),

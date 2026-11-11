@@ -767,7 +767,7 @@ private fun HeroResumeRow(
     modifier: Modifier = Modifier
 ) {
     val accent = FetchTheme.colors.Secondary
-    val actionStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+    val actionStyle = FetchTheme.textStyles.titleStrong
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)

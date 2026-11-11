@@ -185,7 +185,7 @@ fun GenrePickerOptionCard(
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             ) else Border.None,
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             )
         ),
@@ -340,7 +340,7 @@ fun EmojiPickerContent(
                                         shape = RoundedCornerShape(FetchTheme.radii.md)
                                     ) else Border.None,
                                     focusedBorder = Border(
-                                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                        border = FetchTheme.focusRing.border(),
                                         shape = RoundedCornerShape(FetchTheme.radii.md)
                                     )
                                 ),

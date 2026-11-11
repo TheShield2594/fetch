@@ -92,7 +92,7 @@ internal fun FloatingSidebarButton(
 
     // The ring sits outside the circle with a small gap, so the slot is wider than the circle.
     val ringGap = FetchTheme.strokes.focus + 2.dp
-    val slotSize = tokens.floatingButtonSize + ringGap * 2
+    val slotSize = FetchTheme.sizes.controls.icon + ringGap * 2
     Row(
         modifier = modifier
             .height(slotSize)
@@ -116,7 +116,7 @@ internal fun FloatingSidebarButton(
                 .size(slotSize)
                 .then(
                     if (isFocused) {
-                        Modifier.border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), tileShape)
+                        Modifier.border(FetchTheme.focusRing.border(), tileShape)
                     } else {
                         Modifier
                     }

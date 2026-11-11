@@ -144,7 +144,7 @@ internal fun settingsRowBorder(
     shape: RoundedCornerShape = settingsRowShape()
 ): CardBorder = CardDefaults.border(
     focusedBorder = Border(
-        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs, alpha = contentAlpha),
+        border = FetchTheme.focusRing.border(alpha = contentAlpha),
         shape = shape
     )
 )
@@ -280,11 +280,11 @@ internal fun SettingsRailButton(
         ),
         border = CardDefaults.border(
             border = if (showSelected) Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
+                border = FetchTheme.focusRing.border(),
                 shape = railShape
             ) else Border.None,
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = railShape
             )
         ),
@@ -940,12 +940,12 @@ internal fun SettingsChoiceChip(
         ),
         border = CardDefaults.border(
             border = if (selected) Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(SettingsPillRadius)
             ) else Border.None,
             // Thicker than the selection hairline, so focus shows on a selected chip too.
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(SettingsPillRadius)
             )
         ),

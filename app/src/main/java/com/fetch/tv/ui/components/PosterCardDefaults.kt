@@ -16,7 +16,6 @@ data class PosterCardStyle(
     val width: Dp = FetchComponents.tokens.posterCard.width,
     val height: Dp = FetchComponents.tokens.posterCard.height,
     val cornerRadius: Dp = FetchComponents.tokens.posterCard.cornerRadius,
-    val focusedBorderWidth: Dp = FetchComponents.tokens.posterCard.focusedBorderWidth,
     val focusedScale: Float = FetchComponents.tokens.posterCard.focusedScale,
     /** Draws [FetchCardDefaults.restingBorder] on the card while it isn't focused. */
     val showRestingBorder: Boolean = false

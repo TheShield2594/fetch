@@ -115,7 +115,7 @@ fun SynopsisDescription(
                     .then(
                         if (isFocused) {
                             Modifier.border(
-                                FetchTheme.focusRing.border(FetchTheme.strokes.focus),
+                                FetchTheme.focusRing.border(),
                                 RoundedCornerShape(FetchTheme.radii.sm)
                             )
                         } else {

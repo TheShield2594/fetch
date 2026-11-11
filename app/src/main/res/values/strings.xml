@@ -423,6 +423,8 @@
     <string name="custom_theme_adjusted_for_contrast">Lightened a little so buttons stay visible on dark backgrounds</string>
     <string name="appearance_high_contrast">Increase contrast</string>
     <string name="appearance_high_contrast_subtitle">Brighter secondary text and borders, and a heavier focus outline</string>
+    <string name="appearance_reduce_motion">Reduce motion</string>
+    <string name="appearance_reduce_motion_subtitle">Hold shimmers, slides and the rotating hero still. Turning off animations in Android settings does the same</string>
     <string name="appearance_amoled_mode">AMOLED Mode</string>
     <string name="appearance_amoled_mode_subtitle">Use pure black for app backgrounds</string>
     <string name="appearance_amoled_surfaces_mode">Pure Black Surfaces</string>
@@ -2172,6 +2174,7 @@
     <string name="cd_close_more_actions">Close more actions</string>
     <string name="cd_next_episode_thumbnail">Next episode thumbnail</string>
     <string name="cd_current">Current</string>
+    <string name="cd_card_progress">%1$d%% watched</string>
     <string name="cd_loading_backdrop">Loading backdrop</string>
     <string name="cd_loading_logo">Loading logo</string>
     <string name="cd_move_up">Move up</string>
@@ -2546,6 +2549,7 @@
 
     <!-- Player runtime: torrent overlay + tracks -->
     <string name="player_track_audio_fallback">Audio %1$d</string>
+    <string name="player_track_audio_description">%1$s · Audio description</string>
     <string name="player_track_subtitle_fallback">Subtitle %1$d</string>
 
     <!-- Player runtime: error recovery -->

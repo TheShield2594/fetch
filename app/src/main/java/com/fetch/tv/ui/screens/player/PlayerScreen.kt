@@ -3393,7 +3393,7 @@ private fun UpNextQueueCard(
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             )
         ),
@@ -3885,7 +3885,7 @@ private fun AspectRatioIndicator(text: String) {
         // Text
         Text(
             text = text,
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            style = FetchTheme.textStyles.titleStrong,
             color = FetchTheme.colors.Player.TextPrimary
         )
     }
@@ -3938,7 +3938,7 @@ private fun PlayerEngineSwitchIndicator(
             )
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                style = FetchTheme.textStyles.titleStrong,
                 color = FetchTheme.colors.Player.TextPrimary
             )
         }
@@ -4451,7 +4451,7 @@ internal fun PlayerOverlayButton(
         shape = ButtonDefaults.shape(shape = shape),
         border = ButtonDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = shape
             )
         ),
@@ -4710,7 +4710,7 @@ internal fun DialogButton(
                 border = if (isPrimary) {
                     BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.SecondaryVariant)
                 } else {
-                    FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+                    FetchTheme.focusRing.border()
                 },
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             )

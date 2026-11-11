@@ -33,7 +33,6 @@ import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.PosterCardDefaults
 import com.fetch.tv.ui.components.PosterCardStyle
-import com.fetch.tv.ui.theme.FetchColors
 import kotlin.math.roundToInt
 
 @Composable
@@ -63,7 +62,6 @@ fun DiscoverScreen(
             width = uiState.posterCardWidthDp.dp,
             height = computedHeightDp.dp,
             cornerRadius = cardRadius,
-            focusedBorderWidth = PosterCardDefaults.Style.focusedBorderWidth,
             focusedScale = PosterCardDefaults.Style.focusedScale,
             showRestingBorder = true
         )

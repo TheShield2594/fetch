@@ -83,4 +83,34 @@ class TypeScaleFloorTest {
             .toList()
         if (problems.isNotEmpty()) fail("Text below ${minSp}sp:\n" + problems.joinToString("\n"))
     }
+
+    @Test
+    fun `the scale has one style per size and weight`() {
+        // Slots that differed only by a hair of letter spacing were collapsed (roadmap F3), so a
+        // 14sp line looks the same whichever slot a screen happened to pick.
+        val typography = buildFetchTypography(FontFamily.Default)
+        val slots = mapOf(
+            "displayLarge" to typography.displayLarge,
+            "displayMedium" to typography.displayMedium,
+            "displaySmall" to typography.displaySmall,
+            "headlineLarge" to typography.headlineLarge,
+            "headlineMedium" to typography.headlineMedium,
+            "headlineSmall" to typography.headlineSmall,
+            "titleLarge" to typography.titleLarge,
+            "titleMedium" to typography.titleMedium,
+            "titleSmall" to typography.titleSmall,
+            "bodyLarge" to typography.bodyLarge,
+            "bodyMedium" to typography.bodyMedium,
+            "bodySmall" to typography.bodySmall,
+            "labelLarge" to typography.labelLarge,
+            "labelMedium" to typography.labelMedium,
+            "labelSmall" to typography.labelSmall
+        )
+        val nearDuplicates = slots.entries.groupBy { it.value.fontSize to it.value.fontWeight }
+            .filterValues { group -> group.map { it.value }.distinct().size > 1 }
+            .values.map { group -> group.joinToString { it.key } }
+        if (nearDuplicates.isNotEmpty()) {
+            fail("Same size and weight but different styles; make them one:\n" + nearDuplicates.joinToString("\n"))
+        }
+    }
 }

@@ -51,6 +51,9 @@ val LocalFetchFocusRingStyle = staticCompositionLocalOf {
 /** See [isFullMotionAllowed]; read it through [FetchTheme.fullMotion]. */
 val LocalFullMotion = staticCompositionLocalOf { true }
 
+/** See [isLowRamDevice]; read it through [FetchTheme.lowRamDevice]. */
+val LocalLowRamDevice = staticCompositionLocalOf { false }
+
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun FetchTheme(
@@ -59,6 +62,8 @@ fun FetchTheme(
     amoledMode: Boolean = false,
     amoledSurfacesMode: Boolean = false,
     highContrast: Boolean = false,
+    /** Fetch's own "Reduce motion" setting; the system's animator scale is honoured as well. */
+    reduceMotion: Boolean = false,
     customThemeColors: CustomThemeColors = CustomThemeColors.Default,
     content: @Composable () -> Unit
 ) {
@@ -75,7 +80,9 @@ fun FetchTheme(
     val typography = buildFetchTypography(getFontFamily(appFont))
     val themeStyle = appTheme.themeStyle()
     val textStyles = buildFetchTextStyles(typography)
-    val fullMotion = rememberFullMotionAllowed()
+    val fullMotion = rememberFullMotionAllowed(reduceMotion)
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val lowRamDevice = androidx.compose.runtime.remember(context) { isLowRamDevice(context) }
 
     val materialColorScheme = darkColorScheme(
         primary = colorScheme.Primary,
@@ -109,7 +116,8 @@ fun FetchTheme(
         LocalThemePalette provides palette,
         LocalFetchFocusRingStyle provides focusRingStyle,
         LocalFetchThemeStyle provides themeStyle,
-        LocalFullMotion provides fullMotion
+        LocalFullMotion provides fullMotion,
+        LocalLowRamDevice provides lowRamDevice
     ) {
         MaterialTheme(
             colorScheme = materialColorScheme,
@@ -165,9 +173,6 @@ object FetchTheme {
     val strokes: FetchStrokeTokens
         get() = FetchStrokes.tokens
 
-    val effects: FetchEffectTokens
-        get() = FetchEffects.tokens
-
     val motion: FetchMotionTokens
         get() = FetchMotion.tokens
 
@@ -179,23 +184,25 @@ object FetchTheme {
         @ReadOnlyComposable
         get() = LocalFetchFocusRingStyle.current
 
-    val layout: FetchLayoutTokens
-        get() = FetchLayout.tokens
-
-    val media: FetchMediaTokens
-        get() = FetchMedia.tokens
-
     val components: FetchComponentTokens
         get() = FetchComponents.tokens
 
     /**
-     * False when the system's animations are off or the device is low on RAM. Decorative motion
-     * (shimmers, pulses, slides) then holds still or cuts straight to its end state.
+     * False when the member asked for reduced motion, in Fetch's settings or by turning the
+     * system's animations off. Decorative motion (shimmers, pulses, slides) then holds still or
+     * cuts straight to its end state. Low-RAM devices are a separate question: see
+     * [com.fetch.tv.ui.theme.isLowRamDevice].
      */
     val fullMotion: Boolean
         @Composable
         @ReadOnlyComposable
         get() = LocalFullMotion.current
+
+    /** True on a low-RAM device: a performance tier, separate from the reduced-motion preference. */
+    val lowRamDevice: Boolean
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalLowRamDevice.current
 
     val currentTheme: AppTheme
         @Composable

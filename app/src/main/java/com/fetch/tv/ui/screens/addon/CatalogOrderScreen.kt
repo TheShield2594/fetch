@@ -276,7 +276,7 @@ private fun CatalogOrderCard(
                     ),
                     border = ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = RoundedCornerShape(FetchTheme.radii.md)
                         )
                     ),
@@ -300,7 +300,7 @@ private fun CatalogOrderCard(
                     ),
                     border = ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = RoundedCornerShape(FetchTheme.radii.md)
                         )
                     ),
@@ -323,7 +323,7 @@ private fun CatalogOrderCard(
                     ),
                     border = ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = RoundedCornerShape(FetchTheme.radii.md)
                         )
                     ),
@@ -347,7 +347,7 @@ private fun CatalogOrderCard(
                     ),
                     border = ButtonDefaults.border(
                         focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            border = FetchTheme.focusRing.border(),
                             shape = RoundedCornerShape(FetchTheme.radii.md)
                         )
                     ),
@@ -391,7 +391,7 @@ private fun CustomiseHomeActionsRow(
                 ),
                 border = ButtonDefaults.border(
                     focusedBorder = Border(
-                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                        border = FetchTheme.focusRing.border(),
                         shape = RoundedCornerShape(FetchTheme.radii.md)
                     )
                 ),

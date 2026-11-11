@@ -33,6 +33,7 @@ class ThemeDataStore @Inject constructor(
     private val amoledModeKey = booleanPreferencesKey("amoled_mode")
     private val amoledSurfacesModeKey = booleanPreferencesKey("amoled_surfaces_mode")
     private val highContrastKey = booleanPreferencesKey("high_contrast")
+    private val reduceMotionKey = booleanPreferencesKey("reduce_motion")
 
     val themeSelection: Flow<ThemeSelection> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.map { prefs ->
@@ -73,6 +74,16 @@ class ThemeDataStore @Inject constructor(
         }
     }
 
+    /**
+     * Holds decorative motion still (shimmers, slides, the hero carousel's auto-advance) for anyone
+     * who finds it distracting. Turning the system's animations off does the same.
+     */
+    val reduceMotion: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { pid ->
+        factory.get(pid, FEATURE).data.map { prefs ->
+            prefs[reduceMotionKey] ?: false
+        }
+    }
+
     suspend fun setTheme(theme: AppTheme) {
         store().edit { prefs ->
             prefs[themeKey] = theme.name
@@ -110,6 +121,12 @@ class ThemeDataStore @Inject constructor(
     suspend fun setHighContrast(enabled: Boolean) {
         store().edit { prefs ->
             prefs[highContrastKey] = enabled
+        }
+    }
+
+    suspend fun setReduceMotion(enabled: Boolean) {
+        store().edit { prefs ->
+            prefs[reduceMotionKey] = enabled
         }
     }
 

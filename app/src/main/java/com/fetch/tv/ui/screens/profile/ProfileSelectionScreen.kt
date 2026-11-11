@@ -1663,7 +1663,6 @@ private fun ProfileCard(
     val outerAvatarSize = if (compact) ProfileSelectionSpacing.CompactOuterAvatarSize else 114.dp
     val focusedOuterAvatarSize = if (compact) ProfileSelectionSpacing.CompactFocusedOuterAvatarSize else 122.dp
     val avatarFocusScale = 1f + (focusedOuterAvatarSize / outerAvatarSize - 1f) * focusProgress
-    val ringWidth = androidx.compose.ui.unit.lerp(FetchTheme.spacing.hairline, FetchTheme.strokes.focus, focusProgress)
     val nameColor = lerp(
         FetchTheme.colors.TextSecondary,
         FetchTheme.colors.TextPrimary,
@@ -1747,7 +1746,7 @@ private fun ProfileCard(
                         shape = CircleShape
                     )
                     .border(
-                        border = FetchTheme.focusRing.border(ringWidth, focusProgress),
+                        border = FetchTheme.focusRing.border(alpha = focusProgress),
                         shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -1879,7 +1878,6 @@ private fun AddProfileCard(
     val outerAvatarSize = if (compact) ProfileSelectionSpacing.CompactOuterAvatarSize else 114.dp
     val focusedOuterAvatarSize = if (compact) ProfileSelectionSpacing.CompactFocusedOuterAvatarSize else 122.dp
     val avatarFocusScale = 1f + (focusedOuterAvatarSize / outerAvatarSize - 1f) * focusProgress
-    val ringWidth = androidx.compose.ui.unit.lerp(FetchTheme.spacing.hairline, FetchTheme.strokes.focus, focusProgress)
     val nameColor = lerp(
         FetchTheme.colors.TextTertiary,
         FetchTheme.colors.TextPrimary,
@@ -1944,7 +1942,7 @@ private fun AddProfileCard(
                         shape = CircleShape
                     )
                     .border(
-                        border = FetchTheme.focusRing.border(ringWidth, focusProgress),
+                        border = FetchTheme.focusRing.border(alpha = focusProgress),
                         shape = CircleShape
                     )
                     .background(addBackgroundColor, CircleShape),
@@ -3210,7 +3208,7 @@ private fun ProfilePinBoxes(
                     .background(backgroundColor)
                     .border(
                         border = if (isActive && !isErrorState) {
-                            FetchTheme.focusRing.border(borderWidth)
+                            FetchTheme.focusRing.border()
                         } else {
                             BorderStroke(borderWidth, borderColor)
                         },
@@ -3299,7 +3297,7 @@ private fun ProfileNameField(
             .background(backgroundColor)
             .border(
                 border = if (isFocused) {
-                    FetchTheme.focusRing.border(borderWidth)
+                    FetchTheme.focusRing.border()
                 } else {
                     BorderStroke(borderWidth, FetchTheme.colors.Border)
                 },
@@ -3389,7 +3387,7 @@ private fun OverlayButton(
             .background(bgColor)
             .border(
                 border = if (isFocused && enabled) {
-                    FetchTheme.focusRing.border(borderWidth)
+                    FetchTheme.focusRing.border()
                 } else {
                     BorderStroke(borderWidth, borderColor)
                 },
@@ -3495,7 +3493,7 @@ private fun ProfileColorSwatch(
             .background(parseProfileColor(colorHex), CircleShape)
             .border(
                 border = when {
-                    isFocused -> FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+                    isFocused -> FetchTheme.focusRing.border()
                     isSelected -> BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.TextPrimary)
                     else -> BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.TextPrimary.copy(alpha = 0.2f))
                 },

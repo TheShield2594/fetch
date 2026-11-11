@@ -954,7 +954,7 @@ private fun LibraryDropdownPicker(
                     shape = RoundedCornerShape(FetchTheme.radii.md)
                 ),
                 focusedBorder = androidx.tv.material3.Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                    border = FetchTheme.focusRing.border(),
                     shape = RoundedCornerShape(FetchTheme.radii.md)
                 )
             ),

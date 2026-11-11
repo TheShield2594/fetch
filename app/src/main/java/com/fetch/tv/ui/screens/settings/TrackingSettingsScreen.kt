@@ -309,7 +309,7 @@ fun TrackingSettingsContent(
                     TrackingProviderId.FETCH_WEBSITE -> error("The Fetch website is signed out under Settings → Account")
                 }
             ),
-            width = 520.dp,
+            width = FetchTheme.components.dialog.width,
             suppressFirstKeyUp = false
         ) {
             SettingsDialogActionRow {

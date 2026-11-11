@@ -1077,7 +1077,8 @@ private fun PlayerRuntimeController.applyAspectMode(newMode: AspectMode) {
 fun PlayerRuntimeController.scheduleHideControls() {
     hideControlsJob?.cancel()
     hideControlsJob = scope.launch {
-        delay(controlsAutoHideMsSetting)
+        // A screen reader needs longer to read a control out than a glance takes.
+        delay(com.fetch.tv.ui.theme.controlsAutoHideDelayMs(controlsAutoHideMsSetting, com.fetch.tv.ui.theme.isScreenReaderOn(context)))
         if (_uiState.value.isPlaying && !_uiState.value.showAudioOverlay &&
             !_uiState.value.showSubtitleOverlay && !_uiState.value.showSubtitleStylePanel &&
             !_uiState.value.showSpeedDialog && !_uiState.value.showMoreDialog &&

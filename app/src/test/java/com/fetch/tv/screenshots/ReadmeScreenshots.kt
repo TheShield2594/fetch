@@ -33,7 +33,6 @@ import com.fetch.tv.ui.components.FetchWordmark
 import com.fetch.tv.ui.components.sidebarScrimBrush
 import com.fetch.tv.ui.components.ProfileAvatarCircle
 import com.fetch.tv.ui.theme.FetchComponents
-import com.fetch.tv.ui.theme.FetchLayout
 import com.fetch.tv.ui.util.rememberRawSvgPainter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -119,7 +118,7 @@ class ReadmeScreenshots {
     fun sidebar() = render("sidebar", focusOn = "Discover") {
         Box(Modifier.fillMaxSize().background(FetchTheme.colors.Background)) {
             // The scaffold pads root screens by this much so the icon column has its own lane.
-            Box(Modifier.fillMaxSize().padding(start = FetchLayout.tokens.sidebarContentOffset)) { SampleHome() }
+            Box(Modifier.fillMaxSize().padding(start = FetchComponents.tokens.sidebar.contentOffset)) { SampleHome() }
             // Same fade and column as FetchSidebarScaffold while the sidebar has focus.
             Box(Modifier.fillMaxSize().background(sidebarScrimBrush(FetchTheme.colors.Background, FetchTheme.focus.railContentDim)))
             FetchWordmark(
@@ -161,141 +160,8 @@ class ReadmeScreenshots {
         FloatingSidebarButton(label = label, selected = selected, expanded = true, onClick = {}, leading = leading)
     }
 
-    @Composable
-    private fun SampleHome() {
-        val context = LocalContext.current
-        val rows = Samples.catalogRows
-        val cw = Samples.continueWatching
-        // The first two titles have a cached Best match: they get the ready dot and "Ready tonight".
-        val ready = cw.take(2)
-        // A movie from the watchlist with a ready pick follows them in Ready tonight.
-        val readyMovie = rows.first().items.first().let { movie ->
-            com.fetch.tv.domain.model.LibraryEntry(
-                id = movie.id, type = "movie", name = movie.name, poster = movie.poster,
-                background = movie.background, logo = movie.logo, description = movie.description,
-                releaseInfo = movie.releaseInfo, imdbRating = movie.imdbRating, genres = movie.genres,
-                addonBaseUrl = null, landscapePoster = movie.landscapePoster
-            )
-        }
-        val readyKeys = ready.mapNotNull { it.bestMatchKey() }.toSet() + readyMovie.bestMatchKey()
-        val presentation = remember {
-            buildModernHomePresentation(
-                input = ModernHomePresentationInput(
-                    homeRows = rows.map { HomeRow.Catalog(it) },
-                    catalogRows = rows,
-                    continueWatchingItems = cw,
-                    upcomingItems = emptyList(),
-                    readyTonightItems = ready,
-                    readyWatchlistMovies = listOf(readyMovie),
-                    useLandscapePosters = true,
-                    showCatalogTypeSuffix = true,
-                    showFullReleaseDate = false,
-                    showImdbRatings = true,
-                    localeTag = "en"
-                ),
-                cache = ModernCarouselRowBuildCache(),
-                context = context
-            )
-        }
-        CompositionLocalProvider(LocalReadyBestMatchKeys provides readyKeys) {
-        Box(Modifier.fillMaxSize().background(FetchTheme.colors.Background)) {
-            ModernHomeContent(
-                uiState = HomeUiState(
-                    catalogRows = rows,
-                    homeRows = rows.map { HomeRow.Catalog(it) },
-                    continueWatchingItems = cw,
-                    isLoading = false,
-                    layoutPreferencesReady = true,
-                    modernLandscapePostersEnabled = true,
-                    heroSectionEnabled = false,
-                    posterLabelsEnabled = false
-                ),
-                modernPresentation = presentation,
-                focusState = HomeScreenFocusState(),
-                onNavigateToDetail = { _, _, _ -> },
-                onContinueWatchingClick = {},
-                onRequestTrailerPreview = { _, _, _, _ -> },
-                onLoadMoreCatalog = { _, _, _ -> },
-                onRemoveContinueWatching = { _, _, _, _ -> },
-                onSaveFocusState = { _, _, _, _, _, _, _, _ -> }
-            )
-        }
-        }
-    }
-
     @Test
     fun detail() = render("detail") { SampleDetail() }
-
-    @Composable
-    private fun SampleDetail() {
-        val meta = Samples.detailMeta
-        Box(Modifier.fillMaxSize().background(FetchTheme.colors.Background)) {
-            AsyncImage(
-                model = meta.background,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-            Box(
-                Modifier.fillMaxSize().background(
-                    Brush.horizontalGradient(
-                        0f to FetchTheme.colors.Background,
-                        0.55f to FetchTheme.colors.Background.copy(alpha = 0.55f),
-                        1f to Color.Transparent
-                    )
-                )
-            )
-            Box(
-                Modifier.fillMaxSize().background(
-                    Brush.verticalGradient(0.55f to Color.Transparent, 1f to FetchTheme.colors.Background)
-                )
-            )
-            // Same order as the page: the short series hero, then the season's episodes with
-            // the next one marked.
-            val bestMatch = BestMatchPreview(
-                videoId = "sample-long-field:2:6",
-                labels = listOf("4K", "DV P8", "TrueHD Atmos", "18.2 GB"),
-                buttonLabels = listOf("4K", "Dolby Vision", "Atmos"),
-                isCached = true,
-                addonName = "Torrentio",
-                sourceCount = 14,
-                isFinal = true
-            )
-            Column(Modifier.fillMaxWidth()) {
-                HeroContentSection(
-                    meta = meta,
-                    nextEpisode = meta.videos.firstOrNull { it.episode == 6 },
-                    nextToWatch = NextToWatch(
-                        watchProgress = null,
-                        isResume = false,
-                        nextVideoId = "sample-long-field:2:6",
-                        nextSeason = 2,
-                        nextEpisode = 6,
-                        displayText = "Play S2 E6"
-                    ),
-                    bestMatch = bestMatch,
-                    onPlayClick = {},
-                    isSeries = true,
-                    onSourcesClick = {},
-                    isInLibrary = true,
-                    onToggleLibrary = {},
-                    onLibraryLongPress = {},
-                    isMovieWatched = false,
-                    isMovieWatchedPending = false,
-                    onToggleMovieWatched = {},
-                    trailerAvailable = true
-                )
-                com.fetch.tv.ui.screens.detail.EpisodesRow(
-                    episodes = meta.videos.filter { it.season == 2 },
-                    onEpisodeClick = {},
-                    onToggleEpisodeWatched = {},
-                    upFocusRequester = androidx.compose.ui.focus.FocusRequester.Default,
-                    nextEpisodeId = "sample-long-field:2:6",
-                    scrollToEpisodeId = "sample-long-field:2:6"
-                )
-            }
-        }
-    }
 
     // Ambient Mode's clock face, at a fixed time.
     @Test

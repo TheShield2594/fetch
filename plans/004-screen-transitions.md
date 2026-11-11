@@ -16,7 +16,7 @@
 ```kotlin
         val contentStartPadding by animateDpAsState(
             targetValue = if (showSidebar && !sidebarCollapsed) {
-                FetchLayout.tokens.sidebarContentOffset
+                FetchComponents.tokens.sidebar.contentOffset
             } else {
                 FetchTheme.spacing.none
             },
@@ -114,7 +114,7 @@ correct and stay unchanged.
            // Snaps on purpose: animating this padding re-laid-out both screens of the NavHost
            // crossfade every frame, and the crossfade already covers the change.
            val contentStartPadding = if (showSidebar && !sidebarCollapsed) {
-               FetchLayout.tokens.sidebarContentOffset
+               FetchComponents.tokens.sidebar.contentOffset
            } else {
                FetchTheme.spacing.none
            }
@@ -174,7 +174,7 @@ correct and stay unchanged.
 - Do NOT touch `MainActivity.kt` outside lines 1664-1672 and the one import in Step 2.
   - Plan 002 edits lines 612-617.
   - Plan 020 edits the splash fade at lines 1282-1303.
-- Do NOT change `FetchLayout.tokens.sidebarContentOffset`, `rootRoutes`, or the sidebar
+- Do NOT change `FetchComponents.tokens.sidebar.contentOffset`, `rootRoutes`, or the sidebar
   drawer itself.
 - Do NOT add new dependencies.
 - If a step doesn't match the code you find (drift since ee8dd84), STOP and report instead of improvising.

@@ -106,7 +106,15 @@ internal fun PlayerRuntimeController.updateAvailableTracks(tracks: Tracks) {
                     }
                     val baseName = format.label ?: langDisplay ?: context.getString(com.fetch.tv.R.string.player_track_audio_fallback, audioTracks.size + 1)
                     val suffix = listOfNotNull(codecName, channelLayout).joinToString(" ")
-                    val displayName = if (suffix.isNotEmpty()) "$baseName ($suffix)" else baseName
+                    val describesVideo = (format.roleFlags and C.ROLE_FLAG_DESCRIBES_VIDEO) != 0
+                    val namedName = if (suffix.isNotEmpty()) "$baseName ($suffix)" else baseName
+                    // Say it in the menu: otherwise a described track looks like any other copy
+                    // of the same language, and nobody can pick it on purpose.
+                    val displayName = if (describesVideo) {
+                        context.getString(com.fetch.tv.R.string.player_track_audio_description, namedName)
+                    } else {
+                        namedName
+                    }
 
                     audioTracks.add(
                         TrackInfo(
@@ -117,7 +125,8 @@ internal fun PlayerRuntimeController.updateAvailableTracks(tracks: Tracks) {
                             codec = codecName,
                             channelCount = format.channelCount.takeIf { it > 0 },
                             isSelected = isSelected,
-                            sampleRate = format.sampleRate.takeIf { it > 0 }
+                            sampleRate = format.sampleRate.takeIf { it > 0 },
+                            describesVideo = describesVideo
                         )
                     )
                 }

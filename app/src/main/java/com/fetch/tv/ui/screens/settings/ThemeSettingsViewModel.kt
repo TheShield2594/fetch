@@ -35,6 +35,7 @@ data class ThemeSettingsUiState(
     val amoledMode: Boolean = false,
     val amoledSurfacesMode: Boolean = false,
     val highContrast: Boolean = false,
+    val reduceMotion: Boolean = false,
 )
 
 sealed class ThemeSettingsEvent {
@@ -44,6 +45,7 @@ sealed class ThemeSettingsEvent {
     data class ToggleAmoledMode(val enabled: Boolean) : ThemeSettingsEvent()
     data class ToggleAmoledSurfacesMode(val enabled: Boolean) : ThemeSettingsEvent()
     data class ToggleHighContrast(val enabled: Boolean) : ThemeSettingsEvent()
+    data class ToggleReduceMotion(val enabled: Boolean) : ThemeSettingsEvent()
     data object DismissAppIconFailure : ThemeSettingsEvent()
 }
 
@@ -123,6 +125,15 @@ class ThemeSettingsViewModel @Inject constructor(
                     }
                 }
         }
+        viewModelScope.launch {
+            themeDataStore.reduceMotion
+                .distinctUntilChanged()
+                .collectLatest { enabled ->
+                    _uiState.update { state ->
+                        if (state.reduceMotion == enabled) state else state.copy(reduceMotion = enabled)
+                    }
+                }
+        }
     }
 
     private fun currentTheme(): AppTheme {
@@ -137,6 +148,7 @@ class ThemeSettingsViewModel @Inject constructor(
             is ThemeSettingsEvent.ToggleAmoledMode -> setAmoledMode(event.enabled)
             is ThemeSettingsEvent.ToggleAmoledSurfacesMode -> setAmoledSurfacesMode(event.enabled)
             is ThemeSettingsEvent.ToggleHighContrast -> setHighContrast(event.enabled)
+            is ThemeSettingsEvent.ToggleReduceMotion -> setReduceMotion(event.enabled)
             ThemeSettingsEvent.DismissAppIconFailure -> appIconManager.clearFailure()
         }
     }
@@ -184,6 +196,13 @@ class ThemeSettingsViewModel @Inject constructor(
         if (_uiState.value.highContrast == enabled) return
         viewModelScope.launch {
             themeDataStore.setHighContrast(enabled)
+        }
+    }
+
+    private fun setReduceMotion(enabled: Boolean) {
+        if (_uiState.value.reduceMotion == enabled) return
+        viewModelScope.launch {
+            themeDataStore.setReduceMotion(enabled)
         }
     }
 }

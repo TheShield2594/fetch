@@ -743,7 +743,7 @@ fun TmdbActionButton(
                 border = if (primary) {
                     BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.SecondaryVariant)
                 } else {
-                    FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+                    FetchTheme.focusRing.border()
                 },
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             )
@@ -947,7 +947,7 @@ fun TmdbPickerCard(title: String, subtitle: String, onClick: () -> Unit) {
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             )
         ),

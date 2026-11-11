@@ -157,7 +157,7 @@ private fun ProfileBackgroundItem(
                 .background(FetchTheme.colors.BackgroundCard)
                 .border(
                     border = if (isSelected || isFocused) {
-                        FetchTheme.focusRing.border(borderWidth)
+                        FetchTheme.focusRing.border()
                     } else {
                         BorderStroke(borderWidth, FetchTheme.colors.Border)
                     },

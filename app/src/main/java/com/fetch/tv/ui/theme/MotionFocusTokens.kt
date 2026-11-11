@@ -3,7 +3,6 @@ package com.fetch.tv.ui.theme
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TweenSpec
@@ -31,8 +30,6 @@ data class FetchMotionDurations(
     val long: Int,
     /** 400ms: over the 300ms UI budget. For new UI use [enter], [exit] or [move]; this remains for existing callers. */
     val overlay: Int,
-    /** 450ms: over the 300ms UI budget. For new UI use [enter], [exit] or [move]; this remains for existing callers. */
-    val hero: Int,
     /** One full turn of a loading spinner glyph (linear, repeating). */
     val spinner: Int,
     val shimmer: Int,
@@ -48,7 +45,6 @@ data class FetchMotionDurations(
 data class FetchMotionEasings(
     val standard: Easing,
     val emphasized: Easing,
-    val decelerate: Easing,
     /** Strong ease-out for things entering or leaving. */
     val out: Easing,
     /** Strong ease-in-out for things moving on screen. */
@@ -74,9 +70,7 @@ data class FetchFocusTokens(
     val cardShadow: Dp,
     /** How far content dims while the navigation rail has focus. */
     val railContentDim: Float,
-    val scrollViewportTarget: Float,
-    val longPressInitialDelayMillis: Long,
-    val longPressRepeatMillis: Long
+    val scrollViewportTarget: Float
 )
 
 object FetchMotion {
@@ -91,7 +85,6 @@ object FetchMotion {
             slow = 450,
             long = 600,
             overlay = 400,
-            hero = 450,
             spinner = 1000,
             shimmer = 1200,
             splashExit = 400,
@@ -101,7 +94,6 @@ object FetchMotion {
         easings = FetchMotionEasings(
             standard = FastOutSlowInEasing,
             emphasized = CubicBezierEasing(0.2f, 0f, 0f, 1f),
-            decelerate = LinearOutSlowInEasing,
             out = CubicBezierEasing(0.23f, 1f, 0.32f, 1f),
             inOut = CubicBezierEasing(0.77f, 0f, 0.175f, 1f),
             drawer = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)
@@ -135,8 +127,6 @@ object FetchFocus {
         cardScale = 1.08f,
         cardShadow = 16.dp,
         railContentDim = 0.5f,
-        scrollViewportTarget = 0.42f,
-        longPressInitialDelayMillis = 360L,
-        longPressRepeatMillis = 72L
+        scrollViewportTarget = 0.42f
     )
 }

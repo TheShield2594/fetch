@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
+import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.compose.runtime.Composable
@@ -728,7 +728,7 @@ private fun EpisodesSeasonTabs(
                         shape = RoundedCornerShape(FetchTheme.spacing.xl)
                     ),
                     focusedBorder = Border(
-                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                        border = FetchTheme.focusRing.border(),
                         shape = RoundedCornerShape(FetchTheme.spacing.xl)
                     )
                 ),
@@ -835,7 +835,7 @@ private fun EpisodeItem(
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.xl)
             )
         ),

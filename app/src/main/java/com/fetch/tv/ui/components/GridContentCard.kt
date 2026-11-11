@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.components
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -123,6 +125,8 @@ fun GridContentCard(
                 }
             },
             modifier = Modifier
+                // The title once, on the card: the artwork, logo and overlay title are decoration.
+                .semantics { contentDescription = item.name }
                 .then(
                     if (globalLandscape) Modifier.fillMaxWidth().aspectRatio(PosterShape.LANDSCAPE.aspectRatio())
                     else Modifier.width(posterCardStyle.width).height(cardHeight)
@@ -186,7 +190,7 @@ fun GridContentCard(
             border = CardDefaults.border(
                 border = if (posterCardStyle.showRestingBorder) FetchCardDefaults.restingBorder(cardShape) else Border.None,
                 focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
+                    border = FetchTheme.focusRing.border(),
                     shape = cardShape
                 )
             ),
@@ -234,7 +238,7 @@ fun GridContentCard(
                 } else {
                     AsyncImage(
                         model = imageModel,
-                        contentDescription = item.name,
+                        contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop,
                         placeholder = bgPainter,
@@ -273,7 +277,7 @@ fun GridContentCard(
                         }
                         AsyncImage(
                             model = logoRequest,
-                            contentDescription = item.name,
+                            contentDescription = null,
                             modifier = Modifier
                                 .align(Alignment.BottomStart)
                                 .fillMaxWidth(0.62f)
@@ -334,7 +338,7 @@ fun GridContentCard(
                     }
                     AsyncImage(
                         model = logoRequest,
-                        contentDescription = item.name,
+                        contentDescription = null,
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)

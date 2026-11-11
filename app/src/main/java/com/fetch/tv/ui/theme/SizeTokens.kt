@@ -6,121 +6,53 @@ import androidx.compose.ui.unit.dp
 
 @Immutable
 data class FetchIconSizes(
-    val xs: Dp,
+    /** Inline glyphs beside a label: check marks, row chevrons, status icons. */
     val sm: Dp,
-    val md: Dp,
-    val lg: Dp,
-    val xl: Dp
+    /** A control's own icon, such as the glyph inside an icon button. */
+    val md: Dp
 )
 
+/**
+ * How big a focusable control is. Sizes come from here rather than from [FetchSpacingTokens], so
+ * a gap and a control's height can change independently.
+ */
 @Immutable
-data class FetchButtonSizes(
-    val compactHeight: Dp,
-    val defaultHeight: Dp,
-    val largeHeight: Dp,
-    val minWidth: Dp
-)
-
-@Immutable
-data class FetchCardSizes(
-    val posterWidth: Dp,
-    val posterHeight: Dp,
-    val posterCompactWidth: Dp,
-    val posterCompactHeight: Dp,
-    val backdropWidth: Dp,
-    val backdropHeight: Dp,
-    val episodeWidth: Dp,
-    val episodeHeight: Dp
-)
-
-@Immutable
-data class FetchAvatarSizes(
-    val sm: Dp,
-    val md: Dp,
-    val lg: Dp,
-    val xl: Dp,
-    val profile: Dp,
-    val profileCompact: Dp
-)
-
-@Immutable
-data class FetchPlayerSizes(
-    val control: Dp,
-    val compactControl: Dp,
-    val timelineHeight: Dp,
-    val sidePanelWidth: Dp,
-    val railWidth: Dp
+data class FetchControlSizes(
+    /** Dense lists and inline actions. */
+    val compact: Dp,
+    /** Every ordinary button and field. */
+    val default: Dp,
+    /** The square an icon-only button occupies. */
+    val icon: Dp
 )
 
 @Immutable
 data class FetchSettingsSizes(
     val railWidth: Dp,
-    val railItemHeight: Dp,
-    val workspaceMinWidth: Dp,
     val rowMinHeight: Dp
 )
 
 @Immutable
 data class FetchSizeTokens(
     val icons: FetchIconSizes,
-    val buttons: FetchButtonSizes,
-    val cards: FetchCardSizes,
-    val avatars: FetchAvatarSizes,
-    val player: FetchPlayerSizes,
-    val settings: FetchSettingsSizes,
-    val logoWidth: Dp,
-    val logoHeight: Dp,
-    val menuItemHeight: Dp
+    val controls: FetchControlSizes,
+    val settings: FetchSettingsSizes
 )
 
 object FetchSizes {
     val tokens = FetchSizeTokens(
         icons = FetchIconSizes(
-            xs = 14.dp,
             sm = 18.dp,
-            md = 22.dp,
-            lg = 28.dp,
-            xl = 36.dp
+            md = 24.dp
         ),
-        buttons = FetchButtonSizes(
-            compactHeight = 40.dp,
-            defaultHeight = 52.dp,
-            largeHeight = 64.dp,
-            minWidth = 96.dp
-        ),
-        cards = FetchCardSizes(
-            posterWidth = 126.dp,
-            posterHeight = 189.dp,
-            posterCompactWidth = 112.dp,
-            posterCompactHeight = 168.dp,
-            backdropWidth = 320.dp,
-            backdropHeight = 180.dp,
-            episodeWidth = 320.dp,
-            episodeHeight = 207.dp
-        ),
-        avatars = FetchAvatarSizes(
-            sm = 34.dp,
-            md = 48.dp,
-            lg = 82.dp,
-            xl = 112.dp,
-            profile = 126.dp,
-            profileCompact = 104.dp
-        ),
-        player = FetchPlayerSizes(
-            control = 44.dp,
-            compactControl = 40.dp,
-            timelineHeight = 4.dp,
-            sidePanelWidth = 360.dp,
-            railWidth = 280.dp
+        controls = FetchControlSizes(
+            compact = 40.dp,
+            default = 52.dp,
+            icon = 44.dp
         ),
         settings = FetchSettingsSizes(
             railWidth = 220.dp,
-            railItemHeight = 56.dp,
-            workspaceMinWidth = 720.dp,
             rowMinHeight = 64.dp
-        ),
-        logoWidth = 190.dp,
-        logoHeight = 44.dp,
-        menuItemHeight = 48.dp
+        )
     )
 }

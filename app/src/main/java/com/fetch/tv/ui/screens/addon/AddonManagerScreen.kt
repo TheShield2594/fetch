@@ -344,7 +344,7 @@ fun AddonManagerScreen(
                                             shape = RoundedCornerShape(FetchTheme.radii.md)
                                         ),
                                         focusedBorder = Border(
-                                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                            border = FetchTheme.focusRing.border(),
                                             shape = RoundedCornerShape(FetchTheme.radii.md)
                                         )
                                     ),
@@ -417,7 +417,7 @@ fun AddonManagerScreen(
                                     ),
                                     border = ButtonDefaults.border(
                                         focusedBorder = Border(
-                                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                            border = FetchTheme.focusRing.border(),
                                             shape = RoundedCornerShape(FetchTheme.radii.md)
                                         )
                                     ),
@@ -729,7 +729,7 @@ private fun ManageFromPhoneCard(
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
         ),
@@ -796,7 +796,7 @@ private fun NavigationEntryCard(
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
         ),
@@ -862,7 +862,7 @@ private fun RefreshAddonsEntryCard(
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
         ),
@@ -1001,7 +1001,7 @@ internal fun QrCodeOverlay(
                 ),
                 border = ClickableSurfaceDefaults.border(
                     focusedBorder = Border(
-                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                        border = FetchTheme.focusRing.border(),
                         shape = RoundedCornerShape(50)
                     )
                 ),
@@ -1266,7 +1266,7 @@ internal fun ConfirmAddonChangesDialog(
                             ),
                             border = ClickableSurfaceDefaults.border(
                                 focusedBorder = Border(
-                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    border = FetchTheme.focusRing.border(),
                                     shape = RoundedCornerShape(50)
                                 )
                             ),
@@ -1302,7 +1302,7 @@ internal fun ConfirmAddonChangesDialog(
                             ),
                             border = ClickableSurfaceDefaults.border(
                                 focusedBorder = Border(
-                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    border = FetchTheme.focusRing.border(),
                                     shape = RoundedCornerShape(50)
                                 )
                             ),
@@ -1340,7 +1340,7 @@ private fun PendingChangeLine(
         color = color,
         modifier = modifier
             .then(
-                if (isFocused) Modifier.border(FetchTheme.focusRing.border(FetchTheme.spacing.xxs), shape) else Modifier
+                if (isFocused) Modifier.border(FetchTheme.focusRing.border(), shape) else Modifier
             )
             .onFocusChanged { isFocused = it.isFocused }
             .focusable()
@@ -1379,7 +1379,7 @@ private fun AddonCard(
                 .background(FetchTheme.colors.BackgroundCard, shape)
                 .then(
                     if (isFocused) {
-                        Modifier.border(FetchTheme.focusRing.border(FetchTheme.spacing.xxs), shape)
+                        Modifier.border(FetchTheme.focusRing.border(), shape)
                     } else {
                         Modifier
                     }
@@ -1512,7 +1512,7 @@ private fun AddonCardContent(
                         ),
                         border = ClickableSurfaceDefaults.border(
                             focusedBorder = Border(
-                                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                border = FetchTheme.focusRing.border(),
                                 shape = RoundedCornerShape(FetchTheme.radii.md)
                             )
                         ),
@@ -1546,7 +1546,7 @@ private fun AddonCardContent(
                             ),
                             border = ButtonDefaults.border(
                                 focusedBorder = Border(
-                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    border = FetchTheme.focusRing.border(),
                                     shape = RoundedCornerShape(FetchTheme.radii.md)
                                 )
                             ),
@@ -1566,7 +1566,7 @@ private fun AddonCardContent(
                             ),
                             border = ButtonDefaults.border(
                                 focusedBorder = Border(
-                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    border = FetchTheme.focusRing.border(),
                                     shape = RoundedCornerShape(FetchTheme.radii.md)
                                 )
                             ),
@@ -1590,7 +1590,7 @@ private fun AddonCardContent(
                             ),
                             border = ButtonDefaults.border(
                                 focusedBorder = Border(
-                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    border = FetchTheme.focusRing.border(),
                                     shape = RoundedCornerShape(FetchTheme.radii.md)
                                 )
                             ),
@@ -1613,7 +1613,7 @@ private fun AddonCardContent(
                         ),
                         border = ButtonDefaults.border(
                             focusedBorder = Border(
-                                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                border = FetchTheme.focusRing.border(),
                                 shape = RoundedCornerShape(FetchTheme.radii.md)
                             )
                         ),
@@ -1793,7 +1793,7 @@ internal fun AddonConfigureOverlay(
                 ),
                 border = ClickableSurfaceDefaults.border(
                     focusedBorder = Border(
-                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                        border = FetchTheme.focusRing.border(),
                         shape = RoundedCornerShape(50)
                     )
                 ),

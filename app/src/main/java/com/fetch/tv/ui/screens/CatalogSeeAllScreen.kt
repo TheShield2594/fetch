@@ -94,7 +94,6 @@ fun CatalogSeeAllScreen(
         width = uiState.posterCardWidthDp.dp,
         height = computedHeightDp.dp,
         cornerRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp),
-        focusedBorderWidth = PosterCardDefaults.Style.focusedBorderWidth,
         focusedScale = PosterCardDefaults.Style.focusedScale
     )
 

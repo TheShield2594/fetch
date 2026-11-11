@@ -219,6 +219,15 @@ fun ThemeSettingsContent(
                         viewModel.onEvent(ThemeSettingsEvent.ToggleHighContrast(!uiState.highContrast))
                     }
                 )
+                // Accessibility, so it stays in Essential mode like contrast.
+                SettingsToggleRow(
+                    title = stringResource(R.string.appearance_reduce_motion),
+                    subtitle = stringResource(R.string.appearance_reduce_motion_subtitle),
+                    checked = uiState.reduceMotion,
+                    onToggle = {
+                        viewModel.onEvent(ThemeSettingsEvent.ToggleReduceMotion(!uiState.reduceMotion))
+                    }
+                )
                 if (!essentialMode) SettingsToggleRow(
                     title = stringResource(R.string.appearance_amoled_mode),
                     subtitle = stringResource(R.string.appearance_amoled_mode_subtitle),
@@ -408,7 +417,7 @@ private fun ThemeSwatchChip(
         border = CardDefaults.border(
             border = Border.None,
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = chipShape
             )
         ),

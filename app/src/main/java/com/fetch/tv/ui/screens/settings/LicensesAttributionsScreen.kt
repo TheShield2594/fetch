@@ -309,7 +309,7 @@ private fun AttributionDetailRow(
             ),
             border = CardDefaults.border(
                 focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                    border = FetchTheme.focusRing.border(),
                     shape = RoundedCornerShape(SettingsSecondaryCardRadius)
                 )
             ),

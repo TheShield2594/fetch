@@ -1485,7 +1485,7 @@ private fun StepperButton(
             .then(
                 if (isFocused) {
                     Modifier.border(
-                        FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                        FetchTheme.focusRing.border(),
                         RoundedCornerShape(FetchTheme.radii.md)
                     )
                 } else {
@@ -1659,7 +1659,7 @@ private fun ColorChip(
             .then(
                 when {
                     isSelected -> Modifier.border(FetchTheme.spacing.xxs, FetchTheme.colors.Player.Focus, CircleShape)
-                    isFocused -> Modifier.border(FetchTheme.focusRing.border(FetchTheme.spacing.xxs), CircleShape)
+                    isFocused -> Modifier.border(FetchTheme.focusRing.border(), CircleShape)
                     else -> Modifier
                 }
             )
@@ -1688,7 +1688,7 @@ private fun overlayCardBorder() = CardDefaults.border(
         shape = RoundedCornerShape(FetchTheme.radii.md)
     ),
     focusedBorder = Border(
-        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+        border = FetchTheme.focusRing.border(),
         shape = RoundedCornerShape(FetchTheme.radii.md)
     )
 )

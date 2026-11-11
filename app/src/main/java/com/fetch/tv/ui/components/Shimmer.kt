@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 
 @Composable
 fun Modifier.shimmer(active: Boolean = true): Modifier {
-    if (!active || !FetchTheme.fullMotion) return this
+    if (!active || !FetchTheme.fullMotion || FetchTheme.lowRamDevice) return this
     val progress = rememberInfiniteTransition(label = "shimmer").animateFloat(
         initialValue = 0f,
         targetValue = 1f,

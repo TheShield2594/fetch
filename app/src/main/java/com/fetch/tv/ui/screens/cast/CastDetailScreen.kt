@@ -202,7 +202,6 @@ private fun CastDetailContent(
                 width = 112.dp,
                 height = 240.dp,
                 cornerRadius = cardRadius,
-                focusedBorderWidth = PosterCardDefaults.Style.focusedBorderWidth,
                 focusedScale = PosterCardDefaults.Style.focusedScale
             )
         } else {
@@ -210,7 +209,6 @@ private fun CastDetailContent(
                 width = 112.dp,
                 height = 168.dp,
                 cornerRadius = cardRadius,
-                focusedBorderWidth = PosterCardDefaults.Style.focusedBorderWidth,
                 focusedScale = PosterCardDefaults.Style.focusedScale
             )
         }
@@ -391,7 +389,7 @@ private fun HeroSection(
                     shape = RoundedCornerShape(FetchTheme.radii.xl)
                 ),
                 focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                    border = FetchTheme.focusRing.border(),
                     shape = RoundedCornerShape(FetchTheme.radii.xl)
                 )
             )

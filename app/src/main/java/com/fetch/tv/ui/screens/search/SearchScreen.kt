@@ -326,7 +326,6 @@ fun SearchScreen(
     val posterCardStyle = remember(cardRadius) {
         PosterCardStyle(
             cornerRadius = cardRadius,
-            focusedBorderWidth = PosterCardDefaults.Style.focusedBorderWidth,
             focusedScale = PosterCardDefaults.Style.focusedScale,
             showRestingBorder = true
         )

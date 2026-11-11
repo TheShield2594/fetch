@@ -172,7 +172,7 @@ private fun SyncPromptPanel(
         ) {
             Text(
                 text = stringResource(R.string.subtitle_timing_sync_button),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                style = FetchTheme.textStyles.titleStrong,
                 color = if (isFocused) FetchTheme.colors.Player.OnFocus else FetchTheme.colors.Player.TextPrimary,
                 modifier = Modifier.padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.md)
             )

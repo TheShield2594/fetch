@@ -4,22 +4,16 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+/**
+ * The poster card's defaults. The size people see usually comes from their "Card width" and
+ * "Corner radius" settings; these are the values used before those resolve and by skeletons.
+ */
 @Immutable
 data class FetchCardComponentTokens(
     val width: Dp,
     val height: Dp,
     val cornerRadius: Dp,
-    val contentPadding: Dp,
-    val focusedBorderWidth: Dp,
     val focusedScale: Float
-)
-
-@Immutable
-data class FetchRowComponentTokens(
-    val horizontalPadding: Dp,
-    val verticalPadding: Dp,
-    val itemSpacing: Dp,
-    val titleBottomSpacing: Dp
 )
 
 @Immutable
@@ -28,7 +22,8 @@ data class FetchSidebarComponentTokens(
     val collapsedWidth: Dp,
     /** Width while focused, wide enough for the label beside the focused icon. */
     val expandedWidth: Dp,
-    val floatingButtonSize: Dp,
+    /** How far screen content starts from the left edge while the rail floats over it. */
+    val contentOffset: Dp,
     val floatingGap: Dp,
     /**
      * Gap between the screen edge and the rail's buttons. At least the TV safe area's 5% of
@@ -40,20 +35,10 @@ data class FetchSidebarComponentTokens(
 
 @Immutable
 data class FetchDialogComponentTokens(
-    val maxWidth: Dp,
+    val width: Dp,
     val contentPadding: Dp,
     val cornerRadius: Dp,
     val actionSpacing: Dp
-)
-
-@Immutable
-data class FetchPlayerComponentTokens(
-    val overlayHorizontalPadding: Dp,
-    val overlayVerticalPadding: Dp,
-    val controlSize: Dp,
-    val sidePanelWidth: Dp,
-    val railWidth: Dp,
-    val progressHeight: Dp
 )
 
 @Immutable
@@ -61,27 +46,15 @@ data class FetchSettingsComponentTokens(
     val containerRadius: Dp,
     val secondaryCardRadius: Dp,
     val railItemHeight: Dp,
-    val workspacePadding: Dp,
-    val rowGap: Dp
+    val workspacePadding: Dp
 )
 
 @Immutable
 data class FetchComponentTokens(
     val posterCard: FetchCardComponentTokens,
-    val backdropCard: FetchCardComponentTokens,
-    val collectionCard: FetchCardComponentTokens,
-    val continueWatchingCard: FetchCardComponentTokens,
-    val episodeCard: FetchCardComponentTokens,
-    val row: FetchRowComponentTokens,
     val sidebar: FetchSidebarComponentTokens,
     val dialog: FetchDialogComponentTokens,
-    val sidePanel: FetchDialogComponentTokens,
-    val settings: FetchSettingsComponentTokens,
-    val player: FetchPlayerComponentTokens,
-    val buttonHeight: Dp,
-    val chipHeight: Dp,
-    val badgeHeight: Dp,
-    val skeletonCornerRadius: Dp
+    val settings: FetchSettingsComponentTokens
 )
 
 object FetchComponents {
@@ -89,87 +62,28 @@ object FetchComponents {
         posterCard = FetchCardComponentTokens(
             width = 126.dp,
             height = 189.dp,
-            cornerRadius = 8.dp,
-            contentPadding = 8.dp,
-            focusedBorderWidth = 2.dp,
+            cornerRadius = FetchRadii.tokens.sm,
             focusedScale = FetchFocus.tokens.cardScale
-        ),
-        backdropCard = FetchCardComponentTokens(
-            width = 320.dp,
-            height = 180.dp,
-            cornerRadius = 8.dp,
-            contentPadding = 16.dp,
-            focusedBorderWidth = 2.dp,
-            focusedScale = FetchFocus.tokens.cardScale
-        ),
-        collectionCard = FetchCardComponentTokens(
-            width = 320.dp,
-            height = 180.dp,
-            cornerRadius = 8.dp,
-            contentPadding = 16.dp,
-            focusedBorderWidth = 2.dp,
-            focusedScale = FetchFocus.tokens.cardScale
-        ),
-        continueWatchingCard = FetchCardComponentTokens(
-            width = 260.dp,
-            height = 146.dp,
-            cornerRadius = 8.dp,
-            contentPadding = 12.dp,
-            focusedBorderWidth = 2.dp,
-            focusedScale = FetchFocus.tokens.cardScale
-        ),
-        episodeCard = FetchCardComponentTokens(
-            width = 320.dp,
-            height = 207.dp,
-            cornerRadius = 8.dp,
-            contentPadding = 16.dp,
-            focusedBorderWidth = 2.dp,
-            focusedScale = FetchFocus.tokens.cardScale
-        ),
-        row = FetchRowComponentTokens(
-            horizontalPadding = 48.dp,
-            verticalPadding = 6.dp,
-            itemSpacing = 12.dp,
-            titleBottomSpacing = 14.dp
         ),
         sidebar = FetchSidebarComponentTokens(
             collapsedWidth = 90.dp,
             expandedWidth = 300.dp,
-            floatingButtonSize = 44.dp,
+            contentOffset = 72.dp,
             floatingGap = 6.dp,
             floatingInset = 27.dp,
             iconSize = 22.dp
         ),
         dialog = FetchDialogComponentTokens(
-            maxWidth = 720.dp,
-            contentPadding = 24.dp,
-            cornerRadius = 16.dp,
-            actionSpacing = 12.dp
-        ),
-        sidePanel = FetchDialogComponentTokens(
-            maxWidth = 420.dp,
-            contentPadding = 20.dp,
-            cornerRadius = 16.dp,
-            actionSpacing = 12.dp
+            width = 520.dp,
+            contentPadding = FetchSpacing.tokens.xl,
+            cornerRadius = FetchRadii.tokens.xl,
+            actionSpacing = FetchSpacing.tokens.md
         ),
         settings = FetchSettingsComponentTokens(
-            containerRadius = 16.dp,
-            secondaryCardRadius = 12.dp,
+            containerRadius = FetchRadii.tokens.xl,
+            secondaryCardRadius = FetchRadii.tokens.md,
             railItemHeight = 56.dp,
-            workspacePadding = 20.dp,
-            rowGap = 16.dp
-        ),
-        player = FetchPlayerComponentTokens(
-            overlayHorizontalPadding = 52.dp,
-            overlayVerticalPadding = 36.dp,
-            controlSize = 44.dp,
-            sidePanelWidth = 360.dp,
-            railWidth = 280.dp,
-            progressHeight = 4.dp
-        ),
-        buttonHeight = 52.dp,
-        chipHeight = 32.dp,
-        badgeHeight = 20.dp,
-        skeletonCornerRadius = 10.dp
+            workspacePadding = 20.dp
+        )
     )
 }

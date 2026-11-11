@@ -63,14 +63,14 @@ internal fun ProfileSettingsSourceDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.profile_copy_settings_setup_title),
         subtitle = stringResource(R.string.profile_copy_settings_setup_subtitle),
-        width = 520.dp,
+        width = FetchTheme.components.dialog.width,
         scrollable = true
     ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(
-                    max = FetchTheme.sizes.buttons.defaultHeight * 2 +
+                    max = FetchTheme.sizes.controls.default * 2 +
                         FetchTheme.spacing.sm
                 ),
             state = listState,
@@ -190,7 +190,7 @@ internal fun CopyProfileSettingsDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(
-                    max = FetchTheme.sizes.buttons.defaultHeight * 2 +
+                    max = FetchTheme.sizes.controls.default * 2 +
                         FetchTheme.spacing.sm
                 ),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)

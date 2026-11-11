@@ -720,7 +720,7 @@ private fun PostPlayRecommendationNavigationButton(
         ),
         border = IconButtonDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = CircleShape
             )
         ),
@@ -797,7 +797,7 @@ private fun PostPlayRecommendationButton(
         shape = ButtonDefaults.shape(shape = shape),
         border = ButtonDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(),
                 shape = shape
             )
         ),

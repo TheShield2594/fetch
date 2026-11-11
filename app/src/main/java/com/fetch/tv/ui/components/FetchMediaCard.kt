@@ -23,6 +23,9 @@ fun FetchMediaCard(
     modifier: Modifier = Modifier,
     /** Off for an action tile, whose own fill is the edge. */
     showRestingBorder: Boolean = true,
+    /** See [LightweightCard]'s label: read once in place of the card's layers. */
+    label: String? = null,
+    stateDescription: String? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val fullMotion = FetchTheme.fullMotion
@@ -35,6 +38,8 @@ fun FetchMediaCard(
         restingBorder = if (showRestingBorder) FetchCardDefaults.restingBorder(shape) else androidx.tv.material3.Border.None,
         focusedScale = if (fullMotion) FetchCardDefaults.FocusedScale else 1f,
         focusedShadow = if (fullMotion) FetchTheme.focus.cardShadow else FetchTheme.spacing.none,
+        label = label,
+        stateDescription = stateDescription,
         content = content
     )
 }

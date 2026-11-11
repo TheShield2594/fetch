@@ -808,12 +808,9 @@ internal fun PlayerRuntimeController.initializePlayer(
                 }
                 // The system "audio description" preference (Android 13+): among tracks in the
                 // preferred language, pick the one that describes the video.
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                    val accessibility = context?.getSystemService(Context.ACCESSIBILITY_SERVICE)
-                        as? android.view.accessibility.AccessibilityManager
-                    if (accessibility?.isAudioDescriptionRequested == true) {
-                        setParameters(buildUponParameters().setPreferredAudioRoleFlags(C.ROLE_FLAG_DESCRIBES_VIDEO))
-                    }
+                val audioDescriptionRequested = context?.let { com.fetch.tv.ui.theme.isAudioDescriptionRequested(it) } == true
+                if (audioDescriptionRequested) {
+                    setParameters(buildUponParameters().setPreferredAudioRoleFlags(C.ROLE_FLAG_DESCRIBES_VIDEO))
                 }
                 // Forced mode: disable ExoPlayer auto text selection; our logic handles it.
                 if (playerSettings.subtitleStyle.useForcedSubtitles) {

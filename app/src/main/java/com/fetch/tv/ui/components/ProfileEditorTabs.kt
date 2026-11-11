@@ -104,7 +104,7 @@ private fun ProfileEditorTabItem(
             .background(backgroundColor)
             .border(
                 border = if (isFocused) {
-                    FetchTheme.focusRing.border(2.dp)
+                    FetchTheme.focusRing.border()
                 } else {
                     BorderStroke(1.dp, if (isSelected) FetchTheme.colors.Secondary else FetchTheme.colors.Border)
                 },

@@ -393,6 +393,15 @@ fun ContinueWatchingCard(
     val bgCardColor = FetchTheme.colors.BackgroundCard
     val backgroundPainter = remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }
 
+    val cardLabel = remember(titleText, episodeStr, episodeTitle, badgeText, progress) {
+        listOfNotNull(
+            titleText,
+            episodeStr,
+            episodeTitle,
+            badgeText?.takeIf { progress == null }
+        ).filter { it.isNotBlank() }.distinct().joinToString(", ")
+    }
+
     LightweightCard(
         onClick = {
             if (longPressTriggered) {
@@ -439,13 +448,17 @@ fun ContinueWatchingCard(
             Border.None
         } else {
             Border(
-                border = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth),
+                border = FetchTheme.focusRing.border(),
                 shape = cwCardShape
             )
         },
         restingBorder = if (textBelowArtwork) Border.None else FetchCardDefaults.restingBorder(cwCardShape),
         focusedScale = FetchTheme.focus.cardScale,
-        focusedShadow = FetchTheme.focus.cardShadow
+        focusedShadow = FetchTheme.focus.cardShadow,
+        // One announcement for the card: the artwork, the title text and the episode line would
+        // otherwise each read the title again.
+        label = cardLabel,
+        stateDescription = cardProgressDescription(progress?.let { progressFraction })
     ) {
         if (isWideStyle) {
             WideCardContent(
@@ -488,7 +501,7 @@ fun ContinueWatchingCard(
                     .then(
                         if (textBelowArtwork && isFocused) {
                             Modifier.border(
-                                border = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth),
+                                border = FetchTheme.focusRing.border(),
                                 shape = cwClipShape
                             )
                         } else {

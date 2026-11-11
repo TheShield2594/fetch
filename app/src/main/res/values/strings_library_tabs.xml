@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Saved, Servers and Stats reuse library_source_saved, library_source_servers and library_open_stats) -->
+    <string name="library_tab_in_progress">In progress</string>
+    <string name="library_tab_history">History</string>
+    <string name="library_tab_upcoming">Upcoming</string>
+    <string name="library_tabs_description">Library sections</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% watched</string>
+    <string name="library_in_progress_empty_title">Nothing in progress</string>
+    <string name="library_in_progress_empty_subtitle">Movies and episodes you’ve started and not finished show up here.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Nothing watched yet</string>
+    <string name="library_history_empty_subtitle">What you finish, and what your tracking service marks as watched, shows up here by month.</string>
+</resources>

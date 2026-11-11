@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import android.content.Intent
 import android.icu.util.Measure
 import android.icu.util.MeasureUnit
@@ -589,8 +590,7 @@ private fun SimklSyncInfoContent(
 ) {
     val backFocusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
-        delay(80L)
-        runCatching { backFocusRequester.requestFocus() }
+        backFocusRequester.requestFocusAfterFrames(frames = 0)
     }
 
     TrackingConnectedWordmark(

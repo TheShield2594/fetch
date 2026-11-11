@@ -2,6 +2,7 @@ package com.fetch.tv.core.sync.androidtv
 
 import android.content.Context
 import android.util.Log
+import com.fetch.tv.core.lifecycle.AppForeground
 import com.fetch.tv.core.poster.CustomPosterScreen
 import com.fetch.tv.core.poster.patternForScreen
 import com.fetch.tv.core.poster.withCustomPosterArt
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.dropWhile
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -58,18 +60,10 @@ class AndroidTvChannelSyncService @Inject constructor(
     // The launcher channel is only visible while the app is in the background. Reconciling on
     // every in-playback cache bump (~10s) thrashes the TvProvider and stops launchers like
     // Projectivy from repainting. We instead reconcile once when the app goes to background
-    // (user returns to the launcher) — see [onForegroundChanged].
-    @Volatile private var appInForeground = false
-
-    /** Called from the host Activity's onStart/onStop. On background we reconcile once so the
-     *  channel reflects the latest watch progress exactly as the launcher regains foreground. */
-    fun onForegroundChanged(foreground: Boolean) {
-        val wasForeground = appInForeground
-        appInForeground = foreground
-        if (wasForeground && !foreground) {
-            scope.launch { reconcileFromCache() }
-        }
-    }
+    // (user returns to the launcher); see [start]. Read from [AppForeground] rather than told by
+    // the activity, so MainActivity doesn't have to build this service before its first frame.
+    private val appInForeground: Boolean
+        get() = AppForeground.isForeground.value
 
     @OptIn(FlowPreview::class)
     fun start() {
@@ -79,6 +73,16 @@ class AndroidTvChannelSyncService @Inject constructor(
         if (!manager.isSupported()) {
             Log.d(TAG, "Non-leanback device; channel sync skipped")
             return
+        }
+
+        scope.launch {
+            // On going to the background, reconcile once so the channel reflects the latest
+            // watch progress as the launcher regains the foreground. The first value is the
+            // starting state, not a change.
+            AppForeground.isForeground
+                .drop(1)
+                .filter { foreground -> !foreground }
+                .collect { reconcileFromCache() }
         }
 
         scope.launch {
@@ -100,7 +104,7 @@ class AndroidTvChannelSyncService @Inject constructor(
                     // Skip while the app is foregrounded — the launcher channel isn't visible
                     // then, and reconciling on every ~10s in-playback cache bump thrashes the
                     // provider (and stops launchers like Projectivy from repainting). The
-                    // background transition (onForegroundChanged) covers it.
+                    // background transition (the AppForeground observer in start) covers it.
                     if (appInForeground) return@collect
                     reconcileFromCache(settings)
                 }

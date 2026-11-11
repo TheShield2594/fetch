@@ -139,7 +139,6 @@ import com.fetch.tv.core.player.PlayerWindowBackdrop
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.remote.RemoteCommand
 import com.fetch.tv.core.remote.RemoteCommandBus
-import com.fetch.tv.core.sync.ProfileSyncService
 import com.fetch.tv.core.tracking.TrackingProgressRefreshCoordinator
 import com.fetch.tv.core.tracking.TrackingRefreshIntent
 import com.fetch.tv.data.local.ExperienceModeDataStore
@@ -246,8 +245,11 @@ open class MainActivity : ComponentActivity() {
     @Inject
     lateinit var layoutPreferenceDataStore: LayoutPreferenceDataStore
 
+    // Fields wrapped in dagger.Lazy are only used after the first frame (resume refreshes, deep
+    // links, the phone remote, the YouTube sidebar entry). Field injection runs in onCreate, so an
+    // eager field would build each of these graphs on the main thread before anything is drawn.
     @Inject
-    lateinit var youTubeAuthDataStore: com.fetch.tv.data.local.YouTubeAuthDataStore
+    lateinit var youTubeAuthDataStore: dagger.Lazy<com.fetch.tv.data.local.YouTubeAuthDataStore>
 
     @Inject
     lateinit var experienceModeDataStore: ExperienceModeDataStore
@@ -259,16 +261,10 @@ open class MainActivity : ComponentActivity() {
     lateinit var addonRepository: AddonRepository
 
     @Inject
-    lateinit var trackingProgressRefreshCoordinator: TrackingProgressRefreshCoordinator
+    lateinit var trackingProgressRefreshCoordinator: dagger.Lazy<TrackingProgressRefreshCoordinator>
 
     @Inject
-    lateinit var fetchWebsiteSyncService: com.fetch.tv.data.website.FetchWebsiteSyncService
-
-    @Inject
-    lateinit var androidTvChannelSyncService: com.fetch.tv.core.sync.androidtv.AndroidTvChannelSyncService
-
-    @Inject
-    lateinit var profileSyncService: ProfileSyncService
+    lateinit var fetchWebsiteSyncService: dagger.Lazy<com.fetch.tv.data.website.FetchWebsiteSyncService>
 
     @Inject
     lateinit var profileManager: ProfileManager
@@ -280,7 +276,7 @@ open class MainActivity : ComponentActivity() {
     lateinit var parentalControls: com.fetch.tv.core.parental.ParentalControls
 
     @Inject
-    lateinit var remoteCommandBus: RemoteCommandBus
+    lateinit var remoteCommandBus: dagger.Lazy<RemoteCommandBus>
 
     @Inject
     lateinit var trailerPlayerPool: com.fetch.tv.core.player.TrailerPlayerPool
@@ -289,7 +285,7 @@ open class MainActivity : ComponentActivity() {
     lateinit var externalPlaybackTracker: com.fetch.tv.core.player.ExternalPlaybackTracker
 
     @Inject
-    lateinit var deepLinkHandler: DeepLinkHandler
+    lateinit var deepLinkHandler: dagger.Lazy<DeepLinkHandler>
 
     private val pendingDeepLinkUrl = MutableStateFlow<String?>(null)
     private val pendingLaunchIntent = MutableStateFlow<Intent?>(null)
@@ -306,6 +302,12 @@ open class MainActivity : ComponentActivity() {
 
     /** True until the first onResume after onCreate completes. */
     private var isFirstResumeAfterCreate = false
+
+    /** Set once the window has drawn its first frame; see [watchForFirstFrame]. */
+    private var firstFrameDrawn = false
+
+    /** The resume refresh that arrived before the first frame and waits for it. */
+    private var pendingResumeRefresh: TrackingRefreshIntent? = null
 
     // Whether this activity's launch extras still wait to be navigated to.
     private var launchExtrasPending = false
@@ -368,6 +370,8 @@ open class MainActivity : ComponentActivity() {
                 savedInstanceState == null || savedInstanceState.getBoolean(STATE_DEEP_LINK_PENDING)
             }
         )
+
+        watchForFirstFrame()
 
         setContent {
             var hasSelectedProfileThisSession by rememberSaveable { mutableStateOf(false) }
@@ -704,7 +708,7 @@ open class MainActivity : ComponentActivity() {
                         val deepLink = DeepLinkParser.parse(url)
                         if (deepLink is AppDeepLink.AddonInstall && (needsEssentialAddonSetup || !layoutChosen)) {
                             // Never installs on its own: the handler asks the TV first (see below).
-                            val result = deepLinkHandler.requestInstall(deepLink.manifestUrl)
+                            val result = deepLinkHandler.get().requestInstall(deepLink.manifestUrl)
                             if (pendingDeepLinkUrl.value == url) {
                                 pendingDeepLinkUrl.value = null
                             }
@@ -714,19 +718,19 @@ open class MainActivity : ComponentActivity() {
 
                     // Any app or web page can fire a stremio:// or fetch:// link, so an addon it
                     // names is installed only once someone at the TV says yes.
-                    val deepLinkAddon by deepLinkHandler.pendingAddon.collectAsState()
+                    val deepLinkAddon by deepLinkHandler.get().pendingAddon.collectAsState()
                     deepLinkAddon?.let { request ->
                         PhoneAddonConfirmContent(
                             request = request,
                             title = stringResource(R.string.link_addon_confirm_title),
                             onConfirm = {
                                 lifecycleScope.launch {
-                                    deepLinkHandler.confirmPending(request.id)?.let { result ->
+                                    deepLinkHandler.get().confirmPending(request.id)?.let { result ->
                                         Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
                                     }
                                 }
                             },
-                            onReject = { deepLinkHandler.rejectPending(request.id) }
+                            onReject = { deepLinkHandler.get().rejectPending(request.id) }
                         )
                     }
 
@@ -871,7 +875,7 @@ open class MainActivity : ComponentActivity() {
 
                     LaunchedEffect(navController) {
                         // Phone remote: keys and text become key events in this window only.
-                        remoteCommandBus.commands.collect { command ->
+                        remoteCommandBus.get().commands.collect { command ->
                             when (command) {
                                 is RemoteCommand.Key -> injectRemoteKey(command.key.keyCode)
                                 is RemoteCommand.Text -> injectRemoteText(command.text)
@@ -904,7 +908,7 @@ open class MainActivity : ComponentActivity() {
                             is AppDeepLink.Search -> {
                                 pendingDeepLinkUrl.value = null
                                 // The search screen picks the query up from the bus, as from the phone.
-                                remoteCommandBus.send(RemoteCommand.Search(deepLink.query))
+                                remoteCommandBus.get().send(RemoteCommand.Search(deepLink.query))
                                 navController.navigate(Screen.Search.route) {
                                     launchSingleTop = true
                                 }
@@ -912,7 +916,7 @@ open class MainActivity : ComponentActivity() {
                             is AppDeepLink.AddonInstall -> {
                                 // Restricted and read-only profiles are refused inside requestInstall();
                                 // otherwise the TV is asked to confirm before anything is installed.
-                                val result = deepLinkHandler.requestInstall(deepLink.manifestUrl)
+                                val result = deepLinkHandler.get().requestInstall(deepLink.manifestUrl)
                                 if (pendingDeepLinkUrl.value == url) {
                                     pendingDeepLinkUrl.value = null
                                 }
@@ -941,7 +945,7 @@ open class MainActivity : ComponentActivity() {
                     // YouTube is in the sidebar only while this profile is signed in to it. Null until
                     // the sign-in has been read, so a restored YouTube screen isn't closed early.
                     val youTubeSignedIn by remember(youTubeAuthDataStore) {
-                        youTubeAuthDataStore.isSignedIn
+                        youTubeAuthDataStore.get().isSignedIn
                     }.collectAsState(initial = null)
                     val parentalRestrictions by parentalControls.activeRestrictions.collectAsState()
                     val youTubeInSidebar = com.fetch.tv.core.build.AppFeaturePolicy.youTubeSectionEnabled &&
@@ -1208,18 +1212,54 @@ open class MainActivity : ComponentActivity() {
         ambientIdleController.dismiss()
         if (::jankStats.isInitialized) jankStats.isTrackingEnabled = true
         memberAccessRepository.refreshIfStale()
+        val refreshIntent = if (isFirstResumeAfterCreate) {
+            isFirstResumeAfterCreate = false
+            TrackingRefreshIntent.INVALIDATED
+        } else {
+            TrackingRefreshIntent.AUTOMATIC
+        }
+        if (firstFrameDrawn) {
+            refreshOnResume(refreshIntent)
+        } else {
+            // A cold start resumes before anything is drawn. Building the website sync and
+            // tracking graphs then would delay the first frame, so wait for it. An INVALIDATED
+            // refresh already waiting is stronger than a later AUTOMATIC one, so it is kept.
+            pendingResumeRefresh = pendingResumeRefresh ?: refreshIntent
+        }
+    }
+
+    private fun refreshOnResume(refreshIntent: TrackingRefreshIntent) {
         lifecycleScope.launch {
-            fetchWebsiteSyncService.requestSync()
+            fetchWebsiteSyncService.get().requestSync()
         }
         lifecycleScope.launch {
-            val refreshIntent = if (isFirstResumeAfterCreate) {
-                isFirstResumeAfterCreate = false
-                TrackingRefreshIntent.INVALIDATED
-            } else {
-                TrackingRefreshIntent.AUTOMATIC
+            trackingProgressRefreshCoordinator.get().refreshConnected(refreshIntent)
+        }
+    }
+
+    /**
+     * Sets [firstFrameDrawn] after the window's first draw and runs the resume refresh that was
+     * waiting for it. The work is posted rather than run inside onDraw, which may not change the
+     * view tree (removing the listener included), and so runs once that frame is done.
+     */
+    private fun watchForFirstFrame() {
+        val decorView = window?.decorView ?: run {
+            firstFrameDrawn = true
+            return
+        }
+        val listener = object : android.view.ViewTreeObserver.OnDrawListener {
+            override fun onDraw() {
+                decorView.post {
+                    if (firstFrameDrawn) return@post
+                    firstFrameDrawn = true
+                    decorView.viewTreeObserver.removeOnDrawListener(this)
+                    val pending = pendingResumeRefresh ?: return@post
+                    pendingResumeRefresh = null
+                    refreshOnResume(pending)
+                }
             }
-            trackingProgressRefreshCoordinator.refreshConnected(refreshIntent)
         }
+        decorView.viewTreeObserver.addOnDrawListener(listener)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -1349,7 +1389,6 @@ open class MainActivity : ComponentActivity() {
         externalPlaybackTracker.raiseAutoNextOverlayOnReturn()
         super.onStart()
         AppForeground.set(true)
-        androidTvChannelSyncService.onForegroundChanged(true)
     }
 
     override fun onStop() {
@@ -1358,9 +1397,9 @@ open class MainActivity : ComponentActivity() {
         AppForeground.set(false)
         // Leaving the app or turning the screen off ends a parent's unlock on a kids profile.
         parentalControls.lockGate()
-        // App going to background (e.g. user returning to the launcher): reconcile the
-        // Continue Watching channel once so Projectivy repaints it with fresh progress.
-        androidTvChannelSyncService.onForegroundChanged(false)
+        // Going to the background also reconciles the launcher's Continue Watching channel
+        // once, so Projectivy repaints it with fresh progress: AndroidTvChannelSyncService
+        // follows AppForeground for that.
     }
 }
 

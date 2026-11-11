@@ -156,9 +156,9 @@ com/fetch/tv/ui/screens/detail/EpisodesSection.kt|WHITE_BLACK|11
 com/fetch/tv/ui/screens/detail/HeroSection.kt|ALPHA|2
 com/fetch/tv/ui/screens/detail/HeroSection.kt|DP|14
 com/fetch/tv/ui/screens/detail/HeroSection.kt|SPACING_AS_STROKE|2
-com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt|ALPHA|27
-com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt|DP|6
-com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt|FOCUS_SCALE|2
+com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt|ALPHA|26
+com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt|DP|5
+com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt|FOCUS_SCALE|1
 com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt|NON_TV_MATERIAL|1
 com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/detail/MoreLikeThisSection.kt|DP|4

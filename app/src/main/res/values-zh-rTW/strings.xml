@@ -1040,10 +1040,6 @@
     <string name="debug_progress_indicator_default">預設</string>
     <string name="debug_progress_indicator_large">大</string>
     <string name="debug_section_features">功能開關</string>
-    <string name="debug_account_tab_title">帳戶標籤</string>
-    <string name="debug_account_tab_subtitle">在設定導航中顯示帳戶標籤</string>
-    <string name="debug_sync_code_title">同步碼功能</string>
-    <string name="debug_sync_code_subtitle">在帳戶設定中顯示「產生/輸入同步碼」按鈕</string>
     <string name="debug_buffer_logs_title">啟用 BUFFER 日誌</string>
     <string name="debug_buffer_logs_subtitle">將週期性播放器緩衝診斷輸出到 logcat (預設為停用)</string>
     <string name="debug_error_dialog_title">播放錯誤</string>

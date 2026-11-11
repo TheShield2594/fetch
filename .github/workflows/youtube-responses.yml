@@ -32,7 +32,7 @@ jobs:
       - name: Parse them
         env:
           YOUTUBE_FIXTURES_DIR: ${{ runner.temp }}/youtube
-        run: ./gradlew --no-daemon :app:testFullDebugUnitTest --tests 'com.fetch.tv.data.youtube.YouTubeRealResponseTest'
+        run: ./gradlew --no-daemon :app:testDebugUnitTest --tests 'com.fetch.tv.data.youtube.YouTubeRealResponseTest'
 
       - uses: actions/upload-artifact@v7
         if: failure()

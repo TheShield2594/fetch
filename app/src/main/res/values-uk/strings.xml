@@ -848,10 +848,6 @@
     <string name="debug_playback_error_title">Екран помилки відтворення</string>
     <string name="debug_playback_error_subtitle">Показати імітацію помилки відтворення</string>
     <string name="debug_section_features">Перемикачі функцій</string>
-    <string name="debug_account_tab_title">Вкладка Акаунт</string>
-    <string name="debug_account_tab_subtitle">Показувати вкладку Акаунт у налаштуваннях навігації</string>
-    <string name="debug_sync_code_title">Функції коду синхронізації</string>
-    <string name="debug_sync_code_subtitle">Показувати кнопки генерації/введення коду синхронізації в налаштуваннях акаунту</string>
     <string name="debug_buffer_logs_title">Увімкнути журнали BUFFER</string>
     <string name="debug_buffer_logs_subtitle">Періодично виводити діагностику буфера плеєра в logcat (за замовчуванням вимкнено)</string>
     <string name="debug_error_dialog_title">Помилка відтворення</string>

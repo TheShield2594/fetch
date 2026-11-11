@@ -323,8 +323,8 @@ Applies identically to both files.
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with no
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with no
     baseline change.
   - No unit test covers these composables. There is no `formatHz` test (confirmed with
     `grep -rn "formatHz\|ParentalGuide" app/src/test`).

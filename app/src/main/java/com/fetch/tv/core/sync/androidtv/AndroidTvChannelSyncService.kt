@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 private const val TAG = "TvChannelSync"
 private const val DEBOUNCE_MS = 2_000L
@@ -135,7 +136,7 @@ class AndroidTvChannelSyncService @Inject constructor(
         if (!launcherExposureGate.mayExposeActiveProfile()) {
             Log.d(TAG, "Active profile is locked or the TV has restricted profiles; clearing launcher rows")
             manager.reconcile(emptyList())
-            runCatching { tvRecommendationManager.updateWatchNext(emptyList()) }
+            runSuspendCatching { tvRecommendationManager.updateWatchNext(emptyList()) }
             return
         }
         val resolvedSettings = settings ?: run {
@@ -145,9 +146,9 @@ class AndroidTvChannelSyncService @Inject constructor(
             ChannelSettingsSnapshot(daysCap, dismissed, useEpisodeThumbnails)
         }
 
-        val inProgressItems = runCatching { cwEnrichmentCache.getInProgressSnapshot() }
+        val inProgressItems = runSuspendCatching { cwEnrichmentCache.getInProgressSnapshot() }
             .getOrDefault(emptyList())
-        val nextUpItems = runCatching { cwEnrichmentCache.getNextUpSnapshot() }
+        val nextUpItems = runSuspendCatching { cwEnrichmentCache.getNextUpSnapshot() }
             .getOrDefault(emptyList())
 
         val posterPattern = patternForScreen(
@@ -165,7 +166,7 @@ class AndroidTvChannelSyncService @Inject constructor(
         )
         manager.reconcile(channelItems)
 
-        runCatching {
+        runSuspendCatching {
             tvRecommendationManager.updateWatchNext(channelItems)
         }
     }

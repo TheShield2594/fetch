@@ -55,6 +55,7 @@ import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 private const val TAG = "ProfileSettingsSyncService"
 private const val SETTINGS_PUSH_DEBOUNCE_MS = 1500L
@@ -389,7 +390,7 @@ class ProfileSettingsSyncService @Inject constructor(
                     } else null
                     val priorLastNonOff = if (feature == "layout_settings") {
                         mutablePrefs[stringPreferencesKey("last_non_off_discover_location")]?.let {
-                            runCatching { DiscoverLocation.valueOf(it) }.getOrNull()
+                            runSuspendCatching { DiscoverLocation.valueOf(it) }.getOrNull()
                         }?.takeIf { it != DiscoverLocation.OFF }
                     } else null
 
@@ -406,7 +407,7 @@ class ProfileSettingsSyncService @Inject constructor(
                                 if (legacy != null) {
                                     val translated = DiscoverLocation.fromLegacySearchDiscoverEnabled(legacy)
                                     val priorLocation = priorDiscoverLocation?.let {
-                                        runCatching { DiscoverLocation.valueOf(it) }.getOrNull()
+                                        runSuspendCatching { DiscoverLocation.valueOf(it) }.getOrNull()
                                     }
                                     val priorIsValidNonOff = priorLocation != null && priorLocation != DiscoverLocation.OFF
                                     when {
@@ -435,7 +436,7 @@ class ProfileSettingsSyncService @Inject constructor(
                     }
                     if (feature == "layout_settings") {
                         val finalDiscover = mutablePrefs[stringPreferencesKey("discover_location")]?.let {
-                            runCatching { DiscoverLocation.valueOf(it) }.getOrNull()
+                            runSuspendCatching { DiscoverLocation.valueOf(it) }.getOrNull()
                         }
                         if (finalDiscover != null && finalDiscover != DiscoverLocation.OFF) {
                             mutablePrefs[stringPreferencesKey("last_non_off_discover_location")] =

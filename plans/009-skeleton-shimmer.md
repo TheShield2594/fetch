@@ -314,11 +314,11 @@ All paths are under `app/src/main/java/com/fetch/tv/`.
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with
     the baseline line removed.
   - No unit test covers Skeletons.kt directly. As a regression check, run
-    `./gradlew :app:testFullDebugUnitTest --tests '*ModernHomePlaceholderShimmerTest*'`,
+    `./gradlew :app:testDebugUnitTest --tests '*ModernHomePlaceholderShimmerTest*'`,
     which should be unaffected.
 - **Feel check** (TV or emulator):
   - Cold-start the app to Home. The skeleton hero and rows sweep left to right, all

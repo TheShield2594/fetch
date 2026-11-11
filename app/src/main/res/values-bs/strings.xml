@@ -575,10 +575,6 @@
     <string name="debug_playback_error_title">Ekran za Grešku Reprodukcije</string>
     <string name="debug_playback_error_subtitle">Prikaži simulirani popup greške tokom reprodukcije</string>
     <string name="debug_section_features">Feature Toggles</string>
-    <string name="debug_account_tab_title">Račun Tab</string>
-    <string name="debug_account_tab_subtitle">Prikaži Račun tab u navigaciji postavki</string>
-    <string name="debug_sync_code_title">Sync Code Opcije</string>
-    <string name="debug_sync_code_subtitle">Prikaži dugmad za Generiši/Unesi Sync Code u postavkama Računa</string>
     <string name="debug_error_dialog_title">Greška Reprodukcije</string>
     <string name="debug_error_dialog_subtitle">Došlo je do greške tokom reprodukcije.\n\nGreška: Simulirana test greška - ovo nije stvarni kvar. Izvor je vratio HTTP 503 (Servis Nedostupan).</string>
     <string name="debug_dismiss">Zatvori</string>

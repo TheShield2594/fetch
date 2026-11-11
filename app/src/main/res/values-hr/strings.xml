@@ -1077,10 +1077,6 @@
     <string name="debug_progress_indicator_default">Zadani</string>
     <string name="debug_progress_indicator_large">Veliki</string>
     <string name="debug_section_features">Prekidači značajki</string>
-    <string name="debug_account_tab_title">Kartica Račun</string>
-    <string name="debug_account_tab_subtitle">Prikaži karticu Račun u navigaciji postavki</string>
-    <string name="debug_sync_code_title">Značajke koda za sinkronizaciju</string>
-    <string name="debug_sync_code_subtitle">Prikaži gumbe Generiraj/Unesi kôd za sinkronizaciju u postavkama računa</string>
     <string name="debug_buffer_logs_title">Omogući BUFFER zapise</string>
     <string name="debug_buffer_logs_subtitle">Periodički ispisuj dijagnostiku međuspremnika playera u logcat (isključeno prema zadanim postavkama)</string>
     <string name="debug_error_dialog_title">Pogreška reprodukcije</string>

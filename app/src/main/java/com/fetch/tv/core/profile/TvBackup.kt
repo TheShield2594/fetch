@@ -18,6 +18,7 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.put
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 /** What [TvBackup.restore] did, by profile name. */
 data class TvBackupRestoreResult(
@@ -92,7 +93,7 @@ class TvBackup @Inject constructor(
         // Each of this TV's profiles takes at most one backed-up profile.
         val used = mutableSetOf<Int>()
         for (profileDocument in profiles) {
-            val name = runCatching { profileTransfer.profileName(profileDocument) }.getOrNull()
+            val name = runSuspendCatching { profileTransfer.profileName(profileDocument) }.getOrNull()
             if (name == null) {
                 unreadable++
                 continue

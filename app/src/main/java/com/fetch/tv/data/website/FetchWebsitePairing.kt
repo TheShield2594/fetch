@@ -21,6 +21,7 @@ import java.io.IOException
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 /** Where a pairing has got to. */
 sealed interface WebsitePairingState {
@@ -166,7 +167,7 @@ class FetchWebsitePairing @Inject constructor(
             }
             val serverUrl = server.apiUrl
             val start = client.startPairing(serverUrl, deviceName())
-            val expiresAt = runCatching { Instant.parse(start.expiresAt).toEpochMilli() }
+            val expiresAt = runSuspendCatching { Instant.parse(start.expiresAt).toEpochMilli() }
                 .getOrDefault(System.currentTimeMillis() + 5 * 60_000L)
             // The website address that just worked beats the one the server was configured
             // with, which compose fills with an example IP until someone changes it.
@@ -210,7 +211,7 @@ class FetchWebsitePairing @Inject constructor(
                 publish(WebsitePairingState.Failed(error.message, hubUnavailable = true))
                 return
             }
-            val expiresAt = runCatching { Instant.parse(start.expiresAt).toEpochMilli() }
+            val expiresAt = runSuspendCatching { Instant.parse(start.expiresAt).toEpochMilli() }
                 .getOrDefault(System.currentTimeMillis() + 10 * 60_000L)
             publish(WebsitePairingState.ShowingCode(
                 code = start.code,

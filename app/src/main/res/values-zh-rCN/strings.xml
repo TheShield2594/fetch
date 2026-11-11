@@ -1040,10 +1040,6 @@
     <string name="debug_progress_indicator_default">默认</string>
     <string name="debug_progress_indicator_large">大</string>
     <string name="debug_section_features">功能开关</string>
-    <string name="debug_account_tab_title">账户标签</string>
-    <string name="debug_account_tab_subtitle">在设置导航中显示账户标签</string>
-    <string name="debug_sync_code_title">同步码功能</string>
-    <string name="debug_sync_code_subtitle">在账户设置中显示「生成/输入同步码」按钮</string>
     <string name="debug_buffer_logs_title">启用 BUFFER 日志</string>
     <string name="debug_buffer_logs_subtitle">将周期性播放器缓冲诊断输出到 logcat (默认禁用)</string>
     <string name="debug_error_dialog_title">播放错误</string>

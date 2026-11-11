@@ -146,10 +146,10 @@ coroutineScope.launch {
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes (no
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes (no
     baseline change: this file had and has no matching literal).
-  - `./gradlew :app:testFullDebugUnitTest --tests '*MetaDetailsSessionStateTest*'` passes.
+  - `./gradlew :app:testDebugUnitTest --tests '*MetaDetailsSessionStateTest*'` passes.
   - `grep -n "300 else 800\|crossfade(400)\|slowTween" app/src/main/java/com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt` returns nothing.
 - **Feel check** (TV or emulator, detail page of a title with a backdrop):
   - Scroll down past the hero: the backdrop dims quickly (150ms). Scroll back up: it returns

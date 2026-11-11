@@ -1122,10 +1122,6 @@
     <string name="debug_progress_indicator_default">Varsayılan</string>
     <string name="debug_progress_indicator_large">Büyük</string>
     <string name="debug_section_features">Özellik Anahtarları</string>
-    <string name="debug_account_tab_title">Hesap Sekmesi</string>
-    <string name="debug_account_tab_subtitle">Ayarlar gezintisinde Hesap sekmesini göster</string>
-    <string name="debug_sync_code_title">Senkronizasyon Kodu Özellikleri</string>
-    <string name="debug_sync_code_subtitle">Hesap ayarlarında Senkronizasyon Kodu Oluştur/Gir düğmelerini göster</string>
     <string name="debug_buffer_logs_title">BUFFER Günlüklerini Etkinleştir</string>
     <string name="debug_buffer_logs_subtitle">Oynatıcı arabellek tanılamalarını düzenli olarak logcat\'e yazar (varsayılan olarak kapalıdır)</string>
     <string name="debug_error_dialog_title">Oynatma Hatası</string>

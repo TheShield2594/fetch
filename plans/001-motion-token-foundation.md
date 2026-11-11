@@ -144,8 +144,8 @@ fun <T> moveTween(): TweenSpec<T> = tween(tokens.durations.move, easing = tokens
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
 - **Feel check**: none. This plan adds vocabulary only, so the app must look identical.
 - **Done when**:
   - `grep -n "enterTween\|exitTween\|moveTween\|inOut\|drawer" MotionFocusTokens.kt` shows

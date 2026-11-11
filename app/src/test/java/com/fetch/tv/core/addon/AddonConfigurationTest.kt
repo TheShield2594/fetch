@@ -4,6 +4,8 @@ import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.AddonBehaviorHints
 import com.fetch.tv.domain.repository.AddonRepository
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
@@ -77,6 +79,35 @@ class AddonConfigurationTest {
         assertEquals(listOf("https://a.example/two"), repo.urls.value)
     }
 
+    @Test
+    fun `a profile switch during the manifest fetch refuses the install`() = runBlocking {
+        val fetchStarted = CompletableDeferred<Unit>()
+        val releaseFetch = CompletableDeferred<Unit>()
+        val repo = ProfileScopedRepo(
+            manifests = mapOf("https://a.example" to addon("a", "https://a.example")),
+            beforeFetchReturns = { fetchStarted.complete(Unit); releaseFetch.await() }
+        )
+        // Confirmed on profile 1.
+        val install = async { repo.installOrReplace("https://a.example", profileId = repo.addonChangeProfileId()) }
+        fetchStarted.await()
+        repo.activeProfileId = 2
+        releaseFetch.complete(Unit)
+
+        val outcome = install.await()
+        assertTrue(outcome is AddonInstallOutcome.ProfileChanged)
+        assertTrue(repo.urlsByProfile.values.all { it.isEmpty() })
+    }
+
+    @Test
+    fun `an install with no profile switch lands on the confirming profile`() = runBlocking {
+        val repo = ProfileScopedRepo(mapOf("https://a.example" to addon("a", "https://a.example")))
+        repo.activeProfileId = 3
+        val outcome = repo.installOrReplace("https://a.example")
+        assertTrue(outcome is AddonInstallOutcome.Installed)
+        assertEquals(listOf("https://a.example"), repo.urlsByProfile[3])
+        assertNull(repo.urlsByProfile[1])
+    }
+
     private fun addon(id: String, url: String, required: Boolean = false) = Addon(
         id = id, name = id, displayName = id, version = "1", description = null, logo = null,
         background = null, baseUrl = url, catalogs = emptyList(), types = emptyList(),
@@ -101,5 +132,36 @@ class AddonConfigurationTest {
             addons.value = urls.map { manifests.getValue(it) }
         }
         override suspend fun setAddonEnabled(url: String, enabled: Boolean) = Unit
+    }
+
+    /** Keeps addons per profile and refuses writes held to a profile that is no longer active. */
+    private class ProfileScopedRepo(
+        private val manifests: Map<String, Addon>,
+        private val beforeFetchReturns: suspend () -> Unit = {}
+    ) : AddonRepository {
+        @Volatile var activeProfileId = 1
+        val urlsByProfile = mutableMapOf<Int, List<String>>()
+        private val addons = MutableStateFlow(emptyList<Addon>())
+
+        override fun getInstalledAddons(): Flow<List<Addon>> = addons
+        override suspend fun fetchAddon(baseUrl: String): NetworkResult<Addon> {
+            beforeFetchReturns()
+            return manifests[baseUrl]?.let { NetworkResult.Success(it) } ?: NetworkResult.Error("missing")
+        }
+        override suspend fun addAddon(url: String) = addAddonTo(activeProfileId, url)
+        override suspend fun removeAddon(url: String) = Unit
+        override suspend fun setAddonOrder(urls: List<String>) = Unit
+        override suspend fun setAddonEnabled(url: String, enabled: Boolean) = Unit
+
+        override fun addonChangeProfileId(): Int = activeProfileId
+        override suspend fun addAddonFor(profileId: Int, url: String): Boolean {
+            if (profileId != activeProfileId) return false
+            addAddonTo(profileId, url)
+            return true
+        }
+
+        private fun addAddonTo(profileId: Int, url: String) {
+            urlsByProfile[profileId] = urlsByProfile[profileId].orEmpty() + url
+        }
     }
 }

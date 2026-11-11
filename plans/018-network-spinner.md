@@ -197,12 +197,12 @@ private fun SpinningRefreshIcon() {
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with
     the baseline line deleted.
   - No other unit test covers this screen
     (`grep -rln "NetworkSettings" app/src/test` finds only the settings search index tests).
-    Run `./gradlew :app:testFullDebugUnitTest --tests '*SettingsSearchIndexTest*'` as a
+    Run `./gradlew :app:testDebugUnitTest --tests '*SettingsSearchIndexTest*'` as a
     sanity check.
 - **Feel check** (TV or emulator), on Settings → Network, run the speed test:
   - While latency is measured, only the latency card's icon spins, at one turn per second

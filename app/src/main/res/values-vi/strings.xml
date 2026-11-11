@@ -1122,10 +1122,6 @@
     <string name="debug_progress_indicator_default">Mặc định</string>
     <string name="debug_progress_indicator_large">Lớn</string>
     <string name="debug_section_features">Bật/tắt tính năng</string>
-    <string name="debug_account_tab_title">Thẻ Tài khoản</string>
-    <string name="debug_account_tab_subtitle">Hiển thị thẻ Tài khoản trong Cài đặt điều hướng</string>
-    <string name="debug_sync_code_title">Tính năng mã đồng bộ</string>
-    <string name="debug_sync_code_subtitle">Hiển thị nút Tạo/Nhập mã đồng bộ trong cài đặt Tài khoản</string>
     <string name="debug_buffer_logs_title">Bật nhật ký BỘ ĐỆM</string>
     <string name="debug_buffer_logs_subtitle">Ghi định kỳ thông tin chẩn đoán bộ đệm của trình phát vào logcat (đã tắt theo mặc định)</string>
     <string name="debug_error_dialog_title">Lỗi phát lại</string>

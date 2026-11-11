@@ -283,8 +283,8 @@ the baseline is NOT edited.
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with the
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with the
     LoadingOverlay count still 1.
   - `grep -n "\.value" app/src/main/java/com/fetch/tv/ui/screens/player/LoadingOverlay.kt`:
     every hit is inside a `graphicsLayer {}` or `drawBehind {}` lambda, or is

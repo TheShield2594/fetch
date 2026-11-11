@@ -29,7 +29,7 @@ Rendered from the app's own Compose screens with made-up sample titles and artwo
 (`app/src/test/java/com/fetch/tv/screenshots/`). To regenerate them:
 
 ```bash
-FETCH_SCREENSHOTS=1 ./gradlew :app:testFullDebugUnitTest --tests '*ReadmeScreenshots*'
+FETCH_SCREENSHOTS=1 ./gradlew :app:testDebugUnitTest --tests '*ReadmeScreenshots*'
 ```
 
 ## What it is
@@ -80,7 +80,7 @@ progress; [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) has the plan and
 ```bash
 git clone https://github.com/TheShield2594/fetch.git
 cd fetch
-./gradlew :app:assembleFullDebug
+./gradlew :app:assembleDebug
 ```
 
 Requires a JDK (17+) and the Android SDK (compile SDK 36). No keys are needed to build;
@@ -103,8 +103,8 @@ Put them in `local.properties` for local builds, or export them as environment v
 (these take precedence). The Release workflow reads repository secrets with the same names
 (Settings → Secrets and variables → Actions) and warns in its log for each one that is unset.
 
-Two flavors exist: `full` (in-app updates from this repo's GitHub releases, in-app trailers) and
-`playstore` (store-safe feature set).
+There is one build: in-app updates from this repo's GitHub releases, in-app trailers and every
+other feature are always on.
 
 ### Linux desktop
 

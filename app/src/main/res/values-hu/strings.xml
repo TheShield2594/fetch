@@ -1114,10 +1114,6 @@
     <string name="debug_progress_indicator_default">Alapértelmezett</string>
     <string name="debug_progress_indicator_large">Nagy</string>
     <string name="debug_section_features">Funkciókapcsolók</string>
-    <string name="debug_account_tab_title">Fiók fül</string>
-    <string name="debug_account_tab_subtitle">A Fiók fül megjelenítése a Beállítások navigációjában</string>
-    <string name="debug_sync_code_title">Szinkronizációs kód funkciók</string>
-    <string name="debug_sync_code_subtitle">Szinkronizációs kód generálása/megadása gombok a fiókbeállításoknál</string>
     <string name="debug_buffer_logs_title">BUFFER naplók engedélyezése</string>
     <string name="debug_buffer_logs_subtitle">A lejátszópuffer diagnosztikai adatainak rendszeres küldése a logcatbe (alapértelmezés szerint kikapcsolva)</string>
     <string name="debug_error_dialog_title">Lejátszási hiba</string>

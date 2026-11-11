@@ -459,10 +459,10 @@ motion. Under reduced motion, show a still, unzoomed backdrop and let only the f
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes. The
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes. The
     baseline is unchanged.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*FocusMarqueeTextTest*' --tests '*FocusScrollingTextTest*'`
+  - `./gradlew :app:testDebugUnitTest --tests '*FocusMarqueeTextTest*' --tests '*FocusScrollingTextTest*'`
     passes.
 - **Feel check, full motion** (Animator duration scale 1x, then 5x): every site behaves
   exactly as before, except:

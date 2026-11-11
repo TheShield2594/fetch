@@ -662,10 +662,6 @@
     <string name="debug_progress_indicator_default">Стандартный</string>
     <string name="debug_progress_indicator_large">Большой</string>
     <string name="debug_section_features">Переключатели функций</string>
-    <string name="debug_account_tab_title">Вкладка Аккаунт</string>
-    <string name="debug_account_tab_subtitle">Показывать вкладку Аккаунт в настройках навигации</string>
-    <string name="debug_sync_code_title">Функции кода синхронизации</string>
-    <string name="debug_sync_code_subtitle">Показывать кнопки генерации/ввода кода синхронизации в настройках аккаунта</string>
     <string name="debug_error_dialog_title">Ошибка воспроизведения</string>
     <string name="debug_error_dialog_subtitle">Произошла ошибка во время воспроизведения.\n\nОшибка: Тестовая симуляция ошибки - это не настоящий сбой. Источник вернул HTTP 503 (Сервис недоступен).</string>
     <string name="debug_dismiss">Закрыть</string>

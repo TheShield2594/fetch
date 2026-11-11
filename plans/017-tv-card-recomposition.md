@@ -301,11 +301,11 @@ All paths are under `app/src/main/java/com/fetch/tv/`.
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes. No
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes. No
     literals are added.
   - No unit test covers these cards (`grep -rln "GridContentCard\|LightweightCard" app/src/test`
-    is empty). Run the full `./gradlew :app:testFullDebugUnitTest` once to catch anything
+    is empty). Run the full `./gradlew :app:testDebugUnitTest` once to catch anything
     indirect.
 - **Feel check** (TV or emulator):
   - Library grid, See-all, Search results rows, More-like-this on a detail page, a

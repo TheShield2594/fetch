@@ -92,7 +92,7 @@ import java.io.File
 
 /**
  * Renders the README screenshots from the app's own composables with sample data.
- * Opt-in: `FETCH_SCREENSHOTS=1 ./gradlew :app:testFullDebugUnitTest --tests '*ReadmeScreenshots*'`
+ * Opt-in: `FETCH_SCREENSHOTS=1 ./gradlew :app:testDebugUnitTest --tests '*ReadmeScreenshots*'`
  * writes PNGs to docs/screenshots/. Normal test runs skip it.
  */
 @RunWith(RobolectricTestRunner::class)

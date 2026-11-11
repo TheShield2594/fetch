@@ -853,10 +853,6 @@
     <string name="debug_playback_error_title">再生エラー画面</string>
     <string name="debug_playback_error_subtitle">模擬再生エラーポップアップを表示</string>
     <string name="debug_section_features">機能トグル</string>
-    <string name="debug_account_tab_title">アカウントタブ</string>
-    <string name="debug_account_tab_subtitle">設定ナビゲーションにアカウントタブを表示</string>
-    <string name="debug_sync_code_title">同期コード機能</string>
-    <string name="debug_sync_code_subtitle">アカウント設定に同期コードの生成/入力ボタンを表示</string>
     <string name="debug_buffer_logs_title">BUFFERログを有効にする</string>
     <string name="debug_buffer_logs_subtitle">プレーヤーバッファ診断をlogcatに定期的に出力します（デフォルト無効）</string>
     <string name="debug_error_dialog_title">再生エラー</string>

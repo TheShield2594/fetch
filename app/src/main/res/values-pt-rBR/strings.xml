@@ -991,10 +991,6 @@
     <string name="debug_progress_indicator_default">Padrão</string>
     <string name="debug_progress_indicator_large">Grande</string>
     <string name="debug_section_features">Recursos Experimentais</string>
-    <string name="debug_account_tab_title">Aba da Conta</string>
-    <string name="debug_account_tab_subtitle">Exiba a aba Conta no menu de Ajustes.</string>
-    <string name="debug_sync_code_title">Recursos de Sincronização</string>
-    <string name="debug_sync_code_subtitle">Exiba os botões de código de sincronização.</string>
     <string name="debug_buffer_logs_title">Ativar Logs de Buffer</string>
     <string name="debug_buffer_logs_subtitle">Envia relatórios periódicos de carregamento do vídeo para o sistema (logcat). Desativado por padrão.</string>
     <string name="debug_error_dialog_title">Erro de Reprodução</string>

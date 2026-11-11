@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
+import com.fetch.tv.core.util.runSuspendCatching
 
 private const val TAG = "FetchServerDiscovery"
 
@@ -83,7 +84,7 @@ class FetchServerDiscovery @Inject constructor(
         } catch (error: Exception) {
             Log.w(TAG, "Discovery failed to start", error)
         }
-        awaitClose { runCatching { nsd.stopServiceDiscovery(listener) } }
+        awaitClose { runSuspendCatching { nsd.stopServiceDiscovery(listener) } }
     }
 
     @Suppress("DEPRECATION") // resolveService and host still work on 14+, and are all there is below it.

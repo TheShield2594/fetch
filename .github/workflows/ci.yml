@@ -44,13 +44,13 @@ jobs:
 
       # Builds without any private configuration: no keys, no sync server, debug signing.
       - name: Unit tests
-        run: ./gradlew --no-daemon :app:testFullDebugUnitTest
+        run: ./gradlew --no-daemon :app:testDebugUnitTest
 
       - name: Assemble debug APK
-        run: ./gradlew --no-daemon :app:assembleFullDebug
+        run: ./gradlew --no-daemon :app:assembleDebug
 
       - uses: actions/upload-artifact@v7
         with:
-          name: fetch-full-debug
-          path: app/build/outputs/apk/full/debug/*universal*.apk
+          name: fetch-debug
+          path: app/build/outputs/apk/debug/*universal*.apk
           if-no-files-found: warn

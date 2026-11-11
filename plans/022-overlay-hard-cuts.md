@@ -131,8 +131,8 @@ inside `EpisodeOptionsOverlay.kt`'s `Dialog` content, which is a separate plan.
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
   - No unit test covers these overlays (`grep -rn "EditProfileOverlay" app/src/test` is empty).
 - **Feel check** (TV or emulator, profile selection screen):
   - Animator duration scale 10x. Open Edit on a profile: the scrim and editor fade in; the

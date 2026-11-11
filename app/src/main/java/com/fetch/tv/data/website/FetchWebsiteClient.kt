@@ -18,6 +18,7 @@ import okhttp3.Response
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 /** The website answered with an error; [code] is its machine-readable reason when it gave one. */
 class FetchWebsiteException(
@@ -118,7 +119,7 @@ class FetchWebsiteClient internal constructor(
     /** Whether a Fetch website's API answers at [serverUrl]; a quick check before offering it. */
     suspend fun answers(serverUrl: String): Boolean = call {
         val request = Request.Builder().url(endpoint(serverUrl, "health")).get().build()
-        runCatching { probe.newCall(request).execute().use { it.isSuccessful } }.getOrDefault(false)
+        runSuspendCatching { probe.newCall(request).execute().use { it.isSuccessful } }.getOrDefault(false)
     }
 
     /**
@@ -127,7 +128,7 @@ class FetchWebsiteClient internal constructor(
      */
     suspend fun resolveServer(address: String): ResolvedFetchServer? = call {
         FetchServerAddress.resolve(address) { url ->
-            runCatching {
+            runSuspendCatching {
                 val request = Request.Builder().url(url).get().build()
                 resolver.newCall(request).execute().use { response ->
                     if (response.isSuccessful) response.body?.string() else null

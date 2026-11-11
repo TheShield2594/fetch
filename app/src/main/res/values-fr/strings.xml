@@ -1122,10 +1122,6 @@
     <string name="debug_progress_indicator_default">Par défaut</string>
     <string name="debug_progress_indicator_large">Grand</string>
     <string name="debug_section_features">Options expérimentales</string>
-    <string name="debug_account_tab_title">Onglet Compte</string>
-    <string name="debug_account_tab_subtitle">Afficher l’onglet Compte dans la navigation des paramètres</string>
-    <string name="debug_sync_code_title">Fonctionnalités du code de synchronisation</string>
-    <string name="debug_sync_code_subtitle">Afficher les boutons de génération et de saisie du code de synchronisation dans les paramètres du compte</string>
     <string name="debug_buffer_logs_title">Activer les journaux BUFFER</string>
     <string name="debug_buffer_logs_subtitle">Émettre périodiquement les diagnostics de la mémoire tampon du lecteur dans logcat (désactivé par défaut)</string>
     <string name="debug_error_dialog_title">Erreur de lecture</string>

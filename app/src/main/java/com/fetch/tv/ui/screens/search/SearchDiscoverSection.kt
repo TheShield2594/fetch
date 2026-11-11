@@ -486,7 +486,7 @@ private fun DiscoverChip(
         modifier = modifier
             .focusProperties { canFocus = focusEnabled }
             .onFocusChanged { isFocused = it.isFocused }
-            .semantics { selected = isSelected },
+            .semantics { this.selected = isSelected },
         colors = FilterChipDefaults.colors(
             containerColor = FetchTheme.colors.BackgroundCard,
             focusedContainerColor = FetchTheme.colors.Highlight,

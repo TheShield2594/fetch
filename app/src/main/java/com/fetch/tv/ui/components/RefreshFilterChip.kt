@@ -5,7 +5,6 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
@@ -109,14 +108,14 @@ fun RefreshFilterChip(
         border = FilterChipDefaults.border(
             border = Border(
                 border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                shape = RoundedCornerShape(FetchTheme.radii.xl)
+                shape = FetchTheme.shapes.chip
             ),
             focusedBorder = Border(
-                border = BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.FocusRing),
-                shape = RoundedCornerShape(FetchTheme.radii.xl)
+                border = FetchFocusSpec.stroke(),
+                shape = FetchTheme.shapes.chip
             )
         ),
-        shape = FilterChipDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.xl))
+        shape = FilterChipDefaults.shape(shape = FetchTheme.shapes.chip)
     ) {
         Icon(
             imageVector = Icons.Rounded.Refresh,

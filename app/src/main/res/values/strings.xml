@@ -1842,6 +1842,19 @@
     <string name="search_error_no_catalogs">No searchable catalogs found in installed addons</string>
     <string name="search_no_catalogs_title">None of your addons can search</string>
     <string name="search_no_catalogs_subtitle">Install an addon with a search catalog, then try again.</string>
+    <!-- Merged search results (roadmap D3): type filters above the results, the top result's label. -->
+    <string name="search_filter_all">All</string>
+    <string name="search_filter_movies">Movies</string>
+    <string name="search_filter_series">Series</string>
+    <string name="search_filter_in_library">In my library</string>
+    <string name="search_filters_label">Filter results</string>
+    <string name="search_top_result">Top result</string>
+    <!-- Which addons returned the top result, e.g. "From Cinemeta, TMDB and 2 more". -->
+    <string name="search_top_result_sources">From %1$s</string>
+    <string name="search_top_result_sources_more">From %1$s and %2$d more</string>
+    <string name="search_results_other">Other</string>
+    <string name="search_no_results_filter_title">Nothing matches this filter</string>
+    <string name="search_no_results_filter_subtitle">Try another filter, or All.</string>
 
     <string name="library_title">Library</string>
     <string name="library_filter_list">List</string>

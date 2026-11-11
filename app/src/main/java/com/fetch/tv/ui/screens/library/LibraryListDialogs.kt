@@ -1,5 +1,8 @@
 package com.fetch.tv.ui.screens.library
 
+import com.fetch.tv.ui.components.FetchButtonStyle
+import com.fetch.tv.ui.components.FetchButton
+import com.fetch.tv.ui.components.FetchButtonDefaults
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +39,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -115,7 +117,7 @@ internal fun ManageListsDialog(
             ) {
                 items(personalTabs, key = { it.key }) { tab ->
                     val isSelected = tab.key == selectedKey
-                    Button(
+                    FetchButton(
                         onClick = { onSelect(tab.key) },
                         enabled = !pending,
                         modifier = Modifier
@@ -128,10 +130,8 @@ internal fun ManageListsDialog(
                                 }
                             )
                             .semantics { selected = isSelected },
-                        shape = libraryButtonShape(),
-                        colors = selectableButtonColors(isSelected)
+                        selected = isSelected
                     ) {
-                        if (isSelected) SelectedCheckmark()
                         Text(
                             text = tab.localizedTitle(),
                             maxLines = 1,
@@ -148,31 +148,23 @@ internal fun ManageListsDialog(
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
         ) {
-            Button(
+            FetchButton(
                 onClick = onCreate,
                 modifier = if (personalTabs.isEmpty()) Modifier.focusRequester(firstFocusRequester) else Modifier,
-                enabled = !pending,
-                shape = libraryButtonShape(),
-                colors = libraryButtonColors()
+                enabled = !pending
             ) { Text(stringResource(R.string.library_list_create)) }
-            Button(
+            FetchButton(
                 onClick = onEdit,
-                enabled = !pending && selectedKey != null,
-                shape = libraryButtonShape(),
-                colors = libraryButtonColors()
+                enabled = !pending && selectedKey != null
             ) { Text(stringResource(R.string.library_list_edit)) }
             if (capabilities.supportsReordering) {
-                Button(
+                FetchButton(
                     onClick = onMoveUp,
-                    enabled = !pending && selectedKey != null,
-                    shape = libraryButtonShape(),
-                    colors = libraryButtonColors()
+                    enabled = !pending && selectedKey != null
                 ) { Text(stringResource(R.string.library_list_move_up)) }
-                Button(
+                FetchButton(
                     onClick = onMoveDown,
-                    enabled = !pending && selectedKey != null,
-                    shape = libraryButtonShape(),
-                    colors = libraryButtonColors()
+                    enabled = !pending && selectedKey != null
                 ) { Text(stringResource(R.string.library_list_move_down)) }
             }
         }
@@ -182,11 +174,10 @@ internal fun ManageListsDialog(
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
         ) {
-            Button(
+            FetchButton(
                 onClick = onDelete,
                 enabled = !pending && selectedKey != null,
-                shape = libraryButtonShape(),
-                colors = destructiveButtonColors()
+                style = FetchButtonStyle.Destructive
             ) {
                 // Name the list Delete acts on, so the target is never ambiguous.
                 val selectedTitle = personalTabs.firstOrNull { it.key == selectedKey }?.localizedTitle()
@@ -200,11 +191,9 @@ internal fun ManageListsDialog(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Button(
+            FetchButton(
                 onClick = onDismiss,
-                enabled = !pending,
-                shape = libraryButtonShape(),
-                colors = libraryButtonColors()
+                enabled = !pending
             ) { Text(stringResource(R.string.library_list_close)) }
         }
     }
@@ -367,14 +356,12 @@ internal fun ListEditorDialog(
             LazyRow(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
                 items(capabilities.privacyOptions, key = { it.name }) { privacy ->
                     val isSelected = privacy == state.privacy
-                    Button(
+                    FetchButton(
                         onClick = { onPrivacyChanged(privacy) },
                         enabled = !pending,
                         modifier = Modifier.semantics { selected = isSelected },
-                        shape = libraryButtonShape(),
-                        colors = selectableButtonColors(isSelected)
+                        selected = isSelected
                     ) {
-                        if (isSelected) SelectedCheckmark()
                         Text(stringResource(privacy.labelRes()))
                     }
                 }
@@ -391,12 +378,10 @@ internal fun ListEditorDialog(
             )
         }
 
-        Button(
+        FetchButton(
             onClick = onSave,
             enabled = !pending,
-            modifier = Modifier.fillMaxWidth(),
-            shape = libraryButtonShape(),
-            colors = libraryButtonColors()
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(if (pending) stringResource(R.string.action_saving) else stringResource(R.string.action_save))
         }
@@ -412,36 +397,17 @@ private fun LibraryListPrivacy.labelRes(): Int = when (this) {
     LibraryListPrivacy.PUBLIC -> R.string.library_list_privacy_public
 }
 
-/** The project button shape, so Library buttons match the cards and pickers beside them. */
+// Screens not yet moved to FetchButton (Stats, Calendar, YouTube, Settings) still style a raw
+// tv-material Button with these. They read FetchButtonDefaults, so both kinds match.
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-internal fun libraryButtonShape() = ButtonDefaults.shape(FetchTheme.shapes.button)
+internal fun libraryButtonShape() = ButtonDefaults.shape(FetchButtonDefaults.shape())
 
-/**
- * Colors for a plain Library button. The focused pair is the theme's neutral Highlight, stated here
- * rather than left to the library default.
- */
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-internal fun libraryButtonColors() = ButtonDefaults.colors(
-    containerColor = FetchTheme.colors.BackgroundCard,
-    contentColor = FetchTheme.colors.TextPrimary,
-    focusedContainerColor = FetchTheme.colors.Highlight,
-    focusedContentColor = FetchTheme.colors.OnHighlight
-)
+internal fun libraryButtonColors() = FetchButtonDefaults.colors()
 
-/**
- * Colors for a Library button that can be the current choice. The selected one takes the neutral
- * Highlight pair, since a FocusBackground fill was about 1.16:1 from its neighbours.
- */
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-internal fun selectableButtonColors(selected: Boolean) = ButtonDefaults.colors(
-    containerColor = if (selected) FetchTheme.colors.Highlight else FetchTheme.colors.BackgroundCard,
-    contentColor = if (selected) FetchTheme.colors.OnHighlight else FetchTheme.colors.TextPrimary,
-    focusedContainerColor = FetchTheme.colors.Highlight,
-    focusedContentColor = FetchTheme.colors.OnHighlight
-)
+internal fun selectableButtonColors(selected: Boolean) = FetchButtonDefaults.colors(selected = selected)
 
 /** Leading checkmark for the selected option, so selection isn't carried by color alone. */
 @Composable
@@ -454,16 +420,5 @@ internal fun SelectedCheckmark() {
     Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
 }
 
-/**
- * Colors for a destructive Library button. The focused pair is set too: without it, focus fell back
- * to the library's white fill and the danger color vanished exactly when the button was about to
- * be pressed.
- */
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-internal fun destructiveButtonColors() = ButtonDefaults.colors(
-    containerColor = FetchStatusTones.errorContainer,
-    contentColor = FetchTheme.colors.TextPrimary,
-    focusedContainerColor = FetchTheme.colors.Error,
-    focusedContentColor = FetchTheme.colors.OnHighlight
-)
+internal fun destructiveButtonColors() = FetchButtonDefaults.colors(FetchButtonStyle.Destructive)

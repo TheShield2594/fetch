@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.components.FetchButton
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -37,8 +38,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -558,13 +557,9 @@ private fun HomeMenuButton(
     text: String,
     onClick: () -> Unit
 ) {
-    Button(
+    FetchButton(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.colors(
-            containerColor = FetchTheme.colors.BackgroundCard,
-            contentColor = FetchTheme.colors.TextPrimary
-        )
+        modifier = Modifier.fillMaxWidth()
     ) {
         Text(text)
     }
@@ -576,13 +571,9 @@ private fun HomePinRowButton(
     isRowPinned: Boolean,
     onClick: () -> Unit
 ) {
-    Button(
+    FetchButton(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.colors(
-            containerColor = FetchTheme.colors.BackgroundCard,
-            contentColor = FetchTheme.colors.TextPrimary
-        )
+        modifier = Modifier.fillMaxWidth()
     ) {
         Text(
             if (isRowPinned) {

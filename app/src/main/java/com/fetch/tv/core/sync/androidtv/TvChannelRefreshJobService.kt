@@ -18,20 +18,18 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 private const val TAG = "TvChannelSync"
+// Older versions scheduled a persisted periodic job under this id. It is only cancelled now.
 private const val JOB_ID_PERIODIC = 10_010
 private const val JOB_ID_IMMEDIATE = 10_011
-// Each run cold-starts the whole process when the app isn't open, so keep it rare. The channel is
-// also reconciled whenever the app goes to the background and after boot; this job only catches
-// what changes with the clock alone (an episode that has aired since).
-private const val PERIODIC_INTERVAL_MS = 6 * 60 * 60_000L
 
 /**
- * Background job that keeps the Continue Watching preview channel in sync when the app
- * is not in the foreground. Reads from the CW enrichment cache on disk, which is
- * populated by the HomeViewModel CW pipeline during normal app usage.
+ * One-off job that rebuilds the Continue Watching preview channel after boot or when the
+ * launcher asks for programs (`INITIALIZE_PROGRAMS`). Reads from the CW enrichment cache on
+ * disk, which is populated by the HomeViewModel CW pipeline during normal app usage.
  *
- * This ensures the launcher channel stays up-to-date even when the app is backgrounded,
- * using the same enriched data and settings-aware filtering as the in-app UI.
+ * There is no periodic job (roadmap G2): each run cold-started the whole process while the TV
+ * sat idle. The channel is reconciled when the app goes to the background, which covers every
+ * change the user makes; only an episode airing while Fetch is closed waits for the next launch.
  *
  * Dependencies are obtained via Hilt EntryPoint since JobService is not a supported
  * Hilt injection target.
@@ -82,22 +80,15 @@ class TvChannelRefreshJobService : JobService() {
     }
 
     companion object {
-        fun schedulePeriodic(context: Context) {
+        /**
+         * Removes the persisted periodic job older versions scheduled (every 15 minutes, later
+         * every 6 hours). Without this it would keep waking the process after an update.
+         */
+        fun cancelPeriodic(context: Context) {
             val scheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-            // Installs from before the interval changed still hold a persisted 15-minute job;
-            // scheduling with the same id replaces it.
-            val pending = scheduler.allPendingJobs.firstOrNull { it.id == JOB_ID_PERIODIC }
-            if (pending != null && pending.intervalMillis == PERIODIC_INTERVAL_MS) return
-            val job = JobInfo.Builder(
-                JOB_ID_PERIODIC,
-                ComponentName(context, TvChannelRefreshJobService::class.java)
-            )
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPeriodic(PERIODIC_INTERVAL_MS)
-                .setPersisted(true)
-                .build()
-            scheduler.schedule(job)
-            Log.d(TAG, "Scheduled periodic TV channel refresh every ${PERIODIC_INTERVAL_MS / 3_600_000}h")
+            if (scheduler.allPendingJobs.none { it.id == JOB_ID_PERIODIC }) return
+            scheduler.cancel(JOB_ID_PERIODIC)
+            Log.d(TAG, "Cancelled the legacy periodic TV channel refresh")
         }
 
         fun scheduleImmediate(context: Context) {

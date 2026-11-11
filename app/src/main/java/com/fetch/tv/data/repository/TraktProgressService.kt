@@ -39,6 +39,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -290,12 +292,41 @@ class TraktProgressService @Inject constructor(
         }
         scope.launch {
             refreshEvents().collectLatest {
+                // Nothing reaches the network while the app is off screen (roadmap G2): a process
+                // woken by the boot receiver or the launcher channel job would otherwise fetch at
+                // once. Events that arrive in the background collapse into one refresh on return.
+                AppForeground.awaitForeground()
+                // A refresh that is still running when the app leaves the screen is cancelled and
+                // run again on return, so none of its requests go out off screen.
+                var leftScreen = false
                 val success = try {
-                    refreshRemoteSnapshot()
-                    true
+                    coroutineScope {
+                        val refresh = async { refreshRemoteSnapshot() }
+                        val watcher = launch {
+                            AppForeground.isForeground.first { !it }
+                            leftScreen = true
+                            refresh.cancel()
+                        }
+                        try {
+                            refresh.await()
+                        } finally {
+                            watcher.cancel()
+                        }
+                        true
+                    }
+                } catch (e: CancellationException) {
+                    // Our own cancellation (a newer event, or the service shutting down) propagates.
+                    currentCoroutineContext().ensureActive()
+                    if (!leftScreen) throw e
+                    null
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to refresh remote snapshot", e)
                     false
+                }
+                if (success == null) {
+                    // Not a failure, so no backoff: the next event waits for the foreground.
+                    refreshSignals.tryEmit(Unit)
+                    return@collectLatest
                 }
                 updateRefreshBackoff(success)
             }
@@ -1022,7 +1053,7 @@ class TraktProgressService @Inject constructor(
         while (true) {
             delay(refreshIntervalMs)
             // No polling while the app is off screen. A tick that came due in the background
-            // fires as soon as the app returns.
+            // fires as soon as the app returns (the collector waits for the foreground too).
             AppForeground.awaitForeground()
             emit(Unit)
         }

@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.google.gson.Gson
 import com.fetch.tv.core.profile.ProfileManager
@@ -16,14 +15,21 @@ import com.fetch.tv.domain.model.LibrarySyncKey
 import com.fetch.tv.domain.model.LibrarySyncReducer
 import com.fetch.tv.domain.model.LibrarySyncState
 import com.fetch.tv.domain.model.SavedLibraryItem
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,35 +41,51 @@ class LibraryPreferences @Inject constructor(
 ) {
     private val gson = Gson()
     private val libraryItemsKey = stringSetPreferencesKey("library_items")
-    private val sortOptionKey = stringPreferencesKey("library_sort_option")
-    private val lastSelectedListKey = stringPreferencesKey("library_last_selected_list")
-    private val lastSelectedTypeKey = stringPreferencesKey("library_last_selected_type")
     private val deltaCursorKey = longPreferencesKey("library_delta_cursor")
     private val deltaInitializedKey = booleanPreferencesKey("library_delta_initialized")
     private val pendingUpsertKeysKey = stringSetPreferencesKey("library_pending_upserts")
     private val pendingDeleteKeysKey = stringSetPreferencesKey("library_pending_deletes")
     private val mutationRevisionKey = longPreferencesKey("library_mutation_revision")
 
+    // Holds the one shared decode of the active profile's library while anything observes it.
+    private val sharingScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    // Decoded items per profile, keyed by their stored JSON, as in WatchedItemsPreferences: one
+    // add or remove re-parses only the changed entry, not the whole library. Values depend only
+    // on the key, so a lost update only costs cache hits. Entries that fail to parse are cached
+    // as null so they are only parsed once.
+    private val decodeCaches = ConcurrentHashMap<Int, AtomicReference<Map<String, SavedLibraryItem?>>>()
+
     private fun store(profileId: Int = profileManager.activeProfileId.value) =
         factory.get(profileId, FEATURE)
 
-    val sortOption: Flow<String?> = profileManager.activeProfileId.flatMapLatest { profileId ->
-        factory.get(profileId, FEATURE).data.map { preferences ->
-            preferences[sortOptionKey]
-        }
-    }
-
-    /**
-     * The saved items, decoded off the main thread. The file also holds the Library's sort and
-     * last-selected tab, so the stored sets are compared first: changing a tab or the sort order
-     * emits nothing here and re-parses nothing.
-     */
-    val libraryItems: Flow<List<SavedLibraryItem>> =
+    // The shared decode, tagged with its profile so a late subscriber never sees the previous
+    // profile's library while the switch is still being decoded.
+    private val sharedLibraryItems: Flow<Pair<Int, List<SavedLibraryItem>>> =
         profileManager.activeProfileId.flatMapLatest { profileId ->
             factory.get(profileId, FEATURE).data
                 .distinctUntilChanged { old, new -> old.librarySyncFingerprint() == new.librarySyncFingerprint() }
-                .map { preferences -> preferences.toLibrarySyncState().items }
-        }.flowOn(Dispatchers.Default)
+                .map { preferences -> profileId to preferences.toLibrarySyncState(profileId).items }
+        }
+            .flowOn(Dispatchers.Default)
+            .shareIn(
+                sharingScope,
+                SharingStarted.WhileSubscribed(
+                    stopTimeoutMillis = SHARE_STOP_TIMEOUT_MS,
+                    replayExpirationMillis = 0
+                ),
+                replay = 1
+            )
+
+    /**
+     * The saved items, decoded off the main thread and shared by every observer (the Library,
+     * each open detail page's "in library" state, Home), so a change is decoded once. The stored
+     * sets are compared first, so writes that leave them unchanged emit nothing and re-parse
+     * nothing.
+     */
+    val libraryItems: Flow<List<SavedLibraryItem>> = sharedLibraryItems
+        .filter { (profileId, _) -> profileId == profileManager.activeProfileId.value }
+        .map { (_, items) -> items }
 
     /** Everything [toLibrarySyncState] reads. Equal fingerprints decode to equal states. */
     private fun Preferences.librarySyncFingerprint(): List<Any?> = listOf(
@@ -75,42 +97,12 @@ class LibraryPreferences @Inject constructor(
         this[mutationRevisionKey]
     )
 
-    suspend fun setSortOption(key: String) {
-        store().edit { preferences ->
-            preferences[sortOptionKey] = key
-        }
-    }
-
-    val lastSelectedList: Flow<String?> = profileManager.activeProfileId.flatMapLatest { profileId ->
-        factory.get(profileId, FEATURE).data.map { preferences ->
-            preferences[lastSelectedListKey]
-        }
-    }
-
-    suspend fun setLastSelectedList(key: String) {
-        store().edit { preferences ->
-            preferences[lastSelectedListKey] = key
-        }
-    }
-
-    val lastSelectedType: Flow<String?> = profileManager.activeProfileId.flatMapLatest { profileId ->
-        factory.get(profileId, FEATURE).data.map { preferences ->
-            preferences[lastSelectedTypeKey]
-        }
-    }
-
-    suspend fun setLastSelectedType(key: String) {
-        store().edit { preferences ->
-            preferences[lastSelectedTypeKey] = key
-        }
-    }
-
     fun isInLibrary(itemId: String, itemType: String): Flow<Boolean> {
         return libraryItems.map { items ->
             items.any { item ->
                 item.id == itemId && item.type.equals(itemType, ignoreCase = true)
             }
-        }
+        }.distinctUntilChanged()
     }
 
     suspend fun containsItem(
@@ -129,7 +121,7 @@ class LibraryPreferences @Inject constructor(
     ) {
         store(profileId).edit { preferences ->
             val updated = LibrarySyncReducer.upsertLocal(
-                state = preferences.toLibrarySyncState(),
+                state = preferences.toLibrarySyncState(profileId),
                 item = item,
                 nowEpochMs = System.currentTimeMillis()
             )
@@ -144,7 +136,7 @@ class LibraryPreferences @Inject constructor(
     ) {
         store(profileId).edit { preferences ->
             val updated = LibrarySyncReducer.deleteLocal(
-                state = preferences.toLibrarySyncState(),
+                state = preferences.toLibrarySyncState(profileId),
                 contentId = itemId,
                 contentType = itemType
             )
@@ -165,7 +157,7 @@ class LibraryPreferences @Inject constructor(
         profileId: Int = profileManager.activeProfileId.value
     ) {
         store(profileId).edit { preferences ->
-            val state = preferences.toLibrarySyncState()
+            val state = preferences.toLibrarySyncState(profileId)
             val updatedItems = state.items.map { item ->
                 if (item.id == id && item.type.equals(type, ignoreCase = true)) {
                     item.copy(logo = logo)
@@ -178,13 +170,13 @@ class LibraryPreferences @Inject constructor(
     }
 
     private suspend fun getSyncState(profileId: Int): LibrarySyncState {
-        return store(profileId).data.first().toLibrarySyncState()
+        return store(profileId).data.first().toLibrarySyncState(profileId)
     }
 
-    private fun Preferences.toLibrarySyncState(): LibrarySyncState {
+    private fun Preferences.toLibrarySyncState(profileId: Int): LibrarySyncState {
         return LibrarySyncReducer.sanitize(
             LibrarySyncState(
-                items = decodeSet(libraryItemsKey, SavedLibraryItem::class.java),
+                items = decodeItems(profileId, this[libraryItemsKey].orEmpty()),
                 deltaCursorEventId = this[deltaCursorKey] ?: 0L,
                 deltaInitialized = this[deltaInitializedKey] ?: false,
                 pendingUpsertKeys = decodeSet(pendingUpsertKeysKey, LibrarySyncKey::class.java),
@@ -204,6 +196,24 @@ class LibraryPreferences @Inject constructor(
         this[mutationRevisionKey] = sanitized.mutationRevision
     }
 
+    private fun decodeItems(profileId: Int, raw: Set<String>): List<SavedLibraryItem> {
+        val cache = decodeCaches.getOrPut(profileId) { AtomicReference(emptyMap()) }
+        val previous = cache.get()
+        val decoded = HashMap<String, SavedLibraryItem?>(raw.size * 2)
+        val items = ArrayList<SavedLibraryItem>(raw.size)
+        raw.forEach { json ->
+            val item = if (previous.containsKey(json)) {
+                previous[json]
+            } else {
+                runCatching { gson.fromJson(json, SavedLibraryItem::class.java) }.getOrNull()
+            }
+            decoded[json] = item
+            if (item != null) items += item
+        }
+        cache.set(decoded)
+        return items
+    }
+
     private fun <T> Preferences.decodeSet(
         key: Preferences.Key<Set<String>>,
         type: Class<T>
@@ -215,5 +225,6 @@ class LibraryPreferences @Inject constructor(
 
     private companion object {
         const val FEATURE = "library_preferences"
+        const val SHARE_STOP_TIMEOUT_MS = 5_000L
     }
 }

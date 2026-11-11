@@ -2,6 +2,8 @@ package com.fetch.tv.ui.screens.search
 
 sealed interface SearchEvent {
     data class QueryChanged(val query: String) : SearchEvent
+    /** Narrows the merged results to one type, or to titles in the library. */
+    data class SelectTypeFilter(val filter: SearchTypeFilter) : SearchEvent
     data object SubmitSearch : SearchEvent
     /** Moving from the text input to the results confirms the current search (see #2928 review). */
     data object RememberSearchFromTextInput : SearchEvent

@@ -57,7 +57,16 @@ data class SearchUiState(
     val recentSearches: List<String> = emptyList(),
     val suggestions: List<String> = emptyList(),
     /** People matching the query on TMDB (when TMDB is on), each opening the cast screen. */
-    val peopleResults: List<com.fetch.tv.core.tmdb.PersonSearchResult> = emptyList()
+    val peopleResults: List<com.fetch.tv.core.tmdb.PersonSearchResult> = emptyList(),
+    /** Which titles the merged results show; see [SearchTypeFilter]. */
+    val typeFilter: SearchTypeFilter = SearchTypeFilter.ALL,
+    /**
+     * [catalogRows] merged across addons: one ranked row per type and a top result (roadmap D3).
+     * Built by the view model from the profile-filtered rows; the screen shows these.
+     */
+    val mergedResults: MergedSearchResults = MergedSearchResults(),
+    /** Whether the library has anything in it, so "In my library" is worth offering. */
+    val hasLibraryItems: Boolean = false
 )
 
 @Immutable

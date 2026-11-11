@@ -27,11 +27,21 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import okhttp3.ResponseBody.Companion.toResponseBody
+import com.fetch.tv.core.lifecycle.AppForeground
 import org.junit.Assert.assertEquals
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import retrofit2.Response
 
 class TraktProgressServiceRefreshTest {
+
+    // These tests model the app on screen: the refresh loop does nothing in the background.
+    @Before
+    fun onScreen() = AppForeground.set(true)
+
+    @After
+    fun offScreen() = AppForeground.set(false)
     private val traktApi = mockk<TraktApi>()
     private val lastActivitiesCalls = AtomicInteger()
     private val playbackCalls = AtomicInteger()
@@ -116,6 +126,35 @@ class TraktProgressServiceRefreshTest {
         service.refreshRemoteSnapshot()
 
         assertEquals(2, playbackCalls.get())
+    }
+
+    @Test
+    fun `nothing is fetched while the app is off screen`() = runBlocking {
+        AppForeground.set(false)
+        createService()
+        delay(SETTLE_MS * 2)
+        assertEquals(0, playbackCalls.get())
+
+        AppForeground.set(true)
+        waitUntil { playbackCalls.get() >= 1 }
+    }
+
+    @Test
+    fun `a refresh running when the app leaves the screen is redone on return`() = runBlocking {
+        val service = loadedService()
+
+        playbackHangs = true
+        service.refreshNow()
+        waitUntil { playbackCalls.get() >= 1 }
+        AppForeground.set(false)
+        delay(SETTLE_MS)
+        playbackHangs = false
+        resetCounters()
+        delay(SETTLE_MS)
+        assertEquals("requests made off screen", 0, playbackCalls.get())
+
+        AppForeground.set(true)
+        waitUntil { playbackCalls.get() >= 2 }
     }
 
     private suspend fun loadedService(): TraktProgressService {

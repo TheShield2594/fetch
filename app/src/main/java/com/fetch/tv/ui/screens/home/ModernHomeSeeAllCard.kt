@@ -15,22 +15,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
-import com.fetch.tv.ui.components.FetchCardDefaults
+import com.fetch.tv.ui.components.FetchMediaCard
 import com.fetch.tv.ui.theme.FetchTheme
 
 /**
  * The last card of a Home catalog row: opens the row's full grid, so the end of a row leads
  * somewhere instead of stopping. Sized like the row's cards so the row keeps its rhythm.
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun ModernSeeAllCard(
     width: Dp,
@@ -40,23 +35,13 @@ internal fun ModernSeeAllCard(
     modifier: Modifier = Modifier
 ) {
     val shape = RoundedCornerShape(cornerRadius)
-    Card(
+    FetchMediaCard(
         onClick = onClick,
+        shape = shape,
         modifier = modifier
             .width(width)
             .height(height),
-        shape = CardDefaults.shape(shape = shape),
-        colors = CardDefaults.colors(
-            containerColor = FetchTheme.colors.BackgroundCard,
-            focusedContainerColor = FetchTheme.colors.BackgroundCard
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth),
-                shape = shape
-            )
-        ),
-        scale = CardDefaults.scale(focusedScale = FetchCardDefaults.FocusedScale)
+        showRestingBorder = false
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(

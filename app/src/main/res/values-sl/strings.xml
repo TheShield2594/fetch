@@ -103,7 +103,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">Zaslon Domov potrebuje dodatek za katalog, da prikaže naslove.</string>
     <string name="home_empty_no_catalogs_title">Ni katalogov za prikaz</string>
     <string name="home_empty_no_catalogs_subtitle">Vaši dodatki ne ponujajo katalogov za zaslon Domov.</string>
-    <string name="auth_notice_fetch_logged_out">Odjavljeni ste bili iz storitve Fetch. Znova se prijavite v razdelku Nastavitve &gt; Račun.</string>
     <string name="auth_notice_trakt_logged_out">Odjavljeni ste bili iz storitve Trakt. Znova jo povežite v razdelku Nastavitve &gt; Sledenje.</string>
     <string name="error_generic">Prišlo je do napake</string>
 	<!-- ErrorState -->
@@ -380,33 +379,7 @@
           <string name="essential_subtitle_language_subtitle">Želeni jezik podnapisov.</string>
     <string name="essential_audio_language_subtitle">Želeni jezik zvoka.</string>
     <!-- Account / sign-in error messages -->
-    <string name="account_error_sync_code_expired">Koda za sinhronizacijo je potekla.</string>
-    <string name="account_error_invalid_sync_code">Neveljavna koda za sinhronizacijo.</string>
-    <string name="account_error_sync_code_not_found">Kode za sinhronizacijo ni bilo mogoče najti.</string>
-    <string name="account_error_device_already_linked">Naprava je že povezana.</string>
     <string name="account_error_generic_retry">Nekaj je šlo narobe. Poskusite znova.</string>
-    <string name="account_error_invalid_credentials">Nepravilen e-poštni naslov ali geslo.</string>
-    <string name="account_error_email_not_confirmed">Najprej potrdite svoj e-poštni naslov.</string>
-    <string name="account_error_email_already_registered">Račun s tem e-poštnim naslovom že obstaja.</string>
-    <string name="account_error_invalid_email">Vnesite veljaven e-poštni naslov.</string>
-    <string name="account_error_password_too_short">Geslo je prekratko.</string>
-    <string name="account_error_password_too_weak">Geslo je prešibko.</string>
-    <string name="account_error_signup_disabled">Registracija je trenutno onemogočena.</string>
-    <string name="account_error_rate_limited">Preveč poskusov. Poskusite znova pozneje.</string>
-    <string name="account_error_qr_login_expired">Prijava s kodo QR je potekla. Poskusite znova.</string>
-    <string name="account_error_invalid_qr_login">Neveljavna prijavna koda QR.</string>
-    <string name="account_error_qr_login_other_device">Ta prijava s kodo QR je bila zahtevana z druge naprave.</string>
-    <string name="account_error_qr_login_outdated">Storitev prijave s kodo QR je zastarela. Znova uporabite nastavitev SQL za prijavo na TV.</string>
-    <string name="account_error_qr_login_missing_setup">Zalednemu sistemu za prijavo s kodo QR manjka nastavitev. Posodobite nastavitev SQL za prijavo na TV.</string>
-    <string name="account_error_qr_login_misconfigured">URL za prijavo s kodo QR je napačno konfiguriran.</string>
-    <string name="account_error_qr_login_invalid_request">Zahteva za prijavo s kodo QR je bila neveljavna. Poskusite znova.</string>
-    <string name="account_error_no_internet">Ni internetne povezave.</string>
-    <string name="account_error_connection_timeout">Povezava je potekla. Poskusite znova.</string>
-    <string name="account_error_connection_refused">Povezave s strežnikom ni bilo mogoče vzpostaviti.</string>
-    <string name="account_error_not_authenticated">Najprej se prijavite.</string>
-    <string name="account_error_service_unavailable">Storitev ni na voljo. Poskusite znova pozneje.</string>
-    <string name="account_error_invalid_request">Neveljavna zahteva. Preverite svoj vnos.</string>
-    <string name="account_error_unexpected">Prišlo je do nepričakovane napake.</string>
     <string name="experience_mode_switch_to_essential">Preklopi na Osnovno</string>
     <string name="experience_mode_switch_to_essential_subtitle">Skrijte napredne nastavitve brez spreminjanja shranjenih vrednosti.</string>
     <string name="experience_mode_switch_to_advanced">Preklopi na Napredno</string>
@@ -445,9 +418,6 @@
     <string name="profile_remember_last_profile_subtitle">Zapomni si nazadnje izbrani profil ob zagonu</string>
     <string name="settings_debug">Odpravljanje napak</string>	
     <string name="settings_account_section_subtitle">Stanje računa in sinhronizacije.</string>
-    <string name="account_stat_library">knjižnica</string>
-    <string name="account_stat_progress">napredek</string>
-    <string name="account_stat_watched">ogledano</string>													
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Nastavitve predvajanja</string>
     <string name="playback_subtitle">Konfigurirajte možnosti predvajanja videa in podnapisov</string>
@@ -759,15 +729,6 @@
     <string name="trakt_connected_as">Povezan kot %1$s</string>
     <string name="trakt_awaiting_instruction">Pojdite na trakt.tv/activate in vnesite to kodo:</string>
 	<string name="trakt_waiting_approval">Čakanje na odobritev…</string>
-    <string name="qr_login_approved">Prijava odobrena. Dokončanje prijave…</string>
-    <string name="qr_login_pending">Čakanje na odobritev na vašem telefonu…</string>
-    <string name="qr_login_expired">Prijava s kodo QR je potekla. Ustvarite novo kodo.</string>
-    <string name="qr_login_preparing">Priprava prijave s kodo QR...</string>
-       <string name="qr_login_scan_prompt">Skenirajte kodo QR in se prijavite na telefonu</string>
-    <string name="qr_login_start_failed">Zagon prijave s kodo QR ni uspel</string>
-    <string name="qr_login_signing_in">Prijavljanje…</string>
-    <string name="qr_login_success">Prijava je bila uspešna</string>
-    <string name="qr_login_exchange_failed">Prijave s kodo QR ni bilo mogoče dokončati</string>			  
     <string name="trakt_code_expires">Koda poteče čez %1$s</string>
     <string name="trakt_token_refreshes">Žeton za dostop do Trakt se osveži čez %1$s</string>
     <string name="trakt_missing_credentials">Manjka TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET v local.properties.</string>
@@ -840,11 +801,6 @@
 	<string name="profile_choose_avatar">Izberite avatar</string>
        <string name="profile_avatar_focus_hint">Označite avatar za prikaz imena</string>
     <string name="profile_avatar_category_all">Vse</string>
-    <string name="profile_avatar_category_anime">Anime</string>
-    <string name="profile_avatar_category_animation">Animacija</string>
-    <string name="profile_avatar_category_movie">Film</string>
-    <string name="profile_avatar_category_tv">TV</string>
-    <string name="profile_avatar_category_gaming">Igre</string>
     <string name="profile_add_new">Dodaj profil</string>
 	<string name="profile_cancel">Prekliči</string>
 	<string name="profile_save">Shrani</string>														   

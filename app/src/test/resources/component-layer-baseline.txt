@@ -18,9 +18,8 @@ library|CARD|1
 player|BUTTON|7
 player|CARD|24
 profile|BUTTON|33
-search|CARD|1
 settings|BUTTON|29
-settings|CARD|31
+settings|CARD|30
 stats|BUTTON|1
 stats|CARD|1
 stream|BUTTON|1

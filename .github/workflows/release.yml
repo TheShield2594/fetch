@@ -90,13 +90,13 @@ jobs:
               echo "::warning::Secret $key is not set; that integration will be unavailable in this build."
             fi
           done
-          ./gradlew --no-daemon :app:assembleFullRelease
+          ./gradlew --no-daemon :app:assembleRelease
 
       - name: Name APKs after the tag
         run: |
           mkdir -p dist
-          for apk in app/build/outputs/apk/full/release/*.apk; do
-            abi=$(basename "$apk" .apk | sed -E 's/^app-full-(.*)-release(-unsigned)?$/\1/')
+          for apk in app/build/outputs/apk/release/*.apk; do
+            abi=$(basename "$apk" .apk | sed -E 's/^app-(.*)-release(-unsigned)?$/\1/')
             cp "$apk" "dist/fetch-${{ inputs.tag }}-$abi.apk"
           done
           ls -l dist

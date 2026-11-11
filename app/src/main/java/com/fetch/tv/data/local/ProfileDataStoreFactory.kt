@@ -140,7 +140,7 @@ class ProfileDataStoreFactory @Inject constructor(
         "screen_time",
         "skip_marker_settings",
         "tv_channel_prefs",
-        // Updater channel/banner prefs (full flavor only).
+        // Updater channel/banner prefs.
         "update_settings"
     )
 

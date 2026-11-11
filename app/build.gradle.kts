@@ -136,27 +136,6 @@ android {
         buildConfigField("String", "GITHUB_REPO", "\"fetch\"")
     }
 
-    flavorDimensions += "distribution"
-    productFlavors {
-        create("full") {
-            dimension = "distribution"
-            buildConfigField("boolean", "FEATURE_IN_APP_UPDATES_ENABLED", "true")
-            buildConfigField("boolean", "FEATURE_IN_APP_TRAILERS_ENABLED", "true")
-            buildConfigField("boolean", "FEATURE_EXTERNAL_TRAILERS_ENABLED", "true")
-            buildConfigField("boolean", "FEATURE_EXTERNAL_PLAYBACK_KEEP_ALIVE_ENABLED", "true")
-            buildConfigField("boolean", "FEATURE_CUSTOM_SERVER_CONNECTIONS_ENABLED", "true")
-        }
-        create("playstore") {
-            dimension = "distribution"
-            applicationId = "com.fetch.app"
-            buildConfigField("boolean", "FEATURE_IN_APP_UPDATES_ENABLED", "false")
-            buildConfigField("boolean", "FEATURE_IN_APP_TRAILERS_ENABLED", "false")
-            buildConfigField("boolean", "FEATURE_EXTERNAL_TRAILERS_ENABLED", "true")
-            buildConfigField("boolean", "FEATURE_EXTERNAL_PLAYBACK_KEEP_ALIVE_ENABLED", "false")
-            buildConfigField("boolean", "FEATURE_CUSTOM_SERVER_CONNECTIONS_ENABLED", "false")
-        }
-    }
-
     if (enableDoviNative) {
         externalNativeBuild {
             cmake {
@@ -295,8 +274,7 @@ android {
 
 androidComponents {
     onVariants(selector().withBuildType("debug")) { variant ->
-        val isPlaystore = variant.productFlavors.any { it.second == "playstore" }
-        variant.applicationId.set(if (isPlaystore) "com.fetch.app.debug" else "com.fetch.tv.debug")
+        variant.applicationId.set("com.fetch.tv.debug")
     }
     // res/xml/searchable.xml can't use manifest placeholders, so the system search provider's
     // authority (the manifest's applicationId + ".search") comes in as a string per variant.

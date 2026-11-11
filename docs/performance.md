@@ -49,7 +49,7 @@ build of the current `main`, on the same device, back to back.
 
 Before every run:
 
-- Install a release build (`./gradlew :app:assembleFullRelease`), not debug.
+- Install a release build (`./gradlew :app:assembleRelease`), not debug.
 - Complete onboarding, add the default addons and let the home screen load once.
 - Reboot, wait about two minutes for the device to settle, then measure.
 - Leave the device on mains power with no other apps running.

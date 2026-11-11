@@ -81,8 +81,8 @@ covers every D-pad move, every navigation, every fetch and the playback overlays
 
 ## Verification for every plan
 
-- `./gradlew :app:compileFullDebugKotlin`
-- `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'`, plus any test class
+- `./gradlew :app:compileDebugKotlin`
+- `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'`, plus any test class
   the plan names. For example, 013 updates `FetchLaunchMorphTest`.
 - A **feel check on a real TV or emulator**:
   - Set Developer options → Animator duration scale to 5× or 10× to watch in slow motion.

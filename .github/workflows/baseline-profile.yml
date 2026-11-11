@@ -44,7 +44,7 @@ jobs:
       # Built before the emulator boots, so the two don't compete for the runner's memory.
       - name: Build the app and the journey
         run: |
-          ./gradlew --no-daemon :app:assembleFullNonMinifiedRelease :baselineprofile:assembleNonMinifiedRelease
+          ./gradlew --no-daemon :app:assembleNonMinifiedRelease :baselineprofile:assembleNonMinifiedRelease
           ./gradlew --stop
 
       # API 33+ records profiles without root. The build needs no private configuration.

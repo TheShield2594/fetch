@@ -79,6 +79,6 @@ won't install in place shows up here.
 
 ## Package names
 
-The TV build is `com.fetch.tv` and the Play Store flavor is `com.fetch.app`. As of 2026-10-26
-neither has a public Play Store listing. Check again before a store submission, since an
+The TV build is `com.fetch.tv` (the `playstore` flavour and its `com.fetch.app` package were
+removed in #431). As of 2026-10-26 it has no public Play Store listing. Check again before a store submission, since an
 unlisted or removed app can still hold a package name.

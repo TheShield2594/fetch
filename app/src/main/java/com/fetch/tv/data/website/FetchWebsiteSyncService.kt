@@ -157,7 +157,8 @@ class FetchWebsiteSyncService @Inject constructor(
         runCatchingNonCancel {
             client.reportSync(
                 appVersion = BuildConfig.VERSION_NAME,
-                flavor = BuildConfig.FLAVOR,
+                // One build since the playstore flavour went (#431); the website still shows a label.
+                flavor = "full",
                 ok = error == null,
                 error = error?.let { it.message ?: it.javaClass.simpleName }
             )

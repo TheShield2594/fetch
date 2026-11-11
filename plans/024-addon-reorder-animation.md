@@ -164,12 +164,12 @@ All edits are in `app/src/main/java/com/fetch/tv/ui/screens/addon/AddonManagerSc
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds. If `animateItem` doesn't resolve, the
+  - `./gradlew :app:compileDebugKotlin` succeeds. If `animateItem` doesn't resolve, the
     compose BOM is older than expected: STOP and report. Do not fall back to
     `animateItemPlacement`.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with an
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with an
     unchanged baseline.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*AddonHealthSortTest*' --tests '*AddonManagementAccessTest*'`
+  - `./gradlew :app:testDebugUnitTest --tests '*AddonHealthSortTest*' --tests '*AddonManagementAccessTest*'`
     passes. These cover this screen's helpers.
 - **Feel check** (TV or emulator), in Settings → Addons with at least 4 addons:
   - Focus the 2nd card's Move down and press it.

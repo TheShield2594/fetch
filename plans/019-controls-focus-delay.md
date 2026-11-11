@@ -164,10 +164,10 @@ line number. If it is not there, stop and report.
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes (this plan
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes (this plan
     adds no `tween`).
-  - `./gradlew :app:testFullDebugUnitTest --tests '*PlayerBackPressTest*'` passes. It is the
+  - `./gradlew :app:testDebugUnitTest --tests '*PlayerBackPressTest*'` passes. It is the
     nearest coverage of player focus/back flows; nothing tests this effect directly.
 - **Feel check** (TV or emulator, during playback):
   - Controls hidden → press D-pad Down to open them, and **immediately** press D-pad Left or

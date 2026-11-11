@@ -182,8 +182,8 @@ correct and stay unchanged.
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes. Neither file
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes. Neither file
     is in `theme-literals-baseline.txt` and no literal `tween(<digits>` is added.
   - `grep -n "durations.medium" app/src/main/java/com/fetch/tv/ui/navigation/FetchNavHost.kt` returns nothing.
   - `grep -n "contentStartPadding" app/src/main/java/com/fetch/tv/MainActivity.kt` shows a plain

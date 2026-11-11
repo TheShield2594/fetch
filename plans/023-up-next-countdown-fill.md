@@ -200,10 +200,10 @@ here may have shifted. Find each excerpt by its text. If the text itself differs
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with no
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with no
     baseline change.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*PostPlayModeTest*' --tests '*PlayerNextEpisodeRulesTest*' --tests '*AutoplaySessionCountTest*'`
+  - `./gradlew :app:testDebugUnitTest --tests '*PostPlayModeTest*' --tests '*PlayerNextEpisodeRulesTest*' --tests '*AutoplaySessionCountTest*'`
     passes. These are the existing tests around `PostPlayMode` and autoplay.
 - **Feel check** (TV or emulator, a series episode with autoplay on, near its end so the
   next-episode card appears):

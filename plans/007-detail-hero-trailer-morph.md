@@ -317,9 +317,9 @@ height and width ratios (0.43 and 0.625); 0.5 sits between them. See the A/B fee
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*MetaDetailsSessionStateTest*'` passes
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
+  - `./gradlew :app:testDebugUnitTest --tests '*MetaDetailsSessionStateTest*'` passes
     (the only unit test in the detail package touching MetaDetailsScreen state; it doesn't
     cover this composable, so the feel check is what matters).
   - `grep -n "animateDpAsState\|animateContentSize" app/src/main/java/com/fetch/tv/ui/screens/detail/HeroSection.kt`

@@ -43,22 +43,30 @@ class YouTubeResumeStore @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(1))
 
-    private fun store() = factory.get(profileManager.activeProfileId.value, FEATURE)
+    private fun store(profileId: Int) = factory.get(profileId, FEATURE)
 
     suspend fun get(videoId: String): YouTubeResumePoint? =
-        decodeResumePoints(store().data.first()[entriesKey]).firstOrNull { it.videoId == videoId }
+        decodeResumePoints(store(profileManager.currentProfileId()).data.first()[entriesKey]).firstOrNull { it.videoId == videoId }
 
     /** [save] in this store's own scope, so it outlives the screen that asked. */
     fun saveInBackground(videoId: String, positionMs: Long, durationMs: Long) {
+        // The profile that watched, not whichever is active when the queued save runs.
+        val profileId = profileManager.currentProfileId()
         backgroundScope.launch {
-            runSuspendCatching { save(videoId, positionMs, durationMs) }
+            runSuspendCatching { save(videoId, positionMs, durationMs, profileId = profileId) }
                 .onFailure { Log.w("YouTubeResumeStore", "Could not save the position of $videoId: ${it.message}") }
         }
     }
 
     /** Remembers [positionMs] for [videoId]; a finished video is forgotten, so it starts over next time. */
-    suspend fun save(videoId: String, positionMs: Long, durationMs: Long, nowMs: Long = System.currentTimeMillis()) {
-        store().edit { prefs ->
+    suspend fun save(
+        videoId: String,
+        positionMs: Long,
+        durationMs: Long,
+        nowMs: Long = System.currentTimeMillis(),
+        profileId: Int
+    ) {
+        store(profileId).edit { prefs ->
             val entries = decodeResumePoints(prefs[entriesKey])
             prefs[entriesKey] = encodeResumePoints(updateResumePoints(entries, videoId, positionMs, durationMs, nowMs, MAX_ENTRIES))
         }

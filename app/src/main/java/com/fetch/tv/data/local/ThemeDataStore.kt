@@ -24,7 +24,7 @@ class ThemeDataStore @Inject constructor(
         private const val FEATURE = "theme_settings"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     private val themeKey = stringPreferencesKey("selected_theme")
@@ -85,26 +85,26 @@ class ThemeDataStore @Inject constructor(
     }
 
     suspend fun setTheme(theme: AppTheme) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[themeKey] = theme.name
         }
     }
 
     suspend fun setCustomTheme(colors: CustomThemeColors) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[customThemeColorsKey] = colors.encode()
             prefs[themeKey] = AppTheme.CUSTOM.name
         }
     }
 
     suspend fun setFont(font: AppFont) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[fontKey] = font.name
         }
     }
 
     suspend fun setAmoledMode(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[amoledModeKey] = enabled
             if (!enabled) {
                 prefs[amoledSurfacesModeKey] = false
@@ -113,19 +113,19 @@ class ThemeDataStore @Inject constructor(
     }
 
     suspend fun setAmoledSurfacesMode(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[amoledSurfacesModeKey] = enabled
         }
     }
 
     suspend fun setHighContrast(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[highContrastKey] = enabled
         }
     }
 
     suspend fun setReduceMotion(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[reduceMotionKey] = enabled
         }
     }

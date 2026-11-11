@@ -562,9 +562,9 @@ class MetaDetailsViewModel @Inject constructor(
     private fun observeWatchedEpisodes() {
         if (itemType.lowercase() == "movie") return
         viewModelScope.launch {
-            _effectiveContentId.flatMapLatest { cid ->
+            combine(_effectiveContentId, profileManager.activeProfileId, ::Pair).flatMapLatest { (cid, profileId) ->
                 combine(
-                    watchedItemsPreferences.getWatchedEpisodesForContent(cid),
+                    watchedItemsPreferences.getWatchedEpisodesForContent(cid, profileId),
                     watchProgressRepository.getAllEpisodeProgress(cid),
                     _uiState.map { it.meta?.videos }.distinctUntilChanged(),
                 ) { localWatched, progressMap, videos ->
@@ -1072,8 +1072,9 @@ class MetaDetailsViewModel @Inject constructor(
                 flow.first { it.isNotEmpty() }
             } ?: flow.first()
         }
+        val profileId = profileManager.currentProfileId()
         val watchedDeferred = viewModelScope.async {
-            watchedItemsPreferences.getWatchedEpisodesForContent(contentId).first()
+            watchedItemsPreferences.getWatchedEpisodesForContent(contentId, profileId).first()
         }
         val progressMap = progressDeferred.await()
         val watchedEpisodes = watchedDeferred.await()
@@ -1884,7 +1885,7 @@ class MetaDetailsViewModel @Inject constructor(
         }
         val updated = if (allWatched) current + allIds else current - allIds
         if (updated != current) {
-            watchedSeriesStateHolder.updateWithValidation(updated, allIds)
+            watchedSeriesStateHolder.updateWithValidation(updated, allIds, profileId = profileManager.currentProfileId())
         }
     }
 

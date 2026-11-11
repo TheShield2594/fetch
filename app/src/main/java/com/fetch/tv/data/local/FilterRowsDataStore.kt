@@ -30,7 +30,7 @@ class FilterRowsDataStore @Inject constructor(
     private val gson = Gson()
     private val rowsKey = stringPreferencesKey("filter_rows_json")
 
-    private fun store() = factory.get(profileManager.activeProfileId.value, FEATURE)
+    private fun store(profileId: Int) = factory.get(profileId, FEATURE)
 
     val rows: Flow<List<FilterRow>> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data
@@ -51,7 +51,7 @@ class FilterRowsDataStore @Inject constructor(
     suspend fun remove(id: String): Boolean = edit { rows -> rows.filterNot { it.id == id } }
 
     private suspend fun edit(transform: (List<FilterRow>) -> List<FilterRow>): Boolean = try {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val updated = transform(parse(prefs[rowsKey]))
             if (updated.isEmpty()) {
                 prefs.remove(rowsKey)

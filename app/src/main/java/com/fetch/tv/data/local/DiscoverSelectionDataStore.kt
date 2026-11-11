@@ -17,18 +17,18 @@ class DiscoverSelectionDataStore @Inject constructor(
         val selectedType = stringPreferencesKey("selected_type")
     }
 
-    private fun store() = factory.get(profileManager.activeProfileId.value, FEATURE)
+    private fun store(profileId: Int) = factory.get(profileId, FEATURE)
 
     /** The content type Discover last browsed, e.g. "movie" or "series". */
     suspend fun getSelectedType(): String? =
-        store().data.first()[selectedType]
+        store(profileManager.currentProfileId()).data.first()[selectedType]
             ?.trim()
             ?.takeIf { it.isNotEmpty() }
 
     suspend fun setSelectedType(type: String) {
         val normalized = type.trim()
         if (normalized.isEmpty()) return
-        store().edit { preferences ->
+        store(profileManager.currentProfileId()).edit { preferences ->
             preferences[selectedType] = normalized
         }
     }

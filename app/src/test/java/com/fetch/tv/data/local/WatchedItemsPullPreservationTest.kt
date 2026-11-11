@@ -33,12 +33,13 @@ class WatchedItemsPullPreservationTest {
 
         preferences.replaceWithRemoteItems(
             remoteItems = listOf(item("remote", watchedAt = 10L)),
-            lastSuccessfulPushMs = 0L
+            lastSuccessfulPushMs = 0L,
+            profileId = 1
         )
 
         assertEquals(
             setOf("local", "remote"),
-            preferences.getAllItems().map { it.contentId }.toSet()
+            preferences.getAllItems(profileId = 1).map { it.contentId }.toSet()
         )
     }
 
@@ -48,12 +49,13 @@ class WatchedItemsPullPreservationTest {
 
         preferences.replaceWithRemoteItems(
             remoteItems = listOf(item("remote", watchedAt = 10L)),
-            lastSuccessfulPushMs = 100L
+            lastSuccessfulPushMs = 100L,
+            profileId = 1
         )
 
         assertEquals(
             setOf("unsynced", "remote"),
-            preferences.getAllItems().map { it.contentId }.toSet()
+            preferences.getAllItems(profileId = 1).map { it.contentId }.toSet()
         )
     }
 
@@ -63,12 +65,13 @@ class WatchedItemsPullPreservationTest {
 
         preferences.replaceWithRemoteItems(
             remoteItems = listOf(item("remote", watchedAt = 10L)),
-            lastSuccessfulPushMs = 100L
+            lastSuccessfulPushMs = 100L,
+            profileId = 1
         )
 
         assertEquals(
             setOf("remote"),
-            preferences.getAllItems().map { it.contentId }.toSet()
+            preferences.getAllItems(profileId = 1).map { it.contentId }.toSet()
         )
     }
 

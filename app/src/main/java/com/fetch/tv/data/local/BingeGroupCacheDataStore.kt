@@ -24,7 +24,7 @@ class BingeGroupCacheDataStore @Inject constructor(
         private const val FEATURE = "binge_group_cache"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     private fun prefKey(contentId: String) = stringPreferencesKey("bg_$contentId")
@@ -32,13 +32,13 @@ class BingeGroupCacheDataStore @Inject constructor(
     private fun infoHashPrefKey(contentId: String) = stringPreferencesKey("bg_ih_$contentId")
 
     suspend fun save(contentId: String, bingeGroup: String) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[prefKey(contentId)] = bingeGroup
         }
     }
 
     suspend fun replace(contentId: String, bingeGroup: String?, filename: String? = null, infoHash: String? = null) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val value = bingeGroup?.takeIf { it.isNotBlank() }
             if (value == null) {
                 prefs.remove(prefKey(contentId))
@@ -61,19 +61,19 @@ class BingeGroupCacheDataStore @Inject constructor(
     }
 
     suspend fun get(contentId: String): String? {
-        return store().data.first()[prefKey(contentId)]
+        return store(profileManager.currentProfileId()).data.first()[prefKey(contentId)]
     }
 
     suspend fun getFilename(contentId: String): String? {
-        return store().data.first()[filenamePrefKey(contentId)]
+        return store(profileManager.currentProfileId()).data.first()[filenamePrefKey(contentId)]
     }
 
     suspend fun getInfoHash(contentId: String): String? {
-        return store().data.first()[infoHashPrefKey(contentId)]
+        return store(profileManager.currentProfileId()).data.first()[infoHashPrefKey(contentId)]
     }
 
     suspend fun remove(contentId: String) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs.remove(prefKey(contentId))
         }
     }

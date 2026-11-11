@@ -907,6 +907,7 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
                     fullyWatched
                 } else {
                     reconcileFullyWatchedFromLocalItems(
+                        profileId = profileManager.currentProfileId(),
                         fullyWatched = fullyWatched,
                         watchedItems = watchedItems,
                         seriesContentIds = allSeriesItemsByKey.values
@@ -932,6 +933,7 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
 }
 
 private fun HomeViewModel.reconcileFullyWatchedFromLocalItems(
+    profileId: Int,
     fullyWatched: Set<String>,
     watchedItems: List<WatchedItem>,
     seriesContentIds: Iterable<String>
@@ -956,7 +958,7 @@ private fun HomeViewModel.reconcileFullyWatchedFromLocalItems(
     if (cacheResolvedIds.isEmpty()) return fullyWatched
     val mergedHolderIds = (fullyWatched - cacheResolvedIds) + cacheResolvedFullyWatched
     if (mergedHolderIds != fullyWatchedSeriesIds.fullyWatchedSeriesIds.value) {
-        fullyWatchedSeriesIds.updateWithValidation(mergedHolderIds, cacheResolvedIds)
+        fullyWatchedSeriesIds.updateWithValidation(mergedHolderIds, cacheResolvedIds, profileId = profileId)
     }
     return mergedHolderIds
 }

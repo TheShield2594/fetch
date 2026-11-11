@@ -31,7 +31,7 @@ class TmdbSettingsDataStore @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     private val enabledKey = booleanPreferencesKey("tmdb_enabled")
@@ -75,58 +75,58 @@ class TmdbSettingsDataStore @Inject constructor(
         )
 
     suspend fun setEnabled(enabled: Boolean) {
-        store().edit { it[enabledKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[enabledKey] = enabled }
     }
 
     suspend fun setModernHomeEnabled(enabled: Boolean) {
-        store().edit { it[modernHomeEnabledKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[modernHomeEnabledKey] = enabled }
     }
 
     suspend fun setEnrichContinueWatching(enabled: Boolean) {
-        store().edit { it[enrichContinueWatchingKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[enrichContinueWatchingKey] = enabled }
     }
 
     suspend fun setLanguage(language: String) {
-        store().edit { it[languageKey] = language.ifBlank { "en" } }
+        store(profileManager.currentProfileId()).edit { it[languageKey] = language.ifBlank { "en" } }
     }
 
     suspend fun setUseArtwork(enabled: Boolean) {
-        store().edit { it[useArtworkKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[useArtworkKey] = enabled }
     }
 
     suspend fun setUseBasicInfo(enabled: Boolean) {
-        store().edit { it[useBasicInfoKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[useBasicInfoKey] = enabled }
     }
 
     suspend fun setUseDetails(enabled: Boolean) {
-        store().edit { it[useDetailsKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[useDetailsKey] = enabled }
     }
 
     suspend fun setUseCredits(enabled: Boolean) {
-        store().edit { it[useCreditsKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[useCreditsKey] = enabled }
     }
 
     suspend fun setUseProductions(enabled: Boolean) {
-        store().edit { it[useProductionsKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[useProductionsKey] = enabled }
     }
 
     suspend fun setUseNetworks(enabled: Boolean) {
-        store().edit { it[useNetworksKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[useNetworksKey] = enabled }
     }
 
     suspend fun setUseEpisodes(enabled: Boolean) {
-        store().edit { it[useEpisodesKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[useEpisodesKey] = enabled }
     }
 
     suspend fun setUseTrailers(enabled: Boolean) {
-        store().edit { it[useTrailersKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[useTrailersKey] = enabled }
     }
 
     suspend fun setUseMoreLikeThis(enabled: Boolean) {
-        store().edit { it[useMoreLikeThisKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[useMoreLikeThisKey] = enabled }
     }
 
     suspend fun setUseCollections(enabled: Boolean) {
-        store().edit { it[useCollectionsKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[useCollectionsKey] = enabled }
     }
 }

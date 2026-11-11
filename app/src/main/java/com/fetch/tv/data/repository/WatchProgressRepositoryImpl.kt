@@ -630,10 +630,12 @@ class WatchProgressRepositoryImpl @Inject constructor(
         return activeProgressProviderFlow()
             .flatMapLatest { provider ->
                 if (provider == null) {
-                    val progressFlow = if (season != null && episode != null) {
-                        watchProgressPreferences.getEpisodeProgress(contentId, season, episode)
-                    } else {
-                        watchProgressPreferences.getProgress(contentId)
+                    val progressFlow = profileManager.activeProfileId.flatMapLatest { profileId ->
+                        if (season != null && episode != null) {
+                            watchProgressPreferences.getEpisodeProgress(contentId, season, episode, profileId)
+                        } else {
+                            watchProgressPreferences.getProgress(contentId, profileId)
+                        }
                     }
                     return@flatMapLatest combine(
                         progressFlow,

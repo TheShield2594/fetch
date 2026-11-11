@@ -19,7 +19,7 @@ class AnimeSkipSettingsDataStore @Inject constructor(
         private const val FEATURE = "animeskip_settings"
     }
 
-    private fun store() = factory.get(profileManager.activeProfileId.value, FEATURE)
+    private fun store(profileId: Int) = factory.get(profileId, FEATURE)
 
     private val enabledKey = booleanPreferencesKey("animeskip_enabled")
     private val clientIdKey = stringPreferencesKey("animeskip_client_id")
@@ -33,10 +33,10 @@ class AnimeSkipSettingsDataStore @Inject constructor(
     }
 
     suspend fun setEnabled(enabled: Boolean) {
-        store().edit { it[enabledKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[enabledKey] = enabled }
     }
 
     suspend fun setClientId(clientId: String) {
-        store().edit { it[clientIdKey] = clientId.trim() }
+        store(profileManager.currentProfileId()).edit { it[clientIdKey] = clientId.trim() }
     }
 }

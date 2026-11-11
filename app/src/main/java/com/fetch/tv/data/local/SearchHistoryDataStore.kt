@@ -22,7 +22,7 @@ class SearchHistoryDataStore @Inject constructor(
         private const val DEFAULT_MAX_RECENT_SEARCHES = 8
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     private val gson = Gson()
@@ -52,13 +52,13 @@ class SearchHistoryDataStore @Inject constructor(
             )
         }.take(maxItems.coerceAtLeast(1))
 
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[recentSearchesKey] = gson.toJson(updated)
         }
     }
 
     suspend fun clearRecentSearches() {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs.remove(recentSearchesKey)
         }
     }
@@ -67,7 +67,7 @@ class SearchHistoryDataStore @Inject constructor(
         val normalized = query.trim()
         if (normalized.isEmpty()) return
 
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val updated = parseRecentSearches(prefs[recentSearchesKey])
                 .filterNot { it.equals(normalized, ignoreCase = true) }
 

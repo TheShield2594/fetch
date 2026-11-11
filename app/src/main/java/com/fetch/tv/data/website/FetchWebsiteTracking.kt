@@ -126,7 +126,7 @@ class FetchWebsiteTrackingScrobbler @Inject constructor(
             Log.d(TRACKING_SCROBBLE_DIAGNOSTIC_TAG, "fetch_website adapter skipped action=${action.wireValue} reason=no_imdb_id ${event.scrobbleDiagnosticSummary()}")
             return
         }
-        repository.asProfile { profileId, token -> client.scrobble(profileId, token, action.wireValue, body) }
+        repository.asProfile(repository.activeSlot()) { profileId, token -> client.scrobble(profileId, token, action.wireValue, body) }
         // A pause or stop moved a resume point, or recorded a watch: read it back.
         if (action != TrackingScrobbleAction.START) repository.invalidate()
     }
@@ -219,7 +219,7 @@ class FetchWebsiteTrackingProgressProvider @Inject constructor(
             ids = ids + repository.currentSnapshot()?.playbackIdsFor(contentId, season, episode).orEmpty()
         }
         if (ids.isEmpty()) return
-        repository.asProfile { profileId, token ->
+        repository.asProfile(repository.activeSlot()) { profileId, token ->
             ids.filterNot(::isLocalPlaybackId).distinct().forEach { id ->
                 try {
                     client.deletePlayback(profileId, token, id)
@@ -244,9 +244,11 @@ class FetchWebsiteTrackingProgressProvider @Inject constructor(
         val body = fetchWebsitePlaybackBody(progress) ?: return
         val key = "${progress.contentId}:${progress.season ?: -1}:${progress.episode ?: -1}"
         if (!writeDeduplicator.shouldSend(0, key, progress, SystemClock.elapsedRealtime())) return
+        // The profile that made the progress, not whichever is active when the write runs.
+        val slot = repository.activeSlot()
         scope.launch {
             try {
-                repository.asProfile { profileId, token -> client.putPlayback(profileId, token, body) }
+                repository.asProfile(slot) { profileId, token -> client.putPlayback(profileId, token, body) }
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
@@ -319,7 +321,7 @@ class FetchWebsiteTrackingLibraryProvider @Inject constructor(
         val toAdd = wanted.filter { (key, member) -> member && key !in current }.keys
         val toRemove = wanted.filter { (key, member) -> !member && key in current }.keys
         if (toAdd.isEmpty() && toRemove.isEmpty()) return
-        repository.asProfile { profileId, token ->
+        repository.asProfile(repository.activeSlot()) { profileId, token ->
             toAdd.mapNotNull(::fetchWebsiteListId).forEach { listId ->
                 client.addListItem(profileId, token, listId, type, imdbId, item.title)
             }
@@ -345,7 +347,7 @@ internal class FetchWebsiteListManager(
     override val capabilities = TrackingListManagementCapabilities(privacyOptions = listOf(LibraryListPrivacy.PRIVATE))
 
     override suspend fun createList(name: String, description: String?, privacy: LibraryListPrivacy) {
-        val created = repository.asProfile { profileId, token -> client.createList(profileId, token, name.trim()) }
+        val created = repository.asProfile(repository.activeSlot()) { profileId, token -> client.createList(profileId, token, name.trim()) }
             ?: throw IllegalStateException("Sign in to the Fetch website first")
         repository.mutate { it.copy(lists = it.lists + created, listItems = it.listItems + (created.id to emptyList())) }
         repository.refresh(TrackingRefreshIntent.USER_INITIATED)
@@ -353,7 +355,7 @@ internal class FetchWebsiteListManager(
 
     override suspend fun updateList(key: String, name: String, description: String?, privacy: LibraryListPrivacy) {
         val listId = fetchWebsiteListId(key) ?: throw IllegalArgumentException("Not a Fetch website list")
-        repository.asProfile { profileId, token -> client.renameList(profileId, token, listId, name.trim()) }
+        repository.asProfile(repository.activeSlot()) { profileId, token -> client.renameList(profileId, token, listId, name.trim()) }
             ?: throw IllegalStateException("Sign in to the Fetch website first")
         repository.mutate { snapshot ->
             snapshot.copy(lists = snapshot.lists.map { if (it.id == listId) it.copy(name = name.trim()) else it })
@@ -364,7 +366,7 @@ internal class FetchWebsiteListManager(
     override suspend fun deleteList(key: String) {
         val listId = fetchWebsiteListId(key) ?: throw IllegalArgumentException("Not a Fetch website list")
         try {
-            repository.asProfile { profileId, token -> client.deleteList(profileId, token, listId) }
+            repository.asProfile(repository.activeSlot()) { profileId, token -> client.deleteList(profileId, token, listId) }
                 ?: throw IllegalStateException("Sign in to the Fetch website first")
         } catch (error: FetchWebsiteException) {
             // The profile's watchlist and collection can't be deleted; the website says why.

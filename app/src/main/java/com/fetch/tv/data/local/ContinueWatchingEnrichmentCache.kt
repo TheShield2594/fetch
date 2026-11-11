@@ -6,6 +6,7 @@ import androidx.annotation.Keep
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.core.profile.ProfileSession
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -111,10 +112,26 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
     }
 
     private val gson = Gson()
-    @Volatile private var lastNextUpWriteMs = 0L
-    @Volatile private var lastInProgressWriteMs = 0L
-    @Volatile private var lastNextUpHash = 0
-    @Volatile private var lastInProgressHash = 0
+
+    /**
+     * Throttle and change-detection state for one profile's snapshot writes. It lives in the
+     * profile's [ProfileSession], so a write for one profile can't be skipped because another
+     * profile wrote the same content, or wrote moments before the switch.
+     */
+    private class SnapshotWriteState {
+        @Volatile var lastNextUpWriteMs = 0L
+        @Volatile var lastInProgressWriteMs = 0L
+        @Volatile var lastNextUpHash = 0
+        @Volatile var lastInProgressHash = 0
+    }
+
+    private val writeStateKey = ProfileSession.Key<SnapshotWriteState>("cw_snapshot_writes")
+
+    /** [profileId]'s write state, or null when it is no longer the active profile. */
+    private fun writeState(profileId: Int): SnapshotWriteState? =
+        profileManager.activeSession
+            .takeIf { it.profileId == profileId }
+            ?.cache(writeStateKey) { SnapshotWriteState() }
 
     /** Incremented when cache is cleared; observers can collect to trigger refresh. */
     private val _cacheCleared = kotlinx.coroutines.flow.MutableStateFlow(0)
@@ -126,15 +143,15 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
 
     // --- Next Up snapshot cache ---
 
-    private fun nextUpFile(profileId: Int = profileManager.activeProfileId.value): File {
+    private fun nextUpFile(profileId: Int): File {
         val dir = File(context.filesDir, CACHE_DIR_NAME)
         dir.mkdirs()
         return File(dir, "nextup_${profileId}.json")
     }
 
-    /** [profileId]'s next-up snapshot; the active profile's unless one is named. */
+    /** [profileId]'s next-up snapshot. */
     suspend fun getNextUpSnapshot(
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ): List<CachedNextUpItem> = withContext(Dispatchers.IO) {
         mutex.withLock {
             try {
@@ -169,11 +186,13 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         items: List<CachedNextUpItem>,
         force: Boolean
     ) = withContext(Dispatchers.IO) {
+        // No state means the profile is no longer active, and isStillValid would refuse the save.
+        val state = writeState(origin.profileId) ?: return@withContext
         val contentHash = items.hashCode()
         if (!force) {
-            if (contentHash == lastNextUpHash) return@withContext
+            if (contentHash == state.lastNextUpHash) return@withContext
             val now = System.currentTimeMillis()
-            if (now - lastNextUpWriteMs < THROTTLE_MS) return@withContext
+            if (now - state.lastNextUpWriteMs < THROTTLE_MS) return@withContext
         }
         mutex.withLock {
             // A deleted profile's snapshot must not be recreated by a save that was
@@ -182,8 +201,8 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
             try {
                 val file = nextUpFile(origin.profileId)
                 atomicWrite(file, gson.toJson(items))
-                lastNextUpWriteMs = System.currentTimeMillis()
-                lastNextUpHash = contentHash
+                state.lastNextUpWriteMs = System.currentTimeMillis()
+                state.lastNextUpHash = contentHash
                 _snapshotVersion.value++
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to write next-up cache: ${e.message}")
@@ -193,15 +212,15 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
 
     // --- In-progress snapshot cache ---
 
-    private fun inProgressFile(profileId: Int = profileManager.activeProfileId.value): File {
+    private fun inProgressFile(profileId: Int): File {
         val dir = File(context.filesDir, CACHE_DIR_NAME)
         dir.mkdirs()
         return File(dir, "inprogress_${profileId}.json")
     }
 
-    /** [profileId]'s in-progress snapshot; the active profile's unless one is named. */
+    /** [profileId]'s in-progress snapshot. */
     suspend fun getInProgressSnapshot(
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ): List<CachedInProgressItem> = withContext(Dispatchers.IO) {
         mutex.withLock {
             try {
@@ -236,11 +255,12 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         items: List<CachedInProgressItem>,
         force: Boolean
     ) = withContext(Dispatchers.IO) {
+        val state = writeState(origin.profileId) ?: return@withContext
         val contentHash = items.hashCode()
         if (!force) {
-            if (contentHash == lastInProgressHash) return@withContext
+            if (contentHash == state.lastInProgressHash) return@withContext
             val now = System.currentTimeMillis()
-            if (now - lastInProgressWriteMs < THROTTLE_MS) return@withContext
+            if (now - state.lastInProgressWriteMs < THROTTLE_MS) return@withContext
         }
         mutex.withLock {
             // A deleted profile's snapshot must not be recreated by a save that was
@@ -249,8 +269,8 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
             try {
                 val file = inProgressFile(origin.profileId)
                 atomicWrite(file, gson.toJson(items))
-                lastInProgressWriteMs = System.currentTimeMillis()
-                lastInProgressHash = contentHash
+                state.lastInProgressWriteMs = System.currentTimeMillis()
+                state.lastInProgressHash = contentHash
                 _snapshotVersion.value++
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to write in-progress cache: ${e.message}")
@@ -259,16 +279,18 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
     }
 
     /**
-     * Deletes all CW enrichment cache files for the active profile.
+     * Deletes all CW enrichment cache files for [profileId].
      */
-    suspend fun clearAll() = withContext(Dispatchers.IO) {
+    suspend fun clearAll(profileId: Int) = withContext(Dispatchers.IO) {
         mutex.withLock {
             try {
-                nextUpFile().delete()
-                inProgressFile().delete()
-                lastNextUpHash = 0
-                lastInProgressHash = 0
-                Log.d(TAG, "Cleared CW enrichment cache for profile ${profileManager.activeProfileId.value}")
+                nextUpFile(profileId).delete()
+                inProgressFile(profileId).delete()
+                writeState(profileId)?.let { state ->
+                    state.lastNextUpHash = 0
+                    state.lastInProgressHash = 0
+                }
+                Log.d(TAG, "Cleared CW enrichment cache for profile $profileId")
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to clear CW enrichment cache: ${e.message}")
             }

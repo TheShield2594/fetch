@@ -50,7 +50,7 @@ class CollectionsDataStore @Inject constructor(
         private const val FEATURE = "collections"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     private val gson = Gson()
@@ -65,7 +65,7 @@ class CollectionsDataStore @Inject constructor(
         }
 
     suspend fun setCollections(collections: List<Collection>) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             if (collections.isEmpty()) {
                 prefs.remove(collectionsKey)
             } else {
@@ -75,7 +75,7 @@ class CollectionsDataStore @Inject constructor(
     }
 
     suspend fun addCollection(collection: Collection) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val current = parseCollections(prefs[collectionsKey]).toMutableList()
             current.add(collection)
             prefs[collectionsKey] = gson.toJson(current.map { it.toSerializable() })
@@ -83,7 +83,7 @@ class CollectionsDataStore @Inject constructor(
     }
 
     suspend fun updateCollection(collection: Collection) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val current = parseCollections(prefs[collectionsKey]).toMutableList()
             val index = current.indexOfFirst { it.id == collection.id }
             if (index >= 0) {
@@ -94,7 +94,7 @@ class CollectionsDataStore @Inject constructor(
     }
 
     suspend fun removeCollection(collectionId: String) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val current = parseCollections(prefs[collectionsKey]).toMutableList()
             current.removeAll { it.id == collectionId }
             if (current.isEmpty()) {
@@ -141,12 +141,12 @@ class CollectionsDataStore @Inject constructor(
     }
 
     suspend fun getCurrentCollections(): List<Collection> {
-        val prefs = store().data.first()
+        val prefs = store(profileManager.currentProfileId()).data.first()
         return parseCollections(prefs[collectionsKey])
     }
 
     suspend fun exportCurrentProfileJson(): String? {
-        val prefs = store().data.first()
+        val prefs = store(profileManager.currentProfileId()).data.first()
         return prefs[collectionsKey]
     }
 

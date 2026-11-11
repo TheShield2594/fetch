@@ -275,9 +275,15 @@ object FetchExoPlayerPerformanceHelper {
      * Builds a [DefaultLoadControl] tuned for Fetch performance when enabled,
      * or a standard ExoPlayer [DefaultLoadControl] when disabled.
      */
-    fun buildLoadControl(context: Context? = null, chunkOverheadMb: Int = 0): DefaultLoadControl {
+    fun buildLoadControl(
+        context: Context? = null,
+        chunkOverheadMb: Int = 0,
+        // The session's budget from MemoryBudget.playbackBudgetMb; null leaves the target uncapped.
+        playbackBudgetMb: Int? = null,
+    ): DefaultLoadControl {
         return if (enabled) {
-            val effectiveTargetBufferMb = (targetBufferSizeMb - chunkOverheadMb)
+            val cappedTargetMb = playbackBudgetMb?.let { targetBufferSizeMb.coerceAtMost(it) } ?: targetBufferSizeMb
+            val effectiveTargetBufferMb = (cappedTargetMb - chunkOverheadMb)
                 .coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
             val targetBufferBytes = (effectiveTargetBufferMb.toLong() * 1024L * 1024L)
                 .coerceAtMost(Int.MAX_VALUE.toLong())
@@ -286,7 +292,7 @@ object FetchExoPlayerPerformanceHelper {
             liveAllocator = allocator
             android.util.Log.i(
                 "ExoPerformance",
-                "buildLoadControl: targetBufferSizeMb=$targetBufferSizeMb, chunkOverheadMb=$chunkOverheadMb, effectiveTargetBufferMb=$effectiveTargetBufferMb, targetBytes=$targetBufferBytes, backBufferMs=${effectiveBackBufferMs()} (set=$backBufferMs)"
+                "buildLoadControl: targetBufferSizeMb=$targetBufferSizeMb, playbackBudgetMb=$playbackBudgetMb, chunkOverheadMb=$chunkOverheadMb, effectiveTargetBufferMb=$effectiveTargetBufferMb, targetBytes=$targetBufferBytes, backBufferMs=${effectiveBackBufferMs()} (set=$backBufferMs)"
             )
             DefaultLoadControl.Builder()
                 .setAllocator(allocator)

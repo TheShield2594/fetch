@@ -69,16 +69,20 @@ sealed class Screen(val route: String) {
             return "stream/$encodedVideoId/$encodedContentTypePath/$encodedTitle?poster=$encodedPoster&backdrop=$encodedBackdrop&logo=$encodedLogo&season=${season ?: ""}&episode=${episode ?: ""}&episodeName=$encodedEpisodeName&genres=$encodedGenres&year=$encodedYear&contentId=$encodedContentId&contentName=$encodedContentName&runtime=${runtime ?: ""}&manualSelection=$manualSelection&returnToDetailOnBack=$returnToDetailOnBack&returnToHomeOnBack=$returnToHomeOnBack&startFromBeginning=$startFromBeginning&contentLanguage=$encodedContentLanguage&profileId=${profileId ?: ""}"
         }
     }
-    data object Player : Screen("player/{streamUrl}/{title}?streamName={streamName}&year={year}&headers={headers}&contentId={contentId}&contentType={contentType}&contentName={contentName}&poster={poster}&backdrop={backdrop}&logo={logo}&videoId={videoId}&season={season}&episode={episode}&episodeTitle={episodeTitle}&bingeGroup={bingeGroup}&autoPlayNav={autoPlayNav}&returnToDetailOnBack={returnToDetailOnBack}&returnToHomeOnBack={returnToHomeOnBack}&filename={filename}&videoHash={videoHash}&videoSize={videoSize}&startFromBeginning={startFromBeginning}&addonName={addonName}&addonLogo={addonLogo}&streamDescription={streamDescription}&infoHash={infoHash}&fileIdx={fileIdx}&sources={sources}&contentLanguage={contentLanguage}&launchStartedAtMs={launchStartedAtMs}&profileId={profileId}&audioDelayMs={audioDelayMs}") {
+    data object Player : Screen("player/{requestId}/{title}?streamName={streamName}&year={year}&contentId={contentId}&contentType={contentType}&contentName={contentName}&poster={poster}&backdrop={backdrop}&logo={logo}&videoId={videoId}&season={season}&episode={episode}&episodeTitle={episodeTitle}&bingeGroup={bingeGroup}&autoPlayNav={autoPlayNav}&returnToDetailOnBack={returnToDetailOnBack}&returnToHomeOnBack={returnToHomeOnBack}&filename={filename}&videoHash={videoHash}&videoSize={videoSize}&startFromBeginning={startFromBeginning}&addonName={addonName}&addonLogo={addonLogo}&streamDescription={streamDescription}&infoHash={infoHash}&fileIdx={fileIdx}&contentLanguage={contentLanguage}&launchStartedAtMs={launchStartedAtMs}&profileId={profileId}&audioDelayMs={audioDelayMs}") {
         private fun encode(value: String): String =
             URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 
+        /**
+         * [requestId] names a [com.fetch.tv.ui.screens.player.PlaybackRequest] in
+         * [com.fetch.tv.ui.screens.player.PlaybackRequests]; the stream URL, headers and sources
+         * stay there, out of the route and its saved state.
+         */
         fun createRoute(
-            streamUrl: String,
+            requestId: String,
             title: String,
             streamName: String? = null,
             year: String? = null,
-            headers: Map<String, String>? = null,
             contentId: String? = null,
             contentType: String? = null,
             contentName: String? = null,
@@ -102,19 +106,15 @@ sealed class Screen(val route: String) {
             streamDescription: String? = null,
             infoHash: String? = null,
             fileIdx: Int? = null,
-            sources: List<String>? = null,
             contentLanguage: String? = null,
             launchStartedAtMs: Long = SystemClock.elapsedRealtime(),
             profileId: Int? = null,
             audioDelayMs: Int? = null
         ): String {
-            val encodedUrl = encode(streamUrl)
+            val encodedRequestId = encode(requestId)
             val encodedTitle = encode(title)
             val encodedStreamName = streamName?.let { encode(it) } ?: ""
             val encodedYear = year?.let { encode(it) } ?: ""
-            val encodedHeaders = headers?.let {
-                encode(org.json.JSONObject(it).toString())
-            } ?: ""
             val encodedContentId = contentId?.let { encode(it) } ?: ""
             val encodedContentType = contentType?.let { encode(it) } ?: ""
             val encodedContentName = contentName?.let { encode(it) } ?: ""
@@ -130,9 +130,8 @@ sealed class Screen(val route: String) {
             val encodedAddonLogo = addonLogo?.let { encode(it) } ?: ""
             val encodedStreamDescription = streamDescription?.let { encode(it) } ?: ""
             val encodedInfoHash = infoHash ?: ""
-            val encodedSources = sources?.let { encode(org.json.JSONArray(it).toString()) } ?: ""
             val encodedContentLanguage = contentLanguage?.let { encode(it) } ?: ""
-            return "player/$encodedUrl/$encodedTitle?streamName=$encodedStreamName&year=$encodedYear&headers=$encodedHeaders&contentId=$encodedContentId&contentType=$encodedContentType&contentName=$encodedContentName&poster=$encodedPoster&backdrop=$encodedBackdrop&logo=$encodedLogo&videoId=$encodedVideoId&season=${season ?: ""}&episode=${episode ?: ""}&episodeTitle=$encodedEpisodeTitle&bingeGroup=$encodedBingeGroup&autoPlayNav=$autoPlayNav&returnToDetailOnBack=$returnToDetailOnBack&returnToHomeOnBack=$returnToHomeOnBack&filename=$encodedFilename&videoHash=$encodedVideoHash&videoSize=${videoSize ?: ""}&startFromBeginning=$startFromBeginning&addonName=$encodedAddonName&addonLogo=$encodedAddonLogo&streamDescription=$encodedStreamDescription&infoHash=$encodedInfoHash&fileIdx=${fileIdx ?: ""}&sources=$encodedSources&contentLanguage=$encodedContentLanguage&launchStartedAtMs=$launchStartedAtMs&profileId=${profileId ?: ""}&audioDelayMs=${audioDelayMs ?: ""}"
+            return "player/$encodedRequestId/$encodedTitle?streamName=$encodedStreamName&year=$encodedYear&contentId=$encodedContentId&contentType=$encodedContentType&contentName=$encodedContentName&poster=$encodedPoster&backdrop=$encodedBackdrop&logo=$encodedLogo&videoId=$encodedVideoId&season=${season ?: ""}&episode=${episode ?: ""}&episodeTitle=$encodedEpisodeTitle&bingeGroup=$encodedBingeGroup&autoPlayNav=$autoPlayNav&returnToDetailOnBack=$returnToDetailOnBack&returnToHomeOnBack=$returnToHomeOnBack&filename=$encodedFilename&videoHash=$encodedVideoHash&videoSize=${videoSize ?: ""}&startFromBeginning=$startFromBeginning&addonName=$encodedAddonName&addonLogo=$encodedAddonLogo&streamDescription=$encodedStreamDescription&infoHash=$encodedInfoHash&fileIdx=${fileIdx ?: ""}&contentLanguage=$encodedContentLanguage&launchStartedAtMs=$launchStartedAtMs&profileId=${profileId ?: ""}&audioDelayMs=${audioDelayMs ?: ""}"
         }
     }
     data object Search : Screen("search")

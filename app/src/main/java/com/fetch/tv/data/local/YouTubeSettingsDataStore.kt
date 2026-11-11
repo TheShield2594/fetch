@@ -59,7 +59,7 @@ class YouTubeSettingsDataStore @Inject constructor(
     private val recentSearchesKey = stringPreferencesKey("recent_searches")
     private fun sponsorBlockModeKey(category: SponsorBlockCategory) = stringPreferencesKey("sponsor_block_mode_${category.apiName}")
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     /** Skip the sponsor, self-promotion and subscribe-reminder parts SponsorBlock users marked. */
@@ -87,15 +87,15 @@ class YouTubeSettingsDataStore @Inject constructor(
     }
 
     suspend fun setShowShorts(show: Boolean) {
-        store().edit { it[showShortsKey] = show }
+        store(profileManager.currentProfileId()).edit { it[showShortsKey] = show }
     }
 
     suspend fun setShowLive(show: Boolean) {
-        store().edit { it[showLiveKey] = show }
+        store(profileManager.currentProfileId()).edit { it[showLiveKey] = show }
     }
 
     suspend fun setHideWatched(hide: Boolean) {
-        store().edit { it[hideWatchedKey] = hide }
+        store(profileManager.currentProfileId()).edit { it[hideWatchedKey] = hide }
     }
 
     /**
@@ -103,12 +103,12 @@ class YouTubeSettingsDataStore @Inject constructor(
      * Null language means the subtitle language set in Fetch's playback settings.
      */
     suspend fun captionPreference(): Pair<Boolean, String?> {
-        val prefs = store().data.first()
+        val prefs = store(profileManager.currentProfileId()).data.first()
         return (prefs[captionsEnabledKey] ?: false) to prefs[captionLanguageKey]
     }
 
     suspend fun setCaptionPreference(enabled: Boolean, languageCode: String?) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[captionsEnabledKey] = enabled
             languageCode?.let { prefs[captionLanguageKey] = it }
         }
@@ -120,7 +120,7 @@ class YouTubeSettingsDataStore @Inject constructor(
     }
 
     suspend fun setAutoplayEnabled(enabled: Boolean) {
-        store().edit { it[autoplayKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[autoplayKey] = enabled }
     }
 
     suspend fun isSponsorBlockEnabled(): Boolean = sponsorBlockEnabled.first()
@@ -134,12 +134,12 @@ class YouTubeSettingsDataStore @Inject constructor(
 
     suspend fun setMaxVideoHeight(height: Int) {
         if (height !in VIDEO_HEIGHT_OPTIONS) return
-        store().edit { it[maxVideoHeightKey] = height }
+        store(profileManager.currentProfileId()).edit { it[maxVideoHeightKey] = height }
     }
 
     /** Steps the quality cap to [next] of the stored one, read inside the edit so quick presses each count. */
     suspend fun stepMaxVideoHeight(next: (Int) -> Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val current = prefs[maxVideoHeightKey]?.takeIf { it in VIDEO_HEIGHT_OPTIONS } ?: DEFAULT_MAX_VIDEO_HEIGHT
             prefs[maxVideoHeightKey] = next(current)
         }
@@ -157,12 +157,12 @@ class YouTubeSettingsDataStore @Inject constructor(
     }
 
     suspend fun setSponsorBlockMode(category: SponsorBlockCategory, mode: SponsorBlockMode) {
-        store().edit { it[sponsorBlockModeKey(category)] = mode.name }
+        store(profileManager.currentProfileId()).edit { it[sponsorBlockModeKey(category)] = mode.name }
     }
 
     /** Steps [category]'s mode to [next] of the stored one, read inside the edit so quick presses each count. */
     suspend fun stepSponsorBlockMode(category: SponsorBlockCategory, next: (SponsorBlockMode) -> SponsorBlockMode) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val current = prefs[sponsorBlockModeKey(category)]
                 ?.let { saved -> SponsorBlockMode.entries.firstOrNull { it.name == saved } }
                 ?: category.defaultMode
@@ -179,7 +179,7 @@ class YouTubeSettingsDataStore @Inject constructor(
     }
 
     suspend fun setDeArrowEnabled(enabled: Boolean) {
-        store().edit { it[deArrowKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[deArrowKey] = enabled }
     }
 
     /** Show like and dislike counts from Return YouTube Dislike in the player. */
@@ -188,7 +188,7 @@ class YouTubeSettingsDataStore @Inject constructor(
     }
 
     suspend fun setReturnDislikeEnabled(enabled: Boolean) {
-        store().edit { it[returnDislikeKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[returnDislikeKey] = enabled }
     }
 
     /** Show a row of the newest subscription videos on Fetch's home screen. */
@@ -199,7 +199,7 @@ class YouTubeSettingsDataStore @Inject constructor(
     }
 
     suspend fun setHomeRowEnabled(enabled: Boolean) {
-        store().edit { it[homeRowKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[homeRowKey] = enabled }
     }
 
     /** The profile's last searches on the YouTube screen, newest first. */
@@ -211,24 +211,24 @@ class YouTubeSettingsDataStore @Inject constructor(
 
     suspend fun addRecentSearch(query: String) {
         val trimmed = query.trim().takeIf { it.isNotEmpty() } ?: return
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val current = decodeRecentSearches(prefs[recentSearchesKey])
             prefs[recentSearchesKey] = encodeRecentSearches(addRecent(current, trimmed, MAX_RECENT_SEARCHES))
         }
     }
 
     suspend fun clearRecentSearches() {
-        store().edit { it.remove(recentSearchesKey) }
+        store(profileManager.currentProfileId()).edit { it.remove(recentSearchesKey) }
     }
 
     suspend fun isWatchHistoryEnabled(): Boolean = watchHistoryEnabled.first()
 
     suspend fun setSponsorBlockEnabled(enabled: Boolean) {
-        store().edit { it[sponsorBlockKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[sponsorBlockKey] = enabled }
     }
 
     suspend fun setWatchHistoryEnabled(enabled: Boolean) {
-        store().edit { it[watchHistoryKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[watchHistoryKey] = enabled }
     }
 }
 

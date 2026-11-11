@@ -270,11 +270,24 @@ class PlayerViewModel @Inject constructor(
         controller.stopForLifecycle()
     }
 
+    /**
+     * The route carried a request id this process doesn't hold: the system killed the app and
+     * restored the player. There is no stream to play; the screen hands [restoreStreamRoute] to
+     * navigation, which resolves the stream again from the Stream screen.
+     */
+    val isStreamMissing: Boolean = controller.navigationArgs.streamUrl.isBlank()
+
+    /** The Stream screen route for the episode the player was last on; see [playerRestoreStreamRoute]. */
+    val restoreStreamRoute: String? =
+        if (isStreamMissing) playerRestoreStreamRoute(savedStateHandle) else null
+
     fun startForLifecycle() {
+        if (isStreamMissing) return
         controller.startForLifecycle()
     }
 
     fun startInitialPlaybackIfNeeded() {
+        if (isStreamMissing) return
         controller.startInitialPlaybackIfNeeded()
     }
 
@@ -297,6 +310,8 @@ class PlayerViewModel @Inject constructor(
     override fun onCleared() {
         postPlayRecommendationController.stop()
         controller.onCleared()
+        // The screen is gone for good (not a configuration change): drop its stream.
+        PlaybackRequests.remove(controller.navigationArgs.requestId)
         // Allow the trailer player to be re-created when returning to home screen.
         trailerPlayerPool.reclaim()
         super.onCleared()

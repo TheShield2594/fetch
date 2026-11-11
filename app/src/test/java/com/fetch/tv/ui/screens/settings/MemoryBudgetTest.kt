@@ -77,4 +77,61 @@ class MemoryBudgetTest {
         assertEquals(withinBuffer, adjBuf)
         assertEquals(withinChunk, adjChunk)
     }
+
+    private val mb = 1024L * 1024L
+
+    @Test
+    fun playbackBudgetIsAShareOfMemoryAboveTheKillThreshold() {
+        // 1 GB class device: 350 MB available, kill threshold 150 MB -> 200 MB spare -> 50 MB.
+        assertEquals(50, MemoryBudget.playbackBudgetMb(400, 25, 350 * mb, 150 * mb, lowMemory = false))
+    }
+
+    @Test
+    fun playbackBudgetNeverExceedsTheHeapBudget() {
+        assertEquals(400, MemoryBudget.playbackBudgetMb(400, 25, 8_000 * mb, 200 * mb, lowMemory = false))
+    }
+
+    @Test
+    fun playbackBudgetKeepsAFloorWhenMemoryIsShort() {
+        assertEquals(25, MemoryBudget.playbackBudgetMb(400, 25, 160 * mb, 150 * mb, lowMemory = false))
+        assertEquals(25, MemoryBudget.playbackBudgetMb(400, 25, 100 * mb, 150 * mb, lowMemory = false))
+        assertEquals(25, MemoryBudget.playbackBudgetMb(400, 25, 4_000 * mb, 150 * mb, lowMemory = true))
+    }
+
+    @Test
+    fun playbackBudgetFloorNeverExceedsTheHeapBudget() {
+        assertEquals(20, MemoryBudget.playbackBudgetMb(20, 25, 100 * mb, 150 * mb, lowMemory = true))
+    }
+
+    @Test
+    fun unknownMemoryStateKeepsTheHeapBudget() {
+        assertEquals(400, MemoryBudget.playbackBudgetMb(400, 25, 0L, 0L, lowMemory = false))
+    }
+
+    @Test
+    fun publicPlaybackBudgetCanGoBelowTheHeapFloorUnderPressure() {
+        // Production floor: a 1 GB class device with 200 MB to spare gets 50 MB, not the heap floor.
+        assertEquals(MemoryBudget.MIN_TARGET_BUFFER_MB, MemoryBudget.playbackBudgetMb(350 * mb, 150 * mb, lowMemory = false))
+        assertEquals(MemoryBudget.MIN_TARGET_BUFFER_MB, MemoryBudget.playbackBudgetMb(4_000 * mb, 150 * mb, lowMemory = true))
+    }
+
+    @Test
+    fun sessionChunksLeaveTheMinimumBuffer() {
+        // 100 MB session, 4 connections (6 chunks): 16 MB chunks would take 96 MB; 12 MB leaves 28.
+        assertEquals(12, MemoryBudget.sessionChunkMb(100, 4, 16))
+        // Plenty of budget: the setting stands.
+        assertEquals(16, MemoryBudget.sessionChunkMb(400, 4, 16))
+        // Never below the minimum chunk.
+        assertEquals(MemoryBudget.MIN_CHUNK_MB, MemoryBudget.sessionChunkMb(50, 4, 16))
+    }
+
+    @Test
+    fun parallelIsOffWhenTheSmallestChunksCannotFit() {
+        // 4 connections: 6 chunks of 8 MB plus the 25 MB buffer = 73 MB.
+        assertEquals(false, MemoryBudget.parallelFits(50, 4))
+        assertEquals(true, MemoryBudget.parallelFits(73, 4))
+        // Two connections: 4 chunks of 8 MB plus 25 MB = 57 MB.
+        assertEquals(false, MemoryBudget.parallelFits(50, 2))
+        assertEquals(true, MemoryBudget.parallelFits(100, 2))
+    }
 }

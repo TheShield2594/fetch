@@ -82,6 +82,12 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
         LocaleCache.localeTag = tag ?: ""
     }
 
+    /** Gives back trailer player and cache memory when the system asks (see [MemoryTrim]). */
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        com.fetch.tv.core.memory.MemoryTrim.onTrimMemory(level)
+    }
+
     /**
      * Resources in the app's own language (#324). The language is applied to the activity in
      * MainActivity.attachBaseContext, but ViewModels, repositories and services resolve their

@@ -34,7 +34,8 @@ import javax.inject.Inject
 class PlaybackSettingsViewModel @Inject constructor(
     private val playerSettingsDataStore: PlayerSettingsDataStore,
     private val deviceLocalPlayerPreferences: DeviceLocalPlayerPreferences,
-    private val addonRepository: AddonRepository
+    private val addonRepository: AddonRepository,
+    private val profileManager: com.fetch.tv.core.profile.ProfileManager
 ) : ViewModel() {
 
     val playerSettings: Flow<PlayerSettings> = playerSettingsDataStore.playerSettings
@@ -107,7 +108,7 @@ class PlaybackSettingsViewModel @Inject constructor(
     }
 
     suspend fun setPreferredAudioLanguage(language: String) {
-        playerSettingsDataStore.setPreferredAudioLanguage(language)
+        playerSettingsDataStore.setPreferredAudioLanguage(language, profileManager.currentProfileId())
     }
 
     suspend fun setSecondaryPreferredAudioLanguage(language: String?) {
@@ -215,7 +216,7 @@ class PlaybackSettingsViewModel @Inject constructor(
     }
 
     suspend fun setSubtitlePreferredLanguage(language: String) {
-        playerSettingsDataStore.setSubtitlePreferredLanguage(language)
+        playerSettingsDataStore.setSubtitlePreferredLanguage(language, profileManager.currentProfileId())
     }
 
     suspend fun setSubtitleSecondaryLanguage(language: String?) {
@@ -469,7 +470,7 @@ class PlaybackSettingsViewModel @Inject constructor(
     }
 
     suspend fun setStreamAutoPlayNextEpisodeEnabled(enabled: Boolean) {
-        playerSettingsDataStore.setStreamAutoPlayNextEpisodeEnabled(enabled)
+        playerSettingsDataStore.setStreamAutoPlayNextEpisodeEnabled(enabled, profileManager.currentProfileId())
     }
 
     suspend fun setStreamAutoPlayNextEpisodeFallbackEnabled(enabled: Boolean) {

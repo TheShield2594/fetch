@@ -42,10 +42,10 @@ class StreamBadgeSettingsDataStore @Inject constructor(
         private const val LEGACY_DEBRID_FEATURE = "debrid_settings"
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
-    private fun legacyDebridStore(profileId: Int = profileManager.activeProfileId.value) =
+    private fun legacyDebridStore(profileId: Int) =
         factory.get(profileId, LEGACY_DEBRID_FEATURE)
 
     private val streamBadgeRulesKey = stringPreferencesKey("stream_badge_rules")
@@ -70,7 +70,7 @@ class StreamBadgeSettingsDataStore @Inject constructor(
         )
 
     suspend fun setStreamBadgeRules(rules: StreamBadgeRules) {
-        store().edit {
+        store(profileManager.currentProfileId()).edit {
             val normalized = rules.normalized()
             if (normalized.hasImport) {
                 it[streamBadgeRulesKey] = json.encodeToString(normalized)
@@ -81,19 +81,19 @@ class StreamBadgeSettingsDataStore @Inject constructor(
     }
 
     suspend fun setShowFileSizeBadges(enabled: Boolean) {
-        store().edit { it[showFileSizeBadgesKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[showFileSizeBadgesKey] = enabled }
     }
 
     suspend fun setShowAddonLogo(enabled: Boolean) {
-        store().edit { it[showAddonLogoKey] = enabled }
+        store(profileManager.currentProfileId()).edit { it[showAddonLogoKey] = enabled }
     }
 
     suspend fun setStreamBadgePlacement(placement: StreamBadgePlacement) {
-        store().edit { it[streamBadgePlacementKey] = placement.name }
+        store(profileManager.currentProfileId()).edit { it[streamBadgePlacementKey] = placement.name }
     }
 
     suspend fun setSettings(settings: StreamBadgeSettings) {
-        store().edit {
+        store(profileManager.currentProfileId()).edit {
             val normalized = settings.rules.normalized()
             if (normalized.hasImport) {
                 it[streamBadgeRulesKey] = json.encodeToString(normalized)

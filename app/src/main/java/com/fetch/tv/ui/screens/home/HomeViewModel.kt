@@ -414,7 +414,7 @@ class HomeViewModel @Inject constructor(
             observeLayoutPreferences()
             observeModernHomePresentation()
             loadContinueWatching()
-            watchedSeriesStateHolder.loadFromDisk()
+            watchedSeriesStateHolder.loadFromDisk(profileManager.currentProfileId())
             observeExternalMetaPrefetchPreference()
             observeContinueWatchingSortMode()
             loadHomeCatalogOrderPreference()
@@ -518,7 +518,7 @@ class HomeViewModel @Inject constructor(
         cwEnrichedInProgressOverlay.clear()
         cwLastBadgeEpisodeKeys = emptySet()
         cwLastShowIdSiblings = emptyMap()
-        watchedSeriesStateHolder.clearValidationState()
+        watchedSeriesStateHolder.clearValidationState(profileManager.currentProfileId())
         _uiState.update { it.copy(continueWatchingItems = emptyList(), upcomingItems = emptyList()) }
         // Bump trigger so the pipeline's collectLatest restarts with fresh state.
         cwPipelineRefreshTrigger.value++
@@ -770,8 +770,10 @@ class HomeViewModel @Inject constructor(
     private fun loadContinueWatching() {
         // Immediately restore last known CW from disk cache for instant display.
         viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-            val cachedInProgress = runCatching { cwEnrichmentCache.getInProgressSnapshot() }.getOrDefault(emptyList())
-            val cachedNextUp = runCatching { cwEnrichmentCache.getNextUpSnapshot() }.getOrDefault(emptyList())
+            // Both snapshots from the same profile, even if it changes between the two reads.
+            val profileId = profileManager.currentProfileId()
+            val cachedInProgress = runCatching { cwEnrichmentCache.getInProgressSnapshot(profileId) }.getOrDefault(emptyList())
+            val cachedNextUp = runCatching { cwEnrichmentCache.getNextUpSnapshot(profileId) }.getOrDefault(emptyList())
             if (cachedInProgress.isEmpty() && cachedNextUp.isEmpty()) return@launch
             val dismissedNextUp = traktSettingsDataStore.dismissedNextUpKeys.first()
             // Render cached items immediately — don't wait for Trakt/allProgress.
@@ -844,7 +846,8 @@ class HomeViewModel @Inject constructor(
                 nextUpItems = nextUpItems,
                 mode = sortMode
             )
-            if (items.isNotEmpty()) {
+            // A profile switch while this ran has already cleared Home for the new profile.
+            if (items.isNotEmpty() && profileManager.currentProfileId() == profileId) {
                 val (mainItems, upcomingOnly) = splitUpcomingItems(items, sortMode)
                 _uiState.update { it.copy(continueWatchingItems = mainItems, upcomingItems = upcomingOnly) }
                 _initialCwResolved.value = true

@@ -38,25 +38,25 @@ class LibraryPreferencesStorageTest {
         for (size in listOf(100, 1_000, 5_000)) {
             val rows = InMemoryKeyedEntryStore()
             val preferences = preferences(rows = rows)
-            (0 until size).forEach { preferences.addItem(item(it)) }
+            (0 until size).forEach { preferences.addItem(item(it), profileId = 1) }
             rows.resetWriteCount()
 
-            preferences.addItem(item(size))
+            preferences.addItem(item(size), profileId = 1)
 
             // The title, its queued upsert and the sync counters.
             assertEquals("rows written by one add with $size titles", 3, rows.entriesWritten)
-            assertEquals(size + 1, preferences.getAllItems().size)
+            assertEquals(size + 1, preferences.getAllItems(profileId = 1).size)
         }
     }
 
     @Test
     fun `adding and removing queue the change for sync`() = runBlocking {
         val preferences = preferences()
-        preferences.addItem(item(1))
-        preferences.addItem(item(2))
-        preferences.removeItem("tt2", "movie")
+        preferences.addItem(item(1), profileId = 1)
+        preferences.addItem(item(2), profileId = 1)
+        preferences.removeItem("tt2", "movie", profileId = 1)
 
-        val state = preferences.getSyncState()
+        val state = preferences.getSyncState(profileId = 1)
         assertEquals(listOf("tt1"), state.items.map { it.id })
         assertEquals(listOf(LibrarySyncKey("tt1", "movie")), state.pendingUpsertKeys)
         assertEquals(listOf(LibrarySyncKey("tt2", "movie")), state.pendingDeleteKeys)
@@ -67,10 +67,10 @@ class LibraryPreferencesStorageTest {
     fun `removing a title that isn't saved writes nothing`() = runBlocking {
         val rows = InMemoryKeyedEntryStore()
         val preferences = preferences(rows = rows)
-        preferences.addItem(item(1))
+        preferences.addItem(item(1), profileId = 1)
         rows.resetWriteCount()
 
-        preferences.removeItem("tt9", "movie")
+        preferences.removeItem("tt9", "movie", profileId = 1)
 
         assertEquals(0, rows.entriesWritten)
     }
@@ -79,13 +79,13 @@ class LibraryPreferencesStorageTest {
     fun `a logo update writes the one title`() = runBlocking {
         val rows = InMemoryKeyedEntryStore()
         val preferences = preferences(rows = rows)
-        (0 until 100).forEach { preferences.addItem(item(it)) }
+        (0 until 100).forEach { preferences.addItem(item(it), profileId = 1) }
         rows.resetWriteCount()
 
-        preferences.updateLogo("tt5", "MOVIE", "logo.png")
+        preferences.updateLogo("tt5", "MOVIE", "logo.png", profileId = 1)
 
         assertEquals(1, rows.entriesWritten)
-        assertEquals("logo.png", preferences.getAllItems().single { it.id == "tt5" }.logo)
+        assertEquals("logo.png", preferences.getAllItems(profileId = 1).single { it.id == "tt5" }.logo)
     }
 
     @Test
@@ -104,7 +104,7 @@ class LibraryPreferencesStorageTest {
         }
         val rows = InMemoryKeyedEntryStore()
 
-        val state = preferences(dataStore, rows).getSyncState()
+        val state = preferences(dataStore, rows).getSyncState(profileId = 1)
 
         assertEquals(setOf("tt1", "tt2"), state.items.map { it.id }.toSet())
         assertEquals(listOf(LibrarySyncKey("tt1", "movie")), state.pendingUpsertKeys)
@@ -119,7 +119,7 @@ class LibraryPreferencesStorageTest {
         assertEquals("title", left[viewSort])
 
         rows.resetWriteCount()
-        assertEquals(state, preferences(dataStore, rows).getSyncState())
+        assertEquals(state, preferences(dataStore, rows).getSyncState(profileId = 1))
         assertEquals(0, rows.entriesWritten)
     }
 
@@ -132,8 +132,8 @@ class LibraryPreferencesStorageTest {
             rows
         )
 
-        assertTrue(preferences.getAllItems().isEmpty())
-        val refused = runCatching { preferences.addItem(item(1)) }
+        assertTrue(preferences.getAllItems(profileId = 1).isEmpty())
+        val refused = runCatching { preferences.addItem(item(1), profileId = 1) }
         assertTrue(refused.exceptionOrNull() is CancellationException)
         assertEquals(0, rows.entriesWritten)
     }

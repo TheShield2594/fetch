@@ -33,7 +33,7 @@ internal suspend fun <T : Any> FetchWebsiteTrackingRepository.readForActiveProfi
 ): WebsiteReadState<T> {
     if (!isAuthenticated.value) return WebsiteReadState.NotPaired
     return try {
-        val value = asProfile { profileId, profileToken -> block(profileId, profileToken) }
+        val value = asProfile(activeSlot()) { profileId, profileToken -> block(profileId, profileToken) }
         if (value == null) WebsiteReadState.NoProfile else WebsiteReadState.Loaded(value)
     } catch (error: CancellationException) {
         throw error

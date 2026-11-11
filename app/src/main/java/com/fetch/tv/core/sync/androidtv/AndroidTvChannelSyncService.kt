@@ -54,7 +54,8 @@ class AndroidTvChannelSyncService @Inject constructor(
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
     private val traktSettingsDataStore: TraktSettingsDataStore,
     private val tvRecommendationManager: TvRecommendationManager,
-    private val launcherExposureGate: LauncherExposureGate
+    private val launcherExposureGate: LauncherExposureGate,
+    private val profileManager: com.fetch.tv.core.profile.ProfileManager
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -146,9 +147,11 @@ class AndroidTvChannelSyncService @Inject constructor(
             ChannelSettingsSnapshot(daysCap, dismissed, useEpisodeThumbnails)
         }
 
-        val inProgressItems = runSuspendCatching { cwEnrichmentCache.getInProgressSnapshot() }
+        // Both rows from one profile, even if the active one changes between the two reads.
+        val profileId = profileManager.currentProfileId()
+        val inProgressItems = runSuspendCatching { cwEnrichmentCache.getInProgressSnapshot(profileId) }
             .getOrDefault(emptyList())
-        val nextUpItems = runSuspendCatching { cwEnrichmentCache.getNextUpSnapshot() }
+        val nextUpItems = runSuspendCatching { cwEnrichmentCache.getNextUpSnapshot(profileId) }
             .getOrDefault(emptyList())
 
         val posterPattern = patternForScreen(

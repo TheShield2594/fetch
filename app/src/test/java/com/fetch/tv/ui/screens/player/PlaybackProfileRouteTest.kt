@@ -27,7 +27,7 @@ class PlaybackProfileRouteTest {
     @Test
     fun `player route carries playback profile without changing launch timing`() {
         val route = Screen.Player.createRoute(
-            streamUrl = "https://example.com/video.mkv",
+            requestId = "request-1",
             title = "Title",
             launchStartedAtMs = 123L,
             profileId = 7
@@ -42,7 +42,7 @@ class PlaybackProfileRouteTest {
         val args = PlayerNavigationArgs.from(
             SavedStateHandle(
                 mapOf(
-                    "streamUrl" to "stream",
+                    "requestId" to "request-1",
                     "title" to "Title",
                     "profileId" to "7"
                 )
@@ -57,7 +57,7 @@ class PlaybackProfileRouteTest {
         val args = PlayerNavigationArgs.from(
             SavedStateHandle(
                 mapOf(
-                    "streamUrl" to "stream",
+                    "requestId" to "request-1",
                     "title" to "Title"
                 )
             )

@@ -62,10 +62,10 @@ internal fun PlayerRuntimeController.startSleepTimerTracking() {
                     sleepTimerPromptEndsAtMs = sleepTimer.now() + SLEEP_TIMER_PROMPT_SECONDS * 1_000L
                     _uiState.update {
                         it.copy(
+                            activeOverlay = it.activeOverlay.closing(PlayerOverlay.MORE),
                             sleepTimerPromptSec = SLEEP_TIMER_PROMPT_SECONDS,
                             sleepTimer = null,
                             showControls = false,
-                            showMoreDialog = false,
                             postPlayMode = null
                         )
                     }

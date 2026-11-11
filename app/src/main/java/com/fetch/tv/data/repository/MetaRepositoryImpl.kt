@@ -168,6 +168,19 @@ class MetaRepositoryImpl @Inject constructor(
     private val primaryAddonMetaCache = createLruCacheMap<String, CachedMeta>(MAX_PRIMARY_META_CACHE_ENTRIES)
     private val serverMetaCache = createLruCacheMap<String, CachedMeta>(MAX_META_CACHE_ENTRIES)
 
+    init {
+        // In the background the meta caches are only a speed-up for the next visit; give them
+        // back before the system has to kill the process for its memory.
+        com.fetch.tv.core.memory.MemoryTrim.register { stage ->
+            if (stage == com.fetch.tv.core.memory.MemoryTrim.Stage.BACKGROUND) {
+                metaCache.clear()
+                addonMetaCache.clear()
+                primaryAddonMetaCache.clear()
+                serverMetaCache.clear()
+            }
+        }
+    }
+
     // In-flight deduplication: prevents concurrent coroutines from firing duplicate requests
     private val inFlightMeta = ConcurrentHashMap<String, Deferred<Meta?>>()
     private val inFlightAddonMeta = ConcurrentHashMap<String, Deferred<MetaLookupResult>>()

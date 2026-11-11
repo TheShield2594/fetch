@@ -34,7 +34,7 @@ class TrackPreferenceDataStore @Inject constructor(
         private const val PLAYBACK_SPEED = "playback_speed"
     }
 
-    private fun store() = factory.get(profileManager.activeProfileId.value, FEATURE)
+    private fun store(profileId: Int) = factory.get(profileId, FEATURE)
 
     private fun key(field: String, contentId: String) =
         stringPreferencesKey("$field|$contentId")
@@ -46,7 +46,7 @@ class TrackPreferenceDataStore @Inject constructor(
         floatPreferencesKey("$field|$id")
 
     suspend fun save(contentId: String, pref: PersistedTrackPreference) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             fun set(field: String, value: String?) {
                 val k = key(field, contentId)
                 if (value != null) prefs[k] = value else prefs.remove(k)
@@ -66,7 +66,7 @@ class TrackPreferenceDataStore @Inject constructor(
     }
 
     suspend fun load(contentId: String): PersistedTrackPreference? {
-        val prefs = store().data.first()
+        val prefs = store(profileManager.currentProfileId()).data.first()
         val subType = prefs[key(SUB_TYPE, contentId)]
         val audioLang = prefs[key(AUDIO_LANG, contentId)]
         val audioName = prefs[key(AUDIO_NAME, contentId)]
@@ -100,25 +100,25 @@ class TrackPreferenceDataStore @Inject constructor(
      * scopes the delay to exactly the video it was synced against. See #1063.
      */
     suspend fun saveSubtitleDelayMs(videoId: String, delayMs: Int?) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val k = intKey(SUB_DELAY_MS, videoId)
             if (delayMs != null && delayMs != 0) prefs[k] = delayMs else prefs.remove(k)
         }
     }
 
     suspend fun loadSubtitleDelayMs(videoId: String): Int? {
-        return store().data.first()[intKey(SUB_DELAY_MS, videoId)]
+        return store(profileManager.currentProfileId()).data.first()[intKey(SUB_DELAY_MS, videoId)]
     }
 
     suspend fun savePlaybackSpeed(contentId: String, speed: Float?) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val k = floatKey(PLAYBACK_SPEED, contentId)
             if (speed != null && speed != 1f) prefs[k] = speed else prefs.remove(k)
         }
     }
 
     suspend fun loadPlaybackSpeed(contentId: String): Float? {
-        return store().data.first()[floatKey(PLAYBACK_SPEED, contentId)]
+        return store(profileManager.currentProfileId()).data.first()[floatKey(PLAYBACK_SPEED, contentId)]
     }
 }
 

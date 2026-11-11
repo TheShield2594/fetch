@@ -62,7 +62,7 @@ class TraktSettingsDataStore @Inject constructor(
         const val MAX_CONTINUE_WATCHING_DAYS_CAP = 365
     }
 
-    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+    private fun store(profileId: Int) =
         factory.get(profileId, FEATURE)
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -129,7 +129,7 @@ class TraktSettingsDataStore @Inject constructor(
     }
 
     suspend fun setContinueWatchingDaysCap(days: Int) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[continueWatchingDaysCapKey] = normalizeContinueWatchingDaysCap(days)
         }
     }
@@ -143,7 +143,7 @@ class TraktSettingsDataStore @Inject constructor(
     }
 
     suspend fun setNextUpFromFurthestEpisode(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[nextUpFromFurthestEpisodeKey] = enabled
         }
     }
@@ -153,7 +153,7 @@ class TraktSettingsDataStore @Inject constructor(
         // Store just the contentId (no season/episode suffix) so dismiss
         // survives anime episode remapping and seed changes.
         val contentIdOnly = key.trim().substringBefore("|")
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             val current = prefs[dismissedNextUpKeysKey] ?: emptySet()
             prefs[dismissedNextUpKeysKey] = current + contentIdOnly
         }
@@ -161,7 +161,7 @@ class TraktSettingsDataStore @Inject constructor(
 
     suspend fun removeDismissedNextUpKeysForContent(
         contentId: String,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) {
         if (contentId.isBlank()) return
         val trimmed = contentId.trim()
@@ -177,20 +177,20 @@ class TraktSettingsDataStore @Inject constructor(
     }
 
     suspend fun setShowUnairedNextUp(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[showUnairedNextUpKey] = enabled
         }
     }
 
     suspend fun setShowMetaComments(enabled: Boolean) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[showMetaCommentsKey] = enabled
         }
     }
 
     suspend fun setWatchProgressSource(
         source: WatchProgressSource,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) {
         store(profileId).edit { prefs ->
             prefs[watchProgressSourceKey] = source.name
@@ -206,7 +206,7 @@ class TraktSettingsDataStore @Inject constructor(
 
     suspend fun setLibrarySourceMode(
         mode: LibrarySourceMode,
-        profileId: Int = profileManager.activeProfileId.value
+        profileId: Int
     ) {
         store(profileId).edit { prefs ->
             prefs[librarySourceModeKey] = mode.name
@@ -246,7 +246,7 @@ class TraktSettingsDataStore @Inject constructor(
     }
 
     suspend fun setMoreLikeThisSource(source: MoreLikeThisSourcePreference) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[moreLikeThisSourceKey] = source.name
         }
     }
@@ -258,7 +258,7 @@ class TraktSettingsDataStore @Inject constructor(
     }
 
     suspend fun setSimklAnimeIdPreference(preference: SimklAnimeIdPreference) {
-        store().edit { prefs ->
+        store(profileManager.currentProfileId()).edit { prefs ->
             prefs[simklAnimeIdPreferenceKey] = preference.name
         }
     }

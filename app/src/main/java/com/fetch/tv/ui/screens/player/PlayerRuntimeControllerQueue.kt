@@ -48,18 +48,14 @@ internal fun PlayerRuntimeController.markCurrentVideoStartedInQueue() {
 internal fun PlayerRuntimeController.showQueuePanel() {
     _uiState.update {
         it.copy(
-            showQueuePanel = true,
+            activeOverlay = PlayerOverlay.QUEUE,
             showControls = true,
-            showSourcesPanel = false,
-            showEpisodesPanel = false,
-            showAudioOverlay = false,
-            showSubtitleOverlay = false
         )
     }
 }
 
 internal fun PlayerRuntimeController.dismissQueuePanel() {
-    _uiState.update { it.copy(showQueuePanel = false) }
+    _uiState.update { it.copy(activeOverlay = it.activeOverlay.closing(PlayerOverlay.QUEUE)) }
     scheduleHideControls()
 }
 
@@ -71,7 +67,7 @@ internal fun PlayerRuntimeController.dismissQueuePanel() {
 internal fun PlayerRuntimeController.playQueueItem(item: QueueItem) {
     val state = _uiState.value
     val next = state.nextEpisode
-    _uiState.update { it.copy(showQueuePanel = false) }
+    _uiState.update { it.copy(activeOverlay = it.activeOverlay.closing(PlayerOverlay.QUEUE)) }
     if (next != null && next.hasAired && next.videoId == item.videoId && item.contentId == contentId) {
         playNextEpisode(userInitiated = true)
         return

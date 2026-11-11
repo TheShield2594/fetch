@@ -489,12 +489,16 @@ internal fun PlayerRuntimeController.initializePlayer(
             )
             val isHlsStream = isHls || resolvedStreamMime == MimeTypes.APPLICATION_M3U8
             val isDashStream = resolvedStreamMime == MimeTypes.APPLICATION_MPD
-            val parallelActive = playerSettings.parallelNetworkEnabled && playerSettings.useParallelConnections
-            val useChunkSessionSource = parallelActive && !isHlsStream && !isDashStream
-
             // Read once per session: what the device can spare now, not only the heap ceiling.
             val playbackBudgetMb = MemoryBudget.playbackBudgetMb(context)
             currentPlaybackBudgetMb = playbackBudgetMb
+            // When even the smallest chunks can't fit beside the minimum buffer, this session
+            // plays over one connection instead of overrunning the budget.
+            val parallelFitsBudget =
+                MemoryBudget.parallelFits(playbackBudgetMb, playerSettings.parallelConnectionCount)
+            val parallelActive = playerSettings.parallelNetworkEnabled &&
+                playerSettings.useParallelConnections && parallelFitsBudget
+            val useChunkSessionSource = parallelActive && !isHlsStream && !isDashStream
             val settingsChunkMb = Math.ceil(playerSettings.parallelChunkSizeKb / 1024.0)
                 .toInt()
                 .coerceAtMost(MemoryBudget.tierMaxChunkMb)
@@ -614,7 +618,7 @@ internal fun PlayerRuntimeController.initializePlayer(
 
             mediaSourceFactory.fetchPerformanceModeEnabled = playerSettings.fetchPerformanceModeEnabled
             if (playerSettings.parallelNetworkEnabled) {
-                mediaSourceFactory.useParallelConnections = playerSettings.useParallelConnections
+                mediaSourceFactory.useParallelConnections = playerSettings.useParallelConnections && parallelFitsBudget
                 mediaSourceFactory.parallelConnectionCount = playerSettings.parallelConnectionCount
                 mediaSourceFactory.parallelChunkSizeKb = if (sessionChunkMb < settingsChunkMb) {
                     sessionChunkMb * 1024

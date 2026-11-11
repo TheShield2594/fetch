@@ -118,6 +118,10 @@ object MemoryBudget {
         return capMb.coerceIn(floor, heapBudgetMb)
     }
 
+    /** Whether [connectionCount] connections of [MIN_CHUNK_MB] chunks fit [sessionBudgetMb] beside the minimum buffer. */
+    fun parallelFits(sessionBudgetMb: Int, connectionCount: Int): Boolean =
+        MIN_BUFFER_MB + bufferCount(connectionCount) * MIN_CHUNK_MB <= sessionBudgetMb
+
     /**
      * Chunk size for one playback session's parallel connections: [requestedChunkMb], made smaller
      * when the chunks would leave less than [MIN_BUFFER_MB] of [sessionBudgetMb] for the buffer.

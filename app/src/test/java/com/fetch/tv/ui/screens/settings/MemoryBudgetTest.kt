@@ -124,4 +124,14 @@ class MemoryBudgetTest {
         // Never below the minimum chunk.
         assertEquals(MemoryBudget.MIN_CHUNK_MB, MemoryBudget.sessionChunkMb(50, 4, 16))
     }
+
+    @Test
+    fun parallelIsOffWhenTheSmallestChunksCannotFit() {
+        // 4 connections: 6 chunks of 8 MB plus the 25 MB buffer = 73 MB.
+        assertEquals(false, MemoryBudget.parallelFits(50, 4))
+        assertEquals(true, MemoryBudget.parallelFits(73, 4))
+        // Two connections: 4 chunks of 8 MB plus 25 MB = 57 MB.
+        assertEquals(false, MemoryBudget.parallelFits(50, 2))
+        assertEquals(true, MemoryBudget.parallelFits(100, 2))
+    }
 }

@@ -11,6 +11,10 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+### Added
+
+- **TVs sign in with a code and no address, through the pairing hub at watchfetch.tv.** A TV shows a code from the hub; typing it under Settings → TVs & Devices (or scanning the TV's QR code, which opens the new `/link` page) tells the hub where this website is, and the TV collects its sign-in from here directly. The hub only ever sees a hash of the TV's secret. `FETCH_PAIRING_HUB_URL=off` turns it off, and `FETCH_PAIRING_HUB_SERVE=true` makes an install the hub.
+
 ## [0.3.0] - 2026-11-11
 
 ### Added

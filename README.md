@@ -60,7 +60,9 @@ Highlights:
 - **Configure from your phone.** Scan a QR code to manage addons, catalogs, stream ranking and
   badges from a phone browser on the same network, and to back up the whole TV to one file and
   restore it after a reset or on a new TV.
-- **Local-first.** Everything lives on the TV. Sync is optional and only talks to a server you run.
+- **Local-first.** Everything lives on the TV. Sync is optional and only talks to a server you run
+  (signing the TV in to it uses a code from `watchfetch.tv`, so you never type its address;
+  see [PRIVACY.md](PRIVACY.md)).
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for the full requirements list and what is done.
 

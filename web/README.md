@@ -254,9 +254,29 @@ Fetch's add-on service speaks the standard Stremio add-on protocol, so it works 
 
 The Stremio app is the way to use Fetch on a TV. The web app is built for touch and pointer input: it has no D-pad/arrow-key focus navigation and no 10-foot layout, so while it will load in an Android TV browser, driving it with a remote is painful. Apple TV has no web browser at all, so Omni plus the add-on is the only route there.
 
+### Signing in a TV: a code, no address
+
+On the TV (setup wizard, or **Settings → Account → Fetch website**) Fetch shows a code and a QR code straight away. Open your Fetch website on any phone or computer, go to **Settings → TVs & Devices** and type the code, or scan the QR code with your phone. The TV signs in on its own a few seconds later. It doesn't matter where the website runs (your LAN, a VPS, behind a domain): nobody types its address on the TV.
+
+That works through the **pairing hub at `watchfetch.tv`**, the way a TV signs in to a hosted service:
+
+1. The TV asks the hub for a code. It makes up a secret and sends the hub only its hash.
+2. Your website, when you confirm the code, tells the hub where its API is (the address your browser used to reach it) and stores an already-confirmed pairing for that hash.
+3. The hub passes the address to the TV. The TV then collects its own sign-in from your website with the secret. The hub never has it.
+
+The QR code opens `watchfetch.tv/link`, which asks once for your website's address (remembered in that browser) and opens your website's confirm page with the code filled in.
+
+| Setting (api) | What it does |
+| --- | --- |
+| `FETCH_PAIRING_HUB_URL` | The hub this website claims codes through. Default `https://watchfetch.tv/api`; `off` turns it off, leaving the LAN list and typed addresses below. |
+| `FETCH_PAIRING_HUB_SERVE` | `true` only on the install that *is* the hub. It serves `/hub/pair/*` and keeps codes in memory for ten minutes. |
+| `FETCH_PAIRING_HUB_LINK_BASE` | On the hub: the website address its QR codes open (`<base>/link`). Defaults to `FETCH_WEB_PUBLIC`. |
+
+When your website confirms a hub code, it hands the TV the API address the confirming browser used. If that was `localhost`, it uses `FETCH_API_PUBLIC` instead, so confirm from a phone or another computer, or set `FETCH_API_PUBLIC`.
+
 ### Finding the server from the TV
 
-The Fetch TV app's setup wizard (and **Settings → Account → Fetch website**) lists Fetch servers it finds on your network, so pairing the TV is a matter of picking one and confirming the code. The `mdns` service in `docker-compose.yml` is what makes it findable: it announces `_fetch._tcp` over multicast DNS with `FETCH_API_PUBLIC` and `FETCH_WEB_PUBLIC` in the TXT record, and answers on the host's LAN address. The TV pairs against `FETCH_API_PUBLIC` when that answers and falls back to the host's LAN address and the api port when it doesn't.
+If the hub can't be reached, or you'd rather not use it (**Enter the address instead** on the TV), the TV falls back to the older ways. The Fetch TV app's setup wizard (and **Settings → Account → Fetch website**) lists Fetch servers it finds on your network, so pairing the TV is a matter of picking one and confirming the code. The `mdns` service in `docker-compose.yml` is what makes it findable: it announces `_fetch._tcp` over multicast DNS with `FETCH_API_PUBLIC` and `FETCH_WEB_PUBLIC` in the TXT record, and answers on the host's LAN address. The TV pairs against `FETCH_API_PUBLIC` when that answers and falls back to the host's LAN address and the api port when it doesn't.
 
 Away from home, or wherever multicast doesn't reach, type **the address you open the website at** on the TV or desktop app, such as `fetch.example.com` or `192.168.1.25:7002`. You don't need the API's address or port. The `web` container writes `fetch-server.json` at start with the API base from `VITE_API_BASE`, and the apps read it, then try `<website>/api` and the same host on port 7000 if that address doesn't answer from where they are. On the TV, the address step also has a QR code, so you can type the address on your phone. The phone then opens the website's confirm page with the TV's code already filled in.
 

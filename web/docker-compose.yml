@@ -103,6 +103,15 @@ services:
       # notifications are still sent, just with nothing to tap, and Settings
       # builds invite links from whatever address it was opened at.
       FETCH_WEB_PUBLIC: ${FETCH_WEB_PUBLIC:-http://192.168.1.25:7002}
+      # The pairing hub a TV gets its sign-in code from when it doesn't know
+      # this website's address. Confirming such a code here tells the hub where
+      # this website is (never a credential). Unset uses watchfetch.tv; "off"
+      # leaves TVs to find this website on the LAN or by its typed address.
+      FETCH_PAIRING_HUB_URL: ${FETCH_PAIRING_HUB_URL:-https://watchfetch.tv/api}
+      # Only for the install that *is* the hub (watchfetch.tv): serve its routes.
+      FETCH_PAIRING_HUB_SERVE: ${FETCH_PAIRING_HUB_SERVE:-false}
+      # The hub's website, for the QR code a TV shows; FETCH_WEB_PUBLIC when unset.
+      FETCH_PAIRING_HUB_LINK_BASE: ${FETCH_PAIRING_HUB_LINK_BASE}
       # Which reverse proxies may set X-Forwarded-For. Unset trusts none of
       # them, so behind a proxy every client arrives as the proxy's own address
       # and the whole household shares one rate-limit budget. Set it to the

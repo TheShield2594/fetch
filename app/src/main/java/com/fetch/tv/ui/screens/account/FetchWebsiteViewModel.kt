@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Settings → Account → Fetch website: pairs this TV with a Fetch website by a code confirmed
- * there, and signs it out again. The pairing itself lives in [FetchWebsitePairing], so a phone
+ * there (from the pairing hub, so no address is needed), and signs it out again. The pairing itself lives in [FetchWebsitePairing], so a phone
  * that scanned the QR code on the address step can start it too.
  */
 @HiltViewModel
@@ -63,8 +63,11 @@ class FetchWebsiteViewModel @Inject constructor(
 
     fun startPairing(address: String) = pairingFlow.start(address)
 
-    /** "Get a new code": the same address as last time, wherever it was typed. */
-    fun retryPairing() = pairingFlow.start(lastServerUrl)
+    /** A code from the pairing hub, which any Fetch website can confirm: no address needed. */
+    fun startHubPairing() = pairingFlow.startHub()
+
+    /** "Get a new code": the same way as last time, a hub code or the address last typed. */
+    fun retryPairing() = pairingFlow.retry()
 
     fun resetPairing() = pairingFlow.reset()
 

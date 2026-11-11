@@ -45,6 +45,8 @@ import webhookKeyRoutes from "./routes/webhook-key.js";
 import metricsRoutes from "./routes/metrics.js";
 import profilesRoutes from "./routes/profiles.js";
 import devicesRoutes from "./routes/devices.js";
+import pairingHubRoutes from "./routes/pairing-hub.js";
+import { servesPairingHub } from "./lib/pairing-hub.js";
 import collectionsRoutes from "./routes/collections.js";
 import searchRoutes from "./routes/search.js";
 import metadataRoutes from "./routes/metadata.js";
@@ -261,6 +263,9 @@ app.register(webhookKeyRoutes);
 app.register(metricsRoutes);
 app.register(profilesRoutes);
 app.register(devicesRoutes);
+// Only the install at watchfetch.tv (or whichever one is configured as the hub)
+// answers these; everywhere else they don't exist.
+if (servesPairingHub()) app.register(pairingHubRoutes);
 app.register(collectionsRoutes);
 app.register(searchRoutes);
 app.register(metadataRoutes);

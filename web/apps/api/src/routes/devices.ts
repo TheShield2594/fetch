@@ -24,6 +24,12 @@ import {
 import { parseProfileAttributes, PROFILE_VIEW_SELECT, toProfileView } from "../lib/profile-view.js";
 import { hasParentalAuthority, invalidateProfileCache, loosensParentalLimits } from "../lib/profile.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
+import {
+  claimThroughHub,
+  isLoopbackAddress,
+  PairingHubUnavailableError,
+  parsePublicAddress,
+} from "../lib/pairing-hub.js";
 
 /** How long a code shown on the TV can be confirmed for. */
 export const PAIRING_TTL_MS = 5 * 60 * 1000;
@@ -47,6 +53,9 @@ const PAIRING_SECRET_HEADER = "x-pairing-secret";
  * it can't work this out itself. Unset means the TV shows the code alone.
  */
 const WEB_PUBLIC = (process.env.FETCH_WEB_PUBLIC ?? process.env.WEB_PUBLIC_BASE)?.trim().replace(/\/+$/, "");
+
+/** Where this API is, as a TV should reach it; only a fallback, since compose fills it with an example IP. */
+const apiPublic = (): string | undefined => process.env.FETCH_API_PUBLIC?.trim().replace(/\/+$/, "");
 
 export const pairingConfirmUrl = (code: string): string | null =>
   WEB_PUBLIC ? `${WEB_PUBLIC}/pair?code=${encodeURIComponent(code)}` : null;
@@ -80,6 +89,73 @@ const requireDevice = async (request: FastifyRequest, reply: FastifyReply) => {
 const parseSlot = (raw: string): number | null => {
   const slot = Number(raw);
   return Number.isInteger(slot) && slot >= 1 && slot <= MAX_DEVICE_PROFILE_SLOTS ? slot : null;
+};
+
+const NOT_FOUND_MESSAGE = "That code is wrong or has expired. Check the TV for a new one.";
+
+/**
+ * Confirms a code the TV got from the pairing hub (`lib/pairing-hub.ts`): claims
+ * it there with this website's address, then stores a pairing that is already
+ * confirmed and whose poll secret is the TV's handoff secret, so the TV's next
+ * `/devices/pair/poll` here, with that secret, collects its token as usual.
+ *
+ * The address comes from the browser confirming, which knows where it reached
+ * this API and website: `FETCH_API_PUBLIC` and `FETCH_WEB_PUBLIC` default to an
+ * example IP, so they are only used when the browser's is a loopback address.
+ */
+const confirmThroughHub = async (
+  request: FastifyRequest,
+  reply: FastifyReply,
+  code: string,
+  body: { name?: unknown; apiBase?: unknown; webBase?: unknown }
+) => {
+  const fromBrowser = (raw: unknown, fallback: string | undefined) => {
+    const parsed = parsePublicAddress(raw);
+    if (parsed && !isLoopbackAddress(parsed)) return parsed;
+    return parsePublicAddress(fallback) ?? parsed;
+  };
+  const api = fromBrowser(body.apiBase, apiPublic());
+  const web = fromBrowser(body.webBase, WEB_PUBLIC);
+  if (!api) return reply.code(404).send({ error: NOT_FOUND_MESSAGE });
+
+  let claim;
+  try {
+    claim = await claimThroughHub(code, { api, web });
+  } catch (error) {
+    if (!(error instanceof PairingHubUnavailableError)) throw error;
+    request.log.warn({ err: error }, "pairing hub claim failed");
+    return reply.code(502).send({
+      error: "Couldn't reach the pairing hub to find that TV. Check this server's internet connection and try again.",
+      code: "pairing_hub_unavailable",
+    });
+  }
+  if (!claim || claim.status === "not_found") return reply.code(404).send({ error: NOT_FOUND_MESSAGE });
+  if (claim.status === "taken") return reply.code(409).send({ error: "That code has already been confirmed." });
+
+  const now = new Date();
+  const deviceName = deviceNameFrom(body.name, deviceNameFrom(claim.name, "TV"));
+  const accountId = accountScope(request) ?? (await findAdminAccountId());
+  // An expired local pairing may still hold the same code.
+  await prisma.devicePairing.deleteMany({ where: { expiresAt: { lte: now } } });
+  try {
+    await prisma.devicePairing.create({
+      data: {
+        code,
+        pollSecretHash: claim.handoffHash,
+        deviceName,
+        requesterIp: null,
+        expiresAt: new Date(now.getTime() + PAIRING_TTL_MS),
+        confirmedAt: now,
+        accountId,
+      },
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return reply.code(409).send({ error: "That code has already been confirmed." });
+    }
+    throw error;
+  }
+  return { deviceName };
 };
 
 const devicesRoutes: FastifyPluginAsync = async (app) => {
@@ -143,7 +219,7 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
     "/devices/pair/confirm",
     { preHandler: requireOwnerToken, config: { rateLimit: { max: 10, timeWindow: "1 minute" } } },
     async (request, reply) => {
-      const body = (request.body ?? {}) as { code?: unknown; name?: unknown };
+      const body = (request.body ?? {}) as { code?: unknown; name?: unknown; apiBase?: unknown; webBase?: unknown };
       const code = typeof body.code === "string" ? normalizePairingCode(body.code) : "";
       if (code.length !== PAIRING_CODE_LENGTH) {
         return reply.code(400).send({ error: `code must be ${PAIRING_CODE_LENGTH} letters and digits` });
@@ -153,7 +229,9 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
       // Unknown and expired answer alike, so the response says nothing about
       // which codes have ever existed.
       if (!pairing || pairing.expiresAt.getTime() <= Date.now()) {
-        return reply.code(404).send({ error: "That code is wrong or has expired. Check the TV for a new one." });
+        // Not one of this website's codes: most likely one a TV got from the
+        // pairing hub, because it was never told this website's address.
+        return confirmThroughHub(request, reply, code, body);
       }
       if (pairing.confirmedAt) {
         return reply.code(409).send({ error: "That code has already been confirmed." });

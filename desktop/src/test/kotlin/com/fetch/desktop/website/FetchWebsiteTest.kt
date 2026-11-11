@@ -49,6 +49,46 @@ class FetchWebsiteTest {
     }
 
     @Test
+    fun `pairing through the hub needs no address and collects the token from the website it names`() = runBlocking {
+        var hubPolls = 0
+        var websitePolls = 0
+        val fake = FakeHttp { request ->
+            when (request.url.toString()) {
+                "https://watchfetch.tv/api/hub/pair/start" ->
+                    201 to """{"code":"K7Q2-9XPL","pollSecret":"hub-secret","expiresAt":"2999-01-01T00:00:00Z","intervalSec":1,"linkUrl":"https://watchfetch.tv/link?code=K7Q2-9XPL"}"""
+                "https://watchfetch.tv/api/hub/pair/poll" ->
+                    if (++hubPolls < 2) 202 to "{}" else 200 to """{"status":"linked","api":"https://fetch.home.example/api","web":"https://fetch.home.example"}"""
+                // The website claims at the hub just before it stores the pairing, so the
+                // first poll can miss it.
+                "https://fetch.home.example/api/devices/pair/poll" ->
+                    if (++websitePolls < 2) 404 to "{}" else 200 to """{"status":"approved","token":"tok","device":{"id":"d","name":"Desk"}}"""
+                else -> 404 to "{}"
+            }
+        }
+        val website = FetchWebsiteState(tempStore(), fake.client)
+
+        website.pairViaHub(deviceName = "Fetch Desktop")
+
+        assertEquals(WebsitePairing.Paired("Desk"), website.pairing)
+        assertEquals(WebsiteSession("https://fetch.home.example/api", "tok", "Desk"), website.session)
+        val startBody = fake.sent.first { it.request.url.encodedPath.endsWith("hub/pair/start") }.body
+        val handoff = fake.sent.first { it.request.url.host == "fetch.home.example" }.request.header("x-pairing-secret")!!
+        // The hub got the hash of the secret the website was then polled with, never the secret.
+        assertTrue(startBody.contains(com.fetch.tv.data.website.FetchPairingHub.hash(handoff)))
+        assertFalse(startBody.contains(handoff))
+        assertEquals("hub-secret", fake.sent.first { it.request.url.encodedPath.endsWith("hub/pair/poll") }.request.header("x-pairing-secret"))
+    }
+
+    @Test
+    fun `an unreachable hub leaves the address to be typed`() = runBlocking {
+        val website = FetchWebsiteState(tempStore(), FakeHttp { 503 to "{}" }.client)
+
+        website.pairViaHub()
+
+        assertEquals(true, (website.pairing as WebsitePairing.Failed).hubUnavailable)
+    }
+
+    @Test
     fun `pairing from the website address finds the API and confirms on that website`() = runBlocking {
         lateinit var website: FetchWebsiteState
         var shownWhilePolling: WebsitePairing? = null

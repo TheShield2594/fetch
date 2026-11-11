@@ -32,6 +32,7 @@ import {
   loadCommandPalette,
   loadCollectionsPage,
   loadPairPage,
+  loadLinkPage,
   loadProfilesPage,
   schedulePrefetchOnIdle,
 } from "./utils/routePrefetch";
@@ -69,6 +70,7 @@ const StatsPage = lazy(() => loadStatsPage().then((m) => ({ default: m.StatsPage
 const CollectionsPage = lazy(() => loadCollectionsPage().then((m) => ({ default: m.CollectionsPage })));
 const ProfilesPage = lazy(() => loadProfilesPage().then((m) => ({ default: m.ProfilesPage })));
 const PairPage = lazy(() => loadPairPage().then((m) => ({ default: m.PairPage })));
+const LinkPage = lazy(() => loadLinkPage().then((m) => ({ default: m.LinkPage })));
 
 const LoadingFallback = ({ label = "Loading…" }: { label?: string }) => (
   <GhostLoader label={label} className="items-center py-24" />
@@ -98,6 +100,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/collections": "Collections",
   "/profiles": "Profiles",
   "/pair": "Sign in a TV",
+  "/link": "Sign in a TV",
 };
 
 const APP_NAME = "Fetch";
@@ -151,6 +154,18 @@ export function App() {
     window.addEventListener("fetch:profile-locked", handleProfileLocked);
     return () => window.removeEventListener("fetch:profile-locked", handleProfileLocked);
   }, []);
+
+  // Where a TV's QR code lands when the TV got its code from the pairing hub.
+  // Whoever scans it is usually not signed in to this site (it is the hub, not
+  // their website), so it comes before the setup wizard; signed in, the page
+  // goes straight on to `/pair`.
+  if (location.pathname === "/link") {
+    return (
+      <Suspense fallback={<LoadingFallback />}>
+        <LinkPage />
+      </Suspense>
+    );
+  }
 
   if (needsSetup) {
     return (

@@ -78,7 +78,20 @@ every device can't be revoked one device at a time. A TV signs in by **device
 pairing** instead (#91):
 
 1. Settings → Account → Sync → Fetch website on the TV (or the first-run Server
-   step) lists the websites it finds on the LAN (mDNS), or asks for **the address
+   step) opens on a **code from the pairing hub** at `watchfetch.tv`
+   (`/hub/pair/*`, `web/apps/api/src/lib/pairing-hub.ts`), so no address is
+   typed. Confirming that code on any Fetch website (Settings → TVs & Devices,
+   or the hub's `/link` page that the TV's QR code opens, which goes on to your
+   website's `/pair`) makes the website *claim* it at the hub with its own API
+   address. The TV learns the address from the hub and collects its token from
+   the website with a handoff secret whose hash is all the hub ever saw
+   (`FetchPairingHub` in `shared/`). The hub runs on the install with
+   `FETCH_PAIRING_HUB_SERVE=true`; every install claims through
+   `FETCH_PAIRING_HUB_URL` (default `https://watchfetch.tv/api`, `off` to turn
+   it off).
+
+   **Enter the address instead** (or a hub that can't be reached) falls back to
+   the websites the TV finds on the LAN (mDNS), or **the address
    you open the website at**, such as `fetch.example.com` or `192.168.1.25:7002`.
    The API's own address works too. The TV finds the API from the website's
    `fetch-server.json` (written by the web container at start from

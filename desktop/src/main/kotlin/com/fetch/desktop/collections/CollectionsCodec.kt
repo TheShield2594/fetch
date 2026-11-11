@@ -69,12 +69,12 @@ object CollectionsCodec {
      * Checks pasted JSON the way the TV's import does; null when it's fine, else why not.
      */
     fun validate(text: String): String? {
-        if (text.isBlank()) return "Paste the collections JSON first."
+        if (text.isBlank()) return "Paste the Home folders JSON first."
         val element = runCatching { json.parseToJsonElement(text) }.getOrElse { return "That isn't JSON (${it.message})." }
-        if (element !is JsonArray) return "Expected a JSON array of collections."
-        if (element.isEmpty()) return "That list has no collections."
+        if (element !is JsonArray) return "Expected a JSON array of folder rows."
+        if (element.isEmpty()) return "That list has no folder rows."
         val parsed = parse(element)
-        if (parsed.isEmpty()) return "No collection in it could be read: each needs an id, a title and folders."
+        if (parsed.isEmpty()) return "No folder row in it could be read: each needs an id, a title and folders."
         return null
     }
 

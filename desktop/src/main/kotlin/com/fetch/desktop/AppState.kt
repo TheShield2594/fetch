@@ -117,7 +117,7 @@ enum class SettingsPage(val label: String, val group: String, val parent: Settin
     ADDONS("Addons", "Sources", parent = CONTENT_DISCOVERY),
     HOME_CATALOGS("Home catalogs", "Sources", parent = CONTENT_DISCOVERY),
     FILTER_ROWS("Filter rows", "Sources", parent = CONTENT_DISCOVERY),
-    COLLECTIONS("Collections", "Sources", parent = CONTENT_DISCOVERY),
+    COLLECTIONS("Home folders", "Sources", parent = CONTENT_DISCOVERY),
     APPEARANCE("Appearance", "Home"),
     LAYOUT("Layout", "Home"),
     MEDIA_SERVERS("Media servers", "Sources", parent = CONTENT_DISCOVERY),

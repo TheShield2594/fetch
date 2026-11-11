@@ -111,7 +111,7 @@ class CollectionsState(
             collections.filterNot { it.id in ids } + imported
         }
         commit(merged)
-        onMessage("Imported ${imported.size} collection${if (imported.size == 1) "" else "s"}")
+        onMessage("Imported ${imported.size} folder row${if (imported.size == 1) "" else "s"}")
         return null
     }
 
@@ -122,7 +122,7 @@ class CollectionsState(
 
     private fun commit(list: List<Collection>) {
         collections = list
-        runCatching { store.save(list) }.onFailure { onMessage("Couldn't save collections: ${it.message}") }
+        runCatching { store.save(list) }.onFailure { onMessage("Couldn't save Home folders: ${it.message}") }
         queuePush()
         refreshOpenFolder()
     }

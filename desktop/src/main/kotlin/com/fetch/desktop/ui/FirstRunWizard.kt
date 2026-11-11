@@ -230,7 +230,7 @@ private fun ServerStep(state: AppState, status: FirstRunStatus) {
     Row(horizontalArrangement = Arrangement.spacedBy(64.dp), verticalAlignment = Alignment.CenterVertically) {
         StepIntro(
             tr("Connect your Fetch server"),
-            "A self-hosted Fetch website keeps profiles, parental limits, collections and watch history in sync with your TVs. " +
+            "A self-hosted Fetch website keeps profiles, parental limits, Home folders and watch history in sync with your TVs. " +
                 "No server? Skip this and Fetch works on this computer on its own.",
             Modifier.weight(1f)
         )
@@ -365,7 +365,7 @@ private fun ExperienceStep(onChoose: (ExperienceMode) -> Unit) {
         )
         ExperienceModeCard(
             tr("Advanced"),
-            tr("Full settings, layout controls, catalog order, collections, integrations, and tuning."),
+            tr("Full settings, layout controls, catalog order, Home folders, integrations, and tuning."),
             recommended = false,
             onClick = { onChoose(ExperienceMode.ADVANCED) }
         )

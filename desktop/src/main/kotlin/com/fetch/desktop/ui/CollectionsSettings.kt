@@ -105,23 +105,23 @@ fun CollectionsSettingsPage(state: AppState, onBack: () -> Unit) {
         return
     }
 
-    SettingsHeader(tr("Collections"), onBack) {
+    SettingsHeader(tr("Home folders"), onBack) {
         SecondaryButton("Import", onClick = { importing = true })
         if (collections.collections.isNotEmpty()) SecondaryButton("Export", onClick = { exporting = true })
-        PrimaryButton("New collection", icon = FetchIcons.Add, onClick = { editing = CollectionEditing.newCollection(collections.newId()) })
+        PrimaryButton("New folder row", icon = FetchIcons.Add, onClick = { editing = CollectionEditing.newCollection(collections.newId()) })
     }
     Text(
-        "Collections are Home rows of folders; each folder opens a page of catalogs, TMDB, Trakt and your lists. " +
+        "Home folders are rows of folders on Home; each folder opens a page of catalogs, TMDB, Trakt and your lists. " +
             "Pinned ones lead Home, the rest follow its catalog rows. They sync with your TV through the Fetch website.",
         color = FetchPalette.TextSecondary
     )
     if (collections.collections.isEmpty()) {
-        Text(tr("No collections yet."), color = FetchPalette.TextMuted)
+        Text(tr("No folder rows yet"), color = FetchPalette.TextMuted)
     } else {
         SettingsSection(null) {
             collections.collections.forEachIndexed { i, c ->
                 SettingsRow(
-                    title = c.title.ifBlank { "Untitled collection" },
+                    title = c.title.ifBlank { "Untitled folder row" },
                     description = listOfNotNull(
                         "${c.folders.size} folder${if (c.folders.size == 1) "" else "s"}",
                         ViewModes.first { it.value == c.viewMode }.label,
@@ -145,7 +145,7 @@ fun CollectionsSettingsPage(state: AppState, onBack: () -> Unit) {
         AlertDialog(
             onDismissRequest = { deleting = null },
             containerColor = FetchPalette.SurfaceRaised,
-            title = { Text(tr("Delete %1\$s?", c.title.ifBlank { tr("this collection") }), color = Color.White) },
+            title = { Text(tr("Delete %1\$s?", c.title.ifBlank { tr("this folder row") }), color = Color.White) },
             text = { Text(tr("Its folders go too, here and on your other devices."), color = FetchPalette.TextSecondary) },
             confirmButton = { PrimaryButton("Delete", icon = null, onClick = { collections.delete(c.id); deleting = null }) },
             dismissButton = { SecondaryButton("Keep", onClick = { deleting = null }) }
@@ -172,10 +172,10 @@ private fun ImportDialog(state: AppState, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text(tr("Import collections"), color = Color.White) },
+        title = { Text(tr("Import Home folders"), color = Color.White) },
         text = {
             Column(Modifier.width(560.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(tr("Paste collections JSON, as the TV's Export or the website gives it."), color = FetchPalette.TextSecondary)
+                Text(tr("Paste Home folders JSON, as the TV's Export or the website gives it."), color = FetchPalette.TextSecondary)
                 CollectionField(text, tr("[ { \"id\": …, \"title\": …, \"folders\": [ … ] } ]"), onChange = { text = it; error = null }, singleLine = false, minHeight = 180)
                 FilterDropdown("Mode", replace, listOf(DropdownOption(false, "Add to mine"), DropdownOption(true, "Replace all of mine")), onSelect = { replace = it })
                 error?.let { Text(it, color = FetchPalette.Error) }
@@ -197,7 +197,7 @@ private fun ExportDialog(json: String, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = FetchPalette.SurfaceRaised,
-        title = { Text(tr("Export collections"), color = Color.White) },
+        title = { Text(tr("Export Home folders"), color = Color.White) },
         text = {
             Column(Modifier.width(560.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(tr("The TV's format: import it on a TV, the website or another computer."), color = FetchPalette.TextSecondary)
@@ -229,15 +229,15 @@ private fun CollectionEditor(state: AppState, initial: Collection, onDone: (Coll
         return
     }
 
-    SettingsHeader(if (isNew) tr("New collection") else tr("Edit collection"), onBack = { onDone(null) }) {
+    SettingsHeader(if (isNew) tr("New folder row") else tr("Edit folder row"), onBack = { onDone(null) }) {
         SecondaryButton("Cancel", onClick = { onDone(null) })
         PrimaryButton("Save", icon = null, enabled = draft.folders.isNotEmpty(), onClick = { onDone(CollectionEditing.cleanCollection(draft)) })
     }
-    if (draft.folders.isEmpty()) Text(tr("Add a folder to save this collection."), color = FetchPalette.TextMuted)
-    SettingsSection("Collection") {
-        LabeledField(tr("Title"), draft.title, tr("Untitled collection")) { draft = draft.copy(title = it.take(80)) }
+    if (draft.folders.isEmpty()) Text(tr("Add a folder to save this folder row."), color = FetchPalette.TextMuted)
+    SettingsSection("Folder row") {
+        LabeledField(tr("Title"), draft.title, tr("Untitled folder row")) { draft = draft.copy(title = it.take(80)) }
         LabeledField(tr("Backdrop image"), draft.backdropImageUrl.orEmpty(), "https://… (shown behind its folders' pages)") { draft = draft.copy(backdropImageUrl = it) }
-        SettingsToggle("Pin to top", "Show this collection before the other rows on Home.", draft.pinToTop) { draft = draft.copy(pinToTop = it) }
+        SettingsToggle("Pin to top", "Show this folder row before the other rows on Home.", draft.pinToTop) { draft = draft.copy(pinToTop = it) }
         SettingsChoice("Folder view", "How a folder's page shows its sources.", draft.viewMode, ViewModes) { draft = draft.copy(viewMode = it) }
         SettingsToggle("Show \"All\" tab", "A tab with every source together, for folders with two sources or more.", draft.showAllTab) { draft = draft.copy(showAllTab = it) }
     }
@@ -267,7 +267,7 @@ private fun CollectionEditor(state: AppState, initial: Collection, onDone: (Coll
             onDismissRequest = { deletingFolder = null },
             containerColor = FetchPalette.SurfaceRaised,
             title = { Text(tr("Remove %1\$s?", f.title.ifBlank { "this folder" }), color = Color.White) },
-            text = { Text(tr("It goes when you save the collection."), color = FetchPalette.TextSecondary) },
+            text = { Text(tr("It goes when you save the folder row."), color = FetchPalette.TextSecondary) },
             confirmButton = { PrimaryButton("Remove", icon = null, onClick = { draft = draft.copy(folders = draft.folders.filterNot { it.id == f.id }); deletingFolder = null }) },
             dismissButton = { SecondaryButton("Keep", onClick = { deletingFolder = null }) }
         )

@@ -102,8 +102,8 @@ fun FetchWebsiteSection(state: AppState) {
             if (session != null) {
                 Text(tr("Signed in as %1\$s", session.deviceName) + " · " + session.serverUrl, color = Color.White)
                 Text(
-                    "Profiles, addons, settings, Home rows and collections sync with the website, as on TV. " +
-                        "Lists made on the website can be added to collections (Content & Discovery › Collections › Website list).",
+                    "Profiles, addons, settings, Home rows and Home folders sync with the website, as on TV. " +
+                        "Lists made on the website can be added to folder rows (Content & Discovery › Home folders › Website list).",
                     color = FetchPalette.TextSecondary
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {

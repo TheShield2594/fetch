@@ -48,7 +48,7 @@ fun ExperienceModeConfirmationDialog(target: ExperienceMode, onConfirm: () -> Un
         text = {
             Text(
                 if (essential) tr("Advanced setup surfaces will be hidden, but your saved settings stay unchanged. You can switch back anytime.")
-                else tr("This reveals the full settings surface, including advanced setup, catalog, collection, and tuning controls."),
+                else tr("This reveals the full settings surface, including advanced setup, catalog, Home folder, and tuning controls."),
                 color = FetchPalette.TextSecondary
             )
         },

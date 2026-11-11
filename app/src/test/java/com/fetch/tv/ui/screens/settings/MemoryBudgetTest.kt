@@ -77,4 +77,34 @@ class MemoryBudgetTest {
         assertEquals(withinBuffer, adjBuf)
         assertEquals(withinChunk, adjChunk)
     }
+
+    private val mb = 1024L * 1024L
+
+    @Test
+    fun playbackBudgetIsAShareOfMemoryAboveTheKillThreshold() {
+        // 1 GB class device: 350 MB available, kill threshold 150 MB -> 200 MB spare -> 50 MB.
+        assertEquals(50, MemoryBudget.playbackBudgetMb(400, 25, 350 * mb, 150 * mb, lowMemory = false))
+    }
+
+    @Test
+    fun playbackBudgetNeverExceedsTheHeapBudget() {
+        assertEquals(400, MemoryBudget.playbackBudgetMb(400, 25, 8_000 * mb, 200 * mb, lowMemory = false))
+    }
+
+    @Test
+    fun playbackBudgetKeepsAFloorWhenMemoryIsShort() {
+        assertEquals(25, MemoryBudget.playbackBudgetMb(400, 25, 160 * mb, 150 * mb, lowMemory = false))
+        assertEquals(25, MemoryBudget.playbackBudgetMb(400, 25, 100 * mb, 150 * mb, lowMemory = false))
+        assertEquals(25, MemoryBudget.playbackBudgetMb(400, 25, 4_000 * mb, 150 * mb, lowMemory = true))
+    }
+
+    @Test
+    fun playbackBudgetFloorNeverExceedsTheHeapBudget() {
+        assertEquals(20, MemoryBudget.playbackBudgetMb(20, 25, 100 * mb, 150 * mb, lowMemory = true))
+    }
+
+    @Test
+    fun unknownMemoryStateKeepsTheHeapBudget() {
+        assertEquals(400, MemoryBudget.playbackBudgetMb(400, 25, 0L, 0L, lowMemory = false))
+    }
 }

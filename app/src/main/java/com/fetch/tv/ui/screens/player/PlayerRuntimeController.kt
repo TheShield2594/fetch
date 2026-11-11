@@ -488,6 +488,8 @@ class PlayerRuntimeController(
     internal var currentBitrateAwareLoadControl: BitrateAwareLoadControl? = null
     /** Parallel chunk buffer overhead (MB) currently deducted from the target buffer size. */
     internal var currentParallelChunkOverheadMb: Int = 0
+    // Buffer budget for this session, from MemoryBudget.playbackBudgetMb at playback start.
+    internal var currentPlaybackBudgetMb: Int = com.fetch.tv.ui.screens.settings.MemoryBudget.budgetMb
     /** Back buffer (ms) the user configured, captured at build to restore once DV7 status is known. */
     internal var configuredBackBufferMs: Int = 0
     internal var metaVideos: List<Video> = emptyList()

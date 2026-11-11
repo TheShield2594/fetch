@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.settings
 
+import android.app.ActivityManager
+import android.content.Context
 import androidx.media3.common.util.UnstableApi
 import com.fetch.tv.data.local.BufferSettings
 
@@ -72,6 +74,45 @@ object MemoryBudget {
         if (isLowRamTier)
             rawBudgetMb.coerceAtMost((maxHeapMb - LOW_HEAP_RESERVE_MB).toInt()).coerceAtLeast(minPlaybackBudgetMb)
         else rawBudgetMb
+
+    // Share of the memory the system can still give the app (available memory less the point at
+    // which it starts killing processes) that one playback session may spend on buffers. The heap
+    // ceiling above only prevents OutOfMemoryError; the low-memory killer works from device RAM,
+    // and Google's TV limit is 280 MB in total on 1 GB devices, with 40-60 MB of media buffer.
+    private const val AVAILABLE_MEMORY_PLAYBACK_SHARE = 0.25
+
+    /**
+     * The buffer budget for a playback session starting now: [budgetMb], capped by a share of the
+     * memory the system still has available, so a 1 GB device that is already short on memory
+     * does not plan a buffer the low-memory killer will take back. Read once at playback start.
+     */
+    fun playbackBudgetMb(context: Context): Int {
+        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+            ?: return budgetMb
+        val info = ActivityManager.MemoryInfo()
+        runCatching { activityManager.getMemoryInfo(info) }.onFailure { return budgetMb }
+        return playbackBudgetMb(info.availMem, info.threshold, info.lowMemory)
+    }
+
+    /** [playbackBudgetMb] from raw [ActivityManager.MemoryInfo] values. */
+    fun playbackBudgetMb(availMemBytes: Long, thresholdBytes: Long, lowMemory: Boolean): Int =
+        playbackBudgetMb(budgetMb, minPlaybackBudgetMb, availMemBytes, thresholdBytes, lowMemory)
+
+    internal fun playbackBudgetMb(
+        heapBudgetMb: Int,
+        floorMb: Int,
+        availMemBytes: Long,
+        thresholdBytes: Long,
+        lowMemory: Boolean,
+    ): Int {
+        // Unknown memory state (some emulators and test devices report 0): keep the heap budget.
+        if (availMemBytes <= 0L) return heapBudgetMb
+        val floor = floorMb.coerceAtMost(heapBudgetMb)
+        if (lowMemory) return floor
+        val spareMb = (availMemBytes - thresholdBytes.coerceAtLeast(0L)).coerceAtLeast(0L) / (1024L * 1024L)
+        val capMb = (spareMb * AVAILABLE_MEMORY_PLAYBACK_SHARE).toInt()
+        return capMb.coerceIn(floor, heapBudgetMb)
+    }
 
     val conversionBudgetMb: Int =
         (budgetMb * (if (isLowRamTier) LOW_RAM_CONVERSION_RATIO else HIGH_RAM_CONVERSION_RATIO)).toInt()

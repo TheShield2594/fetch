@@ -501,6 +501,11 @@ internal fun PlayerRuntimeController.initializePlayer(
                 0
             }
             currentParallelChunkOverheadMb = parallelOverheadMb
+            // Read once per session: what the device can spare now, not only the heap ceiling.
+            val playbackBudgetMb = MemoryBudget.playbackBudgetMb(context)
+            currentPlaybackBudgetMb = playbackBudgetMb
+            // A user target above the budget is kept only when large buffers were allowed.
+            val capUserTarget = !playerSettings.allowLargeTargetBuffer
 
             val loadControl = if (playerSettings.fetchPerformanceModeEnabled) {
                 effectiveBackBufferDurationMs = FetchExoPlayerPerformanceHelper.backBufferMs
@@ -509,22 +514,27 @@ internal fun PlayerRuntimeController.initializePlayer(
                     PlayerRuntimeController.TAG,
                     "BUFFER_GATE: engine=exo-native-perf master=on parallelOverheadMb=$parallelOverheadMb; FetchExoPlayerPerformanceHelper.buildLoadControl host=${url.safeHost()}"
                 )
-                FetchExoPlayerPerformanceHelper.buildLoadControl(context, parallelOverheadMb)
+                FetchExoPlayerPerformanceHelper.buildLoadControl(
+                    context,
+                    parallelOverheadMb,
+                    playbackBudgetMb = playbackBudgetMb.takeIf { capUserTarget || playerSettings.bufferBudgetManaged }
+                )
             } else if (playerSettings.bufferEngineEnabled) {
                 val bufferSettings = playerSettings.bufferSettings
                 // Managed (default) caps the buffer at the device budget; off uses Target Buffer Size.
                 // Stay full here even on a DV display; first frame tightens only for confirmed DV7.
                 val budgetManaged = playerSettings.bufferBudgetManaged
                 val budgetMbEffective = if (budgetManaged) {
-                    (MemoryBudget.budgetMb - parallelOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
+                    (playbackBudgetMb - parallelOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
                 } else {
-                    (MemoryBudget.effectiveBufferMb(bufferSettings.targetBufferSizeMb) - parallelOverheadMb)
-                        .coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
+                    val userTargetMb = MemoryBudget.effectiveBufferMb(bufferSettings.targetBufferSizeMb)
+                        .let { if (capUserTarget) it.coerceAtMost(playbackBudgetMb) else it }
+                    (userTargetMb - parallelOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
                 }
                 val budgetBytes = budgetMbEffective.toLong() * 1024L * 1024L
                 // The allocator is on the Java heap: time-priority loading may go past a small
                 // target, but never past the heap budget (or the target, if that is larger).
-                val heapBudgetBytes = (MemoryBudget.budgetMb - parallelOverheadMb)
+                val heapBudgetBytes = (playbackBudgetMb - parallelOverheadMb)
                     .coerceAtLeast(MemoryBudget.MIN_BUFFER_MB).toLong() * 1024L * 1024L
                 val hardCeilingBytes = maxOf(budgetBytes, heapBudgetBytes)
                 // Build with the user's back buffer so seek-back works immediately, except on a heap
@@ -544,7 +554,8 @@ internal fun PlayerRuntimeController.initializePlayer(
                             "managed=$budgetManaged " +
                             "parallelOverheadMb=$parallelOverheadMb " +
                             "backBufferMsAtBuild=$backBufferMsAtBuild (set=$configuredBackBufferMs, lowered to 0 only for real DV7) " +
-                            "budgetMb=$budgetMbEffective host=${url.safeHost()}"
+                            "budgetMb=$budgetMbEffective playbackBudgetMb=$playbackBudgetMb " +
+                            "heapBudgetMb=${MemoryBudget.budgetMb} host=${url.safeHost()}"
                 )
                 effectiveBackBufferDurationMs = backBufferMsAtBuild
                 val allocator = androidx.media3.exoplayer.upstream.DefaultAllocator(
@@ -2736,7 +2747,7 @@ private fun PlayerRuntimeController.recordFirstFrameDiagnostics(
         // setting rather than to the back buffer guard.
         val shrinkBudgetForDv7 = keepZeroForDv7 && budgetManaged
         if (shrinkBudgetForDv7) {
-            val effectiveConversionMb = (MemoryBudget.conversionBudgetMb - currentParallelChunkOverheadMb)
+            val effectiveConversionMb = (MemoryBudget.conversionBudgetMb.coerceAtMost(currentPlaybackBudgetMb) - currentParallelChunkOverheadMb)
                 .coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
             lc.setBudgetBytesOverride(
                 effectiveConversionMb.toLong() * 1024L * 1024L
@@ -2750,8 +2761,8 @@ private fun PlayerRuntimeController.recordFirstFrameDiagnostics(
                     "managed=$budgetManaged " +
                     "parallelOverheadMb=$currentParallelChunkOverheadMb " +
                     "budgetMb=${when {
-                        shrinkBudgetForDv7 -> (MemoryBudget.conversionBudgetMb - currentParallelChunkOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
-                        budgetManaged -> (MemoryBudget.budgetMb - currentParallelChunkOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
+                        shrinkBudgetForDv7 -> (MemoryBudget.conversionBudgetMb.coerceAtMost(currentPlaybackBudgetMb) - currentParallelChunkOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
+                        budgetManaged -> (currentPlaybackBudgetMb - currentParallelChunkOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
                         else -> (MemoryBudget.effectiveBufferMb(playerSettings.bufferSettings.targetBufferSizeMb) - currentParallelChunkOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
                     }} " +
                     "host=${currentStreamUrl.safeHost()}"

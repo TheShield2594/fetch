@@ -71,6 +71,12 @@ class TrailerPlayerPool @Inject constructor(
 
     // Kept current so a player rebuilt after [yield] picks up buffer changes made since launch.
     init {
+        // Once the UI is hidden no trailer is visible: free the player, its codecs and buffers.
+        // [acquire] builds a fresh one when a trailer is wanted again.
+        com.fetch.tv.core.memory.MemoryTrim.register { stage ->
+            Log.d(TAG, "Releasing trailer player for memory trim ($stage)")
+            yield()
+        }
         settingsScope.launch {
             runCatching {
                 trailerSettingsDataStore.settings.collect { cachedAllow4k = it.allow4k }

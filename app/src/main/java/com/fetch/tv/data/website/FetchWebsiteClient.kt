@@ -113,8 +113,8 @@ class FetchWebsiteClient internal constructor(
      */
     suspend fun resolveServer(address: String): ResolvedFetchServer? = call {
         FetchServerAddress.resolve(address) { url ->
-            val request = Request.Builder().url(url).get().build()
             runCatching {
+                val request = Request.Builder().url(url).get().build()
                 resolver.newCall(request).execute().use { response ->
                     if (response.isSuccessful) response.body?.string() else null
                 }

@@ -40,5 +40,7 @@ class PhoneHubViewModel @Inject constructor(
 
     fun onScreenClosed() = controller.onScreenClosed()
 
+    fun retry() = controller.retry()
+
     fun stop() = controller.stop()
 }

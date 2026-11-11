@@ -168,8 +168,24 @@ class PhoneHubController @Inject constructor(
     /** A message for the phone, in the app's language rather than the system's. */
     private fun text(@StringRes id: Int, vararg args: Any): String = context.withAppLocale().getString(id, *args)
 
+    /**
+     * How many screens are showing the hub right now. Two can overlap (the first-run wizard
+     * holds it throughout, and its Server step's website address QR code opens it too), so it
+     * closes only when the last one does.
+     */
+    private var openScreens = 0
+
     @Synchronized
     fun onScreenOpened() {
+        openScreens += 1
+        start()
+    }
+
+    /** Tries again to start a hub that failed to (no network, no free port), without opening another screen. */
+    @Synchronized
+    fun retry() = start()
+
+    private fun start() {
         screenOpen = true
         idleJob?.cancel()
         if (server != null) {
@@ -204,6 +220,8 @@ class PhoneHubController @Inject constructor(
 
     @Synchronized
     fun onScreenClosed() {
+        openScreens = (openScreens - 1).coerceAtLeast(0)
+        if (openScreens > 0) return
         screenOpen = false
         // Nobody is left to answer it.
         rejectPendingAddon()

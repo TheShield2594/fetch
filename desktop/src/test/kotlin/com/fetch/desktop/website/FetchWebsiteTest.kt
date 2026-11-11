@@ -50,24 +50,31 @@ class FetchWebsiteTest {
 
     @Test
     fun `pairing from the website address finds the API and confirms on that website`() = runBlocking {
+        lateinit var website: FetchWebsiteState
+        var shownWhilePolling: WebsitePairing? = null
         val fake = FakeHttp { request ->
             when (request.url.toString()) {
                 "http://10.0.0.5:7002/fetch-server.json" -> 200 to """{"service":"web","api":"http://192.168.1.25:7000"}"""
                 "http://10.0.0.5:7000/health" -> 200 to """{"status":"ok","service":"api"}"""
                 "http://10.0.0.5:7000/devices/pair/start" ->
                     200 to """{"code":"K7Q2-9XPL","pollSecret":"s","expiresAt":"2999-01-01T00:00:00Z","intervalSec":1,"confirmUrl":"http://192.168.1.25:7002/pair?code=K7Q2-9XPL"}"""
+                "http://10.0.0.5:7000/devices/pair/poll" -> {
+                    shownWhilePolling = website.pairing
+                    404 to "{}"
+                }
                 else -> 404 to "{}"
             }
         }
-        val website = FetchWebsiteState(tempStore(), fake.client)
+        website = FetchWebsiteState(tempStore(), fake.client)
         website.pair("10.0.0.5:7002")
-        assertEquals(
-            WebsitePairing.Expired,
-            website.pairing
-        )
-        // The code went to the API found from the website, and the start call carried no session.
+        // The code went to the API found from the website...
         val start = fake.sent.first { it.request.url.encodedPath.endsWith("start") }
         assertEquals("http://10.0.0.5:7000/devices/pair/start", start.request.url.toString())
+        // ...and the QR code confirms on the website address that worked, not the server's example one.
+        val shown = shownWhilePolling as WebsitePairing.ShowingCode
+        assertEquals("http://10.0.0.5:7002/pair?code=K7Q2-9XPL", shown.confirmUrl)
+        assertEquals("http://10.0.0.5:7000", shown.serverUrl)
+        assertEquals(WebsitePairing.Expired, website.pairing)
     }
 
     @Test

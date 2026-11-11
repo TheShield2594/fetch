@@ -94,7 +94,11 @@ class FetchWebsitePairing @Inject constructor(
     suspend fun startAndAwaitCode(address: String, timeoutMs: Long = 30_000): WebsitePairingState {
         start(address)
         return withTimeoutOrNull(timeoutMs) { state.first { it !is WebsitePairingState.Starting } }
-            ?: WebsitePairingState.Failed(null, notFound = true)
+            ?: run {
+                // Stop looking, so the TV doesn't go on to show a code the phone was told isn't coming.
+                reset()
+                WebsitePairingState.Failed(null, notFound = true)
+            }
     }
 
     @Synchronized

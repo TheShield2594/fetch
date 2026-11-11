@@ -64,11 +64,13 @@ class FetchServerAddressTest {
     }
 
     @Test
-    fun `a public name without a certificate is tried over http`() {
+    fun `a public name is never quietly tried over http`() {
         val get = network("http://home.example.net:7000/health" to apiHealth)
+        assertNull(FetchServerAddress.resolve("home.example.net:7000", get))
+        // Typed with its scheme, it is used as typed.
         assertEquals(
             ResolvedFetchServer("http://home.example.net:7000", null),
-            FetchServerAddress.resolve("home.example.net:7000", get)
+            FetchServerAddress.resolve("http://home.example.net:7000", get)
         )
     }
 

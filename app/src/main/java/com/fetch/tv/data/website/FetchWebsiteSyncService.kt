@@ -109,12 +109,19 @@ class FetchWebsiteSyncService @Inject constructor(
         val result = runCatchingNonCancel {
             if (!client.checkSession()) return@runCatchingNonCancel
             signedIn = true
-            if (store.needsInitialProfilePush) {
-                pushProfilesMissingFromWebsite()
-                store.markInitialProfilePushDone()
+            // Until this TV's profiles are on the website, the website's list isn't written over
+            // them: that would drop the ones not pushed yet. The rest of the pass still runs, and
+            // the push is tried again next time.
+            val initialPush = if (store.needsInitialProfilePush) {
+                runCatchingNonCancel { pushProfilesMissingFromWebsite() }
+                    .onSuccess { store.markInitialProfilePushDone() }
+                    .onFailure { Log.w(TAG, "Couldn't add this TV's profiles to the website", it) }
+            } else {
+                Result.success(Unit)
             }
-            pullProfiles()
+            if (initialPush.isSuccess) pullProfiles()
             pullActiveProfileState()
+            initialPush.getOrThrow()
         }.onFailure { Log.w(TAG, "Website sync failed", it) }
         if (signedIn) report(result)
         return result

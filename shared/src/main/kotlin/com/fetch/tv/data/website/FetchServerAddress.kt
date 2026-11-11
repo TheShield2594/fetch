@@ -27,7 +27,8 @@ data class ResolvedFetchServer(
  *   out of `fetch-server.json` (or the older `config.js`) that the website container writes
  *   at start, then tried at `/api` and on port 7000 of the same host.
  *
- * With no scheme typed, a public host is tried over HTTPS first, then HTTP.
+ * With no scheme typed, a public host is tried over HTTPS only, so the pairing code and
+ * device token never go out in the clear unless someone typed `http://` themselves.
  *
  * Shared by the TV and desktop apps; [resolve] takes the HTTP GET as a function so it stays
  * free of any one client's networking.
@@ -60,16 +61,11 @@ object FetchServerAddress {
     }
 
     /**
-     * The base URLs to try for [raw], best first: just the normalized one when a scheme was
-     * typed or the host is local, else HTTPS then HTTP (a home server reached over a public
-     * name doesn't always have a certificate).
+     * The base URL to try for [raw]: [normalize]d, so HTTPS for a public host unless `http://`
+     * was typed. There is deliberately no quiet fall back to HTTP: anyone able to block port
+     * 443 on the way could otherwise read the device token as it is issued.
      */
-    fun baseCandidates(raw: String): List<String> {
-        val first = normalize(raw) ?: return emptyList()
-        val trimmed = raw.trim()
-        if (trimmed.contains("://") || !first.startsWith("https://")) return listOf(first)
-        return listOf(first, "http://" + first.removePrefix("https://"))
-    }
+    fun baseCandidates(raw: String): List<String> = listOfNotNull(normalize(raw))
 
     /**
      * Finds the API behind [raw]. [get] performs a GET and returns the body of a 2xx answer,

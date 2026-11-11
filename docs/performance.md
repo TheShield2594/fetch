@@ -185,6 +185,22 @@ line under the `FetchBenchmark` tag and kills it again, up to three times. The B
 profile workflow keeps those lines as `benchmark-process-starts.txt` and in the run summary,
 so the next run that hits it names the component. Write the answer here when it does.
 
+Five Baseline profile runs in a row on PR #481's code (run 43031270892, attempts 1–5,
+2026-11-11, CI emulator, release build with R8, 10 cold starts per test), all passed:
+
+| Run | TTID median, `Partial(Require)` | TTID median, `None` | Slowest, `Partial(Require)` |
+|---|---|---|---|
+| 1 | 902 ms | 847 ms | 1,182 ms |
+| 2 | 1,041 ms | 1,093 ms | 2,513 ms |
+| 3 | 741 ms | 779 ms | 1,751 ms |
+| 4 | 939 ms | 951 ms | 1,820 ms |
+| 5 | 687 ms | 708 ms | 1,402 ms |
+
+The profile's median is lower in four of five runs, but by little, and its slowest starts are
+the slowest of all; on the emulator that is noise, not a result. These runs don't show whether
+the re-kill above was needed: the `FetchBenchmark` lines go to each run's summary and
+`benchmark-results` artifact, not the job log. Check those before closing #461.
+
 To look by hand:
 
 ```sh

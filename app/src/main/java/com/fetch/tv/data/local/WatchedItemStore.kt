@@ -6,8 +6,8 @@ import com.fetch.tv.data.local.db.WatchedItemRow
 import com.fetch.tv.data.local.db.episodeColumn
 import com.fetch.tv.data.local.db.seasonColumn
 import com.fetch.tv.domain.model.WatchedItem
-import com.fetch.tv.domain.model.WatchedMutationKey
-import com.fetch.tv.domain.model.mutationKey
+import com.fetch.tv.domain.model.WatchedItemKey
+import com.fetch.tv.domain.model.itemKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -15,7 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Where a profile's watched items are kept, one entry per [WatchedMutationKey]. Each write touches
+ * Where a profile's watched items are kept, one entry per [WatchedItemKey]. Each write touches
  * only the entries it names, so its cost doesn't grow with the history (audit G5).
  */
 interface WatchedItemStore {
@@ -32,7 +32,7 @@ interface WatchedItemStore {
     /** Adds the [items] whose key isn't stored yet; stored entries stay as they are. */
     suspend fun insertMissing(profileId: Int, items: List<WatchedItem>)
 
-    suspend fun delete(profileId: Int, keys: Collection<WatchedMutationKey>)
+    suspend fun delete(profileId: Int, keys: Collection<WatchedItemKey>)
 
     /**
      * Replaces the profile's entries with what [transform] returns from the current ones, as one
@@ -47,10 +47,10 @@ interface WatchedItemStore {
 internal fun watchedItemChanges(
     old: List<WatchedItem>,
     new: List<WatchedItem>
-): Pair<List<WatchedItem>, Set<WatchedMutationKey>> {
-    val oldByKey = old.associateBy { it.mutationKey() }
-    val newByKey = new.associateBy { it.mutationKey() }
-    val writes = newByKey.values.filter { oldByKey[it.mutationKey()] != it }
+): Pair<List<WatchedItem>, Set<WatchedItemKey>> {
+    val oldByKey = old.associateBy { it.itemKey() }
+    val newByKey = new.associateBy { it.itemKey() }
+    val writes = newByKey.values.filter { oldByKey[it.itemKey()] != it }
     val deletes = oldByKey.keys - newByKey.keys
     return writes to deletes
 }
@@ -78,7 +78,7 @@ class RoomWatchedItemStore @Inject constructor(
         if (items.isNotEmpty()) dao.insertMissing(items.map { WatchedItemRow.of(profileId, it) })
     }
 
-    override suspend fun delete(profileId: Int, keys: Collection<WatchedMutationKey>) {
+    override suspend fun delete(profileId: Int, keys: Collection<WatchedItemKey>) {
         if (keys.isEmpty()) return
         database.withTransaction { deleteKeys(profileId, keys) }
     }
@@ -94,7 +94,7 @@ class RoomWatchedItemStore @Inject constructor(
 
     override suspend fun clear(profileId: Int) = dao.deleteProfile(profileId)
 
-    private suspend fun deleteKeys(profileId: Int, keys: Collection<WatchedMutationKey>) {
+    private suspend fun deleteKeys(profileId: Int, keys: Collection<WatchedItemKey>) {
         keys.forEach { key -> dao.delete(profileId, key.contentId, key.seasonColumn(), key.episodeColumn()) }
     }
 }

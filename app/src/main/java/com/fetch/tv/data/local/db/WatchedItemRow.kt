@@ -2,7 +2,7 @@ package com.fetch.tv.data.local.db
 
 import androidx.room.Entity
 import com.fetch.tv.domain.model.WatchedItem
-import com.fetch.tv.domain.model.WatchedMutationKey
+import com.fetch.tv.domain.model.WatchedItemKey
 
 /**
  * One watched movie, episode or series of one profile. Season and episode are part of the key, so
@@ -62,5 +62,5 @@ data class WatchedItemRow(
     }
 }
 
-internal fun WatchedMutationKey.seasonColumn(): Int = season ?: WatchedItemRow.NO_NUMBER
-internal fun WatchedMutationKey.episodeColumn(): Int = episode ?: WatchedItemRow.NO_NUMBER
+internal fun WatchedItemKey.seasonColumn(): Int = season ?: WatchedItemRow.NO_NUMBER
+internal fun WatchedItemKey.episodeColumn(): Int = episode ?: WatchedItemRow.NO_NUMBER

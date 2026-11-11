@@ -1,11 +1,12 @@
 package com.fetch.tv.data.local
 
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.fetch.tv.TestPreferencesStore
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.domain.model.WatchedItem
-import com.fetch.tv.domain.model.WatchedMutationKey
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,93 +18,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class WatchedItemsPreferencesSyncTest {
-    @Test
-    fun `snapshot is authoritative for non-pending items`() = runTest {
-        val harness = harness()
-        val local = item("local", 100L)
-        val remote = item("remote", 200L)
-        harness.preferences.markAsWatched(local, 1)
-
-        harness.preferences.replaceWithRemoteItems(listOf(remote), profileId = 1)
-
-        assertEquals(listOf(remote), harness.preferences.getAllItems(1))
-    }
-
-    @Test
-    fun `empty snapshot clears non-pending watched items`() = runTest {
-        val harness = harness()
-        harness.preferences.markAsWatched(item("local", 100L), 1)
-
-        harness.preferences.replaceWithRemoteItems(emptyList(), profileId = 1)
-
-        assertTrue(harness.preferences.getAllItems(1).isEmpty())
-    }
-
-    @Test
-    fun `pending watched upsert survives snapshot`() = runTest {
-        val harness = harness()
-        val local = item("local", 100L)
-        val key = WatchedMutationKey("local", 1, 2)
-        harness.preferences.markAsWatched(local, 1)
-
-        val preserved = harness.preferences.replaceWithRemoteItems(
-            remoteItems = emptyList(),
-            pendingUpsertKeys = setOf(key),
-            profileId = 1
-        )
-
-        assertTrue(preserved)
-        assertEquals(listOf(local), harness.preferences.getAllItems(1))
-    }
-
-    @Test
-    fun `pending watched delete suppresses snapshot upsert`() = runTest {
-        val harness = harness()
-        val remote = item("remote", 100L)
-        val key = WatchedMutationKey("remote", 1, 2)
-
-        harness.preferences.replaceWithRemoteItems(
-            remoteItems = listOf(remote),
-            pendingDeleteKeys = setOf(key),
-            profileId = 1
-        )
-
-        assertTrue(harness.preferences.getAllItems(1).isEmpty())
-    }
-
-    @Test
-    fun `remote delete cannot remove pending watched upsert`() = runTest {
-        val harness = harness()
-        val local = item("local", 100L)
-        val key = WatchedMutationKey("local", 1, 2)
-        harness.preferences.markAsWatched(local, 1)
-
-        harness.preferences.applyRemoteChanges(
-            upserts = emptyList(),
-            deletes = listOf(Triple("local", 1, 2)),
-            pendingUpsertKeys = setOf(key),
-            profileId = 1
-        )
-
-        assertEquals(listOf(local), harness.preferences.getAllItems(1))
-    }
-
-    @Test
-    fun `remote upsert cannot restore pending watched delete`() = runTest {
-        val harness = harness()
-        val remote = item("remote", 100L)
-        val key = WatchedMutationKey("remote", 1, 2)
-
-        harness.preferences.applyRemoteChanges(
-            upserts = listOf(remote),
-            deletes = emptyList(),
-            pendingDeleteKeys = setOf(key),
-            profileId = 1
-        )
-
-        assertTrue(harness.preferences.getAllItems(1).isEmpty())
-    }
-
     @Test
     fun `explicit watched flow remains bound after active profile changes`() = runTest {
         val harness = harness()
@@ -128,7 +42,6 @@ class WatchedItemsPreferencesSyncTest {
         val before = harness.preferences.getAllItems(1).single()
 
         harness.preferences.markAsWatched(second, 1)
-        harness.preferences.advanceLastSuccessfulPushMs(300L, 1)
         val after = harness.preferences.getAllItems(1)
 
         assertEquals(setOf(first, second), after.toSet())
@@ -179,6 +92,30 @@ class WatchedItemsPreferencesSyncTest {
         val preferences = WatchedItemsPreferences(factory, profileManager, rows)
 
         assertEquals(listOf(item("show", 200L)), preferences.getAllItems(1))
+    }
+
+    @Test
+    fun `old sync bookkeeping next to the legacy set is removed and the marks still load`() = runTest {
+        val store = TestPreferencesStore()
+        val key = stringSetPreferencesKey("watched_items")
+        val bookkeeping = listOf("last_successful_watched_push_ms", "watched_items_delta_cursor", "watched_items_delta_initialized")
+        store.edit { prefs ->
+            prefs[key] = setOf(com.google.gson.Gson().toJson(item("show", 100L)))
+            prefs[longPreferencesKey("last_successful_watched_push_ms")] = 50L
+            prefs[longPreferencesKey("watched_items_delta_cursor")] = 7L
+            prefs[booleanPreferencesKey("watched_items_delta_initialized")] = true
+        }
+        val factory = mockk<ProfileDataStoreFactory>()
+        every { factory.get(any(), any()) } returns store
+        val profileManager = mockk<ProfileManager>()
+        every { profileManager.activeProfileId } returns MutableStateFlow(1)
+        val rows = InMemoryWatchedItemStore()
+        // A mark already moved by an earlier version still loads.
+        rows.upsert(1, listOf(item("movie", 80L)))
+        val preferences = WatchedItemsPreferences(factory, profileManager, rows)
+
+        assertEquals(setOf(item("show", 100L), item("movie", 80L)), preferences.getAllItems(1).toSet())
+        assertTrue(store.data.first().asMap().keys.none { it.name == "watched_items" || it.name in bookkeeping })
     }
 
     private fun harness(): Harness {

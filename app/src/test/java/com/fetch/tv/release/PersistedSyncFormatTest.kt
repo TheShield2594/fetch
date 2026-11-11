@@ -1,6 +1,5 @@
 package com.fetch.tv.release
 
-import com.fetch.tv.domain.model.LibrarySyncKey
 import com.fetch.tv.domain.model.WatchedItem
 import com.google.gson.Gson
 import org.junit.Assert.assertEquals
@@ -9,22 +8,13 @@ import org.junit.Test
 import java.io.File
 
 /**
- * What an older build wrote must still read after an upgrade. Library's pending sync queue
- * (`library_pending_upserts` / `library_pending_deletes`, one [LibrarySyncKey] each) and the
- * watched items are stored as Gson JSON by field name, so these pin that format: renaming a
- * field, or losing the R8 rule that keeps the names, would drop queued changes and watched state
- * on the next update without any error.
+ * What an older build wrote must still read after an upgrade. The watched items are stored as
+ * Gson JSON by field name, so these pin that format: renaming a field, or losing the R8 rule that
+ * keeps the names, would drop watched state on the next update without any error.
  */
 class PersistedSyncFormatTest {
 
     private val gson = Gson()
-
-    @Test
-    fun `a pending library change written by an older build still reads`() {
-        val stored = """{"contentId":"tt0111161","contentType":"movie"}"""
-        assertEquals(LibrarySyncKey("tt0111161", "movie"), gson.fromJson(stored, LibrarySyncKey::class.java))
-        assertEquals(stored, gson.toJson(LibrarySyncKey("tt0111161", "movie")))
-    }
 
     @Test
     fun `a watched episode written by an older build still reads`() {
@@ -53,7 +43,7 @@ class PersistedSyncFormatTest {
             .readLines()
             .map { it.trim() }
         assertTrue(
-            "LibrarySyncKey and WatchedItem live in domain.model; its keep rule is missing",
+            "SavedLibraryItem and WatchedItem live in domain.model; its keep rule is missing",
             "-keep class com.fetch.tv.domain.model.** { *; }" in rules
         )
     }

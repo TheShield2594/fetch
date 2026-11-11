@@ -1443,6 +1443,7 @@
     <string name="addon_installing">Installing</string>
     <string name="addon_install_btn">Install</string>
     <string name="addon_install_success">Installed %1$s</string>
+    <string name="addon_install_profile_changed">The profile changed before %1$s was installed, so it wasn\'t added</string>
     <string name="addon_error_invalid_url">Enter a valid addon URL</string>
     <string name="addon_error_invalid_scheme">Addon URL must start with http or https</string>
     <string name="addon_installed_section">Installed</string>

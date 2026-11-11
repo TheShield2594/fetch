@@ -120,10 +120,12 @@ class DeepLinkHandler @Inject constructor(
             _pendingAddon.compareAndSet(request, null)
             return DeepLinkInstallResult.Error(reason)
         }
+        // The profile just checked: the install is held to it (#465).
+        val profileId = addonRepository.addonChangeProfileId()
         val installing = request.copy(installing = true)
         if (!_pendingAddon.compareAndSet(request, installing)) return null
         return try {
-            installAddon(request.url)
+            installAddon(request.url, profileId)
         } finally {
             _pendingAddon.compareAndSet(installing, null)
         }
@@ -134,9 +136,9 @@ class DeepLinkHandler @Inject constructor(
         _pendingAddon.compareAndSet(request, null)
     }
 
-    private suspend fun installAddon(manifestUrl: String): DeepLinkInstallResult {
+    private suspend fun installAddon(manifestUrl: String, profileId: Int?): DeepLinkInstallResult {
         val url = normalizeAddonInstallUrl(manifestUrl) ?: manifestUrl
-        return when (val outcome = addonRepository.installOrReplace(url)) {
+        return when (val outcome = addonRepository.installOrReplace(url, profileId = profileId)) {
             is AddonInstallOutcome.Installed -> {
                 val addonName = outcome.addon.displayName.ifBlank { outcome.addon.baseUrl }
                 DeepLinkInstallResult.Success(
@@ -154,6 +156,12 @@ class DeepLinkHandler @Inject constructor(
             )
             is AddonInstallOutcome.Failed -> DeepLinkInstallResult.Error(
                 outcome.message.ifBlank { context.getString(R.string.addon_error_invalid_url) }
+            )
+            is AddonInstallOutcome.ProfileChanged -> DeepLinkInstallResult.Error(
+                context.getString(
+                    R.string.addon_install_profile_changed,
+                    outcome.addon.displayName.ifBlank { outcome.addon.baseUrl }
+                )
             )
         }
     }

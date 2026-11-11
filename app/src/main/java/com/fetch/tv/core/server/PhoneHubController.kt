@@ -533,12 +533,14 @@ class PhoneHubController @Inject constructor(
             _pendingAddon.compareAndSet(request, null)
             return
         }
+        // The profile just checked: the install is held to it (#465).
+        val profileId = addonRepository.addonChangeProfileId()
         val installing = request.copy(installing = true)
         // Only the request on screen: a newer one may have just replaced it.
         if (!_pendingAddon.compareAndSet(request, installing)) return
         scope.launch {
             try {
-                addonProposals[request.id] = when (val outcome = addonRepository.installOrReplace(request.url)) {
+                addonProposals[request.id] = when (val outcome = addonRepository.installOrReplace(request.url, profileId = profileId)) {
                     is AddonInstallOutcome.Installed -> PhoneHubAddonProposal(PhoneHubAddonStatus.INSTALLED, id = request.id, name = request.name)
                     is AddonInstallOutcome.NeedsConfiguration -> PhoneHubAddonProposal(
                         PhoneHubAddonStatus.NEEDS_CONFIGURATION,
@@ -552,6 +554,12 @@ class PhoneHubController @Inject constructor(
                         id = request.id,
                         name = request.name,
                         message = outcome.message.ifBlank { text(R.string.phone_web_addon_install_failed, request.name) }
+                    )
+                    is AddonInstallOutcome.ProfileChanged -> PhoneHubAddonProposal(
+                        PhoneHubAddonStatus.FAILED,
+                        id = request.id,
+                        name = request.name,
+                        message = text(R.string.addon_install_profile_changed, request.name)
                     )
                 }
             } catch (error: CancellationException) {

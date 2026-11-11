@@ -17,10 +17,15 @@ sealed interface SearchEvent {
     ) : SearchEvent
 
     data class SelectDiscoverType(val type: String) : SearchEvent
-    data class SelectDiscoverCatalog(val catalogKey: String) : SearchEvent
     data class SelectDiscoverGenre(val genre: String?) : SearchEvent
+    data class SelectDiscoverYearRange(val range: DiscoverYearRange?) : SearchEvent
+    data class SelectDiscoverMinRating(val minRating: Int?) : SearchEvent
+    data class SelectDiscoverSort(val sort: DiscoverSort) : SearchEvent
+    /** Clears the year and rating filters; the sort stays. */
+    data object ClearDiscoverFilters : SearchEvent
+    /** Loads the next page from every Discover catalog that has more. */
     data object LoadNextDiscoverResults : SearchEvent
-    /** Reloads the selected Discover catalog from its first page after an error. */
+    /** Reloads Discover from the first page of every catalog after an error. */
     data object RetryDiscover : SearchEvent
 
     data object Retry : SearchEvent

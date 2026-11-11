@@ -1502,12 +1502,7 @@
 <string name="discover_title">Scopri</string>
 <string name="discover_load_more">Carica altri</string>
 <string name="discover_loading">Caricamento\u2026</string>
-<string name="discover_filter_type">Tipo</string>
-<string name="discover_filter_catalog">Catalogo</string>
 <string name="discover_filter_genre">Genere</string>
-<string name="discover_select_catalog">Seleziona</string>
-<string name="discover_empty_no_catalog_title">Seleziona un catalogo</string>
-<string name="discover_empty_no_catalog_subtitle">Scegli un catalogo da sfogliare</string>
 <string name="discover_empty_no_content_title">Nessun contenuto trovato</string>
 <string name="discover_empty_no_content_subtitle">Prova un genere o un catalogo differente</string>
 

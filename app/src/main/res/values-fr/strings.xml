@@ -1671,12 +1671,7 @@
     <string name="discover_title">Découvrir</string>
     <string name="discover_load_more">Charger plus</string>
     <string name="discover_loading">Chargement…</string>
-    <string name="discover_filter_type">Type</string>
-    <string name="discover_filter_catalog">Catalogue</string>
     <string name="discover_filter_genre">Genre</string>
-    <string name="discover_select_catalog">Sélectionner</string>
-    <string name="discover_empty_no_catalog_title">Sélectionnez un catalogue</string>
-    <string name="discover_empty_no_catalog_subtitle">Choisissez un catalogue Découvrir à parcourir</string>
     <string name="discover_empty_no_content_title">Aucun contenu trouvé</string>
     <string name="discover_empty_no_content_subtitle">Essayez un autre genre ou un autre catalogue</string>
 

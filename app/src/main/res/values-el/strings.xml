@@ -1550,12 +1550,7 @@
   <string name="discover_title">Ανακάλυψη</string>
   <string name="discover_load_more">Φόρτωση περισσότερων</string>
   <string name="discover_loading">Φόρτωση…</string>
-  <string name="discover_filter_type">Τύπος</string>
-  <string name="discover_filter_catalog">Κατάλογος</string>
   <string name="discover_filter_genre">Είδος</string>
-  <string name="discover_select_catalog">Επιλογή</string>
-  <string name="discover_empty_no_catalog_title">Επιλέξτε κατάλογο</string>
-  <string name="discover_empty_no_catalog_subtitle">Επιλέξτε κατάλογο Ανακάλυψης για περιήγηση</string>
   <string name="discover_empty_no_content_title">Δεν βρέθηκε περιεχόμενο</string>
   <string name="discover_empty_no_content_subtitle">Δοκιμάστε διαφορετικό είδος ή κατάλογο</string>
   <!-- AddonManagerScreen -->

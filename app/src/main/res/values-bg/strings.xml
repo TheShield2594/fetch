@@ -1291,12 +1291,7 @@
     <string name="discover_title">Discover</string>
     <string name="discover_load_more">Зареди още</string>
     <string name="discover_loading">Зареждане...</string>
-    <string name="discover_filter_type">Тип</string>
-    <string name="discover_filter_catalog">Каталог</string>
     <string name="discover_filter_genre">Жанр</string>
-    <string name="discover_select_catalog">Избери</string>
-    <string name="discover_empty_no_catalog_title">Избери каталог</string>
-    <string name="discover_empty_no_catalog_subtitle">Избери discover каталог за преглед</string>
     <string name="discover_empty_no_content_title">Не е намерено съдържание</string>
     <string name="discover_empty_no_content_subtitle">Опитай с различен жанр или каталог</string>
 

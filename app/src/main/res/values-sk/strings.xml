@@ -1257,12 +1257,7 @@
     <string name="discover_title">Objavovať</string>
     <string name="discover_load_more">Načítať viac</string>
     <string name="discover_loading">Načítava sa...</string>
-    <string name="discover_filter_type">Typ</string>
-    <string name="discover_filter_catalog">Katalóg</string>
     <string name="discover_filter_genre">Žáner</string>
-    <string name="discover_select_catalog">Vybrať</string>
-    <string name="discover_empty_no_catalog_title">Vyberte katalóg</string>
-    <string name="discover_empty_no_catalog_subtitle">Vyberte katalóg Objavovania na prehliadanie</string>
     <string name="discover_empty_no_content_title">Nenašiel sa žiadny obsah</string>
     <string name="discover_empty_no_content_subtitle">Skúste iný žáner alebo katalóg</string>
 

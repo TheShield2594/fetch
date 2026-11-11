@@ -6,42 +6,42 @@ import com.fetch.tv.ui.screens.home.HeroBackdropState
 
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.MenuDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
@@ -49,31 +49,23 @@ import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.draw.clip
-import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
-import com.fetch.tv.ui.util.contentTextDirection
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.FilterChip
+import androidx.tv.material3.FilterChipDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.ui.components.EmptyScreenState
@@ -81,10 +73,25 @@ import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.PosterCardStyle
+import com.fetch.tv.ui.components.StateAction
+import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
+import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.dpadVerticalFastScroll
-import com.fetch.tv.ui.util.formatAddonTypeLabel
 import com.fetch.tv.ui.util.localizedContentType
 import com.fetch.tv.ui.util.localizedGenreLabel
+
+/** The filters behind a chip that opens a row of choices. Type has its own chips. */
+private enum class DiscoverFilterKind { GENRE, YEAR, RATING, SORT }
+
+/** One choice in an open filter row. */
+private data class DiscoverChoice(
+    val label: String,
+    val selected: Boolean,
+    val onSelect: () -> Unit
+)
+
+/** Start paging this many cards before the end of the grid, so the next page is usually there in time. */
+private const val DISCOVER_PREFETCH_DISTANCE = 12
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -99,45 +106,79 @@ internal fun DiscoverSection(
     focusedItemIndex: Int,
     shouldRestoreFocusedItem: Boolean,
     blockFilterFocus: Boolean = false,
+    /** Entering Discover lands on the selected type chip, so something is focused on arrival. */
     requestInitialFocus: Boolean = false,
     onInitialFocusHandled: () -> Unit = {},
     onRestoreFocusedItemHandled: () -> Unit,
     onNavigateToDetail: (String, String, String) -> Unit,
     onDiscoverItemFocused: (Int) -> Unit,
     onSelectType: (String) -> Unit,
-    onSelectCatalog: (String) -> Unit,
     onSelectGenre: (String?) -> Unit,
+    onSelectYearRange: (DiscoverYearRange?) -> Unit,
+    onSelectMinRating: (Int?) -> Unit,
+    onSelectSort: (DiscoverSort) -> Unit,
+    onClearFilters: () -> Unit,
     onLoadMore: () -> Unit,
     onRetry: () -> Unit,
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier
 ) {
-    val selectedCatalog = uiState.discoverCatalogs.firstOrNull { it.key == uiState.selectedDiscoverCatalogKey }
-    val filteredCatalogs = uiState.discoverCatalogs.filter { it.type == uiState.selectedDiscoverType }
-    val genres = selectedCatalog?.genres.orEmpty()
-    var expandedPicker by remember { mutableStateOf<String?>(null) }
-    val filterFocusRequester = remember { FocusRequester() }
+    val localContext = LocalContext.current
+    val types = remember(uiState.discoverCatalogs) { discoverTypes(uiState.discoverCatalogs) }
+    val genres = remember(uiState.discoverCatalogs, uiState.selectedDiscoverType) {
+        discoverGenres(uiState.discoverCatalogs, uiState.selectedDiscoverType)
+    }
+    val currentYear = remember { java.time.Year.now().value }
+    val yearRanges = remember(currentYear) { discoverYearRanges(currentYear) }
+    val filters = uiState.discoverFilters
+
+    var openFilter by remember { mutableStateOf<DiscoverFilterKind?>(null) }
+    val typeFocusRequester = remember { FocusRequester() }
+    val filterChipRequesters = remember { DiscoverFilterKind.entries.associateWith { FocusRequester() } }
+    val optionFocusRequester = remember { FocusRequester() }
     var gridHasFocus by remember { mutableStateOf(false) }
 
-    androidx.activity.compose.BackHandler(enabled = gridHasFocus) {
-        try { filterFocusRequester.requestFocus() } catch (_: Exception) {}
+    fun closeFilter(returnFocus: Boolean) {
+        val kind = openFilter ?: return
+        if (returnFocus) runCatching { filterChipRequesters.getValue(kind).requestFocus() }
+        openFilter = null
     }
 
-    // Entering Discover lands on the first filter, so something is focused on arrival.
-    LaunchedEffect(requestInitialFocus, blockFilterFocus) {
-        if (!requestInitialFocus || blockFilterFocus) return@LaunchedEffect
-        if (filterFocusRequester.requestFocusAfterFrames()) onInitialFocusHandled()
+    androidx.activity.compose.BackHandler(enabled = openFilter != null) { closeFilter(returnFocus = true) }
+    androidx.activity.compose.BackHandler(enabled = gridHasFocus && openFilter == null) {
+        runCatching { typeFocusRequester.requestFocus() }
     }
 
-    val localContext = LocalContext.current
-    fun localizedTypeLabel(type: String): String = localizedContentType(localContext, type)
-
-    val availableTypes = remember(uiState.discoverCatalogs) {
-        uiState.discoverCatalogs.map { it.type }.distinct()
+    // Discover opens on its filters, so the remote starts on something visible. Returning from a
+    // title restores the grid instead. The chips only exist once the catalogs have loaded.
+    val canTakeInitialFocus = requestInitialFocus && types.isNotEmpty() && !blockFilterFocus
+    LaunchedEffect(canTakeInitialFocus) {
+        if (!canTakeInitialFocus) return@LaunchedEffect
+        if (typeFocusRequester.requestFocusAfterFrames(frames = 1)) onInitialFocusHandled()
     }
-    val selectedTypeLabel = localizedTypeLabel(uiState.selectedDiscoverType)
-    val selectedCatalogLabel = selectedCatalog?.catalogName ?: stringResource(R.string.discover_select_catalog)
-    val selectedGenreLabel = uiState.selectedDiscoverGenre?.let { localizedGenreLabel(it) } ?: stringResource(R.string.discover_genre_default)
+
+    fun yearLabel(range: DiscoverYearRange?): String = when {
+        range == null -> localContext.getString(R.string.discover_year_any)
+        range.from != null && range.from == range.to -> range.from.toString()
+        range.from == null && range.to != null -> localContext.getString(R.string.discover_year_before, range.to + 1)
+        else -> localContext.getString(R.string.discover_year_decade, range.from ?: 0)
+    }
+    fun ratingLabel(minRating: Int?): String =
+        if (minRating == null) {
+            localContext.getString(R.string.discover_rating_any)
+        } else {
+            localContext.getString(R.string.discover_rating_min, minRating)
+        }
+    fun sortLabel(sort: DiscoverSort): String = localContext.getString(
+        when (sort) {
+            DiscoverSort.CATALOG -> R.string.discover_sort_catalog
+            DiscoverSort.RATING -> R.string.discover_sort_rating
+            DiscoverSort.NEWEST -> R.string.discover_sort_newest
+            DiscoverSort.TITLE -> R.string.discover_sort_title
+        }
+    )
+    val allGenresLabel = stringResource(R.string.discover_genre_default)
+    val selectedGenreLabel = uiState.selectedDiscoverGenre?.let { localizedGenreLabel(it) } ?: allGenresLabel
 
     Column(
         modifier = modifier
@@ -151,91 +192,192 @@ internal fun DiscoverSection(
             color = if (showBuiltInHeader) FetchTheme.colors.TextPrimary else Color.Transparent
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
-        ) {
-            DiscoverDropdownPicker(
-                modifier = Modifier.weight(1f)
-                    .focusRequester(filterFocusRequester),
-                title = stringResource(R.string.discover_filter_type),
-                value = selectedTypeLabel,
-                selectedValue = uiState.selectedDiscoverType,
-                expanded = expandedPicker == "type",
-                options = availableTypes.map { type ->
-                    val label = localizedTypeLabel(type)
-                    DiscoverOption(label, type)
-                },
-                onExpandedChange = { shouldExpand ->
-                    expandedPicker = if (shouldExpand) "type" else null
-                },
-                onSelect = { option ->
-                    onSelectType(option.value)
-                    expandedPicker = null
-                },
-                blockFocus = blockFilterFocus
-            )
-
-            DiscoverDropdownPicker(
-                modifier = Modifier.weight(1f),
-                title = stringResource(R.string.discover_filter_catalog),
-                value = selectedCatalogLabel,
-                selectedValue = uiState.selectedDiscoverCatalogKey,
-                expanded = expandedPicker == "catalog",
-                options = filteredCatalogs.map { DiscoverOption(it.catalogName, it.key) },
-                onExpandedChange = { shouldExpand ->
-                    expandedPicker = if (shouldExpand) "catalog" else null
-                },
-                onSelect = { option ->
-                    onSelectCatalog(option.value)
-                    expandedPicker = null
-                },
-                blockFocus = blockFilterFocus
-            )
-
-            DiscoverDropdownPicker(
-                modifier = Modifier.weight(1f),
-                title = stringResource(R.string.discover_filter_genre),
-                value = selectedGenreLabel,
-                selectedValue = uiState.selectedDiscoverGenre ?: "__default__",
-                expanded = expandedPicker == "genre",
-                options = buildList {
-                    // A catalog that requires a genre can't be listed without one.
-                    if (selectedCatalog?.genreRequired != true) {
-                        add(DiscoverOption(stringResource(R.string.discover_genre_default), "__default__"))
+        if (types.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                types.forEach { type ->
+                    val isSelected = type == uiState.selectedDiscoverType
+                    DiscoverChip(
+                        selected = isSelected,
+                        focusEnabled = !blockFilterFocus,
+                        onClick = {
+                            closeFilter(returnFocus = false)
+                            onSelectType(type)
+                        },
+                        modifier = if (isSelected) Modifier.focusRequester(typeFocusRequester) else Modifier
+                    ) { contentColor ->
+                        Text(
+                            text = localizedContentType(localContext, type),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = contentColor
+                        )
                     }
-                    addAll(genres.map { DiscoverOption(localizedGenreLabel(it), it) })
-                },
-                onExpandedChange = { shouldExpand ->
-                    expandedPicker = if (shouldExpand) "genre" else null
-                },
-                onSelect = { option ->
-                    onSelectGenre(option.value.takeUnless { it == "__default__" })
-                    expandedPicker = null
-                },
-                blockFocus = blockFilterFocus
-            )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = FetchTheme.spacing.xs)
+                        .width(FetchTheme.spacing.hairline)
+                        .height(FetchTheme.spacing.xl)
+                        .background(FetchTheme.colors.Border)
+                )
+
+                val visibleKinds = DiscoverFilterKind.entries.filter { kind ->
+                    kind != DiscoverFilterKind.GENRE || genres.isNotEmpty()
+                }
+                visibleKinds.forEach { kind ->
+                    val (title, value, active) = when (kind) {
+                        DiscoverFilterKind.GENRE -> Triple(
+                            stringResource(R.string.discover_filter_genre),
+                            selectedGenreLabel,
+                            uiState.selectedDiscoverGenre != null
+                        )
+                        DiscoverFilterKind.YEAR -> Triple(
+                            stringResource(R.string.discover_filter_year),
+                            yearLabel(filters.yearRange),
+                            filters.yearRange != null
+                        )
+                        DiscoverFilterKind.RATING -> Triple(
+                            stringResource(R.string.discover_filter_rating),
+                            ratingLabel(filters.minRating),
+                            filters.minRating != null
+                        )
+                        DiscoverFilterKind.SORT -> Triple(
+                            stringResource(R.string.discover_filter_sort),
+                            sortLabel(filters.sort),
+                            filters.sort != DiscoverSort.CATALOG
+                        )
+                    }
+                    val expanded = openFilter == kind
+                    DiscoverChip(
+                        selected = active,
+                        focusEnabled = !blockFilterFocus,
+                        onClick = { openFilter = if (expanded) null else kind },
+                        modifier = Modifier.focusRequester(filterChipRequesters.getValue(kind))
+                    ) { contentColor ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+                        ) {
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = contentColor.copy(alpha = 0.7f)
+                            )
+                            Text(
+                                text = value,
+                                style = MaterialTheme.typography.labelLarge.copy(
+                                    textDirection = value.contentTextDirection()
+                                ),
+                                color = contentColor,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Icon(
+                                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                contentDescription = if (expanded) {
+                                    stringResource(R.string.cd_collapse, title)
+                                } else {
+                                    stringResource(R.string.cd_expand, title)
+                                },
+                                modifier = Modifier.size(FetchTheme.sizes.icons.sm),
+                                tint = contentColor
+                            )
+                        }
+                    }
+                }
+            }
         }
 
-        selectedCatalog?.let { catalog ->
-            val metadataSegments = buildList {
-                add(catalog.addonName)
-                if (uiState.catalogTypeSuffixEnabled) {
-                    localizedTypeLabel(catalog.type)
-                        .takeIf { it.isNotEmpty() }
-                        ?.let(::add)
+        openFilter?.let { kind ->
+            val choices: List<DiscoverChoice> = when (kind) {
+                DiscoverFilterKind.GENRE -> buildList {
+                    add(DiscoverChoice(allGenresLabel, uiState.selectedDiscoverGenre == null) { onSelectGenre(null) })
+                    genres.forEach { genre ->
+                        add(
+                            DiscoverChoice(
+                                label = localizedGenreLabel(genre),
+                                selected = genre.equals(uiState.selectedDiscoverGenre, ignoreCase = true)
+                            ) { onSelectGenre(genre) }
+                        )
+                    }
                 }
-                uiState.selectedDiscoverGenre?.let { add(localizedGenreLabel(it)) }
+                DiscoverFilterKind.YEAR -> (listOf<DiscoverYearRange?>(null) + yearRanges).map { range ->
+                    DiscoverChoice(yearLabel(range), range == filters.yearRange) { onSelectYearRange(range) }
+                }
+                DiscoverFilterKind.RATING -> (listOf<Int?>(null) + DISCOVER_RATING_THRESHOLDS).map { rating ->
+                    DiscoverChoice(ratingLabel(rating), rating == filters.minRating) { onSelectMinRating(rating) }
+                }
+                DiscoverFilterKind.SORT -> DiscoverSort.entries.map { sort ->
+                    DiscoverChoice(sortLabel(sort), sort == filters.sort) { onSelectSort(sort) }
+                }
             }
+            key(kind) {
+                DiscoverChoiceRow(
+                    choices = choices,
+                    focusRequester = optionFocusRequester,
+                    onChoose = { choice ->
+                        closeFilter(returnFocus = true)
+                        choice.onSelect()
+                    },
+                    onFocusLeft = { if (openFilter == kind) openFilter = null }
+                )
+            }
+            // Every choice is composed (a plain scrolling row), so one request lands on the
+            // current selection once the row is laid out.
+            LaunchedEffect(kind) {
+                optionFocusRequester.requestFocusAfterFrames(frames = 1)
+            }
+        }
+
+        if (uiState.discoverSourceCount > 0 && uiState.discoverResults.isNotEmpty()) {
             Text(
-                text = metadataSegments.joinToString(" • "),
+                text = pluralStringResource(
+                    R.plurals.discover_source_count,
+                    uiState.discoverSourceCount,
+                    uiState.discoverSourceCount
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = FetchTheme.colors.TextSecondary
             )
         }
 
         when {
-            uiState.discoverLoading && uiState.discoverResults.isEmpty() -> {
+            uiState.discoverResults.isNotEmpty() -> {
+                Box(modifier = Modifier.onFocusChanged { gridHasFocus = it.hasFocus }) {
+                    DiscoverGrid(
+                        items = uiState.discoverResults,
+                        posterCardStyle = posterCardStyle,
+                        watchedMovieIds = watchedMovieIds,
+                        watchedSeriesIds = watchedSeriesIds,
+                        focusResults = focusResults,
+                        firstItemFocusRequester = firstItemFocusRequester,
+                        focusedItemIndex = focusedItemIndex,
+                        shouldRestoreFocusedItem = shouldRestoreFocusedItem,
+                        onRestoreFocusedItemHandled = onRestoreFocusedItemHandled,
+                        onItemFocused = onDiscoverItemFocused,
+                        canLoadMore = uiState.discoverHasMore,
+                        isLoadingMore = uiState.discoverLoadingMore,
+                        autoLoadPaused = uiState.discoverPagingPaused,
+                        onLoadMore = onLoadMore,
+                        onItemClick = { _, item ->
+                            HeroBackdropState.update(item.backdropUrl)
+                            onNavigateToDetail(item.id, item.apiType, item.sourceAddonBaseUrl.orEmpty())
+                        },
+                        onItemLongPress = { item ->
+                            onItemLongPress(item, item.sourceAddonBaseUrl.orEmpty())
+                        },
+                        filterKey = "${uiState.selectedDiscoverType}|${uiState.selectedDiscoverGenre}|$filters"
+                    )
+                }
+            }
+
+            uiState.discoverLoading || uiState.discoverLoadingMore -> {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -246,55 +388,29 @@ internal fun DiscoverSection(
                 }
             }
 
-            uiState.discoverResults.isNotEmpty() -> {
-                Box(modifier = Modifier.onFocusChanged { gridHasFocus = it.hasFocus }) {
-                DiscoverGrid(
-                    items = uiState.discoverResults,
-                    posterCardStyle = posterCardStyle,
-                    watchedMovieIds = watchedMovieIds,
-                    watchedSeriesIds = watchedSeriesIds,
-                    focusResults = focusResults,
-                    firstItemFocusRequester = firstItemFocusRequester,
-                    focusedItemIndex = focusedItemIndex,
-                    shouldRestoreFocusedItem = shouldRestoreFocusedItem,
-                    onRestoreFocusedItemHandled = onRestoreFocusedItemHandled,
-                    onItemFocused = onDiscoverItemFocused,
-                    pendingCount = uiState.pendingDiscoverResults.size,
-                    canLoadMore = uiState.discoverHasMore,
-                    isLoadingMore = uiState.discoverLoadingMore,
-                    autoLoadPaused = uiState.discoverLoadMoreFailed,
-                    onLoadMore = onLoadMore,
-                    onItemClick = { _, item ->
-                        HeroBackdropState.update(item.backdropUrl)
-                        onNavigateToDetail(
-                            item.id,
-                            item.apiType,
-                            selectedCatalog?.addonBaseUrl ?: ""
-                        )
-                    },
-                    onItemLongPress = { item ->
-                        onItemLongPress(item, selectedCatalog?.addonBaseUrl ?: "")
-                    },
-                    filterKey = "${uiState.selectedDiscoverType}|${uiState.selectedDiscoverCatalogKey}|${uiState.selectedDiscoverGenre}"
-                )
-                }
-            }
-
-            uiState.discoverInitialized && selectedCatalog == null -> {
+            uiState.discoverInitialized && uiState.discoverCatalogs.isEmpty() -> {
                 EmptyScreenState(
-                    title = stringResource(R.string.discover_empty_no_catalog_title),
-                    subtitle = stringResource(R.string.discover_empty_no_catalog_subtitle),
+                    title = stringResource(R.string.discover_empty_no_catalogs_title),
+                    subtitle = stringResource(R.string.discover_empty_no_catalogs_subtitle),
                     icon = Icons.Default.Search
                 )
             }
 
-            uiState.discoverError != null && !uiState.discoverLoading && selectedCatalog != null -> {
-                // A failed load isn't "No content found": say what went wrong and offer Retry,
-                // rather than leaving the user to switch catalogs and back.
+            uiState.discoverError != null -> {
+                // A failed load isn't "No content found": say what went wrong and offer Retry.
                 ErrorState(message = uiState.discoverError, onRetry = onRetry)
             }
 
-            uiState.discoverInitialized && !uiState.discoverLoading && selectedCatalog != null -> {
+            uiState.discoverInitialized && filters.narrowsResults && uiState.discoverSourceCount > 0 -> {
+                EmptyScreenState(
+                    title = stringResource(R.string.discover_empty_filtered_title),
+                    subtitle = stringResource(R.string.discover_empty_filtered_subtitle),
+                    icon = Icons.Default.Search,
+                    action = StateAction(stringResource(R.string.discover_clear_filters), onClearFilters)
+                )
+            }
+
+            uiState.discoverInitialized -> {
                 EmptyScreenState(
                     title = stringResource(R.string.discover_empty_no_content_title),
                     subtitle = stringResource(R.string.discover_empty_no_content_subtitle),
@@ -305,208 +421,105 @@ internal fun DiscoverSection(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
+/** The open filter's choices as a row of chips under the filter bar. */
 @Composable
-private fun DiscoverDropdownPicker(
-    modifier: Modifier = Modifier,
-    title: String,
-    value: String,
-    selectedValue: String?,
-    expanded: Boolean,
-    options: List<DiscoverOption>,
-    onExpandedChange: (Boolean) -> Unit,
-    onSelect: (DiscoverOption) -> Unit,
-    blockFocus: Boolean = false
+private fun DiscoverChoiceRow(
+    choices: List<DiscoverChoice>,
+    focusRequester: FocusRequester,
+    onChoose: (DiscoverChoice) -> Unit,
+    onFocusLeft: () -> Unit
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-    var anchorSize by remember { mutableStateOf(IntSize.Zero) }
-    // Seed focused option with the current selection so reopen highlights the right row
-    // even before focus lands (fixes #2848 / incomplete #2507 race on TV).
-    var focusedOptionValue by remember(expanded) {
-        mutableStateOf(if (expanded) selectedValue else null)
-    }
-    val selectedItemFocusRequester = remember { FocusRequester() }
-    val selectedBringIntoViewRequester = remember { BringIntoViewRequester() }
-
-    // Popup content attaches focus targets a few frames after expand. A fixed 50ms
-    // delay was flaky on TV and left focus on the first item for non-top selections.
-    LaunchedEffect(expanded, selectedValue) {
-        if (!expanded || selectedValue == null) return@LaunchedEffect
-        var focused = selectedItemFocusRequester.requestFocusAfterFrames(frames = 3)
-        if (!focused) focused = selectedItemFocusRequester.requestFocusAfterFrames(frames = 2)
-        if (!focused) return@LaunchedEffect
-        runCatching { selectedBringIntoViewRequester.bringIntoView() }
-        // Material DropdownMenu may still move initial focus to the first item after
-        // the popup settles; re-assert once so long lists keep the real selection.
-        repeat(3) { withFrameNanos { } }
-        if (runCatching { selectedItemFocusRequester.requestFocus() }.getOrDefault(false)) {
-            runCatching { selectedBringIntoViewRequester.bringIntoView() }
-        }
-    }
-
-    Box(modifier = modifier) {
-        Card(
-            onClick = { onExpandedChange(!expanded) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .onSizeChanged { anchorSize = it }
-                .onFocusChanged { state ->
-                    isFocused = state.isFocused
-                }
-                .then(
-                    if (blockFocus) Modifier.focusProperties { canFocus = false }
-                    else Modifier
-                ),
-            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
-            colors = CardDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                focusedContainerColor = FetchTheme.colors.FocusBackground
-            ),
-            border = CardDefaults.border(
-                border = Border(
-                    border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                    shape = RoundedCornerShape(FetchTheme.radii.md)
-                ),
-                focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = RoundedCornerShape(FetchTheme.radii.md)
-                )
-            ),
-            scale = CardDefaults.scale(
-                focusedScale = 1.0f,
-                pressedScale = 1.0f
-            )
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md),
-                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = FetchTheme.colors.TextTertiary
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = value,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            textDirection = value.contentTextDirection()
-                        ),
-                        color = FetchTheme.colors.TextPrimary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Icon(
-                        imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (expanded) stringResource(R.string.cd_collapse, title) else stringResource(R.string.cd_expand, title),
-                        modifier = Modifier.size(20.dp),
-                        tint = if (isFocused) FetchTheme.colors.FocusRing else FetchTheme.colors.TextSecondary
-                    )
-                }
-            }
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = {
-                focusedOptionValue = null
-                onExpandedChange(false)
+    // The row closes when focus leaves it (Up to the filters, Down to the grid), but not before
+    // focus has first arrived.
+    var hadFocus by remember { mutableStateOf(false) }
+    val focusIndex = choices.indexOfFirst { it.selected }.coerceAtLeast(0)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .onFocusChanged { state ->
+                if (hadFocus && !state.hasFocus) onFocusLeft()
+                hadFocus = state.hasFocus
             },
-            modifier = Modifier
-                .width(with(LocalDensity.current) { anchorSize.width.toDp() })
-                .heightIn(max = 320.dp),
-            shape = RoundedCornerShape(FetchTheme.radii.md),
-            containerColor = FetchTheme.colors.BackgroundCard,
-            tonalElevation = FetchTheme.spacing.none,
-            shadowElevation = FetchTheme.spacing.sm,
-            border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border)
-        ) {
-            options.forEach { option ->
-                val isSelected = option.value == selectedValue
-                val isOptionFocused = option.value == focusedOptionValue
-                // Focus is the neutral white pair everywhere in the app; the accent stays for
-                // primary actions.
-                val itemTextColor = when {
-                    isOptionFocused -> FetchTheme.colors.OnHighlight
-                    else -> FetchTheme.colors.TextPrimary
-                }
-                val itemBackgroundColor = when {
-                    isOptionFocused -> FetchTheme.colors.Highlight
-                    isSelected -> FetchTheme.colors.FocusBackground
-                    else -> Color.Transparent
-                }
-
-                DropdownMenuItem(
-                    modifier = Modifier
-                        .then(
-                            if (isSelected) {
-                                Modifier
-                                    .focusRequester(selectedItemFocusRequester)
-                                    .bringIntoViewRequester(selectedBringIntoViewRequester)
-                            } else {
-                                Modifier
-                            }
-                        )
-                        .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
-                        .background(
-                            color = itemBackgroundColor,
-                            shape = RoundedCornerShape(FetchTheme.radii.sm)
-                        )
-                        // The selected option carries a checkmark and a selected state, so it
-                        // stays identifiable (and announced) when focus is on another option.
-                        .semantics { selected = isSelected }
-                        .onFocusChanged { state ->
-                            val hasFocus = state.isFocused || state.hasFocus
-                            focusedOptionValue = when {
-                                hasFocus -> option.value
-                                focusedOptionValue == option.value -> null
-                                else -> focusedOptionValue
-                            }
-                        },
-                    text = {
-                        Text(
-                            text = option.label,
-                            color = itemTextColor,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                textDirection = option.label.contentTextDirection()
-                            )
-                        )
-                    },
-                    trailingIcon = if (isSelected) {
-                        {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp),
-                                tint = itemTextColor
-                            )
-                        }
-                    } else {
-                        null
-                    },
-                    onClick = { onSelect(option) },
-                    colors = MenuDefaults.itemColors(
-                        textColor = itemTextColor,
-                        disabledTextColor = FetchTheme.colors.TextDisabled
-                    )
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        choices.forEachIndexed { index, choice ->
+            DiscoverChip(
+                selected = choice.selected,
+                onClick = { onChoose(choice) },
+                modifier = if (index == focusIndex) Modifier.focusRequester(focusRequester) else Modifier
+            ) { contentColor ->
+                Text(
+                    text = choice.label,
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        textDirection = choice.label.contentTextDirection()
+                    ),
+                    color = contentColor,
+                    maxLines = 1
                 )
             }
         }
     }
 }
 
-private data class DiscoverOption(
-    val label: String,
-    val value: String
-)
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun DiscoverChip(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    focusEnabled: Boolean = true,
+    content: @Composable (Color) -> Unit
+) {
+    var isFocused by remember { mutableStateOf(false) }
+    val isSelected = selected
+    val contentColor = when {
+        isFocused -> FetchTheme.colors.OnHighlight
+        isSelected -> FetchTheme.colors.TextPrimary
+        else -> FetchTheme.colors.TextSecondary
+    }
+    val chipShape = RoundedCornerShape(FetchTheme.radii.xl)
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier
+            .focusProperties { canFocus = focusEnabled }
+            .onFocusChanged { isFocused = it.isFocused }
+            .semantics { selected = isSelected },
+        colors = FilterChipDefaults.colors(
+            containerColor = FetchTheme.colors.BackgroundCard,
+            focusedContainerColor = FetchTheme.colors.Highlight,
+            selectedContainerColor = FetchTheme.colors.FocusBackground,
+            focusedSelectedContainerColor = FetchTheme.colors.Highlight,
+            contentColor = contentColor,
+            focusedContentColor = contentColor,
+            selectedContentColor = contentColor,
+            focusedSelectedContentColor = contentColor
+        ),
+        border = FilterChipDefaults.border(
+            border = Border(
+                border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
+                shape = chipShape
+            ),
+            focusedBorder = Border(
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                shape = chipShape
+            ),
+            selectedBorder = Border(
+                border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Primary),
+                shape = chipShape
+            ),
+            focusedSelectedBorder = Border(
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                shape = chipShape
+            )
+        ),
+        shape = FilterChipDefaults.shape(shape = chipShape)
+    ) {
+        content(contentColor)
+    }
+}
 
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -521,10 +534,9 @@ internal fun DiscoverGrid(
     shouldRestoreFocusedItem: Boolean,
     onRestoreFocusedItemHandled: () -> Unit,
     onItemFocused: (Int) -> Unit,
-    pendingCount: Int,
     canLoadMore: Boolean,
     isLoadingMore: Boolean,
-    /** The last load-more failed: keep the Load more cell, but don't auto-request on scroll. */
+    /** Scroll paging has paused (a failed page, or pages the filters keep nothing from): show Load more. */
     autoLoadPaused: Boolean = false,
     onLoadMore: () -> Unit,
     onItemClick: (Int, MetaPreview) -> Unit,
@@ -551,14 +563,14 @@ internal fun DiscoverGrid(
         focusedItemIndex
     }
     val effectiveShouldRestoreFocusedItem = shouldRestoreFocusedItem || localShouldRestoreFocusedItem
+    // Paging is automatic; the tail cell only shows a page loading, or Load more once paging paused.
     val actionType = when {
-        pendingCount > 0 -> DiscoverGridAction.ShowMore
         isLoadingMore -> DiscoverGridAction.Loading
-        canLoadMore -> DiscoverGridAction.LoadMore
+        canLoadMore && autoLoadPaused -> DiscoverGridAction.LoadMore
         else -> DiscoverGridAction.None
     }
-    val totalCells = items.size + if (actionType != DiscoverGridAction.None) 1 else 0
     val hasActionCell = actionType != DiscoverGridAction.None
+    val totalCells = items.size + if (hasActionCell) 1 else 0
 
     val globalLandscape = com.fetch.tv.ui.components.LocalLandscapePosterMode.current
     val adaptiveStyle = remember(posterCardStyle) {
@@ -597,11 +609,24 @@ internal fun DiscoverGrid(
         }
     }
 
-    // A load that ends without new items (failed or empty) drops the pending hand-off, so
-    // focus stays on the action card instead of jumping when a later page arrives.
+    // Per-item FocusRequesters for focusRestorer on the grid.
+    // Pre-create the requester for the focused item so focusRestorer can use it
+    // even before the grid items are composed (first return from navigation).
+    val itemFocusRequesters = remember { mutableMapOf<Int, FocusRequester>() }
+    val focusedItemRequester = remember(focusedItemIndex) {
+        itemFocusRequesters.getOrPut(focusedItemIndex) { FocusRequester() }
+    }
+
+    // A load that ends without new items (failed or empty) drops the pending hand-off. When the
+    // tail cell that held focus is gone too, focus falls back to the last card.
     LaunchedEffect(isLoadingMore) {
         val targetIndex = pendingFocusOnNewItemIndex ?: return@LaunchedEffect
-        if (!isLoadingMore && items.size <= targetIndex) pendingFocusOnNewItemIndex = null
+        if (!isLoadingMore && items.size <= targetIndex) {
+            pendingFocusOnNewItemIndex = null
+            if (!hasActionCell && items.isNotEmpty()) {
+                runCatching { itemFocusRequesters[items.size - 1]?.requestFocus() }
+            }
+        }
     }
 
     LaunchedEffect(items.size, pendingFocusOnNewItemIndex) {
@@ -612,22 +637,14 @@ internal fun DiscoverGrid(
         localShouldRestoreFocusedItem = true
     }
 
-    // Infinite scroll: auto-load more when the user scrolls near the end.
+    // Scroll paging: ask for the next page from every catalog once focus or scrolling nears the end.
     val shouldAutoLoad = canLoadMore && !isLoadingMore && !autoLoadPaused && items.isNotEmpty()
     LaunchedEffect(gridState.firstVisibleItemIndex, items.size, shouldAutoLoad) {
         if (!shouldAutoLoad) return@LaunchedEffect
         val lastVisible = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return@LaunchedEffect
-        if (lastVisible >= items.size - 6) {
+        if (lastVisible >= items.size - DISCOVER_PREFETCH_DISTANCE) {
             onLoadMore()
         }
-    }
-
-    // Per-item FocusRequesters for focusRestorer on the grid.
-    // Pre-create the requester for the focused item so focusRestorer can use it
-    // even before the grid items are composed (first return from navigation).
-    val itemFocusRequesters = remember { mutableMapOf<Int, FocusRequester>() }
-    val focusedItemRequester = remember(focusedItemIndex) {
-        itemFocusRequesters.getOrPut(focusedItemIndex) { FocusRequester() }
     }
 
     // Column the user was navigating in at the moment fast-scroll engaged.
@@ -662,7 +679,7 @@ internal fun DiscoverGrid(
                     // Keep the user on the column they were navigating in
                     // so fast-scroll feels like a single vertical strip,
                     // not a teleport to an arbitrary cell in the viewport.
-                    // Exclude the action (Load More / Loading) cell up front
+                    // Exclude the tail (Loading / Load more) cell up front
                     // — it lives at index == items.size and when items.size
                     // % columns == 0 it lands at column 0 of a brand-new
                     // tail row, which would otherwise hijack every column-0
@@ -696,7 +713,9 @@ internal fun DiscoverGrid(
     ) {
         itemsIndexed(
             items = items,
-            key = { index, item -> item.id.ifEmpty { "discover_$index" } },
+            // Results are de-duplicated on this key, so it is unique, and it follows a title when
+            // a re-sort or a new page moves it.
+            key = { _, item -> discoverItemKey(item) },
             contentType = { _, _ -> "content_card" }
         ) { index, item ->
             val itemFocusReq = remember(index) { itemFocusRequesters.getOrPut(index) { FocusRequester() } }
@@ -733,7 +752,6 @@ internal fun DiscoverGrid(
                 val actionIndex = items.size
                 val focusReq = when {
                     effectiveShouldRestoreFocusedItem && actionIndex == effectiveFocusedItemIndex -> restoreFocusRequester
-                    focusResults && items.isEmpty() -> firstItemFocusRequester
                     else -> null
                 }
                 DiscoverActionCard(
@@ -743,19 +761,15 @@ internal fun DiscoverGrid(
                         .padding(top = FetchTheme.spacing.xs)
                         .width(adaptiveStyle.width),
                     focusRequester = focusReq,
-                    onFocused = { onItemFocused(actionIndex) },
+                    onFocused = {
+                        onItemFocused(actionIndex)
+                        // Focus that reaches the loading cell moves on to the first new card.
+                        if (actionType == DiscoverGridAction.Loading) pendingFocusOnNewItemIndex = items.size
+                    },
                     onClick = {
-                        when (actionType) {
-                            DiscoverGridAction.ShowMore -> {
-                                pendingFocusOnNewItemIndex = items.size
-                                onLoadMore()
-                            }
-                            DiscoverGridAction.LoadMore -> {
-                                pendingFocusOnNewItemIndex = items.size
-                                onLoadMore()
-                            }
-                            DiscoverGridAction.Loading -> Unit
-                            DiscoverGridAction.None -> Unit
+                        if (actionType == DiscoverGridAction.LoadMore) {
+                            pendingFocusOnNewItemIndex = items.size
+                            onLoadMore()
                         }
                     }
                 )
@@ -764,12 +778,7 @@ internal fun DiscoverGrid(
     }
 }
 
-private sealed class DiscoverGridAction {
-    object None : DiscoverGridAction()
-    object ShowMore : DiscoverGridAction()
-    object LoadMore : DiscoverGridAction()
-    object Loading : DiscoverGridAction()
-}
+private enum class DiscoverGridAction { None, LoadMore, Loading }
 
 @Composable
 private fun DiscoverActionCard(
@@ -782,7 +791,6 @@ private fun DiscoverActionCard(
 ) {
     val cardShape = RoundedCornerShape(posterCardStyle.cornerRadius)
     val title = when (actionType) {
-        DiscoverGridAction.ShowMore -> stringResource(R.string.discover_load_more)
         DiscoverGridAction.LoadMore -> stringResource(R.string.discover_load_more)
         DiscoverGridAction.Loading -> stringResource(R.string.discover_loading)
         DiscoverGridAction.None -> ""
@@ -800,7 +808,7 @@ private fun DiscoverActionCard(
                     else Modifier.width(posterCardStyle.width).height(posterCardStyle.height)
                 )
                 // Stays focusable while loading (clicks are a no-op then), so focus stays on the
-                // card from the press until the new items take it, or after a failed/empty load.
+                // card until the new items take it, or after a failed/empty load.
                 .onPreviewKeyEvent { event ->
                     actionType != DiscoverGridAction.None &&
                         event.nativeKeyEvent.action == AndroidKeyEvent.ACTION_DOWN &&

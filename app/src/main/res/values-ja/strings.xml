@@ -1298,12 +1298,7 @@
     <string name="discover_title">ディスカバー</string>
     <string name="discover_load_more">さらに読み込む</string>
     <string name="discover_loading">読み込み中...</string>
-    <string name="discover_filter_type">タイプ</string>
-    <string name="discover_filter_catalog">カタログ</string>
     <string name="discover_filter_genre">ジャンル</string>
-    <string name="discover_select_catalog">選択</string>
-    <string name="discover_empty_no_catalog_title">カタログを選択</string>
-    <string name="discover_empty_no_catalog_subtitle">ディスカバーカタログを選択して閲覧</string>
     <string name="discover_empty_no_content_title">コンテンツが見つかりません</string>
     <string name="discover_empty_no_content_subtitle">別のジャンルやカタログを試してください</string>
 

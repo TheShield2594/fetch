@@ -729,12 +729,7 @@
     <string name="discover_title">डिस्कवर</string>
     <string name="discover_load_more">और लोड करें</string>
     <string name="discover_loading">लोड हो रहा है...</string>
-    <string name="discover_filter_type">प्रकार</string>
-    <string name="discover_filter_catalog">कैटलॉग</string>
     <string name="discover_filter_genre">जॉनर</string>
-    <string name="discover_select_catalog">चुनें</string>
-    <string name="discover_empty_no_catalog_title">एक कैटलॉग चुनें</string>
-    <string name="discover_empty_no_catalog_subtitle">ब्राउज़ करने के लिए एक डिस्कवर कैटलॉग चुनें</string>
     <string name="discover_empty_no_content_title">कोई कंटेंट नहीं मिला</string>
     <string name="discover_empty_no_content_subtitle">कोई दूसरा जॉनर या कैटलॉग आज़माएँ</string>
 

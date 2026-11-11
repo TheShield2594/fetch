@@ -127,13 +127,25 @@ fun DiscoverScreen(
                     discoverFocusedItemIndex = 0
                     viewModel.onEvent(SearchEvent.SelectDiscoverType(it))
                 },
-                onSelectCatalog = {
-                    discoverFocusedItemIndex = 0
-                    viewModel.onEvent(SearchEvent.SelectDiscoverCatalog(it))
-                },
                 onSelectGenre = {
                     discoverFocusedItemIndex = 0
                     viewModel.onEvent(SearchEvent.SelectDiscoverGenre(it))
+                },
+                onSelectYearRange = {
+                    discoverFocusedItemIndex = 0
+                    viewModel.onEvent(SearchEvent.SelectDiscoverYearRange(it))
+                },
+                onSelectMinRating = {
+                    discoverFocusedItemIndex = 0
+                    viewModel.onEvent(SearchEvent.SelectDiscoverMinRating(it))
+                },
+                onSelectSort = {
+                    discoverFocusedItemIndex = 0
+                    viewModel.onEvent(SearchEvent.SelectDiscoverSort(it))
+                },
+                onClearFilters = {
+                    discoverFocusedItemIndex = 0
+                    viewModel.onEvent(SearchEvent.ClearDiscoverFilters)
                 },
                 onLoadMore = { viewModel.onEvent(SearchEvent.LoadNextDiscoverResults) },
                 onRetry = { viewModel.onEvent(SearchEvent.RetryDiscover) },

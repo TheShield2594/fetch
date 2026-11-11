@@ -2043,13 +2043,31 @@
     <string name="discover_title">Discover</string>
     <string name="discover_load_more">Load more</string>
     <string name="discover_loading">Loading…</string>
-    <string name="discover_filter_type">Type</string>
-    <string name="discover_filter_catalog">Catalog</string>
     <string name="discover_filter_genre">Genre</string>
-    <string name="discover_select_catalog">Select</string>
+    <string name="discover_filter_year">Year</string>
+    <string name="discover_filter_rating">Rating</string>
+    <string name="discover_filter_sort">Sort</string>
     <string name="discover_genre_default">All genres</string>
-    <string name="discover_empty_no_catalog_title">Select a catalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Choose a discover catalog to browse</string>
+    <string name="discover_year_any">Any year</string>
+    <!-- A decade, e.g. "2020s". %1$d is the decade's first year. -->
+    <string name="discover_year_decade">%1$ds</string>
+    <string name="discover_year_before">Before %1$d</string>
+    <string name="discover_rating_any">Any rating</string>
+    <!-- Lowest IMDb rating kept, e.g. "7+". -->
+    <string name="discover_rating_min">%1$d+</string>
+    <string name="discover_sort_catalog">Catalog order</string>
+    <string name="discover_sort_rating">Highest rated</string>
+    <string name="discover_sort_newest">Newest</string>
+    <string name="discover_sort_title">Title A–Z</string>
+    <plurals name="discover_source_count">
+        <item quantity="one">From %d catalog</item>
+        <item quantity="other">From %d catalogs</item>
+    </plurals>
+    <string name="discover_clear_filters">Clear filters</string>
+    <string name="discover_empty_filtered_title">Nothing matches these filters</string>
+    <string name="discover_empty_filtered_subtitle">Try a wider year range or a lower rating</string>
+    <string name="discover_empty_no_catalogs_title">No catalogs to browse</string>
+    <string name="discover_empty_no_catalogs_subtitle">Install an addon with catalogs to browse them here</string>
     <string name="discover_empty_no_content_title">No content found</string>
     <string name="discover_empty_no_content_subtitle">Try a different genre or catalog</string>
 

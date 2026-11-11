@@ -819,12 +819,7 @@
     <string name="discover_title">Oppdagelse</string>
     <string name="discover_load_more">Last mer</string>
     <string name="discover_loading">Laster...</string>
-    <string name="discover_filter_type">Type</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Sjanger</string>
-    <string name="discover_select_catalog">Velg</string>
-    <string name="discover_empty_no_catalog_title">Velg en katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Velg en oppdagelseskatalog for å bla gjennom</string>
     <string name="discover_empty_no_content_title">Ingen innhold funnet</string>
     <string name="discover_empty_no_content_subtitle">Prøv en annen sjanger eller katalog</string>
 

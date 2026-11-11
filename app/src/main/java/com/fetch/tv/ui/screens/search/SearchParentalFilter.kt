@@ -14,7 +14,6 @@ internal fun SearchUiState.filteredForProfile(parentalControls: ParentalControls
             parentalControls.filterRow(row).takeIf { it.items.isNotEmpty() || row.items.isEmpty() }
         },
         discoverResults = discoverResults.filter(parentalControls::isAllowed),
-        pendingDiscoverResults = pendingDiscoverResults.filter(parentalControls::isAllowed),
         // A person's page lists their whole filmography; restricted profiles browse titles only.
         peopleResults = emptyList()
     )

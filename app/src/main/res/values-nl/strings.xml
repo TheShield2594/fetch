@@ -1507,12 +1507,7 @@
     <string name="discover_title">Ontdekken</string>
     <string name="discover_load_more">Meer laden</string>
     <string name="discover_loading">Laden\u2026</string>
-    <string name="discover_filter_type">Type</string>
-    <string name="discover_filter_catalog">Catalogus</string>
     <string name="discover_filter_genre">Genre</string>
-    <string name="discover_select_catalog">Selecteren</string>
-    <string name="discover_empty_no_catalog_title">Selecteer een catalogus</string>
-    <string name="discover_empty_no_catalog_subtitle">Kies een catalogus om te bladeren</string>
     <string name="discover_empty_no_content_title">Geen inhoud gevonden</string>
     <string name="discover_empty_no_content_subtitle">Probeer een ander genre of catalogus</string>
 

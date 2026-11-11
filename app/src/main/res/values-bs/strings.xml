@@ -962,12 +962,7 @@
     <string name="discover_title">Otkrij</string>
     <string name="discover_load_more">Učitaj više</string>
     <string name="discover_loading">Učitavanje...</string>
-    <string name="discover_filter_type">Tip</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Žanr</string>
-    <string name="discover_select_catalog">Odaberi</string>
-    <string name="discover_empty_no_catalog_title">Odaberi katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Odaberi katalog za pretragu kako bi pretraživao/la</string>
     <string name="discover_empty_no_content_title">Sadržaj nije pronađen</string>
     <string name="discover_empty_no_content_subtitle">Pokušaj sa drugim žanrom ili katalogom</string>
 

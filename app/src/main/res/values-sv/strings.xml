@@ -769,12 +769,7 @@
     <string name="discover_title">Utforska</string>
     <string name="discover_load_more">Ladda fler</string>
     <string name="discover_loading">Laddar...</string>
-    <string name="discover_filter_type">Typ</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Genre</string>
-    <string name="discover_select_catalog">Välj</string>
-    <string name="discover_empty_no_catalog_title">Välj en katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Välj en utforskakatalog att bläddra i</string>
     <string name="discover_empty_no_content_title">Inget innehåll hittades</string>
     <string name="discover_empty_no_content_subtitle">Prova en annan genre eller katalog</string>
 

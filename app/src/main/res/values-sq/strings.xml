@@ -1346,12 +1346,7 @@
     <string name="discover_title">Zbulo</string>
     <string name="discover_load_more">Ngarko më shumë</string>
     <string name="discover_loading">Duke ngarkuar...</string>
-    <string name="discover_filter_type">Lloji</string>
-    <string name="discover_filter_catalog">Katalogu</string>
     <string name="discover_filter_genre">Zhanri</string>
-    <string name="discover_select_catalog">Zgjidh</string>
-    <string name="discover_empty_no_catalog_title">Zgjidh një katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Zgjidh një katalog Zbulo për të shfletuar</string>
     <string name="discover_empty_no_content_title">Nuk u gjet përmbajtje</string>
     <string name="discover_empty_no_content_subtitle">Provo një zhanër ose katalog tjetër</string>
     <!-- AddonManagerScreen -->

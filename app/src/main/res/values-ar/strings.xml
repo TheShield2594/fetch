@@ -1318,12 +1318,7 @@
     <string name="discover_title">استكشاف</string>
     <string name="discover_load_more">تحميل المزيد</string>
     <string name="discover_loading">جاري التحميل...</string>
-    <string name="discover_filter_type">النوع</string>
-    <string name="discover_filter_catalog">القائمة</string>
     <string name="discover_filter_genre">التصنيف</string>
-    <string name="discover_select_catalog">إختر</string>
-    <string name="discover_empty_no_catalog_title">إختر قائمة</string>
-    <string name="discover_empty_no_catalog_subtitle">إختر قائمة للتصفح</string>
     <string name="discover_empty_no_content_title">لم يتم العثور على محتوى</string>
     <string name="discover_empty_no_content_subtitle">جرب تصنيفاً أو فئة أخرى</string>
 

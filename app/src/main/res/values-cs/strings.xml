@@ -1329,12 +1329,7 @@
     <string name="discover_title">Objevovat</string>
     <string name="discover_load_more">Načíst další</string>
     <string name="discover_loading">Načítání...</string>
-    <string name="discover_filter_type">Typ</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Žánr</string>
-    <string name="discover_select_catalog">Vybrat</string>
-    <string name="discover_empty_no_catalog_title">Vyberte katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Vyberte katalog objevování k procházení</string>
     <string name="discover_empty_no_content_title">Nebyl nalezen žádný obsah</string>
     <string name="discover_empty_no_content_subtitle">Zkuste jiný žánr nebo katalog</string>
 

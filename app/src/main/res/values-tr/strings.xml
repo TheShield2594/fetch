@@ -1678,12 +1678,7 @@
     <string name="discover_title">Keşfet</string>
     <string name="discover_load_more">Daha Fazla</string>
     <string name="discover_loading">Yükleniyor...</string>
-    <string name="discover_filter_type">Tür</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Kategori</string>
-    <string name="discover_select_catalog">Seç</string>
-    <string name="discover_empty_no_catalog_title">Katalog seçin</string>
-    <string name="discover_empty_no_catalog_subtitle">Keşfetmek için bir katalog seçin</string>
     <string name="discover_empty_no_content_title">İçerik bulunamadı</string>
     <string name="discover_empty_no_content_subtitle">Farklı bir kategori veya katalog deneyin</string>
 

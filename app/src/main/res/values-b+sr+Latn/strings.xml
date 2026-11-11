@@ -1533,12 +1533,7 @@
     <string name="discover_title">Otkrijte</string>
     <string name="discover_load_more">Učitaj još</string>
     <string name="discover_loading">Učitavanje...</string>
-    <string name="discover_filter_type">Tip</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Žanr</string>
-    <string name="discover_select_catalog">Izaberi</string>
-    <string name="discover_empty_no_catalog_title">Izaberite katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Izaberite katalog za otkrivanje radi pregledanja</string>
     <string name="discover_empty_no_content_title">Nije pronađen sadržaj</string>
     <string name="discover_empty_no_content_subtitle">Pokušajte sa drugim žanrom ili katalogom</string>
 

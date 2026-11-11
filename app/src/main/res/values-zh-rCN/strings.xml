@@ -1585,12 +1585,7 @@
     <string name="discover_title">发现</string>
     <string name="discover_load_more">加载更多</string>
     <string name="discover_loading">加载中…</string>
-    <string name="discover_filter_type">类型</string>
-    <string name="discover_filter_catalog">目录</string>
     <string name="discover_filter_genre">类型</string>
-    <string name="discover_select_catalog">选择</string>
-    <string name="discover_empty_no_catalog_title">选择目录</string>
-    <string name="discover_empty_no_catalog_subtitle">选择一个发现目录以浏览</string>
     <string name="discover_empty_no_content_title">找不到内容</string>
     <string name="discover_empty_no_content_subtitle">请尝试其他类型或目录</string>
 

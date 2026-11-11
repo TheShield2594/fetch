@@ -1626,12 +1626,7 @@
     <string name="discover_title">Otkrij</string>
     <string name="discover_load_more">Učitaj više</string>
     <string name="discover_loading">Učitavanje...</string>
-    <string name="discover_filter_type">Vrsta</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Žanr</string>
-    <string name="discover_select_catalog">Odaberi</string>
-    <string name="discover_empty_no_catalog_title">Odaberi katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Odaberi katalog za otkrivanje i pregledavanje</string>
     <string name="discover_empty_no_content_title">Nije pronađen sadržaj</string>
     <string name="discover_empty_no_content_subtitle">Isprobaj drugi žanr ili katalog</string>
 

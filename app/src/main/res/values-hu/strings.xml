@@ -1663,12 +1663,7 @@
     <string name="discover_title">Felfedezés</string>
     <string name="discover_load_more">Továbbiak betöltése</string>
     <string name="discover_loading">Betöltés\u2026</string>
-    <string name="discover_filter_type">Típus</string>
-    <string name="discover_filter_catalog">Katalógus</string>
     <string name="discover_filter_genre">Műfaj</string>
-    <string name="discover_select_catalog">Választás</string>
-    <string name="discover_empty_no_catalog_title">Válassz katalógust</string>
-    <string name="discover_empty_no_catalog_subtitle">Válassz egy katalógust a böngészéshez</string>
     <string name="discover_empty_no_content_title">Nincs tartalom</string>
     <string name="discover_empty_no_content_subtitle">Próbálkozz másik műfajjal vagy katalógussal</string>
 

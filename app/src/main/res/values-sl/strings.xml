@@ -1155,12 +1155,7 @@
     <string name="discover_title">Odkrij</string>
     <string name="discover_load_more">Naloži več</string>
     <string name="discover_loading">Nalaganje...</string>
-    <string name="discover_filter_type">Vrsta</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Žanr</string>
-    <string name="discover_select_catalog">Izberi</string>
-    <string name="discover_empty_no_catalog_title">Izberite katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Izberite katalog za odkrivanje in brskanje</string>
     <string name="discover_empty_no_content_title">Ni najdene vsebine</string>
     <string name="discover_empty_no_content_subtitle">Poskusite z drugim žanrom ali katalogom</string>
     <!-- AddonManagerScreen -->

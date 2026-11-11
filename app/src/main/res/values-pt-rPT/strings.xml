@@ -1238,12 +1238,7 @@
     <string name="discover_title">Descobrir</string>
     <string name="discover_load_more">Carregar mais</string>
     <string name="discover_loading">A carregar...</string>
-    <string name="discover_filter_type">Tipo</string>
-    <string name="discover_filter_catalog">Catálogo</string>
     <string name="discover_filter_genre">Género</string>
-    <string name="discover_select_catalog">Selecionar</string>
-    <string name="discover_empty_no_catalog_title">Seleciona um catálogo</string>
-    <string name="discover_empty_no_catalog_subtitle">Escolhe um catálogo de descoberta para explorar</string>
     <string name="discover_empty_no_content_title">Nenhum conteúdo encontrado</string>
     <string name="discover_empty_no_content_subtitle">Tenta um género ou catálogo diferente</string>
     <!-- AddonManagerScreen -->

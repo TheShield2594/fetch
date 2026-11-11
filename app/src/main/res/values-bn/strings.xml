@@ -1537,12 +1537,7 @@
     <string name="discover_title">ডিসকভার</string>
     <string name="discover_load_more">আরও লোড করুন</string>
     <string name="discover_loading">লোড হচ্ছে…</string>
-    <string name="discover_filter_type">প্রকার</string>
-    <string name="discover_filter_catalog">ক্যাটালগ</string>
     <string name="discover_filter_genre">জনরা</string>
-    <string name="discover_select_catalog">ক্যাটালগ নির্বাচন করুন</string>
-    <string name="discover_empty_no_catalog_title">একটি ক্যাটালগ নির্বাচন করুন</string>
-    <string name="discover_empty_no_catalog_subtitle">ব্রাউজ করতে একটি ডিসকভার ক্যাটালগ বেছে নিন</string>
     <string name="discover_empty_no_content_title">কোনো কন্টেন্ট পাওয়া যায়নি</string>
     <string name="discover_empty_no_content_subtitle">ভিন্ন একটি জনরা বা ক্যাটালগ চেষ্টা করুন</string>
     <string name="audio_passthrough_info">অডিও পাসথ্রু (TrueHD, DTS, AC-3 ইত্যাদি) স্বয়ংক্রিয়ভাবে ঘটে। HDMI-এর মাধ্যমে কোনো সামঞ্জস্যপূর্ণ AV রিসিভার বা সাউন্ডবারের সাথে কানেক্ট করা হলে, ডিকোডিং ছাড়াই লসলেস অডিও অপরিবর্তিতভাবে পাঠানো হয়।</string>

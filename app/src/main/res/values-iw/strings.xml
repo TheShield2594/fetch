@@ -1673,12 +1673,7 @@
     <string name="discover_title">גילוי</string>
     <string name="discover_load_more">טעינת עוד פריטים</string>
     <string name="discover_loading">טוען…</string>
-    <string name="discover_filter_type">סוג</string>
-    <string name="discover_filter_catalog">קטלוג</string>
     <string name="discover_filter_genre">ז׳אנר</string>
-    <string name="discover_select_catalog">בחירה</string>
-    <string name="discover_empty_no_catalog_title">בחירת קטלוג</string>
-    <string name="discover_empty_no_catalog_subtitle">בחירת קטלוג לגלישה</string>
     <string name="discover_empty_no_content_title">לא נמצא תוכן</string>
     <string name="discover_empty_no_content_subtitle">אפשר לנסות ז׳אנר או קטלוג אחר</string>
 

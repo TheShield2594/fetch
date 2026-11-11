@@ -1298,12 +1298,7 @@
     <string name="discover_title">Opdag</string>
     <string name="discover_load_more">Indlæs mere</string>
     <string name="discover_loading">Indlæser...</string>
-    <string name="discover_filter_type">Type</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Genre</string>
-    <string name="discover_select_catalog">Vælg</string>
-    <string name="discover_empty_no_catalog_title">Vælg et katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Vælg et opdagelseskatalog at gennemse</string>
     <string name="discover_empty_no_content_title">Intet indhold fundet</string>
     <string name="discover_empty_no_content_subtitle">Prøv en anden genre eller et andet katalog</string>
 

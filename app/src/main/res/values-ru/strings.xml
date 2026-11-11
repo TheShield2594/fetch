@@ -1120,12 +1120,7 @@
     <string name="discover_title">Навигатор</string>
     <string name="discover_load_more">Загрузить еще</string>
     <string name="discover_loading">Загрузка...</string>
-    <string name="discover_filter_type">Тип</string>
-    <string name="discover_filter_catalog">Каталог</string>
     <string name="discover_filter_genre">Жанр</string>
-    <string name="discover_select_catalog">Выбрать</string>
-    <string name="discover_empty_no_catalog_title">Выберите каталог</string>
-    <string name="discover_empty_no_catalog_subtitle">Выберите каталог для просмотра</string>
     <string name="discover_empty_no_content_title">Контент не найден</string>
     <string name="discover_empty_no_content_subtitle">Попробуйте другой жанр или каталог</string>
 

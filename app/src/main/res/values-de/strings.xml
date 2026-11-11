@@ -1235,12 +1235,7 @@
     <string name="discover_title">Entdecken</string>
     <string name="discover_load_more">Mehr laden</string>
     <string name="discover_loading">Wird geladen...</string>
-    <string name="discover_filter_type">Typ</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Genre</string>
-    <string name="discover_select_catalog">Auswählen</string>
-    <string name="discover_empty_no_catalog_title">Katalog auswählen</string>
-    <string name="discover_empty_no_catalog_subtitle">Wählen Sie einen Entdeckungskatalog zum Durchsuchen aus</string>
     <string name="discover_empty_no_content_title">Kein Inhalt gefunden</string>
     <string name="discover_empty_no_content_subtitle">Versuchen Sie es mit einem anderen Genre oder Katalog</string>
 

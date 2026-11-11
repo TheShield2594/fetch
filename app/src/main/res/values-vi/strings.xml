@@ -1671,12 +1671,7 @@
     <string name="discover_title">Khám phá</string>
     <string name="discover_load_more">Tải thêm</string>
     <string name="discover_loading">Đang tải...</string>
-    <string name="discover_filter_type">Loại</string>
-    <string name="discover_filter_catalog">Danh mục</string>
     <string name="discover_filter_genre">Thể loại</string>
-    <string name="discover_select_catalog">Chọn</string>
-    <string name="discover_empty_no_catalog_title">Chọn một danh mục</string>
-    <string name="discover_empty_no_catalog_subtitle">Chọn danh mục khám phá để duyệt</string>
     <string name="discover_empty_no_content_title">Không tìm thấy nội dung</string>
     <string name="discover_empty_no_content_subtitle">Thử thể loại hoặc danh mục khác</string>
 

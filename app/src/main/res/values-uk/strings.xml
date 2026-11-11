@@ -1293,12 +1293,7 @@
     <string name="discover_title">Навігатор</string>
     <string name="discover_load_more">Завантажити ще</string>
     <string name="discover_loading">Завантаження...</string>
-    <string name="discover_filter_type">Тип</string>
-    <string name="discover_filter_catalog">Каталог</string>
     <string name="discover_filter_genre">Жанр</string>
-    <string name="discover_select_catalog">Обрати</string>
-    <string name="discover_empty_no_catalog_title">Оберіть каталог</string>
-    <string name="discover_empty_no_catalog_subtitle">Оберіть каталог для перегляду</string>
     <string name="discover_empty_no_content_title">Контент не знайдено</string>
     <string name="discover_empty_no_content_subtitle">Спробуйте інший жанр або каталог</string>
 

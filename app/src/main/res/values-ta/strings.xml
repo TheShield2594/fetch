@@ -1216,12 +1216,7 @@
     <string name="discover_title">கண்டறிதல்</string>
     <string name="discover_load_more">மேலும் ஏற்று</string>
     <string name="discover_loading">ஏற்றப்படுகிறது...</string>
-    <string name="discover_filter_type">வகை</string>
-    <string name="discover_filter_catalog">கேட்டலாக்</string>
     <string name="discover_filter_genre">வகைப்பாடு</string>
-    <string name="discover_select_catalog">தேர்ந்தெடு</string>
-    <string name="discover_empty_no_catalog_title">ஒரு கேட்டலாக் தேர்ந்தெடுக்கவும்</string>
-    <string name="discover_empty_no_catalog_subtitle">உலாவ ஒரு கண்டறிதல் கேட்டலாக் தேர்ந்தெடுக்கவும்</string>
     <string name="discover_empty_no_content_title">உள்ளடக்கம் எதுவும் இல்லை</string>
     <string name="discover_empty_no_content_subtitle">வேறு வகைப்பாடு அல்லது கேட்டலாக் முயற்சிக்கவும்</string>
 

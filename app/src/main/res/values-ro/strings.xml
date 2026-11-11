@@ -599,12 +599,7 @@
     <string name="discover_title">Descoperă</string>
     <string name="discover_load_more">Încarcă mai mult</string>
     <string name="discover_loading">Încărcare...</string>
-    <string name="discover_filter_type">Tip</string>
-    <string name="discover_filter_catalog">Catalog</string>
     <string name="discover_filter_genre">Gen</string>
-    <string name="discover_select_catalog">Selectează</string>
-    <string name="discover_empty_no_catalog_title">Selectați un catalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Alegeți un catalog de descoperire pentru a naviga</string>
     <string name="discover_empty_no_content_title">Nu a fost găsit niciun conținut</string>
     <string name="discover_empty_no_content_subtitle">Încercați un alt gen sau catalog</string>
 

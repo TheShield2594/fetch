@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +22,7 @@ import com.fetch.tv.ui.theme.FetchTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
  * The add-on subtitle whose on-screen timing AutoSync corrected or confirmed. Cleared whenever
@@ -44,7 +44,7 @@ internal object AutoSyncSyncedSubtitle {
 /** "Auto synced" chip for the selected add-on subtitle in the subtitle list; empty otherwise. */
 @Composable
 internal fun AutoSyncedChip(subtitleUrl: String, selected: Boolean) {
-    val syncedUrl by AutoSyncSyncedSubtitle.url.collectAsState()
+    val syncedUrl by AutoSyncSyncedSubtitle.url.collectAsStateWithLifecycle()
     if (!selected || syncedUrl != subtitleUrl) return
 
     val contentColor = FetchTheme.colors.OnSecondary.copy(alpha = 0.9f)

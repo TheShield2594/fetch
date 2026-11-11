@@ -90,7 +90,7 @@ import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -195,7 +195,9 @@ import io.github.peerless2012.ass.media.widget.AssSubtitleView
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.collectLatest
+import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchPrimitives
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 private fun PlayerUiState.returnFocusSeasonEpisode(completed: Boolean): Pair<Int?, Int?> {
     val next = nextEpisode?.takeIf {
@@ -228,7 +230,7 @@ fun PlayerScreen(
     onOpenRecommendationDetails: (PostPlayRecommendation) -> Unit = {},
     onPlayQueueItem: (com.fetch.tv.data.local.QueueItem) -> Unit = {}
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     uiState.screenTimeBlock?.let { status ->
         com.fetch.tv.ui.screens.profile.ScreenTimeLimitDialog(
             status = status,
@@ -244,8 +246,8 @@ fun PlayerScreen(
             onStop = { viewModel.onEvent(PlayerEvent.OnSleepTimerStop) }
         )
     }
-    val postPlayRecommendationState by viewModel.postPlayRecommendationUiState.collectAsState()
-    val effectiveAutoplayEnabled by viewModel.effectiveAutoplayEnabled.collectAsState(initial = false)
+    val postPlayRecommendationState by viewModel.postPlayRecommendationUiState.collectAsStateWithLifecycle()
+    val effectiveAutoplayEnabled by viewModel.effectiveAutoplayEnabled.collectAsStateWithLifecycle(initialValue = false)
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -2568,8 +2570,13 @@ internal fun PlayerControlsOverlay(
     val customSourcePainter = rememberRawSvgPainter(R.raw.ic_player_source)
     val customAspectPainter = rememberRawSvgPainter(R.raw.ic_player_aspect_ratio)
     val customEpisodesPainter = rememberRawSvgPainter(R.raw.ic_player_episodes)
-    val playbackTimeline by viewModel.playbackTimeline.collectAsState()
-    val isLivePlayback = playbackTimeline.isLive
+    // Only isLive is read here. The timeline ticks every 500 ms, so reading all of it
+    // recomposed the whole overlay twice a second (#454, audit L3). The timeline State is read
+    // only inside derivedStateOf, so the overlay recomposes when isLive changes, not per tick.
+    val playbackTimelineState = viewModel.playbackTimeline.collectAsStateWithLifecycle()
+    val isLivePlayback by remember(playbackTimelineState) {
+        derivedStateOf { playbackTimelineState.value.isLive }
+    }
     val progressUpTarget = if (isLivePlayback) {
         progressBarUpFocusRequester ?: playPauseFocusRequester
     } else {
@@ -3080,7 +3087,7 @@ private fun PlayerControlsProgressBarHost(
     onFocused: (() -> Unit)? = null,
     onClick: (() -> Unit)? = null
 ) {
-    val playbackTimeline by viewModel.playbackTimeline.collectAsState()
+    val playbackTimeline by viewModel.playbackTimeline.collectAsStateWithLifecycle()
 
     if (seekFeedback != null) {
         SeekFeedbackBubble(feedback = seekFeedback, durationMs = playbackTimeline.duration)
@@ -3111,7 +3118,7 @@ internal enum class PlayerTimeSide { ELAPSED, TOTAL }
 /** One end of the scrubber: where playback is, or how long the title runs. */
 @Composable
 private fun PlayerTimeTextHost(viewModel: PlayerViewModel, side: PlayerTimeSide) {
-    val playbackTimeline by viewModel.playbackTimeline.collectAsState()
+    val playbackTimeline by viewModel.playbackTimeline.collectAsStateWithLifecycle()
     Text(
         text = formatTime(
             if (side == PlayerTimeSide.ELAPSED) playbackTimeline.currentPosition else playbackTimeline.duration
@@ -3124,7 +3131,7 @@ private fun PlayerTimeTextHost(viewModel: PlayerViewModel, side: PlayerTimeSide)
 
 @Composable
 private fun PlayerControlsTimeTextHost(viewModel: PlayerViewModel) {
-    val playbackTimeline by viewModel.playbackTimeline.collectAsState()
+    val playbackTimeline by viewModel.playbackTimeline.collectAsStateWithLifecycle()
     val timeText = if (playbackTimeline.isLive) {
         stringResource(R.string.player_live_watched, formatTime(playbackTimeline.watchedDurationMs))
     } else {
@@ -3597,7 +3604,7 @@ private fun SeekOverlayHost(
     seekFeedback: SeekFeedback?,
     skipSegments: List<SkipInterval> = emptyList()
 ) {
-    val playbackTimeline by viewModel.playbackTimeline.collectAsState()
+    val playbackTimeline by viewModel.playbackTimeline.collectAsStateWithLifecycle()
 
     SeekOverlay(
         currentPosition = playbackTimeline.currentPosition,
@@ -3712,7 +3719,7 @@ private fun PlayerClockOverlay(
 
 @Composable
 private fun PlayerClockOverlayHost(viewModel: PlayerViewModel, playbackSpeed: Float) {
-    val playbackTimeline by viewModel.playbackTimeline.collectAsState()
+    val playbackTimeline by viewModel.playbackTimeline.collectAsStateWithLifecycle()
 
     PlayerClockOverlay(
         currentPosition = playbackTimeline.currentPosition,
@@ -3736,7 +3743,7 @@ private fun SubtitleTimingDialogHost(
     onCaptureNow: () -> Unit,
     onCueSelected: (SubtitleSyncCue) -> Unit
 ) {
-    val playbackTimeline by viewModel.playbackTimeline.collectAsState()
+    val playbackTimeline by viewModel.playbackTimeline.collectAsStateWithLifecycle()
 
     SubtitleTimingDialog(
         modifier = modifier,

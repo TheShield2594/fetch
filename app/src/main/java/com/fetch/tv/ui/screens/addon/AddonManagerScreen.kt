@@ -57,7 +57,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -137,6 +136,7 @@ import com.fetch.tv.core.addon.isConfigurable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import com.fetch.tv.ui.util.dpadRepeatThrottle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 private sealed interface AddonExperienceModeState {
     data object Loading : AddonExperienceModeState
@@ -152,14 +152,14 @@ fun AddonManagerScreen(
     /** Customise Home, where catalog order, folders and filter rows now live together. */
     onNavigateToCustomiseHome: () -> Unit = {}
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val addonHealth by viewModel.addonHealth.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val addonHealth by viewModel.addonHealth.collectAsStateWithLifecycle()
     val firstAddonToggleFocusRequester = remember { FocusRequester() }
     val experienceModeState by remember(viewModel) {
         viewModel.experienceMode.map<ExperienceMode?, AddonExperienceModeState> {
             AddonExperienceModeState.Loaded(it)
         }
-    }.collectAsState(initial = AddonExperienceModeState.Loading)
+    }.collectAsStateWithLifecycle(initialValue = AddonExperienceModeState.Loading)
     val experienceMode = (experienceModeState as? AddonExperienceModeState.Loaded)?.mode
     if (experienceModeState is AddonExperienceModeState.Loading) {
         Box(

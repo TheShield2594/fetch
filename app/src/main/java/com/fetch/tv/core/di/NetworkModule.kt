@@ -92,7 +92,7 @@ object NetworkModule {
             .dns(IPv4FirstDns())
             .socketFactory(NoDelaySocketFactory)
             // Keep separate from the old trust-all cache. Cached responses bypass a new TLS handshake.
-            .cache(Cache(File(context.cacheDir, "http_cache_v2"), 50L * 1024 * 1024)) // 50 MB disk cache
+            .cache(Cache(File(context.cacheDir, "http_cache_v2"), httpDiskCacheSizeBytes(context)))
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
             .addInterceptor { chain ->
@@ -141,7 +141,7 @@ object NetworkModule {
         // served as if they had come over a verified connection.
         File(context.cacheDir, "addon_http_cache").deleteRecursively()
         val cached = okHttpClient.newBuilder()
-            .cache(Cache(File(context.cacheDir, "addon_http_cache_v2"), 50L * 1024 * 1024))
+            .cache(Cache(File(context.cacheDir, "addon_http_cache_v2"), httpDiskCacheSizeBytes(context)))
             .build()
         val unverifiedLocal by lazy { LocalNetworkTls.unverifiedClient(cached) }
         return cached.newBuilder()
@@ -477,3 +477,25 @@ object NetworkModule {
     fun provideImdbTapframeApi(@Named("imdbTapframe") retrofit: Retrofit): ImdbTapframeApi =
         retrofit.create(ImdbTapframeApi::class.java)
 }
+
+/**
+ * Each OkHttp disk cache gets [HTTP_DISK_CACHE_FREE_FRACTION] of the free space, clamped to
+ * [HTTP_DISK_CACHE_MIN_BYTES]..[HTTP_DISK_CACHE_MAX_BYTES] (#454). They were a fixed 50 MB each,
+ * which on a Fire TV Stick with a few hundred MB free is a large share of what is left; the
+ * image cache already scales the same way (FetchApplication.imageDiskCacheSizeBytes). One StatFs
+ * call, no directory listing, so it stays cheap on whichever thread first injects the client.
+ */
+internal fun httpDiskCacheSizeBytes(context: Context): Long = try {
+    val freeBytes = android.os.StatFs(context.cacheDir.absolutePath).availableBytes
+    httpDiskCacheSizeBytes(freeBytes)
+} catch (e: Exception) {
+    HTTP_DISK_CACHE_MIN_BYTES
+}
+
+internal fun httpDiskCacheSizeBytes(freeBytes: Long): Long =
+    (freeBytes * HTTP_DISK_CACHE_FREE_FRACTION).toLong()
+        .coerceIn(HTTP_DISK_CACHE_MIN_BYTES, HTTP_DISK_CACHE_MAX_BYTES)
+
+private const val HTTP_DISK_CACHE_FREE_FRACTION = 0.02
+internal const val HTTP_DISK_CACHE_MIN_BYTES = 10L * 1024 * 1024
+internal const val HTTP_DISK_CACHE_MAX_BYTES = 50L * 1024 * 1024

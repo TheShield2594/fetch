@@ -5,27 +5,27 @@ coreKtx = "1.15.0"
 appcompat = "1.6.1"
 composeBom = "2026.05.01"
 tvFoundation = "1.0.0-rc01"
-tvMaterial = "1.1.0-rc01"
+tvMaterial = "1.1.0"
 tvprovider = "1.0.0"
-lifecycleRuntimeKtx = "2.8.7"
+lifecycleRuntimeKtx = "2.9.4"
 activityCompose = "1.11.0"
 
 # New dependencies
 hilt = "2.58"
 hiltNavigationCompose = "1.2.0"
-retrofit = "2.9.0"
+retrofit = "2.12.0"
 okhttp = "4.12.0"
 moshi = "1.15.1"
-coroutines = "1.8.1"
+coroutines = "1.10.2"
 coil = "3.3.0"
 navigationCompose = "2.8.8"
-datastore = "1.1.1"
-# Watched items (and later the other history-sized stores) live in SQLite; settings stay in DataStore.
+datastore = "1.1.7"
+# Watched items, progress and the library live in SQLite; settings stay in DataStore.
 room = "2.8.4"
-lifecycleViewModelCompose = "2.8.7"
+lifecycleViewModelCompose = "2.9.4"
 ksp = "2.3.0"
 media3 = "1.8.0"
-gson = "2.10.1"
+gson = "2.13.2"
 markdownRenderer = "0.33.0"
 nanohttpd = "2.3.1"
 zxing = "3.5.3"
@@ -48,11 +48,10 @@ recyclerview = "1.4.0"
 guava = "33.3.1-android"
 assMedia = "0.4.0"
 mpvAndroidLib = "0.1.12"
-metricsPerformance = "1.0.0-rc01"
+metricsPerformance = "1.0.0"
 junit = "4.13.2"
 orgJson = "20240303"
 mockk = "1.13.12"
-mockwebserver = "5.3.2"
 robolectric = "4.17"
 
 [libraries]
@@ -162,7 +161,7 @@ jna = { group = "net.java.dev.jna", name = "jna", version.ref = "jna" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 org-json = { group = "org.json", name = "json", version.ref = "orgJson" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
-okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
+okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 
 [plugins]

@@ -92,9 +92,10 @@ class LocalNetworkTlsTest {
             server.enqueue(MockResponse().setBody("must not be reached"))
             // The public name resolves to the local server, so only the host check can refuse it.
             val base = OkHttpClient.Builder()
-                .dns { host ->
-                    if (host == "public.example.test") listOf(InetAddress.getByName("127.0.0.1")) else Dns.SYSTEM.lookup(host)
-                }
+                .dns(object : Dns {
+                    override fun lookup(hostname: String): List<InetAddress> =
+                        if (hostname == "public.example.test") listOf(InetAddress.getByName("127.0.0.1")) else Dns.SYSTEM.lookup(hostname)
+                })
                 .build()
             val client = LocalNetworkTls.unverifiedClient(base)
 

@@ -750,6 +750,29 @@ Modularise the app, replace Hilt or Retrofit, or rewrite Home on performance gro
 
 ---
 
+### 12.8 Roll-up of the smaller findings (#454)
+
+What was done with the smaller findings that have no roadmap item of their own:
+
+| Finding | Outcome |
+|---|---|
+| `JankStats` created in release builds, one log line per janky frame | Debug builds only (`MainActivity`). Release frame timing comes from `FrameTimingBenchmark`. |
+| Two OkHttp disk caches at a fixed 50 MB each | 2 % of free space, 10–50 MB each (`core/di/NetworkModule.kt`, `httpDiskCacheSizeBytes`). Never more than before. |
+| `revalidatedAt` never pruned | Above 512 URLs, entries past the 10-minute cooldown are dropped; they no longer stop anything. |
+| 76 `collectAsState()` calls | All moved to `collectAsStateWithLifecycle`, so collection stops while the activity is stopped. |
+| `ProfileDataStoreFactory` file syscalls on the caller's thread | Directory and empty-file creation moved into DataStore's lazy `produceFile`, which runs on the store's IO scope. Debug builds turn on StrictMode disk and leaked-closeable checks (log only) to find the rest. |
+| Stale entries in `compose_stability_config.conf` | `TorrentState`, `com.lagradost.cloudstream3.*` and four Home classes that no longer exist removed. `List`/`Map`/`Set` kept on purpose, with the contract written next to them. |
+| `extractNativeLibs="true"` with legacy packaging | Removed; native libraries load uncompressed from the APK. Smaller on disk, somewhat larger to download. Needs a playback smoke test on a device (mpv, FFmpeg, libass). |
+| `mockwebserver` 5.3.2 against OkHttp 4.12.0 | Now from the same OkHttp version as the app (`libs.okhttp.mockwebserver`). |
+| Libraries several releases behind | Retrofit 2.12.0, coroutines 1.10.2 (tests too), lifecycle 2.9.4, DataStore 1.1.7, Gson 2.13.2, `tv-material` 1.1.0 and `metrics-performance` 1.0.0 (both now stable). Retrofit 3 and DataStore 1.2+ are separate, larger moves. |
+| Three JSON stacks plus `org.json` | Not changed here. Gson is the one to retire first (no compile-time safety, and the keep-rule risk in L2); move its stores to kotlinx.serialization or Moshi codegen one at a time, with a round-trip test each. |
+| NanoHTTPD 2.3.1 unmaintained, on the LAN | Not changed here. Pairing tokens still gate it. Replacing it is its own item. |
+| `docs/performance.md` listed Fire OS 5 (API 22) | Fixed: Fire OS 6–7 (API 25–28); `minSdk` is 24. |
+| `PlayerControlsOverlay` collected the whole timeline to read `isLive` (L3) | It now collects `isLive` alone, with `distinctUntilChanged`. |
+| `FetchTheme` rebuilt its scheme without `remember` (L7, #449) | Each value is remembered on its inputs. |
+
+The other items in 12.4 still need a measurement before anyone acts on them.
+
 ## 13. Features and product completeness
 
 ### 13.1 Feature matrix

@@ -5,9 +5,11 @@ import com.fetch.tv.core.sync.backend.SyncBackendKind
 import com.fetch.tv.core.sync.backend.SyncBackends
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -107,7 +109,7 @@ class FetchWebsitePairing @Inject constructor(
         job?.cancel()
         lastWasHub = true
         _state.value = WebsitePairingState.Starting
-        job = scope.launch { runHub() }
+        job = scope.launch(start = CoroutineStart.LAZY) { runHub() }.also { it.start() }
     }
 
     /** "Get a new code": the same way as last time. */
@@ -123,7 +125,7 @@ class FetchWebsitePairing @Inject constructor(
             return
         }
         _state.value = WebsitePairingState.Starting
-        job = scope.launch { run(address) }
+        job = scope.launch(start = CoroutineStart.LAZY) { run(address) }.also { it.start() }
     }
 
     /**
@@ -156,7 +158,7 @@ class FetchWebsitePairing @Inject constructor(
         try {
             val server = client.resolveServer(address)
             if (server == null) {
-                _state.value = WebsitePairingState.Failed(null, notFound = true)
+                publish(WebsitePairingState.Failed(null, notFound = true))
                 return
             }
             val serverUrl = server.apiUrl
@@ -166,19 +168,19 @@ class FetchWebsitePairing @Inject constructor(
             // The website address that just worked beats the one the server was configured
             // with, which compose fills with an example IP until someone changes it.
             val confirmUrl = server.webUrl?.let { FetchServerAddress.confirmUrl(it, start.code) } ?: start.confirmUrl
-            _state.value = WebsitePairingState.ShowingCode(start.code, confirmUrl, serverUrl, expiresAt)
+            publish(WebsitePairingState.ShowingCode(start.code, confirmUrl, serverUrl, expiresAt))
             val intervalMs = start.intervalSec.coerceIn(1, 30) * 1_000L
             while (true) {
                 delay(intervalMs)
                 when (val poll = client.pollPairing(serverUrl, start.pollSecret)) {
                     WebsitePairingPoll.Pending -> {
                         if (System.currentTimeMillis() > expiresAt) {
-                            _state.value = WebsitePairingState.Expired
+                            publish(WebsitePairingState.Expired)
                             return
                         }
                     }
                     WebsitePairingPoll.Expired -> {
-                        _state.value = WebsitePairingState.Expired
+                        publish(WebsitePairingState.Expired)
                         return
                     }
                     is WebsitePairingPoll.Approved -> {
@@ -190,7 +192,7 @@ class FetchWebsitePairing @Inject constructor(
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {
-            _state.value = WebsitePairingState.Failed(error.message ?: error.javaClass.simpleName)
+            publish(WebsitePairingState.Failed(error.message ?: error.javaClass.simpleName))
         }
     }
 
@@ -202,18 +204,18 @@ class FetchWebsitePairing @Inject constructor(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                _state.value = WebsitePairingState.Failed(error.message, hubUnavailable = true)
+                publish(WebsitePairingState.Failed(error.message, hubUnavailable = true))
                 return
             }
             val expiresAt = runCatching { Instant.parse(start.expiresAt).toEpochMilli() }
                 .getOrDefault(System.currentTimeMillis() + 10 * 60_000L)
-            _state.value = WebsitePairingState.ShowingCode(
+            publish(WebsitePairingState.ShowingCode(
                 code = start.code,
                 confirmUrl = start.linkUrl ?: FetchPairingHub.linkUrl(start.code),
                 serverUrl = null,
                 expiresAtEpochMs = expiresAt,
                 viaHub = true
-            )
+            ))
             val intervalMs = start.intervalSec.coerceIn(1, 30) * 1_000L
             var failures = 0
             while (true) {
@@ -227,15 +229,15 @@ class FetchWebsitePairing @Inject constructor(
                 }
                 when (poll) {
                     HubPairingPoll.Pending -> if (System.currentTimeMillis() > expiresAt) {
-                        _state.value = WebsitePairingState.Expired
+                        publish(WebsitePairingState.Expired)
                         return
                     }
                     HubPairingPoll.Expired -> {
-                        _state.value = WebsitePairingState.Expired
+                        publish(WebsitePairingState.Expired)
                         return
                     }
                     is HubPairingPoll.Linked -> {
-                        _state.value = WebsitePairingState.Connecting(poll.apiUrl)
+                        publish(WebsitePairingState.Connecting(poll.apiUrl))
                         collectFromWebsite(poll.apiUrl, handoffSecret)
                         return
                     }
@@ -244,7 +246,7 @@ class FetchWebsitePairing @Inject constructor(
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {
-            _state.value = WebsitePairingState.Failed(error.message ?: error.javaClass.simpleName)
+            publish(WebsitePairingState.Failed(error.message ?: error.javaClass.simpleName))
         }
     }
 
@@ -270,16 +272,34 @@ class FetchWebsitePairing @Inject constructor(
             }
             delay(HANDOFF_POLL_MS)
         }
-        _state.value = WebsitePairingState.Failed(lastError?.message, handoffFrom = serverUrl)
+        publish(WebsitePairingState.Failed(lastError?.message, handoffFrom = serverUrl))
     }
 
-    private fun approve(serverUrl: String, poll: WebsitePairingPoll.Approved) {
+    private suspend fun approve(serverUrl: String, poll: WebsitePairingPoll.Approved) {
         val name = poll.deviceName.ifBlank { deviceName() }
+        // A pairing that was replaced or cancelled meanwhile doesn't sign this TV in.
+        if (!isCurrent()) return
         store.save(FetchWebsiteSession(serverUrl, poll.token, name))
         // Pairing (here, from a phone, or in the first-run Server step) is choosing the website.
         backends.choose(SyncBackendKind.FETCH_WEBSITE)
-        _state.value = WebsitePairingState.Paired(name)
+        publish(WebsitePairingState.Paired(name))
         sync.requestSync()
+    }
+
+    /** True while the calling coroutine is the pairing [job] that owns [state]. */
+    private suspend fun isCurrent(): Boolean {
+        val me = currentCoroutineContext()[Job]
+        return synchronized(this) { me != null && me === job }
+    }
+
+    /**
+     * Publishes [value] only from the pairing that is still current: a job that was replaced
+     * (another code, a picked server) or reset can be between a network answer and its next
+     * suspension when that happens, and must not overwrite its replacement's state.
+     */
+    private suspend fun publish(value: WebsitePairingState) {
+        val me = currentCoroutineContext()[Job]
+        synchronized(this) { if (me != null && me === job) _state.value = value }
     }
 
     private fun deviceName(): String =

@@ -32,8 +32,9 @@ Fetch connects to services you add or turn on yourself:
 - **Your Fetch website**, only if you pair with one. Fetch has no hosted backend; sync is
   off until you pair the TV with a website you run.
 - **The pairing hub at `watchfetch.tv`**, only while the TV is showing a code to sign in to a
-  Fetch website. It receives the TV's model name (such as "NVIDIA SHIELD Android TV") and
-  hands out the code; when you confirm the code, your website tells the hub its address and
+  Fetch website. It receives the device's name (on a TV its model, such as "NVIDIA SHIELD
+  Android TV"; in the desktop app "Fetch Desktop" and the computer's network name, which can
+  identify you or your organization) and hands out the code; when you confirm the code, your website tells the hub its address and
   the hub passes that address to the TV. The hub never receives your sign-in: the TV collects
   that from your website directly. Codes are kept in memory for ten minutes at most. Choosing
   "Enter the address instead" on the TV skips the hub.

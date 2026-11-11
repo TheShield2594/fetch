@@ -58,14 +58,26 @@ describe("pairing hub routes", () => {
     expect(linked.json()).toEqual({ status: "linked", api: "https://fetch.example/api", web: "https://fetch.example" });
   });
 
-  it("lets a code be claimed once", async () => {
+  it("lets one website claim a code, and answers it again on a retry", async () => {
     const app = await buildApp();
     const started = (await app.inject({ method: "POST", url: "/hub/pair/start", payload: { handoffHash: HANDOFF } })).json();
-    const claim = () =>
-      app.inject({ method: "POST", url: "/hub/pair/claim", payload: { code: started.code, api: "https://a.example/api" } });
+    const claim = (api: string) =>
+      app.inject({ method: "POST", url: "/hub/pair/claim", payload: { code: started.code, api } });
 
-    expect((await claim()).statusCode).toBe(200);
-    expect((await claim()).statusCode).toBe(409);
+    expect((await claim("https://a.example/api")).statusCode).toBe(200);
+    expect((await claim("https://a.example/api")).json()).toEqual({ handoffHash: HANDOFF, name: "TV" });
+    expect((await claim("https://b.example/api")).statusCode).toBe(409);
+  });
+
+  it("forgets expired codes on the sweep, without another start", async () => {
+    const app = await buildApp();
+    const started = (await app.inject({ method: "POST", url: "/hub/pair/start", payload: { handoffHash: HANDOFF } })).json();
+    const { sweepPairingHub, HUB_CODE_TTL_MS } = await import("../lib/pairing-hub.js");
+
+    sweepPairingHub(Date.now() + HUB_CODE_TTL_MS + 1);
+
+    const claim = await app.inject({ method: "POST", url: "/hub/pair/claim", payload: { code: started.code, api: "https://a.example" } });
+    expect(claim.statusCode).toBe(404);
   });
 
   it("answers 404 for an unknown code and an unknown poll secret", async () => {

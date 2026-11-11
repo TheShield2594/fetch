@@ -260,15 +260,48 @@ describe("device routes", () => {
       });
     });
 
-    it("answers 409 for a hub code that was already claimed", async () => {
-      // The app first: building it reloads modules, and the hub's store must
-      // be the one the routes see.
+    it("answers 409 for a hub code another website already claimed", async () => {
       const app = await buildApp();
       const started = await startAtHub();
-      const payload = { code: started.code, apiBase: "https://fetch.home.example/api" };
+      const confirm = (apiBase: string) =>
+        app.inject({ method: "POST", url: "/devices/pair/confirm", payload: { code: started.code, apiBase } });
 
-      expect((await app.inject({ method: "POST", url: "/devices/pair/confirm", payload })).statusCode).toBe(200);
-      expect((await app.inject({ method: "POST", url: "/devices/pair/confirm", payload })).statusCode).toBe(409);
+      expect((await confirm("https://fetch.home.example/api")).statusCode).toBe(200);
+      expect((await confirm("https://elsewhere.example/api")).statusCode).toBe(409);
+    });
+
+    it("can retry a claim whose pairing failed to save", async () => {
+      const app = await buildApp();
+      const started = await startAtHub();
+      const confirm = () =>
+        app.inject({
+          method: "POST",
+          url: "/devices/pair/confirm",
+          payload: { code: started.code, apiBase: "https://fetch.home.example/api" },
+        });
+      prismaMock.devicePairing.create.mockRejectedValueOnce(new Error("database went away"));
+
+      expect((await confirm()).statusCode).toBe(500);
+      expect((await confirm()).statusCode).toBe(200);
+      expect(prismaMock.devicePairing.create).toHaveBeenLastCalledWith({
+        data: expect.objectContaining({ pollSecretHash: hashSecret(handoffSecret) }),
+      });
+    });
+
+    it("refuses to give the TV a loopback address, before using the code up", async () => {
+      const app = await buildApp();
+      const started = await startAtHub();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/devices/pair/confirm",
+        payload: { code: started.code, apiBase: "http://localhost:7000" },
+      });
+
+      expect(response.statusCode).toBe(422);
+      expect(response.json().code).toBe("pairing_address_loopback");
+      const { pollHubPairing } = await import("../lib/pairing-hub.js");
+      expect(pollHubPairing(started.pollSecret).status).toBe("pending");
     });
 
     it("answers 404 when the hub doesn't know the code either", async () => {

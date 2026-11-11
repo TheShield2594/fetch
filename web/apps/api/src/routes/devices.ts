@@ -117,6 +117,15 @@ const confirmThroughHub = async (
   const api = fromBrowser(body.apiBase, apiPublic());
   const web = fromBrowser(body.webBase, WEB_PUBLIC);
   if (!api) return reply.code(404).send({ error: NOT_FOUND_MESSAGE });
+  // Checked before claiming, which uses the code up: a TV told "localhost" would try
+  // itself, never finish, and be left with a code nobody can confirm again.
+  if (isLoopbackAddress(api)) {
+    return reply.code(422).send({
+      error:
+        "This website was opened at localhost, which the TV can't reach. Open it at the address other devices use, or set FETCH_API_PUBLIC on the server.",
+      code: "pairing_address_loopback",
+    });
+  }
 
   let claim;
   try {

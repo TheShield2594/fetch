@@ -6,6 +6,7 @@ import {
   parsePublicAddress,
   pollHubPairing,
   startHubPairing,
+  sweepPairingHub,
 } from "../lib/pairing-hub.js";
 
 const PAIRING_SECRET_HEADER = "x-pairing-secret";
@@ -16,6 +17,12 @@ const PAIRING_SECRET_HEADER = "x-pairing-secret";
  * no credential yet, and the claiming website is another install.
  */
 const pairingHubRoutes: FastifyPluginAsync = async (app) => {
+  // Codes otherwise only go when the next one starts, so an idle hub would keep the last
+  // ones (an address, a device name) past the ten minutes PRIVACY.md promises.
+  const sweeper = setInterval(() => sweepPairingHub(), 60_000);
+  sweeper.unref();
+  app.addHook("onClose", async () => clearInterval(sweeper));
+
   app.post<{ Body: unknown }>(
     "/hub/pair/start",
     { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } },
@@ -38,7 +45,8 @@ const pairingHubRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
-  app.get("/hub/pair/poll", { config: { rateLimit: { max: 40, timeWindow: "1 minute" } } }, async (request, reply) => {
+  // Every three seconds is 20 a minute per TV, and an address may have six codes waiting.
+  app.get("/hub/pair/poll", { config: { rateLimit: { max: 150, timeWindow: "1 minute" } } }, async (request, reply) => {
     const header = request.headers[PAIRING_SECRET_HEADER];
     const secret = (Array.isArray(header) ? header[0] : header)?.trim();
     if (!secret) return reply.code(400).send({ error: `${PAIRING_SECRET_HEADER} header is required` });

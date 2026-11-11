@@ -22,6 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -689,7 +690,7 @@ class FetchWebsiteState(
                 }
             }
         } catch (e: CancellationException) {
-            if (pairing !is WebsitePairing.Paired) pairing = WebsitePairing.EnterAddress
+            if (pairing !is WebsitePairing.Paired && ownsPairing()) pairing = WebsitePairing.EnterAddress
             throw e
         } catch (e: Exception) {
             pairing = WebsitePairing.Failed(e.message)
@@ -761,11 +762,21 @@ class FetchWebsiteState(
                 }
             }
         } catch (e: CancellationException) {
-            if (pairing !is WebsitePairing.Paired) pairing = WebsitePairing.EnterAddress
+            if (pairing !is WebsitePairing.Paired && ownsPairing()) pairing = WebsitePairing.EnterAddress
             throw e
         } catch (e: Exception) {
             pairing = WebsitePairing.Failed(e.message)
         }
+    }
+
+    /**
+     * Whether the calling pairing may still write [pairing]: it is the running [pairingJob], or
+     * was called directly with none running. A job cancelled because another replaced it must
+     * not overwrite the replacement's state as it unwinds.
+     */
+    private suspend fun ownsPairing(): Boolean {
+        val running = pairingJob ?: return true
+        return running === currentCoroutineContext()[Job]
     }
 
     fun resetPairing() {

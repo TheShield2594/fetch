@@ -125,6 +125,9 @@ type HubEntry = {
 const entries = new Map<string, HubEntry>();
 const byPollSecret = new Map<string, HubEntry>();
 
+/** Drops expired codes; run on a timer by the hub's routes, so an idle hub keeps nothing past expiry. */
+export const sweepPairingHub = (now: number = Date.now()): void => sweep(now);
+
 const sweep = (now: number) => {
   for (const entry of entries.values()) {
     if (entry.expiresAt <= now) {
@@ -198,7 +201,12 @@ export const claimHubPairing = (rawCode: string, link: HubLink): HubClaimResult 
   const code = normalizePairingCode(rawCode);
   const entry = entries.get(code);
   if (code.length !== PAIRING_CODE_LENGTH || !entry || entry.expiresAt <= Date.now()) return { status: "not_found" };
-  if (entry.link) return { status: "taken" };
+  if (entry.link) {
+    // The same website asking again (its first attempt failed to store the pairing) gets
+    // the same answer, so a retry can finish; any other website is refused.
+    if (entry.link.api === link.api) return { status: "claimed", handoffHash: entry.handoffHash, name: entry.name };
+    return { status: "taken" };
+  }
   entry.link = link;
   // Long enough for the TV's next poll, however close to the end it was claimed.
   entry.expiresAt = Math.max(entry.expiresAt, Date.now() + 60_000);

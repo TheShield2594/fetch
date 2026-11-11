@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.setup
 
+import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,7 +38,6 @@ import com.fetch.tv.ui.screens.phone.PhoneHubViewModel
 import com.fetch.tv.ui.screens.settings.SettingsDialogActionButton
 import com.fetch.tv.ui.screens.settings.SettingsDialogActionRow
 import com.fetch.tv.ui.theme.FetchTheme
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -154,8 +154,7 @@ internal fun FirstRunWizardContent(
         FirstRunStep.EXPERIENCE -> true
     }
     LaunchedEffect(step, hasPrimary) {
-        delay(50)
-        runCatching { (if (hasPrimary) primaryFocus else continueFocus).requestFocus() }
+        (if (hasPrimary) primaryFocus else continueFocus).requestFocusAfterFrames(frames = 0)
     }
 
     Column(

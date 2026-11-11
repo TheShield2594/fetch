@@ -116,11 +116,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import com.fetch.tv.R
 
 
-private enum class LibraryViewMode {
-    Saved,
-    Servers
-}
-
 @Composable
 private fun localizedTypeLabel(key: String): String = when (key.lowercase()) {
     LibraryTypeTab.ALL_KEY -> stringResource(R.string.library_type_all)
@@ -148,12 +143,32 @@ fun LibraryScreen(
     val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()
     var showDeleteConfirm by remember(uiState.showManageDialog) { mutableStateOf(false) }
     var expandedPicker by remember { mutableStateOf<String?>(null) }
-    var selectedViewMode by rememberSaveable { mutableStateOf(LibraryViewMode.Saved) }
+    var selectedTab by rememberSaveable { mutableStateOf(LibraryTab.SAVED) }
     val servers by serversViewModel.servers.collectAsStateWithLifecycle()
     val serverShelves by serversViewModel.shelves.collectAsStateWithLifecycle()
     val hasServers = servers.enabledConnections.isNotEmpty()
-    val viewModes = LibraryViewMode.entries.filter { it != LibraryViewMode.Servers || hasServers }
-    val viewMode = selectedViewMode.takeIf { it in viewModes } ?: LibraryViewMode.Saved
+    val tabs = LibraryTab.entries.filter { it != LibraryTab.SERVERS || hasServers }
+    val tab = selectedTab.takeIf { it in tabs } ?: LibraryTab.SAVED
+    // The activity tabs are collected only while shown (the flows stop 5 s after the last
+    // collector), so the Saved grid doesn't keep the full watch history decoded behind it.
+    val historyMonths = if (tab == LibraryTab.HISTORY) {
+        viewModel.historyMonths.collectAsStateWithLifecycle().value
+    } else {
+        null
+    }
+    val inProgressItems = if (tab == LibraryTab.IN_PROGRESS) {
+        viewModel.inProgressItems.collectAsStateWithLifecycle().value
+    } else {
+        null
+    }
+    val activityKeys = remember(tab, historyMonths, inProgressItems) {
+        when (tab) {
+            LibraryTab.HISTORY -> historyMonths.orEmpty().flatMap { month -> month.items.map(::historyFocusKey) }
+            LibraryTab.IN_PROGRESS -> inProgressItems.orEmpty().map(::inProgressFocusKey)
+            else -> emptyList()
+        }
+    }
+    val activityFocusRequesters = remember(activityKeys) { activityKeys.associateWith { FocusRequester() } }
     val primaryFocusRequester = remember { FocusRequester() }
     val selectorFocusRequester = remember { FocusRequester() }
     val gridState = rememberLazyGridState()
@@ -187,8 +202,18 @@ fun LibraryScreen(
         showRestingBorder = true
     )
 
-    LaunchedEffect(viewMode, servers.revision) {
-        if (viewMode == LibraryViewMode.Servers) serversViewModel.load()
+    LaunchedEffect(tab, servers.revision) {
+        if (tab == LibraryTab.SERVERS) serversViewModel.load()
+    }
+
+    // A new tab starts at its top. Not on the first composition: coming back from a title keeps
+    // the grid where it was.
+    var shownTab by remember { mutableStateOf(tab) }
+    LaunchedEffect(tab) {
+        if (tab != shownTab) {
+            shownTab = tab
+            runCatching { gridState.scrollToItem(0) }
+        }
     }
 
     LaunchedEffect(uiState.isLoading) {
@@ -198,12 +223,14 @@ fun LibraryScreen(
     }
 
     LaunchedEffect(uiState.isLoading, uiState.sourceMode, uiState.listTabs.size) {
-        if (!uiState.isLoading && pendingPrimaryFocus && viewMode == LibraryViewMode.Servers && serverFocusTarget != null) {
+        if (!uiState.isLoading && pendingPrimaryFocus && tab == LibraryTab.SERVERS && serverFocusTarget != null) {
             pendingPrimaryFocus = false
         }
         if (!uiState.isLoading && pendingPrimaryFocus) {
             val restoreKey = lastFocusedPosterKey
-            val restoreIndex = restoreKey?.let { visibleItemIndexByKey[it] }
+            // Only the Saved grid restores here; the activity tabs restore through focusRestorer
+            // once their items have loaded.
+            val restoreIndex = restoreKey?.takeIf { tab == LibraryTab.SAVED }?.let { visibleItemIndexByKey[it] }
             val restoreRequester = restoreKey?.let { posterFocusRequesters[it] }
 
             // requestFocus() reports false while the target is not laid out yet, so each try
@@ -230,12 +257,13 @@ fun LibraryScreen(
         androidx.compose.runtime.derivedStateOf { gridState.firstVisibleItemIndex > 0 }
     }
     androidx.activity.compose.BackHandler(
-        enabled = viewMode == LibraryViewMode.Saved && expandedPicker == null && gridScrolledAway
+        enabled = tab != LibraryTab.SERVERS && expandedPicker == null && gridScrolledAway
     ) {
         backScope.launch {
             runCatching { gridState.scrollToItem(0) }
-            // Give the selectors row a frame to compose before focusing it.
-            selectorFocusRequester.requestFocusAfterFrames(frames = 0)
+            // Give the selectors row (Saved) or the tab row a frame to compose before focusing it.
+            val target = if (tab == LibraryTab.SAVED) selectorFocusRequester else primaryFocusRequester
+            target.requestFocusAfterFrames(frames = 0)
         }
     }
 
@@ -302,11 +330,13 @@ fun LibraryScreen(
             .background(FetchTheme.colors.Background)
             .focusRestorer {
                 val lastKey = lastFocusedPosterKey
-                (if (lastKey != null && lastKey in posterFocusRequesters) {
-                    posterFocusRequesters[lastKey]
-                } else {
-                    posterFocusRequesters[firstVisibleCardKey]
-                }) ?: FocusRequester()
+                when {
+                    lastKey != null && lastKey in activityFocusRequesters -> activityFocusRequesters[lastKey]
+                    lastKey != null && lastKey in posterFocusRequesters -> posterFocusRequesters[lastKey]
+                    tab == LibraryTab.HISTORY || tab == LibraryTab.IN_PROGRESS ->
+                        activityKeys.firstOrNull()?.let(activityFocusRequesters::get)
+                    else -> posterFocusRequesters[firstVisibleCardKey]
+                } ?: FocusRequester()
             }
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent
@@ -334,7 +364,9 @@ fun LibraryScreen(
                 )
                 // Source names are stored in natural case and capitalized here, once, for the locale.
                 val sourceName = when {
-                    viewMode == LibraryViewMode.Servers -> stringResource(R.string.library_source_servers)
+                    tab == LibraryTab.SERVERS -> stringResource(R.string.library_source_servers)
+                    tab == LibraryTab.HISTORY -> stringResource(R.string.library_tab_history)
+                    tab == LibraryTab.IN_PROGRESS -> stringResource(R.string.library_tab_in_progress)
                     uiState.sourceMode == LibrarySourceMode.TRAKT -> stringResource(R.string.trakt_name)
                     uiState.sourceMode == LibrarySourceMode.SIMKL -> stringResource(R.string.simkl_name)
                     uiState.sourceMode == LibrarySourceMode.MDBLIST -> stringResource(R.string.mdblist_name)
@@ -350,20 +382,22 @@ fun LibraryScreen(
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
-            LibraryViewModeRow(
-                modes = viewModes,
-                selectedMode = viewMode,
+            LibraryTabRow(
+                tabs = tabs,
+                selectedTab = tab,
                 primaryFocusRequester = primaryFocusRequester,
-                onSelected = { mode ->
-                    selectedViewMode = mode
+                onSelected = { picked ->
                     expandedPicker = null
-                },
-                onOpenStats = onNavigateToStats,
-                onOpenCalendar = onNavigateToCalendar
+                    when (picked) {
+                        LibraryTab.UPCOMING -> onNavigateToCalendar()
+                        LibraryTab.STATS -> onNavigateToStats()
+                        else -> selectedTab = picked
+                    }
+                }
             )
         }
 
-        if (viewMode == LibraryViewMode.Saved) {
+        if (tab == LibraryTab.SAVED) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 LibrarySelectorsRow(
                     sourceMode = uiState.sourceMode,
@@ -511,6 +545,31 @@ fun LibraryScreen(
                     }
                 )
             }
+        } else if (tab == LibraryTab.IN_PROGRESS || tab == LibraryTab.HISTORY) {
+            val actions = LibraryActivityCardActions(
+                focusRequesterFor = activityFocusRequesters::get,
+                onFocused = { key, item ->
+                    lastFocusedPosterKey = key
+                    viewModel.prefetchMetaOnFocus(item.id, item.type)
+                },
+                onClick = { key, item ->
+                    lastFocusedPosterKey = key
+                    HeroBackdropState.update(viewModel.getCachedBackdrop(item.id, item.type))
+                    onNavigateToDetail(item.id, item.type, item.addonBaseUrl)
+                },
+                onLongPress = { key, preview, item ->
+                    lastFocusedPosterKey = key
+                    viewModel.posterOptions.show(preview, item.addonBaseUrl)
+                },
+                isWatched = { item ->
+                    if (item.isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
+                }
+            )
+            if (tab == LibraryTab.HISTORY) {
+                libraryHistoryContent(historyMonths, posterCardStyle, actions, onNavigateToSearch)
+            } else {
+                libraryInProgressContent(inProgressItems, posterCardStyle, actions, onNavigateToSearch)
+            }
         } else {
             libraryServerContent(
                 shelves = serverShelves,
@@ -614,51 +673,54 @@ fun LibraryScreen(
     )
 }
 
+/**
+ * The Library's sections in one row. Upcoming and Stats open their pages; the others switch the
+ * grid below. The selected tab takes the screen's first focus.
+ */
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun LibraryViewModeRow(
-    modes: List<LibraryViewMode>,
-    selectedMode: LibraryViewMode,
+private fun LibraryTabRow(
+    tabs: List<LibraryTab>,
+    selectedTab: LibraryTab,
     primaryFocusRequester: FocusRequester,
-    onSelected: (LibraryViewMode) -> Unit,
-    onOpenStats: () -> Unit,
-    onOpenCalendar: () -> Unit
+    onSelected: (LibraryTab) -> Unit
 ) {
+    val rowDescription = stringResource(R.string.library_tabs_description)
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = rowDescription },
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
-            modes.forEach { mode ->
-                val isSelected = mode == selectedMode
-                FetchButton(
-                    onClick = { onSelected(mode) },
-                    modifier = Modifier
-                        .then(if (isSelected) Modifier.focusRequester(primaryFocusRequester) else Modifier)
-                        .semantics { selected = isSelected },
-                    selected = isSelected
-                ) {
-                    Text(
-                        text = when (mode) {
-                            LibraryViewMode.Saved -> stringResource(R.string.library_source_saved)
-                            LibraryViewMode.Servers -> stringResource(R.string.library_source_servers)
-                        }
-                    )
+        tabs.forEach { tab ->
+            val isSelected = tab == selectedTab
+            FetchButton(
+                onClick = { onSelected(tab) },
+                modifier = Modifier
+                    .then(if (isSelected) Modifier.focusRequester(primaryFocusRequester) else Modifier)
+                    .semantics { selected = isSelected },
+                selected = isSelected
+            ) {
+                val icon = when (tab) {
+                    LibraryTab.UPCOMING -> Icons.Default.CalendarMonth
+                    LibraryTab.STATS -> Icons.Default.BarChart
+                    else -> null
                 }
-            }
-        }
-        // Pages rather than views of the library, so they sit apart from the choices on the left.
-        Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
-            FetchButton(onClick = onOpenStats) {
-                Icon(imageVector = Icons.Default.BarChart, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
-                Text(stringResource(R.string.library_open_stats))
-            }
-            FetchButton(onClick = onOpenCalendar) {
-                Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
-                Text(stringResource(R.string.library_open_calendar))
+                if (icon != null) {
+                    Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
+                }
+                Text(
+                    text = when (tab) {
+                        LibraryTab.SAVED -> stringResource(R.string.library_source_saved)
+                        LibraryTab.IN_PROGRESS -> stringResource(R.string.library_tab_in_progress)
+                        LibraryTab.HISTORY -> stringResource(R.string.library_tab_history)
+                        LibraryTab.SERVERS -> stringResource(R.string.library_source_servers)
+                        LibraryTab.UPCOMING -> stringResource(R.string.library_tab_upcoming)
+                        LibraryTab.STATS -> stringResource(R.string.library_open_stats)
+                    }
+                )
             }
         }
     }

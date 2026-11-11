@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.library
 
+import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.components.FetchButtonStyle
 import com.fetch.tv.ui.components.FetchButton
 import com.fetch.tv.ui.components.FetchButtonDefaults
@@ -46,7 +47,6 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.model.LibraryListPrivacy
-import kotlinx.coroutines.delay
 import com.fetch.tv.domain.model.localizedTitle
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.theme.FetchTheme
@@ -77,12 +77,8 @@ internal fun ManageListsDialog(
 
     LaunchedEffect(personalTabs.size, pending) {
         if (pending) return@LaunchedEffect
-        val target = firstFocusRequester
-        val focused = runCatching { target.requestFocus() }.isSuccess
-        if (!focused) {
-            delay(16)
-            runCatching { target.requestFocus() }
-        }
+        // Retries frame by frame while the dialog's first row is not laid out yet.
+        firstFocusRequester.requestFocusAfterFrames(frames = 0)
     }
 
     FetchDialog(

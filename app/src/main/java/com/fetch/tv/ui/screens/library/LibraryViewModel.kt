@@ -29,6 +29,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -149,6 +154,12 @@ internal fun LibraryEntry.certificationQuery() = com.fetch.tv.core.parental.Cert
     imdbId = imdbId
 )
 
+internal fun LibraryActivityItem.certificationQuery() = com.fetch.tv.core.parental.CertificationQuery(
+    contentId = id,
+    type = com.fetch.tv.domain.model.ContentType.fromString(type),
+    imdbId = id.takeIf { it.startsWith("tt") }
+)
+
 internal fun LibraryUiState.filteredForProfile(
     parentalControls: com.fetch.tv.core.parental.ParentalControls
 ): LibraryUiState {
@@ -183,6 +194,32 @@ class LibraryViewModel @Inject constructor(
     private val _watchedMovieIds = MutableStateFlow<Set<String>>(emptySet())
     val watchedMovieIds: StateFlow<Set<String>> = _watchedMovieIds.asStateFlow()
     val watchedSeriesIds: StateFlow<Set<String>> = watchedSeriesStateHolder.fullyWatchedSeriesIds
+
+    /**
+     * The History tab: one entry per title at its latest watch, grouped by month, newest first,
+     * from the watched items of the active tracking provider (or this TV's own). Null until the
+     * first read, so the tab doesn't flash "nothing watched yet". Collected only while shown.
+     */
+    val historyMonths: StateFlow<List<LibraryHistoryMonth>?> = combine(
+        // Deferred to the first collector, so the repository's flow is only built once the tab shows.
+        flow { emitAll(watchProgressRepository.watchedItems) },
+        parentalControls.filterRevision
+    ) { watched, _ ->
+        val items = parentalControls.filterAllowed(libraryHistoryItems(watched)) { it.certificationQuery() }
+        groupHistoryByMonth(items)
+    }
+        .flowOn(kotlinx.coroutines.Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** The In progress tab: partly watched titles, newest first. Null until the first read. */
+    val inProgressItems: StateFlow<List<LibraryActivityItem>?> = combine(
+        flow { emitAll(watchProgressRepository.continueWatching) },
+        parentalControls.filterRevision
+    ) { progress, _ ->
+        parentalControls.filterAllowed(libraryInProgressItems(progress)) { it.certificationQuery() }
+    }
+        .flowOn(kotlinx.coroutines.Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     private class ListManagementContext(val profileId: Int, val source: LibrarySourceMode)
     private var listManagementContext: ListManagementContext? = null

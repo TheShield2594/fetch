@@ -41,9 +41,12 @@ import javax.inject.Inject
 class FetchApplication : Application(), SingletonImageLoader.Factory {
 
     @Inject lateinit var androidTvChannelSyncService: dagger.Lazy<AndroidTvChannelSyncService>
-    @Inject lateinit var deviceDecodeCapabilities: AndroidDeviceDecodeCapabilities
-    @Inject lateinit var imagePerformancePreferences: ImagePerformancePreferences
-    @Inject lateinit var simklAnimeIdPreferenceHolder: SimklAnimeIdPreferenceHolder
+    // All lazy: field injection runs inside onCreate, before the first frame, so an eager field
+    // builds its whole graph there (the image preferences read SharedPreferences from disk, the
+    // Simkl holder builds the Trakt settings DataStore).
+    @Inject lateinit var deviceDecodeCapabilities: dagger.Lazy<AndroidDeviceDecodeCapabilities>
+    @Inject lateinit var imagePerformancePreferences: dagger.Lazy<ImagePerformancePreferences>
+    @Inject lateinit var simklAnimeIdPreferenceHolder: dagger.Lazy<SimklAnimeIdPreferenceHolder>
     @Inject lateinit var serverUserStateProjection: dagger.Lazy<ServerUserStateProjection>
 
     override fun onCreate() {
@@ -56,6 +59,8 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
         Looper.myQueue().addIdleHandler {
             androidTvChannelSyncService.get().start()
             serverUserStateProjection.get().start()
+            // Starts following the Simkl anime-id setting; projections use the default until then.
+            simklAnimeIdPreferenceHolder.get()
             false
         }
         // Remove sign-in reports older builds queued on disk; sign-in diagnostics are gone.
@@ -64,7 +69,7 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
             .start()
         // Probe decoders/HDR/passthrough off the main thread so cold start isn't delayed;
         // stream ranking assumes a capable device until the probe lands.
-        Thread({ DeviceDecodeCapabilities.current = deviceDecodeCapabilities.get() }, "decode-caps-probe")
+        Thread({ DeviceDecodeCapabilities.current = deviceDecodeCapabilities.get().get() }, "decode-caps-probe")
             .apply { priority = Thread.MIN_PRIORITY }
             .start()
         // Load locale synchronously so it's available before Activity.attachBaseContext.
@@ -94,6 +99,7 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
     }
 
     override fun newImageLoader(context: android.content.Context): ImageLoader {
+        val imagePrefs = imagePerformancePreferences.get()
         val imageOkHttpClient by lazy {
             val imageDispatcher = okhttp3.Dispatcher().apply {
                 maxRequests = 32
@@ -173,8 +179,8 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
             .precision(coil3.size.Precision.INEXACT)
             // Software bitmaps by default; hardware ones skip the per-draw GPU upload and free the
             // Java heap, but RGB565 then no longer applies. Settings → Advanced has the switch.
-            .allowHardware(imagePerformancePreferences.hardwareBitmapsEnabled)
-            .allowRgb565(imagePerformancePreferences.rgb565Enabled)
+            .allowHardware(imagePrefs.hardwareBitmapsEnabled)
+            .allowRgb565(imagePrefs.rgb565Enabled)
             .bitmapFactoryMaxParallelism(4)
             .build()
     }

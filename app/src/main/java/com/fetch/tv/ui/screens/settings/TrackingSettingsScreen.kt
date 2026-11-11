@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,7 +39,6 @@ import com.fetch.tv.data.simkl.SimklConnectionMode
 import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.theme.FetchTheme
-import kotlinx.coroutines.delay
 
 @Composable
 fun TrackingSettingsScreen(
@@ -49,8 +49,7 @@ fun TrackingSettingsScreen(
     BackHandler { onBackPress() }
 
     LaunchedEffect(Unit) {
-        delay(160L)
-        runCatching { initialFocusRequester.requestFocus() }
+        initialFocusRequester.requestFocusAfterFrames(frames = 0)
     }
 
     SettingsStandaloneScaffold(classicContainer = false) {
@@ -124,18 +123,17 @@ fun TrackingSettingsContent(
     LaunchedEffect(hasOverlay, restoreFocusTarget) {
         val target = restoreFocusTarget ?: return@LaunchedEffect
         if (hasOverlay) return@LaunchedEffect
-        delay(120L)
-        runCatching {
-            when (target) {
-                TrackingFocusTarget.TRAKT -> traktFocusRequester.requestFocus()
-                TrackingFocusTarget.SIMKL -> simklFocusRequester.requestFocus()
-                TrackingFocusTarget.MDBLIST -> mdbListFocusRequester.requestFocus()
-                TrackingFocusTarget.LIBRARY -> libraryFocusRequester.requestFocus()
-                TrackingFocusTarget.WATCH_PROGRESS -> watchProgressFocusRequester.requestFocus()
-                TrackingFocusTarget.CONTINUE_WATCHING -> continueWatchingFocusRequester.requestFocus()
-                TrackingFocusTarget.MORE_LIKE_THIS -> moreLikeThisFocusRequester.requestFocus()
-            }
+        // The row is back in the layout once the overlay has gone; wait for frames, not a fixed time.
+        val requester = when (target) {
+            TrackingFocusTarget.TRAKT -> traktFocusRequester
+            TrackingFocusTarget.SIMKL -> simklFocusRequester
+            TrackingFocusTarget.MDBLIST -> mdbListFocusRequester
+            TrackingFocusTarget.LIBRARY -> libraryFocusRequester
+            TrackingFocusTarget.WATCH_PROGRESS -> watchProgressFocusRequester
+            TrackingFocusTarget.CONTINUE_WATCHING -> continueWatchingFocusRequester
+            TrackingFocusTarget.MORE_LIKE_THIS -> moreLikeThisFocusRequester
         }
+        requester.requestFocusAfterFrames(frames = 1)
         restoreFocusTarget = null
     }
 

@@ -197,14 +197,14 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
     private fun enableStrictModeInDebug() {
         if (BuildConfig.BUILD_TYPE != "debug") return
         StrictMode.setThreadPolicy(
-            StrictMode.ThreadPolicy.Builder()
+            StrictMode.ThreadPolicy.Builder(StrictMode.getThreadPolicy())
                 .detectDiskReads()
                 .detectDiskWrites()
                 .penaltyLog()
                 .build()
         )
         StrictMode.setVmPolicy(
-            StrictMode.VmPolicy.Builder()
+            StrictMode.VmPolicy.Builder(StrictMode.getVmPolicy())
                 .detectLeakedClosableObjects()
                 .penaltyLog()
                 .build()

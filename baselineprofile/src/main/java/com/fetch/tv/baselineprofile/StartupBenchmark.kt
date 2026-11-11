@@ -67,6 +67,8 @@ class StartupBenchmark {
                     "measured. Last process start: $cause"
             }
             killProcess()
+            // The process that came back may have pulled the app's pages into the cache again.
+            dropKernelPageCache()
         }
     }
 

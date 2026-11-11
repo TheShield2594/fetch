@@ -90,6 +90,7 @@ import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -194,8 +195,6 @@ import io.github.peerless2012.ass.media.widget.AssSubtitleView
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchPrimitives
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -2571,11 +2570,13 @@ internal fun PlayerControlsOverlay(
     val customSourcePainter = rememberRawSvgPainter(R.raw.ic_player_source)
     val customAspectPainter = rememberRawSvgPainter(R.raw.ic_player_aspect_ratio)
     val customEpisodesPainter = rememberRawSvgPainter(R.raw.ic_player_episodes)
-    // Only isLive is read here. The timeline ticks every 500 ms, so collecting all of it
-    // recomposed the whole overlay twice a second (#454, audit L3).
-    val isLivePlayback by remember(viewModel) {
-        viewModel.playbackTimeline.map { it.isLive }.distinctUntilChanged()
-    }.collectAsStateWithLifecycle(initialValue = viewModel.playbackTimeline.value.isLive)
+    // Only isLive is read here. The timeline ticks every 500 ms, so reading all of it
+    // recomposed the whole overlay twice a second (#454, audit L3). The timeline State is read
+    // only inside derivedStateOf, so the overlay recomposes when isLive changes, not per tick.
+    val playbackTimelineState = viewModel.playbackTimeline.collectAsStateWithLifecycle()
+    val isLivePlayback by remember(playbackTimelineState) {
+        derivedStateOf { playbackTimelineState.value.isLive }
+    }
     val progressUpTarget = if (isLivePlayback) {
         progressBarUpFocusRequester ?: playPauseFocusRequester
     } else {

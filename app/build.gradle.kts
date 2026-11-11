@@ -365,6 +365,11 @@ dependencies {
     implementation(libs.moshi)
     ksp(libs.moshi.codegen)
 
+    // Room: watched items (G5); settings stay in DataStore
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
     // Coroutines
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
@@ -452,4 +457,10 @@ dependencies {
     testImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+ksp {
+    // Room writes each database version's schema here; keep them in git so later versions can
+    // be checked against the earlier ones by migration tests.
+    arg("room.schemaLocation", "$projectDir/schemas")
 }

@@ -20,6 +20,8 @@ coroutines = "1.8.1"
 coil = "3.3.0"
 navigationCompose = "2.8.8"
 datastore = "1.1.1"
+# Watched items (and later the other history-sized stores) live in SQLite; settings stay in DataStore.
+room = "2.8.4"
 lifecycleViewModelCompose = "2.8.7"
 ksp = "2.3.0"
 media3 = "1.8.0"
@@ -41,6 +43,9 @@ javaxInject = "1"
 jna = "5.18.1"
 
 [libraries]
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }

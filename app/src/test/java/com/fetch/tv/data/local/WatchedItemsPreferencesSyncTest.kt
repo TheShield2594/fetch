@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -121,7 +120,7 @@ class WatchedItemsPreferencesSyncTest {
     }
 
     @Test
-    fun `unchanged entries reuse decoded items across reads`() = runTest {
+    fun `unchanged entries survive later writes`() = runTest {
         val harness = harness()
         val first = item("first", 100L)
         val second = item("second", 200L)
@@ -133,7 +132,7 @@ class WatchedItemsPreferencesSyncTest {
         val after = harness.preferences.getAllItems(1)
 
         assertEquals(setOf(first, second), after.toSet())
-        assertSame(before, after.single { it.contentId == "first" })
+        assertEquals(before, after.single { it.contentId == "first" })
         assertEquals(after.toSet(), harness.preferences.observeAllItems(1).first().toSet())
     }
 
@@ -149,26 +148,37 @@ class WatchedItemsPreferencesSyncTest {
     }
 
     @Test
-    fun `entries that fail to parse are skipped on every read`() = runTest {
+    fun `a legacy set moves to the store once, skipping entries that fail to parse`() = runTest {
         val store = TestPreferencesStore()
+        val valid = item("valid", 100L)
+        val key = stringSetPreferencesKey("watched_items")
+        store.edit { prefs -> prefs[key] = setOf(com.google.gson.Gson().toJson(valid), "{not json") }
         val factory = mockk<ProfileDataStoreFactory>()
         every { factory.get(any(), any()) } returns store
         val profileManager = mockk<ProfileManager>()
         every { profileManager.activeProfileId } returns MutableStateFlow(1)
-        val preferences = WatchedItemsPreferences(factory, profileManager)
-        val valid = item("valid", 100L)
-        preferences.markAsWatched(valid, 1)
-        store.edit { prefs ->
-            val key = stringSetPreferencesKey("watched_items")
-            prefs[key] = prefs[key].orEmpty() + "{not json"
-        }
+        val preferences = WatchedItemsPreferences(factory, profileManager, InMemoryWatchedItemStore())
 
-        val first = preferences.getAllItems(1)
-        val second = preferences.getAllItems(1)
+        assertEquals(listOf(valid), preferences.getAllItems(1))
+        assertEquals(null, store.data.first()[key])
+        assertEquals(listOf(valid), preferences.getAllItems(1))
+    }
 
-        assertEquals(listOf(valid), first)
-        assertEquals(listOf(valid), second)
-        assertSame(first.single(), second.single())
+    @Test
+    fun `an entry already in the store wins over the legacy one`() = runTest {
+        val store = TestPreferencesStore()
+        val key = stringSetPreferencesKey("watched_items")
+        store.edit { prefs -> prefs[key] = setOf(com.google.gson.Gson().toJson(item("show", 100L))) }
+        val factory = mockk<ProfileDataStoreFactory>()
+        every { factory.get(any(), any()) } returns store
+        val profileManager = mockk<ProfileManager>()
+        every { profileManager.activeProfileId } returns MutableStateFlow(1)
+        val rows = InMemoryWatchedItemStore()
+        // A move interrupted after the insert: the newer mark is already in the store.
+        rows.upsert(1, listOf(item("show", 200L)))
+        val preferences = WatchedItemsPreferences(factory, profileManager, rows)
+
+        assertEquals(listOf(item("show", 200L)), preferences.getAllItems(1))
     }
 
     private fun harness(): Harness {
@@ -181,7 +191,7 @@ class WatchedItemsPreferencesSyncTest {
         val profileManager = mockk<ProfileManager>()
         every { profileManager.activeProfileId } returns activeProfile
         return Harness(
-            preferences = WatchedItemsPreferences(factory, profileManager),
+            preferences = WatchedItemsPreferences(factory, profileManager, InMemoryWatchedItemStore()),
             activeProfile = activeProfile
         )
     }

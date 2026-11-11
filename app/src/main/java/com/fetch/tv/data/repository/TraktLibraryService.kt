@@ -42,6 +42,7 @@ import kotlinx.coroutines.sync.withPermit
 import javax.inject.Inject
 import javax.inject.Singleton
 import retrofit2.Response
+import com.fetch.tv.core.util.runSuspendCatching
 
 @Singleton
 class TraktLibraryService @Inject constructor(
@@ -323,7 +324,7 @@ class TraktLibraryService @Inject constructor(
             refreshingState.value = true
             try {
                 val previous = snapshotState.value
-                val refreshed = runCatching { fetchSnapshot() }.getOrNull()
+                val refreshed = runSuspendCatching { fetchSnapshot() }.getOrNull()
                 val snapshotToUse = refreshed ?: previous
                 snapshotState.value = snapshotToUse
                 lastRefreshMs = now

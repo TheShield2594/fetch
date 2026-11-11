@@ -34,6 +34,7 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.fetch.tv.ui.screens.player.FetchExoPlayerPerformanceHelper
 import com.fetch.tv.ui.screens.settings.MemoryBudget
+import com.fetch.tv.core.util.runSuspendCatching
 
 /**
  * Available subtitle languages
@@ -948,7 +949,7 @@ class PlayerSettingsDataStore @Inject constructor(
                     if (normalized != current) prefs[vodCacheSizeMbKey] = normalized
                 }
                 prefs[vodCacheSizeModeKey]?.let { raw ->
-                    val normalized = runCatching { VodCacheSizeMode.valueOf(raw) }.getOrDefault(PlayerSettings.DEFAULT_VOD_CACHE_SIZE_MODE).name
+                    val normalized = runSuspendCatching { VodCacheSizeMode.valueOf(raw) }.getOrDefault(PlayerSettings.DEFAULT_VOD_CACHE_SIZE_MODE).name
                     if (normalized != raw) prefs[vodCacheSizeModeKey] = normalized
                 }
 

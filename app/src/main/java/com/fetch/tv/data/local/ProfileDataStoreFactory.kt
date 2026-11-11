@@ -35,6 +35,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import java.io.File
 import java.io.IOException
+import com.fetch.tv.core.util.runSuspendCatching
 
 private class ScopedDataStore(
     val store: DataStore<Preferences>,
@@ -51,7 +52,7 @@ internal val discoverLocationMigration = object : DataMigration<Preferences> {
         val legacy = mutable[legacySearchDiscoverEnabledKey]
         if (legacy != null && mutable[discoverLocationKey] == null) {
             val rememberedLocation = mutable[lastNonOffDiscoverLocationKey]?.let {
-                runCatching { DiscoverLocation.valueOf(it) }.getOrNull()
+                runSuspendCatching { DiscoverLocation.valueOf(it) }.getOrNull()
             }?.takeIf { it != DiscoverLocation.OFF }
             val resolved = if (legacy && rememberedLocation != null) {
                 rememberedLocation
@@ -173,7 +174,7 @@ class ProfileDataStoreFactory @Inject constructor(
         }
         for (key in keysToRemove) {
             val scoped = synchronized(lock) { cache.remove(key) } ?: continue
-            runCatching { scoped.store.edit { it.clear() } }
+            runSuspendCatching { scoped.store.edit { it.clear() } }
             // Cancel the scope so DataStore releases the file from its active-files
             // registry. Wait for completion before any subsequent get() can create
             // a fresh DataStore for the same path.
@@ -219,7 +220,7 @@ class ProfileDataStoreFactory @Inject constructor(
         val failures = mutableListOf<String>()
         val cachedStores = synchronized(lock) { cache.toMap() }
         cachedStores.forEach { (name, scoped) ->
-            runCatching { scoped.store.edit { it.clear() } }
+            runSuspendCatching { scoped.store.edit { it.clear() } }
                 .onFailure { failures += "clear $name: ${it.message}" }
         }
         deletedProfileIds.clear()

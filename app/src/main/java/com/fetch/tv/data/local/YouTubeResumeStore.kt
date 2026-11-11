@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 /** Where a YouTube video stopped in Fetch, to the millisecond. */
 data class YouTubeResumePoint(
@@ -50,7 +51,7 @@ class YouTubeResumeStore @Inject constructor(
     /** [save] in this store's own scope, so it outlives the screen that asked. */
     fun saveInBackground(videoId: String, positionMs: Long, durationMs: Long) {
         backgroundScope.launch {
-            runCatching { save(videoId, positionMs, durationMs) }
+            runSuspendCatching { save(videoId, positionMs, durationMs) }
                 .onFailure { Log.w("YouTubeResumeStore", "Could not save the position of $videoId: ${it.message}") }
         }
     }

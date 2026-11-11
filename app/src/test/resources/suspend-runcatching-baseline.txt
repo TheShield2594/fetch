@@ -1,0 +1,57 @@
+# Bare runCatching calls in coroutine code each file may keep (#450). runCatching there also
+# catches CancellationException; use com.fetch.tv.core.util.runSuspendCatching instead.
+# SuspendRunCatchingGuardTest fails when a file goes over or under its count, so these only
+# go down: after migrating a file, lower (or delete) its line. Paths are under src/main/java.
+com/fetch/tv/core/player/TrailerPlayerPool.kt|2
+com/fetch/tv/core/server/PhoneHubController.kt|1
+com/fetch/tv/core/streams/AddonHealthTracker.kt|2
+com/fetch/tv/core/tmdb/MetaPreviewEnricher.kt|2
+com/fetch/tv/core/tmdb/TmdbCollectionSourceResolver.kt|1
+com/fetch/tv/core/tmdb/TmdbMetadataService.kt|9
+com/fetch/tv/core/tmdb/TmdbService.kt|2
+com/fetch/tv/core/trakt/TraktPublicListSourceResolver.kt|1
+com/fetch/tv/data/mdblist/MdbListApiClient.kt|1
+com/fetch/tv/data/mdblist/MdbListLibraryService.kt|1
+com/fetch/tv/data/mdblist/MdbListLibraryWriter.kt|1
+com/fetch/tv/data/mdblist/MdbListSyncRepository.kt|2
+com/fetch/tv/data/mediaserver/ServerMatcher.kt|2
+com/fetch/tv/data/mediaserver/ServerRepository.kt|1
+com/fetch/tv/data/simkl/SimklSyncRepository.kt|1
+com/fetch/tv/data/trailer/TrailerService.kt|3
+com/fetch/tv/data/youtube/ReturnYouTubeDislikeService.kt|1
+com/fetch/tv/data/youtube/SponsorBlockService.kt|2
+com/fetch/tv/data/youtube/YouTubeCaptions.kt|1
+com/fetch/tv/data/youtube/YouTubeService.kt|9
+com/fetch/tv/ui/components/posteroptions/PosterOptionsController.kt|9
+com/fetch/tv/ui/components/posteroptions/PosterOptionsViewModel.kt|2
+com/fetch/tv/ui/screens/account/FetchWebsiteViewModel.kt|1
+com/fetch/tv/ui/screens/addon/AddonManagerScreen.kt|1
+com/fetch/tv/ui/screens/addon/AddonManagerViewModel.kt|2
+com/fetch/tv/ui/screens/collection/CollectionEditorViewModel.kt|10
+com/fetch/tv/ui/screens/collection/FolderDetailScreen.kt|2
+com/fetch/tv/ui/screens/collection/FolderDetailViewModel.kt|5
+com/fetch/tv/ui/screens/detail/BestMatchPreviewLookup.kt|1
+com/fetch/tv/ui/screens/detail/FocusRestoreUtils.kt|1
+com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt|1
+com/fetch/tv/ui/screens/detail/MetaDetailsViewModel.kt|16
+com/fetch/tv/ui/screens/home/ContinueWatchingNextUpReconciliation.kt|1
+com/fetch/tv/ui/screens/home/HomeViewModel.kt|4
+com/fetch/tv/ui/screens/home/HomeViewModelContinueWatching.kt|19
+com/fetch/tv/ui/screens/home/HomeViewModelPresentationPipeline.kt|4
+com/fetch/tv/ui/screens/library/LibraryScreen.kt|1
+com/fetch/tv/ui/screens/library/LibraryViewModel.kt|1
+com/fetch/tv/ui/screens/player/PlayerMediaSourceFactory.kt|1
+com/fetch/tv/ui/screens/player/PlayerRuntimeController.kt|1
+com/fetch/tv/ui/screens/player/PlayerRuntimeControllerInitialization.kt|4
+com/fetch/tv/ui/screens/player/PlayerRuntimeControllerMetadata.kt|3
+com/fetch/tv/ui/screens/player/PlayerRuntimeControllerObservers.kt|1
+com/fetch/tv/ui/screens/player/PlayerRuntimeControllerPlaybackEvents.kt|2
+com/fetch/tv/ui/screens/player/PlayerRuntimeControllerQueue.kt|6
+com/fetch/tv/ui/screens/player/PlayerRuntimeControllerSourceSpec.kt|1
+com/fetch/tv/ui/screens/player/PlayerScreen.kt|1
+com/fetch/tv/ui/screens/player/PostPlayRecommendationController.kt|4
+com/fetch/tv/ui/screens/search/SearchScreen.kt|4
+com/fetch/tv/ui/screens/settings/SettingsScreen.kt|4
+com/fetch/tv/ui/screens/settings/YouTubeSettingsViewModel.kt|1
+com/fetch/tv/ui/screens/youtube/YouTubeViewModel.kt|1
+com/fetch/tv/updater/UpdateRepository.kt|1

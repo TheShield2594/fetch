@@ -15,7 +15,6 @@ import com.fetch.tv.data.local.ProfileLockStateDataStore
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
 import com.fetch.tv.data.local.ProfileRestrictions
 import com.fetch.tv.data.repository.AddonRepositoryImpl
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -32,6 +31,7 @@ import kotlinx.serialization.json.JsonObject
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 private const val TAG = "FetchWebsiteSync"
 
@@ -106,21 +106,21 @@ class FetchWebsiteSyncService @Inject constructor(
 
     private suspend fun syncLocked(): Result<Unit> {
         var signedIn = false
-        val result = runCatchingNonCancel {
-            if (!client.checkSession()) return@runCatchingNonCancel
+        val result = runSuspendCatching {
+            if (!client.checkSession()) return@runSuspendCatching
             signedIn = true
             // Until this TV's profiles are on the website, the website's list isn't written over
             // them: that would drop the ones not pushed yet. The rest of the pass still runs, and
             // the push is tried again next time.
             val initialPush = if (store.needsInitialProfilePush) {
-                runCatchingNonCancel { pushProfilesMissingFromWebsite() }
+                runSuspendCatching { pushProfilesMissingFromWebsite() }
                     .onSuccess { store.markInitialProfilePushDone() }
                     .onFailure { Log.w(TAG, "Couldn't add this TV's profiles to the website", it) }
             } else {
                 Result.success(Unit)
             }
             if (initialPush.isSuccess) pullProfiles()
-            val pulled = runCatchingNonCancel { pullActiveProfileState() }
+            val pulled = runSuspendCatching { pullActiveProfileState() }
             // Both can fail: the push is the one the website's report names, since it is what
             // keeps the TV's profiles off the account; the pull's error is in the log.
             initialPush.exceptionOrNull()?.let { pushError ->
@@ -142,10 +142,10 @@ class FetchWebsiteSyncService @Inject constructor(
         // Each domain on its own, so one the website refuses (an addon link it can't read,
         // say) doesn't keep the rest from syncing. The first failure is what the pass reports.
         val failures = listOf(
-            runCatchingNonCancel { pullCollections() },
-            runCatchingNonCancel { pullAddons() },
-            runCatchingNonCancel { homeCatalogSync.get().pullFromRemote().getOrThrow() },
-            runCatchingNonCancel { profileSettingsSync.get().pullCurrentProfileFromRemote().getOrThrow() }
+            runSuspendCatching { pullCollections() },
+            runSuspendCatching { pullAddons() },
+            runSuspendCatching { homeCatalogSync.get().pullFromRemote().getOrThrow() },
+            runSuspendCatching { profileSettingsSync.get().pullCurrentProfileFromRemote().getOrThrow() }
         ).mapNotNull { it.exceptionOrNull() }
         failures.drop(1).forEach { Log.w(TAG, "Website sync step failed", it) }
         failures.firstOrNull()?.let { throw it }
@@ -154,7 +154,7 @@ class FetchWebsiteSyncService @Inject constructor(
     /** Best-effort: a website that can't take the report is no reason to fail the sync. */
     private suspend fun report(result: Result<Unit>) {
         val error = result.exceptionOrNull()
-        runCatchingNonCancel {
+        runSuspendCatching {
             client.reportSync(
                 appVersion = BuildConfig.VERSION_NAME,
                 // One build since the playstore flavour went (#431); the website still shows a label.
@@ -222,7 +222,7 @@ class FetchWebsiteSyncService @Inject constructor(
     }
 
     /** Sends every profile on this TV to the website, creating the ones it doesn't have yet. */
-    suspend fun pushProfiles(): Result<Unit> = runCatchingNonCancel {
+    suspend fun pushProfiles(): Result<Unit> = runSuspendCatching {
         val restrictions = restrictionsDataStore.restrictions.first()
         val updated = profileManager.profiles.value.map { profile ->
             client.putProfile(
@@ -248,8 +248,8 @@ class FetchWebsiteSyncService @Inject constructor(
     }
 
     /** Deletes the website profile in [slot], with everything it holds there. */
-    suspend fun deleteProfile(slot: Int): Result<Unit> = runCatchingNonCancel {
-        val remote = remoteFor(slot) ?: return@runCatchingNonCancel
+    suspend fun deleteProfile(slot: Int): Result<Unit> = runSuspendCatching {
+        val remote = remoteFor(slot) ?: return@runSuspendCatching
         client.deleteProfile(remote.id, profileToken(remote.id))
         remoteProfiles = remoteProfiles.filter { it.slot != slot }
     }.onFailure { Log.w(TAG, "Failed to delete profile $slot on the website", it) }
@@ -260,7 +260,7 @@ class FetchWebsiteSyncService @Inject constructor(
     suspend fun remoteFor(slot: Int): WebsiteSlottedProfile? {
         if (!store.isPaired) return null
         remoteProfiles.firstOrNull { it.slot == slot }?.let { return it }
-        remoteProfiles = runCatchingNonCancel { client.profiles() }.getOrDefault(remoteProfiles)
+        remoteProfiles = runSuspendCatching { client.profiles() }.getOrDefault(remoteProfiles)
         return remoteProfiles.firstOrNull { it.slot == slot }
     }
 
@@ -430,7 +430,7 @@ class FetchWebsiteSyncService @Inject constructor(
                 if (error.code == "profile_verification_required") return null
                 throw error
             }
-            val base = store.settingsBase(remote.id)?.let { runCatching { json.parseToJsonElement(it) as JsonObject }.getOrNull() }
+            val base = store.settingsBase(remote.id)?.let { runSuspendCatching { json.parseToJsonElement(it) as JsonObject }.getOrNull() }
             val merged = FetchWebsiteTvMappings.mergeSettings(
                 base = if (current.version == 0) null else base,
                 local = local,
@@ -459,19 +459,11 @@ class FetchWebsiteSyncService @Inject constructor(
             profileManager.activeProfileId.drop(1).collect {
                 if (!store.isPaired) return@collect
                 syncMutex.withLock {
-                    runCatchingNonCancel {
+                    runSuspendCatching {
                         pullActiveProfileState()
                     }.onFailure { Log.w(TAG, "Website sync after a profile switch failed", it) }
                 }
             }
         }
-    }
-
-    private inline fun <T> runCatchingNonCancel(block: () -> T): Result<T> = try {
-        Result.success(block())
-    } catch (error: CancellationException) {
-        throw error
-    } catch (error: Exception) {
-        Result.failure(error)
     }
 }

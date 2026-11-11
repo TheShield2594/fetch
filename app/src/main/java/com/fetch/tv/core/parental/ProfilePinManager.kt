@@ -7,7 +7,6 @@ import com.fetch.tv.data.local.PinAttemptState
 import com.fetch.tv.data.local.ProfileLockStateDataStore
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
 import com.fetch.tv.data.website.FetchWebsiteProfilePins
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -19,6 +18,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
+import com.fetch.tv.core.util.runSuspendCatching
 
 private const val TAG = "ProfilePinManager"
 
@@ -184,7 +184,7 @@ class ProfilePinManager internal constructor(
         }
         // The local hash is checked first, so the new PIN works here even if the server keeps the old one.
         if (!remote.isAvailable) return ResetPinResult.Success
-        val remoteResult = runCatchingNonCancel { remote.setPin(profileId, newPin, null) }
+        val remoteResult = runSuspendCatching { remote.setPin(profileId, newPin, null) }
         if (remoteResult.getOrNull() is SetProfilePinResult.Success) {
             store.setPinEnabled(profileId, true)
             return ResetPinResult.Success
@@ -213,7 +213,7 @@ class ProfilePinManager internal constructor(
      */
     suspend fun verifyPin(profileId: Int, pin: String): Result<PinVerifyResult> {
         if (remote.isAvailable && remote.isAuthoritative && hasPin(profileId)) {
-            val verdict = runCatchingNonCancel { remote.verifyPin(profileId, pin).getOrThrow() }.getOrNull()
+            val verdict = runSuspendCatching { remote.verifyPin(profileId, pin).getOrThrow() }.getOrNull()
             if (verdict != null) {
                 // The remote's answer stands, so a PIN changed there works here at once and the
                 // old one stops working. The device keeps a copy of the right one for offline use.
@@ -234,7 +234,7 @@ class ProfilePinManager internal constructor(
                 (profileId == PARENT_PROFILE_ID && mainPinLost.first())
             if (!remoteEnabled) return Result.success(PinVerifyResult(unlocked = true))
             if (!remote.isAvailable) return Result.failure(IllegalStateException("Sync server not available"))
-            val remoteResult = runCatchingNonCancel { remote.verifyPin(profileId, pin).getOrThrow() }
+            val remoteResult = runSuspendCatching { remote.verifyPin(profileId, pin).getOrThrow() }
             remoteResult.getOrNull()?.takeIf { it.unlocked }?.let {
                 val hash = withContext(Dispatchers.Default) { ProfilePinHasher.hash(pin) }
                 store.setLocalPinHash(profileId, hash)
@@ -288,15 +288,7 @@ class ProfilePinManager internal constructor(
 
     private suspend fun mirror(action: String, block: suspend () -> Unit) {
         if (!remote.isAvailable) return
-        runCatchingNonCancel { block() }
+        runSuspendCatching { block() }
             .onFailure { Log.w(TAG, "Failed to mirror PIN $action to sync server", it) }
-    }
-
-    private inline fun <T> runCatchingNonCancel(block: () -> T): Result<T> = try {
-        Result.success(block())
-    } catch (error: CancellationException) {
-        throw error
-    } catch (error: Exception) {
-        Result.failure(error)
     }
 }

@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 sealed interface TraktTokenPollResult {
     data object Pending : TraktTokenPollResult
@@ -329,7 +330,7 @@ class TraktAuthService @Inject constructor(
         val state = authState(profileId)
         if (hasRequiredCredentials()) {
             state.accessToken?.let { accessToken ->
-                runCatching {
+                runSuspendCatching {
                     traktApi.revokeToken(
                         TraktRevokeRequestDto(
                             token = accessToken,

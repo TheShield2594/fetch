@@ -48,6 +48,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 @Singleton
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -380,7 +381,7 @@ class LibraryRepositoryImpl @Inject constructor(
     private suspend fun hydrateLibraryLogos(items: List<LibraryEntry>) {
         items.take(20).forEach { entry ->
             hydratedLogoIds.add(entry.id)
-            runCatching {
+            runSuspendCatching {
                 val result = metaRepository.getMetaFromPrimaryAddon(entry.type, entry.id)
                     .firstOrNull { it is NetworkResult.Success }
                 val logo = (result as? NetworkResult.Success)?.data?.logo

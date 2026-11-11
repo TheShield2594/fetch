@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">ওয়াচলিস্ট</string>
+    <string name="library_tab_lists">লিস্ট</string>
+    <string name="library_tab_in_progress">চলমান</string>
+    <string name="library_tab_history">হিস্ট্রি</string>
+    <string name="library_tab_upcoming">আসন্ন</string>
+    <string name="library_tabs_description">লাইব্রেরি বিভাগ</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">এখনও কোনো লিস্ট নেই</string>
+    <string name="library_lists_empty_subtitle">এখানে বা আপনার ট্র্যাকিং সার্ভিসে তৈরি করা লিস্ট এই ট্যাবে দেখা যায়। আপনার ওয়াচলিস্টের নিজস্ব ট্যাব আছে।</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (এই টিভি)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% দেখা হয়েছে</string>
+    <string name="library_in_progress_empty_title">চলমান কিছু নেই</string>
+    <string name="library_in_progress_empty_subtitle">যে মুভি ও এপিসোড আপনি শুরু করেছেন কিন্তু শেষ করেননি, সেগুলো এখানে দেখা যায়।</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">এখনও কিছু দেখা হয়নি</string>
+    <string name="library_history_empty_subtitle">আপনি যা শেষ করেন, এবং আপনার ট্র্যাকিং সার্ভিস যা দেখা হয়েছে বলে চিহ্নিত করে, তা মাস অনুযায়ী এখানে দেখা যায়।</string>
+</resources>

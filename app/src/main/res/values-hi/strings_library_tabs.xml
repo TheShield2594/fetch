@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">वॉचलिस्ट</string>
+    <string name="library_tab_lists">लिस्ट</string>
+    <string name="library_tab_in_progress">जारी</string>
+    <string name="library_tab_history">हिस्ट्री</string>
+    <string name="library_tab_upcoming">आने वाले</string>
+    <string name="library_tabs_description">लाइब्रेरी सेक्शन</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">अभी कोई लिस्ट नहीं है</string>
+    <string name="library_lists_empty_subtitle">यहाँ या आपकी ट्रैकिंग सेवा पर बनाई गई लिस्ट इस टैब में दिखती हैं। आपकी वॉचलिस्ट का अपना अलग टैब है।</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (यह टीवी)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% देखा गया</string>
+    <string name="library_in_progress_empty_title">कुछ भी जारी नहीं है</string>
+    <string name="library_in_progress_empty_subtitle">जो फ़िल्में और एपिसोड आपने शुरू किए हैं पर पूरे नहीं किए, वे यहाँ दिखते हैं।</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">अभी तक कुछ नहीं देखा गया</string>
+    <string name="library_history_empty_subtitle">आप जो पूरा देखते हैं, और आपकी ट्रैकिंग सेवा जिसे देखा गया मार्क करती है, वह यहाँ महीने के हिसाब से दिखता है।</string>
+
+    <!-- Library watched filter -->
+    <string name="library_watched_filter_ready">चलाने के लिए तैयार</string>
+</resources>

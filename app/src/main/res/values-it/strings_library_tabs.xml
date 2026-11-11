@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Lista da guardare</string>
+    <string name="library_tab_lists">Liste</string>
+    <string name="library_tab_in_progress">In corso</string>
+    <string name="library_tab_history">Cronologia</string>
+    <string name="library_tab_upcoming">In arrivo</string>
+    <string name="library_tabs_description">Sezioni della libreria</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Ancora nessuna lista</string>
+    <string name="library_lists_empty_subtitle">Le liste che crei qui o sul tuo servizio di tracciamento compaiono in questa scheda. La tua lista da guardare ha una scheda tutta sua.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (questa TV)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% guardato</string>
+    <string name="library_in_progress_empty_title">Niente in corso</string>
+    <string name="library_in_progress_empty_subtitle">I film e gli episodi che hai iniziato e non finito compaiono qui.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Non hai ancora guardato nulla</string>
+    <string name="library_history_empty_subtitle">Ciò che finisci di guardare, e ciò che il tuo servizio di tracciamento segna come guardato, compare qui mese per mese.</string>
+</resources>

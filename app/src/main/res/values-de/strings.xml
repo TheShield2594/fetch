@@ -9,14 +9,14 @@
 
     <!-- WebConfigServers -->
     <string name="web_manage_addons_title">Manage Addons</string>
-    <string name="web_manage_addons_subtitle">Manage addons, catalogs, and collections</string>
+    <string name="web_manage_addons_subtitle">Add-ons, Kataloge und Startseiten-Ordner verwalten</string>
     <string name="web_manage_addons_only_subtitle">Install or remove add-ons</string>
     <string name="web_add_addon_url">Add addon by URL</string>
     <string name="web_placeholder_url">https://example.com/manifest.json</string>
     <string name="web_btn_add">Add</string>
     <string name="web_installed_addons">Installed Addons</string>
     <string name="web_no_addons">No addons installed</string>
-    <string name="web_home_catalogs">Home Catalogs and Collections</string>
+    <string name="web_home_catalogs">Startseiten-Kataloge und -Ordner</string>
     <string name="web_no_catalogs">No home catalogs available</string>
     <string name="web_btn_save">Save Changes</string>
     <string name="web_connection_lost">Connection to TV lost</string>
@@ -45,26 +45,26 @@
     <string name="web_installed">Installed</string>
     <string name="web_no_repos">No repositories installed</string>
     <string name="web_error_repo_exists">This repository is already in the list</string>
-    <string name="web_manage_collections_title">Manage Collections</string>
-    <string name="web_manage_collections_subtitle">Create and manage your custom collections</string>
-    <string name="web_status_msg_collections_updated">Your collections have been updated on the TV.</string>
+    <string name="web_manage_collections_title">Startseiten-Ordner verwalten</string>
+    <string name="web_manage_collections_subtitle">Erstelle und verwalte die Ordnerzeilen auf deiner Startseite</string>
+    <string name="web_status_msg_collections_updated">Deine Startseiten-Ordner wurden auf dem TV aktualisiert.</string>
     <string name="web_tab_addons">Addons</string>
     <string name="web_tab_home_layout">Home Layout</string>
-    <string name="web_tab_collections">Collections</string>
+    <string name="web_tab_collections">Startseiten-Ordner</string>
     <string name="web_btn_enable_all">Enable All</string>
     <string name="web_btn_disable_all">Disable All</string>
     <string name="web_btn_show_all">Show All</string>
     <string name="web_btn_hide_all">Hide All</string>
-    <string name="web_btn_new_collection">+ New Collection</string>
+    <string name="web_btn_new_collection">+ Neue Ordnerzeile</string>
     <string name="web_btn_export">Export</string>
     <string name="web_btn_import">Import</string>
-    <string name="web_no_collections">No collections yet</string>
-    <string name="web_badge_collection">Collection</string>
-    <string name="web_import_collections_title">Import Collections</string>
+    <string name="web_no_collections">Noch keine Ordnerzeilen</string>
+    <string name="web_badge_collection">Ordnerzeile</string>
+    <string name="web_import_collections_title">Startseiten-Ordner importieren</string>
     <string name="web_import_tab_paste">Paste</string>
     <string name="web_import_tab_file">File</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Paste collections JSON here…</string>
+    <string name="web_import_paste_placeholder">Startseiten-Ordner-JSON hier einfügen…</string>
     <string name="web_import_file_select">Tap to select a .json file</string>
     <string name="web_order_send_to_top">Send to top</string>
     <string name="web_order_send_to_bottom">Send to bottom</string>
@@ -80,21 +80,21 @@
     <string name="web_import_enter_url">Enter a URL</string>
     <string name="web_import_failed_fetch_url">Failed to fetch URL</string>
     <string name="web_import_no_json">No JSON provided</string>
-    <string name="web_import_expected_array">Expected a JSON array of collections</string>
-    <string name="web_import_empty_array">Empty array: no collections found</string>
-    <string name="web_import_error_collection_invalid_id">Collection {index}: missing or invalid \"id\"</string>
-    <string name="web_import_error_collection_invalid_title">Collection \"{collection}\": missing or invalid \"title\"</string>
-    <string name="web_import_error_collection_folders_array">Collection \"{collection}\": \"folders\" must be an array</string>
-    <string name="web_import_error_folder_invalid_format">Collection \"{collection}\", folder {index}: invalid format</string>
-    <string name="web_import_error_folder_missing_id">Collection \"{collection}\", folder {index}: missing \"id\"</string>
-    <string name="web_import_error_folder_missing_title">Collection \"{collection}\", folder \"{folder}\": missing \"title\"</string>
-    <string name="web_import_error_sources_array">Collection \"{collection}\", folder \"{folder}\": \"sources\" must be an array</string>
-    <string name="web_import_error_invalid_tile_shape">Collection \"{collection}\", folder \"{folder}\": invalid tileShape \"{shape}\"</string>
-    <string name="web_import_error_source_invalid_format">Collection \"{collection}\", folder \"{folder}\", source {index}: invalid format</string>
-    <string name="web_import_error_source_missing_addon_fields">Collection \"{collection}\", folder \"{folder}\", source {index}: missing required fields (addonId, type, catalogId)</string>
+    <string name="web_import_expected_array">Ein JSON-Array mit Ordnerzeilen wurde erwartet</string>
+    <string name="web_import_empty_array">Leeres Array: keine Ordnerzeilen gefunden</string>
+    <string name="web_import_error_collection_invalid_id">Ordnerzeile {index}: \"id\" fehlt oder ist ungültig</string>
+    <string name="web_import_error_collection_invalid_title">Ordnerzeile \"{collection}\": \"title\" fehlt oder ist ungültig</string>
+    <string name="web_import_error_collection_folders_array">Ordnerzeile \"{collection}\": \"folders\" muss ein Array sein</string>
+    <string name="web_import_error_folder_invalid_format">Ordnerzeile \"{collection}\", Ordner {index}: ungültiges Format</string>
+    <string name="web_import_error_folder_missing_id">Ordnerzeile \"{collection}\", Ordner {index}: \"id\" fehlt</string>
+    <string name="web_import_error_folder_missing_title">Ordnerzeile \"{collection}\", Ordner \"{folder}\": \"title\" fehlt</string>
+    <string name="web_import_error_sources_array">Ordnerzeile \"{collection}\", Ordner \"{folder}\": \"sources\" muss ein Array sein</string>
+    <string name="web_import_error_invalid_tile_shape">Ordnerzeile \"{collection}\", Ordner \"{folder}\": ungültige tileShape \"{shape}\"</string>
+    <string name="web_import_error_source_invalid_format">Ordnerzeile \"{collection}\", Ordner \"{folder}\", Quelle {index}: ungültiges Format</string>
+    <string name="web_import_error_source_missing_addon_fields">Ordnerzeile \"{collection}\", Ordner \"{folder}\", Quelle {index}: Pflichtfelder fehlen (addonId, type, catalogId)</string>
     <string name="web_import_error_source_missing_tmdb_type">Collection \"{collection}\", folder \"{folder}\", source {index}: missing TMDB source type</string>
-    <string name="web_import_error_source_missing_trakt_id">Collection \"{collection}\", folder \"{folder}\", source {index}: missing Trakt list ID</string>
-    <string name="web_import_success">Imported {count} collection(s). Review and hit Save Changes to apply.</string>
+    <string name="web_import_error_source_missing_trakt_id">Ordnerzeile \"{collection}\", Ordner \"{folder}\", Quelle {index}: Trakt-Listen-ID fehlt</string>
+    <string name="web_import_success">{count} Ordnerzeile(n) importiert. Überprüfe sie und klicke auf „Änderungen speichern“, um sie zu übernehmen.</string>
     <string name="web_import_invalid_json">Invalid JSON</string>
 
     <!-- HomeScreen -->
@@ -384,7 +384,7 @@
     <string name="experience_mode_choose_title">Wähle dein Fetch-Erlebnis</string>
     <string name="experience_mode_choose_subtitle">Start simple or unlock every customization. You can switch anytime.</string>
     <string name="experience_mode_essential_card_subtitle">Focused setup, add-ons, playback basics, Trakt, and account settings.</string>
-    <string name="experience_mode_advanced_card_subtitle">Full settings, layout controls, catalog order, collections, plug-ins, and diagnostics.</string>
+    <string name="experience_mode_advanced_card_subtitle">Alle Einstellungen, Layout-Steuerung, Katalogreihenfolge, Startseiten-Ordner, Plug-ins und Diagnose.</string>
     <string name="experience_mode_group_title">Experience mode</string>
     <string name="essential_addon_continue_for_now">Continue for now</string>
     <string name="essential_playback_basics">Playback basics</string>
@@ -409,11 +409,11 @@
     <string name="experience_mode_switch_to_essential_subtitle">Hide advanced setup surfaces without changing your saved values.</string>
     <string name="experience_mode_switch_to_advanced">Switch to Advanced</string>
     <string name="experience_mode_switch_to_advanced_header_subtitle">Switch to Advanced for the full settings surface.</string>
-    <string name="experience_mode_switch_to_advanced_subtitle">Show full layout, plug-in, integration, catalog, collection, and tuning settings.</string>
+    <string name="experience_mode_switch_to_advanced_subtitle">Alle Einstellungen für Layout, Plug-ins, Integrationen, Kataloge, Startseiten-Ordner und Feinabstimmung anzeigen.</string>
     <string name="experience_mode_confirm_essential_title">Switch to Essential?</string>
     <string name="experience_mode_confirm_advanced_title">Switch to Advanced?</string>
     <string name="experience_mode_confirm_essential_subtitle">Advanced setup surfaces will be hidden, but your saved settings stay unchanged. You can switch back anytime.</string>
-    <string name="experience_mode_confirm_advanced_subtitle">This reveals the full settings surface, including advanced setup, catalog, collection, and tuning controls.</string>
+    <string name="experience_mode_confirm_advanced_subtitle">Damit werden alle Einstellungen angezeigt, einschließlich erweiterter Einrichtung sowie Katalog-, Startseiten-Ordner- und Feinabstimmungsoptionen.</string>
     <string name="advanced_section_performance">Performance &amp; navigation</string>
     <string name="advanced_section_diagnostics">Diagnostics</string>
     <string name="advanced_section_cache">Cache</string>
@@ -846,7 +846,7 @@
     <!-- Collection editor fallbacks -->
     <string name="collection_editor_no_trakt_lists_found">Keine Trakt-Listen gefunden</string>
     <string name="collection_editor_untitled_folder">Unbenannt</string>
-    <string name="collection_editor_untitled_collection">Unbenannte Sammlung</string>
+    <string name="collection_editor_untitled_collection">Unbenannte Ordnerzeile</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Addons</string>
     <string name="addon_readonly_notice">Verwendet Addons des Hauptprofils und kann nicht geändert werden</string>
@@ -864,14 +864,14 @@
     <string name="addon_remove_confirm_title">%1$s entfernen?</string>
     <string name="addon_remove_confirm_message">Seine Kataloge und Streams werden auf diesem Fernseher nicht mehr angezeigt.</string>
     <string name="addon_manage_from_phone_title">Mit Smartphone verwalten</string>
-    <string name="addon_manage_from_phone_subtitle">Scannen Sie einen QR-Code, um Add-ons und Home-Kataloge von Ihrem Smartphone aus zu verwalten</string>
+    <string name="addon_manage_from_phone_subtitle">Scannen Sie einen QR-Code, um Add-ons, Kataloge und Startseiten-Ordner von Ihrem Smartphone aus zu verwalten</string>
     <string name="addon_manage_addons_only_from_phone_subtitle">Scanne einen QR-Code um Add-Ons über dein Smartphone zu installieren oder zu löschen</string>
-    <string name="addon_manage_collections_from_phone_subtitle">Scanne einen QR-Code um Sammlungen über dein Smartphone zu verwalten</string>
+    <string name="addon_manage_collections_from_phone_subtitle">Scanne einen QR-Code um Startseiten-Ordner über dein Smartphone zu verwalten</string>
     <string name="addon_reorder_title">Home-Kataloge neu anordnen</string>
-    <string name="addon_reorder_subtitle">Steuert die Reihenfolge der Katalogzeilen auf der Startseite (klassisch + modern + Raster)</string>
-    <string name="addon_qr_scan_instruction">Mit Ihrem Smartphone scannen, um Add-ons und Kataloge zu verwalten</string>
+    <string name="addon_reorder_subtitle">Steuert die Reihenfolge der Katalog- und Ordnerzeilen auf der Startseite (klassisch + modern + Raster)</string>
+    <string name="addon_qr_scan_instruction">Mit Ihrem Smartphone scannen, um Add-ons, Kataloge und Startseiten-Ordner zu verwalten</string>
     <string name="addon_qr_addons_only_scan_instruction">Mit deinem Smartphone scannen, um Add-Ons zu installieren oder zu löschen</string>
-    <string name="addon_qr_collections_scan_instruction">Mit deinem Smartphone scannen, um Sammlungen zu verwalten</string>
+    <string name="addon_qr_collections_scan_instruction">Mit deinem Smartphone scannen, um Startseiten-Ordner zu verwalten</string>
     <string name="addon_qr_close">Schließen</string>
     <string name="addon_confirm_title">Änderungen an Add-ons und Katalogen bestätigen</string>
     <string name="addon_confirm_subtitle">Die folgenden Änderungen wurden von Ihrem Smartphone aus vorgenommen:</string>
@@ -886,14 +886,14 @@
     <string name="addon_refresh_action">Addons neuladen</string>
     <string name="addon_refresh_default_subtitle">Aktuelle Add-On Konfiguration für aktuelles Profil laden</string>
     <string name="addon_refresh_done_subtitle">Add-Ons gerade neu geladen</string>
-    <string name="addon_pending_collections_updated">Sammlungen aktualisiert</string>
-    <string name="addon_pending_collections_replace">%1$d Sammlung(en) werden bisherige Sammlungen ersetzen</string>
+    <string name="addon_pending_collections_updated">Startseiten-Ordner aktualisiert</string>
+    <string name="addon_pending_collections_replace">%1$d Ordnerzeile(n) werden deine bisherigen Startseiten-Ordner ersetzen</string>
 
     <!-- Katalogbestellungsbildschirm -->
     <string name="catalog_order_title">Kataloge auf der Startseite neu anordnen</string>
     <string name="catalog_order_subtitle">Hiermit wird die Reihenfolge der Katalogzeilen auf der Startseite (klassisch + modern + Raster) gesteuert. </string>
     <string name="catalog_order_follow_addons">Add-On Reihenfolge berücksichtigen</string>
-    <string name="catalog_order_follow_addons_desc">Kataloge folgen Add-On Reihenfolge. Sammlungen können weiterhin zwischen Add-Ons bewegt werden.</string>
+    <string name="catalog_order_follow_addons_desc">Kataloge folgen Add-On Reihenfolge. Ordnerzeilen können weiterhin zwischen Add-Ons bewegt werden.</string>
     <string name="catalog_order_empty">Es sind noch keine Home-Kataloge verfügbar.</string>
     <string name="catalog_order_disabled_on_home">Auf der Startseite deaktiviert</string>
     <string name="catalog_order_enable">Aktivieren</string>
@@ -1354,24 +1354,24 @@
     <string name="debug_generate_library_result_added">Added %1$d items to library</string>
 
     <!-- Collection Management -->
-    <string name="collections_header">Collections</string>
-    <string name="collections_delete_confirm_title">Delete Collection?</string>
+    <string name="collections_header">Startseiten-Ordner</string>
+    <string name="collections_delete_confirm_title">Ordnerzeile löschen?</string>
     <string name="collections_delete_confirm_subtitle">This will permanently delete \"%1$s\". This cannot be undone.</string>
-    <string name="collections_empty">No collections yet. Create one to organize your catalogs.</string>
-    <string name="collections_new">New Collection</string>
+    <string name="collections_empty">Noch keine Ordnerzeilen. Erstelle eine, um deine Kataloge in Ordnern auf der Startseite zu gruppieren.</string>
+    <string name="collections_new">Neue Ordnerzeile</string>
     <string name="collections_import">Import</string>
     <string name="collections_export_file">Export File</string>
     <string name="collections_saved_downloads">Saved to Downloads</string>
     <string name="collections_export_failed">Speichern in Downloads fehlgeschlagen. Prüfen Sie die Speicherberechtigung und den freien Speicherplatz und versuchen Sie es dann erneut.</string>
-    <string name="collections_import_header">Import Collections</string>
-    <string name="collections_import_description">Import collections from JSON. Catalogs from addons you don\'t have installed will show a warning.</string>
+    <string name="collections_import_header">Startseiten-Ordner importieren</string>
+    <string name="collections_import_description">Ordnerzeilen aus JSON importieren. Kataloge von Add-ons, die du nicht installiert hast, werden mit einer Warnung angezeigt.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
     <string name="collections_import_failed_fetch_http">Failed to fetch: HTTP %1$d</string>
     <string name="collections_import_failed_fetch_url">Failed to fetch URL: %1$s</string>
-    <string name="collections_import_paste_json_required">Paste a collections JSON to import</string>
+    <string name="collections_import_paste_json_required">Füge zum Importieren ein Startseiten-Ordner-JSON ein</string>
     <string name="collections_import_no_data">No data to import</string>
-    <string name="collections_import_invalid_or_empty">Invalid format or empty collections</string>
-    <string name="collections_import_file_not_found_downloads">File not found in Downloads.\nExport collections first to create it.</string>
+    <string name="collections_import_invalid_or_empty">Ungültiges Format oder keine Ordnerzeilen</string>
+    <string name="collections_import_file_not_found_downloads">Datei nicht in Downloads gefunden.\nExportiere zuerst deine Startseiten-Ordner, um sie zu erstellen.</string>
     <string name="collections_import_failed_read_file">Failed to read file: %1$s</string>
     <string name="collections_cancel">Cancel</string>
     <string name="collections_mode_paste">Paste JSON</string>
@@ -1379,7 +1379,7 @@
     <string name="collections_mode_url">From URL</string>
     <string name="collections_paste_clipboard">Paste from Clipboard</string>
     <string name="collections_validate">Validate</string>
-    <string name="collections_paste_hint">Paste collections JSON here…</string>
+    <string name="collections_paste_hint">Startseiten-Ordner-JSON hier einfügen…</string>
     <string name="collections_file_description">Reads fetch-collections.json from the Downloads folder.</string>
     <string name="collections_load_file">Load File</string>
     <string name="collections_fetch_url">Fetch URL</string>
@@ -1392,7 +1392,7 @@
     <string name="collections_editor_save">Save</string>
     <string name="collections_editor_backdrop">Backdrop Image</string>
     <string name="collections_editor_pin_above">Pin Above Catalogs</string>
-    <string name="collections_editor_pin_above_desc">Show this collection above all regular home catalogs. Multiple pinned collections follow collection creation order.</string>
+    <string name="collections_editor_pin_above_desc">Zeigt diese Ordnerzeile über allen regulären Katalogen der Startseite an. Angeheftete Ordnerzeilen folgen der Reihenfolge, in der sie erstellt wurden.</string>
     <string name="collections_editor_view_mode">View Mode</string>
     <string name="collections_editor_show_all_tab">Show \"All\" Tab</string>
     <string name="collections_editor_show_all_tab_desc">Combine all catalogs into one tab</string>
@@ -1416,7 +1416,7 @@
     <string name="collections_editor_select_catalogs">Select Catalogs</string>
     <string name="collections_editor_done">Done</string>
     <string name="collections_editor_choose_emoji">Choose Emoji</string>
-    <string name="collections_editor_edit_collection">Edit Collection</string>
+    <string name="collections_editor_edit_collection">Ordnerzeile bearbeiten</string>
     <string name="collections_editor_source">Source</string>
     <string name="collections_editor_view_mode_tabs">Tabs</string>
     <string name="collections_editor_view_mode_rows">Rows</string>
@@ -1555,7 +1555,7 @@
     <string name="collections_editor_keyword_based_on_novel">Based on Novel</string>
     <string name="collections_editor_keyword_time_travel">Time Travel</string>
     <string name="collections_editor_keyword_space">Space</string>
-    <string name="collections_editor_placeholder_name">Collection name</string>
+    <string name="collections_editor_placeholder_name">Name der Ordnerzeile</string>
     <string name="collections_editor_placeholder_backdrop">Backdrop image URL (optional)</string>
     <string name="collections_editor_placeholder_cover_image">Cover image URL</string>
     <string name="collections_editor_placeholder_folder">Folder name</string>
@@ -1575,7 +1575,7 @@
     <string name="collections_editor_all_genres">All genres</string>
     <string name="collections_editor_genre_required">Genre required</string>
     <string name="collections_editor_genre_optional">Genre filter available</string>
-    <string name="collections_card_title">Collections</string>
+    <string name="collections_card_title">Startseiten-Ordner</string>
     <string name="collections_tab_all">All</string>
     <string name="collections_tab_combined">Combined</string>
     <string name="collection_editor_remove_cd">Remove</string>
@@ -1589,7 +1589,7 @@
     <string name="folder_error_trakt_source">Diese Trakt-Liste konnte nicht geladen werden. Prüfen Sie Ihre Verbindung und ob die Liste noch öffentlich ist, und versuchen Sie es dann erneut.</string>
     <string name="folder_error_list_source">Diese Liste konnte nicht geladen werden. Prüfen Sie Ihre Verbindung und versuchen Sie es dann erneut.</string>
     <string name="collections_editor_discard_title">Änderungen verwerfen?</string>
-    <string name="collections_editor_discard_collection_subtitle">Ihre Änderungen an dieser Sammlung wurden nicht gespeichert.</string>
+    <string name="collections_editor_discard_collection_subtitle">Ihre Änderungen an dieser Ordnerzeile wurden nicht gespeichert.</string>
     <string name="collections_editor_discard_folder_subtitle">Ihre Änderungen an diesem Ordner wurden nicht gespeichert.</string>
     <string name="collections_editor_keep_editing">Weiter bearbeiten</string>
     <string name="collections_editor_discard">Verwerfen</string>
@@ -1677,19 +1677,19 @@
     <!-- Collection import errors -->
     <string name="collections_import_error_empty_input">Empty input</string>
     <string name="collections_import_error_expected_array">Invalid format: expected an array</string>
-    <string name="collections_import_error_empty_array">Empty array: no collections found</string>
-    <string name="collections_import_error_missing_id">Collection %1$d: missing or invalid \"id\"</string>
-    <string name="collections_import_error_missing_title">Collection \"%1$s\": missing or invalid \"title\"</string>
-    <string name="collections_import_error_folders_array">Collection \"%1$s\": \"folders\" must be an array</string>
-    <string name="collections_import_error_folder_invalid">Collection \"%1$s\", folder %2$d: invalid format</string>
-    <string name="collections_import_error_folder_missing_id">Collection \"%1$s\", folder %2$d: missing \"id\"</string>
-    <string name="collections_import_error_folder_missing_title">Collection \"%1$s\", folder \"%2$s\": missing \"title\"</string>
-    <string name="collections_import_error_sources_array">Collection \"%1$s\", folder \"%2$s\": \"sources\" must be an array</string>
-    <string name="collections_import_error_invalid_tile_shape">Collection \"%1$s\", folder \"%2$s\": invalid tileShape \"%3$s\"</string>
-    <string name="collections_import_error_source_invalid">Collection \"%1$s\", folder \"%2$s\", source %3$d: invalid format</string>
-    <string name="collections_import_error_source_required_fields">Collection \"%1$s\", folder \"%2$s\", source %3$d: missing required fields</string>
-    <string name="collections_import_error_missing_tmdb_type">Collection \"%1$s\", folder \"%2$s\", source %3$d: missing TMDB source type</string>
-    <string name="collections_import_error_missing_trakt_list_id">Collection \"%1$s\", folder \"%2$s\", source %3$d: missing Trakt list ID</string>
+    <string name="collections_import_error_empty_array">Leeres Array: keine Ordnerzeilen gefunden</string>
+    <string name="collections_import_error_missing_id">Ordnerzeile %1$d: \"id\" fehlt oder ist ungültig</string>
+    <string name="collections_import_error_missing_title">Ordnerzeile \"%1$s\": \"title\" fehlt oder ist ungültig</string>
+    <string name="collections_import_error_folders_array">Ordnerzeile \"%1$s\": \"folders\" muss ein Array sein</string>
+    <string name="collections_import_error_folder_invalid">Ordnerzeile \"%1$s\", Ordner %2$d: ungültiges Format</string>
+    <string name="collections_import_error_folder_missing_id">Ordnerzeile \"%1$s\", Ordner %2$d: \"id\" fehlt</string>
+    <string name="collections_import_error_folder_missing_title">Ordnerzeile \"%1$s\", Ordner \"%2$s\": \"title\" fehlt</string>
+    <string name="collections_import_error_sources_array">Ordnerzeile \"%1$s\", Ordner \"%2$s\": \"sources\" muss ein Array sein</string>
+    <string name="collections_import_error_invalid_tile_shape">Ordnerzeile \"%1$s\", Ordner \"%2$s\": ungültige tileShape \"%3$s\"</string>
+    <string name="collections_import_error_source_invalid">Ordnerzeile \"%1$s\", Ordner \"%2$s\", Quelle %3$d: ungültiges Format</string>
+    <string name="collections_import_error_source_required_fields">Ordnerzeile \"%1$s\", Ordner \"%2$s\", Quelle %3$d: Pflichtfelder fehlen</string>
+    <string name="collections_import_error_missing_tmdb_type">Ordnerzeile \"%1$s\", Ordner \"%2$s\", Quelle %3$d: TMDB-Quelltyp fehlt</string>
+    <string name="collections_import_error_missing_trakt_list_id">Ordnerzeile \"%1$s\", Ordner \"%2$s\", Quelle %3$d: Trakt-Listen-ID fehlt</string>
     <string name="collections_import_error_json_parse">JSON parse error: %1$s</string>
 
     <!-- Library messages -->

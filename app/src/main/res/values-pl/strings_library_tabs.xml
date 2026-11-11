@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Lista do obejrzenia</string>
+    <string name="library_tab_lists">Listy</string>
+    <string name="library_tab_in_progress">W trakcie</string>
+    <string name="library_tab_history">Historia</string>
+    <string name="library_tab_upcoming">Nadchodzące</string>
+    <string name="library_tabs_description">Sekcje biblioteki</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Brak list</string>
+    <string name="library_lists_empty_subtitle">Listy utworzone tutaj lub w usłudze śledzenia pojawiają się na tej karcie. Lista do obejrzenia ma własną kartę.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (ten TV)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">Obejrzano %1$d%%</string>
+    <string name="library_in_progress_empty_title">Nic w trakcie</string>
+    <string name="library_in_progress_empty_subtitle">Tutaj pojawiają się filmy i odcinki, które zacząłeś, ale nie skończyłeś oglądać.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Nic jeszcze nie obejrzano</string>
+    <string name="library_history_empty_subtitle">Tutaj, według miesięcy, pojawia się to, co obejrzysz do końca, i to, co usługa śledzenia oznaczy jako obejrzane.</string>
+</resources>

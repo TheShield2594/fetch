@@ -9,14 +9,14 @@
     <string name="type_unknown">Desconocido</string>
 
     <string name="web_manage_addons_title">Administrar complementos</string>
-    <string name="web_manage_addons_subtitle">Administra complementos, catálogos y colecciones</string>
+    <string name="web_manage_addons_subtitle">Administra complementos, catálogos y carpetas de inicio</string>
     <string name="web_manage_addons_only_subtitle">Instala o elimina complementos</string>
     <string name="web_add_addon_url">Añadir complemento por URL</string>
     <string name="web_placeholder_url">https://example.com/manifest.json</string>
     <string name="web_btn_add">Añadir</string>
     <string name="web_installed_addons">Complementos instalados</string>
     <string name="web_no_addons">No hay complementos instalados</string>
-    <string name="web_home_catalogs">Catálogos y colecciones de inicio</string>
+    <string name="web_home_catalogs">Catálogos y carpetas de inicio</string>
     <string name="web_no_catalogs">No hay catálogos de inicio disponibles</string>
     <string name="web_btn_save">Guardar cambios</string>
     <string name="web_connection_lost">Se perdió la conexión con la TV</string>
@@ -45,26 +45,26 @@
     <string name="web_installed">Instalado</string>
     <string name="web_no_repos">No hay repositorios instalados</string>
     <string name="web_error_repo_exists">Este repositorio ya está en la lista</string>
-    <string name="web_manage_collections_title">Administrar colecciones</string>
-    <string name="web_manage_collections_subtitle">Crea y administra tus colecciones personalizadas</string>
-    <string name="web_status_msg_collections_updated">Tus colecciones se han actualizado en la TV.</string>
+    <string name="web_manage_collections_title">Administrar carpetas de inicio</string>
+    <string name="web_manage_collections_subtitle">Crea y administra las filas de carpetas de tu pantalla de inicio</string>
+    <string name="web_status_msg_collections_updated">Tus carpetas de inicio se han actualizado en la TV.</string>
     <string name="web_tab_addons">Complementos</string>
     <string name="web_tab_home_layout">Diseño de inicio</string>
-    <string name="web_tab_collections">Colecciones</string>
+    <string name="web_tab_collections">Carpetas de inicio</string>
     <string name="web_btn_enable_all">Habilitar todo</string>
     <string name="web_btn_disable_all">Deshabilitar todo</string>
     <string name="web_btn_show_all">Mostrar todo</string>
     <string name="web_btn_hide_all">Ocultar todo</string>
-    <string name="web_btn_new_collection">+ Nueva colección</string>
+    <string name="web_btn_new_collection">+ Nueva fila de carpetas</string>
     <string name="web_btn_export">Exportar</string>
     <string name="web_btn_import">Importar</string>
-    <string name="web_no_collections">Aún no hay colecciones</string>
-    <string name="web_badge_collection">Colección</string>
-    <string name="web_import_collections_title">Importar colecciones</string>
+    <string name="web_no_collections">Aún no hay filas de carpetas</string>
+    <string name="web_badge_collection">Fila de carpetas</string>
+    <string name="web_import_collections_title">Importar carpetas de inicio</string>
     <string name="web_import_tab_paste">Pegar</string>
     <string name="web_import_tab_file">Archivo</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Pega aquí el JSON de colecciones…</string>
+    <string name="web_import_paste_placeholder">Pega aquí el JSON de carpetas de inicio…</string>
     <string name="web_import_file_select">Toca para seleccionar un archivo .json</string>
     <string name="web_order_send_to_top">Enviar al principio</string>
     <string name="web_order_send_to_bottom">Enviar al final</string>
@@ -80,21 +80,21 @@
     <string name="web_import_enter_url">Introduce una URL</string>
     <string name="web_import_failed_fetch_url">Error al obtener la URL</string>
     <string name="web_import_no_json">No se proporcionó JSON</string>
-    <string name="web_import_expected_array">Se esperaba un array JSON de colecciones</string>
-    <string name="web_import_empty_array">Array vacío: no se encontraron colecciones</string>
-    <string name="web_import_error_collection_invalid_id">Colección {index}: falta o no es válido \"id\"</string>
-    <string name="web_import_error_collection_invalid_title">Colección \"{collection}\": falta o no es válido \"title\"</string>
-    <string name="web_import_error_collection_folders_array">Colección \"{collection}\": \"folders\" debe ser un array</string>
-    <string name="web_import_error_folder_invalid_format">Colección \"{collection}\", carpeta {index}: formato no válido</string>
-    <string name="web_import_error_folder_missing_id">Colección \"{collection}\", carpeta {index}: falta \"id\"</string>
-    <string name="web_import_error_folder_missing_title">Colección \"{collection}\", carpeta \"{folder}\": falta \"title\"</string>
-    <string name="web_import_error_sources_array">Colección \"{collection}\", carpeta \"{folder}\": \"sources\" debe ser un array</string>
-    <string name="web_import_error_invalid_tile_shape">Colección \"{collection}\", carpeta \"{folder}\": tileShape \"{shape}\" no válido</string>
-    <string name="web_import_error_source_invalid_format">Colección \"{collection}\", carpeta \"{folder}\", fuente {index}: formato no válido</string>
-    <string name="web_import_error_source_missing_addon_fields">Colección \"{collection}\", carpeta \"{folder}\", fuente {index}: faltan campos obligatorios (addonId, type, catalogId)</string>
+    <string name="web_import_expected_array">Se esperaba un array JSON de filas de carpetas</string>
+    <string name="web_import_empty_array">Array vacío: no se encontraron filas de carpetas</string>
+    <string name="web_import_error_collection_invalid_id">Fila de carpetas {index}: falta o no es válido \"id\"</string>
+    <string name="web_import_error_collection_invalid_title">Fila de carpetas \"{collection}\": falta o no es válido \"title\"</string>
+    <string name="web_import_error_collection_folders_array">Fila de carpetas \"{collection}\": \"folders\" debe ser un array</string>
+    <string name="web_import_error_folder_invalid_format">Fila de carpetas \"{collection}\", carpeta {index}: formato no válido</string>
+    <string name="web_import_error_folder_missing_id">Fila de carpetas \"{collection}\", carpeta {index}: falta \"id\"</string>
+    <string name="web_import_error_folder_missing_title">Fila de carpetas \"{collection}\", carpeta \"{folder}\": falta \"title\"</string>
+    <string name="web_import_error_sources_array">Fila de carpetas \"{collection}\", carpeta \"{folder}\": \"sources\" debe ser un array</string>
+    <string name="web_import_error_invalid_tile_shape">Fila de carpetas \"{collection}\", carpeta \"{folder}\": tileShape \"{shape}\" no válido</string>
+    <string name="web_import_error_source_invalid_format">Fila de carpetas \"{collection}\", carpeta \"{folder}\", fuente {index}: formato no válido</string>
+    <string name="web_import_error_source_missing_addon_fields">Fila de carpetas \"{collection}\", carpeta \"{folder}\", fuente {index}: faltan campos obligatorios (addonId, type, catalogId)</string>
     <string name="web_import_error_source_missing_tmdb_type">Colección \"{collection}\", carpeta \"{folder}\", fuente {index}: falta el tipo de fuente TMDB</string>
-    <string name="web_import_error_source_missing_trakt_id">Colección \"{collection}\", carpeta \"{folder}\", fuente {index}: falta el ID de lista de Trakt</string>
-    <string name="web_import_success">Se importaron {count} colección(es). Revísalas y pulsa Guardar cambios para aplicarlas.</string>
+    <string name="web_import_error_source_missing_trakt_id">Fila de carpetas \"{collection}\", carpeta \"{folder}\", fuente {index}: falta el ID de lista de Trakt</string>
+    <string name="web_import_success">Se importaron {count} fila(s) de carpetas. Revísalas y pulsa Guardar cambios para aplicarlas.</string>
     <string name="web_import_invalid_json">JSON no válido</string>
 
     <string name="home_empty_no_addons_title">Aún no hay complementos</string>
@@ -431,7 +431,7 @@
     <string name="settings_layout">Diseño</string>
     <string name="settings_content_discovery">Contenido &amp; descubrimiento</string>
     <string name="settings_content_discovery_subtitle">Complementos, catálogos y fuentes de descubrimiento</string>
-    <string name="settings_content_discovery_addons_subtitle">Administra complementos, orden de catálogos y colecciones</string>
+    <string name="settings_content_discovery_addons_subtitle">Administra complementos, orden de catálogos y carpetas de inicio</string>
     <string name="settings_playback">Reproducción</string>
     <string name="settings_tracking_title">Seguimiento</string>
     <string name="settings_tracking_description">Conecta proveedores de seguimiento y elige cuál impulsa tu Biblioteca y Continuar viendo.</string>
@@ -465,7 +465,7 @@
     <string name="experience_mode_choose_title">Elige tu experiencia de Fetch</string>
     <string name="experience_mode_choose_subtitle">Empieza de forma sencilla o desbloquea todas las personalizaciones. Puedes cambiar cuando quieras.</string>
     <string name="experience_mode_essential_card_subtitle">Configuración enfocada, complementos, aspectos básicos de reproducción, Trakt y ajustes de cuenta.</string>
-    <string name="experience_mode_advanced_card_subtitle">Ajustes completos, controles de diseño, orden de catálogo, colecciones, complementos y diagnóstico.</string>
+    <string name="experience_mode_advanced_card_subtitle">Ajustes completos, controles de diseño, orden de catálogo, carpetas de inicio, complementos y diagnóstico.</string>
     <string name="experience_mode_group_title">Modo de experiencia</string>
     <string name="essential_addon_continue_for_now">Continuar por ahora</string>
     <string name="essential_playback_basics">Aspectos básicos de reproducción</string>
@@ -491,11 +491,11 @@
     <string name="experience_mode_switch_to_essential_subtitle">Oculta las superficies de configuración avanzada sin cambiar tus valores guardados.</string>
     <string name="experience_mode_switch_to_advanced">Cambiar a Avanzado</string>
     <string name="experience_mode_switch_to_advanced_header_subtitle">Cambia a Avanzado para acceder a todos los ajustes.</string>
-    <string name="experience_mode_switch_to_advanced_subtitle">Muestra todos los ajustes de diseño, complementos, integraciones, catálogo, colecciones y ajuste fino.</string>
+    <string name="experience_mode_switch_to_advanced_subtitle">Muestra todos los ajustes de diseño, complementos, integraciones, catálogo, carpetas de inicio y ajuste fino.</string>
     <string name="experience_mode_confirm_essential_title">¿Cambiar a Esencial?</string>
     <string name="experience_mode_confirm_advanced_title">¿Cambiar a Avanzado?</string>
     <string name="experience_mode_confirm_essential_subtitle">Se ocultarán las superficies de configuración avanzada, pero tus ajustes guardados no cambiarán. Puedes volver cuando quieras.</string>
-    <string name="experience_mode_confirm_advanced_subtitle">Esto muestra todos los ajustes, incluyendo la configuración avanzada, el catálogo, las colecciones y los controles de ajuste fino.</string>
+    <string name="experience_mode_confirm_advanced_subtitle">Esto muestra todos los ajustes, incluyendo la configuración avanzada, el catálogo, las carpetas de inicio y los controles de ajuste fino.</string>
     <string name="advanced_section_performance">Rendimiento &amp; navegación</string>
     <string name="advanced_section_diagnostics">Diagnósticos</string>
     <string name="advanced_player_stats_hud">Superposición de estadísticas de reproducción</string>
@@ -846,7 +846,7 @@
     <!-- Custom Poster URL - Screen Toggles -->
     <string name="layout_custom_poster_screen_home">Inicio</string>
     <string name="layout_custom_poster_screen_continue_watching">Continuar viendo</string>
-    <string name="layout_custom_poster_screen_collections">Colecciones</string>
+    <string name="layout_custom_poster_screen_collections">Carpetas de inicio</string>
     <string name="layout_custom_poster_screen_library">Biblioteca</string>
     <string name="layout_custom_poster_screen_search">Buscar</string>
     <string name="layout_custom_poster_screen_details">Pantalla de detalles</string>
@@ -1118,7 +1118,7 @@
     <!-- Collection editor fallbacks -->
     <string name="collection_editor_no_trakt_lists_found">No se encontraron listas de Trakt</string>
     <string name="collection_editor_untitled_folder">Sin título</string>
-    <string name="collection_editor_untitled_collection">Colección sin título</string>
+    <string name="collection_editor_untitled_collection">Fila de carpetas sin título</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Complementos</string>
     <string name="addon_readonly_notice">Utilizando complementos del perfil principal y no pueden ser cambiados</string>
@@ -1137,14 +1137,14 @@
     <string name="addon_remove_confirm_message">Sus catálogos y streams dejarán de aparecer en esta TV.</string>
     <string name="addons_badge_disabled">Deshabilitado</string>
     <string name="addon_manage_from_phone_title">Administrar desde teléfono</string>
-    <string name="addon_manage_from_phone_subtitle">Escanea un código QR para administrar complementos y catálogos de inicio desde tu teléfono</string>
+    <string name="addon_manage_from_phone_subtitle">Escanea un código QR para administrar complementos, catálogos y carpetas de inicio desde tu teléfono</string>
     <string name="addon_manage_addons_only_from_phone_subtitle">Escanea un código QR para instalar o eliminar complementos desde tu teléfono</string>
-    <string name="addon_manage_collections_from_phone_subtitle">Escanea un código QR para administrar colecciones desde tu teléfono</string>
+    <string name="addon_manage_collections_from_phone_subtitle">Escanea un código QR para administrar las carpetas de inicio desde tu teléfono</string>
     <string name="addon_reorder_title">Reordenar catálogos del inicio</string>
-    <string name="addon_reorder_subtitle">Controla el orden de filas de catálogo en inicio (Clásico + Moderno + Cuadrícula)</string>
-    <string name="addon_qr_scan_instruction">Escanea con tu teléfono para administrar complementos y catálogos</string>
+    <string name="addon_reorder_subtitle">Controla el orden de las filas de catálogo y de carpetas en inicio (Clásico + Moderno + Cuadrícula)</string>
+    <string name="addon_qr_scan_instruction">Escanea con tu teléfono para administrar complementos, catálogos y carpetas de inicio</string>
     <string name="addon_qr_addons_only_scan_instruction">Escanea con tu teléfono para instalar o eliminar complementos</string>
-    <string name="addon_qr_collections_scan_instruction">Escanea con tu teléfono para administrar colecciones</string>
+    <string name="addon_qr_collections_scan_instruction">Escanea con tu teléfono para administrar las carpetas de inicio</string>
     <string name="addon_qr_close">Cerrar</string>
     <string name="addon_confirm_title">Confirmar cambios de complemento y catálogo</string>
     <string name="addon_confirm_subtitle">Se realizaron los siguientes cambios desde tu teléfono:</string>
@@ -1159,8 +1159,8 @@
     <string name="addon_refresh_action">Actualizar complementos</string>
     <string name="addon_refresh_default_subtitle">Obtiene los últimos cambios de complementos para el perfil actual</string>
     <string name="addon_refresh_done_subtitle">Complementos actualizados justo ahora</string>
-    <string name="addon_pending_collections_updated">Colecciones actualizadas</string>
-    <string name="addon_pending_collections_replace">%1$d colección(es) reemplazará(n) las colecciones actuales</string>
+    <string name="addon_pending_collections_updated">Carpetas de inicio actualizadas</string>
+    <string name="addon_pending_collections_replace">%1$d fila(s) de carpetas reemplazará(n) tus carpetas de inicio actuales</string>
     <string name="addon_confirm_total_addons">Total de complementos: %1$d</string>
     <string name="addon_confirm_total_catalogs">Total de catálogos: %1$d</string>
     <string name="addon_catalogs_types">Catálogos: %1$d - Tipos: %2$s</string>
@@ -1168,7 +1168,7 @@
     <string name="catalog_order_title">Reordenar catálogos del inicio</string>
     <string name="catalog_order_subtitle">Esto controla el orden de filas de catálogo en inicio (Clásico + Moderno + Cuadrícula).</string>
     <string name="catalog_order_follow_addons">Seguir el orden de los complementos</string>
-    <string name="catalog_order_follow_addons_desc">Los catálogos siguen el orden del manifiesto del complemento. Las colecciones aún se pueden mover entre complementos.</string>
+    <string name="catalog_order_follow_addons_desc">Los catálogos siguen el orden del manifiesto del complemento. Las filas de carpetas aún se pueden mover entre complementos.</string>
     <string name="catalog_order_empty">No hay catálogos de inicio disponibles aún.</string>
     <string name="catalog_order_disabled_on_home">Deshabilitado en inicio</string>
     <string name="catalog_order_enable">Habilitar</string>
@@ -1388,6 +1388,7 @@
     <string name="library_watched_filter_all">Todos</string>
     <string name="library_watched_filter_watched">Vistos</string>
     <string name="library_watched_filter_unwatched">No vistos</string>
+    <string name="library_watched_filter_ready">Listos para reproducir</string>
     <string name="genre_action">Acción</string>
     <string name="genre_adventure">Aventura</string>
     <string name="genre_animation">Animación</string>
@@ -1454,7 +1455,6 @@
     <string name="library_delete_subtitle_provider">Se eliminarán la lista y sus elementos de %1$s. Esta acción no se puede deshacer.</string>
     <string name="library_delete_subtitle_local">Se eliminarán la lista y sus elementos de tu biblioteca. Esta acción no se puede deshacer.</string>
     <string name="library_source_local">LOCAL</string>
-    <string name="library_source_saved">Guardado</string>
     <string name="library_watchlist">Lista de deseos</string>
     <string name="library_status_watching">Viendo</string>
     <string name="library_status_plan_to_watch">Por ver</string>
@@ -1669,24 +1669,24 @@
     <string name="debug_generate_library_result_added">Se añadieron %1$d elementos a la biblioteca</string>
 
     <!-- Collection Management -->
-    <string name="collections_header">Colecciones</string>
-    <string name="collections_delete_confirm_title">¿Eliminar colección?</string>
+    <string name="collections_header">Carpetas de inicio</string>
+    <string name="collections_delete_confirm_title">¿Eliminar fila de carpetas?</string>
     <string name="collections_delete_confirm_subtitle">Esto eliminará permanentemente \"%1$s\". Esta acción no se puede deshacer.</string>
-    <string name="collections_empty">Aún no hay colecciones. Crea una para organizar tus catálogos.</string>
-    <string name="collections_new">Nueva colección</string>
+    <string name="collections_empty">Aún no hay filas de carpetas. Crea una para agrupar tus catálogos en carpetas en inicio.</string>
+    <string name="collections_new">Nueva fila de carpetas</string>
     <string name="collections_import">Importar</string>
     <string name="collections_export_file">Exportar archivo</string>
     <string name="collections_saved_downloads">Guardado en Descargas</string>
     <string name="collections_export_failed">No se pudo guardar en Descargas. Comprueba el permiso de almacenamiento y el espacio libre, e inténtalo de nuevo.</string>
-    <string name="collections_import_header">Importar colecciones</string>
-    <string name="collections_import_description">Importa colecciones desde JSON. Los catálogos de complementos que no tengas instalados mostrarán una advertencia.</string>
+    <string name="collections_import_header">Importar carpetas de inicio</string>
+    <string name="collections_import_description">Importa filas de carpetas desde JSON. Los catálogos de complementos que no tengas instalados mostrarán una advertencia.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
     <string name="collections_import_failed_fetch_http">Error al obtener: HTTP %1$d</string>
     <string name="collections_import_failed_fetch_url">Error al obtener la URL: %1$s</string>
-    <string name="collections_import_paste_json_required">Pega un JSON de colecciones para importar</string>
+    <string name="collections_import_paste_json_required">Pega un JSON de carpetas de inicio para importar</string>
     <string name="collections_import_no_data">No hay datos para importar</string>
-    <string name="collections_import_invalid_or_empty">Formato inválido o colecciones vacías</string>
-    <string name="collections_import_file_not_found_downloads">Archivo no encontrado en Descargas.\nExporta las colecciones primero para crearlo.</string>
+    <string name="collections_import_invalid_or_empty">Formato inválido o no hay filas de carpetas</string>
+    <string name="collections_import_file_not_found_downloads">Archivo no encontrado en Descargas.\nExporta primero tus carpetas de inicio para crearlo.</string>
     <string name="collections_import_failed_read_file">Error al leer el archivo: %1$s</string>
     <string name="collections_cancel">Cancelar</string>
     <string name="collections_mode_paste">Pegar JSON</string>
@@ -1694,7 +1694,7 @@
     <string name="collections_mode_url">Desde URL</string>
     <string name="collections_paste_clipboard">Pegar desde el portapapeles</string>
     <string name="collections_validate">Validar</string>
-    <string name="collections_paste_hint">Pega aquí el JSON de colecciones…</string>
+    <string name="collections_paste_hint">Pega aquí el JSON de carpetas de inicio…</string>
     <string name="collections_file_description">Lee fetch-collections.json desde la carpeta Descargas.</string>
     <string name="collections_load_file">Cargar archivo</string>
     <string name="collections_file_loaded">Archivo cargado (%1$d caracteres)</string>
@@ -1708,7 +1708,7 @@
     <string name="collections_editor_save">Guardar</string>
     <string name="collections_editor_backdrop">Imagen de fondo</string>
     <string name="collections_editor_pin_above">Fijar sobre los catálogos</string>
-    <string name="collections_editor_pin_above_desc">Muestra esta colección por encima de todos los catálogos normales de inicio. Varias colecciones fijadas siguen el orden de creación de la colección.</string>
+    <string name="collections_editor_pin_above_desc">Muestra esta fila de carpetas por encima de todos los catálogos normales de inicio. Las filas de carpetas fijadas siguen el orden en que se crearon.</string>
     <string name="collections_editor_view_mode">Modo de vista</string>
     <string name="collections_editor_show_all_tab">Mostrar pestaña \"Todo\"</string>
     <string name="collections_editor_show_all_tab_desc">Combina todos los catálogos en una sola pestaña</string>
@@ -1732,7 +1732,7 @@
     <string name="collections_editor_select_catalogs">Seleccionar catálogos</string>
     <string name="collections_editor_done">Hecho</string>
     <string name="collections_editor_choose_emoji">Elegir emoji</string>
-    <string name="collections_editor_edit_collection">Editar colección</string>
+    <string name="collections_editor_edit_collection">Editar fila de carpetas</string>
     <string name="collections_editor_source">Fuente</string>
     <string name="collections_editor_view_mode_tabs">Pestañas</string>
     <string name="collections_editor_view_mode_rows">Filas</string>
@@ -1878,7 +1878,7 @@
     <string name="collections_editor_keyword_based_on_novel">Basado en novela</string>
     <string name="collections_editor_keyword_time_travel">Viaje en el tiempo</string>
     <string name="collections_editor_keyword_space">Espacio</string>
-    <string name="collections_editor_placeholder_name">Nombre de la colección</string>
+    <string name="collections_editor_placeholder_name">Nombre de la fila de carpetas</string>
     <string name="collections_editor_placeholder_backdrop">URL de imagen de fondo (opcional)</string>
     <string name="collections_editor_placeholder_cover_image">URL de imagen de portada</string>
     <string name="collections_editor_placeholder_folder">Nombre de la carpeta</string>
@@ -1898,7 +1898,7 @@
     <string name="collections_editor_all_genres">Todos los géneros</string>
     <string name="collections_editor_genre_required">Género obligatorio</string>
     <string name="collections_editor_genre_optional">Filtro de género disponible</string>
-    <string name="collections_card_title">Colecciones</string>
+    <string name="collections_card_title">Carpetas de inicio</string>
     <string name="collections_card_subtitle">Agrupa catálogos en carpetas en tu pantalla de inicio</string>
     <string name="collections_tab_all">Todo</string>
     <string name="collections_tab_combined">Combinado</string>
@@ -1913,7 +1913,7 @@
     <string name="folder_error_trakt_source">No se pudo cargar esta lista de Trakt. Comprueba tu conexión y que la lista siga siendo pública, e inténtalo de nuevo.</string>
     <string name="folder_error_list_source">No se pudo cargar esta lista. Comprueba tu conexión e inténtalo de nuevo.</string>
     <string name="collections_editor_discard_title">¿Descartar los cambios?</string>
-    <string name="collections_editor_discard_collection_subtitle">Tus cambios en esta colección no se han guardado.</string>
+    <string name="collections_editor_discard_collection_subtitle">Tus cambios en esta fila de carpetas no se han guardado.</string>
     <string name="collections_editor_discard_folder_subtitle">Tus cambios en esta carpeta no se han guardado.</string>
     <string name="collections_editor_keep_editing">Seguir editando</string>
     <string name="collections_editor_discard">Descartar</string>
@@ -2001,19 +2001,19 @@
     <!-- Collection import errors -->
     <string name="collections_import_error_empty_input">Entrada vacía</string>
     <string name="collections_import_error_expected_array">Formato inválido: se esperaba un array</string>
-    <string name="collections_import_error_empty_array">Array vacío: no se encontraron colecciones</string>
-    <string name="collections_import_error_missing_id">Colección %1$d: falta o es inválido el \"id\"</string>
-    <string name="collections_import_error_missing_title">Colección \"%1$s\": falta o es inválido el \"title\"</string>
-    <string name="collections_import_error_folders_array">Colección \"%1$s\": \"folders\" debe ser un array</string>
-    <string name="collections_import_error_folder_invalid">Colección \"%1$s\", carpeta %2$d: formato inválido</string>
-    <string name="collections_import_error_folder_missing_id">Colección \"%1$s\", carpeta %2$d: falta \"id\"</string>
-    <string name="collections_import_error_folder_missing_title">Colección \"%1$s\", carpeta \"%2$s\": falta \"title\"</string>
-    <string name="collections_import_error_sources_array">Colección \"%1$s\", carpeta \"%2$s\": \"sources\" debe ser un array</string>
-    <string name="collections_import_error_invalid_tile_shape">Colección \"%1$s\", carpeta \"%2$s\": tileShape inválido \"%3$s\"</string>
-    <string name="collections_import_error_source_invalid">Colección \"%1$s\", carpeta \"%2$s\", fuente %3$d: formato inválido</string>
-    <string name="collections_import_error_source_required_fields">Colección \"%1$s\", carpeta \"%2$s\", fuente %3$d: faltan campos obligatorios</string>
-    <string name="collections_import_error_missing_tmdb_type">Colección \"%1$s\", carpeta \"%2$s\", fuente %3$d: falta el tipo de fuente TMDB</string>
-    <string name="collections_import_error_missing_trakt_list_id">Colección \"%1$s\", carpeta \"%2$s\", fuente %3$d: falta el ID de la lista de Trakt</string>
+    <string name="collections_import_error_empty_array">Array vacío: no se encontraron filas de carpetas</string>
+    <string name="collections_import_error_missing_id">Fila de carpetas %1$d: falta o es inválido el \"id\"</string>
+    <string name="collections_import_error_missing_title">Fila de carpetas \"%1$s\": falta o es inválido el \"title\"</string>
+    <string name="collections_import_error_folders_array">Fila de carpetas \"%1$s\": \"folders\" debe ser un array</string>
+    <string name="collections_import_error_folder_invalid">Fila de carpetas \"%1$s\", carpeta %2$d: formato inválido</string>
+    <string name="collections_import_error_folder_missing_id">Fila de carpetas \"%1$s\", carpeta %2$d: falta \"id\"</string>
+    <string name="collections_import_error_folder_missing_title">Fila de carpetas \"%1$s\", carpeta \"%2$s\": falta \"title\"</string>
+    <string name="collections_import_error_sources_array">Fila de carpetas \"%1$s\", carpeta \"%2$s\": \"sources\" debe ser un array</string>
+    <string name="collections_import_error_invalid_tile_shape">Fila de carpetas \"%1$s\", carpeta \"%2$s\": tileShape inválido \"%3$s\"</string>
+    <string name="collections_import_error_source_invalid">Fila de carpetas \"%1$s\", carpeta \"%2$s\", fuente %3$d: formato inválido</string>
+    <string name="collections_import_error_source_required_fields">Fila de carpetas \"%1$s\", carpeta \"%2$s\", fuente %3$d: faltan campos obligatorios</string>
+    <string name="collections_import_error_missing_tmdb_type">Fila de carpetas \"%1$s\", carpeta \"%2$s\", fuente %3$d: falta el tipo de fuente TMDB</string>
+    <string name="collections_import_error_missing_trakt_list_id">Fila de carpetas \"%1$s\", carpeta \"%2$s\", fuente %3$d: falta el ID de la lista de Trakt</string>
     <string name="collections_import_error_json_parse">Error al analizar JSON: %1$s</string>
 
     <!-- Library messages -->

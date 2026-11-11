@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Danh sách theo dõi</string>
+    <string name="library_tab_lists">Danh sách</string>
+    <string name="library_tab_in_progress">Đang xem</string>
+    <string name="library_tab_history">Lịch sử</string>
+    <string name="library_tab_upcoming">Sắp chiếu</string>
+    <string name="library_tabs_description">Các mục thư viện</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Chưa có danh sách nào</string>
+    <string name="library_lists_empty_subtitle">Danh sách bạn tạo ở đây hoặc trên dịch vụ theo dõi sẽ hiển thị trong thẻ này. Danh sách theo dõi có thẻ riêng.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (TV này)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">Đã xem %1$d%%</string>
+    <string name="library_in_progress_empty_title">Không có nội dung đang xem</string>
+    <string name="library_in_progress_empty_subtitle">Phim và tập bạn đã bắt đầu nhưng chưa xem xong sẽ hiển thị ở đây.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Chưa xem gì</string>
+    <string name="library_history_empty_subtitle">Nội dung bạn xem xong, và nội dung được dịch vụ theo dõi đánh dấu là đã xem, sẽ hiển thị ở đây theo tháng.</string>
+</resources>

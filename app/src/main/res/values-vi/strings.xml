@@ -8,14 +8,14 @@
     <string name="type_unknown">Không xác định</string>
 
     <string name="web_manage_addons_title">Quản lý tiện ích</string>
-    <string name="web_manage_addons_subtitle">Quản lý tiện ích, danh mục và bộ sưu tập</string>
+    <string name="web_manage_addons_subtitle">Quản lý tiện ích, danh mục và Thư mục Trang chủ</string>
     <string name="web_manage_addons_only_subtitle">Cài đặt hoặc gỡ bỏ tiện ích</string>
     <string name="web_add_addon_url">Thêm tiện ích bằng URL</string>
     <string name="web_placeholder_url">https://example.com/manifest.json</string>
     <string name="web_btn_add">Thêm</string>
     <string name="web_installed_addons">Tiện ích đã cài đặt</string>
     <string name="web_no_addons">Không có tiện ích đã cài đặt</string>
-    <string name="web_home_catalogs">Danh mục và bộ sưu tập Trang chủ</string>
+    <string name="web_home_catalogs">Danh mục và Thư mục Trang chủ</string>
     <string name="web_no_catalogs">Không có danh mục Trang chủ nào</string>
     <string name="web_btn_save">Lưu thay đổi</string>
     <string name="web_connection_lost">Mất kết nối với TV</string>
@@ -44,26 +44,26 @@
     <string name="web_installed">Đã cài đặt</string>
     <string name="web_no_repos">Không có kho lưu trữ nào đã cài đặt</string>
     <string name="web_error_repo_exists">Kho lưu trữ này đã có trong danh sách</string>
-    <string name="web_manage_collections_title">Quản lý Bộ sưu tập</string>
-    <string name="web_manage_collections_subtitle">Tạo và quản lý các bộ sưu tập tùy chỉnh của bạn</string>
-    <string name="web_status_msg_collections_updated">Bộ sưu tập của bạn đã được cập nhật trên TV.</string>
+    <string name="web_manage_collections_title">Quản lý Thư mục Trang chủ</string>
+    <string name="web_manage_collections_subtitle">Tạo và quản lý các hàng thư mục trên màn hình Trang chủ của bạn</string>
+    <string name="web_status_msg_collections_updated">Thư mục Trang chủ của bạn đã được cập nhật trên TV.</string>
     <string name="web_tab_addons">Tiện ích</string>
     <string name="web_tab_home_layout">Bố cục Trang chủ</string>
-    <string name="web_tab_collections">Bộ sưu tập</string>
+    <string name="web_tab_collections">Thư mục Trang chủ</string>
     <string name="web_btn_enable_all">Bật tất cả</string>
     <string name="web_btn_disable_all">Tắt tất cả</string>
     <string name="web_btn_show_all">Hiển thị tất cả</string>
     <string name="web_btn_hide_all">Ẩn tất cả</string>
-    <string name="web_btn_new_collection">+ Bộ sưu tập mới</string>
+    <string name="web_btn_new_collection">+ Hàng thư mục mới</string>
     <string name="web_btn_export">Xuất</string>
     <string name="web_btn_import">Nhập</string>
-    <string name="web_no_collections">Chưa có bộ sưu tập nào</string>
-    <string name="web_badge_collection">Bộ sưu tập</string>
-    <string name="web_import_collections_title">Nhập bộ sưu tập</string>
+    <string name="web_no_collections">Chưa có hàng thư mục nào</string>
+    <string name="web_badge_collection">Hàng thư mục</string>
+    <string name="web_import_collections_title">Nhập Thư mục Trang chủ</string>
     <string name="web_import_tab_paste">Dán</string>
     <string name="web_import_tab_file">Tệp</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Dán JSON bộ sưu tập vào đây…</string>
+    <string name="web_import_paste_placeholder">Dán JSON Thư mục Trang chủ vào đây…</string>
     <string name="web_import_file_select">Chạm để chọn tệp .json</string>
     <string name="web_order_send_to_top">Đưa lên trên cùng</string>
     <string name="web_order_send_to_bottom">Đưa xuống dưới cùng</string>
@@ -79,21 +79,21 @@
     <string name="web_import_enter_url">Nhập URL</string>
     <string name="web_import_failed_fetch_url">Không thể truy xuất URL</string>
     <string name="web_import_no_json">Thiếu dữ liệu JSON</string>
-    <string name="web_import_expected_array">Cần JSON danh sách bộ sưu tập.</string>
-    <string name="web_import_empty_array">Danh sách trống: không tìm thấy bộ sưu tập.</string>
-    <string name="web_import_error_collection_invalid_id">Bộ sưu tập {index}: thiếu hoặc không hợp lệ \"id\"</string>
-    <string name="web_import_error_collection_invalid_title">Bộ sưu tập \"{collection}\": thiếu hoặc không hợp lệ \"title\"</string>
-    <string name="web_import_error_collection_folders_array">Bộ sưu tập \"{collection}\": \"folders\" phải là một mảng</string>
-    <string name="web_import_error_folder_invalid_format">Bộ sưu tập \"{collection}\", thư mục {index}: sai định dạng</string>
-    <string name="web_import_error_folder_missing_id">Bộ sưu tập \"{collection}\", thư mục {index}: thiếu \"id\"</string>
-    <string name="web_import_error_folder_missing_title">Bộ sưu tập \"{collection}\", thư mục \"{folder}\": thiếu \"title\"</string>
-    <string name="web_import_error_sources_array">Bộ sưu tập \"{collection}\", thư mục \"{folder}\": \"sources\" phải là một mảng</string>
-    <string name="web_import_error_invalid_tile_shape">Bộ sưu tập \"{collection}\", thư mục \"{folder}\": không hợp lệ tileShape \"{shape}\"</string>
-    <string name="web_import_error_source_invalid_format">Bộ sưu tập \"{collection}\", thư mục \"{folder}\", nguồn {index}: sai định dạng</string>
-    <string name="web_import_error_source_missing_addon_fields">Bộ sưu tập \"{collection}\", thư mục \"{folder}\", nguồn {index}: thiếu trường bắt buộc (addonId, type, catalogId)</string>
+    <string name="web_import_expected_array">Cần một mảng JSON gồm các hàng thư mục.</string>
+    <string name="web_import_empty_array">Mảng trống: không tìm thấy hàng thư mục nào.</string>
+    <string name="web_import_error_collection_invalid_id">Hàng thư mục {index}: thiếu hoặc không hợp lệ \"id\"</string>
+    <string name="web_import_error_collection_invalid_title">Hàng thư mục \"{collection}\": thiếu hoặc không hợp lệ \"title\"</string>
+    <string name="web_import_error_collection_folders_array">Hàng thư mục \"{collection}\": \"folders\" phải là một mảng</string>
+    <string name="web_import_error_folder_invalid_format">Hàng thư mục \"{collection}\", thư mục {index}: sai định dạng</string>
+    <string name="web_import_error_folder_missing_id">Hàng thư mục \"{collection}\", thư mục {index}: thiếu \"id\"</string>
+    <string name="web_import_error_folder_missing_title">Hàng thư mục \"{collection}\", thư mục \"{folder}\": thiếu \"title\"</string>
+    <string name="web_import_error_sources_array">Hàng thư mục \"{collection}\", thư mục \"{folder}\": \"sources\" phải là một mảng</string>
+    <string name="web_import_error_invalid_tile_shape">Hàng thư mục \"{collection}\", thư mục \"{folder}\": không hợp lệ tileShape \"{shape}\"</string>
+    <string name="web_import_error_source_invalid_format">Hàng thư mục \"{collection}\", thư mục \"{folder}\", nguồn {index}: sai định dạng</string>
+    <string name="web_import_error_source_missing_addon_fields">Hàng thư mục \"{collection}\", thư mục \"{folder}\", nguồn {index}: thiếu trường bắt buộc (addonId, type, catalogId)</string>
     <string name="web_import_error_source_missing_tmdb_type">Bộ sưu tập \"{collection}\", thư mục \"{folder}\", nguồn {index}: thiếu loại nguồn TMDB</string>
-    <string name="web_import_error_source_missing_trakt_id">Bộ sưu tập \"{collection}\", thư mục \"{folder}\", nguồn {index}: thiếu ID danh sách Trakt</string>
-    <string name="web_import_success">Đã nhập {count} bộ sưu tập. Đánh giá và nhấn Lưu thay đổi để áp dụng..</string>
+    <string name="web_import_error_source_missing_trakt_id">Hàng thư mục \"{collection}\", thư mục \"{folder}\", nguồn {index}: thiếu ID danh sách Trakt</string>
+    <string name="web_import_success">Đã nhập {count} hàng thư mục. Đánh giá và nhấn Lưu thay đổi để áp dụng.</string>
     <string name="web_import_invalid_json">JSON không hợp lệ</string>
 
     <string name="home_empty_no_addons_title">Chưa có tiện ích</string>
@@ -439,7 +439,7 @@
     <string name="settings_layout">Bố cục</string>
     <string name="settings_content_discovery">Nội dung &amp; Khám phá</string>
     <string name="settings_content_discovery_subtitle">Tiện ích, danh mục và nguồn khám phá</string>
-    <string name="settings_content_discovery_addons_subtitle">Quản lý tiện ích, thứ tự danh mục và bộ sưu tập</string>
+    <string name="settings_content_discovery_addons_subtitle">Quản lý tiện ích, thứ tự danh mục và Thư mục Trang chủ</string>
     <string name="settings_playback">Phát lại</string>
     <string name="settings_tracking_title">Theo dõi</string>
     <string name="settings_tracking_description">Kết nối các dịch vụ theo dõi và chọn dịch vụ cung cấp dữ liệu cho Thư viện và Tiếp tục xem.</string>
@@ -473,7 +473,7 @@
     <string name="experience_mode_choose_title">Chọn trải nghiệm Fetch của bạn</string>
     <string name="experience_mode_choose_subtitle">Bắt đầu đơn giản hoặc mở khóa mọi tùy chọn cá nhân hóa. Bạn có thể chuyển đổi bất cứ lúc nào.</string>
     <string name="experience_mode_essential_card_subtitle">Tập trung thiết lập, tiện ích, tùy chọn phát cơ bản, Trakt và cài đặt tài khoản.</string>
-    <string name="experience_mode_advanced_card_subtitle">Đầy đủ cài đặt, tùy chọn bố cục, thứ tự danh mục, bộ sưu tập, tiện ích và chẩn đoán.</string>
+    <string name="experience_mode_advanced_card_subtitle">Đầy đủ cài đặt, tùy chọn bố cục, thứ tự danh mục, Thư mục Trang chủ, tiện ích và chẩn đoán.</string>
     <string name="experience_mode_group_title">Chế độ trải nghiệm</string>
     <string name="essential_addon_continue_for_now">Tiếp tục ngay bây giờ</string>
     <string name="essential_playback_basics">Phát lại cơ bản</string>
@@ -499,11 +499,11 @@
     <string name="experience_mode_switch_to_essential_subtitle">Ẩn các giao diện thiết lập nâng cao mà không thay đổi các giá trị đã lưu.</string>
     <string name="experience_mode_switch_to_advanced">Chuyển sang Nâng cao</string>
     <string name="experience_mode_switch_to_advanced_header_subtitle">Chuyển sang Nâng cao để hiển thị toàn bộ giao diện cài đặt</string>
-    <string name="experience_mode_switch_to_advanced_subtitle">Hiển thị đầy đủ các tùy chọn bố cục, trình mở rộng, tích hợp, danh mục, bộ sưu tập và tinh chỉnh.</string>
+    <string name="experience_mode_switch_to_advanced_subtitle">Hiển thị đầy đủ các tùy chọn bố cục, trình mở rộng, tích hợp, danh mục, Thư mục Trang chủ và tinh chỉnh.</string>
     <string name="experience_mode_confirm_essential_title">Chuyển sang Cơ bản?</string>
     <string name="experience_mode_confirm_advanced_title">Chuyển sang Nâng cao?</string>
     <string name="experience_mode_confirm_essential_subtitle">Giao diện thiết lập nâng cao sẽ bị ẩn, nhưng các cài đặt đã lưu vẫn không thay đổi. Bạn có thể chuyển lại bất cứ lúc nào.</string>
-    <string name="experience_mode_confirm_advanced_subtitle">Thao tác này hiển thị đầy đủ giao diện thiết lập, bao gồm các tùy chọn thiết lập nâng cao, danh mục, bộ sưu tập và tinh chỉnh.</string>
+    <string name="experience_mode_confirm_advanced_subtitle">Thao tác này hiển thị đầy đủ giao diện thiết lập, bao gồm các tùy chọn thiết lập nâng cao, danh mục, Thư mục Trang chủ và tinh chỉnh.</string>
     <string name="advanced_section_performance">Hiệu năng &amp; điều hướng</string>
     <string name="advanced_section_diagnostics">Chẩn đoán</string>
     <string name="advanced_player_stats_hud">Lớp phủ thống kê phát lại</string>
@@ -894,7 +894,7 @@
     <!-- Custom Poster URL - Screen Toggles -->
     <string name="layout_custom_poster_screen_home">Trang chủ</string>
     <string name="layout_custom_poster_screen_continue_watching">Tiếp tục xem</string>
-    <string name="layout_custom_poster_screen_collections">Bộ sưu tập</string>
+    <string name="layout_custom_poster_screen_collections">Thư mục Trang chủ</string>
     <string name="layout_custom_poster_screen_library">Thư viện</string>
     <string name="layout_custom_poster_screen_search">Tìm kiếm</string>
     <string name="layout_custom_poster_screen_details">Màn hình chi tiết</string>
@@ -1178,7 +1178,7 @@
     <!-- Collection editor fallbacks -->
     <string name="collection_editor_no_trakt_lists_found">Không tìm thấy danh sách Trakt</string>
     <string name="collection_editor_untitled_folder">Chưa có tiêu đề</string>
-    <string name="collection_editor_untitled_collection">Bộ sưu tập chưa có tiêu đề</string>
+    <string name="collection_editor_untitled_collection">Hàng thư mục chưa có tiêu đề</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Tiện ích</string>
     <string name="addon_readonly_notice">Đang dùng tiện ích của hồ sơ chính và không thể thay đổi</string>
@@ -1197,14 +1197,14 @@
     <string name="addon_remove_confirm_message">Danh mục và luồng phát của tiện ích này sẽ không còn xuất hiện trên TV này.</string>
     <string name="addons_badge_disabled">Đã tắt</string>
     <string name="addon_manage_from_phone_title">Quản lý từ điện thoại</string>
-    <string name="addon_manage_from_phone_subtitle">Quét mã QR để quản lý tiện ích, danh mục và bộ sưu tập từ điện thoại</string>
+    <string name="addon_manage_from_phone_subtitle">Quét mã QR để quản lý tiện ích, danh mục và Thư mục Trang chủ từ điện thoại</string>
     <string name="addon_manage_addons_only_from_phone_subtitle">Quét mã QR để cài đặt hoặc gỡ bỏ tiện ích từ điện thoại</string>
-    <string name="addon_manage_collections_from_phone_subtitle">Quét mã QR để quản lý các bộ sưu tập từ điện thoại</string>
+    <string name="addon_manage_collections_from_phone_subtitle">Quét mã QR để quản lý Thư mục Trang chủ từ điện thoại</string>
     <string name="addon_reorder_title">Sắp xếp lại danh mục trang chủ</string>
-    <string name="addon_reorder_subtitle">Kiểm soát thứ tự hàng danh mục trên Trang chủ (Cổ điển + Hiện đại + Lưới)</string>
-    <string name="addon_qr_scan_instruction">Quét bằng điện thoại để quản lý tiện ích, danh mục và bộ sưu tập</string>
+    <string name="addon_reorder_subtitle">Kiểm soát thứ tự hàng danh mục và hàng thư mục trên Trang chủ (Cổ điển + Hiện đại + Lưới)</string>
+    <string name="addon_qr_scan_instruction">Quét bằng điện thoại để quản lý tiện ích, danh mục và Thư mục Trang chủ</string>
     <string name="addon_qr_addons_only_scan_instruction">Quét bằng điện thoại để cài đặt hoặc gỡ bỏ tiện ích</string>
-    <string name="addon_qr_collections_scan_instruction">Quét bằng điện thoại để quản lý bộ sưu tập</string>
+    <string name="addon_qr_collections_scan_instruction">Quét bằng điện thoại để quản lý Thư mục Trang chủ</string>
     <string name="addon_qr_close">Đóng</string>
     <string name="addon_confirm_title">Xác nhận thay đổi tiện ích &amp; danh mục</string>
     <string name="addon_confirm_subtitle">Những thay đổi sau đây được thực hiện từ điện thoại của bạn:</string>
@@ -1219,8 +1219,8 @@
     <string name="addon_refresh_action">Làm mới Tiện ích.</string>
     <string name="addon_refresh_default_subtitle">Tải các thay đổi mới nhất của tiện ích cho hồ sơ hiện tại</string>
     <string name="addon_refresh_done_subtitle">Tiện ích vừa được làm mới</string>
-    <string name="addon_pending_collections_updated">Bộ sưu tập đã cập nhật</string>
-    <string name="addon_pending_collections_replace">%1$d bộ sưu tập sẽ thay thế các bộ sưu tập hiện tại</string>
+    <string name="addon_pending_collections_updated">Thư mục Trang chủ đã cập nhật</string>
+    <string name="addon_pending_collections_replace">%1$d hàng thư mục sẽ thay thế Thư mục Trang chủ hiện tại của bạn</string>
     <string name="addon_confirm_total_addons">Tổng tiện ích: %1$d</string>
     <string name="addon_confirm_total_catalogs">Tổng danh mục: %1$d</string>
     <string name="addon_catalogs_types">Danh mục: %1$d - Loại: %2$s</string>
@@ -1228,7 +1228,7 @@
     <string name="catalog_order_title">Sắp xếp lại danh mục Trang chủ</string>
     <string name="catalog_order_subtitle">Kiểm soát thứ tự hàng danh mục trên Trang chủ (Cổ điển + Hiện đại + Lưới).</string>
     <string name="catalog_order_follow_addons">Theo thứ tự của các tiện ích</string>
-    <string name="catalog_order_follow_addons_desc">Danh mục tuân theo thứ tự tệp kê khai của tiện ích. Bộ sưu tập vẫn có thể di chuyển được giữa các tiện ích.</string>
+    <string name="catalog_order_follow_addons_desc">Danh mục tuân theo thứ tự tệp kê khai của tiện ích. Hàng thư mục vẫn có thể di chuyển được giữa các tiện ích.</string>
     <string name="catalog_order_empty">Chưa có danh mục Trang chủ nào.</string>
     <string name="catalog_order_disabled_on_home">Đã tắt trên Trang chủ</string>
     <string name="catalog_order_enable">Bật</string>
@@ -1450,6 +1450,7 @@
     <string name="library_watched_filter_all">Tất cả</string>
     <string name="library_watched_filter_watched">Đã xem</string>
     <string name="library_watched_filter_unwatched">Chưa xem</string>
+    <string name="library_watched_filter_ready">Sẵn sàng phát</string>
     <string name="genre_action">Hành động</string>
     <string name="genre_adventure">Phiêu lưu</string>
     <string name="genre_animation">Hoạt hình</string>
@@ -1518,7 +1519,6 @@
     <string name="library_delete_subtitle_provider">Thao tác này sẽ xóa danh sách và các mục trong đó khỏi %1$s. Không thể hoàn tác thao tác này.</string>
     <string name="library_delete_subtitle_local">Thao tác này sẽ xóa danh sách và các mục trong đó khỏi thư viện của bạn. Không thể hoàn tác thao tác này.</string>
     <string name="library_source_local">CỤC BỘ</string>
-    <string name="library_source_saved">Đã lưu</string>
     <string name="library_watchlist">Danh sách theo dõi</string>
     <string name="library_status_watching">Đang xem</string>
     <string name="library_status_plan_to_watch">Xem sau</string>
@@ -1733,24 +1733,24 @@
     <string name="debug_generate_library_result_added">Đã thêm %1$d mục vào thư viện</string>
 
     <!-- Collection Management -->
-    <string name="collections_header">Bộ sưu tập</string>
-    <string name="collections_delete_confirm_title">Xóa Bộ sưu tập?</string>
+    <string name="collections_header">Thư mục Trang chủ</string>
+    <string name="collections_delete_confirm_title">Xóa hàng thư mục?</string>
     <string name="collections_delete_confirm_subtitle">Thao tác này sẽ xóa vĩnh viễn \"%1$s\". Thao tác này không thể hoàn tác.</string>
-    <string name="collections_empty">Chưa có bộ sưu tập nào. Tạo một bộ sưu tập để sắp xếp các danh mục của bạn.</string>
-    <string name="collections_new">Bộ sưu tập mới</string>
+    <string name="collections_empty">Chưa có hàng thư mục nào. Tạo một hàng để nhóm các danh mục của bạn vào thư mục trên Trang chủ.</string>
+    <string name="collections_new">Hàng thư mục mới</string>
     <string name="collections_import">Nhập</string>
     <string name="collections_export_file">Xuất tệp</string>
     <string name="collections_saved_downloads">Đã lưu vào mục Tải xuống</string>
     <string name="collections_export_failed">Không thể lưu vào thư mục Tải xuống. Hãy kiểm tra quyền truy cập bộ nhớ và dung lượng trống, sau đó thử lại.</string>
-    <string name="collections_import_header">Nhập Bộ sưu tập</string>
-    <string name="collections_import_description">Nhập các bộ sưu tập từ JSON. Các danh mục từ những tiện ích bổ sung bạn chưa cài đặt sẽ hiển thị cảnh báo.</string>
+    <string name="collections_import_header">Nhập Thư mục Trang chủ</string>
+    <string name="collections_import_description">Nhập các hàng thư mục từ JSON. Các danh mục từ những tiện ích bổ sung bạn chưa cài đặt sẽ hiển thị cảnh báo.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
     <string name="collections_import_failed_fetch_http">Không thể tải: HTTP %1$d</string>
     <string name="collections_import_failed_fetch_url">Không thể tải URL: %1$s</string>
-    <string name="collections_import_paste_json_required">Dán JSON bộ sưu tập để nhập</string>
+    <string name="collections_import_paste_json_required">Dán JSON Thư mục Trang chủ để nhập</string>
     <string name="collections_import_no_data">Không có dữ liệu để nhập</string>
-    <string name="collections_import_invalid_or_empty">Định dạng không hợp lệ hoặc bộ sưu tập trống</string>
-    <string name="collections_import_file_not_found_downloads">Không tìm thấy tệp trong mục Tải xuống.\nXuất các bộ sưu tập trước để tạo tệp..</string>
+    <string name="collections_import_invalid_or_empty">Định dạng không hợp lệ hoặc không có hàng thư mục nào</string>
+    <string name="collections_import_file_not_found_downloads">Không tìm thấy tệp trong mục Tải xuống.\nXuất Thư mục Trang chủ của bạn trước để tạo tệp.</string>
     <string name="collections_import_failed_read_file">Không thể đọc tệp: %1$s</string>
     <string name="collections_cancel">Hủy</string>
     <string name="collections_mode_paste">Dán JSON</string>
@@ -1758,7 +1758,7 @@
     <string name="collections_mode_url">Từ URL</string>
     <string name="collections_paste_clipboard">Dán từ bảng nhớ tạm</string>
     <string name="collections_validate">Xác minh</string>
-    <string name="collections_paste_hint">Dán JSON bộ sưu tập vào đây…</string>
+    <string name="collections_paste_hint">Dán JSON Thư mục Trang chủ vào đây…</string>
     <string name="collections_file_description">Đọc tệp fetch-collections.json từ thư mục Tải xuống.</string>
     <string name="collections_load_file">Tải tệp</string>
     <string name="collections_file_loaded">Đã tải tệp (%1$d ký tự)</string>
@@ -1772,7 +1772,7 @@
     <string name="collections_editor_save">Lưu</string>
     <string name="collections_editor_backdrop">Ảnh phông nền</string>
     <string name="collections_editor_pin_above">Ghim phía trên các danh mục</string>
-    <string name="collections_editor_pin_above_desc">Hiển thị bộ sưu tập này phía trên tất cả danh mục trang chủ thông thường. Các bộ sưu tập được ghim sẽ theo thứ tự tạo bộ sưu tập.</string>
+    <string name="collections_editor_pin_above_desc">Hiển thị hàng thư mục này phía trên tất cả danh mục Trang chủ thông thường. Các hàng thư mục được ghim sẽ theo thứ tự chúng được tạo.</string>
     <string name="collections_editor_view_mode">Chế độ hiển thị</string>
     <string name="collections_editor_show_all_tab">Hiển thị thẻ \"Tất cả\"</string>
     <string name="collections_editor_show_all_tab_desc">Gộp tất cả danh mục vào một thẻ</string>
@@ -1796,7 +1796,7 @@
     <string name="collections_editor_select_catalogs">Chọn danh mục</string>
     <string name="collections_editor_done">Xong</string>
     <string name="collections_editor_choose_emoji">Chọn biểu tượng cảm xúc</string>
-    <string name="collections_editor_edit_collection">Chỉnh sửa bộ sưu tập</string>
+    <string name="collections_editor_edit_collection">Chỉnh sửa hàng thư mục</string>
     <string name="collections_editor_source">Nguồn</string>
     <string name="collections_editor_view_mode_tabs">Thẻ</string>
     <string name="collections_editor_view_mode_rows">Hàng</string>
@@ -1943,7 +1943,7 @@
     <string name="collections_editor_keyword_based_on_novel">Dựa trên tiểu thuyết</string>
     <string name="collections_editor_keyword_time_travel">Du hành thời gian</string>
     <string name="collections_editor_keyword_space">Không gian</string>
-    <string name="collections_editor_placeholder_name">Tên bộ sưu tập</string>
+    <string name="collections_editor_placeholder_name">Tên hàng thư mục</string>
     <string name="collections_editor_placeholder_backdrop">URL ảnh phông nền (tùy chọn)</string>
     <string name="collections_editor_placeholder_cover_image">URL ảnh bìa</string>
     <string name="collections_editor_placeholder_folder">Tên thư mục</string>
@@ -1963,7 +1963,7 @@
     <string name="collections_editor_all_genres">Tất cả thể loại</string>
     <string name="collections_editor_genre_required">Thể loại yêu cầu</string>
     <string name="collections_editor_genre_optional">Bộ lọc thể loại có sẵn</string>
-    <string name="collections_card_title">Bộ sưu tập</string>
+    <string name="collections_card_title">Thư mục Trang chủ</string>
     <string name="collections_card_subtitle">Nhóm các danh mục vào thư mục trên màn hình chính</string>
     <string name="collections_tab_all">Tất cả</string>
     <string name="collections_tab_combined">Kết hợp</string>
@@ -1978,7 +1978,7 @@
     <string name="folder_error_trakt_source">Không thể tải danh sách Trakt này. Hãy kiểm tra kết nối và xem danh sách có còn công khai không, sau đó thử lại.</string>
     <string name="folder_error_list_source">Không thể tải danh sách này. Hãy kiểm tra kết nối, sau đó thử lại.</string>
     <string name="collections_editor_discard_title">Hủy các thay đổi?</string>
-    <string name="collections_editor_discard_collection_subtitle">Các thay đổi của bạn đối với bộ sưu tập này chưa được lưu.</string>
+    <string name="collections_editor_discard_collection_subtitle">Các thay đổi của bạn đối với hàng thư mục này chưa được lưu.</string>
     <string name="collections_editor_discard_folder_subtitle">Các thay đổi của bạn đối với thư mục này chưa được lưu.</string>
     <string name="collections_editor_keep_editing">Tiếp tục chỉnh sửa</string>
     <string name="collections_editor_discard">Hủy thay đổi</string>
@@ -2066,19 +2066,19 @@
     <!-- Collection import errors -->
     <string name="collections_import_error_empty_input">Dữ liệu đầu vào trống</string>
     <string name="collections_import_error_expected_array">Định dạng không hợp lệ: yêu cầu một mảng</string>
-    <string name="collections_import_error_empty_array">Mảng trống: không tìm thấy bộ sưu tập nào</string>
-    <string name="collections_import_error_missing_id">Bộ sưu tập %1$d: thiếu hoặc không hợp lệ \"id\"</string>
-    <string name="collections_import_error_missing_title">Bộ sưu tập \"%1$s\": thiếu hoặc không hợp lệ \"title\"</string>
-    <string name="collections_import_error_folders_array">Bộ sưu tập \"%1$s\": \"folders\" phải là một mảng</string>
-    <string name="collections_import_error_folder_invalid">Bộ sưu tập \"%1$s\", thư mục %2$d: định dạng không hợp lệ</string>
-    <string name="collections_import_error_folder_missing_id">Bộ sưu tập \"%1$s\", thư mục %2$d: thiếu \"id\"</string>
-    <string name="collections_import_error_folder_missing_title">Bộ sưu tập \"%1$s\", thư mục \"%2$s\": thiếu \"title\"</string>
-    <string name="collections_import_error_sources_array">Bộ sưu tập \"%1$s\", thư mục \"%2$s\": \"sources\" phải là một mảng</string>
-    <string name="collections_import_error_invalid_tile_shape">Bộ sưu tập \"%1$s\", thư mục \"%2$s\": không hợp lệ tileShape \"%3$s\"</string>
-    <string name="collections_import_error_source_invalid">Bộ sưu tập \"%1$s\", thư mục \"%2$s\", nguồn %3$d: định dạng không hợp lệ</string>
-    <string name="collections_import_error_source_required_fields">Bộ sưu tập \"%1$s\", thư mục \"%2$s\", nguồn %3$d: thiếu các trường yêu cầu</string>
-    <string name="collections_import_error_missing_tmdb_type">Bộ sưu tập \"%1$s\", thư mục \"%2$s\", nguồn %3$d: thiếu loại nguồn TMDB</string>
-    <string name="collections_import_error_missing_trakt_list_id">Bộ sưu tập \"%1$s\", thư mục \"%2$s\", nguồn %3$d: thiếu ID danh sách Trakt</string>
+    <string name="collections_import_error_empty_array">Mảng trống: không tìm thấy hàng thư mục nào</string>
+    <string name="collections_import_error_missing_id">Hàng thư mục %1$d: thiếu hoặc không hợp lệ \"id\"</string>
+    <string name="collections_import_error_missing_title">Hàng thư mục \"%1$s\": thiếu hoặc không hợp lệ \"title\"</string>
+    <string name="collections_import_error_folders_array">Hàng thư mục \"%1$s\": \"folders\" phải là một mảng</string>
+    <string name="collections_import_error_folder_invalid">Hàng thư mục \"%1$s\", thư mục %2$d: định dạng không hợp lệ</string>
+    <string name="collections_import_error_folder_missing_id">Hàng thư mục \"%1$s\", thư mục %2$d: thiếu \"id\"</string>
+    <string name="collections_import_error_folder_missing_title">Hàng thư mục \"%1$s\", thư mục \"%2$s\": thiếu \"title\"</string>
+    <string name="collections_import_error_sources_array">Hàng thư mục \"%1$s\", thư mục \"%2$s\": \"sources\" phải là một mảng</string>
+    <string name="collections_import_error_invalid_tile_shape">Hàng thư mục \"%1$s\", thư mục \"%2$s\": không hợp lệ tileShape \"%3$s\"</string>
+    <string name="collections_import_error_source_invalid">Hàng thư mục \"%1$s\", thư mục \"%2$s\", nguồn %3$d: định dạng không hợp lệ</string>
+    <string name="collections_import_error_source_required_fields">Hàng thư mục \"%1$s\", thư mục \"%2$s\", nguồn %3$d: thiếu các trường yêu cầu</string>
+    <string name="collections_import_error_missing_tmdb_type">Hàng thư mục \"%1$s\", thư mục \"%2$s\", nguồn %3$d: thiếu loại nguồn TMDB</string>
+    <string name="collections_import_error_missing_trakt_list_id">Hàng thư mục \"%1$s\", thư mục \"%2$s\", nguồn %3$d: thiếu ID danh sách Trakt</string>
     <string name="collections_import_error_json_parse">Lỗi phân tích cú pháp JSON: %1$s</string>
 
     <!-- Library messages -->

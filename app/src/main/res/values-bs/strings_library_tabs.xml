@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Watchlista</string>
+    <string name="library_tab_lists">Liste</string>
+    <string name="library_tab_in_progress">U toku</string>
+    <string name="library_tab_history">Historija</string>
+    <string name="library_tab_upcoming">Nadolazeće</string>
+    <string name="library_tabs_description">Sekcije biblioteke</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Još nema lista</string>
+    <string name="library_lists_empty_subtitle">Liste koje napraviš ovdje ili na svom servisu za praćenje pojavljuju se na ovoj kartici. Tvoja watchlista ima svoju karticu.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (ovaj TV)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% odgledano</string>
+    <string name="library_in_progress_empty_title">Ništa nije u toku</string>
+    <string name="library_in_progress_empty_subtitle">Ovdje se pojavljuju filmovi i epizode koje si započeo, a nisi završio.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Još ništa nije odgledano</string>
+    <string name="library_history_empty_subtitle">Ono što odgledaš do kraja i ono što tvoj servis za praćenje označi kao odgledano pojavljuje se ovdje po mjesecima.</string>
+    <string name="library_watched_filter_ready">Spremno za reprodukciju</string>
+</resources>

@@ -435,7 +435,7 @@
     <!-- Custom Poster URL - Screen Toggles -->
     <string name="layout_custom_poster_screen_home">Strona główna</string>
     <string name="layout_custom_poster_screen_continue_watching">Kontynuuj oglądanie</string>
-    <string name="layout_custom_poster_screen_collections">Kolekcje</string>
+    <string name="layout_custom_poster_screen_collections">Foldery ekranu głównego</string>
     <string name="layout_custom_poster_screen_library">Biblioteka</string>
     <string name="layout_custom_poster_screen_search">Wyszukiwanie</string>
     <string name="layout_custom_poster_screen_details">Strona szczegółów</string>
@@ -611,12 +611,12 @@
     <string name="addon_remove_confirm_title">Usunąć %1$s?</string>
     <string name="addon_remove_confirm_message">Jego katalogi i strumienie przestaną się pojawiać na tym telewizorze.</string>
     <string name="addon_manage_from_phone_title">Zarządzaj z telefonu</string>
-    <string name="addon_manage_from_phone_subtitle">Zeskanuj kod QR, aby zarządzać dodatkami, katalogami i kolekcjami z telefonu</string>
-    <string name="addon_manage_collections_from_phone_subtitle">Zeskanuj kod QR, aby zarządzać kolekcjami z telefonu</string>
+    <string name="addon_manage_from_phone_subtitle">Zeskanuj kod QR, aby zarządzać dodatkami, katalogami i folderami ekranu głównego z telefonu</string>
+    <string name="addon_manage_collections_from_phone_subtitle">Zeskanuj kod QR, aby zarządzać folderami ekranu głównego z telefonu</string>
     <string name="addon_reorder_title">Zmień kolejność katalogów</string>
-    <string name="addon_reorder_subtitle">Kontroluje kolejność wierszy katalogów i kolekcji na ekranie głównym</string>
-    <string name="addon_qr_scan_instruction">Zeskanuj telefonem, aby zarządzać dodatkami, katalogami i kolekcjami</string>
-    <string name="addon_qr_collections_scan_instruction">Zeskanuj telefonem, aby zarządzać kolekcjami</string>
+    <string name="addon_reorder_subtitle">Kontroluje kolejność rzędów katalogów i rzędów folderów na ekranie głównym</string>
+    <string name="addon_qr_scan_instruction">Zeskanuj telefonem, aby zarządzać dodatkami, katalogami i folderami ekranu głównego</string>
+    <string name="addon_qr_collections_scan_instruction">Zeskanuj telefonem, aby zarządzać folderami ekranu głównego</string>
     <string name="addon_qr_close">Zamknij</string>
     <string name="addon_confirm_title">Potwierdź zmiany dodatków i katalogów</string>
     <string name="addon_confirm_subtitle">Następujące zmiany zostały wprowadzone z telefonu:</string>
@@ -633,7 +633,7 @@
     <string name="catalog_order_title">Zmień kolejność katalogów</string>
     <string name="catalog_order_subtitle">Kontroluje kolejność wierszy katalogów na ekranie głównym.</string>
     <string name="catalog_order_follow_addons">Zachowaj kolejność dodatków</string>
-    <string name="catalog_order_follow_addons_desc">Katalogi ułożone według kolejności z manifestów dodatków. Kolekcje nadal można przesuwać między dodatkami.</string>
+    <string name="catalog_order_follow_addons_desc">Katalogi ułożone według kolejności z manifestów dodatków. Rzędy folderów nadal można przesuwać między dodatkami.</string>
     <string name="catalog_order_empty">Brak dostępnych katalogów.</string>
     <string name="catalog_order_disabled_on_home">Wyłączony na ekranie głównym</string>
     <string name="catalog_order_enable">Włącz</string>
@@ -1050,6 +1050,7 @@
     <string name="library_watched_filter_all">Wszystko</string>
     <string name="library_watched_filter_watched">Obejrzane</string>
     <string name="library_watched_filter_unwatched">Nieobejrzane</string>
+    <string name="library_watched_filter_ready">Gotowe do odtworzenia</string>
     <string name="library_syncing_library">Synchronizacja biblioteki\u2026</string>
 
     <string name="genre_action">Akcja</string>
@@ -1167,13 +1168,13 @@
     <string name="trakt_error_denied">Autoryzacja odrzucona w Trakt.</string>
 
     <string name="web_manage_addons_title">Zarządzaj dodatkami</string>
-    <string name="web_manage_addons_subtitle">Zarządzaj dodatkami i katalogami strony głównej</string>
+    <string name="web_manage_addons_subtitle">Zarządzaj dodatkami, katalogami i folderami ekranu głównego</string>
     <string name="web_add_addon_url">Dodaj dodatek przez URL</string>
     <string name="web_placeholder_url">https://example.com/manifest.json</string>
     <string name="web_btn_add">Dodaj</string>
     <string name="web_installed_addons">Zainstalowane dodatki</string>
     <string name="web_no_addons">Brak zainstalowanych dodatków</string>
-    <string name="web_home_catalogs">Katalogi strony głównej</string>
+    <string name="web_home_catalogs">Katalogi i foldery strony głównej</string>
     <string name="web_no_catalogs">Brak dostępnych katalogów</string>
     <string name="web_btn_save">Zapisz zmiany</string>
     <string name="web_connection_lost">Utracono połączenie z TV</string>
@@ -1186,22 +1187,22 @@
     <string name="web_installed">Zainstalowany</string>
     <string name="web_error_addon_exists">Ten dodatek jest już na liście</string>
     <string name="web_error_repo_exists">To repozytorium jest już na liście</string>
-    <string name="web_manage_collections_title">Zarządzaj kolekcjami</string>
-    <string name="web_manage_collections_subtitle">Twórz i zarządzaj swoimi kolekcjami</string>
-    <string name="web_status_msg_collections_updated">Twoje kolekcje zostały zaktualizowane na TV.</string>
+    <string name="web_manage_collections_title">Zarządzaj folderami ekranu głównego</string>
+    <string name="web_manage_collections_subtitle">Twórz rzędy folderów na ekranie głównym i zarządzaj nimi</string>
+    <string name="web_status_msg_collections_updated">Twoje foldery ekranu głównego zostały zaktualizowane na TV.</string>
     <string name="web_tab_addons">Dodatki</string>
     <string name="web_tab_home_layout">Układ ekranu głównego</string>
-    <string name="web_tab_collections">Kolekcje</string>
+    <string name="web_tab_collections">Foldery ekranu głównego</string>
     <string name="web_btn_enable_all">Włącz wszystko</string>
     <string name="web_btn_disable_all">Wyłącz wszystko</string>
     <string name="web_btn_show_all">Pokaż wszystko</string>
     <string name="web_btn_hide_all">Ukryj wszystko</string>
-    <string name="web_btn_new_collection">+ Nowa kolekcja</string>
+    <string name="web_btn_new_collection">+ Nowy rząd folderów</string>
     <string name="web_btn_export">Eksportuj</string>
     <string name="web_btn_import">Importuj</string>
-    <string name="web_no_collections">Brak kolekcji</string>
-    <string name="web_badge_collection">Kolekcja</string>
-    <string name="web_import_collections_title">Importuj kolekcje</string>
+    <string name="web_no_collections">Brak rzędów folderów</string>
+    <string name="web_badge_collection">Rząd folderów</string>
+    <string name="web_import_collections_title">Importuj foldery ekranu głównego</string>
     <string name="web_import_tab_paste">Wklej</string>
     <string name="web_import_tab_file">Plik</string>
     <string name="web_import_tab_url">URL</string>
@@ -1239,24 +1240,24 @@
     <string name="search_recent_clear_confirm_subtitle">Wszystkie ostatnie wyszukiwania zostaną usunięte. Tej operacji nie można cofnąć.</string>
 
     <!-- Collection Management -->
-    <string name="collections_header">Kolekcje</string>
-    <string name="collections_delete_confirm_title">Usunąć kolekcję?</string>
+    <string name="collections_header">Foldery ekranu głównego</string>
+    <string name="collections_delete_confirm_title">Usunąć rząd folderów?</string>
     <string name="collections_delete_confirm_subtitle">Spowoduje to trwałe usunięcie \"%1$s\". Tej operacji nie można cofnąć.</string>
-    <string name="collections_empty">Brak kolekcji. Utwórz jedną, aby uporządkować katalogi.</string>
-    <string name="collections_new">Nowa kolekcja</string>
+    <string name="collections_empty">Brak rzędów folderów. Utwórz jeden, aby pogrupować katalogi w foldery na ekranie głównym.</string>
+    <string name="collections_new">Nowy rząd folderów</string>
     <string name="collections_import">Importuj</string>
     <string name="collections_export_file">Eksportuj plik</string>
     <string name="collections_saved_downloads">Zapisano w Pobrane</string>
     <string name="collections_export_failed">Nie udało się zapisać w folderze Pobrane. Sprawdź uprawnienia do pamięci i wolne miejsce, a potem spróbuj ponownie.</string>
-    <string name="collections_import_header">Importuj kolekcje</string>
-    <string name="collections_import_description">Importuj kolekcje z JSON. Katalogi z niezainstalowanych dodatków pokażą ostrzeżenie.</string>
+    <string name="collections_import_header">Importuj foldery ekranu głównego</string>
+    <string name="collections_import_description">Importuj rzędy folderów z JSON. Katalogi z niezainstalowanych dodatków pokażą ostrzeżenie.</string>
     <string name="collections_cancel">Anuluj</string>
     <string name="collections_mode_paste">Wklej JSON</string>
     <string name="collections_mode_file">Z pliku</string>
     <string name="collections_mode_url">Z adresu URL</string>
     <string name="collections_paste_clipboard">Wklej ze schowka</string>
     <string name="collections_validate">Sprawdź</string>
-    <string name="collections_paste_hint">Wklej JSON kolekcji tutaj…</string>
+    <string name="collections_paste_hint">Wklej JSON folderów ekranu głównego tutaj…</string>
     <string name="collections_file_description">Odczytuje fetch-collections.json z folderu Pobrane.</string>
     <string name="collections_load_file">Wczytaj plik</string>
     <string name="collections_file_loaded">Plik wczytany (%1$d znaków)</string>
@@ -1270,7 +1271,7 @@
     <string name="collections_editor_save">Zapisz</string>
     <string name="collections_editor_backdrop">Obraz tła</string>
     <string name="collections_editor_pin_above">Przypnij nad katalogami</string>
-    <string name="collections_editor_pin_above_desc">Pokaż tę kolekcję nad wszystkimi zwykłymi katalogami. Wiele przypiętych kolekcji zachowuje kolejność tworzenia.</string>
+    <string name="collections_editor_pin_above_desc">Pokaż ten rząd folderów nad wszystkimi zwykłymi katalogami ekranu głównego. Przypięte rzędy folderów zachowują kolejność utworzenia.</string>
     <string name="collections_editor_view_mode">Tryb widoku</string>
     <string name="collections_editor_show_all_tab">Pokaż kartę \"Wszystko\"</string>
     <string name="collections_editor_show_all_tab_desc">Połącz wszystkie katalogi w jednej karcie</string>
@@ -1293,7 +1294,7 @@
     <string name="collections_editor_select_catalogs">Wybierz katalogi</string>
     <string name="collections_editor_done">Gotowe</string>
     <string name="collections_editor_choose_emoji">Wybierz emoji</string>
-    <string name="collections_editor_edit_collection">Edytuj kolekcję</string>
+    <string name="collections_editor_edit_collection">Edytuj rząd folderów</string>
     <string name="collections_editor_view_mode_tabs">Karty</string>
     <string name="collections_editor_view_mode_rows">Wiersze</string>
     <string name="collections_editor_view_mode_follow">Układ ekranu głównego</string>
@@ -1302,7 +1303,7 @@
     <string name="collections_editor_shape_square">Kwadrat</string>
     <string name="collections_editor_addon_missing">Dodatek niezainstalowany: %1$s</string>
     <string name="collections_editor_catalog_missing">Katalog niedostępny</string>
-    <string name="collections_editor_placeholder_name">Nazwa kolekcji</string>
+    <string name="collections_editor_placeholder_name">Nazwa rzędu folderów</string>
     <string name="collections_editor_placeholder_backdrop">URL obrazu tła (opcjonalnie)</string>
     <string name="collections_editor_placeholder_folder">Nazwa folderu</string>
     <string name="collections_editor_placeholder_gif">URL animowanego GIF (odtwarzany przy zaznaczeniu)</string>
@@ -1316,7 +1317,7 @@
     <string name="collections_editor_placeholder_hero_backdrop">URL niestandardowego tła hero (opcjonalnie)</string>
     <string name="collections_editor_title_logo">Logo tytułu (Nowoczesny ekran główny)</string>
     <string name="collections_editor_placeholder_title_logo">URL niestandardowego logo tytułu (opcjonalnie)</string>
-    <string name="collections_card_title">Kolekcje</string>
+    <string name="collections_card_title">Foldery ekranu głównego</string>
     <string name="collections_card_subtitle">Grupuj katalogi w folderach na ekranie głównym</string>
     <string name="collections_tab_all">Wszystko</string>
     <string name="collections_tab_combined">Połączone</string>
@@ -1479,8 +1480,8 @@
     <!-- Missing translations -->
     <string name="action_select">Wybierz</string>
     <string name="addon_manage_addons_only_from_phone_subtitle">Zeskanuj kod QR, aby zainstalować lub usunąć dodatki z telefonu</string>
-    <string name="addon_pending_collections_replace">%1$d kolekcji zastąpi obecne kolekcje</string>
-    <string name="addon_pending_collections_updated">Kolekcje zaktualizowane</string>
+    <string name="addon_pending_collections_replace">Rzędy folderów (%1$d) zastąpią obecne foldery ekranu głównego</string>
+    <string name="addon_pending_collections_updated">Foldery ekranu głównego zaktualizowane</string>
     <string name="addon_qr_addons_only_scan_instruction">Zeskanuj telefonem, aby zainstalować lub usunąć dodatki</string>
     <string name="addon_refresh_action">Odśwież dodatki</string>
     <string name="addon_refresh_default_subtitle">Pobierz najnowsze zmiany dodatków dla bieżącego profilu</string>
@@ -1507,7 +1508,7 @@
     <string name="folder_error_trakt_source">Nie udało się załadować tej listy Trakt. Sprawdź połączenie i czy lista jest nadal publiczna, a potem spróbuj ponownie.</string>
     <string name="folder_error_list_source">Nie udało się załadować tej listy. Sprawdź połączenie, a potem spróbuj ponownie.</string>
     <string name="collections_editor_discard_title">Odrzucić zmiany?</string>
-    <string name="collections_editor_discard_collection_subtitle">Zmiany w tej kolekcji nie zostały zapisane.</string>
+    <string name="collections_editor_discard_collection_subtitle">Zmiany w tym rzędzie folderów nie zostały zapisane.</string>
     <string name="collections_editor_discard_folder_subtitle">Zmiany w tym folderze nie zostały zapisane.</string>
     <string name="collections_editor_keep_editing">Kontynuuj edycję</string>
     <string name="collections_editor_discard">Odrzuć</string>
@@ -1610,14 +1611,14 @@
     <string name="collections_import_failed_fetch_http">Nie udało się pobrać: HTTP %1$d</string>
     <string name="collections_import_failed_fetch_url">Nie udało się pobrać URL: %1$s</string>
     <string name="collections_import_failed_read_file">Nie udało się odczytać pliku: %1$s</string>
-    <string name="collections_import_file_not_found_downloads">Nie znaleziono pliku w Pobrane.\nNajpierw wyeksportuj kolekcje, aby go utworzyć.</string>
-    <string name="collections_import_invalid_or_empty">Nieprawidłowy format lub puste kolekcje</string>
+    <string name="collections_import_file_not_found_downloads">Nie znaleziono pliku w Pobrane.\nNajpierw wyeksportuj foldery ekranu głównego, aby go utworzyć.</string>
+    <string name="collections_import_invalid_or_empty">Nieprawidłowy format lub brak rzędów folderów</string>
     <string name="collections_import_no_data">Brak danych do importu</string>
-    <string name="collections_import_paste_json_required">Wklej JSON kolekcji, aby zaimportować</string>
+    <string name="collections_import_paste_json_required">Wklej JSON folderów ekranu głównego, aby zaimportować</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
     <string name="debug_generate_library_result_added">Dodano %1$d elementów do biblioteki</string>
     <string name="error_unknown">Nieznany błąd</string>
-    <string name="experience_mode_confirm_advanced_subtitle">Pokaże pełny panel ustawień, w tym zaawansowaną konfigurację, katalogi, kolekcje i opcje dostrajania.</string>
+    <string name="experience_mode_confirm_advanced_subtitle">Pokaże pełny panel ustawień, w tym zaawansowaną konfigurację, katalogi, foldery ekranu głównego i opcje dostrajania.</string>
     <string name="experience_mode_confirm_advanced_title">Przełączyć na Zaawansowany?</string>
     <string name="experience_mode_confirm_essential_subtitle">Zaawansowane opcje zostaną ukryte, ale zapisane ustawienia pozostaną bez zmian. Możesz wrócić w każdej chwili.</string>
     <string name="experience_mode_confirm_essential_title">Przełączyć na Podstawowy?</string>
@@ -1625,7 +1626,7 @@
     <string name="experience_mode_group_title">Tryb doświadczenia</string>
     <string name="experience_mode_switch_to_advanced">Przełącz na Zaawansowany</string>
     <string name="experience_mode_switch_to_advanced_header_subtitle">Przełącz na Zaawansowany, aby uzyskać pełny panel ustawień.</string>
-    <string name="experience_mode_switch_to_advanced_subtitle">Pokaż pełny układ, wtyczki, integracje, katalogi, kolekcje i ustawienia dostrajania.</string>
+    <string name="experience_mode_switch_to_advanced_subtitle">Pokaż pełny układ, wtyczki, integracje, katalogi, foldery ekranu głównego i ustawienia dostrajania.</string>
     <string name="experience_mode_switch_to_essential">Przełącz na Podstawowy</string>
     <string name="experience_mode_switch_to_essential_subtitle">Ukryj zaawansowane opcje bez zmiany zapisanych wartości.</string>
     <string name="folder_detail_not_found">Nie znaleziono folderu</string>
@@ -1686,28 +1687,28 @@
     <string name="trakt_user_fallback">Użytkownik Trakt</string>
     <string name="type_movies">Filmy</string>
     <string name="type_series_plural">Seriale</string>
-    <string name="web_import_empty_array">Pusta tablica: nie znaleziono kolekcji</string>
+    <string name="web_import_empty_array">Pusta tablica: nie znaleziono rzędów folderów</string>
     <string name="web_import_enter_url">Podaj URL</string>
-    <string name="web_import_error_collection_folders_array">Kolekcja \"{collection}\": \"folders\" musi być tablicą</string>
-    <string name="web_import_error_collection_invalid_id">Kolekcja {index}: brakujące lub nieprawidłowe \"id\"</string>
-    <string name="web_import_error_collection_invalid_title">Kolekcja \"{collection}\": brakujący lub nieprawidłowy \"title\"</string>
-    <string name="web_import_error_folder_invalid_format">Kolekcja \"{collection}\", folder {index}: nieprawidłowy format</string>
-    <string name="web_import_error_folder_missing_id">Kolekcja \"{collection}\", folder {index}: brakujące \"id\"</string>
-    <string name="web_import_error_folder_missing_title">Kolekcja \"{collection}\", folder \"{folder}\": brakujący \"title\"</string>
-    <string name="web_import_error_invalid_tile_shape">Kolekcja \"{collection}\", folder \"{folder}\": nieprawidłowy tileShape \"{shape}\"</string>
-    <string name="web_import_error_source_invalid_format">Kolekcja \"{collection}\", folder \"{folder}\", źródło {index}: nieprawidłowy format</string>
-    <string name="web_import_error_source_missing_addon_fields">Kolekcja \"{collection}\", folder \"{folder}\", źródło {index}: brakujące wymagane pola (addonId, type, catalogId)</string>
-    <string name="web_import_error_source_missing_tmdb_type">Kolekcja \"{collection}\", folder \"{folder}\", źródło {index}: brakujący typ źródła TMDB</string>
-    <string name="web_import_error_source_missing_trakt_id">Kolekcja \"{collection}\", folder \"{folder}\", źródło {index}: brakujące ID listy Trakt</string>
-    <string name="web_import_error_sources_array">Kolekcja \"{collection}\", folder \"{folder}\": \"sources\" musi być tablicą</string>
-    <string name="web_import_expected_array">Oczekiwano tablicy JSON z kolekcjami</string>
+    <string name="web_import_error_collection_folders_array">Rząd folderów \"{collection}\": \"folders\" musi być tablicą</string>
+    <string name="web_import_error_collection_invalid_id">Rząd folderów {index}: brakujące lub nieprawidłowe \"id\"</string>
+    <string name="web_import_error_collection_invalid_title">Rząd folderów \"{collection}\": brakujący lub nieprawidłowy \"title\"</string>
+    <string name="web_import_error_folder_invalid_format">Rząd folderów \"{collection}\", folder {index}: nieprawidłowy format</string>
+    <string name="web_import_error_folder_missing_id">Rząd folderów \"{collection}\", folder {index}: brakujące \"id\"</string>
+    <string name="web_import_error_folder_missing_title">Rząd folderów \"{collection}\", folder \"{folder}\": brakujący \"title\"</string>
+    <string name="web_import_error_invalid_tile_shape">Rząd folderów \"{collection}\", folder \"{folder}\": nieprawidłowy tileShape \"{shape}\"</string>
+    <string name="web_import_error_source_invalid_format">Rząd folderów \"{collection}\", folder \"{folder}\", źródło {index}: nieprawidłowy format</string>
+    <string name="web_import_error_source_missing_addon_fields">Rząd folderów \"{collection}\", folder \"{folder}\", źródło {index}: brakujące wymagane pola (addonId, type, catalogId)</string>
+    <string name="web_import_error_source_missing_tmdb_type">Rząd folderów \"{collection}\", folder \"{folder}\", źródło {index}: brakujący typ źródła TMDB</string>
+    <string name="web_import_error_source_missing_trakt_id">Rząd folderów \"{collection}\", folder \"{folder}\", źródło {index}: brakujące ID listy Trakt</string>
+    <string name="web_import_error_sources_array">Rząd folderów \"{collection}\", folder \"{folder}\": \"sources\" musi być tablicą</string>
+    <string name="web_import_expected_array">Oczekiwano tablicy JSON z rzędami folderów</string>
     <string name="web_import_failed_fetch_url">Nie udało się pobrać URL</string>
     <string name="web_import_file_select">Dotknij, aby wybrać plik .json</string>
     <string name="web_import_invalid_json">Nieprawidłowy JSON</string>
     <string name="web_import_no_json">Nie podano JSON</string>
-    <string name="web_import_paste_placeholder">Wklej JSON kolekcji tutaj…</string>
+    <string name="web_import_paste_placeholder">Wklej JSON folderów ekranu głównego tutaj…</string>
     <string name="web_import_select_file_first">Najpierw wybierz plik</string>
-    <string name="web_import_success">Zaimportowano {count} kolekcji. Sprawdź i naciśnij Zapisz zmiany, aby zastosować.</string>
+    <string name="web_import_success">Zaimportowano rzędy folderów: {count}. Sprawdź i naciśnij Zapisz zmiany, aby zastosować.</string>
     <string name="web_issue_plural">problemów</string>
     <string name="web_issue_singular">problem</string>
     <string name="web_manage_addons_only_subtitle">Zainstaluj lub usuń dodatki</string>
@@ -1750,7 +1751,7 @@
     <string name="autoplay_regex_preset_web_sources">Źródła WEB</string>
     <string name="catalog_see_all_title_fallback">Katalog</string>
     <string name="collection_editor_no_trakt_lists_found">Nie znaleziono list Trakt</string>
-    <string name="collection_editor_untitled_collection">Kolekcja bez tytułu</string>
+    <string name="collection_editor_untitled_collection">Rząd folderów bez tytułu</string>
     <string name="collection_editor_untitled_folder">Bez tytułu</string>
     <string name="collections_editor_emoji_category_animals">Zwierzęta</string>
     <string name="collections_editor_emoji_category_flags">Flagi</string>
@@ -1776,22 +1777,22 @@
     <string name="collections_editor_tmdb_genre_reality">Reality</string>
     <string name="collections_editor_tmdb_genre_scifi">Sci-Fi</string>
     <string name="collections_editor_tmdb_network_placeholder_example">213 dla Netflix, 49 dla HBO, 2739 dla Disney+</string>
-    <string name="collections_import_error_empty_array">Pusta tablica: nie znaleziono kolekcji</string>
+    <string name="collections_import_error_empty_array">Pusta tablica: nie znaleziono rzędów folderów</string>
     <string name="collections_import_error_empty_input">Puste dane wejściowe</string>
     <string name="collections_import_error_expected_array">Nieprawidłowy format: oczekiwano tablicy</string>
-    <string name="collections_import_error_folder_invalid">Kolekcja \"%1$s\", folder %2$d: nieprawidłowy format</string>
-    <string name="collections_import_error_folder_missing_id">Kolekcja \"%1$s\", folder %2$d: brak \"id\"</string>
-    <string name="collections_import_error_folder_missing_title">Kolekcja \"%1$s\", folder \"%2$s\": brak \"title\"</string>
-    <string name="collections_import_error_folders_array">Kolekcja \"%1$s\": \"folders\" musi być tablicą</string>
-    <string name="collections_import_error_invalid_tile_shape">Kolekcja \"%1$s\", folder \"%2$s\": nieprawidłowy tileShape \"%3$s\"</string>
+    <string name="collections_import_error_folder_invalid">Rząd folderów \"%1$s\", folder %2$d: nieprawidłowy format</string>
+    <string name="collections_import_error_folder_missing_id">Rząd folderów \"%1$s\", folder %2$d: brak \"id\"</string>
+    <string name="collections_import_error_folder_missing_title">Rząd folderów \"%1$s\", folder \"%2$s\": brak \"title\"</string>
+    <string name="collections_import_error_folders_array">Rząd folderów \"%1$s\": \"folders\" musi być tablicą</string>
+    <string name="collections_import_error_invalid_tile_shape">Rząd folderów \"%1$s\", folder \"%2$s\": nieprawidłowy tileShape \"%3$s\"</string>
     <string name="collections_import_error_json_parse">Błąd parsowania JSON: %1$s</string>
-    <string name="collections_import_error_missing_id">Kolekcja %1$d: brak lub nieprawidłowe \"id\"</string>
-    <string name="collections_import_error_missing_title">Kolekcja \"%1$s\": brak lub nieprawidłowy \"title\"</string>
-    <string name="collections_import_error_missing_tmdb_type">Kolekcja \"%1$s\", folder \"%2$s\", źródło %3$d: brak typu źródła TMDB</string>
-    <string name="collections_import_error_missing_trakt_list_id">Kolekcja \"%1$s\", folder \"%2$s\", źródło %3$d: brak ID listy Trakt</string>
-    <string name="collections_import_error_source_invalid">Kolekcja \"%1$s\", folder \"%2$s\", źródło %3$d: nieprawidłowy format</string>
-    <string name="collections_import_error_source_required_fields">Kolekcja \"%1$s\", folder \"%2$s\", źródło %3$d: brak wymaganych pól</string>
-    <string name="collections_import_error_sources_array">Kolekcja \"%1$s\", folder \"%2$s\": \"sources\" musi być tablicą</string>
+    <string name="collections_import_error_missing_id">Rząd folderów %1$d: brak lub nieprawidłowe \"id\"</string>
+    <string name="collections_import_error_missing_title">Rząd folderów \"%1$s\": brak lub nieprawidłowy \"title\"</string>
+    <string name="collections_import_error_missing_tmdb_type">Rząd folderów \"%1$s\", folder \"%2$s\", źródło %3$d: brak typu źródła TMDB</string>
+    <string name="collections_import_error_missing_trakt_list_id">Rząd folderów \"%1$s\", folder \"%2$s\", źródło %3$d: brak ID listy Trakt</string>
+    <string name="collections_import_error_source_invalid">Rząd folderów \"%1$s\", folder \"%2$s\", źródło %3$d: nieprawidłowy format</string>
+    <string name="collections_import_error_source_required_fields">Rząd folderów \"%1$s\", folder \"%2$s\", źródło %3$d: brak wymaganych pól</string>
+    <string name="collections_import_error_sources_array">Rząd folderów \"%1$s\", folder \"%2$s\": \"sources\" musi być tablicą</string>
     <string name="detail_all_previous_seasons_watched">Wszystkie poprzednie sezony już obejrzane</string>
     <string name="detail_error_load_lists_failed">Nie udało się załadować list. Sprawdź połączenie i spróbuj ponownie.</string>
     <string name="detail_error_update_episode_watched_failed">Nie udało się zaktualizować statusu obejrzenia tego odcinka. Sprawdź połączenie i spróbuj ponownie.</string>
@@ -1816,7 +1817,7 @@
     <string name="essential_subtitle_language_subtitle">Preferowany język napisów.</string>
     <string name="essential_subtitles_and_audio">Napisy i audio</string>
     <string name="experience_mode_advanced">Zaawansowany</string>
-    <string name="experience_mode_advanced_card_subtitle">Pełne ustawienia, kontrola układu, kolejność katalogów, kolekcje, wtyczki i diagnostyka.</string>
+    <string name="experience_mode_advanced_card_subtitle">Pełne ustawienia, kontrola układu, kolejność katalogów, foldery ekranu głównego, wtyczki i diagnostyka.</string>
     <string name="experience_mode_choose_subtitle">Zacznij prosto lub odblokuj każdą personalizację. Możesz zmienić w dowolnym momencie.</string>
     <string name="experience_mode_choose_title">Wybierz swój tryb Fetch</string>
     <string name="experience_mode_essential_card_subtitle">Skupiona konfiguracja, dodatki, podstawy odtwarzania, Trakt i ustawienia konta.</string>
@@ -1948,7 +1949,6 @@
     <string name="profile_pin_lock_removed_for_profile">Blokada PIN usunięta dla %1$s.</string>
 
     <string name="addons_badge_disabled">Wyłączony</string>
-    <string name="library_source_saved">Zapisane</string>
 
     <string name="audio_dv5_to_dv81_title">Konwertuj DV5 na DV8.1</string>
     <string name="audio_dv5_to_dv81_sub">Sygnalizuj strumienie Profile 5 jako Profile 8.1 dla wyjścia kompatybilnego z HDR10. Pomaga na urządzeniach bez natywnego dekodera DV5.</string>
@@ -2147,7 +2147,7 @@
     <!-- Content & Discovery -->
     <string name="settings_content_discovery">Treści i odkrywanie</string>
     <string name="settings_content_discovery_subtitle">Dodatki, katalogi i źródła odkrywania</string>
-    <string name="settings_content_discovery_addons_subtitle">Zarządzaj dodatkami, kolejnością katalogów i kolekcjami</string>
+    <string name="settings_content_discovery_addons_subtitle">Zarządzaj dodatkami, kolejnością katalogów i folderami ekranu głównego</string>
 
     <!-- DV7 Diagnostics -->
     <string name="advanced_section_dv_diagnostics">Diagnostyka DV</string>

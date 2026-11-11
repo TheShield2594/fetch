@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">قائمة المشاهدة</string>
+    <string name="library_tab_lists">القوائم</string>
+    <string name="library_tab_in_progress">قيد المشاهدة</string>
+    <string name="library_tab_history">السجل</string>
+    <string name="library_tab_upcoming">القادم</string>
+    <string name="library_tabs_description">أقسام المكتبة</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">لا توجد قوائم بعد</string>
+    <string name="library_lists_empty_subtitle">القوائم التي تنشئها هنا أو في خدمة التتبع تظهر في هذا التبويب. لقائمة المشاهدة تبويب خاص بها.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (هذا التلفاز)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">تمت مشاهدة %1$d%%</string>
+    <string name="library_in_progress_empty_title">لا شيء قيد المشاهدة</string>
+    <string name="library_in_progress_empty_subtitle">الأفلام والحلقات التي بدأتها ولم تُكملها تظهر هنا.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">لم تشاهد شيئاً بعد</string>
+    <string name="library_history_empty_subtitle">ما تُنهي مشاهدته، وما تحدده خدمة التتبع كمُشاهَد، يظهر هنا مرتباً حسب الشهر.</string>
+</resources>

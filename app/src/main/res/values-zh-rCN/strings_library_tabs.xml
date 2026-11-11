@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">观看列表</string>
+    <string name="library_tab_lists">列表</string>
+    <string name="library_tab_in_progress">观看中</string>
+    <string name="library_tab_history">历史记录</string>
+    <string name="library_tab_upcoming">即将播出</string>
+    <string name="library_tabs_description">媒体库分区</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">暂无列表</string>
+    <string name="library_lists_empty_subtitle">你在这里或追踪服务中创建的列表会显示在此标签页。观看列表有单独的标签页。</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s（这台电视）</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">已观看 %1$d%%</string>
+    <string name="library_in_progress_empty_title">没有观看中的内容</string>
+    <string name="library_in_progress_empty_subtitle">你已开始但尚未看完的电影和剧集会显示在这里。</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">还没有观看记录</string>
+    <string name="library_history_empty_subtitle">你看完的内容，以及追踪服务标记为已观看的内容，会按月显示在这里。</string>
+</resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Λίστα παρακολούθησης</string>
+    <string name="library_tab_lists">Λίστες</string>
+    <string name="library_tab_in_progress">Σε εξέλιξη</string>
+    <string name="library_tab_history">Ιστορικό</string>
+    <string name="library_tab_upcoming">Επόμενα</string>
+    <string name="library_tabs_description">Ενότητες βιβλιοθήκης</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Δεν υπάρχουν λίστες ακόμα</string>
+    <string name="library_lists_empty_subtitle">Οι λίστες που δημιουργείτε εδώ ή στην υπηρεσία παρακολούθησής σας εμφανίζονται σε αυτή την καρτέλα. Η λίστα παρακολούθησης έχει τη δική της καρτέλα.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (αυτή η TV)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">Προβλήθηκε %1$d%%</string>
+    <string name="library_in_progress_empty_title">Τίποτα σε εξέλιξη</string>
+    <string name="library_in_progress_empty_subtitle">Οι ταινίες και τα επεισόδια που ξεκινήσατε και δεν τελειώσατε εμφανίζονται εδώ.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Δεν έχετε δει τίποτα ακόμα</string>
+    <string name="library_history_empty_subtitle">Ό,τι ολοκληρώνετε και ό,τι επισημαίνει η υπηρεσία παρακολούθησής σας ως προβληθέν εμφανίζεται εδώ ανά μήνα.</string>
+</resources>

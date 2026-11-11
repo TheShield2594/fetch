@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Lista de Interesse</string>
+    <string name="library_tab_lists">Listas</string>
+    <string name="library_tab_in_progress">Em curso</string>
+    <string name="library_tab_history">Histórico</string>
+    <string name="library_tab_upcoming">Brevemente</string>
+    <string name="library_tabs_description">Secções da biblioteca</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Ainda sem listas</string>
+    <string name="library_lists_empty_subtitle">As listas que crias aqui ou no teu serviço de acompanhamento aparecem neste separador. A tua Lista de Interesse tem o seu próprio separador.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (esta TV)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% visto</string>
+    <string name="library_in_progress_empty_title">Nada em curso</string>
+    <string name="library_in_progress_empty_subtitle">Os filmes e episódios que começaste e não terminaste aparecem aqui.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Ainda não viste nada</string>
+    <string name="library_history_empty_subtitle">O que terminas, e o que o teu serviço de acompanhamento marca como visto, aparece aqui por mês.</string>
+
+    <!-- Watched filter -->
+    <string name="library_watched_filter_ready">Prontos a reproduzir</string>
+</resources>

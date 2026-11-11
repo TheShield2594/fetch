@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">İzleme Listesi</string>
+    <string name="library_tab_lists">Listeler</string>
+    <string name="library_tab_in_progress">Devam Edenler</string>
+    <string name="library_tab_history">Geçmiş</string>
+    <string name="library_tab_upcoming">Yaklaşanlar</string>
+    <string name="library_tabs_description">Kütüphane bölümleri</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Henüz liste yok</string>
+    <string name="library_lists_empty_subtitle">Burada veya takip servisinizde oluşturduğunuz listeler bu sekmede görünür. İzleme listenizin kendi sekmesi var.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (bu TV)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%%%1$d izlendi</string>
+    <string name="library_in_progress_empty_title">Devam eden bir şey yok</string>
+    <string name="library_in_progress_empty_subtitle">Başlayıp bitirmediğiniz filmler ve bölümler burada görünür.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Henüz izlenen bir şey yok</string>
+    <string name="library_history_empty_subtitle">Bitirdikleriniz ve takip servisinizin izlendi olarak işaretledikleri burada aya göre görünür.</string>
+</resources>

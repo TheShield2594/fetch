@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Bevakningslista</string>
+    <string name="library_tab_lists">Listor</string>
+    <string name="library_tab_in_progress">Pågående</string>
+    <string name="library_tab_history">Historik</string>
+    <string name="library_tab_upcoming">Kommande</string>
+    <string name="library_tabs_description">Biblioteksavsnitt</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Inga listor ännu</string>
+    <string name="library_lists_empty_subtitle">Listor du skapar här eller i din spårningstjänst visas på den här fliken. Din bevakningslista har en egen flik.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (den här TV:n)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% sett</string>
+    <string name="library_in_progress_empty_title">Inget pågående</string>
+    <string name="library_in_progress_empty_subtitle">Filmer och avsnitt som du har börjat på men inte sett klart visas här.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Inget sett ännu</string>
+    <string name="library_history_empty_subtitle">Det du ser klart, och det som din spårningstjänst markerar som sett, visas här per månad.</string>
+
+    <!-- Library watched filter -->
+    <string name="library_watched_filter_ready">Redo att spela upp</string>
+</resources>

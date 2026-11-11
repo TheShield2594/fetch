@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Seznam za ogled</string>
+    <string name="library_tab_lists">Seznami</string>
+    <string name="library_tab_in_progress">V teku</string>
+    <string name="library_tab_history">Zgodovina</string>
+    <string name="library_tab_upcoming">Prihajajoče</string>
+    <string name="library_tabs_description">Razdelki knjižnice</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Ni še seznamov</string>
+    <string name="library_lists_empty_subtitle">Seznami, ki jih ustvarite tukaj ali v svoji storitvi za sledenje, so prikazani na tem zavihku. Seznam za ogled ima svoj zavihek.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (ta televizor)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% ogledano</string>
+    <string name="library_in_progress_empty_title">Nič ni v teku</string>
+    <string name="library_in_progress_empty_subtitle">Tukaj so prikazani filmi in epizode, ki ste jih začeli gledati, a jih niste dokončali.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Še nič ogledanega</string>
+    <string name="library_history_empty_subtitle">Kar si ogledate do konca in kar vaša storitev za sledenje označi kot ogledano, je tukaj prikazano po mesecih.</string>
+    <string name="library_watched_filter_ready">Pripravljeno za predvajanje</string>
+</resources>

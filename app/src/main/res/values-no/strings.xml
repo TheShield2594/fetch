@@ -564,10 +564,10 @@
     <string name="addon_remove_confirm_title">Fjerne %1$s?</string>
     <string name="addon_remove_confirm_message">Katalogene og strømmene fra den vises ikke lenger på denne TV-en.</string>
     <string name="addon_manage_from_phone_title">Administrer fra telefon</string>
-    <string name="addon_manage_from_phone_subtitle">Skann en QR-kode for å administrere tillegg og hjemmekatalogier fra telefonen din</string>
+    <string name="addon_manage_from_phone_subtitle">Skann en QR-kode for å administrere tillegg, kataloger og Hjem-mapper fra telefonen din</string>
     <string name="addon_reorder_title">Omorganiser hjemmekatalogier</string>
-    <string name="addon_reorder_subtitle">Kontroller katalogradrekkefølgen på hjem (Klassisk + moderne + rutenett)</string>
-    <string name="addon_qr_scan_instruction">Skann med telefonen din for å administrere tillegg og kataloger</string>
+    <string name="addon_reorder_subtitle">Kontroller rekkefølgen på katalog- og mapperader på Hjem (Klassisk + moderne + rutenett)</string>
+    <string name="addon_qr_scan_instruction">Skann med telefonen din for å administrere tillegg, kataloger og Hjem-mapper</string>
     <string name="addon_qr_close">Lukk</string>
     <string name="addon_confirm_title">Bekreft tillegg &amp; katalogendringer</string>
     <string name="addon_confirm_subtitle">Følgende endringer ble gjort fra telefonen din:</string>
@@ -884,7 +884,7 @@
     <string name="folder_error_trakt_source">Kunne ikke laste inn denne Trakt-listen. Sjekk tilkoblingen og at listen fortsatt er offentlig, og prøv igjen.</string>
     <string name="folder_error_list_source">Kunne ikke laste inn denne listen. Sjekk tilkoblingen, og prøv igjen.</string>
     <string name="collections_editor_discard_title">Vil du forkaste endringene?</string>
-    <string name="collections_editor_discard_collection_subtitle">Endringene dine i denne samlingen er ikke lagret.</string>
+    <string name="collections_editor_discard_collection_subtitle">Endringene dine i denne mapperaden er ikke lagret.</string>
     <string name="collections_editor_discard_folder_subtitle">Endringene dine i denne mappen er ikke lagret.</string>
     <string name="collections_editor_keep_editing">Fortsett å redigere</string>
     <string name="collections_editor_discard">Forkast</string>

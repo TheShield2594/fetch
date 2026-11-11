@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">பார்க்க வேண்டிய பட்டியல்</string>
+    <string name="library_tab_lists">பட்டியல்கள்</string>
+    <string name="library_tab_in_progress">பார்த்துக்கொண்டிருப்பவை</string>
+    <string name="library_tab_history">வரலாறு</string>
+    <string name="library_tab_upcoming">வரவுள்ளவை</string>
+    <string name="library_tabs_description">நூலகப் பிரிவுகள்</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">இன்னும் பட்டியல்கள் இல்லை</string>
+    <string name="library_lists_empty_subtitle">இங்கே அல்லது உங்கள் டிராக்கிங் சேவையில் நீங்கள் உருவாக்கும் பட்டியல்கள் இந்தத் தாவலில் தோன்றும். பார்க்க வேண்டிய பட்டியலுக்குத் தனித் தாவல் உள்ளது.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (இந்த டிவி)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">%1$d%% பார்க்கப்பட்டது</string>
+    <string name="library_in_progress_empty_title">பார்த்துக்கொண்டிருப்பவை எதுவும் இல்லை</string>
+    <string name="library_in_progress_empty_subtitle">நீங்கள் தொடங்கி இன்னும் முடிக்காத திரைப்படங்களும் அத்தியாயங்களும் இங்கே தோன்றும்.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">இன்னும் எதுவும் பார்க்கவில்லை</string>
+    <string name="library_history_empty_subtitle">நீங்கள் பார்த்து முடித்தவையும், உங்கள் டிராக்கிங் சேவை பார்த்ததாகக் குறித்தவையும் மாதவாரியாக இங்கே தோன்றும்.</string>
+
+    <!-- Library watched filter -->
+    <string name="library_watched_filter_ready">இயக்கத் தயார்</string>
+</resources>

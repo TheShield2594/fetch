@@ -498,10 +498,10 @@
     <string name="addon_remove_confirm_title">%1$s हटाएँ?</string>
     <string name="addon_remove_confirm_message">इसके कैटलॉग और स्ट्रीम इस टीवी पर दिखना बंद हो जाएँगे।</string>
     <string name="addon_manage_from_phone_title">फोन से मैनेज करें</string>
-    <string name="addon_manage_from_phone_subtitle">अपने फोन से ऐडऑन और होम कैटलॉग मैनेज करने के लिए QR कोड स्कैन करें</string>
+    <string name="addon_manage_from_phone_subtitle">अपने फोन से ऐडऑन, कैटलॉग और होम फ़ोल्डर मैनेज करने के लिए QR कोड स्कैन करें</string>
     <string name="addon_reorder_title">होम कैटलॉग क्रम बदलें</string>
-    <string name="addon_reorder_subtitle">होम पर कैटलॉग रो का क्रम नियंत्रित करता है (Classic + Modern + Grid)</string>
-    <string name="addon_qr_scan_instruction">ऐडऑन और कैटलॉग मैनेज करने के लिए अपने फोन से स्कैन करें</string>
+    <string name="addon_reorder_subtitle">होम पर कैटलॉग रो और फ़ोल्डर रो का क्रम नियंत्रित करता है (Classic + Modern + Grid)</string>
+    <string name="addon_qr_scan_instruction">ऐडऑन, कैटलॉग और होम फ़ोल्डर मैनेज करने के लिए अपने फोन से स्कैन करें</string>
     <string name="addon_qr_close">बंद करें</string>
     <string name="addon_confirm_title">ऐडऑन और कैटलॉग बदलाव की पुष्टि करें</string>
     <string name="addon_confirm_subtitle">निम्नलिखित बदलाव आपके फोन से किए गए:</string>
@@ -892,7 +892,7 @@
     <string name="folder_error_trakt_source">यह Trakt लिस्ट लोड नहीं हो सकी। अपना कनेक्शन जांचें और देखें कि लिस्ट अभी भी पब्लिक है, फिर दोबारा कोशिश करें।</string>
     <string name="folder_error_list_source">यह लिस्ट लोड नहीं हो सकी। अपना कनेक्शन जांचें, फिर दोबारा कोशिश करें।</string>
     <string name="collections_editor_discard_title">बदलाव छोड़ें?</string>
-    <string name="collections_editor_discard_collection_subtitle">इस कलेक्शन में किए गए आपके बदलाव सेव नहीं हुए हैं।</string>
+    <string name="collections_editor_discard_collection_subtitle">इस फ़ोल्डर रो में किए गए आपके बदलाव सेव नहीं हुए हैं।</string>
     <string name="collections_editor_discard_folder_subtitle">इस फ़ोल्डर में किए गए आपके बदलाव सेव नहीं हुए हैं।</string>
     <string name="collections_editor_keep_editing">एडिट करते रहें</string>
     <string name="collections_editor_discard">छोड़ें</string>

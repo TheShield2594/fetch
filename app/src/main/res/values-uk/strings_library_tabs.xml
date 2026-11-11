@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library tabs (Servers and Stats reuse library_source_servers and library_open_stats) -->
+    <string name="library_tab_watchlist">Список для перегляду</string>
+    <string name="library_tab_lists">Списки</string>
+    <string name="library_tab_in_progress">У процесі</string>
+    <string name="library_tab_history">Історія</string>
+    <string name="library_tab_upcoming">Незабаром</string>
+    <string name="library_tabs_description">Розділи бібліотеки</string>
+
+    <!-- Lists tab -->
+    <string name="library_lists_empty_title">Поки що немає списків</string>
+    <string name="library_lists_empty_subtitle">Списки, створені тут або у вашому сервісі відстеження, з\'являються на цій вкладці. Список для перегляду має власну вкладку.</string>
+    <!-- A list kept on this TV, shown beside the tracking service's lists. %1$s is its name. -->
+    <string name="library_local_list_on_tv">%1$s (цей ТВ)</string>
+
+    <!-- In progress tab -->
+    <string name="library_in_progress_percent">Переглянуто %1$d%%</string>
+    <string name="library_in_progress_empty_title">Немає розпочатого</string>
+    <string name="library_in_progress_empty_subtitle">Тут з\'являються фільми та епізоди, які ви почали, але не додивилися.</string>
+
+    <!-- History tab -->
+    <string name="library_history_empty_title">Ще нічого не переглянуто</string>
+    <string name="library_history_empty_subtitle">Тут по місяцях з\'являється те, що ви додивилися, і те, що ваш сервіс відстеження позначив як переглянуте.</string>
+
+    <string name="library_watched_filter_ready">Готові до перегляду</string>
+</resources>

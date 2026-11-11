@@ -1498,7 +1498,7 @@
     <string name="addon_refresh_default_subtitle">Pull latest addon changes for current profile</string>
     <string name="addon_refresh_done_subtitle">Addons refreshed just now</string>
     <string name="addon_pending_collections_updated">Home folders updated</string>
-    <string name="addon_pending_collections_replace">%1$d folder row(s) will replace your current Home folders</string>
+    <string name="addon_pending_collections_replace">Folder rows to import: %1$d. They replace your current Home folders.</string>
     <string name="addon_confirm_total_addons">Total addons: %1$d</string>
     <string name="addon_confirm_total_catalogs">Total catalogs: %1$d</string>
     <string name="addon_catalogs_types">Catalogs: %1$d - Types: %2$s</string>
@@ -1899,7 +1899,6 @@
     <string name="library_delete_subtitle_provider">This removes the list and its items from %1$s. This can’t be undone.</string>
     <string name="library_delete_subtitle_local">This removes the list and its items from your library. This can’t be undone.</string>
     <string name="library_source_local">Local</string>
-    <string name="library_source_saved">Saved</string>
     <string name="library_watchlist">Watchlist</string>
     <string name="library_status_watching">Watching</string>
     <string name="library_status_plan_to_watch">Plan to watch</string>

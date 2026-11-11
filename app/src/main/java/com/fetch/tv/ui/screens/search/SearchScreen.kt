@@ -1,9 +1,10 @@
 package com.fetch.tv.ui.screens.search
 
+import com.fetch.tv.ui.components.FetchButton
+import com.fetch.tv.ui.components.FetchButtonStyle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.theme.FetchMotion
-import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 
@@ -99,8 +100,6 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.IconButton as TvIconButton
 import androidx.tv.material3.IconButtonDefaults as TvIconButtonDefaults
@@ -1049,25 +1048,18 @@ private fun ClearSearchHistoryDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
         ) {
-            Button(
+            FetchButton(
                 onClick = onDismiss,
                 modifier = Modifier
                     .weight(1f)
-                    .focusRequester(cancelFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = FetchTheme.colors.BackgroundCard,
-                    contentColor = FetchTheme.colors.TextPrimary
-                )
+                    .focusRequester(cancelFocusRequester)
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
-            Button(
+            FetchButton(
                 onClick = onConfirm,
                 modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.colors(
-                    containerColor = FetchStatusTones.errorContainer,
-                    contentColor = FetchTheme.colors.TextPrimary
-                )
+                style = FetchButtonStyle.Destructive
             ) {
                 Text(stringResource(R.string.search_recent_clear))
             }
@@ -1128,23 +1120,16 @@ private fun RecentSearchesSection(
                 style = androidx.tv.material3.MaterialTheme.typography.titleMedium,
                 color = FetchTheme.colors.TextPrimary
             )
-            Button(
+            // Destructive, so its label is the error tone rather than the query-row white; focus
+            // is the neutral white pair, as in StateActionButton.
+            FetchButton(
                 onClick = onClearHistory,
                 modifier = Modifier
                     .focusRequester(clearHistoryFocusRequester)
                     .focusProperties {
                         down = firstSearchFocusRequester
                     },
-                colors = ButtonDefaults.colors(
-                    containerColor = FetchTheme.colors.BackgroundCard,
-                    // Destructive, so its label is the error tone rather than the query-row white.
-                    contentColor = FetchStatusTones.errorText,
-                    // Focus is the neutral white pair, as in StateActionButton; the old
-                    // grey-on-grey fill with a dimmer label was nearly invisible.
-                    focusedContainerColor = FetchTheme.colors.Highlight,
-                    focusedContentColor = FetchTheme.colors.OnHighlight
-                ),
-                shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
+                style = FetchButtonStyle.DestructiveQuiet
             ) {
                 Text(text = stringResource(R.string.search_recent_clear))
             }
@@ -1177,7 +1162,7 @@ private fun RecentSearchesSection(
                         animationSpec = tween(durationMillis = FetchMotion.tokens.durations.quick),
                         label = "recentSearchScale"
                     )
-                    Button(
+                    FetchButton(
                         onClick = { onSearchSelected(recentQuery) },
                         modifier = Modifier
                             .weight(1f)
@@ -1198,14 +1183,8 @@ private fun RecentSearchesSection(
                                     pivotFractionY = 0.5f
                                 )
                             },
-                        colors = ButtonDefaults.colors(
-                            containerColor = FetchTheme.colors.BackgroundCard,
-                            contentColor = FetchTheme.colors.TextPrimary,
-                            focusedContainerColor = FetchTheme.colors.Highlight,
-                            focusedContentColor = FetchTheme.colors.OnHighlight
-                        ),
-                        scale = ButtonDefaults.scale(focusedScale = 1f),
-                        shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
+                        // The row scales itself (above) from its leading edge.
+                        focusedScale = 1f
                     ) {
                         Text(
                             text = recentQuery,

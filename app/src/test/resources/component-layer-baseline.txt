@@ -1,0 +1,29 @@
+# Raw tv-material Button( and Card( calls allowed per screen directory (ui/screens/<dir>).
+# ComponentLayerGuardTest fails when a count rises, and when one falls without being lowered
+# here, so the numbers can only go down. Use FetchButton / FetchIconButton / FetchChip /
+# FetchMediaCard instead (roadmap F2, #433).
+# Home, Library, Search and Detail are the first screens moved (initiative D). Library and Search
+# keep one Card each: their dropdown pickers, which are fields rather than media cards.
+addon|BUTTON|20
+addon|CARD|6
+calendar|BUTTON|1
+cast|BUTTON|1
+cast|CARD|1
+collection|BUTTON|14
+collection|CARD|10
+detail|BUTTON|3
+detail|CARD|7
+filterrows|BUTTON|2
+library|CARD|1
+player|BUTTON|7
+player|CARD|24
+profile|BUTTON|33
+search|CARD|1
+settings|BUTTON|29
+settings|CARD|31
+stats|BUTTON|1
+stats|CARD|1
+stream|BUTTON|1
+stream|CARD|1
+youtube|BUTTON|4
+youtube|CARD|5

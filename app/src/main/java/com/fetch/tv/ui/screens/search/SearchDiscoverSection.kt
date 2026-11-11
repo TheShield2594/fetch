@@ -1,6 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
-import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.components.FetchMediaCard
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 
@@ -771,7 +771,6 @@ private sealed class DiscoverGridAction {
     object Loading : DiscoverGridAction()
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun DiscoverActionCard(
     actionType: DiscoverGridAction,
@@ -793,7 +792,7 @@ private fun DiscoverActionCard(
     Column(
         modifier = modifier.then(if (globalLandscape) Modifier.fillMaxWidth() else Modifier.width(posterCardStyle.width))
     ) {
-        Card(
+        FetchMediaCard(
             onClick = onClick,
             modifier = Modifier
                 .then(
@@ -812,20 +811,8 @@ private fun DiscoverActionCard(
                     if (focusRequester != null) Modifier.focusRequester(focusRequester)
                     else Modifier
                 ),
-            shape = CardDefaults.shape(shape = cardShape),
-            colors = CardDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                focusedContainerColor = FetchTheme.colors.FocusBackground
-            ),
-            border = CardDefaults.border(
-                focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
-                    shape = cardShape
-                )
-            ),
-            scale = CardDefaults.scale(
-                focusedScale = if (FetchTheme.fullMotion) posterCardStyle.focusedScale else FetchMotion.tokens.reducedMotionScale
-            )
+            shape = cardShape,
+            showRestingBorder = false
         ) {
             Box(
                 modifier = Modifier

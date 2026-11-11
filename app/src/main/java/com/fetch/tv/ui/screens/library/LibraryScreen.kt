@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.library
 
+import com.fetch.tv.ui.components.FetchButtonStyle
+import com.fetch.tv.ui.components.FetchButton
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.ui.theme.cardCornerRadius
 import android.view.KeyEvent as AndroidKeyEvent
@@ -80,7 +82,6 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.material3.Button
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
@@ -638,15 +639,13 @@ private fun LibraryViewModeRow(
         Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
             modes.forEach { mode ->
                 val isSelected = mode == selectedMode
-                Button(
+                FetchButton(
                     onClick = { onSelected(mode) },
                     modifier = Modifier
                         .then(if (isSelected) Modifier.focusRequester(primaryFocusRequester) else Modifier)
                         .semantics { selected = isSelected },
-                    shape = libraryButtonShape(),
-                    colors = selectableButtonColors(isSelected)
+                    selected = isSelected
                 ) {
-                    if (isSelected) SelectedCheckmark()
                     Text(
                         text = when (mode) {
                             LibraryViewMode.Saved -> stringResource(R.string.library_source_saved)
@@ -658,12 +657,12 @@ private fun LibraryViewModeRow(
         }
         // Pages rather than views of the library, so they sit apart from the choices on the left.
         Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
-            Button(onClick = onOpenStats, shape = libraryButtonShape(), colors = libraryButtonColors()) {
+            FetchButton(onClick = onOpenStats) {
                 Icon(imageVector = Icons.Default.BarChart, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
                 Text(stringResource(R.string.library_open_stats))
             }
-            Button(onClick = onOpenCalendar, shape = libraryButtonShape(), colors = libraryButtonColors()) {
+            FetchButton(onClick = onOpenCalendar) {
                 Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
                 Text(stringResource(R.string.library_open_calendar))
@@ -1048,11 +1047,9 @@ private fun LibraryActionsRow(
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
     ) {
         if (showManageLists) {
-            Button(
+            FetchButton(
                 onClick = onManageLists,
-                enabled = !pending && !isSyncing,
-                shape = libraryButtonShape(),
-                colors = libraryButtonColors()
+                enabled = !pending && !isSyncing
             ) {
                 Text(stringResource(R.string.library_manage_lists))
             }
@@ -1060,10 +1057,8 @@ private fun LibraryActionsRow(
         if (showRefresh) {
             // Stays enabled while syncing so it keeps focus; the "Syncing…" label is the state cue
             // and a press during a sync does nothing.
-            Button(
-                onClick = { if (!pending && !isSyncing) onRefresh() },
-                shape = libraryButtonShape(),
-                colors = libraryButtonColors()
+            FetchButton(
+                onClick = { if (!pending && !isSyncing) onRefresh() }
             ) {
                 Text(if (isSyncing) stringResource(R.string.library_syncing_btn) else stringResource(R.string.library_sync_btn))
             }
@@ -1111,23 +1106,20 @@ private fun ConfirmDeleteDialog(
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
         ) {
             // Cancel first and focused, so one stray OK press can't delete the list.
-            Button(
+            FetchButton(
                 onClick = onCancel,
                 enabled = !pending,
                 modifier = Modifier
                     .weight(1f)
-                    .focusRequester(cancelFocusRequester),
-                shape = libraryButtonShape(),
-                colors = libraryButtonColors()
+                    .focusRequester(cancelFocusRequester)
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
-            Button(
+            FetchButton(
                 onClick = onConfirm,
                 enabled = !pending,
                 modifier = Modifier.weight(1f),
-                shape = libraryButtonShape(),
-                colors = destructiveButtonColors()
+                style = FetchButtonStyle.Destructive
             ) {
                 Text(stringResource(R.string.library_list_delete))
             }

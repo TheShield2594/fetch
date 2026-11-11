@@ -9,7 +9,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -148,30 +147,30 @@ fun SourceStatusFilterChip(
         border = FilterChipDefaults.border(
             border = Border(
                 border = BorderStroke(FetchTheme.spacing.hairline, if (isError) FetchTheme.colors.Error.copy(alpha = 0.7f) else FetchTheme.colors.Border),
-                shape = RoundedCornerShape(FetchTheme.radii.xl)
+                shape = FetchTheme.shapes.chip
             ),
             focusedBorder = Border(
                 border = if (isError) {
                     BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.Error.copy(alpha = 0.8f))
                 } else {
-                    FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+                    FetchFocusSpec.stroke()
                 },
-                shape = RoundedCornerShape(FetchTheme.radii.xl)
+                shape = FetchTheme.shapes.chip
             ),
             selectedBorder = Border(
                 border = BorderStroke(FetchTheme.spacing.hairline, if (isError) FetchTheme.colors.Error.copy(alpha = 0.75f) else FetchTheme.colors.Primary),
-                shape = RoundedCornerShape(FetchTheme.radii.xl)
+                shape = FetchTheme.shapes.chip
             ),
             focusedSelectedBorder = Border(
                 border = if (isError) {
                     BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.Error.copy(alpha = 0.8f))
                 } else {
-                    FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+                    FetchFocusSpec.stroke()
                 },
-                shape = RoundedCornerShape(FetchTheme.radii.xl)
+                shape = FetchTheme.shapes.chip
             )
         ),
-        shape = FilterChipDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.xl))
+        shape = FilterChipDefaults.shape(shape = FetchTheme.shapes.chip)
     ) {
         Text(
             text = sourceChipLabel(name, status),

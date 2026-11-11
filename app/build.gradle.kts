@@ -259,7 +259,11 @@ android {
 
     packaging {
         jniLibs {
-            useLegacyPackaging = true
+            // Native libraries stay uncompressed in the APK and load from there, instead of
+            // being stored compressed in the APK and extracted again to disk on install (#454).
+            // Saves their size in storage on 8 GB sticks; the download is somewhat larger.
+            // Nothing in Fetch or its AARs loads a library by path from nativeLibraryDir.
+            useLegacyPackaging = false
             // Keep one consistent native set across dependencies.
             pickFirsts += listOf(
                 "lib/*/libc++_shared.so",
@@ -443,7 +447,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Performance profiling
-    implementation(libs.androidx.metrics.performance)  // JankStats
+    implementation(libs.androidx.metrics.performance)  // JankStats (debug builds only, see MainActivity)
     debugImplementation(libs.androidx.compose.runtime.tracing)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))

@@ -3,7 +3,7 @@
 Fetch has to stay smooth on 1.5–2 GB streaming sticks. This page says how to measure
 that, and holds the numbers once they are measured. Tracking issue: #13.
 
-Target devices:
+Target devices (`minSdk` is 24, so Fire OS 5, API 22, is not supported):
 
 | Device | RAM | Android | Why |
 |---|---|---|---|
@@ -154,6 +154,83 @@ compilation, which erases the app's data. `StartupBenchmark` then times a fresh 
 first screen (sign-in), not Home, and the set-up from "Before every run" in section 1 is gone
 afterwards. Use a device you don't mind setting up again, or one on API 34+, and note in the
 results which first screen was timed.
+
+### StartupBenchmark and a process that comes back
+
+On the CI emulator `StartupBenchmark` once failed with "Package com.fetch.tv must not be
+running prior to cold start!" and passed on the same code in the next run (#461).
+
+What Macrobenchmark 1.4.1 does before each `StartupMode.COLD` iteration, in order: the
+`setupBlock`, then `dropShaderCache()`, which on a user build is an explicit broadcast to the
+app's `ProfileInstallReceiver` and so starts the app's process, then `am force-stop`, then a
+page-cache drop that can take a few seconds, then the check. Anything that starts the process
+again in that window fails the whole test.
+
+What in Fetch could start a force-stopped process:
+
+- Not the boot receiver (`TvChannelBootReceiver`, `BOOT_COMPLETED` and
+  `INITIALIZE_PROGRAMS`): implicit broadcasts are not delivered to a stopped package.
+- Not the TV channel job or `AppRestarter`'s alarm: force-stop cancels jobs and alarms. The
+  legacy periodic channel job is cancelled at start-up.
+- Not `ExternalPlaybackKeepAliveService`: it only runs during external playback.
+- Possibly `GlobalSearchProvider`: it is exported for the TV's system search, and a provider
+  query does start a stopped app. Home is in front during set-up, so a search or launcher
+  query against it is the most likely outside cause.
+- Possibly the system itself: the profile-installer broadcast is the first thing that wakes
+  the app each iteration, and a late delivery after the force-stop would look the same.
+
+The cause is not confirmed: it did not reproduce in the run that passed, and it needs an
+emulator to watch. So the benchmark now prepares the cold start itself (same steps, same
+order, `startupMode = null`, which the startup metric reads as cold), checks after the
+page-cache drop, and if the process is back it logs the ActivityManager "Start proc … for …"
+line under the `FetchBenchmark` tag and kills it again, up to three times. The Baseline
+profile workflow keeps those lines as `benchmark-process-starts.txt` and in the run summary,
+so the next run that hits it names the component. Write the answer here when it does.
+
+Five Baseline profile runs in a row on PR #481's code (run 43031270892, attempts 1–5,
+2026-11-11, CI emulator, release build with R8, 10 cold starts per test), all passed:
+
+| Run | TTID median, `Partial(Require)` | TTID median, `None` | Slowest, `Partial(Require)` |
+|---|---|---|---|
+| 1 | 902 ms | 847 ms | 1,182 ms |
+| 2 | 1,041 ms | 1,093 ms | 2,513 ms |
+| 3 | 741 ms | 779 ms | 1,751 ms |
+| 4 | 939 ms | 951 ms | 1,820 ms |
+| 5 | 687 ms | 708 ms | 1,402 ms |
+
+The profile's median is lower in four of five runs, but by little, and its slowest starts are
+the slowest of all; on the emulator that is noise, not a result. These runs don't show whether
+the re-kill above was needed from the job log alone; the `FetchBenchmark` lines go to each
+run's summary and `benchmark-results` artifact.
+
+Run 5's `benchmark-process-starts.txt` (the only attempt whose artifact the API still lists)
+has no `FetchBenchmark` line, so the re-kill never ran. Every start of `com.fetch.tv` it
+records has one of two reasons:
+
+| Reason (ActivityManager "Start proc … for …") | Count | When |
+|---|---|---|
+| `next-top-activity` (the measured launch) | 20 | 10 per test, 4–5 s apart |
+| `broadcast {com.fetch.tv/androidx.profileinstaller.ProfileInstallReceiver}` | 5 | 3 before the first test, 2 before the second |
+
+Nothing in Fetch woke the process: no search provider query, boot receiver, job or service.
+Inside a test every start is a measured launch, so the app does not restart itself in the
+background, and the background wake-ups item in the audit is not involved.
+
+**Likely cause (not confirmed):** the only starts outside the measured launches are
+Macrobenchmark's own profile-installer broadcasts, sent while it sets up each test's
+compilation. Two land just before the second test (17:45:23.8 and 17:45:24.6, first launch
+at 17:45:26.1), which is where the original failure happened: the first iteration of
+`coldStartWithoutProfile`. A broadcast delivered just after the force-stop brings the process
+back before the check. That is the tooling, not Fetch, and the cold-start setup above
+absorbs it. To confirm, a run that hits it will log a `FetchBenchmark` line whose last
+"Start proc" names `ProfileInstallReceiver`.
+
+To look by hand:
+
+```sh
+# Force-stop, wait 5 s, then report whether the process came back and what started it.
+scripts/perf_baseline.sh restart-check 5
+```
 
 ## 3. Heap with Custom Network / Custom Buffers
 

@@ -3,7 +3,6 @@ package com.fetch.tv.ui.screens.profile
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
@@ -33,6 +32,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /** The title a poster's long-press menu was opened on, as the parental lists store it. */
 fun parentalTitleOf(item: MetaPreview, originalId: String? = null): ParentalTitle = ParentalTitle(
@@ -104,8 +104,8 @@ fun ParentalTitleMenuButton(
     onDone: () -> Unit,
     viewModel: ParentalTitleViewModel = hiltViewModel()
 ) {
-    val profiles by viewModel.profiles.collectAsState()
-    val activeProfileId by viewModel.activeProfileId.collectAsState()
+    val profiles by viewModel.profiles.collectAsStateWithLifecycle()
+    val activeProfileId by viewModel.activeProfileId.collectAsStateWithLifecycle()
     val gate = LocalParentalGate.current
     val colors = ButtonDefaults.colors(
         containerColor = FetchTheme.colors.BackgroundCard,
@@ -143,10 +143,10 @@ fun ParentalTitleMenuButton(
  */
 @Composable
 fun ParentalTitleDialogHost(viewModel: ParentalTitleViewModel = hiltViewModel()) {
-    val title by viewModel.editing.collectAsState()
-    val profiles by viewModel.profiles.collectAsState()
+    val title by viewModel.editing.collectAsStateWithLifecycle()
+    val profiles by viewModel.profiles.collectAsStateWithLifecycle()
     // Read so the buttons redraw when a state changes.
-    val lists by viewModel.titleLists.collectAsState()
+    val lists by viewModel.titleLists.collectAsStateWithLifecycle()
     val editing = title ?: return
     val others = profiles.filterNot { it.isPrimary }
     val firstFocus = remember(editing) { FocusRequester() }

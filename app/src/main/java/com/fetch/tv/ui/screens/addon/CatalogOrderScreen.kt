@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.LaunchedEffect
@@ -60,6 +59,7 @@ import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import kotlinx.coroutines.launch
 import com.fetch.tv.ui.util.dpadRepeatThrottle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
  * Customise Home: every row Home shows (addon catalogs, folders and filter rows), to reorder,
@@ -77,7 +77,7 @@ fun CatalogOrderScreen(
     onEditFolders: () -> Unit = {},
     onBackPress: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 

@@ -52,9 +52,7 @@ import com.fetch.tv.ui.screens.ambient.AmbientClock
 import com.fetch.tv.ui.screens.player.LoadingOverlay
 import com.fetch.tv.ui.screens.stream.StreamCard
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.onSizeChanged
@@ -252,7 +250,8 @@ class ReadmeScreenshots {
                     Brush.verticalGradient(0.55f to Color.Transparent, 1f to FetchTheme.colors.Background)
                 )
             )
-            // Same order as the page: the 540dp hero, then the Sources row under it.
+            // Same order as the page: the short series hero, then the season's episodes with
+            // the next one marked.
             val bestMatch = BestMatchPreview(
                 videoId = "sample-long-field:2:6",
                 labels = listOf("4K", "DV P8", "TrueHD Atmos", "18.2 GB"),
@@ -262,14 +261,7 @@ class ReadmeScreenshots {
                 sourceCount = 14,
                 isFinal = true
             )
-            // Unbounded like the page's list, then scrolled to Sources the way Down from Play does.
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(Alignment.Top, unbounded = true)
-                    .padding(start = 48.dp)
-                    .offset(y = (-190).dp)
-            ) {
+            Column(Modifier.fillMaxWidth()) {
                 HeroContentSection(
                     meta = meta,
                     nextEpisode = meta.videos.firstOrNull { it.episode == 6 },
@@ -283,6 +275,8 @@ class ReadmeScreenshots {
                     ),
                     bestMatch = bestMatch,
                     onPlayClick = {},
+                    isSeries = true,
+                    onSourcesClick = {},
                     isInLibrary = true,
                     onToggleLibrary = {},
                     onLibraryLongPress = {},
@@ -291,11 +285,13 @@ class ReadmeScreenshots {
                     onToggleMovieWatched = {},
                     trailerAvailable = true
                 )
-                com.fetch.tv.ui.screens.detail.DetailSourcesRow(
-                    bestMatch = bestMatch,
-                    onPlayBestMatch = {},
-                    onAllSources = {},
-                    modifier = Modifier.padding(start = FetchTheme.spacing.xxxl)
+                com.fetch.tv.ui.screens.detail.EpisodesRow(
+                    episodes = meta.videos.filter { it.season == 2 },
+                    onEpisodeClick = {},
+                    onToggleEpisodeWatched = {},
+                    upFocusRequester = androidx.compose.ui.focus.FocusRequester.Default,
+                    nextEpisodeId = "sample-long-field:2:6",
+                    scrollToEpisodeId = "sample-long-field:2:6"
                 )
             }
         }
@@ -401,9 +397,6 @@ class ReadmeScreenshots {
                         sections = com.fetch.tv.ui.screens.stream.sourceSections(
                             Samples.streams, emptyMap(), bestMatchFirst = true, addonFilter = null
                         ),
-                        sharedStream = null,
-                        partySource = null,
-                        onSharedStreamSelected = {},
                         onStreamSelected = {},
                         showFileSizeBadges = false,
                         badgePlacement = StreamBadgePlacement.BOTTOM

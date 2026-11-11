@@ -1,7 +1,6 @@
 package com.fetch.tv.data.repository
 
 import android.content.Context
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.sync.AddonSyncService
 import com.fetch.tv.data.local.AddonPreferences
 import com.fetch.tv.data.remote.api.AddonApi
@@ -262,7 +261,6 @@ class AddonManifestPlaceholderTest {
                 api = api,
                 preferences = preferences,
                 addonSyncService = mockk<AddonSyncService>(relaxed = true),
-                authManager = mockk<AuthManager>(relaxed = true),
                 context = newContext(),
                 dispatcher = dispatcher,
                 clock = clock

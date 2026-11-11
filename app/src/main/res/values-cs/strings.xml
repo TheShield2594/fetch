@@ -102,7 +102,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">Domů potřebuje katalogový doplněk, aby mohl zobrazit tituly.</string>
     <string name="home_empty_no_catalogs_title">Žádné katalogy k zobrazení</string>
     <string name="home_empty_no_catalogs_subtitle">Vaše doplňky nenabízejí žádné katalogy pro Domů.</string>
-    <string name="auth_notice_fetch_logged_out">Byli jste odhlášeni z aplikace Fetch. Znovu se přihlaste v Nastavení &gt; Účet.</string>
     <string name="auth_notice_trakt_logged_out">Byli jste odhlášeni z Trakt. Znovu ho připojte v Nastavení &gt; Sledování.</string>
     <string name="error_generic">Došlo k chybě</string>
 
@@ -406,34 +405,7 @@
     <string name="essential_subtitle_language_subtitle">Preferovaný jazyk titulků.</string>
     <string name="essential_audio_language_subtitle">Preferovaný jazyk zvuku.</string>
     <!-- Account / sign-in error messages -->
-    <string name="account_error_incorrect_pin">Nesprávný PIN.</string>
-    <string name="account_error_sync_code_expired">Platnost synchronizačního kódu vypršela.</string>
-    <string name="account_error_invalid_sync_code">Neplatný synchronizační kód.</string>
-    <string name="account_error_sync_code_not_found">Synchronizační kód nebyl nalezen.</string>
-    <string name="account_error_device_already_linked">Zařízení je již propojeno.</string>
     <string name="account_error_generic_retry">Něco se pokazilo. Zkuste to prosím znovu.</string>
-    <string name="account_error_invalid_credentials">Nesprávný e-mail nebo heslo.</string>
-    <string name="account_error_email_not_confirmed">Nejprve prosím potvrďte svůj e-mail.</string>
-    <string name="account_error_email_already_registered">Účet s tímto e-mailem již existuje.</string>
-    <string name="account_error_invalid_email">Zadejte prosím platnou e-mailovou adresu.</string>
-    <string name="account_error_password_too_short">Heslo je příliš krátké.</string>
-    <string name="account_error_password_too_weak">Heslo je příliš slabé.</string>
-    <string name="account_error_signup_disabled">Registrace je momentálně zakázána.</string>
-    <string name="account_error_rate_limited">Příliš mnoho pokusů. Zkuste to prosím později.</string>
-    <string name="account_error_qr_login_expired">Platnost QR přihlášení vypršela. Zkuste to prosím znovu.</string>
-    <string name="account_error_invalid_qr_login">Neplatný kód QR přihlášení.</string>
-    <string name="account_error_qr_login_other_device">Toto QR přihlášení bylo vyžádáno z jiného zařízení.</string>
-    <string name="account_error_qr_login_outdated">Služba QR přihlášení je zastaralá. Znovu použijte SQL nastavení pro přihlášení na TV.</string>
-    <string name="account_error_qr_login_missing_setup">Backendu QR přihlášení chybí nastavení. Aktualizujte SQL nastavení pro přihlášení na TV.</string>
-    <string name="account_error_qr_login_misconfigured">URL QR přihlášení je nesprávně nastavena.</string>
-    <string name="account_error_qr_login_invalid_request">Požadavek na QR přihlášení byl neplatný. Zkuste to prosím znovu.</string>
-    <string name="account_error_no_internet">Žádné internetové připojení.</string>
-    <string name="account_error_connection_timeout">Časový limit připojení vypršel. Zkuste to prosím znovu.</string>
-    <string name="account_error_connection_refused">Nepodařilo se připojit k serveru.</string>
-    <string name="account_error_not_authenticated">Nejprve se prosím přihlaste.</string>
-    <string name="account_error_service_unavailable">Služba není dostupná. Zkuste to prosím později.</string>
-    <string name="account_error_invalid_request">Neplatný požadavek. Zkontrolujte prosím zadané údaje.</string>
-    <string name="account_error_unexpected">Došlo k neočekávané chybě.</string>
     <string name="experience_mode_switch_to_essential">Přepnout na Základní</string>
     <string name="experience_mode_switch_to_essential_subtitle">Skrýt pokročilé plochy nastavení bez změny uložených hodnot.</string>
     <string name="experience_mode_switch_to_advanced">Přepnout na Pokročilé</string>
@@ -474,10 +446,6 @@
     <string name="profile_remember_last_profile_subtitle">Pamatovat si poslední vybraný profil při spuštění</string>
     <string name="settings_debug">Ladění</string>
     <string name="settings_account_section_subtitle">Stav účtu a synchronizace</string>
-    <string name="account_stat_addons">doplňky</string>
-    <string name="account_stat_library">knihovna</string>
-    <string name="account_stat_progress">postup</string>
-    <string name="account_stat_watched">zhlédnuto</string>
 
     <string name="playback_title">Nastavení přehrávání</string>
     <string name="playback_subtitle">Konfigurovat možnosti přehrávání videa a titulků</string>
@@ -873,15 +841,6 @@
     <string name="trakt_connected_as">Připojeno jako %1$s</string>
     <string name="trakt_awaiting_instruction">Přejděte na trakt.tv/activate a zadejte tento kód:</string>
     <string name="trakt_waiting_approval">Čekání na schválení…</string>
-    <string name="qr_login_approved">Přihlášení schváleno. Dokončování přihlášení…</string>
-    <string name="qr_login_pending">Čekání na schválení na vašem telefonu…</string>
-    <string name="qr_login_expired">Platnost QR přihlášení vypršela. Vygenerujte nový kód.</string>
-    <string name="qr_login_preparing">Příprava QR přihlášení...</string>
-    <string name="qr_login_scan_prompt">Naskenujte QR a přihlaste se na telefonu</string>
-    <string name="qr_login_start_failed">Nepodařilo se spustit QR přihlášení</string>
-    <string name="qr_login_signing_in">Přihlašování…</string>
-    <string name="qr_login_success">Úspěšně přihlášeno</string>
-    <string name="qr_login_exchange_failed">Nepodařilo se dokončit QR přihlášení</string>
     <string name="trakt_code_expires">Kód vyprší za %1$s</string>
     <string name="trakt_token_refreshes">Přístupový token Trakt se obnoví za %1$s</string>
     <string name="trakt_missing_credentials">Chybí TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET v local.properties.</string>
@@ -936,13 +895,6 @@
     <string name="debug_sync_code_subtitle">Zobrazit tlačítka Generovat/Zadat synchronizační kód v nastavení Účtu</string>
     <string name="debug_buffer_logs_title">Zapnout BUFFER logy</string>
     <string name="debug_buffer_logs_subtitle">Odesílat pravidelnou diagnostiku bufferu přehrávače do logcatu (ve výchozím stavu vypnuto)</string>
-    <string name="debug_section_account">Účet</string>
-    <string name="debug_manual_signin_title">Ruční přihlášení</string>
-    <string name="debug_manual_signin_subtitle">Přihlásit se e-mailem a heslem (Supabase auth)</string>
-    <string name="debug_email_placeholder">E-mail</string>
-    <string name="debug_password_placeholder">Heslo</string>
-    <string name="debug_signing_in">Přihlašování…</string>
-    <string name="debug_sign_in">Přihlásit se</string>
     <string name="debug_error_dialog_title">Chyba přehrávání</string>
     <string name="debug_error_dialog_subtitle">Během přehrávání došlo k chybě.\n\nChyba: Test simulované chyby - toto není skutečné selhání. Zdroj vrátil HTTP 503 (Služba nedostupná).</string>
     <string name="debug_dismiss">Zavřít</string>
@@ -969,11 +921,6 @@
     <string name="profile_choose_avatar">Vybrat avatar</string>
     <string name="profile_avatar_focus_hint">Zaměřte avatara pro zobrazení jeho jména</string>
     <string name="profile_avatar_category_all">Vše</string>
-    <string name="profile_avatar_category_anime">Anime</string>
-    <string name="profile_avatar_category_animation">Animace</string>
-    <string name="profile_avatar_category_movie">Film</string>
-    <string name="profile_avatar_category_tv">TV</string>
-    <string name="profile_avatar_category_gaming">Hry</string>
     <string name="profile_add_new">Přidat profil</string>
     <string name="profile_cancel">Zrušit</string>
     <string name="profile_save">Uložit</string>
@@ -1334,42 +1281,10 @@
 
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">Načítání…</string>
-    <string name="account_sync_description">Synchronizujte svou knihovnu, postup sledování a doplňky napříč zařízeními.</string>
-    <string name="account_sync_restart_note">Synchronizace není v reálném čase napříč aktivními zařízeními. Po přihlášení restartujte toto zařízení nebo pro načtení změn provedených jinde.</string>
     <string name="account_signin_qr_title">Přihlásit se pomocí QR</string>
-    <string name="account_signin_qr_subtitle">Naskenujte QR kód a dokončete přihlášení e-mailem na telefonu</string>
     <string name="account_signin_email_title">Přihlásit se</string>
-    <string name="account_signin_email_subtitle">Zadejte e-mail a heslo svého self-hosted účtu</string>
-    <string name="account_signed_in_label">Přihlášeno</string>
-    <string name="account_total_label">Celkem</string>
-    <string name="account_loading_sync">Načítání synchronizačních dat…</string>
-    <string name="account_sign_out">Odhlásit se</string>
-    <string name="account_sign_out_confirm_title">Odhlásit se?</string>
-    <string name="account_sign_out_confirm_subtitle">Pro synchronizaci knihovny, průběhu sledování a doplňků na tomto zařízení se budete muset znovu přihlásit.</string>
 
-    <string name="auth_email_hint">Přihlaste se přímo účtem na svém self-hosted serveru.</string>
-    <string name="auth_email_instruction">Pro pokračování zadejte svůj e-mail a heslo.</string>
-    <string name="auth_email_placeholder">E-mailová adresa</string>
-    <string name="auth_password_placeholder">Heslo</string>
-    <string name="auth_email_sign_in">Přihlásit se</string>
-    <string name="auth_email_signing_in">Přihlašování\u2026</string>
 
-    <string name="auth_qr_tagline">Sledujte svou knihovnu odkudkoli</string>
-    <string name="auth_qr_finishing">Dokončování přihlášení…</string>
-    <string name="auth_qr_expires">Vyprší za %1$s</string>
-    <string name="auth_qr_scan_instruction">Naskenujte QR, schvalte v prohlížeči a poté se sem vraťte.</string>
-    <string name="auth_qr_refresh">Obnovit QR</string>
-    <string name="auth_qr_continue_without_account">Pokračovat bez účtu</string>
-    <string name="auth_qr_connected">Váš účet je na této TV připojen.</string>
-    <string name="auth_qr_synced_data">Vaše synchronizovaná data</string>
-    <string name="auth_qr_generating">Generování QR…</string>
-    <string name="auth_qr_unavailable">QR nedostupný. Obnovte pro opakování.</string>
-    <string name="auth_qr_please_wait">Prosím čekejte…</string>
-    <string name="auth_qr_continue">Pokračovat</string>
-    <string name="auth_qr_back">Zpět</string>
-    <string name="auth_qr_terms_prefix">Registrací / přihlášením souhlasím s</string>
-    <string name="auth_qr_terms_link">Podmínkami</string>
 
 
 
@@ -1547,10 +1462,7 @@
     <string name="cd_voice_search">Hlasové vyhledávání</string>
     <string name="cd_expand">Rozbalit %1$s</string>
     <string name="cd_collapse">Sbalit %1$s</string>
-    <string name="cd_qr_login">QR přihlašovací kód</string>
-    <string name="cd_fetch">Fetch</string>
 
-    <string name="debug_signin_success">Úspěšně přihlášeno</string>
     <string name="debug_generate_description">Laděním generovaná %1$s položka #%2$d</string>
     <string name="debug_generate_result_failed">Selhalo: %1$s</string>
     <string name="debug_generate_library_result_added">Přidáno %1$d položek do knihovny</string>
@@ -2159,7 +2071,6 @@
     <string name="stream_test_error_connection">Připojení selhalo. Platnost posledního přehraného odkazu na stream mohla vypršet, nebo je nedostupný. Přehrajte prosím video znovu a zkuste to opět.</string>
 
     <!-- Fetch: new and changed strings -->
-    <string name="account_local_only_note">Synchronizace je vypnutá. Fetch uchovává vaše doplňky, postup a nastavení na této TV a nepotřebuje účet. Chcete-li synchronizovat mezi zařízeními, připojte vlastní synchronizační server v možnostech serveru.</string>
     <string name="addon_badge_needs_setup">Vyžaduje nastavení</string>
     <string name="addon_configure">Konfigurovat</string>
     <string name="addon_configure_install">Instalovat</string>
@@ -2206,7 +2117,7 @@
     <string name="best_match_cached">V mezipaměti</string>
     <string name="best_match_excluded">Nepřehrává se automaticky: %1$s</string>
     <string name="stream_hold_for_options">Podržte OK pro možnosti Nejlepší shody</string>
-    <string name="best_match_preview_sub">Zeptá se vašich streamovacích doplňků na titul, zatímco si jej prohlížíte, takže tlačítko Přehrát může ukázat soubor a přehrávání začne dříve. Vypněte, chcete-li hledat až po stisknutí Přehrát.</string>
+    <string name="best_match_preview_sub">Když u titulu zůstanete, zeptá se na něj vašich streamovacích doplňků, aby tlačítko Přehrát mohlo ukázat soubor. Doplňky se tak dozví, o jaký titul jde, a debridové služby si požadavky započítají. Vypněte, chcete-li se ptát až po stisknutí Přehrát.</string>
     <string name="best_match_preview_title">Zobrazit výběr na tlačítku Přehrát</string>
     <string name="catalog_order_pin">Připnout nahoru</string>
     <string name="catalog_order_pinned_on_home">Připnuto nahoru na Domů</string>
@@ -2215,8 +2126,6 @@
     <string name="cd_mark_credits_start">Označit začátek závěrečných titulků</string>
     <string name="cd_mark_intro_end">Označit konec intra</string>
     <string name="cd_mark_intro_start">Označit začátek intra</string>
-    <string name="custom_server_error_official_active">Synchronizace je na této TV již vypnutá.</string>
-    <string name="custom_server_error_official_available">Toto není synchronizační server. Zavřete tento dialog a zvolte Vypnout synchronizaci pro návrat do místního režimu.</string>
     <string name="exclusion_3d">3D vydání</string>
     <string name="exclusion_above_max_resolution">nad vaším maximálním rozlišením</string>
     <string name="exclusion_audio">přeskakujete zvuk %1$s</string>
@@ -2296,9 +2205,6 @@
     <string name="library_empty_type_movies">filmy</string>
     <string name="library_empty_type_series">seriály</string>
     <string name="licenses_attributions_fetch_body">Fetch je svobodný software pod licencí GNU General Public License v3.0. Jde o fork projektu NuvioTV od přispěvatelů Nuvio (github.com/NuvioMedia/NuvioTV), jejichž práce tvoří většinu této aplikace.</string>
-    <string name="official_server_action">Vypnout synchronizaci</string>
-    <string name="official_server_description">Budete odhlášeni ze synchronizačního serveru a aplikace se restartuje v místním režimu. Vše, co už je na této TV, zůstane.</string>
-    <string name="official_server_title">Vypnout synchronizaci?</string>
     <string name="parental_addons_blocked">Tento profil nemůže instalovat doplňky. Požádejte rodiče.</string>
     <string name="parental_allow_unrated">Zobrazit tituly bez hodnocení: %1$s</string>
     <string name="parental_gate_heading">Zadejte PIN profilu %1$s</string>
@@ -2377,7 +2283,6 @@
     <string name="ranking_size_gb">%1$d GB</string>
     <string name="ranking_skip_dv5">Přeskočit Dolby Vision profil 5</string>
     <string name="ranking_skip_dv5_sub">Profil 5 nemá záložní HDR10. Vždy se přeskočí, když jej tato TV neumí zobrazit</string>
-    <string name="server_options_use_official">Vypnout synchronizaci</string>
     <string name="skip_marker_report_failed">Značku se nepodařilo nahlásit</string>
     <string name="skip_marker_reported">Chybná značka nahlášena. Děkujeme!</string>
     <string name="skip_marker_start_recorded">Začátek označen. Stiskněte znovu tam, kde končí.</string>
@@ -2527,7 +2432,6 @@
     <string name="youtube_show_live_subtitle">Zahrnout právě živá vysílání do kanálů, výsledků hledání a Další</string>
     <string name="youtube_hide_watched_title">Skrýt zhlédnutá videa</string>
     <string name="youtube_hide_watched_subtitle">Vynechá videa, která jste zhlédli až do konce. V historii zůstanou</string>
-    <string name="profile_avatar_category_supporter">Podporovatelé</string>
     <string name="profile_avatar_category_animals">Zvířata</string>
     <string name="profile_avatar_category_characters">Postavy</string>
     <string name="profile_avatar_category_fun">Zábava</string>

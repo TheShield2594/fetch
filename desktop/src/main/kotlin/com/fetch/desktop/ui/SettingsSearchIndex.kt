@@ -25,7 +25,6 @@ import com.fetch.desktop.SettingsPage.SUBTITLES
 import com.fetch.desktop.SettingsPage.TMDB
 import com.fetch.desktop.SettingsPage.TRACKING
 import com.fetch.desktop.SettingsPage.UP_NEXT
-import com.fetch.desktop.SettingsPage.WATCH_PARTY
 import com.fetch.desktop.SettingsPage.YOUTUBE
 import com.fetch.desktop.data.ExperiencePolicy
 import com.fetch.tv.domain.model.ExperienceMode
@@ -212,7 +211,6 @@ val settingsSearchIndex: List<SettingsSearchEntry> = listOf(
     e("Hide watched videos", YOUTUBE, "watched", section = "Feeds"),
     e("YouTube row on Home", YOUTUBE, "subscriptions row", "home", section = "Feeds"),
     e("Community titles and thumbnails", YOUTUBE, "dearrow", "clickbait", section = "Feeds"),
-    e("Watch party", WATCH_PARTY, "party", "watch together", "friends", "party code"),
 
     // System
     e("Experience mode", ADVANCED, "essential", "advanced", "simple", "all settings", "mode"),
@@ -266,8 +264,7 @@ object SettingsSearch {
     }
 
     /**
-     * What search looks through in [mode]: entries on pages the rail shows (not [hidden] ones, such
-     * as Watch party without a server). In Essential, pages it shows only in part keep their
+     * What search looks through in [mode]: entries on pages the rail shows (not [hidden] ones). In Essential, pages it shows only in part keep their
      * [SettingsSearchEntry.essential] rows, as the TV's `essentialSettingsSearchIndex`.
      */
     fun visibleEntries(

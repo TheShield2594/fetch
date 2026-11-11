@@ -211,7 +211,6 @@ internal fun PlayerSidePanel(state: AppState, session: PlayerSession, panel: Pla
         }
     }
     val listState = rememberLazyListState()
-    val partyMarks = session.target.let { t -> rememberPartySourceMarks(state, t?.contentType, t?.contentId, t?.video?.season, t?.video?.episode) }
     Column(
         modifier
             .width(440.dp)
@@ -251,8 +250,7 @@ internal fun PlayerSidePanel(state: AppState, session: PlayerSession, panel: Pla
                             val playing = session.stream?.let { it.url == ranked.stream.url && it.addonName == ranked.stream.addonName } == true
                             val spec = SpecLine.of(labels = ranked.descriptor.summaryLabels(), isCached = ranked.descriptor.isDebridCached, cachedLabel = "Cached")?.text
                             PanelRow(
-                                title = ranked.stream.addonName.ifBlank { "Source" } + (if (playing) " · Playing" else "") +
-                                    (if (partyMarks?.isPartySource(ranked.stream) == true) " · Party source" else ""),
+                                title = ranked.stream.addonName.ifBlank { "Source" } + (if (playing) " · Playing" else ""),
                                 detail = listOfNotNull(spec, ranked.stream.behaviorHints?.filename ?: ranked.stream.title).joinToString("\n"),
                                 selected = playing
                             ) { if (!playing) state.switchSource(ranked) }

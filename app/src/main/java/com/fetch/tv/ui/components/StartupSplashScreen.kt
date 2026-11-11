@@ -32,7 +32,6 @@ fun StartupSplashScreen(
     profileColorHex: String?,
     profileBackgroundUrl: String?,
     backgroundCacheKey: String? = null,
-    skipGradient: Boolean = false,
     brandWordmarkRes: Int? = null,
     modifier: Modifier = Modifier
 ) {
@@ -44,13 +43,8 @@ fun StartupSplashScreen(
 
     Box(modifier = modifier.fillMaxSize().background(Color.Black)) {
         if (!profileBackgroundUrl.isNullOrBlank()) {
-            val imageData: Any = if (profileBackgroundUrl.startsWith("file:")) {
-                java.io.File(java.net.URI(profileBackgroundUrl))
-            } else {
-                profileBackgroundUrl
-            }
             val request = ImageRequest.Builder(LocalContext.current)
-                .data(imageData)
+                .data(profileBackgroundUrl)
                 .crossfade(false)
             if (backgroundCacheKey != null) {
                 request.memoryCacheKey(backgroundCacheKey)
@@ -63,7 +57,7 @@ fun StartupSplashScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
-        } else if (!skipGradient) {
+        } else {
             val baseBg = FetchPrimitives.neutral925
             val baseBgElevated = FetchPrimitives.neutral875
             val gradientTop = lerp(baseBgElevated, avatarColor, 0.3f)

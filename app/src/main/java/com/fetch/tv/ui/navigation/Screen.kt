@@ -144,9 +144,6 @@ sealed class Screen(val route: String) {
     data object Settings : Screen("settings")
     data object PhoneHub : Screen("phone_hub")
     data object Tracking : Screen("trakt")
-    data object WatchParty : Screen("watch_party?code={code}") {
-        fun createRoute(code: String = ""): String = "watch_party?code=$code"
-    }
     data object LicensesAttributions : Screen("licenses_attributions")
     data object AddonManager : Screen("addon_manager")
     /** Customise Home: every Home row, to reorder, hide or pin, and the ways to add one. */
@@ -157,7 +154,6 @@ sealed class Screen(val route: String) {
     }
     data object ExperienceModeSelection : Screen("experience_mode_selection")
     data object ManageProfiles : Screen("manage_profiles")
-    data object AuthQrSignIn : Screen("auth_qr_sign_in")
     data object CatalogSeeAll : Screen("catalog_see_all/{catalogId}/{addonId}/{type}?fromSearch={fromSearch}") {
         private fun encode(value: String): String =
             URLEncoder.encode(value, "UTF-8").replace("+", "%20")

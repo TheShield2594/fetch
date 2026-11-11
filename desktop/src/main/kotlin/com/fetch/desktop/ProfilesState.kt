@@ -89,15 +89,9 @@ class ProfilesState(
     /** The TV's "lock unrestricted profiles"; see [ProfilesFile.lockUnrestrictedProfiles]. */
     fun setLockUnrestrictedProfiles(enabled: Boolean) = save(file.copy(lockUnrestrictedProfiles = enabled))
 
-    /** Records [limits] as owed to the account for [profileId], or with null, that they landed. */
-    fun setPendingLimits(profileId: Int, limits: ProfileLimits?) {
-        val pending = if (limits != null) file.pendingLimitsPush + (profileId to limits) else file.pendingLimitsPush - profileId
-        if (pending != file.pendingLimitsPush) save(file.copy(pendingLimitsPush = pending))
-    }
-
     /**
-     * Checks a PIN with the sync server when no profile is open to do it (the start-up picker);
-     * set by the app while signed in. The open profile's [listener] is asked first.
+     * Checks a PIN with the Fetch website when no profile is open to do it (the start-up picker);
+     * set by the app. The open profile's [listener] is asked first.
      */
     var remotePinCheck: (suspend (DesktopProfile, String) -> PinGate.Result?)? = null
 
@@ -114,19 +108,17 @@ class ProfilesState(
     fun setLimits(profile: DesktopProfile, limits: ProfileLimits) {
         val current = file.profiles.firstOrNull { it.id == profile.id } ?: return
         update(current.copy(limits = limits))
-        // Limits set now replace any still owed from a settings copy; their own push goes out next.
-        setPendingLimits(profile.id, null)
         listener?.onLimitsChanged(current.copy(limits = limits))
     }
 
-    // --- Sync server ---
+    // --- Fetch website ---
 
-    /** What the sync server needs to hear about; set while signed in. */
+    /** What the Fetch website needs to hear about; set while a profile is open. */
     interface SyncListener {
         fun onProfilesChanged(deleted: DesktopProfile?)
         fun onPinChanged(profile: DesktopProfile, pin: String?)
         fun onLimitsChanged(profile: DesktopProfile)
-        /** Checks a PIN set on another device; null when the server can't be asked. */
+        /** Checks a PIN set on another device; null when the website can't be asked. */
         suspend fun verifyRemotePin(profile: DesktopProfile, pin: String): PinGate.Result?
     }
 
@@ -143,12 +135,12 @@ class ProfilesState(
         active?.let { current -> active = profiles.firstOrNull { it.id == current.id } ?: current }
     }
 
-    /** Checks [pin] for [profile]: its PIN here, or the server's when it was only set elsewhere. */
+    /** Checks [pin] for [profile]: its PIN here, or the website's when it was only set elsewhere. */
     suspend fun checkPin(profile: DesktopProfile, pin: String): PinGate.Result {
         val current = file.profiles.firstOrNull { it.id == profile.id } ?: profile
         if (current.pinHash == null && current.serverLocked) {
             val remote = (listener?.verifyRemotePin(current, pin) ?: remotePinCheck?.invoke(current, pin))
-                ?: return PinGate.Result.Wrong("Connect to your sync server to check this PIN.")
+                ?: return PinGate.Result.Wrong("Connect to your Fetch website to check this PIN.")
             // Right PIN: keep it here too, so it works offline next time.
             if (remote == PinGate.Result.Ok) update(current.copy(pinHash = ProfilePinHasher.hash(pin), serverLocked = false))
             return remote

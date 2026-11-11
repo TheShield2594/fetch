@@ -82,8 +82,8 @@ cd fetch
 ```
 
 Requires a JDK (17+) and the Android SDK (compile SDK 36). No keys are needed to build;
-`local.example.properties` lists optional ones (TMDB, Trakt, Simkl, MDBList client IDs, a
-default self-hosted sync server, release signing).
+`local.example.properties` lists optional ones (TMDB, Trakt, Simkl, MDBList client IDs,
+release signing).
 
 ### Trakt, Simkl, MDBList and other API keys
 
@@ -104,18 +104,19 @@ Put them in `local.properties` for local builds, or export them as environment v
 Two flavors exist: `full` (in-app updates from this repo's GitHub releases, in-app trailers) and
 `playstore` (store-safe feature set).
 
-### Linux desktop (preview)
+### Linux desktop
 
-[`desktop/`](desktop/) is an early desktop version of Fetch, Linux first. It shares the addon
-protocol, stream parsing and ranking with the TV app through [`shared/`](shared/), and plays
-in [mpv](https://mpv.io). It builds without the Android SDK:
+[`desktop/`](desktop/) is a personal desktop tool for the owner and friends, Linux first, not a
+version of the TV app kept feature for feature, and it never gates a TV release. It shares the
+addon protocol, stream parsing and ranking with the TV app through [`shared/`](shared/), and
+plays in [mpv](https://mpv.io). It builds without the Android SDK:
 
 ```bash
 ./gradlew -Pfetch.desktopOnly=true :desktop:run
 ```
 
 The Desktop workflow builds `.deb`, `.rpm`, Arch Linux (`.pkg.tar.zst`) and portable packages. See
-[docs/desktop.md](docs/desktop.md) for what works and what comes next.
+[desktop/README.md](desktop/README.md) and [docs/desktop.md](docs/desktop.md).
 
 ### Optional native pieces
 

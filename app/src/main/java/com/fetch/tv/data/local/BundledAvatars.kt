@@ -2,14 +2,24 @@ package com.fetch.tv.data.local
 
 import android.content.Context
 import com.fetch.tv.R
-import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
+
+/** One avatar a profile can pick. */
+data class AvatarCatalogItem(
+    val id: String,
+    val displayName: String,
+    val imageUrl: String,
+    val category: String,
+    val sortOrder: Int,
+    val bgColor: String? = null
+)
 
 /**
- * Avatars shipped in the APK, so every profile can have a picture without a sync server.
+ * The avatars a profile can pick, shipped in the APK so every profile can have a picture
+ * without a server.
  * Artwork: made for Fetch with Higgsfield, see docs/avatars.md.
  */
 object BundledAvatars {
-    /** Bundled avatar ids carry this prefix so they never collide with a server catalog's ids. */
+    /** Bundled avatar ids carry this prefix. */
     const val ID_PREFIX = "fetch:"
 
     private data class BundledAvatar(

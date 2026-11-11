@@ -84,9 +84,8 @@ data class SyncableCatalog(val key: String, val addonId: String, val type: Strin
     val ordered: OrderedCatalog get() = OrderedCatalog(key, tvKey)
 }
 
+/** Home's catalog order as the TV syncs it, which the Fetch website's Home layout carries. */
 object HomeCatalogSync {
-    /** The settings row the TV keeps Home's catalogs in, shared by its platforms. */
-    const val PLATFORM = "home_catalog_shared"
     private const val HIDE_UNRELEASED = "hide_unreleased_content"
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 
@@ -192,32 +191,4 @@ object HomeCatalogSync {
     fun decode(settingsJson: JsonObject): Pair<SyncHomeCatalogPayload, Boolean>? = runCatching {
         json.decodeFromJsonElement(SyncHomeCatalogPayload.serializer(), settingsJson) to settingsJson.containsKey(HIDE_UNRELEASED)
     }.getOrNull()
-
-    /** The row `sync_pull_home_catalog_settings` returns, as its `settings_json`. */
-    fun settingsJsonOf(body: String): JsonObject? = runCatching {
-        val root = json.parseToJsonElement(body)
-        val row = (root as? JsonArray)?.firstOrNull() ?: root
-        (row as? JsonObject)?.get("settings_json")?.jsonObject
-    }.getOrNull()
-
-    /** The remote JSON's other keys, with this payload's over them (the TV's `mergeHomeCatalogSettingsJson`). */
-    fun merged(remote: JsonObject?, payload: SyncHomeCatalogPayload): JsonObject {
-        val local = json.encodeToJsonElement(SyncHomeCatalogPayload.serializer(), payload).jsonObject
-        return buildJsonObject {
-            remote?.forEach { (k, v) -> put(k, v) }
-            local.forEach { (k, v) -> put(k, v) }
-        }
-    }
-
-    fun pullParams(profileId: Int) = buildJsonObject {
-        put("p_profile_id", profileId)
-        put("p_platform", PLATFORM)
-    }
-
-    fun pushParams(profileId: Int, settingsJson: JsonObject, originClientId: String?) = buildJsonObject {
-        put("p_profile_id", profileId)
-        put("p_settings_json", settingsJson)
-        put("p_platform", PLATFORM)
-        originClientId?.let { put("p_origin_client_id", it) }
-    }
 }

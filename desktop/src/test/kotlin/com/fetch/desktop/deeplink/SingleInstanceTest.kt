@@ -35,9 +35,9 @@ class SingleInstanceTest {
     @Test
     fun `a socket left by a crashed Fetch is replaced`() {
         socket.writeText("stale")
-        assertFalse(SingleInstance.forward(listOf("fetch://party/ABC234"), socket))
+        assertFalse(SingleInstance.forward(listOf("fetch://movie/tt0111161"), socket))
         assertTrue(SingleInstance.listen(onLink = {}, socket = socket))
-        assertTrue(SingleInstance.forward(listOf("fetch://party/ABC234"), socket))
+        assertTrue(SingleInstance.forward(listOf("fetch://movie/tt0111161"), socket))
     }
 
     @Test

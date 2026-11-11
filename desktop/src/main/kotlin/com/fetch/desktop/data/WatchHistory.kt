@@ -204,8 +204,8 @@ object WatchHistory {
 
     /**
      * "Remove from Continue Watching": the title's entry stays, hidden and stamped with the
-     * removal time [now], so only activity after the removal (here, on Trakt or Simkl, or on the
-     * sync server) brings it back.
+     * removal time [now], so only activity after the removal (here, or on Trakt, Simkl or the
+     * Fetch website) brings it back.
      */
     fun hide(file: ProgressFile, contentId: String, now: Long): ProgressFile =
         file.copy(entries = file.entries.map { if (it.contentId == contentId) it.copy(hidden = true, lastWatched = maxOf(it.lastWatched, now)) else it })

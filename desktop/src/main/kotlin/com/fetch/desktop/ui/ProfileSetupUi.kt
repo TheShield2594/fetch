@@ -53,15 +53,12 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.fetch.desktop.AppState
 import com.fetch.desktop.ProfilesState
-import com.fetch.desktop.data.AvatarCatalog
 import com.fetch.desktop.data.AvatarCategoryLabels
 import com.fetch.desktop.data.AvatarItem
 import com.fetch.desktop.data.BundledAvatars
 import com.fetch.desktop.data.DesktopProfile
 import com.fetch.desktop.data.DesktopSettings
 import com.fetch.desktop.data.KidsLimits
-import com.fetch.desktop.data.ProfileBackgroundItem
-import com.fetch.desktop.data.ProfileBackgrounds
 import com.fetch.desktop.data.ProfilePreferences
 import com.fetch.desktop.data.ViewingActivityEntry
 import com.fetch.desktop.data.copiedSettings
@@ -93,7 +90,7 @@ private fun bundledBitmap(resource: String): ImageBitmap? = bundledBitmaps.getOr
 @Composable
 fun AvatarCircle(name: String, colorHex: String?, avatarId: String?, avatarUrl: String?, size: Dp, modifier: Modifier = Modifier) {
     val bundled = avatarId?.let(BundledAvatars::resource)?.let(::bundledBitmap)
-    val url = avatarUrl?.takeIf { it.isNotBlank() } ?: if (bundled == null) AvatarCatalog.serverImageUrl(avatarId) else null
+    val url = avatarUrl?.takeIf { it.isNotBlank() }
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier.size(size).clip(CircleShape).background(colorHex?.let(::parseHexColor) ?: FetchPalette.SurfaceHigh)
@@ -180,13 +177,13 @@ private fun updateSettingsOf(state: AppState?, profile: DesktopProfile, change: 
 
 /**
  * Copies [source]'s settings to [target] once, as the TV's "Copy settings" does: here at once,
- * and on the sync server with `sync_copy_profile_setup` while signed in.
+ * and on the Fetch website while paired with one.
  */
 fun copyProfileSettings(state: AppState?, source: DesktopProfile, target: DesktopProfile, copyMissingKeys: Boolean): Boolean {
     if (source.id == target.id) return false
     val from = settingsOf(state, source)
     updateSettingsOf(state, target) { copiedSettings(from, it, copyMissingKeys) }
-    state?.copyProfileSetupOnServer(source, target, copyMissingKeys)
+    state?.copyProfileSetupOnServer(source, target)
     return true
 }
 
@@ -194,15 +191,14 @@ private fun DesktopProfile.copySourceLabel() = if (isPrimary) "$name (Main)" els
 
 // --- Create and edit ---
 
-private enum class EditorTab(val label: String) { Avatar("Avatar"), Background("Background"), Setup("Profile setup"), Preferences("Preferences") }
+private enum class EditorTab(val label: String) { Avatar("Avatar"), Setup("Profile setup"), Preferences("Preferences") }
 
 /**
  * The TV's profile editor. Avatar: name, colour and a picture from the avatar catalog. On a new
  * profile, Profile setup: a kids profile (PG or lower, unrated hidden), the main profile's addons
  * or its own, and settings to start with (fresh, or copied once from another profile, with
  * missing API keys too). On an existing one, Preferences: the few settings people most often
- * want to differ between profiles; and Background, the picture behind it on the profile picker,
- * when the sync server offers backgrounds. Saves on Create or Save. [onCreated] gets a new profile,
+ * want to differ between profiles. Saves on Create or Save. [onCreated] gets a new profile,
  * so the caller can suggest a parent PIN for a kids one.
  */
 @Composable
@@ -212,9 +208,7 @@ fun ProfileSetupEditorDialog(
     state: AppState?,
     onDismiss: () -> Unit,
     onDone: (String) -> Unit = {},
-    onCreated: (DesktopProfile) -> Unit = {},
-    /** Without [state] (the profile picker): copies on the sync server, after the local copy. */
-    onCopiedLocally: (source: DesktopProfile, target: DesktopProfile, copyMissingKeys: Boolean) -> Unit = { _, _, _ -> }
+    onCreated: (DesktopProfile) -> Unit = {}
 ) {
     val creating = initial == null
     var name by remember { mutableStateOf(initial?.name.orEmpty()) }
@@ -222,10 +216,6 @@ fun ProfileSetupEditorDialog(
     var avatarId by remember { mutableStateOf(initial?.avatarId) }
     // Removed in this editor: the account's picture is cleared too, not kept.
     var avatarCleared by remember { mutableStateOf(initial?.avatarCleared ?: false) }
-    var backgroundId by remember { mutableStateOf(initial?.profileBackgroundId) }
-    var backgroundUrl by remember { mutableStateOf(initial?.profileBackgroundUrl) }
-    // Any pick here, None included, replaces the account's background on save.
-    var backgroundPicked by remember { mutableStateOf(false) }
     var share by remember { mutableStateOf(initial?.usesPrimaryAddons ?: true) }
     var kids by remember { mutableStateOf(false) }
     var copyFrom by remember { mutableStateOf<DesktopProfile?>(null) }
@@ -235,11 +225,8 @@ fun ProfileSetupEditorDialog(
     var tab by remember { mutableStateOf(EditorTab.Avatar) }
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
-    val backgrounds = ProfileBackgrounds.all
-    val showBackgrounds = !creating && (backgrounds.isNotEmpty() || !initial?.profileBackgroundUrl.isNullOrBlank() ||
-        initial?.profileBackgroundId != null)
     val tabs = if (creating) listOf(EditorTab.Avatar, EditorTab.Setup)
-    else listOfNotNull(EditorTab.Avatar, EditorTab.Background.takeIf { showBackgrounds }, EditorTab.Preferences)
+    else listOf(EditorTab.Avatar, EditorTab.Preferences)
     // The picture shown: the one picked here, else the profile's own until it's changed or removed.
     val keptAvatarUrl = if (!avatarCleared && avatarId == initial?.avatarId) initial?.avatarUrl else null
     val main = profiles.primary
@@ -298,7 +285,7 @@ fun ProfileSetupEditorDialog(
                                 )
                             }
                         }
-                        AvatarPickerGrid(AvatarCatalog.all, avatarId) { avatar ->
+                        AvatarPickerGrid(BundledAvatars.catalog, avatarId) { avatar ->
                             avatarId = avatar?.id
                             // Unpicking the chosen one removes the avatar, everywhere once synced.
                             avatarCleared = avatar == null && !creating
@@ -310,11 +297,6 @@ fun ProfileSetupEditorDialog(
                                 avatarCleared = true
                             })
                         }
-                    }
-                    EditorTab.Background -> ProfileBackgroundPicker(backgrounds, backgroundId, backgroundUrl) { id, url ->
-                        backgroundId = id
-                        backgroundUrl = url
-                        backgroundPicked = true
                     }
                     EditorTab.Setup -> Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(
@@ -371,7 +353,6 @@ fun ProfileSetupEditorDialog(
                         created == null -> onDone("Couldn't create the profile")
                         source != null -> {
                             copyProfileSettings(state, source, created, copyKeys)
-                            if (state == null) onCopiedLocally(source, created, copyKeys)
                             onDone("Profile created with settings from ${source.name}.")
                         }
                         else -> onDone("${created.name} created")
@@ -383,10 +364,7 @@ fun ProfileSetupEditorDialog(
                         usesPrimaryAddons = share,
                         avatarId = avatarId,
                         avatarUrl = keptAvatarUrl,
-                        avatarCleared = avatarCleared && avatarId == null,
-                        profileBackgroundId = backgroundId,
-                        profileBackgroundUrl = backgroundUrl,
-                        backgroundEdited = initial.backgroundEdited || backgroundPicked
+                        avatarCleared = avatarCleared && avatarId == null
                     )
                     profiles.update(edited)
                     val changed = prefs
@@ -398,51 +376,6 @@ fun ProfileSetupEditorDialog(
         },
         dismissButton = { SecondaryButton("Cancel", onClick = onDismiss) }
     )
-}
-
-/**
- * The TV's background picker: None, the server's backgrounds, and the profile's own picture when
- * it has one (set on another device; it can only be kept or replaced here).
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun ProfileBackgroundPicker(
-    backgrounds: List<ProfileBackgroundItem>,
-    selectedId: String?,
-    selectedUrl: String?,
-    onSelect: (id: String?, url: String?) -> Unit
-) {
-    val customUrl = remember { selectedUrl?.takeIf { it.isNotBlank() } }
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(tr("Shown behind this profile on the profile picker."), color = FetchPalette.TextSecondary, fontSize = 14.sp)
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier.heightIn(max = 300.dp).verticalScroll(rememberScrollState()).padding(4.dp)
-        ) {
-            BackgroundTile(tr("None"), selectedId == null && selectedUrl.isNullOrBlank(), image = null) { onSelect(null, null) }
-            if (customUrl != null) BackgroundTile(tr("Your own picture"), selectedUrl == customUrl, customUrl) { onSelect(null, customUrl) }
-            backgrounds.forEach { bg ->
-                BackgroundTile(bg.name, selectedUrl.isNullOrBlank() && selectedId == bg.id, bg.imageFile) { onSelect(bg.id, null) }
-            }
-        }
-    }
-}
-
-@Composable
-private fun BackgroundTile(label: String, selected: Boolean, image: Any?, onClick: () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.width(168.dp)) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.width(168.dp).height(94.dp).clip(RoundedCornerShape(8.dp)).background(FetchPalette.Background)
-                .border(if (selected) 3.dp else 1.dp, if (selected) Color.White else FetchPalette.Outline, RoundedCornerShape(8.dp))
-                .clickable(onClick = onClick).pointerHoverIcon(PointerIcon.Hand)
-        ) {
-            if (image != null) AsyncImage(image, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-            else Text(if (label == "None") tr("None") else "…", color = FetchPalette.TextMuted, fontSize = 14.sp)
-        }
-        Text(label, color = if (selected) Color.White else FetchPalette.TextSecondary, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
 }
 
 /** "Copy settings to <profile>": pick a source profile; its settings replace this profile's once. */

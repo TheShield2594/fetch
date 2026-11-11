@@ -49,8 +49,6 @@ import androidx.compose.runtime.setValue
 import com.fetch.desktop.AppState
 import com.fetch.desktop.AvailableUpdate
 import com.fetch.desktop.ProfilesState
-import com.fetch.desktop.SyncAccountState
-import com.fetch.desktop.sync.verifyPin
 import com.fetch.desktop.data.DesktopProfile
 import com.fetch.desktop.Screen
 import kotlinx.coroutines.launch
@@ -59,28 +57,27 @@ import kotlinx.coroutines.launch
 fun FetchApp() {
     val profiles = remember { ProfilesState() }
     val appScope = rememberCoroutineScope()
-    val account = remember { SyncAccountState(appScope) }
-    // The start-up picker has no open profile to ask the server about a PIN set on another device.
-    remember(profiles, account) {
+    // The start-up picker has no open profile to ask the website about a PIN set on another device.
+    remember(profiles) {
         val website = com.fetch.desktop.website.FetchWebsiteState.shared
-        profiles.remotePinCheck = { profile, pin -> website.verifyPin(profile.id, pin) ?: account.client()?.verifyPin(profile, pin) }
+        profiles.remotePinCheck = { profile, pin -> website.verifyPin(profile.id, pin) }
         profiles.onLocalPinVerified = { profile, pin -> appScope.launch { website.onVerifiedLocally(profile.id, pin) } }
     }
     val active = profiles.active
     if (active == null) {
         // "Who's watching?" at start-up (several profiles, Remember Last Profile off) or after
         // Switch profile.
-        FetchTheme { ProfilePicker(profiles, account) }
+        FetchTheme { ProfilePicker(profiles) }
         return
     }
     // Each profile gets its own state, from its own files.
-    key(active.id, active.usesPrimaryAddons) { ProfileApp(profiles, active, account) }
+    key(active.id, active.usesPrimaryAddons) { ProfileApp(profiles, active) }
 }
 
 @Composable
-private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account: SyncAccountState) {
+private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile) {
     val scope = rememberCoroutineScope()
-    val state = remember { AppState(scope, profiles, profile, account = account, website = com.fetch.desktop.website.FetchWebsiteState.shared).also { FetchPalette.setAppearance(it.settings.appearance); FetchPalette.setTheme(it.settings.appTheme) } }
+    val state = remember { AppState(scope, profiles, profile, website = com.fetch.desktop.website.FetchWebsiteState.shared).also { FetchPalette.setAppearance(it.settings.appearance); FetchPalette.setTheme(it.settings.appTheme) } }
     LaunchedEffect(Unit) { state.start() }
     // The Fetch website's watch state and lists are read again when the window gets focus, and
     // every minute while it has it, as the TV reads them while it shows them.
@@ -92,9 +89,6 @@ private fun ProfileApp(profiles: ProfilesState, profile: DesktopProfile, account
             if (links.isNotEmpty()) com.fetch.desktop.deeplink.DeepLinks.take().forEach(state::openDeepLink)
         }
     }
-    // The watch party follows the sync sign-in, and ends with this profile.
-    LaunchedEffect(account.signedIn) { state.party.refreshAvailability() }
-    androidx.compose.runtime.DisposableEffect(state) { onDispose { state.party.dispose() } }
     // Closing the window lets this profile's playback save, scrobble and sync first.
     androidx.compose.runtime.DisposableEffect(state) {
         val onClose: suspend () -> Unit = { state.shutdown() }

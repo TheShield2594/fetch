@@ -1,12 +1,15 @@
 # Fetch for desktop (Linux first)
 
-Fetch for desktop is a Compose Multiplatform (JVM) app in [`desktop/`](../desktop). It shares the
-Stremio addon protocol, the domain models and stream parsing and ranking with the TV app through
-[`shared/`](../shared). Linux is the first target. Windows and macOS use the same code once their
-packaging and players are set up.
+Fetch for desktop is a personal tool for the owner and friends, not a product that tracks the TV
+app feature for feature. It is a Compose Multiplatform (JVM) app in [`desktop/`](../desktop) that
+shares the Stremio addon protocol, the domain models and stream parsing and ranking with the TV
+app through [`shared/`](../shared), plays in mpv's own window by default, and syncs with the Fetch
+website. Desktop work never gates a TV release.
 
-It is a preview. It does less than the TV app: [desktop-parity.md](desktop-parity.md) lists what it has
-and what's left, feature by feature.
+Linux is the first target. Windows and macOS use the same code once their packaging and players
+are set up. There is no parity list to keep up: a feature lands on desktop when someone wants it
+there. Desktop clients that duplicate the TV's (media servers, Trakt and Simkl, the website) move
+into `shared/` when they are next touched, and new work doesn't add more duplication.
 
 ## Install
 
@@ -27,8 +30,9 @@ stable `1.3.0-1`, so installing the stable build upgrades the beta. The Arch pac
 dash instead (`1.3.0beta.2-1`), which pacman also sorts before `1.3.0-1`.
 
 Each package bundles its own Java runtime. To play streams, install
-[mpv](https://mpv.io) (`sudo apt install mpv`, `sudo dnf install mpv`, `sudo pacman -S mpv`). The built-in player
-(Settings › Player › Default Player › Built-in) also needs libmpv: `sudo apt install libmpv2`
+[mpv](https://mpv.io) (`sudo apt install mpv`, `sudo dnf install mpv`, `sudo pacman -S mpv`): a new
+install plays in mpv's own window. The built-in player is opt-in
+(Settings › Player › Default Player › Built-in, a choice kept across updates) and also needs libmpv: `sudo apt install libmpv2`
 (Fedora: `mpv-libs`; on Arch the `mpv` package already has it). Without mpv, Fetch opens
 the link in your default video player. For YouTube (trailers and the YouTube page), mpv also needs
 `yt-dlp` (`sudo apt install yt-dlp`; distribution packages can lag behind YouTube, so `pipx install yt-dlp`
@@ -66,21 +70,17 @@ Everything is kept in `$XDG_CONFIG_HOME/fetch` (normally `~/.config/fetch`):
 | `profiles.json` | The profiles, and which one opened last |
 | `servers.json` | Jellyfin, Emby and Plex sign-ins (owner-readable only), beside the addons |
 | `device-id` | The id media servers list this installation under |
-| `sync.json` | The sync server address and sign-in (owner-readable only), for the whole app |
 | `certifications.json` | Ratings looked up on TMDB, for 30 days |
 | `mdblist-ratings.json` | Ratings from MDBList, for 12 hours, for the whole app |
 | `mdblist.json` | Per profile: the MDBList account (owner-readable only) and the lists hidden from the Library |
 | `mdblist-sync.json` | Per profile: what the last MDBList sync brought back, so the next one fetches only what changed |
-| `screen-time.json`, `stream-badges.json`, `sync-base.json` | Per profile: today's screen time, imported badge URLs, what the last sync saw |
+| `screen-time.json`, `stream-badges.json` | Per profile: today's screen time, imported badge URLs |
 | `stream-cache.json` | Per profile: the last link per movie or episode (Reuse Last Link) and each show's binge group |
 | `youtube-auth.json` | Per profile: the YouTube sign-in (owner-readable only) |
 | `youtube.json` | Per profile: YouTube searches and where each video stopped |
 | `parental-titles.json` | Titles hidden from or always allowed on each profile |
-| `avatar-catalog.json` | The sync server's avatar catalog, for profiles that use one of its avatars |
-| `profile-backgrounds.json`, `profile-backgrounds/` | The sync server's profile backgrounds and their pictures |
 | `website.json` | The Fetch website sign-in (owner-readable only), for the whole app |
 | `addon-health.json` | Each addon's recent response times and failures (Addons › Addon health) |
-| `provider-credentials-base.json` | Per profile: the provider credentials (MDBList's key) the last sync agreed on |
 
 These are the main profile's. Every other profile keeps its own copies in `profiles/<id>/`
 (its `addons.json` too, unless it uses the main profile's addons).
@@ -128,32 +128,28 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   genres, dates, rating, votes, language, country, keywords and year; needs a TMDB key), Trakt
   lists (yours, a public one by address, or searched) and your local lists, each loading more
   as you scroll. Collections are kept per profile in `collections.json` in the TV's format,
-  import and export as the TV's JSON, and sync with the sync server (`sync_pull_collections`,
-  `sync_push_collections`): the server's copy wins, as on TV, and ones made here go up when it
-  has none. Lists from a Fetch website load once this computer is paired with it (Settings ›
-  Account › Fetch website), and the folder editor adds them from the profile's website lists.
+  import and export as the TV's JSON, and sync with the Fetch website while paired (Settings ›
+  Account): the website's copy wins, as on TV, and ones made here go up when it has none. The
+  folder editor adds the profile's website lists as sources.
 - **Discover**: pick a type, catalog and genre and browse the catalog as a grid that loads more
   as you scroll. It sits in Search until you type, as on TV, or in the sidebar.
 - **Profiles**: each with its own Library, Continue Watching, settings and Trakt/Simkl accounts,
   and optionally its own addons. "Who's watching?" at start-up when Remember Last Profile is
   off; the avatar at the bottom of the sidebar switches. As on TV, a new profile can be a kids
   profile (PG or lower, unrated hidden) and start with another profile's settings (once, with
-  its API keys where it has none; Copy settings does the same later, and while signed in also
-  copies it on the sync server with the TV's `sync_copy_profile_setup`, keeping the target's own
-  limits, from "Who's watching?" too), the editor picks an avatar from the TV's 40 bundled ones or the sync server's catalog
+  its API keys where it has none; Copy settings does the same later, and while paired also
+  copies it on the Fetch website), the editor picks an avatar from the TV's 40 bundled ones
   (synced as the account's `avatar_id`; Remove avatar clears the account's too, while a profile
-  that never picked one here keeps the TV's), a Background from the server's catalog (shown
-  behind the profile on "Who's watching?", synced as `profile_background_id`), and a Preferences
-  tab (audio and subtitle language, autoplay next episode), and Activity lists what a profile
-  watched and when.
+  that never picked one here keeps the TV's), and a Preferences tab (audio and subtitle
+  language, autoplay next episode), and Activity lists what a profile watched and when.
 - **Hide or allow single titles**: a poster's right-click menu has the TV's parental entry: on
   another profile "Hide from <profile>" (behind the main profile's PIN), on the main profile a
   dialog that sets the title for each profile (rating limit decides, hidden, always allowed).
   Hidden titles leave rows, search, the Library, collections, Continue Watching and autoplay;
   Limits lists them to clear. Kept on this computer, as the TV keeps them.
 - **Tracking options** (Settings › Tracking, synced with the TV's `trakt_settings`): where the
-  Library opens, whose resume points join Continue Watching (Trakt, Simkl, MDBList or the sync
-  server), how many days Continue Watching goes back, More like this from Trakt, TMDB or Simkl,
+  Library opens, whose resume points join Continue Watching (Trakt, Simkl, MDBList or the Fetch
+  website), how many days Continue Watching goes back, More like this from Trakt, TMDB or Simkl,
   Trakt comments on title pages, and which id a Simkl anime opens with (IMDb, MyAnimeList, Kitsu
   or TVDB).
 - **Trakt and Simkl** (Settings › Tracking): sign in with a code, as on TV. What you play in mpv
@@ -190,10 +186,6 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   Post-Credits…) and timing.
 - **Stream badges**: Fusion badge URLs (Settings › Stream Selection › Stream badges) put the TV
   app's badges on each source.
-- **Sync server** (Settings › Account): your self-hosted Fetch server, found by address, signed
-  in with email and password or a code. Library (with deletes both ways), Continue Watching and
-  watched history sync at start-up, after playback and on Sync now. The server's profile number
-  is the desktop profile's id.
 - **Built-in player (beta)**: libmpv inside Fetch's window, with Fetch's own controls over the
   picture: seek bar, ±10 s, audio and subtitle tracks, volume, fullscreen, a Skip button for
   intros and credits, Up Next in the same player, and keys (Space, ←/→, ↑/↓, M, F, Esc). It draws
@@ -225,17 +217,16 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   TV the sync is incremental (MDBList's last activities, then the journal of history changes
   since the last sync), shows and seasons dropped on MDBList stay out of Continue Watching, and
   titles without an IMDb id are matched by their TMDB, TVDB, Trakt or MDBList id. Its
-  lists sort by provider order, added and release (MDBList's own orders), and the API key syncs
-  between devices through the sync server's provider credentials, as on TV.
+  lists sort by provider order, added and release (MDBList's own orders). The API key stays on
+  this computer.
 - **Ratings from TMDB**: a profile's rating limit uses the addon's certificate, else TMDB's
   (picked by country as the TV app does), cached for 30 days. Builds read `TMDB_API_KEY`; you
   can enter your own key in Settings › TMDB.
-- **Sync server, the rest**: shared settings (theme with its contrast, AMOLED, custom colours and
+- **Website sync, the rest**: shared settings (theme with its contrast, AMOLED, custom colours and
   font, Essential or Advanced, layout, languages, stream rules, Up Next, auto-skip, the TV's
   auto-play settings and the playback queue; only what changed is pushed, so the TV's other
-  settings stay), addons, profiles
-  (at most 6, as the server allows), limits (tightened, never loosened, as on TV) and PINs
-  (a PIN set on the TV is checked with the server, then kept here).
+  settings stay), addons, Home rows, profiles (at most 6, as on TV), limits and PINs (a PIN set
+  on the TV is checked with the website, then kept here).
 - **YouTube** (Settings › YouTube): sign in as YouTube's TV app does, with a code at
   youtube.com/activate, and pick which of the account's channels to act as. While signed in (and
   not on a profile with limits) YouTube is in the sidebar, as on TV, with Home, Subscriptions,
@@ -313,7 +304,7 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   Ctrl+, opens them. **Search settings** (the field atop the rail, or Ctrl+F in Settings) finds
   any setting by name or a word such as "dolby" and opens its page with the row lit up.
 - **First run**, as on TV: a fresh install opens a wizard (Server, Sources, Metadata,
-  Experience), each step skippable, with the sync server sign-in, an addon link field, media
+  Experience), each step skippable, with Fetch website pairing, an addon link field, media
   servers, TMDB, the MDBList key and Trakt or Simkl right on the step. Existing installs skip it;
   System › Advanced › First-run setup runs it again.
 - **Essential or Advanced** (System › Advanced, with the TV's confirmation, synced with it):
@@ -340,29 +331,11 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   request is timed, and Addon health shows each addon's median response time, failure rate,
   last success and last error over its last 50 requests, sortable and kept across restarts.
   Catalog order (also on Home catalogs) moves Home's catalogs one by one and hides them, synced
-  with the TV through the sync server.
+  with the TV through the Fetch website.
 - **Fetch website** (Settings › Account): pair this computer with your Fetch website by a code
-  (or its QR code) confirmed there; Fetch notices when the website revokes it. While signed in
-  to the sync server, Sync code makes (or shows) a code protected by a PIN for another device to
-  link with.
-- **Watch party** (experimental, as on TV), when you're signed in to a sync server whose
-  discovery lists `watch_party`: **Watch together** on a title page, or Watch party in the
-  built-in player, starts one; Settings › Watch party joins with the 6-character code (or a
-  pasted `fetch://party/…` link) after showing what's playing, who hosts and the seats left.
-  Desktops and TVs share a party: the same RPCs, the same private Realtime channel
-  (`watch-party:<id>`, presence and broadcasts) and the same sync rules, with the server's clock,
-  speed nudges for small drift and seeks for large, and waiting for a member who is loading.
-  The party panel lists members (with their avatar pictures) and what each is doing, has the
-  code and invite link to copy, the link as a QR code for a phone to scan,
-  and for the host Only I can control playback (then a member's pause or rewind is their own,
-  with Catch up), Share my stream, Remove and End for everyone. "Sam paused" and the like show
-  in the player. When the host moves on, the next episode follows by itself and anything else
-  offers Watch with the party, which plays the host's shared stream, your source that matches
-  the host's, or your best match. A party always plays in the built-in player (it has to drive
-  mpv), even when mpv's window is your default; the player says so. As on the TV's Sources
-  screen, the source the host plays is marked "Party source" on title pages and in the player's
-  Sources panel, and a member sees the host's shared stream first in All sources ("Shared by …").
-  Members' profile pictures show in the party (the initial on their colour when there's none).
+  (or its QR code) confirmed there; Fetch notices when the website revokes it. While paired,
+  profiles, addons, settings, Home rows and collections sync with it, and it can be a tracking
+  service for watch progress and history.
 - **Built-in player panels**, as on TV: Audio and Subtitles (tracks, delay, any addon subtitle
   added on demand), Sources (switch mid-playback, keeping the position) and Episodes; playback
   speed (`[` `]`), picture fit (Fit, Crop, Stretch, Zoom), stream info (I), an Up Next card
@@ -387,7 +360,7 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   addon, and a right-click menu to play in either player, prefer that addon, never auto-play
   that release group, or copy the link.
 - **Mark watched**: titles, episodes, earlier episodes and seasons, from the title page, an
-  episode's or any poster's right-click menu; synced to Trakt, Simkl and the sync server.
+  episode's or any poster's right-click menu; synced to Trakt, Simkl, MDBList and the Fetch website.
   Episodes show watched marks, progress and "Not aired yet". Start over on the title page.
 - **More player settings** passed to mpv: secondary audio and subtitle languages, forced
   subtitles, removing hearing-impaired text, subtitle bold, color, outline, position and ASS
@@ -400,8 +373,7 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   shows a slideshow of backdrops from up to three Home rows, or a clock with what to resume.
   Any input closes it.
 - **Links**: `fetch://` links open in Fetch, as on TV: a title (`fetch://movie/tt0111161`,
-  `fetch://meta?type=series&id=…`, `fetch://tmdb/movie/603`), a watch party invite
-  (`fetch://party/ABC234` fills in the code) and addon links, which install the addon (not on
+  `fetch://meta?type=series&id=…`, `fetch://tmdb/movie/603`) and addon links, which install the addon (not on
   restricted profiles). `stremio://` addon links work too: an addon's Install button after
   Configure replaces the addon in place. Fetch runs once per user: launching it again (or
   clicking a link) hands the link to the open window and brings it forward. Installed and
@@ -469,14 +441,10 @@ Two Kotlin rules now apply across the module boundary:
 
 ## Next steps
 
-Roughly in order:
+Whatever the owner and friends need next. Two standing rules:
 
-1. **Built-in player as the default.** Once it's been tried on real GPUs (it's tested here on
-   Mesa's llvmpipe only), make it the default, and consider sharing the GL texture with Skia
-   instead of reading each frame back.
-2. **Move more of the data layer into `shared`.** Media servers, Trakt/Simkl and sync are
-   separate, compact desktop clients today; sharing the Android ones needs their Android
-   dependencies put behind interfaces first.
-3. **Sync**: realtime updates, and the Fetch website's profiles, addons and settings.
-4. **More packages**: Flatpak (Flathub) and AppImage, then Windows (`.msi`) and macOS (`.dmg`)
-   from the same `nativeDistributions` block.
+1. **Move duplicated clients into `shared`** when they are next touched (media servers,
+   Trakt/Simkl, the Fetch website), putting their Android dependencies behind interfaces first,
+   rather than adding more desktop-only copies.
+2. **More packages** if someone wants them: Flatpak (Flathub) and AppImage, then Windows (`.msi`)
+   and macOS (`.dmg`) from the same `nativeDistributions` block.

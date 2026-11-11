@@ -17,10 +17,6 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.profile_remember_last_profile,
         R.string.parental_lock_profiles_title
     ),
-    SettingsCategory.WATCH_PARTY to listOf(
-        R.string.party_title,
-        R.string.party_join_title
-    ),
     SettingsCategory.PLAYBACK to listOf(
         R.string.essential_playback_header_title,
         R.string.essential_playback_basics,
@@ -305,8 +301,10 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.layout_section_streams
     ),
     SettingsCategory.ACCOUNT to listOf(
-        R.string.account_signin_email_title,
-        R.string.account_signin_qr_title
+        R.string.sync_backend_title,
+        R.string.sync_backend_switch_title,
+        R.string.website_name,
+        R.string.website_sign_in_title
     ),
     SettingsCategory.YOUTUBE to listOf(
         R.string.youtube_name,

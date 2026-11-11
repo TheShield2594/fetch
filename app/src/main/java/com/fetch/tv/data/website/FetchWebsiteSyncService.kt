@@ -115,8 +115,7 @@ class FetchWebsiteSyncService @Inject constructor(
     /**
      * The active profile's collections, addons, then its Home rows (which name the addons'
      * catalogs and the collections), then its settings. Each goes through the TV's own sync
-     * service, so what is applied, and what is kept back while applying, is decided the same
-     * way as for the Supabase backend.
+     * service, which decides what is applied and what is kept back while applying.
      */
     private suspend fun pullActiveProfileState() {
         pullCollections()

@@ -385,7 +385,6 @@ fun HomeScreen(
             ) {
                 Text(
                     text = when (startupAuthNotice) {
-                        StartupAuthNotice.FETCH -> stringResource(R.string.auth_notice_fetch_logged_out)
                         StartupAuthNotice.TRAKT -> stringResource(R.string.auth_notice_trakt_logged_out)
                     },
                     style = MaterialTheme.typography.bodyMedium,

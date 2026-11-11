@@ -686,8 +686,7 @@ class FetchWebsiteState(
 
     /**
      * Checks [pin] for the website profile in [slot] and keeps the profile token it brings. Null
-     * when there is no website to ask, or its profile in that slot has no PIN, so the caller asks
-     * the sync server instead. A lockout after too many wrong PINs is an answer, not an outage.
+     * when there is no website to ask, or its profile in that slot has no PIN. A lockout after too many wrong PINs is an answer, not an outage.
      */
     suspend fun verifyPin(slot: Int, pin: String): PinGate.Result? {
         val profile = profileFor(slot)?.takeIf { it.hasPin } ?: return null

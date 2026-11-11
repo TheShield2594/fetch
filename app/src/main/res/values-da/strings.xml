@@ -102,7 +102,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">Hjem skal bruge en katalog-addon for at vise titler.</string>
     <string name="home_empty_no_catalogs_title">Ingen kataloger at vise</string>
     <string name="home_empty_no_catalogs_subtitle">Dine addons tilbyder ingen kataloger til Hjem.</string>
-    <string name="auth_notice_fetch_logged_out">Du er logget ud af Fetch. Log ind igen under Indstillinger &gt; Konto.</string>
     <string name="auth_notice_trakt_logged_out">Du er logget ud af Trakt. Forbind igen under Indstillinger &gt; Sporing.</string>
     <string name="error_generic">Der opstod en fejl</string>
 
@@ -400,34 +399,7 @@
     <string name="essential_subtitle_language_subtitle">Foretrukket undertekstsprog.</string>
     <string name="essential_audio_language_subtitle">Foretrukket lydsprog.</string>
     <!-- Account / sign-in error messages -->
-    <string name="account_error_incorrect_pin">Forkert PIN.</string>
-    <string name="account_error_sync_code_expired">Synkroniseringskoden er udløbet.</string>
-    <string name="account_error_invalid_sync_code">Ugyldig synkroniseringskode.</string>
-    <string name="account_error_sync_code_not_found">Synkroniseringskode ikke fundet.</string>
-    <string name="account_error_device_already_linked">Enheden er allerede tilknyttet.</string>
     <string name="account_error_generic_retry">Noget gik galt. Prøv igen.</string>
-    <string name="account_error_invalid_credentials">Forkert e-mail eller adgangskode.</string>
-    <string name="account_error_email_not_confirmed">Bekræft venligst din e-mail først.</string>
-    <string name="account_error_email_already_registered">En konto med denne e-mail findes allerede.</string>
-    <string name="account_error_invalid_email">Indtast venligst en gyldig e-mailadresse.</string>
-    <string name="account_error_password_too_short">Adgangskoden er for kort.</string>
-    <string name="account_error_password_too_weak">Adgangskoden er for svag.</string>
-    <string name="account_error_signup_disabled">Registrering er i øjeblikket deaktiveret.</string>
-    <string name="account_error_rate_limited">For mange forsøg. Prøv igen senere.</string>
-    <string name="account_error_qr_login_expired">QR-login er udløbet. Prøv igen.</string>
-    <string name="account_error_invalid_qr_login">Ugyldig QR-loginkode.</string>
-    <string name="account_error_qr_login_other_device">Dette QR-login blev anmodet fra en anden enhed.</string>
-    <string name="account_error_qr_login_outdated">QR-logintjenesten er forældet. Genanvend TV-login SQL-opsætning.</string>
-    <string name="account_error_qr_login_missing_setup">QR-login-backend mangler opsætning. Opdater TV-login SQL-opsætning.</string>
-    <string name="account_error_qr_login_misconfigured">QR-login-URL er forkert konfigureret.</string>
-    <string name="account_error_qr_login_invalid_request">QR-loginanmodning var ugyldig. Prøv igen.</string>
-    <string name="account_error_no_internet">Ingen internetforbindelse.</string>
-    <string name="account_error_connection_timeout">Forbindelsen udløb. Prøv igen.</string>
-    <string name="account_error_connection_refused">Kunne ikke oprette forbindelse til serveren.</string>
-    <string name="account_error_not_authenticated">Log venligst ind først.</string>
-    <string name="account_error_service_unavailable">Tjenesten er utilgængelig. Prøv igen senere.</string>
-    <string name="account_error_invalid_request">Ugyldig anmodning. Tjek venligst dine oplysninger.</string>
-    <string name="account_error_unexpected">Der opstod en uventet fejl.</string>
     <string name="experience_mode_switch_to_essential">Skift til grundlæggende</string>
     <string name="experience_mode_switch_to_essential_subtitle">Skjul avancerede opsætningsflader uden at ændre dine gemte værdier.</string>
     <string name="experience_mode_switch_to_advanced">Skift til avanceret</string>
@@ -467,10 +439,6 @@
     <string name="profile_remember_last_profile_subtitle">Husk senest valgte profil ved opstart</string>
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Konto- og synkroniseringsstatus</string>
-    <string name="account_stat_addons">addons</string>
-    <string name="account_stat_library">bibliotek</string>
-    <string name="account_stat_progress">fremskridt</string>
-    <string name="account_stat_watched">set</string>
 
     <string name="playback_title">Afspilningsindstillinger</string>
     <string name="playback_subtitle">Konfigurer videoafspilning og undertekstindstillinger</string>
@@ -863,15 +831,6 @@
     <string name="trakt_connected_as">Tilknyttet som %1$s</string>
     <string name="trakt_awaiting_instruction">Gå til trakt.tv/activate og indtast denne kode:</string>
     <string name="trakt_waiting_approval">Venter på godkendelse…</string>
-    <string name="qr_login_approved">Login godkendt. Afslutter login…</string>
-    <string name="qr_login_pending">Venter på godkendelse på din telefon…</string>
-    <string name="qr_login_expired">QR-login udløbet. Generér en ny kode.</string>
-    <string name="qr_login_preparing">Forbereder QR-login...</string>
-    <string name="qr_login_scan_prompt">Scan QR-kode og log ind på din telefon</string>
-    <string name="qr_login_start_failed">Kunne ikke starte QR-login</string>
-    <string name="qr_login_signing_in">Logger dig ind…</string>
-    <string name="qr_login_success">Logget ind</string>
-    <string name="qr_login_exchange_failed">Kunne ikke fuldføre QR-login</string>
     <string name="trakt_code_expires">Koden udløber om %1$s</string>
     <string name="trakt_token_refreshes">Trakt-adgangstoken opdateres om %1$s</string>
     <string name="trakt_missing_credentials">TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET mangler i local.properties.</string>
@@ -920,13 +879,6 @@
     <string name="debug_sync_code_subtitle">Vis knapper til at generere/indtaste sync-kode i kontoindstillinger</string>
     <string name="debug_buffer_logs_title">Aktivér BUFFER-logs</string>
     <string name="debug_buffer_logs_subtitle">Udsend periodiske buffer-diagnostik til logcat (deaktiveret som standard)</string>
-    <string name="debug_section_account">Konto</string>
-    <string name="debug_manual_signin_title">Manuel log ind</string>
-    <string name="debug_manual_signin_subtitle">Log ind med e-mail og adgangskode (Supabase-godkendelse)</string>
-    <string name="debug_email_placeholder">E-mail</string>
-    <string name="debug_password_placeholder">Adgangskode</string>
-    <string name="debug_signing_in">Logger ind\u2026</string>
-    <string name="debug_sign_in">Log ind</string>
     <string name="debug_error_dialog_title">Afspilningsfejl</string>
     <string name="debug_error_dialog_subtitle">Der opstod en fejl under afspilning.\n\nFejl: Test-simuleret fejl – dette er ikke en reel fejl. Kilden returnerede HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">Luk</string>
@@ -953,11 +905,6 @@
     <string name="profile_choose_avatar">Vælg avatar</string>
     <string name="profile_avatar_focus_hint">Fokusér på en avatar for at se dens navn</string>
     <string name="profile_avatar_category_all">Alle</string>
-    <string name="profile_avatar_category_anime">Anime</string>
-    <string name="profile_avatar_category_animation">Animation</string>
-    <string name="profile_avatar_category_movie">Film</string>
-    <string name="profile_avatar_category_tv">TV</string>
-    <string name="profile_avatar_category_gaming">Gaming</string>
     <string name="profile_add_new">Tilføj profil</string>
     <string name="profile_cancel">Annullér</string>
     <string name="profile_save">Gem</string>
@@ -1304,29 +1251,9 @@
 
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">Indlæser\u2026</string>
-    <string name="account_sync_description">Synkroniser dit bibliotek, seerfremskridt og addons på tværs af enheder.</string>
-    <string name="account_sync_restart_note">Synkronisering sker ikke i realtid på tværs af aktive enheder. Genstart denne enhed efter login, eller for at hente ændringer foretaget andetsteds.</string>
     <string name="account_signin_qr_title">Log ind med QR</string>
-    <string name="account_signin_qr_subtitle">Scan en QR-kode og gennemfør e-mail-login på din telefon</string>
-    <string name="account_signed_in_label">Logget ind</string>
-    <string name="account_total_label">I alt</string>
-    <string name="account_loading_sync">Indlæser synkroniseringsdata\u2026</string>
-    <string name="account_sign_out">Log ud</string>
 
 
-    <string name="auth_qr_finishing">Afslutter login\u2026</string>
-    <string name="auth_qr_expires">Udløber om %1$s</string>
-    <string name="auth_qr_scan_instruction">Scan QR, godkend i browseren, og vend tilbage hertil.</string>
-    <string name="auth_qr_refresh">Opdater QR</string>
-    <string name="auth_qr_continue_without_account">Fortsæt uden konto</string>
-    <string name="auth_qr_connected">Din konto er forbundet på dette TV.</string>
-    <string name="auth_qr_synced_data">Dine synkroniserede data</string>
-    <string name="auth_qr_generating">Genererer QR\u2026</string>
-    <string name="auth_qr_unavailable">QR utilgængelig. Opdater for at prøve igen.</string>
-    <string name="auth_qr_please_wait">Vent venligst\u2026</string>
-    <string name="auth_qr_continue">Fortsæt</string>
-    <string name="auth_qr_back">Tilbage</string>
 
 
 
@@ -1504,10 +1431,7 @@
     <string name="cd_voice_search">Stemmesøgning</string>
     <string name="cd_expand">Udvid %1$s</string>
     <string name="cd_collapse">Skjul %1$s</string>
-    <string name="cd_qr_login">QR-loginkode</string>
-    <string name="cd_fetch">Fetch</string>
 
-    <string name="debug_signin_success">Logget ind</string>
     <string name="debug_generate_description">Debug-genereret %1$s element nr. %2$d</string>
     <string name="debug_generate_result_failed">Mislykkedes: %1$s</string>
     <string name="debug_generate_library_result_added">Tilføjede %1$d elementer til bibliotek</string>
@@ -2090,7 +2014,6 @@
     <string name="detail_tmdb_fallback_title">TMDB %1$d</string>
     <string name="collections_editor_tmdb_collection_fallback">TMDB Collection %1$d</string>
     <!-- Fetch: new and changed strings -->
-    <string name="account_local_only_note">Synkronisering er slået fra. Fetch gemmer dine addons, fremskridt og indstillinger på dette TV og kræver ingen konto. For at synkronisere mellem enheder skal du forbinde din egen synkroniseringsserver under serverindstillingerne.</string>
     <string name="addon_badge_needs_setup">Skal konfigureres</string>
     <string name="addon_configure">Konfigurér</string>
     <string name="addon_configure_install">Installér</string>
@@ -2137,7 +2060,7 @@
     <string name="best_match_cached">Cachet</string>
     <string name="best_match_excluded">Afspilles ikke automatisk: %1$s</string>
     <string name="stream_hold_for_options">Hold OK nede for Bedste match-muligheder</string>
-    <string name="best_match_preview_sub">Spørger dine stream-addons om en titel, mens du kigger på den, så Afspil-knappen kan vise filen, og afspilningen starter hurtigere. Slå fra for kun at søge, når du trykker på Afspil.</string>
+    <string name="best_match_preview_sub">Spørger dine stream-addons om en titel, når du bliver på den, så Afspil-knappen kan vise filen. Addons får at vide, hvilken titel det er, og debrid-tjenester tæller forespørgslerne. Slå fra for kun at spørge, når du trykker på Afspil.</string>
     <string name="best_match_preview_title">Vis valget på Afspil-knappen</string>
     <string name="catalog_order_pin">Fastgør øverst</string>
     <string name="catalog_order_pinned_on_home">Fastgjort øverst på Hjem</string>
@@ -2146,8 +2069,6 @@
     <string name="cd_mark_credits_start">Markér starten af rulleteksterne</string>
     <string name="cd_mark_intro_end">Markér slutningen af introen</string>
     <string name="cd_mark_intro_start">Markér starten af introen</string>
-    <string name="custom_server_error_official_active">Synkronisering er allerede slået fra på dette TV.</string>
-    <string name="custom_server_error_official_available">Det er ikke en synkroniseringsserver. Luk denne dialog, og vælg Slå synkronisering fra for at gå tilbage til lokal tilstand.</string>
     <string name="exclusion_3d">3D-udgivelse</string>
     <string name="exclusion_above_max_resolution">over din maksimale opløsning</string>
     <string name="exclusion_audio">du springer %1$s-lyd over</string>
@@ -2223,9 +2144,6 @@
     <string name="library_empty_type_movies">film</string>
     <string name="library_empty_type_series">serier</string>
     <string name="licenses_attributions_fetch_body">Fetch er fri software under GNU General Public License v3.0. Det er en fork af NuvioTV af Nuvio-bidragyderne (github.com/NuvioMedia/NuvioTV), hvis arbejde udgør størstedelen af denne app.</string>
-    <string name="official_server_action">Slå synkronisering fra</string>
-    <string name="official_server_description">Du bliver logget ud af din synkroniseringsserver, og appen genstarter i lokal tilstand. Alt, hvad der allerede er på dette TV, bliver.</string>
-    <string name="official_server_title">Slå synkronisering fra?</string>
     <string name="parental_addons_blocked">Denne profil kan ikke installere addons. Spørg en forælder.</string>
     <string name="parental_allow_unrated">Vis titler uden aldersgrænse: %1$s</string>
     <string name="parental_gate_heading">Indtast PIN for %1$s</string>
@@ -2302,7 +2220,6 @@
     <string name="ranking_size_gb">%1$d GB</string>
     <string name="ranking_skip_dv5">Spring Dolby Vision-profil 5 over</string>
     <string name="ranking_skip_dv5_sub">Profil 5 har ingen HDR10-reserve. Den springes altid over, når dette TV ikke kan vise den</string>
-    <string name="server_options_use_official">Slå synkronisering fra</string>
     <string name="skip_marker_report_failed">Kunne ikke rapportere markøren</string>
     <string name="skip_marker_reported">Den forkerte markør er rapporteret. Tak!</string>
     <string name="skip_marker_start_recorded">Start markeret. Tryk igen, hvor den slutter.</string>
@@ -2450,7 +2367,6 @@
     <string name="youtube_show_live_subtitle">Medtag streams, der er live lige nu, i dine feeds, søgeresultater og Næste</string>
     <string name="youtube_hide_watched_title">Skjul sete videoer</string>
     <string name="youtube_hide_watched_subtitle">Udelader videoer, du har set til ende. Historikken viser dem stadig</string>
-    <string name="profile_avatar_category_supporter">Støtter</string>
     <string name="profile_avatar_category_animals">Dyr</string>
     <string name="profile_avatar_category_characters">Figurer</string>
     <string name="profile_avatar_category_fun">Sjov</string>

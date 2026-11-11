@@ -2,12 +2,9 @@ package com.fetch.tv.core.sync.backend
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.data.website.FetchWebsiteStore
-import com.fetch.tv.domain.model.AuthState
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
@@ -16,15 +13,10 @@ import org.junit.Test
 class SyncBackendsTest {
     private val stored = mutableMapOf<String, String?>()
     private var paired = false
-    private val authState = MutableStateFlow<AuthState>(AuthState.SignedOut)
 
     private val website = mockk<FetchWebsiteSyncBackend> {
         every { kind } returns SyncBackendKind.FETCH_WEBSITE
         every { isConnected } answers { paired }
-    }
-    private val supabase = mockk<SupabaseSyncBackend> {
-        every { kind } returns SyncBackendKind.SUPABASE
-        every { isConnected } answers { authState.value is AuthState.FullAccount }
     }
 
     private fun backends(): SyncBackends {
@@ -41,12 +33,7 @@ class SyncBackendsTest {
             every { getSharedPreferences(any(), any()) } returns preferences
         }
         val store = mockk<FetchWebsiteStore> { every { isPaired } answers { paired } }
-        val auth = mockk<AuthManager> { every { authState } returns this@SyncBackendsTest.authState }
-        return SyncBackends(context, store, auth, { website }, { supabase })
-    }
-
-    private fun signInToSupabase() {
-        authState.value = AuthState.FullAccount(userId = "user", email = "user@example.com")
+        return SyncBackends(context, store) { website }
     }
 
     @Test
@@ -58,24 +45,11 @@ class SyncBackendsTest {
     }
 
     @Test
-    fun `nothing chosen follows the connection, the website ahead of Supabase`() {
+    fun `nothing chosen follows the website pairing`() {
         val backends = backends()
-        signInToSupabase()
-        assertSame(supabase, backends.active)
-
         paired = true
         assertSame(website, backends.active)
         assertEquals(true, backends.isWebsiteActive)
-        assertEquals(false, backends.isSupabaseActive)
-    }
-
-    @Test
-    fun `a stored choice wins while it is connected`() {
-        val backends = backends()
-        paired = true
-        signInToSupabase()
-        backends.choose(SyncBackendKind.SUPABASE)
-        assertSame(supabase, backends.active)
     }
 
     @Test
@@ -90,12 +64,17 @@ class SyncBackendsTest {
     }
 
     @Test
-    fun `a connection made some other way is used over a stored choice that isn't connected`() {
+    fun `a pairing made before there was a choice wins over a stored local only`() {
         val backends = backends()
         backends.choose(SyncBackendKind.LOCAL_ONLY)
-        signInToSupabase()
-        assertEquals(SyncBackendKind.SUPABASE, backends.chosen)
-        assertSame(supabase, backends.active)
+        paired = true
+        assertEquals(SyncBackendKind.FETCH_WEBSITE, backends.chosen)
+    }
+
+    @Test
+    fun `a TV that chose the removed Supabase server reads as local only`() {
+        stored["choice"] = "SUPABASE"
+        assertEquals(SyncBackendKind.LOCAL_ONLY, backends().storedChoice.value)
     }
 
     @Test

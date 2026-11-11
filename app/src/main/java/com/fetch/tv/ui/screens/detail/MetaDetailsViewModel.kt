@@ -77,7 +77,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 private const val TAG = "MetaDetailsViewModel"
-private const val BEST_MATCH_PREVIEW_DWELL_MS = 900L
 
 @HiltViewModel
 class MetaDetailsViewModel @Inject constructor(
@@ -121,39 +120,23 @@ class MetaDetailsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(MetaDetailsUiState())
 
-    private val _bestMatchPreview = MutableStateFlow<com.fetch.tv.core.streams.BestMatchPreview?>(null)
+    private val bestMatchLookup = BestMatchPreviewLookup(viewModelScope, bestMatchPreviewer)
     /** What "Best match" will play from the Play button, once the hero target is known. */
-    val bestMatchPreview: StateFlow<com.fetch.tv.core.streams.BestMatchPreview?> = _bestMatchPreview.asStateFlow()
-    private var bestMatchPreviewJob: Job? = null
-    private var bestMatchPreviewKey: String? = null
+    val bestMatchPreview: StateFlow<com.fetch.tv.core.streams.BestMatchPreview?> = bestMatchLookup.preview
 
     /**
-     * Starts looking up the stream Best match would pick for [videoId], after a short dwell so
-     * scrolling past a title does not query every addon. The search lands in the stream session
-     * cache, so pressing Play reuses it.
+     * Shows the stream Best match would pick for [videoId]: a recent saved pick at once, or else
+     * a search once the viewer stays on the page or holds focus on Play, so passing through a
+     * title asks no addon. The search lands in the stream session cache, so pressing Play reuses it.
      */
     fun requestBestMatchPreview(type: String, videoId: String, season: Int?, episode: Int?) {
-        val key = "$type|$videoId|$season|$episode"
-        if (key == bestMatchPreviewKey) return
-        bestMatchPreviewKey = key
-        bestMatchPreviewJob?.cancel()
-        if (_bestMatchPreview.value?.videoId != videoId) _bestMatchPreview.value = null
-        bestMatchPreviewJob = viewModelScope.launch {
-            delay(BEST_MATCH_PREVIEW_DWELL_MS)
-            runCatching {
-                bestMatchPreviewer.preview(
-                    type = type,
-                    videoId = videoId,
-                    season = season,
-                    episode = episode,
-                    contentId = itemId.takeIf { it.isNotBlank() }
-                ).collect { preview -> _bestMatchPreview.value = preview }
-            }.onFailure { error ->
-                if (error is kotlinx.coroutines.CancellationException) throw error
-                Log.w(TAG, "Best match preview failed for $videoId", error)
-            }
-        }
+        bestMatchLookup.show(type, videoId, season, episode, contentId = itemId.takeIf { it.isNotBlank() })
     }
+
+    fun onBestMatchPlayFocusChanged(focused: Boolean) = bestMatchLookup.onPlayFocusChanged(focused)
+
+    /** The page left the screen (another page opened over it): drop a search that hasn't started. */
+    fun pauseBestMatchPreview() = bestMatchLookup.pause()
     private val shuffleVisit = System.nanoTime()
     val uiState: StateFlow<MetaDetailsUiState> = combine(
         _uiState, episodeShuffleStore.profiles, watchProgressRepository.continueWatching, parentalControls.filterRevision

@@ -124,9 +124,5 @@ class AddonToolsTest {
         assertTrue("collection_col1" in collectionsApplied.disabledCatalogs)
         assertTrue("cinemeta_series_top" in collectionsApplied.disabledCatalogs)
         assertEquals(listOf("collection_col1"), collectionsApplied.layout.homeOrder)
-        val merged: JsonObject = HomeCatalogSync.merged(remoteJson, back)
-        assertTrue("extra_key" in merged)
-        assertEquals(remoteJson, HomeCatalogSync.settingsJsonOf("""[{"profile_id":1,"settings_json":$remoteJson}]"""))
-        assertNull(HomeCatalogSync.settingsJsonOf("[]"))
     }
 }

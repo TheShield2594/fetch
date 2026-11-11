@@ -198,7 +198,7 @@ class FetchWebsiteSyncTest {
     }
 
     @Test
-    fun `a wrong PIN and a lockout are answers, and a profile without a PIN is left to the sync server`() = runBlocking {
+    fun `a wrong PIN and a lockout are answers, and a profile without a PIN has nothing to check`() = runBlocking {
         var answer = 401 to """{"error":"Incorrect PIN"}"""
         val fake = FakeHttp { request ->
             when (request.url.encodedPath) {

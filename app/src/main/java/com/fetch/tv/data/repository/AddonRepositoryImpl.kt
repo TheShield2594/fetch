@@ -32,7 +32,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.sync.AddonSyncService
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -48,7 +47,6 @@ class AddonRepositoryImpl(
     private val api: AddonApi,
     private val preferences: AddonPreferences,
     private val addonSyncService: AddonSyncService,
-    private val authManager: AuthManager,
     private val context: Context,
     /**
      * The dispatcher backing syncScope, the manifest cache disk IO and installedAddonsFlow.
@@ -65,13 +63,11 @@ class AddonRepositoryImpl(
         api: AddonApi,
         preferences: AddonPreferences,
         addonSyncService: AddonSyncService,
-        authManager: AuthManager,
         @ApplicationContext context: Context
     ) : this(
         api = api,
         preferences = preferences,
         addonSyncService = addonSyncService,
-        authManager = authManager,
         context = context,
         dispatcher = Dispatchers.IO,
         clock = System::currentTimeMillis
@@ -119,7 +115,7 @@ class AddonRepositoryImpl(
             return
         }
         if (!addonSyncService.canSync) {
-            Log.d(TAG, "triggerRemoteSync: skipped (not authenticated, state=${authManager.authState.value})")
+            Log.d(TAG, "triggerRemoteSync: skipped (no sync backend connected)")
             return
         }
         Log.d(TAG, "triggerRemoteSync: scheduling push in 500ms")

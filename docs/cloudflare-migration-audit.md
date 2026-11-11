@@ -6,6 +6,9 @@ in §10 apply whatever the hosting, and §5-7 are the starting point if moving t
 Workers comes up again. Audited at commit `29be6e4`. Paths are relative to the
 repo root.
 
+Since then the TV's Supabase-protocol sync, watch party and avatar catalog were
+removed (#427), so §3.1 and Appendix B describe code that no longer exists.
+
 Cloudflare limits quoted here (CPU time, subrequests, memory, body size, cron wall time)
 come from memory of the published limits and change often. Check them against
 <https://developers.cloudflare.com/workers/platform/limits/> before sizing anything. None

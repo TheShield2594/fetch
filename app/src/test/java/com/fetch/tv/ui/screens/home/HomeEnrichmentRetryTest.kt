@@ -452,7 +452,7 @@ class HomeEnrichmentRetryTest {
             episodeShuffle = com.fetch.tv.domain.model.EpisodeShuffle(),
             appContext = mockk(relaxed = true),
             addonRepository = mockk(relaxed = true),
-            startupSyncService = mockk(relaxed = true),
+            addonRefreshService = mockk(relaxed = true),
             catalogRepository = mockk(relaxed = true),
             watchProgressRepository = watchProgressRepository,
             libraryRepository = mockk(relaxed = true),

@@ -17,7 +17,6 @@ class SettingsSearchIndexTest {
 
     private val pageFiles: Map<SettingsCategory, List<String>> = mapOf(
         SettingsCategory.PROFILES to listOf("settings/ProfileSettingsContent.kt"),
-        SettingsCategory.WATCH_PARTY to listOf("party/PartySettingsContent.kt"),
         SettingsCategory.PLAYBACK to listOf("settings/EssentialPlaybackSettingsContent.kt"),
         // Several sections share a file, so each lists the composables that draw it.
         SettingsCategory.PLAYBACK_PLAYER to listOf(
@@ -67,7 +66,11 @@ class SettingsSearchIndexTest {
             "settings/LayoutHomeSettings.kt",
             "settings/LayoutSettingsModel.kt"
         ),
-        SettingsCategory.ACCOUNT to listOf("account/AccountSettingsContent.kt"),
+        SettingsCategory.ACCOUNT to listOf(
+            "account/AccountSettingsContent.kt",
+            "account/SyncBackendSection.kt#SyncBackendRow",
+            "account/FetchWebsiteSection.kt"
+        ),
         SettingsCategory.TRACKING to listOf("settings/TrackingSettingsScreen.kt"),
         SettingsCategory.YOUTUBE to listOf("settings/YouTubeSettingsScreen.kt"),
         SettingsCategory.PHONE to listOf("phone/PhoneHubSettingsContent.kt"),

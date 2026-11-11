@@ -19,11 +19,11 @@ data class DesktopProfile(
     val pinHash: String? = null,
     /** Limits, set from the main profile, as on TV. */
     val limits: ProfileLimits = ProfileLimits(),
-    /** Locked on the sync server (set on another device) with no PIN here yet; checked online. */
+    /** Locked on the Fetch website (set on another device) with no PIN here yet; checked online. */
     val serverLocked: Boolean = false,
-    /** The TV's avatar id: a bundled one (`fetch:fox`) or the sync server catalog's; null shows the initial. */
+    /** The TV's avatar id, such as a bundled one (`fetch:fox`); null shows the initial. */
     val avatarId: String? = null,
-    /** A picture of the profile's own on the sync server (the TV's `avatar_url`), shown when set. */
+    /** A picture of the profile's own (the TV's `avatar_url`), shown when set. */
     val avatarUrl: String? = null,
     /**
      * The avatar was removed here: the next push clears the account's too. Without it a null
@@ -31,7 +31,7 @@ data class DesktopProfile(
      * wipe one set on the TV.
      */
     val avatarCleared: Boolean = false,
-    /** The TV's profile background: a catalog id (`get_member_profile_background_catalog`). */
+    /** The TV's profile background: a catalog id, carried through sync unchanged. */
     val profileBackgroundId: String? = null,
     /** Or a picture of its own; wins over [profileBackgroundId], as on TV. */
     val profileBackgroundUrl: String? = null,
@@ -60,15 +60,9 @@ data class ProfilesFile(
      * PIN to open, so a restricted profile can't skip its limits by switching. Kept on this
      * computer, as on TV.
      */
-    val lockUnrestrictedProfiles: Boolean = false,
-    /**
-     * Profiles whose limits a server-side settings copy replaced with the source's, with the exact
-     * limits the account still owes them (theirs, tightened by the account's before the copy).
-     * Pushed on the next account sync; until then the account's copy of them isn't merged in.
-     */
-    val pendingLimitsPush: Map<Int, ProfileLimits> = emptyMap()
+    val lockUnrestrictedProfiles: Boolean = false
 ) {
-    /** The lowest free id: the sync server numbers profiles 1 to [MAX_PROFILES], like the TV app. */
+    /** The lowest free id: profiles are numbered 1 to [MAX_PROFILES], like the TV app. */
     fun nextId(): Int = (2..MAX_PROFILES).firstOrNull { id -> profiles.none { it.id == id } } ?: ((profiles.maxOfOrNull { it.id } ?: 0) + 1)
 
     val isFull: Boolean get() = profiles.size >= MAX_PROFILES
@@ -95,7 +89,7 @@ data class ProfilesFile(
             ?: PROFILE_AVATAR_COLORS[profiles.size % PROFILE_AVATAR_COLORS.size]
 }
 
-/** The TV app's profile limit, which the sync server enforces. */
+/** The TV app's profile limit. */
 const val MAX_PROFILES = 6
 
 fun profilesFile(dir: File = AppDirs.config) =

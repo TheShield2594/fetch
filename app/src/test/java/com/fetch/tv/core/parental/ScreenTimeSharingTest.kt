@@ -1,9 +1,7 @@
 package com.fetch.tv.core.parental
 
 import com.fetch.tv.TestPreferencesStore
-import com.fetch.tv.core.sync.ScreenTimeBlob
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.json.JsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -45,26 +43,6 @@ class ScreenTimeSharingTest {
             java.time.LocalDateTime.of(2026, 11, 2, 15, 0), 0L
         )
         assertEquals(ScreenTimeStatus.DailyLimitReached, status)
-    }
-
-    @Test
-    fun `blob round trips and push keeps recent days only`() {
-        val records = ScreenTimeBlob.recordsForPush(
-            others = mapOf(
-                "tv-b" to ScreenTimeDay(date = "2026-11-02", watchedMs = 5L),
-                "tv-old" to ScreenTimeDay(date = "2026-10-20", watchedMs = 7L),
-                "tv-a" to ScreenTimeDay(date = "2026-11-02", watchedMs = 1L)
-            ),
-            ownClientId = "tv-a",
-            own = ScreenTimeDay(date = "2026-11-02", watchedMs = 42L),
-            oldestDate = "2026-11-01"
-        )
-        assertEquals(setOf("tv-a", "tv-b"), records.keys)
-        assertEquals(42L, records.getValue("tv-a").watchedMs)
-
-        val blob = JsonObject(mapOf(ScreenTimeBlob.KEY to ScreenTimeBlob.encode(records)))
-        assertEquals(records, ScreenTimeBlob.decode(blob))
-        assertTrue(ScreenTimeBlob.decode(JsonObject(emptyMap())).isEmpty())
     }
 
     @Test

@@ -18,11 +18,9 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.sync.backend.SyncBackendKind
 import com.fetch.tv.core.sync.backend.SyncBackends
 import com.fetch.tv.data.website.FetchWebsiteStore
-import com.fetch.tv.domain.model.AuthState
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.screens.settings.SettingsActionRow
 import com.fetch.tv.ui.screens.settings.SettingsDialogActionButton
@@ -36,37 +34,29 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
 /** Settings → Account → Sync: which backend this TV uses. */
 @HiltViewModel
 class SyncBackendViewModel @Inject constructor(
     private val backends: SyncBackends,
-    private val websiteStore: FetchWebsiteStore,
-    private val authManager: AuthManager
+    private val websiteStore: FetchWebsiteStore
 ) : ViewModel() {
     /** The backend in use, or chosen and not set up yet. */
     val chosen: StateFlow<SyncBackendKind> =
-        combine(backends.storedChoice, websiteStore.session, authManager.authState) { _, _, _ -> backends.chosen }
+        combine(backends.storedChoice, websiteStore.session) { _, _ -> backends.chosen }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), backends.chosen)
 
     /** The connection that switching to [kind] would end, if any. */
-    fun connectionEndedBy(kind: SyncBackendKind): SyncBackendKind? = when {
-        kind != SyncBackendKind.FETCH_WEBSITE && websiteStore.isPaired -> SyncBackendKind.FETCH_WEBSITE
-        kind != SyncBackendKind.SUPABASE && authManager.authState.value is AuthState.FullAccount -> SyncBackendKind.SUPABASE
-        else -> null
-    }
+    fun connectionEndedBy(kind: SyncBackendKind): SyncBackendKind? =
+        SyncBackendKind.FETCH_WEBSITE.takeIf { kind != it && websiteStore.isPaired }
 
     /**
-     * Uses [kind] from now on, signing out of the other backends so only one is ever connected.
-     * Signing out leaves everything on this TV as it is.
+     * Uses [kind] from now on. Choosing local only unpairs the website; everything on this TV
+     * stays as it is.
      */
     fun choose(kind: SyncBackendKind) {
         backends.choose(kind)
         if (kind != SyncBackendKind.FETCH_WEBSITE && websiteStore.isPaired) websiteStore.clear()
-        if (kind != SyncBackendKind.SUPABASE && authManager.authState.value is AuthState.FullAccount) {
-            viewModelScope.launch { authManager.signOut() }
-        }
     }
 }
 
@@ -75,7 +65,6 @@ internal fun syncBackendLabel(kind: SyncBackendKind): String = stringResource(
     when (kind) {
         SyncBackendKind.LOCAL_ONLY -> R.string.sync_backend_local
         SyncBackendKind.FETCH_WEBSITE -> R.string.sync_backend_website
-        SyncBackendKind.SUPABASE -> R.string.sync_backend_supabase
     }
 )
 
@@ -84,7 +73,6 @@ private fun syncBackendDescription(kind: SyncBackendKind): String = stringResour
     when (kind) {
         SyncBackendKind.LOCAL_ONLY -> R.string.sync_backend_local_description
         SyncBackendKind.FETCH_WEBSITE -> R.string.sync_backend_website_description
-        SyncBackendKind.SUPABASE -> R.string.sync_backend_supabase_description
     }
 )
 

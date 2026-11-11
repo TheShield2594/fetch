@@ -224,9 +224,8 @@ class ScreenTimeManager internal constructor(
     constructor(
         parentalControls: ParentalControls,
         profileManager: ProfileManager,
-        store: ScreenTimeStore,
-        sharing: dagger.Lazy<com.fetch.tv.core.sync.ProfileSettingsSyncService>
-    ) : this(parentalControls, profileManager, store, LocalDateTime::now, System::currentTimeMillis, { sharing.get() })
+        store: ScreenTimeStore
+    ) : this(parentalControls, profileManager, store, LocalDateTime::now, System::currentTimeMillis)
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val mutex = Mutex()

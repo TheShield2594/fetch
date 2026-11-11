@@ -77,8 +77,8 @@ class SettingsSearchIndexTest {
 
     @Test
     fun `hidden pages leave search`() {
-        val hidden = setOf(SettingsPage.WATCH_PARTY)
-        assertTrue(SettingsSearch.search("watch party", ExperienceMode.ADVANCED, hidden).none { it.page == SettingsPage.WATCH_PARTY })
-        assertTrue(SettingsSearch.search("watch party", ExperienceMode.ADVANCED).any { it.page == SettingsPage.WATCH_PARTY })
+        val hidden = setOf(SettingsPage.YOUTUBE)
+        assertTrue(SettingsSearch.search("dearrow", ExperienceMode.ADVANCED, hidden).none { it.page == SettingsPage.YOUTUBE })
+        assertTrue(SettingsSearch.search("dearrow", ExperienceMode.ADVANCED).any { it.page == SettingsPage.YOUTUBE })
     }
 }

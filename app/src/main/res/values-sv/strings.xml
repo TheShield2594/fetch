@@ -10,7 +10,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">Hem behöver ett katalogtillägg för att visa titlar.</string>
     <string name="home_empty_no_catalogs_title">Inga kataloger att visa</string>
     <string name="home_empty_no_catalogs_subtitle">Dina tillägg erbjuder inga kataloger för Hem.</string>
-    <string name="auth_notice_fetch_logged_out">Du har loggats ut från Fetch. Logga in igen under Inställningar &gt; Konto.</string>
     <string name="auth_notice_trakt_logged_out">Du har loggats ut från Trakt. Anslut igen under Inställningar &gt; Spårning.</string>
     <string name="error_generic">Ett fel uppstod</string>
 
@@ -196,10 +195,6 @@
     <string name="settings_playback">Uppspelning</string>
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Konto och synkroniseringsstatus</string>
-    <string name="account_stat_addons">tillägg</string>
-    <string name="account_stat_library">bibliotek</string>
-    <string name="account_stat_progress">pågående</string>
-    <string name="account_stat_watched">sedd</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Uppspelningsinställningar</string>
@@ -449,9 +444,6 @@
     <string name="trakt_connected_as">Ansluten som %1$s</string>
     <string name="trakt_awaiting_instruction">Gå till trakt.tv/activate och ange denna kod:</string>
     <string name="trakt_waiting_approval">Väntar på godkännande…</string>
-    <string name="qr_login_approved">Inloggning godkänd. Slutför inloggning…</string>
-    <string name="qr_login_pending">Väntar på godkännande på din telefon…</string>
-    <string name="qr_login_expired">QR-inloggningen har gått ut. Generera en ny kod.</string>
     <string name="trakt_code_expires">Koden går ut om %1$s</string>
     <string name="trakt_token_refreshes">Trakt-åtkomsttoken uppdateras om %1$s</string>
     <string name="trakt_missing_credentials">TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET saknas i local.properties.</string>
@@ -485,13 +477,6 @@
     <string name="debug_account_tab_subtitle">Visa kontofliken i inställningsnavigeringen</string>
     <string name="debug_sync_code_title">Synkkodsfunktioner</string>
     <string name="debug_sync_code_subtitle">Visa Generera/Ange synkkod-knappar i kontoinställningar</string>
-    <string name="debug_section_account">Konto</string>
-    <string name="debug_manual_signin_title">Manuell inloggning</string>
-    <string name="debug_manual_signin_subtitle">Logga in med e-post och lösenord (Supabase-autentisering)</string>
-    <string name="debug_email_placeholder">E-post</string>
-    <string name="debug_password_placeholder">Lösenord</string>
-    <string name="debug_signing_in">Loggar in\u2026</string>
-    <string name="debug_sign_in">Logga in</string>
     <string name="debug_error_dialog_title">Uppspelningsfel</string>
     <string name="debug_error_dialog_subtitle">Ett fel uppstod under uppspelning.\n\nFel: Testsimulerat fel – detta är inte ett riktigt fel. Källan returnerade HTTP 503 (Tjänst ej tillgänglig).</string>
     <string name="debug_dismiss">Avfärda</string>
@@ -512,11 +497,6 @@
     <string name="profile_choose_avatar">Välj avatar</string>
     <string name="profile_avatar_focus_hint">Fokusera en avatar för att se dess namn</string>
     <string name="profile_avatar_category_all">Alla</string>
-    <string name="profile_avatar_category_anime">Anime</string>
-    <string name="profile_avatar_category_animation">Animation</string>
-    <string name="profile_avatar_category_movie">Film</string>
-    <string name="profile_avatar_category_tv">TV</string>
-    <string name="profile_avatar_category_gaming">Spel</string>
     <string name="profile_add_new">Lägg till profil</string>
     <string name="profile_cancel">Avbryt</string>
     <string name="profile_save">Spara</string>
@@ -737,31 +717,11 @@
     <string name="library_empty_trakt_subtitle">Använd + i detaljer för att lägga till objekt i bevakningslistan eller listor</string>
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">Laddar\u2026</string>
-    <string name="account_sync_description">Synkronisera ditt bibliotek, tittarframsteg och tillägg mellan enheter.</string>
-    <string name="account_sync_restart_note">Synkronisering sker inte i realtid mellan aktiva enheter. Starta om denna enhet efter inloggning eller för att hämta ändringar gjorda på annat håll.</string>
     <string name="account_signin_qr_title">Logga in med QR</string>
-    <string name="account_signin_qr_subtitle">Skanna en QR-kod och slutför e-postinloggning på din telefon</string>
-    <string name="account_signed_in_label">Inloggad</string>
-    <string name="account_total_label">Totalt</string>
-    <string name="account_loading_sync">Laddar synkdata\u2026</string>
-    <string name="account_sign_out">Logga ut</string>
 
     <!-- AuthSignInScreen -->
 
     <!-- AuthQrSignInScreen -->
-    <string name="auth_qr_finishing">Slutför inloggning\u2026</string>
-    <string name="auth_qr_expires">Går ut om %1$s</string>
-    <string name="auth_qr_scan_instruction">Skanna QR, godkänn i webbläsaren och återkom sedan hit.</string>
-    <string name="auth_qr_refresh">Uppdatera QR</string>
-    <string name="auth_qr_continue_without_account">Fortsätt utan konto</string>
-    <string name="auth_qr_connected">Ditt konto är anslutet på denna TV.</string>
-    <string name="auth_qr_synced_data">Din synkroniserade data</string>
-    <string name="auth_qr_generating">Genererar QR\u2026</string>
-    <string name="auth_qr_unavailable">QR ej tillgänglig. Uppdatera för att försöka igen.</string>
-    <string name="auth_qr_please_wait">Vänta\u2026</string>
-    <string name="auth_qr_continue">Fortsätt</string>
-    <string name="auth_qr_back">Tillbaka</string>
 
     <!-- SyncCodeGenerateScreen -->
 
@@ -1086,11 +1046,6 @@
     <string name="tmdb_trailers_subtitle">Trailerkandidater från TMDB-videor för trailer-sektionen på detaljsidan</string>
 
     <!-- TraktScreen -->
-    <string name="qr_login_scan_prompt">Skanna QR och logga in på din telefon</string>
-    <string name="qr_login_start_failed">Kunde inte starta QR-inloggning</string>
-    <string name="qr_login_signing_in">Loggar in dig…</string>
-    <string name="qr_login_success">Inloggning lyckades</string>
-    <string name="qr_login_exchange_failed">Kunde inte slutföra QR-inloggning</string>
     <string name="trakt_library_source_title">Bibliotekskälla</string>
     <string name="trakt_library_source_subtitle">Välj vilket bibliotek som används för att spara och visa din samling</string>
     <string name="trakt_library_source_dialog_title">Bibliotekskälla</string>
@@ -1236,11 +1191,8 @@
     <string name="cd_voice_search">Röstsökning</string>
     <string name="cd_expand">Expandera %1$s</string>
     <string name="cd_collapse">Fäll ihop %1$s</string>
-    <string name="cd_qr_login">QR-inloggningskod</string>
-    <string name="cd_fetch">Fetch</string>
 
     <!-- Debug -->
-    <string name="debug_signin_success">Inloggad</string>
     <string name="debug_generate_description">Debug-genererat %1$s objekt #%2$d</string>
     <string name="debug_generate_result_failed">Misslyckades: %1$s</string>
 
@@ -1339,7 +1291,6 @@
     <string name="library_error_save_list_next_step">Kontrollera anslutningen och försök igen.</string>
 
     <!-- Fetch: new and changed strings -->
-    <string name="account_local_only_note">Synkning är av. Fetch sparar dina tillägg, ditt framsteg och dina inställningar på den här tv:n och behöver inget konto. Anslut din egen synkserver under serveralternativen för att synka mellan enheter.</string>
     <string name="addon_badge_needs_setup">Behöver konfigureras</string>
     <string name="addon_configure">Konfigurera</string>
     <string name="addon_configure_install">Installera</string>
@@ -1386,7 +1337,7 @@
     <string name="best_match_cached">Cachad</string>
     <string name="best_match_excluded">Spelas inte upp automatiskt: %1$s</string>
     <string name="stream_hold_for_options">Håll ned OK för alternativ för Bästa matchning</string>
-    <string name="best_match_preview_sub">Frågar dina strömtillägg om en titel medan du tittar på den, så att Spela upp-knappen kan visa filen och uppspelningen startar snabbare. Stäng av för att bara söka efter att du tryckt på Spela upp.</string>
+    <string name="best_match_preview_sub">Frågar dina strömtillägg om en titel när du stannar på den, så att Spela upp-knappen kan visa filen. Tilläggen får veta vilken titel det är, och debrid-tjänster räknar förfrågningarna. Stäng av för att bara fråga efter att du tryckt på Spela upp.</string>
     <string name="best_match_preview_title">Visa valet på Spela upp-knappen</string>
     <string name="catalog_order_pin">Fäst högst upp</string>
     <string name="catalog_order_pinned_on_home">Fäst högst upp på Hem</string>
@@ -1395,8 +1346,6 @@
     <string name="cd_mark_credits_start">Markera början på eftertexterna</string>
     <string name="cd_mark_intro_end">Markera slutet på intro</string>
     <string name="cd_mark_intro_start">Markera början på intro</string>
-    <string name="custom_server_error_official_active">Synkning är redan av på den här tv:n.</string>
-    <string name="custom_server_error_official_available">Det är ingen synkserver. Stäng den här dialogen och välj Stäng av synkning för att gå tillbaka till endast lokalt läge.</string>
     <string name="exclusion_3d">3D-utgåva</string>
     <string name="exclusion_above_max_resolution">över din maximala upplösning</string>
     <string name="exclusion_audio">du hoppar över %1$s-ljud</string>
@@ -1472,9 +1421,6 @@
     <string name="library_empty_type_movies">filmer</string>
     <string name="library_empty_type_series">serier</string>
     <string name="licenses_attributions_fetch_body">Fetch är fri programvara under GNU General Public License v3.0. Det är en fork av NuvioTV av Nuvio-bidragsgivarna (github.com/NuvioMedia/NuvioTV), vars arbete utgör större delen av den här appen.</string>
-    <string name="official_server_action">Stäng av synkning</string>
-    <string name="official_server_description">Du loggas ut från din synkserver och appen startas om i endast lokalt läge. Allt som redan finns på den här tv:n behålls.</string>
-    <string name="official_server_title">Stänga av synkning?</string>
     <string name="parental_addons_blocked">Den här profilen kan inte installera tillägg. Fråga en förälder.</string>
     <string name="parental_allow_unrated">Visa titlar utan åldersgräns: %1$s</string>
     <string name="parental_gate_heading">Ange PIN för %1$s</string>
@@ -1551,7 +1497,6 @@
     <string name="ranking_size_gb">%1$d GB</string>
     <string name="ranking_skip_dv5">Hoppa över Dolby Vision-profil 5</string>
     <string name="ranking_skip_dv5_sub">Profil 5 saknar HDR10-reserv. Den hoppas alltid över när den här tv:n inte kan visa den</string>
-    <string name="server_options_use_official">Stäng av synkning</string>
     <string name="skip_marker_report_failed">Kunde inte rapportera markören</string>
     <string name="skip_marker_reported">Fel markör rapporterad. Tack!</string>
     <string name="skip_marker_start_recorded">Start markerad. Tryck igen där det slutar.</string>
@@ -1699,7 +1644,6 @@
     <string name="youtube_show_live_subtitle">Ta med sändningar som är live just nu i dina flöden, sökresultat och Nästa</string>
     <string name="youtube_hide_watched_title">Dölj sedda videor</string>
     <string name="youtube_hide_watched_subtitle">Utelämnar videor du har tittat klart på. Historiken visar dem fortfarande</string>
-    <string name="profile_avatar_category_supporter">Supportrar</string>
     <string name="profile_avatar_category_animals">Djur</string>
     <string name="profile_avatar_category_characters">Figurer</string>
     <string name="profile_avatar_category_fun">Kul</string>

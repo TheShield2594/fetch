@@ -6,7 +6,6 @@ import com.fetch.tv.data.repository.LibraryRepositoryImpl
 import com.fetch.tv.data.repository.MetaRepositoryImpl
 import com.fetch.tv.data.repository.StreamRepositoryImpl
 import com.fetch.tv.data.repository.SubtitleRepositoryImpl
-import com.fetch.tv.data.repository.SyncRepositoryImpl
 import com.fetch.tv.data.repository.WatchProgressRepositoryImpl
 import com.fetch.tv.domain.repository.AddonRepository
 import com.fetch.tv.domain.repository.CatalogRepository
@@ -14,7 +13,6 @@ import com.fetch.tv.domain.repository.LibraryRepository
 import com.fetch.tv.domain.repository.MetaRepository
 import com.fetch.tv.domain.repository.StreamRepository
 import com.fetch.tv.domain.repository.SubtitleRepository
-import com.fetch.tv.domain.repository.SyncRepository
 import com.fetch.tv.domain.repository.WatchProgressRepository
 import dagger.Binds
 import dagger.Module
@@ -49,10 +47,6 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindSubtitleRepository(impl: SubtitleRepositoryImpl): SubtitleRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindSyncRepository(impl: SyncRepositoryImpl): SyncRepository
 
     @Binds
     @Singleton

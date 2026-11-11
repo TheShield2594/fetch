@@ -18,12 +18,11 @@ fun availableLibrarySources(state: AppState): List<LibrarySourceOption> = buildL
     if (state.websiteTracking.paired) add(LibrarySourceOption.FETCH_WEBSITE)
 }
 
-/** The Continue Watching sources this profile has: each connected service, the sync server and the paired Fetch website. */
+/** The Continue Watching sources this profile has: each connected service and the paired Fetch website. */
 fun availableProgressSources(state: AppState): Set<WatchProgressSourceOption> = buildSet {
     if (state.tracking.account(TrackingService.TRAKT) != null) add(WatchProgressSourceOption.TRAKT)
     if (state.tracking.account(TrackingService.SIMKL) != null) add(WatchProgressSourceOption.SIMKL)
     if (state.mdbListAccount.connected) add(WatchProgressSourceOption.MDBLIST)
-    if (state.account?.signedIn == true) add(WatchProgressSourceOption.FETCH_SYNC)
     if (state.websiteTracking.paired) add(WatchProgressSourceOption.FETCH_WEBSITE)
 }
 

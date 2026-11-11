@@ -33,7 +33,6 @@ import com.fetch.desktop.tmdb.TmdbState
 import com.fetch.tv.domain.model.MetaCastMember
 import com.fetch.tv.domain.model.MetaCompany
 import com.fetch.desktop.data.VideoFit
-import com.fetch.desktop.sync.RemoteWatchedKey
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
 import com.fetch.desktop.player.MpvArgs
@@ -45,23 +44,10 @@ import com.fetch.desktop.ratings.RatingsResolver
 import com.fetch.desktop.ratings.TmdbCertificationClient
 import com.fetch.desktop.ratings.TmdbCredentials
 import com.fetch.desktop.parental.PinGate
-import com.fetch.desktop.sync.RemoteLibraryKey
-import com.fetch.desktop.sync.RemotePinSetResult
-import com.fetch.desktop.sync.SyncClient
 import com.fetch.desktop.sync.applyTo
 import com.fetch.desktop.sync.changedFrom
-import com.fetch.desktop.sync.copyProfileSetupKeepingLimits
-import com.fetch.desktop.sync.verifyPin
 import com.fetch.desktop.sync.toRemoteSharedSettings
-import com.fetch.desktop.sync.SyncAuthException
-import com.fetch.desktop.sync.SyncBase
 import com.fetch.desktop.sync.SyncMerge
-import com.fetch.desktop.sync.PendingWatchOps
-import com.fetch.desktop.sync.WatchStateSync
-import com.fetch.desktop.sync.WatchSync
-import com.fetch.desktop.sync.WatchSyncState
-import com.fetch.desktop.sync.watchRemote
-import com.fetch.desktop.sync.watchSyncFile
 import com.fetch.desktop.servers.ServerStream
 import com.fetch.tv.data.mediaserver.ServerItemRef
 import com.fetch.desktop.servers.ServersStore
@@ -73,15 +59,6 @@ import com.fetch.desktop.player.embedded.EmbeddedMpv
 import com.fetch.desktop.player.embedded.LibMpv
 import com.fetch.desktop.skip.SkipPlanner
 import com.fetch.desktop.tracking.ScrobbleAction
-import com.fetch.desktop.party.MpvPartyPlayer
-import com.fetch.desktop.party.PartyEvent
-import com.fetch.desktop.party.PartyMedia
-import com.fetch.desktop.party.PartyPlayerSync
-import com.fetch.desktop.party.PartyProfile
-import com.fetch.desktop.party.PartyState
-import com.fetch.desktop.party.PartySync
-import com.fetch.desktop.party.SyncPartyBackend
-import com.fetch.desktop.party.partyMediaKey
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.transformWhile
 import com.fetch.desktop.playback.DesktopAutoPlaySelection
@@ -148,7 +125,6 @@ enum class SettingsPage(val label: String, val group: String, val parent: Settin
     ACCOUNT("Account", "Accounts"),
     TRACKING("Tracking", "Accounts"),
     YOUTUBE("YouTube", "Accounts"),
-    WATCH_PARTY("Watch party", "Accounts"),
     /** System › Advanced: the Essential / Advanced switch, as on TV. */
     ADVANCED("Advanced", "System"),
     ABOUT("About", "System");
@@ -249,8 +225,6 @@ class AppState(
     val profiles: ProfilesState = ProfilesState(),
     /** The profile this state belongs to; switching profiles makes a new [AppState]. */
     val profile: DesktopProfile = profiles.active ?: profiles.profiles.first(),
-    /** The sync server account (Settings › Account), shared by every profile; null in tests. */
-    val account: SyncAccountState? = null,
     /** The Fetch website sign-in, shared by every profile; null in tests. */
     val website: com.fetch.desktop.website.FetchWebsiteState? = null,
     private val client: AddonClient = AddonClient.create().apply { health = com.fetch.desktop.addons.AddonHealthTracker.shared },
@@ -521,8 +495,6 @@ class AppState(
             websiteList = { id, types -> com.fetch.desktop.website.FetchWebsiteState.shared.listItems(profile.id, id, types) }
         ),
         addons = { activeAddons },
-        remote = { account?.client() },
-        profileId = profile.id,
         onMessage = { message = it },
         website = { websiteSync?.collections(profile.id) }
     )
@@ -549,9 +521,8 @@ class AppState(
     var remoteLists: Map<TrackingService, List<LibraryEntry>> by mutableStateOf(emptyMap())
         private set
 
-    // --- Sync server ---
+    // --- Fetch website ---
 
-    private val syncBaseStore = JsonFile(File(profileDir(profile), "sync-base.json"), SyncBase.serializer()) { SyncBase() }
     var accountSyncing by mutableStateOf(false)
 
     /** The sync running now (or last run), so closing the window can wait for it. */
@@ -562,18 +533,15 @@ class AppState(
         private set
 
     /**
-     * Syncs this profile's Library, Continue Watching and watched history with the sync server,
-     * as the TV app does, so both see the same. The server's profile number is this profile's id.
+     * Syncs this profile with the Fetch website while this computer is paired with one: profiles,
+     * addons, settings, Home layout and collections, as the TV's FetchWebsiteSyncService does.
      */
     fun syncAccount() {
         if (syncJob?.isActive == true) {
             syncAgain = true
             return
         }
-        val paired = websiteSync
-        val sync = account
-        val remote = sync?.client()
-        if ((sync == null || remote == null) && paired == null) return
+        val paired = websiteSync ?: return
         if (accountSyncing) {
             syncAgain = true
             return
@@ -582,89 +550,13 @@ class AppState(
         syncJob = scope.launch {
             accountSyncing = true
             try {
-                // Paired with a Fetch website, it holds the profiles, addons, settings, Home layout
-                // and collections, as on TV; the sync server keeps the watch data.
-                if (paired != null) syncWebsite(paired)
-                if (sync == null || remote == null) return@launch
-                if (paired == null) syncAccountSetup(remote)
-                syncProviderCredentials(remote)
-                if (paired == null) pullHomeCatalogs(remote)
-                val id = profile.id
-                // Library: a three-way merge, so a removal on either side carries over.
-                val merge = SyncMerge.library(library.toList(), remote.pullLibrary(id), syncBaseStore.load())
-                if (merge.push.isNotEmpty()) remote.pushLibrary(id, merge.push.map { with(SyncMerge) { it.toRemote() } })
-                if (merge.deleteRemote.isNotEmpty()) remote.deleteLibrary(id, merge.deleteRemote.map { RemoteLibraryKey(it.id, it.type) })
-                library.clear()
-                library.addAll(merge.local)
-                runCatching { libraryStore.save(LibraryFile(library.toList())) }
-                runCatching { syncBaseStore.save(merge.base) }
-
-                // Watched history and Continue Watching: the server's changes since the last pull
-                // (deletes included), then only what changed here, as on TV.
-                watchState.sync(remote.watchRemote(), id)
-
-                // Collections: the server's copy wins, as on TV; ours go up when it has none.
-                if (paired == null) try {
-                    collections.sync(remote)
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: SyncAuthException) {
-                    throw e
-                } catch (e: Exception) {
-                    message = "Couldn't sync collections: ${e.message}"
-                }
-
-                fillProgressNames()
-                sync.lastSyncedAt = System.currentTimeMillis()
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: SyncAuthException) {
-                sync?.sessionExpired()
-            } catch (e: Exception) {
-                message = "Couldn't sync with your server: ${e.message}"
+                syncWebsite(paired)
             } finally {
                 accountSyncing = false
             }
         }
     }
 
-    // --- Sync server: watched history and Continue Watching ---
-
-    /** Watched history and Continue Watching against the sync server, as the TV syncs them. */
-    private val watchState = WatchStateSync(watchSyncFile(profileDir(profile)), progress = { progress }, write = ::storeProgress, currentAccount = { signedInWatchAccount })
-
-    /** The account signed in now, as [WatchStateSync] keys it; null when signed out. */
-    private val signedInWatchAccount: String?
-        get() {
-            val state = account?.state ?: return null
-            val server = state.server ?: return null
-            val session = state.session ?: return null
-            return WatchStateSync.accountKey(server.baseUrl, session.userId)
-        }
-
-    /** Queues a watch-state change [WatchSync.recordLocal] can't see in the file, for the account signed in now. */
-    private fun queueWatchChange(change: (com.fetch.desktop.sync.PendingWatchOps, WatchSyncState) -> com.fetch.desktop.sync.PendingWatchOps) =
-        watchState.queueLocal(signedInWatchAccount, change)
-
-    /** Sends pending watch-state changes now (a mark or a removal by hand); the next sync retries a failure. */
-    private fun flushWatchState() {
-        val sync = account ?: return
-        val remote = sync.client()?.watchRemote() ?: return
-        if (!watchState.hasPendingFor(remote)) return
-        scope.launch {
-            try {
-                watchState.push(remote, profile.id)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: SyncAuthException) {
-                sync.sessionExpired()
-            } catch (_: Exception) {
-                // Still queued: the next sync sends it.
-            }
-        }
-    }
-
-    // --- Fetch website ---
 
     /** The website's side of the sync while this computer is paired with one; null otherwise. */
     private val websiteSync: com.fetch.desktop.website.FetchWebsiteSync?
@@ -676,7 +568,7 @@ class AppState(
     /**
      * Profiles, this profile's addons, Home layout, settings (Tracking's among them) and
      * collections with the Fetch website, as the TV's FetchWebsiteSyncService does, then tells the
-     * website how it went. Each comes in the sync server's shapes and is merged by the same rules.
+     * website how it went. Each is merged by the [SyncMerge] rules.
      */
     private suspend fun syncWebsite(web: com.fetch.desktop.website.FetchWebsiteSync) {
         var signedIn = false
@@ -738,7 +630,7 @@ class AppState(
         }
     }
 
-    /** The website's settings blob applies here, as the sync server's does; one it never had is given ours. */
+    /** The website's settings blob applies here; one it never had is given ours. */
     private suspend fun pullWebsiteSettings(web: com.fetch.desktop.website.FetchWebsiteSync) {
         val remote = web.settings(profile.id) ?: return
         if (remote.version == 0) {
@@ -754,56 +646,6 @@ class AppState(
         }
     }
 
-    private val providerCredentialBase = com.fetch.desktop.sync.providerCredentialBaseFile(profileDir(profile))
-
-    /** MDBList's API key with the account, as the TV's provider credential sync does. */
-    private suspend fun syncProviderCredentials(remote: com.fetch.desktop.sync.SyncClient) {
-        val key = try {
-            com.fetch.desktop.sync.ProviderCredentialSync.sync(
-                rpc = { name, params -> remote.callRpc(name, params) },
-                profileId = profile.id,
-                localMdbListKey = settings.mdblist.apiKey,
-                base = providerCredentialBase,
-                originClientId = account?.state?.originClientId
-            )
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: SyncAuthException) {
-            throw e
-        } catch (_: Exception) {
-            return // An older server without provider credentials: keys stay per device.
-        }
-        if (key != settings.mdblist.apiKey) {
-            applyingFromServer = true
-            try {
-                updateSettings { it.copy(mdblist = it.mdblist.copy(apiKey = key)) }
-            } finally {
-                applyingFromServer = false
-            }
-        }
-    }
-
-    /** The server keeps positions but not titles or artwork; fill them from the addons. */
-    private suspend fun fillProgressNames() {
-        progress.entries.filter { it.name == it.contentId }.forEach { entry ->
-            val meta = runCatching {
-                withContext(Dispatchers.IO) { client.meta(activeAddons, entry.contentType, entry.contentId) }
-            }.getOrNull() ?: return@forEach
-            val episode = meta.videos.firstOrNull { it.id == entry.videoId }
-            saveProgress(
-                progress.copy(entries = progress.entries.map {
-                    if (it.contentId != entry.contentId) it else it.copy(
-                        name = meta.name,
-                        poster = meta.poster ?: it.poster,
-                        backdrop = meta.background ?: it.backdrop,
-                        logo = meta.logo ?: it.logo,
-                        episodeTitle = episode?.title?.takeIf { t -> t.isNotBlank() } ?: it.episodeTitle
-                    )
-                })
-            )
-        }
-    }
-
     fun start() {
         scope.launch {
             reloadAddons()
@@ -815,8 +657,6 @@ class AppState(
         }
         if (settings.checkForUpdates) updates.check(beta = settings.betaUpdates)
         syncAccount()
-        party.refreshAvailability()
-        scope.launch { party.events.collect(::onPartyEvent) }
         scope.launch { syncTracking() }
         servers.refreshRows()
         refreshServerFilterRows()
@@ -1002,14 +842,10 @@ class AppState(
                 after.layout.homeOrder != before.layout.homeOrder)) {
             pushHomeCatalogs()
         }
-        // A new MDBList key goes to the account straight away, as on TV.
-        if (after.mdblist.apiKey != before.mdblist.apiKey && !applyingFromServer) {
-            account?.client()?.let { remote -> scope.launch { runCatching { syncProviderCredentials(remote) } } }
-        }
         if (!applyingFromServer) queueSettingsPush(before)
     }
 
-    // --- Sync server: settings, addons, profiles ---
+    // --- Fetch website: settings, addons, profiles ---
 
     private var applyingFromServer = false
     private var settingsBeforePush: DesktopSettings? = null
@@ -1017,9 +853,8 @@ class AppState(
 
     /** Pushes what changed in the shared settings, two seconds after the last change. */
     private fun queueSettingsPush(before: DesktopSettings) {
-        // Paired with a Fetch website, the settings go there instead, as on TV.
-        val web = websiteSync
-        val remote = if (web == null) account?.client() ?: return else null
+        // Paired with a Fetch website, the settings go there, as on TV.
+        val web = websiteSync ?: return
         if (settingsBeforePush == null) settingsBeforePush = before
         settingsPushJob?.cancel()
         settingsPushJob = scope.launch {
@@ -1027,62 +862,16 @@ class AppState(
             val from = settingsBeforePush ?: return@launch
             settingsBeforePush = null
             val diff = settings.toRemoteSharedSettings().changedFrom(from.toRemoteSharedSettings()) ?: return@launch
-            runCatching {
-                if (web != null) web.pushSharedSettings(profile.id, diff) else remote?.pushSharedSettings(profile.id, diff)
-            }
+            runCatching { web.pushSharedSettings(profile.id, diff) }
         }
     }
 
     /**
-     * The sync server's side of "Copy settings" (RPC `sync_copy_profile_setup`), run after the
-     * copy on this computer, as the TV does it: [source]'s pending changes are pushed first, the
-     * server copies the blob, then [target]'s own limits go back (the copy brings the source's).
-     * When [target] is this profile its settings are pulled again. Signed out, nothing reaches the
-     * server: the copy stays on this computer, and the account's settings win on the next sync.
+     * The Fetch website's side of "Copy settings", run after the copy on this computer. Not
+     * paired, the copy stays on this computer.
      */
-    fun copyProfileSetupOnServer(source: DesktopProfile, target: DesktopProfile, copyMissingKeys: Boolean) {
-        websiteSync?.let { web ->
-            copyProfileSetupOnWebsite(web, source, target)
-            return
-        }
-        val remote = account?.client() ?: return
-        if (source.id == target.id) return
-        // The local copy just queued this profile's settings push; the server copy replaces the
-        // whole blob, so that push must not land after it. Kept to re-queue if the copy fails.
-        val pendingBase = if (target.id == profile.id) {
-            settingsPushJob?.cancel()
-            settingsBeforePush.also { settingsBeforePush = null }
-        } else null
-        scope.launch {
-            try {
-                if (source.id == profile.id && settingsBeforePush != null) {
-                    val from = settingsBeforePush
-                    settingsPushJob?.cancel()
-                    settingsBeforePush = null
-                    from?.let { settings.toRemoteSharedSettings().changedFrom(it.toRemoteSharedSettings()) }
-                        ?.let { remote.pushSharedSettings(source.id, it) }
-                }
-                val current = profiles.profiles.firstOrNull { it.id == target.id } ?: target
-                remote.copyProfileSetupKeepingLimits(profiles, source, current, copyMissingKeys)
-                if (target.id == profile.id) {
-                    settingsPushJob?.cancel()
-                    settingsBeforePush = null
-                    remote.pullSharedSettings(target.id)?.let { shared ->
-                        applyingFromServer = true
-                        try {
-                            updateSettings { shared.applyTo(it) }
-                        } finally {
-                            applyingFromServer = false
-                        }
-                    }
-                }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                pendingBase?.let(::queueSettingsPush)
-                message = "Settings copied on this computer, but the sync server didn't copy them: ${e.message}"
-            }
-        }
+    fun copyProfileSetupOnServer(source: DesktopProfile, target: DesktopProfile) {
+        websiteSync?.let { web -> copyProfileSetupOnWebsite(web, source, target) }
     }
 
     /**
@@ -1108,10 +897,9 @@ class AppState(
         }
     }
 
-    /** The profile whose addons this one uses on the server (profile 1's when shared). */
+    /** The profile whose addons this one uses on the website (profile 1's when shared). */
     private val addonProfileId: Int get() = if (profile.usesPrimaryAddons) DesktopProfile.PRIMARY_ID else profile.id
 
-    /** Sends the addon list to the server after an install, removal or reorder here. */
     /** Orders addon pushes, so an older list can't reach the server after a newer one. */
     private val addonPushLock = kotlinx.coroutines.sync.Mutex()
 
@@ -1121,65 +909,23 @@ class AppState(
      * removed here, kept out of the push even when the account has them switched off.
      */
     private fun pushAddonsToServer(removed: Set<String> = emptySet()) {
-        // Paired with a Fetch website, the list goes there instead, as on TV.
-        val web = websiteSync
-        val remote = if (web == null) account?.client() ?: return else null
+        // Paired with a Fetch website, the list goes there, as on TV.
+        val web = websiteSync ?: return
         // A profile sharing the main profile's addons doesn't push them, as on TV.
         if (!profile.isPrimary && profile.usesPrimaryAddons) return
         scope.launch {
             addonPushLock.withLock {
                 runCatching {
-                    val pulled = if (web != null) web.addons(profile.id)?.addons.orEmpty() else remote?.pullAddons(profile.id).orEmpty()
+                    val pulled = web.addons(profile.id)?.addons.orEmpty()
                     val urls = addons.map { it.baseUrl } + unreachableAddons.map { it.first }
                     val push = SyncMerge.addonsToPush(urls, pulled, disabledAddonUrls(), removed)
-                    if (web != null) web.pushAddons(profile.id, push) else remote?.pushAddons(profile.id, push)
+                    web.pushAddons(profile.id, push)
                 }
             }
         }
     }
 
-    /** Settings, addons, profiles, locks and limits from the server; the account's win, as on TV. */
-    private suspend fun syncAccountSetup(remote: SyncClient) {
-        remote.pullSharedSettings(profile.id)?.let { shared ->
-            applyingFromServer = true
-            try {
-                updateSettings { shared.applyTo(it) }
-            } finally {
-                applyingFromServer = false
-            }
-        }
-
-        applyAccountAddons(remote.pullAddons(addonProfileId))
-
-        // Profiles, locks and limits are the main profile's to sync.
-        if (!profile.isPrimary) return
-        // Limits a server-side settings copy replaced go back first, so they aren't tightened to the source's.
-        for ((id, owed) in profiles.file.pendingLimitsPush) {
-            val p = profiles.profiles.firstOrNull { it.id == id }
-            if (p == null || p.isPrimary) {
-                profiles.setPendingLimits(id, null)
-                continue
-            }
-            runCatching { remote.pushParentalLimits(id, SyncMerge.parentalLimitsToPush(owed, null)) }
-                .onSuccess { profiles.setPendingLimits(id, null) }
-        }
-        // Still owed after a failed retry: the account holds the copy's source limits, so keep the saved ones.
-        val stillOwed = profiles.file.pendingLimitsPush
-        val profileMerge = SyncMerge.profiles(profiles.profiles, remote.pullProfiles())
-        val remoteLocked = SyncMerge.lockedOnlyRemotely(profileMerge.local, remote.pullProfileLocks()).toSet()
-        val merged = profileMerge.local.map { p ->
-            val limits = when {
-                p.isPrimary -> p.limits
-                p.id in stillOwed -> stillOwed.getValue(p.id)
-                else -> SyncMerge.parentalLimits(p.limits, remote.pullParentalLimits(p.id))
-            }
-            p.copy(serverLocked = p.id in remoteLocked, limits = limits)
-        }
-        profiles.applyFromServer(merged)
-        profileMerge.push?.let { remote.pushProfiles(it) }
-    }
-
-    /** The account's addon list (the sync server's or the website's) applied here; see [SyncMerge.addons]. */
+    /** The website's addon list applied here; see [SyncMerge.addons]. */
     private suspend fun applyAccountAddons(remoteAddons: List<com.fetch.desktop.sync.RemoteAddon>) {
         val localUrls = store.load()
         val localDisabled = store.loadDisabled()
@@ -1195,10 +941,7 @@ class AppState(
         }
     }
 
-    /**
-     * Tells the server about profile, PIN and limit changes made here, while signed in; or the
-     * Fetch website, while paired with one, as on TV.
-     */
+    /** Tells the Fetch website about profile, PIN and limit changes made here, while paired with one, as on TV. */
     private val profileSync = object : ProfilesState.SyncListener {
         override fun onProfilesChanged(deleted: DesktopProfile?) {
             websiteSync?.let { web ->
@@ -1207,14 +950,6 @@ class AppState(
                         deleted?.let { web.deleteProfile(it.id) }
                         web.pushProfiles(profiles.profiles)
                     }
-                }
-                return
-            }
-            val remote = account?.client() ?: return
-            scope.launch {
-                runCatching {
-                    deleted?.let { remote.deleteProfileData(it.id) }
-                    remote.pushProfiles(SyncMerge.profilesToPush(profiles.profiles, remote.pullProfiles()))
                 }
             }
         }
@@ -1228,17 +963,6 @@ class AppState(
                         }
                     }
                 }
-                return
-            }
-            val remote = account?.client() ?: return
-            scope.launch {
-                runCatching {
-                    if (pin == null) {
-                        remote.clearProfilePin(profile.id)
-                    } else if (remote.setProfilePin(profile.id, pin) == RemotePinSetResult.CURRENT_PIN_REQUIRED) {
-                        message = "${profile.name}'s PIN changed here only: the sync server wants the old PIN, so change it on the TV too."
-                    }
-                }
             }
         }
 
@@ -1246,20 +970,12 @@ class AppState(
             // The website keeps a profile's limits on the profile itself.
             websiteSync?.let { web ->
                 scope.launch { runCatching { web.pushProfiles(listOf(profile)) } }
-                return
-            }
-            if (profile.isPrimary) return
-            val remote = account?.client() ?: return
-            scope.launch {
-                runCatching {
-                    remote.pushParentalLimits(profile.id, SyncMerge.parentalLimitsToPush(profile.limits, remote.pullParentalLimits(profile.id)))
-                }
             }
         }
 
         // A profile the website locks is checked there, which also brings its profile token.
         override suspend fun verifyRemotePin(profile: DesktopProfile, pin: String): PinGate.Result? =
-            website?.verifyPin(profile.id, pin) ?: account?.client()?.verifyPin(profile, pin)
+            website?.verifyPin(profile.id, pin)
     }
 
     init {
@@ -1453,53 +1169,22 @@ class AppState(
 
     // --- Home catalog order and its sync (the TV's HomeCatalogSettingsSyncService) ---
 
-    private var homeCatalogRemote: kotlinx.serialization.json.JsonObject? = null
     private var homeCatalogPush: Job? = null
 
     /** Home's addon catalogs (not filter rows), as the TV's catalog sync names them. */
     val syncableCatalogs: List<com.fetch.desktop.addons.SyncableCatalog>
         get() = rows.filter { it.filter == null }.map { com.fetch.desktop.addons.SyncableCatalog(it.key, it.addon.id, it.catalog.apiType, it.catalog.id) }
 
-    /** At start-up the account's catalog order comes down (pull only, as on TV). */
-    private suspend fun pullHomeCatalogs(remote: com.fetch.desktop.sync.SyncClient) {
-        val json = runCatching {
-            com.fetch.desktop.addons.HomeCatalogSync.settingsJsonOf(remote.callRpc("sync_pull_home_catalog_settings", com.fetch.desktop.addons.HomeCatalogSync.pullParams(profile.id)))
-        }.getOrNull() ?: return
-        homeCatalogRemote = json
-        val (payload, hasHide) = com.fetch.desktop.addons.HomeCatalogSync.decode(json) ?: return
-        applyingFromServer = true
-        try {
-            updateSettings { com.fetch.desktop.addons.HomeCatalogSync.apply(it, payload, hasHide) }
-        } finally {
-            applyingFromServer = false
-        }
-    }
-
-    /** A change to Home's catalogs here goes to the account half a second later. */
+    /** A change to Home's catalogs here goes to the Fetch website's Home layout half a second later, as on TV. */
     private fun pushHomeCatalogs() {
-        // Paired with a Fetch website, the order goes to its Home layout instead, as on TV.
-        websiteSync?.let { web ->
-            homeCatalogPush?.cancel()
-            homeCatalogPush = scope.launch {
-                delay(500)
-                val payload = com.fetch.desktop.addons.HomeCatalogSync.payload(syncableCatalogs, settings, websiteHome, collections.collections.map { it.id })
-                runCatching {
-                    web.pushHomeLayout(profile.id, payload, installedAddonIds())
-                    websiteHome = payload
-                }
-            }
-            return
-        }
-        val remote = account?.client() ?: return
+        val web = websiteSync ?: return
         homeCatalogPush?.cancel()
         homeCatalogPush = scope.launch {
             delay(500)
-            val previous = homeCatalogRemote?.let(com.fetch.desktop.addons.HomeCatalogSync::decode)?.first
-            val payload = com.fetch.desktop.addons.HomeCatalogSync.payload(syncableCatalogs, settings, previous, collections.collections.map { it.id })
-            val json = com.fetch.desktop.addons.HomeCatalogSync.merged(homeCatalogRemote, payload)
+            val payload = com.fetch.desktop.addons.HomeCatalogSync.payload(syncableCatalogs, settings, websiteHome, collections.collections.map { it.id })
             runCatching {
-                remote.callRpc("sync_push_home_catalog_settings", com.fetch.desktop.addons.HomeCatalogSync.pushParams(profile.id, json, account?.state?.originClientId))
-                homeCatalogRemote = json
+                web.pushHomeLayout(profile.id, payload, installedAddonIds())
+                websiteHome = payload
             }
         }
     }
@@ -1541,12 +1226,9 @@ class AppState(
 
     // --- Links (fetch://, stremio://) ---
 
-    /** A party code from a `fetch://party/…` link, for Settings › Watch party to fill in. */
-    var pendingPartyCode: String? by mutableStateOf(null)
-
     /**
-     * Opens a link as the TV's MainActivity does: a title's page, an addon to install (not on
-     * a restricted profile), or the watch party join page with the code filled in.
+     * Opens a link as the TV's MainActivity does: a title's page, or an addon to install (not on
+     * a restricted profile).
      */
     fun openDeepLink(url: String) {
         when (val link = com.fetch.desktop.deeplink.DeepLinkParser.parse(url)) {
@@ -1566,10 +1248,6 @@ class AppState(
                 openSection(Screen.Settings(SettingsPage.ADDONS))
                 message = "Installing the addon…"
                 installAddon(com.fetch.tv.core.addon.normalizeAddonInstallUrl(link.manifestUrl) ?: link.manifestUrl)
-            }
-            is com.fetch.desktop.deeplink.AppDeepLink.Party -> {
-                pendingPartyCode = link.code
-                openSection(Screen.Settings(SettingsPage.WATCH_PARTY))
             }
             null -> message = "Fetch can't open that link"
         }
@@ -1695,9 +1373,6 @@ class AppState(
 
     fun removeFromContinueWatching(entry: ProgressEntry) {
         saveProgress(WatchHistory.hide(progress, entry.contentId, System.currentTimeMillis()))
-        // The account's positions for it go too (retried until sent), as the TV's removeProgress does.
-        queueWatchChange { pending, state -> WatchSync.queueRemoval(pending, entry, state.remoteProgressKeys) }
-        flushWatchState()
         // MDBList's resume point goes too, as on TV, so the next sync doesn't bring it back.
         if (entry.source == "mdblist") scope.launch { mdbListTracker.clear(entry) }
         // As does the website's, while it keeps them.
@@ -1717,11 +1392,9 @@ class AppState(
         playBest()
     }
 
-    /** Clears [contentId]'s position here and, so a later pull doesn't bring it back, on the sync server. */
+    /** Clears [contentId]'s position here. */
     private fun startOver(contentId: String) {
-        val cleared = progress.entries.firstOrNull { it.contentId == contentId }
         saveProgress(WatchHistory.clearPosition(progress, contentId))
-        if (cleared != null) queueWatchChange { pending, _ -> WatchSync.queueStartOver(pending, cleared) }
     }
 
     // --- Watched state ---
@@ -1738,7 +1411,7 @@ class AppState(
 
     /**
      * Marks [videos] of [preview] (or the movie itself when empty) watched or unwatched here, on
-     * Trakt and Simkl, and on the sync server, as the TV's "Mark as watched" does.
+     * Trakt and Simkl, as the TV's "Mark as watched" does.
      */
     fun setWatched(preview: MetaPreview, videos: List<Video>, watched: Boolean, episodes: List<Video> = detailMeta?.takeIf { it.id == preview.id }?.videos.orEmpty()) {
         val base = PlaybackTarget(
@@ -1757,8 +1430,6 @@ class AppState(
         if (changed.isEmpty()) return
         saveProgress(WatchHistory.setWatched(progress, base, ids, watched, System.currentTimeMillis()))
         targets.filter { it.videoId in changed }.forEach { tracking.setWatched(it, watched) }
-        // saveProgress queued the change; it goes now, or with the next sync if this fails.
-        flushWatchState()
         message = when {
             videos.size > 1 -> "Marked ${videos.size} episodes ${if (watched) "watched" else "unwatched"}"
             videos.size == 1 -> "Marked ${episodeTag(videos[0].season, videos[0].episode) ?: "episode"} ${if (watched) "watched" else "unwatched"}"
@@ -1790,22 +1461,17 @@ class AppState(
         }
     }
 
-    /**
-     * Saves a change made on this computer, and queues what the sync server should hear of it
-     * ([WatchSync.recordLocal]) once this profile has synced with an account.
-     */
-    private fun saveProgress(file: ProgressFile) = watchState.saveLocal(file, signedInWatchAccount, System.currentTimeMillis())
+    /** Saves a change made on this computer. */
+    private fun saveProgress(file: ProgressFile) {
+        storeProgress(file)
+    }
 
-    /**
-     * Saves what Trakt, Simkl, the Fetch website or a media server reported, as [saveProgress]
-     * does, except marks the sync server dropped since ([WatchStateSync.saveImported]).
-     */
-    private fun saveImportedProgress(file: ProgressFile) = watchState.saveImported(file, signedInWatchAccount, System.currentTimeMillis())
+    /** Saves what Trakt, Simkl, the Fetch website or a media server reported. */
+    private fun saveImportedProgress(file: ProgressFile) {
+        storeProgress(file)
+    }
 
-    /**
-     * Saves [file] as is (the sync server's changes, which aren't sent back, go only through
-     * here). Returns whether it reached the disk.
-     */
+    /** Saves [file] as is. Returns whether it reached the disk. */
     private fun storeProgress(file: ProgressFile): Boolean {
         progress = file
         return try {
@@ -2287,9 +1953,7 @@ class AppState(
             return
         }
         // "Ask every time": the built-in player or mpv's window, unless one is already open.
-        // A watch party needs the built-in player: it keeps mpv in step with the others.
-        val inParty = party.state.value.party != null && LibMpv.available
-        if (builtIn == null && settings.player.askPlayer && playerSession == null && LibMpv.available && !inParty) {
+        if (builtIn == null && settings.player.askPlayer && playerSession == null && LibMpv.available) {
             playerChoice = { choice ->
                 playerChoice = null
                 if (choice != null) launchPlayback(stream, label, target, start, choice, alternatives)
@@ -2301,7 +1965,7 @@ class AppState(
             val player = settings.player
             val serverStream = servers.serverStream(stream)
             // Fetch's own position first; otherwise where the server says you stopped.
-            val resume = start ?: partyStart(target) ?: WatchHistory.resumeStart(progress, target.videoId)
+            val resume = start ?: WatchHistory.resumeStart(progress, target.videoId)
                 ?: serverStream?.resumePositionMs?.takeIf { it > 60_000 }?.let { (it / 1000).toString() }
             val subtitles = if (player.subtitleMode == SubtitleMode.OFF) {
                 emptyList()
@@ -2322,12 +1986,10 @@ class AppState(
             val segments = if (player.builtInPlayer || player.autoSkip.isNotEmpty()) segmentsFor(target) else emptyList()
             // The window is closing: nothing new starts (an Up Next still looking up its source).
             if (closing) return@launch
-            val useBuiltIn = (builtIn ?: (player.builtInPlayer || playerSession != null)) || inParty
-            val partyOverrode = inParty && builtIn != true && !player.builtInPlayer && playerSession == null
+            val useBuiltIn = builtIn ?: (player.builtInPlayer || playerSession != null)
             if (useBuiltIn && LibMpv.available &&
                 playEmbedded(stream, played, label, target, resume, options, serverStream, segments, alternatives)
             ) {
-                if (partyOverrode) playerSession?.party?.showMessage("Watch parties play in the built-in player")
                 return@launch
             }
             val skipper = SkipPlanner(segments, player.autoSkip).takeUnless { it.isEmpty }
@@ -2565,8 +2227,6 @@ class AppState(
         val session = playerSession ?: return
         playerSession = null
         extras.playerClosed()
-        session.party?.leave()
-        partySyncJob?.cancel()
         session.mpv.stop()
         scope.launch {
             // Let the stop reach Continue Watching, then free libmpv.
@@ -2599,7 +2259,6 @@ class AppState(
             return false
         }
         playerSession = session
-        if (session.party == null) attachParty(session)
         val sameTitle = session.target?.videoId == target.videoId
         session.title = label
         session.segments = segments
@@ -2635,8 +2294,7 @@ class AppState(
                 if (ending.reachedEnd && !continued && stillWatching == null && playerSession === session && session.loads == load) closePlayer()
             }
         ) { onPosition, onSample ->
-            val skips = partySkips(session, onPosition)
-            session.mpv.follow(onPosition = { position -> watch.on(position); skips(position) }, onSample = onSample)
+            session.mpv.follow(onPosition = { position -> watch.on(position); onPosition(position) }, onSample = onSample)
         }
         return true
     }
@@ -2820,7 +2478,7 @@ class AppState(
     }
 
     /**
-     * Sources for a video outside the title page (Up Next, the queue, a watch party). As on TV
+     * Sources for a video outside the title page (Up Next, the queue). As on TV
      * they're taken when the stream selection timeout ends, or at the first answer with sources
      * when it's Instant; [complete] waits for every addon (the player's Sources panel).
      */
@@ -2929,14 +2587,6 @@ class AppState(
                 fromFurthest = settings.nextUpFromFurthest
             )
         )
-        // Played to its end: sent at 100% under its own key, as the TV's markAsCompleted does.
-        if (WatchProgress.isFinishedAt(positionMs, durationMs)) {
-            val video = target.video
-            val completed = com.fetch.desktop.sync.PendingProgress(
-                target.contentId, target.contentType, target.videoId, video?.season, video?.episode, durationMs, durationMs, System.currentTimeMillis(),
-            )
-            queueWatchChange { pending, _ -> WatchSync.queueCompleted(pending, completed) }
-        }
         // The website keeps the exact second when it is the watch progress source, as on TV.
         if (websiteKeepsProgress) tracking.savePosition(target, positionMs, durationMs)
     }
@@ -3144,189 +2794,6 @@ class AppState(
         val ended = session == null || session.mpv.duration <= 0 || session.mpv.duration - session.mpv.position < 1.0 || extras.postPlay?.trailerPlayed == true
         extras.dismissPostPlay()
         if (ended && extras.postPlay?.inPlayer == true) closePlayer()
-    }
-
-    // --- Watch party ---
-
-    /** The watch party (TV: `PartyRepository`), on the sync server's account; see [PartyState]. */
-    val party = PartyState(
-        parentScope = scope,
-        connect = {
-            val account = account
-            account?.client()?.let { client -> SyncPartyBackend(client, account.httpClient, account.state.originClientId.orEmpty(), scope) }
-        },
-        signedIn = { account?.signedIn == true },
-        profile = {
-            val current = profiles.profiles.firstOrNull { it.id == profile.id } ?: profile
-            PartyProfile(name = current.name, imageUrl = com.fetch.desktop.data.AvatarCatalog.shareableUrl(current, account?.state?.server?.baseUrl), color = current.colorHex)
-        },
-        capability = { account?.watchPartyCapability() },
-        onAuthLost = { scope.launch { account?.sessionExpired() } }
-    )
-
-    private var partySyncJob: Job? = null
-
-    /** The party's position for [target] when the party is watching it, as mpv's --start. */
-    private fun partyStart(target: PlaybackTarget): String? {
-        val current = party.state.value.party ?: return null
-        val key = partyMediaKey(target.contentType, target.contentId, target.video?.season, target.video?.episode)
-        if (current.media.key != key) return null
-        val playback = party.playback.value?.takeIf { it.mediaKey == null || it.mediaKey == key } ?: return null
-        val ms = PartySync.expectedPositionMs(playback, party.nowMs())
-        return "%.3f".format(Locale.ROOT, ms / 1000.0)
-    }
-
-    /** Keeps [session] with the watch party while one is on (the loop idles otherwise). */
-    private fun attachParty(session: PlayerSession) {
-        val sync = PartyPlayerSync(party, MpvPartyPlayer(session), MpvControls(session.mpv))
-        session.party = sync
-        session.controls = sync
-        partySyncJob?.cancel()
-        partySyncJob = scope.launch { sync.run() }
-    }
-
-    /**
-     * Auto-skips in a party go to everyone, like any seek; a member the host controls leaves
-     * them to the host. Called on mpv's thread, so the seek is made on the UI's.
-     */
-    private fun partySkips(session: PlayerSession, onPosition: (Double) -> MpvProgress.Seek?): (Double) -> MpvProgress.Seek? = { position ->
-        val seek = onPosition(position)
-        val sync = session.party
-        when {
-            seek == null || sync == null || party.state.value.party == null || !sync.isSynced -> seek
-            sync.isControlLocked -> null
-            else -> {
-                scope.launch {
-                    session.controls.seekTo(seek.toSec)
-                    session.mpv.showText(seek.message)
-                }
-                null
-            }
-        }
-    }
-
-    private fun onPartyEvent(event: PartyEvent) {
-        val session = playerSession
-        if (event is PartyEvent.MediaChanged && session != null) {
-            // The host moved on: the next episode follows straight away; anything else offers
-            // "Watch with the party" in the party panel, as on TV.
-            val target = session.target
-            val next = session.nextEpisode
-            val playingKey = target?.let { partyMediaKey(it.contentType, it.contentId, it.video?.season, it.video?.episode) }
-            if (event.media.key == playingKey) return
-            if (target != null && event.media.metaId == target.contentId && next != null && isAired(next) &&
-                next.season == event.media.season && next.episode == event.media.episode
-            ) {
-                scope.launch { startEpisode(target, next, viaUpNext = false) }
-                return
-            }
-            session.panel = null
-            session.partyPanelOpen = true
-            return
-        }
-        if (session == null) message = event.message else session.party?.showMessage(event.message)
-    }
-
-    /** Starts a watch party for the title page's title or episode, then plays it in the built-in player. */
-    fun startPartyFromDetail() {
-        val context = sources ?: return
-        val meta = detailMeta?.takeIf { it.id == context.preview.id }
-        val video = context.video
-        val media = PartyMedia(
-            type = context.preview.apiType,
-            metaId = context.preview.id,
-            metaType = context.preview.apiType,
-            videoId = video?.id,
-            season = video?.season,
-            episode = video?.episode,
-            title = meta?.name ?: context.preview.name,
-            episodeTitle = video?.title?.takeIf { it.isNotBlank() },
-            description = (video?.overview ?: meta?.description ?: context.preview.description)?.take(600),
-            poster = meta?.poster ?: context.preview.poster,
-            background = meta?.background ?: context.preview.background,
-            logo = meta?.logo ?: context.preview.logo,
-        )
-        scope.launch {
-            val error = party.create(media)
-            if (error != null) message = error.message else playBest()
-        }
-    }
-
-    /** Starts a watch party for what the built-in player is playing (the TV's player panel). */
-    fun startPartyInPlayer() {
-        val session = playerSession ?: return
-        val media = MpvPartyPlayer(session).currentMedia() ?: return
-        scope.launch {
-            val error = party.create(media)
-            if (error != null) session.party?.showMessage(error.message)
-        }
-    }
-
-    /**
-     * "Watch with the party": plays what the party is watching in the built-in player: the
-     * host's shared stream when there is one, else your source that matches the host's, else
-     * your best match. With none, its title page opens to pick one.
-     */
-    fun watchWithParty(media: PartyMedia) {
-        scope.launch {
-            val preview = MetaPreview(
-                id = media.metaId,
-                type = ContentType.fromString(media.metaType),
-                rawType = media.metaType,
-                name = media.title,
-                poster = media.poster,
-                posterShape = com.fetch.tv.domain.model.PosterShape.POSTER,
-                background = media.background,
-                logo = media.logo,
-                description = media.description,
-                releaseInfo = null,
-                imdbRating = null,
-                genres = emptyList()
-            )
-            val meta = runCatching { withContext(Dispatchers.IO) { client.meta(activeAddons, media.metaType, media.metaId) } }.getOrNull()
-            if (!allowed(meta, preview)) {
-                message = "Not available on ${profile.name}"
-                return@launch
-            }
-            val videos = meta?.videos.orEmpty()
-            val video = media.videoId?.let { id -> videos.firstOrNull { it.id == id } }
-                ?: videos.firstOrNull { media.season != null && it.season == media.season && it.episode == media.episode }
-                ?: media.videoId?.takeIf { media.season != null }?.let {
-                    Video(id = it, title = media.episodeTitle.orEmpty(), released = null, thumbnail = null, season = media.season, episode = media.episode, overview = null)
-                }
-            val target = PlaybackTarget(
-                contentId = media.metaId,
-                contentType = media.metaType,
-                name = meta?.name ?: media.title,
-                poster = meta?.poster ?: media.poster,
-                backdrop = meta?.background ?: media.background,
-                logo = meta?.logo ?: media.logo,
-                video = video,
-                episodes = videos
-            )
-            playerSession?.party?.showMessage("Loading ${media.displayTitle}…") ?: run { message = "Loading ${media.displayTitle}…" }
-            val ranked = rank(streamsFor(media.metaType, target.videoId, target.name))
-            val current = party.state.value.party
-            val shared = party.sharedStream.value?.takeIf { current != null && !current.isHost && it.mediaKey == media.key }
-            val pick = shared?.toStream()
-                ?: ranked.firstOrNull { media.source?.matches(it.stream) == true && ExternalPlayer.canPlay(it.stream) }?.stream
-                ?: (pickAuto(ranked) ?: ranked.firstOrNull { it.isEligible })?.stream
-            if (pick == null) {
-                closePlayer()
-                message = "No source to play ${media.displayTitle} automatically. Pick one below."
-                navigate(Screen.Detail(preview, videoId = video?.id))
-                return@launch
-            }
-            val label = listOfNotNull(target.name, video?.let { episodeTag(it.season, it.episode) }, video?.title?.takeIf { it.isNotBlank() }).joinToString(" · ")
-            launchPlayback(pick, label, target, builtIn = true, alternatives = ranked)
-        }
-    }
-
-    /** The host's "Switch the party to …": the party follows what this player plays. */
-    fun switchPartyToPlayer() {
-        val session = playerSession ?: return
-        val media = MpvPartyPlayer(session).currentMedia() ?: return
-        party.publishMedia(media, positionMs = (session.mpv.position * 1000).toLong())
     }
 
     private companion object {

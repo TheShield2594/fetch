@@ -23,10 +23,9 @@ import kotlinx.serialization.json.put
 data class WebsiteAddonList(val addons: List<RemoteAddon>, val everSet: Boolean)
 
 /**
- * The Fetch website as the transport for what the sync server otherwise carries, the way the TV's
- * `FetchWebsiteSyncService` stands in for Supabase while paired: profiles (with their parental
- * settings and which are locked), each profile's addons, settings blob, Home layout and
- * collections. Everything comes and goes in the sync server's own shapes ([RemoteProfile],
+ * The Fetch website as the sync transport, the way the TV's `FetchWebsiteSyncService` syncs while
+ * paired: profiles (with their parental settings and which are locked), each profile's addons,
+ * settings blob, Home layout and collections. Everything comes and goes in the TV's sync shapes ([RemoteProfile],
  * [RemoteAddon], [RemoteSharedSettings], [SyncHomeCatalogPayload]), so the app decides what to
  * apply and what to send with the same [SyncMerge] rules for both.
  *
@@ -102,9 +101,8 @@ class FetchWebsiteSync(private val website: FetchWebsiteState) {
 
     /**
      * Writes [settings]' non-null fields into the profile's blob on the website, keeping every
-     * other key (the TV's own and the website's), as [com.fetch.desktop.sync.SyncClient.pushSharedSettings]
-     * does for the sync server. Read just before, so the version sent is current; a save that
-     * still races another is tried once more on the newer blob.
+     * other key (the TV's own and the website's). Read just before, so the version sent is
+     * current; a save that still races another is tried once more on the newer blob.
      */
     suspend fun pushSharedSettings(slot: Int, settings: RemoteSharedSettings) {
         val remote = website.profileFor(slot) ?: return
@@ -202,7 +200,7 @@ class FetchWebsiteSync(private val website: FetchWebsiteState) {
 }
 
 /**
- * Translations between the website's profiles, addons and Home rows and the sync server's shapes
+ * Translations between the website's profiles, addons and Home rows and the TV's sync shapes
  * the desktop already merges, ported from the TV's `FetchWebsiteMappings` and
  * `FetchWebsiteTvMappings`. Pure, so the rules that decide what survives a sync are testable.
  */
@@ -210,7 +208,7 @@ object FetchWebsiteMappings {
 
     // --- Profiles ---
 
-    /** A website profile as the sync server would hand it over, in the slot the website gave this computer. */
+    /** A website profile in the TV's sync shape, in the slot the website gave this computer. */
     fun toRemoteProfile(remote: WebsiteProfile, local: DesktopProfile?): RemoteProfile = RemoteProfile(
         profileIndex = remote.slot,
         name = remote.name,
@@ -257,7 +255,7 @@ object FetchWebsiteMappings {
     fun toWebsiteBody(profile: RemoteProfile, limits: ProfileLimits): JsonObject = buildJsonObject {
         put("name", profile.name)
         put("avatarColorHex", profile.avatarColorHex.takeIf { COLOR.matches(it) })
-        // Only ids the website can draw; a sync server catalog avatar means nothing there.
+        // Only ids the website can draw; another catalog's avatar means nothing there.
         put("avatarId", profile.avatarId?.takeIf { it.startsWith(com.fetch.desktop.data.BundledAvatars.ID_PREFIX) })
         put("profileBackgroundId", profile.profileBackgroundId?.takeIf { ASSET_ID.matches(it) })
         if (profile.profileIndex != DesktopProfile.PRIMARY_ID) put("usesPrimaryAddons", profile.usesPrimaryAddons)
@@ -279,7 +277,7 @@ object FetchWebsiteMappings {
 
     private const val MANIFEST_SUFFIX = "/manifest.json"
 
-    /** The website's list as the sync server's, with base URLs as this computer keeps them. */
+    /** The website's list in the TV's sync shape, with base URLs as this computer keeps them. */
     fun toRemoteAddons(addons: List<WebsiteAddon>): List<RemoteAddon> = addons.mapIndexed { index, addon ->
         RemoteAddon(SyncMerge.canonicalAddonUrl(addon.manifestUrl), index, addon.enabled, addon.name?.takeIf { it.isNotBlank() })
     }

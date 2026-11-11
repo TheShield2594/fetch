@@ -1,9 +1,7 @@
 package com.fetch.tv.data.repository
 
 import android.content.Context
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.profile.ProfileManager
-import com.fetch.tv.core.sync.LibrarySyncService
 import com.fetch.tv.core.tracking.LOCAL_LIBRARY_LIST_KEY
 import com.fetch.tv.core.tracking.LocalList
 import com.fetch.tv.core.tracking.TrackingLibraryProvider
@@ -304,8 +302,6 @@ class LibraryRepositoryTrackingTest {
             appContext = mockk<Context>(relaxed = true),
             libraryPreferences = libraryPreferences,
             traktSettingsDataStore = settings,
-            librarySyncService = mockk<LibrarySyncService>(relaxed = true),
-            authManager = mockk<AuthManager>(relaxed = true),
             metaRepository = mockk<MetaRepository>(relaxed = true),
             trackingProviders = TrackingLibraryProviderRegistry(providers),
             profileManager = mockk<ProfileManager> { every { activeProfileId } returns MutableStateFlow(1) },

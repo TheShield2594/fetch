@@ -1,28 +1,13 @@
 package com.fetch.desktop.sync
 
 import com.fetch.desktop.data.DesktopProfile
-import com.fetch.desktop.data.LibraryEntry
 import com.fetch.desktop.data.ProfileLimits
 import com.fetch.desktop.data.ProfilesFile
-import com.fetch.desktop.data.ProgressEntry
-import com.fetch.tv.core.parental.CertificationLevel
-import kotlinx.serialization.Serializable
-
-/** What this profile's library held after its last sync, so deletes can be told from additions. */
-@Serializable
-data class SyncBase(val libraryIds: List<String> = emptyList())
-
-data class LibraryMerge(
-    val local: List<LibraryEntry>,
-    val push: List<LibraryEntry>,
-    val deleteRemote: List<LibraryEntry>,
-    val base: SyncBase
-)
 
 /**
  * The result of [SyncMerge.addons]: [local] is the ordered list of manifest base URLs to keep on
- * this computer, [disabled] the ones of them switched off, and [push] the list to send with
- * [SyncClient.pushAddons], or null when nothing needs sending.
+ * this computer, [disabled] the ones of them switched off, and [push] the list to send to the
+ * Fetch website, or null when nothing needs sending.
  */
 data class AddonMerge(
     val local: List<String>,
@@ -32,7 +17,7 @@ data class AddonMerge(
 
 /**
  * The result of [SyncMerge.profiles]: [local] is the profile list to keep (its PINs and limits are
- * this computer's own), [push] the list for [SyncClient.pushProfiles] or null, and [removedLocal]
+ * this computer's own), [push] the list to send to the Fetch website or null, and [removedLocal]
  * the profiles here the account no longer has, whose folders can be cleared.
  */
 data class ProfileMerge(
@@ -41,67 +26,8 @@ data class ProfileMerge(
     val removedLocal: List<DesktopProfile>,
 )
 
-/**
- * Two-way merges for the sync server. The library is a three-way merge against [SyncBase]: a
- * title gone from one side since the last sync was deleted there, so it goes from the other side
- * too; anything new on either side is copied across.
- */
+/** Two-way merges of addons and profiles with the Fetch website, by the TV app's rules. */
 object SyncMerge {
-
-    fun library(local: List<LibraryEntry>, remote: List<RemoteLibraryItem>, base: SyncBase): LibraryMerge {
-        val baseIds = base.libraryIds.toSet()
-        val localIds = local.mapTo(HashSet()) { it.id }
-        val remoteById = remote.associateBy { it.id }
-        val deletedHere = baseIds - localIds
-        val deletedThere = baseIds - remoteById.keys
-        val kept = local.filter { it.id !in deletedThere }
-        val added = remote.filter { it.id !in localIds && it.id !in deletedHere }.map { it.toEntry() }
-        val merged = kept + added
-        return LibraryMerge(
-            local = merged,
-            push = kept.filter { it.id !in remoteById },
-            deleteRemote = deletedHere.mapNotNull { id -> remoteById[id]?.toEntry() },
-            base = SyncBase(merged.map { it.id })
-        )
-    }
-
-    /** A watched item's Cinemeta video id: "tt1" for a movie, "tt1:2:5" for an episode. */
-    fun RemoteWatchedItem.videoId(): String =
-        if (season != null && episode != null) "$contentId:$season:$episode" else contentId
-
-    fun watchedItem(videoId: String, now: Long): RemoteWatchedItem? {
-        val parts = videoId.split(':')
-        val id = parts.firstOrNull()?.takeIf { it.isNotBlank() } ?: return null
-        val season = parts.getOrNull(1)?.toIntOrNull()
-        val episode = parts.getOrNull(2)?.toIntOrNull()
-        val isEpisode = season != null && episode != null
-        return RemoteWatchedItem(id, if (isEpisode) "series" else "movie", season = season, episode = episode, watchedAtEpochMs = now)
-    }
-
-    /** Remote positions as Continue Watching entries; names come from [known] or are filled in later. */
-    fun progressEntries(remote: List<RemoteProgress>, known: Map<String, ProgressEntry>): List<ProgressEntry> =
-        remote.filter { it.positionMs > 0 && it.durationMs > 0 }
-            .groupBy { it.contentId }
-            .map { (_, items) -> items.maxBy { it.lastWatchedEpochMs } }
-            .map { p ->
-                val seen = known[p.contentId]
-                val imdb = p.contentId.takeIf { it.startsWith("tt") }
-                ProgressEntry(
-                    contentId = p.contentId,
-                    contentType = p.contentType,
-                    name = seen?.name ?: p.contentId,
-                    poster = seen?.poster ?: imdb?.let { "https://images.metahub.space/poster/small/$it/img" },
-                    backdrop = seen?.backdrop ?: imdb?.let { "https://images.metahub.space/background/medium/$it/img" },
-                    logo = seen?.logo ?: imdb?.let { "https://images.metahub.space/logo/medium/$it/img" },
-                    videoId = p.videoId,
-                    season = p.season,
-                    episode = p.episode,
-                    episodeTitle = seen?.takeIf { it.videoId == p.videoId }?.episodeTitle,
-                    positionMs = p.positionMs,
-                    durationMs = p.durationMs,
-                    lastWatched = p.lastWatchedEpochMs
-                )
-            }
 
     // --- Addons ---
 
@@ -155,7 +81,7 @@ object SyncMerge {
     }
 
     /**
-     * This computer's addon list as [SyncClient.pushAddons] takes it, in local order, with the
+     * This computer's addon list as the Fetch website takes it, in local order, with the
      * ones in [disabled] switched off. Names the user set on TV are kept, and the account's
      * disabled addons that aren't installed here stay in the list, disabled, after the addon they
      * followed there, unless they are in [removed] (taken off here).
@@ -226,7 +152,7 @@ object SyncMerge {
     }
 
     /**
-     * This computer's profiles as [SyncClient.pushProfiles] takes them. An avatar or background
+     * This computer's profiles as the Fetch website takes them. An avatar or background
      * left alone here is carried over from the account's copy of each profile, so a push doesn't
      * clear one set on another device; one picked or removed here replaces it. Profile 1 is sent
      * with `uses_primary_addons` false, as on TV.
@@ -254,76 +180,7 @@ object SyncMerge {
         }
     }
 
-    /**
-     * Profiles locked on the account that have no PIN here yet. As on TV, such a PIN is checked
-     * with [SyncClient.verifyProfilePin]; once it is right, hash it with ProfilePinHasher and keep it.
-     */
-    fun lockedOnlyRemotely(local: List<DesktopProfile>, locks: List<RemoteProfileLock>): List<Int> {
-        val locked = locks.filter { it.pinEnabled }.mapTo(HashSet()) { it.profileIndex }
-        return local.filter { it.id in locked && it.pinHash == null }.map { it.id }
-    }
-
-    // --- Parental limits ---
-
-    /**
-     * This computer's limits for a profile, tightened by the account's, as the TV app applies them
-     * (`ProfileRestrictions.tightenedWith`): the stricter rating limit, and unrated titles only when
-     * every limit allows them. Never looser than either side. Daily minutes, bedtime and the
-     * autoplay cap aren't synced, so they stay as they are. Profile 1's are never synced.
-     */
-    fun parentalLimits(local: ProfileLimits, remote: RemoteParentalLimits?): ProfileLimits {
-        if (remote == null) return local
-        val localLevel = local.maxRating?.let { CertificationLevel.fromName(it) ?: CertificationLevel.ALL_AGES }
-        val remoteLevel = remote.maxRating?.let { CertificationLevel.fromName(it) ?: CertificationLevel.ALL_AGES }
-        val level = listOfNotNull(localLevel, remoteLevel).minByOrNull { it.rank }
-        val localAllows = localLevel == null || local.allowUnrated
-        val remoteAllows = remoteLevel == null || remote.allowUnrated
-        return local.copy(maxRating = level?.name, allowUnrated = level == null || (localAllows && remoteAllows), kidsProfile = remote.isKidsProfile)
-    }
-
-    /**
-     * A profile's limits as [SyncClient.pushParentalLimits] takes them, with its kids-profile switch.
-     */
-    fun parentalLimitsToPush(local: ProfileLimits, remote: RemoteParentalLimits?): RemoteParentalLimits {
-        val level = local.maxRating?.let { CertificationLevel.fromName(it) ?: CertificationLevel.ALL_AGES }
-        return RemoteParentalLimits(
-            isKidsProfile = local.kidsProfile,
-            maxRating = level?.name,
-            allowUnrated = level == null || local.allowUnrated,
-        )
-    }
-
     private const val MANIFEST_SUFFIX = "/manifest.json"
 
     private fun defaultPrimary(): DesktopProfile = ProfilesFile().profiles.first()
-
-    private fun RemoteLibraryItem.toEntry() = LibraryEntry(
-        id = id,
-        type = type,
-        name = name,
-        poster = poster,
-        posterShape = posterShape.lowercase(),
-        background = background,
-        description = description,
-        releaseInfo = releaseInfo,
-        imdbRating = imdbRating,
-        genres = genres,
-        addonBaseUrl = addonBaseUrl,
-        addedAt = addedAtEpochMs
-    )
-
-    fun LibraryEntry.toRemote() = RemoteLibraryItem(
-        id = id,
-        type = type,
-        name = name,
-        poster = poster,
-        posterShape = posterShape.uppercase(),
-        background = background,
-        description = description,
-        releaseInfo = releaseInfo,
-        imdbRating = imdbRating,
-        genres = genres,
-        addonBaseUrl = addonBaseUrl,
-        addedAtEpochMs = addedAt
-    )
 }

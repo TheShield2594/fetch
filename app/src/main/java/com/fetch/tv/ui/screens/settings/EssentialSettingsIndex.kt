@@ -14,7 +14,6 @@ internal val essentialSettingsSearchIndex: Map<SettingsCategory, List<Int>> =
             isPrimaryProfile = true,
             isEssentialMode = true,
             isDebugBuild = false,
-            isWatchPartyAvailable = true,
             isYouTubeAvailable = true
         ).contains(category)
     } + mapOf(

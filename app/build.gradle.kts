@@ -116,8 +116,6 @@ android {
         buildConfigField("String", "SIMKL_APP_NAME", buildConfigString(resolveProperty(devProperties, localProperties, "SIMKL_APP_NAME", "fetch")))
         buildConfigField("String", "MDBLIST_CLIENT_ID", buildConfigString(resolveProperty(devProperties, localProperties, "MDBLIST_CLIENT_ID")))
         buildConfigField("String", "TMDB_API_KEY", buildConfigString(resolveProperty(devProperties, localProperties, "TMDB_API_KEY")))
-        buildConfigField("String", "TV_LOGIN_WEB_BASE_URL", "\"${localProperties.getProperty("TV_LOGIN_WEB_BASE_URL", "")}\"")
-        buildConfigField("String", "DEVICE_LOGIN_WEB_BASE_URL", "\"${localProperties.getProperty("DEVICE_LOGIN_WEB_BASE_URL", "")}\"")
         buildConfigField("boolean", "DOVI_NATIVE_ENABLED", enableDoviNative.toString())
         buildConfigField("boolean", "DOVI_EXTRACTOR_HOOK_READY", doviExtractorHookReady.toString())
         if (enableDoviNative) {
@@ -132,7 +130,6 @@ android {
                 }
             }
         }
-        buildConfigField("String", "AVATAR_PUBLIC_BASE_URL", "\"${localProperties.getProperty("AVATAR_PUBLIC_BASE_URL", "")}\"")
         buildConfigField("String", "PLAYBACK_REPORTS_BASE_URL", buildConfigString(localProperties.getProperty("PLAYBACK_REPORTS_BASE_URL", "")))
 
         // In-app updater (GitHub Releases)
@@ -191,17 +188,11 @@ android {
             buildConfigField("boolean", "IS_DEBUG_BUILD", "true")
 
             // Dev environment (from local.dev.properties)
-            buildConfigField("String", "SUPABASE_URL", buildConfigString(resolveProperty(devProperties, localProperties, "FETCH_SUPABASE_URL")))
-            buildConfigField("String", "SUPABASE_ANON_KEY", buildConfigString(resolveProperty(devProperties, localProperties, "FETCH_SUPABASE_ANON_KEY")))
-            buildConfigField("String", "SUPABASE_FALLBACK_URL", buildConfigString(resolveProperty(devProperties, localProperties, "FETCH_SUPABASE_FALLBACK_URL")))
-            buildConfigField("String", "TV_LOGIN_WEB_BASE_URL", "\"${devProperties.getProperty("TV_LOGIN_WEB_BASE_URL", "")}\"")
-            buildConfigField("String", "DEVICE_LOGIN_WEB_BASE_URL", "\"${devProperties.getProperty("DEVICE_LOGIN_WEB_BASE_URL", "")}\"")
             buildConfigField("String", "PARENTAL_GUIDE_API_URL", "\"${devProperties.getProperty("PARENTAL_GUIDE_API_URL", "")}\"")
             buildConfigField("String", "INTRODB_API_URL", buildConfigString(resolveProperty(devProperties, localProperties, "INTRODB_API_URL")))
             buildConfigField("String", "TRAILER_API_URL", "\"${devProperties.getProperty("TRAILER_API_URL", "")}\"")
             buildConfigField("String", "IMDB_RATINGS_API_BASE_URL", buildConfigString(resolveProperty(devProperties, localProperties, "IMDB_RATINGS_API_BASE_URL")))
             buildConfigField("String", "IMDB_TAPFRAME_API_BASE_URL", buildConfigString(resolveProperty(devProperties, localProperties, "IMDB_TAPFRAME_API_BASE_URL")))
-            buildConfigField("String", "AVATAR_PUBLIC_BASE_URL", "\"${devProperties.getProperty("AVATAR_PUBLIC_BASE_URL", localProperties.getProperty("AVATAR_PUBLIC_BASE_URL", ""))}\"")
             buildConfigField("String", "PLAYBACK_REPORTS_BASE_URL", buildConfigString(resolveProperty(devProperties, localProperties, "PLAYBACK_REPORTS_BASE_URL")))
         }
         release {
@@ -221,17 +212,11 @@ android {
             buildConfigField("boolean", "IS_DEBUG_BUILD", "false")
 
             // Production environment (from local.properties; API keys may also come from env vars)
-            buildConfigField("String", "SUPABASE_URL", buildConfigString(localProperties.getProperty("FETCH_SUPABASE_URL", "")))
-            buildConfigField("String", "SUPABASE_ANON_KEY", buildConfigString(localProperties.getProperty("FETCH_SUPABASE_ANON_KEY", "")))
-            buildConfigField("String", "SUPABASE_FALLBACK_URL", buildConfigString(localProperties.getProperty("FETCH_SUPABASE_FALLBACK_URL", "")))
-            buildConfigField("String", "TV_LOGIN_WEB_BASE_URL", "\"${localProperties.getProperty("TV_LOGIN_WEB_BASE_URL", "")}\"")
-            buildConfigField("String", "DEVICE_LOGIN_WEB_BASE_URL", "\"${localProperties.getProperty("DEVICE_LOGIN_WEB_BASE_URL", "")}\"")
             buildConfigField("String", "PARENTAL_GUIDE_API_URL", "\"${localProperties.getProperty("PARENTAL_GUIDE_API_URL", "")}\"")
             buildConfigField("String", "INTRODB_API_URL", buildConfigString(resolveProperty(Properties(), localProperties, "INTRODB_API_URL")))
             buildConfigField("String", "TRAILER_API_URL", "\"${localProperties.getProperty("TRAILER_API_URL", "")}\"")
             buildConfigField("String", "IMDB_RATINGS_API_BASE_URL", buildConfigString(resolveProperty(Properties(), localProperties, "IMDB_RATINGS_API_BASE_URL")))
             buildConfigField("String", "IMDB_TAPFRAME_API_BASE_URL", buildConfigString(resolveProperty(Properties(), localProperties, "IMDB_TAPFRAME_API_BASE_URL")))
-            buildConfigField("String", "AVATAR_PUBLIC_BASE_URL", "\"${localProperties.getProperty("AVATAR_PUBLIC_BASE_URL", "")}\"")
             buildConfigField("String", "PLAYBACK_REPORTS_BASE_URL", buildConfigString(localProperties.getProperty("PLAYBACK_REPORTS_BASE_URL", "")))
         }
         create("benchmark") {
@@ -471,14 +456,6 @@ dependencies {
     implementation(libs.nanohttpd)
     implementation(libs.zxing.core)
 
-
-    // Supabase
-    implementation(platform(libs.supabase.bom))
-    implementation(libs.supabase.auth)
-    implementation(libs.supabase.postgrest)
-    implementation(libs.supabase.storage)
-    implementation(libs.supabase.realtime)
-    implementation(libs.ktor.client.okhttp)
 
     // Kotlinx Serialization
     implementation(libs.kotlinx.serialization.json)

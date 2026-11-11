@@ -85,10 +85,7 @@ fun SettingsScreen(state: AppState, requestedPage: SettingsPage) {
     val essential = state.settings.experience.isEssential
     val page = com.fetch.desktop.data.ExperiencePolicy.substitute(requestedPage, mode)
     Row(Modifier.fillMaxSize()) {
-        // Watch party is listed only when the sync server offers it, as on TV.
-        val partyAvailable by state.party.available.collectAsState()
-        val hidden = (if (partyAvailable) emptySet() else setOf(SettingsPage.WATCH_PARTY)) +
-            com.fetch.desktop.data.ExperiencePolicy.hiddenPages(mode)
+        val hidden = com.fetch.desktop.data.ExperiencePolicy.hiddenPages(mode)
         SettingsRail(
             hidden = hidden,
             current = page.railPage,
@@ -150,7 +147,6 @@ fun SettingsScreen(state: AppState, requestedPage: SettingsPage) {
                                 SettingsPage.LAYOUT -> if (essential) EssentialLayoutPage(state) else LayoutPage(state)
                                 SettingsPage.TRACKING -> TrackingPage(state)
                                 SettingsPage.YOUTUBE -> YouTubeSettingsPage(state)
-                                SettingsPage.WATCH_PARTY -> WatchPartyPage(state)
                                 SettingsPage.TMDB -> if (essential) EssentialTmdbPage(state) else TmdbPage(state)
                                 SettingsPage.MDBLIST -> if (essential) EssentialMdbListPage(state) else MdbListPage(state)
                                 SettingsPage.ACCOUNT -> AccountPage(state)
@@ -1019,7 +1015,7 @@ private fun AboutPage(state: AppState) {
             when {
                 !installed -> "Links open Fetch once it's installed from a package or the tarball (not when run from source)."
                 status == null -> "Checking…"
-                status?.first == ours -> "Open in Fetch: titles, watch party invites and addons."
+                status?.first == ours -> "Open in Fetch: titles and addons."
                 else -> "Another app opens them (${status?.first ?: "none"})."
             }
         )

@@ -8,7 +8,6 @@ import com.fetch.tv.core.network.SharedHttpClient
 import com.fetch.tv.data.remote.api.AddonApi
 import com.fetch.tv.data.remote.api.AniSkipApi
 import com.fetch.tv.data.remote.api.AnimeSkipApi
-import com.fetch.tv.data.remote.api.AuthDiagnosticReportApi
 import com.fetch.tv.data.remote.api.GitHubReleaseApi
 import com.fetch.tv.data.remote.api.TraktApi
 import com.fetch.tv.data.remote.api.TrailerApi
@@ -413,11 +412,6 @@ object NetworkModule {
     @Singleton
     fun providePlaybackIssueReportApi(@Named("playbackReports") retrofit: Retrofit): PlaybackIssueReportApi =
         retrofit.create(PlaybackIssueReportApi::class.java)
-
-    @Provides
-    @Singleton
-    fun provideAuthDiagnosticReportApi(@Named("playbackReports") retrofit: Retrofit): AuthDiagnosticReportApi =
-        retrofit.create(AuthDiagnosticReportApi::class.java)
 
     // --- Trailer API ---
 

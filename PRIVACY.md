@@ -29,8 +29,8 @@ Fetch connects to services you add or turn on yourself:
   - **Return YouTube Dislike** (off by default) receives the ID of each video you play.
 - **YouTube's search suggestions**: typing on the YouTube section's Search tab sends what you
   type to YouTube's suggestion service, signed in or not.
-- **A sync server**, only if you connect one. Fetch has no hosted backend; sync is off
-  until you point it at a server you run.
+- **Your Fetch website**, only if you pair with one. Fetch has no hosted backend; sync is
+  off until you pair the TV with a website you run.
 - **GitHub Releases** for the in-app update check (`full` builds only). It is an
   anonymous request to `api.github.com` and carries no personal data.
 
@@ -61,15 +61,10 @@ turn on **Playback issue reports** in Settings → Advanced. With it on:
 
 - **Playback issue reports** are sent only when you press a report button in the player.
   They carry the title being played, the stream and player state, and device details.
-- **Sign-in diagnostics** are sent when signing in to, signing up with, or refreshing a session
-  on the build's default sync server. They carry device make, model and Android version, the
-  server and sign-in URLs, and a timeline of the sign-in requests and errors. Passwords, tokens,
-  email addresses and other credentials are removed first. Nothing is sent for a sync server
-  you set up yourself.
 
-With it off, sign-in diagnostics are discarded. Either way none are stored on the device: a
-report that can't be sent straight away is dropped, not kept to retry. Reports that older
-versions queued on the device are deleted when the app starts.
+No report is stored on the device: one that can't be sent straight away is dropped, not kept
+to retry. Sign-in reports that older versions queued on the device are deleted when the app
+starts.
 
 ## Phone configuration
 

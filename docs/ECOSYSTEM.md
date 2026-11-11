@@ -50,28 +50,25 @@ same lists natively through the **Fetch website** library source.
 The TV's sync layer (`app/src/main/java/com/fetch/tv/core/sync/`) is split by
 domain. Each service decides when to push and what to apply, and hands the
 transport to a backend behind one interface, `SyncBackend`
-(`core/sync/backend/`), with two implementations: `FetchWebsiteSyncBackend` for
-the website and `SupabaseSyncBackend` for the Supabase protocol inherited from
-NuvioTV. `SyncBackends` says which one is in use, from the choice in Settings →
-Account (see [Choosing a backend](#choosing-a-backend)). Watch progress, watched
-items and the library are the exception: the website carries them as a tracking
-provider (`data/website/FetchWebsiteTracking.kt`), while Supabase has its own
-delta sync, so the interface names the route (`features.watchStateProvider`)
-rather than moving them. Each domain maps onto the website like this:
+(`core/sync/backend/`), whose one implementation is `FetchWebsiteSyncBackend`.
+`SyncBackends` says whether it is in use, from the choice in Settings → Account
+(see [Choosing a backend](#choosing-a-backend)). Watch progress, watched items and
+the library are the exception: the website carries them as a tracking provider
+(`data/website/FetchWebsiteTracking.kt`). Each domain maps onto the website like
+this:
 
 | TV sync service | Website today | Gap |
 | --- | --- | --- |
 | `ProfileSyncService` | `/profiles` with colour, avatar and parental limits; `/devices/me/profiles` maps them to the TV's slots; PINs checked by `/profiles/:id/verify` | None — the TV uses it when paired (#96) |
-| `WatchProgressSyncService` | `/playback`, `/scrobble/*` (resume points) | None — while paired the website is a tracking provider (`data/website/FetchWebsiteTracking.kt`): scrobbles and resume points go to it, and Continue Watching reads from it when chosen as the watch progress source |
-| `WatchedItemsSyncService` | `/watch`, `/watch/state`, `/series/progress` | None — watched marks go to the website, and badges and Next Up read `/watch/state` |
-| `LibrarySyncService` | `/lists` (watchlist, collection, custom) | None — the **Fetch website** library source shows and edits the website's lists |
+| Watch progress (tracking provider) | `/playback`, `/scrobble/*` (resume points) | None — while paired the website is a tracking provider (`data/website/FetchWebsiteTracking.kt`): scrobbles and resume points go to it, and Continue Watching reads from it when chosen as the watch progress source |
+| Watched marks (tracking provider) | `/watch`, `/watch/state`, `/series/progress` | None — watched marks go to the website, and badges and Next Up read `/watch/state` |
+| Library (tracking provider) | `/lists` (watchlist, collection, custom) | None — the **Fetch website** library source shows and edits the website's lists |
 | `AddonSyncService` | `/profiles/:id/addons`, Settings → TV → TV Addons | None — the TV uses it when paired |
 | `ProfileSettingsSyncService` | `/profiles/:id/settings/tv`, Settings → TV → TV Playback Settings | None — the TV uses it when paired |
 | `HomeCatalogSettingsSyncService` | `/profiles/:id/home-layout`, Settings → TV → Home Rows | None — the TV uses it when paired |
 | `CollectionSyncService` | `/collections`, plus a `fetch` source for the website's own lists | None — the TV uses it when paired (#95) |
-| `ProviderCredentialSyncService` | Trakt, TMDB, OMDb, RPDB keys | Decide what should leave the TV at all; MDBList and Simkl stay on the device for now |
+| Provider credentials | Trakt, TMDB, OMDb, RPDB keys | Not synced; they stay on the device |
 | Episode queue (#48) | Rides in the settings blob (`EpisodeQueueStore.FEATURE`), so `/profiles/:id/settings/tv` | None |
-| Watch party | — | Supabase only. Not planned on the website; the Supabase backend stays for it (see below) |
 
 ## Auth
 
@@ -97,38 +94,23 @@ The Stremio addon keeps its per-profile secret URL, which already works.
 
 ## Choosing a backend
 
-Settings → Account starts with a **Sync** row with three choices:
+Settings → Account starts with a **Sync** row with two choices:
 
 | Choice | What syncs | Set up with |
 | --- | --- | --- |
 | **Local only** (default) | Nothing; everything stays on the TV | — |
 | **Fetch website** | Everything in the table above | Pairing by code or QR (#91) |
-| **Supabase-compatible server** | The same domains, plus watch party, provider credentials and media servers | A server baked into the build, or one connected from the server options |
 
-Only one backend is connected at a time: switching signs the TV out of the
-other one, after asking, and leaves everything on the TV as it is. A TV that
-never made the choice keeps working the way it did before there was one: a
-paired website first, then a Supabase sign-in, otherwise local only.
+Choosing local only unpairs the website and leaves everything on the TV as it
+is. A TV that never made the choice uses the website while it is paired.
 
-### The Supabase path: kept, as an opt-in second backend
+### The Supabase path: removed
 
-Release builds ship with a blank `SUPABASE_URL`, which resolves to
-`https://sync.invalid`, and CI doesn't inject `FETCH_SUPABASE_*`, so a shipped
-APK never contacts a Supabase server unless a builder bakes one in or someone
-connects their own (`docs/cloudflare-migration-audit.md` §3.1). The website now
-carries everything the TV syncs except watch party, so the Supabase path costs
-nothing for people who don't use it. It stays, behind the same interface,
-because:
-
-- **Watch party** (`core/party/`) has no website equivalent and none is planned.
-- **People who self-host the NuvioTV-style server** keep working without
-  migrating.
-- **Profile PINs** already work against both: the website checks its own
-  (`FetchWebsiteProfilePins`) and Supabase checks its own
-  (`ProfileSyncService.setProfilePin` and friends).
-
-Removing it later means deleting `SupabaseSyncBackend`, the Supabase-only
-services it names, and the option in the picker. No sync service has to change.
+Fetch used to keep a second backend, a self-hosted server speaking the Supabase
+protocol inherited from NuvioTV, mainly for watch party. Release builds never
+pointed it anywhere, nobody used it, and every sync change had to be made twice,
+so it was removed with watch party, the Supabase sign-in and the Supabase and
+Ktor dependencies (#427). A TV that had chosen it reads as local only.
 
 ## Plan
 
@@ -145,8 +127,7 @@ Each phase ships on its own and leaves both halves working.
 3. **Device pairing** *(done, #91)*. `POST /devices/pair/start` and friends on
    the API, Settings → TVs & Devices on the website, the QR flow on the TV.
 4. **A sync interface on the TV** *(done, #203)*. The per-domain services go
-   through `SyncBackend`, with the website and Supabase as its two
-   implementations, and the backend is picked in Settings → Account.
+   through `SyncBackend`, and the backend is picked in Settings → Account.
 5. **Fetch website backend, watch state first** *(done, #108)*. The website is a
    tracking provider on a paired TV, next to Trakt, Simkl and MDBList: scrobbles,
    resume points and watched marks go to it, and Continue Watching, watched
@@ -154,8 +135,8 @@ Each phase ships on its own and leaves both halves working.
 6. **Addons, settings and home rows** *(done, #92–#98, #150)*. API resources and
    website pages for each profile's addons, Home rows and TV settings. This is
    where the website became the place you manage the TV.
-7. **Decide the Supabase path** *(done, #203)*. Kept as an opt-in second backend;
-   see [above](#the-supabase-path-kept-as-an-opt-in-second-backend).
+7. **Decide the Supabase path** *(done, #203, #427)*. Kept at first, then removed;
+   see [above](#the-supabase-path-removed).
 
 Phases 2 to 7 were tracked in #4, then #203; all are done or dropped.
 

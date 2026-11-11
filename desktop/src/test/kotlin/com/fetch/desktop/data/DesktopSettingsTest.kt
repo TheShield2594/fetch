@@ -32,6 +32,17 @@ class DesktopSettingsTest {
     }
 
     @Test
+    fun `new installs play in mpv's own window, and a saved built-in player choice is kept`() {
+        val fresh = DesktopSettings().migrated()
+        assertFalse(fresh.player.builtInPlayer)
+        assertFalse(fresh.player.askPlayer)
+        val saved = json.decodeFromString(DesktopSettings.serializer(), """{"player":{"builtInPlayer":true}}""").migrated()
+        assertTrue(saved.player.builtInPlayer)
+        val asking = json.decodeFromString(DesktopSettings.serializer(), """{"player":{"askPlayer":true}}""").migrated()
+        assertTrue(asking.player.askPlayer)
+    }
+
+    @Test
     fun `the year comes from the start of a release line`() {
         assertEquals(2008, yearOf("2008–2013"))
         assertEquals(null, yearOf("TBA"))

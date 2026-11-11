@@ -13,7 +13,7 @@ enum class LibrarySourceOption(val label: String) {
 
 /** Whose resume points fill Continue Watching (the TV's `WatchProgressSource`, by the same names). */
 enum class WatchProgressSourceOption(val label: String) {
-    TRAKT("Trakt"), SIMKL("Simkl"), MDBLIST("MDBList"), FETCH_SYNC("Fetch sync server"),
+    TRAKT("Trakt"), SIMKL("Simkl"), MDBLIST("MDBList"),
     /** The paired Fetch website's resume points, watch history and Next Up. */
     FETCH_WEBSITE("Fetch website")
 }
@@ -74,12 +74,10 @@ fun withinWindow(file: ProgressFile, days: Int, nowMs: Long): ProgressFile {
 /**
  * The resume points from Trakt, Simkl, MDBList or the Fetch website that Continue Watching takes,
  * by the chosen [source]: only that service's when it's connected (entries whose `source` is its
- * name in lower case), none of theirs for the sync server. When
- * the chosen service isn't connected, everything connected counts, as before there was a choice.
+ * name in lower case). When the chosen service isn't connected, everything connected counts, as before there was a choice.
  */
 fun playbackForSource(playback: List<ProgressEntry>, source: WatchProgressSourceOption, connected: Set<WatchProgressSourceOption>): List<ProgressEntry> {
     if (source !in connected) return playback
-    if (source == WatchProgressSourceOption.FETCH_SYNC) return emptyList()
     val key = source.name.lowercase()
     return playback.filter { it.source == key }
 }

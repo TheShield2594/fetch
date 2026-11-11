@@ -2,8 +2,6 @@
 
 package com.fetch.tv.ui.screens.settings
 
-import com.fetch.tv.ui.screens.party.PartySettingsContent
-import com.fetch.tv.ui.screens.party.PartyViewModel
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.activity.compose.BackHandler
@@ -37,7 +35,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Groups
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.filled.BugReport
@@ -160,7 +157,6 @@ private fun settingsSectionSpec(category: SettingsCategory): SettingsSectionSpec
         SettingsCategory.SEARCH -> SettingsSectionSpec(category, stringResource(R.string.settings_search_title), Icons.Default.Search)
         SettingsCategory.ACCOUNT -> SettingsSectionSpec(category, stringResource(R.string.settings_account), Icons.Default.Person)
         SettingsCategory.PROFILES -> SettingsSectionSpec(category, stringResource(R.string.settings_profiles), Icons.Default.People)
-        SettingsCategory.WATCH_PARTY -> SettingsSectionSpec(category, stringResource(R.string.party_title), Icons.Rounded.Groups)
         SettingsCategory.PHONE -> SettingsSectionSpec(category, stringResource(R.string.phone_hub_title), Icons.Rounded.PhoneAndroid)
         SettingsCategory.APPEARANCE -> SettingsSectionSpec(category, stringResource(R.string.appearance_title), Icons.Default.Palette)
         SettingsCategory.LAYOUT -> SettingsSectionSpec(category, stringResource(R.string.settings_layout), Icons.Default.GridView)
@@ -207,20 +203,16 @@ fun SettingsScreen(
     showBuiltInHeader: Boolean = true,
     onNavigateToAddons: () -> Unit = {},
     customiseHomeActions: CustomiseHomeActions = CustomiseHomeActions(),
-    onNavigateToAuthQrSignIn: () -> Unit = {},
     onNavigateToManageProfiles: () -> Unit = {},
     onNavigateToLicensesAttributions: () -> Unit = {},
-    onNavigateToWatchParty: () -> Unit = {},
     onNavigateToPhoneHub: () -> Unit = {},
     profileViewModel: ProfileSettingsViewModel = hiltViewModel(),
     experienceModeViewModel: ExperienceModeSettingsViewModel = hiltViewModel(),
-    partyViewModel: PartyViewModel = hiltViewModel(),
     playbackViewModel: PlaybackSettingsViewModel = hiltViewModel(),
     searchViewModel: SettingsSearchViewModel = hiltViewModel(),
     changedViewModel: SettingsChangedViewModel = hiltViewModel()
 ) {
     val isPrimaryProfileActive by profileViewModel.isPrimaryProfileActive.collectAsStateWithLifecycle()
-    val isWatchPartyAvailable by partyViewModel.party.available.collectAsStateWithLifecycle()
     val experienceModeState by remember(experienceModeViewModel) {
         experienceModeViewModel.mode.map<ExperienceMode?, ExperienceModeLoadState> {
             ExperienceModeLoadState.Loaded(it)
@@ -248,12 +240,11 @@ fun SettingsScreen(
 
     val isEssentialMode = loadedExperienceMode == ExperienceMode.ESSENTIAL
 
-    val visibleCategories = remember(isPrimaryProfileActive, isEssentialMode, isWatchPartyAvailable, loadedPlaybackSections) {
+    val visibleCategories = remember(isPrimaryProfileActive, isEssentialMode, loadedPlaybackSections) {
         visibleSettingsCategories(
             isPrimaryProfile = isPrimaryProfileActive,
             isEssentialMode = isEssentialMode,
             isDebugBuild = BuildConfig.IS_DEBUG_BUILD,
-            isWatchPartyAvailable = isWatchPartyAvailable,
             isYouTubeAvailable = AppFeaturePolicy.youTubeSectionEnabled,
             playbackSections = loadedPlaybackSections
         )
@@ -676,9 +667,7 @@ fun SettingsScreen(
                         onNavigateToManageProfiles = onNavigateToManageProfiles,
                         onNavigateToAddons = onNavigateToAddons,
                         customiseHomeActions = customiseHomeActions,
-                        onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn,
                         onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
-                        onNavigateToWatchParty = onNavigateToWatchParty,
                         onNavigateToPhoneHub = onNavigateToPhoneHub
                     )
                 }
@@ -705,9 +694,7 @@ private fun SettingsDetailPane(
     onNavigateToManageProfiles: () -> Unit,
     onNavigateToAddons: () -> Unit,
     customiseHomeActions: CustomiseHomeActions,
-    onNavigateToAuthQrSignIn: () -> Unit,
     onNavigateToLicensesAttributions: () -> Unit,
-    onNavigateToWatchParty: () -> Unit,
     onNavigateToPhoneHub: () -> Unit
 ) {
     // Only when the pane was entered on purpose; otherwise moving along the rail would pull focus in.
@@ -738,14 +725,6 @@ private fun SettingsDetailPane(
             onManageProfiles = onNavigateToManageProfiles,
             initialFocusRequester = if (allowDetailAutofocus) {
                 contentFocusRequesters[SettingsCategory.PROFILES]
-            } else {
-                null
-            }
-        )
-        SettingsCategory.WATCH_PARTY -> PartySettingsContent(
-            onOpen = onNavigateToWatchParty,
-            initialFocusRequester = if (allowDetailAutofocus) {
-                contentFocusRequesters[SettingsCategory.WATCH_PARTY]
             } else {
                 null
             }
@@ -867,7 +846,6 @@ private fun SettingsDetailPane(
             }
         )
         SettingsCategory.ACCOUNT -> AccountSettingsInline(
-            onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn,
             initialFocusRequester = if (allowDetailAutofocus) {
                 contentFocusRequesters[SettingsCategory.ACCOUNT]
             } else {
@@ -923,11 +901,8 @@ private fun EssentialAdvancedSettingsContent(
 
 @Composable
 private fun AccountSettingsInline(
-    onNavigateToAuthQrSignIn: () -> Unit,
     initialFocusRequester: FocusRequester?
 ) {
-    val accountViewModel: com.fetch.tv.ui.screens.account.AccountViewModel = hiltViewModel()
-    val accountUiState by accountViewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -943,9 +918,6 @@ private fun AccountSettingsInline(
                 .weight(1f)
         ) {
             com.fetch.tv.ui.screens.account.AccountSettingsContent(
-                uiState = accountUiState,
-                viewModel = accountViewModel,
-                onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn,
                 initialFocusRequester = initialFocusRequester
             )
         }

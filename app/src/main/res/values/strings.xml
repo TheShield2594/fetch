@@ -102,7 +102,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">Home needs a catalog addon to show titles.</string>
     <string name="home_empty_no_catalogs_title">No catalogs to show</string>
     <string name="home_empty_no_catalogs_subtitle">Your addons don’t offer any Home catalogs.</string>
-    <string name="auth_notice_fetch_logged_out">Signed out of Fetch. Sign in again from Settings &gt; Account.</string>
     <string name="auth_notice_trakt_logged_out">Signed out of Trakt. Reconnect it from Settings &gt; Tracking.</string>
     <string name="error_generic">An error occurred</string>
 
@@ -196,6 +195,7 @@
     <string name="episodes_season">Season %1$d</string>
     <string name="episodes_specials">Specials</string>
     <string name="episodes_episode">Episode</string>
+    <string name="episodes_up_next">Up next</string>
     <string name="episodes_cd_watched">Watched</string>
     <string name="episodes_dialog_subtitle">Episode actions</string>
     <string name="episodes_mark_watched">Mark as watched</string>
@@ -613,34 +613,7 @@
     <string name="essential_subtitle_language_subtitle">Preferred subtitle language.</string>
     <string name="essential_audio_language_subtitle">Preferred audio language.</string>
     <!-- Account / sign-in error messages -->
-    <string name="account_error_incorrect_pin">Incorrect PIN.</string>
-    <string name="account_error_sync_code_expired">Sync code has expired.</string>
-    <string name="account_error_invalid_sync_code">Invalid sync code.</string>
-    <string name="account_error_sync_code_not_found">Sync code not found.</string>
-    <string name="account_error_device_already_linked">Device is already linked.</string>
     <string name="account_error_generic_retry">Something went wrong. Please try again.</string>
-    <string name="account_error_invalid_credentials">Incorrect email or password.</string>
-    <string name="account_error_email_not_confirmed">Please confirm your email first.</string>
-    <string name="account_error_email_already_registered">An account with this email already exists.</string>
-    <string name="account_error_invalid_email">Please enter a valid email address.</string>
-    <string name="account_error_password_too_short">Password is too short.</string>
-    <string name="account_error_password_too_weak">Password is too weak.</string>
-    <string name="account_error_signup_disabled">Sign up is currently disabled.</string>
-    <string name="account_error_rate_limited">Too many attempts. Please try again later.</string>
-    <string name="account_error_qr_login_expired">QR login expired. Please try again.</string>
-    <string name="account_error_invalid_qr_login">Invalid QR login code.</string>
-    <string name="account_error_qr_login_other_device">This QR login was requested from another device.</string>
-    <string name="account_error_qr_login_outdated">QR login service is outdated. Reapply TV login SQL setup.</string>
-    <string name="account_error_qr_login_missing_setup">QR login backend is missing setup. Update TV login SQL setup.</string>
-    <string name="account_error_qr_login_misconfigured">QR login URL is misconfigured.</string>
-    <string name="account_error_qr_login_invalid_request">QR login request was invalid. Please retry.</string>
-    <string name="account_error_no_internet">No internet connection.</string>
-    <string name="account_error_connection_timeout">Connection timed out. Please try again.</string>
-    <string name="account_error_connection_refused">Could not connect to server.</string>
-    <string name="account_error_not_authenticated">Please sign in first.</string>
-    <string name="account_error_service_unavailable">Service unavailable. Please try again later.</string>
-    <string name="account_error_invalid_request">Invalid request. Please check your input.</string>
-    <string name="account_error_unexpected">An unexpected error occurred.</string>
     <string name="experience_mode_switch_to_essential">Switch to Essential</string>
     <string name="experience_mode_switch_to_essential_subtitle">Hide advanced setup surfaces without changing your saved values.</string>
     <string name="experience_mode_switch_to_advanced">Switch to Advanced</string>
@@ -666,7 +639,7 @@
     <string name="advanced_section_performance">Performance &amp; navigation</string>
     <string name="advanced_section_diagnostics">Diagnostics</string>
     <string name="advanced_playback_issue_reports">Playback issue reports</string>
-    <string name="advanced_playback_issue_reports_subtitle">Show report buttons during playback, long loading, and playback errors. Also sends a diagnostics report for each sign-in or sign-up to the default sync server, successful or not</string>
+    <string name="advanced_playback_issue_reports_subtitle">Show report buttons during playback, long loading, and playback errors</string>
     <string name="advanced_player_stats_hud">Playback stats overlay</string>
     <string name="advanced_player_stats_hud_subtitle">Show a button in stream info to toggle live cpu, memory, buffer, bitrate and thermal readings during playback</string>
     <string name="advanced_section_cache">Cache</string>
@@ -702,10 +675,6 @@
     <string name="confirm_exit_toast">Press back again to exit</string>
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Account and sync status</string>
-    <string name="account_stat_addons">addons</string>
-    <string name="account_stat_library">library</string>
-    <string name="account_stat_progress">progress</string>
-    <string name="account_stat_watched">watched</string>
 
     <string name="playback_title">Playback Settings</string>
     <string name="playback_subtitle">Configure video playback and subtitle options</string>
@@ -926,7 +895,7 @@
     <string name="autoplay_reuse_last_link">Reuse Last Link</string>
     <string name="autoplay_reuse_last_link_sub">Auto-play your last working stream for this same movie/episode when cache is still valid</string>
     <string name="best_match_preview_title">Show the pick on the Play button</string>
-    <string name="best_match_preview_sub">Asks your stream addons about a title while you look at it, so the Play button can name the file and playback starts sooner. Turn off to only search after you press Play.</string>
+    <string name="best_match_preview_sub">Asks your stream addons about a title when you stay on it, so the Play button can name the file. The addons learn which title it is, and debrid services count the requests. Turn off to only ask after you press Play.</string>
     <string name="autoplay_allowed_addons_early_sub">Auto-play starts as soon as these addons answer instead of waiting for every addon.</string>
     <string name="autoplay_last_link_cache">Last Link Cache Duration</string>
     <string name="cache_duration_hour_one">%1$d hour</string>
@@ -1271,15 +1240,6 @@
     <string name="trakt_connected_as">Connected as %1$s</string>
     <string name="trakt_awaiting_instruction">Go to trakt.tv/activate and enter this code:</string>
     <string name="trakt_waiting_approval">Waiting for approval…</string>
-    <string name="qr_login_approved">Login approved. Finishing sign in…</string>
-    <string name="qr_login_pending">Waiting for approval on your phone…</string>
-    <string name="qr_login_expired">QR login expired. Generate a new code.</string>
-    <string name="qr_login_preparing">Preparing QR login…</string>
-    <string name="qr_login_scan_prompt">Scan QR and sign in on your phone</string>
-    <string name="qr_login_start_failed">Failed to start QR login</string>
-    <string name="qr_login_signing_in">Signing you in…</string>
-    <string name="qr_login_success">Signed in successfully</string>
-    <string name="qr_login_exchange_failed">Could not complete QR sign in</string>
     <string name="trakt_code_expires">Code expires in %1$s</string>
     <string name="trakt_token_refreshes">Trakt access token refreshes in %1$s</string>
     <string name="trakt_missing_credentials">Missing TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET in local.properties.</string>
@@ -1340,13 +1300,6 @@
     <string name="debug_member_tier_two">Supporter+</string>
     <string name="debug_buffer_logs_title">Enable BUFFER Logs</string>
     <string name="debug_buffer_logs_subtitle">Emit periodic player buffer diagnostics to logcat (disabled by default)</string>
-    <string name="debug_section_account">Account</string>
-    <string name="debug_manual_signin_title">Manual Sign In</string>
-    <string name="debug_manual_signin_subtitle">Sign in with email and password (Supabase auth)</string>
-    <string name="debug_email_placeholder">Email</string>
-    <string name="debug_password_placeholder">Password</string>
-    <string name="debug_signing_in">Signing in\u2026</string>
-    <string name="debug_sign_in">Sign In</string>
     <string name="debug_error_dialog_title">Playback Error</string>
     <string name="debug_error_dialog_subtitle">An error occurred during playback.\n\nError: Test simulated error - this is not a real failure. Source returned HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">Dismiss</string>
@@ -1390,12 +1343,6 @@
     <string name="profile_background_custom">Custom</string>
     <string name="profile_avatar_focus_hint">Focus an avatar to view its name</string>
     <string name="profile_avatar_category_all">All</string>
-    <string name="profile_avatar_category_supporter">Supporter</string>
-    <string name="profile_avatar_category_anime">Anime</string>
-    <string name="profile_avatar_category_animation">Animation</string>
-    <string name="profile_avatar_category_movie">Movie</string>
-    <string name="profile_avatar_category_tv">TV</string>
-    <string name="profile_avatar_category_gaming">Gaming</string>
     <string name="profile_avatar_category_animals">Animals</string>
     <string name="profile_avatar_category_characters">Characters</string>
     <string name="profile_avatar_category_fun">Fun</string>
@@ -1759,17 +1706,14 @@
     <string name="stream_info_player_engine">Player Engine</string>
 
     <string name="sources_title">Sources</string>
-    <string name="detail_sources_all">All sources</string>
-    <string name="detail_sources_choose">Choose a file</string>
-    <string name="detail_sources_searching">Searching…</string>
     <string name="detail_sources_none">No sources found</string>
     <plurals name="detail_sources_ruled_out">
         <item quantity="one">%1$d source ruled out</item>
         <item quantity="other">All %1$d sources ruled out</item>
     </plurals>
-    <plurals name="detail_sources_found">
-        <item quantity="one">%1$d found</item>
-        <item quantity="other">%1$d found</item>
+    <plurals name="detail_sources_count">
+        <item quantity="one">%1$d source</item>
+        <item quantity="other">%1$d sources</item>
     </plurals>
     <string name="sources_close">Close</string>
     <string name="sources_playing">Playing</string>
@@ -2016,83 +1960,10 @@
 
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">Loading\u2026</string>
-    <string name="account_sync_description">Sync your library, watch progress, and addons across devices.</string>
-    <string name="account_sync_restart_note">Sync is not real-time across active devices. Restart this device after signing in or to pick up changes made elsewhere.</string>
     <string name="account_signin_qr_title">Sign In with QR</string>
-    <string name="account_signin_qr_subtitle">Scan a QR code and complete email login on your phone</string>
     <string name="account_signin_email_title">Sign In</string>
-    <string name="account_signin_email_subtitle">Enter your self-hosted account email and password</string>
-    <string name="account_signed_in_label">Signed in</string>
-    <string name="account_total_label">Total</string>
-    <string name="account_loading_sync">Loading sync data\u2026</string>
-    <string name="account_sign_out">Sign Out</string>
-    <string name="account_sign_out_confirm_title">Sign out?</string>
-    <string name="account_sign_out_confirm_subtitle">You will need to sign in again to sync library, watch progress, and addons on this device.</string>
 
-    <string name="auth_email_hint">Sign in directly with the account on your self-hosted server.</string>
-    <string name="auth_email_instruction">Enter your email and password to continue.</string>
-    <string name="auth_email_placeholder">Email address</string>
-    <string name="auth_password_placeholder">Password</string>
-    <string name="auth_email_sign_in">Sign In</string>
-    <string name="auth_email_signing_in">Signing in\u2026</string>
-    <string name="server_options_content_description">Server options</string>
-    <string name="server_options_connect_custom">Connect to custom server</string>
-    <string name="server_options_change_custom">Connect to another server</string>
-    <string name="server_options_use_official">Turn off sync</string>
-    <string name="custom_server_title">Connect to custom server</string>
-    <string name="custom_server_description">Enter the Backend URL provided by your server administrator.</string>
-    <string name="custom_server_url_placeholder">https://backend.example.com</string>
-    <string name="custom_server_check">Check server</string>
-    <string name="custom_server_checking">Checking\u2026</string>
-    <string name="custom_server_review_title">Review custom server</string>
-    <string name="custom_server_review_description">The discovery document is valid. Connecting will sign you out of the current server and restart the app. Confirm that this is a server you own or trust.</string>
-    <string name="custom_server_verified_label">Discovered backend</string>
-    <string name="custom_server_key_label">Client configuration</string>
-    <string name="custom_server_key_discovered">Publishable key discovered automatically</string>
-    <string name="custom_server_warning_title">Only connect to a server you trust</string>
-    <string name="custom_server_warning_public">This server uses a public hostname. The app cannot verify who owns or operates it.</string>
-    <string name="custom_server_warning_http">This server is on a private network, but HTTP traffic is not encrypted. Other devices on the network may be able to read it.</string>
-    <string name="custom_server_warning_public_http">This server uses a public hostname and unencrypted HTTP. Credentials and synced data may be exposed in transit.</string>
-    <string name="custom_server_warning_private">This appears to be a private-network server, but the app still cannot verify who controls it.</string>
-    <string name="custom_server_warning_credentials">The server operator can receive your account credentials and access data you sync through this server.</string>
-    <string name="custom_server_trust_action">I trust this server</string>
-    <string name="custom_server_switching">Switching\u2026</string>
-    <string name="official_server_title">Turn off sync?</string>
-    <string name="official_server_description">You will be signed out of your sync server and the app will restart in local-only mode. Everything already on this TV stays.</string>
-    <string name="official_server_action">Turn off sync</string>
-    <string name="custom_server_error_invalid_url">Enter a valid HTTP or HTTPS Backend URL.</string>
-    <string name="custom_server_error_official_active">Sync is already off on this TV.</string>
-    <string name="custom_server_error_official_available">That is not a sync server. Close this dialog and choose Turn off sync to go back to local-only mode.</string>
-    <string name="custom_server_error_connection">Could not reach the discovery endpoint. Check the URL and server availability.</string>
-    <string name="custom_server_error_http">The discovery endpoint returned HTTP %1$d.</string>
-    <string name="custom_server_error_response_too_large">The discovery document is larger than allowed.</string>
-    <string name="custom_server_error_invalid_document">The server returned an invalid discovery document.</string>
-    <string name="custom_server_error_version">This discovery document version is not supported.</string>
-    <string name="custom_server_error_service">The discovery document is not for this app.</string>
-    <string name="custom_server_error_not_self_hosted">The discovery document does not identify a self-hosted server.</string>
-    <string name="custom_server_error_missing_configuration">The discovery document is missing a valid Backend URL or publishable key.</string>
-    <string name="custom_server_error_no_auth">The server does not advertise a supported sign-in method.</string>
-    <string name="custom_server_save_failed">Could not save the server configuration.</string>
-    <string name="custom_server_session_clear_failed">Could not safely clear the current session. The server was not changed.</string>
-    <string name="custom_server_restart_failed">The server was saved, but the app could not restart automatically. Restart it manually.</string>
 
-    <string name="auth_qr_tagline">Watch your library, anywhere</string>
-    <string name="auth_qr_finishing">Finishing sign in\u2026</string>
-    <string name="auth_qr_expires">Expires in %1$s</string>
-    <string name="auth_qr_scan_instruction">Scan the QR code or enter the short code in your browser.</string>
-    <string name="auth_qr_manual_instruction">Or go to %1$s and enter</string>
-    <string name="auth_qr_refresh">Refresh QR</string>
-    <string name="auth_qr_continue_without_account">Continue without account</string>
-    <string name="auth_qr_connected">Your account is connected on this TV.</string>
-    <string name="auth_qr_synced_data">Your synced data</string>
-    <string name="auth_qr_generating">Generating QR\u2026</string>
-    <string name="auth_qr_unavailable">QR unavailable. Refresh to retry.</string>
-    <string name="auth_qr_please_wait">Please wait\u2026</string>
-    <string name="auth_qr_continue">Continue</string>
-    <string name="auth_qr_back">Back</string>
-    <string name="auth_qr_terms_prefix">By signing up / logging in, I agree to the</string>
-    <string name="auth_qr_terms_link">Terms</string>
 
 
 
@@ -2302,10 +2173,7 @@
     <string name="cd_voice_search">Voice search</string>
     <string name="cd_expand">Expand %1$s</string>
     <string name="cd_collapse">Collapse %1$s</string>
-    <string name="cd_qr_login">QR login code</string>
-    <string name="cd_fetch">Fetch</string>
 
-    <string name="debug_signin_success">Signed in successfully</string>
     <string name="debug_generate_description">Debug-generated %1$s item #%2$d</string>
     <string name="debug_generate_result_failed">Failed: %1$s</string>
     <string name="debug_generate_library_result_added">Added %1$d items to library</string>
@@ -2911,7 +2779,6 @@
     <string name="advanced_addon_timeout_disabled_note">Turn off “Don’t wait for slow addons” to set your own timeout.</string>
     <string name="advanced_skip_slow_addons">Don’t wait for slow addons</string>
     <string name="advanced_skip_slow_addons_subtitle">Give up on an addon after %1$d s. Results come faster, but slow addons may be left out.</string>
-    <string name="account_local_only_note">Sync is off. Fetch keeps your addons, progress and settings on this TV and needs no account. To sync between devices, connect your own sync server from the server options.</string>
 
     <!-- Player runtime: stream / external link errors -->
     <string name="player_stream_error_invalid_external_url">Invalid external URL</string>

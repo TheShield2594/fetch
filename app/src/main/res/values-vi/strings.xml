@@ -102,7 +102,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">Trang chủ cần một tiện ích danh mục để hiển thị nội dung.</string>
     <string name="home_empty_no_catalogs_title">Không có danh mục để hiển thị</string>
     <string name="home_empty_no_catalogs_subtitle">Các tiện ích của bạn không cung cấp danh mục nào cho Trang chủ.</string>
-    <string name="auth_notice_fetch_logged_out">Bạn đã đăng xuất khỏi Fetch. Hãy đăng nhập lại trong Cài đặt &gt; Tài khoản.</string>
     <string name="auth_notice_trakt_logged_out">Bạn đã đăng xuất khỏi Trakt. Hãy kết nối lại trong Cài đặt &gt; Theo dõi.</string>
     <string name="error_generic">Đã xảy ra lỗi</string>
 
@@ -506,34 +505,7 @@
     <string name="essential_subtitle_language_subtitle">Ngôn ngữ phụ đề ưu tiên.</string>
     <string name="essential_audio_language_subtitle">Ngôn ngữ âm thanh ưu tiên.</string>
     <!-- Account / sign-in error messages -->
-    <string name="account_error_incorrect_pin">Mã PIN không đúng.</string>
-    <string name="account_error_sync_code_expired">Mã đồng bộ hóa đã hết hạn.</string>
-    <string name="account_error_invalid_sync_code">Mã đồng bộ hóa không hợp lệ.</string>
-    <string name="account_error_sync_code_not_found">Không tìm thấy mã đồng bộ hóa.</string>
-    <string name="account_error_device_already_linked">Thiết bị đã được liên kết.</string>
     <string name="account_error_generic_retry">Đã xảy ra lỗi. Vui lòng thử lại.</string>
-    <string name="account_error_invalid_credentials">Email hoặc mật khẩu không đúng.</string>
-    <string name="account_error_email_not_confirmed">Vui lòng xác nhận email trước.</string>
-    <string name="account_error_email_already_registered">Tài khoản với email này đã tồn tại.</string>
-    <string name="account_error_invalid_email">Vui lòng nhập email hợp lệ.</string>
-    <string name="account_error_password_too_short">Mật khẩu quá ngắn.</string>
-    <string name="account_error_password_too_weak">Mật khẩu quá yếu.</string>
-    <string name="account_error_signup_disabled">Đăng ký hiện đang bị tắt.</string>
-    <string name="account_error_rate_limited">Quá nhiều lần thử. Vui lòng thử lại sau.</string>
-    <string name="account_error_qr_login_expired">Mã QR đăng nhập đã hết hạn. Vui lòng thử lại.</string>
-    <string name="account_error_invalid_qr_login">Mã QR đăng nhập không hợp lệ.</string>
-    <string name="account_error_qr_login_other_device">Mã QR đăng nhập này được yêu cầu từ thiết bị khác.</string>
-    <string name="account_error_qr_login_outdated">Dịch vụ đăng nhập bằng mã QR không còn được hỗ trợ. Vui lòng thiết lập lại đăng nhập TV bằng SQL.</string>
-    <string name="account_error_qr_login_missing_setup">Hệ thống hậu kỳ đăng nhập bằng mã QR chưa được thiết lập. Vui lòng cập nhật thiết lập đăng nhập TV bằng SQL.</string>
-    <string name="account_error_qr_login_misconfigured">URL đăng nhập bằng mã QR được cấu hình sai.</string>
-    <string name="account_error_qr_login_invalid_request">Yêu cầu đăng nhập bằng mã QR không hợp lệ. Vui lòng thử lại.</string>
-    <string name="account_error_no_internet">Không có kết nối internet..</string>
-    <string name="account_error_connection_timeout">Kết nối đã hết thời gian chờ. Vui lòng thử lại.</string>
-    <string name="account_error_connection_refused">Không thể kết nối đến máy chủ.</string>
-    <string name="account_error_not_authenticated">Vui lòng đăng nhập trước.</string>
-    <string name="account_error_service_unavailable">Dịch vụ hiện không có sẵn. Vui lòng thử lại sau.</string>
-    <string name="account_error_invalid_request">Yêu cầu không hợp lệ. Vui lòng kiểm tra dữ liệu đầu vào.</string>
-    <string name="account_error_unexpected">Đã xảy ra lỗi không mong muốn..</string>
     <string name="experience_mode_switch_to_essential">Chuyển sang Cơ bản</string>
     <string name="experience_mode_switch_to_essential_subtitle">Ẩn các giao diện thiết lập nâng cao mà không thay đổi các giá trị đã lưu.</string>
     <string name="experience_mode_switch_to_advanced">Chuyển sang Nâng cao</string>
@@ -583,10 +555,6 @@
     <string name="confirm_exit_toast">Nhấn quay lại lần nữa để thoát</string>
     <string name="settings_debug">Gỡ lỗi</string>
     <string name="settings_account_section_subtitle">Tài khoản và trạng thái đồng bộ</string>
-    <string name="account_stat_addons">tiện ích</string>
-    <string name="account_stat_library">thư viện</string>
-    <string name="account_stat_progress">tiến độ</string>
-    <string name="account_stat_watched">đã xem</string>
 
     <string name="playback_title">Cài đặt phát lại</string>
     <string name="playback_subtitle">Cấu hình trình phát lại video và tuỳ chọn phụ đề</string>
@@ -1129,15 +1097,6 @@
     <string name="trakt_connected_as">Đã kết nối với %1$s</string>
     <string name="trakt_awaiting_instruction">Vào trakt.tv/activate và nhập mã này:</string>
     <string name="trakt_waiting_approval">Đang chờ phê duyệt…</string>
-    <string name="qr_login_approved">Đã phê duyệt đăng nhập. Đang hoàn tất đăng nhập...</string>
-    <string name="qr_login_pending">Đang chờ phê duyệt trên điện thoại của bạn…</string>
-    <string name="qr_login_expired">Mã QR đã hết hạn. Tạo mã mới.</string>
-    <string name="qr_login_preparing">Đang chuẩn bị đăng nhập bằng mã QR...</string>
-    <string name="qr_login_scan_prompt">Quét mã QR và đăng nhập trên điện thoại của bạn</string>
-    <string name="qr_login_start_failed">Không thể bắt đầu đăng nhập bằng mã QR</string>
-    <string name="qr_login_signing_in">Đang đăng nhập…</string>
-    <string name="qr_login_success">Đăng nhập thành công</string>
-    <string name="qr_login_exchange_failed">Không thể hoàn tất đăng nhập bằng mã QR</string>
     <string name="trakt_code_expires">Mã hết hạn sau %1$s</string>
     <string name="trakt_token_refreshes">Token truy cập Trakt làm mới sau %1$s</string>
     <string name="trakt_missing_credentials">Thiếu TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET trong local.properties.</string>
@@ -1198,13 +1157,6 @@
     <string name="debug_member_tier_two">Người tài trợ cao cấp</string>
     <string name="debug_buffer_logs_title">Bật nhật ký BỘ ĐỆM</string>
     <string name="debug_buffer_logs_subtitle">Ghi định kỳ thông tin chẩn đoán bộ đệm của trình phát vào logcat (đã tắt theo mặc định)</string>
-    <string name="debug_section_account">Tài khoản</string>
-    <string name="debug_manual_signin_title">Đăng nhập thủ công</string>
-    <string name="debug_manual_signin_subtitle">Đăng nhập bằng email và mật khẩu (Xác thực Supabase)</string>
-    <string name="debug_email_placeholder">Email</string>
-    <string name="debug_password_placeholder">Mật khẩu</string>
-    <string name="debug_signing_in">Đang đăng nhập\u2026</string>
-    <string name="debug_sign_in">Đăng nhập</string>
     <string name="debug_error_dialog_title">Lỗi phát lại</string>
     <string name="debug_error_dialog_subtitle">Đã xảy ra lỗi trong quá trình phát lại.\n\nLỗi: Lỗi mô phỏng để kiểm tra - đây không phải lỗi thực. Nguồn trả về HTTP 503 (Dịch vụ không khả dụng).</string>
     <string name="debug_dismiss">Bỏ qua</string>
@@ -1236,12 +1188,6 @@
     <string name="profile_background_custom">Tùy chỉnh</string>
     <string name="profile_avatar_focus_hint">Chọn ảnh đại diện để xem tên</string>
     <string name="profile_avatar_category_all">Tất cả</string>
-    <string name="profile_avatar_category_supporter">Người tài trợ</string>
-    <string name="profile_avatar_category_anime">Anime</string>
-    <string name="profile_avatar_category_animation">Hoạt hình</string>
-    <string name="profile_avatar_category_movie">Phim</string>
-    <string name="profile_avatar_category_tv">TV</string>
-    <string name="profile_avatar_category_gaming">Trò chơi</string>
     <string name="profile_add_new">Thêm hồ sơ</string>
     <string name="profile_cancel">Hủy</string>
     <string name="profile_save">Lưu</string>
@@ -1671,77 +1617,10 @@
 
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">Đang tải\u2026</string>
-    <string name="account_sync_description">Đồng bộ thư viện, tiến độ xem và tiện ích trên nhiều thiết bị.</string>
-    <string name="account_sync_restart_note">Đồng bộ không diễn ra theo thời gian thực trên các thiết bị đang hoạt động. Vui lòng khởi động lại thiết bị này sau khi đăng nhập hoặc để nhận các thay đổi được thực hiện trên thiết bị khác.</string>
     <string name="account_signin_qr_title">Đăng nhập bằng mã QR</string>
-    <string name="account_signin_qr_subtitle">Quét mã QR và hoàn tất đăng nhập email trên điện thoại</string>
     <string name="account_signin_email_title">Đăng nhập</string>
-    <string name="account_signin_email_subtitle">Nhập email và mật khẩu tài khoản tự lưu trữ của bạn</string>
-    <string name="account_signed_in_label">Đã đăng nhập</string>
-    <string name="account_total_label">Tổng cộng</string>
-    <string name="account_loading_sync">Đang tải dữ liệu đồng bộ\u2026</string>
-    <string name="account_sign_out">Đăng xuất</string>
-    <string name="account_sign_out_confirm_title">Đăng xuất?</string>
-    <string name="account_sign_out_confirm_subtitle">Bạn sẽ cần đăng nhập lại để đồng bộ thư viện, tiến trình xem và tiện ích trên thiết bị này.</string>
 
-    <string name="auth_email_hint">Đăng nhập trực tiếp bằng tài khoản trên máy chủ riêng của bạn.</string>
-    <string name="auth_email_instruction">Nhập email và mật khẩu để tiếp tục.</string>
-    <string name="auth_email_placeholder">Địa chỉ email</string>
-    <string name="auth_password_placeholder">Mật khẩu</string>
-    <string name="auth_email_sign_in">Đăng nhập</string>
-    <string name="auth_email_signing_in">Đang đăng nhập\u2026</string>
-    <string name="server_options_content_description">Tùy chọn máy chủ</string>
-    <string name="server_options_connect_custom">Kết nối với máy chủ tùy chỉnh</string>
-    <string name="server_options_change_custom">Kết nối với máy chủ khác</string>
-    <string name="custom_server_title">Kết nối với máy chủ tùy chỉnh</string>
-    <string name="custom_server_description">Nhập URL Backend do quản trị viên máy chủ cung cấp.</string>
-    <string name="custom_server_url_placeholder">https://backend.example.com</string>
-    <string name="custom_server_check">Kiểm tra máy chủ</string>
-    <string name="custom_server_checking">Đang kiểm tra\u2026</string>
-    <string name="custom_server_review_title">Đánh giá máy chủ tùy chỉnh</string>
-    <string name="custom_server_review_description">Tài liệu khám phá hợp lệ. Việc kết nối sẽ đăng xuất bạn khỏi máy chủ hiện tại và khởi động lại ứng dụng. Vui lòng xác nhận đây là máy chủ do bạn sở hữu hoặc tin cậy.</string>
-    <string name="custom_server_verified_label">Đã phát hiện Backend</string>
-    <string name="custom_server_key_label">Cấu hình máy khách</string>
-    <string name="custom_server_key_discovered">Đã tự động phát hiện khóa có thể công khai</string>
-    <string name="custom_server_warning_title">Chỉ kết nối với máy chủ bạn tin cậy</string>
-    <string name="custom_server_warning_public">Máy chủ này sử dụng tên miền công cộng. Ứng dụng không thể xác thực ai sở hữu hoặc vận hành máy chủ này.</string>
-    <string name="custom_server_warning_http">Máy chủ này thuộc mạng nội bộ, nhưng lưu lượng HTTP không được mã hóa. Các thiết bị khác trong mạng có thể đọc được dữ liệu.</string>
-    <string name="custom_server_warning_public_http">Máy chủ này sử dụng tên miền công cộng và HTTP không được mã hóa. Thông tin đăng nhập và dữ liệu đồng bộ có thể bị lộ trong quá trình truyền.</string>
-    <string name="custom_server_warning_private">Đây có vẻ là máy chủ mạng nội bộ, nhưng ứng dụng vẫn không thể xác thực ai đang kiểm soát máy chủ này.</string>
-    <string name="custom_server_warning_credentials">Nhà vận hành máy chủ có thể nhận thông tin đăng nhập tài khoản của bạn và truy cập dữ liệu bạn đồng bộ qua máy chủ này.</string>
-    <string name="custom_server_trust_action">Tôi tin cậy máy chủ này</string>
-    <string name="custom_server_switching">Đang chuyển sang\u2026</string>
-    <string name="custom_server_error_invalid_url">Nhập URL Backend HTTP hoặc HTTPS hợp lệ.</string>
-    <string name="custom_server_error_connection">Không thể tiếp cận điểm cuối phát hiện. Vui lòng kiểm tra lại URL và trạng thái hoạt động của máy chủ.</string>
-    <string name="custom_server_error_http">Điểm cuối phát hiện đã trả về HTTP %1$d.</string>
-    <string name="custom_server_error_response_too_large">Tài liệu khám phá có kích thước vượt quá giới hạn cho phép.</string>
-    <string name="custom_server_error_invalid_document">Máy chủ trả về tài liệu khám phá không hợp lệ.</string>
-    <string name="custom_server_error_version">Phiên bản tài liệu khám phá này không được hỗ trợ.</string>
-    <string name="custom_server_error_service">Tài liệu khám phá không dành cho ứng dụng này.</string>
-    <string name="custom_server_error_not_self_hosted">Tài liệu khám phá không xác định đây là máy chủ tự lưu trữ.</string>
-    <string name="custom_server_error_missing_configuration">Tài liệu khám phá thiếu URL Backend hoặc khóa công khai hợp lệ.</string>
-    <string name="custom_server_error_no_auth">Máy chủ không cung cấp phương thức đăng nhập được hỗ trợ.</string>
-    <string name="custom_server_save_failed">Không thể lưu cấu hình máy chủ.</string>
-    <string name="custom_server_session_clear_failed">Không thể xóa an toàn phiên hiện tại. Máy chủ chưa được thay đổi.</string>
-    <string name="custom_server_restart_failed">Đã lưu máy chủ nhưng ứng dụng không thể tự động khởi động lại. Vui lòng khởi động lại ứng dụng thủ công.</string>
 
-    <string name="auth_qr_tagline">Mang thư viện phim theo bạn mọi nơi</string>
-    <string name="auth_qr_finishing">Đang hoàn tất đăng nhập\u2026</string>
-    <string name="auth_qr_expires">Hết hạn sau %1$s</string>
-    <string name="auth_qr_scan_instruction">Quét mã QR, xác nhận trên trình duyệt, sau đó quay lại đây.</string>
-    <string name="auth_qr_manual_instruction">Hoặc truy cập %1$s và nhập</string>
-    <string name="auth_qr_refresh">Làm mới mã QR</string>
-    <string name="auth_qr_continue_without_account">Tiếp tục không cần tài khoản</string>
-    <string name="auth_qr_connected">Tài khoản của bạn đã được kết nối trên TV này.</string>
-    <string name="auth_qr_synced_data">Dữ liệu đã đồng bộ</string>
-    <string name="auth_qr_generating">Đang tạo mã QR\u2026</string>
-    <string name="auth_qr_unavailable">Mã QR không khả dụng. Làm mới để thử lại.</string>
-    <string name="auth_qr_please_wait">Vui lòng đợi\u2026</string>
-    <string name="auth_qr_continue">Tiếp tục</string>
-    <string name="auth_qr_back">Quay lại</string>
-    <string name="auth_qr_terms_prefix">Bằng việc đăng ký / đăng nhập, tôi đồng ý với</string>
-    <string name="auth_qr_terms_link">Điều khoản sử dụng</string>
 
 
 
@@ -1927,10 +1806,7 @@
     <string name="cd_voice_search">Tìm kiếm bằng giọng nói</string>
     <string name="cd_expand">Mở rộng %1$s</string>
     <string name="cd_collapse">Thu gọn %1$s</string>
-    <string name="cd_qr_login">Mã QR đăng nhập</string>
-    <string name="cd_fetch">Fetch</string>
 
-    <string name="debug_signin_success">Đăng nhập thành công</string>
     <string name="debug_generate_description">Mục %1$s được tạo để gỡ lỗi #%2$d</string>
     <string name="debug_generate_result_failed">Thất bại: %1$s</string>
     <string name="debug_generate_library_result_added">Đã thêm %1$d mục vào thư viện</string>
@@ -2627,7 +2503,6 @@
     <string name="autosync_label_synced">Đã tự động đồng bộ</string>
 
     <!-- Fetch: new and changed strings -->
-    <string name="account_local_only_note">Đồng bộ đang tắt. Fetch lưu tiện ích, tiến độ xem và cài đặt của bạn trên TV này, không cần tài khoản. Để đồng bộ giữa các thiết bị, hãy kết nối máy chủ đồng bộ của riêng bạn trong tùy chọn máy chủ.</string>
     <string name="addon_badge_needs_setup">Cần thiết lập</string>
     <string name="addon_configure">Cấu hình</string>
     <string name="addon_configure_install">Cài đặt</string>
@@ -2674,7 +2549,7 @@
     <string name="best_match_cached">Đã lưu đệm</string>
     <string name="best_match_excluded">Không tự động phát: %1$s</string>
     <string name="stream_hold_for_options">Giữ OK để xem tùy chọn Khớp nhất</string>
-    <string name="best_match_preview_sub">Hỏi các tiện ích luồng về một nội dung khi bạn đang xem nó, để nút Phát có thể hiển thị tên tệp và phát nhanh hơn. Tắt để chỉ tìm sau khi bạn bấm Phát.</string>
+    <string name="best_match_preview_sub">Hỏi các tiện ích luồng về một nội dung khi bạn dừng lại ở đó, để nút Phát có thể hiển thị tên tệp. Các tiện ích sẽ biết đó là nội dung nào, và dịch vụ debrid tính các yêu cầu này. Tắt để chỉ hỏi sau khi bạn bấm Phát.</string>
     <string name="best_match_preview_title">Hiển thị lựa chọn trên nút Phát</string>
     <string name="catalog_order_pin">Ghim lên đầu</string>
     <string name="catalog_order_pinned_on_home">Đã ghim lên đầu Trang chủ</string>
@@ -2683,8 +2558,6 @@
     <string name="cd_mark_credits_start">Đánh dấu bắt đầu danh đề cuối</string>
     <string name="cd_mark_intro_end">Đánh dấu kết thúc phần giới thiệu</string>
     <string name="cd_mark_intro_start">Đánh dấu bắt đầu phần giới thiệu</string>
-    <string name="custom_server_error_official_active">Đồng bộ trên TV này đã tắt.</string>
-    <string name="custom_server_error_official_available">Đây không phải máy chủ đồng bộ. Đóng hộp thoại này và chọn Tắt đồng bộ để quay về chế độ chỉ dùng cục bộ.</string>
     <string name="exclusion_3d">Bản phát hành 3D</string>
     <string name="exclusion_above_max_resolution">vượt độ phân giải tối đa của bạn</string>
     <string name="exclusion_audio">bạn bỏ qua âm thanh %1$s</string>
@@ -2758,9 +2631,6 @@
     <string name="library_empty_type_movies">phim</string>
     <string name="library_empty_type_series">phim bộ</string>
     <string name="licenses_attributions_fetch_body">Fetch là phần mềm tự do theo Giấy phép Công cộng GNU phiên bản 3.0. Đây là bản fork của NuvioTV do những người đóng góp cho Nuvio phát triển (github.com/NuvioMedia/NuvioTV), và công sức của họ tạo nên phần lớn ứng dụng này.</string>
-    <string name="official_server_action">Tắt đồng bộ</string>
-    <string name="official_server_description">Bạn sẽ đăng xuất khỏi máy chủ đồng bộ và ứng dụng sẽ khởi động lại ở chế độ chỉ dùng cục bộ. Mọi thứ đã có trên TV này vẫn được giữ lại.</string>
-    <string name="official_server_title">Tắt đồng bộ?</string>
     <string name="parental_addons_blocked">Hồ sơ này không thể cài tiện ích. Hãy nhờ phụ huynh.</string>
     <string name="parental_allow_unrated">Hiển thị nội dung chưa phân loại: %1$s</string>
     <string name="parental_gate_heading">Nhập mã PIN của %1$s</string>
@@ -2836,7 +2706,6 @@
     <string name="ranking_size_gb">%1$d GB</string>
     <string name="ranking_skip_dv5">Bỏ qua Dolby Vision cấu hình 5</string>
     <string name="ranking_skip_dv5_sub">Cấu hình 5 không có dự phòng HDR10. Luôn bị bỏ qua khi TV này không hiển thị được</string>
-    <string name="server_options_use_official">Tắt đồng bộ</string>
     <string name="skip_marker_report_failed">Không thể báo cáo mốc</string>
     <string name="skip_marker_reported">Đã báo cáo mốc sai. Cảm ơn bạn!</string>
     <string name="skip_marker_start_recorded">Đã đánh dấu điểm bắt đầu. Bấm lần nữa tại điểm kết thúc.</string>

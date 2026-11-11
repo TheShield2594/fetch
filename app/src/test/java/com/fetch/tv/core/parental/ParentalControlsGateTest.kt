@@ -40,7 +40,6 @@ class ParentalControlsGateTest {
             pinManager = pinManager,
             resolver = resolver,
             websiteSync = mockk(relaxed = true),
-            profileSettingsSync = mockk(relaxed = true),
             localLists = localLists
         )
     }

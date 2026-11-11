@@ -102,7 +102,6 @@
   <string name="home_empty_no_catalog_addons_subtitle">Η Αρχική χρειάζεται ένα πρόσθετο καταλόγου για να εμφανίσει τίτλους.</string>
   <string name="home_empty_no_catalogs_title">Δεν υπάρχουν κατάλογοι για εμφάνιση</string>
   <string name="home_empty_no_catalogs_subtitle">Τα πρόσθετά σας δεν προσφέρουν καταλόγους για την Αρχική.</string>
-  <string name="auth_notice_fetch_logged_out">Αποσυνδεθήκατε από το Fetch. Συνδεθείτε ξανά από Ρυθμίσεις &gt; Λογαριασμός.</string>
   <string name="auth_notice_trakt_logged_out">Αποσυνδεθήκατε από το Trakt. Συνδέστε το ξανά από Ρυθμίσεις &gt; Παρακολούθηση.</string>
   <string name="error_generic">Προέκυψε σφάλμα</string>
   <!-- ErrorState -->
@@ -452,34 +451,7 @@
   <string name="essential_subtitle_language_subtitle">Προτιμώμενη γλώσσα υπότιτλων.</string>
   <string name="essential_audio_language_subtitle">Προτιμώμενη γλώσσα ήχου.</string>
   <!-- Account / sign-in error messages -->
-  <string name="account_error_incorrect_pin">Λανθασμένο PIN.</string>
-  <string name="account_error_sync_code_expired">Ο κωδικός συγχρονισμού έληξε.</string>
-  <string name="account_error_invalid_sync_code">Μη έγκυρος κωδικός συγχρονισμού.</string>
-  <string name="account_error_sync_code_not_found">Ο κωδικός συγχρονισμού δεν βρέθηκε.</string>
-  <string name="account_error_device_already_linked">Η συσκευή είναι ήδη συνδεδεμένη.</string>
   <string name="account_error_generic_retry">Κάτι πήγε στραβά. Δοκιμάστε ξανά.</string>
-  <string name="account_error_invalid_credentials">Λανθασμένο email ή κωδικός πρόσβασης.</string>
-  <string name="account_error_email_not_confirmed">Επιβεβαιώστε πρώτα το email σας.</string>
-  <string name="account_error_email_already_registered">Υπάρχει ήδη λογαριασμός με αυτό το email.</string>
-  <string name="account_error_invalid_email">Εισάγετε έγκυρη διεύθυνση email.</string>
-  <string name="account_error_password_too_short">Ο κωδικός πρόσβασης είναι πολύ σύντομος.</string>
-  <string name="account_error_password_too_weak">Ο κωδικός πρόσβασης είναι πολύ αδύναμος.</string>
-  <string name="account_error_signup_disabled">Η εγγραφή είναι προσωρινά απενεργοποιημένη.</string>
-  <string name="account_error_rate_limited">Πάρα πολλές προσπάθειες. Δοκιμάστε ξανά αργότερα.</string>
-  <string name="account_error_qr_login_expired">Η σύνδεση QR έληξε. Δοκιμάστε ξανά.</string>
-  <string name="account_error_invalid_qr_login">Μη έγκυρος κωδικός σύνδεσης QR.</string>
-  <string name="account_error_qr_login_other_device">Αυτή η σύνδεση QR ζητήθηκε από άλλη συσκευή.</string>
-  <string name="account_error_qr_login_outdated">Η υπηρεσία σύνδεσης QR είναι παρωχημένη. Εφαρμόστε ξανά τη ρύθμιση SQL TV login.</string>
-  <string name="account_error_qr_login_missing_setup">Το backend σύνδεσης QR δεν έχει ρυθμιστεί. Ενημερώστε τη ρύθμιση SQL TV login.</string>
-  <string name="account_error_qr_login_misconfigured">Η URL σύνδεσης QR είναι εσφαλμένα ρυθμισμένη.</string>
-  <string name="account_error_qr_login_invalid_request">Το αίτημα σύνδεσης QR ήταν μη έγκυρο. Δοκιμάστε ξανά.</string>
-  <string name="account_error_no_internet">Δεν υπάρχει σύνδεση στο Internet.</string>
-  <string name="account_error_connection_timeout">Λήξη χρονικού ορίου σύνδεσης. Δοκιμάστε ξανά.</string>
-  <string name="account_error_connection_refused">Δεν ήταν δυνατή η σύνδεση με τον διακομιστή.</string>
-  <string name="account_error_not_authenticated">Συνδεθείτε πρώτα.</string>
-  <string name="account_error_service_unavailable">Η υπηρεσία δεν είναι διαθέσιμη. Δοκιμάστε ξανά αργότερα.</string>
-  <string name="account_error_invalid_request">Μη έγκυρο αίτημα. Ελέγξτε τα στοιχεία που εισάγατε.</string>
-  <string name="account_error_unexpected">Προέκυψε απροσδόκητο σφάλμα.</string>
   <string name="experience_mode_switch_to_essential">Μετάβαση σε Βασική</string>
   <string name="experience_mode_switch_to_essential_subtitle">Απόκρυψη προχωρημένων επιλογών ρύθμισης χωρίς αλλαγή των αποθηκευμένων τιμών σας.</string>
   <string name="experience_mode_switch_to_advanced">Μετάβαση σε Προχωρημένη</string>
@@ -523,10 +495,6 @@
   <string name="confirm_exit_toast">Πατήστε ξανά πίσω για έξοδο</string>
   <string name="settings_debug">Αποσφαλμάτωση</string>
   <string name="settings_account_section_subtitle">Κατάσταση λογαριασμού και συγχρονισμού</string>
-  <string name="account_stat_addons">πρόσθετα</string>
-  <string name="account_stat_library">βιβλιοθήκη</string>
-  <string name="account_stat_progress">πρόοδος</string>
-  <string name="account_stat_watched">προβληθέντα</string>
   <!-- PlaybackSettingsScreen -->
   <string name="playback_title">Ρυθμίσεις αναπαραγωγής</string>
   <string name="playback_subtitle">Διαμόρφωση αναπαραγωγής βίντεο και επιλογών υπότιτλων</string>
@@ -986,15 +954,6 @@
   <string name="trakt_connected_as">Συνδεδεμένος ως %1$s</string>
   <string name="trakt_awaiting_instruction">Μεταβείτε στο trakt.tv/activate και εισάγετε αυτόν τον κωδικό:</string>
   <string name="trakt_waiting_approval">Αναμονή έγκρισης…</string>
-  <string name="qr_login_approved">Η σύνδεση εγκρίθηκε. Ολοκλήρωση σύνδεσης…</string>
-  <string name="qr_login_pending">Αναμονή έγκρισης στο κινητό σας…</string>
-  <string name="qr_login_expired">Η σύνδεση QR έληξε. Δημιουργήστε νέο κωδικό.</string>
-  <string name="qr_login_preparing">Προετοιμασία σύνδεσης QR...</string>
-  <string name="qr_login_scan_prompt">Σαρώστε το QR και συνδεθείτε από το τηλέφωνό σας</string>
-  <string name="qr_login_start_failed">Αποτυχία έναρξης σύνδεσης QR</string>
-  <string name="qr_login_signing_in">Γίνεται σύνδεση…</string>
-  <string name="qr_login_success">Η σύνδεση ολοκληρώθηκε με επιτυχία</string>
-  <string name="qr_login_exchange_failed">Δεν ήταν δυνατή η ολοκλήρωση της σύνδεσης QR</string>
   <string name="trakt_code_expires">Ο κωδικός λήγει σε %1$s</string>
   <string name="trakt_token_refreshes">Το token πρόσβασης Trakt ανανεώνεται σε %1$s</string>
   <string name="trakt_missing_credentials">Λείπουν TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET στο local.properties.</string>
@@ -1115,13 +1074,6 @@
   <string name="debug_member_tier_none">Κανένα</string>
   <string name="debug_member_tier_one">Υποστηρικτής</string>
   <string name="debug_member_tier_two">Υποστηρικτής+</string>
-  <string name="debug_section_account">Λογαριασμός</string>
-  <string name="debug_manual_signin_title">Χειροκίνητη σύνδεση</string>
-  <string name="debug_manual_signin_subtitle">Σύνδεση με email και κωδικό πρόσβασης (Supabase auth)</string>
-  <string name="debug_email_placeholder">Ηλεκτρονικό ταχυδρομείο</string>
-  <string name="debug_password_placeholder">Κωδικός πρόσβασης</string>
-  <string name="debug_signing_in">Σύνδεση…</string>
-  <string name="debug_sign_in">Σύνδεση</string>
   <string name="debug_error_dialog_title">Σφάλμα αναπαραγωγής</string>
   <string name="debug_error_dialog_subtitle">Προέκυψε σφάλμα κατά την αναπαραγωγή.\n\nΣφάλμα: Προσομοιωμένο σφάλμα δοκιμής – δεν είναι πραγματικό σφάλμα. Η πηγή επέστρεψε HTTP 503 (Service Unavailable).</string>
   <string name="debug_dismiss">Κλείσιμο</string>
@@ -1153,12 +1105,6 @@
   <string name="profile_background_custom">Προσαρμοσμένο</string>
   <string name="profile_avatar_focus_hint">Εστιάστε σε ένα avatar για να δείτε το όνομά του</string>
   <string name="profile_avatar_category_all">Όλα</string>
-  <string name="profile_avatar_category_supporter">Υποστηρικτής</string>
-  <string name="profile_avatar_category_anime">Anime</string>
-  <string name="profile_avatar_category_animation">Κινούμενα σχέδια</string>
-  <string name="profile_avatar_category_movie">Ταινία</string>
-  <string name="profile_avatar_category_tv">TV</string>
-  <string name="profile_avatar_category_gaming">Παιχνίδια</string>
   <string name="profile_add_new">Προσθήκη προφίλ</string>
   <string name="profile_cancel">Ακύρωση</string>
   <string name="profile_save">Αποθήκευση</string>
@@ -1552,73 +1498,11 @@
   <string name="library_empty_trakt_not_auth_title">Το Trakt δεν είναι συνδεδεμένο</string>
   <string name="library_empty_trakt_not_auth_subtitle">Συνδέστε τον λογαριασμό Trakt στις Ρυθμίσεις για να δείτε τη βιβλιοθήκη Trakt</string>
   <!-- AccountSettingsContent -->
-  <string name="account_loading">Φόρτωση…</string>
-  <string name="account_sync_description">Συγχρονίστε τη βιβλιοθήκη, την πρόοδο παρακολούθησης και τα πρόσθετά σας σε όλες τις συσκευές.</string>
-  <string name="account_sync_restart_note">Ο συγχρονισμός δεν είναι πραγματικού χρόνου σε ενεργές συσκευές. Επανεκκινήστε αυτή τη συσκευή μετά τη σύνδεση ή για να λάβετε αλλαγές που έγιναν αλλού.</string>
   <string name="account_signin_qr_title">Σύνδεση με QR</string>
-  <string name="account_signin_qr_subtitle">Σαρώστε QR code και ολοκληρώστε τη σύνδεση με email στο κινητό σας</string>
   <string name="account_signin_email_title">Σύνδεση</string>
-  <string name="account_signin_email_subtitle">Εισάγετε το email και τον κωδικό πρόσβασης του αυτοφιλοξενούμενου λογαριασμού σας</string>
-  <string name="account_signed_in_label">Συνδεδεμένος</string>
-  <string name="account_total_label">Σύνολο</string>
-  <string name="account_loading_sync">Φόρτωση δεδομένων συγχρονισμού…</string>
-  <string name="account_sign_out">Αποσύνδεση</string>
   <!-- AuthSignInScreen -->
-  <string name="auth_email_hint">Συνδεθείτε απευθείας με τον λογαριασμό στον αυτοφιλοξενούμενο διακομιστή σας.</string>
-  <string name="auth_email_instruction">Εισάγετε το email και τον κωδικό πρόσβασης για να συνεχίσετε.</string>
-  <string name="auth_email_placeholder">Διεύθυνση email</string>
-  <string name="auth_password_placeholder">Κωδικός πρόσβασης</string>
-  <string name="auth_email_sign_in">Σύνδεση</string>
-  <string name="auth_email_signing_in">Σύνδεση\u2026</string>
   <!-- ServerConnectionDialogs -->
-  <string name="server_options_content_description">Επιλογές διακομιστή</string>
-  <string name="server_options_connect_custom">Σύνδεση σε προσαρμοσμένο διακομιστή</string>
-  <string name="server_options_change_custom">Σύνδεση σε άλλο διακομιστή</string>
-  <string name="custom_server_title">Σύνδεση σε προσαρμοσμένο διακομιστή</string>
-  <string name="custom_server_description">Εισάγετε το URL Backend που παρέχεται από τον διαχειριστή του διακομιστή σας.</string>
-  <string name="custom_server_url_placeholder">https://backend.example.com</string>
-  <string name="custom_server_check">Έλεγχος διακομιστή</string>
-  <string name="custom_server_checking">Έλεγχος…</string>
-  <string name="custom_server_review_title">Επισκόπηση προσαρμοσμένου διακομιστή</string>
-  <string name="custom_server_review_description">Το έγγραφο ανακάλυψης είναι έγκυρο. Η σύνδεση θα σας αποσυνδέσει από τον τρέχοντα διακομιστή και θα επανεκκινήσει την εφαρμογή. Επιβεβαιώστε ότι αυτός είναι ένας διακομιστής που σας ανήκει ή τον εμπιστεύεστε.</string>
-  <string name="custom_server_verified_label">Backend που ανακαλύφθηκε</string>
-  <string name="custom_server_key_label">Διαμόρφωση πελάτη</string>
-  <string name="custom_server_key_discovered">Το publishable key ανακαλύφθηκε αυτόματα</string>
-  <string name="custom_server_warning_title">Συνδεθείτε μόνο σε διακομιστή που εμπιστεύεστε</string>
-  <string name="custom_server_warning_public">Αυτός ο διακομιστής χρησιμοποιεί δημόσιο hostname. Η εφαρμογή δεν μπορεί να επαληθεύσει ποιος τον κατέχει ή τον διαχειρίζεται.</string>
-  <string name="custom_server_warning_http">Αυτός ο διακομιστής βρίσκεται σε ιδιωτικό δίκτυο, αλλά η κίνηση HTTP δεν είναι κρυπτογραφημένη. Άλλες συσκευές στο δίκτυο μπορεί να μπορούν να τη διαβάσουν.</string>
-  <string name="custom_server_warning_public_http">Αυτός ο διακομιστής χρησιμοποιεί δημόσιο hostname και μη κρυπτογραφημένο HTTP. Τα διαπιστευτήρια και τα συγχρονισμένα δεδομένα ενδέχεται να εκτεθούν κατά τη μεταφορά.</string>
-  <string name="custom_server_warning_private">Αυτός φαίνεται να είναι διακομιστής ιδιωτικού δικτύου, αλλά η εφαρμογή εξακολουθεί να μην μπορεί να επαληθεύσει ποιος τον ελέγχει.</string>
-  <string name="custom_server_warning_credentials">Ο διαχειριστής του διακομιστή μπορεί να λάβει τα διαπιστευτήρια του λογαριασμού σας και να έχει πρόσβαση στα δεδομένα που συγχρονίζετε μέσω αυτού του διακομιστή.</string>
-  <string name="custom_server_trust_action">Εμπιστεύομαι αυτόν τον διακομιστή</string>
-  <string name="custom_server_switching">Εναλλαγή…</string>
-  <string name="custom_server_error_invalid_url">Εισάγετε έγκυρο URL Backend HTTP ή HTTPS.</string>
-  <string name="custom_server_error_connection">Δεν ήταν δυνατή η πρόσβαση στο endpoint ανακάλυψης. Ελέγξτε το URL και τη διαθεσιμότητα του διακομιστή.</string>
-  <string name="custom_server_error_http">Το endpoint ανακάλυψης επέστρεψε HTTP %1$d.</string>
-  <string name="custom_server_error_response_too_large">Το έγγραφο ανακάλυψης είναι μεγαλύτερο από το επιτρεπόμενο.</string>
-  <string name="custom_server_error_invalid_document">Ο διακομιστής επέστρεψε μη έγκυρο έγγραφο ανακάλυψης.</string>
-  <string name="custom_server_error_version">Αυτή η έκδοση εγγράφου ανακάλυψης δεν υποστηρίζεται.</string>
-  <string name="custom_server_error_service">Το έγγραφο ανακάλυψης δεν αφορά αυτήν την εφαρμογή.</string>
-  <string name="custom_server_error_not_self_hosted">Το έγγραφο ανακάλυψης δεν προσδιορίζει έναν αυτοφιλοξενούμενο διακομιστή.</string>
-  <string name="custom_server_error_missing_configuration">Στο έγγραφο ανακάλυψης λείπει ένα έγκυρο URL Backend ή publishable key.</string>
-  <string name="custom_server_error_no_auth">Ο διακομιστής δεν προσφέρει μια υποστηριζόμενη μέθοδο σύνδεσης.</string>
-  <string name="custom_server_save_failed">Δεν ήταν δυνατή η αποθήκευση της διαμόρφωσης του διακομιστή.</string>
-  <string name="custom_server_session_clear_failed">Δεν ήταν δυνατή η ασφαλής εκκαθάριση της τρέχουσας συνεδρίας. Ο διακομιστής δεν άλλαξε.</string>
-  <string name="custom_server_restart_failed">Ο διακομιστής αποθηκεύτηκε, αλλά η εφαρμογή δεν μπόρεσε να επανεκκινήσει αυτόματα. Επανεκκινήστε την χειροκίνητα.</string>
   <!-- AuthQrSignInScreen -->
-  <string name="auth_qr_finishing">Ολοκλήρωση σύνδεσης…</string>
-  <string name="auth_qr_expires">Λήγει σε %1$s</string>
-  <string name="auth_qr_scan_instruction">Σαρώστε QR, εγκρίνετε στον browser και επιστρέψτε εδώ.</string>
-  <string name="auth_qr_manual_instruction">Ή μεταβείτε στο %1$s και εισάγετε τον κωδικό</string>
-  <string name="auth_qr_refresh">Ανανέωση QR</string>
-  <string name="auth_qr_continue_without_account">Συνέχεια χωρίς λογαριασμό</string>
-  <string name="auth_qr_connected">Ο λογαριασμός σας είναι συνδεδεμένος σε αυτή την TV.</string>
-  <string name="auth_qr_synced_data">Τα συγχρονισμένα σας δεδομένα</string>
-  <string name="auth_qr_generating">Δημιουργία QR…</string>
-  <string name="auth_qr_unavailable">Το QR δεν είναι διαθέσιμο. Ανανεώστε για επανάληψη.</string>
-  <string name="auth_qr_please_wait">Παρακαλώ περιμένετε…</string>
-  <string name="auth_qr_continue">Συνέχεια</string>
-  <string name="auth_qr_back">Πίσω</string>
   <!-- SyncCodeGenerateScreen -->
   <!-- SyncCodeClaimScreen -->
   <!-- ProfileSelectionScreen -->
@@ -1793,10 +1677,7 @@
   <string name="cd_voice_search">Φωνητική αναζήτηση</string>
   <string name="cd_expand">Ανάπτυξη %1$s</string>
   <string name="cd_collapse">Σύμπτυξη %1$s</string>
-  <string name="cd_qr_login">Κωδικός σύνδεσης QR</string>
-  <string name="cd_fetch">Fetch</string>
   <!-- Debug -->
-  <string name="debug_signin_success">Η σύνδεση ολοκληρώθηκε με επιτυχία</string>
   <string name="debug_generate_description">Δημιουργήθηκε δοκιμαστικά στοιχείο %1$s #%2$d</string>
   <string name="debug_generate_result_failed">Αποτυχία: %1$s</string>
   <string name="debug_generate_library_result_added">Προστέθηκαν %1$d στοιχεία στη βιβλιοθήκη</string>
@@ -2396,7 +2277,6 @@
   <string name="external_player_loading_skip_segments">Φόρτωση τμημάτων intro/outro…</string>
   <string name="profile_default_name">Προφίλ %1$d</string>
   <string name="diag_label_dv_mode_requested">Λειτουργία DV (αιτούμενη)</string>
-  <string name="auth_qr_terms_prefix">Με την εγγραφή / σύνδεση, συμφωνώ με τους</string>
   <string name="playback_net_fetch_performance_mode">Εγγενής μνήμη ExoPlayer</string>
   <string name="diag_label_dv_mode_effective">Λειτουργία DV (ενεργή)</string>
   <string name="diag_value_available">Διαθέσιμο</string>
@@ -2444,9 +2324,7 @@
   <string name="advanced_section_startup">Εκκίνηση &amp; έξοδος</string>
   <string name="advanced_section_network_tests">Δοκιμές δικτύου</string>
   <string name="advanced_section_dv_diagnostics">Διαγνωστικά DV</string>
-  <string name="auth_qr_terms_link">Όρους χρήσης</string>
   <string name="dv7_libdovi_mode_2_sub">Μετατροπή σε προφίλ 8.1 με χαρτογράφηση φωτεινότητας και χρωματισμού σε no-op. Η τυπική μετατροπή.</string>
-  <string name="auth_qr_tagline">Παρακολουθήστε τη βιβλιοθήκη σας, οπουδήποτε</string>
   <string name="diag_section_source_hardware_sub">Τραβήξτε φωτογραφία αυτής της κάρτας αν αναφέρετε πρόβλημα.</string>
   <string name="playback_buffer_target_danger_warning">Κίνδυνος: Πάνω από το όριο προειδοποίησης (%1$d MB). Υψηλός κίνδυνος κολλήματος.</string>
   <string name="diag_section_decision_settings">Απόφαση &amp; Ρυθμίσεις</string>
@@ -2468,8 +2346,6 @@
   <string name="dv7_libdovi_mode_caption">Λειτουργία μετατροπής (αυτόματα επιλεγμένη, μην την αλλάξετε εκτός αν σας υποδειχθεί). Επιλέξτε μία για να την επιβάλετε· το Κανένα χρησιμοποιεί την αυτόματη. Ενεργή μόνο όταν ο Χειρισμός DV7 είναι «Μετατροπή σε DV8.1».</string>
   <string name="diag_label_host">Κεντρικός υπολογιστής</string>
   <string name="web_stream_badge_imported">Το URL διακριτικού εισήχθη.</string>
-  <string name="account_sign_out_confirm_title">Αποσύνδεση;</string>
-  <string name="account_sign_out_confirm_subtitle">Θα χρειαστεί να συνδεθείτε ξανά για να συγχρονίσετε τη βιβλιοθήκη, την πρόοδο παρακολούθησης και τα πρόσθετα σε αυτήν τη συσκευή.</string>
   <string name="appearance_launcher_artwork">Εικόνα εκκίνησης</string>
   <string name="appearance_launcher_artwork_subtitle">Επιλέξτε πώς εμφανίζεται το Fetch στην αρχική οθόνη του TV σας</string>
   <string name="ambient_mode_title">Λειτουργία περιβάλλοντος</string>
@@ -2600,7 +2476,7 @@
     <string name="sub_hdr_text_color">Χρώμα κειμένου HDR</string>
     <string name="sub_hdr_brightness">Φωτεινότητα υποτίτλων HDR</string>
     <string name="best_match_preview_title">Εμφάνιση της επιλογής στο κουμπί Αναπαραγωγή</string>
-    <string name="best_match_preview_sub">Ρωτά τα πρόσθετα ροών σας για έναν τίτλο ενώ τον βλέπετε, ώστε το κουμπί Αναπαραγωγή να δείχνει το αρχείο και η αναπαραγωγή να ξεκινά νωρίτερα. Απενεργοποιήστε το για αναζήτηση μόνο αφού πατήσετε Αναπαραγωγή.</string>
+    <string name="best_match_preview_sub">Ρωτά τα πρόσθετα ροών σας για έναν τίτλο όταν μένετε σε αυτόν, ώστε το κουμπί Αναπαραγωγή να δείχνει το αρχείο. Τα πρόσθετα μαθαίνουν ποιος τίτλος είναι και οι υπηρεσίες debrid μετρούν τα αιτήματα. Απενεργοποιήστε το για ερώτηση μόνο αφού πατήσετε Αναπαραγωγή.</string>
     <string name="autoplay_allowed_addons_early_sub">Η αυτόματη αναπαραγωγή ξεκινά μόλις απαντήσουν αυτά τα πρόσθετα, αντί να περιμένει όλα τα πρόσθετα.</string>
     <string name="layout_trailer_crop_to_fill">Περικοπή τρέιλερ για γέμισμα οθόνης</string>
     <string name="layout_trailer_crop_to_fill_sub">Μεγέθυνση των τρέιλερ φόντου στην Αρχική και στις σελίδες λεπτομερειών ώστε να γεμίζουν το κάδρο. Απενεργοποιήστε το για να βλέπετε ολόκληρη την εικόνα με μαύρες μπάρες.</string>
@@ -2673,12 +2549,6 @@
     <string name="library_empty_type_movies">ταινίες</string>
     <string name="library_empty_type_series">σειρές</string>
     <string name="library_empty_type_items">στοιχεία</string>
-    <string name="server_options_use_official">Απενεργοποίηση συγχρονισμού</string>
-    <string name="official_server_title">Απενεργοποίηση συγχρονισμού;</string>
-    <string name="official_server_description">Θα αποσυνδεθείτε από τον διακομιστή συγχρονισμού σας και η εφαρμογή θα επανεκκινηθεί σε τοπική λειτουργία μόνο. Ό,τι υπάρχει ήδη σε αυτή την τηλεόραση παραμένει.</string>
-    <string name="official_server_action">Απενεργοποίηση συγχρονισμού</string>
-    <string name="custom_server_error_official_active">Ο συγχρονισμός είναι ήδη απενεργοποιημένος σε αυτή την τηλεόραση.</string>
-    <string name="custom_server_error_official_available">Αυτός δεν είναι διακομιστής συγχρονισμού. Κλείστε αυτό το παράθυρο και επιλέξτε Απενεργοποίηση συγχρονισμού για να επιστρέψετε σε τοπική λειτουργία μόνο.</string>
     <string name="cd_mark_intro_start">Σήμανση αρχής εισαγωγής</string>
     <string name="cd_mark_intro_end">Σήμανση τέλους εισαγωγής</string>
     <string name="cd_mark_credits_start">Σήμανση αρχής τίτλων τέλους</string>
@@ -2736,7 +2606,6 @@
     <string name="source_chip_failed">απέτυχε</string>
     <string name="source_chip_loading">φόρτωση</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>
-    <string name="account_local_only_note">Ο συγχρονισμός είναι απενεργοποιημένος. Το Fetch κρατά τα πρόσθετα, την πρόοδο και τις ρυθμίσεις σας σε αυτή την τηλεόραση και δεν χρειάζεται λογαριασμό. Για συγχρονισμό μεταξύ συσκευών, συνδέστε τον δικό σας διακομιστή συγχρονισμού από τις επιλογές διακομιστή.</string>
     <string name="parental_title_blocked">Αυτός ο τίτλος ξεπερνά το όριο καταλληλότητας αυτού του προφίλ.</string>
     <string name="parental_addons_blocked">Αυτό το προφίλ δεν μπορεί να εγκαταστήσει πρόσθετα. Ζητήστε από έναν γονέα.</string>
     <string name="parental_gate_heading">Εισαγάγετε το PIN του προφίλ %1$s</string>

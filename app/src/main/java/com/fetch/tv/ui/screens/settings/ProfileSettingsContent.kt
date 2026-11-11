@@ -44,7 +44,6 @@ internal fun ProfileSettingsContent(
     val parentPinSet by viewModel.parentPinSet.collectAsStateWithLifecycle()
     val parentalGate = com.fetch.tv.ui.screens.profile.LocalParentalGate.current
     val mainProfileName = profiles.firstOrNull { it.isPrimary }?.name.orEmpty()
-    LaunchedEffect(viewModel) { viewModel.loadAvatars() }
 
     Column(
         modifier = Modifier.fillMaxSize(),

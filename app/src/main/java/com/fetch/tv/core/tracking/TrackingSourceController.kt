@@ -1,7 +1,5 @@
 package com.fetch.tv.core.tracking
 
-import com.fetch.tv.core.sync.StartupSyncService
-import com.fetch.tv.core.sync.WatchedItemsSyncService
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.local.ContinueWatchingEnrichmentCache
 import com.fetch.tv.data.local.TraktSettingsDataStore
@@ -20,10 +18,8 @@ class TrackingSourceController @Inject constructor(
     private val settingsDataStore: TraktSettingsDataStore,
     private val progressProviders: TrackingProgressProviderRegistry,
     private val libraryProviders: TrackingLibraryProviderRegistry,
-    private val startupSyncService: StartupSyncService,
     private val watchedItemsPreferences: WatchedItemsPreferences,
     private val watchProgressPreferences: WatchProgressPreferences,
-    private val watchedItemsSyncService: WatchedItemsSyncService,
     private val watchedSeriesStateHolder: WatchedSeriesStateHolder,
     private val continueWatchingEnrichmentCache: ContinueWatchingEnrichmentCache,
     private val profileManager: ProfileManager
@@ -109,11 +105,6 @@ class TrackingSourceController @Inject constructor(
             watchedItemsPreferences.clearAll(profileId)
             watchedSeriesStateHolder.update(emptySet())
             provider.refresh(TrackingRefreshIntent.USER_INITIATED)
-        } else if (source == WatchProgressSource.FETCH_SYNC) {
-            repopulateWatchedItemsFromFetchSync(profileId)
-            if (profileManager.activeProfileId.value == profileId) {
-                startupSyncService.requestSyncNow()
-            }
         }
     }
 
@@ -121,11 +112,5 @@ class TrackingSourceController @Inject constructor(
         settingsDataStore.setLibrarySourceMode(mode, profileId)
         if (profileManager.activeProfileId.value != profileId) return
         mode.providerId?.let(libraryProviders::provider)?.refresh(TrackingRefreshIntent.USER_INITIATED)
-    }
-
-    private suspend fun repopulateWatchedItemsFromFetchSync(profileId: Int) {
-        runCatching {
-            watchedItemsSyncService.syncSnapshotFromRemote(profileId).getOrElse { return }
-        }
     }
 }

@@ -7,19 +7,19 @@ import kotlinx.serialization.json.Json
 
 // --- Avatars ---
 
-/** One avatar a profile can pick: bundled with Fetch, or from the sync server's catalog. */
+/** One avatar a profile can pick, bundled with Fetch. */
 data class AvatarItem(
     val id: String,
     val name: String,
     val category: String,
-    /** A URL for the server's; null for bundled ones, read from [BundledAvatars.resource]. */
+    /** Null for bundled ones, read from [BundledAvatars.resource]. */
     val imageUrl: String?,
     val bgColor: String?
 )
 
 /**
  * The TV's bundled avatars (`BundledAvatars.kt`, the artwork in `app/src/main/assets/avatars`),
- * shipped with the desktop app too so a profile has a picture without a sync server. Their ids
+ * shipped with the desktop app too so a profile has a picture. Their ids
  * carry the TV's `fetch:` prefix, so the same id shows the same picture on every device.
  */
 object BundledAvatars {
@@ -63,33 +63,6 @@ val AvatarCategoryLabels = linkedMapOf(
     "supporter" to "Supporter", "anime" to "Anime", "animation" to "Animation", "movie" to "Movie", "tv" to "TV",
     "gaming" to "Gaming", "animals" to "Animals", "characters" to "Characters", "fun" to "Fun"
 )
-
-/** A row of the sync server's `get_avatar_catalog`, as the TV reads it. */
-@Serializable
-internal data class RemoteAvatar(
-    val id: String,
-    @SerialName("display_name") val displayName: String,
-    @SerialName("storage_path") val storagePath: String,
-    val category: String = "",
-    @SerialName("sort_order") val sortOrder: Int = 0,
-    @SerialName("bg_color") val bgColor: String? = null
-)
-
-private val avatarJson = Json { ignoreUnknownKeys = true }
-
-/**
- * The server's avatar catalog from `get_avatar_catalog`'s body, with each image under the
- * server's public `avatars` bucket (the TV's `avatarPublicBaseUrl`) unless it's a full URL.
- */
-fun parseAvatarCatalog(body: String, serverBaseUrl: String): List<AvatarItem> {
-    val rows = runCatching { avatarJson.decodeFromString<List<RemoteAvatar>>(body) }.getOrDefault(emptyList())
-    val base = "${serverBaseUrl.trimEnd('/')}/storage/v1/object/public/avatars"
-    return rows.sortedBy { it.sortOrder }.map { row ->
-        val url = if (row.storagePath.startsWith("http://") || row.storagePath.startsWith("https://")) row.storagePath
-        else "$base/${row.storagePath.trimStart('/')}"
-        AvatarItem(row.id, row.displayName, row.category.lowercase(), url, row.bgColor)
-    }
-}
 
 // --- New profiles: kids limits, copied settings ---
 

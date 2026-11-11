@@ -68,7 +68,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">Početnoj treba addon za katalog da prikaže naslove.</string>
     <string name="home_empty_no_catalogs_title">Nema kataloga za prikaz</string>
     <string name="home_empty_no_catalogs_subtitle">Vaši addoni ne nude nijedan katalog za Početnu.</string>
-    <string name="auth_notice_fetch_logged_out">Odjavljeni ste iz Fetcha. Ponovo se prijavite putem Postavke &gt; Račun.</string>
     <string name="auth_notice_trakt_logged_out">Odjavljeni ste sa Trakta. Ponovo ga povežite putem Postavke &gt; Praćenje.</string>
     <string name="error_generic">Došlo je do greške</string>
 
@@ -285,10 +284,6 @@
     <string name="network_connection_offline">Van mreže</string>
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Račun i status sinhronizacije</string>
-    <string name="account_stat_addons">addoni</string>
-    <string name="account_stat_library">biblioteka</string>
-    <string name="account_stat_progress">napredak</string>
-    <string name="account_stat_watched">odgledano</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Postavke Reprodukcije</string>
@@ -568,14 +563,6 @@
     <string name="trakt_connected_as">Prijavljen kao %1$s</string>
     <string name="trakt_awaiting_instruction">Idi na trakt.tv/activate i unesi ovaj kod:</string>
     <string name="trakt_waiting_approval">Čekanje na odobrenje…</string>
-    <string name="qr_login_approved">Prijava odobrena. Završavanje prijave…</string>
-    <string name="qr_login_pending">Čekanje na odobrenje na tvom telefonu…</string>
-    <string name="qr_login_expired">QR prijava je istekla. Generiši novi kod.</string>
-    <string name="qr_login_scan_prompt">Skeniraj QR i prijavi se na svom telefonu</string>
-    <string name="qr_login_start_failed">Pokretanje QR prijave nije uspjelo</string>
-    <string name="qr_login_signing_in">Prijavljivanje…</string>
-    <string name="qr_login_success">Uspješno prijavljeno</string>
-    <string name="qr_login_exchange_failed">Nije bilo moguće završiti QR prijavu</string>
     <string name="trakt_code_expires">Kod ističe za %1$s</string>
     <string name="trakt_token_refreshes">Trakt access token se osvježava za %1$s</string>
     <string name="trakt_missing_credentials">Nedostaju TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET u local.properties.</string>
@@ -613,13 +600,6 @@
     <string name="debug_account_tab_subtitle">Prikaži Račun tab u navigaciji postavki</string>
     <string name="debug_sync_code_title">Sync Code Opcije</string>
     <string name="debug_sync_code_subtitle">Prikaži dugmad za Generiši/Unesi Sync Code u postavkama Računa</string>
-    <string name="debug_section_account">Račun</string>
-    <string name="debug_manual_signin_title">Ručna Prijava</string>
-    <string name="debug_manual_signin_subtitle">Prijavi se sa emailom i lozinkom (Supabase auth)</string>
-    <string name="debug_email_placeholder">Email</string>
-    <string name="debug_password_placeholder">Lozinka</string>
-    <string name="debug_signing_in">Prijavljivanje…</string>
-    <string name="debug_sign_in">Prijavi se</string>
     <string name="debug_error_dialog_title">Greška Reprodukcije</string>
     <string name="debug_error_dialog_subtitle">Došlo je do greške tokom reprodukcije.\n\nGreška: Simulirana test greška - ovo nije stvarni kvar. Izvor je vratio HTTP 503 (Servis Nedostupan).</string>
     <string name="debug_dismiss">Zatvori</string>
@@ -647,11 +627,6 @@
     <string name="profile_choose_avatar">Odaberi avatar</string>
     <string name="profile_avatar_focus_hint">Fokusiraj avatar da vidiš njegovo ime</string>
     <string name="profile_avatar_category_all">Sve</string>
-    <string name="profile_avatar_category_anime">Anime</string>
-    <string name="profile_avatar_category_animation">Animirani</string>
-    <string name="profile_avatar_category_movie">Film</string>
-    <string name="profile_avatar_category_tv">TV</string>
-    <string name="profile_avatar_category_gaming">Gaming</string>
     <string name="profile_add_new">Dodaj profil</string>
     <string name="profile_cancel">Otkaži</string>
     <string name="profile_save">Spremi</string>
@@ -931,31 +906,11 @@
     <string name="library_empty_trakt_subtitle">Koristi + u detaljima da dodaš stavke na watchlistu ili liste</string>
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">Učitavanje…</string>
-    <string name="account_sync_description">Sinhronizuj svoju biblioteku, napredak gledanja i addone na svim uređajima.</string>
-    <string name="account_sync_restart_note">Sinhronizacija nije u stvarnom vremenu između aktivnih uređaja. Ponovo pokreni ovaj uređaj nakon prijave ili da preuzmeš promjene napravljene negdje drugo.</string>
     <string name="account_signin_qr_title">Prijava sa QR</string>
-    <string name="account_signin_qr_subtitle">Skeniraj QR kod i završi prijavu emailom na telefonu</string>
-    <string name="account_signed_in_label">Prijavljeno</string>
-    <string name="account_total_label">Ukupno</string>
-    <string name="account_loading_sync">Učitavanje podataka za sinhronizaciju…</string>
-    <string name="account_sign_out">Odjavi se</string>
 
     <!-- AuthSignInScreen -->
 
     <!-- AuthQrSignInScreen -->
-    <string name="auth_qr_finishing">Završavanje prijave…</string>
-    <string name="auth_qr_expires">Ističe za %1$s</string>
-    <string name="auth_qr_scan_instruction">Skeniraj QR, odobri u pretraživaču, pa se vrati ovdje.</string>
-    <string name="auth_qr_refresh">Osvježi QR</string>
-    <string name="auth_qr_continue_without_account">Nastavi bez računa</string>
-    <string name="auth_qr_connected">Tvoj račun je povezan na ovom TV-u.</string>
-    <string name="auth_qr_synced_data">Tvoji sinhronizovani podaci</string>
-    <string name="auth_qr_generating">Generisanje QR koda…</string>
-    <string name="auth_qr_unavailable">QR nedostupan. Osvježi za ponovni pokušaj.</string>
-    <string name="auth_qr_please_wait">Molimo pričekajte…</string>
-    <string name="auth_qr_continue">Nastavi</string>
-    <string name="auth_qr_back">Nazad</string>
 
     <!-- SyncCodeGenerateScreen -->
 
@@ -1130,11 +1085,8 @@
     <string name="cd_voice_search">Glasovna pretraga</string>
     <string name="cd_expand">Proširi %1$s</string>
     <string name="cd_collapse">Skupi %1$s</string>
-    <string name="cd_qr_login">QR kod za prijavu</string>
-    <string name="cd_fetch">Fetch</string>
 
     <!-- Debug -->
-    <string name="debug_signin_success">Uspješno prijavljeno</string>
     <string name="debug_generate_description">Debug generisana stavka %1$s broj %2$d</string>
     <string name="debug_generate_result_failed">Nije uspjelo: %1$s</string>
 
@@ -1223,7 +1175,6 @@
     <string name="library_error_save_list_next_step">Provjeri vezu i pokušaj ponovo.</string>
 
     <!-- Fetch: new and changed strings -->
-    <string name="account_local_only_note">Sinhronizacija je isključena. Fetch čuva tvoje addone, napredak i postavke na ovom TV-u i ne treba mu račun. Za sinhronizaciju između uređaja poveži vlastiti server za sinhronizaciju iz opcija servera.</string>
     <string name="addon_badge_needs_setup">Potrebno podešavanje</string>
     <string name="addon_configure">Konfiguriši</string>
     <string name="addon_configure_install">Instaliraj</string>
@@ -1270,7 +1221,7 @@
     <string name="best_match_cached">Keširano</string>
     <string name="best_match_excluded">Ne pušta se automatski: %1$s</string>
     <string name="stream_hold_for_options">Drži OK za opcije Najboljeg podudaranja</string>
-    <string name="best_match_preview_sub">Pita tvoje stream addone za naslov dok ga gledaš, tako da dugme Pusti može prikazati fajl, a reprodukcija počne brže. Isključi da se pretraga vrši tek nakon pritiska na Pusti.</string>
+    <string name="best_match_preview_sub">Pita tvoje stream addone za naslov kada se zadržiš na njemu, tako da dugme Pusti može prikazati fajl. Addoni saznaju o kojem je naslovu riječ, a debrid servisi broje zahtjeve. Isključi da se pita tek nakon pritiska na Pusti.</string>
     <string name="best_match_preview_title">Prikaži izbor na dugmetu Pusti</string>
     <string name="catalog_order_pin">Zakači na vrh</string>
     <string name="catalog_order_pinned_on_home">Zakačeno na vrh Početne</string>
@@ -1279,8 +1230,6 @@
     <string name="cd_mark_credits_start">Označi početak odjavne špice</string>
     <string name="cd_mark_intro_end">Označi kraj uvoda</string>
     <string name="cd_mark_intro_start">Označi početak uvoda</string>
-    <string name="custom_server_error_official_active">Sinhronizacija je već isključena na ovom TV-u.</string>
-    <string name="custom_server_error_official_available">To nije server za sinhronizaciju. Zatvori ovaj dijalog i izaberi Isključi sinhronizaciju da se vratiš u lokalni način rada.</string>
     <string name="exclusion_3d">3D izdanje</string>
     <string name="exclusion_above_max_resolution">iznad tvoje maksimalne rezolucije</string>
     <string name="exclusion_audio">preskačeš %1$s zvuk</string>
@@ -1358,9 +1307,6 @@
     <string name="library_empty_type_movies">filmova</string>
     <string name="library_empty_type_series">serija</string>
     <string name="licenses_attributions_fetch_body">Fetch je slobodan softver pod licencom GNU General Public License v3.0. To je fork projekta NuvioTV saradnika projekta Nuvio (github.com/NuvioMedia/NuvioTV), čiji rad čini najveći dio ove aplikacije.</string>
-    <string name="official_server_action">Isključi sinhronizaciju</string>
-    <string name="official_server_description">Bit ćeš odjavljen sa servera za sinhronizaciju, a aplikacija će se ponovo pokrenuti u lokalnom načinu rada. Sve što je već na ovom TV-u ostaje.</string>
-    <string name="official_server_title">Isključiti sinhronizaciju?</string>
     <string name="parental_addons_blocked">Ovaj profil ne može instalirati addone. Pitaj roditelja.</string>
     <string name="parental_allow_unrated">Prikaži naslove bez rejtinga: %1$s</string>
     <string name="parental_gate_heading">Unesi PIN za %1$s</string>
@@ -1438,7 +1384,6 @@
     <string name="ranking_size_gb">%1$d GB</string>
     <string name="ranking_skip_dv5">Preskoči Dolby Vision profil 5</string>
     <string name="ranking_skip_dv5_sub">Profil 5 nema HDR10 rezervu. Uvijek se preskače kada ga ovaj TV ne može prikazati</string>
-    <string name="server_options_use_official">Isključi sinhronizaciju</string>
     <string name="skip_marker_report_failed">Prijavljivanje oznake nije uspjelo</string>
     <string name="skip_marker_reported">Pogrešna oznaka je prijavljena. Hvala!</string>
     <string name="skip_marker_start_recorded">Početak označen. Pritisni ponovo tamo gdje završava.</string>
@@ -1587,7 +1532,6 @@
     <string name="youtube_show_live_subtitle">Uključi prijenose koji su trenutno uživo u feedove, rezultate pretrage i Sljedeće</string>
     <string name="youtube_hide_watched_title">Sakrij pogledane videe</string>
     <string name="youtube_hide_watched_subtitle">Izostavlja videe koje si pogledao do kraja. Historija ih i dalje prikazuje</string>
-    <string name="profile_avatar_category_supporter">Podržavalac</string>
     <string name="profile_avatar_category_animals">Životinje</string>
     <string name="profile_avatar_category_characters">Likovi</string>
     <string name="profile_avatar_category_fun">Zabava</string>

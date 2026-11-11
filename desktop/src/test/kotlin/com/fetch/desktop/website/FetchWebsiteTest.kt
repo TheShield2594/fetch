@@ -1,7 +1,6 @@
 package com.fetch.desktop.website
 
 import com.fetch.desktop.tracking.FakeHttp
-import com.fetch.desktop.ui.syncCodeOf
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -93,12 +92,5 @@ class FetchWebsiteTest {
         assertTrue(website.file.signedOutByWebsite)
         website.dismissSignedOutNotice()
         assertFalse(website.file.signedOutByWebsite)
-    }
-
-    @Test
-    fun `sync codes are read from the RPC's list`() {
-        assertEquals("ABCD-EFGH", syncCodeOf("""[{"code":"ABCD-EFGH"}]"""))
-        assertEquals("X1", syncCodeOf("""{"code":"X1"}"""))
-        assertNull(syncCodeOf("[]"))
     }
 }

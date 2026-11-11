@@ -68,8 +68,6 @@
 # classes whose fields all carry @SerializedName need no rule.
 # PersistedGsonKeepRulesTest checks that every class named between the markers still exists.
 # gson-persisted-begin
--keep class com.fetch.tv.core.sync.PendingProgressUpsert { *; }
--keep class com.fetch.tv.core.sync.PendingWatchedUpsert { *; }
 -keep class com.fetch.tv.data.local.CachedNextUpItem { *; }
 -keep class com.fetch.tv.data.local.CachedInProgressItem { *; }
 -keep class com.fetch.tv.core.tracking.LocalList { *; }
@@ -112,12 +110,8 @@
 # Playback diagnostics and issue reports name the exception class.
 -keepnames class androidx.media3.** extends java.lang.Throwable
 
-# ── Supabase / Ktor / Kotlinx Serialization ───────────────────────────────────
-# Ktor ships rules for its ServiceLoader engines and AtomicFU fields; Supabase talks to
-# its API through kotlinx.serialization, whose generated serializers are kept by the
-# library's own rules and the rule below.
--dontwarn io.ktor.**
--keep class com.fetch.tv.data.remote.supabase.** { *; }
+# ── Kotlinx Serialization ─────────────────────────────────────────────────────
+# Generated serializers are kept by the library's own rules and the rule below.
 # Keep @Serializable classes and their generated serializers
 -keepclassmembers class * {
     kotlinx.serialization.KSerializer serializer(...);

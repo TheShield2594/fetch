@@ -1,21 +1,18 @@
 package com.fetch.desktop.deeplink
 
-import com.fetch.desktop.party.PARTY_CODE_LENGTH
-import com.fetch.desktop.party.normalizePartyCode
 import java.net.URI
 import java.net.URLDecoder
 
-/** A link Fetch opens: a title, an addon to install, or a watch party to join (the TV's AppDeepLink). */
+/** A link Fetch opens: a title or an addon to install (the TV's AppDeepLink). */
 sealed interface AppDeepLink {
     data class Meta(val type: String, val id: String) : AppDeepLink
     data class AddonInstall(val manifestUrl: String) : AppDeepLink
-    data class Party(val code: String) : AppDeepLink
 }
 
 /**
- * The TV's `DeepLinkParser`, unchanged: `fetch://meta?type=…&id=…`, `fetch://detail/<type>/<id>`,
- * `fetch://movie/<id>`, `fetch://imdb/<type>/<id>`, `fetch://tmdb/<type>/<id>`,
- * `fetch://party/<code>`, and `fetch://` or `stremio://` addon links (installed over https).
+ * The TV's `DeepLinkParser`: `fetch://meta?type=…&id=…`, `fetch://detail/<type>/<id>`,
+ * `fetch://movie/<id>`, `fetch://imdb/<type>/<id>`, `fetch://tmdb/<type>/<id>`, and `fetch://`
+ * or `stremio://` addon links (installed over https).
  */
 object DeepLinkParser {
     fun parse(url: String): AppDeepLink? {
@@ -46,10 +43,6 @@ object DeepLinkParser {
                 if (type.isBlank() || id.isBlank()) null else AppDeepLink.Meta(type = type, id = id)
             }
             "imdb", "tmdb" -> parseProviderMetaDeepLink(host, pathSegments, parsedUrl)
-            "party" -> (pathSegments.firstOrNull() ?: firstParameter(queryParameters(parsedUrl), "code"))
-                ?.let(::normalizePartyCode)
-                ?.takeIf { it.length == PARTY_CODE_LENGTH }
-                ?.let(AppDeepLink::Party)
             "auth" -> null
             else -> {
                 if (looksLikeAddonHost(host)) {

@@ -104,7 +104,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">தலைப்புகளைக் காட்ட முகப்புக்கு ஒரு பட்டியல் ஆடான் தேவை.</string>
     <string name="home_empty_no_catalogs_title">காட்ட பட்டியல்கள் எதுவும் இல்லை</string>
     <string name="home_empty_no_catalogs_subtitle">உங்கள் ஆடான்கள் முகப்புக்கான பட்டியல்கள் எதையும் வழங்கவில்லை.</string>
-    <string name="auth_notice_fetch_logged_out">நீங்கள் Fetch-இலிருந்து வெளியேற்றப்பட்டுள்ளீர்கள். அமைப்புகள் &gt; அக்கவுண்ட் என்பதில் மீண்டும் உள்நுழையவும்.</string>
     <string name="auth_notice_trakt_logged_out">நீங்கள் Trakt-இலிருந்து வெளியேற்றப்பட்டுள்ளீர்கள். அமைப்புகள் &gt; டிராக்கிங் என்பதில் மீண்டும் இணைக்கவும்.</string>
     <string name="error_generic">ஒரு பிழை ஏற்பட்டது</string>
 
@@ -393,34 +392,7 @@
     <string name="essential_subtitle_language_subtitle">விருப்பமான வசனவரி மொழி.</string>
     <string name="essential_audio_language_subtitle">விருப்பமான ஒலி மொழி.</string>
     <!-- Account / sign-in error messages -->
-    <string name="account_error_incorrect_pin">தவறான பின்.</string>
-    <string name="account_error_sync_code_expired">ஒத்திசைவு குறியீடு காலாவதியானது.</string>
-    <string name="account_error_invalid_sync_code">தவறான ஒத்திசைவு குறியீடு.</string>
-    <string name="account_error_sync_code_not_found">ஒத்திசைவு குறியீடு கிடைக்கவில்லை.</string>
-    <string name="account_error_device_already_linked">சாதனம் ஏற்கனவே இணைக்கப்பட்டுள்ளது.</string>
     <string name="account_error_generic_retry">ஏதோ தவறு ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.</string>
-    <string name="account_error_invalid_credentials">தவறான மின்னஞ்சல் அல்லது கடவுச்சொல்.</string>
-    <string name="account_error_email_not_confirmed">முதலில் மின்னஞ்சலை உறுதிப்படுத்தவும்.</string>
-    <string name="account_error_email_already_registered">இந்த மின்னஞ்சலுக்கு ஏற்கனவே அக்கவுண்ட் உள்ளது.</string>
-    <string name="account_error_invalid_email">சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.</string>
-    <string name="account_error_password_too_short">கடவுச்சொல் மிகவும் குறுகியது.</string>
-    <string name="account_error_password_too_weak">கடவுச்சொல் பலவீனமாக உள்ளது.</string>
-    <string name="account_error_signup_disabled">பதிவு தற்போது முடக்கப்பட்டுள்ளது.</string>
-    <string name="account_error_rate_limited">அதிக முயற்சிகள். பின்னர் முயற்சிக்கவும்.</string>
-    <string name="account_error_qr_login_expired">க்யூஆர் உள்நுழைவு காலாவதியானது. மீண்டும் முயற்சிக்கவும்.</string>
-    <string name="account_error_invalid_qr_login">தவறான க்யூஆர் உள்நுழைவு குறியீடு.</string>
-    <string name="account_error_qr_login_other_device">இந்த க்யூஆர் உள்நுழைவு மற்றொரு சாதனத்திலிருந்து கோரப்பட்டது.</string>
-    <string name="account_error_qr_login_outdated">க்யூஆர் உள்நுழைவு சேவை காலாவதியானது. டிவி உள்நுழைவு எஸ்க்யூஎல் அமைப்பை மீண்டும் செயல்படுத்து.</string>
-    <string name="account_error_qr_login_missing_setup">க்யூஆர் உள்நுழைவு பின்புற அமைப்பு இல்லை. டிவி உள்நுழைவு எஸ்க்யூஎல் அமைப்பை புதுப்பிக்கவும்.</string>
-    <string name="account_error_qr_login_misconfigured">க்யூஆர் உள்நுழைவு முகவரி தவறாக அமைக்கப்பட்டுள்ளது.</string>
-    <string name="account_error_qr_login_invalid_request">தவறான க்யூஆர் உள்நுழைவு கோரிக்கை. மீண்டும் முயற்சிக்கவும்.</string>
-    <string name="account_error_no_internet">இணைய இணைப்பு இல்லை.</string>
-    <string name="account_error_connection_timeout">இணைப்பு நேரம் முடிந்தது. மீண்டும் முயற்சிக்கவும்.</string>
-    <string name="account_error_connection_refused">சேவையகத்துடன் இணைக்க முடியவில்லை.</string>
-    <string name="account_error_not_authenticated">முதலில் உள்நுழையவும்.</string>
-    <string name="account_error_service_unavailable">சேவை கிடைக்கவில்லை. பின்னர் முயற்சிக்கவும்.</string>
-    <string name="account_error_invalid_request">தவறான கோரிக்கை. உங்கள் உள்ளீட்டை சரிபார்க்கவும்.</string>
-    <string name="account_error_unexpected">எதிர்பாராத பிழை ஏற்பட்டது.</string>
     <string name="experience_mode_switch_to_essential">எளிமை நிலைக்கு மாறு</string>
     <string name="experience_mode_switch_to_essential_subtitle">சேமித்த மதிப்புகளை மாற்றாமல் மேம்பட்ட அமைப்புகளை மறை.</string>
     <string name="experience_mode_switch_to_advanced">மேம்பட்ட நிலைக்கு மாறு</string>
@@ -459,10 +431,6 @@
     <string name="profile_remember_last_profile_subtitle">தொடக்கத்தில் கடைசியாக தேர்ந்தெடுத்த புரொஃபைலை நினைவில் வைத்திரு</string>
     <string name="settings_debug">பிழைத்திருத்தம்</string>
     <string name="settings_account_section_subtitle">அக்கவுண்ட் மற்றும் ஒத்திசைவு நிலை</string>
-    <string name="account_stat_addons">ஆட்-ஆன்கள்</string>
-    <string name="account_stat_library">நூலகம்</string>
-    <string name="account_stat_progress">முன்னேற்றம்</string>
-    <string name="account_stat_watched">பார்த்தவை</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">இயக்க அமைப்புகள்</string>
@@ -787,15 +755,6 @@
     <string name="trakt_connected_as">%1$s ஆக இணைக்கப்பட்டுள்ளது</string>
     <string name="trakt_awaiting_instruction">trakt.tv/activate க்கு சென்று இந்த குறியீட்டை உள்ளிடவும்:</string>
     <string name="trakt_waiting_approval">அனுமதிக்காக காத்திருக்கிறது…</string>
-    <string name="qr_login_approved">உள்நுழைவு அனுமதிக்கப்பட்டது. உள்நுழைவு முடிக்கப்படுகிறது…</string>
-    <string name="qr_login_pending">உங்கள் தொலைபேசியில் அனுமதிக்க காத்திருக்கிறது…</string>
-    <string name="qr_login_expired">க்யூஆர் உள்நுழைவு காலாவதியானது. புதிய குறியீட்டை உருவாக்கவும்.</string>
-    <string name="qr_login_preparing">க்யூஆர் உள்நுழைவு தயாராகிறது...</string>
-    <string name="qr_login_scan_prompt">க்யூஆர் ஐ ஸ்கேன் செய்து உங்கள் தொலைபேசியில் உள்நுழையவும்</string>
-    <string name="qr_login_start_failed">க்யூஆர் உள்நுழைவை தொடங்க முடியவில்லை</string>
-    <string name="qr_login_signing_in">உங்களை உள்நுழைக்கிறது…</string>
-    <string name="qr_login_success">வெற்றிகரமாக உள்நுழைந்தது</string>
-    <string name="qr_login_exchange_failed">க்யூஆர் உள்நுழைவை முடிக்க முடியவில்லை</string>
     <string name="trakt_code_expires">குறியீடு %1$s இல் காலாவதியாகும்</string>
     <string name="trakt_token_refreshes">ட்ராக்ட் அணுகல் டோக்கன் %1$s இல் புதுப்பிக்கப்படும்</string>
     <string name="trakt_missing_credentials">local.properties இல் TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET இல்லை.</string>
@@ -843,13 +802,6 @@
     <string name="debug_account_tab_subtitle">அமைப்புகள் வழிசெலுத்தலில் கணக்கு தாவலை காட்டு</string>
     <string name="debug_sync_code_title">ஒத்திசைவு குறியீட்டு அம்சங்கள்</string>
     <string name="debug_sync_code_subtitle">கணக்கு அமைப்புகளில் குறியீடு உருவாக்கு/உள்ளிடு பொத்தான்களை காட்டு</string>
-    <string name="debug_section_account">கணக்கு</string>
-    <string name="debug_manual_signin_title">கைமுறை உள்நுழைவு</string>
-    <string name="debug_manual_signin_subtitle">மின்னஞ்சல் மற்றும் கடவுச்சொல்லுடன் உள்நுழைக (சூப்பாபேஸ் அங்கீகாரம்)</string>
-    <string name="debug_email_placeholder">மின்னஞ்சல்</string>
-    <string name="debug_password_placeholder">கடவுச்சொல்</string>
-    <string name="debug_signing_in">உள்நுழைகிறது…</string>
-    <string name="debug_sign_in">உள்நுழை</string>
     <string name="debug_error_dialog_title">இயக்கப் பிழை</string>
     <string name="debug_error_dialog_subtitle">இயக்கத்தின் போது ஒரு பிழை ஏற்பட்டது.\n\nபிழை: சோதனைக்காக உருவாக்கப்பட்ட பிழை - இது உண்மையான தோல்வி அல்ல. மூலம் HTTP 503 (சேவை கிடைக்கவில்லை) என்பதை திருப்பியது.</string>
     <string name="debug_dismiss">மூடு</string>
@@ -877,11 +829,6 @@
     <string name="profile_choose_avatar">அவதாரை தேர்ந்தெடுக்கவும்</string>
     <string name="profile_avatar_focus_hint">அதன் பெயரை காண ஒரு அவதாரில் கவனம் செலுத்தவும்</string>
     <string name="profile_avatar_category_all">அனைத்தும்</string>
-    <string name="profile_avatar_category_anime">அனிமே</string>
-    <string name="profile_avatar_category_animation">அனிமேஷன்</string>
-    <string name="profile_avatar_category_movie">திரைப்படம்</string>
-    <string name="profile_avatar_category_tv">தொலைக்காட்சி</string>
-    <string name="profile_avatar_category_gaming">விளையாட்டு</string>
     <string name="profile_add_new">சுயவிவரம் சேர்</string>
     <string name="profile_cancel">ரத்து செய்</string>
     <string name="profile_save">சேமி</string>
@@ -1214,31 +1161,11 @@
     <string name="library_empty_trakt_not_auth_subtitle">உங்கள் ட்ராக்ட் நூலகத்தை காண அமைப்புகளில் ட்ராக்ட் கணக்கை இணைக்கவும்</string>
 
         <!-- AccountSettingsContent -->
-    <string name="account_loading">ஏற்றப்படுகிறது\u2026</string>
-    <string name="account_sync_description">உங்கள் நூலகம், பார்த்த முன்னேற்றம் மற்றும் அடான்களை சாதனங்கள் முழுவதும் ஒத்திசைக்கவும்.</string>
-    <string name="account_sync_restart_note">செயலில் உள்ள சாதனங்களுக்கு இடையில் ஒத்திசைவு உடனடி அல்ல. உள்நுழைந்த பிறகு அல்லது வேறு இடத்தில் செய்யப்பட்ட மாற்றங்களை பெற இந்த சாதனத்தை மீண்டும் தொடங்கவும்.</string>
     <string name="account_signin_qr_title">க்யூஆர் மூலம் உள்நுழை</string>
-    <string name="account_signin_qr_subtitle">க்யூஆர் குறியீட்டை ஸ்கேன் செய்து உங்கள் கைபேசியில் மின்னஞ்சல் உள்நுழைவை முடிக்கவும்</string>
-    <string name="account_signed_in_label">உள்நுழைந்தது</string>
-    <string name="account_total_label">மொத்தம்</string>
-    <string name="account_loading_sync">ஒத்திசைவு தரவு ஏற்றப்படுகிறது\u2026</string>
-    <string name="account_sign_out">வெளியேறு</string>
 
     <!-- AuthSignInScreen -->
 
     <!-- AuthQrSignInScreen -->
-    <string name="auth_qr_finishing">உள்நுழைவு முடிக்கப்படுகிறது\u2026</string>
-    <string name="auth_qr_expires">காலாவதி ஆகும் நேரம் %1$s</string>
-    <string name="auth_qr_scan_instruction">க்யூஆரை ஸ்கேன் செய்து, உலாவியில் ஒப்புதல் அளித்து, பின்னர் இங்கு திரும்பவும்.</string>
-    <string name="auth_qr_refresh">க்யூஆர் புதுப்பி</string>
-    <string name="auth_qr_continue_without_account">கணக்கு இல்லாமல் தொடர்க</string>
-    <string name="auth_qr_connected">இந்த தொலைக்காட்சியில் உங்கள் கணக்கு இணைக்கப்பட்டுள்ளது.</string>
-    <string name="auth_qr_synced_data">உங்கள் ஒத்திசைக்கப்பட்ட தரவு</string>
-    <string name="auth_qr_generating">க்யூஆர் உருவாக்கப்படுகிறது\u2026</string>
-    <string name="auth_qr_unavailable">க்யூஆர் கிடைக்கவில்லை. மீண்டும் முயல புதுப்பிக்கவும்.</string>
-    <string name="auth_qr_please_wait">தயவு செய்து காத்திருக்கவும்\u2026</string>
-    <string name="auth_qr_continue">தொடர்க</string>
-    <string name="auth_qr_back">பின்செல்</string>
 
     <!-- SyncCodeGenerateScreen -->
 
@@ -1436,11 +1363,8 @@
     <string name="cd_voice_search">குரல் தேடல்</string>
     <string name="cd_expand">விரிவு செய் %1$s</string>
     <string name="cd_collapse">சுருக்கு %1$s</string>
-    <string name="cd_qr_login">க்யூஆர் உள்நுழைவு குறியீடு</string>
-    <string name="cd_fetch">Fetch</string>
 
     <!-- Debug -->
-    <string name="debug_signin_success">வெற்றிகரமாக உள்நுழைந்தது</string>
     <string name="debug_generate_description">டீபக் உருவாக்கிய %1$s உருப்பு #%2$d</string>
     <string name="debug_generate_result_failed">தோல்வி: %1$s</string>
     <string name="debug_generate_library_result_added">நூலகத்தில் %1$d உருப்படிகள் சேர்க்கப்பட்டன</string>
@@ -1896,7 +1820,6 @@
     <string name="trakt_library_error_fetch_list_items">பட்டியல் உருப்படிகளைப் பெற முடியவில்லை</string>
 
     <!-- Fetch: new and changed strings -->
-    <string name="account_local_only_note">ஒத்திசைவு முடக்கப்பட்டுள்ளது. Fetch உங்கள் ஆட்ஆன்கள், முன்னேற்றம் மற்றும் அமைப்புகளை இந்த டிவியிலேயே வைத்திருக்கும்; கணக்கு தேவையில்லை. சாதனங்களுக்கு இடையே ஒத்திசைக்க, சர்வர் விருப்பங்களில் உங்கள் சொந்த ஒத்திசைவு சர்வரை இணைக்கவும்.</string>
     <string name="addon_badge_needs_setup">அமைவு தேவை</string>
     <string name="addon_configure">உள்ளமை</string>
     <string name="addon_configure_install">நிறுவு</string>
@@ -1943,7 +1866,7 @@
     <string name="best_match_cached">கேஷ் செய்யப்பட்டது</string>
     <string name="best_match_excluded">தானாக இயக்கப்படவில்லை: %1$s</string>
     <string name="stream_hold_for_options">சிறந்த பொருத்தம் விருப்பங்களுக்கு OK-ஐ அழுத்திப் பிடிக்கவும்</string>
-    <string name="best_match_preview_sub">நீங்கள் ஒரு தலைப்பைப் பார்க்கும்போதே ஸ்ட்ரீம் ஆட்ஆன்களிடம் கேட்கிறது; இதனால் இயக்கு பொத்தான் கோப்பின் பெயரைக் காட்டும், இயக்கமும் விரைவாகத் தொடங்கும். இயக்கு அழுத்திய பிறகு மட்டும் தேட, இதை அணைக்கவும்.</string>
+    <string name="best_match_preview_sub">நீங்கள் ஒரு தலைப்பில் நிற்கும்போது ஸ்ட்ரீம் ஆட்ஆன்களிடம் அதைப் பற்றிக் கேட்கிறது; இதனால் இயக்கு பொத்தான் கோப்பின் பெயரைக் காட்டும். அது எந்தத் தலைப்பு என்பது ஆட்ஆன்களுக்குத் தெரியவரும், டெப்ரிட் சேவைகள் கோரிக்கைகளைக் கணக்கிடும். இயக்கு அழுத்திய பிறகு மட்டும் கேட்க, இதை அணைக்கவும்.</string>
     <string name="best_match_preview_title">தேர்வை இயக்கு பொத்தானில் காட்டு</string>
     <string name="catalog_order_pin">மேலே பொருத்து</string>
     <string name="catalog_order_pinned_on_home">முகப்பின் மேலே பொருத்தப்பட்டது</string>
@@ -1952,8 +1875,6 @@
     <string name="cd_mark_credits_start">இறுதி கிரெடிட்ஸ் தொடக்கத்தைக் குறி</string>
     <string name="cd_mark_intro_end">அறிமுக முடிவைக் குறி</string>
     <string name="cd_mark_intro_start">அறிமுகத் தொடக்கத்தைக் குறி</string>
-    <string name="custom_server_error_official_active">இந்த டிவியில் ஒத்திசைவு ஏற்கனவே முடக்கப்பட்டுள்ளது.</string>
-    <string name="custom_server_error_official_available">இது ஒத்திசைவு சர்வர் அல்ல. இந்த உரையாடலை மூடி, உள்ளூர் மட்டும் பயன்முறைக்குத் திரும்ப ஒத்திசைவை அணை என்பதைத் தேர்ந்தெடுக்கவும்.</string>
     <string name="exclusion_3d">3D வெளியீடு</string>
     <string name="exclusion_above_max_resolution">உங்கள் அதிகபட்ச தெளிவுத்திறனுக்கு மேல்</string>
     <string name="exclusion_audio">நீங்கள் %1$s ஒலியைத் தவிர்க்கிறீர்கள்</string>
@@ -2029,9 +1950,6 @@
     <string name="library_empty_type_movies">திரைப்படங்கள்</string>
     <string name="library_empty_type_series">தொடர்கள்</string>
     <string name="licenses_attributions_fetch_body">Fetch என்பது GNU General Public License v3.0-இன் கீழ் உள்ள கட்டற்ற மென்பொருள். இது Nuvio பங்களிப்பாளர்களின் NuvioTV (github.com/NuvioMedia/NuvioTV)-இன் ஃபோர்க் ஆகும்; இந்தச் செயலியின் பெரும்பகுதி அவர்களின் உழைப்பே.</string>
-    <string name="official_server_action">ஒத்திசைவை அணை</string>
-    <string name="official_server_description">உங்கள் ஒத்திசைவு சர்வரிலிருந்து வெளியேற்றப்படுவீர்கள்; செயலி உள்ளூர் மட்டும் பயன்முறையில் மீண்டும் தொடங்கும். இந்த டிவியில் ஏற்கனவே உள்ள அனைத்தும் அப்படியே இருக்கும்.</string>
-    <string name="official_server_title">ஒத்திசைவை அணைக்கவா?</string>
     <string name="parental_addons_blocked">இந்தச் சுயவிவரத்தால் ஆட்ஆன்களை நிறுவ முடியாது. பெற்றோரிடம் கேளுங்கள்.</string>
     <string name="parental_allow_unrated">மதிப்பீடு இல்லாத தலைப்புகளைக் காட்டு: %1$s</string>
     <string name="parental_gate_heading">%1$s-இன் பின்னை உள்ளிடவும்</string>
@@ -2108,7 +2026,6 @@
     <string name="ranking_size_gb">%1$d GB</string>
     <string name="ranking_skip_dv5">Dolby Vision சுயவிவரம் 5-ஐத் தவிர்</string>
     <string name="ranking_skip_dv5_sub">சுயவிவரம் 5-க்கு HDR10 மாற்று இல்லை. இந்த டிவியால் காட்ட முடியாதபோது இது எப்போதும் தவிர்க்கப்படும்</string>
-    <string name="server_options_use_official">ஒத்திசைவை அணை</string>
     <string name="skip_marker_report_failed">குறியைப் புகாரளிக்க முடியவில்லை</string>
     <string name="skip_marker_reported">தவறான குறி புகாரளிக்கப்பட்டது. நன்றி!</string>
     <string name="skip_marker_start_recorded">தொடக்கம் குறிக்கப்பட்டது. அது முடியும் இடத்தில் மீண்டும் அழுத்தவும்.</string>
@@ -2256,7 +2173,6 @@
     <string name="youtube_show_live_subtitle">இப்போது நேரலையில் உள்ள ஒளிபரப்புகளை உங்கள் ஊட்டங்கள், தேடல் முடிவுகள் மற்றும் அடுத்தது பகுதியில் சேர்க்கவும்</string>
     <string name="youtube_hide_watched_title">பார்த்த வீடியோக்களை மறை</string>
     <string name="youtube_hide_watched_subtitle">முழுமையாகப் பார்த்த வீடியோக்களை விலக்கும். வரலாறு அவற்றை இன்னும் பட்டியலிடும்</string>
-    <string name="profile_avatar_category_supporter">ஆதரவாளர்</string>
     <string name="profile_avatar_category_animals">விலங்குகள்</string>
     <string name="profile_avatar_category_characters">கதாபாத்திரங்கள்</string>
     <string name="profile_avatar_category_fun">வேடிக்கை</string>

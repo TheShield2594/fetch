@@ -22,7 +22,6 @@ import com.fetch.tv.core.tracking.TrackingScrobbleEvent
 import com.fetch.tv.core.tracking.TrackingScrobbler
 import com.fetch.tv.core.tracking.scrobbleDiagnosticSummary
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
-import com.fetch.tv.data.repository.RemoteProgressWriteDeduplicator
 import com.fetch.tv.domain.model.LibraryEntryInput
 import com.fetch.tv.domain.model.LibraryListPrivacy
 import com.fetch.tv.domain.model.ListMembershipChanges
@@ -45,6 +44,44 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+
+private const val REMOTE_PROGRESS_WRITE_DEDUP_WINDOW_MS = 5_000L
+
+private data class RemoteProgressWriteKey(
+    val profileId: Int,
+    val progressKey: String
+)
+
+private data class RemoteProgressWrite(
+    val progress: WatchProgress,
+    val sentAtMs: Long
+)
+
+internal class RemoteProgressWriteDeduplicator(
+    private val windowMs: Long = REMOTE_PROGRESS_WRITE_DEDUP_WINDOW_MS
+) {
+    private val lock = Any()
+    private val recentWrites = mutableMapOf<RemoteProgressWriteKey, RemoteProgressWrite>()
+
+    fun shouldSend(
+        profileId: Int,
+        progressKey: String,
+        progress: WatchProgress,
+        nowMs: Long
+    ): Boolean = synchronized(lock) {
+        recentWrites.entries.removeAll { (_, write) ->
+            val elapsedMs = nowMs - write.sentAtMs
+            elapsedMs < 0L || elapsedMs >= windowMs
+        }
+        val key = RemoteProgressWriteKey(profileId, progressKey)
+        val normalizedProgress = progress.copy(lastWatched = 0L)
+        if (recentWrites[key]?.progress == normalizedProgress) {
+            return@synchronized false
+        }
+        recentWrites[key] = RemoteProgressWrite(normalizedProgress, nowMs)
+        true
+    }
+}
 
 // The Fetch website as a tracking provider, next to Trakt, Simkl and MDBList. "Connected"
 // means this TV is paired with a website: plays, scrobbles and watched marks then reach it

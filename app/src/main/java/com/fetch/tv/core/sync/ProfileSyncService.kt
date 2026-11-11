@@ -1,34 +1,12 @@
 package com.fetch.tv.core.sync
 
-import android.util.Log
-import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.sync.backend.SyncBackends
-import com.fetch.tv.data.remote.supabase.SupabaseProfileLockState
-import com.fetch.tv.data.remote.supabase.SupabaseProfilePinVerifyResult
 import com.fetch.tv.domain.model.UserProfile
-import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 import javax.inject.Inject
 import javax.inject.Singleton
-
-private const val TAG = "ProfileSyncService"
-private const val PROFILE_PULL_MIN_INTERVAL_MS = 10_000L
-
-internal data class ProfilePullFreshness(
-    val userId: String? = null,
-    val pulledAtMs: Long = 0L
-) {
-    fun isRecent(candidateUserId: String, nowMs: Long): Boolean {
-        return userId == candidateUserId &&
-            pulledAtMs > 0L &&
-            nowMs >= pulledAtMs &&
-            nowMs - pulledAtMs < PROFILE_PULL_MIN_INTERVAL_MS
-    }
-}
 
 sealed class SetProfilePinResult {
     object Success : SetProfilePinResult()
@@ -36,24 +14,12 @@ sealed class SetProfilePinResult {
     data class Failure(val throwable: Throwable) : SetProfilePinResult()
 }
 
+/** This TV's profiles, through the sync backend in use. PINs go through `FetchWebsiteProfilePins`. */
 @Singleton
 class ProfileSyncService @Inject constructor(
-    private val authManager: AuthManager,
-    private val postgrestLazy: dagger.Lazy<Postgrest>,
     private val profileManager: ProfileManager,
     private val backends: SyncBackends
 ) {
-    private val postgrest: Postgrest get() = postgrestLazy.get()
-
-    private suspend fun <T> withJwtRefreshRetry(block: suspend () -> T): T {
-        return try {
-            block()
-        } catch (e: Exception) {
-            if (!authManager.refreshSessionIfJwtExpired(e)) throw e
-            block()
-        }
-    }
-
     /** Sends every profile on this TV to the sync backend in use. */
     suspend fun pushToRemote(): Result<Unit> = withContext(Dispatchers.IO) {
         backends.active?.pushProfiles() ?: Result.success(Unit)
@@ -70,84 +36,5 @@ class ProfileSyncService @Inject constructor(
 
     suspend fun deleteProfileData(profileId: Int): Result<Unit> = withContext(Dispatchers.IO) {
         backends.active?.deleteProfileData(profileId) ?: Result.success(Unit)
-    }
-
-    // PINs checked by a Supabase server. A paired Fetch website checks its own through
-    // FetchWebsiteProfilePins.
-
-    suspend fun pullProfileLockStates(): Result<Map<Int, Boolean>> = withContext(Dispatchers.IO) {
-        try {
-            val response = withJwtRefreshRetry {
-                postgrest.rpc("sync_pull_profile_locks")
-            }
-            val remote = response.decodeList<SupabaseProfileLockState>()
-            val result = remote.associate { it.profileIndex to it.pinEnabled }
-            Result.success(result)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to pull profile lock states", e)
-            Result.failure(e)
-        }
-    }
-
-    suspend fun setProfilePin(profileId: Int, pin: String, currentPin: String? = null): SetProfilePinResult = withContext(Dispatchers.IO) {
-        try {
-            val params = buildJsonObject {
-                put("p_profile_id", profileId)
-                put("p_pin", pin)
-                if (!currentPin.isNullOrBlank()) {
-                    put("p_current_pin", currentPin)
-                }
-            }
-            withJwtRefreshRetry {
-                postgrest.rpc("set_profile_pin", params)
-            }
-            SetProfilePinResult.Success
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to set profile PIN", e)
-            if (isCurrentPinRequiredError(e)) {
-                SetProfilePinResult.CurrentPinRequired
-            } else {
-                SetProfilePinResult.Failure(e)
-            }
-        }
-    }
-
-    private fun isCurrentPinRequiredError(e: Throwable): Boolean =
-        e.message?.contains("Current PIN is required", ignoreCase = true) == true
-
-    suspend fun clearProfilePin(profileId: Int, currentPin: String? = null): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            val params = buildJsonObject {
-                put("p_profile_id", profileId)
-                if (!currentPin.isNullOrBlank()) {
-                    put("p_current_pin", currentPin)
-                }
-            }
-            withJwtRefreshRetry {
-                postgrest.rpc("clear_profile_pin", params)
-            }
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to clear profile PIN", e)
-            Result.failure(e)
-        }
-    }
-
-    suspend fun verifyProfilePin(profileId: Int, pin: String): Result<SupabaseProfilePinVerifyResult> = withContext(Dispatchers.IO) {
-        try {
-            val params = buildJsonObject {
-                put("p_profile_id", profileId)
-                put("p_pin", pin)
-            }
-            val response = withJwtRefreshRetry {
-                postgrest.rpc("verify_profile_pin", params)
-            }
-            val decoded = response.decodeList<SupabaseProfilePinVerifyResult>().firstOrNull()
-                ?: SupabaseProfilePinVerifyResult(unlocked = false, retryAfterSeconds = 0)
-            Result.success(decoded)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to verify profile PIN", e)
-            Result.failure(e)
-        }
     }
 }

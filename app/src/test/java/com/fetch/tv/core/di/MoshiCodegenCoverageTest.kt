@@ -4,7 +4,6 @@ import com.fetch.tv.data.local.ProfileJson
 import com.fetch.tv.data.remote.api.AddonApi
 import com.fetch.tv.data.remote.api.AniSkipApi
 import com.fetch.tv.data.remote.api.AnimeSkipApi
-import com.fetch.tv.data.remote.api.AuthDiagnosticReportApi
 import com.fetch.tv.data.remote.api.GitHubReleaseApi
 import com.fetch.tv.data.remote.api.ImdbTapframeApi
 import com.fetch.tv.data.remote.api.IntroDbApi
@@ -15,7 +14,6 @@ import com.fetch.tv.data.remote.api.SeriesGraphApi
 import com.fetch.tv.data.remote.api.TmdbApi
 import com.fetch.tv.data.remote.api.TraktApi
 import com.fetch.tv.data.remote.api.TrailerApi
-import com.fetch.tv.data.remote.dto.AuthDiagnosticReportRequestDto
 import com.fetch.tv.data.remote.dto.mdblist.MDBListMediaRequestDto
 import com.fetch.tv.data.remote.dto.mdblist.MDBListMediaResponseDto
 import com.squareup.moshi.Types
@@ -43,7 +41,6 @@ class MoshiCodegenCoverageTest {
         AddonApi::class.java,
         AniSkipApi::class.java,
         AnimeSkipApi::class.java,
-        AuthDiagnosticReportApi::class.java,
         GitHubReleaseApi::class.java,
         ImdbTapframeApi::class.java,
         IntroDbApi::class.java,
@@ -58,7 +55,6 @@ class MoshiCodegenCoverageTest {
 
     /** Types handed to `moshi.adapter` directly rather than through Retrofit. */
     private val directTypes: List<Type> = listOf(
-        AuthDiagnosticReportRequestDto::class.java,
         MDBListMediaRequestDto::class.java,
         MDBListMediaResponseDto::class.java,
         Types.newParameterizedType(List::class.java, ProfileJson::class.java),

@@ -102,7 +102,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">Начало се нуждае от каталожна добавка, за да показва заглавия.</string>
     <string name="home_empty_no_catalogs_title">Няма каталози за показване</string>
     <string name="home_empty_no_catalogs_subtitle">Вашите добавки не предлагат каталози за Начало.</string>
-    <string name="auth_notice_fetch_logged_out">Излязохте от Fetch. Влезте отново от Настройки &gt; Акаунт.</string>
     <string name="auth_notice_trakt_logged_out">Излязохте от Trakt. Свържете го отново от Настройки &gt; Проследяване.</string>
     <string name="error_generic">Възникна грешка</string>
 
@@ -397,34 +396,7 @@
     <string name="essential_subtitle_language_subtitle">Предпочитан език за субтитри.</string>
     <string name="essential_audio_language_subtitle">Предпочитан език за аудио.</string>
     <!-- Account / sign-in error messages -->
-    <string name="account_error_incorrect_pin">Грешен PIN.</string>
-    <string name="account_error_sync_code_expired">Кодът за синхронизация е изтекъл.</string>
-    <string name="account_error_invalid_sync_code">Невалиден код за синхронизация.</string>
-    <string name="account_error_sync_code_not_found">Кодът за синхронизация не е намерен.</string>
-    <string name="account_error_device_already_linked">Устройството вече е свързано.</string>
     <string name="account_error_generic_retry">Нещо се обърка. Моля, опитайте отново.</string>
-    <string name="account_error_invalid_credentials">Грешен имейл или парола.</string>
-    <string name="account_error_email_not_confirmed">Моля, потвърдете имейла си първо.</string>
-    <string name="account_error_email_already_registered">Акаунт с този имейл вече съществува.</string>
-    <string name="account_error_invalid_email">Моля, въведете валиден имейл адрес.</string>
-    <string name="account_error_password_too_short">Паролата е твърде къса.</string>
-    <string name="account_error_password_too_weak">Паролата е твърде слаба.</string>
-    <string name="account_error_signup_disabled">Регистрацията в момента е деактивирана.</string>
-    <string name="account_error_rate_limited">Твърде много опити. Моля, опитайте по-късно.</string>
-    <string name="account_error_qr_login_expired">QR входът е изтекъл. Моля, опитайте отново.</string>
-    <string name="account_error_invalid_qr_login">Невалиден QR код за вход.</string>
-    <string name="account_error_qr_login_other_device">Този QR вход е заявен от друго устройство.</string>
-    <string name="account_error_qr_login_outdated">Услугата за QR вход е остаряла. Приложи отново TV login SQL настройката.</string>
-    <string name="account_error_qr_login_missing_setup">Backendът за QR вход липсва настройка. Актуализирай TV login SQL настройката.</string>
-    <string name="account_error_qr_login_misconfigured">URL адресът за QR вход е неправилно конфигуриран.</string>
-    <string name="account_error_qr_login_invalid_request">Заявката за QR вход е невалидна. Моля, опитайте отново.</string>
-    <string name="account_error_no_internet">Няма интернет връзка.</string>
-    <string name="account_error_connection_timeout">Времето за връзка изтече. Моля, опитайте отново.</string>
-    <string name="account_error_connection_refused">Не можахме да се свържем със сървъра.</string>
-    <string name="account_error_not_authenticated">Моля, влезте първо.</string>
-    <string name="account_error_service_unavailable">Услугата е недостъпна. Моля, опитайте по-късно.</string>
-    <string name="account_error_invalid_request">Невалидна заявка. Моля, проверете въведеното.</string>
-    <string name="account_error_unexpected">Възникна неочаквана грешка.</string>
     <string name="experience_mode_switch_to_essential">Превключи към Основно</string>
     <string name="experience_mode_switch_to_essential_subtitle">Скрий разширените повърхности без промяна на запазените стойности.</string>
     <string name="experience_mode_switch_to_advanced">Превключи към Разширено</string>
@@ -464,10 +436,6 @@
     <string name="profile_remember_last_profile_subtitle">Запомни последно избрания профил при стартиране</string>
     <string name="settings_debug">Дебъг</string>
     <string name="settings_account_section_subtitle">Състояние на акаунта и синхронизация</string>
-    <string name="account_stat_addons">добавки</string>
-    <string name="account_stat_library">библиотека</string>
-    <string name="account_stat_progress">прогрес</string>
-    <string name="account_stat_watched">гледани</string>
 
     <string name="playback_title">Настройки на възпроизвеждането</string>
     <string name="playback_subtitle">Конфигурирай опциите за видео възпроизвеждане и субтитри</string>
@@ -856,15 +824,6 @@
     <string name="trakt_connected_as">Свързан като %1$s</string>
     <string name="trakt_awaiting_instruction">Отиди на trakt.tv/activate и въведи този код:</string>
     <string name="trakt_waiting_approval">Изчакване на одобрение…</string>
-    <string name="qr_login_approved">Вписването е одобрено. Завършване на входа…</string>
-    <string name="qr_login_pending">Изчакване на одобрение на телефона ти…</string>
-    <string name="qr_login_expired">QR входът е изтекъл. Генерирай нов код.</string>
-    <string name="qr_login_preparing">Подготовка на QR вход...</string>
-    <string name="qr_login_scan_prompt">Сканирай QR и се впиши на телефона си</string>
-    <string name="qr_login_start_failed">Неуспешно стартиране на QR вход</string>
-    <string name="qr_login_signing_in">Вписване…</string>
-    <string name="qr_login_success">Успешно вписване</string>
-    <string name="qr_login_exchange_failed">Не можахме да завършим QR вписването</string>
     <string name="trakt_code_expires">Кодът изтича след %1$s</string>
     <string name="trakt_token_refreshes">Trakt access token се обновява след %1$s</string>
     <string name="trakt_missing_credentials">Липсват TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET в local.properties.</string>
@@ -913,13 +872,6 @@
     <string name="debug_sync_code_subtitle">Показвай бутони за Генериране/Въвеждане на Sync Code в настройките на Акаунт</string>
     <string name="debug_buffer_logs_title">Включи BUFFER логове</string>
     <string name="debug_buffer_logs_subtitle">Излъчвай периодични диагностики на плейър буфера към logcat (изключено по подразбиране)</string>
-    <string name="debug_section_account">Акаунт</string>
-    <string name="debug_manual_signin_title">Ръчно вписване</string>
-    <string name="debug_manual_signin_subtitle">Впиши се с имейл и парола (Supabase auth)</string>
-    <string name="debug_email_placeholder">Имейл</string>
-    <string name="debug_password_placeholder">Парола</string>
-    <string name="debug_signing_in">Вписване…</string>
-    <string name="debug_sign_in">Впиши се</string>
     <string name="debug_error_dialog_title">Грешка при възпроизвеждане</string>
     <string name="debug_error_dialog_subtitle">Възникна грешка по време на възпроизвеждане.\n\nГрешка: Тестова симулирана грешка - това не е реална повреда. Източникът върна HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">Затвори</string>
@@ -946,11 +898,6 @@
     <string name="profile_choose_avatar">Избери аватар</string>
     <string name="profile_avatar_focus_hint">Фокусирай аватар, за да видиш името му</string>
     <string name="profile_avatar_category_all">Всички</string>
-    <string name="profile_avatar_category_anime">Аниме</string>
-    <string name="profile_avatar_category_animation">Анимация</string>
-    <string name="profile_avatar_category_movie">Филм</string>
-    <string name="profile_avatar_category_tv">Сериал</string>
-    <string name="profile_avatar_category_gaming">Гейминг</string>
     <string name="profile_add_new">Добави профил</string>
     <string name="profile_cancel">Отказ</string>
     <string name="profile_save">Запази</string>
@@ -1297,29 +1244,9 @@
 
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">Зареждане…</string>
-    <string name="account_sync_description">Синхронизирай библиотеката, прогреса на гледане и добавките между устройства.</string>
-    <string name="account_sync_restart_note">Синхронизацията не е в реално време между активни устройства. Рестартирай това устройство след вписване или за да вземеш промените, направени другаде.</string>
     <string name="account_signin_qr_title">Впиши се с QR</string>
-    <string name="account_signin_qr_subtitle">Сканирай QR код и завърши имейл вписването на телефона си</string>
-    <string name="account_signed_in_label">Вписан</string>
-    <string name="account_total_label">Общо</string>
-    <string name="account_loading_sync">Зареждане на данни за синхронизация…</string>
-    <string name="account_sign_out">Отпиши се</string>
 
 
-    <string name="auth_qr_finishing">Завършване на вписването…</string>
-    <string name="auth_qr_expires">Изтича след %1$s</string>
-    <string name="auth_qr_scan_instruction">Сканирай QR, одобри в браузъра и се върни тук.</string>
-    <string name="auth_qr_refresh">Обнови QR</string>
-    <string name="auth_qr_continue_without_account">Продължи без акаунт</string>
-    <string name="auth_qr_connected">Акаунтът ти е свързан на този TV.</string>
-    <string name="auth_qr_synced_data">Синхронизираните ти данни</string>
-    <string name="auth_qr_generating">Генериране на QR…</string>
-    <string name="auth_qr_unavailable">QR е недостъпен. Обнови за повторен опит.</string>
-    <string name="auth_qr_please_wait">Моля, изчакай…</string>
-    <string name="auth_qr_continue">Продължи</string>
-    <string name="auth_qr_back">Назад</string>
 
 
 
@@ -1497,10 +1424,7 @@
     <string name="cd_voice_search">Гласово търсене</string>
     <string name="cd_expand">Разшири %1$s</string>
     <string name="cd_collapse">Свий %1$s</string>
-    <string name="cd_qr_login">QR код за вход</string>
-    <string name="cd_fetch">Fetch</string>
 
-    <string name="debug_signin_success">Успешно вписване</string>
     <string name="debug_generate_description">Дебъг генериран %1$s елемент #%2$d</string>
     <string name="debug_generate_result_failed">Неуспешно: %1$s</string>
     <string name="debug_generate_library_result_added">Добавени %1$d елемента в библиотеката</string>
@@ -2080,7 +2004,6 @@
     <string name="detail_tmdb_fallback_title">TMDB %1$d</string>
     <string name="collections_editor_tmdb_collection_fallback">TMDB колекция %1$d</string>
     <!-- Fetch: new and changed strings -->
-    <string name="account_local_only_note">Синхронизацията е изключена. Fetch пази добавките, прогреса и настройките ти на този телевизор и не изисква акаунт. За синхронизация между устройства свържи собствен сървър за синхронизация от опциите на сървъра.</string>
     <string name="addon_badge_needs_setup">Изисква настройка</string>
     <string name="addon_configure">Конфигурирай</string>
     <string name="addon_configure_install">Инсталирай</string>
@@ -2127,7 +2050,7 @@
     <string name="best_match_cached">Кеширан</string>
     <string name="best_match_excluded">Не се пуска автоматично: %1$s</string>
     <string name="stream_hold_for_options">Задръж OK за опции на Най-доброто съвпадение</string>
-    <string name="best_match_preview_sub">Пита стрийм добавките ти за заглавие, докато го разглеждаш, така че бутонът Пусни да покаже файла и възпроизвеждането да започне по-бързо. Изключи, за да се търси само след натискане на Пусни.</string>
+    <string name="best_match_preview_sub">Пита стрийм добавките ти за заглавие, когато останеш на него, така че бутонът Пусни да покаже файла. Добавките научават кое е заглавието, а debrid услугите отчитат заявките. Изключи, за да се пита само след натискане на Пусни.</string>
     <string name="best_match_preview_title">Показвай избора на бутона Пусни</string>
     <string name="catalog_order_pin">Закачи най-горе</string>
     <string name="catalog_order_pinned_on_home">Закачено най-горе в Начало</string>
@@ -2136,8 +2059,6 @@
     <string name="cd_mark_credits_start">Отбележи началото на финалните надписи</string>
     <string name="cd_mark_intro_end">Отбележи края на интрото</string>
     <string name="cd_mark_intro_start">Отбележи началото на интрото</string>
-    <string name="custom_server_error_official_active">Синхронизацията вече е изключена на този телевизор.</string>
-    <string name="custom_server_error_official_available">Това не е сървър за синхронизация. Затвори този прозорец и избери Изключи синхронизацията, за да се върнеш в локален режим.</string>
     <string name="exclusion_3d">3D издание</string>
     <string name="exclusion_above_max_resolution">над максималната ти резолюция</string>
     <string name="exclusion_audio">пропускаш аудио %1$s</string>
@@ -2213,9 +2134,6 @@
     <string name="library_empty_type_movies">филми</string>
     <string name="library_empty_type_series">сериали</string>
     <string name="licenses_attributions_fetch_body">Fetch е свободен софтуер под GNU General Public License v3.0. Той е форк на NuvioTV от сътрудниците на Nuvio (github.com/NuvioMedia/NuvioTV), чиято работа съставлява по-голямата част от това приложение.</string>
-    <string name="official_server_action">Изключи синхронизацията</string>
-    <string name="official_server_description">Ще излезеш от сървъра за синхронизация и приложението ще се рестартира в локален режим. Всичко, което вече е на този телевизор, остава.</string>
-    <string name="official_server_title">Изключване на синхронизацията?</string>
     <string name="parental_addons_blocked">Този профил не може да инсталира добавки. Попитай родител.</string>
     <string name="parental_allow_unrated">Показвай заглавия без рейтинг: %1$s</string>
     <string name="parental_gate_heading">Въведи PIN на %1$s</string>
@@ -2292,7 +2210,6 @@
     <string name="ranking_size_gb">%1$d GB</string>
     <string name="ranking_skip_dv5">Пропускай Dolby Vision профил 5</string>
     <string name="ranking_skip_dv5_sub">Профил 5 няма резервен HDR10. Винаги се пропуска, когато този телевизор не може да го покаже</string>
-    <string name="server_options_use_official">Изключи синхронизацията</string>
     <string name="skip_marker_report_failed">Маркерът не можа да бъде докладван</string>
     <string name="skip_marker_reported">Грешният маркер е докладван. Благодарим!</string>
     <string name="skip_marker_start_recorded">Началото е отбелязано. Натисни отново там, където свършва.</string>
@@ -2440,7 +2357,6 @@
     <string name="youtube_show_live_subtitle">Включва предаванията, които са на живо в момента, в емисиите, резултатите от търсене и Следва</string>
     <string name="youtube_hide_watched_title">Скриване на гледаните видеа</string>
     <string name="youtube_hide_watched_subtitle">Пропуска видеата, които си гледал до края. Историята пак ги показва</string>
-    <string name="profile_avatar_category_supporter">Поддръжници</string>
     <string name="profile_avatar_category_animals">Животни</string>
     <string name="profile_avatar_category_characters">Герои</string>
     <string name="profile_avatar_category_fun">Забавни</string>

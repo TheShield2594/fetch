@@ -146,7 +146,7 @@ fun SubtitleExtrasSettings(state: AppState) {
 fun AudioExtrasSettings(state: AppState) {
     val e = state.settings.player.extras
     SettingsSection("Playback") {
-        SettingsToggle("Skip Silence", "Skip silent portions of audio during playback (built-in player; not in a watch party).", e.skipSilence) { v ->
+        SettingsToggle("Skip Silence", "Skip silent portions of audio during playback (built-in player).", e.skipSilence) { v ->
             state.updateExtras { it.copy(skipSilence = v) }
         }
         SettingsToggle(

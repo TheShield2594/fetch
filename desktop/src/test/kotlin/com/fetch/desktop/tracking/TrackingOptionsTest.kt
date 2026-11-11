@@ -36,7 +36,6 @@ class TrackingOptionsTest {
         val playback = listOf(entry("a", 1, "trakt"), entry("b", 1, "simkl"))
         val both = setOf(WatchProgressSourceOption.TRAKT, WatchProgressSourceOption.SIMKL)
         assertEquals(listOf("b"), playbackForSource(playback, WatchProgressSourceOption.SIMKL, both).map { it.contentId })
-        assertEquals(emptyList<ProgressEntry>(), playbackForSource(playback, WatchProgressSourceOption.FETCH_SYNC, both + WatchProgressSourceOption.FETCH_SYNC))
         // Not connected: everything counts, as before.
         assertEquals(2, playbackForSource(playback, WatchProgressSourceOption.MDBLIST, both).size)
     }

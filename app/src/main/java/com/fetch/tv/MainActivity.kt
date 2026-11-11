@@ -132,33 +132,23 @@ import androidx.tv.material3.Text
 import androidx.tv.material3.contentColorFor
 import androidx.tv.material3.rememberDrawerState
 import com.fetch.tv.R
-import com.fetch.tv.core.auth.AuthManager
-import com.fetch.tv.core.auth.DeviceSessionRegistration
 import com.fetch.tv.core.deeplink.DeepLinkHandler
 import com.fetch.tv.ui.screens.phone.PhoneAddonConfirmContent
 import com.fetch.tv.core.deeplink.DeepLinkParser
 import com.fetch.tv.core.player.PlayerWindowBackdrop
-import com.fetch.tv.core.party.PartyRepository
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.remote.RemoteCommand
 import com.fetch.tv.core.remote.RemoteCommandBus
 import com.fetch.tv.core.sync.ProfileSyncService
-import com.fetch.tv.core.sync.StartupSyncService
 import com.fetch.tv.core.tracking.TrackingProgressRefreshCoordinator
 import com.fetch.tv.core.tracking.TrackingRefreshIntent
-import com.fetch.tv.data.local.AppOnboardingDataStore
-import com.fetch.tv.data.local.AuthSessionNoticeDataStore
 import com.fetch.tv.data.local.ExperienceModeDataStore
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
-import com.fetch.tv.data.local.StartupAuthNotice
 import com.fetch.tv.data.local.ThemeDataStore
 import com.fetch.tv.data.repository.MemberAccessRepository
-import com.fetch.tv.data.remote.supabase.AvatarRepository
 import com.fetch.tv.domain.model.AppFont
 import com.fetch.tv.domain.model.AppTheme
 import com.fetch.tv.domain.model.CustomThemeColors
-import com.fetch.tv.domain.model.AuthState
-import com.fetch.tv.domain.model.CosmeticEntitlement
 import com.fetch.tv.domain.model.ExperienceMode
 import com.fetch.tv.domain.model.MemberAccess
 import com.fetch.tv.domain.model.ProfileBackgroundSelection
@@ -176,9 +166,7 @@ import com.fetch.tv.ui.navigation.FetchNavHost
 import com.fetch.tv.ui.navigation.RootBackAction
 import com.fetch.tv.ui.navigation.rootBackAction
 import com.fetch.tv.ui.navigation.Screen
-import com.fetch.tv.ui.screens.party.PartyEffects
 import com.fetch.tv.ui.membership.LocalMemberAccess
-import com.fetch.tv.ui.screens.account.AuthQrSignInScreen
 import com.fetch.tv.ui.screens.addon.EssentialAddonSetupScreen
 import com.fetch.tv.ui.screens.profile.ProfileSelectionScreen
 import com.fetch.tv.ui.theme.FetchComponents
@@ -208,7 +196,6 @@ data class SplashBackground(
     val profileColorHex: String? = null,
     val backgroundUrl: String? = null,
     val backgroundCacheKey: String? = null,
-    val skipGradient: Boolean = false,
     val brandWordmarkRes: Int? = null
 )
 val LocalSplashBackground = compositionLocalOf { SplashBackground() }
@@ -275,9 +262,6 @@ open class MainActivity : ComponentActivity() {
     lateinit var trackingProgressRefreshCoordinator: TrackingProgressRefreshCoordinator
 
     @Inject
-    lateinit var startupSyncService: StartupSyncService
-
-    @Inject
     lateinit var fetchWebsiteSyncService: com.fetch.tv.data.website.FetchWebsiteSyncService
 
     @Inject
@@ -299,24 +283,6 @@ open class MainActivity : ComponentActivity() {
     lateinit var remoteCommandBus: RemoteCommandBus
 
     @Inject
-    lateinit var authManager: AuthManager
-
-    @Inject
-    lateinit var deviceSessionRegistration: DeviceSessionRegistration
-
-    @Inject
-    lateinit var authSessionNoticeDataStore: AuthSessionNoticeDataStore
-
-    @Inject
-    lateinit var appOnboardingDataStore: AppOnboardingDataStore
-
-    @Inject
-    lateinit var avatarRepository: AvatarRepository
-
-    @Inject
-    lateinit var profileBackgroundRepository: com.fetch.tv.data.remote.supabase.ProfileBackgroundRepository
-
-    @Inject
     lateinit var trailerPlayerPool: com.fetch.tv.core.player.TrailerPlayerPool
 
     @Inject
@@ -324,9 +290,6 @@ open class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var deepLinkHandler: DeepLinkHandler
-
-    @Inject
-    lateinit var partyRepository: PartyRepository
 
     private val pendingDeepLinkUrl = MutableStateFlow<String?>(null)
     private val pendingLaunchIntent = MutableStateFlow<Intent?>(null)
@@ -417,36 +380,7 @@ open class MainActivity : ComponentActivity() {
             var focusedSplashBgUrl by remember { mutableStateOf<String?>(null) }
             var focusedSplashCacheKey by remember { mutableStateOf<String?>(null) }
             var focusedSplashTheme by remember { mutableStateOf<AppTheme?>(null) }
-            var onboardingCompletedThisSession by remember { mutableStateOf(false) }
-            var onboardingProfileSyncInProgress by remember { mutableStateOf(false) }
-            val hasSeenAuthQrFlow = remember(appOnboardingDataStore) {
-                appOnboardingDataStore.hasSeenAuthQrOnFirstLaunch.map<Boolean, Boolean?> { it }
-            }
-            val hasSeenAuthQrOnFirstLaunch by hasSeenAuthQrFlow.collectAsState(initial = null)
-            val authState by authManager.authState.collectAsState()
             val context = LocalContext.current
-
-            LaunchedEffect(authSessionNoticeDataStore, context) {
-                authSessionNoticeDataStore.pendingNotice.collect { notice ->
-                    if (notice == StartupAuthNotice.FETCH) {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.auth_notice_fetch_logged_out),
-                            Toast.LENGTH_LONG
-                        ).show()
-                        authSessionNoticeDataStore.consumeNotice(notice)
-                    }
-                }
-            }
-
-            PartyEffects(partyRepository)
-
-            LaunchedEffect(hasSeenAuthQrOnFirstLaunch, authState) {
-                if (hasSeenAuthQrOnFirstLaunch == false && authState is AuthState.FullAccount) {
-                    appOnboardingDataStore.setHasSeenAuthQrOnFirstLaunch(true)
-                    onboardingCompletedThisSession = true
-                }
-            }
 
             val activeProfileId by profileManager.activeProfileId.collectAsState()
             val startupSplashEnabled by profileManager.startupSplashEnabled.collectAsState()
@@ -459,15 +393,8 @@ open class MainActivity : ComponentActivity() {
             val activeProfile = remember(activeProfileId, profiles) {
                 profiles.firstOrNull { it.id == activeProfileId }
             }
-            // Local PINs work without sync; the remote lock states are refreshed when signed in.
             // Null until read from disk, so a PIN-locked profile is never auto-entered early.
             val profilePinStates by profilePinManager.pinEnabled.collectAsState(initial = null)
-
-            LaunchedEffect(authState, profiles) {
-                if (authState is AuthState.FullAccount) {
-                    profilePinManager.refreshRemoteStates()
-                }
-            }
 
             // Judged on the loaded active id, not the placeholder default (see loadedActiveProfileId).
             val activeProfileHasPin = remember(loadedActiveProfileId, profilePinStates) {
@@ -494,33 +421,10 @@ open class MainActivity : ComponentActivity() {
                 splashTriggered = true
                 hasSelectedProfileThisSession = true
             }
-            LaunchedEffect(shouldAutoSelectProfile) {
-                if (shouldAutoSelectProfile) {
-                    if (authManager.authState.value is AuthState.FullAccount) {
-                        startupSyncService.requestSyncNow()
-                    }
-                    // Preload profile background catalog so the splash can show it
-                    activeProfile?.profileBackgroundId?.let {
-                        profileBackgroundRepository.loadSelectedAndPreload(it)
-                    }
-                }
-            }
 
-            var avatarCatalog by remember { mutableStateOf(emptyList<com.fetch.tv.data.remote.supabase.AvatarCatalogItem>()) }
-            val avatarMemberAccess by memberAccessRepository.access.collectAsState()
-            val hasProfileAvatarAccess = avatarMemberAccess.entitlements
-                .includes(CosmeticEntitlement.PROFILE_AVATARS)
-
-            LaunchedEffect(hasProfileAvatarAccess) {
-                avatarCatalog = runCatching {
-                    avatarRepository.getAvatarCatalog(hasProfileAvatarAccess)
-                }
-                    .getOrDefault(emptyList())
-            }
-
-            val activeProfileAvatarImageUrl = remember(activeProfile, avatarCatalog) {
+            val activeProfileAvatarImageUrl = remember(activeProfile) {
                 activeProfile?.avatarUrl?.takeIf { it.isNotBlank() }
-                    ?: activeProfile?.avatarId?.let { avatarRepository.getAvatarImageUrl(it, avatarCatalog) }
+                    ?: activeProfile?.avatarId?.let(com.fetch.tv.data.local.BundledAvatars::imageUrl)
             }
 
             val mainUiPrefsFlow = remember(
@@ -651,7 +555,6 @@ open class MainActivity : ComponentActivity() {
                     profile = activeProfile,
                     entitlements = mainUiPrefs.memberAccess.entitlements
                 )
-                val profileBgCatalog by profileBackgroundRepository.catalog.collectAsState()
                 // Cache splash background in SharedPreferences so the splash
                 // can show the correct background on cold start when
                 // "remember last profile" skips the profile selection screen.
@@ -660,18 +563,12 @@ open class MainActivity : ComponentActivity() {
                 }
                 val splashPreferencesReady = mainUiPrefs.hasChosenLayout != null && mainUiPrefs.experienceModeLoaded
                 val splashBackground = remember(
-                    profileBgSelection, profileBgCatalog, activeProfile, activeProfileId,
+                    profileBgSelection, activeProfile, activeProfileId,
                     focusedSplashColor, focusedSplashBgUrl, focusedSplashCacheKey,
                     focusedSplashTheme, splashPreferencesReady, mainUiPrefs.theme
                 ) {
-                    val bgUrl = when (profileBgSelection) {
-                        is ProfileBackgroundSelection.Custom -> profileBgSelection.url
-                        is ProfileBackgroundSelection.Catalog -> {
-                            profileBgCatalog.firstOrNull { it.id == profileBgSelection.id }
-                                ?.imageFile?.toURI()?.toString()
-                        }
-                        else -> null
-                    }
+                    // Only a custom picture: the background catalog came from the sync server, which is gone.
+                    val bgUrl = (profileBgSelection as? ProfileBackgroundSelection.Custom)?.url
                     val colorHex = activeProfile?.avatarColorHex
                     // Only overwrite bg_url when we have a real value or when
                     // we know the profile has no background at all.
@@ -682,7 +579,7 @@ open class MainActivity : ComponentActivity() {
                         splashPrefs.edit()
                             .putString("bg_url_$activeProfileId", bgUrl)
                             .apply()
-                    } else if (splashPreferencesReady && profileBgSelection == null && activeProfile != null) {
+                    } else if (splashPreferencesReady && activeProfile != null) {
                         splashPrefs.edit()
                             .remove("bg_url_$activeProfileId")
                             .apply()
@@ -697,11 +594,9 @@ open class MainActivity : ComponentActivity() {
                     val hasFocusedOverride = focusedSplashColor != null
                     val fallbackColor = if (colorHex == null && !hasFocusedOverride) splashPrefs.getString("color_$activeProfileId", null) else null
                     val fallbackBg = if (
-                        bgUrl == null && !hasFocusedOverride && (!splashPreferencesReady || profileBgSelection != null)
+                        bgUrl == null && !hasFocusedOverride && !splashPreferencesReady
                     ) splashPrefs.getString("bg_url_$activeProfileId", null) else null
                     val resolvedBgUrl = if (hasFocusedOverride) focusedSplashBgUrl else (bgUrl ?: fallbackBg)
-                    val skipGradient = !hasFocusedOverride && resolvedBgUrl == null &&
-                        profileBgSelection is ProfileBackgroundSelection.Catalog
                     // Resolve branded logo: focused theme (profile screen) > active theme > cached theme > default
                     val resolvedTheme = focusedSplashTheme
                         ?: activeTheme.takeIf { splashPreferencesReady }
@@ -711,14 +606,7 @@ open class MainActivity : ComponentActivity() {
                     SplashBackground(
                         profileColorHex = if (hasFocusedOverride) focusedSplashColor else (colorHex ?: fallbackColor),
                         backgroundUrl = resolvedBgUrl,
-                        backgroundCacheKey = if (hasFocusedOverride) focusedSplashCacheKey else when (profileBgSelection) {
-                            is ProfileBackgroundSelection.Catalog -> profileBgCatalog
-                                .firstOrNull { it.id == profileBgSelection.id }
-                                ?.let { "profile-background-${it.id}-v${it.assetVersion}" }
-                            is ProfileBackgroundSelection.Custom -> "custom-profile-background-${profileBgSelection.url}"
-                            null -> null
-                        },
-                        skipGradient = skipGradient,
+                        backgroundCacheKey = if (hasFocusedOverride) focusedSplashCacheKey else bgUrl?.let { "custom-profile-background-$it" },
                         brandWordmarkRes = resolvedTheme.brandWordmarkResource
                     )
                 }
@@ -755,57 +643,11 @@ open class MainActivity : ComponentActivity() {
                     Box(modifier = Modifier.fillMaxSize()) {
 
                     var startupDestination = StartupDestination.Loading
-                    val surfaceContentReady = hasSeenAuthQrOnFirstLaunch != null &&
-                        authState !is AuthState.Loading &&
-                        profilePinStates != null &&
+                    val surfaceContentReady = profilePinStates != null &&
                         activeProfileNeedsParentPin != null
 
                     if (!surfaceContentReady) {
-                        // Still loading auth state; nothing to show yet.
-                    } else if (
-                        hasSeenAuthQrOnFirstLaunch == false &&
-                        authState !is AuthState.FullAccount &&
-                        !onboardingCompletedThisSession
-                    ) {
-                        startupDestination = StartupDestination.Setup
-                        AuthQrSignInScreen(
-                            onBackPress = { finish() },
-                            onContinue = {
-                                lifecycleScope.launch {
-                                    val shouldRunRemoteOnboardingSync =
-                                        authManager.authState.value is AuthState.FullAccount
-
-                                    if (shouldRunRemoteOnboardingSync) {
-                                        if (onboardingProfileSyncInProgress) return@launch
-                                        onboardingProfileSyncInProgress = true
-                                        val maxAttempts = 3
-                                        var synced = false
-                                        for (attempt in 0 until maxAttempts) {
-                                            val result = profileSyncService.pullFromRemote()
-                                            if (result.isSuccess) {
-                                                synced = true
-                                                break
-                                            }
-                                            if (attempt < maxAttempts - 1) {
-                                                delay(1_000)
-                                            }
-                                        }
-                                        if (!synced) {
-                                            android.util.Log.w(
-                                                "MainActivity",
-                                                "Onboarding profile sync failed after retries; continuing"
-                                            )
-                                        }
-                                    }
-                                    appOnboardingDataStore.setHasSeenAuthQrOnFirstLaunch(true)
-                                    onboardingCompletedThisSession = true
-                                    onboardingProfileSyncInProgress = false
-                                }
-                                if (authManager.authState.value is AuthState.FullAccount) {
-                                    startupSyncService.requestSyncNow()
-                                }
-                            }
-                        )
+                        // Still reading the PIN and lock states; nothing to show yet.
                     } else {
 
                     val shouldShowProfileSelection =
@@ -841,9 +683,6 @@ open class MainActivity : ComponentActivity() {
                             },
                             onProfileSelected = {
                                 hasSelectedProfileThisSession = true
-                                if (authManager.authState.value is AuthState.FullAccount) {
-                                    startupSyncService.requestSyncNow()
-                                }
                             }
                         )
                     } else {
@@ -1059,12 +898,6 @@ open class MainActivity : ComponentActivity() {
                                         addonBaseUrl = deepLink.addonBaseUrl
                                     )
                                 ) {
-                                    launchSingleTop = true
-                                }
-                            }
-                            is AppDeepLink.Party -> {
-                                pendingDeepLinkUrl.value = null
-                                navController.navigate(Screen.WatchParty.createRoute(deepLink.code)) {
                                     launchSingleTop = true
                                 }
                             }
@@ -1348,7 +1181,6 @@ open class MainActivity : ComponentActivity() {
                             profileColorHex = splashBackground.profileColorHex,
                             profileBackgroundUrl = splashBackground.backgroundUrl,
                             backgroundCacheKey = splashBackground.backgroundCacheKey,
-                            skipGradient = splashBackground.skipGradient,
                             brandWordmarkRes = splashBackground.brandWordmarkRes,
                             modifier = Modifier.graphicsLayer {
                                 alpha = if (showSplash) 1f else splashFade.value
@@ -1377,8 +1209,6 @@ open class MainActivity : ComponentActivity() {
         if (::jankStats.isInitialized) jankStats.isTrackingEnabled = true
         memberAccessRepository.refreshIfStale()
         lifecycleScope.launch {
-            deviceSessionRegistration.requestForegroundRegistration()
-            startupSyncService.requestForegroundSync()
             fetchWebsiteSyncService.requestSync()
         }
         lifecycleScope.launch {
@@ -1519,7 +1349,6 @@ open class MainActivity : ComponentActivity() {
         externalPlaybackTracker.raiseAutoNextOverlayOnReturn()
         super.onStart()
         AppForeground.set(true)
-        startupSyncService.startPeriodicSurfacePulls()
         androidTvChannelSyncService.onForegroundChanged(true)
     }
 
@@ -1529,7 +1358,6 @@ open class MainActivity : ComponentActivity() {
         AppForeground.set(false)
         // Leaving the app or turning the screen off ends a parent's unlock on a kids profile.
         parentalControls.lockGate()
-        startupSyncService.stopPeriodicSurfacePulls()
         // App going to background (e.g. user returning to the launcher): reconcile the
         // Continue Watching channel once so Projectivy repaints it with fresh progress.
         androidTvChannelSyncService.onForegroundChanged(false)

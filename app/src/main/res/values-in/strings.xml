@@ -104,7 +104,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">Beranda memerlukan addon katalog untuk menampilkan judul.</string>
     <string name="home_empty_no_catalogs_title">Tidak ada katalog untuk ditampilkan</string>
     <string name="home_empty_no_catalogs_subtitle">Addon Anda tidak menyediakan katalog Beranda.</string>
-    <string name="auth_notice_fetch_logged_out">Anda telah keluar dari Fetch. Masuk kembali melalui Pengaturan &gt; Akun.</string>
     <string name="auth_notice_trakt_logged_out">Anda telah keluar dari Trakt. Sambungkan kembali melalui Pengaturan &gt; Pelacakan.</string>
     <string name="error_generic">Terjadi kesalahan</string>
 
@@ -409,34 +408,7 @@
     <string name="essential_subtitle_language_subtitle">Bahasa subtitle yang diutamakan.</string>
     <string name="essential_audio_language_subtitle">Bahasa audio yang diutamakan.</string>
     <!-- Account / sign-in error messages -->
-    <string name="account_error_incorrect_pin">PIN salah.</string>
-    <string name="account_error_sync_code_expired">Kode sinkronisasi telah kedaluwarsa.</string>
-    <string name="account_error_invalid_sync_code">Kode sinkronisasi tidak valid.</string>
-    <string name="account_error_sync_code_not_found">Kode sinkronisasi tidak ditemukan.</string>
-    <string name="account_error_device_already_linked">Perangkat sudah tertaut.</string>
     <string name="account_error_generic_retry">Terjadi kesalahan. Silakan coba lagi.</string>
-    <string name="account_error_invalid_credentials">Email atau kata sandi salah.</string>
-    <string name="account_error_email_not_confirmed">Konfirmasi email Anda terlebih dahulu.</string>
-    <string name="account_error_email_already_registered">Akun dengan email ini sudah ada.</string>
-    <string name="account_error_invalid_email">Masukkan alamat email yang valid.</string>
-    <string name="account_error_password_too_short">Kata sandi terlalu pendek.</string>
-    <string name="account_error_password_too_weak">Kata sandi terlalu lemah.</string>
-    <string name="account_error_signup_disabled">Pendaftaran saat ini dinonaktifkan.</string>
-    <string name="account_error_rate_limited">Terlalu banyak percobaan. Coba lagi nanti.</string>
-    <string name="account_error_qr_login_expired">Login QR kedaluwarsa. Coba lagi.</string>
-    <string name="account_error_invalid_qr_login">Kode login QR tidak valid.</string>
-    <string name="account_error_qr_login_other_device">Login QR ini diminta dari perangkat lain.</string>
-    <string name="account_error_qr_login_outdated">Layanan login QR sudah usang. Terapkan ulang pengaturan SQL login TV.</string>
-    <string name="account_error_qr_login_missing_setup">Backend login QR tidak memiliki pengaturan. Perbarui pengaturan SQL login TV.</string>
-    <string name="account_error_qr_login_misconfigured">URL login QR salah konfigurasi.</string>
-    <string name="account_error_qr_login_invalid_request">Permintaan login QR tidak valid. Coba lagi.</string>
-    <string name="account_error_no_internet">Tidak ada koneksi internet.</string>
-    <string name="account_error_connection_timeout">Koneksi habis waktu. Coba lagi.</string>
-    <string name="account_error_connection_refused">Tidak dapat terhubung ke server.</string>
-    <string name="account_error_not_authenticated">Masuk terlebih dahulu.</string>
-    <string name="account_error_service_unavailable">Layanan tidak tersedia. Coba lagi nanti.</string>
-    <string name="account_error_invalid_request">Permintaan tidak valid. Periksa masukan Anda.</string>
-    <string name="account_error_unexpected">Terjadi kesalahan tak terduga.</string>
     <string name="experience_mode_switch_to_essential">Beralih ke Esensial</string>
     <string name="experience_mode_switch_to_essential_subtitle">Sembunyikan tampilan pengaturan lanjutan tanpa mengubah nilai yang disimpan.</string>
     <string name="experience_mode_switch_to_advanced">Beralih ke Lanjutan</string>
@@ -475,10 +447,6 @@
     <string name="profile_remember_last_profile_subtitle">Ingat profil terakhir yang dipilih saat startup</string>
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Status akun dan sinkronisasi</string>
-    <string name="account_stat_addons">addon</string>
-    <string name="account_stat_library">pustaka</string>
-    <string name="account_stat_progress">progres</string>
-    <string name="account_stat_watched">ditonton</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Pengaturan Pemutaran</string>
@@ -811,15 +779,6 @@
     <string name="trakt_connected_as">Terhubung sebagai %1$s</string>
     <string name="trakt_awaiting_instruction">Buka trakt.tv/activate dan masukkan kode ini:</string>
     <string name="trakt_waiting_approval">Menunggu persetujuan…</string>
-    <string name="qr_login_approved">Login disetujui. Menyelesaikan masuk…</string>
-    <string name="qr_login_pending">Menunggu persetujuan di ponsel Anda…</string>
-    <string name="qr_login_expired">Login QR kedaluwarsa. Buat kode baru.</string>
-    <string name="qr_login_preparing">Mempersiapkan login QR...</string>
-    <string name="qr_login_scan_prompt">Pindai QR dan masuk di ponsel Anda</string>
-    <string name="qr_login_start_failed">Gagal memulai login QR</string>
-    <string name="qr_login_signing_in">Sedang masuk…</string>
-    <string name="qr_login_success">Berhasil masuk</string>
-    <string name="qr_login_exchange_failed">Tidak dapat menyelesaikan masuk QR</string>
     <string name="trakt_code_expires">Kode kedaluwarsa dalam %1$s</string>
     <string name="trakt_token_refreshes">Token akses Trakt diperbarui dalam %1$s</string>
     <string name="trakt_missing_credentials">TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET tidak ada di local.properties.</string>
@@ -867,13 +826,6 @@
     <string name="debug_account_tab_subtitle">Tampilkan tab Akun di navigasi Pengaturan</string>
     <string name="debug_sync_code_title">Fitur Kode Sinkronisasi</string>
     <string name="debug_sync_code_subtitle">Tampilkan tombol Buat/Masukkan Kode Sinkronisasi di pengaturan Akun</string>
-    <string name="debug_section_account">Akun</string>
-    <string name="debug_manual_signin_title">Masuk Manual</string>
-    <string name="debug_manual_signin_subtitle">Masuk dengan email dan kata sandi (autentikasi Supabase)</string>
-    <string name="debug_email_placeholder">Email</string>
-    <string name="debug_password_placeholder">Kata Sandi</string>
-    <string name="debug_signing_in">Sedang masuk\u2026</string>
-    <string name="debug_sign_in">Masuk</string>
     <string name="debug_error_dialog_title">Error Pemutaran</string>
     <string name="debug_error_dialog_subtitle">Terjadi error saat pemutaran.\n\nError: Error simulasi pengujian - ini bukan kegagalan nyata. Sumber menghasilkan HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">Tutup</string>
@@ -901,11 +853,6 @@
     <string name="profile_choose_avatar">Pilih Avatar</string>
     <string name="profile_avatar_focus_hint">Fokuskan avatar untuk melihat namanya</string>
     <string name="profile_avatar_category_all">Semua</string>
-    <string name="profile_avatar_category_anime">Anime</string>
-    <string name="profile_avatar_category_animation">Animasi</string>
-    <string name="profile_avatar_category_movie">Film</string>
-    <string name="profile_avatar_category_tv">TV</string>
-    <string name="profile_avatar_category_gaming">Gaming</string>
     <string name="profile_add_new">Tambah Profil</string>
     <string name="profile_cancel">Batal</string>
     <string name="profile_save">Simpan</string>
@@ -1249,31 +1196,11 @@
     <string name="library_empty_trakt_not_auth_subtitle">Hubungkan akun Trakt Anda di Pengaturan untuk melihat pustaka Trakt Anda</string>
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">Memuat\u2026</string>
-    <string name="account_sync_description">Sinkronkan pustaka, progres tonton, dan addon di semua perangkat.</string>
-    <string name="account_sync_restart_note">Sinkronisasi tidak real-time di semua perangkat aktif. Restart perangkat ini setelah masuk atau untuk mengambil perubahan yang dibuat di tempat lain.</string>
     <string name="account_signin_qr_title">Masuk dengan QR</string>
-    <string name="account_signin_qr_subtitle">Pindai kode QR dan selesaikan login email di ponsel Anda</string>
-    <string name="account_signed_in_label">Sudah masuk</string>
-    <string name="account_total_label">Total</string>
-    <string name="account_loading_sync">Memuat data sinkronisasi\u2026</string>
-    <string name="account_sign_out">Keluar</string>
 
     <!-- AuthSignInScreen -->
 
     <!-- AuthQrSignInScreen -->
-    <string name="auth_qr_finishing">Menyelesaikan masuk\u2026</string>
-    <string name="auth_qr_expires">Kedaluwarsa dalam %1$s</string>
-    <string name="auth_qr_scan_instruction">Pindai QR, setujui di browser, lalu kembali ke sini.</string>
-    <string name="auth_qr_refresh">Muat Ulang QR</string>
-    <string name="auth_qr_continue_without_account">Lanjutkan tanpa akun</string>
-    <string name="auth_qr_connected">Akun Anda terhubung di TV ini.</string>
-    <string name="auth_qr_synced_data">Data tersinkronisasi Anda</string>
-    <string name="auth_qr_generating">Membuat QR\u2026</string>
-    <string name="auth_qr_unavailable">QR tidak tersedia. Muat ulang untuk mencoba lagi.</string>
-    <string name="auth_qr_please_wait">Harap tunggu\u2026</string>
-    <string name="auth_qr_continue">Lanjutkan</string>
-    <string name="auth_qr_back">Kembali</string>
 
     <!-- SyncCodeGenerateScreen -->
 
@@ -1471,11 +1398,8 @@
     <string name="cd_voice_search">Pencarian suara</string>
     <string name="cd_expand">Luaskan %1$s</string>
     <string name="cd_collapse">Ciutkan %1$s</string>
-    <string name="cd_qr_login">Kode login QR</string>
-    <string name="cd_fetch">Fetch</string>
 
     <!-- Debug -->
-    <string name="debug_signin_success">Berhasil masuk</string>
     <string name="debug_generate_description">Item debug yang dibuat %1$s #%2$d</string>
     <string name="debug_generate_result_failed">Gagal: %1$s</string>
     <string name="debug_generate_library_result_added">Menambahkan %1$d item ke pustaka</string>
@@ -1989,7 +1913,7 @@
     <string name="sub_hdr_text_color">Warna Teks HDR</string>
     <string name="sub_hdr_brightness">Kecerahan Subtitle HDR</string>
     <string name="best_match_preview_title">Tampilkan pilihan di tombol Putar</string>
-    <string name="best_match_preview_sub">Menanyakan addon stream Anda tentang sebuah judul saat Anda melihatnya, sehingga tombol Putar bisa menyebut file-nya dan pemutaran dimulai lebih cepat. Nonaktifkan agar hanya mencari setelah Anda menekan Putar.</string>
+    <string name="best_match_preview_sub">Menanyakan addon stream Anda tentang sebuah judul saat Anda bertahan di sana, sehingga tombol Putar bisa menyebut file-nya. Addon jadi tahu judul apa itu, dan layanan debrid menghitung permintaannya. Nonaktifkan agar hanya bertanya setelah Anda menekan Putar.</string>
     <string name="autoplay_allowed_addons_early_sub">Putar otomatis dimulai begitu addon ini menjawab, tanpa menunggu semua addon.</string>
     <string name="layout_trailer_crop_to_fill">Potong trailer agar memenuhi layar</string>
     <string name="layout_trailer_crop_to_fill_sub">Perbesar trailer latar di Beranda dan halaman detail agar memenuhi bingkai. Nonaktifkan untuk melihat seluruh gambar dengan bilah hitam.</string>
@@ -2062,12 +1986,6 @@
     <string name="library_empty_type_movies">film</string>
     <string name="library_empty_type_series">serial</string>
     <string name="library_empty_type_items">item</string>
-    <string name="server_options_use_official">Matikan sinkronisasi</string>
-    <string name="official_server_title">Matikan sinkronisasi?</string>
-    <string name="official_server_description">Anda akan keluar dari server sinkronisasi dan aplikasi akan dimulai ulang dalam mode lokal saja. Semua yang sudah ada di TV ini tetap tersimpan.</string>
-    <string name="official_server_action">Matikan sinkronisasi</string>
-    <string name="custom_server_error_official_active">Sinkronisasi sudah mati di TV ini.</string>
-    <string name="custom_server_error_official_available">Itu bukan server sinkronisasi. Tutup dialog ini dan pilih Matikan sinkronisasi untuk kembali ke mode lokal saja.</string>
     <string name="cd_mark_intro_start">Tandai awal intro</string>
     <string name="cd_mark_intro_end">Tandai akhir intro</string>
     <string name="cd_mark_credits_start">Tandai awal kredit akhir</string>
@@ -2124,7 +2042,6 @@
     <string name="source_chip_failed">gagal</string>
     <string name="source_chip_loading">memuat</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>
-    <string name="account_local_only_note">Sinkronisasi mati. Fetch menyimpan addon, progres, dan pengaturan Anda di TV ini dan tidak memerlukan akun. Untuk menyinkronkan antarperangkat, hubungkan server sinkronisasi Anda sendiri dari opsi server.</string>
     <string name="parental_title_blocked">Judul ini melebihi batas rating profil ini.</string>
     <string name="parental_addons_blocked">Profil ini tidak bisa memasang addon. Minta bantuan orang tua.</string>
     <string name="parental_gate_heading">Masukkan PIN %1$s</string>
@@ -2287,7 +2204,6 @@
     <string name="youtube_show_live_subtitle">Sertakan siaran yang sedang berlangsung di feed, hasil pencarian, dan Berikutnya</string>
     <string name="youtube_hide_watched_title">Sembunyikan video yang sudah ditonton</string>
     <string name="youtube_hide_watched_subtitle">Lewati video yang Anda tonton sampai selesai. Riwayat tetap menampilkannya</string>
-    <string name="profile_avatar_category_supporter">Pendukung</string>
     <string name="profile_avatar_category_animals">Hewan</string>
     <string name="profile_avatar_category_characters">Karakter</string>
     <string name="profile_avatar_category_fun">Seru</string>

@@ -100,7 +100,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">O Início precisa de um addon de catálogo para mostrar títulos.</string>
     <string name="home_empty_no_catalogs_title">Nenhum catálogo para mostrar</string>
     <string name="home_empty_no_catalogs_subtitle">Os teus addons não oferecem catálogos para o Início.</string>
-    <string name="auth_notice_fetch_logged_out">A tua sessão no Fetch foi terminada. Inicia sessão novamente em Definições &gt; Conta.</string>
     <string name="auth_notice_trakt_logged_out">A tua sessão no Trakt foi terminada. Volta a ligar a conta em Definições &gt; Monitorização.</string>
     <string name="error_generic">Ocorreu um erro</string>
     <string name="action_retry">Tentar novamente</string>
@@ -386,34 +385,7 @@
     <string name="essential_subtitle_language_subtitle">Idioma preferido das legendas.</string>
     <string name="essential_audio_language_subtitle">Idioma preferido do áudio.</string>
     <!-- Account / sign-in error messages -->
-    <string name="account_error_incorrect_pin">PIN incorreto.</string>
-    <string name="account_error_sync_code_expired">O código de sincronização expirou.</string>
-    <string name="account_error_invalid_sync_code">Código de sincronização inválido.</string>
-    <string name="account_error_sync_code_not_found">Código de sincronização não encontrado.</string>
-    <string name="account_error_device_already_linked">O dispositivo já está associado.</string>
     <string name="account_error_generic_retry">Algo correu mal. Tenta novamente.</string>
-    <string name="account_error_invalid_credentials">E-mail ou palavra-passe incorretos.</string>
-    <string name="account_error_email_not_confirmed">Confirma primeiro o teu e-mail.</string>
-    <string name="account_error_email_already_registered">Já existe uma conta com este e-mail.</string>
-    <string name="account_error_invalid_email">Introduz um endereço de e-mail válido.</string>
-    <string name="account_error_password_too_short">A palavra-passe é demasiado curta.</string>
-    <string name="account_error_password_too_weak">A palavra-passe é demasiado fraca.</string>
-    <string name="account_error_signup_disabled">O registo está desativado de momento.</string>
-    <string name="account_error_rate_limited">Demasiadas tentativas. Tenta novamente mais tarde.</string>
-    <string name="account_error_qr_login_expired">O início de sessão por QR expirou. Tenta novamente.</string>
-    <string name="account_error_invalid_qr_login">Código de início de sessão por QR inválido.</string>
-    <string name="account_error_qr_login_other_device">Este início de sessão por QR foi solicitado a partir de outro dispositivo.</string>
-    <string name="account_error_qr_login_outdated">O serviço de início de sessão por QR está desatualizado. Reaplica a configuração SQL do início de sessão da TV.</string>
-    <string name="account_error_qr_login_missing_setup">Falta a configuração do backend de início de sessão por QR. Atualiza a configuração SQL do início de sessão da TV.</string>
-    <string name="account_error_qr_login_misconfigured">O URL de início de sessão por QR está mal configurado.</string>
-    <string name="account_error_qr_login_invalid_request">O pedido de início de sessão por QR era inválido. Tenta novamente.</string>
-    <string name="account_error_no_internet">Sem ligação à internet.</string>
-    <string name="account_error_connection_timeout">A ligação expirou. Tenta novamente.</string>
-    <string name="account_error_connection_refused">Não foi possível ligar ao servidor.</string>
-    <string name="account_error_not_authenticated">Inicia sessão primeiro.</string>
-    <string name="account_error_service_unavailable">Serviço indisponível. Tenta novamente mais tarde.</string>
-    <string name="account_error_invalid_request">Pedido inválido. Verifica os dados introduzidos.</string>
-    <string name="account_error_unexpected">Ocorreu um erro inesperado.</string>
     <string name="experience_mode_switch_to_essential">Mudar para Essencial</string>
     <string name="experience_mode_switch_to_essential_subtitle">Oculta as secções de configuração avançada sem alterar os teus valores guardados.</string>
     <string name="experience_mode_switch_to_advanced">Mudar para Avançado</string>
@@ -453,10 +425,6 @@
     <string name="profile_remember_last_profile_subtitle">Lembra o último perfil selecionado ao iniciar</string>
     <string name="settings_debug">Depurar</string>
     <string name="settings_account_section_subtitle">Estado da conta e sincronização</string>
-    <string name="account_stat_addons">addons</string>
-    <string name="account_stat_library">biblioteca</string>
-    <string name="account_stat_progress">progresso</string>
-    <string name="account_stat_watched">visto</string>
     <string name="playback_title">Definições de reprodução</string>
     <string name="playback_subtitle">Configura as opções de reprodução de vídeo e legendas</string>
     <string name="cd_decrease_setting">Diminuir %1$s</string>
@@ -835,15 +803,6 @@
     <string name="trakt_connected_as">Ligado como %1$s</string>
     <string name="trakt_awaiting_instruction">Acede a trakt.tv/activate e introduz este código:</string>
     <string name="trakt_waiting_approval">A aguardar autorização…</string>
-    <string name="qr_login_approved">Início de sessão aprovado. A concluir a entrada…</string>
-    <string name="qr_login_pending">A aguardar autorização no teu telemóvel…</string>
-    <string name="qr_login_expired">O início de sessão por QR expirou. Gera um novo código.</string>
-    <string name="qr_login_preparing">A preparar início de sessão por QR...</string>
-    <string name="qr_login_scan_prompt">Lê o código QR e inicia sessão no teu telemóvel</string>
-    <string name="qr_login_start_failed">Falha ao iniciar o início de sessão por QR</string>
-    <string name="qr_login_signing_in">A iniciar a tua sessão…</string>
-    <string name="qr_login_success">Sessão iniciada com sucesso</string>
-    <string name="qr_login_exchange_failed">Não foi possível concluir o início de sessão por QR</string>
     <string name="trakt_code_expires">O código expira em %1$s</string>
     <string name="trakt_token_refreshes">O token de acesso do Trakt renova-se em %1$s</string>
     <string name="trakt_missing_credentials">Falta TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET no ficheiro local.properties.</string>
@@ -891,13 +850,6 @@
     <string name="debug_sync_code_subtitle">Mostrar os botões Gerar/Introduzir código de sincronização nas definições da conta</string>
     <string name="debug_buffer_logs_title">Ativar registos BUFFER</string>
     <string name="debug_buffer_logs_subtitle">Emite diagnósticos periódicos do buffer do leitor para o logcat (desativado por predefinição).</string>
-    <string name="debug_section_account">Conta</string>
-    <string name="debug_manual_signin_title">Início de Sessão Manual</string>
-    <string name="debug_manual_signin_subtitle">Iniciar sessão com e-mail e palavra-passe (autenticação Supabase)</string>
-    <string name="debug_email_placeholder">E-mail</string>
-    <string name="debug_password_placeholder">Palavra-passe</string>
-    <string name="debug_signing_in">A iniciar sessão\u2026</string>
-    <string name="debug_sign_in">Iniciar Sessão</string>
     <string name="debug_error_dialog_title">Erro de Reprodução</string>
     <string name="debug_error_dialog_subtitle">Ocorreu um erro durante a reprodução.\n\nErro: Erro simulado de teste - isto não é uma falha real. A fonte devolveu HTTP 503 (Serviço Indisponível).</string>
     <string name="debug_dismiss">Fechar</string>
@@ -923,11 +875,6 @@
     <string name="profile_choose_avatar">Escolher avatar</string>
     <string name="profile_avatar_focus_hint">Foca num avatar para ver o teu nome</string>
     <string name="profile_avatar_category_all">Tudo</string>
-    <string name="profile_avatar_category_anime">Anime</string>
-    <string name="profile_avatar_category_animation">Animação</string>
-    <string name="profile_avatar_category_movie">Filmes</string>
-    <string name="profile_avatar_category_tv">TV</string>
-    <string name="profile_avatar_category_gaming">Jogos</string>
     <string name="profile_add_new">Adicionar perfil</string>
     <string name="profile_cancel">Cancelar</string>
     <string name="profile_save">Guardar</string>
@@ -1256,27 +1203,7 @@
     <string name="library_sync_btn">Sincronizar</string>
     <string name="library_syncing_btn">A sincronizar\u2026</string>
     <!-- AccountSettingsContent -->
-    <string name="account_loading">A carregar\u2026</string>
-    <string name="account_sync_description">Sincroniza a tua biblioteca, progresso de visualização e addons entre dispositivos.</string>
-    <string name="account_sync_restart_note">A sincronização não ocorre em tempo real entre dispositivos ativos. Reinicia este dispositivo após iniciar sessão ou para aplicar as alterações feitas noutros locais.</string>
     <string name="account_signin_qr_title">Iniciar Sessão com QR</string>
-    <string name="account_signin_qr_subtitle">Lê um código QR e conclui o início de sessão por e-mail no teu telemóvel</string>
-    <string name="account_signed_in_label">Sessão iniciada</string>
-    <string name="account_total_label">Total</string>
-    <string name="account_loading_sync">A carregar dados de sincronização\u2026</string>
-    <string name="account_sign_out">Terminar Sessão</string>
-    <string name="auth_qr_finishing">A concluir o início de sessão\u2026</string>
-    <string name="auth_qr_expires">Expira em %1$s</string>
-    <string name="auth_qr_scan_instruction">Lê o código QR, aprova no navegador e depois regressa aqui.</string>
-    <string name="auth_qr_refresh">Atualizar QR</string>
-    <string name="auth_qr_continue_without_account">Continuar sem conta</string>
-    <string name="auth_qr_connected">A tua conta está ligada nesta TV.</string>
-    <string name="auth_qr_synced_data">Os teus dados sincronizados</string>
-    <string name="auth_qr_generating">A gerar QR\u2026</string>
-    <string name="auth_qr_unavailable">QR indisponível. Atualiza para tentar novamente.</string>
-    <string name="auth_qr_please_wait">Aguarda…</string>
-    <string name="auth_qr_continue">Continuar</string>
-    <string name="auth_qr_back">Voltar</string>
     <string name="profile_selection_title">Quem está a ver?</string>
     <string name="profile_selection_subtitle">Seleciona um perfil para continuar</string>
     <string name="profile_selection_hint">Mantém premido para gerir o perfil</string>
@@ -1422,9 +1349,6 @@
     <string name="cd_voice_search">Pesquisa por voz</string>
     <string name="cd_expand">Expandir %1$s</string>
     <string name="cd_collapse">Recolher %1$s</string>
-    <string name="cd_qr_login">Código QR de início de sessão</string>
-    <string name="cd_fetch">Fetch</string>
-    <string name="debug_signin_success">Sessão iniciada com sucesso</string>
     <string name="debug_generate_description">Item %1$s nº %2$d gerado por debug</string>
     <string name="debug_generate_result_failed">Falhou: %1$s</string>
     <string name="debug_generate_library_result_added">Adicionados %1$d itens à biblioteca</string>
@@ -1966,7 +1890,6 @@
     <string name="collections_editor_tmdb_collection_fallback">Coleção TMDB %1$d</string>
 
     <!-- Fetch: new and changed strings -->
-    <string name="account_local_only_note">A sincronização está desligada. O Fetch guarda os teus addons, progresso e definições nesta TV e não precisa de conta. Para sincronizar entre dispositivos, liga o teu próprio servidor de sincronização nas opções de servidor.</string>
     <string name="addon_badge_needs_setup">Requer configuração</string>
     <string name="addon_configure">Configurar</string>
     <string name="addon_configure_install">Instalar</string>
@@ -2013,7 +1936,7 @@
     <string name="best_match_cached">Em cache</string>
     <string name="best_match_excluded">Não reproduzido automaticamente: %1$s</string>
     <string name="stream_hold_for_options">Mantém OK premido para ver as opções da Melhor correspondência</string>
-    <string name="best_match_preview_sub">Consulta os teus addons de streams sobre um título enquanto o vês, para que o botão Reproduzir mostre o ficheiro e a reprodução comece mais depressa. Desliga para só pesquisar depois de premires Reproduzir.</string>
+    <string name="best_match_preview_sub">Consulta os teus addons de streams sobre um título quando ficas nele, para que o botão Reproduzir mostre o ficheiro. Os addons ficam a saber que título é, e os serviços debrid contam os pedidos. Desliga para só consultar depois de premires Reproduzir.</string>
     <string name="best_match_preview_title">Mostrar a escolha no botão Reproduzir</string>
     <string name="catalog_order_pin">Fixar no topo</string>
     <string name="catalog_order_pinned_on_home">Fixado no topo do Início</string>
@@ -2022,8 +1945,6 @@
     <string name="cd_mark_credits_start">Marcar início dos créditos finais</string>
     <string name="cd_mark_intro_end">Marcar fim da introdução</string>
     <string name="cd_mark_intro_start">Marcar início da introdução</string>
-    <string name="custom_server_error_official_active">A sincronização já está desligada nesta TV.</string>
-    <string name="custom_server_error_official_available">Isto não é um servidor de sincronização. Fecha esta janela e escolhe Desligar sincronização para voltar ao modo apenas local.</string>
     <string name="exclusion_3d">versão 3D</string>
     <string name="exclusion_above_max_resolution">acima da tua resolução máxima</string>
     <string name="exclusion_audio">ignoras áudio %1$s</string>
@@ -2099,9 +2020,6 @@
     <string name="library_empty_type_movies">filmes</string>
     <string name="library_empty_type_series">séries</string>
     <string name="licenses_attributions_fetch_body">O Fetch é software livre sob a GNU General Public License v3.0. É um fork do NuvioTV pelos contribuidores do Nuvio (github.com/NuvioMedia/NuvioTV), cujo trabalho constitui a maior parte desta aplicação.</string>
-    <string name="official_server_action">Desligar sincronização</string>
-    <string name="official_server_description">Vais terminar sessão no teu servidor de sincronização e a aplicação será reiniciada no modo apenas local. Tudo o que já está nesta TV mantém-se.</string>
-    <string name="official_server_title">Desligar a sincronização?</string>
     <string name="parental_addons_blocked">Este perfil não pode instalar addons. Pede a um adulto.</string>
     <string name="parental_allow_unrated">Mostrar títulos sem classificação: %1$s</string>
     <string name="parental_gate_heading">Introduz o PIN de %1$s</string>
@@ -2178,7 +2096,6 @@
     <string name="ranking_size_gb">%1$d GB</string>
     <string name="ranking_skip_dv5">Ignorar Dolby Vision perfil 5</string>
     <string name="ranking_skip_dv5_sub">O perfil 5 não tem alternativa HDR10. É sempre ignorado quando esta TV não o consegue mostrar</string>
-    <string name="server_options_use_official">Desligar sincronização</string>
     <string name="skip_marker_report_failed">Não foi possível reportar o marcador</string>
     <string name="skip_marker_reported">Marcador errado reportado. Obrigado!</string>
     <string name="skip_marker_start_recorded">Início marcado. Prime novamente onde termina.</string>
@@ -2327,7 +2244,6 @@
     <string name="youtube_show_live_subtitle">Inclui transmissões em direto nos teus feeds, resultados de pesquisa e em Seguinte</string>
     <string name="youtube_hide_watched_title">Ocultar vídeos vistos</string>
     <string name="youtube_hide_watched_subtitle">Deixa de fora os vídeos que viste até ao fim. O histórico continua a listá-los</string>
-    <string name="profile_avatar_category_supporter">Apoiantes</string>
     <string name="profile_avatar_category_animals">Animais</string>
     <string name="profile_avatar_category_characters">Personagens</string>
     <string name="profile_avatar_category_fun">Diversão</string>

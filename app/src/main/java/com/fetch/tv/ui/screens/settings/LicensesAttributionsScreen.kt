@@ -81,7 +81,6 @@ private const val FfmpegLegalUrl = "https://ffmpeg.org/legal.html"
 private const val LgplUrl = "https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html"
 
 private const val Apache2 = "Apache License 2.0"
-private const val Mit = "MIT License"
 private const val Bsd3 = "BSD 3-Clause License"
 
 /**
@@ -123,8 +122,6 @@ private val libraryNotices = listOf(
     LibraryNotice("Retrofit", Apache2, "https://github.com/square/retrofit"),
     LibraryNotice("Moshi", Apache2, "https://github.com/square/moshi"),
     LibraryNotice("Coil", Apache2, "https://github.com/coil-kt/coil"),
-    LibraryNotice("Ktor", Apache2, "https://github.com/ktorio/ktor"),
-    LibraryNotice("supabase-kt", Mit, "https://github.com/supabase-community/supabase-kt", listOf(R.raw.license_supabase_kt)),
     LibraryNotice("Multiplatform Markdown Renderer", Apache2, "https://github.com/mikepenz/multiplatform-markdown-renderer"),
     LibraryNotice("NanoHTTPD", Bsd3, "https://github.com/NanoHttpd/nanohttpd", listOf(R.raw.license_nanohttpd))
 )

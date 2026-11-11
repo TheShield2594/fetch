@@ -11,7 +11,6 @@
     <string name="home_empty_no_catalog_addons_subtitle">Hjem trenger et katalogtillegg for å vise titler.</string>
     <string name="home_empty_no_catalogs_title">Ingen kataloger å vise</string>
     <string name="home_empty_no_catalogs_subtitle">Tilleggene dine tilbyr ingen kataloger for Hjem.</string>
-    <string name="auth_notice_fetch_logged_out">Du er logget ut av Fetch. Logg inn igjen under Innstillinger &gt; Konto.</string>
     <string name="auth_notice_trakt_logged_out">Du er logget ut av Trakt. Koble til igjen under Innstillinger &gt; Sporing.</string>
     <string name="error_generic">En feil har oppstått</string>
 
@@ -234,10 +233,6 @@
     <string name="network_connection_offline">Frakoblet</string>
     <string name="settings_debug">Feilsøking</string>
     <string name="settings_account_section_subtitle">Kontostatus og synkroniseringsstatus</string>
-    <string name="account_stat_addons">tillegg</string>
-    <string name="account_stat_library">bibliotek</string>
-    <string name="account_stat_progress">progresjon</string>
-    <string name="account_stat_watched">sett</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Avspillingsinnstillinger</string>
@@ -495,9 +490,6 @@
     <string name="trakt_connected_as">Tilkoblet som %1$s</string>
     <string name="trakt_awaiting_instruction">Gå til trakt.tv/activate og skriv inn denne koden:</string>
     <string name="trakt_waiting_approval">Venter på godkjenning…</string>
-    <string name="qr_login_approved">Login godkjent. Avslutter pålogging…</string>
-    <string name="qr_login_pending">Venter på godkjenning på telefonen din…</string>
-    <string name="qr_login_expired">QR-login utløpt. Generer en ny kode.</string>
     <string name="trakt_code_expires">Kode utløper om %1$s</string>
     <string name="trakt_token_refreshes">Trakt-tilgangstoken oppfriskes om %1$s</string>
     <string name="trakt_missing_credentials">Mangler TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET i local.properties.</string>
@@ -535,13 +527,6 @@
     <string name="debug_account_tab_subtitle">Vis kontofanen i innstillingsnavigasjonen</string>
     <string name="debug_sync_code_title">Synkroniser kodefunksjoner</string>
     <string name="debug_sync_code_subtitle">Vis generer/skriv inn synkkodeknapper i kontoinnstillinger</string>
-    <string name="debug_section_account">Konto</string>
-    <string name="debug_manual_signin_title">Manuell pålogging</string>
-    <string name="debug_manual_signin_subtitle">Logg inn med e-post og passord (Supabase-godkjenning)</string>
-    <string name="debug_email_placeholder">E-post</string>
-    <string name="debug_password_placeholder">Passord</string>
-    <string name="debug_signing_in">Logger inn\u2026</string>
-    <string name="debug_sign_in">Logg inn</string>
     <string name="debug_error_dialog_title">Avspillingsfeil</string>
     <string name="debug_error_dialog_subtitle">En feil oppstod under avspilling.\n\nFeil: Testsimulert feil - dette er ikke en virkelig feil. Kildereturnert HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">Avvis</string>
@@ -568,11 +553,6 @@
     <string name="profile_choose_avatar">Velg avatar</string>
     <string name="profile_avatar_focus_hint">Fokuser en avatar for å vise dens navn</string>
     <string name="profile_avatar_category_all">Alle</string>
-    <string name="profile_avatar_category_anime">Anime</string>
-    <string name="profile_avatar_category_animation">Animasjon</string>
-    <string name="profile_avatar_category_movie">Film</string>
-    <string name="profile_avatar_category_tv">TV</string>
-    <string name="profile_avatar_category_gaming">Spill</string>
     <string name="profile_add_new">Legg til profil</string>
     <string name="profile_cancel">Avbryt</string>
     <string name="profile_save">Lagre</string>
@@ -784,31 +764,11 @@
     <string name="library_empty_trakt_subtitle">Bruk + i detaljer for å legge til elementer i ønskelisten eller lister</string>
 
     <!-- AccountSettingsContent -->
-    <string name="account_loading">Laster\u2026</string>
-    <string name="account_sync_description">Synkroniser biblioteket, seeframgang og tillegg på tvers av enheter.</string>
-    <string name="account_sync_restart_note">Sync er ikke sanntid på tvers av aktive enheter. Start denne enheten på nytt etter pålogging eller for å hente endringer gjort andre steder.</string>
     <string name="account_signin_qr_title">Logg inn med QR</string>
-    <string name="account_signin_qr_subtitle">Skann en QR-kode og fullfør e-postlogging på telefonen din</string>
-    <string name="account_signed_in_label">Logget inn</string>
-    <string name="account_total_label">Totalt</string>
-    <string name="account_loading_sync">Laster synkdata\u2026</string>
-    <string name="account_sign_out">Logg ut</string>
 
     <!-- AuthSignInScreen -->
 
     <!-- AuthQrSignInScreen -->
-    <string name="auth_qr_finishing">Avslutter pålogging\u2026</string>
-    <string name="auth_qr_expires">Utløper om %1$s</string>
-    <string name="auth_qr_scan_instruction">Skann QR, godkjenn i nettleser, og kom deretter tilbake hit.</string>
-    <string name="auth_qr_refresh">Oppfrisk QR</string>
-    <string name="auth_qr_continue_without_account">Fortsett uten konto</string>
-    <string name="auth_qr_connected">Kontoen din er tilkoblet på denne TV-en.</string>
-    <string name="auth_qr_synced_data">De synkroniserte dataene dine</string>
-    <string name="auth_qr_generating">Genererer QR\u2026</string>
-    <string name="auth_qr_unavailable">QR utilgjengelig. Oppfrisk for å prøve på nytt.</string>
-    <string name="auth_qr_please_wait">Vennligst vent\u2026</string>
-    <string name="auth_qr_continue">Fortsett</string>
-    <string name="auth_qr_back">Tilbake</string>
 
     <!-- SyncCodeGenerateScreen -->
 
@@ -893,7 +853,6 @@
     <string name="playback_player_auto_desc">ExoPlayer for filmer og serier · MPV for anime</string>
 
     <!-- Fetch: new and changed strings -->
-    <string name="account_local_only_note">Synkronisering er av. Fetch lagrer tilleggene, fremdriften og innstillingene dine på denne TV-en og trenger ingen konto. For å synkronisere mellom enheter kobler du til din egen synkroniseringsserver fra serveralternativene.</string>
     <string name="addon_badge_needs_setup">Må konfigureres</string>
     <string name="addon_configure">Konfigurer</string>
     <string name="addon_configure_install">Installer</string>
@@ -940,7 +899,7 @@
     <string name="best_match_cached">Bufret</string>
     <string name="best_match_excluded">Ikke autoavspilt: %1$s</string>
     <string name="stream_hold_for_options">Hold inne OK for Beste treff-valg</string>
-    <string name="best_match_preview_sub">Spør strømmetilleggene om en tittel mens du ser på den, slik at Spill av-knappen kan vise filen og avspillingen starter raskere. Slå av for å søke først etter at du trykker Spill av.</string>
+    <string name="best_match_preview_sub">Spør strømmetilleggene om en tittel når du blir værende på den, slik at Spill av-knappen kan vise filen. Tilleggene får vite hvilken tittel det er, og debrid-tjenester teller forespørslene. Slå av for å spørre først etter at du trykker Spill av.</string>
     <string name="best_match_preview_title">Vis valget på Spill av-knappen</string>
     <string name="catalog_order_pin">Fest øverst</string>
     <string name="catalog_order_pinned_on_home">Festet øverst på Hjem</string>
@@ -968,8 +927,6 @@
     <string name="cd_mark_credits_start">Marker start på rulletekst</string>
     <string name="cd_mark_intro_end">Marker slutt på intro</string>
     <string name="cd_mark_intro_start">Marker start på intro</string>
-    <string name="custom_server_error_official_active">Synkronisering er allerede av på denne TV-en.</string>
-    <string name="custom_server_error_official_available">Det er ikke en synkroniseringsserver. Lukk denne dialogen og velg Slå av synkronisering for å gå tilbake til bare lokal modus.</string>
     <string name="exclusion_3d">3D-utgivelse</string>
     <string name="exclusion_above_max_resolution">over maksimal oppløsning</string>
     <string name="exclusion_audio">du hopper over %1$s-lyd</string>
@@ -1045,9 +1002,6 @@
     <string name="library_empty_type_movies">filmer</string>
     <string name="library_empty_type_series">serier</string>
     <string name="licenses_attributions_fetch_body">Fetch er fri programvare under GNU General Public License v3.0. Det er en fork av NuvioTV av Nuvio-bidragsyterne (github.com/NuvioMedia/NuvioTV), hvis arbeid utgjør mesteparten av denne appen.</string>
-    <string name="official_server_action">Slå av synkronisering</string>
-    <string name="official_server_description">Du blir logget ut av synkroniseringsserveren, og appen starter på nytt i bare lokal modus. Alt som allerede er på denne TV-en, blir værende.</string>
-    <string name="official_server_title">Slå av synkronisering?</string>
     <string name="parental_addons_blocked">Denne profilen kan ikke installere tillegg. Spør en forelder.</string>
     <string name="parental_allow_unrated">Vis titler uten aldersgrense: %1$s</string>
     <string name="parental_gate_heading">Skriv inn PIN-koden til %1$s</string>
@@ -1124,7 +1078,6 @@
     <string name="ranking_size_gb">%1$d GB</string>
     <string name="ranking_skip_dv5">Hopp over Dolby Vision-profil 5</string>
     <string name="ranking_skip_dv5_sub">Profil 5 har ingen HDR10-reserve. Den hoppes alltid over når denne TV-en ikke kan vise den</string>
-    <string name="server_options_use_official">Slå av synkronisering</string>
     <string name="skip_marker_report_failed">Kunne ikke rapportere markøren</string>
     <string name="skip_marker_reported">Rapporterte feil markør. Takk!</string>
     <string name="skip_marker_start_recorded">Start markert. Trykk igjen der det slutter.</string>
@@ -1272,7 +1225,6 @@
     <string name="youtube_show_live_subtitle">Ta med strømmer som er direkte nå i feeder, søkeresultater og Neste</string>
     <string name="youtube_hide_watched_title">Skjul sette videoer</string>
     <string name="youtube_hide_watched_subtitle">Utelater videoer du har sett til slutten. Historikken viser dem fortsatt</string>
-    <string name="profile_avatar_category_supporter">Støttespiller</string>
     <string name="profile_avatar_category_animals">Dyr</string>
     <string name="profile_avatar_category_characters">Figurer</string>
     <string name="profile_avatar_category_fun">Moro</string>

@@ -1,8 +1,11 @@
 # Fetch website
 
-The self-hosted half of Fetch: the server and web app that sit next to the
-[Android TV app](../README.md). It is where profiles, addons, lists and settings
-live, and it is your own personal home page for everything you watch. It opens on one shelf — your shows and films together, with whatever you're part-way through at the top — instead of making you jump between five different apps to find it.
+The Fetch account server: the self-hosted server and web app that keep your
+watchlist, watch history and settings (with profiles, addons, lists and Home
+rows) for the [Android TV app](../README.md) and the desktop app. That is its
+job, and what changes here serve it. AI recommendations, left over from its
+start as a standalone tracker, are off by default: turn them on in Settings ›
+Preferences › Show AI Recommendations.
 
 This was a separate project called Cataloggy until it moved into the Fetch
 repository. Its environment variables (`FETCH_*`), addon ID, catalog IDs,

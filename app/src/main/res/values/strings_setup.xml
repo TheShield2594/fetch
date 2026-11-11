@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- First-run setup wizard: Server → Sources → Metadata → Experience. -->
-    <string name="first_run_step_label">%1$d  %2$s</string>
+    <string name="first_run_step_label" translatable="false">%1$d  %2$s</string>
     <string name="first_run_step_server">Server</string>
     <string name="first_run_step_sources">Sources</string>
     <string name="first_run_step_metadata">Metadata</string>
@@ -34,7 +34,7 @@
     <string name="first_run_metadata_mdblist">MDBList ratings</string>
     <string name="first_run_metadata_mdblist_set">Key added</string>
     <string name="first_run_metadata_mdblist_unset">No key yet</string>
-    <string name="first_run_metadata_trakt">Trakt</string>
+    <string name="first_run_metadata_trakt" translatable="false">Trakt</string>
     <string name="first_run_metadata_trakt_connected_as">Connected as %1$s</string>
     <string name="first_run_metadata_trakt_connected">Connected</string>
     <string name="first_run_metadata_trakt_unset">Not connected</string>

@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.detail
 
 import com.fetch.tv.ui.components.FetchCardDefaults
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.layout.Arrangement
@@ -123,7 +124,7 @@ fun TrailerSection(
             lastFocusedTrailerId == null -> firstItemFocusRequester
             lastFocusedTrailerId == restoreTrailerId -> restoreFocusRequester
             lastFocusedTrailerId == trailerItems.firstOrNull()?.preview?.id -> firstItemFocusRequester
-            else -> itemFocusRequesters.getOrPut(lastFocusedTrailerId) { FocusRequester() }
+            else -> itemFocusRequesters.focusRequesterFor(lastFocusedTrailerId)
         }
     }
 
@@ -193,7 +194,7 @@ fun TrailerSection(
                     isRestoreTarget && restoreFocusToken > 0 -> restoreFocusRequester
                     isFirstItem -> firstItemFocusRequester
                     else -> remember(item.preview.id) {
-                        itemFocusRequesters.getOrPut(item.preview.id) { FocusRequester() }
+                        itemFocusRequesters.focusRequesterFor(item.preview.id)
                     }
                 }
 

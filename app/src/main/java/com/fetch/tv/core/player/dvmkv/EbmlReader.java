@@ -15,7 +15,9 @@
  */
 package com.fetch.tv.core.player.dvmkv;
 
+import androidx.annotation.OptIn;
 import androidx.media3.common.ParserException;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.extractor.ExtractorInput;
 import java.io.IOException;
 
@@ -26,6 +28,7 @@ import java.io.IOException;
  * originally designed for the Matroska container format. More information about EBML and Matroska
  * is available <a href="http://www.matroska.org/technical/specs/index.html">here</a>.
  */
+@OptIn(markerClass = UnstableApi.class)
 /* package */ interface EbmlReader {
 
   /**

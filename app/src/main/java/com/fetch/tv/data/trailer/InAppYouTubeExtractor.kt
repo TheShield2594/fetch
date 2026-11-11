@@ -2,6 +2,7 @@ package com.fetch.tv.data.trailer
 
 import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import com.fetch.tv.core.network.SharedHttpClient
 import com.google.gson.Gson
 import com.fetch.tv.BuildConfig
@@ -665,7 +666,7 @@ class InAppYouTubeExtractor internal constructor(
         }
 
         return runCatching {
-            val uri = Uri.parse(normalized)
+            val uri = normalized.toUri()
             val host = uri.host?.lowercase().orEmpty()
             if (host.endsWith("youtu.be")) {
                 val id = uri.pathSegments.firstOrNull()
@@ -863,7 +864,7 @@ class InAppYouTubeExtractor internal constructor(
 
     private fun hasNParam(url: String): Boolean {
         return runCatching {
-            !Uri.parse(url).getQueryParameter("n").isNullOrBlank()
+            !url.toUri().getQueryParameter("n").isNullOrBlank()
         }.getOrDefault(false)
     }
 
@@ -950,7 +951,7 @@ class InAppYouTubeExtractor internal constructor(
      */
     private suspend fun resolveReachableUrl(url: String): String? {
         if (!url.contains("googlevideo.com")) return url
-        val uri = Uri.parse(url)
+        val uri = url.toUri()
         val mnParam = uri.getQueryParameter("mn") ?: return url
         val servers = mnParam.split(",").map { it.trim() }.filter { it.isNotBlank() }
         if (servers.size < 2) return url

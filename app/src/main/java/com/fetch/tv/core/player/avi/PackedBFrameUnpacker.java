@@ -1,8 +1,10 @@
 package com.fetch.tv.core.player.avi;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.media3.common.C;
 import androidx.media3.common.util.ParsableBitArray;
+import androidx.media3.common.util.UnstableApi;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +18,7 @@ import java.util.Arrays;
  * placeholder is dropped and each sample gets the time of the slot it is shown in. Samples are
  * output in decode order with presentation times. Streams without packing pass through unchanged.
  */
+@OptIn(markerClass = UnstableApi.class)
 /* package */ final class PackedBFrameUnpacker {
 
   /** Receives the samples in decode order. */

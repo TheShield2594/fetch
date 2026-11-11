@@ -1,8 +1,10 @@
 package com.fetch.tv.core.recommendations
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.tvprovider.media.tv.TvContractCompat
 import androidx.tvprovider.media.tv.WatchNextProgram
 import com.fetch.tv.MainActivity
@@ -11,6 +13,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+// RestrictedApi is a lint false positive here: this class uses only tvprovider's public API
+// (TvContractCompat.PreviewPrograms / WatchNextPrograms constants and the program Builders),
+// but lint resolves those members to the @RestrictTo supertypes that declare them
+// (PreviewProgramColumns, BaseProgram.Builder, BasePreviewProgram.Builder).
+@SuppressLint("RestrictedApi")
 @Singleton
 class ProgramBuilder @Inject constructor(
     @ApplicationContext private val context: Context
@@ -48,7 +55,7 @@ class ProgramBuilder @Inject constructor(
 
         val horizontalArt = progress.backdrop ?: progress.poster
         horizontalArt?.let {
-            val uriWithCacheBuster = Uri.parse(it).buildUpon()
+            val uriWithCacheBuster = it.toUri().buildUpon()
                 .appendQueryParameter("v", "horizontal_fix")
                 .build()
             builder.setPosterArtUri(uriWithCacheBuster)
@@ -230,23 +237,21 @@ class ProgramBuilder @Inject constructor(
     }
 
     private fun buildPlayUri(progress: WatchProgress): Uri =
-        Uri.parse(
-            Intent(context, MainActivity::class.java).apply {
-                action = Intent.ACTION_VIEW
-                putExtra("contentId", progress.contentId)
-                putExtra("contentType", progress.contentType)
-                putExtra("videoId", progress.videoId)
-                putExtra("name", progress.name)
-                putExtra("poster", progress.poster)
-                putExtra("backdrop", progress.backdrop)
-                putExtra("logo", progress.logo)
-                progress.season?.let { putExtra("season", it) }
-                progress.episode?.let { putExtra("episode", it) }
-                progress.episodeTitle?.let { putExtra("episodeTitle", it) }
-                putExtra("launchMode", "stream")
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            }.toUri(Intent.URI_INTENT_SCHEME)
-        )
+        Intent(context, MainActivity::class.java).apply {
+            action = Intent.ACTION_VIEW
+            putExtra("contentId", progress.contentId)
+            putExtra("contentType", progress.contentType)
+            putExtra("videoId", progress.videoId)
+            putExtra("name", progress.name)
+            putExtra("poster", progress.poster)
+            putExtra("backdrop", progress.backdrop)
+            putExtra("logo", progress.logo)
+            progress.season?.let { putExtra("season", it) }
+            progress.episode?.let { putExtra("episode", it) }
+            progress.episodeTitle?.let { putExtra("episodeTitle", it) }
+            putExtra("launchMode", "stream")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }.toUri(Intent.URI_INTENT_SCHEME).toUri()
 }
 
 /**

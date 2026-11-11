@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.home
 
 import com.fetch.tv.domain.model.catalogRowLegacyKey
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -95,6 +96,7 @@ internal fun ModernHomeRowsList(
     onRowItemFocusedInternal: (String, Int, Boolean) -> Unit,
     onNavigateToDetail: (String, String, String) -> Unit,
     onNavigateToFolderDetail: (String, String) -> Unit,
+    modifier: Modifier = Modifier,
     onSeeAllRow: (HeroCarouselRow) -> Unit = {},
     onYouTubeVideoClick: (com.fetch.tv.data.youtube.YouTubeVideo) -> Unit = {},
     onLoadMoreCatalog: (String, String, String) -> Unit,
@@ -148,7 +150,6 @@ internal fun ModernHomeRowsList(
     onFocusedHeroMediaNonceChange: (Int) -> Unit,
     onExpansionInteractionNonceChange: (Int) -> Unit,
     blockLeftOnFirstExpandedItem: Boolean = false,
-    modifier: Modifier = Modifier
 ) {
     // Unwrap StableRef wrappers for internal use (not passed to child composables)
     val focusedItemByRowMap = focusedItemByRow.value
@@ -430,7 +431,7 @@ internal fun ModernHomeRowsList(
                 ModernRowSection(
                     row = row,
                     isActiveRow = isActiveRowLambda,
-                    rowFocusRequester = rowFocusRequesters.getOrPut(row.key) { FocusRequester() },
+                    rowFocusRequester = rowFocusRequesters.focusRequesterFor(row.key),
                     rowTitleBottom = MODERN_ROW_TITLE_BOTTOM,
                     defaultBringIntoViewSpec = defaultBringIntoViewSpec,
                     focusStateCatalogRowScrollIndex = focusState.catalogRowScrollStates[row.key] ?: 0,

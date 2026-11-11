@@ -1,7 +1,9 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.fetch.tv.ui.screens.player
 
-import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.SeekParameters
 import com.fetch.tv.R
@@ -267,31 +269,31 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                     val playingNow = view.isPlayingNow()
                     val cacheBuffering = view.isPausedForCacheNow() || view.isCoreIdleNow()
                     var firstFrameReady = hasRenderedFirstFrame
-                        if (!firstFrameReady) {
-                            firstFrameReady = view.isPositionFromRequestedMedia() &&
-                                (pos > 0L || (playingNow && !cacheBuffering && playerDuration > 0L))
-                            if (firstFrameReady) {
-                                hasRenderedFirstFrame = true
-                                onCurrentStreamFirstFrame()
-                                resetMpvStartupWatchdog()
-                                scheduleMpvStableProgressReset()
-                                val clickToFirstFrameMs = launchStartedAtElapsedMs
-                                    ?.let { (android.os.SystemClock.elapsedRealtime() - it).coerceAtLeast(0L) }
-                                    ?: -1L
-                                val initToFirstFrameMs = (System.currentTimeMillis() - playerInitializationStartedAtMs)
-                                    .coerceAtLeast(0L)
-                                playbackAnalyticsDiagnostics.recordRawEventLine(
-                                    "PLAYBACK_STARTUP: clickToFirstFrameMs=$clickToFirstFrameMs " +
-                                        "initToFirstFrameMs=$initToFirstFrameMs playbackSpeed=${_uiState.value.playbackSpeed} " +
-                                        "currentPositionMs=$pos durationMs=$playerDuration engine=MPV " +
-                                        "host=${currentStreamUrl.safePlaybackEventsHost()}"
-                                )
-                                finishLoadingDiagnostics("mpv_first_frame_ready")
-                                if (_uiState.value.postPlayDismissedForCurrentEpisode) {
-                                    _uiState.update { it.copy(postPlayDismissedForCurrentEpisode = false) }
-                                }
+                    if (!firstFrameReady) {
+                        firstFrameReady = view.isPositionFromRequestedMedia() &&
+                            (pos > 0L || (playingNow && !cacheBuffering && playerDuration > 0L))
+                        if (firstFrameReady) {
+                            hasRenderedFirstFrame = true
+                            onCurrentStreamFirstFrame()
+                            resetMpvStartupWatchdog()
+                            scheduleMpvStableProgressReset()
+                            val clickToFirstFrameMs = launchStartedAtElapsedMs
+                                ?.let { (android.os.SystemClock.elapsedRealtime() - it).coerceAtLeast(0L) }
+                                ?: -1L
+                            val initToFirstFrameMs = (System.currentTimeMillis() - playerInitializationStartedAtMs)
+                                .coerceAtLeast(0L)
+                            playbackAnalyticsDiagnostics.recordRawEventLine(
+                                "PLAYBACK_STARTUP: clickToFirstFrameMs=$clickToFirstFrameMs " +
+                                    "initToFirstFrameMs=$initToFirstFrameMs playbackSpeed=${_uiState.value.playbackSpeed} " +
+                                    "currentPositionMs=$pos durationMs=$playerDuration engine=MPV " +
+                                    "host=${currentStreamUrl.safePlaybackEventsHost()}"
+                            )
+                            finishLoadingDiagnostics("mpv_first_frame_ready")
+                            if (_uiState.value.postPlayDismissedForCurrentEpisode) {
+                                _uiState.update { it.copy(postPlayDismissedForCurrentEpisode = false) }
                             }
                         }
+                    }
                     maybeRunMpvStartupWatchdog(view)
                     if (playerDuration > lastKnownDuration) {
                         lastKnownDuration = playerDuration
@@ -1806,6 +1808,6 @@ internal fun PlayerRuntimeController.buildStreamInfoData(): StreamInfoData {
 
 private fun String.safePlaybackEventsHost(): String {
     return runCatching {
-        Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
+        toUri().host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
     }.getOrDefault("unknown")
 }

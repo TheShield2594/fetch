@@ -1,5 +1,7 @@
 @file:OptIn(androidx.media3.common.util.UnstableApi::class)
 
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.fetch.tv.ui.screens.player
 
 import android.text.SpannableStringBuilder

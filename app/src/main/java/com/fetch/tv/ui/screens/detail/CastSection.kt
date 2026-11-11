@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.contentTextDirection
 
@@ -165,13 +166,13 @@ fun CastSection(
             leadingIndex >= 0 -> {
                 val member = leadingCast[leadingIndex]
                 val key = "leading:${member.tmdbId ?: member.name}:${member.character.orEmpty()}"
-                itemFocusRequesters.getOrPut(key) { FocusRequester() }
+                itemFocusRequesters.focusRequesterFor(key)
             }
             castIndex == 0 && leadingCast.isEmpty() -> firstItemFocusRequester
             else -> {
                 val member = cast[castIndex]
                 val key = "cast:${member.tmdbId ?: member.name}:${member.character.orEmpty()}"
-                itemFocusRequesters.getOrPut(key) { FocusRequester() }
+                itemFocusRequesters.focusRequesterFor(key)
             }
         }
         restoreTargetRequester = targetRequester
@@ -269,7 +270,7 @@ fun CastSection(
                     val focusRequester = if (isFirstItem) {
                         firstItemFocusRequester
                     } else {
-                        remember(focusKey) { itemFocusRequesters.getOrPut(focusKey) { FocusRequester() } }
+                        remember(focusKey) { itemFocusRequesters.focusRequesterFor(focusKey) }
                     }
 
                     Box(modifier = restoreItemModifier.padding(end = endPadding)) {
@@ -320,7 +321,7 @@ fun CastSection(
                 val focusRequester = if (isFirstCastItem) {
                     firstItemFocusRequester
                 } else {
-                    remember(focusKey) { itemFocusRequesters.getOrPut(focusKey) { FocusRequester() } }
+                    remember(focusKey) { itemFocusRequesters.focusRequesterFor(focusKey) }
                 }
 
                 Box(modifier = restoreItemModifier.padding(end = standardGap)) {
@@ -413,7 +414,7 @@ private fun resolveCastFocusRequester(
         key == "cast:${member.tmdbId ?: member.name}:${member.character.orEmpty()}"
     }
     if (!known) return firstItemFocusRequester
-    return itemFocusRequesters.getOrPut(key) { FocusRequester() }
+    return itemFocusRequesters.focusRequesterFor(key)
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)

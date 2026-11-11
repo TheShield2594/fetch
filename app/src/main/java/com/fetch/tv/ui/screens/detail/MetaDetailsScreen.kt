@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.detail
 
+import androidx.core.graphics.createBitmap
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import com.fetch.tv.ui.components.LocalPlaybackAvailability
@@ -2161,7 +2163,7 @@ private fun MetaDetailsContent(
         val w = backdropWidthPx.coerceAtLeast(1)
         val h = backdropHeightPx.coerceAtLeast(1)
         val transparent = backgroundColor.copy(alpha = 0f).toArgb()
-        val bmp = android.graphics.Bitmap.createBitmap(w, 2, android.graphics.Bitmap.Config.ARGB_8888)
+        val bmp = createBitmap(w, 2)
         val canvas = android.graphics.Canvas(bmp)
         val fadeWidth = w * 0.78f
         val shader = if (isRtl) {
@@ -2208,7 +2210,7 @@ private fun MetaDetailsContent(
         val w = backdropWidthPx.coerceAtLeast(1)
         val h = backdropHeightPx.coerceAtLeast(1)
         val transparent = backgroundColor.copy(alpha = 0f).toArgb()
-        val bmp = android.graphics.Bitmap.createBitmap(2, h, android.graphics.Bitmap.Config.ARGB_8888)
+        val bmp = createBitmap(2, h)
         val canvas = android.graphics.Canvas(bmp)
         val startY = h * 0.38f
         val shader = android.graphics.LinearGradient(

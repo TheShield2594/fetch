@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.collection
 
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.components.PosterGridSkeleton
 import com.fetch.tv.ui.components.CatalogRowsSkeleton
@@ -533,7 +534,7 @@ private fun TabbedGridContent(
                     key = { index, item -> "${item.id}_$index" }
                 ) { index, item ->
                     val itemKey = "${item.id}_$index"
-                    val focusReq = itemFocusRequesters.getOrPut(itemKey) { FocusRequester() }
+                    val focusReq = itemFocusRequesters.focusRequesterFor(itemKey)
                     GridContentCard(
                         item = item,
                         posterCardStyle = posterCardStyle,
@@ -879,7 +880,7 @@ private fun RowsContent(
                                 firstVisibleItemIndex = focusState.catalogRowScrollStates[rowKey] ?: 0
                             )
                         }
-                        val rowFocusRequester = rowFocusRequesters.getOrPut(rowKey) { FocusRequester() }
+                        val rowFocusRequester = rowFocusRequesters.focusRequesterFor(rowKey)
                         CatalogRowSection(
                             catalogRow = catalogRow,
                             onItemClick = onNavigateToDetail,
@@ -907,7 +908,7 @@ private fun RowsContent(
                             onItemFocus = onItemFocus,
                             listState = listState,
                             rowFocusRequester = rowFocusRequester,
-                            entryFocusRequester = rowEntryFocusRequesters.getOrPut(rowKey) { FocusRequester() },
+                            entryFocusRequester = rowEntryFocusRequesters.focusRequesterFor(rowKey),
                             enableRowFocusRestorer = true,
                             focusedItemIndex = when {
                                 focusState.hasSavedFocus && focusState.focusedRowKey == rowKey ->

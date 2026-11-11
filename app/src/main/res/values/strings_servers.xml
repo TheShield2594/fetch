@@ -28,7 +28,7 @@
     <string name="servers_remove">Remove server</string>
     <string name="servers_remove_confirm_title">Remove this server?</string>
     <string name="servers_remove_confirm_message">This signs you out of %1$s on this device. You can add it back anytime.</string>
-    <string name="servers_signed_in_as">%1$s · %2$s</string>
+    <string name="servers_signed_in_as" translatable="false">%1$s · %2$s</string>
     <string name="servers_status_disabled">Disabled</string>
     <string name="servers_status_auth">Sign in again</string>
     <string name="servers_status_unreachable">Server unavailable</string>

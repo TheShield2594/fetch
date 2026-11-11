@@ -116,8 +116,8 @@ fun PostPlayRecommendationOverlay(
     onTrailerEnded: () -> Unit,
     onPreviousRecommendation: () -> Unit,
     onNextRecommendation: () -> Unit,
+    modifier: Modifier = Modifier,
     mdbListRatingOrder: List<String> = com.fetch.tv.domain.model.MDBListSettings.DEFAULT_RATING_ORDER,
-    modifier: Modifier = Modifier
 ) {
     val recommendation = state.recommendation ?: return
     val trailerFocusRequester = remember(recommendation.id) { FocusRequester() }
@@ -740,9 +740,9 @@ private fun PostPlayRecommendationButton(
     painter: Painter,
     primary: Boolean,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     onLongPress: (() -> Unit)? = null,
     focusRequester: FocusRequester,
-    modifier: Modifier = Modifier
 ) {
     val shape = RoundedCornerShape(FetchTheme.spacing.xxl)
     var longPressTriggered by remember { mutableStateOf(false) }

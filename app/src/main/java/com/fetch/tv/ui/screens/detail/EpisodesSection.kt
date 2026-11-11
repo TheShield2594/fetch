@@ -1,5 +1,8 @@
 package com.fetch.tv.ui.screens.detail
 
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import com.fetch.tv.ui.components.cardProgressDescription
@@ -154,8 +157,8 @@ fun SeasonTabs(
     val lazyListState = rememberLazyListState(initialFirstVisibleItemIndex = initialSeasonIndex)
 
     var suppressFocusSwitch by remember { mutableStateOf(false) }
-    var lastAppliedSeason by remember { mutableStateOf(selectedSeason) }
-    var lastFocusedSeason by remember { mutableStateOf(selectedSeason) }
+    var lastAppliedSeason by remember { mutableIntStateOf(selectedSeason) }
+    var lastFocusedSeason by remember { mutableIntStateOf(selectedSeason) }
     val seasonFocusRequesters = remember { mutableMapOf<Int, FocusRequester>() }
     // Clear suppress whenever selectedSeason actually settles (composition runs
     // with the new value). This guarantees reset even if the scroll coroutine is cancelled.
@@ -256,7 +259,7 @@ fun SeasonTabs(
     val restorerRequester = remember(lastFocusedSeason, selectedSeason, selectedTabFocusRequester) {
         when {
             lastFocusedSeason == selectedSeason -> selectedTabFocusRequester
-            else -> seasonFocusRequesters.getOrPut(lastFocusedSeason) { FocusRequester() }
+            else -> seasonFocusRequesters.focusRequesterFor(lastFocusedSeason)
         }
     }
 
@@ -285,7 +288,7 @@ fun SeasonTabs(
             val seasonFocusRequester = if (isSelected) {
                 selectedTabFocusRequester
             } else {
-                remember(season) { seasonFocusRequesters.getOrPut(season) { FocusRequester() } }
+                remember(season) { seasonFocusRequesters.focusRequesterFor(season) }
             }
 
             Card(
@@ -523,7 +526,7 @@ fun EpisodesRow(
             val progress = remember(seasonEp, episodeProgressMap) { seasonEp?.let { episodeProgressMap[it] } }
             val imdbRating = remember(seasonEp, episodeRatings) { seasonEp?.let { episodeRatings[it] } }
             val isMarkedWatched = remember(seasonEp, watchedEpisodes) { seasonEp?.let { watchedEpisodes.contains(it) } ?: false }
-            val episodeFocusRequester = remember(episode.id) { episodeFocusRequesters.getOrPut(episode.id) { FocusRequester() } }
+            val episodeFocusRequester = remember(episode.id) { episodeFocusRequesters.focusRequesterFor(episode.id) }
             val episodeOnClick = remember(episode, onEpisodeClick) { { onEpisodeClick(episode) } }
             val episodeOnLongPress = remember(episode.id) { { optionsEpisode = episode } }
             val episodeOnFocused = remember(episode.id) { { onEpisodeFocused(episode.id) } }
@@ -1092,7 +1095,7 @@ private fun EpisodeCard(
                         )
                 ) {
                     Text(
-                        text = strUnavailable.uppercase(Locale.getDefault()),
+                        text = strUnavailable.uppercase(LocalConfiguration.current.locales[0]),
                         style = episodeBadgeStyle,
                         maxLines = 1
                     )

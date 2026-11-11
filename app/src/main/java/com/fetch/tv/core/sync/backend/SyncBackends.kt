@@ -1,6 +1,7 @@
 package com.fetch.tv.core.sync.backend
 
 import android.content.Context
+import androidx.core.content.edit
 import com.fetch.tv.data.website.FetchWebsiteStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,7 +64,7 @@ class SyncBackends @Inject constructor(
 
     /** Records the choice. Ending the other backend's connection is up to the caller. */
     fun choose(kind: SyncBackendKind) {
-        preferences.edit().putString(KEY_CHOICE, kind.name).apply()
+        preferences.edit { putString(KEY_CHOICE, kind.name) }
         _storedChoice.value = kind
     }
 

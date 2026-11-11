@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Continue Watching</string>
     <string name="type_movie">Movie</string>
@@ -141,7 +141,7 @@
     <string name="error_stream_tried_none">Checked %1$s. None of them had a stream for this title.</string>
     <string name="error_stream_tried_generic">Checked %1$s. Streams could not be loaded.</string>
     <!-- %4$s is one "Addon: reason" line per failed addon. -->
-    <string name="error_stream_tried_issues">Checked %1$s.\n%4$s</string>
+    <string name="error_stream_tried_issues">Checked %1$s.\n%2$s</string>
 
     <string name="continue_watching">Continue Watching</string>
     <string name="cw_upcoming">Upcoming</string>
@@ -162,7 +162,7 @@
         <item quantity="other">Airs in %d Days</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
+    <string name="cw_airs_date_short" translatable="false">%1$s</string>
     <string name="cw_airs_today_short">Today</string>
     <string name="cw_airs_tomorrow_short">Tomorrow</string>
     <plurals name="cw_airs_in_days_short">
@@ -266,7 +266,7 @@
     <string name="detail_comments_back_hint">Press Back to close</string>
     <string name="detail_comments_badge_review">Review</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
+    <string name="detail_comments_badge_rating" translatable="false">%1$d/10</string>
     <string name="detail_comments_likes">%1$d likes</string>
     <string name="tmdb_entity_kind_company">Production Company</string>
     <string name="tmdb_entity_kind_network">Network</string>
@@ -275,14 +275,14 @@
     <string name="tmdb_entity_rail_recent">Recent</string>
     <string name="tmdb_entity_rail_most_voted">Most Voted</string>
     <string name="collections_editor_tmdb_watch_region">Watch region</string>
-    <string name="collections_editor_tmdb_watch_region_helper">ISO 3166-1 country code where the title is available. Example: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">ISO 3166-1 country code where the title is available. Example: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Quick watch regions</string>
     <string name="collections_editor_tmdb_watch_providers">Watch provider IDs</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Use TMDB watch provider IDs. Separate multiple with commas for AND, or pipes for OR.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
+    <string name="collections_editor_tmdb_watch_providers_placeholder" translatable="false">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">Excluded watch provider IDs</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Exclude titles available from these TMDB watch provider numbers in the selected region.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
+    <string name="collections_editor_tmdb_without_watch_providers_placeholder" translatable="false">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Quick watch providers</string>
     <string name="tmdb_error_load_source">Could not load TMDB source</string>
     <string name="tmdb_error_list_not_found">TMDB list not found</string>
@@ -498,13 +498,13 @@
     <string name="licenses_attributions_license_format">Licensed under the %1$s.</string>
     <string name="licenses_attributions_section_texts">FULL LICENSE TEXTS</string>
     <string name="licenses_attributions_license_text_body">The full text of this license, which applies to the libraries above that name it.</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
+    <string name="licenses_attributions_fetch_title" translatable="false">Fetch</string>
     <string name="licenses_attributions_fetch_body">Fetch is free software under the GNU General Public License v3.0. It is a fork of NuvioTV by the Nuvio contributors (github.com/NuvioMedia/NuvioTV), whose work makes up most of this app.</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch uses the TMDB API for movie and TV metadata, artwork, trailers, cast, production details, collections, and recommendations. This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch connects to Trakt for account authentication, watched history, progress sync, library data, ratings, lists, and comments. Fetch is not affiliated with or endorsed by Trakt.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
+    <string name="licenses_attributions_simkl_title" translatable="false">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch connects to Simkl for account authentication, watchlists, watched history, playback progress, and scrobbling. Movie, TV, and anime tracking data is provided by Simkl. Fetch is not affiliated with or endorsed by Simkl.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch uses MDBList for ratings, watched history and playback tracking. Fetch is not affiliated with or endorsed by MDBList.</string>
@@ -587,8 +587,8 @@
     <string name="tracking_watch_progress_dialog_subtitle">Choose the service Fetch reads for resume and Continue Watching. Scrobbling remains active for every connected service.</string>
     <string name="tracking_library_source_dialog_subtitle">Choose the service Fetch reads for your Library. Playback scrobbles to every connected service.</string>
     <string name="tracking_trakt_progress_required">Available when Trakt is the Watch Progress source</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
+    <string name="trakt_name" translatable="false">Trakt</string>
+    <string name="simkl_name" translatable="false">Simkl</string>
     <string name="settings_advanced">Advanced settings</string>
     <string name="settings_tabs_addons">Addons &amp; servers</string>
     <string name="settings_tabs_metadata">Metadata &amp; ratings</string>
@@ -647,7 +647,7 @@
     <string name="advanced_introdb_api_key_dialog_subtitle">Create a key on introdb.app. It starts with idb_.</string>
     <string name="advanced_section_startup">Startup &amp; exit</string>
     <string name="advanced_section_network_tests">Network tests</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
+    <string name="advanced_section_dv_diagnostics">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">Fast Horizontal Navigation</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Increase D-pad repeat speed in rows while keeping repeat throttling enabled.</string>
     <string name="advanced_fetch_focus_scroll">Fetch Focus Scrolling</string>
@@ -730,7 +730,7 @@
     <string name="playback_player_external">External</string>
     <string name="playback_player_ask">Ask every time</string>
     <string name="playback_internal_player_engine">Internal Engine</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
+    <string name="playback_engine_exoplayer" translatable="false">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Auto-switch engine on startup error</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">If stream startup fails, switch between ExoPlayer and libmpv automatically.</string>
@@ -813,20 +813,20 @@
     <string name="audio_strip_hdr10plus_sub">Remove HDR10+ dynamic metadata from streams. When Convert to DV8.1 is also enabled, stripping runs after conversion.</string>
     <string name="audio_dv7_preserve_mapping_title">Preserve DV mapping (DV7 to DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">Keeps original creator-intended tone-mapping at the cost of slightly more processing per frame.</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
+    <string name="dv7_libdovi_mode_caption">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
+    <string name="dv7_libdovi_mode_row_title">Conversion mode</string>
+    <string name="dv7_libdovi_mode_none_title">None</string>
+    <string name="dv7_libdovi_mode_none_sub">No override. Uses the automatically selected conversion mode.</string>
+    <string name="dv7_libdovi_mode_0_title">Mode 0 — Copy (no convert)</string>
+    <string name="dv7_libdovi_mode_0_sub">Parse the RPU and write it back untouched. No profile conversion.</string>
+    <string name="dv7_libdovi_mode_1_title">Mode 1 — MEL</string>
+    <string name="dv7_libdovi_mode_1_sub">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
+    <string name="dv7_libdovi_mode_2_title">Mode 2 — 8.1 (no-op mapping)</string>
+    <string name="dv7_libdovi_mode_2_sub">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
+    <string name="dv7_libdovi_mode_3_title">Mode 3 — Profile 5 to 8.1</string>
+    <string name="dv7_libdovi_mode_3_sub">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
+    <string name="dv7_libdovi_mode_4_title">Mode 4 — 8.4 (static)</string>
+    <string name="dv7_libdovi_mode_4_sub">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hi10p_gnext_sw_title">Hi10P G-NEXT SW fallback (MPV-only)</string>
     <string name="audio_mpv_hi10p_gnext_sw_subtitle">Use G-NEXT software decoding when stream details identify H.264 Hi10P. Off by default; enable only if Hi10P playback freezes or fails.</string>
     <string name="audio_mpv_hwdec_title">Hardware Decoding (MPV-only)</string>
@@ -1098,7 +1098,7 @@
     <string name="web_custom_poster_placeholders_info">Placeholders: {id} passes all content IDs. {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} target a single ID type - if unavailable, the original poster is kept. {imdb_id|tmdb_id|kitsu_id} declares supported ID types - the matching one is used, or the original poster is kept. Add ? to make a placeholder optional, resolving to empty instead of skipping: {imdb_id?}. Other placeholders: {id_type}, {typed_id}, {type}, {shape}. Landscape cards only get custom art when the pattern contains {shape}.</string>
 
 
-    <string name="mdblist_name">MDBList</string>
+    <string name="mdblist_name" translatable="false">MDBList</string>
     <string name="mdblist_tracking_description">Sync watched history and playback progress across devices</string>
     <string name="mdblist_connected_as">Connected as %1$s</string>
     <string name="mdblist_account_fallback">MDBList user</string>
@@ -1246,7 +1246,7 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">Select the source for recommendations shown on detail and post-play screens.</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
+    <string name="trakt_more_like_this_source_simkl" translatable="false">Simkl</string>
     <string name="trakt_cached_label">Cached</string>
     <string name="trakt_stat_movies">Movies</string>
     <string name="trakt_stat_shows">Shows</string>
@@ -1627,13 +1627,13 @@
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <!-- Two parts of a player metadata line, e.g. "S1 E2 · Pilot" or "AAC · 6 ch". One separator for every player overlay. -->
-    <string name="player_meta_line">%1$s · %2$s</string>
+    <string name="player_meta_line" translatable="false">%1$s · %2$s</string>
     <!-- Audio channel count on an audio track, e.g. "6 ch". %1$d = channels. -->
     <string name="audio_channels">%1$d ch</string>
     <!-- Audio sample rate, e.g. "48 kHz". %1$d = kilohertz. -->
     <string name="audio_sample_rate_khz">%1$d kHz</string>
     <!-- A playback speed, e.g. "1.5×". %1$s = the speed. -->
-    <string name="playback_speed_value">%1$s×</string>
+    <string name="playback_speed_value" translatable="false">%1$s×</string>
     <!-- A display refresh rate, e.g. "23.976 Hz". %1$s = the rate. -->
     <string name="display_refresh_hz">%1$s Hz</string>
     <string name="player_subtitle_delay">Subtitles Delay</string>
@@ -1927,7 +1927,7 @@
     <string name="library_list_privacy_link">Anyone with the link</string>
     <string name="library_list_privacy_friends">Friends</string>
     <string name="library_list_privacy_public">Public</string>
-    <string name="library_filter_option_count">%1$s (%2$d)</string>
+    <string name="library_filter_option_count" translatable="false">%1$s (%2$d)</string>
     <string name="library_action_connect_provider">Connect %1$s</string>
     <string name="library_action_search_titles">Search for titles</string>
     <string name="library_empty_filtered_title">Nothing matches these filters</string>
@@ -2161,7 +2161,7 @@
     <string name="cd_refresh">Refresh</string>
     <string name="cd_remove">Remove</string>
     <string name="cd_preview">Preview</string>
-    <string name="cd_fetch_logo">Fetch</string>
+    <string name="cd_fetch_logo" translatable="false">Fetch</string>
     <string name="cd_trakt_logo">Trakt Logo</string>
     <string name="cd_trakt_qr">Trakt activation QR</string>
     <string name="cd_imdb">IMDb</string>
@@ -2327,7 +2327,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Exclude titles matching these TMDB genre numbers.</string>
     <string name="collections_editor_tmdb_date_from">Release or air date from</string>
     <string name="collections_editor_tmdb_date_to">Release or air date to</string>
-    <string name="collections_editor_tmdb_date_helper">Use YYYY-MM-DD, for example 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Use YYYY-MM-DD, for example 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Minimum rating</string>
     <string name="collections_editor_tmdb_rating_max">Maximum rating</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB rating from 0 to 10. Example: 7.0.</string>
@@ -2379,14 +2379,14 @@
     <string name="collections_editor_tmdb_person_placeholder">31 for Tom Hanks, or person URL</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 or 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
+    <string name="collections_editor_tmdb_genres_movie_placeholder" translatable="false">28,12</string>
+    <string name="collections_editor_tmdb_genres_tv_placeholder" translatable="false">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 for Animation</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
+    <string name="collections_editor_tmdb_rating_min_placeholder" translatable="false">7.0</string>
+    <string name="collections_editor_tmdb_rating_max_placeholder" translatable="false">10</string>
+    <string name="collections_editor_tmdb_votes_min_placeholder" translatable="false">100</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -2450,9 +2450,9 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Movies, Favorite Actors</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Christopher Nolan Movies, Favorite Directors</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 for superhero</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
+    <string name="collections_editor_tmdb_without_keywords_placeholder" translatable="false">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 for Marvel Studios</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
+    <string name="collections_editor_tmdb_without_companies_placeholder" translatable="false">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 for Netflix</string>
     <string name="folder_detail_not_found">Folder not found</string>
     <string name="collections_editor_folder_required">Add at least one folder, then save.</string>
@@ -2881,7 +2881,7 @@
     <string name="playback_cache_vod_size">VOD Cache Size</string>
     <string name="playback_cache_vod_size_sub">Maximum disk usage for progressive VOD cache (LRU-evicted).</string>
     <string name="playback_cache_info_range">Range: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">Auto mode targets about 10% of free space.</string>
+    <string name="playback_cache_info_auto" formatted="false">Auto mode targets about 10% of free space.</string>
     <string name="playback_cache_info_manual_headroom">Manual mode keeps about %1$dMB headroom.</string>
     <string name="playback_cache_info_free_disk">Free disk available: %1$s.</string>
     <string name="playback_cache_info_restart">New cache cap applies after app restart when changing between modes/sizes.</string>
@@ -3253,7 +3253,7 @@
     <string name="youtube_options_speed">Speed</string>
     <string name="youtube_options_chapters">Chapters</string>
     <string name="youtube_speed_normal">Normal</string>
-    <string name="youtube_speed_value">%1$s×</string>
+    <string name="youtube_speed_value" translatable="false">%1$s×</string>
     <string name="youtube_votes">%1$s likes · %2$s dislikes</string>
     <string name="youtube_playlist_position">%1$s · %2$d of %3$d</string>
     <string name="youtube_up_next_in_playlist">Next in %1$s</string>

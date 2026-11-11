@@ -1,3 +1,5 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.fetch.tv.data.local
 
 import com.fetch.tv.core.player.DisplayCapabilities
@@ -1733,12 +1735,7 @@ class PlayerSettingsDataStore @Inject constructor(
     )
 
     private fun resolveDeviceSubtitleLanguage(): String {
-        val locale = if (android.os.Build.VERSION.SDK_INT >= 24) {
-            android.content.res.Resources.getSystem().configuration.locales[0]
-        } else {
-            @Suppress("DEPRECATION")
-            android.content.res.Resources.getSystem().configuration.locale
-        }
+        val locale = android.content.res.Resources.getSystem().configuration.locales[0]
         
         val rawLanguage = locale?.language.orEmpty()
         val legacyMapped = when (rawLanguage) {

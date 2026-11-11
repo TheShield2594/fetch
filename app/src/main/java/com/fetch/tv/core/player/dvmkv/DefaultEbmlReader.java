@@ -19,8 +19,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.OptIn;
 import androidx.media3.common.C;
 import androidx.media3.common.ParserException;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.extractor.ExtractorInput;
 import java.io.EOFException;
 import java.io.IOException;
@@ -33,6 +35,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** Default implementation of {@link EbmlReader}. */
+@OptIn(markerClass = UnstableApi.class)
 /* package */ final class DefaultEbmlReader implements EbmlReader {
 
   @Documented

@@ -1,8 +1,12 @@
 @file:OptIn(ExperimentalTvMaterial3Api::class)
 
 
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.fetch.tv.ui.screens.settings
 
+import androidx.compose.ui.platform.LocalResources
+import androidx.core.net.toUri
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.layout.Arrangement
@@ -93,6 +97,7 @@ fun AdvancedSettingsContent(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val resources = LocalResources.current
 
     val scope = rememberCoroutineScope()
     val unknownError = stringResource(R.string.error_unknown)
@@ -176,7 +181,7 @@ fun AdvancedSettingsContent(
                 streamBaselineSpeed = baseline
 
                 if (baseline <= 0.0) {
-                    streamErrorMessage = context.getString(R.string.stream_test_error_connection)
+                    streamErrorMessage = resources.getString(R.string.stream_test_error_connection)
                     streamTestState = "Error"
                     return@launch
                 }
@@ -413,7 +418,7 @@ fun AdvancedSettingsContent(
                         else R.string.stream_test_card_title
                     ),
                     subtitle = if (hasStream) {
-                        stringResource(R.string.stream_test_server_label, lastStreamUrl.let { android.net.Uri.parse(it).host } ?: stringResource(R.string.stream_quality_unknown))
+                        stringResource(R.string.stream_test_server_label, lastStreamUrl.let { it.toUri().host } ?: stringResource(R.string.stream_quality_unknown))
                     } else {
                         stringResource(R.string.stream_test_no_stream)
                     },

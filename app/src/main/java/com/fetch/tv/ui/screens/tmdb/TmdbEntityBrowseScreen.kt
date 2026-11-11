@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.tmdb
 
+import androidx.core.graphics.get
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import com.fetch.tv.ui.theme.FetchTheme
@@ -479,7 +481,7 @@ private fun EntityRailRow(
     val restoreFocusRequester = remember(rail.mediaType, rail.railType) { FocusRequester() }
     var restorePending by remember(rail.mediaType, rail.railType) { mutableStateOf(false) }
     val firstItemFocusRequester = initialFocusRequester
-        ?: itemFocusRequesters.getOrPut(0) { FocusRequester() }
+        ?: itemFocusRequesters.focusRequesterFor(0)
     var lastLoadMoreRequestTotal by remember(rail.mediaType, rail.railType) { mutableIntStateOf(-1) }
 
     LaunchedEffect(shouldRequestInitialFocus, firstItemFocusRequester, rail.items.firstOrNull()?.id) {
@@ -593,7 +595,7 @@ private fun EntityRailRow(
                     val requester = when {
                         isRestoreTarget -> restoreFocusRequester
                         itemIndex == 0 -> firstItemFocusRequester
-                        else -> itemFocusRequesters.getOrPut(itemIndex) { FocusRequester() }
+                        else -> itemFocusRequesters.focusRequesterFor(itemIndex)
                     }
                     GridContentCard(
                         item = item,
@@ -658,7 +660,7 @@ private fun isLogoDarkAndMonochrome(bitmap: Bitmap): Boolean {
     while (x < width) {
         var y = 0
         while (y < height) {
-            val pixel = bitmap.getPixel(x, y)
+            val pixel = bitmap[x, y]
             val alpha = (pixel ushr 24) and 0xFF
             if (alpha > 50) { // skip transparent / nearly-transparent pixels
                 val r = ((pixel ushr 16) and 0xFF) / 255.0

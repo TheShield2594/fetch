@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens
 
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.components.PosterGridSkeleton
@@ -131,7 +132,7 @@ fun CatalogSeeAllScreen(
     // it) mustn't leave the skeleton up forever: once nothing is loading, wait briefly, then show
     // the empty state with Retry.
     var missingCatalogWaitExpired by remember(catalogKey) { mutableStateOf(false) }
-    var missingCatalogRetries by remember(catalogKey) { mutableStateOf(0) }
+    var missingCatalogRetries by remember(catalogKey) { mutableIntStateOf(0) }
     val sourceStillLoading = if (isSearchMode) searchUiState?.value?.isSearching == true else uiState.isLoading
     LaunchedEffect(catalogKey, catalogRow == null, sourceStillLoading, missingCatalogRetries) {
         missingCatalogWaitExpired = false

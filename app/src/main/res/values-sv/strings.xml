@@ -64,7 +64,6 @@
         <item quantity="other">Sänds om %d dagar</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Idag</string>
     <string name="cw_airs_tomorrow_short">Imorgon</string>
     <plurals name="cw_airs_in_days_short">
@@ -748,7 +747,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Laddar avsnittsbetyg...</string>
+    <string name="ratings_loading">Laddar avsnittsbetyg…</string>
     <string name="ratings_unavailable">Avsnittsbetyg är inte tillgängliga.</string>
     <string name="ratings_load_error">Kunde inte ladda avsnittsbetyg.</string>
     <string name="ratings_season_summary">Säsong %1$d - %2$d avsnitt</string>
@@ -756,7 +755,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Utforska</string>
     <string name="discover_load_more">Ladda fler</string>
-    <string name="discover_loading">Laddar...</string>
+    <string name="discover_loading">Laddar…</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_empty_no_content_title">Inget innehåll hittades</string>
     <string name="discover_empty_no_content_subtitle">Prova en annan genre eller katalog</string>
@@ -784,9 +783,9 @@
 
     <!-- Missing: ErrorState (streams) -->
     <string name="error_stream_no_supported_addon">Inget installerat tillägg stödjer strömmar för \"%1$s\".</string>
-    <string name="error_stream_tried_none">Provade strömtillägg: %1$s. Inget av dem returnerade strömmar för id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_generic">Provade strömtillägg: %1$s. Strömmar kunde inte laddas för id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_issues">Provade strömtillägg: %1$s. Strömmar kunde inte laddas för id=%2$s (typ=%3$s). Problem: %4$s.</string>
+    <string name="error_stream_tried_none">Provade strömtillägg: %1$s. Inget av dem returnerade strömmar.</string>
+    <string name="error_stream_tried_generic">Provade strömtillägg: %1$s. Strömmar kunde inte laddas.</string>
+    <string name="error_stream_tried_issues">Provade strömtillägg: %1$s. Strömmar kunde inte laddas. Problem: %2$s.</string>
 
     <!-- Missing: AddonManager -->
     <string name="addon_install_success">Installerade %1$s</string>
@@ -803,7 +802,6 @@
     <string name="detail_comments_back_hint">Tryck tillbaka för att stänga</string>
     <string name="detail_comments_badge_review">Recension</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d gillar</string>
     <string name="detail_more_like_this_powered_by_tmdb">Drivs av TMDB</string>
     <string name="detail_more_like_this_powered_by_trakt">Drivs av Trakt</string>
@@ -975,7 +973,6 @@
 
     <!-- PlaybackSettingsSections -->
     <string name="playback_internal_player_engine">Intern motor</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Växla motor automatiskt vid startfel</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Om strömstart misslyckas, växla automatiskt mellan ExoPlayer och libmpv.</string>
@@ -1153,7 +1150,6 @@
     <string name="cd_refresh">Uppdatera</string>
     <string name="cd_remove">Ta bort</string>
     <string name="cd_preview">Förhandsvisning</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt-logotyp</string>
     <string name="cd_trakt_qr">Trakt-aktiverings-QR</string>
     <string name="cd_imdb">IMDb</string>

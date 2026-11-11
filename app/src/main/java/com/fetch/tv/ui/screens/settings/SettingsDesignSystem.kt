@@ -488,9 +488,9 @@ internal fun SettingsToggleRow(
 internal fun SettingsActionRow(
     title: String,
     subtitle: String?,
+    modifier: Modifier = Modifier,
     value: String? = null,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
     onFocused: () -> Unit = {},
     enabled: Boolean = true,
     trailingIcon: ImageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -858,9 +858,9 @@ internal fun SettingsDialogActionRow(
 internal fun SettingsDialogActionButton(
     text: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     primary: Boolean = false,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier,
     // Remove, Disconnect and the like: drawn in the error tone so they don't pass for Save.
     destructive: Boolean = false
 ) {

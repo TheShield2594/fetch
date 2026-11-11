@@ -13,7 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
@@ -205,7 +205,7 @@ fun ParentalGateHost(
     val request by viewModel.request.collectAsStateWithLifecycle()
     val isWorking by viewModel.isWorking.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    val resources = LocalResources.current
 
     CompositionLocalProvider(LocalParentalGate provides viewModel) {
         content()
@@ -227,13 +227,13 @@ fun ParentalGateHost(
                 isWorking = isWorking,
                 errorMessage = when (val gateError = error) {
                     null -> null
-                    ParentalGateViewModel.GateError.Incorrect -> context.getString(R.string.profile_pin_incorrect)
-                    ParentalGateViewModel.GateError.VerifyFailed -> context.getString(R.string.profile_pin_verify_error)
+                    ParentalGateViewModel.GateError.Incorrect -> resources.getString(R.string.profile_pin_incorrect)
+                    ParentalGateViewModel.GateError.VerifyFailed -> resources.getString(R.string.profile_pin_verify_error)
                     is ParentalGateViewModel.GateError.Locked ->
-                        context.getString(R.string.profile_pin_locked, gateError.retryAfterSeconds)
+                        resources.getString(R.string.profile_pin_locked, gateError.retryAfterSeconds)
                 },
                 // The gate asks for the main profile's PIN, which has no reset.
-                forgotPin = ForgotPinOption(context.getString(R.string.profile_pin_forgot_main)),
+                forgotPin = ForgotPinOption(resources.getString(R.string.profile_pin_forgot_main)),
                 onClearError = viewModel::clearError,
                 onDismiss = viewModel::cancel,
                 onSubmit = viewModel::submit

@@ -27,7 +27,6 @@
     <string name="servers_remove">Sunucuyu kaldır</string>
     <string name="servers_remove_confirm_title">Bu sunucu kaldırılsın mı?</string>
     <string name="servers_remove_confirm_message">Bu işlem bu cihazdaki %1$s oturumunuzu kapatır. İstediğiniz zaman tekrar ekleyebilirsiniz.</string>
-    <string name="servers_signed_in_as">%1$s · %2$s</string>
     <string name="servers_status_disabled">Devre dışı</string>
     <string name="servers_status_auth">Yeniden giriş yap</string>
     <string name="servers_status_unreachable">Sunucuya ulaşılamıyor</string>

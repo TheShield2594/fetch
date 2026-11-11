@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.components.FetchCardDefaults
 import com.fetch.tv.ui.theme.FetchTheme
@@ -160,6 +161,7 @@ internal val LocalFastScrollActive = compositionLocalOf<State<Boolean>> { mutabl
 private fun ModernContinueWatchingRowItem(
     payload: ModernPayload.ContinueWatching,
     requester: FocusRequester,
+    modifier: Modifier = Modifier,
     isTargetItem: Boolean = false,
     cardWidth: Dp,
     imageHeight: Dp,
@@ -170,7 +172,6 @@ private fun ModernContinueWatchingRowItem(
     onFocused: () -> Unit,
     onContinueWatchingClick: (ContinueWatchingItem) -> Unit,
     onShowOptions: (ContinueWatchingItem) -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val item = payload.item
     val onClick = remember(item) { { onContinueWatchingClick(item) } }
@@ -229,6 +230,7 @@ private fun ModernCatalogRowItem(
     item: ModernCarouselItem,
     payload: ModernPayload,
     requester: FocusRequester,
+    modifier: Modifier = Modifier,
     isTargetItem: Boolean = false,
     useLandscapePosters: Boolean,
     alwaysShowLandscapeClearlogo: Boolean = false,
@@ -259,7 +261,6 @@ private fun ModernCatalogRowItem(
     onBackdropInteraction: () -> Unit,
     onExpandedCatalogFocusKeyChange: (String?) -> Unit,
     enrichedPreviews: State<StableMap<String, MetaPreview>>,
-    modifier: Modifier = Modifier
 ) {
     val focusKey = when (payload) {
         is ModernPayload.Catalog -> payload.focusKey
@@ -504,7 +505,7 @@ internal fun ModernRowSection(
     onBackdropInteraction: () -> Unit,
     onExpandedCatalogFocusKeyChange: (String?) -> Unit,
     sharedPlaceholderShimmerOffsetState: State<Float>?,
-    itemFocusRequesters: StableRef<MutableMap<Int, FocusRequester>> = StableRef(mutableMapOf())
+    itemFocusRequesters: StableRef<MutableMap<Int, FocusRequester>>
 ) {
     // Unwrap StableRef wrappers
     @Suppress("NAME_SHADOWING") val focusedItemByRow = focusedItemByRow.value
@@ -991,7 +992,7 @@ internal fun ModernRowSection(
                         }
                     }
                 ) { index, item ->
-                    val requester = itemFocusRequesters.getOrPut(index) { FocusRequester() }
+                    val requester = itemFocusRequesters.focusRequesterFor(index)
                     val isContinueWatchingRow = isContinueWatchingStyleRow(row.key)
                     val onFocused = remember(row.key, index, isContinueWatchingRow) {
                         {
@@ -1145,6 +1146,7 @@ internal fun HeroCarouselRow.showsSeeAllCard(): Boolean =
 private fun ModernCarouselCard(
     item: ModernCarouselItem,
     useLandscapeOverlayTreatment: Boolean,
+    modifier: Modifier = Modifier,
     alwaysShowLandscapeClearlogo: Boolean = false,
     showLabels: Boolean,
     placeholderShimmerOffsetState: State<Float>? = null,
@@ -1168,7 +1170,6 @@ private fun ModernCarouselCard(
     onLongPress: () -> Unit,
     onBackdropInteraction: () -> Unit,
     onTrailerEnded: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val cardShape = remember(cardCornerRadius) { RoundedCornerShape(cardCornerRadius) }
     val context = LocalContext.current

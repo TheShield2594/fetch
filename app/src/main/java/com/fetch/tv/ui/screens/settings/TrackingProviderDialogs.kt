@@ -6,7 +6,6 @@ import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import android.content.Intent
 import android.icu.util.Measure
 import android.icu.util.MeasureUnit
-import android.net.Uri
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -53,6 +52,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -195,7 +195,7 @@ internal fun SimklAccountDialog(
                                     context.startActivity(
                                         Intent(
                                             Intent.ACTION_VIEW,
-                                            Uri.parse(SIMKL_SYNC_GUIDE_URL)
+                                            SIMKL_SYNC_GUIDE_URL.toUri()
                                         )
                                     )
                                 }.onFailure {
@@ -227,7 +227,7 @@ internal fun SimklAccountDialog(
                                     context.startActivity(
                                         Intent(
                                             Intent.ACTION_VIEW,
-                                            Uri.parse(SIMKL_WEBSITE_URL)
+                                            SIMKL_WEBSITE_URL.toUri()
                                         )
                                     )
                                 }

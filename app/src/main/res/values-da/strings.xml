@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Fortsæt med at se</string>
     <string name="type_movie">Film</string>
@@ -63,7 +63,7 @@
     <string name="web_import_tab_paste">Indsæt</string>
     <string name="web_import_tab_file">Fil</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Indsæt samlinger JSON her...</string>
+    <string name="web_import_paste_placeholder">Indsæt samlinger JSON her…</string>
     <string name="web_import_file_select">Tryk for at vælge en .json-fil</string>
     <string name="web_order_send_to_top">Flyt til toppen</string>
     <string name="web_order_send_to_bottom">Flyt til bunden</string>
@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Afprøvede meta-addons: %1$s. Metadata kunne ikke indlæses for id=%2$s (type=%3$s).</string>
     <string name="error_meta_tried_issues">Afprøvede meta-addons: %1$s. Metadata kunne ikke indlæses for id=%2$s (type=%3$s). Problemer: %4$s.</string>
     <string name="error_stream_no_supported_addon">Ingen installeret addon understøtter streams for \"%1$s\".</string>
-    <string name="error_stream_tried_none">Afprøvede stream-addons: %1$s. Ingen af dem returnerede streams for id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_generic">Afprøvede stream-addons: %1$s. Streams kunne ikke indlæses for id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">Afprøvede stream-addons: %1$s. Streams kunne ikke indlæses for id=%2$s (type=%3$s). Problemer: %4$s.</string>
+    <string name="error_stream_tried_none">Afprøvede stream-addons: %1$s. Ingen af dem returnerede streams.</string>
+    <string name="error_stream_tried_generic">Afprøvede stream-addons: %1$s. Streams kunne ikke indlæses.</string>
+    <string name="error_stream_tried_issues">Afprøvede stream-addons: %1$s. Streams kunne ikke indlæses. Problemer: %2$s.</string>
 
     <string name="continue_watching">Fortsæt med at se</string>
     <string name="cw_upcoming">Kommende</string>
@@ -158,7 +158,6 @@
         <item quantity="other">Sendes om %d dage</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">I dag</string>
     <string name="cw_airs_tomorrow_short">I morgen</string>
     <plurals name="cw_airs_in_days_short">
@@ -248,7 +247,6 @@
     <string name="detail_comments_back_hint">Klik tilbage for at lukke</string>
     <string name="detail_comments_badge_review">Anmeldelse</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d likes</string>
     <string name="tmdb_entity_kind_company">Produktionsselskab</string>
     <string name="tmdb_entity_kind_network">Netværk</string>
@@ -257,11 +255,10 @@
     <string name="tmdb_entity_rail_recent">Nylig</string>
     <string name="tmdb_entity_rail_most_voted">Mest stemt</string>
     <string name="collections_editor_tmdb_watch_region">Visningsregion</string>
-    <string name="collections_editor_tmdb_watch_region_helper">ISO 3166-1 landekode for det land, titlen er tilgængelig i. Eksempel: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">ISO 3166-1 landekode for det land, titlen er tilgængelig i. Eksempel: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Hurtige visningsregioner</string>
     <string name="collections_editor_tmdb_watch_providers">Watch provider-ID\'er</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Brug TMDB watch provider-ID\'er. Adskil flere med kommaer for OG, eller pipe for ELLER.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Hurtige watch providers</string>
     <string name="tmdb_error_load_source">Kunne ikke indlæse TMDB-kilde</string>
     <string name="tmdb_error_list_not_found">TMDB-liste ikke fundet</string>
@@ -345,7 +342,6 @@
     <string name="licenses_attributions_section_app">APP-LICENS</string>
     <string name="licenses_attributions_section_data">DATA &amp; TJENESTER</string>
     <string name="licenses_attributions_section_playback">ANDROID-AFSPILNINGSLICENSER</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch bruger TMDB API til film- og TV-metadata, artwork, trailere, cast, produktionsdetaljer, samlinger og anbefalinger. Dette produkt bruger TMDB API, men er ikke godkendt eller certificeret af TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
@@ -412,7 +408,6 @@
     <string name="advanced_section_performance">Ydeevne &amp; navigation</string>
     <string name="advanced_section_diagnostics">Diagnostik</string>
     <string name="advanced_section_cache">Cache</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">Hurtig vandret navigation</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Øg D-pad-gentagnelseshastighed i rækker mens gentagelsesbegrænsning forbliver aktiv.</string>
     <string name="advanced_fetch_focus_scroll">Fetch fokusscrolling</string>
@@ -462,7 +457,6 @@
     <string name="playback_player_external">Ekstern</string>
     <string name="playback_player_ask">Spørg hver gang</string>
     <string name="playback_internal_player_engine">Intern motor</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Skift motor automatisk ved opstartsfejl</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Hvis stream-opstart fejler, skift automatisk mellem ExoPlayer og libmpv.</string>
@@ -539,20 +533,6 @@
     <string name="audio_strip_hdr10plus_sub">Fjerner HDR10+ dynamisk metadata fra streams. Når Konverter til DV8.1 også er aktiveret, køres fjernelsen efter konverteringen.</string>
     <string name="audio_dv7_preserve_mapping_title">Bevar DV-mapping (DV7 til DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">Bevarer den originale tone-mapping som skaberen tilsigtede, på bekostning af lidt mere behandling pr. frame.</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hwdec_title">Hardwaredekodning (kun MPV)</string>
     <string name="audio_mpv_hwdec_dialog_subtitle">Vælg hvordan libmpv skal bruge hardwaredecoder.</string>
     <string name="audio_mpv_hwdec_legacy_direct_copy">Legacy (direct -&gt; copy)</string>
@@ -985,7 +965,7 @@
     <string name="player_loading_buffering">Bufferer…</string>
     <string name="player_engine_switching_title">Skifter afspillermotor</string>
     <string name="player_engine_switching_message">Opstart mislykkedes. Skifter til %1$s…</string>
-    <string name="player_engine_switching_manual_message">Skifter til %1$s...</string>
+    <string name="player_engine_switching_manual_message">Skifter til %1$s…</string>
     <string name="playback_show_loading_status">Vis indlæsningsstatus</string>
     <string name="playback_show_loading_status_sub">Vis trin-for-trin-fremskridt mens afspilleren initialiserer.</string>
     <string name="player_sync_line">Synkronisér linje</string>
@@ -1265,7 +1245,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Indlæser episodebedømmelser...</string>
+    <string name="ratings_loading">Indlæser episodebedømmelser…</string>
     <string name="ratings_unavailable">Episodebedømmelser er ikke tilgængelige.</string>
     <string name="ratings_load_error">Kan ikke indlæse episodebedømmelser.</string>
     <string name="ratings_season_summary">Sæson %1$d - %2$d episoder</string>
@@ -1273,7 +1253,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Opdag</string>
     <string name="discover_load_more">Indlæs mere</string>
-    <string name="discover_loading">Indlæser...</string>
+    <string name="discover_loading">Indlæser…</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_empty_no_content_title">Intet indhold fundet</string>
     <string name="discover_empty_no_content_subtitle">Prøv en anden genre eller et andet katalog</string>
@@ -1341,11 +1321,11 @@
     <string name="trakt_error_list_not_found_or_private">Trakt-liste ikke fundet eller ikke offentlig</string>
     <string name="trakt_error_rate_limit_reached">Trakt-hastighedsgrænse nået</string>
     <string name="trakt_status_enter_activation_code">Indtast kode på trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Synkroniserer...</string>
+    <string name="trakt_status_syncing">Synkroniserer…</string>
     <string name="trakt_status_sync_completed">Synkronisering fuldført</string>
     <string name="trakt_status_disconnected">Afbrudt fra Trakt</string>
     <string name="trakt_status_cw_window_updated">Fortsæt-med-at-se-vindue opdateret</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Hastighedsbegrænset, nedsætter polling-hastighed...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Hastighedsbegrænset, nedsætter polling-hastighed…</string>
     <string name="trakt_user_fallback">Trakt-bruger</string>
     <string name="trakt_error_failed_start">Kunne ikke starte Trakt-godkendelse</string>
 
@@ -1394,7 +1374,6 @@
     <string name="cd_refresh">Opdater</string>
     <string name="cd_remove">Fjern</string>
     <string name="cd_preview">Forhåndsvisning</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt-logo</string>
     <string name="cd_trakt_qr">Trakt-aktiverings-QR</string>
     <string name="cd_imdb">IMDb</string>
@@ -1543,7 +1522,7 @@
     <string name="collections_editor_tmdb_genres_helper">Brug TMDB-genrenumre. Adskil flere med kommaer for OG, eller lodrette streger for ELLER.</string>
     <string name="collections_editor_tmdb_date_from">Udgivelses- eller sendedato fra</string>
     <string name="collections_editor_tmdb_date_to">Udgivelses- eller sendedato til</string>
-    <string name="collections_editor_tmdb_date_helper">Brug ÅÅÅÅ-MM-DD, for eksempel 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Brug ÅÅÅÅ-MM-DD, for eksempel 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Minimumskarakter</string>
     <string name="collections_editor_tmdb_rating_max">Maksimumskarakter</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB-karakter fra 0 til 10. Eksempel: 7.0.</string>
@@ -1590,14 +1569,9 @@
     <string name="collections_editor_tmdb_placeholder_network">213 for Netflix, 49 for HBO, 2739 for Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 for Tom Hanks, or person URL</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 or 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1626,9 +1600,9 @@
     <string name="collections_editor_placeholder_hero_video">Brugerdefineret hero-video-URL (valgfri)</string>
     <string name="collections_editor_title_logo">Titellogo (moderne hjemskærm)</string>
     <string name="collections_editor_placeholder_title_logo">Brugerdefineret titellogo-URL (valgfri)</string>
-    <string name="collections_editor_search_emoji_placeholder">Søg emoji...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Filtrer aktive kilder...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Søg kataloger...</string>
+    <string name="collections_editor_search_emoji_placeholder">Søg emoji…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Filtrer aktive kilder…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Søg kataloger…</string>
     <string name="collections_editor_genre_filter">Genrefilter</string>
     <string name="collections_editor_choose_genre">Vælg</string>
     <string name="collections_editor_select_genre">Vælg genre</string>
@@ -1915,7 +1889,7 @@
     <string name="playback_cache_vod_size">VOD-cachestørrelse</string>
     <string name="playback_cache_vod_size_sub">Maksimal diskbrug for progressiv VOD-cache (LRU-udryddet).</string>
     <string name="playback_cache_info_range">Interval: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">Automatisk tilstand sigter mod ca. 10% af ledig plads.</string>
+    <string name="playback_cache_info_auto" formatted="false">Automatisk tilstand sigter mod ca. 10% af ledig plads.</string>
     <string name="playback_cache_info_manual_headroom">Manuel tilstand holder ca. %1$dMB frirum.</string>
     <string name="playback_cache_info_free_disk">Ledig diskplads: %1$s.</string>
     <string name="playback_cache_info_restart">Ny cachegrænse træder i kraft efter genstart af appen, når der skiftes mellem tilstande/størrelser.</string>

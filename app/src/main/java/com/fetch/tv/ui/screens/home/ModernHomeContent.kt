@@ -4,6 +4,8 @@
     kotlinx.coroutines.FlowPreview::class
 )
 
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.fetch.tv.ui.screens.home
 
 import com.fetch.tv.ui.theme.cardCornerRadius

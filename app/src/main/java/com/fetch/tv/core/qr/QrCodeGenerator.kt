@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
+import androidx.core.graphics.createBitmap
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
@@ -22,7 +23,7 @@ object QrCodeGenerator {
             mapOf(EncodeHintType.MARGIN to margin.coerceAtLeast(0))
         )
 
-        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(size, size)
         val canvas = Canvas(bitmap)
 
         // Fill white background with rounded corners
@@ -70,7 +71,7 @@ object QrCodeGenerator {
         }
 
         // Clip the entire bitmap to rounded corners
-        val output = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val output = createBitmap(size, size)
         val outputCanvas = Canvas(output)
         val clipPath = Path().apply {
             addRoundRect(bgRect, cornerRadius, cornerRadius, Path.Direction.CW)

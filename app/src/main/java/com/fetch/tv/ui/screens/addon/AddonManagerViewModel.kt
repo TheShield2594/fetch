@@ -42,6 +42,7 @@ import com.fetch.tv.core.server.TraktSourceSearchResultInfo
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.tmdb.TmdbCollectionSourceResolver
 import com.fetch.tv.core.trakt.TraktPublicListSourceResolver
+import com.fetch.tv.core.util.readWordmarkPngBytes
 import com.fetch.tv.data.local.CollectionsDataStore
 import com.fetch.tv.data.local.ExperienceModeDataStore
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
@@ -132,10 +133,7 @@ class AddonManagerViewModel @Inject constructor(
     }
 
     private fun loadLogoBytes() {
-        try {
-            val inputStream = context.resources.openRawResource(R.drawable.app_logo_wordmark)
-            logoBytes = inputStream.use { it.readBytes() }
-        } catch (_: Exception) { }
+        logoBytes = context.readWordmarkPngBytes()
     }
 
     fun onInstallUrlChange(url: String) {

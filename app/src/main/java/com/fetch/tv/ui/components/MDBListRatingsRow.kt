@@ -22,6 +22,7 @@ import com.fetch.tv.domain.model.RottenTomatoesStatus
 import com.fetch.tv.ui.theme.FetchTheme
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
+import java.util.Locale
 
 @Composable
 fun MDBListRatingsRow(
@@ -133,9 +134,9 @@ private fun getRatingValue(ratings: MDBListRatings, provider: String): Double? =
 
 private fun formatMDBListRating(provider: String, rating: Double): String {
     return when (provider) {
-        "imdb", "tmdb", "letterboxd" -> String.format("%.1f", rating)
+        "imdb", "tmdb", "letterboxd" -> String.format(Locale.getDefault(), "%.1f", rating)
         else -> {
-            if (rating % 1.0 == 0.0) rating.toInt().toString() else String.format("%.1f", rating)
+            if (rating % 1.0 == 0.0) rating.toInt().toString() else String.format(Locale.getDefault(), "%.1f", rating)
         }
     }
 }

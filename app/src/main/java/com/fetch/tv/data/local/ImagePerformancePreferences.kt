@@ -1,10 +1,14 @@
 package com.fetch.tv.data.local
 
+import android.annotation.SuppressLint
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+// The writes here use commit() and return or check its result, which the KTX
+// SharedPreferences.edit {} block cannot give back, so lint's UseKtx suggestion doesn't fit.
+@SuppressLint("UseKtx")
 @Singleton
 class ImagePerformancePreferences @Inject constructor(
     @param:ApplicationContext context: Context

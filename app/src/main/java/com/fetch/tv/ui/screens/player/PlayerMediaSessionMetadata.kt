@@ -1,7 +1,7 @@
 package com.fetch.tv.ui.screens.player
 
-import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.media3.common.MediaMetadata
 import com.fetch.tv.R
 
@@ -34,7 +34,7 @@ internal fun PlayerRuntimeController.buildMediaSessionMetadata(): MediaMetadata 
     // Artwork: prefer poster, fall back to backdrop.
     val artworkUri = (poster?.takeIf { it.isNotBlank() }
         ?: backdrop?.takeIf { it.isNotBlank() })
-        ?.let { runCatching { Uri.parse(it) }.getOrNull() }
+        ?.let { runCatching { it.toUri() }.getOrNull() }
 
     return MediaMetadata.Builder()
         .setTitle(displayTitle)

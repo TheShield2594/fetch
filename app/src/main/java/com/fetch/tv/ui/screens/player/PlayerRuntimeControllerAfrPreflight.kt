@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.player
 
-import android.os.Build
 import android.util.Log
 import com.fetch.tv.core.player.FrameRateUtils
 import com.fetch.tv.data.local.FrameRateMatchingMode
@@ -180,12 +179,8 @@ internal suspend fun PlayerRuntimeController.runAfrPreflightIfEnabled(
                 detectedFps = cached.snapped,
                 prefer23976Near24 = prefer23976ProbeBias
             )
-            val initialDisplayModeId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                withContext(Dispatchers.Main) {
-                    activity.window?.decorView?.display?.mode?.modeId
-                }
-            } else {
-                null
+            val initialDisplayModeId = withContext(Dispatchers.Main) {
+                activity.window?.decorView?.display?.mode?.modeId
             }
 
             if (isStale()) return
@@ -286,12 +281,8 @@ internal suspend fun PlayerRuntimeController.runAfrPreflightIfEnabled(
             detectedFps = detection.snapped,
             prefer23976Near24 = prefer23976ProbeBias
         )
-        val initialDisplayModeId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            withContext(Dispatchers.Main) {
-                activity.window?.decorView?.display?.mode?.modeId
-            }
-        } else {
-            null
+        val initialDisplayModeId = withContext(Dispatchers.Main) {
+            activity.window?.decorView?.display?.mode?.modeId
         }
 
         if (isStale()) return

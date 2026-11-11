@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.components
 
+import androidx.core.graphics.toColorInt
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -76,8 +77,8 @@ fun AvatarPickerGrid(
     avatars: List<AvatarCatalogItem>,
     selectedAvatarId: String?,
     onAvatarSelected: (AvatarCatalogItem) -> Unit,
+    modifier: Modifier = Modifier,
     onAvatarFocused: ((AvatarCatalogItem?) -> Unit)? = null,
-    modifier: Modifier = Modifier
 ) {
     val categories = remember(avatars) {
         buildList {
@@ -342,7 +343,7 @@ private fun AvatarGridItem(
     ) {
         // Bundled avatars are transparent, so they sit on the colour the profile will get.
         val avatarBackground = remember(avatar.bgColor) {
-            avatar.bgColor?.let { hex -> runCatching { Color(android.graphics.Color.parseColor(hex)) }.getOrNull() }
+            avatar.bgColor?.let { hex -> runCatching { Color(hex.toColorInt()) }.getOrNull() }
                 ?: Color.Transparent
         }
         Box(

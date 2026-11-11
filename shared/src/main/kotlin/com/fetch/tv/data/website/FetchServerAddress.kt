@@ -87,7 +87,7 @@ object FetchServerAddress {
         // The website, saying where its API is.
         val announced = apiFromDiscovery(get(endpoint(base, DISCOVERY_PATH)))
             ?: apiFromConfigJs(get(endpoint(base, LEGACY_CONFIG_PATH)))
-        announced?.let { resolveAgainst(base, it) }?.let { api ->
+        announced?.let { resolveAgainst(base, it) }?.takeUnless { downgrades(base, it) }?.let { api ->
             if (api != base && isApiHealth(get(endpoint(api, "health")))) return ResolvedFetchServer(api, base)
         }
 
@@ -98,6 +98,14 @@ object FetchServerAddress {
         }
         return null
     }
+
+    /**
+     * True when a website reached over HTTPS names an API over plain HTTP. That API is never
+     * used: the pairing secret and device token would leave in the clear although nobody
+     * typed `http://`, and no browser would let the site's own pages call it either.
+     */
+    internal fun downgrades(base: String, api: String): Boolean =
+        base.startsWith("https://", ignoreCase = true) && api.startsWith("http://", ignoreCase = true)
 
     /** `<base>/api` (one domain behind a reverse proxy) and the same host on the API's default port. */
     internal fun conventionalApiUrls(base: String): List<String> {

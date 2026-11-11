@@ -75,6 +75,24 @@ class FetchServerAddressTest {
     }
 
     @Test
+    fun `an https website announcing an http api is not followed into plain http`() {
+        val get = network(
+            "https://fetch.example.com/fetch-server.json" to """{"api":"http://fetch.example.com:7000"}""",
+            "http://fetch.example.com:7000/health" to apiHealth,
+            "https://fetch.example.com/api/health" to apiHealth
+        )
+        // The announced http API is skipped; the https one under /api is used instead.
+        assertEquals(
+            ResolvedFetchServer("https://fetch.example.com/api", "https://fetch.example.com"),
+            FetchServerAddress.resolve("fetch.example.com", get)
+        )
+        assertNull(FetchServerAddress.resolve("fetch.example.com", network(
+            "https://fetch.example.com/fetch-server.json" to """{"api":"http://fetch.example.com:7000"}""",
+            "http://fetch.example.com:7000/health" to apiHealth
+        )))
+    }
+
+    @Test
     fun `nothing that answers as the API resolves to null`() {
         assertNull(FetchServerAddress.resolve("fetch.example.com", network("https://fetch.example.com/health" to indexHtml)))
         assertNull(FetchServerAddress.resolve("   ", network()))

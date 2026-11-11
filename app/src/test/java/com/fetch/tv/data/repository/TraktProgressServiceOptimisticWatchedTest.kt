@@ -25,13 +25,23 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import com.fetch.tv.core.lifecycle.AppForeground
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import retrofit2.Response
 
 /** NuvioTV#3873: an expired optimistic in-progress entry hid the watched checkmark of a movie. */
 class TraktProgressServiceOptimisticWatchedTest {
+
+    // These tests model the app on screen: the refresh loop does nothing in the background.
+    @Before
+    fun onScreen() = AppForeground.set(true)
+
+    @After
+    fun offScreen() = AppForeground.set(false)
     private val traktApi = mockk<TraktApi>()
 
     @Test

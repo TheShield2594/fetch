@@ -209,8 +209,15 @@ fun HomeScreen(
         (uiState.continueWatchingEnabled && uiState.continueWatchingItems.isNotEmpty()) ||
         uiState.heroItems.isNotEmpty() ||
         hasCollectionContent
+    val showOffline = uiState.layoutPreferencesReady && shouldShowHomeOffline(
+        reach = uiState.networkReach,
+        hasAnyContent = hasAnyContent,
+        isLoading = uiState.isLoading,
+        errorKind = uiState.errorKind
+    )
     val showStartupLoader = when {
         !uiState.layoutPreferencesReady -> true
+        showOffline -> false
         uiState.isLoading && !hasAnyContent -> true
         uiState.errorKind == HomeErrorKind.NO_ADDONS && uiState.catalogRows.isEmpty() -> !homeStableGateReleased
         uiState.errorKind == HomeErrorKind.NO_CATALOG_ADDONS && uiState.catalogRows.isEmpty() && !hasCollectionContent && !hasHeroContent -> !homeStableGateReleased
@@ -240,6 +247,19 @@ fun HomeScreen(
         when {
             !uiState.layoutPreferencesReady -> {
                 Unit
+            }
+
+            // No network: say so, offer Retry and a media server's library, and come back on
+            // its own when the network does (#447).
+            showOffline -> {
+                HomeOfflineState(
+                    reach = uiState.networkReach,
+                    serverLibrary = uiState.offlineServerLibrary,
+                    onRetry = { viewModel.onEvent(HomeEvent.OnRetry) },
+                    onOpenServerLibrary = { library ->
+                        onNavigateToCatalogSeeAll(library.catalogId, library.addonId, library.type)
+                    }
+                )
             }
 
             uiState.isLoading && !hasAnyContent -> {

@@ -207,6 +207,7 @@ class SearchViewModelPaginationTest {
         every { layoutPreferences.posterCardHeightDp } returns flowOf(189)
         every { layoutPreferences.posterCardCornerRadiusDp } returns flowOf(12)
         every { layoutPreferences.catalogTypeSuffixEnabled } returns flowOf(true)
+        every { layoutPreferences.searchSystemKeyboard } returns flowOf(false)
         every { layoutPreferences.hideUnreleasedContent } returns flowOf(false)
 
         val history = mockk<SearchHistoryDataStore>(relaxed = true)

@@ -142,6 +142,7 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     add(rule(subtitles, R.string.sub_size) { it.subtitleStyle.size })
     add(rule(subtitles, R.string.sub_vertical_offset) { it.subtitleStyle.verticalOffset })
     add(rule(subtitles, R.string.sub_bold) { it.subtitleStyle.bold })
+    add(rule(subtitles, R.string.sub_use_system_caption_style) { it.subtitleStyle.useSystemCaptionStyle })
     add(rule(subtitles, R.string.sub_text_color) { it.subtitleStyle.textColor })
     add(rule(subtitles, R.string.sub_bg_color) { it.subtitleStyle.backgroundColor })
     add(rule(subtitles, R.string.sub_outline) { it.subtitleStyle.outlineEnabled })

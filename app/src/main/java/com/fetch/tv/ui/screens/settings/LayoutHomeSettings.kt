@@ -97,6 +97,12 @@ internal fun LayoutHomeContentSection(
         onToggle = { onEvent(LayoutSettingsEvent.SetCatalogTypeSuffixEnabled(!uiState.catalogTypeSuffixEnabled)) }
     )
     SettingsToggleRow(
+        title = stringResource(R.string.layout_search_system_keyboard),
+        subtitle = stringResource(R.string.layout_search_system_keyboard_sub),
+        checked = uiState.searchSystemKeyboard,
+        onToggle = { onEvent(LayoutSettingsEvent.SetSearchSystemKeyboard(!uiState.searchSystemKeyboard)) }
+    )
+    SettingsToggleRow(
         title = stringResource(R.string.layout_hide_unreleased),
         subtitle = stringResource(R.string.layout_hide_unreleased_sub),
         checked = uiState.hideUnreleasedContent,

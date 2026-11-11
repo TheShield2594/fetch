@@ -666,7 +666,6 @@ private fun EpisodeCard(
     val ratingLabel = remember(imdbRating, displayLocale) {
         imdbRating?.takeIf { it > 0.0 }?.let { String.format(displayLocale, "%.1f", it) }
     }
-    val description = remember(episode.overview) { episode.overview?.trim().orEmpty() }
     val isWatched = remember(watchProgress, isMarkedWatched) { watchProgress?.isCompleted() == true || isMarkedWatched }
     val shouldBlur = remember(blurUnwatched, isWatched) { blurUnwatched && !isWatched }
     val progressPercent = remember(watchProgress) { watchProgress?.progressPercentage ?: 0f }
@@ -818,9 +817,23 @@ private fun EpisodeCard(
     val progressColor = FetchTheme.colors.Accent
     val textPrimary = FetchTheme.colors.TextPrimary
     val focusRingBorder = FetchTheme.focusRing.border()
-    val localizedEpisodeTitle = episode.title.localizeEpisodeTitle(context)
+    // The spoiler option hides the text as well as the thumbnail: an unwatched episode shows
+    // "Episode N" and no overview.
+    val spoilerText = remember(context, episode.title, episode.overview, episode.episode, shouldBlur, strEpisode) {
+        episodeSpoilerText(
+            title = episode.title.localizeEpisodeTitle(context),
+            overview = episode.overview,
+            hideSpoilers = blurUnwatched,
+            isWatched = isWatched,
+            hiddenTitle = neutralEpisodeTitle(strEpisode, episode.episode)
+        )
+    }
+    val description = spoilerText.overview
+    val localizedEpisodeTitle = spoilerText.title
     val episodeCardLabel = remember(episodeCode, localizedEpisodeTitle) {
-        listOf(episodeCode, localizedEpisodeTitle).filter { it.isNotBlank() }.distinct().joinToString(", ")
+        listOf(episodeCode, localizedEpisodeTitle).filter { it.isNotBlank() }
+            .distinctBy { it.lowercase(Locale.getDefault()) }
+            .joinToString(", ")
     }
 
     // LightweightCard reads the focus animation only while placing the card, so moving along
@@ -904,7 +917,7 @@ private fun EpisodeCard(
             val bgPainter = remember(cardBgColor) { androidx.compose.ui.graphics.painter.ColorPainter(cardBgColor) }
             AsyncImage(
                 model = thumbnailRequest,
-                contentDescription = episode.title.localizeEpisodeTitle(context),
+                contentDescription = localizedEpisodeTitle,
                 modifier = Modifier
                     .fillMaxSize()
                     .clipToBounds()
@@ -977,7 +990,7 @@ private fun EpisodeCard(
                 }
 
                 FocusMarqueeText(
-                    text = episode.title.localizeEpisodeTitle(context),
+                    text = localizedEpisodeTitle,
                     focused = isFocused && !suppressMarquee,
                     style = titleStyle,
                     color = textPrimary,

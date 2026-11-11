@@ -3,6 +3,7 @@ package com.fetch.tv.data.mediaserver
 import android.content.Context
 import com.fetch.tv.R
 import com.fetch.tv.core.streams.supportsResource
+import com.fetch.tv.core.tracking.TrackingExternalIds
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.AddonResource
 import com.fetch.tv.domain.model.CatalogDescriptor
@@ -259,12 +260,34 @@ class ServerCatalog @Inject constructor(
         if (query == null || kind == null || skip > 0) return Page(emptyList(), null)
         val libraries = connection.selectedLibraries(kind)
         val presenter = presenter(connection)
-        val items = repository.call(connection.id) { provider, session ->
+        val titles = repository.call(connection.id) { provider, session ->
             if (!provider.supports(ServerCapability.SEARCH)) throw ServerException(ServerFailure.UNSUPPORTED)
             provider.search(session, kind, libraries, query, SEARCH_LIMIT)
-        }.map(presenter)
+        }
+        val items = titles.map { title ->
+            presenter(title).also { preview ->
+                if (title.externalIds.imdb != null || title.externalIds.tmdb != null) {
+                    rememberSearchIds(preview.id, title.externalIds)
+                }
+            }
+        }
         return Page(items, null)
     }
+
+    // A server title's preview id names the server item, so Search merges it with addon results
+    // on the IMDb and TMDB ids kept here (#484). Bounded: only recent searches need them.
+    private val searchIds = object : LinkedHashMap<String, TrackingExternalIds>(SEARCH_IDS_MAX, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, TrackingExternalIds>?) =
+            size > SEARCH_IDS_MAX
+    }
+
+    private fun rememberSearchIds(previewId: String, ids: TrackingExternalIds) {
+        synchronized(searchIds) { searchIds[previewId] = ids }
+    }
+
+    /** The external ids of a title a server search returned, by its preview id; null if unknown. */
+    fun searchExternalIds(previewId: String): TrackingExternalIds? =
+        synchronized(searchIds) { searchIds[previewId] }
 
     private fun ServerMediaKind.searchLabel(): Int =
         if (this == ServerMediaKind.SERIES) R.string.type_series_plural else R.string.type_movies
@@ -291,6 +314,7 @@ class ServerCatalog @Inject constructor(
     companion object {
         const val PAGE_SIZE = 50
         private const val SEARCH_LIMIT = 30
+        private const val SEARCH_IDS_MAX = 512
         private const val DETAILS_BUFFER = 16
         private const val RESUME_ID = "resume"
         private const val COLLECTION_PREFIX = "collection:"

@@ -772,7 +772,19 @@ private fun EpisodeItem(
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     val context = LocalContext.current
     val resources = LocalResources.current
-    val episodeTitle = episode.title.localizeEpisodeTitle(context).ifBlank { resources.getString(R.string.episodes_episode) }
+    // The spoiler option hides an unwatched episode's title and overview as well as its thumbnail.
+    // The episode playing now is already on screen, so it keeps its text.
+    val spoilerText = com.fetch.tv.ui.screens.detail.episodeSpoilerText(
+        title = episode.title.localizeEpisodeTitle(context).ifBlank { resources.getString(R.string.episodes_episode) },
+        overview = episode.overview,
+        hideSpoilers = blurUnwatched && !isCurrent,
+        isWatched = isWatched,
+        hiddenTitle = com.fetch.tv.ui.screens.detail.neutralEpisodeTitle(
+            resources.getString(R.string.episodes_episode),
+            episode.episode
+        )
+    )
+    val episodeTitle = spoilerText.title
     val formattedDate = remember(episode.released) {
         episode.released?.let { formatReleaseDate(it) }?.takeIf { it.isNotBlank() }
     }
@@ -951,7 +963,7 @@ private fun EpisodeItem(
                     )
                 }
 
-                episode.overview?.takeIf { it.isNotBlank() }?.let {
+                spoilerText.overview.takeIf { it.isNotBlank() }?.let {
                     FocusScrollingText(
                         text = it,
                         focused = isFocused,

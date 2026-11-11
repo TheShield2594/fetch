@@ -155,6 +155,11 @@ data class SubtitleStyleSettings(
     val size: Int = 120, // Percentage (50-200)
     val verticalOffset: Int = 5, // Percentage from bottom (-20 to 50)
     val bold: Boolean = false,
+    /**
+     * Take size, colours, edges and font from the system caption settings (Accessibility ›
+     * Captions) when they are on, instead of the style below (#453). Position stays the app's.
+     */
+    val useSystemCaptionStyle: Boolean = false,
     val textColor: Int = Color.White.toArgb(),
     val backgroundColor: Int = Color.Transparent.toArgb(),
     val outlineEnabled: Boolean = true,
@@ -734,6 +739,7 @@ class PlayerSettingsDataStore @Inject constructor(
     private val subtitleTextColorKey = intPreferencesKey("subtitle_text_color")
     private val subtitleBackgroundColorKey = intPreferencesKey("subtitle_background_color")
     private val subtitleOutlineEnabledKey = booleanPreferencesKey("subtitle_outline_enabled")
+    private val subtitleUseSystemCaptionStyleKey = booleanPreferencesKey("subtitle_use_system_caption_style")
     private val subtitleOutlineColorKey = intPreferencesKey("subtitle_outline_color")
     private val subtitleOutlineWidthKey = intPreferencesKey("subtitle_outline_width")
     private val subtitleHdrStyleEnabledKey = booleanPreferencesKey("subtitle_hdr_style_enabled")
@@ -1230,6 +1236,7 @@ class PlayerSettingsDataStore @Inject constructor(
                         size = prefs[subtitleSizeKey] ?: 100,
                         verticalOffset = prefs[subtitleVerticalOffsetKey] ?: 5,
                         bold = prefs[subtitleBoldKey] ?: false,
+                        useSystemCaptionStyle = prefs[subtitleUseSystemCaptionStyleKey] ?: false,
                         textColor = prefs[subtitleTextColorKey] ?: Color.White.toArgb(),
                         backgroundColor = prefs[subtitleBackgroundColorKey] ?: Color.Transparent.toArgb(),
                         outlineEnabled = prefs[subtitleOutlineEnabledKey] ?: true,
@@ -1835,6 +1842,9 @@ class PlayerSettingsDataStore @Inject constructor(
     suspend fun setSubtitleTextColor(color: Int) { store().edit { it[subtitleTextColorKey] = color } }
     suspend fun setSubtitleBackgroundColor(color: Int) { store().edit { it[subtitleBackgroundColorKey] = color } }
     suspend fun setSubtitleOutlineEnabled(enabled: Boolean) { store().edit { it[subtitleOutlineEnabledKey] = enabled } }
+    suspend fun setSubtitleUseSystemCaptionStyle(enabled: Boolean) {
+        store().edit { it[subtitleUseSystemCaptionStyleKey] = enabled }
+    }
     suspend fun setSubtitleOutlineColor(color: Int) { store().edit { it[subtitleOutlineColorKey] = color } }
     suspend fun setSubtitleOutlineWidth(width: Int) { store().edit { it[subtitleOutlineWidthKey] = width.coerceIn(1, 5) } }
     suspend fun setSubtitleHdrStyleEnabled(enabled: Boolean) { store().edit { it[subtitleHdrStyleEnabledKey] = enabled } }

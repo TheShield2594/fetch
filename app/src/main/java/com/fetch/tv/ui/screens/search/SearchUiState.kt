@@ -25,6 +25,10 @@ internal fun shouldShowDiscoverInSearch(
 data class SearchUiState(
     val query: String = "",
     val submittedQuery: String = "",
+    /** Type with the system keyboard rather than the on-screen grid beside the results (#484). */
+    val useSystemKeyboard: Boolean = false,
+    /** [useSystemKeyboard] has been read from the profile, so entry focus can be placed. */
+    val keyboardPreferenceLoaded: Boolean = false,
     val isSearching: Boolean = false,
     val error: String? = null,
     val catalogRows: List<CatalogRow> = emptyList(),

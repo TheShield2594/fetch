@@ -52,6 +52,7 @@ data class LayoutSettingsUiState(
     val posterCardHeightDp: Int = 189,
     val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
     val blurUnwatchedEpisodes: Boolean = false,
+    val searchSystemKeyboard: Boolean = false,
     val randomEpisodeEnabled: Boolean = false,
     val episodeOptionsOverlayStyle: EpisodeOptionsOverlayStyle = EpisodeOptionsOverlayStyle.BLUR,
     val homeImdbRatingsVisibility: HomeImdbRatingsVisibility = HomeImdbRatingsVisibility.SHOW_ALL,
@@ -96,6 +97,7 @@ sealed class LayoutSettingsEvent {
     data class SetPosterCardWidth(val widthDp: Int) : LayoutSettingsEvent()
     data class SetPosterCardCornerRadius(val cornerRadiusDp: Int) : LayoutSettingsEvent()
     data class SetBlurUnwatchedEpisodes(val enabled: Boolean) : LayoutSettingsEvent()
+    data class SetSearchSystemKeyboard(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetRandomEpisodeEnabled(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetEpisodeOptionsOverlayStyle(val style: EpisodeOptionsOverlayStyle) : LayoutSettingsEvent()
     data class SetHomeImdbRatingsVisibility(val visibility: HomeImdbRatingsVisibility) : LayoutSettingsEvent()
@@ -235,6 +237,11 @@ class LayoutSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             layoutPreferenceDataStore.blurUnwatchedEpisodes.distinctUntilChanged().collectLatest { enabled ->
                 updateUiStateIfChanged { it.copy(blurUnwatchedEpisodes = enabled) }
+            }
+        }
+        viewModelScope.launch {
+            layoutPreferenceDataStore.searchSystemKeyboard.distinctUntilChanged().collectLatest { enabled ->
+                updateUiStateIfChanged { it.copy(searchSystemKeyboard = enabled) }
             }
         }
         viewModelScope.launch {
@@ -378,6 +385,7 @@ class LayoutSettingsViewModel @Inject constructor(
             is LayoutSettingsEvent.SetPosterCardWidth -> setPosterCardWidth(event.widthDp)
             is LayoutSettingsEvent.SetPosterCardCornerRadius -> setPosterCardCornerRadius(event.cornerRadiusDp)
             is LayoutSettingsEvent.SetBlurUnwatchedEpisodes -> setBlurUnwatchedEpisodes(event.enabled)
+            is LayoutSettingsEvent.SetSearchSystemKeyboard -> setSearchSystemKeyboard(event.enabled)
             is LayoutSettingsEvent.SetRandomEpisodeEnabled -> setRandomEpisodeEnabled(event.enabled)
             is LayoutSettingsEvent.SetEpisodeOptionsOverlayStyle -> setEpisodeOptionsOverlayStyle(event.style)
             is LayoutSettingsEvent.SetHomeImdbRatingsVisibility -> setHomeImdbRatingsVisibility(event.visibility)
@@ -602,6 +610,13 @@ class LayoutSettingsViewModel @Inject constructor(
         if (_uiState.value.trailer4kEnabled == enabled) return
         viewModelScope.launch {
             trailerSettingsDataStore.setAllow4k(enabled)
+        }
+    }
+
+    private fun setSearchSystemKeyboard(enabled: Boolean) {
+        if (_uiState.value.searchSystemKeyboard == enabled) return
+        viewModelScope.launch {
+            layoutPreferenceDataStore.setSearchSystemKeyboard(enabled)
         }
     }
 

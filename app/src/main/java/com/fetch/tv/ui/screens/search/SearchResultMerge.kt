@@ -1,6 +1,8 @@
 package com.fetch.tv.ui.screens.search
 
 import androidx.compose.runtime.Immutable
+import com.fetch.tv.core.tracking.TrackingExternalIds
+import com.fetch.tv.data.mediaserver.ServerCatalog
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.MetaPreview
 import java.text.Normalizer
@@ -53,15 +55,21 @@ internal object SearchResultMerger {
     /**
      * Merges [rows] (in addon order) into ranked per-type rows. [rowTitle] names a type's row.
      * [isInLibrary] and [filter] narrow the result; the top result is chosen after filtering.
+     *
+     * Media-server rows ([isServerRow]) fold in on the same keys. A server title's own id names
+     * the server item, so its IMDb and TMDB ids come from [externalIds]. When a server has a
+     * title, the server's copy is the one shown and opened, so it plays from the server.
      */
     fun merge(
         rows: List<CatalogRow>,
         query: String,
         filter: SearchTypeFilter = SearchTypeFilter.ALL,
         isInLibrary: (MetaPreview) -> Boolean = { false },
-        rowTitle: (String) -> String = { it }
+        rowTitle: (String) -> String = { it },
+        isServerRow: (CatalogRow) -> Boolean = { ServerCatalog.isServerAddon(it.addonBaseUrl) },
+        externalIds: (MetaPreview) -> TrackingExternalIds? = { null }
     ): MergedSearchResults {
-        val groups = group(rows)
+        val groups = group(rows, isServerRow, externalIds)
         if (groups.isEmpty()) return MergedSearchResults()
         val normalizedQuery = normalizeTitle(query)
         val ranked = groups
@@ -102,11 +110,20 @@ internal object SearchResultMerger {
      * The key a title is merged on: its IMDb id, else its TMDB id, else null (the title-and-year
      * fallback in [group] takes over).
      */
-    fun idKey(item: MetaPreview): String? {
-        item.imdbId?.let { IMDB_ID.find(it) }?.let { return "imdb:${it.value}" }
-        IMDB_ID.find(item.id)?.let { return "imdb:${it.value}" }
-        TMDB_ID.find(item.id.trim())?.let { return "tmdb:${typeKey(item)}:${it.groupValues[1]}" }
-        return null
+    fun idKey(item: MetaPreview, externalIds: TrackingExternalIds? = null): String? =
+        idKeys(item, externalIds).firstOrNull()
+
+    /**
+     * Every id a title is known by: its IMDb key, then its TMDB key. Merging matches on any one
+     * of them, so a server title known by both ids meets an addon title known by either.
+     */
+    fun idKeys(item: MetaPreview, externalIds: TrackingExternalIds? = null): List<String> {
+        val imdb = sequenceOf(item.imdbId, item.id, externalIds?.imdb)
+            .firstNotNullOfOrNull { value -> value?.let(IMDB_ID::find) }
+            ?.let { "imdb:${it.value}" }
+        val tmdb = TMDB_ID.find(item.id.trim())?.groupValues?.get(1)
+            ?: externalIds?.tmdb?.toString()
+        return listOfNotNull(imdb, tmdb?.let { "tmdb:${typeKey(item)}:$it" })
     }
 
     /** Type, normalised title and release year: the fallback dedupe key. */
@@ -139,9 +156,13 @@ internal object SearchResultMerger {
         val firstRow: Int,
         var bestIndex: Int
     ) {
-        var idKey: String? = null
+        val idKeys = LinkedHashSet<String>()
+        /** Every copy merged in, so "In my library" matches whichever copy is saved. */
+        val members = mutableListOf<MetaPreview>()
         var matchTier = 0
         var sourceUrl: String? = null
+        /** The shown copy is a media server's, which nothing else replaces. */
+        var fromServer = false
         val addonNames = mutableListOf<String>()
         val addonUrls = LinkedHashSet<String>()
 
@@ -149,31 +170,61 @@ internal object SearchResultMerger {
             if (item.sourceAddonBaseUrl == null && sourceUrl != null) item.copy(sourceAddonBaseUrl = sourceUrl) else item
     }
 
-    private fun group(rows: List<CatalogRow>): List<Group> {
+    private fun group(
+        rows: List<CatalogRow>,
+        isServerRow: (CatalogRow) -> Boolean,
+        externalIds: (MetaPreview) -> TrackingExternalIds?
+    ): List<Group> {
         val groups = mutableListOf<Group>()
         val byId = HashMap<String, Group>()
         val byTitleYear = HashMap<String, Group>()
         rows.forEachIndexed { rowIndex, row ->
+            val serverRow = isServerRow(row)
             row.items.forEachIndexed { itemIndex, item ->
                 if (item.id.startsWith(PLACEHOLDER_PREFIX) || item.id.isBlank()) return@forEachIndexed
-                val idKey = idKey(item)
+                val idKeys = idKeys(item, if (serverRow) externalIds(item) else null)
                 val titleYear = titleYearKey(item)
-                val existing = idKey?.let(byId::get)
+                val existing = idKeys.firstNotNullOfOrNull(byId::get)
                     ?: titleYear?.let(byTitleYear::get)?.takeIf { candidate ->
                         // Two different ids with the same title and year (a remake in the same
                         // year) stay apart; the fallback only joins a title to one without an id.
-                        idKey == null || candidate.idKey == null
+                        idKeys.isEmpty() || candidate.idKeys.isEmpty()
                     }
                 val group = existing ?: Group(
                     typeKey = typeKey(item),
                     item = item,
                     firstRow = rowIndex,
                     bestIndex = itemIndex
-                ).also(groups::add)
+                ).also { created ->
+                    groups.add(created)
+                    if (serverRow) {
+                        created.fromServer = true
+                        created.sourceUrl = row.addonBaseUrl.takeIf { it.isNotBlank() }
+                    }
+                }
                 if (existing != null) {
                     group.bestIndex = minOf(group.bestIndex, itemIndex)
-                    // Keep the richest copy on screen: one with artwork beats one without.
-                    if (group.item.poster.isNullOrBlank() && !item.poster.isNullOrBlank()) group.item = item
+                    when {
+                        // The server has this title: show and open its copy, keeping any artwork
+                        // an addon had that the server lacks.
+                        serverRow && !group.fromServer -> {
+                            val addonCopy = group.item
+                            group.item = item.copy(
+                                poster = item.poster?.takeIf { it.isNotBlank() } ?: addonCopy.poster,
+                                background = item.background?.takeIf { it.isNotBlank() } ?: addonCopy.background,
+                                imdbId = item.imdbId ?: addonCopy.imdbId
+                            )
+                            group.fromServer = true
+                            group.sourceUrl = row.addonBaseUrl.takeIf { it.isNotBlank() } ?: group.sourceUrl
+                        }
+                        group.fromServer -> {
+                            if (group.item.poster.isNullOrBlank() && !item.poster.isNullOrBlank()) {
+                                group.item = group.item.copy(poster = item.poster)
+                            }
+                        }
+                        // Keep the richest copy on screen: one with artwork beats one without.
+                        group.item.poster.isNullOrBlank() && !item.poster.isNullOrBlank() -> group.item = item
+                    }
                 }
                 if (group.addonUrls.add(row.addonBaseUrl.ifBlank { row.addonId })) {
                     group.addonNames += row.addonName
@@ -181,8 +232,9 @@ internal object SearchResultMerger {
                 if (group.sourceUrl == null && row.addonBaseUrl.isNotBlank() && row.addonId != MERGED_ROW_ADDON_ID) {
                     group.sourceUrl = row.addonBaseUrl
                 }
-                if (group.idKey == null && idKey != null) group.idKey = idKey
-                idKey?.let { byId.putIfAbsent(it, group) }
+                group.members += item
+                group.idKeys += idKeys
+                idKeys.forEach { byId.putIfAbsent(it, group) }
                 titleYear?.let { byTitleYear.putIfAbsent(it, group) }
             }
         }
@@ -194,7 +246,7 @@ internal object SearchResultMerger {
             SearchTypeFilter.ALL -> true
             SearchTypeFilter.MOVIES -> group.typeKey == "movie"
             SearchTypeFilter.SERIES -> group.typeKey == "series"
-            SearchTypeFilter.IN_LIBRARY -> isInLibrary(group.item)
+            SearchTypeFilter.IN_LIBRARY -> group.members.any(isInLibrary)
         }
 
     /**

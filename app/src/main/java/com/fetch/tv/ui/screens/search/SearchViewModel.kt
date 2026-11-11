@@ -114,7 +114,8 @@ class SearchViewModel @Inject constructor(
                 query = query,
                 filter = typeFilter,
                 isInLibrary = { item -> isLibraryItem(item, inLibrary) },
-                rowTitle = ::mergedRowTitle
+                rowTitle = ::mergedRowTitle,
+                externalIds = { item -> serverCatalog.searchExternalIds(item.id) }
             )
             lastMergeRows = catalogRows
             lastMergeQuery = query
@@ -263,6 +264,14 @@ class SearchViewModel @Inject constructor(
                         posterCardHeightDp = prefs.heightDp,
                         posterCardCornerRadiusDp = prefs.cornerRadiusDp
                     )
+                }
+            }
+        }
+        viewModelScope.launch {
+            layoutPreferenceDataStore.searchSystemKeyboard.distinctUntilChanged().collectLatest { enabled ->
+                _uiState.update {
+                    if (it.useSystemKeyboard == enabled && it.keyboardPreferenceLoaded) it
+                    else it.copy(useSystemKeyboard = enabled, keyboardPreferenceLoaded = true)
                 }
             }
         }

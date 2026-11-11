@@ -102,6 +102,12 @@
     <string name="home_empty_no_catalog_addons_subtitle">Home needs a catalog addon to show titles.</string>
     <string name="home_empty_no_catalogs_title">No catalogs to show</string>
     <string name="home_empty_no_catalogs_subtitle">Your addons don’t offer any Home catalogs.</string>
+    <string name="home_offline_title">You’re offline</string>
+    <string name="home_offline_subtitle">This TV isn’t connected to a network. Home comes back on its own when it reconnects.</string>
+    <string name="home_no_internet_title">No internet connection</string>
+    <string name="home_no_internet_subtitle">This TV is on a network, but your addons can’t be reached. Home comes back on its own when the internet does.</string>
+    <string name="home_offline_subtitle_server">Your addons can’t be reached. A media server on your home network may still work. Home comes back on its own when the internet does.</string>
+    <string name="home_offline_open_server">Open %1$s</string>
     <string name="auth_notice_trakt_logged_out">Signed out of Trakt. Reconnect it from Settings &gt; Tracking.</string>
     <string name="error_generic">An error occurred</string>
 
@@ -196,6 +202,7 @@
     <string name="episodes_specials">Specials</string>
     <string name="episodes_episode">Episode</string>
     <string name="episodes_up_next">Up next</string>
+    <string name="episodes_overview_hidden">Overview hidden until you watch this episode. Turn off Blur Unwatched Episodes in Settings to show it.</string>
     <string name="episodes_cd_watched">Watched</string>
     <string name="episodes_dialog_subtitle">Episode actions</string>
     <string name="episodes_mark_watched">Mark as watched</string>
@@ -859,6 +866,8 @@
     <string name="sub_size">Size</string>
     <string name="sub_vertical_offset">Vertical Offset</string>
     <string name="sub_bold">Bold</string>
+    <string name="sub_use_system_caption_style">Use System Caption Style</string>
+    <string name="sub_use_system_caption_style_sub">Take size, colours and font from the TV’s caption settings when captions are on there (standard player). Position still follows the setting below.</string>
     <string name="sub_bold_sub">Use bold font weight for subtitles</string>
     <string name="sub_text_color">Text Color</string>
     <string name="sub_bg_color">Background Color</string>
@@ -969,6 +978,12 @@
     <string name="layout_addon_name_sub">Show source name under catalog titles.</string>
     <string name="layout_catalog_type">Show Catalog Type</string>
     <string name="layout_catalog_type_sub">Show type suffix next to catalog name (Movie/Series).</string>
+    <string name="layout_search_system_keyboard">Use System Keyboard in Search</string>
+    <string name="layout_search_system_keyboard_sub">Type with your TV’s keyboard instead of the on-screen grid. The system keyboard may cover the results while you type.</string>
+    <string name="search_keyboard_space">Space</string>
+    <string name="search_keyboard_delete">Delete</string>
+    <string name="search_keyboard_clear">Clear</string>
+    <string name="search_keyboard_cd">Search keyboard</string>
     <string name="layout_hide_unreleased">Hide Unreleased Content</string>
     <string name="layout_hide_unreleased_sub">Hide movies and shows that haven’t been released yet.</string>
     <string name="layout_section_detail">Detail Page</string>
@@ -990,7 +1005,7 @@
     <string name="layout_use_episode_thumbnails_cw">Use Episode Thumbnails in Continue Watching</string>
     <string name="layout_use_episode_thumbnails_cw_sub">Use episode thumbnails as default image. When disabled, uses backdrop.</string>
     <string name="layout_blur_unwatched">Blur Unwatched Episodes</string>
-    <string name="layout_blur_unwatched_sub">Blur episode thumbnails until watched to avoid spoilers.</string>
+    <string name="layout_blur_unwatched_sub">Blur thumbnails and hide titles and overviews of episodes until watched, to avoid spoilers.</string>
     <string name="layout_episode_options_overlay">Episode Options Overlay</string>
     <string name="layout_episode_options_overlay_sub">Choose the appearance shown when holding an episode.</string>
     <string name="layout_episode_options_overlay_none">None</string>

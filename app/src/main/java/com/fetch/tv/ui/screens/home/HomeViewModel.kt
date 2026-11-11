@@ -98,6 +98,7 @@ class HomeViewModel @Inject constructor(
     internal val becauseYouWatchedService: com.fetch.tv.core.recommendations.BecauseYouWatchedService,
     internal val readyChecker: HomeReadyChecker,
     internal val youTubeRow: HomeYouTubeRow,
+    internal val connectivityMonitor: com.fetch.tv.core.network.ConnectivityMonitor,
     internal val metaPreviewEnricher: MetaPreviewEnricher = MetaPreviewEnricher(
         tmdbService,
         tmdbMetadataService,
@@ -407,6 +408,7 @@ class HomeViewModel @Inject constructor(
         }
 
         observeStartupAuthNotice()
+        observeNetworkReach()
         viewModelScope.launch {
             profileManager.activeProfileReady.first { it }
             observeLayoutPreferences()
@@ -919,6 +921,55 @@ class HomeViewModel @Inject constructor(
         if (now - lastHomeCatalogRefreshAtMs < HOME_CATALOG_REFRESH_TTL_MS) return
         lastHomeCatalogRefreshAtMs = now
         refreshVisibleCatalogsPipeline()
+    }
+
+    /**
+     * Tracks the network so Home can say it is offline rather than show a raw error, and
+     * reloads on its own once the network is back (#447).
+     */
+    private fun observeNetworkReach() {
+        viewModelScope.launch {
+            var previous: com.fetch.tv.core.network.NetworkReach? = null
+            // Server connections are per profile, so the link is worked out again whenever they
+            // change, not only when the network does.
+            kotlinx.coroutines.flow.combine(
+                connectivityMonitor.reach,
+                serverCatalog.addons.onStart { emit(emptyList()) }
+            ) { reach, _ -> reach }.collect { reach ->
+                val serverLibrary = if (reach == com.fetch.tv.core.network.NetworkReach.ONLINE) {
+                    null
+                } else {
+                    com.fetch.tv.core.util.runSuspendCatching { serverCatalog.titleLibraries().firstOrNull() }.getOrNull()?.let { ref ->
+                        HomeServerLibraryLink(
+                            title = ref.title,
+                            catalogId = ref.library.id,
+                            addonId = com.fetch.tv.data.mediaserver.ServerCatalog.addonId(ref.connection.id),
+                            type = ref.library.kind.contentType
+                        )
+                    }
+                }
+                _uiState.update {
+                    if (it.networkReach == reach && it.offlineServerLibrary == serverLibrary) it
+                    else it.copy(networkReach = reach, offlineServerLibrary = serverLibrary)
+                }
+                val state = _uiState.value
+                if (reach != previous && addonsCache.isNotEmpty()) {
+                    when (homeReloadOnReach(previous, reach, state.catalogRows.isNotEmpty(), state.errorKind)) {
+                        HomeReachReload.FULL -> {
+                            android.util.Log.d(TAG, "Network back ($previous -> $reach); reloading Home catalogs")
+                            loadAllCatalogs(addonsCache, forceReload = true)
+                        }
+                        HomeReachReload.VISIBLE_ROWS -> {
+                            // Rows kept from the cache stay; refresh them in place.
+                            lastHomeCatalogRefreshAtMs = android.os.SystemClock.elapsedRealtime()
+                            refreshVisibleCatalogsPipeline(requestedByUser = true)
+                        }
+                        HomeReachReload.NONE -> Unit
+                    }
+                }
+                previous = reach
+            }
+        }
     }
 
     private suspend fun loadAllCatalogs(addons: List<Addon>, forceReload: Boolean = false) =

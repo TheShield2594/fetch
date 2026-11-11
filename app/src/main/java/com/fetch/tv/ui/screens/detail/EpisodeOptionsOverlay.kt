@@ -122,8 +122,21 @@ internal fun EpisodeOptionsOverlay(
     val detailsFocusRequester = remember { FocusRequester() }
     val detailsScrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
-    val title = episode.title.localizeEpisodeTitle(context)
-    val description = episode.overview?.trim().orEmpty()
+    val strEpisode = stringResource(R.string.episodes_episode)
+    // With the spoiler option on, an unwatched episode's title and overview stay hidden here too.
+    val spoilerText = episodeSpoilerText(
+        title = episode.title.localizeEpisodeTitle(context),
+        overview = episode.overview,
+        hideSpoilers = blurUnwatchedEpisodes && !isCurrentlyPlaying,
+        isWatched = isWatched,
+        hiddenTitle = neutralEpisodeTitle(strEpisode, episode.episode)
+    )
+    val title = spoilerText.title
+    val description = if (spoilerText.hidden && !episode.overview.isNullOrBlank()) {
+        stringResource(R.string.episodes_overview_hidden)
+    } else {
+        spoilerText.overview
+    }
     val titleStyle = episodeOverlayTitleStyle(title.length)
     val descriptionStyle = episodeOverlayDescriptionStyle(description.length)
     val isNoneStyle = !shouldShowEpisodeOverlayBackdrop(style)
@@ -187,7 +200,7 @@ internal fun EpisodeOptionsOverlay(
             stringResource(R.string.season_episode_format, seasonNumber, episodeNumber)
         }
         episodeNumber != null -> {
-            "${stringResource(R.string.episodes_episode)} $episodeNumber"
+            "$strEpisode $episodeNumber"
         }
         else -> stringResource(R.string.episodes_dialog_subtitle)
     }

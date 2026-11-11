@@ -37,6 +37,10 @@ data class HomeUiState(
     val errorKind: HomeErrorKind? = null,
     /** The failure's own message, for [HomeErrorKind.LOAD_FAILED]; null for the others. */
     val error: String? = null,
+    /** What the network can reach, so an empty Home can say it is offline (#447). */
+    val networkReach: com.fetch.tv.core.network.NetworkReach = com.fetch.tv.core.network.NetworkReach.ONLINE,
+    /** A media-server library to offer while the internet is unreachable; null when none. */
+    val offlineServerLibrary: HomeServerLibraryLink? = null,
     val installedAddonsCount: Int = 0,
     val modernLandscapePostersEnabled: Boolean = true,
     val alwaysShowLandscapeClearlogo: Boolean = false,

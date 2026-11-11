@@ -207,7 +207,7 @@ internal fun FetchWebsitePairingContent(
                     if (servers.isNotEmpty()) {
                         DiscoveredServers(
                             servers = servers,
-                            title = stringResource(R.string.website_discovered_or),
+                            heading = stringResource(R.string.website_discovered_or),
                             firstFocus = null,
                             onPick = { server ->
                                 manual = true
@@ -282,7 +282,7 @@ private fun AddressStep(
     if (failed?.hubUnavailable == true) Message(stringResource(R.string.website_hub_unavailable))
     DiscoveredServers(
         servers = servers,
-        title = stringResource(R.string.website_discovered_title),
+        heading = stringResource(R.string.website_discovered_title),
         firstFocus = firstFocus,
         onPick = { server ->
             onAddressChange(server.apiUrl)
@@ -339,7 +339,7 @@ private fun hostOf(url: String): String = url.toHttpUrlOrNull()?.let { parsed ->
 @Composable
 private fun DiscoveredServers(
     servers: List<DiscoveredFetchServer>,
-    title: String,
+    heading: String,
     firstFocus: FocusRequester?,
     onPick: (DiscoveredFetchServer) -> Unit
 ) {
@@ -349,7 +349,7 @@ private fun DiscoveredServers(
     }
     Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
         Text(
-            text = title,
+            text = heading,
             style = MaterialTheme.typography.labelLarge,
             color = FetchTheme.colors.TextSecondary
         )

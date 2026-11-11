@@ -434,22 +434,8 @@
     <string name="experience_mode_confirm_advanced_title">Të kalosh në modalitetin e avancuar?</string>
     <string name="experience_mode_confirm_essential_subtitle">Sipërfaqet e konfigurimit të avancuar do të fshihen, por cilësimet e ruajtura do të mbeten të pandryshuara. Mund të kthehesh në çdo kohë.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Kjo zbulon të gjitha cilësimet, përfshirë konfigurimin e avancuar, katalogët, koleksionet dhe kontrollet e imta.</string>
-    <string name="network_speed_test_run">Nis testin e shpejtësisë</string>
-    <string name="network_speed_test_running">Duke kryer testin e shpejtësisë</string>
-    <string name="network_speed_test_subtitle">Mat shpejtësinë e shkarkimit dhe vonesën</string>
-    <string name="network_testing_latency">Duke matur vonesën</string>
-    <string name="network_testing_download">Duke matur shpejtësinë e shkarkimit</string>
-    <string name="network_results_title">Rezultatet</string>
-    <string name="network_latency_label">Vonesa</string>
-    <string name="network_download_label">Shkarkimi</string>
-    <string name="network_error_prefix">Gabim: %1$s</string>
-    <string name="network_powered_by_fast">Mundësuar nga fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Jashtë linje</string>
     <string name="advanced_section_performance">Performanca dhe navigimi</string>
     <string name="advanced_section_diagnostics">Diagnostikimi</string>
-    <string name="advanced_playback_issue_reports">Raportet e problemeve të riprodhimit</string>
     <string name="advanced_section_cache">Cache</string>
     <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">Navigim i shpejtë horizontal</string>
@@ -485,6 +471,7 @@
     <string name="playback_skip_intro">Kapërce hyrjen</string>
     <string name="playback_skip_intro_sub">Përdor introdb.app për të zbuluar hyrjet dhe përmbledhjet.</string>
     <string name="playback_parental_guide">Paralajmërimet e përmbajtjes</string>
+    <string name="playback_parental_guide_sub">Shfaq paralajmërime për përmbajtjen kur fillon luajtja. Dërgon ID-në IMDb të çdo titulli te api.tiffara.com për t\'i kërkuar.</string>
     <string name="playback_auto_skip_segments">Kapërcim automatik</string>
     <string name="playback_auto_skip_segments_sub">Zgjidh cilat segmente kapërcehen automatikisht.</string>
     <string name="auto_skip_intro">Hyrja / Opening</string>
@@ -906,11 +893,6 @@
     <string name="debug_account_tab_subtitle">Shfaq skedën Llogaria në navigimin e Cilësimeve</string>
     <string name="debug_sync_code_title">Veçoritë e kodit të sinkronizimit</string>
     <string name="debug_sync_code_subtitle">Shfaq butonat Gjenero/Shkruaj kodin e sinkronizimit te cilësimet e Llogarisë</string>
-    <string name="debug_member_tier_title">Simulo nivelin e mbështetësit</string>
-    <string name="debug_member_tier_subtitle">Zgjidh nivelin e verifikuar të mbështetësit që kthehet në këtë build debug</string>
-    <string name="debug_member_tier_none">Asnjë</string>
-    <string name="debug_member_tier_one">Mbështetës</string>
-    <string name="debug_member_tier_two">Mbështetës+</string>
     <string name="debug_buffer_logs_title">Aktivizo regjistrat BUFFER</string>
     <string name="debug_buffer_logs_subtitle">Shkruaj periodikisht diagnostikime të buffer-it të luajtësit në logcat (çaktivizuar si parazgjedhje)</string>
     <string name="debug_error_dialog_title">Gabim riprodhimi</string>
@@ -1078,17 +1060,6 @@
     <string name="player_subtitle_delay">Vonesa e titrave</string>
     <string name="player_error_title">Gabim riprodhimi</string>
     <string name="player_error_choose_source">Zgjidh një burim tjetër</string>
-    <string name="player_report_issue">Raporto problem</string>
-    <string name="player_report_issue_sending">Duke dërguar raportin e riprodhimit...</string>
-    <string name="player_report_issue_sending_button">Duke dërguar...</string>
-    <string name="player_report_issue_sent">Raporti u dërgua: %1$s</string>
-    <string name="player_report_issue_sent_button">Raporti u dërgua</string>
-    <string name="player_report_issue_failed">Nuk mund të dërgohet raporti</string>
-    <string name="player_report_loading_issue">Raporto problem me ngarkimin</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">Ende duke u ngarkuar pas %1$d sekonde</item>
-        <item quantity="other">Ende duke u ngarkuar pas %1$d sekondash</item>
-    </plurals>
     <string name="player_speed_title">Shpejtësia e riprodhimit</string>
     <string name="player_error_no_stream_url">Ky burim nuk ka lidhje transmetimi. Zgjidh një burim tjetër.</string>
     <string name="stream_info_section_source">BURIMI</string>
@@ -1884,8 +1855,6 @@
     <string name="network_error_empty_response_body">Trup përgjigjeje bosh</string>
     <string name="network_error_unknown">Ndodhi një gabim i panjohur</string>
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: shtegu i skriptit nuk u gjet</string>
-    <string name="network_fast_error_token_missing">fast.com: tokeni nuk u gjet në paketë</string>
     <!-- Torrent service / TorrServer binary errors -->
     <!-- Player runtime: stream / external link errors -->
     <string name="player_stream_error_invalid_external_url">URL e jashtme e pavlefshme</string>

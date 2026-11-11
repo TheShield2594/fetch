@@ -27,13 +27,6 @@ enum class PlayerExitReason {
     SleepTimer
 }
 
-enum class PlaybackIssueReportStatus {
-    Idle,
-    Sending,
-    Sent,
-    Failed
-}
-
 sealed interface PostPlayMode {
     val nextEpisode: NextEpisodeInfo
 
@@ -112,12 +105,9 @@ data class PlayerUiState(
     val playbackSpeed: Float = 1f,
     val loadingOverlayEnabled: Boolean = true,
     val showPlayerLoadingStatus: Boolean = false,
-    val playbackIssueReportsEnabled: Boolean = false,
     val showLoadingOverlay: Boolean = true,
     val loadingMessage: String? = null,
     val loadingProgress: Float? = null,
-    val loadingIssueReportVisible: Boolean = false,
-    val loadingIssueElapsedMs: Long = 0L,
     val pauseOverlayEnabled: Boolean = true,
     val osdClockEnabled: Boolean = true,
     val transparentLetterbox: Boolean = false,
@@ -216,9 +206,6 @@ data class PlayerUiState(
     val showSwitchToMpvErrorAction: Boolean = false,
     /** The error is a mid-playback failure that recovery couldn't fix: Retry, Try next source, All sources. */
     val showErrorRecoveryActions: Boolean = false,
-    val playbackIssueReportStatus: PlaybackIssueReportStatus = PlaybackIssueReportStatus.Idle,
-    val playbackIssueReportId: String? = null,
-    val playbackIssueReportError: String? = null,
     val pendingSeekPosition: Long? = null, // For resuming from saved progress
     // Parental guide overlay
     val parentalWarnings: List<ParentalWarning> = emptyList(),
@@ -397,7 +384,6 @@ sealed class PlayerEvent {
     data object OnRetry : PlayerEvent()
     data object OnErrorTryNextSource : PlayerEvent()
     data object OnErrorShowAllSources : PlayerEvent()
-    data object OnReportPlaybackIssue : PlayerEvent()
     data object OnParentalGuideHide : PlayerEvent()
     data class OnShowDisplayModeInfo(val info: DisplayModeInfo) : PlayerEvent()
     data object OnHideDisplayModeInfo : PlayerEvent()

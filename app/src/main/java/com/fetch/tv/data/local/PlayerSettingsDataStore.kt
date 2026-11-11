@@ -1,7 +1,6 @@
 package com.fetch.tv.data.local
 
 import com.fetch.tv.core.player.DisplayCapabilities
-import com.fetch.tv.BuildConfig
 import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -285,7 +284,6 @@ data class PlayerSettings(
     val secondaryPreferredAudioLanguage: String? = null,
     val loadingOverlayEnabled: Boolean = true,
     val showPlayerLoadingStatus: Boolean = true,
-    val playbackIssueReportsEnabled: Boolean = false,
     val pauseOverlayEnabled: Boolean = true,
     val osdClockEnabled: Boolean = true,
     /** How far one press of Back / rewind goes, in seconds; keys and buttons share it (#407). */
@@ -341,7 +339,7 @@ data class PlayerSettings(
      * Best match: play the best stream found so far as soon as it reaches the preferred quality
      * (and is cached, when cached is preferred) instead of waiting for every addon.
      */
-    val streamAutoPlayStartEarly: Boolean = false,
+    val streamAutoPlayStartEarly: Boolean = true,
     /**
      * When a source won't open in the built-in player (after the other player has been tried),
      * play the next one in the ranking instead of stopping on the error.
@@ -646,7 +644,6 @@ class PlayerSettingsDataStore @Inject constructor(
     private val secondaryPreferredAudioLanguageKey = stringPreferencesKey("secondary_preferred_audio_language")
     private val loadingOverlayEnabledKey = booleanPreferencesKey("loading_overlay_enabled")
     private val showPlayerLoadingStatusKey = booleanPreferencesKey("show_player_loading_status")
-    private val playbackIssueReportsEnabledKey = booleanPreferencesKey("playback_issue_reports_enabled")
     private val pauseOverlayEnabledKey = booleanPreferencesKey("pause_overlay_enabled")
     private val osdClockEnabledKey = booleanPreferencesKey("osd_clock_enabled")
     private val seekBackSecondsKey = intPreferencesKey("seek_back_seconds")
@@ -1074,9 +1071,6 @@ class PlayerSettingsDataStore @Inject constructor(
                     ?.let(::normalizeSecondaryAudioLanguageCode),
                 loadingOverlayEnabled = prefs[loadingOverlayEnabledKey] ?: true,
                 showPlayerLoadingStatus = prefs[showPlayerLoadingStatusKey] ?: true,
-                // Reports only exist when a builder configures their own endpoint; nothing is sent by default.
-                playbackIssueReportsEnabled = BuildConfig.PLAYBACK_REPORTS_BASE_URL.isNotBlank() &&
-                    (prefs[playbackIssueReportsEnabledKey] ?: false),
                 pauseOverlayEnabled = prefs[pauseOverlayEnabledKey] ?: true,
                 osdClockEnabled = prefs[osdClockEnabledKey] ?: true,
                 seekBackSeconds = PlayerSettings.normalizeSeekSeconds(
@@ -1178,7 +1172,7 @@ class PlayerSettingsDataStore @Inject constructor(
                 streamReuseLastLinkEnabled = prefs[streamReuseLastLinkEnabledKey] ?: false,
                 bestMatchPreviewEnabled = prefs[bestMatchPreviewEnabledKey] ?: true,
                 readyCheckEnabled = prefs[readyCheckEnabledKey] ?: true,
-                streamAutoPlayStartEarly = prefs[streamAutoPlayStartEarlyKey] ?: false,
+                streamAutoPlayStartEarly = prefs[streamAutoPlayStartEarlyKey] ?: true,
                 streamAutoPlayNextSourceOnFailure = prefs[streamAutoPlayNextSourceOnFailureKey] ?: true,
                 streamReuseLastLinkCacheHours = (prefs[streamReuseLastLinkCacheHoursKey] ?: 24).coerceIn(1, 168),
                 externalPlayerForwardSubtitles = prefs[externalPlayerForwardSubtitlesKey] ?: false,
@@ -1480,12 +1474,6 @@ class PlayerSettingsDataStore @Inject constructor(
     suspend fun setShowPlayerLoadingStatus(enabled: Boolean) {
         store().edit { prefs ->
             prefs[showPlayerLoadingStatusKey] = enabled
-        }
-    }
-
-    suspend fun setPlaybackIssueReportsEnabled(enabled: Boolean) {
-        store().edit { prefs ->
-            prefs[playbackIssueReportsEnabledKey] = enabled
         }
     }
 

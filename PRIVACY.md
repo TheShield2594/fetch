@@ -57,23 +57,13 @@ A few features use a service Fetch picks for you. Each is listed here with what 
   self-built APKs) make no such requests.
 - **Simkl artwork** is loaded through the `wsrv.nl` image proxy when you are signed in to
   Simkl. The proxy sees the address of each Simkl image.
-- **The network speed test** in Settings contacts `fast.com` (Netflix) and
-  `cloudflare.com`, only when you start a test.
 
 Each of these services has its own privacy policy.
 
 ## Diagnostic reports
 
-Official builds send no reports. A build only has reporting if whoever built it set
-`PLAYBACK_REPORTS_BASE_URL` to an endpoint they run, and even then nothing is sent until you
-turn on **Playback issue reports** in Settings → Advanced. With it on:
-
-- **Playback issue reports** are sent only when you press a report button in the player.
-  They carry the title being played, the stream and player state, and device details.
-
-No report is stored on the device: one that can't be sent straight away is dropped, not kept
-to retry. Sign-in reports that older versions queued on the device are deleted when the app
-starts.
+Fetch sends no diagnostic or crash reports, and has no setting that would. Sign-in reports
+that older versions queued on the device are deleted when the app starts.
 
 ## Phone configuration
 

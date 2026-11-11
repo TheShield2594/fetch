@@ -320,19 +320,6 @@
     <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Дополнительно</string>
     <string name="settings_advanced_subtitle">Запуск диагностики скорости сети</string>
-    <string name="network_speed_test_run">Запустить тест скорости</string>
-    <string name="network_speed_test_running">Тест скорости выполняется</string>
-    <string name="network_speed_test_subtitle">Измерьте скорость скачивания и задержку</string>
-    <string name="network_testing_latency">Измерение задержки</string>
-    <string name="network_testing_download">Измерение скорости загрузки</string>
-    <string name="network_results_title">Результаты</string>
-    <string name="network_latency_label">Пинг</string>
-    <string name="network_download_label">Загрузка</string>
-    <string name="network_error_prefix">Ошибка: %1$s</string>
-    <string name="network_powered_by_fast">Работает на fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Не в сети</string>
     <string name="settings_debug">Отладка</string>
     <string name="settings_account_section_subtitle">Аккаунт и статус синхронизации</string>
 
@@ -679,11 +666,6 @@
     <string name="debug_account_tab_subtitle">Показывать вкладку Аккаунт в настройках навигации</string>
     <string name="debug_sync_code_title">Функции кода синхронизации</string>
     <string name="debug_sync_code_subtitle">Показывать кнопки генерации/ввода кода синхронизации в настройках аккаунта</string>
-    <string name="debug_member_tier_title">Имитация уровня спонсора</string>
-    <string name="debug_member_tier_subtitle">Выберите подтверждённый уровень спонсора, возвращаемый в этой отладочной сборке</string>
-    <string name="debug_member_tier_none">Нет</string>
-    <string name="debug_member_tier_one">Спонсор</string>
-    <string name="debug_member_tier_two">Спонсор+</string>
     <string name="debug_error_dialog_title">Ошибка воспроизведения</string>
     <string name="debug_error_dialog_subtitle">Произошла ошибка во время воспроизведения.\n\nОшибка: Тестовая симуляция ошибки - это не настоящий сбой. Источник вернул HTTP 503 (Сервис недоступен).</string>
     <string name="debug_dismiss">Закрыть</string>
@@ -841,19 +823,6 @@
     <string name="player_subtitle_delay">Задержка субтитров</string>
     <string name="player_error_title">Ошибка воспроизведения</string>
     <string name="player_error_choose_source">Выберите другой источник</string>
-    <string name="player_report_issue">Сообщить о проблеме</string>
-    <string name="player_report_issue_sending">Отправка отчёта о воспроизведении…</string>
-    <string name="player_report_issue_sending_button">Отправка…</string>
-    <string name="player_report_issue_sent">Отчёт отправлен: %1$s</string>
-    <string name="player_report_issue_sent_button">Отчёт отправлен</string>
-    <string name="player_report_issue_failed">Не удалось отправить отчёт</string>
-    <string name="player_report_loading_issue">Сообщить о проблеме загрузки</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">Всё ещё загружается спустя %1$d секунду</item>
-        <item quantity="few">Всё ещё загружается спустя %1$d секунды</item>
-        <item quantity="many">Всё ещё загружается спустя %1$d секунд</item>
-        <item quantity="other">Всё ещё загружается спустя %1$d секунд</item>
-    </plurals>
     <string name="player_speed_title">Скорость воспроизведения</string>
 
     <!-- StreamInfoOverlay -->
@@ -1479,7 +1448,6 @@
     <string name="experience_mode_confirm_advanced_subtitle">Откроет полный набор настроек, включая расширенную конфигурацию, каталоги, коллекции и элементы тонкой настройки.</string>
     <string name="advanced_section_performance">Производительность и навигация</string>
     <string name="advanced_section_diagnostics">Диагностика</string>
-    <string name="advanced_playback_issue_reports">Отчёты о проблемах воспроизведения</string>
     <string name="advanced_player_stats_hud">Оверлей статистики воспроизведения</string>
     <string name="advanced_player_stats_hud_subtitle">Показать в информации о потоке кнопку для переключения показателей ЦП, памяти, буфера, битрейта и температуры в реальном времени во время воспроизведения</string>
     <string name="advanced_section_cache">Кэш</string>
@@ -1503,6 +1471,7 @@
     <string name="sub_opacity">Прозрачность</string>
     <!-- Batch 4: playback parental/skip/AFR, video/audio DV7, cache duration -->
     <string name="playback_parental_guide">Предупреждения о контенте</string>
+    <string name="playback_parental_guide_sub">Показывать предупреждения о содержании при начале воспроизведения. Для их поиска IMDb ID каждого фильма отправляется на api.tiffara.com.</string>
     <string name="playback_auto_skip_segments">Автоматический пропуск</string>
     <string name="playback_auto_skip_segments_sub">Выберите, какие сегменты пропускать автоматически.</string>
     <string name="auto_skip_intro">Вступление / Опенинг</string>
@@ -2085,8 +2054,6 @@
     <string name="web_error_invalid_request_body">Неверное тело запроса</string>
     <string name="network_error_empty_response_body">Пустое тело ответа</string>
     <string name="network_error_unknown">Неизвестная ошибка сети</string>
-    <string name="network_fast_error_script_path_missing">Отсутствует путь скрипта fast.com</string>
-    <string name="network_fast_error_token_missing">Отсутствует токен fast.com</string>
     <string name="player_stream_error_invalid_external_url">Неверный внешний URL потока</string>
     <string name="player_stream_error_open_external_link_failed">Не удалось открыть внешнюю ссылку</string>
     <string name="player_stream_error_invalid_url">Неверный URL потока</string>

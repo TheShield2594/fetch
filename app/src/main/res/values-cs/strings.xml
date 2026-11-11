@@ -415,22 +415,8 @@
     <string name="experience_mode_confirm_advanced_title">Přepnout na Pokročilé?</string>
     <string name="experience_mode_confirm_essential_subtitle">Pokročilé plochy nastavení budou skryty, ale vaše uložená nastavení zůstanou nezměněna. Můžete se kdykoli přepnout zpět.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Toto odhalí úplnou plochu nastavení, včetně pokročilého nastavení, katalogů, kolekcí a ovládacích prvků ladění.</string>
-    <string name="network_speed_test_run">Spustit test rychlosti</string>
-    <string name="network_speed_test_running">Probíhá test rychlosti</string>
-    <string name="network_speed_test_subtitle">Změřit rychlost stahování a latenci</string>
-    <string name="network_testing_latency">Měření latence</string>
-    <string name="network_testing_download">Měření rychlosti stahování</string>
-    <string name="network_results_title">Výsledky</string>
-    <string name="network_latency_label">Latence</string>
-    <string name="network_download_label">Stahování</string>
-    <string name="network_error_prefix">Chyba: %1$s</string>
-    <string name="network_powered_by_fast">Běží na fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
     <string name="advanced_section_performance">Výkon a navigace</string>
     <string name="advanced_section_diagnostics">Diagnostika</string>
-    <string name="advanced_playback_issue_reports">Hlášení problémů s přehráváním</string>
     <string name="advanced_section_cache">Mezipaměť</string>
     <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">Rychlá horizontální navigace</string>
@@ -468,6 +454,7 @@
     <string name="playback_skip_intro">Přeskočit intro</string>
     <string name="playback_skip_intro_sub">Použít introdb.app k detekci intra a rekapitulací.</string>
     <string name="playback_parental_guide">Varování před obsahem</string>
+    <string name="playback_parental_guide_sub">Při spuštění přehrávání zobrazí upozornění na obsah. Pro jejich vyhledání odesílá IMDb ID každého titulu na api.tiffara.com.</string>
     <string name="playback_auto_skip_segments">Automatické přeskakování</string>
     <string name="playback_auto_skip_segments_sub">Vyberte, které segmenty se přeskakují automaticky.</string>
     <string name="auto_skip_intro">Intro / Zahájení</string>
@@ -1058,19 +1045,6 @@
     <string name="player_subtitle_delay">Zpoždění titulků</string>
     <string name="player_error_title">Chyba přehrávání</string>
     <string name="player_error_choose_source">Vyberte jiný zdroj</string>
-    <string name="player_report_issue">Nahlásit problém</string>
-    <string name="player_report_issue_sending">Odesílání hlášení o přehrávání...</string>
-    <string name="player_report_issue_sending_button">Odesílání...</string>
-    <string name="player_report_issue_sent">Hlášení odesláno: %1$s</string>
-    <string name="player_report_issue_sent_button">Hlášení odesláno</string>
-    <string name="player_report_issue_failed">Hlášení se nepodařilo odeslat</string>
-    <string name="player_report_loading_issue">Nahlásit problém s načítáním</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">Stále se načítá po %1$d sekundě</item>
-        <item quantity="few">Stále se načítá po %1$d sekundách</item>
-        <item quantity="many">Stále se načítá po %1$d sekundách</item>
-        <item quantity="other">Stále se načítá po %1$d sekundách</item>
-    </plurals>
     <string name="player_speed_title">Rychlost přehrávání</string>
     <string name="player_error_no_stream_url">Tento zdroj nemá odkaz na stream. Vyberte jiný zdroj.</string>
 
@@ -1867,8 +1841,6 @@
     <string name="network_error_unknown">Došlo k neznámé chybě</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: cesta ke skriptu nenalezena</string>
-    <string name="network_fast_error_token_missing">fast.com: token nenalezen v balíčku</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 

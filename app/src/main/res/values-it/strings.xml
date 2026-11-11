@@ -469,22 +469,8 @@
 <string name="experience_mode_confirm_advanced_title">Passare ad Avanzata?</string>
 <string name="experience_mode_confirm_essential_subtitle">Le opzioni di configurazione avanzata saranno nascoste, ma le impostazioni salvate non cambieranno. Puoi tornare indietro in qualsiasi momento.</string>
 <string name="experience_mode_confirm_advanced_subtitle">Verranno mostrate tutte le impostazioni, inclusi i controlli per configurazioni avanzate, cataloghi, collezioni e ottimizzazioni.</string>
-<string name="network_speed_test_run">Avvia test di velocità</string>
-<string name="network_speed_test_running">Test di velocità in corso</string>
-<string name="network_speed_test_subtitle">Misura velocità di download e latenza</string>
-<string name="network_testing_latency">Misurazione latenza</string>
-<string name="network_testing_download">Misurazione velocità di download</string>
-<string name="network_results_title">Risultati</string>
-<string name="network_latency_label">Latenza</string>
-<string name="network_download_label">Download</string>
-<string name="network_error_prefix">Errore: %1$s</string>
-<string name="network_powered_by_fast">Fornito da fast.com</string>
-<string name="network_connection_wifi">Wi‑Fi</string>
-<string name="network_connection_ethernet">Ethernet</string>
-<string name="network_connection_offline">Offline</string>
 <string name="advanced_section_performance">Prestazioni e navigazione</string>
 <string name="advanced_section_diagnostics">Diagnostica</string>
-<string name="advanced_playback_issue_reports">Resoconti dei problemi di riproduzione</string>
 <string name="advanced_player_stats_hud">Overlay statistiche di riproduzione</string>
 <string name="advanced_player_stats_hud_subtitle">Mostra un pulsante nelle info dello stream per attivare/disattivare le letture in tempo reale di CPU, memoria, buffer, bitrate e temperatura durante la riproduzione</string>
 <string name="advanced_section_cache">Cache</string>
@@ -530,6 +516,7 @@
 <string name="playback_skip_intro">Salta intro</string>
 <string name="playback_skip_intro_sub">Usa introdb.app per rilevare intro e riassunti.</string>
 <string name="playback_parental_guide">Avvisi sui contenuti</string>
+    <string name="playback_parental_guide_sub">Mostra gli avvisi sui contenuti all\'avvio della riproduzione. Invia l\'ID IMDb di ogni titolo ad api.tiffara.com per cercarli.</string>
 <string name="playback_auto_skip_segments">Salto automatico</string>
 <string name="playback_auto_skip_segments_sub">Scegli quali segmenti saltare automaticamente.</string>
 <string name="auto_skip_intro">Intro / Sigla iniziale</string>
@@ -977,11 +964,6 @@
 <string name="debug_account_tab_subtitle">Mostra la scheda Account nella navigazione Impostazioni</string>
 <string name="debug_sync_code_title">Funzionalità Codice di Sincronizzazione</string>
 <string name="debug_sync_code_subtitle">Mostra i pulsanti Genera/Inserisci Codice Sincronizzazione nelle impostazioni Account</string>
-<string name="debug_member_tier_title">Simula livello Supporter</string>
-<string name="debug_member_tier_subtitle">Scegli il livello supporter verificato restituito in questa build di debug</string>
-<string name="debug_member_tier_none">Nessuno</string>
-<string name="debug_member_tier_one">Supporter</string>
-<string name="debug_member_tier_two">Supporter+</string>
 <string name="debug_buffer_logs_title">Attiva log BUFFER</string>
 <string name="debug_buffer_logs_subtitle">Emetti diagnostica periodica del buffer del player su logcat (disattivato per impostazione predefinita)</string>
 <string name="debug_error_dialog_title">Errore di riproduzione</string>
@@ -1183,17 +1165,6 @@
 <string name="player_subtitle_delay">Ritardo sottotitoli</string>
 <string name="player_error_title">Errore di riproduzione</string>
 <string name="player_error_choose_source">Scegli un’altra sorgente</string>
-<string name="player_report_issue">Segnala problema</string>
-<string name="player_report_issue_sending">Invio del resoconto di riproduzione...</string>
-<string name="player_report_issue_sending_button">Invio...</string>
-<string name="player_report_issue_sent">Resoconto inviato: %1$s</string>
-<string name="player_report_issue_sent_button">Resoconto inviato</string>
-<string name="player_report_issue_failed">Impossibile inviare il resoconto</string>
-<string name="player_report_loading_issue">Segnala problema di caricamento</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">Ancora in caricamento da %1$d secondo</item>
-        <item quantity="other">Ancora in caricamento da %1$d secondi</item>
-    </plurals>
 <string name="player_speed_title">Velocità di riproduzione</string>
 <string name="player_error_no_stream_url">Questa sorgente non ha un link allo stream. Scegli un’altra sorgente.</string>
 
@@ -2082,8 +2053,6 @@
 <string name="network_error_unknown">Si è verificato un errore sconosciuto</string>
 
     <!-- Network settings: fast.com errors -->
-<string name="network_fast_error_script_path_missing">fast.com: percorso script non trovato</string>
-<string name="network_fast_error_token_missing">fast.com: token non trovato nel bundle</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 

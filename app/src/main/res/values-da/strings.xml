@@ -409,19 +409,6 @@
     <string name="experience_mode_confirm_advanced_title">Skift til avanceret?</string>
     <string name="experience_mode_confirm_essential_subtitle">Avancerede opsætningsflader skjules, men dine gemte indstillinger forbliver uændrede. Du kan skifte tilbage når som helst.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Dette viser den fulde indstillingsflade, herunder avanceret opsætning, katalog, samling og justeringskontrol.</string>
-    <string name="network_speed_test_run">Kør hastighedstest</string>
-    <string name="network_speed_test_running">Kører hastighedstest</string>
-    <string name="network_speed_test_subtitle">Mål downloadhastighed og latens</string>
-    <string name="network_testing_latency">Måler latens</string>
-    <string name="network_testing_download">Måler downloadhastighed</string>
-    <string name="network_results_title">Resultater</string>
-    <string name="network_latency_label">Latens</string>
-    <string name="network_download_label">Download</string>
-    <string name="network_error_prefix">Fejl: %1$s</string>
-    <string name="network_powered_by_fast">Drevet af fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
     <string name="advanced_section_performance">Ydeevne &amp; navigation</string>
     <string name="advanced_section_diagnostics">Diagnostik</string>
     <string name="advanced_section_cache">Cache</string>
@@ -461,6 +448,7 @@
     <string name="playback_skip_intro">Spring intro over</string>
     <string name="playback_skip_intro_sub">Brug introdb.app til at registrere intros og recaps.</string>
     <string name="playback_parental_guide">Indholdsadvarsler</string>
+    <string name="playback_parental_guide_sub">Vis indholdsadvarsler, når afspilningen starter. Sender hver titels IMDb-id til api.tiffara.com for at slå dem op.</string>
     <string name="playback_auto_skip_segments">Automatisk spring-over</string>
     <string name="playback_auto_skip_segments_sub">Vælg hvilke segmenter der springes over automatisk.</string>
     <string name="auto_skip_intro">Intro / Åbning</string>
@@ -1836,8 +1824,6 @@
     <string name="network_error_unknown">Ukendt fejl opstod</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: scriptsti ikke fundet</string>
-    <string name="network_fast_error_token_missing">fast.com: token ikke fundet i bundle</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 

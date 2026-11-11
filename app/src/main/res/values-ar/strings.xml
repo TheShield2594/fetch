@@ -417,19 +417,6 @@
     <string name="experience_mode_confirm_advanced_title">التبديل إلى الإعدادات المتقدمة؟</string>
     <string name="experience_mode_confirm_essential_subtitle">سيتم إخفاء واجهات الإعداد المتقدمة، لكن ستظل إعداداتك المحفوظة كما هي. يمكنك التبديل مرة أخرى في أي وقت.</string>
     <string name="experience_mode_confirm_advanced_subtitle">هذا سيكشف عن واجهة الإعدادات الكاملة، بما في ذلك الإعدادات المتقدمة، الفئات، المجموعات، وعناصر تحكم الضبط.</string>
-    <string name="network_speed_test_run">تشغيل اختبار السرعة</string>
-    <string name="network_speed_test_running">جاري اختبار السرعة</string>
-    <string name="network_speed_test_subtitle">قياس سرعة التنزيل وزمن الوصول</string>
-    <string name="network_testing_latency">جاري قياس زمن الوصول</string>
-    <string name="network_testing_download">جاري قياس سرعة التنزيل</string>
-    <string name="network_results_title">النتائج</string>
-    <string name="network_latency_label">زمن الوصول</string>
-    <string name="network_download_label">التنزيل</string>
-    <string name="network_error_prefix">خطأ: %1$s</string>
-    <string name="network_powered_by_fast">من fast.com</string>
-    <string name="network_connection_wifi">واي فاي</string>
-    <string name="network_connection_ethernet">إيثرنت</string>
-    <string name="network_connection_offline">غير متصل</string>
     <string name="advanced_section_performance">الأداء والتصفح</string>
     <string name="advanced_section_diagnostics">التشخيصات</string>
     <string name="advanced_section_cache">ذاكرة التخزين المؤقت</string>
@@ -469,6 +456,7 @@
     <string name="playback_skip_intro">تخطي المقدمة</string>
     <string name="playback_skip_intro_sub">استخدام introdb.app لرصد المقدمات والملخصات.</string>
     <string name="playback_parental_guide">تحذيرات المحتوى</string>
+    <string name="playback_parental_guide_sub">عرض تحذيرات المحتوى عند بدء التشغيل. يرسل معرّف IMDb لكل عنوان إلى api.tiffara.com للبحث عنها.</string>
     <string name="playback_auto_skip_segments">التخطي التلقائي</string>
     <string name="playback_auto_skip_segments_sub">إختر الأجزاء التي تريد تخطيها تلقائياً.</string>
     <string name="auto_skip_intro">المقدمة</string>
@@ -1846,8 +1834,6 @@
     <string name="network_error_unknown">حدث خطأ غير معروف في الشبكة</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: لم يتم العثور على مسار السكريبت</string>
-    <string name="network_fast_error_token_missing">fast.com: رمز التحقق (Token) مفقود في الحزمة</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 
@@ -1896,7 +1882,6 @@
     <string name="account_signin_email_title">تسجيل الدخول</string>
     <string name="action_back">رجوع</string>
     <string name="action_remove_anyway">إزالة على أي حال</string>
-    <string name="advanced_playback_issue_reports">تقارير مشاكل التشغيل</string>
     <string name="audio_enable_downmix_subtitle">يستخدم مسار الدمج (Downmix) في FFmpeg. يتطلب تفضيل مفككات التطبيق (FFmpeg). عند التعطيل، يتبع الصوت المسار السابق لنظام أندرويد/الجهاز.</string>
     <string name="audio_force_optical_passthrough">فرض تحويل AC-3 (بصري/SPDIF)</string>
     <string name="audio_force_optical_passthrough_sub">يحوّل الصيغ متعددة القنوات (TrueHD وDTS وAAC وغيرها) إلى دولبي ديجيتال 5.1 في الوقت الفعلي لاتصالات البصري/SPDIF.</string>
@@ -1920,11 +1905,6 @@
     <string name="collections_editor_tmdb_without_watch_providers">معرفات مزودي المشاهدة المستثناة</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">استثناء العناوين المتوفرة عبر أرقام مزودي المشاهدة هؤلاء في TMDB للمنطقة المحددة.</string>
     <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
-    <string name="debug_member_tier_none">لا شيء</string>
-    <string name="debug_member_tier_one">داعم</string>
-    <string name="debug_member_tier_subtitle">اختر مستوى الداعم الموثق المعاد في نسخة التصحيح هذه</string>
-    <string name="debug_member_tier_title">محاكاة مستوى الداعم</string>
-    <string name="debug_member_tier_two">داعم+</string>
     <string name="debug_progress_indicator_default">افتراضي</string>
     <string name="debug_progress_indicator_large">كبير</string>
     <string name="debug_progress_indicator_small">صغير</string>
@@ -2064,13 +2044,6 @@
     <string name="playback_section_buffer_network">المخزون المؤقت والشبكة</string>
     <string name="playback_section_buffer_network_desc">مقدار المحتوى المحتفظ به في الذاكرة وطريقة جلب البثوث.</string>
     <string name="player_error_play_stream_failed">تعذر تشغيل البث المحدد. يرجى اختيار مصدر آخر.</string>
-    <string name="player_report_issue">الإبلاغ عن مشكلة</string>
-    <string name="player_report_issue_failed">تعذر إرسال التقرير</string>
-    <string name="player_report_issue_sending">جارٍ إرسال تقرير التشغيل...</string>
-    <string name="player_report_issue_sending_button">جارٍ الإرسال...</string>
-    <string name="player_report_issue_sent">أُرسل التقرير: %1$s</string>
-    <string name="player_report_issue_sent_button">أُرسل التقرير</string>
-    <string name="player_report_loading_issue">الإبلاغ عن مشكلة تحميل</string>
     <string name="profile_background_custom">مخصص</string>
     <string name="profile_background_normal">عادي</string>
     <string name="profile_choose_background">اختر خلفية الملف الشخصي</string>

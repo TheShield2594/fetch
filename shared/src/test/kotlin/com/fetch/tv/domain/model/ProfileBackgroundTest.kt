@@ -5,33 +5,29 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class ProfileBackgroundTest {
-    private val backgroundAccess = CosmeticEntitlements(
-        setOf(CosmeticEntitlement.PROFILE_BACKGROUNDS)
-    )
-
     @Test
     fun profilesWithoutASelectionUseTheLegacyBackground() {
-        assertNull(resolveProfileBackgroundSelection(profile(id = 1), backgroundAccess))
-        assertNull(resolveProfileBackgroundSelection(profile(id = 2), backgroundAccess))
+        assertNull(resolveProfileBackgroundSelection(profile(id = 1)))
+        assertNull(resolveProfileBackgroundSelection(profile(id = 2)))
     }
 
     @Test
-    fun savedSelectionIsRenderedForMembers() {
+    fun savedSelectionIsRendered() {
         val profile = profile(id = 1, backgroundId = "graphite")
 
         assertEquals(
             ProfileBackgroundSelection.Catalog("graphite"),
-            resolveProfileBackgroundSelection(profile, backgroundAccess)
+            resolveProfileBackgroundSelection(profile)
         )
     }
 
     @Test
-    fun customBackgroundIsRenderedForMembers() {
+    fun customBackgroundIsRendered() {
         val profile = profile(id = 1, backgroundUrl = "https://example.com/background.jpg")
 
         assertEquals(
             ProfileBackgroundSelection.Custom("https://example.com/background.jpg"),
-            resolveProfileBackgroundSelection(profile, backgroundAccess)
+            resolveProfileBackgroundSelection(profile)
         )
     }
 
@@ -45,15 +41,13 @@ class ProfileBackgroundTest {
 
         assertEquals(
             ProfileBackgroundSelection.Custom("https://example.com/background.jpg"),
-            resolveProfileBackgroundSelection(profile, backgroundAccess)
+            resolveProfileBackgroundSelection(profile)
         )
     }
 
     @Test
-    fun unavailableEntitlementHidesSavedSelection() {
-        val profile = profile(id = 1, backgroundId = "jade")
-
-        assertNull(resolveProfileBackgroundSelection(profile, CosmeticEntitlements.None))
+    fun missingProfileHasNoBackground() {
+        assertNull(resolveProfileBackgroundSelection(null))
     }
 
     private fun profile(

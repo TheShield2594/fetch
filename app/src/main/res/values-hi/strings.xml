@@ -1237,4 +1237,5 @@
     <string name="screen_time_rest_of_day">आज बाकी दिन कोई सीमा नहीं</string>
     <string name="kids_hours">%1$d घंटे</string>
     <string name="kids_hours_minutes">%1$d घंटे %2$d मिनट</string>
+    <string name="playback_parental_guide_sub">प्लेबैक शुरू होने पर सामग्री चेतावनियाँ दिखाता है। उन्हें खोजने के लिए हर शीर्षक की IMDb ID api.tiffara.com को भेजता है।</string>
 </resources>

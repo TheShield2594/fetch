@@ -125,6 +125,10 @@ The Desktop workflow builds `.deb`, `.rpm`, Arch Linux (`.pkg.tar.zst`) and port
 - **DV7 → 8.1 conversion** links a prebuilt [libdovi](https://github.com/quietvoid/dovi_tool)
   when `DOVI_NATIVE_ENABLED=true`. The static archives are not committed; build or download
   them into `DV7/libdovi/<abi>/` and point `DOVI_LIBDOVI_PREBUILT_ROOT` at that folder.
+  **Release builds do not include it.** The release workflow does not set
+  `DOVI_NATIVE_ENABLED`, so the APKs on the Releases page play Dolby Vision Profile 7 as its
+  HDR10 base layer, including when Settings › Playback › Dolby Vision Handling is set to
+  Convert to DV8.1 (the setting says so). Only a build you make yourself with libdovi converts.
 
 ### Logo
 

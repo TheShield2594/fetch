@@ -29,8 +29,6 @@ import com.fetch.tv.data.local.StreamAutoPlayMode
 import com.fetch.tv.data.mediaserver.ServerPlayback
 import com.fetch.tv.data.mediaserver.ServerStreams
 import com.fetch.tv.data.repository.ParentalGuideRepository
-import com.fetch.tv.data.repository.PlaybackIssueErrorInput
-import com.fetch.tv.data.repository.PlaybackIssueReportRepository
 import com.fetch.tv.data.repository.SkipIntroRepository
 import com.fetch.tv.data.repository.SkipInterval
 import com.fetch.tv.data.repository.EpisodeMappingEntry
@@ -86,7 +84,6 @@ class PlayerRuntimeController(
     internal val tmdbSettingsDataStore: com.fetch.tv.data.local.TmdbSettingsDataStore,
     internal val youTubeStreamResolver: com.fetch.tv.core.streams.YouTubeStreamResolver,
     internal val streamBadgePresentation: com.fetch.tv.core.streams.StreamBadgePresentation,
-    internal val playbackIssueReportRepository: PlaybackIssueReportRepository,
     internal val tvRecommendationManager: com.fetch.tv.core.recommendations.TvRecommendationManager,
     internal val serverPlayback: ServerPlayback,
     internal val serverStreams: ServerStreams,
@@ -436,7 +433,6 @@ class PlayerRuntimeController(
     internal var nextEpisodeAutoPlayJob: Job? = null
     internal var streamResolveJob: Job? = null
     internal var stillWatchingPromptJob: Job? = null
-    internal var startupLoadingReportJob: Job? = null
     internal var sourceStreamsJob: Job? = null
     internal var sourceBadgeJob: Job? = null
     internal var sourceFilterFullList: List<com.fetch.tv.domain.model.Stream> = emptyList()
@@ -450,8 +446,6 @@ class PlayerRuntimeController(
     internal var initialPlaybackStarted: Boolean = false
     internal var lastPlaybackDiagnosticsForReport: LastPlaybackDiagnostics =
         LastPlaybackDiagnostics.EMPTY
-    internal var lastPlaybackIssueError: PlaybackIssueErrorInput? = null
-    internal val playbackIssueReportRequestVersion = AtomicLong(0L)
     internal val playbackAnalyticsDiagnostics = PlayerPlaybackAnalyticsDiagnostics()
     internal val loadingDiagnosticEvents: ArrayDeque<PlayerLoadingDiagnosticEvent> = ArrayDeque()
     internal val loadingDiagnosticRawEventLines: ArrayDeque<String> = ArrayDeque()
@@ -769,7 +763,6 @@ class PlayerRuntimeController(
         // Same teardown as an explicit exit (process-wide references, player and
         // session release). Every step is safe to repeat when the screen already called it.
         stopAndRelease()
-        startupLoadingReportJob?.cancel()
         vodTelemetryJob?.cancel()
         mediaSourceFactory.shutdown()
         sourceStreamsScope?.cancel()

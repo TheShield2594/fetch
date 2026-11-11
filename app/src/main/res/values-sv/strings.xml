@@ -862,19 +862,6 @@
     <!-- Missing: Network speed -->
     <string name="settings_advanced">Avancerat</string>
     <string name="settings_advanced_subtitle">Kör nätverkshastighetstester</string>
-    <string name="network_speed_test_run">Kör hastighetstest</string>
-    <string name="network_speed_test_running">Kör hastighetstest</string>
-    <string name="network_speed_test_subtitle">Mät nedladdningshastighet och latens</string>
-    <string name="network_testing_latency">Mäter latens</string>
-    <string name="network_testing_download">Mäter nedladdningshastighet</string>
-    <string name="network_results_title">Resultat</string>
-    <string name="network_latency_label">Latens</string>
-    <string name="network_download_label">Nedladdning</string>
-    <string name="network_error_prefix">Fel: %1$s</string>
-    <string name="network_powered_by_fast">Drivs av fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
 
     <!-- Missing: Profile PIN -->
     <string name="profile_pin_set">Ange PIN</string>
@@ -1745,4 +1732,5 @@
     <string name="screen_time_rest_of_day">Ingen gräns resten av dagen</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="playback_parental_guide_sub">Visa innehållsvarningar när uppspelningen startar. Skickar varje titels IMDb-id till api.tiffara.com för att slå upp dem.</string>
 </resources>

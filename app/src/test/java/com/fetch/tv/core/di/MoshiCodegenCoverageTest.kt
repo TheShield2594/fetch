@@ -9,7 +9,6 @@ import com.fetch.tv.data.remote.api.ImdbTapframeApi
 import com.fetch.tv.data.remote.api.IntroDbApi
 import com.fetch.tv.data.remote.api.MDBListApi
 import com.fetch.tv.data.remote.api.ParentalGuideApi
-import com.fetch.tv.data.remote.api.PlaybackIssueReportApi
 import com.fetch.tv.data.remote.api.SeriesGraphApi
 import com.fetch.tv.data.remote.api.TmdbApi
 import com.fetch.tv.data.remote.api.TraktApi
@@ -46,7 +45,6 @@ class MoshiCodegenCoverageTest {
         IntroDbApi::class.java,
         MDBListApi::class.java,
         ParentalGuideApi::class.java,
-        PlaybackIssueReportApi::class.java,
         SeriesGraphApi::class.java,
         TmdbApi::class.java,
         TraktApi::class.java,

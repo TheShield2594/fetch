@@ -72,10 +72,13 @@ this:
 
 ## Auth
 
-The website uses one shared `API_TOKEN` plus per-profile PIN tokens. That is
-fine for a browser on the LAN but not for a TV: a token typed or scanned into
-every device can't be revoked one device at a time. A TV signs in by **device
-pairing** instead (#91):
+People sign in to the website with their own account (username and password;
+the install is invite-only, see "Accounts and invites" in `web/README.md`), and
+each sign-in is a session the account can revoke (`web/apps/api/src/lib/sessions.ts`).
+The shared `API_TOKEN` in `.env` only creates the first (admin) account and stays
+as a recovery key against the API. Profiles can still have PIN tokens. A TV never
+types a password or the API token: it signs in by **device pairing** (#91), and
+each paired TV gets its own token that can be revoked on its own:
 
 1. Settings → Account → Sync → Fetch website on the TV (or the first-run Server
    step) opens on a **code from the pairing hub** at `watchfetch.tv`

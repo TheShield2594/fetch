@@ -354,6 +354,8 @@
     <string name="theme_color_white">White</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="best_match_cached">Cached</string>
+    <string name="best_match_decided_by_reused_link">Plays your last link</string>
+    <string name="best_match_decided_by_binge_group">Same release as last episode</string>
     <string name="prefer_next_time_title">Prefer this next time?</string>
     <string name="prefer_next_time_group">Group %1$s</string>
     <string name="prefer_next_time_language">%1$s audio</string>
@@ -629,23 +631,8 @@
     <string name="experience_mode_confirm_advanced_title">Show advanced settings?</string>
     <string name="experience_mode_confirm_essential_subtitle">Advanced setup surfaces will be hidden, but your saved settings stay unchanged. You can switch back anytime.</string>
     <string name="experience_mode_confirm_advanced_subtitle">This reveals the full settings surface, including advanced setup, catalog, collection, and tuning controls.</string>
-    <string name="network_speed_test_run">Run Speed Test</string>
-    <string name="network_speed_test_running">Running Speed Test</string>
-    <string name="network_speed_test_subtitle">Measure download speed and latency</string>
-    <string name="network_testing_latency">Measuring latency</string>
-    <string name="network_testing_download">Measuring download speed</string>
-    <string name="network_results_title">Results</string>
-    <string name="network_latency_label">Latency</string>
-    <string name="network_download_label">Download</string>
-    <string name="network_error_prefix">Error: %1$s</string>
-    <string name="network_powered_by_fast">Powered by fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
     <string name="advanced_section_performance">Performance &amp; navigation</string>
     <string name="advanced_section_diagnostics">Diagnostics</string>
-    <string name="advanced_playback_issue_reports">Playback issue reports</string>
-    <string name="advanced_playback_issue_reports_subtitle">Show report buttons during playback, long loading, and playback errors</string>
     <string name="advanced_player_stats_hud">Playback stats overlay</string>
     <string name="advanced_player_stats_hud_subtitle">Show a button in stream info to toggle live cpu, memory, buffer, bitrate and thermal readings during playback</string>
     <string name="advanced_section_cache">Cache</string>
@@ -815,6 +802,7 @@
     <string name="dv7_mode_hdr10_base_layer_desc">Ignore Dolby Vision enhancement data. Can help on devices that support HDR but struggle with DV Profile 7.</string>
     <string name="dv7_mode_dv81_libdovi">Convert to DV8.1</string>
     <string name="dv7_mode_dv81_libdovi_desc">Convert DV7 to single-layer DV8.1. Requires Dolby Vision display.</string>
+    <string name="dv7_mode_dv81_libdovi_unavailable_desc">Not included in this build: release builds ship without the libdovi converter, so Dolby Vision Profile 7 plays as its HDR10 base layer.</string>
     <string name="dv7_mode_off">Off (native)</string>
     <string name="dv7_mode_off_desc">Pass DV7 through unmodified. May glitch on hardware that does not support DV Profile 7.</string>
     <string name="dv7_mode_strip_dv">Always Strip DV</string>
@@ -1288,11 +1276,6 @@
     <string name="debug_account_tab_subtitle">Show the Account tab in Settings navigation</string>
     <string name="debug_sync_code_title">Sync Code Features</string>
     <string name="debug_sync_code_subtitle">Show Generate/Enter Sync Code buttons in Account settings</string>
-    <string name="debug_member_tier_title">Simulate Supporter Tier</string>
-    <string name="debug_member_tier_subtitle">Choose the verified supporter tier returned in this debug build</string>
-    <string name="debug_member_tier_none">None</string>
-    <string name="debug_member_tier_one">Supporter</string>
-    <string name="debug_member_tier_two">Supporter+</string>
     <string name="debug_buffer_logs_title">Enable BUFFER Logs</string>
     <string name="debug_buffer_logs_subtitle">Emit periodic player buffer diagnostics to logcat (disabled by default)</string>
     <string name="debug_error_dialog_title">Playback Error</string>
@@ -1663,17 +1646,6 @@
     <string name="player_error_all_sources">All sources</string>
     <string name="player_error_no_more_sources">No other source would play. Pick one from All sources.</string>
     <string name="player_switch_to_mpv">Switch to mpv player</string>
-    <string name="player_report_issue">Report issue</string>
-    <string name="player_report_issue_sending">Sending playback report…</string>
-    <string name="player_report_issue_sending_button">Sending…</string>
-    <string name="player_report_issue_sent">Report sent: %1$s</string>
-    <string name="player_report_issue_sent_button">Report sent</string>
-    <string name="player_report_issue_failed">Unable to send report</string>
-    <string name="player_report_loading_issue">Report loading issue</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">Still loading after %1$d second</item>
-        <item quantity="other">Still loading after %1$d seconds</item>
-    </plurals>
     <string name="player_speed_title">Playback Speed</string>
     <string name="player_error_no_stream_url">This source has no stream link. Choose another source.</string>
 
@@ -2718,8 +2690,6 @@
     <string name="network_error_unknown">Unknown error occurred</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: script path not found</string>
-    <string name="network_fast_error_token_missing">fast.com: token not found in bundle</string>
 
     <!-- Torrent service errors -->
     <string name="autoplay_mode_best">Best match</string>

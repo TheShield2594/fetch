@@ -48,8 +48,23 @@ data class BestMatchPreview(
      * stream ([sourceCount] 0) or the rules ruled every one out. Lets the UI say so instead of
      * looking as if nothing was searched. The other fields name no file then.
      */
-    val hasPick: Boolean = true
+    val hasPick: Boolean = true,
+    /**
+     * What decides the file Play starts. Anything but [BestMatchDecider.RANKING] means Best match
+     * is skipped, so [labels] is empty and the button says why instead of naming a file.
+     */
+    val decidedBy: BestMatchDecider = BestMatchDecider.RANKING
 )
+
+/** What chooses the stream Play starts when auto-play is set to Best match. */
+enum class BestMatchDecider {
+    /** Best match ranks every source, as previewed. */
+    RANKING,
+    /** "Reuse last link" replays the link saved for this video. */
+    REUSED_LINK,
+    /** The release group remembered from the last episode (binge group) is preferred. */
+    BINGE_GROUP
+}
 
 /** A file Best match ruled out: its picture ("4K DV P5") and the rule or device limit that did it. */
 @Immutable
@@ -81,7 +96,11 @@ class BestMatchPreviewer @Inject constructor(
      */
     suspend fun cached(type: String, videoId: String, contentId: String?): BestMatchPreview? {
         val settings = playerSettingsDataStore.playerSettings.first()
-        if (!picksByRanking(settings, type, videoId, contentId)) return null
+        when (decider(settings, type, videoId, contentId)) {
+            null -> return null
+            BestMatchDecider.RANKING -> Unit
+            else -> return otherDecider(settings, type, videoId, contentId)
+        }
         val entry = bestMatchCacheDataStore.entries.first()[BestMatchCacheDataStore.contentKey(type, videoId)]
             ?.takeIf { it.isFresh(System.currentTimeMillis()) }
             ?: return null
@@ -98,8 +117,9 @@ class BestMatchPreviewer @Inject constructor(
 
     /**
      * Emits the best pick so far as addons answer, ending with a final one. Emits nothing when
-     * the Stream screen would choose by something other than ranking (another auto-play mode, a
-     * reused link or a remembered binge group), since the preview could then name the wrong file.
+     * auto-play is not Best match or the preview is off. When a reused link or a remembered binge
+     * group will choose instead, emits one final preview naming that ([BestMatchPreview.decidedBy])
+     * and searches nothing, since a ranked pick could name the wrong file.
      * When the search ends without a pick, the last emission has [BestMatchPreview.hasPick] false.
      */
     fun preview(
@@ -110,7 +130,14 @@ class BestMatchPreviewer @Inject constructor(
         contentId: String?
     ): Flow<BestMatchPreview> = flow {
         val settings = playerSettingsDataStore.playerSettings.first()
-        if (!picksByRanking(settings, type, videoId, contentId)) return@flow
+        when (decider(settings, type, videoId, contentId)) {
+            null -> return@flow
+            BestMatchDecider.RANKING -> Unit
+            else -> {
+                otherDecider(settings, type, videoId, contentId)?.let { emit(it) }
+                return@flow
+            }
+        }
 
         val installedAddonOrder = if (serverStreams.isNativeRequest(videoId)) {
             emptyList()
@@ -192,27 +219,55 @@ class BestMatchPreviewer @Inject constructor(
         }
     }
 
-    /** True when Best match and its preview are on and nothing but ranking picks the file. */
-    private suspend fun picksByRanking(
+    /** The final preview for a video whose file is chosen by a reused link or a binge group. */
+    private suspend fun otherDecider(
         settings: PlayerSettings,
         type: String,
         videoId: String,
         contentId: String?
-    ): Boolean {
-        if (settings.streamAutoPlayMode != StreamAutoPlayMode.BEST_MATCH) return false
-        if (!settings.bestMatchPreviewEnabled) return false
+    ): BestMatchPreview? {
+        val decidedBy = decider(settings, type, videoId, contentId)
+            ?.takeIf { it != BestMatchDecider.RANKING }
+            ?: return null
+        return BestMatchPreview(
+            videoId = videoId,
+            labels = emptyList(),
+            isCached = false,
+            addonName = null,
+            sourceCount = 0,
+            isFinal = true,
+            decidedBy = decidedBy
+        )
+    }
+
+    /**
+     * What will choose the file when Best match and its preview are on, or null when either is
+     * off (nothing to preview then).
+     */
+    private suspend fun decider(
+        settings: PlayerSettings,
+        type: String,
+        videoId: String,
+        contentId: String?
+    ): BestMatchDecider? {
+        if (settings.streamAutoPlayMode != StreamAutoPlayMode.BEST_MATCH) return null
+        if (!settings.bestMatchPreviewEnabled) return null
         if (settings.streamReuseLastLinkEnabled &&
             streamLinkCacheDataStore.getValid(
                 contentKey = "${type.lowercase()}|$videoId",
                 maxAgeMs = settings.streamReuseLastLinkCacheHours * 60L * 60L * 1000L
             ) != null
         ) {
-            return false
+            return BestMatchDecider.REUSED_LINK
         }
-        return !(settings.streamAutoPlayPreferBingeGroupForNextEpisode &&
+        if (settings.streamAutoPlayPreferBingeGroupForNextEpisode &&
             settings.streamAutoPlayReuseBingeGroup &&
             contentId != null &&
-            bingeGroupCacheDataStore.get(contentId) != null)
+            bingeGroupCacheDataStore.get(contentId) != null
+        ) {
+            return BestMatchDecider.BINGE_GROUP
+        }
+        return BestMatchDecider.RANKING
     }
 }
 

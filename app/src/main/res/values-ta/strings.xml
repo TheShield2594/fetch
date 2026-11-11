@@ -402,19 +402,6 @@
     <string name="experience_mode_confirm_advanced_title">மேம்பட்ட நிலைக்கு மாறவா?</string>
     <string name="experience_mode_confirm_essential_subtitle">மேம்பட்ட அமைப்புகள் மறைக்கப்படும், ஆனால் சேமித்த அமைப்புகள் மாறாது. எப்போது வேண்டுமானாலும் திரும்பலாம்.</string>
     <string name="experience_mode_confirm_advanced_subtitle">இது முழு அமைப்புகளை திறக்கும்; மேம்பட்ட அமைப்பு, கேட்டலாக், தொகுப்பு மற்றும் நுணுக்க கட்டுப்பாடுகள் உட்பட.</string>
-    <string name="network_speed_test_run">வேகச் சோதனை தொடங்கு</string>
-    <string name="network_speed_test_running">வேகச் சோதனை நடைபெறுகிறது</string>
-    <string name="network_speed_test_subtitle">பதிவிறக்க வேகம் மற்றும் தாமதத்தை அளவிடு</string>
-    <string name="network_testing_latency">தாமதம் அளவிடப்படுகிறது</string>
-    <string name="network_testing_download">பதிவிறக்க வேகம் அளவிடப்படுகிறது</string>
-    <string name="network_results_title">முடிவுகள்</string>
-    <string name="network_latency_label">தாமதம்</string>
-    <string name="network_download_label">பதிவிறக்கம்</string>
-    <string name="network_error_prefix">பிழை: %1$s</string>
-    <string name="network_powered_by_fast">fast.com மூலம்</string>
-    <string name="network_connection_wifi">வை-ஃபை</string>
-    <string name="network_connection_ethernet">ஈதர்நெட்</string>
-    <string name="network_connection_offline">இணைப்பு இல்லை</string>
     <string name="advanced_section_performance">செயல்திறன் &amp; வழிசெலுத்தல்</string>
     <string name="advanced_section_diagnostics">கண்டறிதல்</string>
     <string name="advanced_section_cache">கேச்</string>
@@ -456,6 +443,7 @@
     <string name="playback_skip_intro">அறிமுகத்தை தாவு</string>
     <string name="playback_skip_intro_sub">introdb.app மூலம் அறிமுகம் மற்றும் மீள்பார்வையை கண்டறி.</string>
     <string name="playback_parental_guide">உள்ளடக்க எச்சரிக்கைகள்</string>
+    <string name="playback_parental_guide_sub">பிளேபேக் தொடங்கும்போது உள்ளடக்க எச்சரிக்கைகளைக் காட்டும். அவற்றைத் தேட ஒவ்வொரு தலைப்பின் IMDb ID-யையும் api.tiffara.com-க்கு அனுப்பும்.</string>
     <string name="playback_auto_skip_segments">தானியங்கி தாவல்</string>
     <string name="playback_auto_skip_segments_sub">எந்த பகுதிகள் தானாக தாவ வேண்டும் என்பதை தேர்வு செய்.</string>
     <string name="auto_skip_intro">அறிமுகம் / தொடக்கம்</string>
@@ -1769,8 +1757,6 @@
     <string name="network_error_unknown">அறியப்படாத பிழை ஏற்பட்டது</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">பாஸ்ட்.காம்: ஸ்கிரிப்ட் பாதை கிடைக்கவில்லை</string>
-    <string name="network_fast_error_token_missing">பாஸ்ட்.காம்: தொகுப்பில் டோக்கன் கிடைக்கவில்லை</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 

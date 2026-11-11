@@ -494,22 +494,8 @@
     <string name="experience_mode_confirm_advanced_title">切換至進階模式？</string>
     <string name="experience_mode_confirm_essential_subtitle">進階設定介面將被隱藏，但您的已儲存設定保持不變。您隨時可以切換回來。</string>
     <string name="experience_mode_confirm_advanced_subtitle">這將顯示完整的設定介面，包括進階設定、目錄、收藏和調校控制項。</string>
-    <string name="network_speed_test_run">執行速度測試</string>
-    <string name="network_speed_test_running">正在執行速度測試</string>
-    <string name="network_speed_test_subtitle">測量下載速度和延遲</string>
-    <string name="network_testing_latency">正在測量延遲</string>
-    <string name="network_testing_download">正在測量下載速度</string>
-    <string name="network_results_title">結果</string>
-    <string name="network_latency_label">延遲</string>
-    <string name="network_download_label">下載</string>
-    <string name="network_error_prefix">錯誤：%1$s</string>
-    <string name="network_powered_by_fast">由 fast.com 提供</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">有線網路</string>
-    <string name="network_connection_offline">離線</string>
     <string name="advanced_section_performance">效能與導航</string>
     <string name="advanced_section_diagnostics">診斷</string>
-    <string name="advanced_playback_issue_reports">播放問題報告</string>
     <string name="advanced_player_stats_hud">播放統計覆蓋層</string>
     <string name="advanced_player_stats_hud_subtitle">在串流資訊中顯示一個按鈕，用於在播放期間切換即時 CPU、記憶體、緩衝、位元率和溫度讀數</string>
     <string name="advanced_section_cache">快取</string>
@@ -555,6 +541,7 @@
     <string name="playback_skip_intro">跳過片頭</string>
     <string name="playback_skip_intro_sub">使用 introdb.app 偵測片頭和前情提要。</string>
     <string name="playback_parental_guide">內容警告</string>
+    <string name="playback_parental_guide_sub">開始播放時顯示內容警告。會將每部作品的 IMDb ID 傳送到 api.tiffara.com 以查詢警告。</string>
     <string name="playback_auto_skip_segments">自動跳過</string>
     <string name="playback_auto_skip_segments_sub">選擇要自動跳過的片段類型。</string>
     <string name="auto_skip_intro">片頭／開場</string>
@@ -1057,11 +1044,6 @@
     <string name="debug_account_tab_subtitle">在設定導航中顯示帳戶標籤</string>
     <string name="debug_sync_code_title">同步碼功能</string>
     <string name="debug_sync_code_subtitle">在帳戶設定中顯示「產生/輸入同步碼」按鈕</string>
-    <string name="debug_member_tier_title">模擬支持者等級</string>
-    <string name="debug_member_tier_subtitle">選擇此除錯版本中回傳的已驗證支持者等級</string>
-    <string name="debug_member_tier_none">無</string>
-    <string name="debug_member_tier_one">支持者</string>
-    <string name="debug_member_tier_two">支持者+</string>
     <string name="debug_buffer_logs_title">啟用 BUFFER 日誌</string>
     <string name="debug_buffer_logs_subtitle">將週期性播放器緩衝診斷輸出到 logcat (預設為停用)</string>
     <string name="debug_error_dialog_title">播放錯誤</string>
@@ -1264,17 +1246,6 @@
     <string name="player_error_title">播放錯誤</string>
     <string name="player_error_choose_source">選擇其他來源</string>
     <string name="player_switch_to_mpv">切換到 MPV 播放器</string>
-    <string name="player_report_issue">報告問題</string>
-    <string name="player_report_issue_sending">正在傳送播放報告...</string>
-    <string name="player_report_issue_sending_button">傳送中...</string>
-    <string name="player_report_issue_sent">報告已傳送：%1$s</string>
-    <string name="player_report_issue_sent_button">已傳送</string>
-    <string name="player_report_issue_failed">無法傳送報告</string>
-    <string name="player_report_loading_issue">報告載入問題</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">已載入 %1$d 秒</item>
-        <item quantity="other">已載入 %1$d 秒</item>
-    </plurals>
     <string name="player_speed_title">播放速度</string>
     <string name="player_error_no_stream_url">此來源沒有串流連結。請選擇其他來源。</string>
 
@@ -2167,8 +2138,6 @@
     <string name="network_error_unknown">發生未知錯誤</string>
 
     <!-- 網路設定：fast.com 錯誤 -->
-    <string name="network_fast_error_script_path_missing">fast.com：找不到腳本路徑</string>
-    <string name="network_fast_error_token_missing">fast.com：在 bundle 中找不到權杖</string>
 
     <!-- Torrent 服務 / TorrServer 二進位錯誤 -->
 

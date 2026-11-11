@@ -421,19 +421,6 @@
     <string name="experience_mode_confirm_advanced_title">Prepnúť na Pokročilú?</string>
     <string name="experience_mode_confirm_essential_subtitle">Pokročilé nastavenia budú skryté, ale uložené nastavenia zostanú nezmenené. Môžete sa kedykoľvek vrátiť.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Toto odhalí úplné nastavenia vrátane pokročilej konfigurácie, katalógu, kolekcií a ovládacích prvkov ladenia.</string>
-    <string name="network_speed_test_run">Spustiť test rýchlosti</string>
-    <string name="network_speed_test_running">Prebieha test rýchlosti</string>
-    <string name="network_speed_test_subtitle">Meranie rýchlosti sťahovania a latencie</string>
-    <string name="network_testing_latency">Meranie latencie</string>
-    <string name="network_testing_download">Meranie rýchlosti sťahovania</string>
-    <string name="network_results_title">Výsledky</string>
-    <string name="network_latency_label">Latencia</string>
-    <string name="network_download_label">Sťahovanie</string>
-    <string name="network_error_prefix">Chyba: %1$s</string>
-    <string name="network_powered_by_fast">Powered by fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
     <string name="advanced_section_performance">Výkon a navigácia</string>
     <string name="advanced_section_diagnostics">Diagnostika</string>
     <string name="advanced_section_cache">Cache</string>
@@ -475,6 +462,7 @@
     <string name="playback_skip_intro">Preskočiť intro</string>
     <string name="playback_skip_intro_sub">Použiť introdb.app na detekciu úvodov a rekapitulácií.</string>
     <string name="playback_parental_guide">Upozornenia na obsah</string>
+    <string name="playback_parental_guide_sub">Pri spustení prehrávania zobrazí upozornenia na obsah. Na ich vyhľadanie odosiela IMDb ID každého titulu na api.tiffara.com.</string>
     <string name="playback_auto_skip_segments">Automatické preskočenie</string>
     <string name="playback_auto_skip_segments_sub">Vyberte, ktoré segmenty sa preskočia automaticky.</string>
     <string name="auto_skip_intro">Intro / Úvod</string>
@@ -1814,8 +1802,6 @@
     <string name="network_error_unknown">Vyskytla sa neznáma chyba</string>
 
     
-    <string name="network_fast_error_script_path_missing">fast.com: cesta k skriptu sa nenašla</string>
-    <string name="network_fast_error_token_missing">fast.com: token sa nenašiel v balíku</string>
 
     
 
@@ -1857,7 +1843,6 @@
 <string name="settings_content_discovery_subtitle">Doplnky, katalógy a zdroje objavovania</string>
 <string name="settings_content_discovery_addons_subtitle">Spravovať doplnky, poradie katalógu a kolekcie</string>
 <string name="external_auto_next_loading">Načítavanie ďalšej epizódy…</string>
-<string name="advanced_playback_issue_reports">Hlásenia o problémoch s prehrávaním</string>
 <string name="advanced_section_dv_diagnostics">Diagnostika DV</string>
 <string name="playback_external_forward_subtitles">Posielaj titulky do externého prehrávača</string>
 <string name="playback_external_forward_subtitles_sub">Načítaj titulky v tvojom preferovanom jazyku z doplnkov a posielaj ich do externého prehrávača.</string>
@@ -1943,13 +1928,6 @@
 <string name="debug_buffer_logs_title">Povoliť záznamy BUFFER</string>
 <string name="debug_buffer_logs_subtitle">Odosielať pravidelnú diagnostiku vyrovnávacej pamäte prehrávača do logcatu (predvolene vypnuté)</string>
 <string name="external_player_loading_skip_segments">Načítavanie segmentov úvodu/záveru…</string>
-<string name="player_report_issue">Nahlásiť problém</string>
-<string name="player_report_issue_sending">Odosiela sa hlásenie o prehrávaní….</string>
-<string name="player_report_issue_sending_button">Odosiela sa….</string>
-<string name="player_report_issue_sent">Hlásenie odoslané: %1$s</string>
-<string name="player_report_issue_sent_button">Hlásenie odoslané</string>
-<string name="player_report_issue_failed">Nepodarilo sa odoslať hlásenie</string>
-<string name="player_report_loading_issue">Nahlásiť problém s načítaním</string>
 <string name="account_signin_email_title">Prihlásiť sa</string>
 <string name="update_error_check_failed">Kontrola aktualizácie zlyhala</string>
 <string name="update_error_download_failed">Sťahovanie zlyhalo</string>
@@ -2187,11 +2165,6 @@
     <string name="layout_episode_options_overlay_artwork_desc">Použiť celoobrazovkové rozloženie s obrázkom epizódy.</string>
     <string name="layout_episode_options_overlay_blur">Rozostrenie</string>
     <string name="layout_episode_options_overlay_blur_desc">Použiť celoobrazovkové rozloženie s rozostreným obrázkom epizódy.</string>
-    <string name="debug_member_tier_title">Simulovať úroveň podporovateľa</string>
-    <string name="debug_member_tier_subtitle">Vyberte overenú úroveň podporovateľa vrátenú v tomto vývojárskom zostavení (debug)</string>
-    <string name="debug_member_tier_none">Žiadna</string>
-    <string name="debug_member_tier_one">Podporovateľ</string>
-    <string name="debug_member_tier_two">Podporovateľ+</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
     <string name="profile_editor_tab_background">Pozadie</string>
     <string name="profile_choose_background">Vybrať pozadie profilu</string>

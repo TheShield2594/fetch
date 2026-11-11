@@ -406,19 +406,6 @@
     <string name="experience_mode_confirm_advanced_title">Превключи към Разширено?</string>
     <string name="experience_mode_confirm_essential_subtitle">Разширените повърхности ще бъдат скрити, но запазените настройки остават непроменени. Можеш да превключиш обратно по всяко време.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Това разкрива пълната повърхност на настройките, включително разширена настройка, каталози, колекции и контроли за фина настройка.</string>
-    <string name="network_speed_test_run">Стартирай тест на скоростта</string>
-    <string name="network_speed_test_running">Изпълнява се тест на скоростта</string>
-    <string name="network_speed_test_subtitle">Измерване на скорост на изтегляне и латентност</string>
-    <string name="network_testing_latency">Измерване на латентност</string>
-    <string name="network_testing_download">Измерване на скорост на изтегляне</string>
-    <string name="network_results_title">Резултати</string>
-    <string name="network_latency_label">Латентност</string>
-    <string name="network_download_label">Изтегляне</string>
-    <string name="network_error_prefix">Грешка: %1$s</string>
-    <string name="network_powered_by_fast">С подкрепата на fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Офлайн</string>
     <string name="advanced_section_performance">Производителност и навигация</string>
     <string name="advanced_section_diagnostics">Диагностика</string>
     <string name="advanced_section_cache">Кеш</string>
@@ -458,6 +445,7 @@
     <string name="playback_skip_intro">Пропусни интро</string>
     <string name="playback_skip_intro_sub">Използвай introdb.app за откриване на интро и резюмета.</string>
     <string name="playback_parental_guide">Предупреждения за съдържание</string>
+    <string name="playback_parental_guide_sub">Показва предупреждения за съдържанието при стартиране на възпроизвеждането. Изпраща IMDb ID на всяко заглавие до api.tiffara.com, за да ги намери.</string>
     <string name="playback_auto_skip_segments">Автоматично пропускане</string>
     <string name="playback_auto_skip_segments_sub">Избери кои сегменти да се пропускат автоматично.</string>
     <string name="auto_skip_intro">Интро / Отваряне</string>
@@ -1829,8 +1817,6 @@
     <string name="network_error_unknown">Възникна неизвестна грешка</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: script path не е намерен</string>
-    <string name="network_fast_error_token_missing">fast.com: token не е намерен в bundle</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 

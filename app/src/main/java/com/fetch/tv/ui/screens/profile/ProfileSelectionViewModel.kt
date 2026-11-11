@@ -16,8 +16,6 @@ import com.fetch.tv.data.local.WatchProgressPreferences
 import com.fetch.tv.data.local.WatchedItemsPreferences
 import com.fetch.tv.data.local.AvatarCatalogItem
 import com.fetch.tv.data.local.BundledAvatars
-import com.fetch.tv.data.repository.MemberAccessRepository
-import com.fetch.tv.domain.model.CosmeticEntitlement
 import com.fetch.tv.domain.model.UserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -30,7 +28,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.flowOf
@@ -54,7 +51,6 @@ class ProfileSelectionViewModel @Inject constructor(
     private val profileSyncService: ProfileSyncService,
     private val profileSettingsSyncService: ProfileSettingsSyncService,
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
-    memberAccessRepository: MemberAccessRepository,
     private val profilePinManager: ProfilePinManager,
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     private val themeDataStore: com.fetch.tv.data.local.ThemeDataStore,
@@ -71,11 +67,6 @@ class ProfileSelectionViewModel @Inject constructor(
 
     private val _avatarCatalog = MutableStateFlow<List<AvatarCatalogItem>>(emptyList())
     val avatarCatalog: StateFlow<List<AvatarCatalogItem>> = _avatarCatalog.asStateFlow()
-
-    val hasProfileBackgroundAccess: StateFlow<Boolean> = memberAccessRepository.access
-        .map { access -> access.entitlements.includes(CosmeticEntitlement.PROFILE_BACKGROUNDS) }
-        .distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     private val _isCreating = MutableStateFlow(false)
     val isCreating: StateFlow<Boolean> = _isCreating.asStateFlow()

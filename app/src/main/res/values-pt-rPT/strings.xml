@@ -395,19 +395,6 @@
     <string name="experience_mode_confirm_advanced_title">Mudar para Avançado?</string>
     <string name="experience_mode_confirm_essential_subtitle">As secções de configuração avançada serão ocultadas, mas as tuas definições guardadas permanecem inalteradas. Podes voltar a mudar a qualquer momento.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Isto revela a secção completa de definições, incluindo controlos avançados de configuração, catálogos, coleções e ajustes precisos.</string>
-    <string name="network_speed_test_run">Executar teste de velocidade</string>
-    <string name="network_speed_test_running">A executar teste de velocidade</string>
-    <string name="network_speed_test_subtitle">Mede a velocidade de transferência e a latência</string>
-    <string name="network_testing_latency">A medir a latência</string>
-    <string name="network_testing_download">A medir a velocidade de transferência</string>
-    <string name="network_results_title">Resultados</string>
-    <string name="network_latency_label">Latência</string>
-    <string name="network_download_label">Transferência</string>
-    <string name="network_error_prefix">Erro: %1$s</string>
-    <string name="network_powered_by_fast">Com dados de fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
     <string name="advanced_section_performance">Desempenho e navegação</string>
     <string name="advanced_section_diagnostics">Diagnósticos</string>
     <string name="advanced_section_cache">Cache</string>
@@ -444,6 +431,7 @@
     <string name="playback_skip_intro">Saltar introdução</string>
     <string name="playback_skip_intro_sub">Utilizar o introdb.app para detetar introduções e resumos.</string>
     <string name="playback_parental_guide">Avisos de conteúdo</string>
+    <string name="playback_parental_guide_sub">Mostra avisos de conteúdo quando a reprodução começa. Envia o ID do IMDb de cada título para api.tiffara.com para os procurar.</string>
     <string name="playback_auto_skip_segments">Salto automático</string>
     <string name="playback_auto_skip_segments_sub">Escolhe quais os segmentos que são saltados automaticamente.</string>
     <string name="auto_skip_intro">Introdução / Abertura</string>
@@ -1735,8 +1723,6 @@
     <string name="network_error_empty_response_body">Corpo da resposta vazio</string>
     <string name="network_error_unknown">Ocorreu um erro desconhecido</string>
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: caminho do script não encontrado</string>
-    <string name="network_fast_error_token_missing">fast.com: token não encontrado no pacote (bundle)</string>
     <!-- Torrent service / TorrServer binary errors -->
     <!-- Player runtime: stream / external link errors -->
     <string name="player_stream_error_invalid_external_url">URL externo inválido</string>

@@ -1583,7 +1583,8 @@ internal fun StreamCard(
                     // shown focused or not, so focus never adds a line from nothing.
                     if (description.isNotBlank() && description != streamName) {
                         Text(
-                            text = description,
+                            // A file name in the description wraps between its parts, not mid-token.
+                            text = remember(description) { wrappableReleaseName(description) },
                             modifier = Modifier.align(description.contentTextDirection().toAbsoluteAlignment()),
                             style = MaterialTheme.typography.bodySmall.copy(
                                 textDirection = description.contentTextDirection()

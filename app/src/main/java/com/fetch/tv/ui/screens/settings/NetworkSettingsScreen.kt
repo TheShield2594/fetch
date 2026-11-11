@@ -3,66 +3,39 @@
 
 package com.fetch.tv.ui.screens.settings
 
-import com.fetch.tv.BuildConfig
-import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.SignalWifiOff
 import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.content.getSystemService
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
@@ -71,14 +44,9 @@ import com.fetch.tv.data.local.Dv7HandlingMode
 import com.fetch.tv.data.local.InternalPlayerEngine
 import com.fetch.tv.domain.model.ExperienceMode
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
 
 @dagger.hilt.EntryPoint
 @dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
@@ -116,83 +84,6 @@ internal fun ConfirmExitToggleRow() {
     )
 }
 
-private enum class NetworkTestState { Idle, TestingLatency, TestingDownload, Done, Error }
-
-private enum class ConnectionType { WiFi, Ethernet, Offline }
-
-private fun getConnectionType(context: android.content.Context): ConnectionType {
-    val cm = context.getSystemService<ConnectivityManager>() ?: return ConnectionType.Offline
-    val network = cm.activeNetwork ?: return ConnectionType.Offline
-    val caps = cm.getNetworkCapabilities(network) ?: return ConnectionType.Offline
-    return when {
-        caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> ConnectionType.Ethernet
-        caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> ConnectionType.WiFi
-        caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> ConnectionType.WiFi // treat cellular as connected
-        else -> ConnectionType.Offline
-    }
-}
-
-@Composable
-private fun ConnectionStatusBadge(type: ConnectionType) {
-    val (icon, label, color) = when (type) {
-        ConnectionType.WiFi -> Triple(Icons.Default.Wifi, stringResource(R.string.network_connection_wifi), FetchTheme.colors.Success)
-        ConnectionType.Ethernet -> Triple(Icons.Default.Wifi, stringResource(R.string.network_connection_ethernet), FetchTheme.colors.Success)
-        ConnectionType.Offline -> Triple(Icons.Default.SignalWifiOff, stringResource(R.string.network_connection_offline), FetchTheme.colors.Error)
-    }
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(FetchTheme.radii.full))
-            .background(color.copy(alpha = 0.12f))
-            .padding(horizontal = FetchTheme.spacing.md, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(FetchTheme.spacing.lg),
-            tint = color
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-            color = color
-        )
-    }
-}
-
-private suspend fun fetchFastComUrls(context: android.content.Context): List<String> = withContext(Dispatchers.IO) {
-    // 1. Load fast.com page to find the app JS bundle URL
-    val html = (URL("https://fast.com").openConnection() as HttpURLConnection).run {
-        connectTimeout = 10_000
-        readTimeout = 15_000
-        setRequestProperty("User-Agent", "Mozilla/5.0")
-        inputStream.bufferedReader().use { it.readText() }.also { disconnect() }
-    }
-    val scriptPath = Regex("""<script src="(/app[^"]+\.js)"""").find(html)?.groupValues?.get(1)
-        ?: throw Exception(context.getString(com.fetch.tv.R.string.network_fast_error_script_path_missing))
-
-    // 2. Extract the API token from the JS bundle
-    val js = (URL("https://fast.com$scriptPath").openConnection() as HttpURLConnection).run {
-        connectTimeout = 10_000
-        readTimeout = 30_000
-        setRequestProperty("User-Agent", "Mozilla/5.0")
-        inputStream.bufferedReader().use { it.readText() }.also { disconnect() }
-    }
-    val token = Regex("""token:"([^"]+)"""").find(js)?.groupValues?.get(1)
-        ?: throw Exception(context.getString(com.fetch.tv.R.string.network_fast_error_token_missing))
-
-    // 3. Fetch CDN URLs from the speed-test API
-    val apiJson = (URL("https://api.fast.com/netflix/speedtest/v2?https=true&token=$token&urlCount=15")
-        .openConnection() as HttpURLConnection).run {
-        connectTimeout = 5_000
-        readTimeout = 10_000
-        setRequestProperty("User-Agent", "Mozilla/5.0")
-        inputStream.bufferedReader().use { it.readText() }.also { disconnect() }
-    }
-    val targets = JSONObject(apiJson).getJSONArray("targets")
-    (0 until targets.length()).map { targets.getJSONObject(it).getString("url") }
-}
 
 @Composable
 fun AdvancedSettingsContent(
@@ -202,11 +93,6 @@ fun AdvancedSettingsContent(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    var connectionType by remember { mutableStateOf(getConnectionType(context)) }
-    var testState by remember { mutableStateOf(NetworkTestState.Idle) }
-    var latencyMs by remember { mutableStateOf<Long?>(null) }
-    var downloadMbps by remember { mutableStateOf<Double?>(null) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val scope = rememberCoroutineScope()
     val unknownError = stringResource(R.string.error_unknown)
@@ -338,79 +224,6 @@ fun AdvancedSettingsContent(
         }
     }
 
-    fun runSpeedTest() {
-        scope.launch {
-            connectionType = getConnectionType(context)
-            testState = NetworkTestState.TestingLatency
-            latencyMs = null
-            downloadMbps = null
-            errorMessage = null
-
-            try {
-                // ── Latency: average 3 round-trips to Cloudflare ─────────────
-                var totalMs = 0L
-                withContext(Dispatchers.IO) {
-                    repeat(3) {
-                        val conn = URL("https://cloudflare.com/cdn-cgi/trace")
-                            .openConnection() as HttpURLConnection
-                        conn.requestMethod = "GET"
-                        conn.connectTimeout = 5_000
-                        conn.readTimeout = 5_000
-                        val t0 = System.currentTimeMillis()
-                        conn.connect()
-                        conn.inputStream.use { it.read() }
-                        totalMs += System.currentTimeMillis() - t0
-                        conn.disconnect()
-                    }
-                }
-                latencyMs = totalMs / 3
-
-                // ── Download: parallel streams from fast.com for 10 s ────────
-                testState = NetworkTestState.TestingDownload
-                val (totalBytes, elapsed) = withContext(Dispatchers.IO) {
-                    val urls = fetchFastComUrls(context)
-                    val deadline = System.currentTimeMillis() + 10_000L
-                    val startTime = System.currentTimeMillis()
-
-                    // Open 4 connections per URL → 60 parallel streams total
-                    val streams = urls.flatMap { url -> List(4) { url } }
-                    coroutineScope {
-                        val jobs = streams.map { url ->
-                            async {
-                                var bytes = 0L
-                                val buf = ByteArray(65536)
-                                try {
-                                    val conn = URL(url).openConnection() as HttpURLConnection
-                                    conn.connectTimeout = 5_000
-                                    conn.readTimeout = 15_000
-                                    conn.connect()
-                                    conn.inputStream.use { stream ->
-                                        var read: Int = 0
-                                        while (System.currentTimeMillis() < deadline &&
-                                            stream.read(buf).also { read = it } != -1
-                                        ) {
-                                            bytes += read
-                                        }
-                                    }
-                                    conn.disconnect()
-                                } catch (_: Exception) {}
-                                bytes
-                            }
-                        }
-                        val total = jobs.awaitAll().sum()
-                        Pair(total, System.currentTimeMillis() - startTime)
-                    }
-                }
-                downloadMbps = if (elapsed > 0) (totalBytes * 8.0) / (elapsed * 1000.0) else 0.0
-                testState = NetworkTestState.Done
-
-            } catch (e: Exception) {
-                errorMessage = e.localizedMessage ?: unknownError
-                testState = NetworkTestState.Error
-            }
-        }
-    }
-
     val networkListState = rememberLazyListState()
     SettingsRowTargetScroller(networkListState)
     var showExperienceModeConfirmation by remember { mutableStateOf(false) }
@@ -432,13 +245,6 @@ fun AdvancedSettingsContent(
                     title = stringResource(R.string.settings_advanced),
                     subtitle = stringResource(R.string.settings_advanced_subtitle)
                 )
-                AnimatedVisibility(
-                    visible = testState != NetworkTestState.Idle,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    ConnectionStatusBadge(type = connectionType)
-                }
             }
         }
 
@@ -574,23 +380,11 @@ fun AdvancedSettingsContent(
             }
         }
 
-        item(key = "playback_issue_reports") {
+        item(key = "diagnostics") {
             SettingsGroupCard(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.advanced_section_diagnostics)
             ) {
-                if (BuildConfig.PLAYBACK_REPORTS_BASE_URL.isNotBlank()) SettingsToggleRow(
-                    title = stringResource(R.string.advanced_playback_issue_reports),
-                    subtitle = stringResource(R.string.advanced_playback_issue_reports_subtitle),
-                    checked = uiState.playbackIssueReportsEnabled,
-                    onToggle = {
-                        viewModel.onEvent(
-                            AdvancedSettingsEvent.SetPlaybackIssueReportsEnabled(
-                                !uiState.playbackIssueReportsEnabled
-                            )
-                        )
-                    }
-                )
                 SettingsToggleRow(
                     title = stringResource(R.string.advanced_player_stats_hud),
                     subtitle = stringResource(R.string.advanced_player_stats_hud_subtitle),
@@ -611,22 +405,6 @@ fun AdvancedSettingsContent(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.advanced_section_network_tests)
             ) {
-                val isRunning = testState == NetworkTestState.TestingLatency ||
-                        testState == NetworkTestState.TestingDownload
-                SettingsActionRow(
-                    title = stringResource(
-                        if (isRunning) R.string.network_speed_test_running
-                        else R.string.network_speed_test_run
-                    ),
-                    subtitle = stringResource(R.string.network_speed_test_subtitle),
-                    value = if (isRunning) stringResource(
-                        when (testState) {
-                            NetworkTestState.TestingLatency -> R.string.network_testing_latency
-                            else -> R.string.network_testing_download
-                        }
-                    ) else null,
-                    onClick = { if (!isRunning) runSpeedTest() }
-                )
                 val isStreamRunning = streamTestState != "Idle" && streamTestState != "Done" && streamTestState != "Error"
                 val hasStream = !lastStreamUrl.isNullOrBlank()
                 SettingsActionRow(
@@ -652,57 +430,6 @@ fun AdvancedSettingsContent(
                     enabled = hasStream && !isStreamRunning,
                     onClick = { if (hasStream && !isStreamRunning) runStreamDiagnostics() }
                 )
-            }
-        }
-
-        if (testState != NetworkTestState.Idle) {
-            item(key = "speed_results") {
-                SettingsGroupCard(modifier = Modifier.fillMaxWidth()) {
-                    Column(
-                        modifier = Modifier.padding(FetchTheme.spacing.xs),
-                        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.network_results_title),
-                            style = MaterialTheme.typography.titleSmall,
-                            color = FetchTheme.colors.TextSecondary
-                        )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)
-                        ) {
-                            NetworkMetricCard(
-                                modifier = Modifier.weight(1f),
-                                icon = Icons.Default.Timer,
-                                label = stringResource(R.string.network_latency_label),
-                                value = latencyMs?.let { "$it ms" },
-                                loading = testState == NetworkTestState.TestingLatency
-                            )
-                            NetworkMetricCard(
-                                modifier = Modifier.weight(1f),
-                                icon = Icons.Default.Speed,
-                                label = stringResource(R.string.network_download_label),
-                                value = downloadMbps?.let { "%.1f Mbps".format(it) },
-                                loading = testState == NetworkTestState.TestingDownload
-                            )
-                        }
-
-                        if (testState == NetworkTestState.Error && errorMessage != null) {
-                            Text(
-                                text = stringResource(R.string.network_error_prefix, errorMessage!!),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = FetchTheme.colors.Error
-                            )
-                        }
-
-                        Text(
-                            text = stringResource(R.string.network_powered_by_fast),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = FetchTheme.colors.TextSecondary.copy(alpha = 0.45f)
-                        )
-                    }
-                }
             }
         }
 
@@ -900,75 +627,6 @@ fun AdvancedSettingsContent(
         )
     }
 
-}
-
-@Composable
-private fun NetworkMetricCard(
-    modifier: Modifier = Modifier,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    value: String?,
-    loading: Boolean
-) {
-    Column(
-        modifier = modifier.padding(FetchTheme.spacing.sm),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-    ) {
-        if (loading) {
-            SpinningRefreshIcon()
-        } else {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(28.dp),
-                tint = FetchTheme.colors.Primary
-            )
-        }
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = FetchTheme.colors.TextSecondary
-        )
-        Text(
-            text = when {
-                loading -> "..."
-                value != null -> value
-                else -> "–"
-            },
-            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-            color = if (value != null && !loading) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextTertiary
-        )
-    }
-}
-
-/**
- * The refresh glyph turning once per second while a test runs. The clock lives only as long as
- * this composable and is read in the layer, so only the icon redraws; reduced motion holds it still.
- */
-@Composable
-private fun SpinningRefreshIcon() {
-    val rotation = if (FetchTheme.fullMotion) {
-        rememberInfiniteTransition(label = "spin").animateFloat(
-            initialValue = 0f,
-            targetValue = 360f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(FetchMotion.tokens.durations.spinner, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
-            ),
-            label = "rotation"
-        )
-    } else {
-        null
-    }
-    Icon(
-        imageVector = Icons.Default.Refresh,
-        contentDescription = null,
-        modifier = Modifier
-            .size(28.dp)
-            .graphicsLayer { rotationZ = rotation?.value ?: 0f },
-        tint = FetchTheme.colors.Secondary
-    )
 }
 
 @Composable

@@ -18,8 +18,8 @@ internal const val READY_CHECK_INTERVAL_MS = 12L * 60L * 60L * 1000L
 /** How long Continue Watching must stay unchanged before a background check starts. */
 internal const val READY_CHECK_SETTLE_MS = 5_000L
 
-/** "Ready tonight" shows only with at least this many titles. */
-internal const val READY_TONIGHT_MIN_ITEMS = 2
+/** "Ready tonight" shows once this many titles are ready: one is already worth starting from. */
+internal const val READY_TONIGHT_MIN_ITEMS = 1
 
 /** How many watchlist movies, newest first, Home considers for Ready tonight. */
 internal const val READY_WATCHLIST_MAX_MOVIES = 20

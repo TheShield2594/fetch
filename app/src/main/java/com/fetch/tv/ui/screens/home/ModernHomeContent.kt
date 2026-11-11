@@ -725,7 +725,7 @@ fun ModernHomeContent(
 
     Box(modifier = Modifier.fillMaxSize().background(FetchTheme.colors.Background)) {
             val posterCardCornerRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp)
-            val rowHorizontalPadding = 52.dp
+            val rowHorizontalPadding = FetchTheme.spacing.screen.horizontal
 
             val activeCarouselItemState = remember(carouselRows, rowByKey) {
                 derivedStateOf {

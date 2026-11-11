@@ -269,19 +269,6 @@
     <string name="settings_playback">Playback</string>
     <string name="settings_advanced">Napredno</string>
     <string name="settings_advanced_subtitle">Pokreni dijagnostiku brzine mreže</string>
-    <string name="network_speed_test_run">Pokreni Test Brzine</string>
-    <string name="network_speed_test_running">Testiranje brzine u toku</string>
-    <string name="network_speed_test_subtitle">Izmjeri brzinu preuzimanja i latenciju</string>
-    <string name="network_testing_latency">Mjerenje latencije</string>
-    <string name="network_testing_download">Mjerenje brzine preuzimanja</string>
-    <string name="network_results_title">Rezultati</string>
-    <string name="network_latency_label">Latencija</string>
-    <string name="network_download_label">Preuzimanje</string>
-    <string name="network_error_prefix">Greška: %1$s</string>
-    <string name="network_powered_by_fast">Omogućava fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">LAN kabel (Ethernet)</string>
-    <string name="network_connection_offline">Van mreže</string>
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Račun i status sinhronizacije</string>
 
@@ -1634,4 +1621,5 @@
     <string name="screen_time_rest_of_day">Bez ograničenja do kraja dana</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="playback_parental_guide_sub">Prikazuje upozorenja o sadržaju kada reprodukcija počne. Šalje IMDb ID svakog naslova na api.tiffara.com radi pretrage.</string>
 </resources>

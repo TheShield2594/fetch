@@ -389,19 +389,6 @@
     <string name="experience_mode_confirm_advanced_title">Preklopim na Napredno?</string>
     <string name="experience_mode_confirm_essential_subtitle">Napredne nastavitve bodo skrite, vendar vaše shranjene nastavitve ostanejo nespremenjene. Kadarkoli lahko preklopite nazaj.</string>
     <string name="experience_mode_confirm_advanced_subtitle">S tem se prikažejo vse nastavitve, vključno z naprednimi nastavitvami, katalogom, zbirkami in kontrolniki za prilagajanje.</string>
-    <string name="network_speed_test_run">Zaženi preizkus hitrosti</string>
-    <string name="network_speed_test_running">Izvajanje preizkusa hitrosti</string>
-    <string name="network_speed_test_subtitle">Izmerite hitrost prenosa in zakasnitev</string>
-    <string name="network_testing_latency">Merjenje zakasnitve</string>
-    <string name="network_testing_download">Merjenje hitrosti prenosa</string>
-    <string name="network_results_title">Rezultati</string>
-    <string name="network_latency_label">Zakasnitev</string>
-    <string name="network_download_label">Prenos</string>
-    <string name="network_error_prefix">Napaka: %1$s</string>
-    <string name="network_powered_by_fast">Poganja fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Brez povezave</string>
     <string name="advanced_section_performance">Zmogljivost in navigacija</string>
     <string name="advanced_section_diagnostics">Diagnostika</string>
     <string name="advanced_section_cache">Predpomnilnik</string>
@@ -1691,8 +1678,6 @@
     <string name="network_error_unknown">Prišlo je do neznane napake</string>
 
     <!-- Network settings: fast.com errors -->    
-    <string name="network_fast_error_script_path_missing">fast.com: pot skripta ni najdena</string>
-    <string name="network_fast_error_token_missing">fast.com: žeton ni najden v paketu</string>
 
     <!-- Torrent service / TorrServer binary errors -->    
          
@@ -2206,4 +2191,5 @@
     <string name="screen_time_rest_of_day">Brez omejitve do konca dneva</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="playback_parental_guide_sub">Ob začetku predvajanja prikaže opozorila o vsebini. Za iskanje pošlje IMDb ID vsakega naslova na api.tiffara.com.</string>
 </resources>

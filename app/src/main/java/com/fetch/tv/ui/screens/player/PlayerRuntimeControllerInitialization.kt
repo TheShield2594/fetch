@@ -79,7 +79,6 @@ import com.fetch.tv.data.local.FrameRateMatchingMode
 import com.fetch.tv.data.local.SUBTITLE_LANGUAGE_FORCED
 import com.fetch.tv.data.local.InternalPlayerEngine
 import com.fetch.tv.data.local.PlayerSettings
-import com.fetch.tv.data.repository.PlaybackIssueErrorInput
 import com.fetch.tv.domain.model.Subtitle
 import io.github.peerless2012.ass.media.kt.buildWithAssSupport
 import io.github.peerless2012.ass.media.type.AssRenderType
@@ -181,16 +180,7 @@ internal fun PlayerRuntimeController.initializePlayer(
             autoSubtitleSelected = false
             hasScannedTextTracksOnce = false
             lastPlaybackDiagnosticsForReport = LastPlaybackDiagnostics.EMPTY
-            lastPlaybackIssueError = null
-            playbackIssueReportRequestVersion.incrementAndGet()
             playbackAnalyticsDiagnostics.reset()
-            _uiState.update {
-                it.copy(
-                    playbackIssueReportStatus = PlaybackIssueReportStatus.Idle,
-                    playbackIssueReportId = null,
-                    playbackIssueReportError = null
-                )
-            }
             resetLoadingOverlayForNewStream()
             if (startPaused) {
                 userPausedManually = true
@@ -260,7 +250,6 @@ internal fun PlayerRuntimeController.initializePlayer(
                     resizeMode = playerSettings.resizeMode,
                     aspectMode = deviceAspectMode,
                     tunneledSurfaceFill = tunneledSurfaceFill,
-                    playbackIssueReportsEnabled = playerSettings.playbackIssueReportsEnabled,
                     tunnelingEnabled = playerSettings.effectiveTunnelingEnabled &&
                             effectiveInternalPlayerEngine != InternalPlayerEngine.MVP_PLAYER
                 )
@@ -403,8 +392,10 @@ internal fun PlayerRuntimeController.initializePlayer(
             isExperimentalDv7ToDv81ActiveForCurrentPlayback =
                 dv7ToDv81SettingActive && dv7ToDv81Probe.supported && !dv7ConversionDisarmedForUrl
             // AUTO fallback: if AUTO chose DV81 but the probe failed for this stream,
-            // downgrade to HDR10_BASE_LAYER so the user still gets a picture.
-            if (playerSettings.dv7HandlingMode == Dv7HandlingMode.AUTO &&
+            // downgrade to HDR10_BASE_LAYER so the user still gets a picture. A build without
+            // libdovi (every release build today) does the same for an explicit Convert to
+            // DV8.1, which is what the setting tells the user it will do.
+            if ((playerSettings.dv7HandlingMode == Dv7HandlingMode.AUTO || !DoviBridge.isNativeEnabledInBuild) &&
                 effectiveDv7Mode == Dv7HandlingMode.DV81_LIBDOVI &&
                 !dv7ToDv81Probe.supported
             ) {
@@ -1466,8 +1457,6 @@ internal fun PlayerRuntimeController.initializePlayer(
                                 showLoadingOverlay = false,
                                 loadingMessage = null,
                                 loadingProgress = if (it.loadingProgress != null) 1f else null,
-                                loadingIssueReportVisible = false,
-                                loadingIssueElapsedMs = 0L,
                                 showPlayerEngineSwitchInfo = false
                             )
                         }
@@ -1673,15 +1662,6 @@ internal fun PlayerRuntimeController.initializePlayer(
                             result = "Error: $detailedError"
                         )
                         lastPlaybackDiagnosticsForReport = errorDiagnostics
-                        lastPlaybackIssueError = PlaybackIssueErrorInput(
-                            displayMessage = detailedError,
-                            errorCode = error.errorCode,
-                            errorCodeName = error.errorCodeName,
-                            exceptionClass = error.javaClass.name,
-                            causeClass = error.cause?.javaClass?.name,
-                            causeMessage = error.cause?.message,
-                            httpStatus = error.findInvalidResponseCodeException()?.responseCode
-                        )
                         scope.launch {
                             runCatching {
                                 playerSettingsDataStore.setLastPlaybackDiagnostics(errorDiagnostics)
@@ -1707,8 +1687,6 @@ internal fun PlayerRuntimeController.initializePlayer(
                                     showSwitchToMpvErrorAction = canSwitchToMpvOnFatal,
                                     showLoadingOverlay = false,
                                     showPauseOverlay = false,
-                                    loadingIssueReportVisible = false,
-                                    loadingIssueElapsedMs = 0L,
                                     playbackEnded = false,
                                     postPlayMode = null
                                 )
@@ -1948,24 +1926,13 @@ internal fun PlayerRuntimeController.initializePlayer(
                 result = "Error: $displayError"
             )
             lastPlaybackDiagnosticsForReport = diagnostics
-            lastPlaybackIssueError = PlaybackIssueErrorInput(
-                displayMessage = displayError,
-                errorCode = null,
-                errorCodeName = null,
-                exceptionClass = e.javaClass.name,
-                causeClass = e.cause?.javaClass?.name,
-                causeMessage = e.cause?.message ?: e.message,
-                httpStatus = null
-            )
             scope.launch {
                 runCatching { playerSettingsDataStore.setLastPlaybackDiagnostics(diagnostics) }
             }
             _uiState.update {
                 it.copy(
                     error = displayError,
-                    showLoadingOverlay = false,
-                    loadingIssueReportVisible = false,
-                    loadingIssueElapsedMs = 0L
+                    showLoadingOverlay = false
                 )
             }
         }
@@ -2165,8 +2132,6 @@ internal fun PlayerRuntimeController.resetLoadingOverlayForNewStream() {
             showLoadingOverlay = state.loadingOverlayEnabled,
             showControls = false,
             loadingMessage = preparingMessage,
-            loadingIssueReportVisible = false,
-            loadingIssueElapsedMs = 0L,
             loadingProgress = null,
             isHdrVideo = false
         )

@@ -15,12 +15,15 @@
  */
 package com.fetch.tv.core.player.avi;
 
+import androidx.annotation.OptIn;
 import androidx.media3.common.C;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableByteArray;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 
 /** Parses and holds information from the AVISTREAMHEADER structure. */
+@OptIn(markerClass = UnstableApi.class)
 /* package */ final class AviStreamHeaderChunk implements AviChunk {
   private static final String TAG = "AviStreamHeaderChunk";
 

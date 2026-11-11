@@ -1,6 +1,9 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.fetch.tv.ui.screens.player
 
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -464,7 +467,7 @@ internal fun PlayerRuntimeController.toSubtitleConfiguration(subtitle: Subtitle)
     val subtitleMimeType = PlayerSubtitleUtils.mimeTypeFromUrl(subtitle.url)
     val addonTrackId = buildAddonSubtitleTrackId(subtitle)
     
-    val baseUri = android.net.Uri.parse(subtitle.url)
+    val baseUri = subtitle.url.toUri()
     val subtitleUri = baseUri.buildUpon()
         .appendQueryParameter("fetch_type", "subtitle")
         .build()

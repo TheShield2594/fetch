@@ -276,9 +276,9 @@ internal fun ColorSelectionDialog(
 private fun ColorOption(
     color: Color,
     isSelected: Boolean,
+    modifier: Modifier = Modifier,
     isTransparent: Boolean = false,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
 

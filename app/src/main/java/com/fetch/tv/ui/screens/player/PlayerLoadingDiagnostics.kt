@@ -1,7 +1,7 @@
 package com.fetch.tv.ui.screens.player
 
-import android.net.Uri
 import android.os.SystemClock
+import androidx.core.net.toUri
 import kotlinx.coroutines.flow.update
 
 private const val LOADING_EVENT_LIMIT = 80
@@ -112,7 +112,7 @@ private fun PlayerRuntimeController.recordLoadingDiagnosticRawEventLine(line: St
 
 private fun String.safePlaybackRawHost(): String {
     return runCatching {
-        Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
+        toUri().host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
     }.getOrDefault("unknown")
 }
 

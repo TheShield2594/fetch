@@ -334,8 +334,8 @@ internal fun SubtitleStyleSidePanel(
 @Composable
 private fun SubtitleStyleSection(
     title: String,
-    centerContent: Boolean = true,
     modifier: Modifier = Modifier,
+    centerContent: Boolean = true,
     content: @Composable () -> Unit
 ) {
     Box(

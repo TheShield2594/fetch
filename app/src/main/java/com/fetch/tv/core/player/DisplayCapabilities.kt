@@ -42,9 +42,6 @@ object DisplayCapabilities {
     }
 
     fun detect(activity: Activity): Snapshot {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return Snapshot.Unknown
-        }
         val display = activity.window?.decorView?.display ?: return Snapshot.Unknown
         val modes = display.supportedModes.toList()
         val current = display.mode
@@ -112,7 +109,6 @@ object DisplayCapabilities {
      * application context, so no Activity is needed. Any failure counts as not capable.
      */
     fun defaultsToFrameRateMatching(context: Context): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return false
         if (isKnownBadModeSwitcher(Build.MANUFACTURER, Build.MODEL, Build.DEVICE)) return false
         return try {
             val displayManager = context.getSystemService(DisplayManager::class.java) ?: return false

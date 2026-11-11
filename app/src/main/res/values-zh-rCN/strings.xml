@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">继续观看</string>
     <string name="type_movie">电影</string>
@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">已尝试的元数据扩展：%1$s。无法为 id=%2$s (类型=%3$s) 加载元数据。</string>
     <string name="error_meta_tried_issues">已尝试的元数据扩展：%1$s。无法为 id=%2$s (类型=%3$s) 加载元数据。问题：%4$s。</string>
     <string name="error_stream_no_supported_addon">没有已安装的扩展支持「%1$s」的流。</string>
-    <string name="error_stream_tried_none">已尝试的流扩展：%1$s。皆未为 id=%2$s (类型=%3$s) 返回流。</string>
-    <string name="error_stream_tried_generic">已尝试的流扩展：%1$s。无法为 id=%2$s (类型=%3$s) 加载流。</string>
-    <string name="error_stream_tried_issues">已尝试的流扩展：%1$s。无法为 id=%2$s (类型=%3$s) 加载流。问题：%4$s。</string>
+    <string name="error_stream_tried_none">已尝试的流扩展：%1$s。皆未返回流。</string>
+    <string name="error_stream_tried_generic">已尝试的流扩展：%1$s。无法加载流。</string>
+    <string name="error_stream_tried_issues">已尝试的流扩展：%1$s。无法加载流。问题：%2$s。</string>
 
     <string name="continue_watching">继续观看</string>
     <string name="cw_upcoming">即将播出</string>
@@ -154,15 +154,12 @@
     <string name="cw_airs_today">今日播出</string>
     <string name="cw_airs_tomorrow">明日播出</string>
     <plurals name="cw_airs_in_days">
-        <item quantity="one">%d 天后播出</item>
         <item quantity="other">%d 天后播出</item>
     </plurals>
     <!-- 紧凑卡片样式的简短版本（宽卡/海报） -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">今天</string>
     <string name="cw_airs_tomorrow_short">明天</string>
     <plurals name="cw_airs_in_days_short">
-        <item quantity="one">%d 天后</item>
         <item quantity="other">%d 天后</item>
     </plurals>
     <string name="cw_action_go_to_details">前往详情</string>
@@ -251,7 +248,6 @@
     <string name="detail_comments_back_hint">点击返回键关闭</string>
     <string name="detail_comments_badge_review">评论</string>
     <string name="detail_comments_badge_spoiler">剧透</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d 个赞</string>
     <string name="tmdb_entity_kind_company">制作公司</string>
     <string name="tmdb_entity_kind_network">频道</string>
@@ -260,14 +256,12 @@
     <string name="tmdb_entity_rail_recent">最新</string>
     <string name="tmdb_entity_rail_most_voted">最多投票</string>
     <string name="collections_editor_tmdb_watch_region">观看地区</string>
-    <string name="collections_editor_tmdb_watch_region_helper">ISO 3166-1 国家代码，表示该内容可观看的地区。例如：US、GB。</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">ISO 3166-1 国家代码，表示该内容可观看的地区。例如：US、GB。</string>
     <string name="collections_editor_tmdb_quick_watch_regions">快速观看地区</string>
     <string name="collections_editor_tmdb_watch_providers">观看平台 ID</string>
     <string name="collections_editor_tmdb_watch_providers_helper">使用 TMDB 观看平台 ID。多个请用逗号分隔 (AND) 或竖线分隔 (OR)。</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">排除的观看平台 ID</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">排除在所选地区可由这些 TMDB 观看平台编号观看的标题。</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">快速观看平台</string>
     <string name="tmdb_error_load_source">无法加载 TMDB 来源</string>
     <string name="tmdb_error_list_not_found">找不到 TMDB 列表</string>
@@ -402,12 +396,10 @@
     <string name="licenses_attributions_section_app">应用许可</string>
     <string name="licenses_attributions_section_data">数据与服务</string>
     <string name="licenses_attributions_section_playback">Android 播放许可</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch 使用 TMDB API 获取电影和电视节目的元数据、美术图、预告片、演员、制作细节、收藏和推荐内容。本产品使用 TMDB API，但未经 TMDB 认可或认证。</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch 连接至 Trakt 以进行账户验证、观看历史、进度同步、媒体库数据、评分、列表和评论。Fetch 与 Trakt 无关联或未经其认可。</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch 连接至 Simkl 以进行账户验证、观看列表、观看历史、播放进度和记录。电影、电视和动画追踪数据由 Simkl 提供。Fetch 与 Simkl 无关联或未经其认可。</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch 使用 MDBList 获取评分、观看历史和播放追踪。Fetch 与 MDBList 无关联或未经其认可。</string>
@@ -454,8 +446,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">选择 Fetch 从哪里读取继续播放和继续观看数据。所有已连接的服务仍会保持记录。</string>
     <string name="tracking_library_source_dialog_subtitle">选择 Fetch 从哪里读取您的媒体库。播放记录会同步到所有已连接的服务。</string>
     <string name="tracking_trakt_progress_required">当 Trakt 为观看进度来源时可用</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">高级</string>
     <string name="settings_advanced_subtitle">性能、导航、缓存与诊断</string>
     <string name="experience_mode_essential">基础模式</string>
@@ -499,7 +489,6 @@
     <string name="advanced_player_stats_hud">播放统计覆盖层</string>
     <string name="advanced_player_stats_hud_subtitle">在流信息中显示一个按钮，用于在播放期间切换实时 CPU、内存、缓冲、比特率和温度读数</string>
     <string name="advanced_section_cache">缓存</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">快速水平导航</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">提高 D-pad 在行内的重复速度，同时保留重复节流功能。</string>
     <string name="advanced_fetch_focus_scroll">Fetch 焦点滚动</string>
@@ -559,7 +548,6 @@
     <string name="playback_player_external">外部</string>
     <string name="playback_player_ask">每次都询问</string>
     <string name="playback_internal_player_engine">内置播放引擎</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (测试版)</string>
     <string name="playback_auto_switch_internal_player_on_error">启动错误时自动切换播放引擎</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">如果流启动失败，自动在 ExoPlayer 和 libmpv 之间切换。</string>
@@ -639,20 +627,6 @@
     <string name="audio_strip_hdr10plus_sub">从流中移除 HDR10+ 动态元数据。当同时启用「转换为 DV8.1」时，移除操作在转换之后执行。</string>
     <string name="audio_dv7_preserve_mapping_title">保留 DV 映射 (DV7 转 DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">保留创作者原始意图的色调映射，代价是每帧处理量略增。</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hi10p_gnext_sw_title">Hi10P G-NEXT 软件回退 (仅限 MPV)</string>
     <string name="audio_mpv_hi10p_gnext_sw_subtitle">当流详情识别为 H.264 Hi10P 时使用 G-NEXT 软件解码。默认关闭；仅在 Hi10P 播放卡死或失败时启用。</string>
     <string name="audio_mpv_hwdec_title">硬件解码 (仅限 MPV)</string>
@@ -876,7 +850,6 @@
     <string name="web_custom_poster_placeholders_info">占位符：{id} 传递所有内容 ID。{imdb_id}、{tmdb_id}、{tvdb_id}、{kitsu_id} 针对单一 ID 类型 - 如果不可用，则保留原始海报。{imdb_id|tmdb_id|kitsu_id} 声明支持的 ID 类型 - 使用匹配的那个，否则保留原始海报。添加 ? 使占位符变为可选，解析为空而非跳过：{imdb_id?}。其他占位符：{id_type}、{typed_id}、{type}、{shape}。</string>
 
 
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">在设备间同步观看历史和播放进度</string>
     <string name="mdblist_connected_as">以 %1$s 身份连接</string>
     <string name="mdblist_account_fallback">MDBList 用户</string>
@@ -1664,7 +1637,6 @@
     <string name="cd_refresh">刷新</string>
     <string name="cd_remove">移除</string>
     <string name="cd_preview">预览</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt 标志</string>
     <string name="cd_trakt_qr">Trakt 启用 QR</string>
     <string name="cd_imdb">IMDb</string>
@@ -1816,7 +1788,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">排除匹配这些 TMDB 类型数字的标题。</string>
     <string name="collections_editor_tmdb_date_from">上映或播出日期从</string>
     <string name="collections_editor_tmdb_date_to">上映或播出日期到</string>
-    <string name="collections_editor_tmdb_date_helper">使用 YYYY-MM-DD，例如 2024-01-01。</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">使用 YYYY-MM-DD，例如 2024-01-01。</string>
     <string name="collections_editor_tmdb_rating_min">最低评分</string>
     <string name="collections_editor_tmdb_rating_max">最高评分</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB 评分范围 0 到 10。例如：7.0。</string>
@@ -1868,14 +1840,9 @@
     <string name="collections_editor_tmdb_person_placeholder">汤姆·汉克斯为 31，或人物网址</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 或 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 代表动画</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en、ko、ja、hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US、KR、JP、IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1937,9 +1904,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">汤姆·汉克斯电影、喜爱演员</string>
     <string name="collections_editor_tmdb_director_title_placeholder">克里斯托弗·诺兰电影、喜爱导演</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 代表超级英雄</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 代表漫威影业</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 代表 Netflix</string>
     <string name="folder_detail_not_found">找不到文件夹</string>
     <string name="cast_error_load_details_for">无法加载 %1$s 的详细信息</string>
@@ -2234,7 +2199,7 @@
     <string name="playback_cache_vod_size">VOD 缓存大小</string>
     <string name="playback_cache_vod_size_sub">渐进式 VOD 缓存的最大磁盘使用量 (LRU 淘汰)。</string>
     <string name="playback_cache_info_range">范围：%1$d-%2$d MB。</string>
-    <string name="playback_cache_info_auto">自动模式目标约为可用空间的 10%。</string>
+    <string name="playback_cache_info_auto" formatted="false">自动模式目标约为可用空间的 10%。</string>
     <string name="playback_cache_info_manual_headroom">手动模式保留约 %1$dMB 的余量。</string>
     <string name="playback_cache_info_free_disk">可用磁盘空间：%1$s。</string>
     <string name="playback_cache_info_restart">在模式/大小之间切换后，新的缓存上限会在应用重新启动后生效。</string>

@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.collection
 
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.BorderStroke
@@ -78,9 +79,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -197,32 +196,7 @@ fun CollectionManagementScreen(
                 if (uiState.collections.isNotEmpty()) {
                     FetchButton(onClick = {
                         scope.launch {
-                            exportSucceeded = try {
-                                val json = viewModel.getExportJson()
-                                withContext(Dispatchers.IO) {
-                                    val resolver = context.contentResolver
-                                    // Delete existing file first
-                                    val existingUri = android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI
-                                    resolver.delete(
-                                        existingUri,
-                                        "${android.provider.MediaStore.Downloads.DISPLAY_NAME} = ?",
-                                        arrayOf("fetch-collections.json")
-                                    )
-                                    // Write new file
-                                    val values = android.content.ContentValues().apply {
-                                        put(android.provider.MediaStore.Downloads.DISPLAY_NAME, "fetch-collections.json")
-                                        put(android.provider.MediaStore.Downloads.MIME_TYPE, "application/json")
-                                    }
-                                    // Saved only once the bytes are written; a null insert or stream is a failure.
-                                    val uri = resolver.insert(existingUri, values) ?: return@withContext false
-                                    resolver.openOutputStream(uri)?.use { os ->
-                                        os.write(json.toByteArray())
-                                        true
-                                    } ?: false
-                                }
-                            } catch (_: Exception) {
-                                false
-                            }
+                            exportSucceeded = viewModel.exportToDownloads(context)
                         }
                     }) {
                         Text(stringResource(R.string.collections_export_file))
@@ -282,7 +256,7 @@ fun CollectionManagementScreen(
                     items = uiState.collections,
                     key = { _, item -> item.id }
                 ) { index, collection ->
-                    val editFocusRequester = itemFocusRequesters.getOrPut(collection.id) { FocusRequester() }
+                    val editFocusRequester = itemFocusRequesters.focusRequesterFor(collection.id)
                     CollectionListItem(
                         collection = collection,
                         isFirst = index == 0,

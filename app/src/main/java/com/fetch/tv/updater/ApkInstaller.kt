@@ -2,10 +2,10 @@ package com.fetch.tv.updater
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import com.fetch.tv.BuildConfig
 import java.io.File
 
@@ -25,7 +25,7 @@ object ApkInstaller {
      * security settings and then to Fetch's app details. Returns false if none could open.
      */
     fun openUnknownSourcesSettings(context: Context): Boolean {
-        val packageUri = Uri.parse("package:${context.packageName}")
+        val packageUri = "package:${context.packageName}".toUri()
         val candidates = buildList {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 add(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageUri))

@@ -81,6 +81,7 @@ import androidx.compose.ui.platform.LocalContext
 fun CatalogRowSection(
     catalogRow: CatalogRow,
     onItemClick: (String, String, String) -> Unit,
+    modifier: Modifier = Modifier,
     onSeeAll: () -> Unit = {},
     showSeeAll: Boolean = catalogRow.hasMore || catalogRow.items.size >= 15,
     seeAllLabel: String? = null,
@@ -99,7 +100,6 @@ fun CatalogRowSection(
     onItemFocus: (MetaPreview) -> Unit = {},
     isItemWatched: (MetaPreview) -> Boolean = { false },
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
-    modifier: Modifier = Modifier,
     enableRowFocusRestorer: Boolean = true,
     initialScrollIndex: Int = 0,
     /** Used only for initial focus restore (e.g. returning from detail screen). */
@@ -236,7 +236,7 @@ fun CatalogRowSection(
             val targetItem = catalogRow.items[focusedItemIndex]
             val targetItemKey = rowItemFocusKey(focusedItemIndex, targetItem)
             if (lastRequestedFocusItemKey == targetItemKey) return@LaunchedEffect
-            val requester = itemFocusRequestersByKey.getOrPut(targetItemKey) { FocusRequester() }
+            val requester = itemFocusRequestersByKey.focusRequesterFor(targetItemKey)
             if (!listState.isScrollInProgress) {
                 runCatching { listState.scrollToItem(focusedItemIndex) }
             }
@@ -401,9 +401,9 @@ fun CatalogRowSection(
                         entryFocusRequester != null && index == targetIndex
                     }
                 }
-                val cardFocusRequester = itemFocusRequestersByKey.getOrPut(
+                val cardFocusRequester = itemFocusRequestersByKey.focusRequesterFor(
                     rowItemFocusKey(index, item)
-                ) { FocusRequester() }
+                )
 
                 val isPlaceholder = item.id.startsWith("__placeholder_")
                 val isNonFirstPlaceholder = isPlaceholder && index > 0

@@ -579,14 +579,14 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Se încarcă evaluările episodului...</string>
+    <string name="ratings_loading">Se încarcă evaluările episodului…</string>
     <string name="ratings_unavailable">Evaluările episodului nu sunt disponibile.</string>
     <string name="ratings_season_summary">Sezon %1$d - %2$d episoade</string>
 
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Descoperă</string>
     <string name="discover_load_more">Încarcă mai mult</string>
-    <string name="discover_loading">Încărcare...</string>
+    <string name="discover_loading">Încărcare…</string>
     <string name="discover_filter_genre">Gen</string>
     <string name="discover_empty_no_content_title">Nu a fost găsit niciun conținut</string>
     <string name="discover_empty_no_content_subtitle">Încercați un alt gen sau catalog</string>

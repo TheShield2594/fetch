@@ -1,8 +1,10 @@
 package com.fetch.tv.ui.screens.search
 
+import androidx.compose.runtime.mutableFloatStateOf
 import com.fetch.tv.ui.components.FetchButton
 import com.fetch.tv.ui.components.FetchButtonStyle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
@@ -179,8 +181,8 @@ fun SearchScreen(
     var pendingFocusMoveSawSearching by remember { mutableStateOf(false) }
     var pendingFocusMoveHadExistingSearchRows by remember { mutableStateOf(false) }
     var isVoiceListening by remember { mutableStateOf(false) }
-    var voiceRmsLevel by remember { mutableStateOf(0f) }
-    var discoverFocusedItemIndex by rememberSaveable { mutableStateOf(0) }
+    var voiceRmsLevel by remember { mutableFloatStateOf(0f) }
+    var discoverFocusedItemIndex by rememberSaveable { mutableIntStateOf(0) }
     var restoreDiscoverFocus by rememberSaveable { mutableStateOf(false) }
     var pendingDiscoverRestoreOnResume by rememberSaveable { mutableStateOf(false) }
     val restoringSearchFocus = remember { mutableStateOf(viewModel.hasSavedSearchFocus) }
@@ -932,8 +934,8 @@ fun SearchScreen(
                                     firstVisibleItemScrollOffset = saved?.second ?: 0
                                 )
                             }
-                            val rowFocusRequester = searchRowFocusRequesters.getOrPut(catalogKey) { FocusRequester() }
-                            val entryFocusRequester = searchRowEntryFocusRequesters.getOrPut(catalogKey) { FocusRequester() }
+                            val rowFocusRequester = searchRowFocusRequesters.focusRequesterFor(catalogKey)
+                            val entryFocusRequester = searchRowEntryFocusRequesters.focusRequesterFor(catalogKey)
 
                             CatalogRowSection(
                                 catalogRow = catalogRow,
@@ -1189,9 +1191,7 @@ private fun RecentSearchesSection(
     val removeFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     var pendingDownwardFocus by remember { mutableStateOf<Pair<String, String>?>(null) }
     // Downward focus enters the query column. The remove buttons are reached with right.
-    val firstSearchFocusRequester = searchFocusRequesters.getOrPut(recentSearches.first()) {
-        FocusRequester()
-    }
+    val firstSearchFocusRequester = searchFocusRequesters.focusRequesterFor(recentSearches.first())
     LaunchedEffect(recentSearches, pendingDownwardFocus) {
         val visibleQueries = recentSearches.toSet()
         searchFocusRequesters.keys.retainAll(visibleQueries)
@@ -1242,19 +1242,15 @@ private fun RecentSearchesSection(
 
         recentSearches.forEachIndexed { index, recentQuery ->
             key(recentQuery) {
-                val searchFocusRequester = searchFocusRequesters.getOrPut(recentQuery) {
-                    FocusRequester()
-                }
-                val removeFocusRequester = removeFocusRequesters.getOrPut(recentQuery) {
-                    FocusRequester()
-                }
+                val searchFocusRequester = searchFocusRequesters.focusRequesterFor(recentQuery)
+                val removeFocusRequester = removeFocusRequesters.focusRequesterFor(recentQuery)
                 val previousRemoveFocusRequester = if (index == 0) {
                     clearHistoryFocusRequester
                 } else {
-                    removeFocusRequesters.getOrPut(recentSearches[index - 1]) { FocusRequester() }
+                    removeFocusRequesters.focusRequesterFor(recentSearches[index - 1])
                 }
                 val nextRemoveFocusRequester = recentSearches.getOrNull(index + 1)?.let {
-                    removeFocusRequesters.getOrPut(it) { FocusRequester() }
+                    removeFocusRequesters.focusRequesterFor(it)
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),

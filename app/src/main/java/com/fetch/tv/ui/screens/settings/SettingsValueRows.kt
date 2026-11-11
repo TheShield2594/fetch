@@ -66,10 +66,10 @@ internal fun SliderSettingsItem(
     maxValue: Int,
     step: Int,
     onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
     subtitle: String? = null,
     onFocused: () -> Unit = {},
     enabled: Boolean = true,
-    modifier: Modifier = Modifier
 ) {
     val span = (maxValue - minValue).toFloat()
     val progress = if (span > 0f) (value - minValue).toFloat() / span else 0f
@@ -112,10 +112,10 @@ internal fun SliderSettingsItem(
     selected: Int,
     valueText: String,
     onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
     subtitle: String? = null,
     onFocused: () -> Unit = {},
     enabled: Boolean = true,
-    modifier: Modifier = Modifier
 ) {
     require(values.isNotEmpty()) { "SliderSettingsItem.values must not be empty" }
 

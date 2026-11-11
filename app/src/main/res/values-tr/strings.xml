@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">İzlemeye Devam Et</string>
     <string name="type_movie">Film</string>
@@ -64,7 +64,7 @@
     <string name="web_import_tab_paste">Yapıştır</string>
     <string name="web_import_tab_file">Dosya</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Koleksiyon JSON\'unu buraya yapıştırın...</string>
+    <string name="web_import_paste_placeholder">Koleksiyon JSON\'unu buraya yapıştırın…</string>
     <string name="web_import_file_select">Bir .json dosyası seçmek için dokunun</string>
     <string name="web_order_send_to_top">En üste gönder</string>
     <string name="web_order_send_to_bottom">En alta gönder</string>
@@ -138,9 +138,9 @@
     <string name="error_meta_tried_generic">Şu eklentiler denendi: %1$s. Bu içerik için gerekli bilgiler yüklenemedi: id=%2$s (tür=%3$s).</string>
     <string name="error_meta_tried_issues">Şu eklentiler denendi: %1$s. Bu içerik için gerekli bilgiler yüklenemedi: id=%2$s (tür=%3$s). Karşılaşılan sorunlar: %4$s.</string>
     <string name="error_stream_no_supported_addon">Yüklü eklentilerin hiçbiri \"%1$s\" için yayın desteği sunmuyor.</string>
-    <string name="error_stream_tried_none">Şu eklentiler denendi: %1$s. Hiçbiri id=%2$s (tür=%3$s) için yayın döndürmedi.</string>
-    <string name="error_stream_tried_generic">Şu eklentiler denendi: %1$s. id=%2$s (tür=%3$s) için yayınlar yüklenemedi.</string>
-    <string name="error_stream_tried_issues">Şu eklentiler denendi: %1$s. id=%2$s (tür=%3$s) için yayınlar yüklenemedi. Sorunlar: %4$s.</string>
+    <string name="error_stream_tried_none">Şu eklentiler denendi: %1$s. Hiçbiri yayın döndürmedi.</string>
+    <string name="error_stream_tried_generic">Şu eklentiler denendi: %1$s. Yayınlar yüklenemedi.</string>
+    <string name="error_stream_tried_issues">Şu eklentiler denendi: %1$s. Yayınlar yüklenemedi. Sorunlar: %2$s.</string>
 
     <!-- ContinueWatchingSection -->
     <string name="continue_watching">İzlemeye Devam Et</string>
@@ -162,7 +162,6 @@
         <item quantity="other">Yayın tarihi: %d gün sonra</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Bugün</string>
     <string name="cw_airs_tomorrow_short">Yarın</string>
     <plurals name="cw_airs_in_days_short">
@@ -267,7 +266,6 @@
     <string name="detail_comments_back_hint">Kapatmak için geri tuşuna basın</string>
     <string name="detail_comments_badge_review">İnceleme</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d beğeni</string>
     <string name="tmdb_entity_kind_company">Yapım Şirketi</string>
     <string name="tmdb_entity_kind_network">Kanal</string>
@@ -426,12 +424,10 @@
     <string name="licenses_attributions_section_app">UYGULAMA LİSANSI</string>
     <string name="licenses_attributions_section_data">VERİ VE HİZMETLER</string>
     <string name="licenses_attributions_section_playback">ANDROID OYNATMA LİSANSLARI</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch, film ve dizi meta verileri, görseller, fragmanlar, oyuncular, yapım detayları, koleksiyonlar ve öneriler için TMDB API\'sini kullanır. Bu ürün TMDB API\'sini kullanır ancak TMDB tarafından onaylanmamıştır veya sertifikalandırılmamıştır.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch, hesap doğrulama, izleme geçmişi, ilerleme senkronizasyonu, kütüphane verileri, puanlar, listeler ve yorumlar için Trakt\'a bağlanır. Fetch Trakt ile bağlantılı veya onaylanmış değildir.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch; hesap doğrulama, izleme listeleri, izleme geçmişi, oynatma ilerlemesi ve scrobbling için Simkl\'a bağlanır. Film, dizi ve anime takip verileri Simkl tarafından sağlanır. Fetch, Simkl ile bağlantılı veya onaylanmış değildir.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch, puanlar ve harici skor sağlayıcı verileri için MDBList\'i kullanır. Fetch MDBList ile bağlantılı veya onaylanmış değildir.</string>
@@ -478,8 +474,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">Fetch\'in devam etme ve İzlemeye Devam Et için okuyacağı servisi seç. Scrobbling bağlı tüm servislerde açık kalır.</string>
     <string name="tracking_library_source_dialog_subtitle">Fetch\'in Kütüphane için okuyacağı servisi seç. Oynatma, bağlı tüm servislere scrobble edilir.</string>
     <string name="tracking_trakt_progress_required">İzleme İlerlemesi kaynağı Trakt olduğunda kullanılabilir</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Gelişmiş</string>
     <string name="settings_advanced_subtitle">Ağ hızı tanılaması çalıştır</string>
 
@@ -611,7 +605,6 @@
     <string name="playback_player_external">Harici</string>
     <string name="playback_player_ask">Her seferinde sor</string>
     <string name="playback_internal_player_engine">Dahili Oynatıcı Motoru</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Başlangıç hatasında motoru otomatik değiştir</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Yayın başlarken hata olursa ExoPlayer ile libmpv arasında otomatik geçiş yap.</string>
@@ -951,7 +944,6 @@
     <string name="web_custom_poster_none">Şablon ayarlanmadı</string>
     <string name="web_custom_poster_loading">Yükleniyor…</string>
     <string name="web_custom_poster_placeholders_info">Yer tutucular: {id} tüm içerik kimliklerini iletir. {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} tek bir kimlik türünü hedefler — kullanılamıyorsa orijinal poster korunur. {imdb_id|tmdb_id|kitsu_id} desteklenen kimlik türlerini belirtir — eşleşen kullanılır, aksi halde orijinal poster korunur. Bir yer tutucuyu isteğe bağlı yapmak için ? ekleyin (atlanmak yerine boş bırakılır): {imdb_id?}. Diğer yer tutucular: {id_type}, {typed_id}, {type}, {shape}.</string>
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">İzleme geçmişini ve oynatma ilerlemesini cihazlar arasında eşitler</string>
     <string name="mdblist_connected_as">%1$s olarak bağlı</string>
     <string name="mdblist_account_fallback">MDBList kullanıcısı</string>
@@ -1009,7 +1001,7 @@
     <string name="settings_stream_badge_position_top">Üst</string>
     <string name="settings_stream_badge_position_bottom">Alt</string>
     <string name="settings_stream_badge_urls_title">Fusion etiket URL\'leri</string>
-    <string name="settings_stream_badge_urls_description">En fazla %1$d Fusion tarzı yayın etiketi JSON URL\'si içe aktarabilirsiniz. Her URL ayrı ayrı güncellenebilir veya silinebilir.</string>
+    <string name="settings_stream_badge_urls_description" tools:ignore="Typos">En fazla %1$d Fusion tarzı yayın etiketi JSON URL\'si içe aktarabilirsiniz. Her URL ayrı ayrı güncellenebilir veya silinebilir.</string>
     <string name="settings_fusion_badges_summary">%1$d/%2$d URL, %3$d aktif Fusion etiketi</string>
     <string name="settings_fusion_badges_empty">İçe aktarılan Fusion etiket URL\'si yok.</string>
     <string name="settings_fusion_badge_url_label">Fusion etiket JSON URL\'si</string>
@@ -1273,20 +1265,20 @@
 
     <!-- PlayerScreen -->
     <string name="player_no_external_player">Harici oynatıcı bulunamadı</string>
-    <string name="player_loading_preparing">Yayın hazırlanıyor...</string>
-    <string name="player_loading_detecting_format">Yayın biçimi algılanıyor...</string>
+    <string name="player_loading_preparing">Yayın hazırlanıyor…</string>
+    <string name="player_loading_detecting_format">Yayın biçimi algılanıyor…</string>
     <string name="external_player_loading_skip_segments">Açılış/kapanış bölümleri yükleniyor…</string>
-    <string name="player_loading_subtitles_from">%1$d eklentiden altyazı getiriliyor...</string>
-    <string name="player_loading_subtitles_progress">Altyazılar getiriliyor... (%1$d / %2$d)</string>
+    <string name="player_loading_subtitles_from">%1$d eklentiden altyazı getiriliyor…</string>
+    <string name="player_loading_subtitles_progress">Altyazılar getiriliyor… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">Altyazılar: %1$s (%2$d / %3$d)</string>
-    <string name="player_loading_building">Oynatıcı hazırlanıyor...</string>
-    <string name="player_loading_starting">Yayın başlatılıyor...</string>
-    <string name="player_loading_buffering">Arabelleğe alınıyor...</string>
+    <string name="player_loading_building">Oynatıcı hazırlanıyor…</string>
+    <string name="player_loading_starting">Yayın başlatılıyor…</string>
+    <string name="player_loading_buffering">Arabelleğe alınıyor…</string>
     <string name="player_engine_switching_title">Oynatıcı Motoru Değiştiriliyor</string>
-    <string name="player_engine_switching_message">Başlatma başarısız oldu. %1$s motoruna geçiliyor...</string>
-    <string name="player_engine_switching_manual_message">%1$s motoruna geçiliyor...</string>
+    <string name="player_engine_switching_message">Başlatma başarısız oldu. %1$s motoruna geçiliyor…</string>
+    <string name="player_engine_switching_manual_message">%1$s motoruna geçiliyor…</string>
     <string name="playback_show_loading_status">Yükleme durumunu göster</string>
-    <string name="playback_show_loading_status_sub">Oynatıcı başlatılırken adım adım ilerlemeyi göster.</string>
+    <string name="playback_show_loading_status_sub" tools:ignore="Typos">Oynatıcı başlatılırken adım adım ilerlemeyi göster.</string>
     <string name="player_sync_line">Satırı Senkronize Et</string>
     <string name="subtitle_delay_reset">Sıfırla</string>
     <string name="subtitle_timing_press_sync">Bir replik duyduğunuzda Senkronize Et\'e basın.</string>
@@ -1625,7 +1617,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Bölüm puanları yükleniyor...</string>
+    <string name="ratings_loading">Bölüm puanları yükleniyor…</string>
     <string name="ratings_unavailable">Bölüm puanları mevcut değil.</string>
     <string name="ratings_load_error">Bölüm puanları yüklenemedi.</string>
     <string name="ratings_season_summary">Sezon %1$d | %2$d Bölüm</string>
@@ -1633,7 +1625,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Keşfet</string>
     <string name="discover_load_more">Daha Fazla</string>
-    <string name="discover_loading">Yükleniyor...</string>
+    <string name="discover_loading">Yükleniyor…</string>
     <string name="discover_filter_genre">Kategori</string>
     <string name="discover_empty_no_content_title">İçerik bulunamadı</string>
     <string name="discover_empty_no_content_subtitle">Farklı bir kategori veya katalog deneyin</string>
@@ -1731,7 +1723,7 @@
     <string name="playback_cache_vod_size">VOD Önbellek Boyutu</string>
     <string name="playback_cache_vod_size_sub">Aşamalı VOD önbelleği için en fazla disk kullanımı.</string>
     <string name="playback_cache_info_range">Aralık: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">Otomatik mod, boş alanın yaklaşık %10\'unu hedefler.</string>
+    <string name="playback_cache_info_auto" formatted="false">Otomatik mod, boş alanın yaklaşık %10\'unu hedefler.</string>
     <string name="playback_cache_info_manual_headroom">Manuel mod, yaklaşık %1$d MB boş alan payı bırakır.</string>
     <string name="playback_cache_info_free_disk">Kullanılabilir boş alan: %1$s.</string>
     <string name="playback_cache_info_restart">Modlar veya boyutlar arasında geçiş yapıldığında, yeni önbellek sınırı uygulama yeniden başlatıldıktan sonra geçerli olur.</string>
@@ -1821,7 +1813,7 @@
     <string name="library_list_create_dialog_title">Liste Oluştur</string>
     <string name="library_list_edit_dialog_title">Listeyi Düzenle</string>
     <string name="library_sync_btn">Senkronize Et</string>
-    <string name="library_syncing_btn">Senkronize ediliyor...</string>
+    <string name="library_syncing_btn">Senkronize ediliyor…</string>
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Bu özelliği kullanmak için Wi-Fi veya Ethernet\'e bağlanın</string>
@@ -1843,11 +1835,11 @@
     <string name="trakt_error_list_not_found_or_private">Trakt listesi bulunamadı veya herkese açık değil</string>
     <string name="trakt_error_rate_limit_reached">Trakt limitine ulaşıldı</string>
     <string name="trakt_status_enter_activation_code">trakt.tv/activate adresine kodu girin</string>
-    <string name="trakt_status_syncing">Senkronize ediliyor...</string>
+    <string name="trakt_status_syncing">Senkronize ediliyor…</string>
     <string name="trakt_status_sync_completed">Senkronizasyon tamamlandı</string>
     <string name="trakt_status_disconnected">Trakt bağlantısı kesildi</string>
     <string name="trakt_status_cw_window_updated">İzlemeye devam etme penceresi güncellendi</string>
-    <string name="trakt_status_rate_limited_slowing_polling">İstek limiti aşıldı, anketleme yavaşlatılıyor...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">İstek limiti aşıldı, anketleme yavaşlatılıyor…</string>
     <string name="trakt_user_fallback">Trakt kullanıcısı</string>
     <string name="trakt_error_failed_start">Trakt kimlik doğrulaması başlatılamadı</string>
     <string name="trakt_related_error_request_failed">Trakt benzer içerik isteği başarısız oldu</string>
@@ -1916,7 +1908,6 @@
     <string name="cd_refresh">Yenile</string>
     <string name="cd_remove">Kaldır</string>
     <string name="cd_preview">Önizle</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt logosu</string>
     <string name="cd_trakt_qr">Trakt etkinleştirme QR kodu</string>
     <string name="cd_simkl_qr">Simkl etkinleştirme QR kodu</string>
@@ -2082,7 +2073,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Bu TMDB tür numaralarıyla eşleşen yapımları hariç tutun.</string>
     <string name="collections_editor_tmdb_date_from">Yayın Tarihi (Başlangıç)</string>
     <string name="collections_editor_tmdb_date_to">Yayın Tarihi (Bitiş)</string>
-    <string name="collections_editor_tmdb_date_helper">YYYY-AA-GG formatını kullanın, örneğin 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">YYYY-AA-GG formatını kullanın, örneğin 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Minimum Puan</string>
     <string name="collections_editor_tmdb_rating_max">Maksimum Puan</string>
     <string name="collections_editor_tmdb_rating_helper">0\'dan 10\'a kadar TMDB puanı. Örnek: 7.0.</string>
@@ -2133,15 +2124,10 @@
     <string name="collections_editor_tmdb_placeholder_network">213 Netflix, 49 HBO, 2739 Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 - Tom Hanks veya kişi URL\'si</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 veya 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">Animasyon için 16</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -2170,9 +2156,9 @@
     <string name="collections_editor_placeholder_hero_video">Özel ana video URL\'si (isteğe bağlı)</string>
     <string name="collections_editor_title_logo">Başlık Logosu (Modern Ev)</string>
     <string name="collections_editor_placeholder_title_logo">Özel başlık logosu URL\'si (isteğe bağlı)</string>
-    <string name="collections_editor_search_emoji_placeholder">Emoji ara...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Aktif kaynakları filtrele...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Katalog ara...</string>
+    <string name="collections_editor_search_emoji_placeholder">Emoji ara…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Aktif kaynakları filtrele…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Katalog ara…</string>
     <string name="collections_editor_genre_filter">Kategori Filtresi</string>
     <string name="collections_editor_choose_genre">Seç</string>
     <string name="collections_editor_select_genre">Kategori seçin</string>
@@ -2186,16 +2172,14 @@
     <string name="collection_editor_remove_cd">Kaldır</string>
     <string name="collection_editor_choice_both">İkisi de</string>
     <string name="collection_editor_resolved_trakt_list">Trakt listesi çözüldü</string>
-    <string name="collection_editor_trakt_search_placeholder">Başlık, Trakt URL veya liste ID ara...</string>
+    <string name="collection_editor_trakt_search_placeholder">Başlık, Trakt URL veya liste ID ara…</string>
     <string name="collection_editor_trakt_name_placeholder">Hafta Sonu İzlemeleri, Ödül Kazananlar</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel Filmleri, Netflix Orijinalleri, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">En İyi Aksiyon Filmleri, Kore Dizileri, 2024 Animasyon</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Filmleri, Favori Oyuncular</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Christopher Nolan Filmleri, Favori Yönetmenler</string>
     <string name="collections_editor_tmdb_keywords_placeholder">Süper kahraman için 9715</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">Marvel Studios için 420</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">Netflix için 213</string>
     <string name="folder_detail_not_found">Klasör bulunamadı</string>
     <string name="cast_error_load_details_for">%1$s detayları yüklenemedi</string>
@@ -2220,14 +2204,12 @@
     <string name="collections_editor_emoji_category_symbols">Semboller</string>
     <!-- Collection editor: TMDB picker placeholders + genres -->
     <string name="collections_editor_tmdb_watch_region">İzleme bölgesi</string>
-    <string name="collections_editor_tmdb_watch_region_helper">İçeriğin yayınlandığı ülkenin ISO 3166-1 kodu. Örnek: TR, US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">İçeriğin yayınlandığı ülkenin ISO 3166-1 kodu. Örnek: TR, US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Hızlı bölge seçimi</string>
     <string name="collections_editor_tmdb_watch_providers">İzleme platformu kimlikleri</string>
     <string name="collections_editor_tmdb_watch_providers_helper">TMDB platform kimliklerini kullanın. VE işlevi için virgülle, VEYA işlevi için dikey çizgiyle ayırın.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">Hariç tutulan platform kimlikleri</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Seçilen bölgede bu TMDB platform kimliklerinde bulunan yapımları hariç tutun.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Hızlı platform seçimi</string>
     <string name="collections_editor_tmdb_network_placeholder_example">Netflix için 213, HBO için 49, Disney+ için 2739</string>
     <string name="collections_editor_tmdb_collection_placeholder_example">Star Wars Koleksiyonu için 10</string>
@@ -2370,7 +2352,6 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">Detay sayfalarında gösterilen öneriler için kaynağı seçin.</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
 
     <!-- Detail / poster options errors -->
     <string name="detail_error_update_library_failed">Kütüphaneniz güncellenemedi. Bağlantınızı kontrol edip tekrar deneyin.</string>
@@ -2413,12 +2394,12 @@
     <string name="stream_test_card_title">Son Oynatılan Akışı Test Et</string>
     <string name="stream_test_server_label">Sunucu: %1$s</string>
     <string name="stream_test_no_stream">Kayıtlı oynatma bulunamadı. Önce bir video oynatın.</string>
-    <string name="stream_test_btn_measuring_baseline">Standart Hız Ölçülüyor...</string>
-    <string name="stream_test_btn_measuring_parallel1">Paralel (1MB) Ölçülüyor...</string>
-    <string name="stream_test_btn_measuring_parallel4">Paralel (4MB) Ölçülüyor...</string>
-    <string name="stream_test_btn_measuring_parallel8">Paralel (8MB) Ölçülüyor...</string>
-    <string name="stream_test_btn_measuring_parallel16">Paralel (16MB) Ölçülüyor...</string>
-    <string name="stream_test_btn_running">Çalışıyor...</string>
+    <string name="stream_test_btn_measuring_baseline">Standart Hız Ölçülüyor…</string>
+    <string name="stream_test_btn_measuring_parallel1">Paralel (1MB) Ölçülüyor…</string>
+    <string name="stream_test_btn_measuring_parallel4">Paralel (4MB) Ölçülüyor…</string>
+    <string name="stream_test_btn_measuring_parallel8">Paralel (8MB) Ölçülüyor…</string>
+    <string name="stream_test_btn_measuring_parallel16">Paralel (16MB) Ölçülüyor…</string>
+    <string name="stream_test_btn_running">Çalışıyor…</string>
     <string name="stream_test_label_baseline">Standart Tek Bağlantı (Baseline)</string>
     <string name="stream_test_label_parallel1">Paralel Bağlantı (1 MB Parçalar)</string>
     <string name="stream_test_label_parallel4">Paralel Bağlantı (4 MB Parçalar)</string>

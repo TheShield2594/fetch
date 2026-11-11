@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.components
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -15,6 +16,9 @@ import coil3.request.ImageRequest
 import com.fetch.tv.R
 import com.fetch.tv.core.build.AppFeaturePolicy
 
+// Draws either the logo or the text label, never both, so it takes a modifier for each
+// (logoModifier, textModifier) rather than one `modifier` for an outer element it doesn't have.
+@SuppressLint("ModifierParameter")
 @Composable
 fun ImdbRatingSourceLabel(
     logoModifier: Modifier,

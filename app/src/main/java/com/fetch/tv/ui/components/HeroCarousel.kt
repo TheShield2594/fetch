@@ -73,6 +73,7 @@ import com.fetch.tv.ui.util.formatHeroRuntime
 import com.fetch.tv.ui.util.LocalRecompositionHighlighterEnabled
 import com.fetch.tv.ui.util.localizedContentType
 import com.fetch.tv.ui.util.localizedGenreLabel
+import java.util.Locale
 import kotlinx.coroutines.delay
 
 private const val AUTO_ADVANCE_INTERVAL_MS = 10000L
@@ -83,6 +84,7 @@ private val YEAR_REGEX = Regex("""\b\d{4}\b""")
 fun HeroCarousel(
     items: StableList<MetaPreview>,
     onItemClick: (MetaPreview) -> Unit,
+    modifier: Modifier = Modifier,
     onItemFocus: (MetaPreview) -> Unit = {},
     onActiveItemChanged: (MetaPreview) -> Unit = {},
     focusRequester: FocusRequester? = null,
@@ -92,7 +94,6 @@ fun HeroCarousel(
     initialActiveIndex: Int = 0,
     mdbListShowOnHero: Boolean = false,
     mdbListRatingOrder: List<String> = com.fetch.tv.domain.model.MDBListSettings.DEFAULT_RATING_ORDER,
-    modifier: Modifier = Modifier
 ) {
     if (items.isEmpty()) return
 
@@ -275,7 +276,7 @@ private fun HeroCarouselSlide(
     val ratingText = remember(item.imdbRating, showImdbRatings) {
         item.imdbRating
             ?.takeIf { showImdbRatings }
-            ?.let { String.format("%.1f", it) }
+            ?.let { String.format(Locale.getDefault(), "%.1f", it) }
     }
 
     Box(

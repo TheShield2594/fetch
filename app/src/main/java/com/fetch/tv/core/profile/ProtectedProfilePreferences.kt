@@ -1,5 +1,6 @@
 package com.fetch.tv.core.profile
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
@@ -11,6 +12,9 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
+// The writes here use commit() and return or check its result, which the KTX
+// SharedPreferences.edit {} block cannot give back, so lint's UseKtx suggestion doesn't fit.
+@SuppressLint("UseKtx")
 class ProtectedProfilePreferences(
     context: Context,
     name: String,

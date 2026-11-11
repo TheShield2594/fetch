@@ -242,6 +242,15 @@ android {
         buildConfig = true
     }
 
+    // CI runs lintFullDebug on every pull request. Errors already in the code are recorded in
+    // lint-baseline.xml, so only new ones fail the build; regenerate it with
+    // `./gradlew :app:updateLintBaselineFullDebug` after fixing a batch of them. Untranslated
+    // strings fall back to English and are filled in later, so they warn instead of failing.
+    lint {
+        baseline = file("lint-baseline.xml")
+        warning += "MissingTranslation"
+    }
+
     sourceSets {
         getByName("main") {
             jniLibs.srcDirs("src/main/jniLibs")
@@ -325,32 +334,32 @@ dependencies {
     // Platform-free code shared with the desktop app.
     implementation(project(":shared"))
 
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
-    val composeBom = platform("androidx.compose:compose-bom:2026.05.01")
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    val composeBom = platform(libs.androidx.compose.bom)
 
     // Source-retention nullness annotations (MonotonicNonNull / RequiresNonNull /
     // EnsuresNonNull) used by the vendored Matroska extractor in
     // com.fetch.tv.core.player.dvmkv. Media3 keeps these compileOnly in its own
     // build, so they aren't on our classpath via the prebuilt AARs.
-    compileOnly("org.checkerframework:checker-qual:3.43.0")
+    compileOnly(libs.checker.qual)
 
     baselineProfile(project(":baselineprofile"))
     implementation(libs.androidx.core.ktx)
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.profileinstaller)
-    implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation(libs.androidx.recyclerview)
     implementation(composeBom)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.foundation:foundation")
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.tv.material)
     implementation(libs.androidx.tvprovider)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation("androidx.activity:activity-compose:1.11.0")
+    implementation(libs.androidx.activity.compose)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -399,7 +408,7 @@ dependencies {
     implementation(libs.media3.session)
     implementation(libs.media3.container)
     // Guava is used directly (dvmkv extractor), not only through Media3.
-    implementation("com.google.guava:guava:33.3.1-android")
+    implementation(libs.guava.android)
     implementation(libs.media3.ui)
 
     // Local decoder AARs (AV1, IAMF, MPEG-H)
@@ -415,10 +424,10 @@ dependencies {
     }
 
     // libass-android for ASS/SSA subtitle support (from Maven Central)
-    implementation("io.github.peerless2012:ass-media:0.4.0")
+    implementation(libs.ass.media)
     // Local nextlib-mediainfo fork (static FFmpeg; no libav*.so in final AAR)
     implementation(files("libs/nextlib-mediainfo-local.aar"))
-    implementation("io.github.abdallahmehiz:mpv-android-lib:0.1.12")
+    implementation(libs.mpv.android.lib)
 
     implementation(libs.gson)
 
@@ -434,22 +443,22 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Performance profiling
-    implementation("androidx.metrics:metrics-performance:1.0.0-rc01")  // JankStats
-    debugImplementation("androidx.compose.runtime:runtime-tracing")
+    implementation(libs.androidx.metrics.performance)  // JankStats
+    debugImplementation(libs.androidx.compose.runtime.tracing)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
-    testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.junit)
     // Real org.json for JVM tests; android.jar only ships stubs.
-    testImplementation("org.json:json:20240303")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
-    testImplementation("io.mockk:mockk:1.13.12")
-    testImplementation("com.squareup.okhttp3:mockwebserver:5.3.2")
-    testImplementation("org.robolectric:robolectric:4.17")
+    testImplementation(libs.org.json)
+    testImplementation(libs.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(libs.robolectric)
     testImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

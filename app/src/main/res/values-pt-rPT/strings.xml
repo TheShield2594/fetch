@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Continuar a ver</string>
     <string name="type_movie">Filme</string>
@@ -62,7 +62,7 @@
     <string name="web_import_tab_paste">Colar</string>
     <string name="web_import_tab_file">Ficheiro</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Cola o JSON das coleções aqui...</string>
+    <string name="web_import_paste_placeholder">Cola o JSON das coleções aqui…</string>
     <string name="web_import_file_select">Seleciona um ficheiro .json</string>
     <string name="web_order_send_to_top">Mover para o topo</string>
     <string name="web_order_send_to_bottom">Mover para o fim</string>
@@ -132,9 +132,9 @@
     <string name="error_meta_tried_generic">Addons de metadados testados: %1$s. Não foi possível carregar os metadados para id=%2$s (tipo=%3$s).</string>
     <string name="error_meta_tried_issues">Addons de metadados testados: %1$s. Não foi possível carregar os metadados para id=%2$s (tipo=%3$s). Problemas: %4$s.</string>
     <string name="error_stream_no_supported_addon">Nenhum addon instalado suporta streams para \"%1$s\".</string>
-    <string name="error_stream_tried_none">Addons de stream testados: %1$s. Nenhum deles devolveu streams para id=%2$s (tipo=%3$s).</string>
-    <string name="error_stream_tried_generic">Addons de stream testados: %1$s. Não foi possível carregar os streams para id=%2$s (tipo=%3$s).</string>
-    <string name="error_stream_tried_issues">Addons de stream testados: %1$s. Não foi possível carregar os streams para id=%2$s (tipo=%3$s). Problemas: %4$s.</string>
+    <string name="error_stream_tried_none">Addons de stream testados: %1$s. Nenhum deles devolveu streams.</string>
+    <string name="error_stream_tried_generic">Addons de stream testados: %1$s. Não foi possível carregar os streams.</string>
+    <string name="error_stream_tried_issues">Addons de stream testados: %1$s. Não foi possível carregar os streams. Problemas: %2$s.</string>
     <string name="continue_watching">Continuar a ver</string>
     <string name="cw_upcoming">Brevemente</string>
     <string name="cw_next_up">A seguir</string>
@@ -151,14 +151,15 @@
     <string name="cw_airs_tomorrow">Estreia amanhã</string>
     <plurals name="cw_airs_in_days">
         <item quantity="one">Estreia daqui a %d dia</item>
+        <item quantity="many">Estreia daqui a %d dias</item>
         <item quantity="other">Estreia daqui a %d dias</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Hoje</string>
     <string name="cw_airs_tomorrow_short">Amanhã</string>
     <plurals name="cw_airs_in_days_short">
         <item quantity="one">Em %d dia</item>
+        <item quantity="many">Em %d dias</item>
         <item quantity="other">Em %d dias</item>
     </plurals>
     <string name="cw_action_go_to_details">Ir para os detalhes</string>
@@ -239,7 +240,6 @@
     <string name="detail_comments_back_hint">Carrega em Voltar para fechar.</string>
     <string name="detail_comments_badge_review">Crítica</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d gostos</string>
     <string name="tmdb_entity_kind_company">Produtora</string>
     <string name="tmdb_entity_kind_network">Canal/Plataforma</string>
@@ -248,11 +248,10 @@
     <string name="tmdb_entity_rail_recent">Recentes</string>
     <string name="tmdb_entity_rail_most_voted">Mais votados</string>
     <string name="collections_editor_tmdb_watch_region">Região de disponibilidade</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Código de país ISO 3166-1 onde o título está disponível. Exemplo: PT, BR, US.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Código de país ISO 3166-1 onde o título está disponível. Exemplo: PT, BR, US.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Regiões rápidas</string>
     <string name="collections_editor_tmdb_watch_providers">IDs dos serviços</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Utiliza os IDs dos serviços do TMDB. Separa vários com vírgulas para \"E\", ou com barras verticais para \"OU\".</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Serviços rápidos</string>
     <string name="tmdb_error_load_source">Não foi possível carregar a fonte TMDB</string>
     <string name="tmdb_error_list_not_found">Lista TMDB não encontrada</string>
@@ -332,7 +331,6 @@
     <string name="licenses_attributions_section_app">LICENÇA DA APP</string>
     <string name="licenses_attributions_section_data">DADOS E SERVIÇOS</string>
     <string name="licenses_attributions_section_playback">LICENÇAS DE REPRODUÇÃO ANDROID</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">O Fetch utiliza a API do TMDB para metadados de filmes e séries, imagens, trailers, elenco, detalhes de produção, coleções e recomendações. Este produto utiliza a API do TMDB, mas não é endossado nem certificado pelo TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
@@ -398,7 +396,7 @@
     <string name="advanced_section_performance">Desempenho e navegação</string>
     <string name="advanced_section_diagnostics">Diagnósticos</string>
     <string name="advanced_section_cache">Cache</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">Diagnóstico Dolby Vision</string>
+    <string name="advanced_section_dv_diagnostics">Diagnóstico Dolby Vision</string>
     <string name="advanced_fast_horizontal_navigation">Navegação horizontal rápida</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Aumenta a velocidade de repetição do D-pad nas linhas, mantendo ativa a limitação de repetição.</string>
     <string name="advanced_fetch_focus_scroll">Deslocamento de foco do Fetch</string>
@@ -445,7 +443,6 @@
     <string name="playback_player_external">Externo</string>
     <string name="playback_player_ask">Perguntar sempre</string>
     <string name="playback_internal_player_engine">Motor interno</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Mudar automaticamente de motor em caso de erro ao iniciar</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Se o início do stream falhar, alterna entre o ExoPlayer e a libmpv automaticamente.</string>
@@ -517,20 +514,20 @@
     <string name="audio_dv5_to_dv81_sub">Sinaliza streams Profile 5 como Profile 8.1 para saída compatível com HDR10. Ajuda em dispositivos sem descodificador DV5 nativo.</string>
     <string name="audio_dv7_preserve_mapping_title">Preservar mapeamento Dolby Vision (DV7 para DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">Mantém o mapeamento de tons original definido pelo criador, à custa de um pouco mais de processamento por fotograma.</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Modo de conversão (selecionado automaticamente; não alteres salvo indicação). Escolhe um para o forçar; Nenhum utiliza o modo automático. Só fica ativo quando o Tratamento Dolby Vision está definido para Converter para DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Modo de conversão</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">Nenhum</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">Sem substituição. Utiliza o modo de conversão selecionado automaticamente.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Modo 0 — Copiar (sem converter)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Analisa o RPU e volta a escrevê-lo sem alterações. Sem conversão de perfil.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Modo 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Converte o RPU para ser compatível com MEL (Minimum Enhancement Layer).</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Modo 2 — 8.1 (mapeamento no-op)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Converte para Profile 8.1 com mapeamento de luma e croma definido como no-op. É a conversão predefinida.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Modo 3 — Profile 5 para 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Converte streams Profile 5 (DV5) para Profile 8.1. É a mesma conversão utilizada pela opção Converter DV5 para DV8.1.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Modo 4 — 8.4 (estático)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Converte para Profile 8.4 estático.</string>
+    <string name="dv7_libdovi_mode_caption">Modo de conversão (selecionado automaticamente; não alteres salvo indicação). Escolhe um para o forçar; Nenhum utiliza o modo automático. Só fica ativo quando o Tratamento Dolby Vision está definido para Converter para DV8.1.</string>
+    <string name="dv7_libdovi_mode_row_title">Modo de conversão</string>
+    <string name="dv7_libdovi_mode_none_title">Nenhum</string>
+    <string name="dv7_libdovi_mode_none_sub">Sem substituição. Utiliza o modo de conversão selecionado automaticamente.</string>
+    <string name="dv7_libdovi_mode_0_title">Modo 0 — Copiar (sem converter)</string>
+    <string name="dv7_libdovi_mode_0_sub">Analisa o RPU e volta a escrevê-lo sem alterações. Sem conversão de perfil.</string>
+    <string name="dv7_libdovi_mode_1_title">Modo 1 — MEL</string>
+    <string name="dv7_libdovi_mode_1_sub">Converte o RPU para ser compatível com MEL (Minimum Enhancement Layer).</string>
+    <string name="dv7_libdovi_mode_2_title">Modo 2 — 8.1 (mapeamento no-op)</string>
+    <string name="dv7_libdovi_mode_2_sub">Converte para Profile 8.1 com mapeamento de luma e croma definido como no-op. É a conversão predefinida.</string>
+    <string name="dv7_libdovi_mode_3_title">Modo 3 — Profile 5 para 8.1</string>
+    <string name="dv7_libdovi_mode_3_sub">Converte streams Profile 5 (DV5) para Profile 8.1. É a mesma conversão utilizada pela opção Converter DV5 para DV8.1.</string>
+    <string name="dv7_libdovi_mode_4_title">Modo 4 — 8.4 (estático)</string>
+    <string name="dv7_libdovi_mode_4_sub">Converte para Profile 8.4 estático.</string>
     <string name="audio_mpv_hwdec_title">Descodificação por Hardware (Apenas MPV)</string>
     <string name="audio_mpv_hwdec_dialog_subtitle">Seleciona como a libmpv deve utilizar os descodificadores por hardware.</string>
     <string name="audio_mpv_hwdec_legacy_direct_copy">Legado (direto -&gt; cópia)</string>
@@ -949,7 +946,7 @@
     <string name="player_loading_buffering">A carregar (buffering)…</string>
     <string name="player_engine_switching_title">A alterar o Motor do Leitor</string>
     <string name="player_engine_switching_message">Falha ao iniciar. A alternar para %1$s…</string>
-    <string name="player_engine_switching_manual_message">A alternar para %1$s...</string>
+    <string name="player_engine_switching_manual_message">A alternar para %1$s…</string>
     <string name="playback_show_loading_status">Mostrar estado de carregamento</string>
     <string name="playback_show_loading_status_sub">Exibir o progresso passo a passo enquanto o leitor está a inicializar.</string>
     <string name="player_sync_line">Linha de Sincronia</string>
@@ -1189,7 +1186,7 @@
     <string name="profile_delete_confirm_title">Eliminar perfil?</string>
     <string name="profile_delete_confirm_subtitle">Isto irá eliminar permanentemente este perfil e todos os seus dados, incluindo a biblioteca, o histórico de visualização e as definições de addons. Esta ação não pode ser desfeita.</string>
     <string name="profile_delete_btn">Eliminar perfil</string>
-    <string name="profile_saving">A guardar...</string>
+    <string name="profile_saving">A guardar…</string>
     <string name="cast_detail_error">Algo correu mal</string>
     <string name="cast_detail_retry">Tentar novamente</string>
     <string name="cast_detail_filmography">Filmografia</string>
@@ -1206,14 +1203,14 @@
     <string name="update_unknown_sources">Permite as instalações de fontes desconhecidas para continuar.</string>
     <!-- AccountScreen -->
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">A carregar classificações dos episódios...</string>
+    <string name="ratings_loading">A carregar classificações dos episódios…</string>
     <string name="ratings_unavailable">As classificações dos episódios estão indisponíveis.</string>
     <string name="ratings_load_error">Não foi possível carregar as classificações dos episódios.</string>
     <string name="ratings_season_summary">Temporada %1$d - %2$d episódios</string>
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Descobrir</string>
     <string name="discover_load_more">Carregar mais</string>
-    <string name="discover_loading">A carregar...</string>
+    <string name="discover_loading">A carregar…</string>
     <string name="discover_filter_genre">Género</string>
     <string name="discover_empty_no_content_title">Nenhum conteúdo encontrado</string>
     <string name="discover_empty_no_content_subtitle">Tenta um género ou catálogo diferente</string>
@@ -1267,11 +1264,11 @@
     <string name="trakt_error_list_not_found_or_private">A lista do Trakt não foi encontrada ou é privada</string>
     <string name="trakt_error_rate_limit_reached">Limite de taxa de pedidos do Trakt atingido</string>
     <string name="trakt_status_enter_activation_code">Introduz o código em trakt.tv/activate</string>
-    <string name="trakt_status_syncing">A sincronizar...</string>
+    <string name="trakt_status_syncing">A sincronizar…</string>
     <string name="trakt_status_sync_completed">Sincronização concluída</string>
     <string name="trakt_status_disconnected">Desligado do Trakt</string>
     <string name="trakt_status_cw_window_updated">Janela de \"Continuar a ver\" atualizada</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Taxa limite atingida, a abrandar a verificação...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Taxa limite atingida, a abrandar a verificação…</string>
     <string name="trakt_user_fallback">Utilizador do Trakt</string>
     <string name="trakt_error_failed_start">Falha ao iniciar a autenticação do Trakt</string>
     <!-- General errors -->
@@ -1312,7 +1309,6 @@
     <string name="cd_refresh">Atualizar</string>
     <string name="cd_remove">Remover</string>
     <string name="cd_preview">Visualização</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logótipo do Trakt</string>
     <string name="cd_trakt_qr">QR de ativação do Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1458,7 +1454,7 @@
     <string name="collections_editor_tmdb_genres_helper">Utiliza os números de género do TMDB. Separa vários com vírgulas para \"E\", ou com barras verticais para \"OU\".</string>
     <string name="collections_editor_tmdb_date_from">Lançamento ou emissão desde</string>
     <string name="collections_editor_tmdb_date_to">Lançamento ou emissão até</string>
-    <string name="collections_editor_tmdb_date_helper">Utiliza o formato AAAA-MM-DD, por exemplo, 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Utiliza o formato AAAA-MM-DD, por exemplo, 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Classificação mínima</string>
     <string name="collections_editor_tmdb_rating_max">Classificação máxima</string>
     <string name="collections_editor_tmdb_rating_helper">Classificação do TMDB de 0 a 10. Exemplo: 7.0.</string>
@@ -1505,14 +1501,9 @@
     <string name="collections_editor_tmdb_placeholder_network">213 para Netflix, 49 para HBO, 2739 para Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 para Tom Hanks ou URL da pessoa</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ou 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1537,13 +1528,13 @@
     <string name="collections_editor_placeholder_gif">URL do GIF animado (reproduz apenas quando destacado)</string>
     <string name="collections_editor_hero_backdrop">Fundo de Destaque / Hero Backdrop (Início Moderno)</string>
     <string name="collections_editor_placeholder_hero_backdrop">URL do fundo de destaque personalizado (opcional)</string>
-    <string name="collections_editor_hero_video">Vídeo de Destaque / Hero Video (Início Moderno)</string>
+    <string name="collections_editor_hero_video" tools:ignore="Typos">Vídeo de Destaque / Hero Video (Início Moderno)</string>
     <string name="collections_editor_placeholder_hero_video">URL do vídeo de destaque personalizado (opcional)</string>
     <string name="collections_editor_title_logo">Logótipo do Título (Início Moderno)</string>
     <string name="collections_editor_placeholder_title_logo">URL do logótipo do título personalizado (opcional)</string>
-    <string name="collections_editor_search_emoji_placeholder">Pesquisar emoji...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Filtrar fontes ativas...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Pesquisar catálogos...</string>
+    <string name="collections_editor_search_emoji_placeholder">Pesquisar emoji…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Filtrar fontes ativas…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Pesquisar catálogos…</string>
     <string name="collections_editor_genre_filter">Filtro de género</string>
     <string name="collections_editor_choose_genre">Escolher</string>
     <string name="collections_editor_select_genre">Selecionar género</string>
@@ -1794,7 +1785,7 @@
     <string name="playback_cache_vod_size">Tamanho da cache VOD</string>
     <string name="playback_cache_vod_size_sub">Utilização máxima de disco para a cache VOD progressiva (removida por LRU).</string>
     <string name="playback_cache_info_range">Intervalo: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">O modo automático aponta para cerca de 10 por cento do espaço livre.</string>
+    <string name="playback_cache_info_auto" formatted="false">O modo automático aponta para cerca de 10 por cento do espaço livre.</string>
     <string name="playback_cache_info_manual_headroom">O modo manual mantém cerca de %1$d MB de margem.</string>
     <string name="playback_cache_info_free_disk">Espaço livre disponível: %1$s.</string>
     <string name="playback_cache_info_restart">O novo limite da cache aplica-se após reiniciar a app quando mudares de modo ou tamanho.</string>
@@ -1940,6 +1931,7 @@
     <string name="fetching_addons_done">Todos os %1$d addons responderam</string>
     <plurals name="fetching_addons_waiting">
         <item quantity="one">A procurar… %1$d responderam, %2$d addon ainda a procurar</item>
+        <item quantity="many">A procurar… %1$d responderam, %2$d addons ainda a procurar</item>
         <item quantity="other">A procurar… %1$d responderam, %2$d addons ainda a procurar</item>
     </plurals>
     <string name="fetching_best_so_far">Melhor até agora</string>
@@ -1947,6 +1939,7 @@
     <string name="fetching_see_all_sources">Ver todas as fontes</string>
     <plurals name="fetching_starting_in">
         <item quantity="one">A iniciar em %1$d segundo</item>
+        <item quantity="many">A iniciar em %1$d segundos</item>
         <item quantity="other">A iniciar em %1$d segundos</item>
     </plurals>
     <string name="filter_row_addon_note">Os catálogos de addons só podem ser filtrados por género.</string>
@@ -2060,6 +2053,7 @@
     <string name="ranking_preferred_size_sub">Ficheiros maiores ficam mais abaixo</string>
     <plurals name="ranking_selected_count">
         <item quantity="one">%1$d selecionado</item>
+        <item quantity="many">%1$d selecionados</item>
         <item quantity="other">%1$d selecionados</item>
     </plurals>
     <string name="ranking_size_gb">%1$d GB</string>

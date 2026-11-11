@@ -5,6 +5,9 @@
 
 package com.fetch.tv.ui.screens.player
 
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.platform.LocalResources
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchMotion
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
@@ -178,7 +181,7 @@ private fun EpisodeStreamsView(
     val streamListState = rememberLazyListState()
     var userMovedFromFirstResult by remember { mutableStateOf(false) }
     var firstResultFocusAssigned by remember { mutableStateOf(false) }
-    var firstStreamFocusRequestId by remember { mutableStateOf(0) }
+    var firstStreamFocusRequestId by remember { mutableIntStateOf(0) }
     var listHasFocus by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var focusJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
@@ -200,7 +203,7 @@ private fun EpisodeStreamsView(
             add(refreshFocusRequester)
             add(allFocusRequester)
             orderedAddonNames.forEach { addon ->
-                add(addonFocusRequesters.getOrPut(addon) { FocusRequester() })
+                add(addonFocusRequesters.focusRequesterFor(addon))
             }
         }
     }
@@ -217,7 +220,7 @@ private fun EpisodeStreamsView(
     val firstStreamKey = streamKeys.firstOrNull()
     val streamFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     streamKeys.forEach { key ->
-        streamFocusRequesters.getOrPut(key) { FocusRequester() }
+        streamFocusRequesters.focusRequesterFor(key)
     }
     var firstCardHasFocus by remember(firstStreamKey) { mutableStateOf(false) }
 
@@ -768,15 +771,16 @@ private fun EpisodeItem(
     var isFocused by remember { mutableStateOf(false) }
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     val context = LocalContext.current
-    val episodeTitle = episode.title.localizeEpisodeTitle(context).ifBlank { context.getString(R.string.episodes_episode) }
+    val resources = LocalResources.current
+    val episodeTitle = episode.title.localizeEpisodeTitle(context).ifBlank { resources.getString(R.string.episodes_episode) }
     val formattedDate = remember(episode.released) {
         episode.released?.let { formatReleaseDate(it) }?.takeIf { it.isNotBlank() }
     }
-    val episodeCode = remember(episode.season, episode.episode) {
+    val episodeCode = remember(episode.season, episode.episode, resources) {
         val s = episode.season
         val e = episode.episode
         if (s != null && e != null) {
-            context.getString(R.string.season_episode_format, s, e)
+            resources.getString(R.string.season_episode_format, s, e)
         } else {
             null
         }

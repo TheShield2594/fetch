@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
+import androidx.core.net.toUri
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import android.util.Log
 import androidx.annotation.StringRes
@@ -70,7 +71,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import com.fetch.tv.R
 import com.fetch.tv.core.build.AppFeaturePolicy
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -3163,7 +3163,7 @@ class MetaDetailsViewModel @Inject constructor(
 
     private fun openExternalTrailer(url: String) {
         runCatching {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
         }

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">தொடர்ந்து பார்க்கவும்</string>
     <string name="type_movie">திரைப்படம்</string>
@@ -64,7 +64,7 @@
     <string name="web_import_tab_paste">ஒட்டு</string>
     <string name="web_import_tab_file">கோப்பு</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">தொகுப்புகளின் JSON ஐ இங்கே ஒட்டவும்...</string>
+    <string name="web_import_paste_placeholder">தொகுப்புகளின் JSON ஐ இங்கே ஒட்டவும்…</string>
     <string name="web_import_file_select">ஒரு .json கோப்பை தேர்ந்தெடுக்க தட்டவும்</string>
     <string name="web_order_send_to_top">மேலே அனுப்பு</string>
     <string name="web_order_send_to_bottom">கீழே அனுப்பு</string>
@@ -138,9 +138,9 @@
     <string name="error_meta_tried_generic">முயற்சித்த meta ஆடான்கள்: %1$s. id=%2$s (type=%3$s) க்கான metadata ஏற்ற முடியவில்லை.</string>
     <string name="error_meta_tried_issues">முயற்சித்த meta ஆடான்கள்: %1$s. id=%2$s (type=%3$s) க்கான metadata ஏற்ற முடியவில்லை. சிக்கல்கள்: %4$s.</string>
     <string name="error_stream_no_supported_addon">நிறுவப்பட்ட எந்த ஆடானும் \"%1$s\" க்கான streams-ஐ ஆதரிக்கவில்லை.</string>
-    <string name="error_stream_tried_none">முயற்சித்த stream ஆடான்கள்: %1$s. இவற்றில் எதுவும் id=%2$s (type=%3$s) க்கான streams வழங்கவில்லை.</string>
-    <string name="error_stream_tried_generic">முயற்சித்த stream ஆடான்கள்: %1$s. id=%2$s (type=%3$s) க்கான streams ஏற்ற முடியவில்லை.</string>
-    <string name="error_stream_tried_issues">முயற்சித்த stream ஆடான்கள்: %1$s. id=%2$s (type=%3$s) க்கான streams ஏற்ற முடியவில்லை. சிக்கல்கள்: %4$s.</string>
+    <string name="error_stream_tried_none">முயற்சித்த stream ஆடான்கள்: %1$s. இவற்றில் எதுவும் streams வழங்கவில்லை.</string>
+    <string name="error_stream_tried_generic">முயற்சித்த stream ஆடான்கள்: %1$s. streams ஏற்ற முடியவில்லை.</string>
+    <string name="error_stream_tried_issues">முயற்சித்த stream ஆடான்கள்: %1$s. streams ஏற்ற முடியவில்லை. சிக்கல்கள்: %2$s.</string>
 
         <!-- ContinueWatchingSection -->
     <string name="continue_watching">தொடர்ந்து பார்க்க</string>
@@ -241,7 +241,6 @@
     <string name="detail_comments_back_hint">மூட பின் அழுத்தவும்</string>
     <string name="detail_comments_badge_review">விமர்சனம்</string>
     <string name="detail_comments_badge_spoiler">ஸ்பாய்லர்</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d விருப்பங்கள்</string>
     <string name="tmdb_entity_kind_company">தயாரிப்பு நிறுவனம்</string>
     <string name="tmdb_entity_kind_network">நெட்வொர்க்</string>
@@ -250,11 +249,10 @@
     <string name="tmdb_entity_rail_recent">சமீபத்திய</string>
     <string name="tmdb_entity_rail_most_voted">அதிக வாக்குகள்</string>
     <string name="collections_editor_tmdb_watch_region">பார்க்கும் பகுதி</string>
-    <string name="collections_editor_tmdb_watch_region_helper">தலைப்பு கிடைக்கும் ISO 3166-1 நாடு குறியீடு. உதாரணம்: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">தலைப்பு கிடைக்கும் ISO 3166-1 நாடு குறியீடு. உதாரணம்: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">விரைவு பார்க்கும் பகுதிகள்</string>
     <string name="collections_editor_tmdb_watch_providers">பார்க்கும் வழங்குநர் ஐடிகள்</string>
     <string name="collections_editor_tmdb_watch_providers_helper">TMDB வழங்குநர் ஐடிகளை பயன்படுத்தவும். AND க்கு கமா, OR க்கு பைப் பயன்படுத்தவும்.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">விரைவு வழங்குநர்கள்</string>
     <string name="tmdb_error_load_source">TMDB மூலத்தை ஏற்ற முடியவில்லை</string>
     <string name="tmdb_error_list_not_found">TMDB பட்டியல் கிடைக்கவில்லை</string>
@@ -342,7 +340,6 @@
     <string name="licenses_attributions_section_app">செயலி உரிமம்</string>
     <string name="licenses_attributions_section_data">தரவு &amp; சேவைகள்</string>
     <string name="licenses_attributions_section_playback">ஆண்ட்ராய்டு இயக்க உரிமங்கள்</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">தி மூவி டேட்டாபேஸ் (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch திரைப்படம் மற்றும் டிவி தகவல்கள், கலைப்படங்கள், முன்னோட்டங்கள், நடிகர்கள், தயாரிப்பு விவரங்கள், தொகுப்புகள் மற்றும் பரிந்துரைகளுக்காக TMDB API-ஐ பயன்படுத்துகிறது. இந்த தயாரிப்பு TMDB API-ஐ பயன்படுத்தினாலும் TMDB ஆதரவு அல்லது சான்றளிப்பு பெறவில்லை.</string>
     <string name="licenses_attributions_trakt_title">ட்ராக்ட்</string>
@@ -457,7 +454,6 @@
     <string name="playback_player_external">வெளிப்புறம்</string>
     <string name="playback_player_ask">ஒவ்வொரு முறையும் கேள்</string>
     <string name="playback_internal_player_engine">உள்ளமை engine</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (பீட்டா)</string>
     <string name="playback_auto_switch_internal_player_on_error">தொடக்க பிழையில் engine-ஐ தானாக மாற்று</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">ஸ்ட்ரீம் தொடக்கம் தோல்வியடைந்தால் ExoPlayer மற்றும் libmpv இடையே தானாக மாறு.</string>
@@ -904,7 +900,7 @@
     <string name="player_loading_buffering">பஃபரிங்…</string>
     <string name="player_engine_switching_title">பிளேயர் என்ஜின் மாற்றப்படுகிறது</string>
     <string name="player_engine_switching_message">தொடக்கம் தோல்வியடைந்தது. %1$s க்கு மாறுகிறது…</string>
-    <string name="player_engine_switching_manual_message">%1$s க்கு மாறுகிறது...</string>
+    <string name="player_engine_switching_manual_message">%1$s க்கு மாறுகிறது…</string>
     <string name="playback_show_loading_status">ஏற்ற நிலையை காட்டு</string>
     <string name="playback_show_loading_status_sub">பிளேயர் தொடங்கும் போது படிப்படியான முன்னேற்றத்தை காட்டு.</string>
     <string name="player_sync_line">ஒத்திசை வரி</string>
@@ -1183,7 +1179,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">எபிசோட் மதிப்பீடுகள் ஏற்றப்படுகின்றன...</string>
+    <string name="ratings_loading">எபிசோட் மதிப்பீடுகள் ஏற்றப்படுகின்றன…</string>
     <string name="ratings_unavailable">எபிசோட் மதிப்பீடுகள் கிடைக்கவில்லை.</string>
     <string name="ratings_load_error">எபிசோட் மதிப்பீடுகளை ஏற்ற முடியவில்லை.</string>
     <string name="ratings_season_summary">சீசன் %1$d - %2$d எபிசோட்கள்</string>
@@ -1191,7 +1187,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">கண்டறிதல்</string>
     <string name="discover_load_more">மேலும் ஏற்று</string>
-    <string name="discover_loading">ஏற்றப்படுகிறது...</string>
+    <string name="discover_loading">ஏற்றப்படுகிறது…</string>
     <string name="discover_filter_genre">வகைப்பாடு</string>
     <string name="discover_empty_no_content_title">உள்ளடக்கம் எதுவும் இல்லை</string>
     <string name="discover_empty_no_content_subtitle">வேறு வகைப்பாடு அல்லது கேட்டலாக் முயற்சிக்கவும்</string>
@@ -1261,11 +1257,11 @@
     <string name="trakt_error_list_not_found_or_private">டிராக்ட் பட்டியல் கிடைக்கவில்லை அல்லது பொதுவானது அல்ல</string>
     <string name="trakt_error_rate_limit_reached">டிராக்ட் வரம்பு எட்டப்பட்டது</string>
     <string name="trakt_status_enter_activation_code">trakt.tv/activate இல் குறியீட்டை உள்ளிடவும்</string>
-    <string name="trakt_status_syncing">ஒத்திசைக்கப்படுகிறது...</string>
+    <string name="trakt_status_syncing">ஒத்திசைக்கப்படுகிறது…</string>
     <string name="trakt_status_sync_completed">ஒத்திசைவு முடிந்தது</string>
     <string name="trakt_status_disconnected">டிராக்டிலிருந்து துண்டிக்கப்பட்டது</string>
     <string name="trakt_status_cw_window_updated">தொடர்ந்து பார்ப்பது சாளரம் புதுப்பிக்கப்பட்டது</string>
-    <string name="trakt_status_rate_limited_slowing_polling">வரம்பு விதிக்கப்பட்டது, சரிபார்ப்பு மெதுவாக்கப்படுகிறது...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">வரம்பு விதிக்கப்பட்டது, சரிபார்ப்பு மெதுவாக்கப்படுகிறது…</string>
     <string name="trakt_user_fallback">டிராக்ட் பயனர்</string>
     <string name="trakt_error_failed_start">டிராக்ட் அங்கீகாரத்தை தொடங்க முடியவில்லை</string>
 
@@ -1326,7 +1322,6 @@
     <string name="cd_refresh">புதுப்பிப்பு</string>
     <string name="cd_remove">அகற்று</string>
     <string name="cd_preview">முன்னோட்டம்</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">ட்ராக்ட் லோகோ</string>
     <string name="cd_trakt_qr">ட்ராக்ட் செயல்படுத்தும் க்யூஆர்</string>
     <string name="cd_imdb">ஐஎம்டிபி</string>
@@ -1476,7 +1471,7 @@
     <string name="collections_editor_tmdb_genres_helper">டிஎம்டிபி வகை எண்களைப் பயன்படுத்துங்கள். பலவற்றை AND க்கு கமாவாலும், OR க்கு பைப் குறியாலும் பிரிக்கவும்.</string>
     <string name="collections_editor_tmdb_date_from">வெளியீடு அல்லது ஒளிபரப்பு தேதி முதல்</string>
     <string name="collections_editor_tmdb_date_to">வெளியீடு அல்லது ஒளிபரப்பு தேதி வரை</string>
-    <string name="collections_editor_tmdb_date_helper">YYYY-MM-DD வடிவத்தைப் பயன்படுத்துங்கள், எடுத்துக்காட்டு 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">YYYY-MM-DD வடிவத்தைப் பயன்படுத்துங்கள், எடுத்துக்காட்டு 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">குறைந்தபட்ச மதிப்பீடு</string>
     <string name="collections_editor_tmdb_rating_max">அதிகபட்ச மதிப்பீடு</string>
     <string name="collections_editor_tmdb_rating_helper">டிஎம்டிபி மதிப்பீடு 0 முதல் 10 வரை. எடுத்துக்காட்டு: 7.0.</string>
@@ -1523,14 +1518,9 @@
     <string name="collections_editor_tmdb_placeholder_network">நெட்ப்ளிக்ஸுக்கு 213, எச்பிஓக்கு 49, டிஸ்னி+க்கு 2739</string>
     <string name="collections_editor_tmdb_person_placeholder">டாம் ஹாங்க்ஸுக்கு 31, அல்லது நபர் யுஆர்எல்</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 அல்லது 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1559,9 +1549,9 @@
     <string name="collections_editor_placeholder_hero_video">தனிப்பயன் ஹீரோ வீடியோ யுஆர்எல் (விருப்பம்)</string>
     <string name="collections_editor_title_logo">தலைப்பு லோகோ (மாடர்ன் முகப்பு)</string>
     <string name="collections_editor_placeholder_title_logo">தனிப்பயன் தலைப்பு லோகோ யுஆர்எல் (விருப்பம்)</string>
-    <string name="collections_editor_search_emoji_placeholder">ஈமோஜி தேடு...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">செயலில் உள்ள மூலங்களை வடிகட்டு...</string>
-    <string name="collections_editor_search_catalogs_placeholder">கேட்டலாக்கள் தேடு...</string>
+    <string name="collections_editor_search_emoji_placeholder">ஈமோஜி தேடு…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">செயலில் உள்ள மூலங்களை வடிகட்டு…</string>
+    <string name="collections_editor_search_catalogs_placeholder">கேட்டலாக்கள் தேடு…</string>
     <string name="collections_editor_genre_filter">வகை வடிகட்டி</string>
     <string name="collections_editor_choose_genre">தேர்வு செய்</string>
     <string name="collections_editor_select_genre">வகையைத் தேர்ந்தெடு</string>

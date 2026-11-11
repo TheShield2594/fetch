@@ -27,7 +27,6 @@
     <string name="servers_remove">Quitar servidor</string>
     <string name="servers_remove_confirm_title">¿Quitar este servidor?</string>
     <string name="servers_remove_confirm_message">Se cerrará tu sesión de %1$s en este dispositivo. Puedes volver a agregarlo cuando quieras.</string>
-    <string name="servers_signed_in_as">%1$s · %2$s</string>
     <string name="servers_status_disabled">Desactivado</string>
     <string name="servers_status_auth">Iniciar sesión de nuevo</string>
     <string name="servers_status_unreachable">Servidor no disponible</string>

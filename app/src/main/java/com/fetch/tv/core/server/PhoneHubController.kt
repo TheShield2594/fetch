@@ -17,6 +17,7 @@ import com.fetch.tv.core.profile.TvBackup
 import com.fetch.tv.core.remote.RemoteCommand
 import com.fetch.tv.core.remote.RemoteCommandBus
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
+import com.fetch.tv.core.util.readWordmarkPngBytes
 import com.fetch.tv.core.util.withAppLocale
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.MDBListSettingsDataStore
@@ -162,7 +163,7 @@ class PhoneHubController @Inject constructor(
     @Volatile private var simklCode: PhoneHubDeviceCode? = null
 
     private val logoBytes: ByteArray? by lazy {
-        runCatching { context.resources.openRawResource(R.drawable.app_logo_wordmark).use { it.readBytes() } }.getOrNull()
+        context.readWordmarkPngBytes()
     }
 
     /** A message for the phone, in the app's language rather than the system's. */

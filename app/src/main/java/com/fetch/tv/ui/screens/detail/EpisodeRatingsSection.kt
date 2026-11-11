@@ -42,6 +42,7 @@ import com.fetch.tv.R
 import com.fetch.tv.domain.model.Video
 import com.fetch.tv.ui.theme.FetchContentColors
 import com.fetch.tv.ui.theme.FetchPrimitives
+import java.util.Locale
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -97,7 +98,7 @@ fun EpisodeRatingsSection(
             val season = episode.season ?: return@mapNotNull null
             val episodeNumber = episode.episode ?: return@mapNotNull null
             val rating = ratings[season to episodeNumber]
-            val ratingText = rating?.let { String.format("%.1f", it) } ?: "—"
+            val ratingText = rating?.let { String.format(Locale.getDefault(), "%.1f", it) } ?: "—"
             val chipColor = rating?.let(::episodeRatingChipColor) ?: defaultChipColor
             val chipTextColor = rating?.let(::episodeRatingChipTextColor) ?: defaultChipTextColor
             EpisodeRatingChipUi(

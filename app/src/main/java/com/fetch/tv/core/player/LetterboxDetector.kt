@@ -1,7 +1,7 @@
 package com.fetch.tv.core.player
 
-import android.graphics.Bitmap
 import android.view.TextureView
+import androidx.core.graphics.createBitmap
 import kotlin.math.abs
 
 object LetterboxDetector {
@@ -55,11 +55,7 @@ object LetterboxDetector {
 
 class LetterboxSampler {
 
-    private val bitmap = Bitmap.createBitmap(
-        LetterboxDetector.SAMPLE_WIDTH,
-        LetterboxDetector.SAMPLE_HEIGHT,
-        Bitmap.Config.ARGB_8888
-    )
+    private val bitmap = createBitmap(LetterboxDetector.SAMPLE_WIDTH, LetterboxDetector.SAMPLE_HEIGHT)
     private val pixels = IntArray(LetterboxDetector.SAMPLE_WIDTH * LetterboxDetector.SAMPLE_HEIGHT)
 
     fun sample(textureView: TextureView): Float? {

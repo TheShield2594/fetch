@@ -227,9 +227,6 @@ object DolbyVisionBaseLayerPolicy {
      * Returns all-false on any error or pre-N devices.
      */
     private fun queryDvDecoderProfileSupport(): DvDecoderProfileSupport {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            return DvDecoderProfileSupport(false, false, false)
-        }
         return runCatching {
             var dvheDtb = false
             var dvheStn = false

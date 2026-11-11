@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.collection
 
+import androidx.compose.runtime.mutableIntStateOf
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.activity.compose.BackHandler
@@ -289,7 +291,7 @@ fun FolderEditorContent(
         Spacer(modifier = Modifier.height(FetchTheme.spacing.xl))
 
         val catalogFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
-        var pendingFocusIndex by remember { mutableStateOf(-1) }
+        var pendingFocusIndex by remember { mutableIntStateOf(-1) }
 
         LaunchedEffect(pendingFocusIndex, folder.sources.size) {
             if (pendingFocusIndex >= 0) {
@@ -624,7 +626,7 @@ fun FolderEditorContent(
                 }
                 val isMissing = addonSource != null && catalog == null && addonCatalogInfo == null
                 val sourceKey = collectionSourceKey(source)
-                val removeFocusRequester = catalogFocusRequesters.getOrPut(sourceKey) { FocusRequester() }
+                val removeFocusRequester = catalogFocusRequesters.focusRequesterFor(sourceKey)
                 val genreLabel = addonSource?.genre ?: if (catalog?.genreRequired == true) {
                     stringResource(R.string.collections_editor_select_genre)
                 } else {

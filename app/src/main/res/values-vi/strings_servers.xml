@@ -27,7 +27,6 @@
     <string name="servers_remove">Xóa máy chủ</string>
     <string name="servers_remove_confirm_title">Xóa máy chủ này?</string>
     <string name="servers_remove_confirm_message">Thao tác này sẽ đăng xuất bạn khỏi %1$s trên thiết bị này. Bạn có thể thêm lại bất cứ lúc nào.</string>
-    <string name="servers_signed_in_as">%1$s · %2$s</string>
     <string name="servers_status_disabled">Đã tắt</string>
     <string name="servers_status_auth">Đăng nhập lại</string>
     <string name="servers_status_unreachable">Máy chủ không có sẵn</string>

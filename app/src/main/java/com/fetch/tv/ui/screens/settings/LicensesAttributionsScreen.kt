@@ -2,10 +2,11 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import androidx.compose.ui.platform.LocalResources
+import androidx.core.net.toUri
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes
@@ -298,7 +299,7 @@ private fun AttributionDetailRow(
     ) {
         Card(
             onClick = {
-                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.url)))
+                context.startActivity(Intent(Intent.ACTION_VIEW, item.url.toUri()))
             },
             modifier = modifier
                 .fillMaxWidth()
@@ -374,10 +375,10 @@ private fun AttributionDetailRow(
  */
 @Composable
 private fun LicenseText(@RawRes resId: Int) {
-    val context = LocalContext.current
-    val paragraphs = remember(resId) {
+    val resources = LocalResources.current
+    val paragraphs = remember(resources, resId) {
         runCatching {
-            context.resources.openRawResource(resId).bufferedReader().use { it.readText() }
+            resources.openRawResource(resId).bufferedReader().use { it.readText() }
         }.getOrDefault("")
             .split(Regex("\\n\\s*\\n"))
             .map { it.trim() }

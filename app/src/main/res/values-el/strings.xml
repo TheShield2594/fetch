@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <string name="app_name">Fetch</string>
   <string name="tv_channel_continue_watching">Συνέχεια παρακολούθησης</string>
   <string name="type_movie">Ταινία</string>
@@ -63,7 +63,7 @@
   <string name="web_import_tab_paste">Επικόλληση</string>
   <string name="web_import_tab_file">Αρχείο</string>
   <string name="web_import_tab_url">URL</string>
-  <string name="web_import_paste_placeholder">Επικολλήστε εδώ το JSON των συλλογών...</string>
+  <string name="web_import_paste_placeholder">Επικολλήστε εδώ το JSON των συλλογών…</string>
   <string name="web_import_file_select">Πατήστε για επιλογή αρχείου .json</string>
   <string name="web_order_send_to_top">Μεταφορά στην κορυφή</string>
   <string name="web_order_send_to_bottom">Μεταφορά στο τέλος</string>
@@ -135,9 +135,9 @@
   <string name="error_meta_tried_generic">Δοκιμάστηκαν πρόσθετα μεταδεδομένων: %1$s. Δεν μπόρεσαν να φορτωθούν μεταδεδομένα για το ID=%2$s (τύπος=%3$s).</string>
   <string name="error_meta_tried_issues">Δοκιμάστηκαν πρόσθετα μεταδεδομένων: %1$s. Δεν μπόρεσαν να φορτωθούν μεταδεδομένα για το ID=%2$s (τύπος=%3$s). Προβλήματα: %4$s.</string>
   <string name="error_stream_no_supported_addon">Κανένα εγκατεστημένο πρόσθετο δεν υποστηρίζει ροές για «%1$s».</string>
-  <string name="error_stream_tried_none">Δοκιμάστηκαν πρόσθετα ροών: %1$s. Κανένα δεν επέστρεψε ροές για το ID=%2$s (τύπος=%3$s).</string>
-  <string name="error_stream_tried_generic">Δοκιμάστηκαν πρόσθετα ροών: %1$s. Δεν μπόρεσαν να φορτωθούν ροές για το ID=%2$s (τύπος=%3$s).</string>
-  <string name="error_stream_tried_issues">Δοκιμάστηκαν πρόσθετα ροών: %1$s. Δεν μπόρεσαν να φορτωθούν ροές για το ID=%2$s (τύπος=%3$s). Προβλήματα: %4$s.</string>
+  <string name="error_stream_tried_none">Δοκιμάστηκαν πρόσθετα ροών: %1$s. Κανένα δεν επέστρεψε ροές.</string>
+  <string name="error_stream_tried_generic">Δοκιμάστηκαν πρόσθετα ροών: %1$s. Δεν μπόρεσαν να φορτωθούν ροές.</string>
+  <string name="error_stream_tried_issues">Δοκιμάστηκαν πρόσθετα ροών: %1$s. Δεν μπόρεσαν να φορτωθούν ροές. Προβλήματα: %2$s.</string>
   <!-- ContinueWatchingSection -->
   <string name="continue_watching">Συνέχεια παρακολούθησης</string>
   <string name="cw_upcoming">Επόμενα</string>
@@ -158,7 +158,6 @@
     <item quantity="other">Πρεμιέρα σε %d ημέρες</item>
   </plurals>
   <!-- Short versions for compact card styles (wide/poster) -->
-  <string name="cw_airs_date_short">%1$s</string>
   <string name="cw_airs_today_short">Σήμερα</string>
   <string name="cw_airs_tomorrow_short">Αύριο</string>
   <plurals name="cw_airs_in_days_short">
@@ -256,7 +255,6 @@
   <string name="detail_comments_back_hint">Πατήστε πίσω για κλείσιμο</string>
   <string name="detail_comments_badge_review">Κριτική</string>
   <string name="detail_comments_badge_spoiler">Σπόιλερ</string>
-  <string name="detail_comments_badge_rating">%1$d/10</string>
   <string name="detail_comments_likes">%1$d επισημάνσεις \"Μου αρέσει\"</string>
   <string name="tmdb_entity_kind_company">Εταιρεία παραγωγής</string>
   <string name="tmdb_entity_kind_network">Δίκτυο</string>
@@ -265,24 +263,20 @@
   <string name="tmdb_entity_rail_recent">Πρόσφατα</string>
   <string name="tmdb_entity_rail_most_voted">Περισσότερες ψήφοι</string>
   <string name="collections_editor_tmdb_watch_region">Περιοχή προβολής</string>
-  <string name="collections_editor_tmdb_watch_region_helper">Κωδικός χώρας ISO 3166-1 όπου είναι διαθέσιμος ο τίτλος. Παράδειγμα: US, GB.</string>
+  <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Κωδικός χώρας ISO 3166-1 όπου είναι διαθέσιμος ο τίτλος. Παράδειγμα: US, GB.</string>
   <string name="collections_editor_tmdb_quick_watch_regions">Γρήγορες περιοχές προβολής</string>
   <string name="collections_editor_tmdb_watch_providers">ID παρόχων προβολής</string>
   <string name="collections_editor_tmdb_watch_providers_helper">Χρησιμοποιήστε ID παρόχων προβολής TMDB. Χωρίστε πολλαπλά με κόμμα για ΚΑΙ, ή με κάθετη για Ή.</string>
-  <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
   <string name="collections_editor_tmdb_quick_watch_providers">Γρήγοροι πάροχοι προβολής</string>
   <string name="collections_editor_tmdb_without_watch_providers">Αποκλεισμένα ID παρόχων προβολής</string>
   <string name="collections_editor_tmdb_without_watch_providers_helper">Αποκλείστε τίτλους διαθέσιμους από αυτούς τους αριθμούς παρόχων προβολής TMDB στην επιλεγμένη περιοχή.</string>
-  <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
   <string name="collections_editor_tmdb_without_genres">Αποκλεισμένα ID ειδών</string>
   <string name="collections_editor_tmdb_without_genres_helper">Αποκλείστε τίτλους που ταιριάζουν με αυτούς τους αριθμούς ειδών TMDB.</string>
   <string name="collections_editor_tmdb_without_genres_placeholder">16 για Κινούμενα σχέδια</string>
   <string name="collections_editor_tmdb_without_keywords">Αποκλεισμένα ID λέξεων-κλειδιών</string>
   <string name="collections_editor_tmdb_without_keywords_helper">Αποκλείστε τίτλους που ταιριάζουν με αυτούς τους αριθμούς λέξεων-κλειδιών TMDB.</string>
-  <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
   <string name="collections_editor_tmdb_without_companies">Αποκλεισμένα ID εταιρειών</string>
   <string name="collections_editor_tmdb_without_companies_helper">Αποκλείστε τίτλους που σχετίζονται με αυτούς τους αριθμούς εταιρειών TMDB.</string>
-  <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
   <string name="tmdb_error_load_source">Δεν ήταν δυνατή η φόρτωση της πηγής TMDB</string>
   <string name="tmdb_error_list_not_found">Δεν βρέθηκε λίστα TMDB</string>
   <string name="tmdb_error_collection_not_found">Δεν βρέθηκε συλλογή TMDB</string>
@@ -401,12 +395,10 @@
   <string name="licenses_attributions_section_app">ΑΔΕΙΑ ΕΦΑΡΜΟΓΗΣ</string>
   <string name="licenses_attributions_section_data">ΔΕΔΟΜΕΝΑ &amp; ΥΠΗΡΕΣΙΕΣ</string>
   <string name="licenses_attributions_section_playback">ΑΔΕΙΕΣ ΑΝΑΠΑΡΑΓΩΓΗΣ ANDROID</string>
-  <string name="licenses_attributions_fetch_title">Fetch</string>
   <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
   <string name="licenses_attributions_tmdb_body">Το Fetch χρησιμοποιεί το API του TMDB για μεταδεδομένα ταινιών και σειρών, εικόνες, τρέιλερ, ηθοποιούς, λεπτομέρειες παραγωγής, συλλογές και προτάσεις. Αυτό το προϊόν χρησιμοποιεί το API του TMDB αλλά δεν υποστηρίζεται ούτε πιστοποιείται από το TMDB.</string>
   <string name="licenses_attributions_trakt_title">Trakt</string>
   <string name="licenses_attributions_trakt_body">Το Fetch συνδέεται με το Trakt για ταυτοποίηση λογαριασμού, ιστορικό παρακολούθησης, συγχρονισμό προόδου, δεδομένα βιβλιοθήκης, βαθμολογίες, λίστες και σχόλια. Το Fetch δεν συνδέεται ούτε υποστηρίζεται από το Trakt.</string>
-  <string name="licenses_attributions_simkl_title">Simkl</string>
   <string name="licenses_attributions_simkl_body">Το Fetch συνδέεται με το Simkl για ταυτοποίηση λογαριασμού, λίστες παρακολούθησης, ιστορικό προβολής, πρόοδο αναπαραγωγής και scrobbling. Τα δεδομένα παρακολούθησης ταινιών, σειρών και anime παρέχονται από το Simkl. Το Fetch δεν συνδέεται ούτε υποστηρίζεται επίσημα από το Simkl.</string>
   <string name="licenses_attributions_mdblist_title">MDBList</string>
   <string name="licenses_attributions_mdblist_body">Το Fetch χρησιμοποιεί το MDBList για βαθμολογίες και δεδομένα εξωτερικών παρόχων βαθμολογίας. Το Fetch δεν συνδέεται ούτε υποστηρίζεται από το MDBList.</string>
@@ -545,7 +537,6 @@
   <string name="playback_player_external">Εξωτερικό</string>
   <string name="playback_player_ask">Ερώτηση κάθε φορά</string>
   <string name="playback_internal_player_engine">Εσωτερική μηχανή</string>
-  <string name="playback_engine_exoplayer">ExoPlayer</string>
   <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
   <string name="playback_auto_switch_internal_player_on_error">Αυτόματη εναλλαγή μηχανής σε σφάλμα εκκίνησης</string>
   <string name="playback_auto_switch_internal_player_on_error_sub">Αν αποτύχει η εκκίνηση ροής, γίνεται αυτόματη εναλλαγή μεταξύ ExoPlayer και libmpv.</string>
@@ -841,7 +832,6 @@
   <string name="web_custom_poster_none">Δεν έχει οριστεί μοτίβο</string>
   <string name="web_custom_poster_loading">Φόρτωση…</string>
   <string name="web_custom_poster_placeholders_info">Σύμβολα θέσης: το {id} περνά όλα τα ID περιεχομένου. Τα {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} στοχεύουν έναν μόνο τύπο ID - αν δεν είναι διαθέσιμος, διατηρείται η αρχική αφίσα. Το {imdb_id|tmdb_id|kitsu_id} δηλώνει τους υποστηριζόμενους τύπους ID - χρησιμοποιείται ο αντίστοιχος ή, αν δεν υπάρχει, διατηρείται η αρχική αφίσα. Προσθέστε ? για να γίνει ένα σύμβολο θέσης προαιρετικό, ώστε να επιλύεται σε κενό αντί να παραλείπεται: {imdb_id?}. Άλλα σύμβολα θέσης: {id_type}, {typed_id}, {type}, {shape}.</string>
-  <string name="mdblist_name">MDBList</string>
   <string name="mdblist_tracking_description">Συγχρονισμός ιστορικού παρακολούθησης και προόδου αναπαραγωγής σε όλες τις συσκευές</string>
   <string name="mdblist_connected_as">Συνδεδεμένος ως %1$s</string>
   <string name="mdblist_account_fallback">Χρήστης MDBList</string>
@@ -954,7 +944,6 @@
   <string name="trakt_more_like_this_source_dialog_subtitle">Επιλέξτε την πηγή προτάσεων στις σελίδες λεπτομερειών.</string>
   <string name="trakt_more_like_this_source_trakt">Trakt</string>
   <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-  <string name="trakt_more_like_this_source_simkl">Simkl</string>
   <string name="trakt_cached_label">Αποθηκευμένο</string>
   <string name="trakt_stat_movies">Ταινίες</string>
   <string name="trakt_stat_shows">Σειρές</string>
@@ -993,8 +982,6 @@
   <string name="tracking_watch_progress_dialog_subtitle">Επιλέξτε την υπηρεσία από την οποία διαβάζει το Fetch την επανάληψη και τη Συνέχεια παρακολούθησης. Το scrobbling παραμένει ενεργό για κάθε συνδεδεμένη υπηρεσία.</string>
   <string name="tracking_library_source_dialog_subtitle">Επιλέξτε την υπηρεσία από την οποία διαβάζει το Fetch τη Βιβλιοθήκη. Το scrobbling αναπαραγωγής γίνεται σε κάθε συνδεδεμένη υπηρεσία.</string>
   <string name="tracking_trakt_progress_required">Διαθέσιμο όταν το Trakt είναι η πηγή Προόδου παρακολούθησης</string>
-  <string name="trakt_name">Trakt</string>
-  <string name="simkl_name">Simkl</string>
   <!-- SimklScreen -->
   <string name="simkl_description">Συνδέστε το Simkl για συγχρονισμό λιστών, ιστορικού προβολής, προόδου αναπαραγωγής και scrobbles.</string>
   <string name="simkl_disconnect_title">Αποσύνδεση από το Simkl;</string>
@@ -1194,7 +1181,7 @@
   <string name="player_loading_buffering">Αποθήκευση στην προσωρινή μνήμη…</string>
   <string name="player_engine_switching_title">Αλλαγή μηχανής αναπαραγωγής</string>
   <string name="player_engine_switching_message">Η εκκίνηση απέτυχε. Εναλλαγή σε %1$s…</string>
-  <string name="player_engine_switching_manual_message">Εναλλαγή σε %1$s...</string>
+  <string name="player_engine_switching_manual_message">Εναλλαγή σε %1$s…</string>
   <string name="playback_show_loading_status">Εμφάνιση κατάστασης φόρτωσης</string>
   <string name="playback_show_loading_status_sub">Εμφάνιση προόδου βήμα προς βήμα ενώ γίνεται αρχικοποίηση του προγράμματος αναπαραγωγής.</string>
   <string name="player_sync_line">Συγχρονισμός γραμμής</string>
@@ -1576,11 +1563,11 @@
   <string name="trakt_error_list_not_found_or_private">Η λίστα Trakt δεν βρέθηκε ή δεν είναι δημόσια</string>
   <string name="trakt_error_rate_limit_reached">Έφτασε το όριο αιτημάτων Trakt</string>
   <string name="trakt_status_enter_activation_code">Εισαγάγετε τον κωδικό στο trakt.tv/activate</string>
-  <string name="trakt_status_syncing">Συγχρονισμός...</string>
+  <string name="trakt_status_syncing">Συγχρονισμός…</string>
   <string name="trakt_status_sync_completed">Ο συγχρονισμός ολοκληρώθηκε</string>
   <string name="trakt_status_disconnected">Αποσυνδέθηκε από το Trakt</string>
   <string name="trakt_status_cw_window_updated">Το παράθυρο συνέχειας παρακολούθησης ενημερώθηκε</string>
-  <string name="trakt_status_rate_limited_slowing_polling">Υπάρχει περιορισμός αιτημάτων, η συχνότητα ελέγχου μειώνεται...</string>
+  <string name="trakt_status_rate_limited_slowing_polling">Υπάρχει περιορισμός αιτημάτων, η συχνότητα ελέγχου μειώνεται…</string>
   <string name="trakt_user_fallback">Χρήστης Trakt</string>
   <string name="trakt_error_failed_start">Αποτυχία έναρξης εξουσιοδότησης Trakt</string>
   <!-- General errors -->
@@ -1632,7 +1619,6 @@
   <string name="cd_remove">Αφαίρεση</string>
   <string name="cd_preview">Προεπισκόπηση</string>
   <string name="cd_clear_search">Εκκαθάριση αναζήτησης</string>
-  <string name="cd_fetch_logo">Fetch</string>
   <string name="cd_trakt_logo">Λογότυπο Trakt</string>
   <string name="cd_trakt_qr">QR ενεργοποίησης Trakt</string>
   <string name="cd_imdb">IMDb</string>
@@ -1780,7 +1766,7 @@
   <string name="collections_editor_tmdb_genres_helper">Χρησιμοποιήστε τους αριθμούς ειδών του TMDB. Χωρίστε πολλαπλά με κόμματα για AND ή με κάθετες για OR.</string>
   <string name="collections_editor_tmdb_date_from">Ημερομηνία κυκλοφορίας ή προβολής από</string>
   <string name="collections_editor_tmdb_date_to">Ημερομηνία κυκλοφορίας ή προβολής έως</string>
-  <string name="collections_editor_tmdb_date_helper">Χρησιμοποιήστε YYYY-MM-DD, για παράδειγμα 2024-01-01.</string>
+  <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Χρησιμοποιήστε YYYY-MM-DD, για παράδειγμα 2024-01-01.</string>
   <string name="collections_editor_tmdb_rating_min">Ελάχιστη βαθμολογία</string>
   <string name="collections_editor_tmdb_rating_max">Μέγιστη βαθμολογία</string>
   <string name="collections_editor_tmdb_rating_helper">Βαθμολογία TMDB από 0 έως 10. Παράδειγμα: 7.0.</string>
@@ -1827,14 +1813,9 @@
   <string name="collections_editor_tmdb_placeholder_network">213 για Netflix, 49 για HBO, 2739 για Disney+</string>
   <string name="collections_editor_tmdb_person_placeholder">31 για Tom Hanks, ή URL προσώπου</string>
   <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ή 123456</string>
-  <string name="collections_editor_url_short_placeholder">https://...</string>
-  <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-  <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
-  <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-  <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-  <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-  <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-  <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+  <string name="collections_editor_url_short_placeholder">https://…</string>
+  <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+  <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
   <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
   <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
   <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1863,9 +1844,9 @@
   <string name="collections_editor_placeholder_hero_video">Προσαρμοσμένο URL βίντεο ήρωα (προαιρετικό)</string>
   <string name="collections_editor_title_logo">Λογότυπο τίτλου (Μοντέρνα αρχική)</string>
   <string name="collections_editor_placeholder_title_logo">Προσαρμοσμένο URL λογότυπου τίτλου (προαιρετικό)</string>
-  <string name="collections_editor_search_emoji_placeholder">Αναζήτηση emoji...</string>
-  <string name="collections_editor_filter_active_sources_placeholder">Φιλτράρισμα ενεργών πηγών...</string>
-  <string name="collections_editor_search_catalogs_placeholder">Αναζήτηση καταλόγων...</string>
+  <string name="collections_editor_search_emoji_placeholder">Αναζήτηση emoji…</string>
+  <string name="collections_editor_filter_active_sources_placeholder">Φιλτράρισμα ενεργών πηγών…</string>
+  <string name="collections_editor_search_catalogs_placeholder">Αναζήτηση καταλόγων…</string>
   <string name="collections_editor_genre_filter">Φίλτρο είδους</string>
   <string name="collections_editor_choose_genre">Επιλογή</string>
   <string name="collections_editor_select_genre">Επιλέξτε είδος</string>
@@ -2152,7 +2133,7 @@
   <string name="playback_cache_vod_size">Μέγεθος VOD Cache</string>
   <string name="playback_cache_vod_size_sub">Μέγιστη χρήση δίσκου για progressive VOD cache (διαγραφή με LRU).</string>
   <string name="playback_cache_info_range">Εύρος: %1$d-%2$d MB.</string>
-  <string name="playback_cache_info_auto">Η αυτόματη λειτουργία στοχεύει περίπου στο 10% του ελεύθερου χώρου.</string>
+  <string name="playback_cache_info_auto" formatted="false">Η αυτόματη λειτουργία στοχεύει περίπου στο 10% του ελεύθερου χώρου.</string>
   <string name="playback_cache_info_manual_headroom">Η χειροκίνητη λειτουργία κρατά περίπου %1$dMB ελεύθερο περιθώριο.</string>
   <string name="playback_cache_info_free_disk">Διαθέσιμος ελεύθερος δίσκος: %1$s.</string>
   <string name="playback_cache_info_restart">Το νέο όριο cache εφαρμόζεται μετά από επανεκκίνηση της εφαρμογής όταν αλλάζετε λειτουργία ή μέγεθος.</string>
@@ -2187,7 +2168,7 @@
   <string name="advanced_player_stats_hud">Οθόνη στατιστικών αναπαραγωγής</string>
   <string name="advanced_player_stats_hud_subtitle">Εμφάνιση κουμπιού στις πληροφορίες ροής για εναλλαγή ζωντανών ενδείξεων CPU, μνήμης, buffer, ρυθμού μετάδοσης και θερμοκρασίας κατά την αναπαραγωγή</string>
   <string name="settings_stream_badge_position_top">Πάνω</string>
-  <string name="stream_test_btn_measuring_parallel8">Μέτρηση παράλληλης (8MB)...</string>
+  <string name="stream_test_btn_measuring_parallel8">Μέτρηση παράλληλης (8MB)…</string>
   <string name="diag_value_not_ready">Μη έτοιμο</string>
   <string name="web_stream_badge_error_import_limit">Μπορείτε να εισαγάγετε έως %1$d URL διακριτικών.</string>
   <string name="dv7_libdovi_mode_4_sub">Μετατροπή σε στατικό προφίλ 8.4.</string>
@@ -2195,9 +2176,9 @@
   <string name="dv7_libdovi_mode_4_title">Λειτουργία 4 — 8.4 (στατικό)</string>
   <string name="diag_label_conversions">Μετατροπές</string>
   <string name="stream_test_label_parallel16">Παράλληλη σύνδεση (τμήματα 16 MB)</string>
-  <string name="stream_test_btn_measuring_parallel16">Μέτρηση παράλληλης (16MB)...</string>
+  <string name="stream_test_btn_measuring_parallel16">Μέτρηση παράλληλης (16MB)…</string>
   <string name="dv7_libdovi_mode_1_sub">Μετατρέπει το RPU ώστε να είναι συμβατό με MEL (Minimum Enhancement Layer).</string>
-  <string name="stream_test_btn_measuring_parallel4">Μέτρηση παράλληλης (4MB)...</string>
+  <string name="stream_test_btn_measuring_parallel4">Μέτρηση παράλληλης (4MB)…</string>
   <string name="diag_label_source_profile">Προφίλ πηγής</string>
   <string name="diag_value_on">Ενεργό</string>
   <string name="hero_synopsis_dismiss_hint">Πατήστε πίσω για κλείσιμο</string>
@@ -2211,7 +2192,7 @@
   <string name="diag_label_signal_rewrites">Επανεγγραφές σήματος</string>
   <string name="unit_size_mb">%1$s MB</string>
   <string name="stream_test_no_stream">Δεν έχει καταγραφεί αναπαραγωγή. Αναπαράγετε ένα βίντεο για να εκτελέσετε διαγνωστικές δοκιμές στον διακομιστή του.</string>
-  <string name="stream_test_btn_measuring_baseline">Μέτρηση βάσης αναφοράς...</string>
+  <string name="stream_test_btn_measuring_baseline">Μέτρηση βάσης αναφοράς…</string>
   <string name="web_status_saved_streams">Αποθηκεύτηκε. Οι νέες ροές θα χρησιμοποιούν αυτές τις ρυθμίσεις.</string>
   <string name="diag_label_disk_cache">Προσωρινή μνήμη δίσκου</string>
   <string name="diag_label_disk_cache_usage">Χρήση προσωρινής μνήμης δίσκου</string>
@@ -2252,8 +2233,8 @@
   <string name="diag_label_custom_buffers">Προσαρμοσμένα buffer</string>
   <string name="diag_label_rebuffers">Επαναφορτίσεις buffer</string>
   <string name="unit_size_gb">%1$s GB</string>
-  <string name="stream_test_btn_measuring_parallel1">Μέτρηση παράλληλης (1MB)...</string>
-  <string name="stream_test_btn_running">Εκτελείται...</string>
+  <string name="stream_test_btn_measuring_parallel1">Μέτρηση παράλληλης (1MB)…</string>
+  <string name="stream_test_btn_running">Εκτελείται…</string>
   <string name="diag_value_none">Καμία</string>
   <string name="diag_label_display">Οθόνη</string>
   <string name="diag_label_auto_decision">Αυτόματη απόφαση</string>

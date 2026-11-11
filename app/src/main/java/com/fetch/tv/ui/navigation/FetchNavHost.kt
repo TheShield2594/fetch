@@ -864,7 +864,7 @@ private fun PlaybackNavHost(
                     val focusSeason = currentSeason ?: initialSeason
                     val focusEpisode = currentEpisode ?: initialEpisode
                     fun returnToDetail() {
-                        val detailEntry = navController.currentBackStack.value
+                        val detailEntry = navController.backStackEntries()
                             .lastOrNull {
                                 val itemId = it.arguments?.getString("itemId").orEmpty()
                                 val itemType = it.arguments?.getString("itemType").orEmpty()
@@ -982,7 +982,7 @@ private fun PlaybackNavHost(
                     } else {
                         // Back to the detail page after a still-watching or screen time stop.
                         if (exitReason != null) {
-                            val detailEntry = navController.currentBackStack.value
+                            val detailEntry = navController.backStackEntries()
                                 .lastOrNull { it.destination.route?.startsWith("detail/") == true }
                             if (detailEntry != null) {
                                 detailEntry.savedStateHandle["returnFocusSeason"] = null
@@ -1023,7 +1023,7 @@ private fun PlaybackNavHost(
                             val focusSeason = args?.getString("season")?.toIntOrNull()
                             val focusEpisode = args?.getString("episode")?.toIntOrNull()
                             if (contentId.isNotBlank()) {
-                                val detailEntry = navController.currentBackStack.value
+                                val detailEntry = navController.backStackEntries()
                                     .lastOrNull {
                                         val itemId = it.arguments?.getString("itemId").orEmpty()
                                         val itemType = it.arguments?.getString("itemType").orEmpty()
@@ -1434,7 +1434,7 @@ private fun PlaybackNavHost(
 
             // When coming from search, get the SearchViewModel from the Search back stack entry
             // so we share the same data (existing results + pagination)
-            val searchBackStackEntry = androidx.compose.runtime.remember(fromSearch) {
+            val searchBackStackEntry = androidx.compose.runtime.remember(backStackEntry, fromSearch) {
                 if (fromSearch) {
                     try { navController.getBackStackEntry(Screen.Search.route) } catch (_: Exception) { null }
                 } else null
@@ -1443,7 +1443,7 @@ private fun PlaybackNavHost(
                 if (searchBackStackEntry != null) {
                     androidx.hilt.navigation.compose.hiltViewModel<com.fetch.tv.ui.screens.search.SearchViewModel>(searchBackStackEntry)
                 } else null
-            val homeBackStackEntry = androidx.compose.runtime.remember {
+            val homeBackStackEntry = androidx.compose.runtime.remember(backStackEntry) {
                 try { navController.getBackStackEntry(Screen.Home.route) } catch (_: Exception) { null }
             }
             val homeViewModel: com.fetch.tv.ui.screens.home.HomeViewModel =

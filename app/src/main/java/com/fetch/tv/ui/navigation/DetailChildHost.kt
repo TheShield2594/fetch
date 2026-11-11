@@ -62,7 +62,7 @@ internal fun DetailChildHost(
     content: @Composable (childNav: NavHostController) -> Unit
 ) {
     val childNav = rememberNavController()
-    val childBackStack by childNav.currentBackStack.collectAsState()
+    val childBackStack by childNav.backStackFlow().collectAsState()
     val showingChild = childBackStack.any { it.toSavedChildRoute() != null }
     var savedChildRoutes by rememberSaveable { mutableStateOf(listOf<String>()) }
     var childRoutesRestored by remember { mutableStateOf(false) }
@@ -332,14 +332,14 @@ internal fun NavHostController.navigateNestedDetail(
     addonBaseUrl: String? = null
 ) {
     val route = Screen.Detail.createRoute(itemId, itemType, addonBaseUrl)
-    val detailCount = currentBackStack.value.count { it.destination.route == Screen.Detail.route }
+    val detailCount = backStackEntries().count { it.destination.route == Screen.Detail.route }
     if (detailCount < DETAIL_CHILD_MAX_NESTED_DEPTH) {
         navigate(route)
         return
     }
     val rebuilt = applyNestedDetailCap(
         listOf(DETAIL_CHILD_IDLE) +
-            currentBackStack.value.mapNotNull { it.toSavedChildRoute() } +
+            backStackEntries().mapNotNull { it.toSavedChildRoute() } +
             route
     )
     val gate = nestedDetailRebuildGates[this]

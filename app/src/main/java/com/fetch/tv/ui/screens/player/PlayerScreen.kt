@@ -3,8 +3,11 @@
     androidx.compose.ui.ExperimentalComposeUiApi::class
 )
 
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.fetch.tv.ui.screens.player
 
+import androidx.compose.runtime.mutableLongStateOf
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
 import com.fetch.tv.ui.screens.detail.formatPlaybackTime
@@ -18,6 +21,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
@@ -565,7 +569,9 @@ fun PlayerScreen(
     }
 
     // Frame rate matching lifecycle.
-    val activity = LocalContext.current as? android.app.Activity
+    // LocalActivity still finds the Activity if LocalContext is ever a ContextWrapper, where a cast
+    // would give null and silently turn frame rate matching off.
+    val activity = LocalActivity.current
     LaunchedEffect(activity) {
         viewModel.attachHostActivity(activity)
         viewModel.startInitialPlaybackIfNeeded()
@@ -2087,8 +2093,8 @@ private fun ExoPlayerSurface(
     libassRenderType: LibassRenderType,
     subtitleStyle: SubtitleStyleSettings,
     subtitleLiftPx: Float,
+    modifier: Modifier = Modifier,
     onBindSubtitleView: (androidx.media3.ui.SubtitleView?) -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val latestAspectMode by rememberUpdatedState(aspectMode)
@@ -3662,7 +3668,7 @@ private fun PlayerClockOverlay(
     playbackSpeed: Float,
     isLive: Boolean = false
 ) {
-    var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }
+    var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
     val context = LocalContext.current
     val timeFormatter = remember(context) { DateFormat.getTimeFormat(context) }
 
@@ -4467,8 +4473,8 @@ internal fun DialogButton(
     text: String,
     onClick: () -> Unit,
     isPrimary: Boolean,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
@@ -4516,9 +4522,9 @@ private fun formatTime(millis: Long): String {
     val seconds = TimeUnit.MILLISECONDS.toSeconds(millis) % 60
 
     return if (hours > 0) {
-        String.format("%d:%02d:%02d", hours, minutes, seconds)
+        String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
     } else {
-        String.format("%d:%02d", minutes, seconds)
+        String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
     }
 }
 

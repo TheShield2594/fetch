@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Pokračovat ve sledování</string>
     <string name="type_movie">Film</string>
@@ -63,7 +63,7 @@
     <string name="web_import_tab_paste">Vložit</string>
     <string name="web_import_tab_file">Soubor</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Vložte JSON kolekcí sem...</string>
+    <string name="web_import_paste_placeholder">Vložte JSON kolekcí sem…</string>
     <string name="web_import_file_select">Klepnutím vyberte soubor .json</string>
     <string name="web_order_send_to_top">Přesunout nahoru</string>
     <string name="web_order_send_to_bottom">Přesunout dolů</string>
@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Vyzkoušené meta doplňky: %1$s. Metadata nemohla být načtena pro id=%2$s (typ=%3$s).</string>
     <string name="error_meta_tried_issues">Vyzkoušené meta doplňky: %1$s. Metadata nemohla být načtena pro id=%2$s (typ=%3$s). Problémy: %4$s.</string>
     <string name="error_stream_no_supported_addon">Žádný nainstalovaný doplněk nepodporuje streamy pro \"%1$s\".</string>
-    <string name="error_stream_tried_none">Vyzkoušené streamovací doplňky: %1$s. Žádný z nich nevrátil streamy pro id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_generic">Vyzkoušené streamovací doplňky: %1$s. Streamy nemohly být načteny pro id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_issues">Vyzkoušené streamovací doplňky: %1$s. Streamy nemohly být načteny pro id=%2$s (typ=%3$s). Problémy: %4$s.</string>
+    <string name="error_stream_tried_none">Vyzkoušené streamovací doplňky: %1$s. Žádný z nich nevrátil streamy.</string>
+    <string name="error_stream_tried_generic">Vyzkoušené streamovací doplňky: %1$s. Streamy nemohly být načteny.</string>
+    <string name="error_stream_tried_issues">Vyzkoušené streamovací doplňky: %1$s. Streamy nemohly být načteny. Problémy: %2$s.</string>
 
     <string name="continue_watching">Pokračovat ve sledování</string>
     <string name="cw_upcoming">Nadcházející</string>
@@ -160,7 +160,6 @@
         <item quantity="other">Vysílá se za %d dní</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Dnes</string>
     <string name="cw_airs_tomorrow_short">Zítra</string>
     <plurals name="cw_airs_in_days_short">
@@ -254,7 +253,6 @@
     <string name="detail_comments_back_hint">Klikněte zpět pro zavření</string>
     <string name="detail_comments_badge_review">Recenze</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d lajků</string>
     <string name="tmdb_entity_kind_company">Produkční společnost</string>
     <string name="tmdb_entity_kind_network">Síť</string>
@@ -263,11 +261,10 @@
     <string name="tmdb_entity_rail_recent">Nedávné</string>
     <string name="tmdb_entity_rail_most_voted">Nejhodnocenější</string>
     <string name="collections_editor_tmdb_watch_region">Region sledování</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Kód země ISO 3166-1, kde je titul dostupný. Příklad: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Kód země ISO 3166-1, kde je titul dostupný. Příklad: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Rychlé regiony sledování</string>
     <string name="collections_editor_tmdb_watch_providers">ID poskytovatelů sledování</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Použijte ID poskytovatelů sledování TMDB. Více hodnot oddělte čárkou pro AND nebo svislítkem pro OR.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Rychlí poskytovatelé sledování</string>
     <string name="tmdb_error_load_source">Nepodařilo se načíst zdroj TMDB</string>
     <string name="tmdb_error_list_not_found">Seznam TMDB nenalezen</string>
@@ -351,7 +348,6 @@
     <string name="licenses_attributions_section_app">LICENCE APLIKACE</string>
     <string name="licenses_attributions_section_data">DATA A SLUŽBY</string>
     <string name="licenses_attributions_section_playback">LICENCE PRO PŘEHRÁVÁNÍ ANDROID</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch používá API TMDB pro metadata filmů a seriálů, artwork, trailery, obsazení, produkční detaily, kolekce a doporučení. Tento produkt používá API TMDB, ale není schválen ani certifikován TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
@@ -418,7 +414,6 @@
     <string name="advanced_section_performance">Výkon a navigace</string>
     <string name="advanced_section_diagnostics">Diagnostika</string>
     <string name="advanced_section_cache">Mezipaměť</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">Rychlá horizontální navigace</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Zvýšit rychlost opakování D-padu v řádcích při zachování omezení opakování.</string>
     <string name="advanced_fetch_focus_scroll">Fetch Focus Scrolling</string>
@@ -468,7 +463,6 @@
     <string name="playback_player_external">Externí</string>
     <string name="playback_player_ask">Pokaždé se zeptat</string>
     <string name="playback_internal_player_engine">Interní engine</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Automaticky přepnout engine při chybě spuštění</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Pokud spuštění streamu selže, automaticky přepnout mezi ExoPlayer a libmpv.</string>
@@ -547,20 +541,6 @@
     <string name="audio_strip_hdr10plus_sub">Odstraní dynamická metadata HDR10+ ze streamů. Pokud je zároveň zapnuto Převést na DV8.1, odstranění proběhne až po převodu.</string>
     <string name="audio_dv7_preserve_mapping_title">Zachovat mapování DV (DV7 na DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">Zachová původní tone-mapping zamýšlený tvůrcem za cenu mírně vyššího zpracování na snímek.</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hwdec_title">Hardwarové dekódování (pouze MPV)</string>
     <string name="audio_mpv_hwdec_dialog_subtitle">Vyberte, jak má libmpv používat hardwarové dekodéry.</string>
     <string name="audio_mpv_hwdec_legacy_direct_copy">Starší (přímé -> kopírování)</string>
@@ -1001,7 +981,7 @@
     <string name="player_loading_buffering">Načítání…</string>
     <string name="player_engine_switching_title">Přepínání enginu přehrávače</string>
     <string name="player_engine_switching_message">Spuštění selhalo. Přepínání na %1$s…</string>
-    <string name="player_engine_switching_manual_message">Přepínání na %1$s...</string>
+    <string name="player_engine_switching_manual_message">Přepínání na %1$s…</string>
     <string name="playback_show_loading_status">Zobrazit stav načítání</string>
     <string name="playback_show_loading_status_sub">Zobrazit postup krok za krokem během inicializace přehrávače.</string>
     <string name="player_sync_line">Synchronizační linie</string>
@@ -1282,7 +1262,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Načítání hodnocení epizod...</string>
+    <string name="ratings_loading">Načítání hodnocení epizod…</string>
     <string name="ratings_unavailable">Hodnocení epizod nejsou k dispozici.</string>
     <string name="ratings_load_error">Nepodařilo se načíst hodnocení epizod.</string>
     <string name="ratings_season_summary">Sezóna %1$d - %2$d epizod</string>
@@ -1290,7 +1270,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Objevovat</string>
     <string name="discover_load_more">Načíst další</string>
-    <string name="discover_loading">Načítání...</string>
+    <string name="discover_loading">Načítání…</string>
     <string name="discover_filter_genre">Žánr</string>
     <string name="discover_empty_no_content_title">Nebyl nalezen žádný obsah</string>
     <string name="discover_empty_no_content_subtitle">Zkuste jiný žánr nebo katalog</string>
@@ -1358,11 +1338,11 @@
     <string name="trakt_error_list_not_found_or_private">Seznam Trakt nebyl nalezen nebo není veřejný</string>
     <string name="trakt_error_rate_limit_reached">Bylo dosaženo limitu rychlosti Trakt</string>
     <string name="trakt_status_enter_activation_code">Zadejte kód na trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Synchronizace...</string>
+    <string name="trakt_status_syncing">Synchronizace…</string>
     <string name="trakt_status_sync_completed">Synchronizace dokončena</string>
     <string name="trakt_status_disconnected">Odpojeno od Trakt</string>
     <string name="trakt_status_cw_window_updated">Okno pokračovat ve sledování aktualizováno</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Omezení rychlosti, zpomalování dotazování...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Omezení rychlosti, zpomalování dotazování…</string>
     <string name="trakt_user_fallback">Uživatel Trakt</string>
     <string name="trakt_error_failed_start">Nepodařilo se spustit autentizaci Trakt</string>
 
@@ -1411,7 +1391,6 @@
     <string name="cd_refresh">Obnovit</string>
     <string name="cd_remove">Odebrat</string>
     <string name="cd_preview">Náhled</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">QR kód aktivace Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1560,7 +1539,7 @@
     <string name="collections_editor_tmdb_genres_helper">Použijte čísla žánrů TMDB. Více oddělte čárkami pro AND, nebo svislítky pro OR.</string>
     <string name="collections_editor_tmdb_date_from">Datum vydání nebo vysílání od</string>
     <string name="collections_editor_tmdb_date_to">Datum vydání nebo vysílání do</string>
-    <string name="collections_editor_tmdb_date_helper">Použijte RRRR-MM-DD, například 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Použijte RRRR-MM-DD, například 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Minimální hodnocení</string>
     <string name="collections_editor_tmdb_rating_max">Maximální hodnocení</string>
     <string name="collections_editor_tmdb_rating_helper">Hodnocení TMDB od 0 do 10. Příklad: 7.0.</string>
@@ -1607,14 +1586,9 @@
     <string name="collections_editor_tmdb_placeholder_network">213 pro Netflix, 49 pro HBO, 2739 pro Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 pro Toma Hankse, nebo URL osoby</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 nebo 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1643,9 +1617,9 @@
     <string name="collections_editor_placeholder_hero_video">URL vlastního videa hrdiny (volitelné)</string>
     <string name="collections_editor_title_logo">Logo názvu (Moderní domov)</string>
     <string name="collections_editor_placeholder_title_logo">URL vlastního loga názvu (volitelné)</string>
-    <string name="collections_editor_search_emoji_placeholder">Hledat emoji...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Filtrovat aktivní zdroje...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Hledat katalogy...</string>
+    <string name="collections_editor_search_emoji_placeholder">Hledat emoji…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Filtrovat aktivní zdroje…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Hledat katalogy…</string>
     <string name="collections_editor_genre_filter">Filtr žánru</string>
     <string name="collections_editor_choose_genre">Vybrat</string>
     <string name="collections_editor_select_genre">Vybrat žánr</string>
@@ -1937,7 +1911,7 @@
     <string name="playback_cache_vod_size">Velikost cache VOD</string>
     <string name="playback_cache_vod_size_sub">Maximální využití disku pro progresivní cache VOD (mazáno metodou LRU).</string>
     <string name="playback_cache_info_range">Rozsah: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">Automatický režim cílí přibližně na 10 % volného místa.</string>
+    <string name="playback_cache_info_auto" formatted="false">Automatický režim cílí přibližně na 10 % volného místa.</string>
     <string name="playback_cache_info_manual_headroom">Ruční režim ponechává přibližně %1$dMB rezervy.</string>
     <string name="playback_cache_info_free_disk">Dostupné volné místo na disku: %1$s.</string>
     <string name="playback_cache_info_restart">Nový limit cache se uplatní po restartu aplikace při změně mezi režimy/velikostmi.</string>
@@ -2010,12 +1984,12 @@
     <string name="stream_test_card_title">Spustit test rychlosti posledního přehraného streamu</string>
     <string name="stream_test_server_label">Server: %1$s</string>
     <string name="stream_test_no_stream">Nezaznamenáno žádné přehrávání. Přehrajte video pro spuštění diagnostických testů na jeho hostiteli.</string>
-    <string name="stream_test_btn_measuring_baseline">Měření základní hodnoty...</string>
-    <string name="stream_test_btn_measuring_parallel1">Měření paralelního (1 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel4">Měření paralelního (4 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel8">Měření paralelního (8 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel16">Měření paralelního (16 MB)...</string>
-    <string name="stream_test_btn_running">Probíhá...</string>
+    <string name="stream_test_btn_measuring_baseline">Měření základní hodnoty…</string>
+    <string name="stream_test_btn_measuring_parallel1">Měření paralelního (1 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel4">Měření paralelního (4 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel8">Měření paralelního (8 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel16">Měření paralelního (16 MB)…</string>
+    <string name="stream_test_btn_running">Probíhá…</string>
     <string name="stream_test_label_baseline">Standardní jedno spojení (základ)</string>
     <string name="stream_test_label_parallel1">Paralelní spojení (bloky 1 MB)</string>
     <string name="stream_test_label_parallel4">Paralelní spojení (bloky 4 MB)</string>

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">متابعة المشاهدة</string>
     <string name="type_movies">أفلام</string>
@@ -64,7 +64,7 @@
     <string name="web_import_tab_paste">لصق</string>
     <string name="web_import_tab_file">ملف</string>
     <string name="web_import_tab_url">رابط</string>
-    <string name="web_import_paste_placeholder">ألصق رابط مجموعة بصيغة JSON هنا...</string>
+    <string name="web_import_paste_placeholder">ألصق رابط مجموعة بصيغة JSON هنا…</string>
     <string name="web_import_file_select">اضغط لإرفاق ملف JSON</string>
     <string name="web_order_send_to_top">إرسال إلى القمة</string>
     <string name="web_order_send_to_bottom">إرسال إلى القاع</string>
@@ -138,9 +138,9 @@
     <string name="error_meta_tried_generic">تمت تجربة إضافات البيانات الوصفية: %1$s. تعذر تحميل البيانات الوصفية للمعرف=%2$s (النوع=%3$s).</string>
     <string name="error_meta_tried_issues">تمت تجربة إضافات البيانات الوصفية: %1$s. تعذر تحميل البيانات للمعرف=%2$s (النوع=%3$s). المشاكل: %4$s.</string>
     <string name="error_stream_no_supported_addon">لا توجد إضافة مثبتة تدعم المصادر لـ \"%1$s\".</string>
-    <string name="error_stream_tried_none">تمت تجربة إضافات المصادر: %1$s. لم تُرجع أي منها مصادر للمعرف=%2$s (النوع=%3$s).</string>
-    <string name="error_stream_tried_generic">تمت تجربة إضافات المصادر: %1$s. تعذر تحميل المصادر للمعرف=%2$s (النوع=%3$s).</string>
-    <string name="error_stream_tried_issues">تمت تجربة إضافات المصادر: %1$s. تعذر تحميل المصادر للمعرف=%2$s (النوع=%3$s). المشاكل: %4$s.</string>
+    <string name="error_stream_tried_none">تمت تجربة إضافات المصادر: %1$s. لم تُرجع أي منها مصادر.</string>
+    <string name="error_stream_tried_generic">تمت تجربة إضافات المصادر: %1$s. تعذر تحميل المصادر.</string>
+    <string name="error_stream_tried_issues">تمت تجربة إضافات المصادر: %1$s. تعذر تحميل المصادر. المشاكل: %2$s.</string>
 
     <!-- ContinueWatchingSection -->
     <string name="continue_watching">متابعة المشاهدة</string>
@@ -158,15 +158,22 @@
     <string name="cw_airs_today">يُعرض اليوم</string>
     <string name="cw_airs_tomorrow">يُعرض غداً</string>
     <plurals name="cw_airs_in_days">
+        <item quantity="zero">يُعرض بعد %d يوم</item>
         <item quantity="one">يُعرض بعد يوم</item>
+        <item quantity="two">يُعرض بعد يومين</item>
+        <item quantity="few">يُعرض بعد %d أيام</item>
+        <item quantity="many">يُعرض بعد %d يومًا</item>
         <item quantity="other">يُعرض بعد %d يوم</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">اليوم</string>
     <string name="cw_airs_tomorrow_short">غداً</string>
     <plurals name="cw_airs_in_days_short">
+        <item quantity="zero">بعد %d يوم</item>
         <item quantity="one">بعد يوم</item>
+        <item quantity="two">بعد يومين</item>
+        <item quantity="few">بعد %d أيام</item>
+        <item quantity="many">بعد %d يومًا</item>
         <item quantity="other">بعد %d يوم</item>
     </plurals>
     <string name="cw_action_go_to_details">التفاصيل</string>
@@ -257,7 +264,6 @@
     <string name="detail_comments_back_hint">اضغط رجوع للإغلاق</string>
     <string name="detail_comments_badge_review">مراجعة</string>
     <string name="detail_comments_badge_spoiler">حرق أحداث</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d إعجاب</string>
     <string name="tmdb_entity_kind_company">شركة الإنتاج</string>
     <string name="tmdb_entity_kind_network">شبكة العرض</string>
@@ -266,11 +272,10 @@
     <string name="tmdb_entity_rail_recent">مضاف حديثاً</string>
     <string name="tmdb_entity_rail_most_voted">الأكثر تصويتاً</string>
     <string name="collections_editor_tmdb_watch_region">منطقة التوفر</string>
-    <string name="collections_editor_tmdb_watch_region_helper">رمز الدولة المتوفر بها العمل. مثال: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">رمز الدولة المتوفر بها العمل. مثال: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">مناطق شائعة</string>
     <string name="collections_editor_tmdb_watch_providers">مُعرّفات مزودي الخدمات للمشاهدة</string>
     <string name="collections_editor_tmdb_watch_providers_helper">استخدم مُعرّفات مزودي الخدمات من TMDB. افصل بينها بفاصلة للعملية (AND)، أو بخط عمودي (|) للعملية (OR)..</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">مزودون شائعون</string>
     <string name="tmdb_error_load_source">تعذر تحميل مصدر TMDB</string>
     <string name="tmdb_error_list_not_found">لم يتم العثور على قائمة TMDB</string>
@@ -358,7 +363,6 @@
     <string name="licenses_attributions_section_app">APP LICENSE</string>
     <string name="licenses_attributions_section_data">DATA &amp; SERVICES</string>
     <string name="licenses_attributions_section_playback">ANDROID PLAYBACK LICENSES</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch uses the TMDB API for movie and TV metadata, artwork, trailers, cast, production details, collections, and recommendations. This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
@@ -420,7 +424,6 @@
     <string name="advanced_section_performance">الأداء والتصفح</string>
     <string name="advanced_section_diagnostics">التشخيصات</string>
     <string name="advanced_section_cache">ذاكرة التخزين المؤقت</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">التصفح الأفقي السريع</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">رفع سرعة تكرار أزرار الاتجاهات (D-pad) في الصفوف مع بقاء ميزة تقييد التكرار قيد التشغيل..</string>
     <string name="advanced_fetch_focus_scroll">تصفح التركيز الخاص بـ Fetch</string>
@@ -470,7 +473,6 @@
     <string name="playback_player_external">خارجي</string>
     <string name="playback_player_ask">السؤال في كل مرة</string>
     <string name="playback_internal_player_engine">محرك التشغيل الداخلي</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (تجريبي)</string>
     <string name="playback_auto_switch_internal_player_on_error">التبديل التلقائي لمحرك التشغيل عند خطأ بالتشغيل</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">إذا فشل بدء التشغيل، سيتم التبديل بين ExoPlayer و libmpv تلقائياً.</string>
@@ -540,20 +542,6 @@
     <string name="audio_dv5_to_dv81_sub">Signal Profile 5 streams as Profile 8.1 for HDR10-compatible output. Helps on devices that do not have a native DV5 decoder.</string>
     <string name="audio_dv7_preserve_mapping_title">Preserve DV mapping (DV7 to DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">Keeps original creator-intended tone-mapping at the cost of slightly more processing per frame.</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hwdec_title">فك التشفير العتادي (الجهاز) (MPV فقط)</string>
     <string name="audio_mpv_hwdec_dialog_subtitle">إختر كيف ينبغي لـ libmpv استخدام أدوات فك التشفير بالجهاز.</string>
     <string name="audio_mpv_hwdec_legacy_direct_copy">قديم (مباشر -&gt; نسخ)</string>
@@ -986,7 +974,7 @@
     <string name="player_loading_buffering">تحميل التخزين المؤقت…</string>
     <string name="player_engine_switching_title">جاري تبديل محرك المشغل</string>
     <string name="player_engine_switching_message">فشل بدء التشغيل. جاري التبديل إلى %1$s…</string>
-    <string name="player_engine_switching_manual_message">جاري التبديل إلى %1$s...</string>
+    <string name="player_engine_switching_manual_message">جاري التبديل إلى %1$s…</string>
     <string name="playback_show_loading_status">إظهار حالة التحميل</string>
     <string name="playback_show_loading_status_sub">عرض خطوات التقدم أثناء تهيئة المشغل.</string>
     <string name="player_sync_line">مزامنة السطر</string>
@@ -1285,7 +1273,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">جاري تحميل تقييمات الحلقة...</string>
+    <string name="ratings_loading">جاري تحميل تقييمات الحلقة…</string>
     <string name="ratings_unavailable">تقييمات الحلقة غير متوفرة.</string>
     <string name="ratings_load_error">تعذر تحميل تقييمات الحلقة.</string>
     <string name="ratings_season_summary">الموسم %1$d - %2$d حلقة</string>
@@ -1293,7 +1281,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">استكشاف</string>
     <string name="discover_load_more">تحميل المزيد</string>
-    <string name="discover_loading">جاري التحميل...</string>
+    <string name="discover_loading">جاري التحميل…</string>
     <string name="discover_filter_genre">التصنيف</string>
     <string name="discover_empty_no_content_title">لم يتم العثور على محتوى</string>
     <string name="discover_empty_no_content_subtitle">جرب تصنيفاً أو فئة أخرى</string>
@@ -1352,11 +1340,11 @@
     <string name="trakt_error_list_not_found_or_private">القائمة غير موجودة أو خاصة</string>
     <string name="trakt_error_rate_limit_reached">تم الوصول لحد الطلبات الأقصى</string>
     <string name="trakt_status_enter_activation_code">أدخل الرمز في: trakt.tv/activate</string>
-    <string name="trakt_status_syncing">جاري المزامنة...</string>
+    <string name="trakt_status_syncing">جاري المزامنة…</string>
     <string name="trakt_status_sync_completed">تمت المزامنة</string>
     <string name="trakt_status_disconnected">مفصول عن Trakt</string>
     <string name="trakt_status_cw_window_updated">حُدثت نافذة المتابعة</string>
-    <string name="trakt_status_rate_limited_slowing_polling">الطلبات مقيدة، جاري إبطاء الفحص...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">الطلبات مقيدة، جاري إبطاء الفحص…</string>
     <string name="trakt_user_fallback">مستخدم Trakt</string>
     <string name="trakt_error_failed_start">فشل بدء ربط Trakt</string>
     
@@ -1403,7 +1391,6 @@
     <string name="cd_refresh">تحديث</string>
     <string name="cd_remove">إزالة</string>
     <string name="cd_preview">معاينة</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">شعار Trakt</string>
     <string name="cd_trakt_qr">رمز QR لتفعيل Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1553,7 +1540,7 @@
     <string name="collections_editor_tmdb_genres_helper">أرقام تصنيفات TMDB. افصل بفواصل (و) أو عمود (أو).</string>
     <string name="collections_editor_tmdb_date_from">تاريخ الإصدار أو البث من</string>
     <string name="collections_editor_tmdb_date_to">تاريخ الإصدار أو البث إلى</string>
-    <string name="collections_editor_tmdb_date_helper">استخدم صيغة YYYY-MM-DD مثل 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">استخدم صيغة YYYY-MM-DD مثل 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">التقييم الأدنى</string>
     <string name="collections_editor_tmdb_rating_max">التقييم الأقصى</string>
     <string name="collections_editor_tmdb_rating_helper">تقييم TMDB من 0 إلى 10. مثال: 7.0.</string>
@@ -1600,14 +1587,9 @@
     <string name="collections_editor_tmdb_placeholder_network">213 لـ Netflix، 49 لـ HBO، 2739 لـ Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 لـ Tom Hanks، أو رابط الشخص</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 أو 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, ar</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, SA</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1636,9 +1618,9 @@
     <string name="collections_editor_placeholder_hero_video">رابط فيديو واجهة مخصص (اختياري)</string>
     <string name="collections_editor_title_logo">شعار العنوان (الرئيسية الحديثة)</string>
     <string name="collections_editor_placeholder_title_logo">رابط شعار عنوان مخصص (اختياري)</string>
-    <string name="collections_editor_search_emoji_placeholder">ابحث عن رمز تعبيري...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">تصفية المصادر النشطة...</string>
-    <string name="collections_editor_search_catalogs_placeholder">البحث في الفهارس...</string>
+    <string name="collections_editor_search_emoji_placeholder">ابحث عن رمز تعبيري…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">تصفية المصادر النشطة…</string>
+    <string name="collections_editor_search_catalogs_placeholder">البحث في الفهارس…</string>
     <string name="collections_editor_genre_filter">فلتر التصنيفات</string>
     <string name="collections_editor_choose_genre">اختيار</string>
     <string name="collections_editor_select_genre">حدد التصنيف</string>
@@ -1891,16 +1873,13 @@
     <string name="collections_editor_tmdb_collection_fallback">مجموعة TMDB ‏%1$d</string>
     <string name="collections_editor_tmdb_without_companies">معرفات الشركات المستثناة</string>
     <string name="collections_editor_tmdb_without_companies_helper">استثناء العناوين المرتبطة بأرقام هذه الشركات في TMDB.</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_without_genres">معرفات التصنيفات المستثناة</string>
     <string name="collections_editor_tmdb_without_genres_helper">استثناء العناوين المطابقة لأرقام هذه التصنيفات في TMDB.</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 للرسوم المتحركة</string>
     <string name="collections_editor_tmdb_without_keywords">معرفات الكلمات المفتاحية المستثناة</string>
     <string name="collections_editor_tmdb_without_keywords_helper">استثناء العناوين المطابقة لأرقام هذه الكلمات المفتاحية في TMDB.</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_without_watch_providers">معرفات مزودي المشاهدة المستثناة</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">استثناء العناوين المتوفرة عبر أرقام مزودي المشاهدة هؤلاء في TMDB للمنطقة المحددة.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="debug_progress_indicator_default">افتراضي</string>
     <string name="debug_progress_indicator_large">كبير</string>
     <string name="debug_progress_indicator_small">صغير</string>
@@ -1981,7 +1960,6 @@
     <string name="library_watched_filter_unwatched">لم تتم مشاهدته</string>
     <string name="library_watched_filter_watched">تمت مشاهدته</string>
     <string name="licenses_attributions_simkl_body">يتصل Fetch بـ Simkl لمصادقة الحساب وقوائم المشاهدة وسجل المشاهدة وتقدم التشغيل والتسجيل التلقائي (Scrobbling). بيانات تتبع الأفلام والمسلسلات والأنمي مقدمة من Simkl. Fetch غير تابع لـ Simkl ولا معتمد منه.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="playback_buffer_after_rebuffer">التخزين المؤقت بعد الانقطاع</string>
     <string name="playback_buffer_after_rebuffer_sub">مقدار المحتوى المخزن مؤقتًا بعد توقف التشغيل بسبب التخزين المؤقت. القيم الأعلى تقلل انقطاعات التخزين المتكررة.</string>
     <string name="playback_buffer_allow_large">السماح بمخزون هدف أكبر</string>
@@ -2010,7 +1988,7 @@
     <string name="playback_cache_auto_size">حجم تلقائي</string>
     <string name="playback_cache_auto_size_sub">عند التفعيل، يُحسب حجم الذاكرة المؤقتة من المساحة الحرة على القرص. أطفئه لاختيار الحجم يدويًا.</string>
     <string name="playback_cache_header">الذاكرة المؤقتة على القرص</string>
-    <string name="playback_cache_info_auto">يستهدف الوضع التلقائي حوالي 10% من المساحة الحرة.</string>
+    <string name="playback_cache_info_auto" formatted="false">يستهدف الوضع التلقائي حوالي 10% من المساحة الحرة.</string>
     <string name="playback_cache_info_free_disk">المساحة الحرة المتوفرة: %1$s.</string>
     <string name="playback_cache_info_manual_headroom">يحافظ الوضع اليدوي على حوالي %1$d م.ب مساحة احتياطية.</string>
     <string name="playback_cache_info_range">النطاق: %1$d-%2$d م.ب.</string>
@@ -2070,7 +2048,6 @@
     <string name="simkl_error_code_expired">انتهت صلاحية رمز Simkl. ابدأ من جديد.</string>
     <string name="simkl_error_network">تعذر الوصول إلى Simkl. حاول مجددًا.</string>
     <string name="simkl_missing_credentials">ينقص SIMKL_CLIENT_ID</string>
-    <string name="simkl_name">Simkl</string>
     <string name="simkl_status_connected">متصل بـ Simkl</string>
     <string name="simkl_status_disconnected">انقطع الاتصال بـ Simkl</string>
     <string name="simkl_status_enter_code">أدخل الرمز في Simkl لإتمام الربط</string>
@@ -2087,12 +2064,12 @@
     <string name="simkl_sync_now">مزامنة الآن</string>
     <string name="simkl_user_fallback">مستخدم Simkl</string>
     <string name="simkl_visit">زيارة Simkl</string>
-    <string name="stream_test_btn_measuring_baseline">جارٍ قياس الخط الأساسي...</string>
-    <string name="stream_test_btn_measuring_parallel1">جارٍ القياس المتوازي (1 م.ب)...</string>
-    <string name="stream_test_btn_measuring_parallel16">جارٍ القياس المتوازي (16 م.ب)...</string>
-    <string name="stream_test_btn_measuring_parallel4">جارٍ القياس المتوازي (4 م.ب)...</string>
-    <string name="stream_test_btn_measuring_parallel8">جارٍ القياس المتوازي (8 م.ب)...</string>
-    <string name="stream_test_btn_running">جارٍ التشغيل...</string>
+    <string name="stream_test_btn_measuring_baseline">جارٍ قياس الخط الأساسي…</string>
+    <string name="stream_test_btn_measuring_parallel1">جارٍ القياس المتوازي (1 م.ب)…</string>
+    <string name="stream_test_btn_measuring_parallel16">جارٍ القياس المتوازي (16 م.ب)…</string>
+    <string name="stream_test_btn_measuring_parallel4">جارٍ القياس المتوازي (4 م.ب)…</string>
+    <string name="stream_test_btn_measuring_parallel8">جارٍ القياس المتوازي (8 م.ب)…</string>
+    <string name="stream_test_btn_running">جارٍ التشغيل…</string>
     <string name="stream_test_card_title">تشغيل اختبار سرعة آخر بث</string>
     <string name="stream_test_error_connection">فشل الاتصال. رابط آخر بث قد تكون انتهت صلاحيته أو غير قابل للوصول. شغّل الفيديو من جديد وأعد المحاولة.</string>
     <string name="stream_test_error_prefix">خطأ: %1$s</string>
@@ -2140,7 +2117,6 @@
     <string name="tracking_trakt_features_title">ميزات Trakt</string>
     <string name="tracking_trakt_progress_required">متاح عندما يكون Trakt هو مصدر تقدم المشاهدة</string>
     <string name="tracking_watch_progress_dialog_subtitle">اختر الخدمة التي يقرأ منها Fetch للاستئناف ومتابعة المشاهدة. يبقى التسجيل التلقائي نشطًا لكل خدمة متصلة.</string>
-    <string name="trakt_name">Trakt</string>
     <string name="unit_size_b">‏%1$d بايت</string>
     <string name="unit_size_gb">‏%1$s ج.ب</string>
     <string name="unit_size_kb">‏%1$s ك.ب</string>

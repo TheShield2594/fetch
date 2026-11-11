@@ -52,8 +52,6 @@ object DolbyVisionCodecFallback {
      * Returns an empty list if no DV decoder exists or on any error.
      */
     fun findDvDecodersIgnoringProfile(): List<MediaCodecInfo> {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return emptyList()
-
         return runCatching {
             val codecList = MediaCodecList(MediaCodecList.REGULAR_CODECS)
             val results = mutableListOf<MediaCodecInfo>()

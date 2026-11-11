@@ -20,6 +20,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.toColorInt
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -31,13 +32,13 @@ import com.fetch.tv.ui.theme.FetchTheme
 fun StartupSplashScreen(
     profileColorHex: String?,
     profileBackgroundUrl: String?,
+    modifier: Modifier = Modifier,
     backgroundCacheKey: String? = null,
     brandWordmarkRes: Int? = null,
-    modifier: Modifier = Modifier
 ) {
     val avatarColor = remember(profileColorHex) {
         profileColorHex?.let {
-            runCatching { Color(android.graphics.Color.parseColor(it)) }.getOrNull()
+            runCatching { Color(it.toColorInt()) }.getOrNull()
         } ?: FetchPrimitives.blue500
     }
 

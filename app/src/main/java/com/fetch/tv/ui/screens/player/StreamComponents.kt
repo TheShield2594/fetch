@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -30,6 +31,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import com.fetch.tv.ui.components.SourceChipItem
 import com.fetch.tv.ui.components.SourceChipStatus
 import com.fetch.tv.ui.components.SourceStatusFilterChip
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.rememberCoroutineScope
@@ -70,14 +72,14 @@ internal fun AddonFilterChips(
             if (hasRefresh) add(refreshFocusRequester)
             add(allFocusRequester)
             orderedNames.forEach { addon ->
-                add(addonFocusRequesters.getOrPut(addon) { FocusRequester() })
+                add(addonFocusRequesters.focusRequesterFor(addon))
             }
         }
     }
 
     var chipRowHasFocus by remember { mutableStateOf(false) }
     var refreshHasFocus by remember { mutableStateOf(false) }
-    var focusedChipIndex by remember { mutableStateOf(
+    var focusedChipIndex by remember { mutableIntStateOf(
         if (hasRefresh) {
             if (selectedAddon == null) 1 else (orderedNames.indexOf(selectedAddon) + 2).coerceAtLeast(1)
         } else {

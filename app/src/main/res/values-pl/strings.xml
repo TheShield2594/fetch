@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="type_movie">Film</string>
     <string name="type_series">Serial</string>
 
@@ -34,7 +34,6 @@
         <item quantity="other">Emisja za %d dni</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Dzisiaj</string>
     <string name="cw_airs_tomorrow_short">Jutro</string>
     <plurals name="cw_airs_in_days_short">
@@ -478,7 +477,6 @@
     <string name="mdblist_ratings_credentials_subtitle">Użyj konta MDBList połączonego w Śledzeniu lub wprowadź oddzielny klucz API dla ocen.</string>
     <string name="mdblist_ratings_connected_account">Używa połączonego konta</string>
     <string name="mdblist_ratings_key_override_subtitle">Klucz API zastępuje połączone konto dla ocen. Wyczyść go, aby ponownie użyć połączonego konta.</string>
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">Synchronizuj historię oglądania i postęp odtwarzania między urządzeniami</string>
     <string name="mdblist_connected_as">Połączono jako %1$s</string>
     <string name="mdblist_account_fallback">Użytkownik MDBList</string>
@@ -863,7 +861,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Ladowanie ocen odcinkow...</string>
+    <string name="ratings_loading">Ladowanie ocen odcinkow…</string>
     <string name="ratings_unavailable">Oceny odcinkow sa niedostepne.</string>
     <string name="ratings_load_error">Nie udało się załadować ocen odcinków.</string>
     <string name="ratings_season_summary">Sezon %1$d - %2$d odcinkow</string>
@@ -871,7 +869,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Odkrywaj</string>
     <string name="discover_load_more">Zaladuj wiecej</string>
-    <string name="discover_loading">Ladowanie...</string>
+    <string name="discover_loading">Ladowanie…</string>
     <string name="discover_filter_genre">Gatunek</string>
     <string name="discover_empty_no_content_title">Brak treści</string>
     <string name="discover_empty_no_content_subtitle">Spróbuj innego gatunku lub katalogu</string>
@@ -954,9 +952,9 @@
     <string name="error_meta_tried_generic">Wypróbowane dodatki meta: %1$s. Nie można załadować metadanych dla id=%2$s (typ=%3$s).</string>
     <string name="error_meta_tried_issues">Wypróbowane dodatki meta: %1$s. Nie można załadować metadanych dla id=%2$s (typ=%3$s). Problemy: %4$s.</string>
     <string name="error_stream_no_supported_addon">Żaden zainstalowany dodatek nie obsługuje strumieni dla \"%1$s\".</string>
-    <string name="error_stream_tried_none">Wypróbowane dodatki strumieni: %1$s. Żaden nie zwrócił strumieni dla id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_generic">Wypróbowane dodatki strumieni: %1$s. Nie można załadować strumieni dla id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_issues">Wypróbowane dodatki strumieni: %1$s. Nie można załadować strumieni dla id=%2$s (typ=%3$s). Problemy: %4$s.</string>
+    <string name="error_stream_tried_none">Wypróbowane dodatki strumieni: %1$s. Żaden nie zwrócił strumieni.</string>
+    <string name="error_stream_tried_generic">Wypróbowane dodatki strumieni: %1$s. Nie można załadować strumieni.</string>
+    <string name="error_stream_tried_issues">Wypróbowane dodatki strumieni: %1$s. Nie można załadować strumieni. Problemy: %2$s.</string>
 
     <string name="cw_new_episode">Nowy odcinek</string>
     <string name="cw_new_episode_short">Nowy</string>
@@ -971,7 +969,6 @@
     <string name="detail_comments_back_hint">Naciśnij wstecz, aby zamknąć</string>
     <string name="detail_comments_badge_review">Recenzja</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d polubień</string>
 
     <string name="tmdb_modern_home_title">Włącz w Modern Home</string>
@@ -1001,7 +998,6 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">Wybierz źródło rekomendacji wyświetlanych na stronach szczegółów.</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
 
     <string name="settings_advanced">Zaawansowane</string>
     <string name="settings_advanced_subtitle">Uruchom diagnostykę prędkości sieci</string>
@@ -1115,7 +1111,6 @@
     <string name="cd_remove">Usuń</string>
     <string name="cd_remove_recent_search">Usuń %1$s z ostatnich wyszukiwań</string>
     <string name="cd_preview">Podgląd</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">Kod QR aktywacji Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1228,7 +1223,6 @@
     <string name="web_status_msg_connection_lost">Serwer TV jest nieosiągalny. Zmiany mogły zostać zastosowane.</string>
 
     <string name="playback_internal_player_engine">Silnik wewnętrzny</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Automatyczne przełączanie silnika przy błędzie</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Jeśli uruchomienie strumienia się nie powiedzie, automatycznie przełącz między ExoPlayer a libmpv.</string>
@@ -1432,7 +1426,7 @@
     <string name="collections_editor_tmdb_country">Kraj pochodzenia</string>
     <string name="collections_editor_tmdb_country_helper">Użyj dwuliterowych kodów krajów, np. US, KR, JP, IN.</string>
     <string name="collections_editor_tmdb_date_from">Data premiery od</string>
-    <string name="collections_editor_tmdb_date_helper">Użyj formatu RRRR-MM-DD, np. 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Użyj formatu RRRR-MM-DD, np. 2024-01-01.</string>
     <string name="collections_editor_tmdb_date_to">Data premiery do</string>
     <string name="collections_editor_tmdb_display_title">Wyświetlany tytuł</string>
     <string name="collections_editor_tmdb_genres">ID gatunków</string>
@@ -1539,7 +1533,7 @@
     <string name="collections_editor_error_trakt_list_name_id_or_url">Podaj nazwę, URL lub ID listy Trakt</string>
     <string name="collections_editor_error_trakt_list_not_found">Nie znaleziono listy Trakt</string>
     <string name="collections_editor_error_valid_tmdb_id_or_url">Podaj prawidłowe ID lub URL TMDB</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Filtruj aktywne źródła...</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Filtruj aktywne źródła…</string>
     <string name="collections_editor_hero_video">Wideo główne (Modern Home)</string>
     <string name="collections_editor_keyword_based_on_novel">Na podstawie powieści</string>
     <string name="collections_editor_keyword_space">Kosmos</string>
@@ -1553,8 +1547,8 @@
     <string name="collections_editor_new_folder">Nowy folder</string>
     <string name="collections_editor_placeholder_cover_image">URL obrazu okładki</string>
     <string name="collections_editor_placeholder_hero_video">Niestandardowy URL wideo głównego (opcjonalnie)</string>
-    <string name="collections_editor_search_catalogs_placeholder">Szukaj katalogów...</string>
-    <string name="collections_editor_search_emoji_placeholder">Szukaj emoji...</string>
+    <string name="collections_editor_search_catalogs_placeholder">Szukaj katalogów…</string>
+    <string name="collections_editor_search_emoji_placeholder">Szukaj emoji…</string>
     <string name="collections_editor_sort_list_order">Kolejność listy</string>
     <string name="collections_editor_sort_original">Oryginalna</string>
     <string name="collections_editor_sort_recently_added">Ostatnio dodane</string>
@@ -1562,21 +1556,17 @@
     <string name="collections_editor_sort_title">Tytuł</string>
     <string name="collections_editor_sort_votes">Głosy</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 dla Marvel Studios</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_company_fallback">Firma TMDB %1$d</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_default_discover">TMDB Discover</string>
     <string name="collections_editor_tmdb_default_list">Lista TMDB</string>
     <string name="collections_editor_tmdb_default_network">Sieć TMDB</string>
     <string name="collections_editor_tmdb_default_production">Produkcja TMDB</string>
     <string name="collections_editor_tmdb_director_credits">Filmografia reżysera</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 dla Animacji</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 dla superhero</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_mode_custom">Niestandardowy</string>
     <string name="collections_editor_tmdb_mode_network">Sieć</string>
@@ -1591,20 +1581,15 @@
     <string name="collections_editor_tmdb_placeholder_company">Marvel Studios, 420 lub URL firmy</string>
     <string name="collections_editor_tmdb_placeholder_list">https://www.themoviedb.org/list/8504994 lub 8504994</string>
     <string name="collections_editor_tmdb_placeholder_network">213 dla Netflix, 49 dla HBO, 2739 dla Disney+</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Best Action Movies, Korean Dramas, 2024 Animation</string>
     <string name="collections_editor_tmdb_watch_region">Region oglądania</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Kod kraju ISO 3166-1, w którym tytuł jest dostępny. Przykład: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Kod kraju ISO 3166-1, w którym tytuł jest dostępny. Przykład: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Szybki wybór regionu</string>
     <string name="collections_editor_tmdb_watch_providers">ID dostawców oglądania</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Użyj ID dostawców TMDB. Oddziel przecinkami dla AND lub pionowymi kreskami dla OR.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">Wykluczone ID dostawców oglądania</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Wyklucz tytuły dostępne u tych dostawców TMDB w wybranym regionie.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Szybki wybór platformy</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
     <string name="collections_editor_trakt_ascending">Rosnąco</string>
     <string name="collections_editor_trakt_descending">Malejąco</string>
@@ -1621,7 +1606,7 @@
     <string name="collections_editor_trakt_series_list">Lista seriali Trakt</string>
     <string name="collections_editor_trakt_sources">Listy Trakt</string>
     <string name="collections_editor_trakt_trending">Popularne teraz</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_import_failed_fetch_http">Nie udało się pobrać: HTTP %1$d</string>
     <string name="collections_import_failed_fetch_url">Nie udało się pobrać URL: %1$s</string>
     <string name="collections_import_failed_read_file">Nie udało się odczytać pliku: %1$s</string>
@@ -1695,9 +1680,9 @@
     <string name="trakt_status_cw_window_updated">Okno kontynuowania oglądania zaktualizowane</string>
     <string name="trakt_status_disconnected">Rozłączono z Trakt</string>
     <string name="trakt_status_enter_activation_code">Wprowadź kod na trakt.tv/activate</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Limit zapytań, spowalnianie odpytywania...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Limit zapytań, spowalnianie odpytywania…</string>
     <string name="trakt_status_sync_completed">Synchronizacja zakończona</string>
-    <string name="trakt_status_syncing">Synchronizowanie...</string>
+    <string name="trakt_status_syncing">Synchronizowanie…</string>
     <string name="trakt_user_fallback">Użytkownik Trakt</string>
     <string name="type_movies">Filmy</string>
     <string name="type_series_plural">Seriale</string>
@@ -1720,7 +1705,7 @@
     <string name="web_import_file_select">Dotknij, aby wybrać plik .json</string>
     <string name="web_import_invalid_json">Nieprawidłowy JSON</string>
     <string name="web_import_no_json">Nie podano JSON</string>
-    <string name="web_import_paste_placeholder">Wklej JSON kolekcji tutaj...</string>
+    <string name="web_import_paste_placeholder">Wklej JSON kolekcji tutaj…</string>
     <string name="web_import_select_file_first">Najpierw wybierz plik</string>
     <string name="web_import_success">Zaimportowano {count} kolekcji. Sprawdź i naciśnij Zapisz zmiany, aby zastosować.</string>
     <string name="web_issue_plural">problemów</string>
@@ -1865,7 +1850,6 @@
     <string name="licenses_attributions_libmpv_title">libmpv / libmpv-android</string>
     <string name="licenses_attributions_mdblist_body">Fetch korzysta z MDBList do ocen i danych zewnętrznych dostawców wyników. Fetch nie jest powiązany z MDBList.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_section_app">LICENCJA APLIKACJI</string>
     <string name="licenses_attributions_section_data">DANE I USŁUGI</string>
     <string name="licenses_attributions_section_playback">LICENCJE ODTWARZANIA ANDROID</string>
@@ -2076,7 +2060,7 @@
     <string name="playback_cache_vod_size_sub">Maksymalne użycie dysku dla progresywnego cache VOD (usuwanie LRU).</string>
     <string name="playback_cache_auto_size">Automatyczny rozmiar</string>
     <string name="playback_cache_auto_size_sub">Gdy włączony, rozmiar cache jest obliczany z wolnego miejsca na dysku. Wyłącz, aby wybrać rozmiar ręcznie.</string>
-    <string name="playback_cache_info_auto">Tryb automatyczny celuje w ok. 10% wolnego miejsca.</string>
+    <string name="playback_cache_info_auto" formatted="false">Tryb automatyczny celuje w ok. 10% wolnego miejsca.</string>
     <string name="playback_cache_info_free_disk">Wolne miejsce na dysku: %1$s.</string>
     <string name="playback_cache_info_manual_headroom">Tryb ręczny zachowuje ok. %1$dMB zapasu.</string>
     <string name="playback_cache_info_range">Zakres: %1$d–%2$d MB.</string>
@@ -2241,12 +2225,12 @@
     <!-- Stream test -->
     <string name="stream_test_section_header">Diagnostyka przepustowości strumienia</string>
     <string name="stream_test_card_title">Uruchom test prędkości ostatniego strumienia</string>
-    <string name="stream_test_btn_running">Trwa test...</string>
-    <string name="stream_test_btn_measuring_baseline">Pomiar bazowy...</string>
-    <string name="stream_test_btn_measuring_parallel1">Pomiar równoległy (1 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel4">Pomiar równoległy (4 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel8">Pomiar równoległy (8 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel16">Pomiar równoległy (16 MB)...</string>
+    <string name="stream_test_btn_running">Trwa test…</string>
+    <string name="stream_test_btn_measuring_baseline">Pomiar bazowy…</string>
+    <string name="stream_test_btn_measuring_parallel1">Pomiar równoległy (1 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel4">Pomiar równoległy (4 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel8">Pomiar równoległy (8 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel16">Pomiar równoległy (16 MB)…</string>
     <string name="stream_test_label_baseline">Standardowe pojedyncze połączenie (bazowe)</string>
     <string name="stream_test_label_parallel1">Połączenie równoległe (fragmenty 1 MB)</string>
     <string name="stream_test_label_parallel4">Połączenie równoległe (fragmenty 4 MB)</string>
@@ -2274,7 +2258,6 @@
     <string name="library_empty_simkl_title">Brak %1$s w tym statusie</string>
     <string name="library_empty_simkl_subtitle">Użyj + w szczegółach, aby dodać elementy do statusu Simkl</string>
     <string name="library_sort_provider_order">Kolejność dostawcy</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch łączy się z Simkl w celu uwierzytelniania konta, list do obejrzenia, historii oglądania, postępu odtwarzania i scrobblowania. Dane śledzenia filmów, seriali i anime są dostarczane przez Simkl. Fetch nie jest powiązany z Simkl ani przez niego wspierane.</string>
     <string name="settings_tracking_title">Śledzenie</string>
     <string name="settings_tracking_description">Połącz dostawców śledzenia i wybierz, który zasila Twoją Bibliotekę i Kontynuuj oglądanie.</string>
@@ -2287,7 +2270,6 @@
     <string name="simkl_error_code_expired">Kod Simkl wygasł. Zacznij od nowa.</string>
     <string name="simkl_error_network">Nie można połączyć się z Simkl. Spróbuj ponownie.</string>
     <string name="simkl_missing_credentials">Brak SIMKL_CLIENT_ID</string>
-    <string name="simkl_name">Simkl</string>
     <string name="simkl_status_connected">Połączono z Simkl</string>
     <string name="simkl_status_disconnected">Rozłączono z Simkl</string>
     <string name="simkl_status_enter_code">Wpisz kod na Simkl, aby zakończyć łączenie</string>
@@ -2332,7 +2314,6 @@
     <string name="tracking_trakt_features_subtitle">Historia, recenzje i rekomendacje specyficzne dla Trakt</string>
     <string name="tracking_trakt_progress_required">Dostępne gdy Trakt jest źródłem postępu oglądania</string>
     <string name="tracking_watch_progress_dialog_subtitle">Wybierz usługę, z której Fetch czyta wznawianie i Kontynuuj oglądanie. Scrobblowanie pozostaje aktywne dla każdej połączonej usługi.</string>
-    <string name="trakt_name">Trakt</string>
     <string name="update_available">Dostępna aktualizacja</string>
     <string name="update_downloading_progress">Pobieranie %1$d%%</string>
     <string name="update_latest_version">Używasz najnowszej wersji.</string>

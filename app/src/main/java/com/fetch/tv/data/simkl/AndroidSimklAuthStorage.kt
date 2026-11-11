@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import androidx.core.content.edit
 import com.fetch.tv.core.profile.ProfileScopedCredentialStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.fetch.tv.data.local.ProfileDataStore
@@ -132,10 +133,10 @@ class AndroidSimklAuthStorage @Inject constructor(
     }
 
     override fun removeProfile(profileId: Int) {
-        preferences.edit()
-            .remove(profileKey(METADATA_KEY, profileId))
-            .remove(profileKey(TOKEN_KEY, profileId))
-            .apply()
+        preferences.edit {
+            remove(profileKey(METADATA_KEY, profileId))
+            remove(profileKey(TOKEN_KEY, profileId))
+        }
         synchronized(stateLock) {
             val current = activeCredentials
             if (profileId == current.profileId) {
@@ -146,7 +147,7 @@ class AndroidSimklAuthStorage @Inject constructor(
     }
 
     override fun clearAllProfiles() {
-        preferences.edit().clear().apply()
+        preferences.edit { clear() }
         synchronized(stateLock) {
             val current = activeCredentials
             activeCredentials = current.copy(generation = current.generation + 1L, accessToken = null)
@@ -195,9 +196,7 @@ class AndroidSimklAuthStorage @Inject constructor(
     }
 
     private fun saveMetadata(metadata: SimklStoredAuthMetadata, profileId: Int) {
-        preferences.edit()
-            .putString(profileKey(METADATA_KEY, profileId), json.encodeToString(metadata))
-            .apply()
+        preferences.edit { putString(profileKey(METADATA_KEY, profileId), json.encodeToString(metadata)) }
     }
 
     private fun loadEncrypted(key: String, profileId: Int): String? {
@@ -211,9 +210,9 @@ class AndroidSimklAuthStorage @Inject constructor(
 
     private fun saveEncrypted(key: String, value: String?, profileId: Int) {
         val scopedKey = profileKey(key, profileId)
-        val editor = preferences.edit()
-        if (value.isNullOrBlank()) editor.remove(scopedKey) else editor.putString(scopedKey, encrypt(value))
-        editor.apply()
+        preferences.edit {
+            if (value.isNullOrBlank()) remove(scopedKey) else putString(scopedKey, encrypt(value))
+        }
     }
 
     private fun mutate(

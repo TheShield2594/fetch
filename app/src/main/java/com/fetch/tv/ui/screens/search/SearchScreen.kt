@@ -125,6 +125,8 @@ import com.fetch.tv.R
 
 /** Skeleton rows shown while a search is pending, matching the two mobile renders. */
 private const val SEARCH_SKELETON_ROW_COUNT = 2
+/** Focus-restore key of the top result, which sits outside the catalog rows. */
+private const val SEARCH_TOP_RESULT_KEY = "search_top_result"
 
 private val NAVIGATION_KEYS = setOf(
     KeyEvent.KEYCODE_DPAD_UP,
@@ -165,6 +167,7 @@ fun SearchScreen(
     val discoverFirstItemFocusRequester = remember { FocusRequester() }
     val recentClearHistoryFocusRequester = remember { FocusRequester() }
     val discoverButtonFocusRequester = remember { FocusRequester() }
+    val topResultFocusRequester = remember { FocusRequester() }
     var isSearchFieldFocused by remember { mutableStateOf(false) }
     // Track the whole input row, including voice and Discover.
     var inputRowHasFocus by remember { mutableStateOf(false) }
@@ -357,16 +360,28 @@ fun SearchScreen(
         viewModel.hasSavedSearchFocus = true
     }
 
-    // Clean up stale keys when the catalog rows change.
-    val visibleRowKeys = remember(uiState.catalogRows) {
-        uiState.catalogRows.mapTo(mutableSetOf()) {
-            it.stableKey()
+    // Whether any addon has answered with real titles (not just placeholder shimmer).
+    val hasRealResults = remember(uiState.catalogRows) {
+        uiState.catalogRows.any { row -> row.items.any { !it.id.startsWith("__placeholder_") } }
+    }
+    // The types in the unfiltered results, so a filter is only offered when it can match.
+    val resultTypeKeys = remember(uiState.catalogRows) {
+        uiState.catalogRows.flatMapTo(mutableSetOf()) { row ->
+            row.items.filterNot { it.id.startsWith("__placeholder_") }.map(SearchResultMerger::typeKey)
         }
     }
-    // Stable list of non-empty catalog rows — mirrors ClassicHomeContent's
-    // visibleHomeRows pattern so the LazyColumn receives a remember'd list.
-    val visibleCatalogRows = remember(uiState.catalogRows) {
-        uiState.catalogRows.filter { it.items.isNotEmpty() }
+    val topResult = uiState.mergedResults.topResult
+    // The rows shown: once real results arrive, the merged rows (one per type, each title once,
+    // best match first; roadmap D3). Until then the per-addon placeholder rows, so the skeleton
+    // matches what is coming. A remember'd list, as ClassicHomeContent's visibleHomeRows.
+    val visibleCatalogRows = remember(uiState.catalogRows, uiState.mergedResults, hasRealResults) {
+        if (hasRealResults) uiState.mergedResults.rows else uiState.catalogRows.filter { it.items.isNotEmpty() }
+    }
+    // Clean up stale keys when the shown rows change (the merged rows once results arrive).
+    val visibleRowKeys = remember(visibleCatalogRows) {
+        visibleCatalogRows.mapTo(mutableSetOf()) {
+            it.stableKey()
+        }
     }
     LaunchedEffect(visibleRowKeys) {
         searchRowStates.keys.retainAll(visibleRowKeys)
@@ -501,6 +516,24 @@ fun SearchScreen(
         pendingFocusMoveToResultsQuery = null
         pendingFocusMoveSawSearching = false
         pendingFocusMoveHadExistingSearchRows = false
+    }
+
+    // Moving into results lands on the top result when there is one: the best match is one Down
+    // from the field (roadmap D3). Without one, the first row takes focus as before.
+    LaunchedEffect(focusResults, topResult?.item?.id, isDiscoverMode) {
+        if (!focusResults || isDiscoverMode || topResult == null) return@LaunchedEffect
+        repeat(2) { withFrameNanos { } }
+        if (runCatching { topResultFocusRequester.requestFocus() }.getOrDefault(false)) {
+            focusResults = false
+        }
+    }
+
+    // Coming back from a title opened from the top result puts focus back on it.
+    LaunchedEffect(restoringSearchFocus.value, topResult?.item?.id) {
+        if (!restoringSearchFocus.value || viewModel.savedFocusRowKey != SEARCH_TOP_RESULT_KEY) return@LaunchedEffect
+        if (topResult == null) return@LaunchedEffect
+        repeat(2) { withFrameNanos { } }
+        runCatching { topResultFocusRequester.requestFocus() }
     }
 
     val initialFocusRequester = topInputFocusRequester
@@ -802,8 +835,8 @@ fun SearchScreen(
                         }
                     }
 
-                    !uiState.isSearching && !hasPendingUnsubmittedQuery && visibleCatalogRows.isEmpty() &&
-                        uiState.peopleResults.isEmpty() -> {
+                    !uiState.isSearching && !hasPendingUnsubmittedQuery && !hasRealResults &&
+                        visibleCatalogRows.isEmpty() && uiState.peopleResults.isEmpty() -> {
                         item {
                             EmptyScreenState(
                                 title = stringResource(R.string.search_no_results_query_title, trimmedSubmittedQuery),
@@ -819,6 +852,59 @@ fun SearchScreen(
                     }
 
                     else -> {
+                        if (hasRealResults) {
+                            item(key = "search_type_filters", contentType = "search_type_filters") {
+                                SearchTypeFilterRow(
+                                    selected = uiState.typeFilter,
+                                    available = availableTypeFilters(resultTypeKeys, uiState.hasLibraryItems),
+                                    onSelect = { filter -> viewModel.onEvent(SearchEvent.SelectTypeFilter(filter)) },
+                                    upFocusRequester = searchFocusRequester,
+                                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl)
+                                )
+                            }
+                        }
+                        if (topResult != null) {
+                            item(key = "search_top_result", contentType = "search_top_result") {
+                                SearchTopResultCard(
+                                    result = topResult,
+                                    focusRequester = topResultFocusRequester,
+                                    upFocusRequester = null,
+                                    onFocused = {
+                                        if (focusResults) focusResults = false
+                                        if (restoringSearchFocus.value) {
+                                            restoringSearchFocus.value = false
+                                            didRestoreSearchFocus.value = true
+                                            viewModel.hasSavedSearchFocus = false
+                                        }
+                                        pendingFocusMoveToResultsQuery = null
+                                        lastFocusedRowKey = SEARCH_TOP_RESULT_KEY
+                                        viewModel.prefetchMetaOnFocus(topResult.item.id, topResult.item.apiType)
+                                    },
+                                    onClick = { item ->
+                                        lastFocusedRowKey = SEARCH_TOP_RESULT_KEY
+                                        saveSearchFocusForDetail(SEARCH_TOP_RESULT_KEY)
+                                        HeroBackdropState.update(
+                                            viewModel.getCachedBackdrop(item.id, item.apiType) ?: item.backdropUrl
+                                        )
+                                        onNavigateToDetail(item.id, item.apiType, item.sourceAddonBaseUrl.orEmpty())
+                                    },
+                                    onLongClick = { item ->
+                                        posterOptionsRowKey = SEARCH_TOP_RESULT_KEY
+                                        viewModel.posterOptions.show(item, item.sourceAddonBaseUrl.orEmpty())
+                                    },
+                                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl)
+                                )
+                            }
+                        }
+                        if (hasRealResults && visibleCatalogRows.isEmpty() && !uiState.isSearching) {
+                            item(key = "search_filter_empty") {
+                                EmptyScreenState(
+                                    title = stringResource(R.string.search_no_results_filter_title),
+                                    subtitle = stringResource(R.string.search_no_results_filter_subtitle),
+                                    icon = Icons.Default.Search
+                                )
+                            }
+                        }
                         itemsIndexed(
                             items = visibleCatalogRows,
                             key = { index, item ->
@@ -829,7 +915,9 @@ fun SearchScreen(
                             val catalogKey = catalogRow.stableKey()
                             val isPlaceholder = catalogRow.isLoading &&
                                 catalogRow.items.firstOrNull()?.id?.startsWith("__placeholder_") == true
-                            val hasEnoughForSeeAll = !isPlaceholder && catalogRow.items.size >= 15
+                            // A merged row spans addons, so it has no single catalog to open.
+                            val isMergedRow = catalogRow.addonId == MERGED_ROW_ADDON_ID
+                            val hasEnoughForSeeAll = !isPlaceholder && !isMergedRow && catalogRow.items.size >= 15
 
                             val listState = searchRowStates.getOrPut(catalogKey) {
                                 val saved = viewModel.savedRowScrollPositions[catalogKey]
@@ -846,13 +934,18 @@ fun SearchScreen(
                                 posterCardStyle = posterCardStyle,
                                 showSeeAll = hasEnoughForSeeAll,
                                 showPosterLabels = uiState.posterLabelsEnabled,
-                                showAddonName = uiState.catalogAddonNameEnabled,
-                                showCatalogTypeSuffix = uiState.catalogTypeSuffixEnabled,
+                                showAddonName = uiState.catalogAddonNameEnabled && !isMergedRow,
+                                showCatalogTypeSuffix = uiState.catalogTypeSuffixEnabled && !isMergedRow,
                                 enableRowFocusRestorer = true,
                                 rowFocusRequester = rowFocusRequester,
                                 entryFocusRequester = entryFocusRequester,
                                 // Anchor Up to the field; geometric focus varies with the card.
-                                upFocusRequester = if (index == 0) searchFocusRequester else null,
+                                // With a top result above, Up from the first row lands on it.
+                                upFocusRequester = when {
+                                    index != 0 -> null
+                                    topResult != null -> topResultFocusRequester
+                                    else -> searchFocusRequester
+                                },
                                 listState = listState,
                                 restorerFocusedIndex = if (restoringSearchFocus.value && catalogKey == viewModel.savedFocusRowKey) {
                                     viewModel.savedFocusItemIndex
@@ -873,7 +966,8 @@ fun SearchScreen(
                                         viewModel.savedFocusItemIndex
                                     // The remembered card, not item 0. A query change clears
                                     // the map, so a new search still lands on the first item.
-                                    focusResults && index == 0 ->
+                                    // The top result takes the first Down when there is one.
+                                    focusResults && index == 0 && topResult == null ->
                                         searchRowFocusedItemIndex[catalogKey] ?: 0
                                     else -> -1
                                 },
@@ -904,11 +998,16 @@ fun SearchScreen(
                                     val backdrop = viewModel.getCachedBackdrop(id, type)
                                         ?: clickedItem?.backdropUrl
                                     HeroBackdropState.update(backdrop)
-                                    onNavigateToDetail(id, type, addonBaseUrl)
+                                    // Merged rows carry each title's addon on the title itself.
+                                    val sourceUrl = clickedItem?.sourceAddonBaseUrl?.takeIf { it.isNotBlank() } ?: addonBaseUrl
+                                    onNavigateToDetail(id, type, sourceUrl)
                                 },
                                 onItemLongPress = { item, addonBaseUrl ->
                                     posterOptionsRowKey = catalogKey
-                                    viewModel.posterOptions.show(item, addonBaseUrl)
+                                    viewModel.posterOptions.show(
+                                        item,
+                                        item.sourceAddonBaseUrl?.takeIf { it.isNotBlank() } ?: addonBaseUrl
+                                    )
                                 },
                                 onSeeAll = {
                                     onNavigateToSeeAll(

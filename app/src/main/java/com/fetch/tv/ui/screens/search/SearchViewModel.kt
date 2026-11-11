@@ -45,6 +45,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.joinAll
@@ -66,16 +67,67 @@ class SearchViewModel @Inject constructor(
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     private val remoteCommandBus: com.fetch.tv.core.remote.RemoteCommandBus,
     @ApplicationContext private val context: Context,
-    private val peopleSearch: com.fetch.tv.core.tmdb.TmdbPeopleSearch
+    private val peopleSearch: com.fetch.tv.core.tmdb.TmdbPeopleSearch,
+    private val libraryRepository: com.fetch.tv.domain.repository.LibraryRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
 
+    // The last merge, reused while its inputs are unchanged (see withMergedResults).
+    // Declared before uiState, which starts collecting as soon as it is created.
+    private var lastMergeRows: List<CatalogRow>? = null
+    private var lastMergeQuery: String? = null
+    private var lastMergeFilter: SearchTypeFilter? = null
+    private var lastMergeLibrary: Set<String>? = null
+    private var lastMerged = MergedSearchResults()
+
+    /** Ids of the titles in the library, for the "In my library" filter. */
+    private val libraryIds: StateFlow<Set<String>> = libraryRepository.libraryItems
+        .map { entries -> libraryIdSet(entries.map { it.id }) }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+
     // Results are filtered by the profile's certification limit on the way out, and
-    // refiltered when the limit changes or more certifications are known.
-    val uiState: StateFlow<SearchUiState> = combine(_uiState, parentalControls.filterRevision) { state, _ ->
-        state.filteredForProfile(parentalControls)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, SearchUiState())
+    // refiltered when the limit changes or more certifications are known. The merged view is
+    // built from the filtered rows, so a hidden title never becomes the top result.
+    val uiState: StateFlow<SearchUiState> =
+        combine(_uiState, parentalControls.filterRevision, libraryIds) { state, _, inLibrary ->
+            state.filteredForProfile(parentalControls).withMergedResults(inLibrary)
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, SearchUiState())
+
+    /**
+     * Folds the per-catalog rows into one ranked row per type (roadmap D3). Rebuilt only when the
+     * rows, query, filter or library change, not on every unrelated state update (a keystroke
+     * that hasn't produced results yet, a suggestion, a layout preference).
+     */
+    private fun SearchUiState.withMergedResults(inLibrary: Set<String>): SearchUiState {
+        val query = submittedQuery.trim()
+        // Equality rather than identity: a restricted profile's filter copies the rows each time.
+        val unchanged = catalogRows == lastMergeRows && query == lastMergeQuery &&
+            typeFilter == lastMergeFilter && inLibrary == lastMergeLibrary
+        if (!unchanged) {
+            lastMerged = SearchResultMerger.merge(
+                rows = catalogRows,
+                query = query,
+                filter = typeFilter,
+                isInLibrary = { item -> isLibraryItem(item, inLibrary) },
+                rowTitle = ::mergedRowTitle
+            )
+            lastMergeRows = catalogRows
+            lastMergeQuery = query
+            lastMergeFilter = typeFilter
+            lastMergeLibrary = inLibrary
+        }
+        return copy(mergedResults = lastMerged, hasLibraryItems = inLibrary.isNotEmpty())
+    }
+
+    private fun mergedRowTitle(typeKey: String): String = when (typeKey) {
+        "movie" -> context.getString(R.string.type_movies)
+        "series" -> context.getString(R.string.type_series)
+        "other" -> context.getString(R.string.search_results_other)
+        // Short addon types ("tv") read as acronyms; longer ones ("anime", "channel") as words.
+        else -> if (typeKey.length <= 2) typeKey.uppercase() else typeKey.replaceFirstChar { it.titlecase() }
+    }
 
     /** Saved focus state for restoring scroll/focus position after returning from details. */
     var savedFocusRowKey: String? = null
@@ -268,6 +320,7 @@ class SearchViewModel @Inject constructor(
     fun onEvent(event: SearchEvent) {
         when (event) {
             is SearchEvent.QueryChanged -> onQueryChanged(event.query)
+            is SearchEvent.SelectTypeFilter -> _uiState.update { it.copy(typeFilter = event.filter) }
             SearchEvent.SubmitSearch -> submitSearch()
             SearchEvent.RememberSearchFromTextInput -> rememberSearchFromTextInput()
             SearchEvent.ClearRecentSearches -> clearRecentSearches()
@@ -612,10 +665,14 @@ class SearchViewModel @Inject constructor(
             suggestionJob?.cancel()
         }
         _uiState.update {
+            val submitted = submittedSearchQuery(query)
             it.copy(
-                submittedQuery = submittedSearchQuery(query),
+                submittedQuery = submitted,
                 query = rawQuery,
-                suggestions = if (keepSuggestions) it.suggestions else emptyList()
+                suggestions = if (keepSuggestions) it.suggestions else emptyList(),
+                // A new search starts on All: a filter picked for the last query could hide
+                // everything this one finds, with its chip no longer offered.
+                typeFilter = if (submitted == it.submittedQuery) it.typeFilter else SearchTypeFilter.ALL
             )
         }
 

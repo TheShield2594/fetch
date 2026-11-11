@@ -793,9 +793,6 @@
     <string name="layout_next_up_furthest_episode_sub">Toon de volgende aflevering op basis van de verst bekeken aflevering. Schakel dit uit bij herkijken om in plaats daarvan de meest recent bekeken aflevering te gebruiken.</string>
     <string name="layout_show_unaired_next_up">Nog niet uitgezonden afleveringen tonen</string>
     <string name="layout_show_unaired_next_up_sub">Neem komende afleveringen op in Verder kijken voordat ze worden uitgezonden.</string>
-    <string name="layout_cw_card_style_card">Kaart</string>
-    <string name="layout_cw_card_style_wide">Breed</string>
-    <string name="layout_cw_card_style_poster">Poster</string>
     <string name="layout_cw_sort_mode">Sorteervolgorde</string>
     <string name="layout_cw_sort_mode_sub">Hoe items in Verder kijken worden gerangschikt</string>
     <string name="layout_cw_sort_default">Standaard</string>
@@ -813,10 +810,6 @@
     <string name="layout_show_full_release_date_sub">Toon bij films de volledige releasedatum in plaats van alleen het jaar.</string>
     <string name="layout_section_focused">Poster met focus</string>
     <string name="layout_section_focused_desc">Geavanceerd gedrag voor posterkaarten met focus.</string>
-    <string name="layout_expand_poster">Poster met focus uitvouwen naar achtergrond</string>
-    <string name="layout_expand_poster_sub">Vouw de poster met focus uit na inactiviteit.</string>
-    <string name="layout_expand_delay">Vertraging voor uitvouwen naar achtergrond</string>
-    <string name="layout_expand_delay_sub">Hoe lang er wordt gewacht voordat de kaart met focus wordt uitgevouwen.</string>
     <string name="layout_autoplay_trailer">Trailer automatisch afspelen</string>
     <string name="layout_autoplay_trailer_sub">Speel een trailerpreview af voor inhoud met focus, indien beschikbaar.</string>
     <string name="layout_trailer_muted">Trailer gedempt afspelen</string>
@@ -826,10 +819,6 @@
     <string name="layout_custom_poster_apply_to">Toepassen op</string>
     <string name="layout_open">Open</string>
     <string name="layout_closed">Gesloten</string>
-    <string name="layout_trailer_location">Locatie trailerweergave (modern startscherm)</string>
-    <string name="layout_trailer_location_sub">Kies waar de trailerpreview wordt afgespeeld in het moderne startscherm.</string>
-    <string name="layout_trailer_expanded_card">Uitgevouwen kaart</string>
-    <string name="layout_trailer_hero_media">Hero-media</string>
     <string name="layout_preset_compact">Compact</string>
     <string name="layout_preset_dense">Dicht</string>
     <string name="layout_preset_standard">Standaard</string>

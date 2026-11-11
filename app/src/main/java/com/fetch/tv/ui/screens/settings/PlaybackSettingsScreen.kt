@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,14 +32,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * The playback settings. With a [section], that section's page as the settings rail opens it;
- * without one, every section as a collapsible list, for the Playback category.
+ * The playback settings. With a [page], that page as the settings rail opens it: each of its
+ * sections the player engine shows, one after another under its own heading. Without one, every
+ * section as a collapsible list.
  */
 @Composable
 internal fun PlaybackSettingsContent(
     viewModel: PlaybackSettingsViewModel = hiltViewModel(),
     initialFocusRequester: FocusRequester? = null,
-    section: PlaybackSection? = null
+    page: PlaybackPage? = null
 ) {
     val playerSettings by viewModel.playerSettings.collectAsStateWithLifecycle(initialValue = PlayerSettings())
     val transparentLetterbox by viewModel.transparentLetterbox.collectAsStateWithLifecycle(initialValue = false)
@@ -63,8 +65,8 @@ internal fun PlaybackSettingsContent(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         SettingsDetailHeader(
-            title = stringResource(section?.title ?: R.string.playback_title),
-            subtitle = stringResource(section?.description ?: R.string.playback_subtitle)
+            title = stringResource(page?.title ?: R.string.playback_title),
+            subtitle = stringResource(page?.description ?: R.string.playback_subtitle)
         )
 
         SettingsGroupCard(
@@ -74,7 +76,7 @@ internal fun PlaybackSettingsContent(
         ) {
             val onOpenDialog: (PlaybackDialog) -> Unit = { openDialog = it }
             val onMemorySettingChanged: () -> Unit = { memoryUsageTrigger++ }
-            if (section == null) {
+            if (page == null) {
                 PlaybackSettingsSections(
                     playerSettings = playerSettings,
                     transparentLetterbox = transparentLetterbox,
@@ -84,6 +86,8 @@ internal fun PlaybackSettingsContent(
                     initialFocusRequester = initialFocusRequester
                 )
             } else {
+                val visibleSections = visiblePlaybackSections(playerSettings)
+                val sections = page.sections.filter { it in visibleSections }
                 val scrollState = rememberScrollState()
                 Box(modifier = Modifier.fillMaxSize()) {
                     Column(
@@ -94,14 +98,31 @@ internal fun PlaybackSettingsContent(
                             .verticalScroll(scrollState),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        PlaybackSectionContent(
-                            section = section,
-                            playerSettings = playerSettings,
-                            transparentLetterbox = transparentLetterbox,
-                            onUpdate = onUpdate,
-                            onOpenDialog = onOpenDialog,
-                            onMemorySettingChanged = onMemorySettingChanged
-                        )
+                        sections.forEach { section ->
+                            key(section) {
+                                val sectionTitle = stringResource(section.title)
+                                // A search result naming the section lands on its first row.
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .settingsRowTarget(sectionTitle),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    SettingsSectionLabel(
+                                        text = sectionTitle,
+                                        description = stringResource(section.description)
+                                    )
+                                    PlaybackSectionContent(
+                                        section = section,
+                                        playerSettings = playerSettings,
+                                        transparentLetterbox = transparentLetterbox,
+                                        onUpdate = onUpdate,
+                                        onOpenDialog = onOpenDialog,
+                                        onMemorySettingChanged = onMemorySettingChanged
+                                    )
+                                }
+                            }
+                        }
                     }
                     SettingsVerticalScrollIndicators(state = scrollState)
                 }

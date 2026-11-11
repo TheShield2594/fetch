@@ -814,9 +814,6 @@
     <string name="layout_next_up_furthest_episode_sub">Usa o episódio mais avançado. Desative para rever.</string>
     <string name="layout_show_unaired_next_up">Mostrar episódios não lançados</string>
     <string name="layout_show_unaired_next_up_sub">Exibe futuros episódios no Continuar Assistindo</string>
-    <string name="layout_cw_card_style_card">Cartão</string>
-    <string name="layout_cw_card_style_wide">Amplo</string>
-    <string name="layout_cw_card_style_poster">Pôster</string>
     <string name="layout_cw_sort_mode">Ordem de exibição</string>
     <string name="layout_cw_sort_mode_sub">Como organizar Continuar Assistindo</string>
     <string name="layout_cw_sort_default">Padrão</string>
@@ -834,10 +831,6 @@
     <string name="layout_show_full_release_date_sub">Exibir dia, mês e ano de lançamento em vez de apenas o ano.</string>
     <string name="layout_section_focused">Foco no Pôster</string>
     <string name="layout_section_focused_desc">Defina o comportamento ao selecionar um título.</string>
-    <string name="layout_expand_poster">Expandir pôster selecionado</string>
-    <string name="layout_expand_poster_sub">Amplie o pôster focado após um tempo parado.</string>
-    <string name="layout_expand_delay">Atraso para expansão</string>
-    <string name="layout_expand_delay_sub">Ajuste o tempo de espera para expandir o pôster.</string>
     <string name="layout_autoplay_trailer">Autorreprodução de trailer</string>
     <string name="layout_autoplay_trailer_sub">Reproduza o trailer ao focar no título.</string>
     <string name="layout_trailer_muted">Trailer mudo</string>
@@ -847,10 +840,6 @@
     <string name="layout_custom_poster_apply_to">Aplicar em</string>
     <string name="layout_open">Exibir</string>
     <string name="layout_closed">Esconder</string>
-    <string name="layout_trailer_location">Local do trailer (Modo Moderno)</string>
-    <string name="layout_trailer_location_sub">Escolha onde a prévia do trailer será exibida.</string>
-    <string name="layout_trailer_expanded_card">Cartão Expandido</string>
-    <string name="layout_trailer_hero_media">No destaque</string>
     <string name="layout_preset_compact">Compacto</string>
     <string name="layout_preset_dense">Denso</string>
     <string name="layout_preset_standard">Padrão</string>

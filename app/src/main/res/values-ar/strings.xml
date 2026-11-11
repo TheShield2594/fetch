@@ -709,10 +709,6 @@
     <string name="layout_show_full_release_date_sub">للأفلام، إظهار تاريخ الإصدار الكامل بدلاً من السنة فقط.</string>
     <string name="layout_section_focused">البطاقة المحددة</string>
     <string name="layout_section_focused_desc">إعدادات متقدمة لسلوك البطاقة المحددة.</string>
-    <string name="layout_expand_poster">تكبير البطاقة المحددة لتصبح خلفية</string>
-    <string name="layout_expand_poster_sub">تكبير البطاقة المحددة تلقائياً عند التوقف عليه.</string>
-    <string name="layout_expand_delay">مدة انتظار تكبير الصور الخلفية</string>
-    <string name="layout_expand_delay_sub">الوقت المطلوب للانتظار قبل تكبير البطاقة المحددة.</string>
     <string name="layout_autoplay_trailer">تشغيل الإعلان تلقائياً</string>
     <string name="layout_autoplay_trailer_sub">تشغيل الإعلان تلقائيًا للمحتوى المحدد عند توفره.</string>
     <string name="layout_trailer_muted">تشغيل الإعلان بدون صوت</string>
@@ -721,10 +717,6 @@
     <string name="layout_section_card_style_desc">ضبط عرض البطاقة وزوايا الانحناء.</string>
     <string name="layout_open">مفتوح</string>
     <string name="layout_closed">مغلق</string>
-    <string name="layout_trailer_location">موقع تشغيل الإعلان في العرض الحديث</string>
-    <string name="layout_trailer_location_sub">إختر أين يتم تشغيل معاينة الإعلان في الواجهة الحديثة.</string>
-    <string name="layout_trailer_expanded_card">البطاقة الممتدة</string>
-    <string name="layout_trailer_hero_media">القسم المميز</string>
     <string name="layout_preset_compact">مدمج</string>
     <string name="layout_preset_dense">كثيف</string>
     <string name="layout_preset_standard">قياسي</string>
@@ -1986,9 +1978,6 @@
     <string name="external_player_loading_skip_segments">جارٍ تحميل مقاطع المقدمة/الخاتمة\u2026</string>
     <string name="hero_synopsis_dismiss_hint">اضغط رجوع للإغلاق</string>
     <string name="hero_synopsis_read_more">اقرأ المزيد</string>
-    <string name="layout_cw_card_style_card">بطاقة</string>
-    <string name="layout_cw_card_style_poster">ملصق</string>
-    <string name="layout_cw_card_style_wide">عريض</string>
     <string name="layout_cw_enabled">إظهار \"متابعة المشاهدة\"</string>
     <string name="layout_cw_enabled_sub">إظهار صف \"متابعة المشاهدة\" في الشاشة الرئيسية.</string>
     <string name="layout_cw_sort_split_upcoming">صف منفصل للقادم</string>

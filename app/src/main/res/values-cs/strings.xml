@@ -714,10 +714,6 @@
     <string name="layout_show_full_release_date_sub">Pro filmy zobrazit úplné datum vydání místo pouze roku.</string>
     <string name="layout_section_focused">Zaměřený plakát</string>
     <string name="layout_section_focused_desc">Pokročilé chování pro zaměřené karty plakátů.</string>
-    <string name="layout_expand_poster">Rozšířit zaměřený plakát na pozadí</string>
-    <string name="layout_expand_poster_sub">Rozšířit zaměřený plakát po prodlevě nečinnosti.</string>
-    <string name="layout_expand_delay">Prodleva rozšíření pozadí</string>
-    <string name="layout_expand_delay_sub">Jak dlouho čekat před rozšířením zaměřených karet.</string>
     <string name="layout_autoplay_trailer">Automaticky přehrát trailer</string>
     <string name="layout_autoplay_trailer_sub">Přehrát náhled traileru pro zaměřený obsah, když je k dispozici.</string>
     <string name="layout_trailer_muted">Přehrát trailer ztlumený</string>
@@ -727,10 +723,6 @@
     <string name="layout_custom_poster_apply_to">Použít na</string>
     <string name="layout_open">Otevřeno</string>
     <string name="layout_closed">Zavřeno</string>
-    <string name="layout_trailer_location">Umístění přehrávání traileru v Moderním</string>
-    <string name="layout_trailer_location_sub">Vyberte, kde se přehrává náhled traileru v Moderním domově.</string>
-    <string name="layout_trailer_expanded_card">Rozšířená karta</string>
-    <string name="layout_trailer_hero_media">Média hrdiny</string>
     <string name="layout_preset_compact">Kompaktní</string>
     <string name="layout_preset_dense">Husté</string>
     <string name="layout_preset_standard">Standardní</string>

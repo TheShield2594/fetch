@@ -703,10 +703,6 @@
     <string name="layout_show_full_release_date_sub">Для фільмів показувати повну дату виходу, а не тільки рік.</string>
     <string name="layout_section_focused">Постер у фокусі</string>
     <string name="layout_section_focused_desc">Розширена поведінка для карток постерів у фокусі.</string>
-    <string name="layout_expand_poster">Розгортати постер у фокусі у фон</string>
-    <string name="layout_expand_poster_sub">Розгортати постер у фокусі після затримки.</string>
-    <string name="layout_expand_delay">Затримка розгортання фону</string>
-    <string name="layout_expand_delay_sub">Скільки чекати перед розгортанням картки у фокусі.</string>
     <string name="layout_autoplay_trailer">Автовідтворення трейлера</string>
     <string name="layout_autoplay_trailer_sub">Відтворювати прев\'ю трейлера для контенту у фокусі, якщо доступно.</string>
     <string name="layout_trailer_muted">Відтворювати трейлер без звуку</string>
@@ -715,10 +711,6 @@
     <string name="layout_section_card_style_desc">Налаштування ширини картки та радіуса кутів.</string>
     <string name="layout_open">Відкрити</string>
     <string name="layout_closed">Закрити</string>
-    <string name="layout_trailer_location">Розташування відтворення трейлера (Сучасний вигляд)</string>
-    <string name="layout_trailer_location_sub">Оберіть, де відтворюватиметься трейлер у Сучасному макеті.</string>
-    <string name="layout_trailer_expanded_card">Розгорнута картка</string>
-    <string name="layout_trailer_hero_media">Медіа головного блоку</string>
     <string name="layout_preset_compact">Компактний</string>
     <string name="layout_preset_dense">Щільний</string>
     <string name="layout_preset_standard">Стандартний</string>

@@ -6,7 +6,6 @@ com/fetch/tv/MainActivity.kt|WHITE_BLACK|1
 com/fetch/tv/data/local/PlayerSettingsDataStore.kt|WHITE_BLACK|6
 com/fetch/tv/ui/components/AvatarPickerGrid.kt|WHITE_BLACK|2
 com/fetch/tv/ui/components/ContentCard.kt|WHITE_BLACK|6
-com/fetch/tv/ui/components/CwStylePreview.kt|WHITE_BLACK|8
 com/fetch/tv/ui/components/EpisodeShuffleBadge.kt|WHITE_BLACK|2
 com/fetch/tv/ui/components/FetchCardDefaults.kt|WHITE_BLACK|2
 com/fetch/tv/ui/components/GridContentCard.kt|WHITE_BLACK|4

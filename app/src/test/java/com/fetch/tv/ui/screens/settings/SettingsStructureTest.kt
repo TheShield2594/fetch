@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.data.local.InternalPlayerEngine
 import com.fetch.tv.data.local.PlayerSettings
 import org.junit.Assert.assertEquals
@@ -75,7 +76,13 @@ class SettingsStructureTest {
     }
 
     @Test
-    fun `focused poster keeps its options with poster cards`() {
-        assertTrue(LayoutSettingsUiState(modernLandscapePostersEnabled = false).focusedPosterHasOptions())
+    fun `focused poster has options exactly when the build plays trailers in the app`() {
+        // Expand-on-focus is no longer offered, so only the trailer rows are left in the section.
+        listOf(true, false).forEach { landscape ->
+            assertEquals(
+                AppFeaturePolicy.inAppTrailerPlaybackEnabled,
+                LayoutSettingsUiState(modernLandscapePostersEnabled = landscape).focusedPosterHasOptions()
+            )
+        }
     }
 }

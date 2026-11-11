@@ -7,42 +7,27 @@ import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
@@ -50,10 +35,6 @@ import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.core.poster.CustomPosterScreen
 import com.fetch.tv.domain.model.ContinueWatchingCardStyle
 import com.fetch.tv.domain.model.ContinueWatchingSortMode
-import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
-import com.fetch.tv.ui.components.CardCwStylePreview
-import com.fetch.tv.ui.components.PosterCwStylePreview
-import com.fetch.tv.ui.components.WideCwStylePreview
 
 @Composable
 internal fun LayoutContinueWatchingSection(
@@ -68,29 +49,7 @@ internal fun LayoutContinueWatchingSection(
     )
 
     if (uiState.continueWatchingEnabled) {
-        val firstStyleFocusRequester = remember { FocusRequester() }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .settingsOptionRow(firstStyleFocusRequester),
-            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
-        ) {
-            listOf(
-                ContinueWatchingCardStyle.CARD,
-                ContinueWatchingCardStyle.WIDE,
-                ContinueWatchingCardStyle.POSTER
-            ).forEachIndexed { index, style ->
-                CwStyleCard(
-                    style = style,
-                    isSelected = uiState.continueWatchingCardStyle == style,
-                    onClick = { onEvent(LayoutSettingsEvent.SetContinueWatchingCardStyle(style)) },
-                    modifier = Modifier
-                        .weight(1f)
-                        .then(if (index == 0) Modifier.focusRequester(firstStyleFocusRequester) else Modifier)
-                )
-            }
-        }
-
+        // The card style is no longer offered here: Home keeps drawing whichever style is stored.
         val episodeThumbnailsApply = uiState.continueWatchingCardStyle != ContinueWatchingCardStyle.POSTER
         if (episodeThumbnailsApply) {
             SettingsToggleRow(
@@ -154,8 +113,9 @@ internal fun ContinueWatchingSortModeRow(
     }
 }
 
+// Every row left in the section is about in-app trailers.
 internal fun LayoutSettingsUiState.focusedPosterHasOptions(): Boolean =
-    !modernLandscapePostersEnabled || AppFeaturePolicy.inAppTrailerPlaybackEnabled
+    AppFeaturePolicy.inAppTrailerPlaybackEnabled
 
 @Composable
 internal fun LayoutFocusedPosterSection(
@@ -165,31 +125,6 @@ internal fun LayoutFocusedPosterSection(
     val isModernLandscape = uiState.modernLandscapePostersEnabled
     val showAutoplayRow = AppFeaturePolicy.inAppTrailerPlaybackEnabled &&
         (uiState.focusedPosterBackdropExpandEnabled || isModernLandscape)
-
-    if (!isModernLandscape) {
-        SettingsToggleRow(
-            title = stringResource(R.string.layout_expand_poster),
-            subtitle = stringResource(R.string.layout_expand_poster_sub),
-            checked = uiState.focusedPosterBackdropExpandEnabled,
-            onToggle = {
-                onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropExpandEnabled(!uiState.focusedPosterBackdropExpandEnabled))
-            }
-        )
-        if (uiState.focusedPosterBackdropExpandEnabled) {
-            SliderSettingsItem(
-                title = stringResource(R.string.layout_expand_delay),
-                subtitle = stringResource(R.string.layout_expand_delay_sub),
-                value = uiState.focusedPosterBackdropExpandDelaySeconds,
-                valueText = "${uiState.focusedPosterBackdropExpandDelaySeconds}s",
-                minValue = 0,
-                maxValue = 10,
-                step = 1,
-                onValueChange = { seconds ->
-                    onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropExpandDelaySeconds(seconds))
-                }
-            )
-        }
-    }
 
     if (showAutoplayRow) {
         SettingsToggleRow(
@@ -207,12 +142,6 @@ internal fun LayoutFocusedPosterSection(
                 checked = uiState.focusedPosterBackdropTrailerMuted,
                 onToggle = {
                     onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropTrailerMuted(!uiState.focusedPosterBackdropTrailerMuted))
-                }
-            )
-            ModernTrailerPlaybackTargetRow(
-                selectedTarget = uiState.focusedPosterBackdropTrailerPlaybackTarget,
-                onTargetSelected = { target ->
-                    onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropTrailerPlaybackTarget(target))
                 }
             )
         }
@@ -342,86 +271,6 @@ internal fun LayoutCustomPosterSection(
 }
 
 @Composable
-private fun CwStyleCard(
-    style: ContinueWatchingCardStyle,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var isFocused by remember { mutableStateOf(false) }
-
-    Card(
-        onClick = onClick,
-        modifier = modifier.onFocusChanged { state ->
-            val nowFocused = state.isFocused
-            if (isFocused != nowFocused) {
-                isFocused = nowFocused
-            }
-        },
-        // Selection is the filled card and its check mark; the white ring is kept for focus, so
-        // a selected card and the focused one never differ only by ring width.
-        colors = CardDefaults.colors(
-            containerColor = if (isSelected) FetchTheme.colors.FocusBackground else FetchTheme.colors.Background,
-            focusedContainerColor = if (isSelected) FetchTheme.colors.FocusBackground else FetchTheme.colors.Background
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(SettingsSecondaryCardRadius)
-            )
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(SettingsSecondaryCardRadius)),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(112.dp)
-            ) {
-                when (style) {
-                    ContinueWatchingCardStyle.CARD -> CardCwStylePreview(modifier = Modifier.fillMaxSize())
-                    ContinueWatchingCardStyle.WIDE -> WideCwStylePreview(modifier = Modifier.fillMaxSize())
-                    ContinueWatchingCardStyle.POSTER -> PosterCwStylePreview(modifier = Modifier.fillMaxSize())
-                }
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                if (isSelected) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = stringResource(R.string.cd_selected),
-                        tint = FetchTheme.colors.TextPrimary,
-                        modifier = Modifier
-                            .size(FetchTheme.spacing.lg)
-                            .padding(end = 6.dp)
-                    )
-                }
-                Text(
-                    text = when (style) {
-                        ContinueWatchingCardStyle.CARD -> stringResource(R.string.layout_cw_card_style_card)
-                        ContinueWatchingCardStyle.WIDE -> stringResource(R.string.layout_cw_card_style_wide)
-                        ContinueWatchingCardStyle.POSTER -> stringResource(R.string.layout_cw_card_style_poster)
-                    },
-                    style = MaterialTheme.typography.labelLarge,
-                    color = if (isSelected || isFocused) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary
-                )
-            }
-        }
-    }
-}
-
-@Composable
 internal fun ContinueWatchingSortModeDialog(
     currentMode: ContinueWatchingSortMode,
     onModeSelected: (ContinueWatchingSortMode) -> Unit,
@@ -454,49 +303,6 @@ internal fun ContinueWatchingSortModeDialog(
         width = 420.dp,
         maxHeight = 320.dp
     )
-}
-
-@Composable
-private fun ModernTrailerPlaybackTargetRow(
-    selectedTarget: FocusedPosterTrailerPlaybackTarget,
-    onTargetSelected: (FocusedPosterTrailerPlaybackTarget) -> Unit
-) {
-    Text(
-        text = stringResource(R.string.layout_trailer_location),
-        style = MaterialTheme.typography.labelLarge,
-        color = FetchTheme.colors.TextSecondary
-    )
-    Text(
-        text = stringResource(R.string.layout_trailer_location_sub),
-        style = MaterialTheme.typography.bodySmall,
-        color = FetchTheme.colors.TextTertiary
-    )
-    val firstTrailerTargetFocusRequester = remember { FocusRequester() }
-    LazyRow(
-        modifier = Modifier.settingsOptionRow(firstTrailerTargetFocusRequester),
-        contentPadding = PaddingValues(end = FetchTheme.spacing.sm),
-        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-    ) {
-        item(key = "trailer_target_expanded_card") {
-            SettingsChoiceChip(
-                modifier = Modifier.focusRequester(firstTrailerTargetFocusRequester),
-                label = stringResource(R.string.layout_trailer_expanded_card),
-                selected = selectedTarget == FocusedPosterTrailerPlaybackTarget.EXPANDED_CARD,
-                onClick = {
-                    onTargetSelected(FocusedPosterTrailerPlaybackTarget.EXPANDED_CARD)
-                }
-            )
-        }
-        item(key = "trailer_target_hero_media") {
-            SettingsChoiceChip(
-                label = stringResource(R.string.layout_trailer_hero_media),
-                selected = selectedTarget == FocusedPosterTrailerPlaybackTarget.HERO_MEDIA,
-                onClick = {
-                    onTargetSelected(FocusedPosterTrailerPlaybackTarget.HERO_MEDIA)
-                }
-            )
-        }
-    }
 }
 
 @Composable

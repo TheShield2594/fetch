@@ -820,9 +820,6 @@
     <string name="layout_next_up_furthest_episode_sub">根據最遠的已觀看集數顯示下一集。對於重溫，停用此選項以使用最近觀看的集數。</string>
     <string name="layout_show_unaired_next_up">顯示未播出的下一集</string>
     <string name="layout_show_unaired_next_up_sub">在繼續觀看中包含播出前的即將播出集數。</string>
-    <string name="layout_cw_card_style_card">卡片</string>
-    <string name="layout_cw_card_style_wide">寬卡</string>
-    <string name="layout_cw_card_style_poster">海報</string>
     <string name="layout_cw_sort_mode">排序方式</string>
     <string name="layout_cw_sort_mode_sub">繼續觀看項目的排列方式</string>
     <string name="layout_cw_sort_default">預設</string>
@@ -840,10 +837,6 @@
     <string name="layout_show_full_release_date_sub">對於電影，顯示完整上映日期而非僅年份。</string>
     <string name="layout_section_focused">焦點海報</string>
     <string name="layout_section_focused_desc">焦點海報卡的進階行為。</string>
-    <string name="layout_expand_poster">將焦點海報展開為背景圖</string>
-    <string name="layout_expand_poster_sub">在閒置延遲後展開焦點海報。</string>
-    <string name="layout_expand_delay">背景圖展開延遲</string>
-    <string name="layout_expand_delay_sub">展開焦點卡片前的等待時間。</string>
     <string name="layout_autoplay_trailer">自動播放預告片</string>
     <string name="layout_autoplay_trailer_sub">在可用時為焦點內容播放預告片預覽。</string>
     <string name="layout_trailer_muted">靜音播放預告片</string>
@@ -853,10 +846,6 @@
     <string name="layout_custom_poster_apply_to">應用到</string>
     <string name="layout_open">開啟</string>
     <string name="layout_closed">關閉</string>
-    <string name="layout_trailer_location">現代預告片播放位置</string>
-    <string name="layout_trailer_location_sub">選擇現代首頁中預告片預覽的播放位置。</string>
-    <string name="layout_trailer_expanded_card">展開的卡片</string>
-    <string name="layout_trailer_hero_media">焦點區塊媒體</string>
     <string name="layout_preset_compact">緊湊</string>
     <string name="layout_preset_dense">密集</string>
     <string name="layout_preset_standard">標準</string>

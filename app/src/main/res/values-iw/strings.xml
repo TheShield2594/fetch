@@ -876,9 +876,6 @@
     <string name="layout_next_up_furthest_episode_sub">הפרק הבא יוצג בהתבסס על הפרק הרחוק ביותר שנצפה. השבתה תציג את הפרק האחרון שנצפה במקום זאת (מתאים לצפייה חוזרת).</string>
     <string name="layout_show_unaired_next_up">הצגת פרקים שטרם שודרו, גם כן</string>
     <string name="layout_show_unaired_next_up_sub">הכללת פרקים עתידיים ב\"המשך צפייה\" לפני שהם משודרים.</string>
-    <string name="layout_cw_card_style_card">כרטיס</string>
-    <string name="layout_cw_card_style_wide">רחב</string>
-    <string name="layout_cw_card_style_poster">פוסטר</string>
     <string name="layout_cw_sort_mode">סדר המיון</string>
     <string name="layout_cw_sort_mode_sub">כיצד פריטי \"המשך בצפייה\" מסודרים</string>
     <string name="layout_cw_sort_default">ברירת מחדל</string>
@@ -905,10 +902,6 @@
     <string name="layout_show_full_release_date_sub">עבור סרטים, הצגת תאריך יציאה מלא במקום שנה בלבד.</string>
     <string name="layout_section_focused">פוסטר ממוקד</string>
     <string name="layout_section_focused_desc">התנהגות מתקדמת לכרטיסי פוסטר ממוקדים.</string>
-    <string name="layout_expand_poster">הרחבת פוסטר ממוקד לרקע</string>
-    <string name="layout_expand_poster_sub">הרחבת פוסטר ממוקד לאחר השהיה.</string>
-    <string name="layout_expand_delay">עיכוב לפני הרחבת הרקע</string>
-    <string name="layout_expand_delay_sub">כמה זמן להמתין לפני הרחבת כרטיסים ממוקדים.</string>
     <string name="layout_autoplay_trailer">הפעלה אוטומטית של טריילר</string>
     <string name="layout_autoplay_trailer_sub">הפעלת תצוגה מקדימה של טריילר לתוכן ממוקד כשזמין.</string>
     <string name="layout_trailer_muted">הפעלת טריילר ללא שמע</string>
@@ -918,10 +911,6 @@
     <string name="layout_custom_poster_apply_to">החלה על</string>
     <string name="layout_open">פתוח</string>
     <string name="layout_closed">סגור</string>
-    <string name="layout_trailer_location">מיקום הפעלת טריילר מודרני</string>
-    <string name="layout_trailer_location_sub">בחירת המיקום שבו מופעלת תצוגה מקדימה של הטריילר בדף הבית המודרני.</string>
-    <string name="layout_trailer_expanded_card">בתוך הכרטיס המורחב</string>
-    <string name="layout_trailer_hero_media">בחלקו העליון של המסך</string>
     <string name="layout_preset_compact">קומפקטי</string>
     <string name="layout_preset_dense">צפוף</string>
     <string name="layout_preset_standard">רגיל</string>

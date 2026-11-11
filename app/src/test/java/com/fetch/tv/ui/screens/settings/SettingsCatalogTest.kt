@@ -20,15 +20,10 @@ class SettingsCatalogTest {
                 SettingsCategory.SEARCH,
                 SettingsCategory.PROFILES,
                 SettingsCategory.PLAYBACK_PLAYER,
-                SettingsCategory.PLAYBACK_STREAM_SELECTION,
-                SettingsCategory.PLAYBACK_UP_NEXT,
-                SettingsCategory.PLAYBACK_SKIP_SEGMENTS,
-                SettingsCategory.PLAYBACK_PLAYER_INTERFACE,
-                SettingsCategory.PLAYBACK_AUDIO,
-                SettingsCategory.PLAYBACK_SUBTITLES,
-                SettingsCategory.PLAYBACK_VIDEO,
-                SettingsCategory.PLAYBACK_BUFFER_NETWORK,
                 SettingsCategory.ANIME_SKIP,
+                SettingsCategory.PLAYBACK_STREAMS,
+                SettingsCategory.PLAYBACK_AUDIO_SUBTITLES,
+                SettingsCategory.PLAYBACK_VIDEO,
                 SettingsCategory.ADDONS,
                 SettingsCategory.CONTENT_DISCOVERY,
                 SettingsCategory.TMDB,
@@ -161,13 +156,13 @@ class SettingsCatalogTest {
     }
 
     @Test
-    fun `advanced mode lists each playback section in the rail, essential mode one playback page`() {
+    fun `advanced mode has the four playback pages, essential mode one`() {
         val advanced = visibleSettingsCategories(true, isEssentialMode = false, isDebugBuild = false)
         val essential = visibleSettingsCategories(true, isEssentialMode = true, isDebugBuild = false)
 
         assertEquals(
-            PlaybackSection.entries,
-            advanced.filter { it.group == SettingsRailGroup.PLAYBACK }.mapNotNull { it.playbackSection }
+            PlaybackPage.entries,
+            advanced.filter { it.group == SettingsRailGroup.PLAYBACK }.mapNotNull { it.playbackPage }
         )
         assertFalse(SettingsCategory.PLAYBACK in advanced)
         assertEquals(
@@ -177,23 +172,142 @@ class SettingsCatalogTest {
     }
 
     @Test
-    fun `the rail only lists the playback sections the player settings show`() {
-        val sections = PlaybackSection.entries - PlaybackSection.BUFFER_NETWORK
+    fun `a playback page is listed while the player settings show any of its sections`() {
         val categories = visibleSettingsCategories(
             isPrimaryProfile = true,
             isEssentialMode = false,
             isDebugBuild = false,
-            playbackSections = sections
+            playbackSections = listOf(PlaybackSection.BUFFER_NETWORK, PlaybackSection.AUDIO)
         )
 
-        assertEquals(sections, categories.mapNotNull { it.playbackSection })
+        assertEquals(
+            listOf(PlaybackPage.PLAYER_NETWORK, PlaybackPage.AUDIO_SUBTITLES),
+            categories.mapNotNull { it.playbackPage }
+        )
+        // Hiding Buffer & network alone leaves every page.
+        assertEquals(
+            PlaybackPage.entries,
+            visibleSettingsCategories(
+                isPrimaryProfile = true,
+                isEssentialMode = false,
+                isDebugBuild = false,
+                playbackSections = PlaybackSection.entries - PlaybackSection.BUFFER_NETWORK
+            ).mapNotNull { it.playbackPage }
+        )
     }
 
     @Test
-    fun `every playback section has exactly one rail entry`() {
+    fun `every playback section is on exactly one page, and every page has one rail category`() {
         assertEquals(
-            PlaybackSection.entries,
-            SettingsCategory.entries.mapNotNull { it.playbackSection }
+            PlaybackSection.entries.sorted(),
+            PlaybackPage.entries.flatMap { it.sections }.sorted()
+        )
+        assertEquals(
+            PlaybackPage.entries,
+            SettingsCategory.entries.mapNotNull { it.playbackPage }
+        )
+    }
+
+    @Test
+    fun `advanced mode has at most 14 rail entries, debug builds included`() {
+        val rail = visibleSettingsCategories(
+            isPrimaryProfile = true,
+            isEssentialMode = false,
+            isDebugBuild = true,
+            isYouTubeAvailable = true
+        ).settingsRailEntries()
+
+        assertEquals(
+            listOf(
+                SettingsCategory.SEARCH,
+                SettingsCategory.PROFILES,
+                SettingsCategory.PLAYBACK_PLAYER,
+                SettingsCategory.PLAYBACK_STREAMS,
+                SettingsCategory.PLAYBACK_AUDIO_SUBTITLES,
+                SettingsCategory.PLAYBACK_VIDEO,
+                SettingsCategory.ADDONS,
+                SettingsCategory.TMDB,
+                SettingsCategory.CUSTOMISE_HOME,
+                SettingsCategory.APPEARANCE,
+                SettingsCategory.ACCOUNT,
+                SettingsCategory.PHONE,
+                SettingsCategory.ADVANCED,
+                SettingsCategory.ABOUT
+            ),
+            rail
+        )
+        allCombinations().forEach { pages ->
+            assertTrue("${pages.settingsRailEntries()}", pages.settingsRailEntries().size <= 14)
+        }
+    }
+
+    @Test
+    fun `essential mode's rail is shorter still`() {
+        val rail = visibleSettingsCategories(
+            isPrimaryProfile = true,
+            isEssentialMode = true,
+            isDebugBuild = true,
+            isYouTubeAvailable = true
+        ).settingsRailEntries()
+
+        assertEquals(
+            listOf(
+                SettingsCategory.SEARCH,
+                SettingsCategory.PROFILES,
+                SettingsCategory.PLAYBACK,
+                SettingsCategory.ADDONS,
+                SettingsCategory.TMDB,
+                SettingsCategory.APPEARANCE,
+                SettingsCategory.LAYOUT,
+                SettingsCategory.ACCOUNT,
+                SettingsCategory.PHONE,
+                SettingsCategory.ADVANCED,
+                SettingsCategory.ABOUT
+            ),
+            rail
+        )
+    }
+
+    @Test
+    fun `a tab set shares one rail entry, its first visible page, and opens on any of its pages`() {
+        val advanced = visibleSettingsCategories(true, isEssentialMode = false, isDebugBuild = true, isYouTubeAvailable = true)
+        val secondary = visibleSettingsCategories(false, isEssentialMode = false, isDebugBuild = false, isYouTubeAvailable = true)
+
+        assertEquals(
+            listOf(SettingsCategory.ACCOUNT, SettingsCategory.TRACKING, SettingsCategory.YOUTUBE),
+            advanced.tabsOf(SettingsCategory.ACCOUNT)
+        )
+        assertEquals(SettingsCategory.ACCOUNT, advanced.railEntryFor(SettingsCategory.YOUTUBE))
+        assertEquals(listOf(SettingsCategory.CUSTOMISE_HOME, SettingsCategory.LAYOUT), advanced.tabsOf(SettingsCategory.CUSTOMISE_HOME))
+        assertEquals(listOf(SettingsCategory.ADVANCED, SettingsCategory.DEBUG), advanced.tabsOf(SettingsCategory.ADVANCED))
+        assertEquals(listOf(SettingsCategory.PLAYBACK_PLAYER, SettingsCategory.ANIME_SKIP), advanced.tabsOf(SettingsCategory.PLAYBACK_PLAYER))
+        // Without the account page, tracking stands for the set.
+        assertEquals(SettingsCategory.TRACKING, secondary.railEntryFor(SettingsCategory.YOUTUBE))
+        assertTrue(SettingsCategory.TRACKING in secondary.settingsRailEntries())
+        // A page outside any set is its own entry with no other tabs.
+        assertEquals(listOf(SettingsCategory.APPEARANCE), advanced.tabsOf(SettingsCategory.APPEARANCE))
+        // Every visible page is reachable from exactly one rail entry.
+        allCombinations().forEach { pages ->
+            val rail = pages.settingsRailEntries()
+            assertEquals(pages.toSet(), rail.flatMap { pages.tabsOf(it) }.toSet())
+            pages.forEach { page -> assertTrue(pages.railEntryFor(page) in rail) }
+        }
+    }
+
+    @Test
+    fun `rail headings follow the entries`() {
+        val rail = visibleSettingsCategories(true, isEssentialMode = false, isDebugBuild = true, isYouTubeAvailable = true)
+            .settingsRailEntries()
+        assertEquals(
+            listOf(
+                SettingsCategory.PROFILES,
+                SettingsCategory.PLAYBACK_PLAYER,
+                SettingsCategory.ADDONS,
+                SettingsCategory.CUSTOMISE_HOME,
+                SettingsCategory.ACCOUNT,
+                SettingsCategory.PHONE
+            ),
+            rail.indices.filter { rail.startsNewGroup(it) }.map { rail[it] }
         )
     }
 

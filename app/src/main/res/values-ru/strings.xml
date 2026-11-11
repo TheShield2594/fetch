@@ -550,10 +550,6 @@
     <string name="layout_show_full_release_date_sub">Для фильмов показывать полную дату выхода, а не только год.</string>
     <string name="layout_section_focused">Постер в фокусе</string>
     <string name="layout_section_focused_desc">Продвинутое поведение для карточек постеров в фокусе.</string>
-    <string name="layout_expand_poster">Разворачивать постер в фокусе в фон</string>
-    <string name="layout_expand_poster_sub">Разворачивать постер в фокусе после задержки.</string>
-    <string name="layout_expand_delay">Задержка разворачивания фона</string>
-    <string name="layout_expand_delay_sub">Сколько ждать перед разворачиванием карточки в фокусе.</string>
     <string name="layout_autoplay_trailer">Автовоспроизведение трейлера</string>
     <string name="layout_autoplay_trailer_sub">Воспроизводить превью трейлера для контента в фокусе, если доступно.</string>
     <string name="layout_trailer_muted">Воспроизводить трейлер без звука</string>
@@ -563,10 +559,6 @@
     <string name="layout_custom_poster_apply_to">Применить к</string>
     <string name="layout_open">Открыть</string>
     <string name="layout_closed">Закрыть</string>
-    <string name="layout_trailer_location">Расположение воспроизведения трейлера (Современный вид)</string>
-    <string name="layout_trailer_location_sub">Выберите, где будет воспроизводиться трейлер в Современном макете.</string>
-    <string name="layout_trailer_expanded_card">Развернутая карточка</string>
-    <string name="layout_trailer_hero_media">Медиа главного блока</string>
     <string name="layout_preset_compact">Компактный</string>
     <string name="layout_preset_dense">Плотный</string>
     <string name="layout_preset_standard">Стандартный</string>
@@ -1573,9 +1565,6 @@
     <string name="layout_next_up_furthest_episode_sub">Показывать следующий эпизод на основе самого дальнего просмотренного. Отключите при пересмотре — будет использоваться последний по времени.</string>
     <string name="layout_show_unaired_next_up">Показывать будущие эпизоды в «Следующее»</string>
     <string name="layout_show_unaired_next_up_sub">Включать предстоящие эпизоды в «Продолжить просмотр» до их выхода.</string>
-    <string name="layout_cw_card_style_card">Карточка</string>
-    <string name="layout_cw_card_style_wide">Широкая</string>
-    <string name="layout_cw_card_style_poster">Постер</string>
     <string name="layout_cw_sort_mode">Порядок сортировки</string>
     <string name="layout_cw_sort_mode_sub">Порядок элементов «Продолжить просмотр»</string>
     <string name="layout_cw_sort_default">По умолчанию</string>

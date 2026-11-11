@@ -872,9 +872,6 @@
     <string name="layout_next_up_furthest_episode_sub">Hiển thị tập tiếp theo dựa trên tập xa nhất đã xem. Tắt khi xem lại để dùng tập vừa xem gần nhất.</string>
     <string name="layout_show_unaired_next_up">Hiển thị tập tiếp theo chưa phát sóng</string>
     <string name="layout_show_unaired_next_up_sub">Bao gồm các tập sắp tới trong Tiếp tục xem trước khi phát sóng.</string>
-    <string name="layout_cw_card_style_card">Thẻ</string>
-    <string name="layout_cw_card_style_wide">Ngang</string>
-    <string name="layout_cw_card_style_poster">Poster</string>
     <string name="layout_cw_sort_mode">Thứ tự sắp xếp</string>
     <string name="layout_cw_sort_mode_sub">Cách sắp xếp các mục trong Tiếp tục xem</string>
     <string name="layout_cw_sort_default">Mặc định</string>
@@ -901,10 +898,6 @@
     <string name="layout_show_full_release_date_sub">Đối với phim điện ảnh, hiển thị ngày phát hành đầy đủ thay vì chỉ hiển thị năm.</string>
     <string name="layout_section_focused">Poster đang chọn</string>
     <string name="layout_section_focused_desc">Tùy chọn nâng cao cho thẻ poster đang chọn.</string>
-    <string name="layout_expand_poster">Mở rộng poster đang chọn thành phông nền.</string>
-    <string name="layout_expand_poster_sub">Mở rộng poster đang chọn sau thời gian chờ.</string>
-    <string name="layout_expand_delay">Độ trễ mở rộng phông nền</string>
-    <string name="layout_expand_delay_sub">Thời gian chờ trước khi mở rộng các thẻ đang chọn.</string>
     <string name="layout_autoplay_trailer">Tự động phát trailer</string>
     <string name="layout_autoplay_trailer_sub">Phát bản xem trước trailer cho nội dung đang chọn khi có sẵn.</string>
     <string name="layout_trailer_muted">Phát trailer đã tắt tiếng</string>
@@ -914,10 +907,6 @@
     <string name="layout_custom_poster_apply_to">Áp dụng cho</string>
     <string name="layout_open">Mở</string>
     <string name="layout_closed">Đã đóng</string>
-    <string name="layout_trailer_location">Vị trí phát trailer (Hiện đại)</string>
-    <string name="layout_trailer_location_sub">Chọn nơi phát bản xem trước trailer trong Trang chủ Hiện đại..</string>
-    <string name="layout_trailer_expanded_card">Thẻ mở rộng</string>
-    <string name="layout_trailer_hero_media">Phương tiện Khu vực Nổi bật</string>
     <string name="layout_preset_compact">Thu gọn</string>
     <string name="layout_preset_dense">Dày đặc</string>
     <string name="layout_preset_standard">Tiêu chuẩn</string>

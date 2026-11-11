@@ -675,10 +675,6 @@
     <string name="layout_show_full_release_date_sub">Zeigt für Filme vollständiges Erscheinungsdatum anstatt nur das Jahr.</string>
     <string name="layout_section_focused">Fokussiertes Poster</string>
     <string name="layout_section_focused_desc">Erweitertes Verhalten für fokussierte Poster.</string>
-    <string name="layout_expand_poster">Fokussiertes Poster auf Hintergrund erweitern</string>
-    <string name="layout_expand_poster_sub">Fokussiertes Poster nach Verzögerung erweitern.</string>
-    <string name="layout_expand_delay">Verzögerung beim Erweitern zum Hintergrund</string>
-    <string name="layout_expand_delay_sub">Verzögerung vor dem Erweitern fokussierter Poster.</string>
     <string name="layout_autoplay_trailer">Trailer automatisch abspielen</string>
     <string name="layout_autoplay_trailer_sub">Trailer-Vorschau für fokussierte Inhalte abspielen, sofern verfügbar.</string>
     <string name="layout_trailer_muted">Trailer stumm abspielen</string>
@@ -687,10 +683,6 @@
     <string name="layout_section_card_style_desc">Kartenbreite und Eckenradius anpassen.</string>
     <string name="layout_open">Öffnen</string>
     <string name="layout_closed">Geschlossen</string>
-    <string name="layout_trailer_location">Wiedergabestandort für moderne Trailer</string>
-    <string name="layout_trailer_location_sub">Wählen Sie aus, wo die Trailer-Vorschau in Modern Home abgespielt werden soll.</string>
-    <string name="layout_trailer_expanded_card">Erweiterte Karte</string>
-    <string name="layout_trailer_hero_media">Hero Media</string>
     <string name="layout_preset_compact">Kompakt</string>
     <string name="layout_preset_dense">Dicht</string>
     <string name="layout_preset_standard">Standard</string>

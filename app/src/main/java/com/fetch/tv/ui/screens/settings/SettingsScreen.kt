@@ -50,6 +50,7 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.runtime.Composable
@@ -150,8 +151,8 @@ private sealed interface ExperienceModeLoadState {
 
 @Composable
 private fun settingsSectionSpec(category: SettingsCategory): SettingsSectionSpec {
-    category.playbackSection?.let { section ->
-        return SettingsSectionSpec(category, stringResource(section.title), section.icon)
+    category.playbackPage?.let { page ->
+        return SettingsSectionSpec(category, stringResource(page.title), page.icon)
     }
     return when (category) {
         SettingsCategory.SEARCH -> SettingsSectionSpec(category, stringResource(R.string.settings_search_title), Icons.Default.Search)
@@ -174,8 +175,32 @@ private fun settingsSectionSpec(category: SettingsCategory): SettingsSectionSpec
         SettingsCategory.ABOUT -> SettingsSectionSpec(category, stringResource(R.string.about_title), Icons.Default.Info)
         SettingsCategory.DEBUG -> SettingsSectionSpec(category, stringResource(R.string.settings_debug), Icons.Default.BugReport)
         SettingsCategory.EXPERIENCE -> SettingsSectionSpec(category, stringResource(R.string.settings_experience), Icons.Default.Tune)
-        // Each of these is a playback section, covered above.
+        // Each of these is a playback page, covered above.
         else -> error("No rail entry for $category")
+    }
+}
+
+/**
+ * How the rail names [entry]: as its own page, or, while it stands for several [tabs], by what
+ * they hold together.
+ */
+@Composable
+private fun settingsRailSpec(entry: SettingsCategory, tabs: List<SettingsCategory>): SettingsSectionSpec {
+    val spec = settingsSectionSpec(entry)
+    if (tabs.size < 2) return spec
+    return when (entry.tabSet) {
+        SettingsTabSet.ADDONS -> spec.copy(title = stringResource(R.string.settings_tabs_addons))
+        SettingsTabSet.METADATA -> spec.copy(
+            title = stringResource(R.string.settings_tabs_metadata),
+            icon = Icons.Default.Star,
+            rawIconRes = null
+        )
+        SettingsTabSet.HOME -> spec.copy(title = stringResource(R.string.settings_tabs_home))
+        SettingsTabSet.ACCOUNTS -> spec.copy(title = stringResource(R.string.settings_tabs_accounts))
+        // Named well enough by their first page.
+        SettingsTabSet.PLAYER,
+        SettingsTabSet.ADVANCED,
+        null -> spec
     }
 }
 
@@ -249,7 +274,19 @@ fun SettingsScreen(
             playbackSections = loadedPlaybackSections
         )
     }
-    val visibleSections = visibleCategories.map { category -> settingsSectionSpec(category) }
+    // The rail lists one entry per page, except that a tab set shares one; the pane picks between
+    // its pages with tabs.
+    val railCategories = remember(visibleCategories) { visibleCategories.settingsRailEntries() }
+    val visibleSections = railCategories.map { category ->
+        settingsRailSpec(category, visibleCategories.tabsOf(category))
+    }
+    val searchIndex = remember(isEssentialMode, loadedPlaybackSections) {
+        if (isEssentialMode) {
+            essentialSettingsSearchIndex
+        } else {
+            settingsSearchIndex.withoutPlaybackSections(PlaybackSection.entries - loadedPlaybackSections.toSet())
+        }
+    }
 
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     var selectedCategory by rememberSaveable {
@@ -257,6 +294,10 @@ fun SettingsScreen(
             visibleSections.firstOrNull()?.category ?: SettingsCategory.APPEARANCE
         )
     }
+    // Which of the selected entry's tabs is showing, by name; null for its first.
+    var selectedPageName by rememberSaveable { mutableStateOf<String?>(null) }
+    val selectedTabs = visibleCategories.tabsOf(selectedCategory)
+    val selectedPage = selectedTabs.firstOrNull { it.name == selectedPageName } ?: selectedTabs.first()
     // Hoisted so a query typed on the phone hub can be put in the search field.
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var searchChangedOnly by rememberSaveable { mutableStateOf(false) }
@@ -434,7 +475,8 @@ fun SettingsScreen(
         }
         // A search result goes to its row first. The page's first option is the fallback, for a
         // row the page does not show right now, such as one that only appears for another engine.
-        val target = rowTarget?.takeIf { it.category == category }
+        // The target names a page, which can be one of the tabs this rail entry opens.
+        val target = rowTarget?.takeIf { visibleCategories.railEntryFor(it.category) == category }
         var requested = false
         if (target != null) {
             // Ends early once the page says it has no such row. A page that composes all its rows
@@ -466,10 +508,11 @@ fun SettingsScreen(
             .fillMaxSize()
             .background(FetchTheme.colors.Background)
             .padding(
-                start = FetchTheme.spacing.xxl,
-                end = FetchTheme.spacing.xxl,
-                top = if (showBuiltInHeader) FetchTheme.spacing.xl else 68.dp,
-                bottom = FetchTheme.spacing.xl
+                // The TV safe area on every edge.
+                start = FetchTheme.spacing.screen.horizontal,
+                end = FetchTheme.spacing.screen.horizontal,
+                top = if (showBuiltInHeader) FetchTheme.spacing.screen.vertical else 68.dp,
+                bottom = FetchTheme.spacing.screen.vertical
             )
     ) {
         SettingsWorkspaceSurface(
@@ -479,6 +522,7 @@ fun SettingsScreen(
 
             val onSectionClick: (SettingsSectionSpec) -> Unit = { section ->
                 allowDetailAutofocus = true
+                if (selectedCategory != section.category) selectedPageName = null
                 selectedCategory = section.category
                 pendingContentFocusCategory = section.category
                 pendingContentFocusRequestId += 1L
@@ -490,6 +534,7 @@ fun SettingsScreen(
                 if (selectedCategory != category) {
                     allowDetailAutofocus = false
                     rowTarget = null
+                    selectedPageName = null
                     selectedCategory = category
                 }
             }
@@ -577,11 +622,11 @@ fun SettingsScreen(
                         key = { _, section -> section.category }
                     ) { index, section ->
                         Column {
-                            if (visibleCategories.startsNewGroup(index)) {
+                            if (railCategories.startsNewGroup(index)) {
                                 section.category.group?.let { group ->
                                     SettingsRailHeading(
                                         text = settingsGroupTitle(group),
-                                        first = index == visibleCategories.indexOfFirst { it.group != null }
+                                        first = index == railCategories.indexOfFirst { it.group != null }
                                     )
                                 }
                             }
@@ -644,24 +689,35 @@ fun SettingsScreen(
                     }
             ) {
                 CompositionLocalProvider(
-                    LocalSettingsRowTarget provides rowTarget?.takeIf { it.category == selectedCategory }
+                    LocalSettingsRowTarget provides rowTarget?.takeIf { it.category == selectedPage }
                 ) {
-                    SettingsDetailPane(
-                        selectedCategory = selectedCategory,
+                    SettingsTabbedPane(
+                        tabs = selectedTabs,
+                        page = selectedPage,
+                        onSelectPage = { selectedPageName = it.name }
+                    ) {
+                    SettingsPageContent(
+                        page = selectedPage,
+                        // The rail entry's requester, given to whichever of its pages is showing, and
+                        // only when the pane was entered on purpose; otherwise moving along the rail
+                        // would pull focus in.
+                        pageFocusRequester = if (allowDetailAutofocus) contentFocusRequesters[selectedCategory] else null,
                         isEssentialMode = isEssentialMode,
-                        allowDetailAutofocus = allowDetailAutofocus,
-                        contentFocusRequesters = contentFocusRequesters,
                         experienceModeViewModel = experienceModeViewModel,
                         visibleCategories = visibleCategories,
+                        searchIndex = searchIndex,
                         searchQuery = searchQuery,
                         onSearchQueryChange = { searchQuery = it },
                         searchChangedOnly = searchChangedOnly,
                         onSearchChangedOnlyChange = { searchChangedOnly = it },
                         changedSettings = changedSettings,
                         onOpenSearchResult = { result ->
-                            visibleSections.firstOrNull { it.category == result.category }?.let { section ->
+                            // A result can be on one of an entry's tabs: open the entry on that tab.
+                            val entry = visibleCategories.railEntryFor(result.category)
+                            visibleSections.firstOrNull { it.category == entry }?.let { section ->
                                 rowTarget = SettingsRowTarget(result.category, result.title)
                                 onSectionClick(section)
+                                selectedPageName = result.category.name
                             }
                         },
                         onNavigateToManageProfiles = onNavigateToManageProfiles,
@@ -670,6 +726,7 @@ fun SettingsScreen(
                         onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
                         onNavigateToPhoneHub = onNavigateToPhoneHub
                     )
+                    }
                 }
             }
             }
@@ -677,14 +734,53 @@ fun SettingsScreen(
     }
 }
 
+/**
+ * The pane for one rail entry: [content], the [page] showing, under a row of [tabs] to pick between
+ * the entry's pages when it has more than one.
+ */
 @Composable
-private fun SettingsDetailPane(
-    selectedCategory: SettingsCategory,
+private fun SettingsTabbedPane(
+    tabs: List<SettingsCategory>,
+    page: SettingsCategory,
+    onSelectPage: (SettingsCategory) -> Unit,
+    content: @Composable () -> Unit
+) {
+    if (tabs.size < 2) {
+        // Keyed so each page starts at its top rather than at the last one's scroll position.
+        key(page) { content() }
+        return
+    }
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
+            tabs.forEach { tab ->
+                SettingsChoiceChip(
+                    label = settingsSectionSpec(tab).title,
+                    selected = tab == page,
+                    onClick = { onSelectPage(tab) }
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            key(page) { content() }
+        }
+    }
+}
+
+@Composable
+private fun SettingsPageContent(
+    page: SettingsCategory,
+    pageFocusRequester: FocusRequester?,
     isEssentialMode: Boolean,
-    allowDetailAutofocus: Boolean,
-    contentFocusRequesters: Map<SettingsCategory, FocusRequester>,
     experienceModeViewModel: ExperienceModeSettingsViewModel,
     visibleCategories: List<SettingsCategory>,
+    searchIndex: Map<SettingsCategory, List<Int>>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     searchChangedOnly: Boolean,
@@ -697,101 +793,58 @@ private fun SettingsDetailPane(
     onNavigateToLicensesAttributions: () -> Unit,
     onNavigateToPhoneHub: () -> Unit
 ) {
-    // Only when the pane was entered on purpose; otherwise moving along the rail would pull focus in.
-    val focusFor: (SettingsCategory) -> FocusRequester? = { category ->
-        if (allowDetailAutofocus) contentFocusRequesters[category] else null
-    }
-    val playbackSection = selectedCategory.playbackSection
-    if (playbackSection != null) {
-        // Keyed so each section starts at its top rather than at the last one's scroll position.
-        key(playbackSection) {
-            PlaybackSettingsContent(
-                initialFocusRequester = focusFor(selectedCategory),
-                section = playbackSection
-            )
-        }
+    val playbackPage = page.playbackPage
+    if (playbackPage != null) {
+        PlaybackSettingsContent(
+            initialFocusRequester = pageFocusRequester,
+            page = playbackPage
+        )
         return
     }
-    when (selectedCategory) {
+    when (page) {
         SettingsCategory.EXPERIENCE -> EssentialAdvancedSettingsContent(
             experienceModeViewModel = experienceModeViewModel,
-            initialFocusRequester = if (allowDetailAutofocus) {
-                contentFocusRequesters[SettingsCategory.EXPERIENCE]
-            } else {
-                null
-            }
+            initialFocusRequester = pageFocusRequester
         )
         SettingsCategory.PROFILES -> ProfileSettingsContent(
             onManageProfiles = onNavigateToManageProfiles,
-            initialFocusRequester = if (allowDetailAutofocus) {
-                contentFocusRequesters[SettingsCategory.PROFILES]
-            } else {
-                null
-            }
+            initialFocusRequester = pageFocusRequester
         )
         SettingsCategory.PHONE -> com.fetch.tv.ui.screens.phone.PhoneHubSettingsContent(
             onOpen = onNavigateToPhoneHub,
-            initialFocusRequester = if (allowDetailAutofocus) {
-                contentFocusRequesters[SettingsCategory.PHONE]
-            } else {
-                null
-            }
+            initialFocusRequester = pageFocusRequester
         )
         SettingsCategory.APPEARANCE -> ThemeSettingsContent(
-            initialFocusRequester = if (allowDetailAutofocus) {
-                contentFocusRequesters[SettingsCategory.APPEARANCE]
-            } else {
-                null
-            },
+            initialFocusRequester = pageFocusRequester,
             essentialMode = isEssentialMode
         )
         SettingsCategory.LAYOUT -> LayoutSettingsContent(
-            initialFocusRequester = if (allowDetailAutofocus) {
-                contentFocusRequesters[SettingsCategory.LAYOUT]
-            } else {
-                null
-            },
+            initialFocusRequester = pageFocusRequester,
             essentialMode = isEssentialMode
         )
         SettingsCategory.PLAYBACK -> if (isEssentialMode) {
             EssentialPlaybackSettingsContent(
-                initialFocusRequester = if (allowDetailAutofocus) {
-                    contentFocusRequesters[SettingsCategory.PLAYBACK]
-                } else {
-                    null
-                }
+                initialFocusRequester = pageFocusRequester
             )
         } else {
             PlaybackSettingsContent(
-                initialFocusRequester = if (allowDetailAutofocus) {
-                    contentFocusRequesters[SettingsCategory.PLAYBACK]
-                } else {
-                    null
-                }
+                initialFocusRequester = pageFocusRequester
             )
         }
         SettingsCategory.ADVANCED -> if (isEssentialMode) {
             EssentialAdvancedSettingsContent(
                 experienceModeViewModel = experienceModeViewModel,
-                initialFocusRequester = if (allowDetailAutofocus) {
-                    contentFocusRequesters[SettingsCategory.ADVANCED]
-                } else {
-                    null
-                }
+                initialFocusRequester = pageFocusRequester
             )
         } else {
             AdvancedSettingsContent(
-                initialFocusRequester = if (allowDetailAutofocus) {
-                    contentFocusRequesters[SettingsCategory.ADVANCED]
-                } else {
-                    null
-                },
+                initialFocusRequester = pageFocusRequester,
                 experienceModeViewModel = experienceModeViewModel
             )
         }
         SettingsCategory.SEARCH -> SettingsSearchContent(
             visibleCategories = visibleCategories,
-            index = if (isEssentialMode) essentialSettingsSearchIndex else settingsSearchIndex,
+            index = searchIndex,
             query = searchQuery,
             onQueryChange = onSearchQueryChange,
             changedOnly = searchChangedOnly,
@@ -800,34 +853,30 @@ private fun SettingsDetailPane(
             pageTitle = { settingsSectionSpec(it).title },
             groupTitle = { settingsGroupTitle(it) },
             onOpen = onOpenSearchResult,
-            initialFocusRequester = focusFor(SettingsCategory.SEARCH)
+            initialFocusRequester = pageFocusRequester
         )
         SettingsCategory.TRACKING -> TrackingSettingsContent(
-            initialFocusRequester = focusFor(SettingsCategory.TRACKING),
+            initialFocusRequester = pageFocusRequester,
             essentialMode = isEssentialMode
         )
-        SettingsCategory.YOUTUBE -> YouTubeSettingsContent(initialFocusRequester = focusFor(SettingsCategory.YOUTUBE))
+        SettingsCategory.YOUTUBE -> YouTubeSettingsContent(initialFocusRequester = pageFocusRequester)
         SettingsCategory.TMDB -> TmdbSettingsContent(
-            initialFocusRequester = focusFor(SettingsCategory.TMDB),
+            initialFocusRequester = pageFocusRequester,
             essentialMode = isEssentialMode
         )
         SettingsCategory.MDBLIST -> MDBListSettingsContent(
-            initialFocusRequester = focusFor(SettingsCategory.MDBLIST),
+            initialFocusRequester = pageFocusRequester,
             essentialMode = isEssentialMode
         )
-        SettingsCategory.ANIME_SKIP -> AnimeSkipSettingsContent(initialFocusRequester = focusFor(SettingsCategory.ANIME_SKIP))
+        SettingsCategory.ANIME_SKIP -> AnimeSkipSettingsContent(initialFocusRequester = pageFocusRequester)
         SettingsCategory.ABOUT -> AboutSettingsContent(
             onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
-            initialFocusRequester = if (allowDetailAutofocus) {
-                contentFocusRequesters[SettingsCategory.ABOUT]
-            } else {
-                null
-            },
+            initialFocusRequester = pageFocusRequester,
             essentialMode = isEssentialMode
         )
         SettingsCategory.ADDONS -> AddonsSettingsContent(
             onNavigateToAddons = onNavigateToAddons,
-            initialFocusRequester = focusFor(SettingsCategory.ADDONS)
+            initialFocusRequester = pageFocusRequester
         )
         SettingsCategory.CUSTOMISE_HOME -> CustomiseHomeSettingsContent(
             onOpenCustomiseHome = customiseHomeActions.openCustomiseHome,
@@ -836,21 +885,13 @@ private fun SettingsDetailPane(
             onAddFolderRow = customiseHomeActions.addFolderRow,
             onEditFilterRows = customiseHomeActions.editFilterRows,
             onEditFolders = customiseHomeActions.editFolders,
-            initialFocusRequester = focusFor(SettingsCategory.CUSTOMISE_HOME)
+            initialFocusRequester = pageFocusRequester
         )
         SettingsCategory.CONTENT_DISCOVERY -> ContentDiscoverySettingsContent(
-            initialFocusRequester = if (allowDetailAutofocus) {
-                contentFocusRequesters[SettingsCategory.CONTENT_DISCOVERY]
-            } else {
-                null
-            }
+            initialFocusRequester = pageFocusRequester
         )
         SettingsCategory.ACCOUNT -> AccountSettingsInline(
-            initialFocusRequester = if (allowDetailAutofocus) {
-                contentFocusRequesters[SettingsCategory.ACCOUNT]
-            } else {
-                null
-            }
+            initialFocusRequester = pageFocusRequester
         )
         SettingsCategory.DEBUG -> DebugSettingsContent()
         else -> Unit

@@ -843,9 +843,6 @@
     <string name="layout_next_up_furthest_episode_sub">Prikaži sljedeću epizodu na temelju najdalje pogledane epizode. Isključi za ponovna gledanja kako bi se koristila zadnje gledana epizoda.</string>
     <string name="layout_show_unaired_next_up">Prikaži neemitirane sljedeće epizode</string>
     <string name="layout_show_unaired_next_up_sub">Uključi nadolazeće epizode u Nastavi gledati prije emitiranja.</string>
-    <string name="layout_cw_card_style_card">Kartica</string>
-    <string name="layout_cw_card_style_wide">Široko</string>
-    <string name="layout_cw_card_style_poster">Poster</string>
     <string name="layout_cw_sort_mode">Redoslijed sortiranja</string>
     <string name="layout_cw_sort_mode_sub">Kako su stavke u Nastavi gledati poredane</string>
     <string name="layout_cw_sort_default">Zadano</string>
@@ -863,10 +860,6 @@
     <string name="layout_show_full_release_date_sub">Za filmove prikaži puni datum izlaska umjesto samo godine.</string>
     <string name="layout_section_focused">Fokusirani poster</string>
     <string name="layout_section_focused_desc">Napredno ponašanje fokusiranih kartica postera.</string>
-    <string name="layout_expand_poster">Proširi fokusirani poster u pozadinu</string>
-    <string name="layout_expand_poster_sub">Proširi fokusirani poster nakon odgode neaktivnosti.</string>
-    <string name="layout_expand_delay">Odgoda proširenja pozadine</string>
-    <string name="layout_expand_delay_sub">Koliko dugo čekati prije proširenja fokusiranih kartica.</string>
     <string name="layout_autoplay_trailer">Automatski reproduciraj trailer</string>
     <string name="layout_autoplay_trailer_sub">Reproduciraj pretpregled trailera za fokusirani sadržaj kada je dostupan.</string>
     <string name="layout_trailer_muted">Reproduciraj trailer bez zvuka</string>
@@ -876,10 +869,6 @@
     <string name="layout_custom_poster_apply_to">Primijeni na</string>
     <string name="layout_open">Otvoreno</string>
     <string name="layout_closed">Zatvoreno</string>
-    <string name="layout_trailer_location">Mjesto reprodukcije trailera u Modernom prikazu</string>
-    <string name="layout_trailer_location_sub">Odaberi gdje se pretpregled trailera reproducira u Modernom početnom zaslonu.</string>
-    <string name="layout_trailer_expanded_card">Proširena kartica</string>
-    <string name="layout_trailer_hero_media">Istaknuti medij</string>
     <string name="layout_preset_compact">Kompaktno</string>
     <string name="layout_preset_dense">Gusto</string>
     <string name="layout_preset_standard">Standardno</string>

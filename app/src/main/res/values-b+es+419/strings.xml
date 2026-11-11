@@ -872,9 +872,6 @@
     <string name="layout_next_up_furthest_episode_sub">Muestra el siguiente episodio según el episodio más avanzado visto. Desactívalo si estás volviendo a ver para usar el episodio visto más recientemente.</string>
     <string name="layout_show_unaired_next_up">Mostrar próximos episodios no emitidos</string>
     <string name="layout_show_unaired_next_up_sub">Incluye episodios próximos en \"Continuar viendo\" antes de su emisión.</string>
-    <string name="layout_cw_card_style_card">Tarjeta</string>
-    <string name="layout_cw_card_style_wide">Ancha</string>
-    <string name="layout_cw_card_style_poster">Póster</string>
     <string name="layout_cw_sort_mode">Orden de clasificación</string>
     <string name="layout_cw_sort_mode_sub">Cómo se organizan los elementos de Continuar viendo</string>
     <string name="layout_cw_sort_default">Predeterminado</string>
@@ -901,10 +898,6 @@
     <string name="layout_show_full_release_date_sub">Para películas, muestra la fecha de estreno completa en lugar de solo el año.</string>
     <string name="layout_section_focused">Póster en Foco</string>
     <string name="layout_section_focused_desc">Comportamiento avanzado para tarjetas de póster seleccionadas.</string>
-    <string name="layout_expand_poster">Expandir Póster al Fondo (Backdrop)</string>
-    <string name="layout_expand_poster_sub">Expandir el póster seleccionado tras un tiempo de inactividad.</string>
-    <string name="layout_expand_delay">Retraso para Expandir el Fondo</string>
-    <string name="layout_expand_delay_sub">Cuánto esperar antes de expandir las tarjetas en foco.</string>
     <string name="layout_autoplay_trailer">Auto-reproducir Tráiler</string>
     <string name="layout_autoplay_trailer_sub">Reproducir una vista previa del tráiler para el contenido en foco cuando esté disponible.</string>
     <string name="layout_trailer_muted">Reproducir Tráiler Silenciado</string>
@@ -914,10 +907,6 @@
     <string name="layout_custom_poster_apply_to">Aplicar a</string>
     <string name="layout_open">Abierto</string>
     <string name="layout_closed">Cerrado</string>
-    <string name="layout_trailer_location">Ubicación de Reproducción del Tráiler Moderno</string>
-    <string name="layout_trailer_location_sub">Elige dónde se reproduce la vista previa del tráiler en el Inicio Moderno.</string>
-    <string name="layout_trailer_expanded_card">Tarjeta Expandida</string>
-    <string name="layout_trailer_hero_media">Medios Destacados</string>
     <string name="layout_preset_compact">Compacto</string>
     <string name="layout_preset_dense">Denso</string>
     <string name="layout_preset_standard">Estándar</string>

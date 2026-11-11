@@ -396,10 +396,6 @@
     <string name="layout_show_full_release_date_sub">For filmer, vis fullt utgivelsesdato i stedet for bare år.</string>
     <string name="layout_section_focused">Fokusert plakat</string>
     <string name="layout_section_focused_desc">Avansert oppførsel for fokuserte plakatkort.</string>
-    <string name="layout_expand_poster">Utvid fokusert plakat til bakgrund</string>
-    <string name="layout_expand_poster_sub">Utvid fokusert plakat etter inaktivitetsforsinkelse.</string>
-    <string name="layout_expand_delay">Utvidelsestid for bakgrunnstap</string>
-    <string name="layout_expand_delay_sub">Hvor lenge skal ventes før fokuserte kort utvides.</string>
     <string name="layout_autoplay_trailer">Autoavspill trailer</string>
     <string name="layout_autoplay_trailer_sub">Spill trailerforhåndsvisning for fokusert innhold når tilgjengelig.</string>
     <string name="layout_trailer_muted">Spill trailer uten lyd</string>
@@ -408,10 +404,6 @@
     <string name="layout_section_card_style_desc">Juster kortbredde og hjørneradius.</string>
     <string name="layout_open">Åpne</string>
     <string name="layout_closed">Stengt</string>
-    <string name="layout_trailer_location">Moderne traileravspilling-plassering</string>
-    <string name="layout_trailer_location_sub">Velg hvor trailerforhåndsvisning avspilles i moderne hjemmet.</string>
-    <string name="layout_trailer_expanded_card">Utvidet kort</string>
-    <string name="layout_trailer_hero_media">Heltemedier</string>
     <string name="layout_preset_compact">Kompakt</string>
     <string name="layout_preset_dense">Tett</string>
     <string name="layout_preset_standard">Standard</string>

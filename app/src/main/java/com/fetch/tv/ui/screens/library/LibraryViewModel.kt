@@ -9,7 +9,7 @@ import com.fetch.tv.core.tracking.TrackingLibraryProviderRegistry
 import com.fetch.tv.core.tracking.providerId
 import com.fetch.tv.core.poster.withCustomPosterUrls
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
-import com.fetch.tv.data.local.LibraryPreferences
+import com.fetch.tv.data.local.LibraryViewPreferences
 import com.fetch.tv.domain.model.LibraryEntry
 import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.model.LibrarySourceMode
@@ -164,7 +164,7 @@ class LibraryViewModel @Inject constructor(
     private val libraryRepository: LibraryRepository,
     private val metaRepository: com.fetch.tv.domain.repository.MetaRepository,
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
-    private val libraryPreferences: LibraryPreferences,
+    private val libraryViewPreferences: LibraryViewPreferences,
     private val trackingProviderRegistry: TrackingLibraryProviderRegistry,
     private val watchProgressRepository: com.fetch.tv.domain.repository.WatchProgressRepository,
     private val watchedSeriesStateHolder: com.fetch.tv.data.local.WatchedSeriesStateHolder,
@@ -257,7 +257,7 @@ class LibraryViewModel @Inject constructor(
             updated.withVisibleItems()
         }
         viewModelScope.launch {
-            libraryPreferences.setLastSelectedType(tab.key)
+            libraryViewPreferences.setLastSelectedType(tab.key)
         }
     }
 
@@ -267,7 +267,7 @@ class LibraryViewModel @Inject constructor(
             updated.withVisibleItems()
         }
         viewModelScope.launch {
-            libraryPreferences.setLastSelectedList(listKey)
+            libraryViewPreferences.setLastSelectedList(listKey)
         }
     }
 
@@ -319,7 +319,7 @@ class LibraryViewModel @Inject constructor(
             updated.withVisibleItems()
         }
         viewModelScope.launch {
-            if (profileManager.activeProfileId.value == profileId) libraryPreferences.setSortOption(option.key)
+            if (profileManager.activeProfileId.value == profileId) libraryViewPreferences.setSortOption(option.key)
         }
     }
 
@@ -547,10 +547,10 @@ class LibraryViewModel @Inject constructor(
                 libraryRepository.isSyncing,
                 libraryRepository.libraryItems,
                 libraryRepository.listTabs,
-                libraryPreferences.sortOption,
+                libraryViewPreferences.sortOption,
                 selectedProviderAuthenticated,
-                libraryPreferences.lastSelectedList,
-                libraryPreferences.lastSelectedType
+                libraryViewPreferences.lastSelectedList,
+                libraryViewPreferences.lastSelectedType
             ) { args ->
                 val sourceMode = args[0] as LibrarySourceMode
                 val isSyncing = args[1] as Boolean

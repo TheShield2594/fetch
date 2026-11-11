@@ -8,7 +8,7 @@ import com.fetch.tv.core.tracking.TrackingListManagementCapabilities
 import com.fetch.tv.core.tracking.TrackingListManager
 import com.fetch.tv.core.tracking.TrackingProviderId
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
-import com.fetch.tv.data.local.LibraryPreferences
+import com.fetch.tv.data.local.LibraryViewPreferences
 import com.fetch.tv.data.local.WatchedSeriesStateHolder
 import com.fetch.tv.domain.model.LibraryEntry
 import com.fetch.tv.domain.model.LibraryListPrivacy
@@ -54,7 +54,7 @@ internal class LibraryViewModelTestFixture(sorter: TrackingLibrarySorter? = null
             every { customPosterUrlPattern } returns flowOf("")
             every { customPosterEnabledScreens } returns flowOf(com.fetch.tv.core.poster.CustomPosterScreen.ALL)
         },
-        libraryPreferences = mockk<LibraryPreferences>(relaxed = true) {
+        libraryViewPreferences = mockk<LibraryViewPreferences>(relaxed = true) {
             every { sortOption } returns persistedSort
             coEvery { setSortOption(any()) } coAnswers { persistedSort.value = firstArg() }
             every { lastSelectedList } returns flowOf(null)

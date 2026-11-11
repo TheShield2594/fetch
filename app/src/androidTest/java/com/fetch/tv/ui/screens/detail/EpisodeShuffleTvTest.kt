@@ -264,7 +264,10 @@ class EpisodeShuffleTvTest {
                 if (it.id == preview.id) it.copy(title = longTitle, overview = "A long episode synopsis. ".repeat(40)) else it
             })
         }
-        compose.onNodeWithText(longTitle).assertIsDisplayed()
+        // The spoiler option hides an unwatched episode's title and overview too (#448): the
+        // preview names it "Episode N" and leaves the long refreshed text out.
+        compose.onNodeWithText("Episode ${preview.episode}").assertIsDisplayed()
+        compose.onNodeWithText(longTitle).assertDoesNotExist()
         compose.onNodeWithText("S1 E${preview.episode}").assertIsDisplayed()
         compose.onNodeWithText("Play episode").assertIsFocused().assertIsDisplayed()
         compose.onNodeWithText("Shuffle again").assertIsDisplayed()

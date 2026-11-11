@@ -1996,9 +1996,14 @@ private fun MetaDetailsContent(
     /** Where focus lands in a people row when coming up from the row below it. */
     fun peopleRowExitUp(tab: PeopleSectionTab): FocusRequester =
         if (tab == PeopleSectionTab.RATINGS) ratingsGridFocusRequester else peopleRowEntry(tab)
-    val episodesDownFocusRequester = peopleRows.firstOrNull()?.let(::peopleRowEntry)
+    // While its ratings load, fail or have no seasons, the Ratings row has nothing to focus, so it
+    // is no target for focus coming from outside the rows.
+    val ratingsRowFocusable = !isEpisodeRatingsLoading && episodeRatingsError == null &&
+        meta.videos.any { (it.season ?: 0) > 0 }
+    val focusablePeopleRows = peopleRows.filter { it != PeopleSectionTab.RATINGS || ratingsRowFocusable }
+    val episodesDownFocusRequester = focusablePeopleRows.firstOrNull()?.let(::peopleRowEntry)
     val commentsUpFocusRequester = when {
-        peopleRows.isNotEmpty() -> peopleRowExitUp(peopleRows.last())
+        focusablePeopleRows.isNotEmpty() -> peopleRowExitUp(focusablePeopleRows.last())
         isSeries -> seasonDownFocusRequester ?: heroPlayFocusRequester
         else -> heroPlayFocusRequester
     }
@@ -2603,14 +2608,13 @@ private fun MetaDetailsContent(
         // Cast, Ratings, More like this, Trailer and Collection: each a titled row of its own,
         // stacked, so scrolling down shows all of them. They used to share one tab strip that
         // switched on focus, so a user scrolling past saw only the active one.
+        // Between rows, Up and Down are left to the list's own focus search: it composes a row
+        // that is still below the screen and passes over a row with nothing to focus (Ratings
+        // while it loads). Only the edges name a target: the episodes or hero above the first
+        // row, and the comments below the last.
         peopleRows.forEachIndexed { rowIndex, tab ->
-            val rowUp = if (rowIndex == 0) {
-                seasonDownFocusRequester ?: heroPlayFocusRequester
-            } else {
-                peopleRowExitUp(peopleRows[rowIndex - 1])
-            }
-            val rowDown = peopleRows.getOrNull(rowIndex + 1)?.let(::peopleRowEntry)
-                ?: commentsBelowPeople
+            val rowUp = if (rowIndex == 0) seasonDownFocusRequester ?: heroPlayFocusRequester else null
+            val rowDown = if (rowIndex == peopleRows.lastIndex) commentsBelowPeople else null
             item(key = "people_${tab.name}", contentType = "horizontal_row") {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     DetailRowTitle(

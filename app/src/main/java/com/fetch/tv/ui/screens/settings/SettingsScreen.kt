@@ -446,13 +446,35 @@ internal fun SettingsScreen(
         }
     }
 
+    // A page another screen asked for (Library's "Connect" opens Tracking). Selected before the
+    // rail is offered focus below, and named as the rail item to return to, so neither the rail's
+    // first item nor Back can select another page in its place.
+    LaunchedEffect(openPage) {
+        val page = openPage ?: return@LaunchedEffect
+        if (page in visibleCategories) {
+            val entry = visibleCategories.railEntryFor(page)
+            if (visibleSections.any { it.category == entry }) {
+                selectedCategory = entry
+                selectedPageName = page.name
+                railFocusCategoryName = entry.name
+                rowTarget = null
+                allowDetailAutofocus = true
+                pendingContentFocusCategory = entry
+                pendingContentFocusRequestId += 1L
+            }
+        }
+        onOpenPageHandled()
+    }
+
     LaunchedEffect(Unit) {
         // Categories such as addons open a destination of their own, so Settings leaves
         // composition and comes back with nothing asking for the options pane: the rail is simply
         // the first thing able to take focus. Landing there loses the user's place for a trip they
         // did not take through the rail. The saved flag says the pane was where they were, so aim
         // for it and leave the rail to the case where it really was the last thing focused.
-        if (allowDetailAutofocus) {
+        if (openPage != null) {
+            // The effect above sends focus to the requested page; the rail stays out of it.
+        } else if (allowDetailAutofocus) {
             pendingContentFocusCategory = selectedCategory
             pendingContentFocusRequestId += 1L
         } else {
@@ -530,18 +552,6 @@ internal fun SettingsScreen(
                 selectedCategory = section.category
                 pendingContentFocusCategory = section.category
                 pendingContentFocusRequestId += 1L
-            }
-
-            LaunchedEffect(openPage) {
-                val page = openPage ?: return@LaunchedEffect
-                if (page in visibleCategories) {
-                    val entry = visibleCategories.railEntryFor(page)
-                    visibleSections.firstOrNull { it.category == entry }?.let { section ->
-                        onSectionClick(section)
-                        selectedPageName = page.name
-                    }
-                }
-                onOpenPageHandled()
             }
 
             var focusedTabCategory by remember { mutableStateOf<SettingsCategory?>(null) }

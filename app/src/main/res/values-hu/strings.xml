@@ -791,6 +791,8 @@
     <string name="layout_collapse_sidebar_sub">Oldalsáv elrejtése alapértelmezés szerint, fókusz esetén jelenik meg.</string>
     <string name="layout_fullscreen_hero_backdrop">Kiemelt háttér teljes képernyőn</string>
     <string name="layout_fullscreen_hero_backdrop_sub">A kiemelt háttérkép kiterjesztése a teljes képernyőre.</string>
+    <string name="layout_hero_section">Kiemelt cím megjelenítése</string>
+    <string name="layout_hero_section_sub">A nagy kiemelt cím megjelenítése a Kezdőlap tetején.</string>
     <string name="layout_poster_labels">Posztercímek megjelenítése</string>
     <string name="layout_poster_labels_sub">Címek megjelenítése a poszterek alatt a sorokban, a rácsnézetben és az Összes megtekintése oldalon.</string>
     <string name="layout_addon_name">Bővítmény nevének megjelenítése</string>

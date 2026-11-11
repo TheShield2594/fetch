@@ -36,9 +36,11 @@ The release build signs with the key from these repository secrets:
 | `FETCH_RELEASE_KEY_PASSWORD`     | Key password                              |
 | `FETCH_RELEASE_STORE_PASSWORD`   | Keystore password                         |
 
-Without them the build falls back to the debug key, and the "Release signing" step in the
-workflow log says so. An install signed with the debug key can't be updated in place by one
-signed with the release key, so set the secrets before handing builds to anyone. Keep a copy of
+Without them the Release workflow stops at the "Release signing" step. Ticking
+"allow_debug_signing" when starting it signs with the debug key instead, for test builds only: an
+install signed with the debug key can't be updated in place by one signed with the release key.
+Local `./gradlew :app:assembleRelease` builds without the `FETCH_RELEASE_*` values still use the
+debug key. Keep a copy of
 the keystore outside GitHub: if it is lost, every user has to uninstall to move to a new key.
 
 ## Publishing a release

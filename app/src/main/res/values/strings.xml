@@ -970,6 +970,8 @@
     <string name="layout_section_custom_poster_desc">Use artwork from an external poster service.</string>
     <string name="layout_collapse_sidebar">Collapse Sidebar</string>
     <string name="layout_collapse_sidebar_sub">Hide sidebar by default; show when focused.</string>
+    <string name="layout_hero_section">Show Hero</string>
+    <string name="layout_hero_section_sub">Show the large featured title at the top of Home.</string>
     <string name="layout_fullscreen_hero_backdrop">Fullscreen Hero Backdrop</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expand the hero backdrop to fill the entire screen.</string>
     <string name="layout_poster_labels">Show Poster Labels</string>

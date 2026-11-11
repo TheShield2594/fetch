@@ -811,6 +811,8 @@
     <string name="layout_collapse_sidebar_sub">Masquer la barre latérale par défaut&#160;; l’afficher lorsqu’elle est sélectionnée.</string>
     <string name="layout_fullscreen_hero_backdrop">Arrière-plan du hero en plein écran</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Étendre l’arrière-plan du hero pour remplir tout l’écran.</string>
+    <string name="layout_hero_section">Afficher la mise en avant</string>
+    <string name="layout_hero_section_sub">Afficher le grand titre mis en avant en haut de l\'accueil.</string>
     <string name="layout_poster_labels">Afficher les titres des affiches</string>
     <string name="layout_poster_labels_sub">Afficher les titres sous les affiches dans les rangées, la grille et la vue complète.</string>
     <string name="layout_addon_name">Afficher le nom de l’addon</string>

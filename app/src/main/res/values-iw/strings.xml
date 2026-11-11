@@ -812,6 +812,8 @@
     <string name="layout_collapse_sidebar_sub">הסתרת סרגל הצד כברירת מחדל; הצגתו בעת פוקוס.</string>
     <string name="layout_fullscreen_hero_backdrop">תמונת רקע ראשית במסך מלא</string>
     <string name="layout_fullscreen_hero_backdrop_sub">הרחבת תמונת הרקע הראשית כך שתמלא את כל המסך.</string>
+    <string name="layout_hero_section">הצגת הכותר המרכזי</string>
+    <string name="layout_hero_section_sub">הצגת הכותר המוצג הגדול בראש מסך הבית.</string>
     <string name="layout_poster_labels">הצגת תוויות פוסטרים</string>
     <string name="layout_poster_labels_sub">הצגת כותרות מתחת לפוסטרים בשורות.</string>
     <string name="layout_addon_name">הצגת שם תוסף</string>

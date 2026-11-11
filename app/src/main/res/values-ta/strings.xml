@@ -607,6 +607,8 @@
     <string name="layout_collapse_sidebar_sub">இயல்பாக மறை; கவனம் செலுத்தும் போது காட்டு.</string>
     <string name="layout_fullscreen_hero_backdrop">முழுத்திரை ஹீரோ பின்னணி</string>
     <string name="layout_fullscreen_hero_backdrop_sub">ஹீரோ பின்னணியை முழு திரைக்கும் விரிவாக்கு.</string>
+    <string name="layout_hero_section">ஹீரோவைக் காட்டு</string>
+    <string name="layout_hero_section_sub">முகப்பின் மேலே பெரிய சிறப்புத் தலைப்பைக் காட்டு.</string>
     <string name="layout_poster_labels">போஸ்டர் தலைப்புகளைக் காட்டு</string>
     <string name="layout_poster_labels_sub">வரிகள், கிரிட், அனைத்தையும் காண் பகுதிகளில் போஸ்டரின் கீழ் தலைப்புகளைக் காட்டு.</string>
     <string name="layout_addon_name">ஆட்ஒன் பெயரைக் காட்டு</string>

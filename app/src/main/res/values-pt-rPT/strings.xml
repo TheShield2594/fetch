@@ -627,6 +627,8 @@
     <string name="layout_collapse_sidebar_sub">Ocultar a barra lateral por predefinição; mostrar quando focada.</string>
     <string name="layout_fullscreen_hero_backdrop">Fundo em destaque em ecrã inteiro</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expandir o fundo em destaque para preencher o ecrã inteiro.</string>
+    <string name="layout_hero_section">Mostrar destaque</string>
+    <string name="layout_hero_section_sub">Mostra o título em destaque grande no topo do Início.</string>
     <string name="layout_poster_labels">Mostrar etiquetas nos cartazes</string>
     <string name="layout_poster_labels_sub">Mostra os títulos por baixo dos cartazes nas linhas, grelha e em Ver tudo.</string>
     <string name="layout_addon_name">Mostrar nome do addon</string>

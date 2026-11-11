@@ -779,6 +779,8 @@
     <string name="layout_collapse_sidebar_sub">Prema zadanim postavkama sakrij bočnu traku; prikaži je kad je u fokusu.</string>
     <string name="layout_fullscreen_hero_backdrop">Istaknuta pozadina preko cijelog zaslona</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Proširi pozadinu istaknutog odjeljka na cijeli zaslon.</string>
+    <string name="layout_hero_section">Prikaži istaknuto</string>
+    <string name="layout_hero_section_sub">Prikaži veliki istaknuti naslov na vrhu Početne.</string>
     <string name="layout_poster_labels">Prikaži natpise postera</string>
     <string name="layout_poster_labels_sub">Prikaži naslove ispod postera u redovima, mreži i prikazu svega.</string>
     <string name="layout_addon_name">Prikaži naziv dodatka</string>

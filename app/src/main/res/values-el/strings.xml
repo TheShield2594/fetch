@@ -709,6 +709,8 @@
   <string name="layout_collapse_sidebar_sub">Απόκρυψη πλευρικής μπάρας από προεπιλογή, εμφάνιση όταν εστιάζεται.</string>
   <string name="layout_fullscreen_hero_backdrop">Πλήρης οθόνη φόντου ηρωικής ενότητας</string>
   <string name="layout_fullscreen_hero_backdrop_sub">Επέκταση του φόντου της ηρωικής ενότητας σε πλήρη οθόνη</string>
+  <string name="layout_hero_section">Εμφάνιση προβεβλημένου</string>
+  <string name="layout_hero_section_sub">Εμφάνιση του μεγάλου προβεβλημένου τίτλου στην κορυφή της Αρχικής.</string>
   <string name="layout_poster_labels">Εμφάνιση ετικετών αφισών</string>
   <string name="layout_poster_labels_sub">Εμφάνιση τίτλων κάτω από τις αφίσες σε σειρές, πλέγμα και «Προβολή όλων».</string>
   <string name="layout_addon_name">Εμφάνιση ονόματος πρόσθετου</string>

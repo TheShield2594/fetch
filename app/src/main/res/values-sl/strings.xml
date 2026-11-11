@@ -587,6 +587,8 @@
     <string name="layout_collapse_sidebar_sub">Skrij stransko vrstico privzeto; prikaži ob fokusu.</string>
     <string name="layout_fullscreen_hero_backdrop">Celozaslonsko glavno ozadje</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Razširi glavno ozadje, da zapolni celoten zaslon.</string>
+    <string name="layout_hero_section">Prikaži izpostavljeno</string>
+    <string name="layout_hero_section_sub">Prikaži velik izpostavljen naslov na vrhu Domov.</string>
     <string name="layout_poster_labels">Prikaži oznake plakatov</string>
     <string name="layout_poster_labels_sub">Prikaži naslove pod plakati v vrsticah, mreži in pogledu za prikaz vseh.</string>
     <string name="layout_addon_name">Prikaži ime dodatka</string>

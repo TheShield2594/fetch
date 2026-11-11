@@ -625,6 +625,8 @@
     <string name="layout_collapse_sidebar_sub">Setelan bawaan membunyikan bilah sisi; tampilkan saat difokuskan.</string>
     <string name="layout_fullscreen_hero_backdrop">Latar Belakang Hero Layar Penuh</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Perluas latar belakang hero untuk mengisi seluruh layar.</string>
+    <string name="layout_hero_section">Tampilkan Hero</string>
+    <string name="layout_hero_section_sub">Tampilkan judul unggulan besar di bagian atas Beranda.</string>
     <string name="layout_poster_labels">Tampilkan Label Poster</string>
     <string name="layout_poster_labels_sub">Tampilkan judul di bawah poster di baris, grid, dan lihat-semua.</string>
     <string name="layout_addon_name">Tampilkan Nama Addon</string>

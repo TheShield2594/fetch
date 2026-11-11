@@ -11,6 +11,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-11
+
 ### Added
 
 - **TVs sign in with a code and no address, through the pairing hub at watchfetch.tv.** A TV shows a code from the hub; typing it under Settings → TVs & Devices (or scanning the TV's QR code, which opens the new `/link` page) tells the hub where this website is, and the TV collects its sign-in from here directly. The hub only ever sees a hash of the TV's secret. `FETCH_PAIRING_HUB_URL=off` turns it off, and `FETCH_PAIRING_HUB_SERVE=true` makes an install the hub.
@@ -474,7 +476,8 @@ name.
 - The addon's mutation-token check no longer assumes the incoming token is a string — a repeated query param (`?token=a&token=b`) would have thrown instead of being rejected cleanly.
 - `dockerpublish.yml` reads the git ref type/name from the runner's `GITHUB_REF_TYPE`/`GITHUB_REF_NAME` environment variables instead of interpolating `github.ref_type`/`github.ref_name` into a shell script.
 
-[Unreleased]: https://github.com/TheShield2594/fetch/compare/web-v0.3.0...HEAD
+[Unreleased]: https://github.com/TheShield2594/fetch/compare/web-v0.4.0...HEAD
+[0.4.0]: https://github.com/TheShield2594/fetch/compare/web-v0.3.0...web-v0.4.0
 [0.3.0]: https://github.com/TheShield2594/fetch/compare/web-v0.2.0...web-v0.3.0
 [0.2.0]: https://github.com/TheShield2594/fetch/releases/tag/web-v0.2.0
 [0.1.0]: https://github.com/TheShield2594/cataloggy/releases/tag/v0.1.0

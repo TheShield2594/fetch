@@ -14,6 +14,10 @@ on:
         description: "Mark as a pre-release"
         type: boolean
         default: true
+      allow_debug_signing:
+        description: "Allow signing with the debug key when no release key is set (test builds only)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -37,8 +41,8 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      # Signs with the release key when the FETCH_RELEASE_* secrets are set. Without them the
-      # build falls back to the debug key: fine for sideloading, but such an install can't later
+      # Signs with the release key from the FETCH_RELEASE_* secrets. Without them the job stops,
+      # unless "allow_debug_signing" is ticked: an install signed with the debug key can't later
       # be updated in place by an APK signed with the release key.
       - name: Release signing
         env:
@@ -46,6 +50,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.FETCH_RELEASE_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.FETCH_RELEASE_KEY_PASSWORD }}
           STORE_PASSWORD: ${{ secrets.FETCH_RELEASE_STORE_PASSWORD }}
+          ALLOW_DEBUG_SIGNING: ${{ inputs.allow_debug_signing }}
         run: |
           # An empty secret reaches the build as an empty string, not an unset variable, so a
           # partial set would pass as configured and fail later on the blank credential.
@@ -65,8 +70,11 @@ jobs:
           elif [ -n "$KEY_ALIAS" ] || [ -n "$KEY_PASSWORD" ] || [ -n "$STORE_PASSWORD" ]; then
             echo "::error::FETCH_RELEASE_KEY_ALIAS, FETCH_RELEASE_KEY_PASSWORD or FETCH_RELEASE_STORE_PASSWORD is set, but FETCH_RELEASE_KEYSTORE_BASE64 is empty."
             exit 1
+          elif [ "$ALLOW_DEBUG_SIGNING" = "true" ]; then
+            echo "::warning::No release key configured; signing with the debug key. These APKs can't update an install signed with the release key."
           else
-            echo "No release key configured; signing with the debug key."
+            echo "::error::No release key configured (FETCH_RELEASE_* secrets). Set them, or tick \"allow_debug_signing\" for a test build."
+            exit 1
           fi
 
       # Trakt, Simkl, MDBList, TMDB and the rest read their client IDs from these repository

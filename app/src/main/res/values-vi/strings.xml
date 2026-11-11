@@ -790,6 +790,8 @@
     <string name="layout_collapse_sidebar_sub">Ẩn thanh bên theo mặc định; hiển thị khi đang chọn.</string>
     <string name="layout_fullscreen_hero_backdrop">Phông nền Khu vực Nổi bật toàn màn hình</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Mở rộng phông nền Khu vực Nổi bật để lấp đầy toàn bộ màn hình.</string>
+    <string name="layout_hero_section">Hiển thị Hero</string>
+    <string name="layout_hero_section_sub">Hiển thị tiêu đề nổi bật lớn ở đầu Trang chủ.</string>
     <string name="layout_poster_labels">Hiển thị nhãn Poster</string>
     <string name="layout_poster_labels_sub">Hiển thị tiêu đề bên dưới poster trong hàng, lưới và xem tất cả.</string>
     <string name="layout_addon_name">Hiển thị tên tiện ích</string>

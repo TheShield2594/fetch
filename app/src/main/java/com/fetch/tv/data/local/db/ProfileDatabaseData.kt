@@ -1,5 +1,6 @@
 package com.fetch.tv.data.local.db
 
+import androidx.room.withTransaction
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
@@ -14,6 +15,11 @@ class ProfileDatabaseData @Inject constructor(
     private val database: Provider<FetchDatabase>
 ) {
     suspend fun deleteProfile(profileId: Int) {
-        database.get().watchedItems().deleteProfile(profileId)
+        val db = database.get()
+        db.withTransaction {
+            db.watchedItems().deleteProfile(profileId)
+            db.watchProgress().deleteProfile(profileId)
+            db.libraryEntries().deleteProfile(profileId)
+        }
     }
 }

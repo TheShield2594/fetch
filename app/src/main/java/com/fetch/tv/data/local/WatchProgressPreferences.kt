@@ -1,11 +1,9 @@
 package com.fetch.tv.data.local
 
 import android.util.Log
-import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.core.Preferences
 import com.fetch.tv.core.profile.ProfileManager
 import com.google.gson.Gson
 import com.google.gson.JsonElement
@@ -13,10 +11,10 @@ import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import com.fetch.tv.data.mediaserver.ServerItemRef
 import com.fetch.tv.domain.model.WatchProgress
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
@@ -29,61 +27,141 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Watch progress per profile, one entry per movie or episode (keyed by [createKey]). The entries
+ * live in [entries] (SQLite), so saving the position during playback writes that one entry
+ * however long the history is (audit G5). The push and delta bookkeeping stays in DataStore.
+ *
+ * Older versions kept every entry in one JSON map in DataStore, split into a "recent" file of
+ * the 200 latest and an "archive" file of the rest (and before that, one map in the metadata
+ * file). A profile's maps are moved into [entries] the first time its progress is used.
+ */
 @Singleton
 @OptIn(ExperimentalCoroutinesApi::class)
 class WatchProgressPreferences @Inject constructor(
     private val factory: ProfileDataStoreFactory,
-    private val profileManager: ProfileManager
+    private val profileManager: ProfileManager,
+    @WatchProgressEntries private val entries: KeyedEntryStore
 ) {
     companion object {
         private const val TAG = "WatchProgressPrefs"
+
+        /** The [KeyedEntry.kind] of a progress entry; the table holds nothing else. */
+        internal const val KIND = "progress"
     }
-
-    private data class ProgressSnapshot(
-        val recentJson: String,
-        val archiveJson: String,
-        val recent: Map<String, WatchProgress>,
-        val archive: Map<String, WatchProgress>
-    )
-
-    private data class ProgressMapCache(
-        val profileId: Int,
-        val json: String,
-        val entries: Map<String, WatchProgress>
-    )
 
     private fun metadataStore(profileId: Int = profileManager.activeProfileId.value) =
         factory.get(profileId, WATCH_PROGRESS_METADATA_FEATURE)
 
-    private fun recentStore(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, WATCH_PROGRESS_RECENT_FEATURE)
+    private fun recentStore(profileId: Int) = factory.get(profileId, WATCH_PROGRESS_RECENT_FEATURE)
 
-    private fun archiveStore(profileId: Int = profileManager.activeProfileId.value) =
-        factory.get(profileId, WATCH_PROGRESS_ARCHIVE_FEATURE)
+    private fun archiveStore(profileId: Int) = factory.get(profileId, WATCH_PROGRESS_ARCHIVE_FEATURE)
 
     private val gson = Gson()
     private val lastSuccessfulPushMsKey = longPreferencesKey("last_successful_push_ms")
     private val deltaCursorKey = longPreferencesKey("watch_progress_delta_cursor")
     private val deltaInitializedKey = booleanPreferencesKey("watch_progress_delta_initialized")
-    private val storageMutex = Mutex()
-    private val initializedProfiles = mutableSetOf<Int>()
     private val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO)
 
-    @Volatile private var recentMapCache: ProgressMapCache? = null
-    @Volatile private var archiveMapCache: ProgressMapCache? = null
+    private val migratedProfiles: MutableSet<Int> = ConcurrentHashMap.newKeySet()
+    private val migrationMutex = Mutex()
+
+    // Decoded entries per profile, keyed by their stored JSON: a save re-parses only the entry it
+    // changed, not the whole history. Entries that fail to parse are cached as null.
+    private val decodeCaches = ConcurrentHashMap<Int, AtomicReference<Map<String, WatchProgress?>>>()
 
     private val hotProgressSnapshots =
-        ConcurrentHashMap<Int, kotlinx.coroutines.flow.StateFlow<ProgressSnapshot?>>()
+        ConcurrentHashMap<Int, kotlinx.coroutines.flow.StateFlow<Map<String, WatchProgress>?>>()
 
-    private fun progressSnapshots(profileId: Int): Flow<ProgressSnapshot> {
+    /** Every entry of [profileId] by key, decoded once per change and shared by all observers. */
+    private fun progressSnapshots(profileId: Int): Flow<Map<String, WatchProgress>> {
         return hotProgressSnapshots.computeIfAbsent(profileId) {
-            progressSnapshotsCold(profileId)
+            flow {
+                if (isDeleted(profileId)) {
+                    emit(emptyMap())
+                    return@flow
+                }
+                ensureMigrated(profileId)
+                emitAll(entries.observe(profileId).map { rows -> decode(profileId, rows) })
+            }
+                .flowOn(Dispatchers.Default)
                 .stateIn(scope, kotlinx.coroutines.flow.SharingStarted.Eagerly, null)
         }.mapNotNull { it }
     }
+
+    private fun isDeleted(profileId: Int) = metadataStore(profileId) is DeletedProfileDataStore
+
+    /**
+     * Moves [profileId]'s progress out of the legacy DataStore maps, once per process. Entries are
+     * inserted before the maps are removed, and an entry already moved wins, so a move cut short
+     * finishes on the next start without losing anything.
+     */
+    private suspend fun ensureMigrated(profileId: Int) {
+        if (profileId in migratedProfiles) return
+        migrationMutex.withLock {
+            if (profileId in migratedProfiles) return
+            if (isDeleted(profileId)) return
+            val metadata = metadataStore(profileId)
+            val legacyStores = listOf(metadata, archiveStore(profileId), recentStore(profileId))
+            // Oldest layout first, so the newer buckets win for a key in more than one.
+            val legacyJson = legacyStores.map { store -> store to store.data.first()[watchProgressEntriesKey] }
+            if (legacyJson.any { it.second != null }) {
+                val legacy = LinkedHashMap<String, WatchProgress>()
+                legacyJson.forEach { (_, json) -> json?.let { legacy.putAll(parseProgressMap(it)) } }
+                val normalized = normalizeWatchProgressEntries(legacy)
+                entries.insertMissing(profileId, normalized.map { (key, progress) -> progress.toEntry(key) })
+                legacyJson.forEach { (store, json) ->
+                    if (json != null) store.edit { it.remove(watchProgressEntriesKey) }
+                }
+                Log.i(TAG, "Moved ${normalized.size} progress entries of profile $profileId to the database")
+            }
+            migratedProfiles += profileId
+        }
+    }
+
+    /** Refuses writes for a deleted profile, as its DataStore does, then makes sure it's moved. */
+    private suspend fun <T> write(profileId: Int, block: suspend () -> T): T {
+        if (isDeleted(profileId)) throw CancellationException("Profile $profileId was deleted")
+        ensureMigrated(profileId)
+        return block()
+    }
+
+    private fun WatchProgress.toEntry(key: String = createKey(this)) =
+        KeyedEntry(kind = KIND, key = key, contentId = contentId, sortTime = lastWatched, json = gson.toJson(this))
+
+    private fun Map<String, WatchProgress>.toEntries(): Map<String, KeyedEntry> =
+        mapValues { (key, progress) -> progress.toEntry(key) }
+
+    private fun decode(profileId: Int, rows: List<KeyedEntry>): Map<String, WatchProgress> {
+        val cache = decodeCaches.getOrPut(profileId) { AtomicReference(emptyMap()) }
+        val previous = cache.get()
+        val decoded = HashMap<String, WatchProgress?>(rows.size * 2)
+        val result = LinkedHashMap<String, WatchProgress>(rows.size * 2)
+        rows.forEach { row ->
+            val progress = if (previous.containsKey(row.json)) previous[row.json] else parseEntry(row.json)
+            decoded[row.json] = progress
+            if (progress != null) result[row.key] = progress
+        }
+        cache.set(decoded)
+        return result
+    }
+
+    private fun parseEntry(json: String): WatchProgress? = try {
+        parseWatchProgressFromJson(gson.fromJson(json, JsonElement::class.java))
+    } catch (e: com.google.gson.JsonParseException) {
+        Log.w(TAG, "Skipping malformed watch progress entry")
+        null
+    }
+
+    /** The stored entries of [profileId] among [keys], by key. */
+    private suspend fun storedEntries(profileId: Int, keys: Collection<String>): Map<String, KeyedEntry> =
+        entries.get(profileId, KIND, keys).associateBy { it.key }
+
+    private fun Map<String, KeyedEntry>.decoded(profileId: Int): Map<String, WatchProgress> = decode(profileId, values.toList())
 
     /** Persisted timestamp of the last successful push to remote. */
     suspend fun getLastSuccessfulPushMs(profileId: Int = profileManager.activeProfileId.value): Long {
@@ -122,99 +200,37 @@ class WatchProgressPreferences @Inject constructor(
     }
 
     /**
-     * Get all watch progress items, sorted by last watched (most recent first)
-     * For series, only returns the series-level entry (not individual episode entries)
-     * to avoid duplicates in continue watching.
-     *
-     * JSON parsing, grouping, and sorting are performed off the main thread.
-     * Results are cached — re-parsing only happens when the raw JSON actually changes.
+     * All watch progress, latest first, one entry per title: for a series its most recently
+     * watched episode (on a tie, the highest season and episode), so Continue Watching shows
+     * each title once. Grouping and sorting run off the main thread, once per change.
      */
-    @Volatile private var cachedProgressJson: String? = null
-    @Volatile private var cachedProgressArchiveJson: String? = null
-    @Volatile private var cachedProgressResult: List<WatchProgress>? = null
-    @Volatile private var cachedProfileId: Int = -1
-
     val allProgress: Flow<List<WatchProgress>> = profileManager.activeProfileId.flatMapLatest { pid ->
         observeAllProgress(pid)
     }
 
     fun observeAllProgress(profileId: Int): Flow<List<WatchProgress>> {
-        return progressSnapshots(profileId).map { snapshot ->
-            val recentJson = snapshot.recentJson
-            val archiveJson = snapshot.archiveJson
-
-            // Fast path: if JSON hasn't changed, return cached result immediately.
-            val cached = cachedProgressResult
-            if (
-                recentJson == cachedProgressJson &&
-                archiveJson == cachedProgressArchiveJson &&
-                cached != null &&
-                cachedProfileId == profileId
-            ) {
-                return@map cached
-            }
-
-            val allItems = mergeWatchProgressBuckets(snapshot.recent, snapshot.archive)
-
-            // Group all entries by contentId and pick the most recently watched.
-            // When lastWatched is equal (e.g. batch mark-as-watched), prefer the highest season/episode.
-            val latestByContent = allItems.values
+        return progressSnapshots(profileId).map { all ->
+            all.values
                 .groupBy { it.contentId }
-                .mapValues { (_, items) ->
+                .mapNotNull { (_, items) ->
                     items.maxWithOrNull(
                         compareBy<WatchProgress> { it.lastWatched }
                             .thenBy { it.season ?: 0 }
                             .thenBy { it.episode ?: 0 }
                     )
                 }
-                .values
-                .filterNotNull()
-
-            val result = latestByContent.sortedByDescending { it.lastWatched }
-
-            // Cache for next emission
-            cachedProfileId = profileId
-            cachedProgressJson = recentJson
-            cachedProgressArchiveJson = archiveJson
-            cachedProgressResult = result
-            result
-        }.flowOn(Dispatchers.Default)
+                .sortedByDescending { it.lastWatched }
+        }.distinctUntilChanged().flowOn(Dispatchers.Default)
     }
-
-    @Volatile private var cachedRawProgressJson: String? = null
-    @Volatile private var cachedRawProgressArchiveJson: String? = null
-    @Volatile private var cachedRawProgressResult: List<WatchProgress>? = null
-    @Volatile private var cachedRawProfileId: Int = -1
 
     val allRawProgress: Flow<List<WatchProgress>> = profileManager.activeProfileId.flatMapLatest { pid ->
         observeAllRawProgress(pid)
     }
 
     fun observeAllRawProgress(profileId: Int): Flow<List<WatchProgress>> {
-        return progressSnapshots(profileId).map { snapshot ->
-            val recentJson = snapshot.recentJson
-            val archiveJson = snapshot.archiveJson
-
-            val cached = cachedRawProgressResult
-            if (
-                recentJson == cachedRawProgressJson &&
-                archiveJson == cachedRawProgressArchiveJson &&
-                cached != null &&
-                cachedRawProfileId == profileId
-            ) {
-                return@map cached
-            }
-
-            val result = mergeWatchProgressBuckets(snapshot.recent, snapshot.archive)
-                .values
-                .sortedByDescending { it.lastWatched }
-
-            cachedRawProfileId = profileId
-            cachedRawProgressJson = recentJson
-            cachedRawProgressArchiveJson = archiveJson
-            cachedRawProgressResult = result
-            result
-        }.flowOn(Dispatchers.Default)
+        return progressSnapshots(profileId).map { all ->
+            all.values.sortedByDescending { it.lastWatched }
+        }.distinctUntilChanged().flowOn(Dispatchers.Default)
     }
 
     /**
@@ -224,12 +240,21 @@ class WatchProgressPreferences @Inject constructor(
         list.filter { it.isInProgress() }
     }
 
+    /** One title's entries by key, from its own query rather than the whole history. */
+    private fun observeContentEntries(contentId: String, profileId: Int): Flow<Map<String, WatchProgress>> = flow {
+        if (isDeleted(profileId)) {
+            emit(emptyMap())
+            return@flow
+        }
+        ensureMigrated(profileId)
+        emitAll(entries.observeContent(profileId, contentId).map { rows -> decode(profileId, rows) })
+    }
+
     /**
      * Get watch progress for a specific content item
      */
     fun getProgress(contentId: String, profileId: Int = profileManager.activeProfileId.value): Flow<WatchProgress?> {
-        return progressSnapshots(profileId).map { snapshot ->
-            val map = mergeWatchProgressBuckets(snapshot.recent, snapshot.archive)
+        return observeContentEntries(contentId, profileId).map { map ->
             // Try direct key first (movies), then find latest episode entry (series).
             map[contentId] ?: map.values
                 .filter { it.contentId == contentId }
@@ -241,18 +266,15 @@ class WatchProgressPreferences @Inject constructor(
      * Get watch progress for a specific episode
      */
     fun getEpisodeProgress(contentId: String, season: Int, episode: Int, profileId: Int = profileManager.activeProfileId.value): Flow<WatchProgress?> {
-        return progressSnapshots(profileId).map { snapshot ->
-            val key = "${contentId}_s${season}e${episode}"
-            snapshot.recent[key] ?: snapshot.archive[key]
-        }
+        val key = "${contentId}_s${season}e${episode}"
+        return observeContentEntries(contentId, profileId).map { map -> map[key] }
     }
 
     /**
      * Get all episode progress for a series
      */
     fun getAllEpisodeProgress(contentId: String, profileId: Int = profileManager.activeProfileId.value): Flow<Map<Pair<Int, Int>, WatchProgress>> {
-        return progressSnapshots(profileId).map { snapshot ->
-            val map = mergeWatchProgressBuckets(snapshot.recent, snapshot.archive)
+        return observeContentEntries(contentId, profileId).map { map ->
             map.values
                 .filter { it.contentId == contentId && it.season != null && it.episode != null }
                 .associateBy { (it.season!! to it.episode!!) }
@@ -260,46 +282,28 @@ class WatchProgressPreferences @Inject constructor(
     }
 
     /**
-     * Save or update watch progress
+     * Save or update watch progress. Writes the one entry (and removes the series-level entry
+     * an episode replaces), whatever the size of the history.
      */
     suspend fun saveProgress(
         progress: WatchProgress,
         profileId: Int = profileManager.activeProfileId.value
-    ) {
-        storageMutex.withLock {
-            ensureStorageLocked(profileId)
-            val recent = readBucket(recentStore(profileId), profileId, true)
-            val key = createKey(progress)
-            if (key in recent) {
-                recentStore(profileId).edit { preferences ->
-                    val map = parseProgressMap(preferences[watchProgressEntriesKey] ?: "{}").toMutableMap()
-                    upsertProgressEntries(map, listOf(progress))
-                    preferences[watchProgressEntriesKey] = gson.toJson(map)
-                }
-            } else {
-                val archive = readBucket(archiveStore(profileId), profileId, false)
-                val entries = mergeWatchProgressBuckets(recent, archive)
-                upsertProgressEntries(entries, listOf(progress))
-                writeBucketsLocked(
-                    profileId = profileId,
-                    current = WatchProgressBuckets(recent, archive),
-                    updated = splitWatchProgressEntries(entries)
-                )
-            }
-        }
-    }
+    ) = saveProgressBatch(listOf(progress), profileId)
 
     suspend fun saveProgressBatch(
         progressList: List<WatchProgress>,
         profileId: Int = profileManager.activeProfileId.value
     ) {
         if (progressList.isEmpty()) return
-        storageMutex.withLock {
-            ensureStorageLocked(profileId)
-            val current = readBucketsLocked(profileId)
-            val entries = mergeWatchProgressBuckets(current.recent, current.archive)
-            upsertProgressEntries(entries, progressList)
-            writeBucketsLocked(profileId, current, splitWatchProgressEntries(entries))
+        write(profileId) {
+            entries.transaction {
+                // The entries the save reads: each key, and the series-level key an episode replaces.
+                val keys = progressList.flatMap { listOf(createKey(it), it.contentId) }
+                val stored = storedEntries(profileId, keys)
+                val updated = stored.decoded(profileId).toMutableMap()
+                upsertProgressEntries(updated, progressList)
+                entries.writeChanges(profileId, KIND, stored, updated.toEntries())
+            }
         }
     }
 
@@ -312,46 +316,25 @@ class WatchProgressPreferences @Inject constructor(
         episode: Int? = null,
         profileId: Int = profileManager.activeProfileId.value
     ) {
-        storageMutex.withLock {
-            ensureStorageLocked(profileId)
-            val current = readBucketsLocked(profileId)
-            val recent = current.recent.toMutableMap()
-            val archive = current.archive.toMutableMap()
-            val beforeSize = recent.size + archive.size
-            Log.d(
-                TAG,
-                "removeProgress start contentId=$contentId season=$season episode=$episode entriesBefore=$beforeSize"
-            )
-
-            if (season != null && episode != null) {
-                // Remove specific episode progress + the series-level entry
-                // so the item disappears from continue watching
-                val key = "${contentId}_s${season}e${episode}"
-                recent.remove(key)
-                recent.remove(contentId)
-                archive.remove(key)
-                archive.remove(contentId)
-                Log.d(TAG, "removeProgress episodeKey=$key existsAfter=${key in recent || key in archive}")
-            } else {
-                // Remove all progress for this content
-                val keysToRemove = (recent.keys + archive.keys).filter { key ->
-                    key == contentId || key.startsWith("${contentId}_s")
-                }.distinct()
-                Log.d(TAG, "removeProgress removingKeys=${keysToRemove.joinToString()}")
-                keysToRemove.forEach { key ->
-                    recent.remove(key)
-                    archive.remove(key)
+        write(profileId) {
+            entries.transaction {
+                val keys = if (season != null && episode != null) {
+                    // The episode and the series-level entry, so the title leaves Continue Watching.
+                    listOf("${contentId}_s${season}e${episode}", contentId)
+                } else {
+                    // Every entry of the title.
+                    entries.getContent(profileId, contentId)
+                        .map { it.key }
+                        .filter { key -> key == contentId || key.startsWith("${contentId}_s") } + contentId
                 }
+                Log.d(TAG, "removeProgress contentId=$contentId season=$season episode=$episode keys=${keys.joinToString()}")
+                entries.delete(profileId, KIND, keys)
             }
-
-            val updated = WatchProgressBuckets(recent, archive)
-            Log.d(TAG, "removeProgress complete contentId=$contentId entriesAfter=${recent.size + archive.size}")
-            writeBucketsLocked(profileId, current, updated)
         }
     }
 
     /**
-     * Remove watch progress for multiple episodes in a single DataStore transaction.
+     * Remove watch progress for multiple episodes in one transaction.
      */
     suspend fun removeProgressBatch(
         contentId: String,
@@ -359,21 +342,9 @@ class WatchProgressPreferences @Inject constructor(
         profileId: Int = profileManager.activeProfileId.value
     ) {
         if (episodes.isEmpty()) return
-        storageMutex.withLock {
-            ensureStorageLocked(profileId)
-            val current = readBucketsLocked(profileId)
-            val recent = current.recent.toMutableMap()
-            val archive = current.archive.toMutableMap()
-            for ((season, episode) in episodes) {
-                val key = "${contentId}_s${season}e${episode}"
-                recent.remove(key)
-                archive.remove(key)
-            }
-            recent.remove(contentId)
-            archive.remove(contentId)
-            Log.d(TAG, "removeProgressBatch contentId=$contentId removed=${episodes.size} episodes entriesAfter=${recent.size + archive.size}")
-            writeBucketsLocked(profileId, current, WatchProgressBuckets(recent, archive))
-        }
+        val keys = episodes.map { (season, episode) -> "${contentId}_s${season}e${episode}" } + contentId
+        write(profileId) { entries.delete(profileId, KIND, keys) }
+        Log.d(TAG, "removeProgressBatch contentId=$contentId removed=${episodes.size} episodes")
     }
 
     /**
@@ -382,40 +353,23 @@ class WatchProgressPreferences @Inject constructor(
     suspend fun markAsCompleted(
         progress: WatchProgress,
         profileId: Int = profileManager.activeProfileId.value
-    ) {
-        // If the incoming duration is a dummy sentinel (≤ 1ms), check for an
-        // existing local entry with a real duration from prior playback.
-        // This creates a proper completed entry that syncs correctly cross-device.
-        val effectiveDuration = if (progress.duration <= 1L) {
-            val key = createKey(progress)
-            val existing = getAllRawEntries(profileId)[key]
-            existing?.duration?.takeIf { it > 1L } ?: progress.duration
-        } else {
-            progress.duration
-        }
-
-        val completedProgress = progress.copy(
-            position = effectiveDuration,
-            duration = effectiveDuration,
-            lastWatched = System.currentTimeMillis()
-        )
-        saveProgress(completedProgress, profileId = profileId)
-    }
+    ) = markAsCompletedBatch(listOf(progress), profileId)
 
     /**
-     * Mark multiple items as completed in a single DataStore transaction.
+     * Mark multiple items as completed in one transaction.
      */
     suspend fun markAsCompletedBatch(
         progressList: List<WatchProgress>,
         profileId: Int = profileManager.activeProfileId.value
     ) {
         if (progressList.isEmpty()) return
-        val rawEntries = getAllRawEntries(profileId)
+        // If the incoming duration is a dummy sentinel (≤ 1ms), use the duration of an existing
+        // local entry from prior playback, so the completed entry syncs correctly cross-device.
+        val existing = write(profileId) { storedEntries(profileId, progressList.map(::createKey)).decoded(profileId) }
         val now = System.currentTimeMillis()
         val completed = progressList.map { progress ->
             val effectiveDuration = if (progress.duration <= 1L) {
-                val key = createKey(progress)
-                rawEntries[key]?.duration?.takeIf { it > 1L } ?: progress.duration
+                existing[createKey(progress)]?.duration?.takeIf { it > 1L } ?: progress.duration
             } else {
                 progress.duration
             }
@@ -429,16 +383,32 @@ class WatchProgressPreferences @Inject constructor(
     }
 
     /**
-     * Returns the raw key→WatchProgress map from DataStore (for sync push).
+     * Returns the raw key→WatchProgress map (for sync push).
      *
      * @param profileId Explicit profile to read from. Prevents race conditions
      *   when the active profile changes between scheduling and execution of a sync.
      */
     suspend fun getAllRawEntries(profileId: Int = profileManager.activeProfileId.value): Map<String, WatchProgress> {
-        return storageMutex.withLock {
-            ensureStorageLocked(profileId)
-            val buckets = readBucketsLocked(profileId)
-            mergeWatchProgressBuckets(buckets.recent, buckets.archive)
+        if (isDeleted(profileId)) return emptyMap()
+        ensureMigrated(profileId)
+        return decode(profileId, entries.all(profileId))
+    }
+
+    /**
+     * Turns every stored entry into what [transform] returns from them, in one transaction,
+     * writing only the entries that change. For the whole-history operations (a sync pull).
+     */
+    private suspend fun transformAll(
+        profileId: Int,
+        transform: (MutableMap<String, WatchProgress>) -> Unit
+    ) {
+        write(profileId) {
+            entries.transaction {
+                val stored = entries.all(profileId).associateBy { it.key }
+                val local = LinkedHashMap(stored.decoded(profileId))
+                transform(local)
+                entries.writeChanges(profileId, KIND, stored, normalizeWatchProgressEntries(local).toEntries())
+            }
         }
     }
 
@@ -458,13 +428,9 @@ class WatchProgressPreferences @Inject constructor(
         isNonTraktId: ((String) -> Boolean)? = null
     ): Boolean {
         var preservedLocalItems = false
-        Log.d("WatchProgressPrefs", "mergeRemoteEntries: ${remoteEntries.size} remote entries, profile=$profileId, removeMissing=$removeMissingRemoteEntries")
-        storageMutex.withLock {
-            ensureStorageLocked(profileId)
-            val current = readBucketsLocked(profileId)
-            val local = mergeWatchProgressBuckets(current.recent, current.archive)
-            Log.d("WatchProgressPrefs", "mergeRemoteEntries: ${local.size} existing local entries")
-
+        Log.d(TAG, "mergeRemoteEntries: ${remoteEntries.size} remote entries, profile=$profileId, removeMissing=$removeMissingRemoteEntries")
+        transformAll(profileId) { local ->
+            Log.d(TAG, "mergeRemoteEntries: ${local.size} existing local entries")
             if (removeMissingRemoteEntries) {
                 val removedKeys = local.keys - remoteEntries.keys
                 removedKeys.forEach { key ->
@@ -473,16 +439,16 @@ class WatchProgressPreferences @Inject constructor(
                         return@forEach
                     }
                     if (localEntry != null && isNonTraktId != null && isNonTraktId(localEntry.contentId)) {
-                        Log.d("WatchProgressPrefs", "  preserved key=$key (non-Trakt ID: ${localEntry.contentId})")
+                        Log.d(TAG, "  preserved key=$key (non-Trakt ID: ${localEntry.contentId})")
                         preservedLocalItems = true
                     } else if (key in pendingUpsertKeys) {
-                        Log.d("WatchProgressPrefs", "  preserved pending key=$key")
+                        Log.d(TAG, "  preserved pending key=$key")
                         preservedLocalItems = true
                     } else if (localEntry != null && lastSuccessfulPushMs != null && localEntry.lastWatched > lastSuccessfulPushMs) {
                         preservedLocalItems = true
                     } else {
                         local.remove(key)
-                        Log.d("WatchProgressPrefs", "  removed key=$key (not in remote)")
+                        Log.d(TAG, "  removed key=$key (not in remote)")
                     }
                 }
             }
@@ -499,16 +465,10 @@ class WatchProgressPreferences @Inject constructor(
                             preservedLocalItems = true
                         }
                     }
-                    else -> {
-                        local[key] = mergeDisplayMetadata(remote, existing)
-                        Log.d("WatchProgressPrefs", "  merged key=$key (existing=${existing != null})")
-                    }
+                    else -> local[key] = mergeDisplayMetadata(remote, existing)
                 }
             }
-
-            val updated = splitWatchProgressEntries(local)
-            Log.d("WatchProgressPrefs", "mergeRemoteEntries: ${local.size} entries after merge, writing to DataStore")
-            writeBucketsLocked(profileId, current, updated)
+            Log.d(TAG, "mergeRemoteEntries: ${local.size} entries after merge")
         }
         return preservedLocalItems
     }
@@ -528,12 +488,8 @@ class WatchProgressPreferences @Inject constructor(
         var preservedLocalItems = false
         var beforeCount = 0
         var afterCount = 0
-        storageMutex.withLock {
-            ensureStorageLocked(profileId)
-            val current = readBucketsLocked(profileId)
-            val local = mergeWatchProgressBuckets(current.recent, current.archive)
+        transformAll(profileId) { local ->
             beforeCount = local.size
-
             deletes.forEach { key ->
                 if (key in pendingUpsertKeys) {
                     preservedLocalItems = true
@@ -557,10 +513,7 @@ class WatchProgressPreferences @Inject constructor(
                     else -> local[key] = mergeDisplayMetadata(remote, existing)
                 }
             }
-
-            val updated = splitWatchProgressEntries(local)
             afterCount = local.size
-            writeBucketsLocked(profileId, current, updated)
         }
         Log.d(TAG, "applyRemoteChanges: profile=$profileId before=$beforeCount after=$afterCount upserts=${upserts.size} deletes=${deletes.size} preservedLocal=$preservedLocalItems")
         return preservedLocalItems
@@ -583,17 +536,8 @@ class WatchProgressPreferences @Inject constructor(
      * Clear all watch progress
      */
     suspend fun clearAll(profileId: Int = profileManager.activeProfileId.value) {
-        storageMutex.withLock {
-            ensureStorageLocked(profileId)
-            clearBucketLocked(recentStore(profileId))
-            clearBucketLocked(archiveStore(profileId))
-            metadataStore(profileId).edit { preferences ->
-                preferences.remove(watchProgressEntriesKey)
-                preferences.remove(deltaCursorKey)
-                preferences.remove(deltaInitializedKey)
-                preferences[watchProgressStorageVersionKey] = WATCH_PROGRESS_STORAGE_VERSION
-            }
-        }
+        write(profileId) { entries.clearKind(profileId, KIND) }
+        clearSyncState(profileId)
     }
 
     /**
@@ -603,147 +547,20 @@ class WatchProgressPreferences @Inject constructor(
         profileId: Int = profileManager.activeProfileId.value,
         isNonTraktId: (String) -> Boolean
     ) {
-        storageMutex.withLock {
-            ensureStorageLocked(profileId)
-            val current = readBucketsLocked(profileId)
-            val map = mergeWatchProgressBuckets(current.recent, current.archive)
-            val preserved = map.filter { (_, progress) -> isNonTraktId(progress.contentId) }
-            writeBucketsLocked(profileId, current, splitWatchProgressEntries(preserved))
-            if (preserved.isNotEmpty()) {
-                Log.d(TAG, "clearAllPreservingNonTraktIds: preserved ${preserved.size} non-Trakt entries")
-            }
-            metadataStore(profileId).edit { preferences ->
-                preferences.remove(watchProgressEntriesKey)
-                preferences.remove(deltaCursorKey)
-                preferences.remove(deltaInitializedKey)
-                preferences[watchProgressStorageVersionKey] = WATCH_PROGRESS_STORAGE_VERSION
-            }
+        var preserved = 0
+        transformAll(profileId) { local ->
+            local.entries.removeAll { (_, progress) -> !isNonTraktId(progress.contentId) }
+            preserved = local.size
         }
+        if (preserved > 0) Log.d(TAG, "clearAllPreservingNonTraktIds: preserved $preserved non-Trakt entries")
+        clearSyncState(profileId)
     }
 
-    private fun progressSnapshotsCold(profileId: Int): Flow<ProgressSnapshot> = flow {
-        ensureStorage(profileId)
-        emitAll(
-            combine(
-                recentStore(profileId).data,
-                archiveStore(profileId).data
-            ) { _, _ -> Unit }
-                .map {
-                    storageMutex.withLock {
-                        readSnapshotLocked(profileId)
-                    }
-                }
-                .distinctUntilChanged { previous, current ->
-                    previous.recentJson == current.recentJson &&
-                        previous.archiveJson == current.archiveJson
-                }
-        )
-    }
-
-    private suspend fun readSnapshotLocked(profileId: Int): ProgressSnapshot {
-        val recentJson = recentStore(profileId).data.first()[watchProgressEntriesKey] ?: "{}"
-        val archiveJson = archiveStore(profileId).data.first()[watchProgressEntriesKey] ?: "{}"
-        return ProgressSnapshot(
-            recentJson = recentJson,
-            archiveJson = archiveJson,
-            recent = parseBucket(profileId, recentJson, true),
-            archive = parseBucket(profileId, archiveJson, false)
-        )
-    }
-
-    private suspend fun ensureStorage(profileId: Int) {
-        storageMutex.withLock {
-            ensureStorageLocked(profileId)
-        }
-    }
-
-    private suspend fun ensureStorageLocked(profileId: Int) {
-        if (profileId in initializedProfiles) return
-        val metadata = metadataStore(profileId).data.first()
-        if ((metadata[watchProgressStorageVersionKey] ?: 0) < WATCH_PROGRESS_STORAGE_VERSION) {
-            val legacy = parseProgressMap(metadata[watchProgressEntriesKey] ?: "{}")
-            if (legacy.isNotEmpty()) {
-                val buckets = splitWatchProgressEntries(legacy)
-                writeBucketLocked(archiveStore(profileId), buckets.archive)
-                writeBucketLocked(recentStore(profileId), buckets.recent)
-                Log.d(
-                    TAG,
-                    "Migrated profile=$profileId recent=${buckets.recent.size} archive=${buckets.archive.size}"
-                )
-            }
-            metadataStore(profileId).edit { preferences ->
-                preferences.remove(watchProgressEntriesKey)
-                preferences[watchProgressStorageVersionKey] = WATCH_PROGRESS_STORAGE_VERSION
-            }
-        }
-        initializedProfiles += profileId
-    }
-
-    private suspend fun readBucketsLocked(profileId: Int): WatchProgressBuckets {
-        return WatchProgressBuckets(
-            recent = readBucket(recentStore(profileId), profileId, true),
-            archive = readBucket(archiveStore(profileId), profileId, false)
-        )
-    }
-
-    private suspend fun readBucket(
-        store: DataStore<Preferences>,
-        profileId: Int,
-        recent: Boolean
-    ): Map<String, WatchProgress> {
-        val json = store.data.first()[watchProgressEntriesKey] ?: "{}"
-        return parseBucket(profileId, json, recent)
-    }
-
-    private fun parseBucket(
-        profileId: Int,
-        json: String,
-        recent: Boolean
-    ): Map<String, WatchProgress> {
-        val cached = if (recent) recentMapCache else archiveMapCache
-        if (cached != null && cached.profileId == profileId && cached.json == json) {
-            return cached.entries
-        }
-        val parsed = parseProgressMap(json)
-        val updated = ProgressMapCache(profileId, json, parsed)
-        if (recent) {
-            recentMapCache = updated
-        } else {
-            archiveMapCache = updated
-        }
-        return parsed
-    }
-
-    private suspend fun writeBucketsLocked(
-        profileId: Int,
-        current: WatchProgressBuckets,
-        updated: WatchProgressBuckets
-    ) {
-        if (current.archive != updated.archive) {
-            writeBucketLocked(archiveStore(profileId), updated.archive)
-        }
-        if (current.recent != updated.recent) {
-            writeBucketLocked(recentStore(profileId), updated.recent)
-        }
-    }
-
-    private suspend fun writeBucketLocked(
-        store: DataStore<Preferences>,
-        entries: Map<String, WatchProgress>
-    ) {
-        if (entries.isEmpty()) {
-            clearBucketLocked(store)
-            return
-        }
-        store.edit { preferences ->
-            preferences[watchProgressEntriesKey] = gson.toJson(entries)
-        }
-    }
-
-    private suspend fun clearBucketLocked(store: DataStore<Preferences>) {
-        if (store.data.first()[watchProgressEntriesKey] == null) return
-        store.edit { preferences ->
+    private suspend fun clearSyncState(profileId: Int) {
+        metadataStore(profileId).edit { preferences ->
             preferences.remove(watchProgressEntriesKey)
+            preferences.remove(deltaCursorKey)
+            preferences.remove(deltaInitializedKey)
         }
     }
 

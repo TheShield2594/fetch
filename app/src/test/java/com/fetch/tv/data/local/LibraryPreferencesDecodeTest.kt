@@ -28,7 +28,7 @@ class LibraryPreferencesDecodeTest {
 
     @Test
     fun `adding one title reuses every already decoded entry`() = runBlocking {
-        val preferences = LibraryPreferences(factoryOf(TestPreferencesStore()), profileManager)
+        val preferences = LibraryPreferences(factoryOf(TestPreferencesStore()), profileManager, InMemoryKeyedEntryStore())
         (0 until LIBRARY_SIZE).forEach { preferences.addItem(item(it)) }
         val before = preferences.getAllItems().associateBy { it.id }
 
@@ -42,7 +42,7 @@ class LibraryPreferencesDecodeTest {
 
     @Test
     fun `observers share one decode`() = runBlocking {
-        val preferences = LibraryPreferences(factoryOf(TestPreferencesStore()), profileManager)
+        val preferences = LibraryPreferences(factoryOf(TestPreferencesStore()), profileManager, InMemoryKeyedEntryStore())
         (0 until 50).forEach { preferences.addItem(item(it)) }
 
         val first = withTimeout(TIMEOUT_MS) { preferences.libraryItems.first { it.size == 50 } }
@@ -53,7 +53,7 @@ class LibraryPreferencesDecodeTest {
 
     @Test
     fun `in library follows the shared list`() = runBlocking {
-        val preferences = LibraryPreferences(factoryOf(TestPreferencesStore()), profileManager)
+        val preferences = LibraryPreferences(factoryOf(TestPreferencesStore()), profileManager, InMemoryKeyedEntryStore())
         preferences.addItem(item(7))
 
         assertTrue(withTimeout(TIMEOUT_MS) { preferences.isInLibrary("tt7", "MOVIE").first() })

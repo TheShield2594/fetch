@@ -269,7 +269,7 @@ The QR code opens `watchfetch.tv/link`, which asks once for your website's addre
 | Setting (api) | What it does |
 | --- | --- |
 | `FETCH_PAIRING_HUB_URL` | The hub this website claims codes through. Default `https://watchfetch.tv/api`; `off` turns it off, leaving the LAN list and typed addresses below. |
-| `FETCH_PAIRING_HUB_SERVE` | `true` only on the install that *is* the hub. It serves `/hub/pair/*` and keeps codes in memory for ten minutes. |
+| `FETCH_PAIRING_HUB_SERVE` | `true` only on the install that *is* the hub. It serves `/hub/pair/*` and keeps codes in memory, deleting each within about twelve minutes (a ten-minute code, a minute's grace after a late confirm, a sweep each minute). |
 | `FETCH_PAIRING_HUB_LINK_BASE` | On the hub: the website address its QR codes open (`<base>/link`). Defaults to `FETCH_WEB_PUBLIC`. |
 
 When your website confirms a hub code, it hands the TV the API address the confirming browser used. If that was `localhost`, it uses `FETCH_API_PUBLIC` instead, so confirm from a phone or another computer, or set `FETCH_API_PUBLIC`.

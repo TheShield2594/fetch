@@ -18,7 +18,7 @@ const PAIRING_SECRET_HEADER = "x-pairing-secret";
  */
 const pairingHubRoutes: FastifyPluginAsync = async (app) => {
   // Codes otherwise only go when the next one starts, so an idle hub would keep the last
-  // ones (an address, a device name) past the ten minutes PRIVACY.md promises.
+  // ones (an address, a device name) past the retention PRIVACY.md states.
   const sweeper = setInterval(() => sweepPairingHub(), 60_000);
   sweeper.unref();
   app.addHook("onClose", async () => clearInterval(sweeper));

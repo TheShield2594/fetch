@@ -47,6 +47,9 @@ class FetchWebsiteClient internal constructor(
         SharedHttpClient.root.newBuilder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)
+            // An https:// website redirecting to http:// would carry the pairing secret and
+            // device token along in the clear; the probe and resolver clients inherit this.
+            .followSslRedirects(false)
             .build()
     )
 

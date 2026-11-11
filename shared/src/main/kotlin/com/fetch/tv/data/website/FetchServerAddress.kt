@@ -28,7 +28,9 @@ data class ResolvedFetchServer(
  *   at start, then tried at `/api` and on port 7000 of the same host.
  *
  * With no scheme typed, a public host is tried over HTTPS only, so the pairing code and
- * device token never go out in the clear unless someone typed `http://` themselves.
+ * device token never go out in the clear unless someone typed `http://` themselves. A host
+ * that can only be on the local network (a private IP, `.local`, `.lan`, a single-label name)
+ * still defaults to `http://`, since a server at home rarely has a certificate.
  *
  * Shared by the TV and desktop apps; [resolve] takes the HTTP GET as a function so it stays
  * free of any one client's networking.

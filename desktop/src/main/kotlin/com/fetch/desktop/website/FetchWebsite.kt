@@ -573,7 +573,9 @@ sealed interface WebsitePairing {
  */
 class FetchWebsiteState(
     private val store: WebsiteStore = WebsiteStore(),
-    http: OkHttpClient = OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).readTimeout(20, TimeUnit.SECONDS).build(),
+    // No following an https:// redirect to http://: the pairing secret and token would go along in the clear.
+    http: OkHttpClient = OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).readTimeout(20, TimeUnit.SECONDS)
+        .followSslRedirects(false).build(),
     private val now: () -> Long = System::currentTimeMillis
 ) {
     var file: WebsiteFile by mutableStateOf(store.load())

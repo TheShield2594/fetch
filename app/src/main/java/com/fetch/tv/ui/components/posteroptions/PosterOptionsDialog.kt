@@ -38,6 +38,14 @@ import com.fetch.tv.ui.screens.profile.ParentalTitleMenuButton
 import com.fetch.tv.ui.screens.profile.parentalTitleOf
 import com.fetch.tv.ui.theme.FetchStatusTones
 
+/**
+ * The parental title dialog the poster menu opens. The default makes its own Hilt view model;
+ * a screen test with no Hilt component provides an empty host instead.
+ */
+internal val LocalParentalTitleDialogHost = androidx.compose.runtime.staticCompositionLocalOf<@Composable () -> Unit> {
+    { com.fetch.tv.ui.screens.profile.ParentalTitleDialogHost() }
+}
+
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun PosterOptionsDialog(
@@ -281,7 +289,7 @@ fun PosterOptionsHost(
             }
         )
     }
-    ParentalTitleDialogHost()
+    LocalParentalTitleDialogHost.current()
 
     if (state.listPickerActive) {
         val localTab = LibraryListTab(

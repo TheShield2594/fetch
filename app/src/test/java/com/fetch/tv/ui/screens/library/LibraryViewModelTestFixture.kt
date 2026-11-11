@@ -29,6 +29,9 @@ internal class LibraryViewModelTestFixture(
     sorter: TrackingLibrarySorter? = null,
     scope: LibraryListScope = LibraryListScope.LISTS
 ) {
+    /** What the History and In progress tabs read. */
+    val watched = MutableStateFlow(emptyList<com.fetch.tv.domain.model.WatchedItem>())
+    val inProgress = MutableStateFlow(emptyList<com.fetch.tv.domain.model.WatchProgress>())
     val profile = MutableStateFlow(1)
     val source = MutableStateFlow(LibrarySourceMode.MDBLIST)
     val authenticated = MutableStateFlow(true)
@@ -54,7 +57,10 @@ internal class LibraryViewModelTestFixture(
         every { listSorter } returns sorter
     }
     val viewModel = LibraryViewModel(
-        libraryRepository = repository, metaRepository = mockk(),
+        libraryRepository = repository,
+        metaRepository = mockk(relaxed = true) {
+            every { getMetaFromAllAddons(any(), any(), any()) } returns flowOf(com.fetch.tv.core.network.NetworkResult.Error("offline"))
+        },
         layoutPreferenceDataStore = mockk<LayoutPreferenceDataStore> {
             every { posterCardWidthDp } returns flowOf(126)
             every { posterCardCornerRadiusDp } returns flowOf(12)
@@ -68,11 +74,18 @@ internal class LibraryViewModelTestFixture(
             every { lastSelectedType } returns flowOf(null)
         },
         trackingProviderRegistry = TrackingLibraryProviderRegistry(setOf(provider)),
-        watchProgressRepository = mockk<WatchProgressRepository> { every { observeWatchedMovieIds() } returns flowOf(emptySet()) },
+        watchProgressRepository = mockk<WatchProgressRepository> {
+            every { observeWatchedMovieIds() } returns flowOf(emptySet())
+            every { watchedItems } returns watched
+            every { continueWatching } returns inProgress
+            every { getAllEpisodeProgress(any()) } returns flowOf(emptyMap())
+        },
         watchedSeriesStateHolder = mockk<WatchedSeriesStateHolder> { every { fullyWatchedSeriesIds } returns MutableStateFlow(emptySet()) },
         profileManager = mockk<ProfileManager> { every { activeProfileId } returns profile },
         parentalControls = com.fetch.tv.unrestrictedParentalControls(),
-        posterOptions = mockk(relaxed = true),
+        posterOptions = mockk(relaxed = true) {
+            every { state } returns MutableStateFlow(com.fetch.tv.ui.components.posteroptions.PosterOptionsState())
+        },
         bestMatchCacheDataStore = mockk<BestMatchCacheDataStore> { every { entries } returns bestMatches },
         context = mockk(relaxed = true)
     )

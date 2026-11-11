@@ -51,10 +51,14 @@ import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
@@ -161,18 +165,25 @@ fun LibraryScreen(
     val posterFocusRequesters = remember(visibleItemKeys) {
         visibleItemKeys.associateWith { FocusRequester() }
     }
-    val layoutDirection = LocalLayoutDirection.current
     val firstVisiblePosterKey = visibleItemKeys.firstOrNull()
-    val firstVisibleCardKey = visibleItemKeys.let { keys ->
-        if (layoutDirection == LayoutDirection.Rtl) {
-            keys.lastOrNull()  // Last in logical order = rightmost in RTL
-        } else {
-            keys.firstOrNull() // First in logical order = leftmost in LTR
-        }
+    // The posters take the size set in Layout, made smaller only as far as needed for two full
+    // rows to show under the tabs and filters on entry (audit C3).
+    var gridHeightPx by remember { mutableIntStateOf(0) }
+    var headerHeightPx by remember { mutableIntStateOf(0) }
+    val density = LocalDensity.current
+    val cardWidth = with(density) {
+        libraryFittedCardWidth(
+            preferred = uiState.posterCardWidthDp.dp,
+            viewport = gridHeightPx.toDp(),
+            header = headerHeightPx.toDp(),
+            topPadding = FetchTheme.spacing.screen.vertical,
+            gap = FetchTheme.spacing.lg,
+            labelAllowance = FetchTheme.spacing.sm + FetchTheme.spacing.xl
+        )
     }
     val posterCardStyle = PosterCardDefaults.Style.copy(
-        width = uiState.posterCardWidthDp.dp,
-        height = (uiState.posterCardWidthDp * 3 / 2).dp,
+        width = cardWidth,
+        height = cardWidth * 3 / 2,
         cornerRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp),
         showRestingBorder = true
     )
@@ -307,16 +318,17 @@ fun LibraryScreen(
         state = gridState,
         modifier = Modifier
             .fillMaxSize()
+            .onSizeChanged { gridHeightPx = it.height }
             .background(FetchTheme.colors.Background)
             .focusRestorer {
                 val lastKey = lastFocusedPosterKey
                 when {
                     lastKey != null && lastKey in activityFocusRequesters -> activityFocusRequesters[lastKey]
                     lastKey != null && lastKey in posterFocusRequesters -> posterFocusRequesters[lastKey]
-                    tab == LibraryTab.HISTORY || tab == LibraryTab.IN_PROGRESS ->
-                        activityKeys.firstOrNull()?.let(activityFocusRequesters::get)
-                    else -> posterFocusRequesters[firstVisibleCardKey]
-                } ?: FocusRequester()
+                    // Nothing to come back to (opening the Library): the selected tab, so the
+                    // other tabs are a press away rather than behind the filters (audit C3).
+                    else -> null
+                } ?: primaryFocusRequester
             }
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent
@@ -331,113 +343,124 @@ fun LibraryScreen(
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
     ) {
+        // The top of the screen is one item: title, tabs and source on one row, then (for the
+        // Watchlist and Lists tabs) one row of filters and actions. Its height decides how big
+        // the posters below can be while two full rows still fit (audit C3).
         item(span = { GridItemSpan(maxLineSpan) }) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onSizeChanged { headerHeightPx = it.height },
+                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
             ) {
-                Text(
-                    text = stringResource(R.string.library_title),
-                    style = FetchTheme.textStyles.sectionTitle,
-                    color = if (showBuiltInHeader) FetchTheme.colors.TextPrimary else Color.Transparent
-                )
-                // Source names are stored in natural case and capitalized here, once, for the locale.
-                val sourceName = when {
-                    tab == LibraryTab.SERVERS -> stringResource(R.string.library_source_servers)
-                    tab == LibraryTab.HISTORY -> stringResource(R.string.library_tab_history)
-                    tab == LibraryTab.IN_PROGRESS -> stringResource(R.string.library_tab_in_progress)
-                    uiState.sourceMode == LibrarySourceMode.TRAKT -> stringResource(R.string.trakt_name)
-                    uiState.sourceMode == LibrarySourceMode.SIMKL -> stringResource(R.string.simkl_name)
-                    uiState.sourceMode == LibrarySourceMode.MDBLIST -> stringResource(R.string.mdblist_name)
-                    uiState.sourceMode == LibrarySourceMode.FETCH_WEBSITE -> stringResource(R.string.website_name)
-                    else -> stringResource(R.string.library_source_local)
-                }
-                Text(
-                    text = sourceName.uppercase(LocalConfiguration.current.locales[0]),
-                    style = FetchTheme.textStyles.eyebrow,
-                    color = if (showBuiltInHeader) FetchTheme.colors.TextTertiary else Color.Transparent
-                )
-            }
-        }
-
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            LibraryTabRow(
-                tabs = tabs,
-                selectedTab = tab,
-                primaryFocusRequester = primaryFocusRequester,
-                onSelected = { picked ->
-                    expandedPicker = null
-                    when (picked) {
-                        LibraryTab.UPCOMING -> onNavigateToCalendar()
-                        LibraryTab.STATS -> onNavigateToStats()
-                        else -> selectedTab = picked
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                ) {
+                    if (showBuiltInHeader) {
+                        Text(
+                            text = stringResource(R.string.library_title),
+                            style = FetchTheme.textStyles.sectionTitle,
+                            color = FetchTheme.colors.TextPrimary
+                        )
+                    }
+                    LibraryTabRow(
+                        modifier = Modifier.weight(1f),
+                        tabs = tabs,
+                        selectedTab = tab,
+                        primaryFocusRequester = primaryFocusRequester,
+                        onSelected = { picked ->
+                            expandedPicker = null
+                            when (picked) {
+                                LibraryTab.UPCOMING -> onNavigateToCalendar()
+                                LibraryTab.STATS -> onNavigateToStats()
+                                else -> selectedTab = picked
+                            }
+                        }
+                    )
+                    if (showBuiltInHeader) {
+                        // Source names are stored in natural case and capitalized here, once, for the locale.
+                        val sourceName = when {
+                            tab == LibraryTab.SERVERS -> stringResource(R.string.library_source_servers)
+                            tab == LibraryTab.HISTORY -> stringResource(R.string.library_tab_history)
+                            tab == LibraryTab.IN_PROGRESS -> stringResource(R.string.library_tab_in_progress)
+                            uiState.sourceMode == LibrarySourceMode.TRAKT -> stringResource(R.string.trakt_name)
+                            uiState.sourceMode == LibrarySourceMode.SIMKL -> stringResource(R.string.simkl_name)
+                            uiState.sourceMode == LibrarySourceMode.MDBLIST -> stringResource(R.string.mdblist_name)
+                            uiState.sourceMode == LibrarySourceMode.FETCH_WEBSITE -> stringResource(R.string.website_name)
+                            else -> stringResource(R.string.library_source_local)
+                        }
+                        Text(
+                            text = sourceName.uppercase(LocalConfiguration.current.locales[0]),
+                            style = FetchTheme.textStyles.eyebrow,
+                            color = FetchTheme.colors.TextTertiary,
+                            maxLines = 1
+                        )
                     }
                 }
-            )
-        }
-
-        if (tab.listScope != null) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                LibrarySelectorsRow(
-                    sourceMode = uiState.sourceMode,
-                    listTabs = uiState.scopedListTabs,
-                    typeTabs = uiState.availableTypeTabs,
-                    sortOptions = uiState.availableSortOptions,
-                    genres = uiState.availableGenres,
-                    years = uiState.availableYears,
-                    selectedListKey = uiState.selectedListKey,
-                    selectedTypeTab = uiState.selectedTypeTab,
-                    selectedSortOption = uiState.selectedSortOption,
-                    selectedGenre = uiState.selectedGenre,
-                    selectedYear = uiState.selectedYear,
-                    selectedWatchedFilter = uiState.selectedWatchedFilter,
-                    anythingReady = uiState.readyBestMatchKeys.isNotEmpty(),
-                    primaryFocusRequester = selectorFocusRequester,
-                    upFocusRequester = primaryFocusRequester,
-                    expandedPicker = expandedPicker,
-                    onExpandedChange = { picker, shouldExpand ->
-                        expandedPicker = if (shouldExpand) picker else null
-                    },
-                    onSelectList = { key ->
-                        viewModel.onSelectListTab(key)
-                        expandedPicker = null
-                    },
-                    onSelectType = { type ->
-                        viewModel.onSelectTypeTab(type)
-                        expandedPicker = null
-                    },
-                    onSelectSort = { sort ->
-                        viewModel.onSelectSortOption(sort)
-                        expandedPicker = null
-                    },
-                    onSelectGenre = { key ->
-                        viewModel.onSelectGenre(key)
-                        expandedPicker = null
-                    },
-                    onSelectYear = { key ->
-                        viewModel.onSelectYear(key)
-                        expandedPicker = null
-                    },
-                    onSelectWatchedFilter = { filter ->
-                        viewModel.onSelectWatchedFilter(filter)
-                        expandedPicker = null
-                    }
-                )
-            }
-
-            if (uiState.listManagement != null && uiState.isTrackingAuthenticated) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    LibraryActionsRow(
-                        pending = uiState.pendingOperation,
-                        isSyncing = uiState.isSyncing,
-                        showManageLists = uiState.listManagement != null,
-                        showRefresh = uiState.sourceMode != LibrarySourceMode.LOCAL,
-                        onManageLists = viewModel::onOpenManageLists,
-                        onRefresh = viewModel::onRefresh
+                if (tab.listScope != null) {
+                    LibrarySelectorsRow(
+                        actions = {
+                            LibraryActionsRow(
+                                pending = uiState.pendingOperation,
+                                isSyncing = uiState.isSyncing,
+                                // Lists are managed from the Lists tab, not over the watchlist.
+                                showManageLists = tab == LibraryTab.LISTS && uiState.listManagement != null && uiState.isTrackingAuthenticated,
+                                showRefresh = uiState.sourceMode != LibrarySourceMode.LOCAL && uiState.isTrackingAuthenticated,
+                                onManageLists = viewModel::onOpenManageLists,
+                                onRefresh = viewModel::onRefresh
+                            )
+                        },
+                        sourceMode = uiState.sourceMode,
+                        listTabs = uiState.scopedListTabs,
+                        typeTabs = uiState.availableTypeTabs,
+                        sortOptions = uiState.availableSortOptions,
+                        genres = uiState.availableGenres,
+                        years = uiState.availableYears,
+                        selectedListKey = uiState.selectedListKey,
+                        selectedTypeTab = uiState.selectedTypeTab,
+                        selectedSortOption = uiState.selectedSortOption,
+                        selectedGenre = uiState.selectedGenre,
+                        selectedYear = uiState.selectedYear,
+                        selectedWatchedFilter = uiState.selectedWatchedFilter,
+                        anythingReady = uiState.readyBestMatchKeys.isNotEmpty(),
+                        primaryFocusRequester = selectorFocusRequester,
+                        upFocusRequester = primaryFocusRequester,
+                        expandedPicker = expandedPicker,
+                        onExpandedChange = { picker, shouldExpand ->
+                            expandedPicker = if (shouldExpand) picker else null
+                        },
+                        onSelectList = { key ->
+                            viewModel.onSelectListTab(key)
+                            expandedPicker = null
+                        },
+                        onSelectType = { type ->
+                            viewModel.onSelectTypeTab(type)
+                            expandedPicker = null
+                        },
+                        onSelectSort = { sort ->
+                            viewModel.onSelectSortOption(sort)
+                            expandedPicker = null
+                        },
+                        onSelectGenre = { key ->
+                            viewModel.onSelectGenre(key)
+                            expandedPicker = null
+                        },
+                        onSelectYear = { key ->
+                            viewModel.onSelectYear(key)
+                            expandedPicker = null
+                        },
+                        onSelectWatchedFilter = { filter ->
+                            viewModel.onSelectWatchedFilter(filter)
+                            expandedPicker = null
+                        }
                     )
                 }
             }
+        }
+
+        if (tab.listScope != null) {
 
             if (uiState.visibleItems.isEmpty() && uiState.filtersHideAllItems) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
@@ -677,6 +700,7 @@ fun LibraryScreen(
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun LibraryTabRow(
+    modifier: Modifier = Modifier,
     tabs: List<LibraryTab>,
     selectedTab: LibraryTab,
     primaryFocusRequester: FocusRequester,
@@ -684,8 +708,8 @@ private fun LibraryTabRow(
 ) {
     val rowDescription = stringResource(R.string.library_tabs_description)
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
+            .horizontalScroll(rememberScrollState())
             .semantics { contentDescription = rowDescription },
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
@@ -727,6 +751,7 @@ private fun LibraryTabRow(
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun LibrarySelectorsRow(
+    actions: @Composable () -> Unit,
     sourceMode: LibrarySourceMode,
     listTabs: List<LibraryListTab>,
     typeTabs: List<LibraryTypeTab>,
@@ -761,18 +786,19 @@ private fun LibrarySelectorsRow(
     val selectedGenreLabel = selectedGenre?.let { localizedGenreLabel(it) } ?: allLabel
     val selectedYearLabel = selectedYear ?: allLabel
 
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
+    // One row (audit C3): list, type, sort and Show first, then genre and year, then the
+    // actions. It scrolls sideways with focus when it's wider than the screen.
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
-        ) {
+        run {
             if (listTabs.isNotEmpty()) {
                 LibraryDropdownPicker(
                     modifier = Modifier
-                        .weight(1f)
                         .focusRequester(primaryFocusRequester),
                     upFocusRequester = upFocusRequester,
                     title = stringResource(R.string.library_filter_list),
@@ -790,7 +816,6 @@ private fun LibrarySelectorsRow(
                     Modifier.weight(1f)
                 } else {
                     Modifier
-                        .weight(1f)
                         .focusRequester(primaryFocusRequester)
                 },
                 upFocusRequester = upFocusRequester,
@@ -814,8 +839,7 @@ private fun LibrarySelectorsRow(
 
             if (sortOptions.isNotEmpty()) {
                 LibraryDropdownPicker(
-                    modifier = Modifier.weight(1f),
-                    upFocusRequester = upFocusRequester,
+                                        upFocusRequester = upFocusRequester,
                     title = stringResource(R.string.library_filter_sort),
                     value = selectedSortLabel,
                     selectedValue = selectedSortOption.key,
@@ -829,15 +853,11 @@ private fun LibrarySelectorsRow(
             }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
-        ) {
+        run {
             if (genres.isNotEmpty()) {
                 val genreAllOption = LibraryOption(allLabel, "__all__")
                 LibraryDropdownPicker(
-                    modifier = Modifier.weight(1f),
-                    title = stringResource(R.string.library_filter_genre),
+                                        title = stringResource(R.string.library_filter_genre),
                     value = selectedGenreLabel,
                     selectedValue = selectedGenre ?: "__all__",
                     expanded = expandedPicker == "genre",
@@ -854,8 +874,7 @@ private fun LibrarySelectorsRow(
             if (years.isNotEmpty()) {
                 val yearAllOption = LibraryOption(allLabel, "__all__")
                 LibraryDropdownPicker(
-                    modifier = Modifier.weight(1f),
-                    title = stringResource(R.string.library_filter_year),
+                                        title = stringResource(R.string.library_filter_year),
                     value = selectedYearLabel,
                     selectedValue = selectedYear ?: "__all__",
                     expanded = expandedPicker == "year",
@@ -871,8 +890,7 @@ private fun LibrarySelectorsRow(
 
             val watchedFilterLabel = stringResource(selectedWatchedFilter.labelResId)
             LibraryDropdownPicker(
-                modifier = Modifier.weight(1f),
-                title = stringResource(R.string.library_filter_watched),
+                                title = stringResource(R.string.library_filter_watched),
                 value = watchedFilterLabel,
                 selectedValue = selectedWatchedFilter.key,
                 expanded = expandedPicker == "watched",
@@ -886,6 +904,7 @@ private fun LibrarySelectorsRow(
                 }
             )
         }
+        actions()
     }
 }
 
@@ -922,7 +941,6 @@ private fun LibraryDropdownPicker(
         Card(
             onClick = { onExpandedChange(!expanded) },
             modifier = Modifier
-                .fillMaxWidth()
                 .then(
                     if (upFocusRequester != null) {
                         Modifier.focusProperties { up = upFocusRequester }
@@ -952,35 +970,30 @@ private fun LibraryDropdownPicker(
                 pressedScale = 1.0f
             )
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md),
-                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
+            // One line, "Sort  Recently added ⌄", so the whole filter bar is one short row.
+            Row(
+                modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
             ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.labelMedium,
-                    color = FetchTheme.colors.TextTertiary
+                    color = FetchTheme.colors.TextTertiary,
+                    maxLines = 1
                 )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = value,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = FetchTheme.colors.TextPrimary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Icon(
-                        imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (expanded) stringResource(R.string.cd_collapse, title) else stringResource(R.string.cd_expand, title),
-                        tint = if (isFocused) FetchTheme.colors.FocusRing else FetchTheme.colors.TextSecondary
-                    )
-                }
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = FetchTheme.colors.TextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (expanded) stringResource(R.string.cd_collapse, title) else stringResource(R.string.cd_expand, title),
+                    tint = if (isFocused) FetchTheme.colors.FocusRing else FetchTheme.colors.TextSecondary
+                )
             }
         }
     }
@@ -1011,10 +1024,7 @@ private fun LibraryActionsRow(
     onManageLists: () -> Unit,
     onRefresh: () -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
-    ) {
+    Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
         if (showManageLists) {
             FetchButton(
                 onClick = onManageLists,
@@ -1095,3 +1105,27 @@ private fun ConfirmDeleteDialog(
         }
     }
 }
+
+/**
+ * The poster width that lets [rows] full rows of posters, with their titles, show below a
+ * [header] in a [viewport] of that height: at most [preferred] (the size set in Layout), and no
+ * smaller than 70% of it, so a very short window scrolls rather than shrinking posters to stamps.
+ * Before the viewport and header are measured it is [preferred].
+ */
+internal fun libraryFittedCardWidth(
+    preferred: Dp,
+    viewport: Dp,
+    header: Dp,
+    topPadding: Dp,
+    gap: Dp,
+    labelAllowance: Dp,
+    rows: Int = 2
+): Dp {
+    if (viewport <= Dp.Hairline || header <= Dp.Hairline) return preferred
+    // The header is followed by a gap, and each row by its title and a gap.
+    val perRow = (viewport - topPadding - header - gap * rows) / rows
+    val fitted = (perRow - labelAllowance) * (2f / 3f)
+    return minOf(preferred, maxOf(fitted, preferred * MIN_FITTED_POSTER_SCALE))
+}
+
+private const val MIN_FITTED_POSTER_SCALE = 0.7f

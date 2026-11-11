@@ -454,7 +454,7 @@ fun StreamScreen(
                     onShowAllSources = { viewModel.onEvent(StreamScreenEvent.OnShowAllSources) },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = fetchingPanelBottomPadding, start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl)
+                        .padding(bottom = fetchingPanelBottomPadding, start = FetchTheme.spacing.screen.horizontal, end = FetchTheme.spacing.screen.horizontal)
                         .onSizeChanged { fetchingPanelHeight = with(density) { it.height.toDp() } }
                         .onGloballyPositioned { fetchingPanelBounds = it.boundsInWindow() }
                         .graphicsLayer { alpha = launchContentAlpha(launchProgress.value) }
@@ -901,7 +901,7 @@ private fun RightStreamSection(
 
     Column(
         modifier = modifier
-            .padding(top = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl, bottom = FetchTheme.spacing.xxxl)
+            .padding(top = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.screen.horizontal, bottom = FetchTheme.spacing.xxxl)
     ) {
         val chipRowHeight = FetchTheme.spacing.huge
 

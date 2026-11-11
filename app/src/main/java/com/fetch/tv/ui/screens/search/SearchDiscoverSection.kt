@@ -183,7 +183,7 @@ internal fun DiscoverSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = FetchTheme.spacing.xxxl),
+            .padding(horizontal = FetchTheme.spacing.screen.horizontal),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
     ) {
         Text(

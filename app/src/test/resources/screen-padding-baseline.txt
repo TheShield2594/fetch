@@ -35,6 +35,3 @@ com/fetch/tv/ui/screens/player/PlayerScreen.kt|LITERAL|8
 com/fetch/tv/ui/screens/player/StreamInfoOverlay.kt|LITERAL|2
 com/fetch/tv/ui/screens/player/StreamInfoOverlay.kt|STAND_IN|2
 com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt|LITERAL|1
-com/fetch/tv/ui/screens/search/SearchDiscoverSection.kt|STAND_IN|1
-com/fetch/tv/ui/screens/search/SearchScreen.kt|STAND_IN|3
-com/fetch/tv/ui/screens/stream/StreamScreen.kt|STAND_IN|3

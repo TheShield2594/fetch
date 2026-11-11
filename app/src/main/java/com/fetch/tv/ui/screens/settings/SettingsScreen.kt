@@ -105,6 +105,7 @@ import com.fetch.tv.data.local.PlayerSettings
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlin.math.roundToInt
+import com.fetch.tv.ui.util.dpadRepeatThrottle
 
 internal data class SettingsSectionSpec(
     val category: SettingsCategory,
@@ -553,7 +554,9 @@ fun SettingsScreen(
             }
 
         Row(
-            modifier = Modifier.fillMaxSize(),
+            // Paces held keys like every other list. Gate-only: the rail and pane keep their own
+            // Left/Right handling and focus restoration.
+            modifier = Modifier.fillMaxSize().dpadRepeatThrottle(moveFocusOnRepeat = false),
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
         ) {
             Box(

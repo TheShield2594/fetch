@@ -722,7 +722,7 @@ fun SearchScreen(
                             onSectionFocusChanged = { focused -> isRecentSearchSectionFocused = focused },
                             clearHistoryFocusRequester = recentClearHistoryFocusRequester,
                             emptyHistoryFocusRequester = searchFocusRequester,
-                            modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl)
+                            modifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)
                         )
                     }
                 } else {
@@ -755,7 +755,7 @@ fun SearchScreen(
                                     },
                                     clearHistoryFocusRequester = recentClearHistoryFocusRequester,
                                     emptyHistoryFocusRequester = searchFocusRequester,
-                                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl)
+                                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)
                                 )
                             } else {
                                 EmptyScreenState(
@@ -1395,7 +1395,7 @@ private fun SearchInputField(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = FetchTheme.spacing.xxxl)
+            .padding(horizontal = FetchTheme.spacing.screen.horizontal)
             .focusGroup(),
         verticalAlignment = Alignment.CenterVertically
     ) {

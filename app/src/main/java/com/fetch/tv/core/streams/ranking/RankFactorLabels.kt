@@ -34,8 +34,8 @@ fun RankFactor.label(context: Context, self: RankedStream, other: RankedStream):
         RankFactor.RELEASE_SOURCE -> versus(R.string.rank_factor_release_source, mine.source.label, theirs.source.label)
         RankFactor.SIZE -> versus(
             R.string.rank_factor_size,
-            mine.sizeBytes?.let(StreamDescriptor::formatSize).orEmpty(),
-            theirs.sizeBytes?.let(StreamDescriptor::formatSize).orEmpty()
+            mine.sizeBytes?.let { StreamDescriptor.formatSize(it) }.orEmpty(),
+            theirs.sizeBytes?.let { StreamDescriptor.formatSize(it) }.orEmpty()
         )
         RankFactor.SEEDERS -> versus(
             R.string.rank_factor_seeders,

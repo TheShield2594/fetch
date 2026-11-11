@@ -34,6 +34,42 @@ internal enum class PlaybackSection(
     BUFFER_NETWORK(R.string.playback_section_buffer_network, R.string.playback_section_buffer_network_desc, Icons.Default.NetworkCheck)
 }
 
+/**
+ * The four playback pages advanced mode's rail lists, each holding several [sections] one after
+ * another under their own headings.
+ */
+internal enum class PlaybackPage(
+    @param:StringRes val title: Int,
+    @param:StringRes val description: Int,
+    val icon: ImageVector,
+    val sections: List<PlaybackSection>
+) {
+    PLAYER_NETWORK(
+        R.string.playback_page_player,
+        R.string.playback_page_player_desc,
+        Icons.Default.SmartDisplay,
+        listOf(PlaybackSection.PLAYER, PlaybackSection.SKIP_SEGMENTS, PlaybackSection.BUFFER_NETWORK)
+    ),
+    STREAMS_AUTO_PLAY(
+        R.string.playback_page_streams,
+        R.string.playback_page_streams_desc,
+        Icons.AutoMirrored.Filled.PlaylistPlay,
+        listOf(PlaybackSection.STREAM_SELECTION, PlaybackSection.UP_NEXT)
+    ),
+    AUDIO_SUBTITLES(
+        R.string.playback_page_audio_subtitles,
+        R.string.playback_page_audio_subtitles_desc,
+        Icons.Default.Subtitles,
+        listOf(PlaybackSection.AUDIO, PlaybackSection.SUBTITLES)
+    ),
+    VIDEO_DISPLAY(
+        R.string.playback_page_video,
+        R.string.playback_page_video_desc,
+        Icons.Default.VideoSettings,
+        listOf(PlaybackSection.VIDEO, PlaybackSection.PLAYER_INTERFACE)
+    )
+}
+
 internal fun visiblePlaybackSections(settings: PlayerSettings): List<PlaybackSection> =
     PlaybackSection.entries.filter { section ->
         section != PlaybackSection.BUFFER_NETWORK || settings.usesExoPlayerEngine

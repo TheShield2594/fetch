@@ -107,9 +107,9 @@ import com.fetch.tv.ui.util.formatRuntimeMinutes
 import com.fetch.tv.ui.util.localizeEpisodeTitle
 import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import com.fetch.tv.ui.theme.FetchContentColors
+import com.fetch.tv.ui.util.dpadRepeatThrottle
 
 private const val EPISODE_CARD_CONTENT_TYPE = "episode_card"
-private const val EPISODE_SCROLL_REPEAT_THROTTLE_MS = 80L
 private const val EPISODE_RESTORE_FALLBACK_MS = 250L
 private const val EPISODE_RESTORE_FOCUS_ATTEMPTS = 24
 private const val EPISODE_OVERLAY_PREFETCH_DELAY_MS = 120L
@@ -440,7 +440,6 @@ fun EpisodesRow(
         lazyKeyAt = { index -> dedupedEpisodes.getOrNull(index)?.id },
         resetKey = windowResetKey
     )
-    var lastHorizontalKeyRepeatTime by remember { mutableStateOf(0L) }
     val episodeIds = remember(dedupedEpisodes) { dedupedEpisodes.mapTo(mutableSetOf()) { it.id } }
     LaunchedEffect(episodeIds, episodeFocusRequesters) {
         episodeFocusRequesters.keys.retainAll(episodeIds)
@@ -505,23 +504,8 @@ fun EpisodesRow(
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .onPreviewKeyEvent { event ->
-                val native = event.nativeKeyEvent
-                val isHorizontalKey = native.keyCode == AndroidKeyEvent.KEYCODE_DPAD_LEFT ||
-                    native.keyCode == AndroidKeyEvent.KEYCODE_DPAD_RIGHT
-                if (
-                    isHorizontalKey &&
-                    native.action == AndroidKeyEvent.ACTION_DOWN &&
-                    native.repeatCount > 0
-                ) {
-                    val now = System.currentTimeMillis()
-                    if (now - lastHorizontalKeyRepeatTime < EPISODE_SCROLL_REPEAT_THROTTLE_MS) {
-                        return@onPreviewKeyEvent true
-                    }
-                    lastHorizontalKeyRepeatTime = now
-                }
-                false
-            },
+            // Horizontal repeats only; vertical keys leave the row and belong to the page's own scroll.
+            .dpadRepeatThrottle(verticalGateMs = 0L, moveFocusOnRepeat = false),
         state = lazyListState,
         contentPadding = PaddingValues(
             horizontal = cardMetrics.rowHorizontalPadding,

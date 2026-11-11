@@ -870,9 +870,6 @@
     <string name="layout_next_up_furthest_episode_sub">A sorozatban legelőrébb tartó, már megnézett epizódot veszi alapul. Újranézéskor kapcsold ki, hogy a legutóbb megnézett epizód után folytathasd.</string>
     <string name="layout_show_unaired_next_up">Még nem vetített epizódok megjelenítése</string>
     <string name="layout_show_unaired_next_up_sub">A közelgő epizódokat már a premier előtt megjeleníti a Megtekintés folytatása sorban.</string>
-    <string name="layout_cw_card_style_card">Kártya</string>
-    <string name="layout_cw_card_style_wide">Széles</string>
-    <string name="layout_cw_card_style_poster">Poszter</string>
     <string name="layout_cw_sort_mode">Rendezési sorrend</string>
     <string name="layout_cw_sort_mode_sub">A Megtekintés folytatása elemek elrendezése</string>
     <string name="layout_cw_sort_default">Alapértelmezett</string>
@@ -899,10 +896,6 @@
     <string name="layout_show_full_release_date_sub">Filmeknél a teljes megjelenési dátum mutatása csak az évszám helyett.</string>
     <string name="layout_section_focused">Fókuszált poszter</string>
     <string name="layout_section_focused_desc">A kijelölt poszterkártyák speciális viselkedése.</string>
-    <string name="layout_expand_poster">Fókuszált poszter kiterjesztése háttérré</string>
-    <string name="layout_expand_poster_sub">A kijelölt poszter kiterjesztése várakozás után.</string>
-    <string name="layout_expand_delay">Háttérkiterjesztés késleltetése</string>
-    <string name="layout_expand_delay_sub">Várakozási idő a kijelölt kártyák kiterjesztése előtt.</string>
     <string name="layout_autoplay_trailer">Előzetes automatikus lejátszása</string>
     <string name="layout_autoplay_trailer_sub">Előnézeti videó lejátszása a kijelölt tartalomhoz, ha elérhető.</string>
     <string name="layout_trailer_muted">Előzetes lejátszása némítva</string>
@@ -912,10 +905,6 @@
     <string name="layout_custom_poster_apply_to">Alkalmazás erre</string>
     <string name="layout_open">Nyitott</string>
     <string name="layout_closed">Zárt</string>
-    <string name="layout_trailer_location">Előzetes lejátszási helye Modern nézetben</string>
-    <string name="layout_trailer_location_sub">Válaszd ki, hol induljon az előzetes Modern nézetben.</string>
-    <string name="layout_trailer_expanded_card">Kiterjesztett kártya</string>
-    <string name="layout_trailer_hero_media">Kiemelt média</string>
     <string name="layout_preset_compact">Kompakt</string>
     <string name="layout_preset_dense">Sűrű</string>
     <string name="layout_preset_standard">Standard</string>
@@ -1663,12 +1652,7 @@
     <string name="discover_title">Felfedezés</string>
     <string name="discover_load_more">Továbbiak betöltése</string>
     <string name="discover_loading">Betöltés\u2026</string>
-    <string name="discover_filter_type">Típus</string>
-    <string name="discover_filter_catalog">Katalógus</string>
     <string name="discover_filter_genre">Műfaj</string>
-    <string name="discover_select_catalog">Választás</string>
-    <string name="discover_empty_no_catalog_title">Válassz katalógust</string>
-    <string name="discover_empty_no_catalog_subtitle">Válassz egy katalógust a böngészéshez</string>
     <string name="discover_empty_no_content_title">Nincs tartalom</string>
     <string name="discover_empty_no_content_subtitle">Próbálkozz másik műfajjal vagy katalógussal</string>
 

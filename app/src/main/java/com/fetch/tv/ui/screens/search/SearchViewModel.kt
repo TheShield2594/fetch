@@ -36,6 +36,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -162,12 +165,37 @@ class SearchViewModel @Inject constructor(
     private var lastCompletedRequestKey: String? = null
     private var hasRenderedFirstCatalog = false
     private var pendingCatalogResponses = 0
-    private var revealBatchAfterNextDiscoverFetch = false
+
+    /** One catalog Discover pages through, and where its next page starts. */
+    private data class DiscoverSourceCursor(
+        val catalog: DiscoverCatalog,
+        val nextSkip: Int = 0,
+        val hasMore: Boolean = true,
+        val failures: Int = 0
+    )
+
+    /** The catalogs merged into the current Discover results, in catalog order. */
+    private var discoverCursors: List<DiscoverSourceCursor> = emptyList()
+
+    /** Every title loaded so far, merged across catalogs, before the year, rating and sort filters. */
+    private var discoverMergedItems: List<MetaPreview> = emptyList()
+
+    /** Paging rounds in a row that added nothing the filters keep. */
+    private var discoverUnproductiveRounds = 0
     private var hideUnreleasedContent = false
 
     private companion object {
-        const val DISCOVER_INITIAL_LIMIT = 100
-        const val DISCOVER_SHOW_MORE_BATCH = 50
+        /** Below this many filtered results, Discover pages on its own to fill the grid. */
+        const val DISCOVER_MIN_RESULTS = 30
+
+        /** Extra rounds one load may run to fill the grid before waiting for the user to scroll. */
+        const val DISCOVER_MAX_FILL_ROUNDS = 3
+
+        /** Rounds in a row that add nothing visible before scroll paging pauses. */
+        const val DISCOVER_MAX_UNPRODUCTIVE_ROUNDS = 3
+
+        /** Failed pages in a row before a catalog is left out of further paging. */
+        const val DISCOVER_MAX_SOURCE_FAILURES = 2
         const val SUGGESTION_DEBOUNCE_MS = 150L
 
         /**
@@ -194,7 +222,9 @@ class SearchViewModel @Inject constructor(
                 if (location == DiscoverLocation.OFF) {
                     discoverJob?.cancel()
                     discoverJob = null
-                    revealBatchAfterNextDiscoverFetch = false
+                    discoverCursors = emptyList()
+                    discoverMergedItems = emptyList()
+                    discoverUnproductiveRounds = 0
                     _uiState.update {
                         it.copy(
                             discoverInitialized = false,
@@ -202,12 +232,13 @@ class SearchViewModel @Inject constructor(
                             discoverLoadingMore = false,
                             discoverCatalogs = emptyList(),
                             selectedDiscoverType = "movie",
-                            selectedDiscoverCatalogKey = null,
                             selectedDiscoverGenre = null,
+                            discoverFilters = DiscoverFilters(),
+                            discoverSourceCount = 0,
                             discoverResults = emptyList(),
-                            pendingDiscoverResults = emptyList(),
                             discoverHasMore = true,
-                            discoverPage = 1
+                            discoverError = null,
+                            discoverPagingPaused = false
                         )
                     }
                 }
@@ -330,8 +361,11 @@ class SearchViewModel @Inject constructor(
                 type = event.type
             )
             is SearchEvent.SelectDiscoverType -> selectDiscoverType(event.type)
-            is SearchEvent.SelectDiscoverCatalog -> selectDiscoverCatalog(event.catalogKey)
             is SearchEvent.SelectDiscoverGenre -> selectDiscoverGenre(event.genre)
+            is SearchEvent.SelectDiscoverYearRange -> updateDiscoverFilters { it.copy(yearRange = event.range) }
+            is SearchEvent.SelectDiscoverMinRating -> updateDiscoverFilters { it.copy(minRating = event.minRating) }
+            is SearchEvent.SelectDiscoverSort -> updateDiscoverFilters { it.copy(sort = event.sort) }
+            SearchEvent.ClearDiscoverFilters -> updateDiscoverFilters { it.copy(yearRange = null, minRating = null) }
             SearchEvent.LoadNextDiscoverResults -> loadNextDiscoverResults()
             SearchEvent.RetryDiscover -> fetchDiscoverContent(reset = true)
             SearchEvent.Retry -> {
@@ -1102,253 +1136,251 @@ class SearchViewModel @Inject constructor(
                 }
         }
 
-        val selectedCatalog = resolveDiscoverCatalog(
-            catalogs = discoverCatalogs,
-            preferredKey = discoverSelectionDataStore.getSelectedCatalogKey(),
-            currentKey = _uiState.value.selectedDiscoverCatalogKey
-        )
-        val selectedType = selectedCatalog?.type ?: "movie"
-        val selectedGenre: String? = selectedCatalog.initialGenre()
+        val selectedType = resolveDiscoverType(
+            types = discoverTypes(discoverCatalogs),
+            preferredType = discoverSelectionDataStore.getSelectedType(),
+            currentType = _uiState.value.selectedDiscoverType
+        ) ?: "movie"
 
         _uiState.update {
             it.copy(
                 installedAddons = addons,
                 discoverCatalogs = discoverCatalogs,
                 selectedDiscoverType = selectedType,
-                selectedDiscoverCatalogKey = selectedCatalog?.key,
-                selectedDiscoverGenre = selectedGenre,
+                selectedDiscoverGenre = null,
                 discoverInitialized = true,
                 discoverLoading = false,
                 discoverResults = emptyList(),
-                pendingDiscoverResults = emptyList(),
-                discoverHasMore = true,
-                discoverPage = 1
+                discoverHasMore = true
             )
-        }
-        selectedCatalog?.let { catalog ->
-            viewModelScope.launch {
-                discoverSelectionDataStore.setSelectedCatalogKey(catalog.key)
-            }
         }
         fetchDiscoverContent(reset = true)
     }
 
     private fun selectDiscoverType(type: String) {
-        val catalogs = _uiState.value.discoverCatalogs
-        val selectedCatalog = pickDiscoverCatalog(
-            catalogs = catalogs,
-            selectedType = type,
-            preferredKey = _uiState.value.selectedDiscoverCatalogKey
-        )
-        val selectedGenre: String? = selectedCatalog.initialGenre()
-        _uiState.update {
-            it.copy(
-                selectedDiscoverType = type,
-                selectedDiscoverCatalogKey = selectedCatalog?.key,
-                selectedDiscoverGenre = selectedGenre,
-                discoverResults = emptyList(),
-                pendingDiscoverResults = emptyList(),
-                discoverPage = 1,
-                discoverHasMore = true
-            )
+        val state = _uiState.value
+        if (type == state.selectedDiscoverType) return
+        // Keep the genre when the new type's catalogs offer it too.
+        val genre = state.selectedDiscoverGenre?.takeIf { current ->
+            discoverGenres(state.discoverCatalogs, type).any { it.equals(current, ignoreCase = true) }
         }
-        selectedCatalog?.let { catalog ->
-            viewModelScope.launch {
-                discoverSelectionDataStore.setSelectedCatalogKey(catalog.key)
-            }
-        }
-        fetchDiscoverContent(reset = true)
-    }
-
-    private fun selectDiscoverCatalog(catalogKey: String) {
-        val catalog = _uiState.value.discoverCatalogs.firstOrNull { it.key == catalogKey } ?: return
-        _uiState.update {
-            it.copy(
-                selectedDiscoverCatalogKey = catalog.key,
-                selectedDiscoverType = catalog.type,
-                selectedDiscoverGenre = catalog.initialGenre(),
-                discoverResults = emptyList(),
-                pendingDiscoverResults = emptyList(),
-                discoverPage = 1,
-                discoverHasMore = true
-            )
-        }
+        _uiState.update { it.copy(selectedDiscoverType = type, selectedDiscoverGenre = genre) }
         viewModelScope.launch {
-            discoverSelectionDataStore.setSelectedCatalogKey(catalog.key)
+            discoverSelectionDataStore.setSelectedType(type)
         }
         fetchDiscoverContent(reset = true)
     }
 
     private fun selectDiscoverGenre(genre: String?) {
-        val catalog = _uiState.value.discoverCatalogs
-            .firstOrNull { it.key == _uiState.value.selectedDiscoverCatalogKey }
-        // A catalog that requires a genre has no "All"; keep its current genre.
-        if (genre == null && catalog?.genreRequired == true) return
-        _uiState.update {
-            it.copy(
-                selectedDiscoverGenre = genre,
-                discoverResults = emptyList(),
-                pendingDiscoverResults = emptyList(),
-                discoverPage = 1,
-                discoverHasMore = true
-            )
-        }
+        val normalized = genre?.takeIf { it.isNotBlank() }
+        if (normalized == _uiState.value.selectedDiscoverGenre) return
+        _uiState.update { it.copy(selectedDiscoverGenre = normalized) }
         fetchDiscoverContent(reset = true)
     }
 
-    private fun loadNextDiscoverResults() {
-        if (_uiState.value.pendingDiscoverResults.isNotEmpty()) {
-            showMoreDiscoverResults()
-        } else {
-            revealBatchAfterNextDiscoverFetch = true
-            loadMoreDiscoverResults()
-        }
-    }
-
-    private fun showMoreDiscoverResults() {
-        val pending = _uiState.value.pendingDiscoverResults
-        if (pending.isEmpty()) return
-        val nextBatch = pending.take(DISCOVER_SHOW_MORE_BATCH)
-        val remaining = pending.drop(DISCOVER_SHOW_MORE_BATCH)
+    /** Year, rating and sort run on the titles already loaded, so they apply without a request. */
+    private fun updateDiscoverFilters(transform: (DiscoverFilters) -> DiscoverFilters) {
+        val current = _uiState.value.discoverFilters
+        val next = transform(current)
+        if (next == current) return
+        discoverUnproductiveRounds = 0
         _uiState.update {
             it.copy(
-                discoverResults = it.discoverResults + nextBatch,
-                pendingDiscoverResults = remaining
+                discoverFilters = next,
+                discoverResults = applyDiscoverFilters(discoverMergedItems, next),
+                discoverPagingPaused = false
             )
+        }
+        // A narrower filter can leave the grid short; top it up from the catalogs still paging.
+        val state = _uiState.value
+        if (discoverJob?.isActive != true &&
+            state.discoverInitialized &&
+            state.discoverResults.size < DISCOVER_MIN_RESULTS &&
+            discoverCursors.any { it.hasMore }
+        ) {
+            fetchDiscoverContent(reset = false)
         }
     }
 
-    private fun loadMoreDiscoverResults() {
+    private fun loadNextDiscoverResults() {
         val state = _uiState.value
-        if (state.query.trim().isNotEmpty()) return
-        if (!state.discoverHasMore || state.discoverLoadingMore || state.pendingDiscoverResults.isNotEmpty()) return
+        if (state.discoverLoading || state.discoverLoadingMore) return
+        if (discoverCursors.none { it.hasMore }) return
+        // Scroll paging never asks while paused, so a request now is the Load more cell resuming it.
+        if (state.discoverPagingPaused) discoverUnproductiveRounds = 0
         fetchDiscoverContent(reset = false)
     }
 
+    /**
+     * Loads Discover from every catalog of the selected type (and genre) at once. [reset] starts
+     * over from each catalog's first page; otherwise the next page comes from each catalog that has
+     * more. Either way, rounds repeat while the filtered grid is still short.
+     */
     private fun fetchDiscoverContent(reset: Boolean) {
+        if (!reset && discoverJob?.isActive == true) return
         discoverJob?.cancel()
         discoverJob = viewModelScope.launch {
             val state = _uiState.value
             if (state.query.trim().isNotEmpty()) return@launch
-            val selectedCatalog = state.discoverCatalogs.firstOrNull { it.key == state.selectedDiscoverCatalogKey }
-                ?: return@launch
-
             if (reset) {
-                revealBatchAfterNextDiscoverFetch = false
+                val sources = selectDiscoverSources(
+                    catalogs = state.discoverCatalogs,
+                    type = state.selectedDiscoverType,
+                    genre = state.selectedDiscoverGenre
+                )
+                discoverCursors = sources.map { DiscoverSourceCursor(catalog = it) }
+                discoverMergedItems = emptyList()
+                discoverUnproductiveRounds = 0
                 _uiState.update {
                     it.copy(
-                        discoverLoading = true,
+                        discoverLoading = sources.isNotEmpty(),
+                        discoverLoadingMore = false,
                         discoverResults = emptyList(),
-                        pendingDiscoverResults = emptyList(),
-                        discoverPage = 1,
-                        discoverHasMore = true,
+                        discoverSourceCount = sources.size,
+                        discoverHasMore = sources.isNotEmpty(),
                         discoverError = null,
-                        discoverLoadMoreFailed = false
+                        discoverPagingPaused = false
                     )
                 }
-            } else {
-                _uiState.update { it.copy(discoverLoadingMore = true, discoverLoadMoreFailed = false) }
+                if (sources.isEmpty()) return@launch
             }
 
-            val currentPage = if (reset) 1 else state.discoverPage + 1
-            val skip = if (currentPage <= 1) 0 else (currentPage - 1) * selectedCatalog.skipStep
-            val visibleCountBeforeRequest = state.discoverResults.size
-            val extraArgs = buildMap<String, String> {
-                putAll(selectedCatalog.requiredExtraArgs)
-                (state.selectedDiscoverGenre?.takeIf { it.isNotBlank() }
-                    ?: selectedCatalog.defaultGenre.takeIf { selectedCatalog.genreRequired })
-                    ?.let { put("genre", it) }
-            }
-
-            catalogRepository.getCatalog(
-                addonBaseUrl = selectedCatalog.addonBaseUrl,
-                addonId = selectedCatalog.addonId,
-                addonName = selectedCatalog.addonName,
-                catalogId = selectedCatalog.catalogId,
-                catalogName = selectedCatalog.catalogName,
-                type = selectedCatalog.type,
-                skip = skip,
-                skipStep = selectedCatalog.skipStep,
-                extraArgs = extraArgs,
-                supportsSkip = selectedCatalog.supportsSkip,
-                posterScreen = com.fetch.tv.core.poster.CustomPosterScreen.SEARCH
-            ).collect { result ->
-                if (_uiState.value.discoverLocation == DiscoverLocation.OFF) return@collect
-                when (result) {
-                    is NetworkResult.Success -> {
-                        val incoming = result.data.items
-                        val existing = if (reset) {
-                            emptyList()
-                        } else {
-                            _uiState.value.discoverResults + _uiState.value.pendingDiscoverResults
-                        }
-                        val existingKeys = existing.asSequence()
-                            .map { "${it.apiType}:${it.id}" }
-                            .toSet()
-                        val hasNewUniqueIncoming = incoming.any { item ->
-                            "${item.apiType}:${item.id}" !in existingKeys
-                        }
-                        val merged = if (reset) incoming else (existing + incoming)
-                        val rawDeduped = merged.distinctBy { "${it.apiType}:${it.id}" }
-                        val deduped = if (hideUnreleasedContent) {
-                            val today = LocalDate.now()
-                            rawDeduped.filterNot { it.isUnreleased(today) }
-                        } else {
-                            rawDeduped
-                        }
-                        val shouldRevealBatch = !reset && revealBatchAfterNextDiscoverFetch
-                        val visibleLimit = if (reset) {
-                            DISCOVER_INITIAL_LIMIT
-                        } else if (shouldRevealBatch) {
-                            (visibleCountBeforeRequest + DISCOVER_SHOW_MORE_BATCH)
-                                .coerceAtLeast(DISCOVER_INITIAL_LIMIT)
-                        } else {
-                            visibleCountBeforeRequest.coerceAtLeast(DISCOVER_INITIAL_LIMIT)
-                        }
-                        val visible = deduped.take(visibleLimit)
-                        val pending = deduped.drop(visibleLimit)
-                        val shouldStopPagination = !reset && !hasNewUniqueIncoming
-                        _uiState.update {
-                            it.copy(
-                                discoverLoading = false,
-                                discoverLoadingMore = false,
-                                discoverResults = visible,
-                                pendingDiscoverResults = pending,
-                                discoverHasMore = if (shouldStopPagination) false else result.data.hasMore,
-                                discoverPage = if (shouldStopPagination) it.discoverPage else currentPage,
-                                discoverError = null,
-                                discoverLoadMoreFailed = false
-                            )
-                        }
-                        revealBatchAfterNextDiscoverFetch = false
-                    }
-                    is NetworkResult.Error -> {
-                        revealBatchAfterNextDiscoverFetch = false
-                        // A failed page says nothing about whether the catalog has more, so
-                        // discoverHasMore is left alone: a timeout must not end pagination for
-                        // good. A first-page failure shows an error with Retry, not "No content".
-                        _uiState.update {
-                            it.copy(
-                                discoverLoading = false,
-                                discoverLoadingMore = false,
-                                discoverError = if (reset) result.message else it.discoverError,
-                                discoverLoadMoreFailed = !reset
-                            )
-                        }
-                    }
-                    NetworkResult.Loading -> Unit
+            var firstRound = reset
+            var fillRounds = 0
+            while (true) {
+                if (!firstRound) {
+                    _uiState.update { it.copy(discoverLoadingMore = true, discoverPagingPaused = false) }
                 }
+                val keepFilling = runDiscoverRound(firstRound = firstRound, genre = state.selectedDiscoverGenre)
+                firstRound = false
+                if (!keepFilling || ++fillRounds > DISCOVER_MAX_FILL_ROUNDS) break
             }
         }
     }
 
-    private fun pickDiscoverCatalog(
-        catalogs: List<DiscoverCatalog>,
-        selectedType: String,
-        preferredKey: String?
-    ): DiscoverCatalog? {
-        val filtered = catalogs.filter { it.type == selectedType }
-        return filtered.firstOrNull { it.key == preferredKey } ?: filtered.firstOrNull()
+    /**
+     * Fetches one page from every catalog that has more, appends them in catalog order, and
+     * re-applies the filters. Returns whether the grid is still short and another round should run.
+     */
+    private suspend fun runDiscoverRound(firstRound: Boolean, genre: String?): Boolean {
+        val cursors = discoverCursors
+        val activeIndices = cursors.indices.filter { cursors[it].hasMore }
+        if (activeIndices.isEmpty()) {
+            _uiState.update {
+                it.copy(discoverLoading = false, discoverLoadingMore = false, discoverHasMore = false)
+            }
+            return false
+        }
+
+        val results = coroutineScope {
+            activeIndices.map { index -> async { fetchDiscoverPage(cursors[index], genre) } }.awaitAll()
+        }
+        if (_uiState.value.discoverLocation == DiscoverLocation.OFF) return false
+
+        val mergedBefore = discoverMergedItems
+        val seenBefore = mergedBefore.mapTo(HashSet()) { discoverItemKey(it) }
+        val nextCursors = cursors.toMutableList()
+        val pages = ArrayList<List<MetaPreview>>(activeIndices.size)
+        var successes = 0
+        var firstError: String? = null
+        activeIndices.forEachIndexed { position, index ->
+            val cursor = cursors[index]
+            when (val result = results[position]) {
+                is NetworkResult.Success -> {
+                    successes++
+                    val row = result.data
+                    // Results from several addons share one grid, so each title keeps its own source.
+                    val items = row.items.map { item ->
+                        if (item.sourceAddonBaseUrl == null) {
+                            item.copy(sourceAddonBaseUrl = cursor.catalog.addonBaseUrl)
+                        } else {
+                            item
+                        }
+                    }
+                    val addsNew = items.any { discoverItemKey(it) !in seenBefore }
+                    nextCursors[index] = cursor.copy(
+                        nextSkip = row.nextSkip,
+                        // A page with nothing new (an addon ignoring skip) ends that catalog.
+                        hasMore = row.hasMore && addsNew && row.nextSkip > cursor.nextSkip,
+                        failures = 0
+                    )
+                    pages.add(items)
+                }
+                is NetworkResult.Error -> {
+                    if (firstError == null) firstError = result.message
+                    // A failed page says nothing about whether the catalog has more, so it gets
+                    // another try next round, but a catalog that keeps failing is left out.
+                    val failures = cursor.failures + 1
+                    nextCursors[index] = cursor.copy(
+                        failures = failures,
+                        hasMore = failures < DISCOVER_MAX_SOURCE_FAILURES
+                    )
+                }
+                NetworkResult.Loading -> Unit
+            }
+        }
+        discoverCursors = nextCursors
+
+        val releasedPages = if (hideUnreleasedContent) {
+            val today = LocalDate.now()
+            pages.map { page -> page.filterNot { it.isUnreleased(today) } }
+        } else {
+            pages
+        }
+        discoverMergedItems = appendDiscoverRound(mergedBefore, releasedPages)
+
+        val previousVisible = _uiState.value.discoverResults.size
+        val visible = applyDiscoverFilters(discoverMergedItems, _uiState.value.discoverFilters)
+        val hasMore = nextCursors.any { it.hasMore }
+        val allFailed = successes == 0
+        if (!firstRound) {
+            if (visible.size > previousVisible) discoverUnproductiveRounds = 0 else discoverUnproductiveRounds++
+        }
+        val paused = hasMore && (allFailed || discoverUnproductiveRounds >= DISCOVER_MAX_UNPRODUCTIVE_ROUNDS)
+        val error = firstError
+        _uiState.update {
+            it.copy(
+                discoverLoading = false,
+                discoverLoadingMore = false,
+                discoverResults = visible,
+                discoverHasMore = hasMore,
+                // Only a first page that failed everywhere is an error screen; a later failure
+                // keeps the grid and pauses paging instead.
+                discoverError = if (firstRound && allFailed) error else null,
+                discoverPagingPaused = paused
+            )
+        }
+        return hasMore && !paused && visible.size < DISCOVER_MIN_RESULTS
+    }
+
+    private suspend fun fetchDiscoverPage(
+        cursor: DiscoverSourceCursor,
+        genre: String?
+    ): NetworkResult<CatalogRow> {
+        val catalog = cursor.catalog
+        val extraArgs = buildMap<String, String> {
+            putAll(catalog.requiredExtraArgs)
+            discoverGenreArg(catalog, genre)?.let { put("genre", it) }
+        }
+        return try {
+            catalogRepository.getCatalog(
+                addonBaseUrl = catalog.addonBaseUrl,
+                addonId = catalog.addonId,
+                addonName = catalog.addonName,
+                catalogId = catalog.catalogId,
+                catalogName = catalog.catalogName,
+                type = catalog.type,
+                skip = cursor.nextSkip,
+                skipStep = catalog.skipStep,
+                extraArgs = extraArgs,
+                supportsSkip = catalog.supportsSkip,
+                posterScreen = com.fetch.tv.core.poster.CustomPosterScreen.SEARCH
+            ).first { it !is NetworkResult.Loading }
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            NetworkResult.Error(context.getString(R.string.search_error_failed))
+        }
     }
 
     private fun buildSearchTargets(addons: List<Addon>): List<Pair<Addon, CatalogDescriptor>> {
@@ -1376,12 +1408,3 @@ class SearchViewModel @Inject constructor(
         return catalogRowStableKey(addonId, addonBaseUrl, type, catalogId)
     }
 }
-
-internal fun resolveDiscoverCatalog(
-    catalogs: List<DiscoverCatalog>,
-    preferredKey: String?,
-    currentKey: String?
-): DiscoverCatalog? =
-    catalogs.firstOrNull { it.key == preferredKey }
-        ?: catalogs.firstOrNull { it.key == currentKey }
-        ?: catalogs.firstOrNull()

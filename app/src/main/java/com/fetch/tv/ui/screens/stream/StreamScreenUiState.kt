@@ -35,6 +35,11 @@ data class StreamScreenUiState(
     val filteredStreams: List<Stream> = emptyList(),
     /** Why Best match passed over a stream, keyed by [Stream.stableKey]; empty outside Best match. */
     val streamExclusions: Map<String, com.fetch.tv.core.streams.ranking.ExclusionReason> = emptyMap(),
+    /**
+     * How Best match scored each stream on the All tab, keyed by [Stream.stableKey], so each row
+     * can say what put it where it is. Empty outside Best match and on addon tabs.
+     */
+    val rankedStreams: Map<String, com.fetch.tv.core.streams.ranking.RankedStream> = emptyMap(),
     /** True when the All tab is ordered by Best match, so its first stream is the pick. */
     val bestMatchFirst: Boolean = false,
     val availableAddons: List<String> = emptyList(),

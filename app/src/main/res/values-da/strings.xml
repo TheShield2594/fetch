@@ -705,10 +705,6 @@
     <string name="layout_show_full_release_date_sub">For film, vis fuld udgivelsesdato i stedet for kun årstal.</string>
     <string name="layout_section_focused">Fokuseret poster</string>
     <string name="layout_section_focused_desc">Avanceret adfærd for fokuserede posterkort.</string>
-    <string name="layout_expand_poster">Udvid fokuseret poster til baggrundsbillede</string>
-    <string name="layout_expand_poster_sub">Udvid fokuseret poster efter inaktivitetsforsinkelse.</string>
-    <string name="layout_expand_delay">Forsinkelse for udvidelse af baggrundsbilled</string>
-    <string name="layout_expand_delay_sub">Hvor længe der skal ventes før fokuserede kort udvides.</string>
     <string name="layout_autoplay_trailer">Afspil trailer automatisk</string>
     <string name="layout_autoplay_trailer_sub">Afspil trailer-forhåndsvisning for fokuseret indhold når tilgængeligt.</string>
     <string name="layout_trailer_muted">Afspil trailer uden lyd</string>
@@ -717,10 +713,6 @@
     <string name="layout_section_card_style_desc">Justér kortbredde og hjørneradius.</string>
     <string name="layout_open">Åben</string>
     <string name="layout_closed">Lukket</string>
-    <string name="layout_trailer_location">Moderne trailer-afspilningsplacering</string>
-    <string name="layout_trailer_location_sub">Vælg hvor trailer-forhåndsvisning afspilles i Moderne Hjem.</string>
-    <string name="layout_trailer_expanded_card">Udvidet kort</string>
-    <string name="layout_trailer_hero_media">Hero-medie</string>
     <string name="layout_preset_compact">Kompakt</string>
     <string name="layout_preset_dense">Tæt</string>
     <string name="layout_preset_standard">Standard</string>
@@ -1298,12 +1290,7 @@
     <string name="discover_title">Opdag</string>
     <string name="discover_load_more">Indlæs mere</string>
     <string name="discover_loading">Indlæser...</string>
-    <string name="discover_filter_type">Type</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Genre</string>
-    <string name="discover_select_catalog">Vælg</string>
-    <string name="discover_empty_no_catalog_title">Vælg et katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Vælg et opdagelseskatalog at gennemse</string>
     <string name="discover_empty_no_content_title">Intet indhold fundet</string>
     <string name="discover_empty_no_content_subtitle">Prøv en anden genre eller et andet katalog</string>
 

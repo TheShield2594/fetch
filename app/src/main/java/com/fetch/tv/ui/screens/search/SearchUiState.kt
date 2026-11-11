@@ -35,19 +35,23 @@ data class SearchUiState(
     val discoverLoadingMore: Boolean = false,
     val discoverCatalogs: List<DiscoverCatalog> = emptyList(),
     val selectedDiscoverType: String = "movie",
-    val selectedDiscoverCatalogKey: String? = null,
     val selectedDiscoverGenre: String? = null,
+    /** Year, rating and sort, applied to the merged catalog items on the device. */
+    val discoverFilters: DiscoverFilters = DiscoverFilters(),
+    /** How many catalogs the current Discover results are merged from. */
+    val discoverSourceCount: Int = 0,
+    /** Merged, filtered and sorted results across every catalog of the selected type. */
     val discoverResults: List<MetaPreview> = emptyList(),
-    val pendingDiscoverResults: List<MetaPreview> = emptyList(),
+    /** At least one catalog can still page further. */
     val discoverHasMore: Boolean = true,
-    val discoverPage: Int = 1,
-    /** The first page of the selected catalog failed to load; shown with a Retry instead of "No content". */
+    /** Every catalog failed on the first page; shown with a Retry instead of "No content". */
     val discoverError: String? = null,
     /**
-     * The last load-more page failed. Pagination stays open (a Load more cell still shows), but
-     * infinite scroll stops auto-requesting so an offline grid doesn't retry in a tight loop.
+     * Scroll paging has stopped asking on its own: the last page failed everywhere, or several
+     * pages in a row added nothing that passes the filters. A Load more cell resumes it, so an
+     * offline grid or a narrow filter doesn't page through every catalog in a tight loop.
      */
-    val discoverLoadMoreFailed: Boolean = false,
+    val discoverPagingPaused: Boolean = false,
     val posterLabelsEnabled: Boolean = true,
     val catalogAddonNameEnabled: Boolean = true,
     val catalogTypeSuffixEnabled: Boolean = true,
@@ -81,14 +85,11 @@ data class DiscoverCatalog(
     val genres: List<String>,
     val supportsSkip: Boolean,
     val skipStep: Int,
-    /** The catalog can't be browsed without a genre, so Discover offers no "All" for it. */
+    /** The catalog can't be browsed without a genre, so Discover only asks it for a genre it lists. */
     val genreRequired: Boolean = false,
-    /** Genre to start on when [genreRequired]: the manifest default, else the first option. */
+    /** Genre sent when [genreRequired] and none is chosen: the manifest default, else the first option. */
     val defaultGenre: String? = null,
     /** Values for any other required extras, sent with every request. */
     val requiredExtraArgs: Map<String, String> = emptyMap()
 )
 
-/** The genre to select when switching to this catalog: none, unless it requires one. */
-internal fun DiscoverCatalog?.initialGenre(): String? =
-    if (this?.genreRequired == true) defaultGenre else null

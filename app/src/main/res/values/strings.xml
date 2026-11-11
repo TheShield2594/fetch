@@ -585,7 +585,11 @@
     <string name="tracking_trakt_progress_required">Available when Trakt is the Watch Progress source</string>
     <string name="trakt_name">Trakt</string>
     <string name="simkl_name">Simkl</string>
-    <string name="settings_advanced">Advanced</string>
+    <string name="settings_advanced">Advanced settings</string>
+    <string name="settings_tabs_addons">Addons &amp; servers</string>
+    <string name="settings_tabs_metadata">Metadata &amp; ratings</string>
+    <string name="settings_tabs_home">Home rows &amp; layout</string>
+    <string name="settings_tabs_accounts">Accounts &amp; tracking</string>
     <string name="settings_advanced_subtitle">Performance, navigation, cache, and diagnostics</string>
     <string name="experience_mode_essential">Essential</string>
     <string name="experience_mode_advanced">Advanced</string>
@@ -614,13 +618,13 @@
     <string name="essential_audio_language_subtitle">Preferred audio language.</string>
     <!-- Account / sign-in error messages -->
     <string name="account_error_generic_retry">Something went wrong. Please try again.</string>
-    <string name="experience_mode_switch_to_essential">Switch to Essential</string>
+    <string name="experience_mode_switch_to_essential">Hide advanced settings</string>
     <string name="experience_mode_switch_to_essential_subtitle">Hide advanced setup surfaces without changing your saved values.</string>
-    <string name="experience_mode_switch_to_advanced">Switch to Advanced</string>
-    <string name="experience_mode_switch_to_advanced_header_subtitle">Switch to Advanced for the full settings surface.</string>
+    <string name="experience_mode_switch_to_advanced">Show advanced settings</string>
+    <string name="experience_mode_switch_to_advanced_header_subtitle">A separate layer for tuning, integrations and diagnostics. Your settings stay as they are either way.</string>
     <string name="experience_mode_switch_to_advanced_subtitle">Show full layout, plug-in, integration, catalog, collection, and tuning settings.</string>
-    <string name="experience_mode_confirm_essential_title">Switch to Essential?</string>
-    <string name="experience_mode_confirm_advanced_title">Switch to Advanced?</string>
+    <string name="experience_mode_confirm_essential_title">Hide advanced settings?</string>
+    <string name="experience_mode_confirm_advanced_title">Show advanced settings?</string>
     <string name="experience_mode_confirm_essential_subtitle">Advanced setup surfaces will be hidden, but your saved settings stay unchanged. You can switch back anytime.</string>
     <string name="experience_mode_confirm_advanced_subtitle">This reveals the full settings surface, including advanced setup, catalog, collection, and tuning controls.</string>
     <string name="network_speed_test_run">Run Speed Test</string>
@@ -1011,9 +1015,6 @@
     <string name="layout_next_up_furthest_episode_sub">Show next episode based on the furthest watched episode. Disable for rewatches to use the most recently watched episode instead.</string>
     <string name="layout_show_unaired_next_up">Show Unaired Next Up Episodes</string>
     <string name="layout_show_unaired_next_up_sub">Include upcoming episodes in Continue Watching before they air.</string>
-    <string name="layout_cw_card_style_card">Card</string>
-    <string name="layout_cw_card_style_wide">Wide</string>
-    <string name="layout_cw_card_style_poster">Poster</string>
     <string name="layout_cw_sort_mode">Sort Order</string>
     <string name="layout_cw_sort_mode_sub">How Continue Watching items are arranged</string>
     <string name="layout_cw_sort_default">Default</string>
@@ -1040,10 +1041,6 @@
     <string name="layout_show_full_release_date_sub">For movies, show full release date instead of year only.</string>
     <string name="layout_section_focused">Focused Poster</string>
     <string name="layout_section_focused_desc">Advanced behavior for focused poster cards.</string>
-    <string name="layout_expand_poster">Expand Focused Poster to Backdrop</string>
-    <string name="layout_expand_poster_sub">Expand focused poster after idle delay.</string>
-    <string name="layout_expand_delay">Backdrop Expand Delay</string>
-    <string name="layout_expand_delay_sub">How long to wait before expanding focused cards.</string>
     <string name="layout_autoplay_trailer">Autoplay Trailer</string>
     <string name="layout_autoplay_trailer_sub">Play trailer preview for focused content when available.</string>
     <string name="layout_trailer_crop_to_fill">Crop trailers to fill</string>
@@ -1055,10 +1052,6 @@
     <string name="layout_custom_poster_apply_to">Apply to</string>
     <string name="layout_open">Open</string>
     <string name="layout_closed">Closed</string>
-    <string name="layout_trailer_location">Modern Trailer Playback Location</string>
-    <string name="layout_trailer_location_sub">Choose where trailer preview plays in Modern Home.</string>
-    <string name="layout_trailer_expanded_card">Expanded Card</string>
-    <string name="layout_trailer_hero_media">Hero Media</string>
     <string name="layout_preset_compact">Compact</string>
     <string name="layout_preset_dense">Dense</string>
     <string name="layout_preset_standard">Standard</string>
@@ -2043,13 +2036,31 @@
     <string name="discover_title">Discover</string>
     <string name="discover_load_more">Load more</string>
     <string name="discover_loading">Loading…</string>
-    <string name="discover_filter_type">Type</string>
-    <string name="discover_filter_catalog">Catalog</string>
     <string name="discover_filter_genre">Genre</string>
-    <string name="discover_select_catalog">Select</string>
+    <string name="discover_filter_year">Year</string>
+    <string name="discover_filter_rating">Rating</string>
+    <string name="discover_filter_sort">Sort</string>
     <string name="discover_genre_default">All genres</string>
-    <string name="discover_empty_no_catalog_title">Select a catalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Choose a discover catalog to browse</string>
+    <string name="discover_year_any">Any year</string>
+    <!-- A decade, e.g. "2020s". %1$d is the decade's first year. -->
+    <string name="discover_year_decade">%1$ds</string>
+    <string name="discover_year_before">Before %1$d</string>
+    <string name="discover_rating_any">Any rating</string>
+    <!-- Lowest IMDb rating kept, e.g. "7+". -->
+    <string name="discover_rating_min">%1$d+</string>
+    <string name="discover_sort_catalog">Catalog order</string>
+    <string name="discover_sort_rating">Highest rated</string>
+    <string name="discover_sort_newest">Newest</string>
+    <string name="discover_sort_title">Title A–Z</string>
+    <plurals name="discover_source_count">
+        <item quantity="one">From %d catalog</item>
+        <item quantity="other">From %d catalogs</item>
+    </plurals>
+    <string name="discover_clear_filters">Clear filters</string>
+    <string name="discover_empty_filtered_title">Nothing matches these filters</string>
+    <string name="discover_empty_filtered_subtitle">Try a wider year range or a lower rating</string>
+    <string name="discover_empty_no_catalogs_title">No catalogs to browse</string>
+    <string name="discover_empty_no_catalogs_subtitle">Install an addon with catalogs to browse them here</string>
     <string name="discover_empty_no_content_title">No content found</string>
     <string name="discover_empty_no_content_subtitle">Try a different genre or catalog</string>
 
@@ -2851,6 +2862,14 @@
     <string name="web_stream_badge_error_import_limit">You can import up to %1$d badge URLs.</string>
 
     <!-- Playback — Buffer & Network settings -->
+    <string name="playback_page_player">Player &amp; network</string>
+    <string name="playback_page_player_desc">Default player and engine, skip segments, buffering and network.</string>
+    <string name="playback_page_streams">Streams &amp; auto-play</string>
+    <string name="playback_page_streams_desc">Stream ranking and auto-play, and what plays next.</string>
+    <string name="playback_page_audio_subtitles">Audio &amp; subtitles</string>
+    <string name="playback_page_audio_subtitles_desc">Languages, audio output, and subtitle style and rendering.</string>
+    <string name="playback_page_video">Video &amp; display</string>
+    <string name="playback_page_video_desc">Frame rate, HDR and Dolby Vision, decoding, and the player\'s overlays.</string>
     <string name="playback_section_buffer_network">Buffer &amp; Network</string>
     <string name="playback_section_buffer_network_desc">How much content to keep in memory and how to fetch streams.</string>
     <string name="playback_net_device_memory_info">Device Memory: %1$s | Recommended Safety Limit: %2$d MB</string>
@@ -3119,6 +3138,32 @@
     <string name="source_rule_prefer_addon">Prefer %1$s</string>
     <string name="source_rule_never_group">Never play %1$s releases</string>
     <string name="source_rule_never_saved">Best match will skip %1$s releases</string>
+    <!-- Source list: why Best match ordered two sources. %1$s is a rank_factor_* phrase. -->
+    <string name="source_why_pick">Why this one: beats the next best on %1$s</string>
+    <string name="source_why_behind">Behind the source above on %1$s</string>
+    <string name="source_why_ahead">Ahead of the source above on %1$s</string>
+    <string name="rank_factor_own_library">your own library</string>
+    <string name="rank_factor_debrid_cached">debrid cache</string>
+    <string name="rank_factor_resolution">resolution</string>
+    <string name="rank_factor_codec">preferred codec</string>
+    <string name="rank_factor_hdr">HDR this TV can show</string>
+    <string name="rank_factor_audio">audio</string>
+    <string name="rank_factor_keyword">preferred keyword</string>
+    <string name="rank_factor_language">preferred language</string>
+    <string name="rank_factor_release_group">preferred release group</string>
+    <string name="rank_factor_addon">preferred addon</string>
+    <string name="rank_factor_release_source">release source</string>
+    <string name="rank_factor_size">file size</string>
+    <string name="rank_factor_seeders">seeders</string>
+    <string name="rank_factor_addon_order">addon order (otherwise a tie)</string>
+    <!-- A factor with this source's value and the other source's: "resolution (1080p vs 4K)". -->
+    <string name="rank_factor_versus">%1$s (%2$s vs %3$s)</string>
+    <!-- What Best match ranked for: the screen and audio chain. %1$s joins the parts below with " · ". -->
+    <string name="source_setup">Your setup: %1$s</string>
+    <string name="source_setup_max_resolution">up to %1$s</string>
+    <string name="source_setup_sdr">SDR only</string>
+    <string name="source_setup_passthrough">passthrough %1$s</string>
+    <string name="source_setup_no_passthrough">audio decoded on this TV</string>
     <string name="playback_details_refresh_matched">Matched %1$s</string>
     <string name="playback_details_refresh_display">Display %1$s</string>
     <string name="playback_details_audio_passthrough">Audio passthrough</string>

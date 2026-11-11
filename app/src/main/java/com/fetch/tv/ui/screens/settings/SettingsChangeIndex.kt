@@ -53,7 +53,7 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     add(rule(player, R.string.playback_external_forward_subtitles) { it.externalPlayerForwardSubtitles })
     add(rule(player, R.string.playback_external_send_skip_segments) { it.externalPlayerSendSkipSegments })
 
-    val streams = SettingsCategory.PLAYBACK_STREAM_SELECTION
+    val streams = SettingsCategory.PLAYBACK_STREAMS
     add(rule(streams, R.string.autoplay_stream_selection) { it.streamAutoPlayMode })
     add(rule(streams, R.string.autoplay_start_early_title) { it.streamAutoPlayStartEarly })
     add(rule(streams, R.string.best_match_preview_title) { it.bestMatchPreviewEnabled })
@@ -85,7 +85,7 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     add(rule(streams, R.string.ranking_hide_cam) { it.streamRankingRules.excludeCamAndTelesync })
     add(rule(streams, R.string.ranking_drop_undecodable) { it.streamRankingRules.dropUndecodable })
 
-    val upNext = SettingsCategory.PLAYBACK_UP_NEXT
+    val upNext = SettingsCategory.PLAYBACK_STREAMS
     add(rule(upNext, R.string.autoplay_next_episode) { it.streamAutoPlayNextEpisodeEnabled })
     add(rule(upNext, R.string.autoplay_next_episode_fallback) { it.streamAutoPlayNextEpisodeFallbackEnabled })
     add(rule(upNext, R.string.autoplay_countdown_title) { it.autoPlayCountdownSeconds })
@@ -99,14 +99,14 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     add(rule(upNext, R.string.autoplay_post_play_recommendations) { it.postPlayRecommendationsEnabled })
     add(rule(upNext, R.string.autoplay_post_play_movie_threshold) { it.postPlayMovieThresholdPercent })
 
-    val skip = SettingsCategory.PLAYBACK_SKIP_SEGMENTS
+    val skip = SettingsCategory.PLAYBACK_PLAYER
     add(rule(skip, R.string.playback_skip_intro) { it.skipIntroEnabled })
     add(rule(skip, R.string.auto_skip_intro) { AutoSkipSegmentType.INTRO in it.autoSkipSegmentTypes })
     add(rule(skip, R.string.auto_skip_recap) { AutoSkipSegmentType.RECAP in it.autoSkipSegmentTypes })
     add(rule(skip, R.string.auto_skip_outro) { AutoSkipSegmentType.OUTRO in it.autoSkipSegmentTypes })
     add(rule(skip, R.string.auto_skip_movie_credits) { AutoSkipSegmentType.MOVIE_CREDITS in it.autoSkipSegmentTypes })
 
-    val ui = SettingsCategory.PLAYBACK_PLAYER_INTERFACE
+    val ui = SettingsCategory.PLAYBACK_VIDEO
     add(rule(ui, R.string.playback_loading_overlay) { it.loadingOverlayEnabled })
     add(rule(ui, R.string.playback_show_loading_status) { it.showPlayerLoadingStatus })
     add(rule(ui, R.string.playback_pause_overlay) { it.pauseOverlayEnabled })
@@ -116,9 +116,13 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     add(rule(ui, R.string.playback_controls_auto_hide) { it.controlsAutoHideSeconds })
     add(rule(ui, R.string.playback_parental_guide) { it.parentalGuideEnabled })
 
-    val audio = SettingsCategory.PLAYBACK_AUDIO
+    val audio = SettingsCategory.PLAYBACK_AUDIO_SUBTITLES
     add(rule(audio, R.string.audio_preferred_lang) { it.preferredAudioLanguage })
-    add(rule(audio, R.string.sub_secondary_lang) { it.secondaryPreferredAudioLanguage })
+    // Audio and subtitles each have a "Secondary language" row, and the page holds both, so one
+    // rule covers the title for the two.
+    add(rule(audio, R.string.sub_secondary_lang) {
+        it.secondaryPreferredAudioLanguage to it.subtitleStyle.secondaryPreferredLanguage
+    })
     add(rule(audio, R.string.audio_skip_silence) { it.skipSilence })
     add(rule(audio, R.string.audio_remember_delay_per_device) { it.rememberAudioDelayPerDevice })
     add(rule(audio, R.string.audio_decoder_priority) { it.decoderPriority })
@@ -128,11 +132,10 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     add(rule(audio, R.string.audio_tunneled) { it.tunnelingEnabled })
     add(rule(audio, R.string.audio_force_optical_passthrough) { it.forceOpticalPassthrough })
 
-    val subtitles = SettingsCategory.PLAYBACK_SUBTITLES
+    val subtitles = SettingsCategory.PLAYBACK_AUDIO_SUBTITLES
     add(rule(subtitles, R.string.sub_preferred_lang) {
         it.subtitleStyle.preferredLanguage to it.subtitleStyle.isPreferredLanguageSystemDefault
     })
-    add(rule(subtitles, R.string.sub_secondary_lang) { it.subtitleStyle.secondaryPreferredLanguage })
     add(rule(subtitles, R.string.sub_use_forced_subtitles) { it.subtitleStyle.useForcedSubtitles })
     add(rule(subtitles, R.string.sub_show_only_preferred_languages) { it.subtitleStyle.showOnlyPreferredLanguages })
     add(rule(subtitles, R.string.sub_strip_sdh) { it.subtitleStyle.stripSdh })
@@ -159,7 +162,7 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     add(rule(video, R.string.audio_mpv_hwdec_title) { it.mpvHardwareDecodeMode })
     add(rule(video, R.string.audio_mpv_hi10p_gnext_sw_title) { it.mpvHi10pGnextSoftwareFallbackEnabled })
 
-    val buffer = SettingsCategory.PLAYBACK_BUFFER_NETWORK
+    val buffer = SettingsCategory.PLAYBACK_PLAYER
     add(rule(buffer, R.string.playback_net_fetch_performance_mode) { it.fetchPerformanceModeEnabled })
     add(rule(buffer, R.string.playback_buffer_custom) { it.bufferEngineEnabled })
     add(rule(buffer, R.string.playback_net_custom) { it.parallelNetworkEnabled })

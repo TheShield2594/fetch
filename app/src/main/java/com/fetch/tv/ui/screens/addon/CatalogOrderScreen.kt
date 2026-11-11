@@ -58,6 +58,7 @@ import com.fetch.tv.ui.screens.settings.SettingsToggleRow
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import kotlinx.coroutines.launch
+import com.fetch.tv.ui.util.dpadRepeatThrottle
 
 /**
  * Customise Home: every row Home shows (addon catalogs, folders and filter rows), to reorder,
@@ -96,11 +97,11 @@ fun CatalogOrderScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = FetchTheme.spacing.xxxl, vertical = FetchTheme.spacing.xl)
+            .padding(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.screen.vertical)
     ) {
         LazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().dpadRepeatThrottle(),
             contentPadding = PaddingValues(bottom = FetchTheme.spacing.xl),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
         ) {

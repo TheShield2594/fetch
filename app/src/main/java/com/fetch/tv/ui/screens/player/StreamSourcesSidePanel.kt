@@ -59,6 +59,7 @@ import com.fetch.tv.R
 import com.fetch.tv.ui.screens.stream.StreamCard
 import com.fetch.tv.ui.util.localizeEpisodeTitle
 import androidx.compose.ui.platform.LocalContext
+import com.fetch.tv.ui.util.dpadRepeatThrottle
 
 @Composable
 internal fun StreamSourcesSidePanel(
@@ -360,7 +361,6 @@ internal fun StreamSourcesSidePanel(
                         currentStreamName = uiState.currentStreamName
                     )
 
-                    val lastKeyRepeatDispatchRef = remember { java.util.concurrent.atomic.AtomicLong(0L) }
 
                     val lastVisibleIndex = remember(streamListState) {
                         androidx.compose.runtime.derivedStateOf {
@@ -385,15 +385,9 @@ internal fun StreamSourcesSidePanel(
                         modifier = Modifier
                             .fillMaxHeight()
                             .onFocusChanged { listHasFocus = it.hasFocus }
+                            .dpadRepeatThrottle(moveFocusOnRepeat = false)
                             .onKeyEvent { event ->
                                 if (event.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) return@onKeyEvent false
-
-                                // Throttle rapid key repeats (long-press)
-                                if (event.nativeKeyEvent.repeatCount > 0) {
-                                    val now = android.os.SystemClock.uptimeMillis()
-                                    if (now - lastKeyRepeatDispatchRef.get() < 112L) return@onKeyEvent true
-                                    lastKeyRepeatDispatchRef.set(now)
-                                }
 
                                 if (event.key == Key.DirectionDown) {
                                     userMovedFromFirstResult = true

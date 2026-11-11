@@ -222,7 +222,7 @@ fun CatalogSeeAllScreen(
             .padding(vertical = FetchTheme.spacing.xl)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = FetchTheme.spacing.xxxl),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = FetchTheme.spacing.screen.horizontal),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -235,7 +235,7 @@ fun CatalogSeeAllScreen(
         if (uiState.catalogAddonNameEnabled) {
             catalogRow?.addonName?.let { addonName ->
                 Text(
-                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl),
+                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal),
                     text = stringResource(R.string.catalog_see_all_from, addonName),
                     style = MaterialTheme.typography.bodyMedium,
                     color = FetchTheme.colors.TextSecondary
@@ -265,8 +265,8 @@ fun CatalogSeeAllScreen(
                     ),
                     modifier = Modifier.dpadRepeatThrottle(),
                     contentPadding = PaddingValues(
-                        start = FetchTheme.spacing.xxxl,
-                        end = FetchTheme.spacing.xxxl,
+                        start = FetchTheme.spacing.screen.horizontal,
+                        end = FetchTheme.spacing.screen.horizontal,
                         top = FetchTheme.spacing.md,
                         bottom = FetchTheme.spacing.xxl
                     ),
@@ -375,7 +375,7 @@ fun CatalogSeeAllScreen(
             PosterGridSkeleton(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = FetchTheme.spacing.xxxl, top = FetchTheme.spacing.md),
+                    .padding(start = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.md),
                 cardWidth = posterCardStyle.width,
                 cardHeight = posterCardStyle.height
             )

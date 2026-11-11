@@ -722,7 +722,7 @@ fun SearchScreen(
                             onSectionFocusChanged = { focused -> isRecentSearchSectionFocused = focused },
                             clearHistoryFocusRequester = recentClearHistoryFocusRequester,
                             emptyHistoryFocusRequester = searchFocusRequester,
-                            modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl)
+                            modifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)
                         )
                     }
                 } else {
@@ -755,7 +755,7 @@ fun SearchScreen(
                                     },
                                     clearHistoryFocusRequester = recentClearHistoryFocusRequester,
                                     emptyHistoryFocusRequester = searchFocusRequester,
-                                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl)
+                                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)
                                 )
                             } else {
                                 EmptyScreenState(
@@ -859,7 +859,7 @@ fun SearchScreen(
                                     available = availableTypeFilters(resultTypeKeys, uiState.hasLibraryItems),
                                     onSelect = { filter -> viewModel.onEvent(SearchEvent.SelectTypeFilter(filter)) },
                                     upFocusRequester = searchFocusRequester,
-                                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl)
+                                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)
                                 )
                             }
                         }
@@ -895,7 +895,7 @@ fun SearchScreen(
                                         posterOptionsRowKey = SEARCH_TOP_RESULT_KEY
                                         viewModel.posterOptions.show(item, item.sourceAddonBaseUrl.orEmpty())
                                     },
-                                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl)
+                                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)
                                 )
                             }
                         }
@@ -1395,7 +1395,7 @@ private fun SearchInputField(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = FetchTheme.spacing.xxxl)
+            .padding(horizontal = FetchTheme.spacing.screen.horizontal)
             .focusGroup(),
         verticalAlignment = Alignment.CenterVertically
     ) {

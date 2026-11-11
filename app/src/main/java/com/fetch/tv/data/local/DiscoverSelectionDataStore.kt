@@ -14,21 +14,22 @@ class DiscoverSelectionDataStore @Inject constructor(
 ) {
     private companion object {
         const val FEATURE = "discover_selection"
-        val selectedCatalogKey = stringPreferencesKey("selected_catalog_key")
+        val selectedType = stringPreferencesKey("selected_type")
     }
 
     private fun store() = factory.get(profileManager.activeProfileId.value, FEATURE)
 
-    suspend fun getSelectedCatalogKey(): String? =
-        store().data.first()[selectedCatalogKey]
+    /** The content type Discover last browsed, e.g. "movie" or "series". */
+    suspend fun getSelectedType(): String? =
+        store().data.first()[selectedType]
             ?.trim()
             ?.takeIf { it.isNotEmpty() }
 
-    suspend fun setSelectedCatalogKey(catalogKey: String) {
-        val normalized = catalogKey.trim()
+    suspend fun setSelectedType(type: String) {
+        val normalized = type.trim()
         if (normalized.isEmpty()) return
         store().edit { preferences ->
-            preferences[selectedCatalogKey] = normalized
+            preferences[selectedType] = normalized
         }
     }
 }

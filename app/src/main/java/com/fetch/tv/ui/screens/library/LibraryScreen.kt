@@ -106,6 +106,7 @@ import com.fetch.tv.ui.components.StateAction
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.util.dpadRepeatThrottle
 import com.fetch.tv.ui.util.localizedContentType
 import com.fetch.tv.ui.util.localizedGenreLabel
 import androidx.compose.ui.res.stringResource
@@ -114,7 +115,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.platform.LocalConfiguration
 import com.fetch.tv.R
 
-private const val KEY_REPEAT_THROTTLE_MS = 80L
 
 private enum class LibraryViewMode {
     Saved,
@@ -274,7 +274,7 @@ fun LibraryScreen(
                     .semantics { contentDescription = syncingText }
             )
             Column(
-                modifier = Modifier.padding(start = FetchTheme.spacing.xxxl, top = FetchTheme.spacing.xl),
+                modifier = Modifier.padding(start = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.screen.vertical),
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
             ) {
                 Text(
@@ -289,7 +289,6 @@ fun LibraryScreen(
         return
     }
 
-    val lastKeyRepeatTime = remember { longArrayOf(0L) }
 
     val globalLandscape = com.fetch.tv.ui.components.LocalLandscapePosterMode.current
 
@@ -315,16 +314,10 @@ fun LibraryScreen(
                 if (native.action == AndroidKeyEvent.ACTION_DOWN && uiState.transientMessageDismissible) {
                     viewModel.onDismissReadError()
                 }
-                if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount > 0) {
-                    val now = System.currentTimeMillis()
-                    if (now - lastKeyRepeatTime[0] < KEY_REPEAT_THROTTLE_MS) {
-                        return@onPreviewKeyEvent true
-                    }
-                    lastKeyRepeatTime[0] = now
-                }
                 false
-            },
-        contentPadding = PaddingValues(start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl, top = FetchTheme.spacing.xl, bottom = FetchTheme.spacing.xxl),
+            }
+            .dpadRepeatThrottle(moveFocusOnRepeat = false),
+        contentPadding = PaddingValues(start = FetchTheme.spacing.screen.horizontal, end = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.screen.vertical, bottom = FetchTheme.spacing.xxl),
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
     ) {

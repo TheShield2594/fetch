@@ -675,10 +675,6 @@
     <string name="layout_show_full_release_date_sub">Zeigt für Filme vollständiges Erscheinungsdatum anstatt nur das Jahr.</string>
     <string name="layout_section_focused">Fokussiertes Poster</string>
     <string name="layout_section_focused_desc">Erweitertes Verhalten für fokussierte Poster.</string>
-    <string name="layout_expand_poster">Fokussiertes Poster auf Hintergrund erweitern</string>
-    <string name="layout_expand_poster_sub">Fokussiertes Poster nach Verzögerung erweitern.</string>
-    <string name="layout_expand_delay">Verzögerung beim Erweitern zum Hintergrund</string>
-    <string name="layout_expand_delay_sub">Verzögerung vor dem Erweitern fokussierter Poster.</string>
     <string name="layout_autoplay_trailer">Trailer automatisch abspielen</string>
     <string name="layout_autoplay_trailer_sub">Trailer-Vorschau für fokussierte Inhalte abspielen, sofern verfügbar.</string>
     <string name="layout_trailer_muted">Trailer stumm abspielen</string>
@@ -687,10 +683,6 @@
     <string name="layout_section_card_style_desc">Kartenbreite und Eckenradius anpassen.</string>
     <string name="layout_open">Öffnen</string>
     <string name="layout_closed">Geschlossen</string>
-    <string name="layout_trailer_location">Wiedergabestandort für moderne Trailer</string>
-    <string name="layout_trailer_location_sub">Wählen Sie aus, wo die Trailer-Vorschau in Modern Home abgespielt werden soll.</string>
-    <string name="layout_trailer_expanded_card">Erweiterte Karte</string>
-    <string name="layout_trailer_hero_media">Hero Media</string>
     <string name="layout_preset_compact">Kompakt</string>
     <string name="layout_preset_dense">Dicht</string>
     <string name="layout_preset_standard">Standard</string>
@@ -1235,12 +1227,7 @@
     <string name="discover_title">Entdecken</string>
     <string name="discover_load_more">Mehr laden</string>
     <string name="discover_loading">Wird geladen...</string>
-    <string name="discover_filter_type">Typ</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Genre</string>
-    <string name="discover_select_catalog">Auswählen</string>
-    <string name="discover_empty_no_catalog_title">Katalog auswählen</string>
-    <string name="discover_empty_no_catalog_subtitle">Wählen Sie einen Entdeckungskatalog zum Durchsuchen aus</string>
     <string name="discover_empty_no_content_title">Kein Inhalt gefunden</string>
     <string name="discover_empty_no_content_subtitle">Versuchen Sie es mit einem anderen Genre oder Katalog</string>
 

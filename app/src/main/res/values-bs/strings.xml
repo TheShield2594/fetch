@@ -470,10 +470,6 @@
     <string name="layout_show_full_release_date_sub">Za filmove, prikaži puni datum izlaska umjesto samo godine.</string>
     <string name="layout_section_focused">Fokusirani Poster</string>
     <string name="layout_section_focused_desc">Napredno ponašanje za fokusirane poster kartice.</string>
-    <string name="layout_expand_poster">Proširi Fokusirani Poster u Backdrop</string>
-    <string name="layout_expand_poster_sub">Proširi fokusirani poster nakon odgode tokom neaktivnosti.</string>
-    <string name="layout_expand_delay">Odgoda Širenja Backdropa</string>
-    <string name="layout_expand_delay_sub">Koliko dugo čekati prije proširivanja fokusiranih kartica.</string>
     <string name="layout_autoplay_trailer">Autoplay Trailer</string>
     <string name="layout_autoplay_trailer_sub">Pusti preview trailera za fokusirani sadržaj kada je dostupan.</string>
     <string name="layout_trailer_muted">Pusti Trailer Bez Zvuka</string>
@@ -482,10 +478,6 @@
     <string name="layout_section_card_style_desc">Podesi širinu kartice i radius uglova.</string>
     <string name="layout_open">Otvoreno</string>
     <string name="layout_closed">Zatvoreno</string>
-    <string name="layout_trailer_location">Lokacija Reprodukcije Trailera u Modern prikazu</string>
-    <string name="layout_trailer_location_sub">Odaberi gdje će se trailer preview puštati u Modern Home prikazu.</string>
-    <string name="layout_trailer_expanded_card">Proširena Kartica</string>
-    <string name="layout_trailer_hero_media">Istaknuti Sadržaj</string>
     <string name="layout_preset_compact">Kompaktno</string>
     <string name="layout_preset_dense">Zbijeno</string>
     <string name="layout_preset_standard">Standardno</string>
@@ -962,12 +954,7 @@
     <string name="discover_title">Otkrij</string>
     <string name="discover_load_more">Učitaj više</string>
     <string name="discover_loading">Učitavanje...</string>
-    <string name="discover_filter_type">Tip</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Žanr</string>
-    <string name="discover_select_catalog">Odaberi</string>
-    <string name="discover_empty_no_catalog_title">Odaberi katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Odaberi katalog za pretragu kako bi pretraživao/la</string>
     <string name="discover_empty_no_content_title">Sadržaj nije pronađen</string>
     <string name="discover_empty_no_content_subtitle">Pokušaj sa drugim žanrom ili katalogom</string>
 

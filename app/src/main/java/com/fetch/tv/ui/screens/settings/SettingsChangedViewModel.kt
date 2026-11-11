@@ -74,8 +74,6 @@ class SettingsChangedViewModel @Inject constructor(
         layoutRow(home, R.string.layout_next_up_furthest_episode, layout.nextUpFromFurthestEpisode)
         layoutRow(home, R.string.layout_show_unaired_next_up, layout.showUnairedNextUp)
         layoutRow(home, R.string.layout_cw_sort_mode, layout.continueWatchingSortMode)
-        layoutRow(home, R.string.layout_expand_poster, layout.focusedPosterBackdropExpandEnabled)
-        layoutRow(home, R.string.layout_expand_delay, layout.focusedPosterBackdropExpandDelaySeconds)
         layoutRow(home, R.string.layout_autoplay_trailer, layout.focusedPosterBackdropTrailerEnabled)
         layoutRow(home, R.string.layout_trailer_muted, layout.focusedPosterBackdropTrailerMuted)
         layoutRow(home, R.string.layout_trailer_crop_to_fill, layout.trailerCropToFill)

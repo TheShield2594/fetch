@@ -639,10 +639,6 @@
     <string name="layout_show_full_release_date_sub">Pri filmih prikaži celoten datum izida namesto samo leta.</string>																  
     <string name="layout_section_focused">Fokusiran plakat</string>
     <string name="layout_section_focused_desc">Napredno obnašanje za fokusirane kartice plakatov.</string>
-    <string name="layout_expand_poster">Razširi fokusiran plakat v ozadje</string>
-    <string name="layout_expand_poster_sub">Razširi fokusiran plakat po zakasnitvi nedejavnosti.</string>
-    <string name="layout_expand_delay">Zakasnitev razširitve ozadja</string>
-    <string name="layout_expand_delay_sub">Kako dolgo naj se čaka pred razširitvijo fokusiranih kartic.</string>
     <string name="layout_autoplay_trailer">Samodejno predvajaj napovednik</string>
     <string name="layout_autoplay_trailer_sub">Predvajaj predogled napovednika za fokusirano vsebino, ko je na voljo.</string>
     <string name="layout_trailer_muted">Predvajaj napovednik brez zvoka</string>
@@ -651,10 +647,6 @@
     <string name="layout_section_card_style_desc">Prilagodite širino kartice in radij vogalov.</string>
     <string name="layout_open">Razširjeno</string>
     <string name="layout_closed">Strnjeno</string>
-    <string name="layout_trailer_location">Lokacija predvajanja modernega napovednika</string>
-    <string name="layout_trailer_location_sub">Izberite, kje se predvaja predogled napovednika na modernem domačem zaslonu.</string>
-    <string name="layout_trailer_expanded_card">Razširjena kartica</string>
-    <string name="layout_trailer_hero_media">Glavna vsebina</string>
     <string name="layout_preset_compact">Kompaktno</string>
     <string name="layout_preset_dense">Gosto</string>
     <string name="layout_preset_standard">Standardno</string>
@@ -1155,12 +1147,7 @@
     <string name="discover_title">Odkrij</string>
     <string name="discover_load_more">Naloži več</string>
     <string name="discover_loading">Nalaganje...</string>
-    <string name="discover_filter_type">Vrsta</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Žanr</string>
-    <string name="discover_select_catalog">Izberi</string>
-    <string name="discover_empty_no_catalog_title">Izberite katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Izberite katalog za odkrivanje in brskanje</string>
     <string name="discover_empty_no_content_title">Ni najdene vsebine</string>
     <string name="discover_empty_no_content_subtitle">Poskusite z drugim žanrom ali katalogom</string>
     <!-- AddonManagerScreen -->

@@ -680,10 +680,6 @@
     <string name="layout_show_full_release_date_sub">Para filmes, mostrar a data de lançamento completa em vez de apenas o ano.</string>
     <string name="layout_section_focused">Cartaz focado</string>
     <string name="layout_section_focused_desc">Comportamento avançado para os cartões com cartaz focados.</string>
-    <string name="layout_expand_poster">Expandir cartaz focado para o fundo</string>
-    <string name="layout_expand_poster_sub">Expande o cartaz focado após um período de inatividade.</string>
-    <string name="layout_expand_delay">Atraso de expansão do fundo</string>
-    <string name="layout_expand_delay_sub">Quanto tempo esperar antes de expandir os cartões focados.</string>
     <string name="layout_autoplay_trailer">Reproduzir trailer automaticamente</string>
     <string name="layout_autoplay_trailer_sub">Reproduzir a pré-visualização do trailer para o conteúdo focado quando disponível.</string>
     <string name="layout_trailer_muted">Reproduzir trailer sem som</string>
@@ -692,10 +688,6 @@
     <string name="layout_section_card_style_desc">Ajustar a largura do cartão e o raio dos cantos.</string>
     <string name="layout_open">Aberto</string>
     <string name="layout_closed">Fechado</string>
-    <string name="layout_trailer_location">Localização de reprodução de trailers moderna</string>
-    <string name="layout_trailer_location_sub">Escolhe onde a pré-visualização do trailer é reproduzida na Página Inicial Moderna.</string>
-    <string name="layout_trailer_expanded_card">Cartão expandido</string>
-    <string name="layout_trailer_hero_media">Multimédia em destaque</string>
     <string name="layout_preset_compact">Compacto</string>
     <string name="layout_preset_dense">Denso</string>
     <string name="layout_preset_standard">Normal</string>
@@ -1238,12 +1230,7 @@
     <string name="discover_title">Descobrir</string>
     <string name="discover_load_more">Carregar mais</string>
     <string name="discover_loading">A carregar...</string>
-    <string name="discover_filter_type">Tipo</string>
-    <string name="discover_filter_catalog">Catálogo</string>
     <string name="discover_filter_genre">Género</string>
-    <string name="discover_select_catalog">Selecionar</string>
-    <string name="discover_empty_no_catalog_title">Seleciona um catálogo</string>
-    <string name="discover_empty_no_catalog_subtitle">Escolhe um catálogo de descoberta para explorar</string>
     <string name="discover_empty_no_content_title">Nenhum conteúdo encontrado</string>
     <string name="discover_empty_no_content_subtitle">Tenta um género ou catálogo diferente</string>
     <!-- AddonManagerScreen -->

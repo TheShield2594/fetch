@@ -821,9 +821,6 @@
     <string name="layout_next_up_furthest_episode_sub">সর্বশেষ দেখা পর্বের ভিত্তিতে পরবর্তী পর্ব দেখান। পুনরায় দেখার ক্ষেত্রে সম্প্রতি দেখা পর্ব ব্যবহারের জন্য এটি বন্ধ রাখুন।</string>
     <string name="layout_show_unaired_next_up">অপ্রকাশিত পরবর্তী পর্ব দেখান</string>
     <string name="layout_show_unaired_next_up_sub">সম্প্রচারের আগে দেখা চালিয়ে যেতে আসন্ন পর্ব অন্তর্ভুক্ত করুন।</string>
-    <string name="layout_cw_card_style_card">কার্ড</string>
-    <string name="layout_cw_card_style_wide">প্রশস্ত</string>
-    <string name="layout_cw_card_style_poster">পোস্টার</string>
     <string name="layout_cw_sort_mode">সাজানোর ক্রম</string>
     <string name="layout_cw_sort_mode_sub">Continue Watching আইটেমগুলো কীভাবে সাজানো হবে</string>
     <string name="layout_cw_sort_default">ডিফল্ট</string>
@@ -841,10 +838,6 @@
     <string name="layout_show_full_release_date_sub">মুভির ক্ষেত্রে শুধুমাত্র বছরের পরিবর্তে সম্পূর্ণ রিলিজ ডেট দেখান।</string>
     <string name="layout_section_focused">ফোকাসড পোস্টার</string>
     <string name="layout_section_focused_desc">ফোকাসড পোস্টার কার্ডের জন্য অ্যাডভান্সড বিহেভিয়ার।</string>
-    <string name="layout_expand_poster">ফোকাসড পোস্টার ব্যাকড্রপে এক্সপ্যান্ড করুন</string>
-    <string name="layout_expand_poster_sub">আইডল ডিলের পর ফোকাসড পোস্টার এক্সপ্যান্ড করুন।</string>
-    <string name="layout_expand_delay">ব্যাকড্রপ এক্সপ্যান্ড ডিলে</string>
-    <string name="layout_expand_delay_sub">ফোকাসড কার্ড এক্সপ্যান্ড করার আগে কতক্ষণ অপেক্ষা করতে হবে।</string>
     <string name="layout_autoplay_trailer">অটো-প্লে ট্রেইলার</string>
     <string name="layout_autoplay_trailer_sub">ফোকাস করা কন্টেন্টের জন্য ট্রেইলার প্রিভিউ অ্যাভেইলেবল থাকলে প্লে করুন।</string>
     <string name="layout_trailer_muted">মিউট করে ট্রেইলার প্লে করুন</string>
@@ -854,10 +847,6 @@
     <string name="layout_custom_poster_apply_to">যেসব স্ক্রিনে প্রয়োগ হবে</string>
     <string name="layout_open">খুলুন</string>
     <string name="layout_closed">বন্ধ</string>
-    <string name="layout_trailer_location">মডার্ন ট্রেইলার প্লেব্যাক লোকেশন</string>
-    <string name="layout_trailer_location_sub">মডার্ন হোমে ট্রেইলার প্রিভিউ কোথায় প্লে হবে তা বেছে নিন।</string>
-    <string name="layout_trailer_expanded_card">এক্সপ্যান্ডেড কার্ড</string>
-    <string name="layout_trailer_hero_media">হিরো মিডিয়া</string>
     <string name="layout_preset_compact">কমপ্যাক্ট</string>
     <string name="layout_preset_dense">ঘন</string>
     <string name="layout_preset_standard">স্ট্যান্ডার্ড</string>
@@ -1537,12 +1526,7 @@
     <string name="discover_title">ডিসকভার</string>
     <string name="discover_load_more">আরও লোড করুন</string>
     <string name="discover_loading">লোড হচ্ছে…</string>
-    <string name="discover_filter_type">প্রকার</string>
-    <string name="discover_filter_catalog">ক্যাটালগ</string>
     <string name="discover_filter_genre">জনরা</string>
-    <string name="discover_select_catalog">ক্যাটালগ নির্বাচন করুন</string>
-    <string name="discover_empty_no_catalog_title">একটি ক্যাটালগ নির্বাচন করুন</string>
-    <string name="discover_empty_no_catalog_subtitle">ব্রাউজ করতে একটি ডিসকভার ক্যাটালগ বেছে নিন</string>
     <string name="discover_empty_no_content_title">কোনো কন্টেন্ট পাওয়া যায়নি</string>
     <string name="discover_empty_no_content_subtitle">ভিন্ন একটি জনরা বা ক্যাটালগ চেষ্টা করুন</string>
     <string name="audio_passthrough_info">অডিও পাসথ্রু (TrueHD, DTS, AC-3 ইত্যাদি) স্বয়ংক্রিয়ভাবে ঘটে। HDMI-এর মাধ্যমে কোনো সামঞ্জস্যপূর্ণ AV রিসিভার বা সাউন্ডবারের সাথে কানেক্ট করা হলে, ডিকোডিং ছাড়াই লসলেস অডিও অপরিবর্তিতভাবে পাঠানো হয়।</string>

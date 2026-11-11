@@ -60,6 +60,7 @@ import java.time.Month
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
+import com.fetch.tv.ui.util.dpadRepeatThrottle
 
 /**
  * Watch statistics for the active profile, as the Fetch website's stats page shows them: totals
@@ -82,11 +83,12 @@ fun StatsScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(FetchTheme.colors.Background),
+            .background(FetchTheme.colors.Background)
+            .dpadRepeatThrottle(),
         contentPadding = PaddingValues(
-            start = FetchTheme.spacing.xxxl,
-            end = FetchTheme.spacing.xxxl,
-            top = FetchTheme.spacing.xl,
+            start = FetchTheme.spacing.screen.horizontal,
+            end = FetchTheme.spacing.screen.horizontal,
+            top = FetchTheme.spacing.screen.vertical,
             bottom = FetchTheme.spacing.xxl
         ),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)

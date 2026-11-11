@@ -44,30 +44,18 @@ class SearchPresentationRulesTest {
     }
 
     @Test
-    fun `stored discover catalog is restored across media types`() {
-        val current = discoverCatalog("current", "movie")
-        val stored = discoverCatalog("stored", "series")
+    fun `stored discover type is restored across media types`() {
+        val types = discoverTypes(listOf(discoverCatalog("current", "movie"), discoverCatalog("stored", "series")))
 
-        val selected = resolveDiscoverCatalog(
-            catalogs = listOf(current, stored),
-            preferredKey = stored.key,
-            currentKey = current.key
-        )
-
-        assertEquals(stored, selected)
+        assertEquals("series", resolveDiscoverType(types, preferredType = "series", currentType = "movie"))
     }
 
     @Test
-    fun `current discover catalog is retained when stored catalog is unavailable`() {
-        val current = discoverCatalog("current", "movie")
+    fun `current discover type is retained when stored type is unavailable`() {
+        val types = listOf("movie", "series")
 
-        val selected = resolveDiscoverCatalog(
-            catalogs = listOf(discoverCatalog("first", "movie"), current),
-            preferredKey = "missing",
-            currentKey = current.key
-        )
-
-        assertEquals(current, selected)
+        assertEquals("series", resolveDiscoverType(types, preferredType = "anime", currentType = "series"))
+        assertEquals("movie", resolveDiscoverType(types, preferredType = null, currentType = null))
     }
 
     private fun discoverCatalog(key: String, type: String) = DiscoverCatalog(

@@ -18,29 +18,26 @@ class SettingsSearchIndexTest {
     private val pageFiles: Map<SettingsCategory, List<String>> = mapOf(
         SettingsCategory.PROFILES to listOf("settings/ProfileSettingsContent.kt"),
         SettingsCategory.PLAYBACK to listOf("settings/EssentialPlaybackSettingsContent.kt"),
-        // Several sections share a file, so each lists the composables that draw it.
+        // Several sections share a file, so each page lists the composables that draw its sections.
         SettingsCategory.PLAYBACK_PLAYER to listOf(
-            "settings/PlaybackPlayerSettings.kt#PlaybackPlayerSection,PlayerPreferenceDialog,InternalPlayerEngineDialog"
+            "settings/PlaybackPlayerSettings.kt#PlaybackPlayerSection,PlayerPreferenceDialog,InternalPlayerEngineDialog," +
+                "PlaybackSkipSegmentsSection,AutoSkipToggle",
+            "settings/PlaybackBufferNetworkSettings.kt"
         ),
-        SettingsCategory.PLAYBACK_STREAM_SELECTION to listOf(
+        SettingsCategory.PLAYBACK_STREAMS to listOf(
             "settings/PlaybackAutoPlaySettings.kt#PlaybackStreamSelectionSection,AutoPlaySettingsDialogs," +
                 "StreamAutoPlayModeDialog,StreamReuseLastLinkCacheDurationDialog,StreamAutoPlayProviderSelectionDialog," +
-                "StreamRegexDialog",
+                "StreamRegexDialog,PlaybackUpNextSection,NextEpisodeThresholdModeDialog",
             "settings/PlaybackStreamRankingSettings.kt"
         ),
-        SettingsCategory.PLAYBACK_UP_NEXT to listOf(
-            "settings/PlaybackAutoPlaySettings.kt#PlaybackUpNextSection,NextEpisodeThresholdModeDialog"
+        SettingsCategory.PLAYBACK_AUDIO_SUBTITLES to listOf(
+            "settings/PlaybackAudioSettings.kt",
+            "settings/PlaybackSubtitleSettings.kt"
         ),
-        SettingsCategory.PLAYBACK_SKIP_SEGMENTS to listOf(
-            "settings/PlaybackPlayerSettings.kt#PlaybackSkipSegmentsSection,AutoSkipToggle"
-        ),
-        SettingsCategory.PLAYBACK_PLAYER_INTERFACE to listOf(
+        SettingsCategory.PLAYBACK_VIDEO to listOf(
+            "settings/PlaybackVideoSettings.kt",
             "settings/PlaybackPlayerSettings.kt#PlaybackPlayerInterfaceSection"
         ),
-        SettingsCategory.PLAYBACK_AUDIO to listOf("settings/PlaybackAudioSettings.kt"),
-        SettingsCategory.PLAYBACK_SUBTITLES to listOf("settings/PlaybackSubtitleSettings.kt"),
-        SettingsCategory.PLAYBACK_VIDEO to listOf("settings/PlaybackVideoSettings.kt"),
-        SettingsCategory.PLAYBACK_BUFFER_NETWORK to listOf("settings/PlaybackBufferNetworkSettings.kt"),
         SettingsCategory.ANIME_SKIP to listOf("settings/AnimeSkipSettingsScreen.kt"),
         SettingsCategory.ADDONS to listOf("settings/HomeAndAddonsSettingsContent.kt#AddonsSettingsContent"),
         SettingsCategory.CUSTOMISE_HOME to listOf(
@@ -83,9 +80,12 @@ class SettingsSearchIndexTest {
         val problems = mutableListOf<String>()
         val stringIds = R.string::class.java.fields.associate { it.getInt(null) to it.name }
         pageFiles.forEach { (category, files) ->
-            // A playback section's page is headed by the section's title.
-            val sectionTitle = category.playbackSection?.let { stringIds.getValue(it.title) }
-            val expected = files.flatMap { titleIds(source(it)) }.toSet() + listOfNotNull(sectionTitle)
+            // A playback page is headed by its title, and each of its sections by the section's.
+            val headings = category.playbackPage
+                ?.let { page -> listOf(page.title) + page.sections.map { it.title } }
+                .orEmpty()
+                .map { stringIds.getValue(it) }
+            val expected = files.flatMap { titleIds(source(it)) }.toSet() + headings
             val indexed = settingsSearchIndex[category].orEmpty().mapNotNull { stringIds[it] }.toSet()
             (expected - indexed).forEach { problems += "$category is missing R.string.$it" }
             (indexed - expected).forEach { problems += "$category lists R.string.$it, which none of its files show" }

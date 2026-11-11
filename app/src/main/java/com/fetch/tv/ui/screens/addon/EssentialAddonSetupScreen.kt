@@ -91,7 +91,7 @@ fun EssentialAddonSetupScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = FetchTheme.spacing.huge, vertical = FetchTheme.spacing.xxxl),
+            .padding(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.xxxl),
         contentAlignment = Alignment.Center
     ) {
         // Scrolls if the taller cards push Continue for now off a 540dp screen at large text sizes.

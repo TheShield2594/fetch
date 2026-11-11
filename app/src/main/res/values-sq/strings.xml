@@ -728,9 +728,6 @@
     <string name="layout_next_up_furthest_episode_sub">Shfaq episodin tjetër bazuar në episodin më të avancuar të shikuar. Çaktivizoje për rishikime që të përdoret episodi i shikuar më së fundi.</string>
     <string name="layout_show_unaired_next_up">Shfaq episodet e ardhshme që ende nuk janë transmetuar</string>
     <string name="layout_show_unaired_next_up_sub">Përfshi episodet e ardhshme në Vazhdo shikimin para se të transmetohen.</string>
-    <string name="layout_cw_card_style_card">Kartë</string>
-    <string name="layout_cw_card_style_wide">E gjerë</string>
-    <string name="layout_cw_card_style_poster">Poster</string>
     <string name="layout_cw_sort_mode">Renditja</string>
     <string name="layout_cw_sort_mode_sub">Si renditen artikujt e Vazhdo shikimin</string>
     <string name="layout_cw_sort_default">Parazgjedhur</string>
@@ -748,10 +745,6 @@
     <string name="layout_show_full_release_date_sub">Për filmat, shfaq datën e plotë të publikimit në vend të vetëm vitit.</string>
     <string name="layout_section_focused">Posteri i fokusuar</string>
     <string name="layout_section_focused_desc">Sjellje e avancuar për kartat e posterëve të fokusuar.</string>
-    <string name="layout_expand_poster">Zgjero posterin e fokusuar në sfond</string>
-    <string name="layout_expand_poster_sub">Zgjero posterin e fokusuar pas vonesës së pasivitetit.</string>
-    <string name="layout_expand_delay">Vonesa e zgjerimit të sfondit</string>
-    <string name="layout_expand_delay_sub">Sa kohë të pritet para zgjerimit të kartave të fokusuara.</string>
     <string name="layout_autoplay_trailer">Luaj automatikisht trailerin</string>
     <string name="layout_autoplay_trailer_sub">Luaj pamjen paraprake të trailerit për përmbajtjen e fokusuar kur është e disponueshme.</string>
     <string name="layout_trailer_muted">Luaj trailerin pa zë</string>
@@ -761,10 +754,6 @@
     <string name="layout_custom_poster_apply_to">Apliko te</string>
     <string name="layout_open">Hapur</string>
     <string name="layout_closed">Mbyllur</string>
-    <string name="layout_trailer_location">Vendndodhja e riprodhimit të trailerit modern</string>
-    <string name="layout_trailer_location_sub">Zgjidh ku luhet pamja paraprake e trailerit në faqen kryesore Moderne.</string>
-    <string name="layout_trailer_expanded_card">Karta e zgjeruar</string>
-    <string name="layout_trailer_hero_media">Media e hero-s</string>
     <string name="layout_preset_compact">Kompakt</string>
     <string name="layout_preset_dense">I dendur</string>
     <string name="layout_preset_standard">Standard</string>
@@ -1346,12 +1335,7 @@
     <string name="discover_title">Zbulo</string>
     <string name="discover_load_more">Ngarko më shumë</string>
     <string name="discover_loading">Duke ngarkuar...</string>
-    <string name="discover_filter_type">Lloji</string>
-    <string name="discover_filter_catalog">Katalogu</string>
     <string name="discover_filter_genre">Zhanri</string>
-    <string name="discover_select_catalog">Zgjidh</string>
-    <string name="discover_empty_no_catalog_title">Zgjidh një katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Zgjidh një katalog Zbulo për të shfletuar</string>
     <string name="discover_empty_no_content_title">Nuk u gjet përmbajtje</string>
     <string name="discover_empty_no_content_subtitle">Provo një zhanër ose katalog tjetër</string>
     <!-- AddonManagerScreen -->

@@ -387,9 +387,6 @@
     <string name="layout_next_up_furthest_episode_sub">Pokazuj następny odcinek na podstawie najdalszego obejrzanego. Wyłącz przy ponownym oglądaniu, aby używać ostatnio obejrzanego odcinka.</string>
     <string name="layout_show_unaired_next_up">Pokaż niewyemitowane odcinki</string>
     <string name="layout_show_unaired_next_up_sub">Uwzględnij nadchodzące odcinki w Kontynuuj oglądanie przed ich emisją.</string>
-    <string name="layout_cw_card_style_card">Karta</string>
-    <string name="layout_cw_card_style_wide">Szeroka</string>
-    <string name="layout_cw_card_style_poster">Plakat</string>
     <string name="layout_trailer_button">Pokaż przycisk zwiastuna</string>
     <string name="layout_trailer_button_sub">Pokaż przycisk zwiastuna na stronie szczegółów (tylko gdy zwiastun jest dostępny).</string>
     <string name="layout_prefer_external_meta">Preferuj metadane z zewnętrznego dodatku</string>
@@ -398,10 +395,6 @@
     <string name="layout_show_full_release_date_sub">Dla filmów pokazuj pełną datę premiery zamiast samego roku.</string>
     <string name="layout_section_focused">Zaznaczony plakat</string>
     <string name="layout_section_focused_desc">Zaawansowane zachowanie zaznaczonych kart plakatów.</string>
-    <string name="layout_expand_poster">Rozwiń zaznaczony plakat do tła</string>
-    <string name="layout_expand_poster_sub">Rozwiń zaznaczony plakat po opóźnieniu bezczynności.</string>
-    <string name="layout_expand_delay">Opóźnienie rozwinięcia tła</string>
-    <string name="layout_expand_delay_sub">Jak długo czekać przed rozwinięciem zaznaczonych kart.</string>
     <string name="layout_autoplay_trailer">Auto-odtwarzanie zwiastuna</string>
     <string name="layout_fullscreen_hero_backdrop">Pełnoekranowe tło hero</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Rozciągnij tło hero na cały ekran.</string>
@@ -415,10 +408,6 @@
     <string name="layout_section_card_style_desc">Dostosuj szerokość karty i promień narożnika.</string>
     <string name="layout_open">Otwarte</string>
     <string name="layout_closed">Zamknięte</string>
-    <string name="layout_trailer_location">Lokalizacja odtwarzania zwiastuna Modern</string>
-    <string name="layout_trailer_location_sub">Wybierz gdzie odtwarzać podgląd zwiastuna w Modern Home.</string>
-    <string name="layout_trailer_expanded_card">Rozszerzona karta</string>
-    <string name="layout_trailer_hero_media">Media hero</string>
     <string name="layout_preset_compact">Kompaktowy</string>
     <string name="layout_preset_dense">Gęsty</string>
     <string name="layout_preset_standard">Standardowy</string>
@@ -886,12 +875,7 @@
     <string name="discover_title">Odkrywaj</string>
     <string name="discover_load_more">Zaladuj wiecej</string>
     <string name="discover_loading">Ladowanie...</string>
-    <string name="discover_filter_type">Typ</string>
-    <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Gatunek</string>
-    <string name="discover_select_catalog">Wybierz</string>
-    <string name="discover_empty_no_catalog_title">Wybierz katalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Wybierz katalog odkrywania, aby przeglądać</string>
     <string name="discover_empty_no_content_title">Brak treści</string>
     <string name="discover_empty_no_content_subtitle">Spróbuj innego gatunku lub katalogu</string>
 

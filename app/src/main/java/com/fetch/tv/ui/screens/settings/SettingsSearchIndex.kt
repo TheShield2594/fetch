@@ -3,34 +3,11 @@ package com.fetch.tv.ui.screens.settings
 import com.fetch.tv.R
 
 /**
- * The titles of the settings on each page, which settings search looks through. A title is also its
- * row's key: opening a result focuses the row on that page with the same title. Taken from the
- * `title = stringResource(...)` rows of each page's files, and for a playback section from its own
- * composables; SettingsSearchIndexTest fails when a page gains or loses a title without this list
- * following.
+ * The titles in each playback section, the section's own heading first. A playback page lists the
+ * sections it holds one after another, so its titles are theirs under the page's own title.
  */
-internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
-    SettingsCategory.PROFILES to listOf(
-        R.string.profile_title,
-        R.string.profile_manage_button,
-        R.string.profile_section_startup,
-        R.string.profile_remember_last_profile,
-        R.string.parental_lock_profiles_title
-    ),
-    SettingsCategory.PLAYBACK to listOf(
-        R.string.essential_playback_header_title,
-        R.string.essential_playback_basics,
-        R.string.essential_stream_selection,
-        R.string.essential_autoplay_next_episode,
-        R.string.autoplay_post_play_recommendations,
-        R.string.essential_subtitles_and_audio,
-        R.string.essential_subtitle_language,
-        R.string.sub_use_forced_subtitles,
-        R.string.essential_audio_language,
-        R.string.audio_decoder_priority,
-        R.string.playback_afr_mode
-    ),
-    SettingsCategory.PLAYBACK_PLAYER to listOf(
+private val playbackSectionSearchTitles: Map<PlaybackSection, List<Int>> = mapOf(
+    PlaybackSection.PLAYER to listOf(
         R.string.playback_section_player_title,
         R.string.playback_default_player,
         R.string.playback_internal_player_engine,
@@ -38,7 +15,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.playback_external_forward_subtitles,
         R.string.playback_external_send_skip_segments
     ),
-    SettingsCategory.PLAYBACK_STREAM_SELECTION to listOf(
+    PlaybackSection.STREAM_SELECTION to listOf(
         R.string.playback_section_stream_selection,
         R.string.autoplay_stream_selection,
         R.string.autoplay_start_early_title,
@@ -71,7 +48,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.ranking_hide_cam,
         R.string.ranking_drop_undecodable
     ),
-    SettingsCategory.PLAYBACK_UP_NEXT to listOf(
+    PlaybackSection.UP_NEXT to listOf(
         R.string.playback_section_up_next,
         R.string.autoplay_next_episode,
         R.string.autoplay_next_episode_fallback,
@@ -86,7 +63,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.autoplay_post_play_recommendations,
         R.string.autoplay_post_play_movie_threshold
     ),
-    SettingsCategory.PLAYBACK_SKIP_SEGMENTS to listOf(
+    PlaybackSection.SKIP_SEGMENTS to listOf(
         R.string.playback_section_skip,
         R.string.playback_skip_intro,
         R.string.auto_skip_intro,
@@ -94,7 +71,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.auto_skip_outro,
         R.string.auto_skip_movie_credits
     ),
-    SettingsCategory.PLAYBACK_PLAYER_INTERFACE to listOf(
+    PlaybackSection.PLAYER_INTERFACE to listOf(
         R.string.playback_section_interface,
         R.string.playback_loading_overlay,
         R.string.playback_show_loading_status,
@@ -105,7 +82,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.playback_controls_auto_hide,
         R.string.playback_parental_guide
     ),
-    SettingsCategory.PLAYBACK_AUDIO to listOf(
+    PlaybackSection.AUDIO to listOf(
         R.string.audio_section,
         R.string.audio_preferred_lang,
         R.string.sub_secondary_lang,
@@ -118,7 +95,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.audio_tunneled,
         R.string.audio_force_optical_passthrough
     ),
-    SettingsCategory.PLAYBACK_SUBTITLES to listOf(
+    PlaybackSection.SUBTITLES to listOf(
         R.string.playback_section_subtitles,
         R.string.sub_preferred_lang,
         R.string.sub_secondary_lang,
@@ -138,7 +115,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.sub_libass,
         R.string.sub_libass_mode
     ),
-    SettingsCategory.PLAYBACK_VIDEO to listOf(
+    PlaybackSection.VIDEO to listOf(
         R.string.video_section,
         R.string.playback_afr_mode,
         R.string.playback_resolution_matching,
@@ -150,7 +127,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.audio_mpv_hwdec_title,
         R.string.audio_mpv_hi10p_gnext_sw_title
     ),
-    SettingsCategory.PLAYBACK_BUFFER_NETWORK to listOf(
+    PlaybackSection.BUFFER_NETWORK to listOf(
         R.string.playback_section_buffer_network,
         R.string.playback_net_fetch_performance_mode,
         R.string.playback_buffer_custom,
@@ -169,7 +146,60 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.playback_net_parallel,
         R.string.playback_net_connection_count,
         R.string.playback_net_chunk_size
+    )
+)
+
+private fun playbackPageSearchTitles(page: PlaybackPage): List<Int> =
+    (listOf(page.title) + page.sections.flatMap { playbackSectionSearchTitles.getValue(it) }).distinct()
+
+/**
+ * This index without the titles only [hidden] playback sections show, for when the player engine
+ * hides a section (Buffer & network with libmpv) while the page it is on stays.
+ */
+internal fun Map<SettingsCategory, List<Int>>.withoutPlaybackSections(
+    hidden: Collection<PlaybackSection>
+): Map<SettingsCategory, List<Int>> {
+    if (hidden.isEmpty()) return this
+    val shown = PlaybackSection.entries.filterNot { it in hidden }
+        .flatMapTo(HashSet()) { playbackSectionSearchTitles.getValue(it) }
+    val dropped = hidden.flatMap { playbackSectionSearchTitles.getValue(it) }.filterNot { it in shown }.toSet()
+    return mapValues { (category, titles) ->
+        if (category.playbackPage == null) titles else titles.filterNot { it in dropped }
+    }
+}
+
+/**
+ * The titles of the settings on each page, which settings search looks through. A title is also its
+ * row's key: opening a result focuses the row on that page with the same title. Taken from the
+ * `title = stringResource(...)` rows of each page's files, and for a playback page from the
+ * composables of the sections it holds; SettingsSearchIndexTest fails when a page gains or loses a title without this list
+ * following.
+ */
+internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
+    SettingsCategory.PROFILES to listOf(
+        R.string.profile_title,
+        R.string.profile_manage_button,
+        R.string.profile_section_startup,
+        R.string.profile_remember_last_profile,
+        R.string.parental_lock_profiles_title
     ),
+    SettingsCategory.PLAYBACK to listOf(
+        R.string.essential_playback_header_title,
+        R.string.essential_playback_basics,
+        R.string.essential_stream_selection,
+        R.string.essential_autoplay_next_episode,
+        R.string.autoplay_post_play_recommendations,
+        R.string.essential_subtitles_and_audio,
+        R.string.essential_subtitle_language,
+        R.string.sub_use_forced_subtitles,
+        R.string.essential_audio_language,
+        R.string.audio_decoder_priority,
+        R.string.playback_afr_mode
+    ),
+    SettingsCategory.PLAYBACK_PLAYER to playbackPageSearchTitles(PlaybackPage.PLAYER_NETWORK),
+    SettingsCategory.PLAYBACK_STREAMS to playbackPageSearchTitles(PlaybackPage.STREAMS_AUTO_PLAY),
+    SettingsCategory.PLAYBACK_AUDIO_SUBTITLES to playbackPageSearchTitles(PlaybackPage.AUDIO_SUBTITLES),
+    SettingsCategory.PLAYBACK_VIDEO to playbackPageSearchTitles(PlaybackPage.VIDEO_DISPLAY),
     SettingsCategory.ANIME_SKIP to listOf(
         R.string.animeskip_title,
         R.string.animeskip_enable_title,
@@ -255,8 +285,6 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.layout_next_up_furthest_episode,
         R.string.layout_show_unaired_next_up,
         R.string.layout_cw_sort_mode,
-        R.string.layout_expand_poster,
-        R.string.layout_expand_delay,
         R.string.layout_autoplay_trailer,
         R.string.layout_trailer_muted,
         R.string.layout_trailer_crop_to_fill,

@@ -212,7 +212,8 @@ class StreamScreenViewModel @Inject constructor(
                             allStreams = updatedAllStreams,
                             filteredStreams = if (pageEnd >= fullFiltered.size) fullFiltered
                                 else fullFiltered.subList(0, pageEnd),
-                            streamExclusions = tab.exclusions
+                            streamExclusions = tab.exclusions,
+                            rankedStreams = tab.ranked
                         )
                     }
                 }
@@ -689,6 +690,7 @@ class StreamScreenViewModel @Inject constructor(
                         allStreams = allStreams,
                         filteredStreams = paginatedStreams,
                         streamExclusions = tab.exclusions,
+                        rankedStreams = tab.ranked,
                         bestMatchFirst = rankBestFirst && rankingRules != null,
                         availableAddons = availableAddons,
                         hiddenUnplayableCounts = mergedAddonStreams.hiddenUnplayableCounts(),
@@ -1234,7 +1236,8 @@ class StreamScreenViewModel @Inject constructor(
                 val loaded = state.filteredStreams.size.coerceAtLeast(STREAM_FILTER_PAGE_SIZE)
                 state.copy(
                     filteredStreams = tab.streams.subList(0, loaded.coerceAtMost(tab.streams.size)),
-                    streamExclusions = tab.exclusions
+                    streamExclusions = tab.exclusions,
+                    rankedStreams = tab.ranked
                 )
             }
             val message = when (rule) {
@@ -1262,7 +1265,8 @@ class StreamScreenViewModel @Inject constructor(
             state.copy(
                 selectedAddonFilter = addonName,
                 filteredStreams = paginatedStreams,
-                streamExclusions = tab.exclusions
+                streamExclusions = tab.exclusions,
+                rankedStreams = tab.ranked
             )
         }
     }
@@ -1277,7 +1281,9 @@ class StreamScreenViewModel @Inject constructor(
             StreamRanker.rankedList(streams, rules, DeviceDecodeCapabilities.current, bestFirst = rankBestFirst)
         }
         val tab = if (addonName == null) ranked?.streams ?: streams else streams.filter { it.addonName == addonName }
-        return RankedStreamList(tab, ranked?.exclusions.orEmpty())
+        // Scores only explain the order on the All tab, the one Best match sorts.
+        val scores = if (addonName == null) ranked?.ranked.orEmpty() else emptyMap()
+        return RankedStreamList(tab, ranked?.exclusions.orEmpty(), scores)
     }
 
     fun expandFilteredStreamsIfNeeded() {

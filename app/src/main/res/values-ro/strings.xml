@@ -277,10 +277,6 @@
     <string name="layout_prefer_external_meta_sub">Folosește metadatele de la addon extern în loc de addon-ul catalogului.</string>
     <string name="layout_section_focused">Poster Concentrat</string>
     <string name="layout_section_focused_desc">Comportament avansat pentru cardurile de poster concentrate.</string>
-    <string name="layout_expand_poster">Expandează Posterul Concentrat la Fundal</string>
-    <string name="layout_expand_poster_sub">Expandează posterul concentrat după o întârziere de inactivitate.</string>
-    <string name="layout_expand_delay">Întârziere Expansiune Fundal</string>
-    <string name="layout_expand_delay_sub">Cât timp să se aștepte înainte de a extinde cardurile selectate.</string>
     <string name="layout_autoplay_trailer">Redare automată a trailerului</string>
     <string name="layout_autoplay_trailer_sub">Redă previzualizarea trailerului pentru conținutul selectat când este disponibil.</string>
     <string name="layout_trailer_muted">Redă trailerul pe mut</string>
@@ -289,10 +285,6 @@
     <string name="layout_section_card_style_desc">Ajustează lățimea cardului și raza colțurilor.</string>
     <string name="layout_open">Deschis</string>
     <string name="layout_closed">Închis</string>
-    <string name="layout_trailer_location">Locație redare modernă a trailerului</string>
-    <string name="layout_trailer_location_sub">Alege unde se redă previzualizarea trailerului în Home modern.</string>
-    <string name="layout_trailer_expanded_card">Card extins</string>
-    <string name="layout_trailer_hero_media">Media principală</string>
     <string name="layout_preset_compact">Compact</string>
     <string name="layout_preset_dense">Dens</string>
     <string name="layout_preset_standard">Standard</string>
@@ -599,12 +591,7 @@
     <string name="discover_title">Descoperă</string>
     <string name="discover_load_more">Încarcă mai mult</string>
     <string name="discover_loading">Încărcare...</string>
-    <string name="discover_filter_type">Tip</string>
-    <string name="discover_filter_catalog">Catalog</string>
     <string name="discover_filter_genre">Gen</string>
-    <string name="discover_select_catalog">Selectează</string>
-    <string name="discover_empty_no_catalog_title">Selectați un catalog</string>
-    <string name="discover_empty_no_catalog_subtitle">Alegeți un catalog de descoperire pentru a naviga</string>
     <string name="discover_empty_no_content_title">Nu a fost găsit niciun conținut</string>
     <string name="discover_empty_no_content_subtitle">Încercați un alt gen sau catalog</string>
 

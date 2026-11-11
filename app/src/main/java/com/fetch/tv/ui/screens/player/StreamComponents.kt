@@ -37,6 +37,7 @@ import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.launch as coroutineLaunch
 import com.fetch.tv.ui.components.RefreshFilterChip
 import com.fetch.tv.R
+import com.fetch.tv.ui.util.dpadRepeatThrottle
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -111,7 +112,6 @@ internal fun AddonFilterChips(
         }
     }
     val scope = rememberCoroutineScope()
-    val lastKeyRepeatDispatchRef = remember { java.util.concurrent.atomic.AtomicLong(0L) }
     fun moveFocusTo(targetIndex: Int) {
         focusedChipIndex = targetIndex
         if (hasRefresh && targetIndex == 0) {
@@ -169,15 +169,9 @@ internal fun AddonFilterChips(
                 }
                 chipRowHasFocus = hasFocus
             }
+            .dpadRepeatThrottle(moveFocusOnRepeat = false)
             .onKeyEvent { event ->
                 if (event.nativeKeyEvent.action != android.view.KeyEvent.ACTION_DOWN) return@onKeyEvent false
-
-                // Throttle rapid key repeats (long-press)
-                if (event.nativeKeyEvent.repeatCount > 0) {
-                    val now = android.os.SystemClock.uptimeMillis()
-                    if (now - lastKeyRepeatDispatchRef.get() < 112L) return@onKeyEvent true
-                    lastKeyRepeatDispatchRef.set(now)
-                }
 
                 if (event.key == androidx.compose.ui.input.key.Key.DirectionUp && onUpKey != null) {
                     onUpKey()

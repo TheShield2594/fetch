@@ -38,14 +38,16 @@ Current root navigation:
 - Add-ons
 - Settings
 
-Current settings rail, after Search, by heading:
+Current settings rail, after Search, by heading. Pages joined by "+" share one rail entry and are picked between with tabs at the top of the pane; Advanced mode has at most 14 entries (SettingsCatalogTest):
 
-- People: Profiles, Watch party
-- Playback: in advanced mode one entry per section (Player, Stream selection, Up next, Skip segments, Player interface, Audio, Subtitles, Video, Buffer & network when the engine uses ExoPlayer); in essential mode the single Playback basics page. Anime-Skip follows either way.
-- Sources: Content & discovery, TMDB, MDBList
-- Home: Appearance, Layout
-- Accounts: Account, Tracking, YouTube
-- System: Configure from phone, Advanced, About, Debug in debug builds
+- People: Profiles
+- Playback: in advanced mode four pages, each holding several sections one after another: Player & network (Player, Skip segments, Buffer & network when the engine uses ExoPlayer) + Anime-Skip; Streams & auto-play (Stream selection, Up next); Audio & subtitles; Video & display (Video, Player interface). In essential mode the single Playback basics page.
+- Sources: Addons + Content & discovery; TMDB + MDBList
+- Home: Customise Home (advanced only) + Layout; Appearance
+- Accounts: Account + Tracking + YouTube
+- System: Configure from phone, Advanced settings (+ Debug in debug builds), About
+
+Essential mode is presented simply as Settings; "Advanced settings" is the separate layer, switched on from its own rail entry.
 
 Search results open their page focused on the setting.
 

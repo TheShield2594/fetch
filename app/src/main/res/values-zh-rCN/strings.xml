@@ -820,9 +820,6 @@
     <string name="layout_next_up_furthest_episode_sub">根据最远的已观看剧集显示下一集。对于重温，禁用此选项以使用最近观看的剧集。</string>
     <string name="layout_show_unaired_next_up">显示未播出的下一集</string>
     <string name="layout_show_unaired_next_up_sub">在继续观看中包含播出前的即将播出剧集。</string>
-    <string name="layout_cw_card_style_card">卡片</string>
-    <string name="layout_cw_card_style_wide">宽卡</string>
-    <string name="layout_cw_card_style_poster">海报</string>
     <string name="layout_cw_sort_mode">排序方式</string>
     <string name="layout_cw_sort_mode_sub">继续观看项目的排列方式</string>
     <string name="layout_cw_sort_default">默认</string>
@@ -840,10 +837,6 @@
     <string name="layout_show_full_release_date_sub">对于电影，显示完整上映日期而非仅年份。</string>
     <string name="layout_section_focused">焦点海报</string>
     <string name="layout_section_focused_desc">焦点海报卡的高级行为。</string>
-    <string name="layout_expand_poster">将焦点海报展开为背景图</string>
-    <string name="layout_expand_poster_sub">在空闲延迟后展开焦点海报。</string>
-    <string name="layout_expand_delay">背景图展开延迟</string>
-    <string name="layout_expand_delay_sub">展开焦点卡片前的等待时间。</string>
     <string name="layout_autoplay_trailer">自动播放预告片</string>
     <string name="layout_autoplay_trailer_sub">在可用时为焦点内容播放预告片预览。</string>
     <string name="layout_trailer_muted">静音播放预告片</string>
@@ -853,10 +846,6 @@
     <string name="layout_custom_poster_apply_to">应用到</string>
     <string name="layout_open">开启</string>
     <string name="layout_closed">关闭</string>
-    <string name="layout_trailer_location">现代预告片播放位置</string>
-    <string name="layout_trailer_location_sub">选择现代首页中预告片预览的播放位置。</string>
-    <string name="layout_trailer_expanded_card">展开的卡片</string>
-    <string name="layout_trailer_hero_media">焦点区块媒体</string>
     <string name="layout_preset_compact">紧凑</string>
     <string name="layout_preset_dense">密集</string>
     <string name="layout_preset_standard">标准</string>
@@ -1585,12 +1574,7 @@
     <string name="discover_title">发现</string>
     <string name="discover_load_more">加载更多</string>
     <string name="discover_loading">加载中…</string>
-    <string name="discover_filter_type">类型</string>
-    <string name="discover_filter_catalog">目录</string>
     <string name="discover_filter_genre">类型</string>
-    <string name="discover_select_catalog">选择</string>
-    <string name="discover_empty_no_catalog_title">选择目录</string>
-    <string name="discover_empty_no_catalog_subtitle">选择一个发现目录以浏览</string>
     <string name="discover_empty_no_content_title">找不到内容</string>
     <string name="discover_empty_no_content_subtitle">请尝试其他类型或目录</string>
 

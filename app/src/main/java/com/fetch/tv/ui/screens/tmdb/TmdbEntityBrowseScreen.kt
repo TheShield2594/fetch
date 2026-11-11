@@ -358,7 +358,7 @@ private fun TmdbEntityHero(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = FetchTheme.spacing.xxxl),
+            .padding(horizontal = FetchTheme.spacing.screen.horizontal),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -542,7 +542,7 @@ private fun EntityRailRow(
                 fontWeight = FontWeight.SemiBold
             ),
             color = FetchTheme.colors.TextPrimary,
-            modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl)
+            modifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)
         )
         Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
         val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
@@ -582,7 +582,7 @@ private fun EntityRailRow(
                     }
                     .focusGroup(),
                 state = rowListState,
-                contentPadding = PaddingValues(horizontal = FetchTheme.spacing.xxxl),
+                contentPadding = PaddingValues(horizontal = FetchTheme.spacing.screen.horizontal),
                 horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
             ) {
                 itemsIndexed(

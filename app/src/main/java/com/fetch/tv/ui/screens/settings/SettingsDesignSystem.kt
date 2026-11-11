@@ -196,7 +196,7 @@ internal fun SettingsStandaloneScaffold(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = FetchTheme.spacing.xxl, vertical = FetchTheme.spacing.xl)
+            .padding(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.screen.vertical)
     ) {
         SettingsWorkspaceSurface(
             modifier = Modifier

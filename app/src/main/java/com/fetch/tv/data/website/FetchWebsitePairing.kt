@@ -118,6 +118,9 @@ class FetchWebsitePairing @Inject constructor(
     @Synchronized
     fun start(address: String) {
         job?.cancel()
+        // Cleared now, not only when a new job replaces it: an address that isn't one starts
+        // no job, and the cancelled one must not count as current and overwrite the error.
+        job = null
         lastWasHub = false
         lastAddress = address.trim()
         if (FetchServerAddress.normalize(address) == null) {
@@ -277,19 +280,18 @@ class FetchWebsitePairing @Inject constructor(
 
     private suspend fun approve(serverUrl: String, poll: WebsitePairingPoll.Approved) {
         val name = poll.deviceName.ifBlank { deviceName() }
-        // A pairing that was replaced or cancelled meanwhile doesn't sign this TV in.
-        if (!isCurrent()) return
-        store.save(FetchWebsiteSession(serverUrl, poll.token, name))
-        // Pairing (here, from a phone, or in the first-run Server step) is choosing the website.
-        backends.choose(SyncBackendKind.FETCH_WEBSITE)
-        publish(WebsitePairingState.Paired(name))
-        sync.requestSync()
-    }
-
-    /** True while the calling coroutine is the pairing [job] that owns [state]. */
-    private suspend fun isCurrent(): Boolean {
         val me = currentCoroutineContext()[Job]
-        return synchronized(this) { me != null && me === job }
+        // Checked and saved under the lock that replacing or resetting the pairing takes, so a
+        // pairing replaced or cancelled meanwhile can't sign this TV in.
+        val signedIn = synchronized(this) {
+            if (me == null || me !== job) return@synchronized false
+            store.save(FetchWebsiteSession(serverUrl, poll.token, name))
+            // Pairing (here, from a phone, or in the first-run Server step) is choosing the website.
+            backends.choose(SyncBackendKind.FETCH_WEBSITE)
+            _state.value = WebsitePairingState.Paired(name)
+            true
+        }
+        if (signedIn) sync.requestSync()
     }
 
     /**

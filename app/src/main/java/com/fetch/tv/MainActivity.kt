@@ -49,7 +49,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -186,6 +185,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 val LocalSidebarExpanded = compositionLocalOf { false }
 val LocalContentFocusRequester = compositionLocalOf { FocusRequester.Default }
@@ -393,19 +393,19 @@ open class MainActivity : ComponentActivity() {
             var focusedSplashTheme by remember { mutableStateOf<AppTheme?>(null) }
             val context = LocalContext.current
 
-            val activeProfileId by profileManager.activeProfileId.collectAsState()
-            val startupSplashEnabled by profileManager.startupSplashEnabled.collectAsState()
+            val activeProfileId by profileManager.activeProfileId.collectAsStateWithLifecycle()
+            val startupSplashEnabled by profileManager.startupSplashEnabled.collectAsStateWithLifecycle()
             val startupLoadingState = remember(activeProfileId, startupSession) { StartupLoadingState() }
-            val profiles by profileManager.profiles.collectAsState()
-            val loadedProfiles by profileManager.loadedProfiles.collectAsState()
-            val loadedActiveProfileId by profileManager.loadedActiveProfileId.collectAsState()
-            val hasEverSelectedProfile by profileManager.hasEverSelectedProfile.collectAsState()
-            val rememberLastProfileEnabled by profileManager.rememberLastProfileEnabled.collectAsState()
+            val profiles by profileManager.profiles.collectAsStateWithLifecycle()
+            val loadedProfiles by profileManager.loadedProfiles.collectAsStateWithLifecycle()
+            val loadedActiveProfileId by profileManager.loadedActiveProfileId.collectAsStateWithLifecycle()
+            val hasEverSelectedProfile by profileManager.hasEverSelectedProfile.collectAsStateWithLifecycle()
+            val rememberLastProfileEnabled by profileManager.rememberLastProfileEnabled.collectAsStateWithLifecycle()
             val activeProfile = remember(activeProfileId, profiles) {
                 profiles.firstOrNull { it.id == activeProfileId }
             }
             // Null until read from disk, so a PIN-locked profile is never auto-entered early.
-            val profilePinStates by profilePinManager.pinEnabled.collectAsState(initial = null)
+            val profilePinStates by profilePinManager.pinEnabled.collectAsStateWithLifecycle(initialValue = null)
 
             // Judged on the loaded active id, not the placeholder default (see loadedActiveProfileId).
             val activeProfileHasPin = remember(loadedActiveProfileId, profilePinStates) {
@@ -414,7 +414,7 @@ open class MainActivity : ComponentActivity() {
 
             // "Lock unrestricted profiles" can also lock the remembered profile behind the parent
             // PIN. Null until read from disk, so that profile is never auto-entered early either.
-            val profileOpenLock by remember { parentalControls.profileOpenLock }.collectAsState(initial = null)
+            val profileOpenLock by remember { parentalControls.profileOpenLock }.collectAsStateWithLifecycle(initialValue = null)
             // Also null until the real profile list and active profile are read: judged against
             // the primary-only placeholder list, a restricted sibling would be missed and the
             // remembered profile auto-entered without the parent PIN.
@@ -532,12 +532,12 @@ open class MainActivity : ComponentActivity() {
                 }
             }
             val mainUiPrefs by key(activeProfileId, startupSession) {
-                mainUiPrefsFlow.collectAsState(initial = MainUiPrefs(hasChosenLayout = null))
+                mainUiPrefsFlow.collectAsStateWithLifecycle(initialValue = MainUiPrefs(hasChosenLayout = null))
             }
             val installedAddons by key(activeProfileId, startupSession) {
                 remember(addonRepository) {
                     addonRepository.getInstalledAddons()
-                }.collectAsState(initial = null)
+                }.collectAsStateWithLifecycle(initialValue = null)
             }
 
             FetchTheme(
@@ -711,7 +711,7 @@ open class MainActivity : ComponentActivity() {
                         effectiveExperienceMode == ExperienceMode.ESSENTIAL &&
                             installedAddons.orEmpty().isEmpty() &&
                             !mainUiPrefs.addonSetupSkipped
-                    val pendingDeepLink by pendingDeepLinkUrl.collectAsState()
+                    val pendingDeepLink by pendingDeepLinkUrl.collectAsStateWithLifecycle()
 
                     LaunchedEffect(pendingDeepLink) {
                         val url = pendingDeepLink ?: return@LaunchedEffect
@@ -728,7 +728,7 @@ open class MainActivity : ComponentActivity() {
 
                     // Any app or web page can fire a stremio:// or fetch:// link, so an addon it
                     // names is installed only once someone at the TV says yes.
-                    val deepLinkAddon by deepLinkHandler.get().pendingAddon.collectAsState()
+                    val deepLinkAddon by deepLinkHandler.get().pendingAddon.collectAsStateWithLifecycle()
                     deepLinkAddon?.let { request ->
                         PhoneAddonConfirmContent(
                             request = request,
@@ -846,7 +846,7 @@ open class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    val pendingLaunch by pendingLaunchIntent.collectAsState()
+                    val pendingLaunch by pendingLaunchIntent.collectAsStateWithLifecycle()
                     LaunchedEffect(navController, layoutChosen, pendingLaunch) {
                         val intent = pendingLaunch ?: return@LaunchedEffect
                         if (!layoutChosen) return@LaunchedEffect
@@ -956,8 +956,8 @@ open class MainActivity : ComponentActivity() {
                     // the sign-in has been read, so a restored YouTube screen isn't closed early.
                     val youTubeSignedIn by remember(youTubeAuthDataStore) {
                         youTubeAuthDataStore.get().isSignedIn
-                    }.collectAsState(initial = null)
-                    val parentalRestrictions by parentalControls.activeRestrictions.collectAsState()
+                    }.collectAsStateWithLifecycle(initialValue = null)
+                    val parentalRestrictions by parentalControls.activeRestrictions.collectAsStateWithLifecycle()
                     val youTubeInSidebar = com.fetch.tv.core.build.AppFeaturePolicy.youTubeSectionEnabled &&
                         youTubeSignedIn == true &&
                         !parentalRestrictions.isRestricted
@@ -1051,7 +1051,7 @@ open class MainActivity : ComponentActivity() {
                     }?.route
                     val selectedDrawerItem = drawerItems.firstOrNull { it.route == selectedDrawerRoute } ?: drawerItems.first()
 
-                    val confirmExitEnabled by profileManager.confirmExitEnabled.collectAsState()
+                    val confirmExitEnabled by profileManager.confirmExitEnabled.collectAsStateWithLifecycle()
                     var backPressedOnce by remember { mutableStateOf(false) }
                     LaunchedEffect(backPressedOnce) {
                         if (backPressedOnce) {
@@ -1074,7 +1074,7 @@ open class MainActivity : ComponentActivity() {
                     }
 
                     val updateViewModel: UpdateViewModel = hiltViewModel(this@MainActivity)
-                    val updateState by updateViewModel.uiState.collectAsState()
+                    val updateState by updateViewModel.uiState.collectAsStateWithLifecycle()
                     val updateBannerState = updateState.copy(
                         showBanner = updateState.showBanner && currentRoute?.startsWith("player/") != true
                     )
@@ -1124,7 +1124,7 @@ open class MainActivity : ComponentActivity() {
                                 onExitApp = handleExitApp
                             )
 
-                            val autoNextOverlay by externalPlaybackTracker.autoNextOverlay.collectAsState()
+                            val autoNextOverlay by externalPlaybackTracker.autoNextOverlay.collectAsStateWithLifecycle()
                             autoNextOverlay?.let { ov ->
                                 com.fetch.tv.ui.screens.player.LoadingOverlay(
                                     visible = true,
@@ -1137,7 +1137,7 @@ open class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            val isTrailerPlaying by trailerPlayerPool.isTrailerPlaying.collectAsState()
+                            val isTrailerPlaying by trailerPlayerPool.isTrailerPlaying.collectAsStateWithLifecycle()
                             LaunchedEffect(isTrailerPlaying) {
                                 if (!isTrailerPlaying) ambientIdleController.onInteraction()
                             }
@@ -1207,12 +1207,17 @@ open class MainActivity : ComponentActivity() {
             }
         }
 
-        jankStats = JankStats.createAndTrack(window) { frameData ->
-            if (frameData.isJank) {
-                Log.w(
-                    "JankStats",
-                    "JANK: ${frameData.frameDurationUiNanos / 1_000_000}ms | states: ${frameData.states}"
-                )
+        // Debug builds only: in release it cost a listener on every frame and a formatted log
+        // line for every janky one, which nobody reads (#454). Measure release frame timing with
+        // FrameTimingBenchmark instead (docs/performance.md, section 4).
+        if (BuildConfig.IS_DEBUG_BUILD) {
+            jankStats = JankStats.createAndTrack(window) { frameData ->
+                if (frameData.isJank) {
+                    Log.w(
+                        "JankStats",
+                        "JANK: ${frameData.frameDurationUiNanos / 1_000_000}ms | states: ${frameData.states}"
+                    )
+                }
             }
         }
     }

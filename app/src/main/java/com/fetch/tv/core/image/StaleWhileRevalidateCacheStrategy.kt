@@ -41,6 +41,25 @@ class StaleWhileRevalidateCacheStrategy(
         private const val REVALIDATION_MAX_REQUESTS = 8
         private val revalidatingUrls = ConcurrentHashMap.newKeySet<String>()
         private val revalidatedAt = ConcurrentHashMap<String, Long>()
+
+        /** Above this many URLs, entries past the cooldown are dropped (#454). */
+        internal const val REVALIDATED_AT_PRUNE_THRESHOLD = 512
+
+        /**
+         * Records [url] as revalidated at [now] and keeps the map from growing with every image
+         * URL ever seen. An entry older than the cooldown no longer stops a revalidation, so
+         * removing it changes nothing.
+         */
+        internal fun markRevalidated(
+            url: String,
+            now: Long = System.currentTimeMillis(),
+            map: MutableMap<String, Long> = revalidatedAt,
+        ) {
+            map[url] = now
+            if (map.size > REVALIDATED_AT_PRUNE_THRESHOLD) {
+                map.entries.removeIf { now - it.value >= REVALIDATION_COOLDOWN_MS }
+            }
+        }
     }
 
     private val revalidationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -139,7 +158,7 @@ class StaleWhileRevalidateCacheStrategy(
                 }
             } finally {
                 revalidatingUrls.remove(url)
-                revalidatedAt[url] = System.currentTimeMillis()
+                markRevalidated(url)
             }
         }
     }

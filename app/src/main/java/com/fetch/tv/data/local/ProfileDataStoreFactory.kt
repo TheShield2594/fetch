@@ -269,19 +269,6 @@ class ProfileDataStoreFactory @Inject constructor(
         } else {
             emptyList()
         }
-        // Ensure the datastore directory exists — prevents ENOENT on first read
-        // when a profile-scoped file hasn't been created yet.
-        val dataStoreDir = File(context.filesDir, "datastore")
-        if (!dataStoreDir.exists()) {
-            dataStoreDir.mkdirs()
-        }
-        // DataStore 1.1.x (okio-based) can throw FileNotFoundException if the file
-        // doesn't exist yet and a race condition occurs. Pre-create an empty file
-        // to avoid this edge case (DataStore will overwrite on first write).
-        val targetFile = File(dataStoreDir, "$fileName.preferences_pb")
-        if (!targetFile.exists()) {
-            try { targetFile.createNewFile() } catch (_: Exception) { }
-        }
         val store = PreferenceDataStoreFactory.create(
             corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler { ex ->
                 Log.e("ProfileDataStoreFactory", "DataStore corrupted ($fileName): ${ex.message} — attempting shadow copy recovery")
@@ -297,7 +284,7 @@ class ProfileDataStoreFactory @Inject constructor(
             },
             scope = scope,
             migrations = migrations,
-            produceFile = { context.preferencesDataStoreFile(fileName) }
+            produceFile = { prepareStoreFile(fileName) }
         )
 
         // Wrap the store to keep a shadow copy: once on the first read (app start), so a
@@ -308,6 +295,25 @@ class ProfileDataStoreFactory @Inject constructor(
         val scoped = ScopedDataStore(wrappedStore, scope, job)
         cache[fileName] = scoped
         return scoped
+    }
+
+    /**
+     * The store's file, with its directory and an empty file created first. DataStore calls
+     * this lazily on the store's IO scope at first access, so these syscalls no longer run on
+     * whichever thread (often main) first asks for the store (#454).
+     *
+     * The directory prevents ENOENT on the first read of a profile-scoped file that does not
+     * exist yet. DataStore 1.1.x (okio-based) can throw FileNotFoundException when the file
+     * does not exist and a race occurs, so an empty file is pre-created (DataStore overwrites
+     * it on the first write).
+     */
+    private fun prepareStoreFile(fileName: String): File {
+        val targetFile = context.preferencesDataStoreFile(fileName)
+        targetFile.parentFile?.let { dir -> if (!dir.exists()) dir.mkdirs() }
+        if (!targetFile.exists()) {
+            try { targetFile.createNewFile() } catch (_: Exception) { }
+        }
+        return targetFile
     }
 
     private fun shadowCopyFile(fileName: String): File =

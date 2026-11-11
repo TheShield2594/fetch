@@ -62,7 +62,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -145,6 +144,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.fetch.tv.ui.theme.FetchContentColors
 import com.fetch.tv.ui.theme.FetchStatusTones
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 private object ProfileSelectionSpacing {
     val ScreenPaddingHorizontal = FetchTheme.spacing.huge
@@ -306,19 +306,19 @@ fun ProfileSelectionScreen(
     viewModel: ProfileSelectionViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val profiles by viewModel.profiles.collectAsState()
-    val activeProfileId by viewModel.activeProfileId.collectAsState()
-    val avatarCatalog by viewModel.avatarCatalog.collectAsState()
-    val hasProfileBackgroundAccess by viewModel.hasProfileBackgroundAccess.collectAsState()
-    val isCreating by viewModel.isCreating.collectAsState()
-    val isSaving by viewModel.isSaving.collectAsState()
-    val isCopyingSettings by viewModel.isCopyingSettings.collectAsState()
-    val profilePinEnabled by viewModel.profilePinEnabled.collectAsState()
-    val profileRestrictions by viewModel.profileRestrictions.collectAsState()
-    val profileTitleLists by viewModel.profileTitleLists.collectAsState()
-    val profileKidsRules by viewModel.profileKidsRules.collectAsState()
-    val parentLists by viewModel.parentLists.collectAsState()
-    val isPinOperationInProgress by viewModel.isPinOperationInProgress.collectAsState()
+    val profiles by viewModel.profiles.collectAsStateWithLifecycle()
+    val activeProfileId by viewModel.activeProfileId.collectAsStateWithLifecycle()
+    val avatarCatalog by viewModel.avatarCatalog.collectAsStateWithLifecycle()
+    val hasProfileBackgroundAccess by viewModel.hasProfileBackgroundAccess.collectAsStateWithLifecycle()
+    val isCreating by viewModel.isCreating.collectAsStateWithLifecycle()
+    val isSaving by viewModel.isSaving.collectAsStateWithLifecycle()
+    val isCopyingSettings by viewModel.isCopyingSettings.collectAsStateWithLifecycle()
+    val profilePinEnabled by viewModel.profilePinEnabled.collectAsStateWithLifecycle()
+    val profileRestrictions by viewModel.profileRestrictions.collectAsStateWithLifecycle()
+    val profileTitleLists by viewModel.profileTitleLists.collectAsStateWithLifecycle()
+    val profileKidsRules by viewModel.profileKidsRules.collectAsStateWithLifecycle()
+    val parentLists by viewModel.parentLists.collectAsStateWithLifecycle()
+    val isPinOperationInProgress by viewModel.isPinOperationInProgress.collectAsStateWithLifecycle()
     val avatarImageUrlsById = remember(avatarCatalog, profiles) {
         buildMap {
             avatarCatalog.forEach { avatar -> put(avatar.id, avatar.imageUrl) }
@@ -347,7 +347,7 @@ fun ProfileSelectionScreen(
     var pinCheck by remember { mutableStateOf<ProfilePinCheck?>(null) }
     var parentPinNudgeFor by remember { mutableStateOf<UserProfile?>(null) }
     var lockOfferFor by remember { mutableStateOf<UserProfile?>(null) }
-    val lockUnrestrictedProfiles by viewModel.lockUnrestrictedProfiles.collectAsState()
+    val lockUnrestrictedProfiles by viewModel.lockUnrestrictedProfiles.collectAsStateWithLifecycle()
     var pinCheckError by remember { mutableStateOf<String?>(null) }
     // Editing a locked profile, or copying settings (and API keys) to or from it, needs its PIN.
     // The profile already open behind Manage Profiles was unlocked to get there; the startup
@@ -431,7 +431,7 @@ fun ProfileSelectionScreen(
         }
     }
     val focusedProfile = profiles.firstOrNull { it.id == focusedProfileId }
-    val profileThemes by viewModel.profileThemes.collectAsState()
+    val profileThemes by viewModel.profileThemes.collectAsStateWithLifecycle()
     val focusedBrandWordmarkRes = remember(focusedProfileId, profileThemes) {
         val pid = focusedProfileId ?: return@remember null
         val theme = profileThemes[pid]
@@ -840,7 +840,7 @@ fun ProfileSelectionScreen(
                 lastProfileToEdit.value?.let { profile ->
                     val editorPreferences by remember(profile.id) {
                         viewModel.editorPreferences(profile.id)
-                    }.collectAsState(initial = null)
+                    }.collectAsStateWithLifecycle(initialValue = null)
                     EditProfileOverlay(
                         profile = profile,
                         avatarCatalog = avatarCatalog,
@@ -1132,7 +1132,7 @@ fun ProfileSelectionScreen(
         activityTarget?.let { targetProfile ->
             val entries by remember(targetProfile.id) {
                 viewModel.observeViewingActivity(targetProfile.id)
-            }.collectAsState(initial = null)
+            }.collectAsStateWithLifecycle(initialValue = null)
             ViewingActivityDialog(
                 modifier = dismissReadErrorOnKey,
                 profile = targetProfile,

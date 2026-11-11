@@ -276,7 +276,11 @@ android {
 
     packaging {
         jniLibs {
-            useLegacyPackaging = true
+            // Native libraries stay uncompressed in the APK and load from there, instead of
+            // being stored compressed in the APK and extracted again to disk on install (#454).
+            // Saves their size in storage on 8 GB sticks; the download is somewhat larger.
+            // Nothing in Fetch or its AARs loads a library by path from nativeLibraryDir.
+            useLegacyPackaging = false
             // Keep one consistent native set across dependencies.
             pickFirsts += listOf(
                 "lib/*/libc++_shared.so",
@@ -461,7 +465,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Performance profiling
-    implementation("androidx.metrics:metrics-performance:1.0.0-rc01")  // JankStats
+    implementation(libs.androidx.metrics.performance)  // JankStats (debug builds only, see MainActivity)
     debugImplementation("androidx.compose.runtime:runtime-tracing")
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -471,9 +475,10 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     // Real org.json for JVM tests; android.jar only ships stubs.
     testImplementation("org.json:json:20240303")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+    testImplementation(libs.coroutines.test)
     testImplementation("io.mockk:mockk:1.13.12")
-    testImplementation("com.squareup.okhttp3:mockwebserver:5.3.2")
+    // Same OkHttp line as the app; a 5.x mockwebserver pulled OkHttp 5 into the unit tests (#454).
+    testImplementation(libs.okhttp.mockwebserver)
     testImplementation("org.robolectric:robolectric:4.17")
     testImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.androidx.compose.ui.test.junit4)

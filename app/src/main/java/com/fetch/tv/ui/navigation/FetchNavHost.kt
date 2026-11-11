@@ -16,7 +16,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -48,6 +47,7 @@ import com.fetch.tv.ui.screens.profile.ProfileSelectionScreen
 import com.fetch.tv.ui.screens.tmdb.TmdbEntityBrowseScreen
 import com.fetch.tv.ui.screens.home.DetailInitialSeasonState
 import com.fetch.tv.ui.screens.home.HeroBackdropState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun FetchNavHost(
@@ -303,13 +303,13 @@ private fun PlaybackNavHost(
                 ?.toBooleanStrictOrNull() == true
             val returnFocusSeason by savedState.getStateFlow(
                 "returnFocusSeason", detailArgs?.getString("returnFocusSeason")?.toIntOrNull()
-            ).collectAsState()
+            ).collectAsStateWithLifecycle()
             val returnFocusEpisode by savedState.getStateFlow(
                 "returnFocusEpisode", detailArgs?.getString("returnFocusEpisode")?.toIntOrNull()
-            ).collectAsState()
+            ).collectAsStateWithLifecycle()
             val heroRestoreToken by savedState.getStateFlow(
                 "heroRestoreToken", 0
-            ).collectAsState()
+            ).collectAsStateWithLifecycle()
             val heroBackdropUrl = detailArgs?.getString("heroBackdropUrl")?.takeIf { it.isNotBlank() }
             val playOnLoad = detailArgs?.getString("playOnLoad")?.toBooleanStrictOrNull() == true
             val manualSelection = detailArgs?.getString("manualSelection")?.toBooleanStrictOrNull() == true
@@ -523,7 +523,7 @@ private fun PlaybackNavHost(
             val streamSavedState = backStackEntry.savedStateHandle
             val restoreSourceSelection by streamSavedState.getStateFlow(
                 SOURCE_SELECTION_RESTORE_STATE_KEY, false
-            ).collectAsState()
+            ).collectAsStateWithLifecycle()
             val returnToDetailOnBack = streamArgs
                 ?.getString("returnToDetailOnBack")
                 ?.toBooleanStrictOrNull() == true

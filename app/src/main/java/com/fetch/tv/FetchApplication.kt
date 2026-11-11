@@ -7,6 +7,7 @@ import android.content.res.Resources
 import android.os.Build
 import android.os.Looper
 import android.os.StatFs
+import android.os.StrictMode
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import com.fetch.tv.core.image.BrowserImageRequestHeadersInterceptor
@@ -50,6 +51,8 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
     @Inject lateinit var serverUserStateProjection: dagger.Lazy<ServerUserStateProjection>
 
     override fun onCreate() {
+        // Before super.onCreate(), so disk access during Hilt injection is reported too.
+        enableStrictModeInDebug()
         super.onCreate()
         // None of these are needed for the first frame: the launcher channel only matters once
         // the app is backgrounded, and server projection only reacts to later screens. Building their dependency graphs (DataStores,
@@ -183,6 +186,29 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
             .allowRgb565(imagePrefs.rgb565Enabled)
             .bitmapFactoryMaxParallelism(4)
             .build()
+    }
+
+    /**
+     * Debug builds log (never crash on) disk reads and writes on the main thread, and leaked
+     * closeables, to find main-thread file syscalls such as the ones the audit found in
+     * ProfileDataStoreFactory (#454). Filter logcat by the StrictMode tag. Off in every build
+     * that is measured or shipped.
+     */
+    private fun enableStrictModeInDebug() {
+        if (BuildConfig.BUILD_TYPE != "debug") return
+        StrictMode.setThreadPolicy(
+            StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .penaltyLog()
+                .build()
+        )
+        StrictMode.setVmPolicy(
+            StrictMode.VmPolicy.Builder()
+                .detectLeakedClosableObjects()
+                .penaltyLog()
+                .build()
+        )
     }
 
     /**

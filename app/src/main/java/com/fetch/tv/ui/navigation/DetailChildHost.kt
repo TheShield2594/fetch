@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +39,7 @@ import java.util.WeakHashMap
 import com.fetch.tv.ui.screens.detail.MetaDetailsScreen
 import com.fetch.tv.ui.screens.tmdb.TmdbEntityBrowseScreen
 import com.fetch.tv.ui.theme.FetchTheme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 internal const val DETAIL_CHILD_IDLE = "detail_child_idle"
 
@@ -62,7 +62,7 @@ internal fun DetailChildHost(
     content: @Composable (childNav: NavHostController) -> Unit
 ) {
     val childNav = rememberNavController()
-    val childBackStack by childNav.currentBackStack.collectAsState()
+    val childBackStack by childNav.currentBackStack.collectAsStateWithLifecycle()
     val showingChild = childBackStack.any { it.toSavedChildRoute() != null }
     var savedChildRoutes by rememberSaveable { mutableStateOf(listOf<String>()) }
     var childRoutesRestored by remember { mutableStateOf(false) }

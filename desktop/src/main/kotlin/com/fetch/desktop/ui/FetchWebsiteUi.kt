@@ -40,7 +40,6 @@ import com.fetch.desktop.AppState
 import com.fetch.desktop.parental.PinGate
 import com.fetch.desktop.website.FetchWebsiteState
 import com.fetch.desktop.website.WebsitePairing
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -86,8 +85,6 @@ private fun BigCode(code: String) {
 @Composable
 fun FetchWebsiteSection(state: AppState) {
     val website = FetchWebsiteState.shared
-    val scope = rememberCoroutineScope()
-    var job by remember { mutableStateOf<Job?>(null) }
     LaunchedEffect(Unit) { website.checkSession() }
     val session = website.session
     SettingsSection("Fetch website") {
@@ -112,7 +109,7 @@ fun FetchWebsiteSection(state: AppState) {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     SecondaryButton("Sync now", enabled = !state.accountSyncing, onClick = state::syncAccount)
                     SecondaryButton("Sign out", onClick = {
-                        job?.cancel()
+                        website.cancelPairing()
                         website.signOut()
                     })
                     if (state.accountSyncing) CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
@@ -123,17 +120,13 @@ fun FetchWebsiteSection(state: AppState) {
                 WebsitePairing.EnterAddress, is WebsitePairing.Failed -> {
                     var address by remember { mutableStateOf(website.file.lastServerUrl.orEmpty()) }
                     Text(
-                        "Pair this computer with your Fetch website by a code. Enter its API address, the same one its README calls FETCH_API_PUBLIC.",
+                        "Pair this computer with your Fetch website by a code. Enter the address you open the website at, such as fetch.example.com or 192.168.1.25:7002.",
                         color = FetchPalette.TextSecondary
                     )
-                    Field(address, { address = it }, "http://192.168.1.25:7000")
+                    Field(address, { address = it }, "fetch.example.com")
                     PrimaryButton("Continue", icon = null, enabled = address.isNotBlank(), onClick = {
-                        job?.cancel()
-                        job = scope.launch {
-                            website.pair(address)
-                            // Paired: the website's profiles, addons and settings come down now.
-                            if (website.isPaired) state.syncAccount()
-                        }
+                        // Paired: the website's profiles, addons and settings come down now.
+                        website.startPairing(address, onPaired = { java.awt.EventQueue.invokeLater(state::syncAccount) })
                     })
                     if (pairing is WebsitePairing.Failed) {
                         Text(tr("Couldn’t reach the website: %1\$s", pairing.message ?: tr("check the address")), color = FetchPalette.Error)
@@ -141,12 +134,9 @@ fun FetchWebsiteSection(state: AppState) {
                 }
                 WebsitePairing.Starting -> Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(Modifier.size(20.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
-                    Text(tr("Asking the website for a code…"), color = FetchPalette.TextSecondary)
+                    Text(tr("Finding your Fetch website…"), color = FetchPalette.TextSecondary)
                 }
-                is WebsitePairing.ShowingCode -> PairingCode(pairing, onCancel = {
-                    job?.cancel()
-                    website.resetPairing()
-                })
+                is WebsitePairing.ShowingCode -> PairingCode(pairing, onOpen = state::openInBrowser, onCancel = website::cancelPairing)
                 WebsitePairing.Expired -> {
                     Text(tr("The code expired before it was confirmed."), color = FetchPalette.TextSecondary)
                     SecondaryButton("Get a new code", onClick = website::resetPairing)
@@ -158,7 +148,7 @@ fun FetchWebsiteSection(state: AppState) {
 }
 
 @Composable
-private fun PairingCode(pairing: WebsitePairing.ShowingCode, onCancel: () -> Unit) {
+private fun PairingCode(pairing: WebsitePairing.ShowingCode, onOpen: (String) -> Unit, onCancel: () -> Unit) {
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(pairing) {
         while (true) {
@@ -182,7 +172,13 @@ private fun PairingCode(pairing: WebsitePairing.ShowingCode, onCancel: () -> Uni
                 CircularProgressIndicator(Modifier.size(16.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
                 Text(tr("Waiting for the code to be confirmed… Expires in %1\$s", "%d:%02d".format(left / 60, left % 60)), color = FetchPalette.TextMuted)
             }
-            SecondaryButton("Cancel", onClick = onCancel)
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                // On a computer the website is one click away, usually already signed in.
+                pairing.confirmUrl?.let { url ->
+                    PrimaryButton("Confirm in your browser", icon = null, onClick = { onOpen(url) })
+                }
+                SecondaryButton("Cancel", onClick = onCancel)
+            }
         }
     }
 }

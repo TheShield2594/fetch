@@ -78,10 +78,20 @@ every device can't be revoked one device at a time. A TV signs in by **device
 pairing** instead (#91):
 
 1. Settings → Account → Sync → Fetch website on the TV (or the first-run Server
-   step) asks for the API address and shows a short code, plus a QR code for the
-   website's `/pair` page when the API knows the website's address
-   (`FETCH_WEB_PUBLIC`).
-2. Signed in on the website, you scan it or type the code under Settings → TVs & Devices.
+   step) lists the websites it finds on the LAN (mDNS), or asks for **the address
+   you open the website at**, such as `fetch.example.com` or `192.168.1.25:7002`.
+   The API's own address works too. The TV finds the API from the website's
+   `fetch-server.json` (written by the web container at start from
+   `VITE_API_BASE`), and otherwise tries `<website>/api` and the same host on
+   port 7000 (`FetchServerAddress` in `shared/`, which the desktop app uses too).
+   The address step also shows a QR code that opens the TV's phone page
+   (`/website` on the phone hub), so the address can be typed on a phone
+   instead of with the remote. Once the TV has a code, the phone opens the
+   website's confirm page with that code filled in.
+2. The TV shows a short code, plus a QR code for the website's `/pair` page. The
+   QR code is built from the website address that worked, falling back to the
+   API's `FETCH_WEB_PUBLIC`. Signed in on the website, you scan it, or type the
+   code under Settings → TVs & Devices.
 3. The API issues that TV its own token, listed and revocable on the website. A
    revoked TV gets a bearer 401 on its next request and says it was signed out.
 

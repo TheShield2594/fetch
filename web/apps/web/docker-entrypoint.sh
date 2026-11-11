@@ -10,6 +10,11 @@ SENTRY_DSN_JSON=$(SENTRY_DSN="${SENTRY_DSN:-}" node -e 'console.log(JSON.stringi
   printf 'window.__FETCH_SENTRY_DSN__ = %s;\n' "$SENTRY_DSN_JSON"
 } > /app/dist/config.js
 
+# Lets the TV and desktop apps find the API from the address people open the
+# website at: they read this, then check the API's /health. It holds only the
+# API base, which config.js already gives every browser that opens the site.
+printf '{"service":"web","api":%s}\n' "$API_BASE_JSON" > /app/dist/fetch-server.json
+
 # The CSP's connect-src names the API/addon/Sentry origins this container was
 # configured with, so it is rendered here for the same reason config.js is —
 # those values only exist at container start.

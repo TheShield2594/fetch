@@ -595,11 +595,28 @@ class AppState(
         if (signedIn) web.report(error)
     }
 
-    /** The website's profiles replace the ones here; a website with none for this computer gets ours. */
+    /**
+     * The website's profiles replace the ones here; a website with none for this computer gets
+     * ours. The first sync after pairing first adds the profiles only this computer has, so
+     * pairing with an account that already has a profile (every new account does) doesn't drop
+     * the rest of them.
+     */
     private suspend fun syncWebsiteProfiles(web: com.fetch.desktop.website.FetchWebsiteSync) {
-        val remote = web.profiles()
+        var remote = web.profiles()
+        if (web.needsInitialProfilePush) {
+            val remoteSlots = remote.mapTo(HashSet()) { it.slot }
+            val missing = profiles.profiles.filter { it.id !in remoteSlots }
+            if (missing.isNotEmpty() && remote.isNotEmpty()) {
+                web.pushProfiles(missing)
+                remote = web.profiles()
+            }
+            if (remote.isNotEmpty()) web.markInitialProfilePushDone()
+        }
         if (remote.isEmpty()) {
-            if (profile.isPrimary) web.pushProfiles(profiles.profiles)
+            if (profile.isPrimary) {
+                web.pushProfiles(profiles.profiles)
+                web.markInitialProfilePushDone()
+            }
             return
         }
         profiles.applyFromServer(com.fetch.desktop.website.FetchWebsiteMappings.mergeProfiles(profiles.profiles, remote))

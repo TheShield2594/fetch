@@ -11,6 +11,10 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+### Added
+
+- **Apps can pair from the website's own address.** The `web` container now writes `fetch-server.json` with its API base, so the TV and desktop apps take the address you open the website at (for example `fetch.example.com`) and find the API themselves. Settings → TVs & Devices names that address.
+
 ## [0.2.0] - 2026-11-10
 
 ### Removed

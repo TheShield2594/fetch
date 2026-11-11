@@ -271,9 +271,10 @@ export function DevicesSettings() {
   return (
     <div className="space-y-4">
       <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
-        On the TV, open <strong>Settings → Account → Fetch website</strong> and enter this site&apos;s API address.
-        The TV shows a code: type it here, or scan its QR code with your phone. Each TV gets its own sign-in, so
-        revoking one leaves the others alone.
+        On the TV, open <strong>Settings → Account → Fetch website</strong> and enter{" "}
+        <strong className="font-mono">{window.location.host}</strong>, the address of this site (or scan the TV&apos;s
+        QR code to type it on your phone). The TV shows a code: type it here, or scan its QR code with your phone.
+        Each TV gets its own sign-in, so revoking one leaves the others alone.
       </p>
 
       <PairingCodeForm

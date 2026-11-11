@@ -258,6 +258,8 @@ The Stremio app is the way to use Fetch on a TV. The web app is built for touch 
 
 The Fetch TV app's setup wizard (and **Settings → Account → Fetch website**) lists Fetch servers it finds on your network, so pairing the TV is a matter of picking one and confirming the code. The `mdns` service in `docker-compose.yml` is what makes it findable: it announces `_fetch._tcp` over multicast DNS with `FETCH_API_PUBLIC` and `FETCH_WEB_PUBLIC` in the TXT record, and answers on the host's LAN address. The TV pairs against `FETCH_API_PUBLIC` when that answers and falls back to the host's LAN address and the api port when it doesn't.
 
+Away from home, or wherever multicast doesn't reach, type **the address you open the website at** on the TV or desktop app, such as `fetch.example.com` or `192.168.1.25:7002`. You don't need the API's address or port. The `web` container writes `fetch-server.json` at start with the API base from `VITE_API_BASE`, and the apps read it, then try `<website>/api` and the same host on port 7000 if that address doesn't answer from where they are. On the TV, the address step also has a QR code, so you can type the address on your phone. The phone then opens the website's confirm page with the TV's code already filled in.
+
 - **It runs on the host network.** Multicast doesn't cross Docker's default bridge network, so only this small service (no database, no secrets) uses `network_mode: host`; the api stays on the bridge. Docker Desktop on macOS and Windows doesn't give containers the host network, so there the service starts but the TV won't hear it.
 - **The name and port.** The TV shows `FETCH_MDNS_NAME` (default `Fetch (<host name>)`). `FETCH_MDNS_PORT` is the host port the api is published on, `7000` unless you changed the `ports:` mapping.
 - **Without Docker,** set `FETCH_MDNS=true` on the API and it announces itself.
@@ -457,7 +459,7 @@ FETCH_WEB_PUBLIC=https://fetch.example.com
 FETCH_ALLOWED_ORIGINS=https://fetch.example.com
 ```
 
-With one address for everything, the TV only needs that one URL too: it pairs against `FETCH_API_PUBLIC` (here `https://fetch.example.com/api`), which the `mdns` service announces, and the pairing code it shows links to `FETCH_WEB_PUBLIC`.
+With one address for everything, the TV only needs that one URL too: type `fetch.example.com` and it finds the API at `/api`. The `mdns` service also announces `FETCH_API_PUBLIC` (here `https://fetch.example.com/api`) on the LAN.
 
 `FETCH_WEB_PUBLIC` is also what invite links are built from. With Trakt, the redirect URI becomes `https://fetch.example.com/api/trakt/oauth/callback`. At home, open the same domain rather than the LAN IP, or add the LAN address to `FETCH_ALLOWED_ORIGINS` as well.
 

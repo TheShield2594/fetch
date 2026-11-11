@@ -30,6 +30,7 @@ class FetchWebsiteTest {
         var polls = 0
         val fake = FakeHttp { request ->
             when (request.url.encodedPath) {
+                "/api/health" -> 200 to """{"status":"ok","service":"api"}"""
                 "/api/devices/pair/start" -> 200 to """{"code":"K7Q2-9XPL","pollSecret":"s3","expiresAt":"2999-01-01T00:00:00Z","intervalSec":1,"confirmUrl":"https://web/confirm?c=K7Q2"}"""
                 "/api/devices/pair/poll" -> if (++polls < 2) 202 to "{}" else 200 to """{"status":"approved","token":"tok","device":{"id":"d","name":"Living room PC"}}"""
                 else -> 404 to "{}"
@@ -39,17 +40,51 @@ class FetchWebsiteTest {
         website.pair("http://web.test/api", deviceName = "Fetch Desktop")
         assertEquals(WebsitePairing.Paired("Living room PC"), website.pairing)
         assertEquals(WebsiteSession("http://web.test/api", "tok", "Living room PC"), website.session)
-        assertEquals("""{"name":"Fetch Desktop"}""", fake.sent[0].body)
-        assertEquals("s3", fake.sent[1].request.header("x-pairing-secret"))
+        assertEquals("""{"name":"Fetch Desktop"}""", fake.sent.first { it.request.url.encodedPath.endsWith("start") }.body)
+        assertEquals("s3", fake.sent.first { it.request.url.encodedPath.endsWith("poll") }.request.header("x-pairing-secret"))
+        assertTrue(website.file.initialProfilePush)
         // Kept across restarts, with the address for next time.
         val reloaded = tempStore().also { it.save(website.file) }.load()
         assertEquals("http://web.test/api", reloaded.lastServerUrl)
     }
 
     @Test
+    fun `pairing from the website address finds the API and confirms on that website`() = runBlocking {
+        val fake = FakeHttp { request ->
+            when (request.url.toString()) {
+                "http://10.0.0.5:7002/fetch-server.json" -> 200 to """{"service":"web","api":"http://192.168.1.25:7000"}"""
+                "http://10.0.0.5:7000/health" -> 200 to """{"status":"ok","service":"api"}"""
+                "http://10.0.0.5:7000/devices/pair/start" ->
+                    200 to """{"code":"K7Q2-9XPL","pollSecret":"s","expiresAt":"2999-01-01T00:00:00Z","intervalSec":1,"confirmUrl":"http://192.168.1.25:7002/pair?code=K7Q2-9XPL"}"""
+                else -> 404 to "{}"
+            }
+        }
+        val website = FetchWebsiteState(tempStore(), fake.client)
+        website.pair("10.0.0.5:7002")
+        assertEquals(
+            WebsitePairing.Expired,
+            website.pairing
+        )
+        // The code went to the API found from the website, and the start call carried no session.
+        val start = fake.sent.first { it.request.url.encodedPath.endsWith("start") }
+        assertEquals("http://10.0.0.5:7000/devices/pair/start", start.request.url.toString())
+    }
+
+    @Test
+    fun `a website that can't be found says so`() = runBlocking {
+        val website = FetchWebsiteState(tempStore(), FakeHttp { 404 to "{}" }.client)
+        website.pair("10.0.0.9:7002")
+        assertTrue(website.pairing is WebsitePairing.Failed)
+        assertTrue(fakeFreeMessage(website.pairing).contains("No Fetch website"))
+    }
+
+    private fun fakeFreeMessage(pairing: WebsitePairing): String = (pairing as WebsitePairing.Failed).message.orEmpty()
+
+    @Test
     fun `an expired code says so`() = runBlocking {
         val fake = FakeHttp { request ->
-            if (request.url.encodedPath.endsWith("start")) 200 to """{"code":"A","pollSecret":"s","expiresAt":"2999-01-01T00:00:00Z","intervalSec":1}"""
+            if (request.url.encodedPath == "/health") 200 to """{"service":"api"}"""
+            else if (request.url.encodedPath.endsWith("start")) 200 to """{"code":"A","pollSecret":"s","expiresAt":"2999-01-01T00:00:00Z","intervalSec":1}"""
             else 404 to "{}"
         }
         val website = FetchWebsiteState(tempStore(), fake.client)

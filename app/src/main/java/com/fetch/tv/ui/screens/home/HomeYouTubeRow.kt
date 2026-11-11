@@ -17,6 +17,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -57,6 +59,12 @@ internal fun youTubeHomeRowVideos(
     .take(max.coerceAtLeast(0))
     .toList()
 
+/**
+ * Longest the row waits for the subscriptions feed. Home never waits on it either way; this only
+ * bounds how long a stalled YouTube keeps a fetch (and the row's cache lock) busy.
+ */
+internal const val YOUTUBE_HOME_ROW_TIMEOUT_MS = 20_000L
+
 internal fun youTubeHomeRowCacheFresh(
     fetchedAtMs: Long,
     nowMs: Long,
@@ -77,6 +85,9 @@ class HomeYouTubeRow @Inject constructor(
     private val parentalControls: ParentalControls,
     private val playRequests: YouTubePlayRequests
 ) {
+    /** How long a feed fetch may take; a test shortens it. */
+    internal var timeoutMs: Long = YOUTUBE_HOME_ROW_TIMEOUT_MS
+
     // The channel matters as well as the profile: switching channel shows other subscriptions.
     private data class Gate(val show: Boolean, val profileId: Int, val pageId: String?)
 
@@ -120,6 +131,12 @@ class HomeYouTubeRow @Inject constructor(
             }
         }
         .onStart { emit(emptyList()) }
+        // A broken YouTube (a store that can't be read, a changed response the parser throws on)
+        // ends the row, never Home: Home combines this flow, and an error here would end that too.
+        .catch { error ->
+            Log.w(TAG, "YouTube row stopped: ${error.message}")
+            emit(emptyList())
+        }
         .distinctUntilChanged()
 
     /** Home is showing again; refetches the feed if the cached one is older than the cache time. */
@@ -136,18 +153,21 @@ class HomeYouTubeRow @Inject constructor(
         val now = SystemClock.elapsedRealtime()
         cached?.takeIf { it.profileId == profileId && it.pageId == pageId && youTubeHomeRowCacheFresh(it.fetchedAtMs, now) }
             ?.let { return@withLock it.page }
-        try {
-            youTubeService.loadFeed(YouTubeFeed.SUBSCRIPTIONS).also { page ->
-                cached = CachedPage(profileId, pageId, now, page)
+        val loaded = withTimeoutOrNull(timeoutMs) {
+            try {
+                youTubeService.loadFeed(YouTubeFeed.SUBSCRIPTIONS)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not load YouTube subscriptions for Home: ${e.message}")
+                null
             }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            // Signed out, offline or a changed response: the row stays hidden, and the empty
-            // page is kept for the cache time so each return to Home doesn't try again.
-            Log.w(TAG, "Could not load YouTube subscriptions for Home: ${e.message}")
-            YouTubePage(emptyList(), null).also { cached = CachedPage(profileId, pageId, now, it) }
         }
+        // Signed out, offline, unreachable or a changed response: the row stays hidden, and the
+        // empty page is kept for the cache time so each return to Home doesn't try again.
+        val page = loaded ?: YouTubePage(emptyList(), null)
+        cached = CachedPage(profileId, pageId, now, page)
+        page
     }
 
     private companion object {

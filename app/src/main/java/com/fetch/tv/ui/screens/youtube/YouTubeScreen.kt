@@ -76,6 +76,7 @@ import com.fetch.tv.R
 import com.fetch.tv.data.youtube.YouTubeBrowseTarget
 import com.fetch.tv.data.youtube.YouTubeChannelRef
 import com.fetch.tv.data.youtube.YouTubeFeed
+import com.fetch.tv.data.youtube.YouTubeInnerTube
 import com.fetch.tv.data.youtube.YouTubeLink
 import com.fetch.tv.data.youtube.YouTubeLinkKind
 import com.fetch.tv.data.youtube.YouTubeService
@@ -279,7 +280,7 @@ fun YouTubeScreen(
                 onToggle = { option ->
                     // Out of the playlist that's open, the video leaves the page under the menu: the menu closes.
                     val leavesPage = option.containsVideo &&
-                        menu.openPlaylist?.browseId == YouTubeService.PLAYLIST_BROWSE_PREFIX + option.playlistId
+                        menu.openPlaylist?.browseId == YouTubeInnerTube.PLAYLIST_BROWSE_PREFIX + option.playlistId
                     if (leavesPage) focusAfterRemoving(video)
                     viewModel.togglePlaylist(option, closeMenu = leavesPage)
                 },
@@ -300,7 +301,7 @@ fun YouTubeScreen(
                 onToggleSubscription = viewModel::toggleMenuSubscription,
                 onToggleWatchLater = {
                     val leavesPage = menu.inWatchLater &&
-                        menu.openPlaylist?.browseId == YouTubeService.WATCH_LATER_BROWSE_ID
+                        menu.openPlaylist?.browseId == YouTubeInnerTube.WATCH_LATER_BROWSE_ID
                     if (leavesPage) focusAfterRemoving(video)
                     viewModel.toggleWatchLater()
                 },
@@ -873,12 +874,13 @@ private fun YouTubeVideoMenu(
         }
         // There's no subscribe button for the channel's own videos.
         val actions = menu.actions
-        if (actions?.channelId != null && actions.subscribed != null) {
+        val subscribed = actions?.subscribed
+        if (actions?.channelId != null && subscribed != null) {
             val channel = actions.channelName ?: video.channelName
             val label = when {
-                channel == null && actions.subscribed -> stringResource(R.string.youtube_menu_unsubscribe)
+                channel == null && subscribed -> stringResource(R.string.youtube_menu_unsubscribe)
                 channel == null -> stringResource(R.string.youtube_action_subscribe)
-                actions.subscribed -> stringResource(R.string.youtube_menu_unsubscribe_from, channel)
+                subscribed -> stringResource(R.string.youtube_menu_unsubscribe_from, channel)
                 else -> stringResource(R.string.youtube_menu_subscribe_to, channel)
             }
             YouTubeMenuButton(label, onClick = onToggleSubscription)

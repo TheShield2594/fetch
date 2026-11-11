@@ -3,6 +3,13 @@ package com.fetch.desktop.youtube
 import com.fetch.desktop.data.PlayerSettings
 import com.fetch.desktop.data.SubtitleMode
 import com.fetch.desktop.player.MpvProgress
+import com.fetch.tv.data.youtube.SponsorBlockCategory
+import com.fetch.tv.data.youtube.SponsorBlockMode
+import com.fetch.tv.data.youtube.YouTubePlaylistContext
+import com.fetch.tv.data.youtube.YouTubeSkipSegment
+import com.fetch.tv.data.youtube.YouTubeStoryboard
+import com.fetch.tv.data.youtube.YouTubeVideo
+import com.fetch.tv.data.youtube.YouTubeWatchNext
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray

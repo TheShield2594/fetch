@@ -5,6 +5,8 @@ import com.fetch.desktop.YouTubeFeedKey
 import com.fetch.desktop.YouTubeHost
 import com.fetch.desktop.YouTubeState
 import com.fetch.desktop.data.PlayerSettings
+import com.fetch.tv.data.youtube.YouTubeFeed
+import com.fetch.tv.data.youtube.YouTubeVideo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.job
 import kotlinx.coroutines.runBlocking

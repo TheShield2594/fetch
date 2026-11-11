@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.Alignment
 import com.fetch.tv.data.youtube.SponsorBlockCategory
 import com.fetch.tv.data.youtube.YouTubeAccount
+import com.fetch.tv.data.youtube.YouTubeInnerTube
 import com.fetch.tv.ui.screens.youtube.sponsorBlockCategoryLabel
 import com.fetch.tv.ui.screens.youtube.sponsorBlockModeLabel
 import com.fetch.tv.ui.components.LoadingIndicator
@@ -350,7 +351,7 @@ private fun YouTubeSignInDialog(
         suppressFirstKeyUp = false,
         scrollable = true
     ) {
-        val displayUrl = state.verificationUrl ?: YouTubeService.ACTIVATION_URL
+        val displayUrl = state.verificationUrl ?: YouTubeInnerTube.ACTIVATION_URL
         TrackingDeviceAuthContent(
             providerName = stringResource(R.string.youtube_name),
             logo = rememberRawSvgPainter(R.raw.youtube_logo, 40.dp),

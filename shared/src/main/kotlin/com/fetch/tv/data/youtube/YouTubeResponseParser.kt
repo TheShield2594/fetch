@@ -13,7 +13,7 @@ import java.util.Base64
  * and YouTube moves them around often, so this walks the whole tree and keeps any video it can
  * recognise, grouped by the shelf it sits in, instead of following one fixed path.
  */
-internal object YouTubeResponseParser {
+object YouTubeResponseParser {
 
     private const val MAX_DEPTH = 64
 
@@ -385,7 +385,7 @@ internal object YouTubeResponseParser {
     )
 
     /** The tab name in a channel's browse params: field 2 (tag 0x12) of the protobuf they encode. */
-    internal fun paramsTabName(params: String): String? {
+    fun paramsTabName(params: String): String? {
         val bytes = runCatching {
             // Sent URL-encoded ("%3D" padding), in either base64 alphabet.
             val base64 = params.replace("%3D", "", ignoreCase = true).replace('+', '-').replace('/', '_').trimEnd('=')
@@ -681,7 +681,7 @@ internal object YouTubeResponseParser {
     }
 
     /** YouTube text is either `{simpleText}` or `{runs: [{text}]}`. */
-    internal fun text(element: JsonElement?): String? {
+    fun text(element: JsonElement?): String? {
         val obj = element as? JsonObject ?: return element.stringOrNull()?.takeIf { it.isNotBlank() }
         obj["simpleText"].stringOrNull()?.let { return it.takeIf(String::isNotBlank) }
         obj["content"].stringOrNull()?.let { return it.takeIf(String::isNotBlank) }

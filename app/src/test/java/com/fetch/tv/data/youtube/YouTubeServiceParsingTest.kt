@@ -30,7 +30,7 @@ class YouTubeServiceParsingTest {
     fun `device code without a url points at youtube activate`() {
         val code = service.parseDeviceCode(json("""{"device_code": "dev", "user_code": "CODE"}"""))
 
-        assertEquals(YouTubeService.ACTIVATION_URL, code?.verificationUrl)
+        assertEquals(YouTubeInnerTube.ACTIVATION_URL, code?.verificationUrl)
     }
 
     @Test

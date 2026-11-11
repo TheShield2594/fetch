@@ -16,45 +16,47 @@ import com.fetch.desktop.youtube.ReturnYouTubeDislikeClient
 import com.fetch.desktop.youtube.SponsorBlockClient
 import com.fetch.desktop.youtube.YOUTUBE_HOME_ROW_CACHE_TTL_MS
 import com.fetch.desktop.youtube.MpvOsdNote
-import com.fetch.desktop.youtube.YouTubeAccount
 import com.fetch.desktop.youtube.YouTubeCaptionPreference
 import com.fetch.desktop.youtube.YouTubeCaptionTrack
 import com.fetch.desktop.youtube.YouTubeCaptions
 import com.fetch.desktop.youtube.cues
-import com.fetch.desktop.youtube.YouTubeLikeStatus
 import com.fetch.desktop.youtube.YouTubePlayerExtras
 import com.fetch.desktop.youtube.YouTubeSkipNotice
-import com.fetch.desktop.youtube.YouTubeStoryboard
 import com.fetch.desktop.youtube.YouTubeUpNext
 import com.fetch.desktop.youtube.YouTubeUpNextPrompt
-import com.fetch.desktop.youtube.YouTubeVideoActions
+import com.fetch.desktop.youtube.label
 import com.fetch.desktop.youtube.youTubeExtras
 import com.fetch.desktop.youtube.YouTubeAuthStore
-import com.fetch.desktop.youtube.YouTubeBrowseTarget
-import com.fetch.desktop.youtube.YouTubeChannelTab
 import com.fetch.desktop.youtube.YouTubeClient
-import com.fetch.desktop.youtube.YouTubeDeviceCode
-import com.fetch.desktop.youtube.YouTubeFeed
-import com.fetch.desktop.youtube.YouTubeLinkKind
 import com.fetch.desktop.youtube.YouTubeLocalData
-import com.fetch.desktop.youtube.YouTubePage
 import com.fetch.desktop.youtube.YouTubePlayback
-import com.fetch.desktop.youtube.YouTubePlaylistOption
-import com.fetch.desktop.youtube.YouTubePlaylistPrivacy
 import com.fetch.desktop.youtube.YouTubeSettings
-import com.fetch.desktop.youtube.YouTubeShelf
-import com.fetch.desktop.youtube.YouTubeSignedOutException
-import com.fetch.desktop.youtube.YouTubeTokenPollResult
-import com.fetch.desktop.youtube.YouTubeVideo
-import com.fetch.desktop.youtube.YouTubeWatchNext
-import com.fetch.desktop.youtube.YouTubeWatchSession
 import com.fetch.desktop.youtube.addRecentSearch
 import com.fetch.desktop.youtube.appendPage
 import com.fetch.desktop.youtube.updateResumePoints
-import com.fetch.desktop.youtube.withBranding
 import com.fetch.desktop.youtube.youTubeHomeRowAllowed
 import com.fetch.desktop.youtube.youTubeHomeRowVideos
 import com.fetch.desktop.youtube.youTubeResumeStart
+import com.fetch.tv.data.youtube.YouTubeAccount
+import com.fetch.tv.data.youtube.YouTubeBrowseTarget
+import com.fetch.tv.data.youtube.YouTubeChannelTab
+import com.fetch.tv.data.youtube.YouTubeDeviceCode
+import com.fetch.tv.data.youtube.YouTubeFeed
+import com.fetch.tv.data.youtube.YouTubeInnerTube
+import com.fetch.tv.data.youtube.YouTubeLikeStatus
+import com.fetch.tv.data.youtube.YouTubeLinkKind
+import com.fetch.tv.data.youtube.YouTubePage
+import com.fetch.tv.data.youtube.YouTubePlaylistOption
+import com.fetch.tv.data.youtube.YouTubePlaylistPrivacy
+import com.fetch.tv.data.youtube.YouTubeShelf
+import com.fetch.tv.data.youtube.YouTubeSignedOutException
+import com.fetch.tv.data.youtube.YouTubeStoryboard
+import com.fetch.tv.data.youtube.YouTubeTokenPollResult
+import com.fetch.tv.data.youtube.YouTubeVideo
+import com.fetch.tv.data.youtube.YouTubeVideoActions
+import com.fetch.tv.data.youtube.YouTubeWatchNext
+import com.fetch.tv.data.youtube.YouTubeWatchSession
+import com.fetch.tv.data.youtube.withBranding
 import com.fetch.tv.domain.model.Stream
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -528,8 +530,8 @@ class YouTubeState(
     /** Adds [video] to Watch later, or (on the Watch later page) takes it out. */
     fun setWatchLater(video: YouTubeVideo, save: Boolean) {
         scope.launch {
-            if (action { client.setInPlaylist(YouTubeClient.WATCH_LATER_PLAYLIST_ID, video.videoId, save) }) {
-                if (!save) removeFromPage(YouTubeClient.WATCH_LATER_BROWSE_ID, video.videoId)
+            if (action { client.setInPlaylist(YouTubeInnerTube.WATCH_LATER_PLAYLIST_ID, video.videoId, save) }) {
+                if (!save) removeFromPage(YouTubeInnerTube.WATCH_LATER_BROWSE_ID, video.videoId)
                 host.message(if (save) "Saved to Watch later" else "Removed from Watch later")
             }
         }

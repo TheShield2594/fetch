@@ -6,6 +6,13 @@ import com.fetch.desktop.data.PlayerSettings
 import com.fetch.desktop.data.SubtitleMode
 import com.fetch.desktop.skip.SegmentType
 import com.fetch.desktop.skip.SkipPlanner
+import com.fetch.tv.data.youtube.SponsorBlockCategory
+import com.fetch.tv.data.youtube.SponsorBlockMode
+import com.fetch.tv.data.youtube.YouTubeFeedFilter
+import com.fetch.tv.data.youtube.YouTubePage
+import com.fetch.tv.data.youtube.YouTubeShelf
+import com.fetch.tv.data.youtube.YouTubeSkipSegment
+import com.fetch.tv.data.youtube.YouTubeVideo
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

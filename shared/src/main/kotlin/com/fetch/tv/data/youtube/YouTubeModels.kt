@@ -1,5 +1,7 @@
 package com.fetch.tv.data.youtube
 
+import kotlinx.serialization.Serializable
+
 /** One video tile from a YouTube feed, search result or shelf. */
 data class YouTubeVideo(
     val videoId: String,
@@ -145,6 +147,7 @@ enum class SponsorBlockCategory(val apiName: String, val defaultMode: SponsorBlo
 }
 
 /** What playback does with a SponsorBlock category's segments. */
+@Serializable
 enum class SponsorBlockMode {
     /** Jumps past it, with a notice that can undo the jump. */
     SKIP,
@@ -215,7 +218,7 @@ data class YouTubePlaylistOption(
     val containsVideo: Boolean
 ) {
     val isWatchLater: Boolean
-        get() = playlistId == YouTubeService.WATCH_LATER_PLAYLIST_ID
+        get() = playlistId == YouTubeInnerTube.WATCH_LATER_PLAYLIST_ID
 }
 
 /** Who can see a new playlist. [apiValue] is InnerTube's `privacyStatus`. */
@@ -234,21 +237,22 @@ enum class YouTubeLikeStatus {
 /** What the signed-in TV player says about a video, beyond the streams Fetch gets elsewhere. */
 data class YouTubePlayerInfo(
     val trackingLinks: Pair<String, String>?,
-    val captions: kotlinx.serialization.json.JsonElement?,
+    val captions: kotlinx.serialization.json.JsonElement? = null,
     /** The `playerStoryboardSpecRenderer` spec, for thumbnails while seeking. */
     val storyboardSpec: String? = null
 )
 
 /** One playback that YouTube is told about, so it shows in the account's history. */
-class YouTubeWatchSession internal constructor(
+class YouTubeWatchSession(
     val videoId: String,
-    internal val playbackUrl: String,
-    internal val watchtimeUrl: String,
-    internal val clientPlaybackNonce: String,
-    @Volatile internal var lastPositionSec: Float
+    val playbackUrl: String,
+    val watchtimeUrl: String,
+    val clientPlaybackNonce: String,
+    @Volatile var lastPositionSec: Float
 ) {
+    /** A report has been sent; set by the client that sends it. */
     @Volatile
-    internal var recorded: Boolean = false
+    var recorded: Boolean = false
 
     /**
      * Playback resumed at [positionSec] rather than the start, so the first report covers what's
@@ -257,7 +261,7 @@ class YouTubeWatchSession internal constructor(
      */
     fun startAt(positionSec: Float) {
         if (recorded) return
-        lastPositionSec = if (positionSec < YouTubeService.HISTORY_START_THRESHOLD_SEC) 0f else positionSec
+        lastPositionSec = if (positionSec < YouTubeInnerTube.HISTORY_START_THRESHOLD_SEC) 0f else positionSec
     }
 }
 
@@ -276,7 +280,10 @@ data class YouTubeDeviceCode(
     val userCode: String,
     val verificationUrl: String,
     val expiresInSeconds: Int,
-    val intervalSeconds: Int
+    val intervalSeconds: Int,
+    /** The TV client the code was asked for; the token request must use the same one. */
+    val clientId: String = YouTubeInnerTube.CLIENT_ID,
+    val clientSecret: String = YouTubeInnerTube.CLIENT_SECRET
 )
 
 data class YouTubeToken(
@@ -296,3 +303,9 @@ sealed interface YouTubeTokenPollResult {
 
 /** Thrown when YouTube no longer accepts the saved sign-in, so the user must sign in again. */
 class YouTubeSignedOutException : Exception("YouTube sign-in expired")
+
+/** [this] with DeArrow's community title and thumbnail in place of YouTube's, where it has them. */
+fun YouTubeVideo.withBranding(branding: YouTubeBranding?): YouTubeVideo {
+    if (branding == null) return this
+    return copy(title = branding.title ?: title, thumbnailUrl = branding.thumbnailUrl ?: thumbnailUrl)
+}

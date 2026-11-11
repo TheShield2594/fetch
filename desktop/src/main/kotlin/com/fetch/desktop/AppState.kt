@@ -153,7 +153,7 @@ sealed interface Screen {
     /** The YouTube page (sidebar, while signed in): its feeds and search. */
     data object YouTube : Screen
     /** A YouTube channel, playlist or "View all" page opened from it. */
-    data class YouTubeBrowse(val target: com.fetch.desktop.youtube.YouTubeBrowseTarget) : Screen
+    data class YouTubeBrowse(val target: com.fetch.tv.data.youtube.YouTubeBrowseTarget) : Screen
     /** A collection folder's page (see [com.fetch.desktop.collections.CollectionsState]). */
     data class Folder(val collectionId: String, val folderId: String) : Screen
 }
@@ -786,7 +786,7 @@ class AppState(
             }
             override val currentPlayer get() = playerSession
             override fun closePlayer() = this@AppState.closePlayer()
-            override fun openBrowse(target: com.fetch.desktop.youtube.YouTubeBrowseTarget) = navigate(Screen.YouTubeBrowse(target))
+            override fun openBrowse(target: com.fetch.tv.data.youtube.YouTubeBrowseTarget) = navigate(Screen.YouTubeBrowse(target))
         },
         com.fetch.desktop.youtube.youTubeAuthFile(profileDir(profile)),
         com.fetch.desktop.youtube.youTubeDataFile(profileDir(profile))
